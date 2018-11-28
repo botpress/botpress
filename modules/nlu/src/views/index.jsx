@@ -3,12 +3,15 @@ import classnames from 'classnames'
 import { Collapse, Button, Checkbox, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 
-import IntentEditor from './intents'
-import SyncConfirmModal from './sync'
+import EntitiesComponent from './entities'
 
+import IntentEditor from './intents'
 import style from './style.scss'
 
 const isHiddenIntent = ({ name }) => name.startsWith('__')
+
+// Exports SubViews
+export const entities = props => <EntitiesComponent props={props} />
 
 export default class Module extends React.Component {
   state = {
@@ -114,7 +117,7 @@ export default class Module extends React.Component {
   }
 
   deleteIntent = intent => {
-    const confirmDelete = window.confirm(`Are you sure you wish to delete the intent "${intent}" ?`)
+    const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
       return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(this.fetchIntents)
     }

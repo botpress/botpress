@@ -5,6 +5,8 @@ import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 
+import { Collapse } from 'react-bootstrap'
+
 import ReactSidebar from 'react-sidebar'
 import SidebarHeader from './SidebarHeader'
 
@@ -50,7 +52,8 @@ class Sidebar extends React.Component {
 
   state = {
     sidebarOpen: false,
-    sidebarDocked: false
+    sidebarDocked: false,
+    nluCollapseOpen: false
   }
 
   onSetSidebarOpen = open => {
@@ -71,6 +74,11 @@ class Sidebar extends React.Component {
     this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
+  toggleNluCollapse = event => {
+    event.preventDefault()
+    this.setState({ nluCollapseOpen: !this.state.nluCollapseOpen })
+  }
+
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
     const iconPath = `/assets/module/${module.name}/icon.png`
@@ -84,10 +92,24 @@ class Sidebar extends React.Component {
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+          <NavLink to={path} title={module.menuText} onClick={this.toggleNluCollapse}>
             {moduleIcon}
             <span>Understanding</span>
           </NavLink>
+          <Collapse in={this.state.nluCollapseOpen}>
+            <ul>
+              <li>
+                <NavLink to={path + '/entities'} title={module.menuText} activeClassName={style.active}>
+                  <span>Entities</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+                  <span>Intents</span>
+                </NavLink>
+              </li>
+            </ul>
+          </Collapse>
         </li>
       )
     } else {
