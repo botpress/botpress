@@ -81,14 +81,25 @@ class Sidebar extends React.Component {
         <i className="icon material-icons">{module.menuIcon}</i>
       )
 
-    return (
-      <li key={`menu_module_${module.name}`}>
-        <NavLink to={path} title={module.menuText} activeClassName={style.active}>
-          {moduleIcon}
-          <span>{module.menuText}</span>
-        </NavLink>
-      </li>
-    )
+    if (module.name === 'nlu') {
+      return (
+        <li key={`menu_module_${module.name}`}>
+          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+            {moduleIcon}
+            <span>Understanding</span>
+          </NavLink>
+        </li>
+      )
+    } else {
+      return (
+        <li key={`menu_module_${module.name}`}>
+          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+            {moduleIcon}
+            <span>{module.menuText}</span>
+          </NavLink>
+        </li>
+      )
+    }
   }
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => {

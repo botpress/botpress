@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
-import { Collapse, Button, Checkbox } from 'react-bootstrap'
+import { Collapse, Button, Checkbox, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 
 import IntentEditor from './intents'
@@ -113,6 +113,13 @@ export default class Module extends React.Component {
     })
   }
 
+  deleteIntent = intent => {
+    const confirmDelete = window.confirm(`Are you sure you wish to delete the intent "${intent}" ?`)
+    if (confirmDelete) {
+      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(this.fetchIntents)
+    }
+  }
+
   renderCategory() {
     const intents = this.getFilteredIntents()
 
@@ -137,9 +144,12 @@ export default class Module extends React.Component {
           <ul className={style.intentsList}>
             {intents.map((el, i) => (
               <li key={i} className={getClassName(el)} onClick={() => this.setCurrentIntent(el.name)}>
-                {el.name}
-                &nbsp;(
-                {_.get(el, 'utterances.length') || 0})
+                <span>
+                  {el.name}
+                  &nbsp;(
+                  {_.get(el, 'utterances.length') || 0})
+                </span>
+                <Glyphicon className={style.deleteIntent} glyph="trash" onClick={() => this.deleteIntent(el.name)} />
               </li>
             ))}
           </ul>

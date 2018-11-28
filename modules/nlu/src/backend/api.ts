@@ -16,12 +16,12 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.delete('/intents/:intent', async (req, res) => {
     await (nlus[req.params.botId] as ScopedEngine).storage.deleteIntent(req.params.intent)
-    res.sendStatus(200)
+    res.sendStatus(204)
   })
 
   router.post('/intents/:intent', async (req, res) => {
     await (nlus[req.params.botId] as ScopedEngine).storage.saveIntent(req.params.intent, req.body)
-    res.sendStatus(200)
+    res.sendStatus(201)
   })
 
   router.get('/entities', async (req, res) => {
