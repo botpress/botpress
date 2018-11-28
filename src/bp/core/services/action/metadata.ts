@@ -1,6 +1,7 @@
 import doctrine from 'doctrine'
 import { meta } from 'joi'
 import _ from 'lodash'
+import yn from 'yn'
 
 // Credit: https://stackoverflow.com/questions/35905181/regex-for-jsdoc-comments
 const JSDocCommentRegex = /\/\*\*\s*\n([^\*]|(\*(?!\/)))*\*\//gi
@@ -10,6 +11,7 @@ export type ActionMetadata = {
   category: string
   description: string
   author: string
+  hidden: boolean
   params: {
     type: string
     required: boolean
@@ -25,6 +27,7 @@ export const extractMetadata = (code: string) => {
     category: '',
     description: '',
     author: '',
+    hidden: false,
     params: []
   }
 
@@ -55,6 +58,11 @@ export const extractMetadata = (code: string) => {
   const title = _.find(extracted.tags, { title: 'title' })
   if (title) {
     metadata.title = (title as any).description || ''
+  }
+
+  const hidden = _.find(extracted.tags, { title: 'hidden' })
+  if (hidden) {
+    metadata.hidden = yn((hidden as any).description)
   }
 
   metadata.params = _.filter(extracted.tags, { title: 'param' }).map(tag => {

@@ -133,6 +133,37 @@ declare module 'botpress/sdk' {
     public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
+  export namespace NLU {
+    export interface Intent {
+      name: string
+      confidence: number
+      matches: (intentPattern: string) => boolean
+    }
+
+    export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
+
+    export interface Entity {
+      type: string
+      meta: EntityMeta
+      data: EntityBody
+    }
+
+    export interface EntityBody {
+      extras: any
+      value: any
+      unit: string
+    }
+
+    export interface EntityMeta {
+      confidence: number
+      provider: string
+      source: string
+      start: number
+      end: number
+      raw: any
+    }
+  }
+
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -146,7 +177,7 @@ declare module 'botpress/sdk' {
      * These are the arguments required when creating a new {@link Event}
      */
     interface EventCtorArgs {
-      id?: Number
+      id?: string
       type: string
       channel: string
       target: string
@@ -155,6 +186,7 @@ declare module 'botpress/sdk' {
       payload: any
       threadId?: string
       botId: string
+      suggestedReplies?: SuggestedReply[]
     }
 
     /**
@@ -162,22 +194,15 @@ declare module 'botpress/sdk' {
      * that make up a conversation. That means the different message types (text, image, buttons, carousels etc) but also
      * the navigational events (chat open, user typing) and contextual events (user returned home, order delivered).
      */
-    export interface Event {
-      readonly id: Number
+    export type Event = EventDestination & {
+      /** A sortable unique identifier for that event (time-based) */
+      readonly id: string
       /** The type of the event, i.e. image, text, timeout, etc */
       readonly type: string
-      /** The channel of communication, i.e web, messenger, twillio */
-      readonly channel: string
-      /** Who will receive this message, usually a user id */
-      readonly target: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
       readonly direction: EventDirection
       /** The channel-specific raw payload */
       readonly payload: any
-      /** The id of the bot on which this event is relating to  */
-      readonly botId: string
-      /** The id of the thread this message is relating to (only on supported channels) */
-      readonly threadId?: string
       /** A textual representation of the event */
       readonly preview: string
       /**
@@ -197,6 +222,84 @@ declare module 'botpress/sdk' {
     }
 
     /**
+     * The EventDestination includes all the required parameters to correctly dispatch the event to the correct target
+     */
+    export interface EventDestination {
+      /** The channel of communication, i.e web, messenger, twillio */
+      readonly channel: string
+      /** Who will receive this message, usually a user id */
+      readonly target: string
+      /** The id of the bot on which this event is relating to  */
+      readonly botId: string
+      /** The id of the thread this message is relating to (only on supported channels) */
+      readonly threadId?: string
+    }
+
+    export interface EventUnderstanding {
+      readonly intent: NLU.Intent
+      readonly intents: NLU.Intent[]
+      readonly language: string
+      readonly entities: NLU.Entity[]
+    }
+
+    export interface IncomingEvent extends Event {
+      /** Array of possible suggestions that the Decision Engine can take  */
+      readonly suggestedReplies?: SuggestedReply[]
+      /** Contains data related to the state of the event */
+      readonly state: EventState
+      /** Holds NLU extraction results (when the event is natural language) */
+      readonly nlu?: EventUnderstanding
+    }
+
+    export interface SuggestedReply {
+      /** Number between 0 and 1 indicating how confident the module is about its suggestion */
+      confidence: number
+      /** An array of the raw payloads to send as an answer */
+      payloads: any[]
+      /** The intent of the reply given by the NLU */
+      intent?: string
+    }
+
+    export interface EventState {
+      user: User
+      context: DialogContext
+      session: CurrentSession
+    }
+
+    export interface DialogContext {
+      previousFlow?: string
+      previousNode?: string
+      currentNode?: string
+      currentFlow?: string
+      queue?: any
+      data?: any
+    }
+
+    export interface CurrentSession {
+      lastMessages: MessageHistory[]
+    }
+
+    export interface MessageHistory {
+      intent?: string
+      user: string
+      reply: string
+    }
+
+    /**
+     * Call next with an error as first argument to throw an error
+     * Call next with true as second argument to swallow the event (i.e. stop the processing chain)
+     * Call next with no parameters or false as second argument to continue processing to next middleware
+     */
+    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean) => void
+
+    /**
+     * The actual middleware function that gets executed. It receives an event and expects to call next()
+     * Not calling next() will result in a middleware timeout and will stop processing
+     * If you intentionally want to stop processing, call `next(null, false)`
+     */
+    export type MiddlewareHandler = (event: Event, next: MiddlewareNextCallback) => void
+
+    /**
      * The Middleware Definition is used by the event engine to register a middleware in the chain. The order in which they
      * are executed is important, since some may require previous processing, while others can swallow the events.
      * Incoming chain is executed when the bot receives an event.
@@ -209,10 +312,9 @@ declare module 'botpress/sdk' {
       /** The position in which this middleware should intercept messages in the middleware chain. */
       order: number
       /** A method with two parameters (event and a callback) used to handle the event */
-      handler: Function
+      handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
-      enabled: boolean
     }
 
     export interface EventConstructor {
@@ -222,18 +324,12 @@ declare module 'botpress/sdk' {
     export const Event: EventConstructor
   }
 
-  export type UserAttribute = { key: string; value: string; type: string }
-
-  export type UserAttributeMap = UserAttribute[] & {
-    get(key: string): string | undefined
-  }
-
   export type User = {
     id: string
     channel: string
     createdOn: Date
     updatedOn: Date
-    attributes: UserAttributeMap
+    attributes: any
     otherChannels?: User[]
   }
 
@@ -358,11 +454,6 @@ declare module 'botpress/sdk' {
      * This function resides in the javascript definition of the Content Type.
      */
     computePreviewText?: (formData: object) => string
-    /**
-     * Function that computes the form data of the content type.
-     * This function resides in the javascript definition of the Content Type.
-     */
-    computeData?: (typeId: string, formData: object) => object
   }
 
   /**
@@ -596,10 +687,10 @@ declare module 'botpress/sdk' {
      * and will send a complete event with each payloads. It is often paired with
      * {@link cms.renderElement} to generate payload for a specific content type
      *
-     * @param event - An original event to reply to
+     * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(event: IO.Event, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -616,7 +707,7 @@ declare module 'botpress/sdk' {
     /**
      * Update attributes of a specific user
      */
-    export function updateAttributes(channel: string, userId: string, attributes: UserAttribute[]): Promise<void>
+    export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
@@ -632,33 +723,20 @@ declare module 'botpress/sdk' {
    */
   export namespace dialog {
     /**
-     * Create a session Id from a Botpress Event
-     * @param event The event used to create the Dialog Session Id
+     * Create a session Id from an Event Destination
+     * @param eventDestination The event used to create the Dialog Session Id
      */
-    export function createId(event: IO.Event): Promise<string>
+    export function createId(eventDestination: IO.EventDestination): string
     /**
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(sessionId: string, event: IO.Event): Promise<void>
+    export function processEvent(sessionId: string, event: IO.IncomingEvent): Promise<void>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
      */
     export function deleteSession(sessionId: string): Promise<void>
-    /**
-     * Gets the state object of a session
-     * @param sessionId The session Id from which to get the state
-     */
-    export function getState(sessionId: string): Promise<void>
-    /**
-     * Sets a new state for the session. **The state will be overwritten**.
-     * @param sessionId The Id of the session
-     * @param state The state object to set in the session.
-     * @example
-     * bp.dialog.setState(sessionId, {...state, newProp: 'a new property'})
-     */
-    export function setState(sessionId: string, state: State): Promise<void>
 
     /**
      * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
@@ -744,14 +822,26 @@ declare module 'botpress/sdk' {
 
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
     /**
-     * Use a specific content type renderer to parse the data and returns one or multiple payloads that may then be send to a user.
-     * The channel is important since the data is displayed differently on different platforms.
-     * @param contentTypeId - The ID of the content type
-     * @param payload - The payload must match the data that the content type requires
-     * @param channel - The name of the channel where the payload will be used
+     * Content Types can produce multiple payloads depending on the channel and the type of message. This method can generate
+     * payloads for a specific content element or generate them for a custom payload.
+     * They can then be sent to the event engine, which sends them through the outgoing middlewares, straight to the user
+     *
+     * @param contentId - Can be a ContentType (ex: "builtin_text") or a ContentElement (ex: "!builtin_text-s6x5c6")
+     * @param args - Required arguments by the content type (or the content element)
+     * @param eventDestination - The destination of the payload (to extract the botId and channel)
+     *
+     * @example const eventDestination = { target: 'user123', botId: 'welcome-bot', channel: 'web', threadId: 1 }
+     * @example const payloads = await bp.cms.renderElement('builtin_text', {type: 'text', text: 'hello'}, eventDestination)
+     * @example await bp.events.replyToEvent(eventDestination, payloads)
+     *
      * @returns An array of payloads
      */
-    export function renderElement(contentTypeId: string, payload: any, channel: string): Promise<object[]>
+    export function renderElement(
+      contentId: string,
+      args: any,
+      eventDestination: IO.EventDestination
+    ): Promise<object[]>
+
     export function createOrUpdateContentElement(
       botId: string,
       contentTypeId: string,

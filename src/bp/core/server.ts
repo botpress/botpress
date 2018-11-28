@@ -7,7 +7,7 @@ import { UnlicensedError } from 'errors'
 import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
 
@@ -15,21 +15,25 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { ContentRouter } from './routers/bots/content'
+import { ConverseRouter } from './routers/bots/converse'
+import { VersioningRouter } from './routers/bots/versioning'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
-import { CMSService } from './services/cms/cms-service'
+import { CMSService } from './services/cms'
+import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
 import { TYPES } from './types'
-const BASE_API_PATH = '/api/v1'
 
+const BASE_API_PATH = '/api/v1'
 const isProd = process.env.NODE_ENV === 'production'
 
 @injectable()
@@ -39,9 +43,12 @@ export default class HTTPServer {
 
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
-  private readonly modulesRouter: ModulesRouter
   private readonly botsRouter: BotsRouter
+  private contentRouter!: ContentRouter
+  private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
+  private versioningRouter!: VersioningRouter
+  private converseRouter!: ConverseRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -50,7 +57,7 @@ export default class HTTPServer {
     private logger: Logger,
     @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
-    @inject(TYPES.CMSService) cmsService: CMSService,
+    @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
@@ -60,8 +67,9 @@ export default class HTTPServer {
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
-    @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.LicensingService) licenseService: LicensingService
+    @inject(TYPES.GhostService) private ghostService: GhostService,
+    @inject(TYPES.LicensingService) licenseService: LicensingService,
+    @inject(TYPES.ConverseService) private converseService: ConverseService
   ) {
     this.app = express()
 
@@ -78,7 +86,7 @@ export default class HTTPServer {
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
-      cmsService,
+      configProvider,
       flowService,
       mediaService,
       logsService,
@@ -87,6 +95,17 @@ export default class HTTPServer {
       adminService,
       ghostService
     })
+  }
+
+  @postConstruct()
+  async initialize() {
+    await this.botsRouter.initialize()
+    this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
+    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService)
+    this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
@@ -149,6 +168,8 @@ export default class HTTPServer {
 
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
+    process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
     }
@@ -198,7 +219,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
     return {
-      baseURL: `http://${process.HOST || 'localhost'}:${process.PORT}/api/v1/bots/${botId}`
+      baseURL: `${process.EXTERNAL_URL}/api/v1/bots/${botId}`
     }
   }
 }

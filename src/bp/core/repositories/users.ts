@@ -1,31 +1,25 @@
-import { Paging, User, UserAttribute, UserAttributeMap } from 'botpress/sdk'
+import { Paging, User } from 'botpress/sdk'
+import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
-
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
-  updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void>
+  updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
-}
-
-function channelUserAttributes(arr: UserAttribute[] = []): UserAttributeMap {
-  (arr as UserAttributeMap).get = (key: string): string | undefined => {
-    const match = arr.find(x => x.key.toLowerCase() === key.toLowerCase())
-    return (match && match.value) || undefined
-  }
-
-  return arr as UserAttributeMap
 }
 
 @injectable()
 export class KnexUserRepository implements UserRepository {
   private readonly tableName = 'srv_channel_users'
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+  ) {}
 
   async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
@@ -46,7 +40,7 @@ export class KnexUserRepository implements UserRepository {
         id: id,
         createdOn: ug.created_at,
         updatedOn: ug.updated_at,
-        attributes: channelUserAttributes(this.database.knex.json.get(ug.attributes)),
+        attributes: this.database.knex.json.get(ug.attributes),
         otherChannels: []
       }
 
@@ -56,11 +50,11 @@ export class KnexUserRepository implements UserRepository {
     await this.database.knex(this.tableName).insert({
       channel,
       user_id: id,
-      attributes: this.database.knex.json.set([])
+      attributes: this.database.knex.json.set({})
     })
 
     const newUser: User = {
-      attributes: channelUserAttributes([]),
+      attributes: {},
       channel: channel,
       id,
       createdOn: new Date(),
@@ -71,19 +65,29 @@ export class KnexUserRepository implements UserRepository {
     return { result: newUser, created: true }
   }
 
-  async updateAttributes(channel: string, id: string, attributes: UserAttribute[]): Promise<void> {
+  async getAttributes(channel: string, user_id: string): Promise<any> {
+    const user = await this.database
+      .knex(this.tableName)
+      .where({ channel, user_id })
+      .limit(1)
+      .select('attributes')
+      .first()
+
+    return this.database.knex.json.get(user.attributes)
+  }
+
+  async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
     channel = channel.toLowerCase()
 
-    if (!attributes || attributes.length === undefined) {
-      throw new Error('Attributes must be an array of ChannelUserAttribute')
+    if (await this.dataRetentionService.hasPolicy()) {
+      const originalAttributes = await this.getAttributes(channel, user_id)
+      await this.dataRetentionService.updateExpirationForChangedFields(channel, user_id, originalAttributes, attributes)
     }
 
     await this.database
       .knex(this.tableName)
-      .update({
-        attributes: this.database.knex.json.set(attributes)
-      })
-      .where({ channel, user_id: id })
+      .update({ attributes: this.database.knex.json.set(attributes) })
+      .where({ channel, user_id })
   }
 
   async getAllUsers(paging?: Paging) {

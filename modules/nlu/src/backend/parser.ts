@@ -1,8 +1,6 @@
 import _ from 'lodash'
 
 export default class Parser {
-  constructor() {}
-
   extractLabelsFromCanonical(canonicalUtterance, intentEntities) {
     const labels = []
     let plainText = ''

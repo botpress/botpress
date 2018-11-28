@@ -20,8 +20,8 @@ export default class WebchatDb {
   async getUserInfo(userId) {
     const { result: user } = await this.users.getOrCreateUser('web', userId)
 
-    const fullName = `${user.attributes.get('first_name')} ${user.attributes.get('last_name')}`
-    const avatar = (user && user.attributes.get('picture_url')) || undefined
+    const fullName = `${user.attributes['first_name']} ${user.attributes['last_name']}`
+    const avatar = (user && user.attributes['picture_url']) || undefined
 
     return {
       fullName,
@@ -268,6 +268,7 @@ export default class WebchatDb {
     }
 
     return query
+      .whereNot({ message_type: 'visit' })
       .orderBy('sent_on', 'desc')
       .limit(20)
       .then()

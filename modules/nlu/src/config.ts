@@ -3,65 +3,41 @@ export interface Config {
    * @default ./intents
    */
   intentsDir: string
+
   /**
    * @default ./entities
    */
   entitiesDir: string
+
   /**
    * @default ./models
    */
   modelsDir: string
+
   /**
-   * The name of the NLU provider. Can be native, rasa, luis
-   * @default native
+   * If you compiled fastText yourself and need to point to its location
+   * In most cases you shouldn't have to set this as we ship with pre-built fastText binaries
    */
-  provider: string
-  /**
-   * Enable logging of debug messages
-   * @default true
-   */
-  debugModeEnabled: boolean
+  fastTextPath?: string
+
   /**
    * The minimum confidence required (in %) for an intent to match
    * Set to '0' to always match
-   * @default 0.3
+   * @default 0.7
    */
-  minimumConfidence: string
-  /**
-   * The maximum confidence after which it is considered a statistical error
-   * Mostly irrelevant
-   * @default 100
-   */
-  maximumConfidence: string
-
-  recastToken?: string
-  recastUserSlug?: string
-  recastBotSlug?: string
+  confidenceTreshold: number
 
   /**
-   * @default http://localhost:5000
+   * If you want a fully on-prem installation, you can host
+   * Facebook's Duckling on your own infrastructure and change this URL
+   * Only relevant if @see ducklingEnabled is true
+   * @default https://duckling.botpress.io
    */
-  rasaEndpoint: string
-  rasaToken: string
-  /**
-   * @default botpress
-   */
-  rasaProject: string
-
-  luisAppId: string
-  luisProgrammaticKey: string
-  luisAppSecret: string
-  /**
-   * @default westus
-   */
-  luisAppRegion: string
-
-  googleProjectId: string
+  ducklingURL: string
 
   /**
-   * The maximum number of requests per hour
-   * Useful to make sure you don't overuse your budget on paid NLU-services (like LUIS)
-   * @default 1000
+   * Duckling
+   * @default true
    */
-  maximumRequestsPerHour: number
+  ducklingEnabled: boolean
 }

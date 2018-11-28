@@ -1,15 +1,15 @@
+import * as sdk from 'botpress/sdk'
+
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
 
-import { SDK } from '.'
+import { Config } from '../config'
 
-const formatFilename = name =>
+const sanitizeFilenameNoExt = name =>
   name
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/gi, '_')
-    .replace('.entities.json', '')
-    .replace('.entity.json', '')
     .replace('.json', '')
     .replace('.utterances.txt', '')
 
@@ -19,20 +19,22 @@ export interface AvailableModel {
 }
 
 export default class Storage {
-  private ghost: ScopedGhostService
-  private intentsDir: string
-  private entitiesDir: string
-  private modelsDir: string
+  static ghostProvider: (botId: string) => sdk.ScopedGhostService
 
-  constructor(bp: SDK, config, botId) {
-    this.ghost = bp.ghost.forBot(botId)
+  private readonly ghost: ScopedGhostService
+  private readonly intentsDir: string
+  private readonly entitiesDir: string
+  private readonly modelsDir: string
+
+  constructor(config: Config, private readonly botId: string) {
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
     this.modelsDir = config.modelsDir
+    this.ghost = Storage.ghostProvider(this.botId)
   }
 
   async saveIntent(intent, content) {
-    intent = formatFilename(intent)
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -54,7 +56,7 @@ export default class Storage {
   }
 
   async deleteIntent(intent) {
-    intent = formatFilename(intent)
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -86,7 +88,7 @@ export default class Storage {
   }
 
   async getIntent(intent) {
-    intent = formatFilename(intent)
+    intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -112,27 +114,7 @@ export default class Storage {
   }
 
   async getCustomEntities() {
-    const entities = await this.ghost.directoryListing(this.entitiesDir, '.json')
-
-    return Promise.mapSeries(entities, entity => this.getCustomEntity(entity))
-  }
-
-  async getCustomEntity(entity) {
-    entity = formatFilename(entity)
-
-    if (entity.length < 1) {
-      throw new Error('Invalid entity name, expected at least one character')
-    }
-
-    const filename = `${entity}.entity.json`
-
-    const definitionContent = await this.ghost.readFileAsString(this.entitiesDir, filename)
-    const definition = JSON.parse(definitionContent)
-
-    return {
-      name: entity,
-      definition: definition
-    }
+    return []
   }
 
   async persistModel(modelBuffer: Buffer, modelName: string) {

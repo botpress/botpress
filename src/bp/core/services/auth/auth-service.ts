@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
+import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import Knex from 'knex'
@@ -21,7 +22,8 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database
+    @inject(TYPES.Database) private db: Database,
+    @inject(TYPES.Statistics) private stats: Statistics
   ) {}
 
   get knex(): Knex & KnexExtension {
@@ -56,6 +58,7 @@ export default class AuthService {
     const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password, user.salt)) {
+      this.stats.track('auth', 'login', 'fail')
       throw new InvalidCredentialsError()
     }
 
@@ -105,6 +108,7 @@ export default class AuthService {
 
   async login(username: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
     const userId = await this.checkUserAuth(username, password, newPassword)
+    this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {
       const hash = saltHashPassword(newPassword)

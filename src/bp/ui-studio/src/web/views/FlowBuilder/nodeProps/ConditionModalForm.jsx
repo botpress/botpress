@@ -46,20 +46,13 @@ export default class ConditionModalForm extends Component {
     this.setState({
       typeOfTransition: type,
       flowToSubflow: this.state.flowToSubflow || _.get(subflowOptions, '[0].value'),
-      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0].value')
+      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0].value'),
+      transitionError: null
     })
   }
 
   validation() {
     if (this.state.typeOfTransition === 'subflow' && !this.state.flowToSubflow) {
-      this.setState({
-        transitionError: 'You must select a subflow to transition to'
-      })
-
-      return false
-    }
-
-    if (this.state.typeOfTransition === 'node' && !this.state.flowToNode && this.getNodeOptions().length > 0) {
       this.setState({
         transitionError: 'You must select a subflow to transition to'
       })
@@ -128,7 +121,7 @@ export default class ConditionModalForm extends Component {
   }
 
   getSubflowOptions() {
-    return this.props.subflows.map(flow => ({
+    return this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
       label: flow,
       value: flow
     }))

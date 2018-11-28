@@ -54,7 +54,9 @@ export default class QnaAdmin extends Component {
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
-      const flowsList = data.map(({ name }) => ({ label: name, value: name }))
+      const flowsList = data
+        .filter(flow => !flow.name.startsWith('skills/'))
+        .map(({ name }) => ({ label: name, value: name }))
 
       this.setState({ flows: data, flowsList })
     })
@@ -79,9 +81,10 @@ export default class QnaAdmin extends Component {
 
   fetchCategories() {
     this.props.bp.axios.get('/mod/qna/categories').then(({ data: { categories } }) => {
-      const categoryOptions = categories.map(category => ({ label: category, value: category }))
-
-      this.setState({ categoryOptions })
+      if (categories) {
+        const categoryOptions = categories.map(category => ({ label: category, value: category }))
+        this.setState({ categoryOptions })
+      }
     })
   }
 
@@ -310,7 +313,7 @@ export default class QnaAdmin extends Component {
     const isRedirect = item.redirectFlow && item.redirectNode
 
     return (
-      <Well className={style.qnaItem} bsSize="small">
+      <Well className={style.qnaItem} bsSize="small" key={id}>
         <div className={style.itemContainer}>
           <div className={style.itemQuestions}>
             <span className={style.itemQuestionsTitle}>Q: </span>

@@ -1,14 +1,15 @@
 import 'bluebird-global'
+import { IO } from 'botpress/sdk'
 import 'jest-extended'
 import 'reflect-metadata'
 
 import { MiddlewareChain } from './middleware'
 
 describe('Middleware', () => {
-  let middleware: MiddlewareChain<any>
+  let middleware: MiddlewareChain
 
   beforeEach(() => {
-    middleware = new MiddlewareChain<any>({ timeoutInMs: 5 })
+    middleware = new MiddlewareChain({ timeoutInMs: 5 })
   })
 
   it('should call middleware in order', async () => {
@@ -28,8 +29,7 @@ describe('Middleware', () => {
     middleware.use(fn1)
     middleware.use(fn2)
 
-    const event = {}
-    await middleware.run(event)
+    await middleware.run({} as IO.Event)
 
     expect(mock1).toHaveBeenCalledBefore(mock2)
   })
@@ -46,7 +46,7 @@ describe('Middleware', () => {
     middleware.use(fn1)
     middleware.use(mock2)
 
-    const event = {}
+    const event = {} as IO.Event
     await middleware.run(event)
 
     expect(mock1).toHaveBeenCalled()
@@ -60,7 +60,7 @@ describe('Middleware', () => {
       mock(event)
     })
 
-    const event = {}
+    const event = {} as IO.Event
     await middleware.run(event)
     expect(mock).toHaveBeenCalledWith(event)
   })
@@ -72,6 +72,6 @@ describe('Middleware', () => {
       throw err
     })
 
-    expect(middleware.run({})).rejects.toEqual(err)
+    expect(middleware.run({} as IO.Event)).rejects.toEqual(err)
   })
 })

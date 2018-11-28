@@ -69,7 +69,7 @@ class ProfileUpdate extends Component {
           <Input
             name="firstName"
             onChange={this.onInputChanged}
-            onKeyPress={this.onInputKeyPEditress}
+            onKeyPress={this.onInputKeyPress}
             value={this.state.firstName}
           />
         </FormGroup>

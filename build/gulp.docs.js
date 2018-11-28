@@ -48,7 +48,8 @@ const alterReference = async () => {
     }
   })
 
-  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), $.html())
+  const fixedContentPaths = $.html().replace('../assets/', 'assets/')
+  fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), fixedContentPaths)
 }
 
 const buildReference = () => {

@@ -1,7 +1,8 @@
 const base = require('./_base.js')
 const Card = require('./builtin_card')
+const url = require('url')
 
-function renderForWeb(data) {
+function render(data) {
   const events = []
 
   if (data.typing) {
@@ -38,8 +39,8 @@ function renderForWeb(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web') {
-    return renderForWeb(data)
+  if (channel === 'web' || channel === 'api') {
+    return render(data)
   }
 
   return [] // TODO Handle channel not supported

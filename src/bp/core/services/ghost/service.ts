@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { isValidBotId } from 'common/validation'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -9,7 +10,6 @@ import tmp from 'tmp'
 import { VError } from 'verror'
 
 import { BotpressConfig } from '../../config/botpress.config'
-import { isValidBotId } from '../../misc/validation'
 import { TYPES } from '../../types'
 
 import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
@@ -21,6 +21,7 @@ const tar = require('tar')
 @injectable()
 export class GhostService {
   private config: Partial<BotpressConfig> | undefined
+  private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
 
   public get isGhostEnabled() {
     return _.get(this.config, 'ghost.enabled', false)
@@ -55,7 +56,11 @@ export class GhostService {
       throw new Error(`Invalid botId "${botId}"`)
     }
 
-    return new ScopedGhostService(
+    if (this._scopedGhosts.has(botId)) {
+      return this._scopedGhosts.get(botId)!
+    }
+
+    const scopedGhost = new ScopedGhostService(
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
@@ -63,6 +68,9 @@ export class GhostService {
       this.cache,
       this.logger
     )
+
+    this._scopedGhosts.set(botId, scopedGhost)
+    return scopedGhost
   }
 }
 

@@ -88,7 +88,7 @@ export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch =
   const specificCategory = `${window.BOT_API_PATH}/content/${id}/elements`
   return axios
     .get(id && id != 'all' ? specificCategory : allCategories, {
-      params: { from, count, searchTerm }
+      params: { from, count, searchTerm, orderBy: 'modifiedOn' }
     })
     .then(({ data }) => dispatch(receiveContentItems(data)))
 }
@@ -148,8 +148,6 @@ export const fetchLicense = () => dispatch => {
 }
 
 // UI
-export const toggleLicenseModal = createAction('UI/TOGGLE_LICENSE_MODAL')
-export const toggleAboutModal = createAction('UI/TOGGLE_ABOUT_MODAL')
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
 export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 

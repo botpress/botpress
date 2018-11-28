@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -9,21 +10,31 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
+import { ObjectCache } from '../ghost'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
 @injectable()
 export default class ActionService {
+  private _scopedActions: Map<string, ScopedActionService> = new Map()
+
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
     private logger: Logger
   ) {}
 
   forBot(botId: string): ScopedActionService {
-    return new ScopedActionService(this.ghost, this.logger, botId)
+    if (this._scopedActions.has(botId)) {
+      return this._scopedActions.get(botId)!
+    }
+
+    const scopedGhost = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
+    this._scopedActions.set(botId, scopedGhost)
+    return scopedGhost
   }
 }
 
@@ -37,9 +48,27 @@ export type ActionDefinition = {
 }
 
 export class ScopedActionService {
-  constructor(private ghost: GhostService, private logger, private botId: string) {}
+  private _actionsCache: ActionDefinition[] | undefined
+  private _scriptsCache: Map<string, string> = new Map()
+
+  constructor(private ghost: GhostService, private logger, private botId: string, private cache: ObjectCache) {
+    this._listenForCacheInvalidation()
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf(`${path.sep}actions`) > -1) {
+        this._scriptsCache.clear()
+        this._actionsCache = undefined
+      }
+    })
+  }
 
   async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
+    if (this._actionsCache) {
+      return this._actionsCache
+    }
+
     // node_production_modules are node_modules that are compressed for production
     const exclude = ['**/node_modules/**', '**/node_production_modules/**']
     const globalActionsFiles = await this.ghost.global().directoryListing('actions', '*.js', exclude)
@@ -51,6 +80,7 @@ export class ScopedActionService {
       await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', includeMetadata))
     )
 
+    this._actionsCache = actions
     return actions
   }
 
@@ -74,6 +104,10 @@ export class ScopedActionService {
   }
 
   private async getActionScript(action: ActionDefinition): Promise<string> {
+    if (this._scriptsCache.has(action.name)) {
+      return this._scriptsCache.get(action.name)!
+    }
+
     let script: string
     if (action.location === 'global') {
       script = await this.ghost.global().readFileAsString('actions', action.name + '.js')
@@ -81,6 +115,7 @@ export class ScopedActionService {
       script = await this.ghost.forBot(this.botId).readFileAsString('actions', action.name + '.js')
     }
 
+    this._scriptsCache.set(action.name, script)
     return script
   }
 
@@ -103,7 +138,7 @@ export class ScopedActionService {
     return module => requireAtPaths(module, lookups)
   }
 
-  async runAction(actionName: string, dialogState: any, incomingEvent: any, actionArgs: any): Promise<any> {
+  async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
     this.logger.forBot(this.botId).debug(`Running "${actionName}"`)
     const action = await this.findAction(actionName)
@@ -127,9 +162,11 @@ export class ScopedActionService {
       sandbox: {
         bp: api,
         event: incomingEvent,
-        state: dialogState,
+        user: incomingEvent.state.user,
+        state: incomingEvent.state.context.data || {},
         args: actionArgs,
-        process: _.pick(process, 'HOST', 'PORT', 'env')
+        printObject: printObject,
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
       },
       require: {
         external: true,

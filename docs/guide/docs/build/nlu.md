@@ -108,13 +108,53 @@ NLU Extraction { text: 'they there bud',
 
 Entity Extraction helps you extract and normalize known entities from phrases.
 
+Attached to NLU extraction, you will find an entities property which is an array of Named, Known and Custom entities (more on that later).
+
+##### Example of extracted entity:
+
+input text : `Let's go for a 5 miles run`
+
+```sh
+{
+  type: 'distance',
+  meta: {
+    confidence: 1
+    provider: 'native',
+    source: '5 miles', // text from which the entity was extracted
+    start: 15, // beginning character index (5 in this case)
+    end: 22, // end character index
+  },
+  data: {
+    value : 5,
+    unit: 'mile',
+    extras: {}
+  }
+}
+```
+
+**Note**: In some cases you will find additional structured information in the extras object
+
+### Named Entity Recognition
+
+**TODO**
+
+### Known Entity Extraction
+
+We use [Duckling](https://github.com/facebook/duckling) under the hood for known entity extraction like Time, Ordinals and Quantities.
+
+At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
+
 ##### Example
 
-|              User said              | City  |    Date     |
-| :---------------------------------: | :---: | :---------: |
-| _"I want to fly to Dubai tomorrow"_ | Dubai | 01 Jan 2018 |
+|             User said             |    Type    | Value |   Unit   |
+| :-------------------------------: | :--------: | :---: | :------: |
+| _"Add 5 lbs of sugar to my cart"_ | "quantity" |   5   | "pounds" |
 
-**TODO**: Documentation on how to configure entity extraction missing
+**Note**: Confidence will always be 1 due to the rule based implementation of Duckling
+
+### Custom Entity Extraction
+
+**TODO**
 
 ## Providers
 
@@ -124,7 +164,6 @@ Botpress NLU ships with a native NLU engine (Botpress Native NLU) which doesn't 
 
 |  Provider  | Intent | Entity | Lang | Context |
 | :--------: | :----: | :----: | :--: | :-----: |
-|   Native   |   X    |        |  X   |         |
-|    RASA    |   X    |   X    |      |         |
+|   Native   |   X    |   X    |  X   |         |
 | DialogFlow |   X    |   X    |      |    X    |
 |    LUIS    |   X    |   X    |      |         |

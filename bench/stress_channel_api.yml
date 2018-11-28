@@ -1,0 +1,22 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 10 # lasts for 'X' seconds
+      arrivalRate: 1 # 'X' new users per second
+  payload:
+    path: 'users.csv'
+    fields: ['prefix', 'uuid']
+    order: 'sequence'
+  processor: './functions.js'
+scenarios:
+  - name: Each user sends 'X' messages to channel-api
+    flow:
+      - log: Testing channel-api
+      - function: 'setupTestId'
+      - loop:
+          - post:
+              url: '/api/v1/bots/welcome-bot/converse/{{ prefix }}{{ testId }}_{{ uuid }}'
+              json:
+                type: 'text'
+                text: 'U{{ testId }}_{{ uuid }}|M{{ $loopCount }}'
+        count: 50

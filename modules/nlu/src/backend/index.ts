@@ -1,34 +1,42 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
+import { Config } from '../config'
+
 import api from './api'
-import FTWrapper from './fasttext/fasttext.wrapper'
-import ScopedNlu from './scopednlu'
-import { initBot, initModule } from './setup'
+import { registerMiddleware } from './middleware'
+import fastText from './tools/fastText'
 
-export type SDK = typeof sdk
+import ScopedEngine from './engine'
+import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
+import Storage from './storage'
 
-const botScopedNlu: Map<string, ScopedNlu> = new Map<string, ScopedNlu>()
+const nluByBot: EngineByBot = {}
 
-const onServerStarted = async (bp: SDK) => {
-  await initModule(bp, botScopedNlu)
+const onServerStarted = async (bp: typeof sdk) => {
+  Storage.ghostProvider = botId => bp.ghost.forBot(botId)
 
-  const config = await bp.config.getModuleConfig('nlu')
-  if (config.fastTextPath) {
-    FTWrapper.changeBinPath(config.fastTextPath)
-  }
+  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
+  globalConfig.fastTextPath && fastText.configure(globalConfig.fastTextPath)
+  DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL)
+
+  await registerMiddleware(bp, nluByBot)
 }
 
-const onServerReady = async (bp: SDK) => {
-  await api(bp, botScopedNlu)
+const onServerReady = async (bp: typeof sdk) => {
+  await api(bp, nluByBot)
 }
 
-const onBotMount = async (bp: SDK, botId: string) => {
-  await initBot(bp, botScopedNlu, botId)
+const onBotMount = async (bp: typeof sdk, botId: string) => {
+  const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
+
+  const scoped = new ScopedEngine(bp.logger, botId, moduleBotConfig)
+  await scoped.init()
+  nluByBot[botId] = scoped
 }
 
-const onBotUnmount = async (bp: SDK, botId: string) => {
-  botScopedNlu.delete(botId)
+const onBotUnmount = async (bp: typeof sdk, botId: string) => {
+  delete nluByBot[botId]
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

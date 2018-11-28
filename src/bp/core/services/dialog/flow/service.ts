@@ -13,6 +13,8 @@ const FLOW_DIR = 'flows'
 
 @injectable()
 export class FlowService {
+  private _allFlows: Map<string, FlowView[]> = new Map()
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
@@ -21,20 +23,26 @@ export class FlowService {
   ) {}
 
   async loadAll(botId: string): Promise<FlowView[]> {
+    if (this._allFlows.has(botId)) {
+      return this._allFlows.get(botId)!
+    }
+
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json')
 
     try {
-      return Promise.map(flowsPath, async (flowPath: string) => {
+      const flows = await Promise.map(flowsPath, async (flowPath: string) => {
         return this.parseFlow(botId, flowPath)
       })
+
+      this._allFlows.set(botId, flows)
+      return flows
     } catch (err) {
       this.logger
         .forBot(botId)
         .attachError(err)
         .error('Could not load flows')
+      return []
     }
-
-    return []
   }
 
   private async parseFlow(botId: string, flowPath: string) {
@@ -90,6 +98,7 @@ export class FlowService {
     const flowsDeletePromises = flowsToDelete.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
 
     await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
+    this._allFlows.clear()
   }
 
   private prepareSaveFlow(flow) {

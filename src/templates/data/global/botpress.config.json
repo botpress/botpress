@@ -60,5 +60,5 @@
       "enabled": true
     }
   ],
-  "allowStats": true
+  "sendUsageStats": true
 }

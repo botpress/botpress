@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "11.0.4",
+  "version": "11.1.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -28,6 +28,7 @@
     "chalk": "^2.4.1",
     "chokidar": "^2.0.4",
     "cors": "^2.8.4",
+    "deep-diff": "^1.0.2",
     "doctrine": "^2.1.0",
     "errorhandler": "^1.5.0",
     "eventemitter2": "^5.0.1",
@@ -94,7 +95,7 @@
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-typedoc": "^2.2.0",
+    "gulp-typedoc": "^2.2.1",
     "gulp-typescript": "^5.0.0-alpha.3",
     "husky": "^1.1.2",
     "jest": "^23.6.0",

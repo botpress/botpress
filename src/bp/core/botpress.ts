@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
-import { WellKnownFlags } from 'core/sdk/enums'
-import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -10,7 +8,6 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
-import { basePort } from 'portfinder'
 
 import { createForGlobalHooks } from './api'
 import { BotLoader } from './bot-loader'
@@ -21,15 +18,20 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
-import { CMSService } from './services/cms/cms-service'
+import { CMSService } from './services/cms'
+import { converseApiEvents } from './services/converse'
+import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine, ProcessingError } from './services/dialog/engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
+import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { DataRetentionJanitor } from './services/retention/janitor'
+import { DataRetentionService } from './services/retention/service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -62,12 +64,16 @@ export class Botpress {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
+    @inject(TYPES.DecisionEngine) private decisionEngine: DecisionEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
+    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
+    @inject(TYPES.StateManager) private stateManager: StateManager,
+    @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -82,7 +88,7 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
-    this.stats.track('server', 'starting')
+    this.trackStart()
     this.config = await this.loadConfiguration()
 
     await this.checkJwtSecret()
@@ -147,17 +153,19 @@ export class Botpress {
 
     await this.cmsService.initialize()
 
-    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
-    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.Event) => {
+    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-        const sessionId = SessionIdFactory.createIdFromEvent(event)
-        await this.dialogEngine.processEvent(sessionId, event)
-      }
+      const sessionId = SessionIdFactory.createIdFromEvent(event)
+      await this.decisionEngine.processEvent(sessionId, event)
+      await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
+
+    this.dataRetentionService.initialize()
+    this.stateManager.initialize()
 
     const flowLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
@@ -175,6 +183,10 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+
+    if (this.config!.dataRetention) {
+      await this.dataRetentionJanitor.start()
+    }
 
     await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
@@ -207,5 +219,13 @@ export class Botpress {
 Err: ${err.message}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
+  }
+
+  private trackStart() {
+    this.stats.track(
+      'server',
+      'start',
+      `edition: ${process.BOTPRESS_EDITION}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
+    )
   }
 }
