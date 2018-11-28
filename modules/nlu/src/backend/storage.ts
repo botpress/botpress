@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
@@ -25,21 +24,48 @@ export default class Storage {
   private readonly intentsDir: string
   private readonly entitiesDir: string
   private readonly modelsDir: string
+  private readonly config: Config
 
   constructor(config: Config, private readonly botId: string) {
+    this.config = config
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
     this.modelsDir = config.modelsDir
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
+  getSystemEntities(): String[] {
+    const ents = this.config.ducklingEnabled
+      ? [
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'numeral',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
+      : []
+    ents.unshift('any')
+
+    return ents
+  }
+
   async saveIntent(intent: string, content: sdk.NLU.Intent) {
     intent = sanitizeFilenameNoExt(intent)
 
     await Promise.map(content.slots, async slot => {
-      const entity = await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
-      if (!entity) {
-        throw Error(`Invalid entity "${slot.entity}" doesn\'t exists`)
+      if (this.getSystemEntities().indexOf(slot.entity) === -1) {
+        try {
+          await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
+        } catch (err) {
+          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+        }
       }
     })
 

@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
 
-import { Config } from '../config'
-
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 
@@ -27,29 +25,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/entities', async (req, res) => {
-    const config = (await bp.config.getModuleConfig('nlu')) as Config
-    const ducklingEnabled = config.ducklingEnabled
-    let ducklingEntities = []
-
-    if (ducklingEnabled) {
-      ducklingEntities = [
-        'amountOfMoney',
-        'distance',
-        'duration',
-        'email',
-        'numeral',
-        'ordinal',
-        'phoneNumber',
-        'quantity',
-        'temperature',
-        'time',
-        'url',
-        'volume'
-      ]
-    }
-
+    const systemEntities = (nlus[req.params.botId] as ScopedEngine).storage.getSystemEntities()
     const customEntities = await (nlus[req.params.botId] as ScopedEngine).storage.getCustomEntities()
-    return res.send([...ducklingEntities, ...customEntities.map(e => e.name)])
+    return res.send([...systemEntities, ...customEntities.map(e => e.name)])
   })
 
   router.post('/entities', async (req, res) => {
