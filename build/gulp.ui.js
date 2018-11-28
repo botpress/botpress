@@ -82,5 +82,6 @@ module.exports = {
   watchAll,
   watchStudio,
   watchAdmin,
-  createStudioSymlink
+  createStudioSymlink,
+  cleanStudioAssets
 }

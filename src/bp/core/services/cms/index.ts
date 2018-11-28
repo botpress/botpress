@@ -277,7 +277,7 @@ export class CMSService implements IDisposeOnExit {
     } else {
       await this.memDb(this.contentTable)
         .update(body)
-        .where({ id: contentElementId })
+        .where({ id: contentElementId, botId })
         .then()
     }
 

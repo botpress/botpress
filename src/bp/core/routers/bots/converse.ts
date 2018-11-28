@@ -15,12 +15,15 @@ export class ConverseRouter implements CustomRouter {
   setupRoutes() {
     this.router.post('/:userId', async (req, res) => {
       const { userId, botId } = req.params
-      const rawOutput = await this.converseService.sendMessage(botId, userId, req.body).catch(err => {
-        return res.status(408).json({ error: err })
-      })
 
-      const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
-      return res.json(formatedOutput)
+      try {
+        const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
+        const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
+
+        return res.json(formatedOutput)
+      } catch (err) {
+        return res.status(408).json({ error: err })
+      }
     })
   }
 
