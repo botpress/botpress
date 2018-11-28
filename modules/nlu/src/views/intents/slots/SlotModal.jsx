@@ -2,6 +2,7 @@ import React from 'react'
 import Select from 'react-select'
 import { Button, Modal } from 'react-bootstrap'
 import nanoid from 'nanoid'
+import random from 'lodash/random'
 
 import style from './style.scss'
 import 'react-select/dist/react-select.css'
@@ -65,7 +66,7 @@ export default class SlotModal extends React.Component {
       id: this.state.id || nanoid(),
       name: this.state.name,
       entity: this.state.entity,
-      color: this.state.color || Math.round(Math.random() * N_COLORS)
+      color: this.state.color || random(1, N_COLORS)
     }
 
     this.props.onSlotSave && this.props.onSlotSave(slot, operation)
