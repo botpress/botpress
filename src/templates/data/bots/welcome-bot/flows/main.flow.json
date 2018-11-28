@@ -14,13 +14,11 @@
     {
       "id": "a54a82eb7c",
       "name": "entry",
-      "onEnter": [
-        "getUserVariable {\"name\":\"nickname\",\"output\":\"$r\"}"
-      ],
+      "onEnter": [],
       "onReceive": null,
       "next": [
         {
-          "condition": "state.$r !== undefined",
+          "condition": "user.nickname !== undefined",
           "node": "welcome"
         },
         {
@@ -38,30 +36,23 @@
           "node": "welcome"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-z0J9qh"
-      ],
-      "onReceive": [
-        "setUserVariable {\"name\":\"nickname\",\"value\":\"{{event.payload.text}}\",\"expiry\":\"never\",\"output\":\"$r\"}"
-      ]
+      "onEnter": ["say #!builtin_text-z0J9qh"],
+      "onReceive": ["setVariable {\"type\":\"user\",\"name\":\"nickname\",\"value\":\"{{event.payload.text}}\"}"]
     },
     {
       "id": "aa3bcb1ad3",
       "name": "welcome",
       "next": [
         {
-          "condition": "state.$r === 0",
+          "condition": "temp.$r === 0",
           "node": "first-time"
         },
         {
-          "condition": "state.$r > 0",
+          "condition": "temp.$r > 0",
           "node": "many-times"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-pSsHWg",
-        "incrementNumberOfConversations {\"output\":\"$r\"}"
-      ],
+      "onEnter": ["say #!builtin_text-pSsHWg", "incrementNumberOfConversations {\"output\":\"$r\"}"],
       "onReceive": null
     },
     {
@@ -73,10 +64,7 @@
           "node": "END"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-AY5SSW",
-        "say #!builtin_text-X069Le"
-      ],
+      "onEnter": ["say #!builtin_text-AY5SSW", "say #!builtin_text-X069Le"],
       "onReceive": null
     },
     {
@@ -88,9 +76,7 @@
           "node": "END"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-bFsOmf"
-      ],
+      "onEnter": ["say #!builtin_text-bFsOmf"],
       "onReceive": null
     },
     {
@@ -99,8 +85,7 @@
       "next": [],
       "onEnter": [
         "say #!builtin_text-TtzrCV",
-        "resetUserVariable {\"name\":\"nickname\"}",
-        "resetUserVariable {\"name\":\"numberOfConversations\"}",
+        "setVariable {\"type\":\"user\",\"name\":\"nickname\",\"value\":\"null\"}",
         "say #!builtin_text-kKQ8C3"
       ],
       "onReceive": null
