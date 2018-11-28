@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Modal, Button, Radio, OverlayTrigger, Tooltip, Panel, Well, Alert } from 'react-bootstrap'
-import Select from 'react-select'
+import { Modal, Button, Alert } from 'react-bootstrap'
 import Promise from 'bluebird'
 import classnames from 'classnames'
 
 import Loading from '~/components/Util/Loading'
 import CreateOrEditModal from '../CreateOrEditModal'
-import { fetchContentItemsRecent, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
-import { moveCursorToEnd } from '~/util'
+import { fetchContentItems, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import axios from 'axios'
 
 const style = require('./style.scss')
@@ -59,10 +57,11 @@ class SelectContent extends Component {
   }
 
   searchContentItems() {
-    return this.props.fetchContentItemsRecent({
+    return this.props.fetchContentItems({
       count: SEARCH_RESULTS_LIMIT,
       searchTerm: this.state.searchTerm,
-      contentType: this.state.contentType || 'all'
+      contentType: this.state.contentType || 'all',
+      sortOrder: [{ column: 'createdOn', desc: true }]
     })
   }
 
@@ -127,7 +126,7 @@ class SelectContent extends Component {
     return new Promise(resolve =>
       this.setState(stateUpdate, async () => {
         if (id) {
-          const { data: item } = await axios.get(`${window.BOT_API_PATH}/content/elements/${id}`)
+          const { data: item } = await axios.get(`${window.BOT_API_PATH}/content/element/${id}`)
           this.handlePick(item)
         }
 
@@ -204,9 +203,9 @@ class SelectContent extends Component {
       <p>
         Currently Searching in: <strong>{title}</strong>
         .&nbsp;
-        <button className="btn btn-warning btn-sm" onClick={this.resetCurrentCategory}>
+        <Button className="btn btn-warning btn-sm" onClick={this.resetCurrentCategory}>
           Change
-        </button>
+        </Button>
       </p>
     )
   }
@@ -310,13 +309,13 @@ class SelectContent extends Component {
 }
 
 const mapStateToProps = state => ({
-  contentItems: state.content.recentItems,
+  contentItems: state.content.currentItems,
   itemsCount: state.content.itemsCount,
   categories: state.content.categories
 })
 
 const mapDispatchToProps = {
-  fetchContentItemsRecent,
+  fetchContentItems,
   fetchContentItemsCount,
   fetchContentCategories,
   upsertContentItem

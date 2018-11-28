@@ -4,7 +4,6 @@ import _ from 'lodash'
 import {
   receiveContentCategories,
   receiveContentItems,
-  receiveContentItemsRecent,
   receiveContentItem,
   receiveContentItemsCount,
   receiveContentSchema
@@ -13,7 +12,6 @@ import {
 const defaultState = {
   categories: null,
   currentItems: [],
-  recentItems: [],
   itemsById: {},
   itemsCount: 0
 }
@@ -28,11 +26,6 @@ export default handleActions(
     [receiveContentItems]: (state, { payload }) => ({
       ...state,
       currentItems: payload
-    }),
-
-    [receiveContentItemsRecent]: (state, { payload }) => ({
-      ...state,
-      recentItems: payload
     }),
 
     [receiveContentItem]: (state, { payload }) => ({

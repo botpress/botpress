@@ -640,12 +640,31 @@ declare module 'botpress/sdk' {
    * Search parameters when querying content elements
    */
   export type SearchParams = {
+    /** Search in elements id and form data */
     searchTerm?: string
-    /** An array of fields to order the query on */
-    orderBy?: string[]
+    /** Returns the amount of elements from the starting position  */
     from: number
     count: number
+    /** Only returns the items matching these ID */
     ids?: string[]
+    /** An array of columns with direction to sort results */
+    sortOrder?: SortOrder[]
+    /** Apply a filter to a specific field (instead of the 'search all' field) */
+    filters?: Filter[]
+  }
+
+  export interface Filter {
+    /** The name of the column to filter on */
+    column: string
+    /** The value to filter (line %value%) */
+    value: string
+  }
+
+  export interface SortOrder {
+    /** The name of the column  */
+    column: string
+    /** Is the sort order ascending or descending? Asc by default */
+    desc?: boolean
   }
 
   export namespace http {

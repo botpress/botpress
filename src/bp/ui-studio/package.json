@@ -23,6 +23,7 @@
     "react-jsonschema-form": "^1.0.3",
     "react-loaders": "^3.0.1",
     "react-router-dom": "^4.2.2",
+    "react-table": "^6.8.6",
     "react-toastify": "^3.3.3",
     "rimraf": "^2.6.2",
     "socket.io": "^1.5.0",
