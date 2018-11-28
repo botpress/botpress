@@ -56,10 +56,8 @@ export default class Storage {
     const utterancesFile = `${intent}.utterances.txt`
     const propertiesFile = `${intent}.json`
 
-    const utterances = content.utterances && content.utterances.join('\r\n') // \n To support windows as well
-    if (utterances) {
-      await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances)
-    }
+    const utterances = content.utterances || []
+    await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances.join('\r\n'))
 
     await this.ghost.upsertFile(this.intentsDir, propertiesFile, JSON.stringify(content))
   }
