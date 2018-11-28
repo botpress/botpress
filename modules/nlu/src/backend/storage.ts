@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
@@ -25,16 +24,30 @@ export default class Storage {
   private readonly intentsDir: string
   private readonly entitiesDir: string
   private readonly modelsDir: string
+  private readonly config: Config
 
   constructor(config: Config, private readonly botId: string) {
+    this.config = config
     this.intentsDir = config.intentsDir
     this.entitiesDir = config.entitiesDir
     this.modelsDir = config.modelsDir
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent, content) {
+  async saveIntent(intent: string, content: sdk.NLU.Intent) {
     intent = sanitizeFilenameNoExt(intent)
+    const sysEntities = this.getSystemEntities()
+
+
+    await Promise.map(content.slots, async slot => {
+      if (!sysEntities.find(e => e.name === slot.entity)) {
+        try {
+          await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
+        } catch (err) {
+          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+        }
+      }
+    })
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -43,16 +56,10 @@ export default class Storage {
     const utterancesFile = `${intent}.utterances.txt`
     const propertiesFile = `${intent}.json`
 
-    const utterances = content.utterances.join('\r\n') // \n To support windows as well
+    const utterances = content.utterances || []
+    await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances.join('\r\n'))
 
-    await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances)
-    await this.ghost.upsertFile(
-      this.intentsDir,
-      propertiesFile,
-      JSON.stringify({
-        entities: content.entities
-      })
-    )
+    await this.ghost.upsertFile(this.intentsDir, propertiesFile, JSON.stringify(content))
   }
 
   async deleteIntent(intent) {
@@ -112,9 +119,48 @@ export default class Storage {
       ...properties
     }
   }
+  async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
+    return [
+      ...this.getSystemEntities(),
+      ...(await this.getCustomEntities())
+    ]
+  }
+  getSystemEntities(): sdk.NLU.EntityDefinition[] {
+    const sysEntNames = !this.config.ducklingEnabled ? [] : [
+      'amountOfMoney',
+      'distance',
+      'duration',
+      'email',
+      'numeral',
+      'ordinal',
+      'phoneNumber',
+      'quantity',
+      'temperature',
+      'time',
+      'url',
+      'volume'
+    ]
+    sysEntNames.unshift('any')
 
-  async getCustomEntities() {
+    return sysEntNames.map(e => ({
+      name: e,
+      type: 'system',
+      body: {}
+    }) as sdk.NLU.EntityDefinition)
+  }
+
+  async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     return []
+  }
+
+  async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
+    const fileName = this._getEntityFileName(entity.name)
+    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
+  }
+
+  async deleteEntity(entityName: string): Promise<void> {
+    const fileName = this._getEntityFileName(entityName)
+    return this.ghost.deleteFile(this.entitiesDir, fileName)
   }
 
   async persistModel(modelBuffer: Buffer, modelName: string) {
@@ -144,5 +190,14 @@ export default class Storage {
     const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  }
+
+  private _getEntityFileName(entityName: string) {
+    entityName = sanitizeFilenameNoExt(entityName)
+    if (entityName.length < 1) {
+      throw new Error('Invalid entity name, expected at least one character')
+    }
+
+    return `${entityName}.json`
   }
 }
