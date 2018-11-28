@@ -19,7 +19,7 @@
     "ms": "^2.1.1",
     "nanoid": "^1.0.2",
     "node-sass-chokidar": "^1.1.2",
-    "npm-run-all": "^4.1.2",
+    "npm-run-all": "^4.1.5",
     "query-string": "^5.1.0",
     "react": "^16.4.0",
     "react-copy-to-clipboard": "^5.0.1",
