@@ -4,8 +4,8 @@ import { Button, Modal } from 'react-bootstrap'
 import nanoid from 'nanoid'
 
 import style from './style.scss'
+import 'react-select/dist/react-select.css'
 
-require('react-select/dist/react-select.css')
 const N_COLORS = 8
 const INITIAL_STATE = {
   id: null,
@@ -22,8 +22,8 @@ export default class SlotModal extends React.Component {
   fetchAvailableEntities = () => {
     return this.props.axios.get(`/mod/nlu/entities`).then(res => {
       const availableEntities = res.data.map(e => ({
-        label: `@${e}`,
-        value: e
+        label: `@${e.type}.${e.name}`,
+        value: e.name
       }))
 
       this.setState({ availableEntities })
@@ -40,16 +40,18 @@ export default class SlotModal extends React.Component {
 
   componentDidMount() {
     this.fetchAvailableEntities()
-    this.initializeFromProps(this.props)
+    this.initializeFromProps()
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.initializeFromProps(nextProps)
+  componentDidUpdate(prevProps) {
+    if (prevProps.slot !== this.props.slot) {
+      this.initializeFromProps()
+    }
   }
 
-  initializeFromProps = props => {
-    if (props.slot) {
-      this.setState({ ...props.slot, editing: true })
+  initializeFromProps = () => {
+    if (this.props.slot) {
+      this.setState({ ...this.props.slot, editing: true })
     } else this.resetState()
   }
 

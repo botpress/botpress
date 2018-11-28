@@ -137,7 +137,7 @@ export default class IntentsEditor extends React.Component {
           return (
             <li key={`uttr-${utterance.id}`}>
               <Editor
-                getEntitiesEditor={() => this.slotsEditor}
+                getSlotsEditor={() => this.slotsEditor}
                 ref={el => {
                   if (i === 0) {
                     this.firstUtteranceRef = el
@@ -149,7 +149,7 @@ export default class IntentsEditor extends React.Component {
                 onInputConsumed={preprendNewUtterance}
                 canonicalValue={utterance.text}
                 canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
-                entities={this.state.slots}
+                slots={this.state.slots}
               />
             </li>
           )

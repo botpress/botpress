@@ -134,6 +134,14 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export type EntityType = 'system' | 'pattern' | 'list'
+
+    export interface EntityDefinition {
+      name: string,
+      type: EntityType
+      body: any
+    }
+
     export interface IntentSlot {
       name: string
       entity: string

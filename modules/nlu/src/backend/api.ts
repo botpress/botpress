@@ -25,17 +25,16 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/entities', async (req, res) => {
-    const systemEntities = (nlus[req.params.botId] as ScopedEngine).storage.getSystemEntities()
-    const customEntities = await (nlus[req.params.botId] as ScopedEngine).storage.getCustomEntities()
-    return res.send([...systemEntities, ...customEntities.map(e => e.name)])
+    const entities = await (nlus[req.params.botId] as ScopedEngine).storage.getAvailableEntities()
+    res.json(entities)
   })
 
   router.post('/entities', async (req, res) => {
     const content = req.body
     const { botId } = req.params
-    const entity = content.name
+    const entity = content as sdk.NLU.EntityDefinition
 
-    await (nlus[botId] as ScopedEngine).storage.saveEntity(entity, content)
+    await (nlus[botId] as ScopedEngine).storage.saveEntity(entity)
     res.sendStatus(201)
   })
 

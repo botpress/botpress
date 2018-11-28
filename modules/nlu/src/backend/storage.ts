@@ -34,33 +34,13 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  getSystemEntities(): String[] {
-    const ents = this.config.ducklingEnabled
-      ? [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
-      : []
-    ents.unshift('any')
-
-    return ents
-  }
-
   async saveIntent(intent: string, content: sdk.NLU.Intent) {
     intent = sanitizeFilenameNoExt(intent)
+    const sysEntities = this.getSystemEntities()
+
 
     await Promise.map(content.slots, async slot => {
-      if (this.getSystemEntities().indexOf(slot.entity) === -1) {
+      if (!sysEntities.find(e => e.name === slot.entity)) {
         try {
           await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
         } catch (err) {
@@ -141,18 +121,47 @@ export default class Storage {
       ...properties
     }
   }
+  async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
+    return [
+      ...this.getSystemEntities(),
+      ...(await this.getCustomEntities())
+    ]
+  }
+  getSystemEntities(): sdk.NLU.EntityDefinition[] {
+    const sysEntNames = !this.config.ducklingEnabled ? [] : [
+      'amountOfMoney',
+      'distance',
+      'duration',
+      'email',
+      'numeral',
+      'ordinal',
+      'phoneNumber',
+      'quantity',
+      'temperature',
+      'time',
+      'url',
+      'volume'
+    ]
+    sysEntNames.unshift('any')
 
-  async getCustomEntities(): Promise<sdk.NLU.Entity[]> {
-    return [] // TODO: Extract custom entities here
+    return sysEntNames.map(e => ({
+      name: e,
+      type: 'system',
+      body: {}
+    }) as sdk.NLU.EntityDefinition)
   }
 
-  async saveEntity(entity: string, content: any): Promise<void> {
-    const fileName = this._getEntityFileName(entity)
-    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(content))
+  async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
+    return []
   }
 
-  async deleteEntity(entity: string): Promise<void> {
-    const fileName = this._getEntityFileName(entity)
+  async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
+    const fileName = this._getEntityFileName(entity.name)
+    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
+  }
+
+  async deleteEntity(entityName: string): Promise<void> {
+    const fileName = this._getEntityFileName(entityName)
     return this.ghost.deleteFile(this.entitiesDir, fileName)
   }
 
@@ -185,12 +194,12 @@ export default class Storage {
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }
 
-  private _getEntityFileName(entity: string) {
-    entity = sanitizeFilenameNoExt(entity)
-    if (entity.length < 1) {
+  private _getEntityFileName(entityName: string) {
+    entityName = sanitizeFilenameNoExt(entityName)
+    if (entityName.length < 1) {
       throw new Error('Invalid entity name, expected at least one character')
     }
 
-    return entity + '.json'
+    return `${entityName}.json`
   }
 }

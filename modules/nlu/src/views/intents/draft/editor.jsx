@@ -31,7 +31,7 @@ function myKeyBindingFn(e) {
 }
 
 function getEntityStrategy(type) {
-  return function(contentBlock, callback, contentState) {
+  return function (contentBlock, callback, contentState) {
     contentBlock.findEntityRanges(character => {
       const entityKey = character.getEntity()
       if (entityKey === null) {
@@ -211,8 +211,8 @@ export default class IntentEditor extends React.Component {
     return {
       getEditorState: () => this.state.editorState,
       setEditorState: state => this.setState({ editorState: state }),
-      getEntity: entityId => _.find(props.entities, { id: entityId }),
-      getEntityIdFromName: name => _.get(_.find(props.entities, { name: name }), 'id')
+      getEntity: slotId => _.find(props.slots, { id: slotId }),
+      getEntityIdFromName: name => _.get(_.find(props.slots, { name: name }), 'id')
     }
   }
 
@@ -261,7 +261,7 @@ export default class IntentEditor extends React.Component {
         this.props.onDone && this.props.onDone()
       }
 
-      const editor = this.props.getEntitiesEditor()
+      const editor = this.props.getSlotsEditor()
       if (editor) {
         editor.executeRecommendedAction(this)
       }
@@ -321,7 +321,7 @@ export default class IntentEditor extends React.Component {
   }
 
   onArrow = action => keyboardEvent => {
-    const editor = this.props.getEntitiesEditor()
+    const editor = this.props.getSlotsEditor()
 
     if (editor) {
       keyboardEvent.preventDefault()
@@ -338,7 +338,7 @@ export default class IntentEditor extends React.Component {
   }
 
   updateSelectedText = selectedText => {
-    const slotEditor = this.props.getEntitiesEditor()
+    const slotEditor = this.props.getSlotsEditor()
     if (slotEditor) {
       slotEditor.setSelection(selectedText)
     }

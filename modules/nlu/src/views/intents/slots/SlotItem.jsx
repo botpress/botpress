@@ -4,20 +4,17 @@ import colors from '../colors.scss'
 import classnames from 'classnames'
 
 export default class SlotItem extends React.Component {
-  onDeleteClicked = e => {
+  handleDeleteClicked = e => {
     e.preventDefault()
 
-    const { onDelete, slot } = this.props
     if (confirm('Are you sure you want to delete this slot and all associated tagging from all utterances?')) {
-      onDelete && onDelete(slot)
+      this.props.onDelete && this.props.onDelete(this.props.slot)
     }
   }
 
-  onEditClicked = e => {
+  handleEditClicked = e => {
     e.preventDefault()
-
-    const { onEdit, slot } = this.props
-    onEdit && onEdit(slot)
+    this.props.onEdit && this.props.onEdit(this.props.slot)
   }
 
   render() {
@@ -27,10 +24,10 @@ export default class SlotItem extends React.Component {
       <li className={style.entityItem}>
         <span className={className}>{slot.name}</span>
         <span className={style.type}>{slot.type}</span>
-        <a href onClick={this.onDeleteClicked}>
+        <a href onClick={this.handleDeleteClicked}>
           Delete
         </a>
-        <a href onClick={this.onEditClicked}>
+        <a href onClick={this.handleEditClicked}>
           Edit
         </a>
       </li>
