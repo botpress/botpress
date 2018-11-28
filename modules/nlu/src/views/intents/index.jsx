@@ -166,7 +166,7 @@ export default class IntentsEditor extends React.Component {
     )
   }
 
-  onSlotsChanged = (slots, { operation, name, oldName } = {}) => {
+  handleSlotsChanged = (slots, { operation, name, oldName } = {}) => {
     const replaceObj = { slots }
 
     if (operation === 'deleted') {
@@ -240,7 +240,7 @@ export default class IntentsEditor extends React.Component {
               ref={el => (this.slotsEditor = el)}
               axios={this.props.axios}
               slots={this.state.slots}
-              onSlotsChanged={this.onSlotsChanged}
+              onSlotsChanged={this.handleSlotsChanged}
             />
           </div>
         </SplitterLayout>
