@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
@@ -11,10 +12,17 @@ import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2()
 
+type ResponseMap = Partial<{
+  responses: any[]
+  nlu: IO.EventUnderstanding
+  state: any
+}>
+
 @injectable()
 export class ConverseService {
   private readonly timeoutInMs = 2000
-  private jsonMap: Map<string, object> = new Map()
+
+  private readonly _responseMap: { [target: string]: ResponseMap } = {}
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -28,19 +36,19 @@ export class ConverseService {
       description: 'Captures the response payload for the Converse API',
       order: 10000,
       direction: 'outgoing',
-      handler: (event, next) => {
+      handler: (event: IO.Event, next) => {
         this._handleCapturePayload(event)
         next()
       }
     })
 
     this.eventEngine.register({
-      name: 'converse.capture.nlu',
-      description: 'Captures the nlu output for the Converse API',
+      name: 'converse.capture.context',
+      description: 'Captures the event context for the Converse API',
       order: 10000,
       direction: 'incoming',
-      handler: (event, next) => {
-        this._handleCaptureNlu(event)
+      handler: (event: IO.Event, next) => {
+        this._handleCaptureContext(event as IO.IncomingEvent)
         next()
       }
     })
@@ -71,16 +79,15 @@ export class ConverseService {
       converseApiEvents.removeAllListeners(`done.${userId}`)
       converseApiEvents.removeAllListeners(`action.start.${userId}`)
       converseApiEvents.removeAllListeners(`action.end.${userId}`)
-      this.jsonMap.delete(userId)
+      delete this._responseMap[userId]
     })
   }
 
   private async _createDonePromise(userId) {
     return new Promise((resolve, reject) => {
       converseApiEvents.once(`done.${userId}`, event => {
-        if (this.jsonMap.has(event.target)) {
-          const json = this.jsonMap.get(event.target)
-          return resolve(json)
+        if (this._responseMap[event.target]) {
+          return resolve(this._responseMap[event.target])
         } else {
           return reject(new Error(`No responses found for event target "${event.target}".`))
         }
@@ -111,45 +118,30 @@ export class ConverseService {
     })
   }
 
-  private _handleCapturePayload(event) {
+  private _handleCapturePayload(event: IO.Event) {
     if (event.channel !== 'api') {
       return
     }
 
-    if (this.jsonMap.has(event.target)) {
-      let json = this.jsonMap.get(event.target)
-      const responses = _.get(json, 'responses', [])
-      const state = _.get(event, 'state', {})
-      json = {
-        ...json,
-        responses: [...responses, event.payload],
-        state
-      }
-      this.jsonMap.set(event.target, json)
-    } else {
-      const state = _.get(event, 'state', {})
-      const json = {
-        responses: [event.payload],
-        state
-      }
-      this.jsonMap.set(event.target, json)
+    if (!this._responseMap[event.target]) {
+      this._responseMap[event.target] = { responses: [] }
     }
+
+    this._responseMap[event.target].responses!.push(event.payload)
   }
 
-  private _handleCaptureNlu(event) {
+  private _handleCaptureContext(event: IO.IncomingEvent) {
     if (event.channel !== 'api') {
       return
     }
 
-    if (this.jsonMap.has(event.target)) {
-      let json = this.jsonMap.get(event.target)
-      const nlu = _.get(event, 'nlu', {})
-      json = { ...json, nlu }
-      this.jsonMap.set(event.target, json)
-    } else {
-      const nlu = _.get(event, 'nlu', {})
-      const json = { nlu }
-      this.jsonMap.set(event.target, json)
+    if (!this._responseMap[event.target]) {
+      this._responseMap[event.target] = { responses: [] }
     }
+
+    Object.assign(this._responseMap[event.target], <ResponseMap>{
+      nlu: event.nlu || {},
+      state: _.get(event, 'state.context.data', {})
+    })
   }
 }
