@@ -9,7 +9,7 @@ Integrate Botpress to your current application with the API Channel. When you cr
 
 ### How to use
 
-`POST /api/v1/bots/welcome-bot/converse/{userId}` where **userId** is a unique string identifying a user that chats with the bot.
+`POST /api/v1/bots/{botId}/converse/{userId}` where **userId** is a unique string identifying a user that chats with your bot (**botId**).
 
 ### Request Body
 
@@ -57,14 +57,6 @@ This is a sample of the response given by the `welcome-bot` when its the first t
       {
         "name": "hello",
         "confidence": 1
-      },
-      {
-        "name": "none",
-        "confidence": 1.95313e-8
-      },
-      {
-        "name": "forget",
-        "confidence": 3.8147e-16
       }
     ]
   },
