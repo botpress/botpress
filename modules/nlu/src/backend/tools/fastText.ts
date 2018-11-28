@@ -125,11 +125,12 @@ signal: ${err.signal}
     for (let i = 0; i < parts.length - 1; i += 2) {
       parsed.push({
         name: parts[i].replace(FastTextWrapper.LABEL_PREFIX, '').trim(),
-        confidence: parseFloat(parts[i + 1])
+        confidence: Math.round(parseFloat(parts[i + 1]) * 10000) / 10000
       })
     }
 
-    return parsed
+    // We don't return predictions with less than 0.5% confidence
+    return parsed.filter(i => i.confidence > 0.005)
   }
 
   public async wordVectors(word: string): Promise<number[]> {
