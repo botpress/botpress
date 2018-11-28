@@ -16,8 +16,9 @@ const incrementNumberOfConversations = async output => {
   } else {
     value++
   }
+
   await bp.kvs.setStorageWithExpiry(botId, key, value)
-  return { ...state, [output]: value }
+  temp[output] = value
 }
 
 return incrementNumberOfConversations(args.output)

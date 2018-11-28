@@ -12,9 +12,8 @@ const setGlobalVariable = async (name, value, expiry, output) => {
   const key = bp.kvs.getGlobalStorageKey(name)
   await bp.kvs.setStorageWithExpiry(event.botId, key, value, expiry)
   if (output) {
-    state[output] = value
+    temp[output] = value
   }
-  return { ...state }
 }
 
 return setGlobalVariable(args.name, args.value, args.expiry, args.output)

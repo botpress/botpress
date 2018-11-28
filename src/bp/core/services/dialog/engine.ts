@@ -69,6 +69,7 @@ export class DialogEngine {
     if (!instruction) {
       this._logEnd(botId)
       event.state.context = {}
+      event.state.temp = {}
       return event
     }
 
@@ -78,13 +79,6 @@ export class DialogEngine {
 
       if (result.followUpAction === 'none') {
         context.queue = queue
-        return this.processEvent(sessionId, event)
-      } else if (result.followUpAction === 'update') {
-        // We update the state that has been modified in an action.
-        // The new state is returned in the instruction processor result.
-        context.queue = queue
-        context.data = result.options!.state
-
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
