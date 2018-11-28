@@ -1,39 +1,42 @@
+import { Logger } from 'botpress/sdk'
 import { ConverseService } from 'core/services/converse'
 import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
+import { asyncMiddleware } from '../util'
 
 export class ConverseRouter implements CustomRouter {
   public readonly router: Router
+  private asyncMiddleware!: Function
 
-  constructor(private converseService: ConverseService) {
+  constructor(private logger: Logger, private converseService: ConverseService) {
+    this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 
   setupRoutes() {
-    this.router.post('/:userId', async (req, res) => {
-      const { userId, botId } = req.params
+    this.router.post(
+      '/:userId',
+      this.asyncMiddleware(async (req, res) => {
+        const { userId, botId } = req.params
 
-      try {
         const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
         const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
 
         return res.json(formatedOutput)
-      } catch (err) {
-        return res.status(408).json({ error: err })
-      }
-    })
+      })
+    )
   }
 
   private prepareResponse(output, params: string) {
-    const split = (params && params.toLowerCase().split(',')) || []
+    const parts = (params && params.toLowerCase().split(',')) || []
 
-    if (!split.includes('nlu')) {
+    if (!parts.includes('nlu')) {
       delete output.nlu
     }
-    if (!split.includes('state')) {
+    if (!parts.includes('state')) {
       delete output.state
     }
 

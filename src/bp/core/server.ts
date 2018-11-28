@@ -102,7 +102,7 @@ export default class HTTPServer {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
     this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService)
-    this.converseRouter = new ConverseRouter(this.converseService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/versioning', this.versioningRouter.router)
