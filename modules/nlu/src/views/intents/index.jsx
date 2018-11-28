@@ -13,9 +13,9 @@ import Slots from './slots/Slots'
 export default class IntentsEditor extends React.Component {
   state = {
     initialUtterances: '',
-    entitiesEditor: null,
+    slotsEditor: null,
     isDirty: false,
-    entities: [],
+    slots: [],
     utterances: []
   }
 
@@ -42,14 +42,14 @@ export default class IntentsEditor extends React.Component {
   }
 
   initiateStateFromProps(props) {
-    const { utterances, entities } = (props && props.intent) || { utterances: [], entities: [] }
+    const { utterances, slots } = (props && props.intent) || { utterances: [], slots: [] }
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
-    this.setState({ utterances: expanded, entities: entities, isDirty: false }, () => {
+    this.setState({ utterances: expanded, slots: slots, isDirty: false }, () => {
       this.initialHash = this.computeHash()
       this.forceUpdate()
     })
@@ -69,7 +69,7 @@ export default class IntentsEditor extends React.Component {
     this.props.axios
       .post(`/mod/nlu/intents/${this.props.intent.name}`, {
         utterances: this.getCanonicalUtterances(),
-        entities: this.state.entities
+        slots: this.state.slots
       })
       .then(() => {
         this.props.reloadIntents && this.props.reloadIntents()
@@ -96,7 +96,7 @@ export default class IntentsEditor extends React.Component {
   computeHash = () =>
     JSON.stringify({
       utterances: this.getCanonicalUtterances(),
-      entities: this.state.entities
+      slots: this.state.slots
     })
 
   isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
@@ -149,7 +149,7 @@ export default class IntentsEditor extends React.Component {
                 onInputConsumed={preprendNewUtterance}
                 canonicalValue={utterance.text}
                 canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
-                entities={this.state.entities}
+                entities={this.state.slots}
               />
             </li>
           )
@@ -166,9 +166,8 @@ export default class IntentsEditor extends React.Component {
     )
   }
 
-  onSlotsChanged = (entities, { operation, name, oldName } = {}) => {
-    debugger
-    const replaceObj = { entities: entities }
+  onSlotsChanged = (slots, { operation, name, oldName } = {}) => {
+    const replaceObj = { slots }
 
     if (operation === 'deleted') {
       let utterances = this.getUtterances()
@@ -240,7 +239,7 @@ export default class IntentsEditor extends React.Component {
             <Slots
               ref={el => (this.slotsEditor = el)}
               axios={this.props.axios}
-              slots={this.state.entities}
+              slots={this.state.slots}
               onSlotsChanged={this.onSlotsChanged}
             />
           </div>
