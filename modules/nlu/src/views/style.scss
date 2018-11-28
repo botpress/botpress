@@ -88,6 +88,30 @@ footer {
 
       &.out {
         color: #ff3653;
+        -webkit-animation: flash linear 1s infinite;
+        animation: flash linear 1s infinite;
+        @-webkit-keyframes flash {
+          0% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.1;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        @keyframes flash {
+          0% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.1;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
       }
       &.in {
         color: #00d129;

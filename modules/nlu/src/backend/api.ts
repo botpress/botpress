@@ -34,15 +34,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/sync', async (req, res) => {
     try {
-      bp.realtime.sendPayload(
-        bp.RealTimePayload.forAdmins('toast.nlu-sync', { text: 'NLU Sync In Progress', type: 'info', time: 120000 })
-      )
-
       await nlus[req.params.botId].sync()
-      bp.realtime.sendPayload(
-        bp.RealTimePayload.forAdmins('toast.nlu-sync', { text: 'NLU Sync Success', type: 'success' })
-      )
-
       res.sendStatus(200)
     } catch (e) {
       bp.realtime.sendPayload(

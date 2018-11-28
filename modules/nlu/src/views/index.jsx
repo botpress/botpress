@@ -17,14 +17,13 @@ export default class Module extends React.Component {
     intents: [],
     currentIntent: null,
     filterValue: '',
-    syncNeeded: false,
-    showSyncConfirm: false
+    isSyncing: false
   }
 
   componentDidMount() {
     this.fetchIntents()
 
-    this.syncInterval = setInterval(this.checkSync, 10000)
+    this.syncInterval = setInterval(this.checkSync, 5000)
     this.checkSync()
   }
 
@@ -34,14 +33,15 @@ export default class Module extends React.Component {
 
   checkSync = () => {
     return this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
-      if (this.state.syncNeeded !== res.data) {
-        this.setState({ syncNeeded: res.data })
+      if (res.data) {
+        this.setState({ isSyncing: true })
+        return this.props.bp.axios.get('/mod/nlu/sync').catch(err => {
+          this.setState({ isSyncing: false, syncFailedError: err.response.data })
+        })
+      } else {
+        this.setState({ isSyncing: false })
       }
     })
-  }
-
-  onSyncReturn = syncNeeded => {
-    this.setState({ showSyncConfirm: false, syncNeeded })
   }
 
   fetchIntents = () => {
@@ -170,26 +170,16 @@ export default class Module extends React.Component {
                 </Button>
               </div>
               <div className={style.sync}>
-                {this.state.syncNeeded ? (
+                {this.state.isSyncing ? (
                   <div className={style.out}>
-                    <p>Model is out of sync</p>
-                    <SyncConfirmModal
-                      axios={this.props.bp.axios}
-                      show={this.state.showSyncConfirm}
-                      onHide={this.toggleProp('showSyncConfirm')}
-                      onSync={this.onSyncReturn}
-                    />
-                    <Button
-                      bsStyle="primary"
-                      block
-                      disabled={!this.state.syncNeeded}
-                      onClick={this.toggleProp('showSyncConfirm')}
-                    >
-                      Sync
-                    </Button>
+                    <Glyphicon glyph="refresh" />
+                    &nbsp;Syncing Model
                   </div>
                 ) : (
-                  <div className={style.in}>Model is up to date</div>
+                  <div className={style.in}>
+                    <Glyphicon glyph="ok" />
+                    &nbsp;Model is up to date
+                  </div>
                 )}
               </div>
 

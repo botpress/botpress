@@ -394,7 +394,7 @@ export default class IntentEditor extends React.Component {
         </div>
         <div className={style.controls}>
           <span className={style.action} onClick={this.props.deleteUtterance}>
-            Delete Utterance
+            Remove Utterance
           </span>
         </div>
       </div>
