@@ -114,24 +114,72 @@
   cursor: pointer;
 }
 
+.entity {
+  display: inline-block;
+}
+
 .entity:hover {
   background-color: #ececec;
 
   .deleteEntity {
     display: inherit;
   }
+}
 
-  .synonym {
-    display: inline-block;
+.occurenceDelete {
+  display: none;
+  float: right;
+}
+
+.occurence {
+  width: 100%;
+
+  &:hover {
+    background-color: #ececec;
+
+    .occurenceDelete {
+      display: inherit;
+    }
+
+    :global(.ReactTags__tagInput) {
+      display: inline-block;
+    }
   }
 }
 
-.synonym {
-  width: 30%;
-  display: none;
+.occurenceName {
+  display: inline-block;
 }
 
-.tags {
+:global(.ReactTags__tags) {
   display: inline-block;
-  padding: 0 10px 0 0;
+  position: relative;
+}
+
+:global(.ReactTags__tagInput) {
+  display: none;
+}
+:global(.ReactTags__tagInput input.ReactTags__tagInputField, .ReactTags__tagInput
+    input.ReactTags__tagInputField:focus) {
+  height: 31px;
+  margin: 0;
+  font-size: 12px;
+  width: 100%;
+  border: 1px solid #eee;
+  padding: 0 4px;
+}
+
+:global(.ReactTags__selected span.ReactTags__tag) {
+  border: 1px solid #ddd;
+  background: #eee;
+  font-size: 12px;
+  display: inline-block;
+  padding: 5px;
+  margin: 0 5px;
+  border-radius: 2px;
+}
+:global(.ReactTags__selected a.ReactTags__remove) {
+  color: #aaa;
+  margin-left: 5px;
+  cursor: pointer;
 }
