@@ -76,7 +76,7 @@ export default class EntityEditor extends React.Component {
       return null
     }
     const tags = synonyms.map(s => (
-      <div>
+      <div className={style.tags}>
         <h4>
           <Label bsStyle="primary">
             {s}
