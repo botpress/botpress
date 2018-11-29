@@ -20,7 +20,8 @@ export default class EntityEditor extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.entity !== this.state.currentEntity) {
-      this.setState({ currentEntity: nextProps.entity, currentOccurence: undefined })
+      const newEntity = nextProps.entity
+      this.setState({ currentEntity: newEntity, currentOccurence: newEntity.occurences[0] })
     }
   }
 
@@ -76,8 +77,13 @@ export default class EntityEditor extends React.Component {
     }
     const tags = synonyms.map(s => (
       <div>
-        <Label>{s}</Label>
-        <Glyphicon glyph="remove" onClick={() => this.removeSynonym(s)} />
+        <h4>
+          <Label bsStyle="primary">
+            {s}
+            &nbsp;
+            <Glyphicon glyph="remove" className={style.removeSynonym} onClick={() => this.removeSynonym(s)} />
+          </Label>
+        </h4>
       </div>
     ))
 
