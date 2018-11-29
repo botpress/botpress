@@ -33,8 +33,9 @@ export default class EntitiesComponent extends React.Component {
     this.setState({ selectedEntity: entity })
   }
 
-  onEntityChange = () => {
-    console.log('changed')
+  onEntityUpdate = entity => {
+    // TODO: Update the entity here
+    console.log('Updated entity: ', entity)
   }
 
   render() {
@@ -68,14 +69,14 @@ export default class EntitiesComponent extends React.Component {
                       onClick={() => this.onEntitySelected(el)}
                     >
                       {el.name}
-                      <Glyphicon glyph="trash" className={style.deleteEntity} />
+                      <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteEntity(el)} />
                     </ListGroupItem>
                   ))}
                 </ListGroup>
               </div>
             </nav>
             <div className={style.childContent}>
-              <EntityEditor entity={this.state.selectedEntity} onChange={this.onEntityChange} />
+              <EntityEditor entity={this.state.selectedEntity} onUpdate={this.onEntityUpdate} />
             </div>
           </div>
         </div>

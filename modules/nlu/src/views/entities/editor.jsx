@@ -1,7 +1,7 @@
 import React from 'react'
 import SplitterLayout from 'react-splitter-layout'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon, FormControl, Label } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon, Label } from 'react-bootstrap'
 import _ from 'lodash'
 
 export default class EntityEditor extends React.Component {
@@ -42,15 +42,13 @@ export default class EntityEditor extends React.Component {
     entity.occurences[index] = occurence
     occurence.synonyms = [...occurence.synonyms, synonym]
 
-    this.setState({ entity, synonym: '' })
-    this.synonymInputRef.value = ''
+    this.synonymInputRef.current.value = ''
+    this.setState({ entity, synonym: '' }, this.onUpdate)
   }
 
   onSynonymChange = event => {
     const value = event.target.value
-    if (this.state.synonym !== value) {
-      this.setState({ synonym: value })
-    }
+    this.setState({ synonym: value })
   }
 
   renderSynonyms = () => {
@@ -66,7 +64,8 @@ export default class EntityEditor extends React.Component {
 
     return (
       <div>
-        <FormControl
+        <input
+          class="form-control"
           ref={this.synonymInputRef}
           type="text"
           placeholder="Enter a synonym"
@@ -91,16 +90,23 @@ export default class EntityEditor extends React.Component {
       return null
     }
 
-    return occurences.map(o => (
+    const list = occurences.map(o => (
       <ListGroupItem className={style.entity} onClick={() => this.selectOccurence(o)}>
         {o.name}
         <Glyphicon glyph="trash" className={style.deleteEntity} />
       </ListGroupItem>
     ))
+
+    return (
+      <div>
+        <input class="form-control" ref={this.synonymInputRef} type="text" placeholder="Enter an occurence" />
+        {list}
+      </div>
+    )
   }
 
-  onChange = () => {
-    this.props.onChange(this.state.entity)
+  onUpdate = () => {
+    this.props.onUpdate(this.state.entity)
   }
 
   render() {
