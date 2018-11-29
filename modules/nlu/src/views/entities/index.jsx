@@ -6,17 +6,24 @@ import EntityEditor from './editor'
 
 export default class EntitiesComponent extends React.Component {
   state = {
-    entities: [
-      { name: '@Artist', occurences: [{ name: 'JayZ', synonyms: ['JZ', 'Jay'] }] },
-      { name: '@Airport', occurences: [{ name: 'YQB', synonyms: ['A/roport de Qu/bec'] }] },
-      { name: '@Bus' }
-    ],
+    entities: [],
     filteredEntities: [],
     selectedEntity: undefined
   }
 
   componentDidMount() {
-    this.setState({ filteredEntities: this.state.entities })
+    this.fetchEntities()
+  }
+
+  fetchEntities = () => {
+    this.props.bp.axios.get('/mod/nlu/entities').then(res => {
+      const customEntities = res.data.filter(r => r.type !== 'system')
+      this.setState({
+        entities: customEntities,
+        filteredEntities: customEntities,
+        selectedEntity: customEntities[0]
+      })
+    })
   }
 
   onSearchChange = event => {
@@ -34,8 +41,28 @@ export default class EntitiesComponent extends React.Component {
   }
 
   onEntityUpdate = entity => {
-    // TODO: Update the entity here
-    console.log('Updated entity: ', entity)
+    return this.props.bp.axios.put(`/mod/nlu/entities/${entity.name}`, entity)
+  }
+
+  createEntityPrompt = () => {
+    const name = prompt('Enter the name of the new entity')
+
+    if (!name || !name.length) {
+      return
+    }
+
+    if (/[^a-z0-9-_.]/i.test(name)) {
+      alert('Invalid name, only alphanumerical characters, underscores and hypens are accepted')
+      return null
+    }
+
+    return this.props.bp.axios
+      .post(`/mod/nlu/entities/`, {
+        name,
+        type: 'list', // TODO: We need a ui option for that.
+        occurences: []
+      })
+      .then(this.fetchEntities)
   }
 
   render() {
@@ -45,7 +72,7 @@ export default class EntitiesComponent extends React.Component {
           <div className={style.main}>
             <nav className={style.navigationBar}>
               <div className={style.create}>
-                <Button bsStyle="primary" block>
+                <Button bsStyle="primary" block onClick={this.createEntityPrompt}>
                   Create new Entity
                 </Button>
               </div>

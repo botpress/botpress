@@ -38,6 +38,15 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.sendStatus(201)
   })
 
+  router.put('/entities/:entity', async (req, res) => {
+    const content = req.body
+    const { botId, entity } = req.params
+    const updatedEntity = content as sdk.NLU.EntityDefinition
+
+    await (nlus[botId] as ScopedEngine).storage.updateEntity(entity, updatedEntity)
+    res.sendStatus(201)
+  })
+
   router.delete('/entities/:entity', async (req, res) => {
     const { botId, entity } = req.params
     await (nlus[botId] as ScopedEngine).storage.deleteEntity(entity)

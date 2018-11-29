@@ -11,7 +11,7 @@ import style from './style.scss'
 const isHiddenIntent = ({ name }) => name.startsWith('__')
 
 // Exports SubViews
-export const entities = props => <EntitiesComponent props={props} />
+export const entities = props => new EntitiesComponent(props)
 
 export default class Module extends React.Component {
   state = {

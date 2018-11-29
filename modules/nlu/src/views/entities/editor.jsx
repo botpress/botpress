@@ -8,6 +8,7 @@ export default class EntityEditor extends React.Component {
   constructor(props) {
     super(props)
     this.synonymInputRef = React.createRef()
+    this.occurenceInputRef = React.createRef()
   }
 
   state = {
@@ -104,6 +105,8 @@ export default class EntityEditor extends React.Component {
     }
 
     entity.occurences = [...entity.occurences, { name: occurence, synonyms: [] }]
+
+    this.occurenceInputRef.current.value = ''
     this.setState({ currentEntity: entity, occurenceInput: '' }, this.onUpdate)
   }
 
@@ -148,7 +151,7 @@ export default class EntityEditor extends React.Component {
       <div>
         <input
           class="form-control"
-          ref={this.synonymInputRef}
+          ref={this.occurenceInputRef}
           type="text"
           placeholder="Enter an occurence"
           onKeyDown={this.handleOccurenceEnter}
@@ -163,9 +166,13 @@ export default class EntityEditor extends React.Component {
     this.props.onUpdate(this.state.currentEntity)
   }
 
+  renderEmpty() {
+    return <h1>Create an entity to improve your NLU</h1>
+  }
+
   render() {
     if (!this.state.currentEntity) {
-      return null
+      return this.renderEmpty()
     }
 
     return (

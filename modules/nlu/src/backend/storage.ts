@@ -38,7 +38,6 @@ export default class Storage {
     intent = sanitizeFilenameNoExt(intent)
     const sysEntities = this.getSystemEntities()
 
-
     await Promise.map(content.slots, async slot => {
       if (!sysEntities.find(e => e.name === slot.entity)) {
         try {
@@ -120,42 +119,52 @@ export default class Storage {
     }
   }
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
-    return [
-      ...this.getSystemEntities(),
-      ...(await this.getCustomEntities())
-    ]
+    return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    const sysEntNames = !this.config.ducklingEnabled ? [] : [
-      'amountOfMoney',
-      'distance',
-      'duration',
-      'email',
-      'numeral',
-      'ordinal',
-      'phoneNumber',
-      'quantity',
-      'temperature',
-      'time',
-      'url',
-      'volume'
-    ]
+    const sysEntNames = !this.config.ducklingEnabled
+      ? []
+      : [
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'numeral',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
     sysEntNames.unshift('any')
 
-    return sysEntNames.map(e => ({
-      name: e,
-      type: 'system',
-      body: {}
-    }) as sdk.NLU.EntityDefinition)
+    return sysEntNames.map(
+      e =>
+        ({
+          name: e,
+          type: 'system',
+          body: {}
+        } as sdk.NLU.EntityDefinition)
+    )
   }
 
   async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
-    return []
+    const files = await this.ghost.directoryListing(this.entitiesDir, '*.json')
+    return Promise.mapSeries(files, async f => {
+      return await this.ghost.readFileAsObject<sdk.NLU.EntityDefinition>(this.entitiesDir, f)
+    })
   }
 
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
     const fileName = this._getEntityFileName(entity.name)
     return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
+  }
+
+  async updateEntity(entityName: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
+    const fileName = this._getEntityFileName(entityName)
+    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(updatedEntity))
   }
 
   async deleteEntity(entityName: string): Promise<void> {
