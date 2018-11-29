@@ -66,6 +66,11 @@ export default class EntitiesComponent extends React.Component {
   }
 
   deleteEntity = entity => {
+    const confirm = window.confirm(`Are you sure you want to delete the entity "${entity.name}"?`)
+    if (!confirm) {
+      return
+    }
+
     return this.props.bp.axios.delete(`/mod/nlu/entities/${entity.name}`).then(this.fetchEntities)
   }
 

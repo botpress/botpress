@@ -21,7 +21,7 @@ export default class EntityEditor extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.entity !== this.state.currentEntity) {
       const newEntity = nextProps.entity
-      this.setState({ currentEntity: newEntity, currentOccurence: newEntity.occurences[0] })
+      this.setState({ currentEntity: newEntity, currentOccurence: newEntity && newEntity.occurences[0] })
     }
   }
 
@@ -132,16 +132,22 @@ export default class EntityEditor extends React.Component {
   }
 
   removeOccurence = occurence => {
+    const confirm = window.confirm(
+      `Are you sure you want to delete the occurence "${occurence.name}" and all its synonyms?`
+    )
+    if (!confirm) {
+      return
+    }
+
     const entity = this.state.currentEntity
     const index = entity.occurences.findIndex(o => o.name === occurence.name)
 
     entity.occurences.splice(index, 1)
-    this.setState({ currentEntity: entity }, this.onUpdate)
+    this.setState({ currentEntity: entity, currentOccurence: entity.occurences[0] }, this.onUpdate)
   }
 
   renderOccurences = () => {
-    const occurences = this.state.currentEntity.occurences
-
+    const occurences = this.state.currentEntity && this.state.currentEntity.occurences
     if (!occurences) {
       return null
     }
