@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-  Badge,
-  Button,
-  FormGroup,
-  FormControl,
-  InputGroup,
-  Glyphicon,
-  ListGroup,
-  ListGroupItem,
-  Label
-} from 'react-bootstrap'
+import { Button, FormGroup, FormControl, InputGroup, Glyphicon, ListGroup, ListGroupItem, Label } from 'react-bootstrap'
 
 import style from '../style.scss'
 import EntityEditor from './editor'
@@ -29,73 +19,6 @@ export default class EntitiesComponent extends React.Component {
     this.setState({ filteredEntities: this.state.entities })
   }
 
-  renderCreateEntity = () => {
-    return (
-      <div>
-        <form>
-          <FormGroup bsSize="large">
-            <InputGroup>
-              <FormControl type="text" placeholder="Search" onChange={this.onSearchChange} />
-              <InputGroup.Addon>
-                <Glyphicon glyph="search" />
-              </InputGroup.Addon>
-            </InputGroup>
-          </FormGroup>
-          <ListGroup>
-            {this.state.filteredEntities.map((el, i) => (
-              <ListGroupItem
-                key={`nlu_entity_${el.name}`}
-                className={style.entity}
-                onClick={e => this.onEntitySelected(e, el.name)}
-              >
-                {el.name}
-                <Glyphicon glyph="trash" className={style.deleteEntity} />
-              </ListGroupItem>
-            ))}
-          </ListGroup>
-        </form>
-      </div>
-    )
-  }
-
-  renderOccurences = entity => {
-    return (
-      entity.occurences &&
-      entity.occurences.map((oc, i) => (
-        <ListGroupItem className={style.entity}>
-          {oc.name}
-          <FormControl type="text" placeholder="Enter a synonym" className={style.synonym} />
-          <Glyphicon glyph="trash" className={style.deleteEntity} />
-        </ListGroupItem>
-      ))
-    )
-  }
-
-  renderSynonyms = () => {
-    const selectedEntityName = this.state.selectedEntity
-    const entity = this.state.entities.filter(e => e.name === selectedEntityName)
-    if (!entity) {
-      return null
-    }
-
-    return (
-      <div>
-        <h3>Occurences of "{entity}"</h3>
-        <form>
-          <FormGroup bsSize="large">
-            <InputGroup>
-              <FormControl type="text" placeholder="Search" onChange={this.onSearchChange} />
-              <InputGroup.Addon>
-                <Glyphicon glyph="search" />
-              </InputGroup.Addon>
-            </InputGroup>
-          </FormGroup>
-          <ListGroup>{this.renderOccurences(entity)}</ListGroup>
-        </form>
-      </div>
-    )
-  }
-
   onSearchChange = event => {
     if (event.target.value !== '') {
       const searchValue = event.target.value.toLowerCase()
@@ -106,31 +29,12 @@ export default class EntitiesComponent extends React.Component {
     }
   }
 
-  renderTag = value => {
-    return (
-      <Label>
-        {value}
-        <Glyphicon glyph="remove" />
-      </Label>
-    )
+  onEntitySelected = entity => {
+    this.setState({ selectedEntity: entity })
   }
 
-  onEntitySelected = (event, name) => {
-    event.stopPropagation()
-    debugger
-    this.setState({ selectedEntity: name })
-  }
-
-  renderSyn = occ => {
-    return (
-      oc.synonyms &&
-      oc.synonyms.map((synonym, i) => (
-        <Label>
-          {synonym}
-          <Glyphicon glyph="remove" />
-        </Label>
-      ))
-    )
+  onEntityChange = () => {
+    console.log('changed')
   }
 
   render() {
@@ -161,7 +65,7 @@ export default class EntitiesComponent extends React.Component {
                     <ListGroupItem
                       key={`nlu_entity_${el.name}`}
                       className={style.entity}
-                      onClick={e => this.onEntitySelected(e, el.name)}
+                      onClick={() => this.onEntitySelected(el)}
                     >
                       {el.name}
                       <Glyphicon glyph="trash" className={style.deleteEntity} />
@@ -169,10 +73,10 @@ export default class EntitiesComponent extends React.Component {
                   ))}
                 </ListGroup>
               </div>
-              <div className={style.childContent}>
-                <EntityEditor />
-              </div>
             </nav>
+            <div className={style.childContent}>
+              <EntityEditor entity={this.state.selectedEntity} onChange={this.onEntityChange} />
+            </div>
           </div>
         </div>
       </div>
