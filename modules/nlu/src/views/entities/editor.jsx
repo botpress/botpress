@@ -11,28 +11,33 @@ export default class EntityEditor extends React.Component {
   }
 
   state = {
-    occurence: undefined,
-    entity: undefined,
-    synonym: ''
+    currentOccurence: undefined,
+    currentEntity: undefined,
+    synonymInput: '',
+    occurenceInput: ''
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.entity !== this.state.entity) {
-      this.setState({ entity: nextProps.entity, occurence: undefined })
+    if (nextProps.entity !== this.state.currentEntity) {
+      this.setState({ currentEntity: nextProps.entity, currentOccurence: undefined })
+    }
+  }
+
+  onEnterPressed = (event, cb) => {
+    const enterKey = 13
+    if (event.keyCode === enterKey) {
+      cb()
     }
   }
 
   handleSynonymEnter = event => {
-    const enterKey = 13
-    if (event.keyCode === enterKey) {
-      this.addSynonym()
-    }
+    this.onEnterPressed(event, this.addSynonym)
   }
 
   addSynonym = () => {
-    const synonym = this.state.synonym
-    let entity = this.state.entity
-    let occurence = this.state.occurence
+    const synonym = this.state.synonymInput
+    let entity = this.state.currentEntity
+    let occurence = this.state.currentOccurence
 
     if (occurence.synonyms.includes(synonym)) {
       return
@@ -43,28 +48,28 @@ export default class EntityEditor extends React.Component {
     entity.occurences[index] = occurence
 
     this.synonymInputRef.current.value = ''
-    this.setState({ entity, synonym: '' }, this.onUpdate)
+    this.setState({ currentEntity: entity, synonymInput: '' }, this.onUpdate)
   }
 
   removeSynonym = synonym => {
-    let occurence = this.state.occurence
-    let entity = this.state.entity
+    let occurence = this.state.currentOccurence
+    let entity = this.state.currentEntity
 
     const sIndex = occurence.synonyms.findIndex(s => s === synonym)
     occurence.synonyms.splice(sIndex, 1)
 
     const eIndex = entity.occurences.findIndex(o => o.name === occurence.name)
     entity.occurences[eIndex] = occurence
-    this.setState({ entity }, this.onUpdate)
+    this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
-  onSynonymChange = event => {
+  onSynonymInputChange = event => {
     const value = event.target.value
-    this.setState({ synonym: value })
+    this.setState({ synonymInput: value })
   }
 
   renderSynonyms = () => {
-    const synonyms = this.state.occurence && this.state.occurence.synonyms
+    const synonyms = this.state.currentOccurence && this.state.currentOccurence.synonyms
     if (!synonyms) {
       return null
     }
@@ -83,21 +88,42 @@ export default class EntityEditor extends React.Component {
           type="text"
           placeholder="Enter a synonym"
           onKeyDown={this.handleSynonymEnter}
-          onChange={this.onSynonymChange}
+          onChange={this.onSynonymInputChange}
         />
         {tags}
       </div>
     )
   }
 
+  addOccurence = () => {
+    const occurence = this.state.occurenceInput
+    let entity = this.state.currentEntity
+
+    if (entity.occurences.includes(occurence)) {
+      return
+    }
+
+    entity.occurences = [...entity.occurences, { name: occurence, synonyms: [] }]
+    this.setState({ currentEntity: entity, occurenceInput: '' }, this.onUpdate)
+  }
+
+  handleOccurenceEnter = event => {
+    this.onEnterPressed(event, this.addOccurence)
+  }
+
+  onOccurenceInputChange = event => {
+    const value = event.target.value
+    this.setState({ occurenceInput: value })
+  }
+
   selectOccurence = occurence => {
-    if (occurence !== this.state.occurence) {
-      this.setState({ occurence })
+    if (occurence !== this.state.currentOccurence) {
+      this.setState({ currentOccurence: occurence })
     }
   }
 
   renderOccurences = () => {
-    const occurences = this.state.entity.occurences
+    const occurences = this.state.currentEntity.occurences
 
     if (!occurences) {
       return null
@@ -112,18 +138,25 @@ export default class EntityEditor extends React.Component {
 
     return (
       <div>
-        <input class="form-control" ref={this.synonymInputRef} type="text" placeholder="Enter an occurence" />
+        <input
+          class="form-control"
+          ref={this.synonymInputRef}
+          type="text"
+          placeholder="Enter an occurence"
+          onKeyDown={this.handleOccurenceEnter}
+          onChange={this.onOccurenceInputChange}
+        />
         {list}
       </div>
     )
   }
 
   onUpdate = () => {
-    this.props.onUpdate(this.state.entity)
+    this.props.onUpdate(this.state.currentEntity)
   }
 
   render() {
-    if (!this.state.entity) {
+    if (!this.state.currentEntity) {
       return null
     }
 
@@ -133,7 +166,7 @@ export default class EntityEditor extends React.Component {
           <div className="pull-left">
             <h1>
               entities/
-              <span className={style.intent}>{this.state.entity.name}</span>
+              <span className={style.intent}>{this.state.currentEntity.name}</span>
             </h1>
           </div>
         </div>
