@@ -65,6 +65,10 @@ export default class EntitiesComponent extends React.Component {
       .then(this.fetchEntities)
   }
 
+  deleteEntity = entity => {
+    return this.props.bp.axios.delete(`/mod/nlu/entities/${entity.name}`).then(this.fetchEntities)
+  }
+
   render() {
     return (
       <div className={style.workspace}>
