@@ -22,7 +22,7 @@ export default class EntityEditor extends React.Component {
     }
   }
 
-  handleEnter = event => {
+  handleSynonymEnter = event => {
     const enterKey = 13
     if (event.keyCode === enterKey) {
       this.addSynonym()
@@ -38,12 +38,24 @@ export default class EntityEditor extends React.Component {
       return
     }
 
+    occurence.synonyms = [...occurence.synonyms, synonym]
     const index = entity.occurences.findIndex(o => o.name === occurence.name)
     entity.occurences[index] = occurence
-    occurence.synonyms = [...occurence.synonyms, synonym]
 
     this.synonymInputRef.current.value = ''
     this.setState({ entity, synonym: '' }, this.onUpdate)
+  }
+
+  removeSynonym = synonym => {
+    let occurence = this.state.occurence
+    let entity = this.state.entity
+
+    const sIndex = occurence.synonyms.findIndex(s => s === synonym)
+    occurence.synonyms.splice(sIndex, 1)
+
+    const eIndex = entity.occurences.findIndex(o => o.name === occurence.name)
+    entity.occurences[eIndex] = occurence
+    this.setState({ entity }, this.onUpdate)
   }
 
   onSynonymChange = event => {
@@ -59,6 +71,7 @@ export default class EntityEditor extends React.Component {
     const tags = synonyms.map(s => (
       <div>
         <Label>{s}</Label>
+        <Glyphicon glyph="remove" onClick={() => this.removeSynonym(s)} />
       </div>
     ))
 
@@ -69,7 +82,7 @@ export default class EntityEditor extends React.Component {
           ref={this.synonymInputRef}
           type="text"
           placeholder="Enter a synonym"
-          onKeyDown={this.handleEnter}
+          onKeyDown={this.handleSynonymEnter}
           onChange={this.onSynonymChange}
         />
         {tags}
