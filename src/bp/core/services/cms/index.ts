@@ -411,8 +411,8 @@ export class CMSService implements IDisposeOnExit {
 
   async renderElement(contentId, args, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
-    let contentType = contentId
     contentId = contentId.replace(/^#?/i, '')
+    let contentType = contentId
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors

@@ -25,7 +25,23 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/entities', async (req, res) => {
-    res.send([]) // TODO: Add built-in entity extractions here
+    const entities = await (nlus[req.params.botId] as ScopedEngine).storage.getAvailableEntities()
+    res.json(entities)
+  })
+
+  router.post('/entities', async (req, res) => {
+    const content = req.body
+    const { botId } = req.params
+    const entity = content as sdk.NLU.EntityDefinition
+
+    await (nlus[botId] as ScopedEngine).storage.saveEntity(entity)
+    res.sendStatus(201)
+  })
+
+  router.delete('/entities/:entity', async (req, res) => {
+    const { botId, entity } = req.params
+    await (nlus[botId] as ScopedEngine).storage.deleteEntity(entity)
+    res.sendStatus(204)
   })
 
   router.get('/sync/check', async (req, res) => {

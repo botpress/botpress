@@ -8,33 +8,14 @@ import _ from 'lodash'
 import Editor from './draft/editor'
 
 import style from './style.scss'
-import EntitiesEditor from './entities/index'
+import Slots from './slots/Slots'
 
 export default class IntentsEditor extends React.Component {
   state = {
     initialUtterances: '',
-    entitiesEditor: null,
+    slotsEditor: null,
     isDirty: false,
-    entities: [
-      // {
-      //   id: '0',
-      //   colors: 1,
-      //   name: 'DepartureDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '1',
-      //   colors: 3,
-      //   name: 'ArrivalDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '2',
-      //   colors: 5,
-      //   name: 'PassengerCount',
-      //   type: '@native.number'
-      // }
-    ],
+    slots: [],
     utterances: []
   }
 
@@ -61,14 +42,14 @@ export default class IntentsEditor extends React.Component {
   }
 
   initiateStateFromProps(props) {
-    const { utterances, entities } = (props && props.intent) || { utterances: [], entities: [] }
+    const { utterances, slots } = (props && props.intent) || { utterances: [], slots: [] }
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
-    this.setState({ utterances: expanded, entities: entities, isDirty: false }, () => {
+    this.setState({ utterances: expanded, slots: slots, isDirty: false }, () => {
       this.initialHash = this.computeHash()
       this.forceUpdate()
     })
@@ -88,7 +69,7 @@ export default class IntentsEditor extends React.Component {
     this.props.axios
       .post(`/mod/nlu/intents/${this.props.intent.name}`, {
         utterances: this.getCanonicalUtterances(),
-        entities: this.state.entities
+        slots: this.state.slots
       })
       .then(() => {
         this.props.reloadIntents && this.props.reloadIntents()
@@ -111,17 +92,14 @@ export default class IntentsEditor extends React.Component {
       text: u
     }))
 
+  // TODO use somekind of web crypto to compute an actuall hash
   computeHash = () =>
     JSON.stringify({
       utterances: this.getCanonicalUtterances(),
-      entities: this.state.entities
+      slots: this.state.slots
     })
 
   isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
-
-  fetchEntities = () => {
-    return this.props.axios.get(`/mod/nlu/entities`).then(res => res.data)
-  }
 
   focusFirstUtterance = () => {
     if (this.firstUtteranceRef) {
@@ -159,7 +137,7 @@ export default class IntentsEditor extends React.Component {
           return (
             <li key={`uttr-${utterance.id}`}>
               <Editor
-                getEntitiesEditor={() => this.entitiesEditor}
+                getSlotsEditor={() => this.slotsEditor}
                 ref={el => {
                   if (i === 0) {
                     this.firstUtteranceRef = el
@@ -171,7 +149,7 @@ export default class IntentsEditor extends React.Component {
                 onInputConsumed={preprendNewUtterance}
                 canonicalValue={utterance.text}
                 canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
-                entities={this.state.entities}
+                slots={this.state.slots}
               />
             </li>
           )
@@ -188,8 +166,8 @@ export default class IntentsEditor extends React.Component {
     )
   }
 
-  onEntitiesChanged = (entities, { operation, name, oldName } = {}) => {
-    const replaceObj = { entities: entities }
+  handleSlotsChanged = (slots, { operation, name, oldName } = {}) => {
+    const replaceObj = { slots }
 
     if (operation === 'deleted') {
       let utterances = this.getUtterances()
@@ -258,11 +236,11 @@ export default class IntentsEditor extends React.Component {
         <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
           {this.renderEditor()}
           <div className={style.entitiesPanel}>
-            <EntitiesEditor
+            <Slots
+              ref={el => (this.slotsEditor = el)}
               axios={this.props.axios}
-              ref={el => (this.entitiesEditor = el)}
-              entities={this.state.entities}
-              onEntitiesChanged={this.onEntitiesChanged}
+              slots={this.state.slots}
+              onSlotsChanged={this.handleSlotsChanged}
             />
           </div>
         </SplitterLayout>

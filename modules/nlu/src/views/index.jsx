@@ -98,7 +98,7 @@ export default class Module extends React.Component {
     return this.props.bp.axios
       .post(`/mod/nlu/intents/${name}`, {
         utterances: [],
-        entities: []
+        slots: []
       })
       .then(this.fetchIntents)
       .then(() => this.setCurrentIntent(name))

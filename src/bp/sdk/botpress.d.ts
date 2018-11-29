@@ -134,8 +134,23 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export type EntityType = 'system' | 'pattern' | 'list'
+
+    export interface EntityDefinition {
+      name: string,
+      type: EntityType
+      body: any
+    }
+
+    export interface IntentSlot {
+      name: string
+      entity: string
+    }
+
     export interface Intent {
       name: string
+      slots: IntentSlot[]
+      utterances: string[]
       confidence: number
       matches: (intentPattern: string) => boolean
     }
@@ -143,6 +158,7 @@ declare module 'botpress/sdk' {
     export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
 
     export interface Entity {
+      name: string
       type: string
       meta: EntityMeta
       data: EntityBody
@@ -260,10 +276,19 @@ declare module 'botpress/sdk' {
       intent?: string
     }
 
+    /**
+     * This  object is used to store data which will be persisted on different timeframes. It allows you to easily
+     * store and retrieve data for different kind of situations.
+     */
     export interface EventState {
+      /** Data saved as user attributes; retention policies in Botpress global config applies  */
       user: User
-      context: DialogContext
+      /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
+      /** Data saved to this variable will be remembered until the end of the flow */
+      temp: any
+      /** Used internally by Botpress to keep the user's current location and upcoming instructions*/
+      context: DialogContext
     }
 
     export interface DialogContext {
@@ -272,7 +297,6 @@ declare module 'botpress/sdk' {
       currentNode?: string
       currentFlow?: string
       queue?: any
-      data?: any
     }
 
     export interface CurrentSession {

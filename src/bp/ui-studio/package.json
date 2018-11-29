@@ -19,7 +19,6 @@
     "ms": "^0.7.1",
     "mustache": "^2.3.0",
     "nanoid": "^1.0.1",
-    "nodemon": "^1.12.1",
     "query-string": "^5.0.1",
     "react-jsonschema-form": "^1.0.3",
     "react-loaders": "^3.0.1",
