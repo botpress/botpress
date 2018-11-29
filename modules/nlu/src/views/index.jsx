@@ -8,15 +8,12 @@ import EntitiesComponent from './entities'
 import IntentEditor from './intents'
 import style from './style.scss'
 
-const isHiddenIntent = ({ name }) => name.startsWith('__')
-
 // Exports SubViews
 export const entities = props => new EntitiesComponent(props)
 
 export default class Module extends React.Component {
   state = {
     showNavIntents: true,
-    showHiddenIntents: false,
     intents: [],
     currentIntent: null,
     filterValue: '',
@@ -25,13 +22,7 @@ export default class Module extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
-
-    this.syncInterval = setInterval(this.checkSync, 5000)
     this.checkSync()
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.syncInterval)
   }
 
   checkSync = () => {
@@ -52,7 +43,7 @@ export default class Module extends React.Component {
       const dataToSet = { intents: res.data }
 
       if (!this.state.currentIntent) {
-        dataToSet.currentIntent = _.get(_.first(_.reject(res.data, isHiddenIntent)), 'name')
+        dataToSet.currentIntent = _.get(_.first(res.data), 'name')
       }
 
       this.setState(dataToSet)
@@ -68,8 +59,6 @@ export default class Module extends React.Component {
   getCurrentIntent = () => _.find(this.getIntents(), { name: this.state.currentIntent })
 
   onFilterChanged = event => this.setState({ filterValue: event.target.value })
-
-  toggleShowHiddenIntents = event => this.setState({ showHiddenIntents: event.target.checked })
 
   setCurrentIntent = name => {
     if (this.state.currentIntent !== name) {
@@ -106,9 +95,6 @@ export default class Module extends React.Component {
 
   getFilteredIntents() {
     return this.getIntents().filter(i => {
-      if (!this.state.showHiddenIntents && isHiddenIntent(i)) {
-        return false
-      }
       if (this.state.filterValue.length && !i.name.toLowerCase().includes(this.state.filterValue.toLowerCase())) {
         return false
       }
@@ -195,14 +181,6 @@ export default class Module extends React.Component {
                     onChange={this.onFilterChanged}
                   />
                 </p>
-                <span className={style.checkboxContainer}>
-                  <Checkbox
-                    id="showHidden"
-                    checked={this.state.showHiddenIntents}
-                    onChange={this.toggleShowHiddenIntents}
-                  />
-                  <label htmlFor="showHidden">Show hidden intents</label>
-                </span>
               </div>
               <div className={style.list}>{this.renderCategory()}</div>
             </nav>
