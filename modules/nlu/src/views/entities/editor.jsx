@@ -122,6 +122,14 @@ export default class EntityEditor extends React.Component {
     }
   }
 
+  removeOccurence = occurence => {
+    const entity = this.state.currentEntity
+    const index = entity.occurences.findIndex(o => o.name === occurence.name)
+
+    entity.occurences.splice(index, 1)
+    this.setState({ currentEntity: entity }, this.onUpdate)
+  }
+
   renderOccurences = () => {
     const occurences = this.state.currentEntity.occurences
 
@@ -132,7 +140,7 @@ export default class EntityEditor extends React.Component {
     const list = occurences.map(o => (
       <ListGroupItem className={style.entity} onClick={() => this.selectOccurence(o)}>
         {o.name}
-        <Glyphicon glyph="trash" className={style.deleteEntity} />
+        <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.removeOccurence(o)} />
       </ListGroupItem>
     ))
 
