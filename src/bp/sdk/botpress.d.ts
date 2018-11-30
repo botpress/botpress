@@ -82,6 +82,17 @@ declare module 'botpress/sdk' {
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
     skills?: Skill[]
+    /** An array of available bot templates when creating a new bot */
+    botTemplates?: BotTemplate[]
+  }
+
+  export interface BotTemplate {
+    id: string
+    name: string
+    desc: string
+    /**  */
+    readonly moduleId?: string
+    readonly moduleName?: string
   }
 
   export interface ModuleDefinition {
@@ -137,7 +148,7 @@ declare module 'botpress/sdk' {
     export type EntityType = 'system' | 'pattern' | 'list'
 
     export interface EntityDefinition {
-      name: string,
+      name: string
       type: EntityType
       body: any
     }
