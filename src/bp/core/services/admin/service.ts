@@ -1,3 +1,4 @@
+import { BotTemplate } from 'botpress/sdk'
 import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
 
 export interface AdminService {
@@ -17,7 +18,7 @@ export interface AdminService {
   updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>)
   listTeamRoles(teamId: number)
 
-  addBot(teamId: number, bot: Bot): Promise<void>
+  addBot(teamId: number, bot: Bot, template: BotTemplate): Promise<void>
   updateBot(teamId: number, botId: string, bot: Bot): Promise<void>
   deleteBot(teamId: number, botId: string)
   listBots(teamId: number, offset?: number, limit?: number)

@@ -229,11 +229,12 @@ export class TeamsRouter implements CustomRouter {
       '/:teamId/bots', // Add new bot
       this.asyncMiddleware(async (req, res) => {
         const { teamId } = req.params
-        const bot = <Bot>req.body
+        const bot = <Bot>_.pick(req.body, ['id', 'name'])
         const userId = req.dbUser.id
+
         await svc.assertUserMember(userId, teamId)
         await svc.assertUserPermission(userId, teamId, 'admin.team.bots', 'write')
-        await svc.addBot(teamId, bot)
+        await svc.addBot(teamId, bot, req.body.template)
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id,
