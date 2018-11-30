@@ -3,6 +3,7 @@ import style from './style.scss'
 import { ListGroupItem, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
+import classNames from 'classnames'
 
 export default class EntityEditor extends React.Component {
   constructor(props) {
@@ -113,10 +114,10 @@ export default class EntityEditor extends React.Component {
     return (
       <div>
         <input
-          class="form-control"
+          class={classNames('form-control', style.occurenceInput)}
           ref={this.occurenceInputRef}
           type="text"
-          placeholder="Enter an occurence"
+          placeholder="Type to create an occurence"
           onKeyDown={this.handleOccurenceEnter}
           onChange={this.onOccurenceInputChange}
         />
@@ -142,7 +143,7 @@ export default class EntityEditor extends React.Component {
   }
 
   renderEmpty() {
-    return <h1>Create an entity to improve your NLU</h1>
+    return <h1>No entities have been created yet</h1>
   }
 
   render() {

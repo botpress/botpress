@@ -211,9 +211,7 @@ export default class Slots extends React.Component {
           onSlotSave={this.onSlotSave}
           onHide={this.hideSlotModal}
         />
-        {
-          this.getSlots().length > 0 ? this.renderWithSlots() : this.renderWithoutSlots()
-        }
+        {this.getSlots().length > 0 ? this.renderWithSlots() : this.renderWithoutSlots()}
       </div>
     )
   }

@@ -82,7 +82,7 @@ export default class EntitiesComponent extends React.Component {
             <nav className={style.navigationBar}>
               <div className={style.create}>
                 <Button bsStyle="primary" block onClick={this.createEntityPrompt}>
-                  Create new Entity
+                  Create new entity
                 </Button>
               </div>
 
@@ -105,6 +105,8 @@ export default class EntitiesComponent extends React.Component {
                       onClick={() => this.onEntitySelected(el)}
                     >
                       {el.name}
+                      &nbsp;(
+                      {_.get(el, 'occurences.length') || 0})
                       <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteEntity(el)} />
                     </ListGroupItem>
                   ))}

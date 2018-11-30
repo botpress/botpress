@@ -1,6 +1,14 @@
 import React from 'react'
-import classnames from 'classnames'
-import { Collapse, Button, Glyphicon } from 'react-bootstrap'
+import {
+  Collapse,
+  Button,
+  Glyphicon,
+  ListGroup,
+  ListGroupItem,
+  FormGroup,
+  InputGroup,
+  FormControl
+} from 'react-bootstrap'
 import _ from 'lodash'
 
 import EntitiesComponent from './entities'
@@ -119,37 +127,24 @@ export default class Module extends React.Component {
   renderCategory() {
     const intents = this.getFilteredIntents()
 
-    const caret = classnames(style.caret, {
-      [style.inverted]: !this.state.showNavIntents
-    })
-
-    const getClassName = el =>
-      classnames({
-        [style.active]: this.getCurrentIntent() === el
-      })
-
     return (
       <div className={style.intentsContainer}>
-        <div>
-          <span>Intents ({intents.length})</span>
-          <span className={caret} onClick={this.toggleProp('showNavIntents')}>
-            <span className="caret" />
-          </span>
-        </div>
-        <Collapse in={this.state.showNavIntents}>
-          <ul className={style.intentsList}>
+        <div className={style.list}>
+          <ListGroup>
             {intents.map((el, i) => (
-              <li key={i} className={getClassName(el)} onClick={() => this.setCurrentIntent(el.name)}>
-                <span>
-                  {el.name}
-                  &nbsp;(
-                  {_.get(el, 'utterances.length') || 0})
-                </span>
-                <Glyphicon className={style.deleteIntent} glyph="trash" onClick={() => this.deleteIntent(el.name)} />
-              </li>
+              <ListGroupItem
+                key={`nlu_entity_${el.name}`}
+                className={style.entity}
+                onClick={() => this.setCurrentIntent(el.name)}
+              >
+                {el.name}
+                &nbsp;(
+                {_.get(el, 'utterances.length') || 0})
+                <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
+              </ListGroupItem>
             ))}
-          </ul>
-        </Collapse>
+          </ListGroup>
+        </div>
       </div>
     )
   }
@@ -184,14 +179,14 @@ export default class Module extends React.Component {
               </div>
 
               <div className={style.filter}>
-                <p>
-                  <input
-                    type="text"
-                    value={this.state.filterValue}
-                    placeholder="filter..."
-                    onChange={this.onFilterChanged}
-                  />
-                </p>
+                <FormGroup bsSize="large">
+                  <InputGroup>
+                    <FormControl type="text" placeholder="Search" onChange={this.onFilterChanged} />
+                    <InputGroup.Addon>
+                      <Glyphicon glyph="search" />
+                    </InputGroup.Addon>
+                  </InputGroup>
+                </FormGroup>
               </div>
               <div className={style.list}>{this.renderCategory()}</div>
             </nav>
