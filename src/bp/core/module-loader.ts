@@ -1,16 +1,16 @@
 import { Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
 import { ValidationError } from 'errors'
-import fse from 'fs-extra'
+
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-
 import { createForModule } from './api' // TODO
-import ModuleResolver from './modules/resolver'
+
 import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
+import { ModuleResourceLoader } from './services/module/resources-loader'
 import { TYPES } from './types'
 
 const MODULE_SCHEMA = joi.object().keys({
@@ -19,6 +19,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   skills: joi.array().optional(),
+  botTemplates: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -138,9 +139,9 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onServerReady && module.onServerReady(api))
-        this.loadModulesActions(name)
-        this.loadModuleHooks(name)
-        this.loadModuleAssets(name)
+
+        const resourceLoader = new ModuleResourceLoader(this.logger, name)
+        await resourceLoader.importResources()
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -156,44 +157,16 @@ export class ModuleLoader {
     }
   }
 
-  private async loadModulesActions(name: string) {
-    const resolver = new ModuleResolver(this.logger)
-    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
-    const moduleActionsDir = `${modulePath}/dist/actions`
+  public getBotTemplates() {
+    const templates = Array.from(this.entryPoints.values())
+      .filter(module => module.botTemplates)
+      .map(module => {
+        return module.botTemplates!.map(template => {
+          return { ...template, moduleId: module.definition.name, moduleName: module.definition.fullName }
+        })
+      })
 
-    if (fse.pathExistsSync(moduleActionsDir)) {
-      const globalActionsDir = `${process.PROJECT_LOCATION}/data/global/actions/${name}`
-      fse.mkdirpSync(globalActionsDir)
-      fse.copySync(moduleActionsDir, globalActionsDir)
-    }
-  }
-
-  private async loadModuleAssets(name: string) {
-    const resolver = new ModuleResolver(this.logger)
-    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
-    const modulesAssetsPath = `${modulePath}/assets/`
-
-    if (fse.pathExistsSync(modulesAssetsPath)) {
-      const assetsPath = `${process.PROJECT_LOCATION}/assets/modules/${name}`
-      fse.mkdirpSync(assetsPath)
-      fse.copySync(modulesAssetsPath, assetsPath)
-    }
-  }
-
-  private async loadModuleHooks(name: string) {
-    const resolver = new ModuleResolver(this.logger)
-    const modulePath = await resolver.resolve('MODULES_ROOT/' + name)
-
-    const moduleHooks = `${modulePath}/dist/hooks/`
-    if (fse.pathExistsSync(moduleHooks)) {
-      const hookTypes = await fse.readdir(moduleHooks)
-
-      for (const hookType of hookTypes) {
-        const globalHooksDir = `${process.PROJECT_LOCATION}/data/global/hooks/${hookType}/${name}`
-        fse.mkdirpSync(globalHooksDir)
-        fse.copySync(`${moduleHooks}/${hookType}`, globalHooksDir)
-      }
-    }
+    return _.flatten(templates)
   }
 
   public getLoadedModules(): ModuleDefinition[] {
