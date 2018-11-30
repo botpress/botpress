@@ -33,3 +33,48 @@ $btn-danger-bg-color-hover: #b13434;
 
 $sidebar-text-color: #aaa;
 $sidebar-primary-color: #58d1b0;
+
+:root {
+  --c-brand--light-2: #66AEE2;
+  --c-brand--light-1: #3393D8;
+  --c-brand: #0078cf;
+  --c-brand--dark-1: #0060A5;
+  --c-brand--dark-2: #00487C;
+
+  --c-secondary--dark-2: #FFE666;
+  --c-secondary--dark-1: #FFDE33;
+  --c-secondary: #FFD600;
+  --c-secondary--light-1: #CCAB00;
+  --c-secondary--light-2: #998000;
+
+  --c-tertiary--dark-2: #F66CB1;
+  --c-tertiary--dark-1: #F33B97;
+  --c-tertiary: #f10a7e;
+  --c-tertiary--light-1: #C00864;
+  --c-tertiary--light-2: #90064B;
+
+  --c-neutral--dark-2: #000;
+  --c-neutral--dark-1: #4a4a4a;
+  --c-neutral: #9b9b9b;
+  --c-neutral--light-1: #ddd;
+  --c-neutral--light-2: #f2f1f1;
+  --c-neutral--light-3: #fff;
+
+  --c-background--light-3: #dddddd;
+  --c-background--light-2: #9b9b9b;
+  --c-background--light-1: #626262;
+  --c-background: #555556;
+  --c-background--dark-1: #353535;
+  --c-background--dark-2: #1e1e1e;
+  --c-background--dark-3: #000;
+
+  --c-text: var(--c-neutral--dark-1);
+  --c-text--light: #fff;
+  --c-text--brand: var(--c-brand);
+  --c-text--disabled: #ddd;
+  --c-text--error: #f00;
+
+  --c-disabled: #eee;
+  --c-positive: #80c18d;
+  --c-negative: #d1495a;
+}
