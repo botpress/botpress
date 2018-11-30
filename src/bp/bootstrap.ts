@@ -36,8 +36,6 @@ async function start() {
 
   const modules: sdk.ModuleEntryPoint[] = []
 
-  await Config.createDefaultConfigIfMissing()
-
   const globalConfig = await Config.getBotpressConfig()
   const loadingErrors: Error[] = []
   let modulesLog = ''

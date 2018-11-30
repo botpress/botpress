@@ -1,5 +1,4 @@
 import { Logger } from 'botpress/sdk'
-
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -8,6 +7,7 @@ import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import yn from 'yn'
 
@@ -30,7 +30,10 @@ export class GhostConfigProvider implements ConfigProvider {
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
+  @Memoize()
   async getBotpressConfig(): Promise<BotpressConfig> {
+    await this.createDefaultConfigIfMissing()
+
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
 
     config.httpServer.port = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.port

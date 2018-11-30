@@ -278,6 +278,7 @@ class Bots extends Component {
                 &nbsp; This team has no bot, yet.
               </h1>
               <p>In Botpress, bots are always assigned to a team.</p>
+              <p>{this.renderCreateNewBotButton(true)}</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -286,10 +287,10 @@ class Bots extends Component {
     )
   }
 
-  renderCreateNewBotButton() {
+  renderCreateNewBotButton(isCentered) {
     return (
       <Button
-        className="float-right"
+        className={isCentered ? '' : 'float-right'}
         onClick={() => this.setState({ isCreateBotModalOpen: true })}
         color="primary"
         size="sm"
