@@ -10,7 +10,6 @@ const onServerReady = async (bp: SDK) => {}
 
 const botTemplates: sdk.BotTemplate[] = [
   { id: 'welcome-bot', name: 'Welcome Bot', desc: `Basic bot that showcases some of the bot's functionality` },
-  { id: 'empty-bot', name: 'Empty Bot', desc: `An empty bot that only includes the basic content types` },
   { id: 'small-talk', name: 'Small Talk', desc: `Includes basic smalltalk examples` }
 ]
 
