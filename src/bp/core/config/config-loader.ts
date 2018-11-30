@@ -1,14 +1,20 @@
+import { Logger } from 'botpress/sdk'
+import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
+import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
+import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
+import path from 'path'
 import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig, DatabaseType } from './botpress.config'
 
 export interface ConfigProvider {
+  createDefaultConfigIfMissing(): Promise<void>
   getBotpressConfig(): Promise<BotpressConfig>
   mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
@@ -19,7 +25,8 @@ export interface ConfigProvider {
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.IsProduction) private isProduction: string
+    @inject(TYPES.IsProduction) private isProduction: string,
+    @inject(TYPES.Logger) private logger: Logger
   ) {}
 
   async getBotpressConfig(): Promise<BotpressConfig> {
@@ -48,6 +55,30 @@ export class GhostConfigProvider implements ConfigProvider {
 
   async setBotConfig(botId: string, config: BotConfig) {
     await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
+  }
+
+  public async createDefaultConfigIfMissing() {
+    const botpressConfig = path.resolve(process.PROJECT_LOCATION, 'data', 'global', 'botpress.config.json')
+
+    if (!fse.existsSync(botpressConfig)) {
+      const botpressConfigSchema = path.resolve(process.PROJECT_LOCATION, 'data', 'botpress.config.schema.json')
+      const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botpressConfigSchema, 'utf-8')))
+
+      const config = {
+        $schema: `../../botpress.config.schema.json`,
+        ...defaultConfig,
+        modules: await this.getModulesListConfig()
+      }
+
+      fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
+    }
+  }
+
+  private async getModulesListConfig() {
+    const resolver = new ModuleResolver(this.logger)
+    return await resolver.getModulesList().map(module => {
+      return { location: `MODULES_ROOT/${module}`, enabled: true }
+    })
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {
