@@ -60,7 +60,7 @@ export class ModuleResourceLoader {
   async getBotTemplatePath(templateName: string) {
     const resolver = new ModuleResolver(this.logger)
     const modulePath = await resolver.resolve('MODULES_ROOT/' + this.moduleName)
-    return path.resolve(`${modulePath}/src/bot-templates/${templateName}`)
+    return path.resolve(`${modulePath}/dist/bot-templates/${templateName}`)
   }
 
   private async _getHooksPaths(): Promise<ModuleResourceExport> {
