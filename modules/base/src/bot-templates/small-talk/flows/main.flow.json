@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "onReceive": [],
+    "next": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "entry",
+      "next": [],
+      "onEnter": [],
+      "onReceive": null
+    }
+  ]
+}

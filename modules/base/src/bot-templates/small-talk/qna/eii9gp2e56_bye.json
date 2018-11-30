@@ -1,0 +1,27 @@
+{
+  "id": "eii9gp2e56_bye",
+  "data": {
+    "questions": [
+      "bye",
+      "Bye",
+      "Cya",
+      "TTYL",
+      "ttyl",
+      "Goodbye",
+      "Chow",
+      "bye for now",
+      "alright see you later",
+      "talk to you later!",
+      "see you tomorrow",
+      "good night",
+      "have a good night",
+      "have a good day"
+    ],
+    "answer": "C U later! :) Bye.",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}
