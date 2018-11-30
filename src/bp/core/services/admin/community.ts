@@ -124,7 +124,7 @@ export class CommunityAdminService implements AdminService {
       )
   }
 
-  async addBot(teamId: number, bot: Bot, template: BotTemplate): Promise<void> {
+  async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
     this.stats.track('ce', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, BotCreationSchema)
@@ -134,7 +134,10 @@ export class CommunityAdminService implements AdminService {
 
     await this.knex(this.botsTable).insert(bot)
 
-    await this.botConfigWriter.createFromTemplate(bot, template)
+    botTemplate
+      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
+      : await this.botConfigWriter.createEmptyBot(bot)
+
     await this.botLoader.mountBot(bot.id)
   }
 
