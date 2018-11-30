@@ -3,6 +3,7 @@ import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
+import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
@@ -90,7 +91,10 @@ export class GhostConfigProvider implements ConfigProvider {
     }
 
     for (const schema of schemasToCopy) {
-      await fse.copyFileSync(path.join(__dirname, 'schemas', schema), path.resolve(dataFolder, schema))
+      console.log(path.join(__dirname, 'schemas', schema))
+      console.log(__dirname)
+      console.log(await fs.readdirSync(path.join(__dirname, 'schemas', schema)))
+      await fs.copyFileSync(path.join(__dirname, 'schemas', schema), path.resolve(dataFolder, schema))
     }
   }
 
