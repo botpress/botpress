@@ -20,7 +20,7 @@ module.exports = () => {
     const definition = TJS.generateSchema(program, typeName, settings)
     const json = JSON.stringify(definition, null, 2) + os.EOL + os.EOL
 
-    const fileToWrite = path.resolve('./out/bp/data', jsonFile)
+    const fileToWrite = path.resolve('./out/bp/core/config/schemas', jsonFile)
     mkdirp.sync(path.dirname(fileToWrite))
     fs.writeFileSync(fileToWrite, json)
   }

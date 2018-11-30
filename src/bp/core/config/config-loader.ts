@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -61,6 +62,8 @@ export class GhostConfigProvider implements ConfigProvider {
     const botpressConfig = path.resolve(process.PROJECT_LOCATION, 'data', 'global', 'botpress.config.json')
 
     if (!fse.existsSync(botpressConfig)) {
+      await this.ensureDataFolderStructure()
+
       const botpressConfigSchema = path.resolve(process.PROJECT_LOCATION, 'data', 'botpress.config.schema.json')
       const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botpressConfigSchema, 'utf-8')))
 
@@ -70,7 +73,21 @@ export class GhostConfigProvider implements ConfigProvider {
         modules: await this.getModulesListConfig()
       }
 
-      fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
+      await fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
+    }
+  }
+
+  private async ensureDataFolderStructure() {
+    const requiredFolders = ['bots', 'global', 'storage']
+    const schemasToCopy = ['botpress.config.schema.json', 'bot.config.schema.json']
+    const dataFolder = path.resolve(process.PROJECT_LOCATION, 'data')
+
+    for (const folder of requiredFolders) {
+      await fse.ensureDir(path.resolve(dataFolder, folder))
+    }
+
+    for (const schema of schemasToCopy) {
+      await fse.copyFileSync(path.join(__dirname, 'schemas', schema), path.resolve(dataFolder, schema))
     }
   }
 
