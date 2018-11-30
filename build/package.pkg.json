@@ -7,6 +7,6 @@
   "private": true,
   "pkg": {
     "scripts": ["./core/**/*.js", "./*.js", "./pro/**/*.js", "./common/**/*.js"],
-    "assets": ["../../node_modules/vm2/lib/*.js", "./ui-admin/**", "./ui-studio/**"]
+    "assets": ["../../node_modules/vm2/lib/*.js", "./ui-admin/**", "./ui-studio/**", "./core/config/schemas/**"]
   }
 }
