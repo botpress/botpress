@@ -183,7 +183,7 @@ export class ModuleLoader {
       .filter(module => module.skills)
       .map(module => {
         return module.skills!.map(skill => {
-          return { id: skill.id, name: skill.name, module: module.definition.name }
+          return { id: skill.id, name: skill.name, moduleName: module.definition.name }
         })
       })
 

@@ -97,7 +97,7 @@ class Bots extends Component {
     const template = _.pick(this.state.botTemplate, ['id', 'moduleId'])
     await api
       .getSecured()
-      .post(`/admin/teams/${teamId}/bots`, { id, name, template: template.id !== 'none' ? template : undefined })
+      .post(`/admin/teams/${teamId}/bots`, { id, name, template: template.id !== undefined ? template : undefined })
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
@@ -152,20 +152,19 @@ class Bots extends Component {
   }
 
   renderCreateBot() {
-    let templates
-
+    let moduleTemplates = []
     if (this.props.botTemplates) {
       const modules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
-      templates = modules.map(module => {
+
+      moduleTemplates = modules.map(module => {
         return {
           label: module,
           options: _.filter(this.props.botTemplates, x => x.moduleName === module)
         }
       })
-    } else {
-      // This is a fallback if no modules exports any template
-      templates = [{ id: 'none', name: 'Empty Bot' }]
     }
+
+    const templates = [{ id: undefined, name: 'Empty Bot' }, ...moduleTemplates]
 
     if (!this.state.botTemplate) {
       const first = _.head(templates)
