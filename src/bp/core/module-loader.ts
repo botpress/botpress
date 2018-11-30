@@ -106,6 +106,9 @@ export class ModuleLoader {
         await (module.onServerStarted && module.onServerStarted(api))
         initedModules[name] = true
         this.entryPoints.set(name, module)
+
+        const resourceLoader = new ModuleResourceLoader(this.logger, name)
+        await resourceLoader.importResources()
       } catch (err) {
         this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
       }
@@ -139,9 +142,6 @@ export class ModuleLoader {
       try {
         const api = await createForModule(name)
         await (module.onServerReady && module.onServerReady(api))
-
-        const resourceLoader = new ModuleResourceLoader(this.logger, name)
-        await resourceLoader.importResources()
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }

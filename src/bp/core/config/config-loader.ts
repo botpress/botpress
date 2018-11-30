@@ -93,7 +93,7 @@ export class GhostConfigProvider implements ConfigProvider {
     for (const schema of schemasToCopy) {
       console.log(path.join(__dirname, 'schemas', schema))
       console.log(__dirname)
-      console.log(await fs.readdirSync(path.join(__dirname, 'schemas', schema)))
+      console.log(await fs.readdirSync(path.join(__dirname, 'schemas')))
       await fs.copyFileSync(path.join(__dirname, 'schemas', schema), path.resolve(dataFolder, schema))
     }
   }
