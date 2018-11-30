@@ -96,6 +96,7 @@ class Sidebar extends React.Component {
             {moduleIcon}
             <span>Understanding</span>
           </NavLink>
+          // FIXME: Improve style here
           <Collapse in={this.state.nluCollapseOpen}>
             <ul>
               <li>

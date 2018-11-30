@@ -1,6 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
-import { Collapse, Button, Checkbox, Glyphicon } from 'react-bootstrap'
+import { Collapse, Button, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 
 import EntitiesComponent from './entities'
@@ -25,18 +25,25 @@ export default class Module extends React.Component {
     this.checkSync()
   }
 
-  checkSync = () => {
-    return this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
+  sync = () => {
+    return this.props.bp.axios
+      .get('/mod/nlu/sync')
+      .catch(err => this.setState({ syncFailedError: err.response.data }))
+      .then(() => {
+        // Set animation timeout
+        setTimeout(() => this.setState({ isSyncing: false }), 2000)
+      })
+  }
+
+  checkSync = _.throttle(() => {
+    this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (res.data) {
-        this.setState({ isSyncing: true })
-        return this.props.bp.axios.get('/mod/nlu/sync').catch(err => {
-          this.setState({ isSyncing: false, syncFailedError: err.response.data })
-        })
+        this.setState({ isSyncing: true }, this.sync)
       } else {
         this.setState({ isSyncing: false })
       }
     })
-  }
+  }, 1000)
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
@@ -147,6 +154,10 @@ export default class Module extends React.Component {
     )
   }
 
+  onUtterancesChange = () => {
+    this.checkSync()
+  }
+
   render() {
     return (
       <div className={style.workspace}>
@@ -191,6 +202,7 @@ export default class Module extends React.Component {
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}
+                onUtterancesChange={this.onUtterancesChange}
               />
             </div>
           </div>

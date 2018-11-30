@@ -212,7 +212,10 @@ export default class IntentsEditor extends React.Component {
 
     const { name } = this.props.intent
 
-    const dirtyLabel = this.isDirty() ? <Badge bsClass={style.unsavedBadge}>Unsaved changes</Badge> : null
+    if (this.isDirty()) {
+      this.saveIntent()
+      this.props.onUtterancesChange()
+    }
 
     return (
       <div className={style.container}>
@@ -221,16 +224,7 @@ export default class IntentsEditor extends React.Component {
             <h1>
               intents/
               <span className={style.intent}>{name}</span>
-              {dirtyLabel}
             </h1>
-          </div>
-          <div className="pull-right">
-            <Button onClick={this.saveIntent} disabled={!this.isDirty()} bsStyle="success" bsSize="small">
-              Save
-            </Button>
-            <Button onClick={this.deleteIntent} bsStyle="danger" bsSize="small">
-              Delete
-            </Button>
           </div>
         </div>
         <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
