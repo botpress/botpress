@@ -1,1 +1,0 @@
-bp.http.deleteShortLink(botId)
