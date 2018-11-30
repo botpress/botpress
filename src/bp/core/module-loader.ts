@@ -197,35 +197,24 @@ export class ModuleLoader {
   }
 
   public getLoadedModules(): ModuleDefinition[] {
-    const definitions = Array.from(this.entryPoints.values()).map(x => x.definition)
-    return definitions
+    return Array.from(this.entryPoints.values()).map(x => x.definition)
   }
 
   public async getFlowGenerator(moduleName, skillId) {
     const module = this.getModule(moduleName)
-    const skill = _.find(module.skills, x => x.id === skillId)
-
-    return skill && skill.flowGenerator
+    return _.get(_.find(module.skills, x => x.id === skillId), 'flowGenerator')
   }
 
   public async getAllSkills() {
-    const allSkills: Skill[] = []
-    const modules = this.getLoadedModules()
-
-    for (const module of modules) {
-      const entryPoint = this.getModule(module.name)
-      const skills = _.map(entryPoint.skills, e => _.pick(e, 'id', 'name'))
-
-      _.forEach(skills, skill =>
-        allSkills.push({
-          id: skill.id,
-          name: skill.name,
-          moduleName: module.name
+    const skills = Array.from(this.entryPoints.values())
+      .filter(module => module.skills)
+      .map(module => {
+        return module.skills!.map(skill => {
+          return { id: skill.id, name: skill.name, module: module.definition.name }
         })
-      )
-    }
+      })
 
-    return allSkills
+    return _.flatten(skills)
   }
 
   private getModule(module: string) {
