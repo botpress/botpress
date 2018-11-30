@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import path from 'path'
 
 import Database from '../../database'
 import { createDatabaseSuite } from '../../database/index.tests'
@@ -10,7 +11,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
   const driver = new DBStorageDriver(database)
 
   const F_A_NAME = 'a.txt'
-  const F_A_PATH = 'test/' + F_A_NAME
+  const F_A_PATH = `test${path.sep}${F_A_NAME}`
   const F_A_CONTENT = 'content'
 
   describe('upsertFile', () => {
@@ -99,10 +100,10 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
       await driver.deleteFile('/root2/d.txt', false)
 
       const files = await driver.directoryListing('/')
-      expect(files).toContain('root1/a.txt')
-      expect(files).toContain('root1/b.txt')
-      expect(files).toContain('root2/c.txt')
-      expect(files).not.toContain('root2/d.txt')
+      expect(files).toContain(`root1${path.sep}a.txt`)
+      expect(files).toContain(`root1${path.sep}b.txt`)
+      expect(files).toContain(`root2${path.sep}c.txt`)
+      expect(files).not.toContain(`root2${path.sep}d.txt`)
     })
     it('folder filter works', async () => {
       await driver.upsertFile('/root1/a.txt', '...', false)

@@ -61,7 +61,7 @@ export class BotConfigWriter {
       const contentTypes = await this.cms.getAllContentTypes()
 
       await this._writeToFile({
-        $schema: `../../${this.BOT_SCHEMA_FILENAME}`,
+        $schema: `../${this.BOT_SCHEMA_FILENAME}`,
         id: bot.id,
         name: bot.name,
         ...defaultConfig,

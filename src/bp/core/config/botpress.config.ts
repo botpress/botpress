@@ -43,10 +43,12 @@ export interface DatabaseConfig {
 
 export interface DialogConfig {
   /**
+   * Interval between executions of the janitor to check for stale sessions
    * @default 10s
    */
   janitorInterval: string
   /**
+   * The delay before a stale session will get sweeped by the janitor
    * @default 2m
    */
   timeoutInterval: string
@@ -54,6 +56,7 @@ export interface DialogConfig {
 
 export interface LogsConfig {
   /**
+   * Logs will be kept for this amount of time in the database
    * @default 2 weeks
    */
   expiration: string
@@ -99,6 +102,9 @@ export type BotpressConfig = {
   }
   database: DatabaseConfig
   ghost: {
+    /**
+     * @default false
+     */
     enabled: boolean | BotpressCondition
   }
   dialog: DialogConfig
