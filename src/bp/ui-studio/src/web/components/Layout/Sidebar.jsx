@@ -86,8 +86,8 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-          <i className="icon material-icons">{module.menuIcon}</i>
-        )
+        <i className="icon material-icons">{module.menuIcon}</i>
+      )
 
     if (module.name === 'nlu') {
       return (
@@ -99,12 +99,22 @@ class Sidebar extends React.Component {
           <Collapse in={this.state.nluCollapseOpen}>
             <ul className={style.mainMenu_level2}>
               <li className={style.mainMenu__item}>
-                <NavLink to={path + '/entities'} title={module.menuText} activeClassName={style.active} className={style.mainMenu__link}>
+                <NavLink
+                  to={path + '/entities'}
+                  title={module.menuText}
+                  activeClassName={style.active}
+                  className={style.mainMenu__link}
+                >
                   <span>Entities</span>
                 </NavLink>
               </li>
               <li className={style.mainMenu__item}>
-                <NavLink to={path} title={module.menuText} activeClassName={style.active} className={style.mainMenu__link}>
+                <NavLink
+                  to={path}
+                  title={module.menuText}
+                  activeClassName={style.active}
+                  className={style.mainMenu__link}
+                >
                   <span>Intents</span>
                 </NavLink>
               </li>
