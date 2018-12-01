@@ -10,36 +10,16 @@ module.exports = bp => {
     bootstrap: () => {
       return bp.db.get().then(initialize)
     },
-    create: (id, options) => {
-      return bp.db.get().then(knex => create(knex, id, options))
-    },
-    update: (id, options) => {
-      return bp.db.get().then(knex => update(knex, id, options))
-    },
-    updateTask: (taskId, status, logs, returned) => {
-      return bp.db.get().then(knex => updateTask(knex, taskId, status, logs, returned))
-    },
-    delete: id => {
-      return bp.db.get().then(knex => remove(knex, id))
-    },
-    deleteDone: () => {
-      return bp.db.get().then(knex => deleteDone(knex))
-    },
-    listUpcoming: () => {
-      return bp.db.get().then(knex => listUpcoming(knex))
-    },
-    listPrevious: () => {
-      return bp.db.get().then(knex => listPrevious(knex))
-    },
-    listExpired: () => {
-      return bp.db.get().then(knex => listExpired(knex))
-    },
-    scheduleNext: (id, time) => {
-      return bp.db.get().then(knex => scheduleNext(knex, id, time))
-    },
-    reviveAllExecuting: () => {
-      return bp.db.get().then(knex => reviveAllExecuting(knex))
-    }
+    create: async (id, options) => create(await bp.db.get(), id, options),
+    update: async (id, options) => update(await bp.db.get(), id, options),
+    updateTask: async (taskId, status, logs, returned) => updateTask(await bp.db.get(), taskId, status, logs, returned),
+    delete: async id => remove(await bp.db.get(), id),
+    deleteDone: async () => deleteDone(await bp.db.get()),
+    listUpcoming: async () => listUpcoming(await bp.db.get()),
+    listPrevious: async () => listPrevious(await bp.db.get()),
+    listExpired: async () => listExpired(await bp.db.get()),
+    scheduleNext: async (id, time) => scheduleNext(await bp.db.get(), id, time),
+    reviveAllExecuting: async () => reviveAllExecuting(await bp.db.get())
   }
 }
 
@@ -71,7 +51,7 @@ function initialize(knex) {
     })
 }
 
-function create(knex, id, options) {
+async function create(knex, id, options) {
   id = id || String(Math.random() * 100000000000000000000) // TODO: avoid possible duplicates
   options = validateCreateOptions(options)
 
@@ -93,7 +73,7 @@ function create(knex, id, options) {
     .then(() => Promise.resolve(id))
 }
 
-function update(knex, id, options) {
+async function update(knex, id, options) {
   options = validateCreateOptions(options)
 
   return knex('scheduler_schedules')
@@ -102,7 +82,7 @@ function update(knex, id, options) {
     .then()
 }
 
-function updateTask(knex, taskId, status, logs, returned) {
+async function updateTask(knex, taskId, status, logs, returned) {
   const options = { status, logs, returned }
 
   if (_.includes(['done', 'error', 'skipped'], status)) {
@@ -115,28 +95,28 @@ function updateTask(knex, taskId, status, logs, returned) {
     .then()
 }
 
-function reviveAllExecuting(knex) {
+async function reviveAllExecuting(knex) {
   return knex('scheduler_tasks')
     .where({ status: 'executing' })
     .update({ status: 'pending' })
     .then()
 }
 
-function remove(knex, id) {
+async function remove(knex, id) {
   return knex('scheduler_schedules')
     .where({ id })
     .del()
     .then(() => deleteScheduled(knex, id))
 }
 
-function listUpcoming(knex) {
+async function listUpcoming(knex) {
   return knex('scheduler_tasks')
     .where({ status: 'pending' })
     .join('scheduler_schedules', 'scheduler_tasks.scheduleId', 'scheduler_schedules.id')
     .then()
 }
 
-function listPrevious(knex) {
+async function listPrevious(knex) {
   const dt = helpers(knex).date
 
   return knex('scheduler_tasks')
@@ -146,7 +126,7 @@ function listPrevious(knex) {
     .then()
 }
 
-function listExpired(knex) {
+async function listExpired(knex) {
   const dt = helpers(knex).date
 
   return knex('scheduler_tasks')
@@ -157,14 +137,14 @@ function listExpired(knex) {
     .then()
 }
 
-function deleteScheduled(knex, id) {
+async function deleteScheduled(knex, id) {
   return knex('scheduler_tasks')
     .where({ scheduleId: id })
     .del()
     .then()
 }
 
-function scheduleNext(knex, id, time) {
+async function scheduleNext(knex, id, time) {
   // Round the time to the nearest 2 seconds
   const coeff = 1000 * 2
   const rounded = new Date(Math.round(time.getTime() / coeff) * coeff)
@@ -180,7 +160,7 @@ function scheduleNext(knex, id, time) {
     .then()
 }
 
-function deleteDone(knex) {
+async function deleteDone(knex) {
   return knex('scheduler_tasks')
     .whereNotNull('finishedOn')
     .del()
