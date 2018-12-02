@@ -83,29 +83,16 @@ export const fetchContentCategories = () => dispatch =>
   })
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
-export const fetchContentItems = ({ id, from, count, searchTerm }) => dispatch => {
-  const allCategories = `${window.BOT_API_PATH}/content/elements`
-  const specificCategory = `${window.BOT_API_PATH}/content/${id}/elements`
+export const fetchContentItems = ({ contentType, ...query }) => dispatch => {
+  const type = contentType && contentType != 'all' ? `${contentType}/` : ''
+
   return axios
-    .get(id && id != 'all' ? specificCategory : allCategories, {
-      params: { from, count, searchTerm, orderBy: 'modifiedOn' }
-    })
+    .post(`${window.BOT_API_PATH}/content/${type}elements`, query)
     .then(({ data }) => dispatch(receiveContentItems(data)))
 }
 
-export const receiveContentItemsRecent = createAction('CONTENT/ITEMS/RECEIVE_RECENT')
-export const fetchContentItemsRecent = ({ searchTerm, count = 5, contentType = 'all' }) => dispatch => {
-  const allCategories = `${window.BOT_API_PATH}/content/elements`
-  const specificCategory = `${window.BOT_API_PATH}/content/${contentType}/elements`
-  return axios
-    .get(contentType && contentType != 'all' ? specificCategory : allCategories, {
-      params: { count, searchTerm, orderBy: ['createdOn', 'desc'] }
-    })
-    .then(({ data }) => dispatch(receiveContentItemsRecent(data)))
-}
-
 const getBatchedContentItems = ids =>
-  axios.get(`${window.BOT_API_PATH}/content/elements?ids=${ids.join(',')}`).then(({ data }) =>
+  axios.post(`${window.BOT_API_PATH}/content/elements`, { ids }).then(({ data }) =>
     data.reduce((acc, item, i) => {
       acc[ids[i]] = item
       return acc
@@ -116,7 +103,7 @@ const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
 const getBatchedContentItem = id => getBatchedContentRunner.add(id)
 
-const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/elements/${id}`).then(({ data }) => data)
+const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/element/${id}`).then(({ data }) => data)
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
 export const fetchContentItem = (id, { force = false, batched = false } = {}) => (dispatch, getState) => {
@@ -135,7 +122,7 @@ export const fetchContentItemsCount = (contentType = 'all') => dispatch =>
     .then(data => dispatch(receiveContentItemsCount(data)))
 
 export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
-  axios.post(`${window.BOT_API_PATH}/content/${contentType}/elements/${modifyId || ''}`, { formData })
+  axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${modifyId || ''}`, { formData })
 
 export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
 

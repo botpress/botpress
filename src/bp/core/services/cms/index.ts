@@ -19,7 +19,7 @@ import { TYPES } from '../../types'
 import { CodeFile, SafeCodeSandbox } from './util'
 
 export const DefaultSearchParams: SearchParams = {
-  orderBy: ['createdOn'],
+  sortOrder: [{ column: 'createdOn' }],
   from: 0,
   count: 50
 }
@@ -154,28 +154,36 @@ export class CMSService implements IDisposeOnExit {
     contentTypeId?: string,
     params: SearchParams = DefaultSearchParams
   ): Promise<ContentElement[]> {
+    const { searchTerm, ids, filters, sortOrder, from, count } = params
+
     let query = this.memDb(this.contentTable)
     query = query.where({ botId })
 
     if (contentTypeId) {
       query = query.andWhere('contentType', contentTypeId)
     }
-    if (params.searchTerm) {
+
+    if (searchTerm) {
       query = query.andWhere(builder =>
-        builder.where('formData', 'like', `%${params.searchTerm}%`).orWhere('id', 'like', `%${params.searchTerm}%`)
+        builder.where('formData', 'like', `%${searchTerm}%`).orWhere('id', 'like', `%${searchTerm}%`)
       )
     }
-    if (params.ids) {
-      query = query.andWhere(builder => builder.whereIn('id', params.ids!))
+
+    if (ids) {
+      query = query.andWhere(builder => builder.whereIn('id', ids))
     }
 
-    if (params.orderBy) {
-      params.orderBy.forEach(column => {
-        query = query.orderBy(column)
+    filters &&
+      filters.forEach(filter => {
+        query = query.andWhere(filter.column, 'like', `%${filter.value}%`)
       })
-    }
 
-    const dbElements = await query.offset(params.from).limit(params.count)
+    sortOrder &&
+      sortOrder.forEach(sort => {
+        query = query.orderBy(sort.column, sort.desc ? 'desc' : 'asc')
+      })
+
+    const dbElements = await query.offset(from).limit(count)
 
     return Promise.map(dbElements, this.transformDbItemToApi)
   }
@@ -270,13 +278,14 @@ export class CMSService implements IDisposeOnExit {
           ...body,
           createdBy: 'admin',
           createdOn: this.memDb.date.now(),
+          modifiedOn: this.memDb.date.now(),
           id: contentElementId,
           contentType: contentTypeId
         })
         .then()
     } else {
       await this.memDb(this.contentTable)
-        .update(body)
+        .update({ ...body, modifiedOn: this.memDb.date.now() })
         .where({ id: contentElementId, botId })
         .then()
     }
@@ -327,7 +336,7 @@ export class CMSService implements IDisposeOnExit {
     process.ASSERT_LICENSED()
     const params = { ...DefaultSearchParams, count: 10000 }
     const items = (await this.listContentElements(botId, contentTypeId, params)).map(item =>
-      _.pick(item, 'id', 'formData', 'createdBy', 'createdOn')
+      _.pick(item, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
     )
     const fileName = this.filesById[contentTypeId]
     const content = JSON.stringify(items, undefined, 2)
