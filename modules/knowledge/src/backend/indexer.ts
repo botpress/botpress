@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
+import fs, { rename } from 'fs'
 import _ from 'lodash'
 import path from 'path'
 import { tmpNameSync } from 'tmp'
@@ -160,6 +160,50 @@ export class Indexer {
       }
     }
 
-    return _.without(filtered, ...remove)
+    const relevant = _.without(filtered, ...remove)
+
+    // Let's find the paragraph starts
+    // Paragraphs can start in many ways:
+    // - They are header-like (i.e. a bullet point or question)
+    // - Two chunk of text separated by one or more white lines
+
+    const grouped: Snippet[] = []
+    let currentSnippet: Snippet | undefined
+
+    if (!relevant.length) {
+      return []
+    } else {
+      currentSnippet = relevant[0]
+    }
+
+    for (let i = 1; i < relevant.length; i++) {
+      const el = relevant[i]
+      const pEl = relevant[i - 1]
+      const isHeaderLike = /(^(\d|[A-Z])\W)|(\?\W*$)/i.test(el.content.trim())
+      const isBigSpace = el.content.trim().length <= 10 && pEl.content.trim().length <= 10
+      const isFar = currentSnippet && Math.abs(Number(el.page) - Number(currentSnippet!.page)) > 1
+      const isAlreadyBig = currentSnippet && currentSnippet!.content.length >= 1000
+
+      if (isHeaderLike || isBigSpace || isFar || isAlreadyBig) {
+        if (currentSnippet && currentSnippet.content.length >= 80) {
+          currentSnippet.content = currentSnippet.content.trim()
+          grouped.push(currentSnippet)
+          currentSnippet = undefined
+        }
+        if (!isBigSpace) {
+          currentSnippet = el
+        }
+      } else {
+        if (currentSnippet) {
+          currentSnippet.content += ' ' + el.content
+        } else {
+          currentSnippet = el
+        }
+      }
+    }
+
+    console.log(grouped.map(x => x.content + ' ' + x.page + ' $' + x.paragraph).join('\n\n\n------\n\n\n'))
+
+    return grouped
   }
 }
