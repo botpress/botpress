@@ -14,7 +14,7 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
       const results = await classifiers[event.botId].predict(event.preview)
 
       for (const result of results.filter(r => r.confidence > 0.5)) {
-        const { content, page, paragraph, name } = result.snippet
+        const { content, page, paragraph, name } = result
         const details = `I found this: "${content}" in ${name} on page ${page}, par. ${paragraph}`
 
         event.suggestedReplies.push({

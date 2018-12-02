@@ -57,11 +57,11 @@ export default class QueryTester extends Component {
       <div>
         <h3>Top 5 Results</h3>
         {this.props.queryResults.map((result, idx) => {
-          const { name, paragraph, page } = result.snippet
+          const { name, paragraph, page, content } = result
 
           return (
             <div className={style.searchResult} key={idx}>
-              <span className={style.snippetTitle}>{result.snippet.content}</span>
+              <span className={style.snippetTitle}>{content}</span>
               <div className={style.link}>
                 <a href="#" onClick={() => this.props.onView(name)}>
                   {name}

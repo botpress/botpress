@@ -6,6 +6,7 @@ import { tmpNameSync } from 'tmp'
 
 import { DocumentClassifier } from './classifier'
 import * as Converters from './converters'
+import levenshtein from './tools/levenshtein'
 
 export interface Snippet {
   source: 'doc'
@@ -13,6 +14,7 @@ export interface Snippet {
   page: string
   paragraph: string
   content: string
+  mergeWith: { page: string; paragraph: string }[]
 }
 
 export class Indexer {
@@ -100,10 +102,64 @@ export class Indexer {
         // TODO Split paragraphs smarter here
         // i.e. if small line, check if Question
         // if empty ... etc
-        snippets.push({ name, source: 'doc', page: pageidx.toString(), paragraph: pidx.toString(), content: p })
+        snippets.push({
+          name,
+          source: 'doc',
+          page: pageidx.toString(),
+          paragraph: pidx.toString(),
+          content: p,
+          mergeWith: []
+        })
       })
     })
 
-    return snippets
+    // Delete similar snippets (similarity = 90%)
+
+    const filtered = snippets.filter(s1 => {
+      if (s1.content.length < 5) {
+        return true
+      }
+
+      const cutoff = s1.content.length - Math.max(s1.content.length * 0.9, 1)
+      return !snippets.find(s2 => {
+        if (s1 === s2 || s2.content.length < 5) {
+          return false
+        }
+
+        const length = Math.abs(s2.content.length - s1.content.length)
+        const ratio = Math.min(length / s2.content.length, length / s1.content.length)
+
+        if (ratio >= 0.2) {
+          return false
+        }
+
+        const dist = levenshtein(s1.content, s2.content)
+        return dist <= cutoff
+      })
+    })
+
+    // Delete "small" phrases that has neibhours that are also "small"
+    // Small is characterized by being 3 std-deviation away
+
+    const mean = _.meanBy(filtered, x => x.content.length)
+    const std = Math.sqrt(_.sumBy(filtered, x => Math.pow(x.content.length - mean, 2)) / filtered.length - 1)
+    const remove: Snippet[] = []
+    for (let i = 1; i < filtered.length - 1; i++) {
+      const mine = filtered[i].content.length / std
+      if (mine <= 0.3) {
+        const before = filtered[i - 1].content.length / std
+        const after = filtered[i + 1].content.length / std
+        if (before <= 0.3 && after <= 0.3) {
+          remove.push(filtered[i])
+        } else {
+          filtered[i].mergeWith = [
+            { page: filtered[i - 1].page, paragraph: filtered[i - 1].paragraph },
+            { page: filtered[i + 1].page, paragraph: filtered[i + 1].paragraph }
+          ]
+        }
+      }
+    }
+
+    return _.without(filtered, ...remove)
   }
 }
