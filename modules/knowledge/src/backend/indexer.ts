@@ -19,7 +19,7 @@ export interface Snippet {
 
 export class Indexer {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
-  static converters: Converters.Converter[] = [Converters.Pdf]
+  static converters: Converters.Converter[] = [Converters.Pdf, Converters.Text]
   _forceSyncDebounce: (() => Promise<void>) & _.Cancelable
 
   constructor(
@@ -151,11 +151,6 @@ export class Indexer {
         const after = filtered[i + 1].content.length / std
         if (before <= 0.3 && after <= 0.3) {
           remove.push(filtered[i])
-        } else {
-          filtered[i].mergeWith = [
-            { page: filtered[i - 1].page, paragraph: filtered[i - 1].paragraph },
-            { page: filtered[i + 1].page, paragraph: filtered[i + 1].paragraph }
-          ]
         }
       }
     }
@@ -191,18 +186,20 @@ export class Indexer {
           currentSnippet = undefined
         }
         if (!isBigSpace) {
-          currentSnippet = el
+          currentSnippet = { ...el }
         }
       } else {
         if (currentSnippet) {
           currentSnippet.content += ' ' + el.content
         } else {
-          currentSnippet = el
+          currentSnippet = { ...el }
         }
       }
     }
 
-    console.log(grouped.map(x => x.content + ' ' + x.page + ' $' + x.paragraph).join('\n\n\n------\n\n\n'))
+    if (currentSnippet && currentSnippet.content.length >= 80) {
+      grouped.push(currentSnippet)
+    }
 
     return grouped
   }
