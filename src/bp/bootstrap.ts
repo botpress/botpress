@@ -35,6 +35,7 @@ async function start() {
   }
 
   const modules: sdk.ModuleEntryPoint[] = []
+
   const globalConfig = await Config.getBotpressConfig()
   const loadingErrors: Error[] = []
   let modulesLog = ''

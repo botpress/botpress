@@ -24,6 +24,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
+    "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
     "lodash": "^4.17.4",
     "ms": "^2.1.1",

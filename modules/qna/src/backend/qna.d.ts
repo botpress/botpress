@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
 
-export type SDK = typeof sdk
-
 export interface QnaStorage {
   initialize()
   fetchAllQuestions(paging?: sdk.Paging)

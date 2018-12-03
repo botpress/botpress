@@ -47,6 +47,24 @@ export default class ModuleResolver {
     }
   }
 
+  async getModulesList() {
+    const moduleFolder = lookupPaths.filter(x => fs.existsSync(x))
+    if (!moduleFolder.length) {
+      return []
+    }
+
+    const files: string[] = []
+    for (const file of await fs.readdirSync(moduleFolder[0])) {
+      if (fs.lstatSync(path.resolve(moduleFolder[0], file)).isDirectory() && !file.startsWith('.')) {
+        files.push(file)
+      } else if (file.endsWith('.tgz')) {
+        files.push(path.basename(file, path.extname(file)))
+      }
+    }
+
+    return files
+  }
+
   /**
    * Resolves the real absolute path of a module from a path defined in [`botpress.config.json`]{@see BotpressConfig}
    * @private

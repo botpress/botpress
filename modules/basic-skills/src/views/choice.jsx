@@ -36,7 +36,7 @@ export default class TemplateModule extends React.Component {
 
   async refreshContent() {
     const id = this.state.contentId
-    const res = await this.props.bp.axios.get(`/content/elements/${id}`)
+    const res = await this.props.bp.axios.get(`/content/element/${id}`)
     return this.onContentChanged(res.data, true)
   }
 

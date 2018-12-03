@@ -9,7 +9,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
 
 .container > .navbar {
   padding: 0; }
@@ -6765,3 +6765,7 @@ abbr {
 
 .is-block {
   display: block; }
+
+.bot-template-desc {
+  font-size: 12px;
+  padding: 10px; }
