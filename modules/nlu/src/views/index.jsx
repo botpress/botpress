@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  Collapse,
-  Button,
-  Glyphicon,
-  ListGroup,
-  ListGroupItem,
-  FormGroup,
-  InputGroup,
-  FormControl
-} from 'react-bootstrap'
+import { Button, Glyphicon, ListGroup, ListGroupItem, FormGroup, InputGroup, FormControl } from 'react-bootstrap'
 import _ from 'lodash'
 
 import EntitiesComponent from './entities'
@@ -30,12 +21,12 @@ export default class Module extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
-    this.checkSync()
+    this.maybeSync()
   }
 
   sync = () => {
     return this.props.bp.axios
-      .get('/mod/nlu/sync')
+      .post('/mod/nlu/sync')
       .catch(err => this.setState({ syncFailedError: err.response.data }))
       .then(() => {
         // Set animation timeout
@@ -43,7 +34,7 @@ export default class Module extends React.Component {
       })
   }
 
-  checkSync = _.throttle(() => {
+  maybeSync = _.throttle(() => {
     this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (res.data) {
         this.setState({ isSyncing: true }, this.sync)
@@ -139,7 +130,7 @@ export default class Module extends React.Component {
               >
                 {el.name}
                 &nbsp;(
-                {_.get(el, 'utterances.length') || 0})
+                {_.get(el, 'utterances.length', 0)})
                 <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
               </ListGroupItem>
             ))}
@@ -150,7 +141,7 @@ export default class Module extends React.Component {
   }
 
   onUtterancesChange = () => {
-    this.checkSync()
+    this.maybeSync()
   }
 
   render() {

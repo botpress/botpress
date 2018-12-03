@@ -17,12 +17,14 @@ export default class EntityEditor extends React.Component {
     occurenceInput: ''
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.entity !== this.state.currentEntity) {
-      const newEntity = nextProps.entity
-
-      this.setState({ currentEntity: newEntity, currentOccurence: newEntity && newEntity.occurences[0] })
+  static getDerivedStateFromProps(props, state) {
+    if (props.entity !== state.currentEntity) {
+      return {
+        currentEntity: props.entity,
+        currentOccurence: props.entity && props.entity.occurences[0]
+      }
     }
+    return null // Will not update
   }
 
   onEnterPressed = (event, cb) => {
@@ -114,7 +116,7 @@ export default class EntityEditor extends React.Component {
     return (
       <div>
         <input
-          class={classNames('form-control', style.occurenceInput)}
+          className={classNames('form-control', style.occurenceInput)}
           ref={this.occurenceInputRef}
           type="text"
           placeholder="Type to create an occurence"
@@ -122,7 +124,7 @@ export default class EntityEditor extends React.Component {
           onChange={this.onOccurenceInputChange}
         />
         {occurences.map(o => (
-          <ListGroupItem className={style.occurence}>
+          <ListGroupItem className={style.occurence} key={`nlu_occurence_${o.name}`}>
             <div className={style.occurenceName}>{o.name}</div>
             <ReactTags
               placeholder="Enter a synonym"
@@ -157,7 +159,7 @@ export default class EntityEditor extends React.Component {
           <div className="pull-left">
             <h1>
               entities/
-              <span className={style.intent}>{this.state.currentEntity.name}</span>
+              <span className={style.entity}>{this.state.currentEntity.name}</span>
             </h1>
           </div>
         </div>

@@ -57,7 +57,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.send(await nlus[req.params.botId].checkSyncNeeded())
   })
 
-  router.get('/sync', async (req, res) => {
+  router.post('/sync', async (req, res) => {
     try {
       await nlus[req.params.botId].sync()
       res.sendStatus(200)

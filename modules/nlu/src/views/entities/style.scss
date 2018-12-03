@@ -38,60 +38,6 @@
   }
 }
 
-.markdown {
-  ul {
-    padding: 10px;
-    margin: 30px;
-    border: 1px dashed #b1b1b1;
-    background: #f9f9f9;
-  }
-
-  li + li {
-    margin-top: 10px;
-  }
-
-  li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    padding-left: 20px;
-
-    &:before {
-      display: inline-block;
-      content: '✭';
-      font-size: 1em;
-      margin-right: 10px;
-    }
-
-    a {
-      text-decoration: underline;
-      color: black;
-      //padding: 0.25em 0.35em;
-      //margin: 0px 0.25em;
-      line-height: 1;
-      display: inline-block;
-      //border-radius: 0.25em;
-      //border: 1px solid;
-      //border-color: #0559ff;
-      //background: rgba(5, 89, 255, 0.2);
-    }
-
-    a::after {
-      box-sizing: border-box;
-      content: attr(href);
-      font-size: 0.8em;
-      line-height: 1;
-      color: #0559ff;
-      padding: 0.35em;
-      border-radius: 0.35em;
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0px 0px 0.1rem 0.5rem;
-      background-color: #ececec;
-    }
-  }
-}
-
 .entitiesPanel {
 }
 
