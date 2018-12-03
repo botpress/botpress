@@ -93,7 +93,7 @@
     }
 
     :global(.ReactTags__tagInput) {
-      display: inline-block;
+      background-color: white;
     }
   }
 }
@@ -105,10 +105,15 @@
 :global(.ReactTags__tags) {
   display: inline-block;
   position: relative;
+  padding-left: 4px;
 }
 
 :global(.ReactTags__tagInput) {
-  display: none;
+  display: inline-block;
+}
+:global(.ReactTags__tagInputField) {
+  color: grey;
+  border: none;
 }
 :global(.ReactTags__tagInput input.ReactTags__tagInputField, .ReactTags__tagInput
     input.ReactTags__tagInputField:focus) {
