@@ -10,13 +10,13 @@ import path from 'path'
 import plur from 'plur'
 import { VError } from 'verror'
 
-import { GhostService } from '..'
-import { ConfigProvider } from '../../config/config-loader'
-import { LoggerProvider } from '../../logger/logger'
-import { IDisposeOnExit } from '../../misc/interfaces'
-import { TYPES } from '../../types'
+import { ConfigProvider } from '../config/config-loader'
+import { LoggerProvider } from '../logger/logger'
+import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
+import { IDisposeOnExit } from '../misc/interfaces'
+import { TYPES } from '../types'
 
-import { CodeFile, SafeCodeSandbox } from './util'
+import { GhostService } from '.'
 
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
