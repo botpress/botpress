@@ -418,16 +418,9 @@ declare module 'botpress/sdk' {
     description?: string
     author?: string
     version: string
-    license?: string
     imports: {
-      /** Not currently used */
-      modules: string[]
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
-      /** Not currently used */
-      incomingMiddleware: string[]
-      /** Not currently used */
-      outgoingMiddleware: string[]
     }
     dialog?: DialogConfig
     logs?: LogsConfig

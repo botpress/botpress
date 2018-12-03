@@ -25,22 +25,14 @@ export class ModulesRouter implements CustomRouter {
     this.router.get(
       '/botTemplates',
       this.asyncMiddleware(async (req, res, next) => {
-        try {
-          res.send(await this.moduleLoader.getBotTemplates())
-        } catch (err) {
-          next(err)
-        }
+        res.send(await this.moduleLoader.getBotTemplates())
       })
     )
 
     this.router.get(
       '/skills',
       this.asyncMiddleware(async (req, res, next) => {
-        try {
-          res.send(await this.moduleLoader.getAllSkills())
-        } catch (err) {
-          next(err)
-        }
+        res.send(await this.moduleLoader.getAllSkills())
       })
     )
 

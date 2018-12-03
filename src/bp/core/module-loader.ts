@@ -1,4 +1,4 @@
-import { Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
+import { BotTemplate, Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 
 import { inject, injectable, tagged } from 'inversify'
@@ -157,7 +157,7 @@ export class ModuleLoader {
     }
   }
 
-  public getBotTemplates() {
+  public getBotTemplates(): BotTemplate[] {
     const templates = Array.from(this.entryPoints.values())
       .filter(module => module.botTemplates)
       .map(module => {
@@ -173,12 +173,12 @@ export class ModuleLoader {
     return Array.from(this.entryPoints.values()).map(x => x.definition)
   }
 
-  public async getFlowGenerator(moduleName, skillId) {
+  public async getFlowGenerator(moduleName, skillId): Promise<any> {
     const module = this.getModule(moduleName)
     return _.get(_.find(module.skills, x => x.id === skillId), 'flowGenerator')
   }
 
-  public async getAllSkills() {
+  public async getAllSkills(): Promise<Skill[]> {
     const skills = Array.from(this.entryPoints.values())
       .filter(module => module.skills)
       .map(module => {

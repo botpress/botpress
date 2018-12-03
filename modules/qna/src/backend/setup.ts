@@ -1,9 +1,10 @@
+import * as sdk from 'botpress/sdk'
+
 import { NLU_PREFIX } from './providers/nlu'
 import NluStorage from './providers/nlu'
 import MicrosoftQnaMakerStorage from './providers/qnaMaker'
-import { QnaStorage, SDK } from './qna'
-
-export const initBot = async (bp: SDK, botScopedStorage: Map<string, QnaStorage>, botId: string) => {
+import { QnaStorage } from './qna'
+export const initBot = async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>, botId: string) => {
   const config = await bp.config.getModuleConfigForBot('qna', botId)
 
   let storage = undefined
@@ -17,11 +18,11 @@ export const initBot = async (bp: SDK, botScopedStorage: Map<string, QnaStorage>
   botScopedStorage.set(botId, storage)
 }
 
-export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
+export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>) => {
   bp.events.registerMiddleware({
     name: 'qna.incoming',
     direction: 'incoming',
-    handler: async (event, next) => {
+    handler: async (event: sdk.IO.IncomingEvent, next) => {
       if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
         const config = await bp.config.getModuleConfigForBot('qna', event.botId)
         const storage = botScopedStorage.get(event.botId)
@@ -68,9 +69,9 @@ export const initModule = async (bp: SDK, botScopedStorage: Map<string, QnaStora
     }
   }
 
-  const processEvent = async (event, { bp, storage, config }) => {
+  const processEvent = async (event: sdk.IO.IncomingEvent, { bp, storage, config }) => {
     if (config.qnaMakerApiKey) {
-      const qnaQuestion = (await storage.answersOn(event.text)).pop()
+      const qnaQuestion = (await storage.answersOn(event.preview)).pop()
 
       if (qnaQuestion && qnaQuestion.enabled) {
         event.suggestedReplies.push(

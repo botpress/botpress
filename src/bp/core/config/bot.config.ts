@@ -16,13 +16,9 @@ export interface DialogConfig {
 
 export type BotConfig = {
   $schema?: string
-  /**
-   * An identifier for the bot, represents the folder name on the file system. It is also used in the URL
-   */
+  /** An identifier for the bot, represents the folder name on the file system. It is also used in the URL */
   id: string
-  /**
-   * The name of the bot, used for display purpose only
-   */
+  /** The name of the bot, used for display purpose only */
   name: string
   /**
    * @default true
@@ -34,19 +30,9 @@ export type BotConfig = {
    * @default 1.0.0
    */
   version: string
-  license?: string
   imports: {
-    /** Unused for now */
-    modules: string[]
-    /**
-     * An array of content types that will be available using this bot
-     * @default base_text, base_card, base_single_choice
-     */
+    /** An array of content types that will be available using this bot */
     contentTypes: string[]
-    /** Unused for now */
-    incomingMiddleware: string[]
-    /** Unused for now */
-    outgoingMiddleware: string[]
   }
   dialog?: DialogConfig
   logs?: LogsConfig

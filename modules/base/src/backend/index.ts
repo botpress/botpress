@@ -1,12 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
-export type Extension = {}
-
-export type SDK = typeof sdk & Extension
-
-const onServerStarted = async (bp: SDK) => {}
-
-const onServerReady = async (bp: SDK) => {}
+const onServerStarted = async (bp: typeof sdk) => {}
+const onServerReady = async (bp: typeof sdk) => {}
 
 const botTemplates: sdk.BotTemplate[] = [
   { id: 'welcome-bot', name: 'Welcome Bot', desc: `Basic bot that showcases some of the bot's functionality` },
