@@ -87,6 +87,8 @@ function processOutgoing({ event, blocName, instruction }) {
 
   const optionsList = [
     'quick_replies',
+    'isReusable',
+    'attachmentId',
     'waitRead',
     'waitDelivery',
     'typing',

@@ -36,6 +36,7 @@ class Messenger extends EventEmitter {
     bp.db.get().then(k => {
       db = DB(k)
       db.initialize()
+      this.db = db
     })
 
     this.app = bp.getRouter('botpress-messenger', {
@@ -132,8 +133,8 @@ class Messenger extends EventEmitter {
       message.attachment.payload = {
         attachment_id: options.attachmentId
       }
-    } else if (options.isReusable && (await db.hasAttachment(url))) {
-      const attachmentId = await db.getAttachment(url)
+    } else if (options.isReusable && (await db.hasAttachment(url, pageId))) {
+      const attachmentId = await db.getAttachment(url, pageId)
 
       message.attachment.payload = {
         attachment_id: attachmentId
@@ -149,7 +150,7 @@ class Messenger extends EventEmitter {
 
     return this.sendMessage(recipientId, message, options, pageId).then(res => {
       if (res && res.attachment_id) {
-        db.addAttachment(url, res.attachment_id)
+        db.addAttachment(url, res.attachment_id, pageId)
       }
     })
   }
@@ -651,7 +652,7 @@ class Messenger extends EventEmitter {
     const url =
       `https://graph.facebook.com/v${this.config.graphVersion}/me/subscribed_apps?access_token=` +
       this.getConfigVal('accessToken', pageId)
-    const subscribed_fields = [      
+    const subscribed_fields = [
       'feed',
       'messages',
       'message_deliveries',

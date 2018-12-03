@@ -10,21 +10,22 @@ function initialize() {
   return DatabaseHelpers(knex)
     .createTableIfNotExists('messenger_attachments', function(table) {
       table.string('url').primary()
+      table.string('pageId').index()
       table.string('attachment_id')
     })
     .then()
 }
 
-function addAttachment(url, attachment_id) {
+function addAttachment(url, attachment_id, pageId) {
   return knex('messenger_attachments')
-    .insert({ url, attachment_id })
+    .insert({ url, attachment_id, pageId })
     .then()
     .get(0)
 }
 
-function getAttachment(url) {
+function getAttachment(url, pageId) {
   return knex('messenger_attachments')
-    .where('url', url)
+    .where({ url, pageId })
     .select('attachment_id')
     .then()
     .get(0)
@@ -33,12 +34,12 @@ function getAttachment(url) {
     })
 }
 
-function hasAttachment(url) {
+function hasAttachment(url, pageId) {
   return knex('messenger_attachments')
-    .where('url', url)
+    .where({ url, pageId })
     .count('url as count')
     .then(ret => {
-      return ret && ret[0] && ret[0].count === 1
+      return ret && ret[0] && ret[0].count + '' === '1'
     })
 }
 
