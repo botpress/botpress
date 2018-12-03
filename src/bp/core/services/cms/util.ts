@@ -1,4 +1,5 @@
 import fs from 'fs'
+import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
@@ -23,8 +24,12 @@ export class SafeCodeSandbox {
     this.tmpPath = this.tmpDir.name
 
     for (const file of files) {
-      const filePath = path.resolve(path.join(this.tmpDir.name, file.relativePath))
+      const pt = path.resolve(path.join(this.tmpDir.name, file['folder']))
+      fse.mkdirpSync(pt)
+      // TODO: use the correct module path
+      const filePath = path.resolve(path.join(this.tmpDir.name, file['folder'], file.relativePath))
       this.filesMap[file.relativePath] = filePath
+
       fs.writeFileSync(filePath, file.code, 'utf8')
     }
 
@@ -40,7 +45,7 @@ export class SafeCodeSandbox {
         external: true,
         context: 'sandbox',
         import: [],
-        root: this.tmpPath
+        root: path.resolve(this.tmpPath, 'base') // TODO: use the correct module path
       }
     })
 
@@ -71,7 +76,7 @@ export class SafeCodeSandbox {
       return this.vm.run(
         code,
         path.join(
-          this.tmpPath,
+          path.resolve(this.tmpPath, 'base'), // TODO: use the correct module path
           `${Math.random()
             .toString()
             .substr(2, 6)}.js`

@@ -1,8 +1,8 @@
-import { Logger } from 'botpress/sdk'
+import { BotTemplate, Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
-import { BotConfigFactory, BotConfigWriter } from 'core/config'
+import { BotConfigWriter } from 'core/config'
 import Database from 'core/database'
 import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { saltHashPassword } from 'core/services/auth/util'
@@ -34,7 +34,6 @@ export class CommunityAdminService implements AdminService {
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger) private logger: Logger,
-    @inject(TYPES.BotConfigFactory) private botConfigFactory: BotConfigFactory,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.Statistics) protected stats: Statistics
@@ -125,7 +124,7 @@ export class CommunityAdminService implements AdminService {
       )
   }
 
-  async addBot(teamId: number, bot: Bot): Promise<void> {
+  async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
     this.stats.track('ce', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, BotCreationSchema)
@@ -134,8 +133,11 @@ export class CommunityAdminService implements AdminService {
     }
 
     await this.knex(this.botsTable).insert(bot)
-    const botConfig = this.botConfigFactory.createDefault({ id: bot.id, name: bot.name })
-    await this.botConfigWriter.writeToFile(botConfig)
+
+    botTemplate
+      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
+      : await this.botConfigWriter.createEmptyBot(bot)
+
     await this.botLoader.mountBot(bot.id)
   }
 

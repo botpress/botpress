@@ -4,7 +4,7 @@ export interface Config {
    */
   qnaDir: string
   /**
-   * @default #builtin_text
+   * @default #base_text
    */
   textRenderer: string
   /**

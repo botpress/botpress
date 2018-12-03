@@ -115,7 +115,8 @@ export class CMSService implements IDisposeOnExit {
 
     const codeFiles = await Promise.map(fileNames, async filename => {
       const content = <string>await this.ghost.global().readFileAsString(this.typesDir, filename)
-      return <CodeFile>{ code: content, relativePath: filename }
+      const folder = path.dirname(filename)
+      return <CodeFile>{ code: content, folder, relativePath: path.basename(filename) }
     })
 
     this.sandbox = new SafeCodeSandbox(codeFiles, await this.loggerProvider('CMS[Render]'))

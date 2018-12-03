@@ -1,0 +1,20 @@
+{
+  "id": "ac6z09xilv_who_created_you",
+  "data": {
+    "questions": [
+      "who created you?",
+      "who's your creator?",
+      "who is behind this bot?",
+      "what is the name of your maker?",
+      "who is your father?",
+      "who are your parents?",
+      "your creator?"
+    ],
+    "answer": "I was created by the great team at Botpress",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import jdenticon from 'jdenticon'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import Joi from 'joi'
-
+import Select from 'react-select'
 import {
   ListGroup,
   Jumbotron,
@@ -27,7 +27,7 @@ import {
 
 import _ from 'lodash'
 
-import { fetchTeamData } from '../../modules/teams'
+import { fetchTeamData, fetchBotTemplates } from '../../modules/teams'
 import { fetchPermissions } from '../../modules/user'
 
 import SectionLayout from '../Layouts/Section'
@@ -41,6 +41,7 @@ class Bots extends Component {
     isCreateBotModalOpen: false,
     errorCreateBot: undefined,
     errorEditBot: undefined,
+    botTemplate: undefined,
     id: '',
     name: '',
     description: ''
@@ -53,6 +54,7 @@ class Bots extends Component {
   componentDidMount() {
     this.props.fetchTeamData(this.props.teamId, { bots: true })
     this.props.fetchPermissions(this.props.teamId)
+    this.props.fetchBotTemplates()
   }
 
   componentDidUpdate(prevProps) {
@@ -92,9 +94,10 @@ class Bots extends Component {
       return
     }
 
+    const template = _.pick(this.state.botTemplate, ['id', 'moduleId'])
     await api
       .getSecured()
-      .post(`/admin/teams/${teamId}/bots`, { id, name })
+      .post(`/admin/teams/${teamId}/bots`, { id, name, template: template.id !== undefined ? template : undefined })
       .catch(err => this.setState({ errorCreateBot: err }))
     await this.props.fetchTeamData(this.props.teamId)
     this.toggleCreateBotModal()
@@ -144,7 +147,30 @@ class Bots extends Component {
     }
   }
 
+  handleChangeTemplate = template => {
+    this.setState({ botTemplate: template })
+  }
+
   renderCreateBot() {
+    let moduleTemplates = []
+    if (this.props.botTemplates) {
+      const modules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
+
+      moduleTemplates = modules.map(module => {
+        return {
+          label: module,
+          options: _.filter(this.props.botTemplates, x => x.moduleName === module)
+        }
+      })
+    }
+
+    const templates = [{ id: undefined, name: 'Empty Bot' }, ...moduleTemplates]
+
+    if (!this.state.botTemplate) {
+      const first = _.head(templates)
+      this.setState({ botTemplate: first.options ? first.options[0] : first })
+    }
+
     return (
       <Modal isOpen={this.state.isCreateBotModalOpen} toggle={this.toggleCreateBotModal}>
         <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
@@ -154,6 +180,19 @@ class Bots extends Component {
               <strong>Identifier</strong>
             </Label>
             <Input placeholder="Auto-generated" disabled={true} type="text" id="id" value={this.state.id} />
+          </FormGroup>
+          <FormGroup>
+            <Label for="name">
+              <strong>Bot Template</strong>
+            </Label>
+            <Select
+              getOptionLabel={o => o.name}
+              getOptionValue={o => o.id}
+              options={templates}
+              value={this.state.botTemplate}
+              onChange={this.handleChangeTemplate}
+            />
+            <div className="bot-template-desc"> {this.state.botTemplate && this.state.botTemplate.desc}</div>
           </FormGroup>
           <FormGroup>
             <Label for="name">
@@ -238,6 +277,7 @@ class Bots extends Component {
                 &nbsp; This team has no bot, yet.
               </h1>
               <p>In Botpress, bots are always assigned to a team.</p>
+              <p>{this.renderCreateNewBotButton(true)}</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -246,10 +286,10 @@ class Bots extends Component {
     )
   }
 
-  renderCreateNewBotButton() {
+  renderCreateNewBotButton(isCentered) {
     return (
       <Button
-        className="float-right"
+        className={isCentered ? '' : 'float-right'}
         onClick={() => this.setState({ isCreateBotModalOpen: true })}
         color="primary"
         size="sm"
@@ -330,12 +370,14 @@ const mapStateToProps = state => ({
   bots: state.teams.bots,
   teamId: state.teams.teamId,
   team: state.teams.team,
-  loading: state.teams.loadingTeam
+  loading: state.teams.loadingTeam,
+  botTemplates: state.teams.botTemplates
 })
 
 const mapDispatchToProps = {
   fetchTeamData,
-  fetchPermissions
+  fetchPermissions,
+  fetchBotTemplates
 }
 
 export default connect(

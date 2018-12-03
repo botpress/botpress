@@ -1,0 +1,19 @@
+{
+  "id": "jqq932lypy_you_are_annoying",
+  "data": {
+    "questions": [
+      "you are annoying",
+      "stop talking",
+      "please stop it",
+      "shut your mouth",
+      "you annoy me",
+      "you are unpleasant"
+    ],
+    "answer": "I'm sorry you feel that way.",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

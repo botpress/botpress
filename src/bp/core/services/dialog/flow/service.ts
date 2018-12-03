@@ -1,6 +1,7 @@
-import { Flow, Logger } from 'botpress/sdk'
+import { Flow, FlowNode, Logger } from 'botpress/sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import nanoid from 'nanoid/generate'
 
 import { FlowView, NodeView } from '..'
 import { GhostService } from '../..'
@@ -99,6 +100,30 @@ export class FlowService {
 
     await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
     this._allFlows.clear()
+  }
+
+  async createMainFlow(botId: string) {
+    const defaultNode: NodeView = {
+      name: 'entry',
+      id: nanoid('1234567890', 6),
+      onEnter: [],
+      onReceive: eval('null'),
+      next: [],
+      x: 100,
+      y: 100
+    }
+
+    const flow: FlowView = {
+      version: '0.0',
+      name: 'main.flow.json',
+      location: 'main.flow.json',
+      catchAll: {},
+      startNode: defaultNode.name,
+      nodes: [defaultNode],
+      links: []
+    }
+
+    this.saveAll(botId, [flow])
   }
 
   private prepareSaveFlow(flow) {

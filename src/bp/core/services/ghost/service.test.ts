@@ -1,4 +1,5 @@
 import 'bluebird-global'
+import path from 'path'
 import 'reflect-metadata'
 
 import { PersistedConsoleLogger } from '../../logger'
@@ -127,7 +128,7 @@ describe('Ghost Service', () => {
 
         expect(diskDriver.readFile).not.toHaveBeenCalled()
         expect(dbDriver.readFile).toHaveBeenCalled()
-        expect(content).toContain('test/my/test.json')
+        expect(content).toContain(`test${path.sep}my${path.sep}test.json`)
       })
       it('write uses DB', async () => {
         await ghost.global().upsertFile('test', 'test.json', 'my content')

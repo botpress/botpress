@@ -1,0 +1,20 @@
+{
+  "id": "zez2mkmx97_tell_me_a_joke",
+  "data": {
+    "questions": [
+      "Tell me a joke",
+      "Can you tell me a joke?",
+      "I want to hear a joke",
+      "make me laugh",
+      "tell me something funny",
+      "joke",
+      "show me your humour"
+    ],
+    "answer": "It is the story of 2 ices cubes in the desert and.... nevermind, they're gone.",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}
