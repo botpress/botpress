@@ -10,10 +10,7 @@ import Header from './Header'
 import Sidebar from './Sidebar'
 import SidebarFooter from './SidebarFooter'
 
-import GuidedTour from '~/components/Tour'
 import SelectContentManager from '~/components/Content/Select/Manager'
-import Dashboard from '~/views/Dashboard'
-import Middleware from '~/views/Middleware'
 import Content from '~/views/Content'
 import GhostContent from '~/views/GhostContent'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -50,14 +47,12 @@ class Layout extends React.Component {
 
     return (
       <div className="wrapper bp-wrapper">
-        <ToastContainer position="bottom-right" />
+        {/* <ToastContainer position="bottom-right" /> */}
         <Sidebar>
           <Header />
           <section className={classNames}>
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
-              <Route exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/middleware" component={Middleware} />
               <Route exact path="/content" component={Content} />
               <Route exact path="/version-control" component={GhostContent} />
               <Route exact path="/flows/:flow*" component={FlowBuilder} />
@@ -67,11 +62,22 @@ class Layout extends React.Component {
             </Switch>
           </section>
         </Sidebar>
-        <SidebarFooter />
-        <GuidedTour opened={window.SHOW_GUIDED_TOUR} />
-        <PluginInjectionSite site="overlay" />
-        <SelectContentManager />
-        <BackendToast />
+        {/* <SidebarFooter /> */}
+        {/* <PluginInjectionSite site="overlay" /> */}
+        {/* <SelectContentManager /> */}
+        {/* <BackendToast /> */}
+        <footer className={style.statusBar}>
+          <span className={style.statusBar__version}>Botpress v.2029</span>
+          <span className={style.statusBar__botName}>Hello-bot</span>
+          <span className={style.statusBar__separator} />
+          <div className={style.statusBarTabs}>
+            <button className="window-trigger">
+              <span className="window-trigger__shortcut">L</span>
+              Console Log
+              <span className="window-trigger__badge">4</span>
+            </button>
+          </div>
+        </footer>
       </div>
     )
   }
