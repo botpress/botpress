@@ -1,5 +1,6 @@
 export Text from './builtin_text'
 export Image from './builtin_image'
+export Media from './builtin_media'
 export QuickReply from './builtin_quick-reply'
 export SingleChoice from './builtin_single-choice'
 export Card from './builtin_card'
