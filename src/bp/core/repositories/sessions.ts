@@ -9,7 +9,8 @@ export class DialogSession {
   constructor(
     public id: string,
     public botId: string,
-    public context_data?: sdk.IO.DialogContext,
+    public context?: sdk.IO.DialogContext,
+    public temp_data?: any,
     public session_data?: sdk.IO.CurrentSession
   ) {}
 
@@ -39,13 +40,13 @@ export class KnexSessionRepository implements SessionRepository {
   async getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession> {
     const session = await this.get(sessionId)
     if (!session) {
-      return this.createSession(sessionId, botId, {}, {})
+      return this.createSession(sessionId, botId, {}, {}, {})
     }
     return session
   }
 
-  async createSession(sessionId, botId, context_data, session_data): Promise<DialogSession> {
-    const session = new DialogSession(sessionId, botId, context_data, session_data)
+  async createSession(sessionId, botId, context, temp_data, session_data): Promise<DialogSession> {
+    const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
     return this.insert(session)
   }
 
@@ -55,16 +56,18 @@ export class KnexSessionRepository implements SessionRepository {
       {
         id: session.id,
         botId: session.botId,
-        context_data: this.database.knex.json.set(session.context_data || {}),
+        context: this.database.knex.json.set(session.context || {}),
+        temp_data: this.database.knex.json.set(session.temp_data || {}),
         session_data: this.database.knex.json.set(session.session_data || {}),
         modified_on: this.database.knex.date.now(),
         created_on: this.database.knex.date.now()
       },
-      ['id', 'botId', 'context_data', 'session_data', 'active_on', 'modified_on', 'created_on']
+      ['id', 'botId', 'context', 'temp_data', 'session_data', 'active_on', 'modified_on', 'created_on']
     )
 
     if (newSession) {
-      newSession.context_data = this.database.knex.json.get(newSession.context_data)
+      newSession.context = this.database.knex.json.get(newSession.context)
+      newSession.temp_data = this.database.knex.json.get(newSession.temp_data)
       newSession.session_data = this.database.knex.json.get(newSession.session_data)
     }
     return newSession
@@ -79,7 +82,8 @@ export class KnexSessionRepository implements SessionRepository {
       .then()
 
     if (session) {
-      session.context_data = this.database.knex.json.get(session.context_data)
+      session.context = this.database.knex.json.get(session.context)
+      session.temp_data = this.database.knex.json.get(session.temp_data)
       session.session_data = this.database.knex.json.get(session.session_data)
     }
     return session
@@ -111,7 +115,8 @@ export class KnexSessionRepository implements SessionRepository {
       .knex(this.tableName)
       .where('id', session.id)
       .update({
-        context_data: this.database.knex.json.set(session.context_data),
+        context: this.database.knex.json.set(session.context),
+        temp_data: this.database.knex.json.set(session.temp_data),
         session_data: this.database.knex.json.set(session.session_data),
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null'),

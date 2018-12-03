@@ -1,0 +1,25 @@
+{
+  "id": "84xlvmz3m5_you_suck",
+  "data": {
+    "questions": [
+      "you suck",
+      "you suck shit",
+      "you are a bad bot",
+      "fuck you",
+      "you are stupid",
+      "you are useless",
+      "you are dumb",
+      "dumb bot",
+      "kill yourself",
+      "you are lame",
+      "you're horrible",
+      "you are a waste of time"
+    ],
+    "answer": "Please stay polite!",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

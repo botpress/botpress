@@ -5,7 +5,7 @@ import { AppLifecycle } from 'lifecycle'
 import { BotpressAPIProvider } from './api'
 import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
-import { BotConfigFactory, BotConfigWriter } from './config'
+import { BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
@@ -83,10 +83,6 @@ container
 container
   .bind<BotLoader>(TYPES.BotLoader)
   .to(BotLoader)
-  .inSingletonScope()
-container
-  .bind<BotConfigFactory>(TYPES.BotConfigFactory)
-  .to(BotConfigFactory)
   .inSingletonScope()
 container
   .bind<BotConfigWriter>(TYPES.BotConfigWriter)

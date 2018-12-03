@@ -95,7 +95,7 @@ export default class Module extends React.Component {
     return this.props.bp.axios
       .post(`/mod/nlu/intents/${name}`, {
         utterances: [],
-        entities: []
+        slots: []
       })
       .then(this.fetchIntents)
       .then(() => this.setCurrentIntent(name))
@@ -179,8 +179,8 @@ export default class Module extends React.Component {
                     </Button>
                   </div>
                 ) : (
-                  <div className={style.in}>Model is up to date</div>
-                )}
+                    <div className={style.in}>Model is up to date</div>
+                  )}
               </div>
 
               <div className={style.filter}>

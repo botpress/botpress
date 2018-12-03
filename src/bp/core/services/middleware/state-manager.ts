@@ -27,14 +27,17 @@ export class StateManager {
   public initialize() {
     const stateLoader = async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
       const incomingEvent = <sdk.IO.IncomingEvent>event
+      const state = incomingEvent.state
+
       const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
-      incomingEvent.state.user = user.attributes
+      state.user = user.attributes
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       const session = await this.sessionRepo.get(sessionId)
 
-      incomingEvent.state.context = (session && session.context_data) || {}
-      incomingEvent.state.session = (session && session.session_data) || { lastMessages: [] }
+      state.context = (session && session.context) || {}
+      state.session = (session && session.session_data) || { lastMessages: [] }
+      state.temp = (session && session.temp_data) || {}
 
       next()
     }
@@ -51,7 +54,7 @@ export class StateManager {
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
-    const { user, context, session } = event.state
+    const { user, context, session, temp } = event.state
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
     await this.userRepo.updateAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
@@ -68,7 +71,8 @@ export class StateManager {
     dialogSession.session_expiry = expiryDates.session
 
     if (!ignoreContext) {
-      dialogSession.context_data = context || {}
+      dialogSession.context = context || {}
+      dialogSession.temp_data = temp || {}
       dialogSession.context_expiry = expiryDates.context
     }
 

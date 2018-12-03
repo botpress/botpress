@@ -53,29 +53,13 @@ const createOutputDirs = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const copyGlobalTemplate = () => {
-  return gulp.src('./src/templates/data/**/*').pipe(gulp.dest('./out/bp/data', { overwrite: false }))
-}
-
-const copyBotTemplate = () => {
-  return gulp.src('./src/templates/bot-template/**/*').pipe(gulp.dest('./out/bp/templates/bot-template'))
-}
-
 const buildSchemas = cb => {
   buildJsonSchemas()
   cb()
 }
 
 const build = () => {
-  return gulp.series([
-    maybeFetchPro,
-    writeMetadata,
-    compileTypescript,
-    buildSchemas,
-    createOutputDirs,
-    copyGlobalTemplate,
-    copyBotTemplate
-  ])
+  return gulp.series([maybeFetchPro, writeMetadata, compileTypescript, buildSchemas, createOutputDirs])
 }
 
 module.exports = {
