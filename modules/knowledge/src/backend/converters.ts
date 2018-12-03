@@ -9,7 +9,7 @@ export interface Converter {
 }
 
 async function pdf(fullPath: string): Promise<string> {
-  const binExt = { darwin: 'osx', linux: 'linux', win32: 'win' }[os.platform()]
+  const binExt = { darwin: 'osx', linux: 'linux', win32: 'win.exe' }[os.platform()]
   const args = ['-enc', 'UTF-8', fullPath, '-']
 
   return execFileSync(path.resolve(__dirname, './tools/bin/pdftotext_' + binExt), args, {
