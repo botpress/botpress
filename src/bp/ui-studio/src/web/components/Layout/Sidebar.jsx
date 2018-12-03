@@ -89,13 +89,14 @@ class Sidebar extends React.Component {
         <i className="icon material-icons">{module.menuIcon}</i>
       )
 
+    // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <NavLink to={path} title={module.menuText} onClick={this.toggleNluCollapse}>
+          <a onClick={this.toggleNluCollapse}>
             {moduleIcon}
             <span>Understanding</span>
-          </NavLink>
+          </a>
           <Collapse in={this.state.nluCollapseOpen}>
             <ul className={style.mainMenu_level2}>
               <li className={style.mainMenu__item}>
@@ -110,7 +111,7 @@ class Sidebar extends React.Component {
               </li>
               <li className={style.mainMenu__item}>
                 <NavLink
-                  to={path}
+                  to={path + '/intents'}
                   title={module.menuText}
                   activeClassName={style.active}
                   className={style.mainMenu__link}
