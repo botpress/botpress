@@ -20,6 +20,7 @@ function initialize() {
       table.timestamp('last_heard_on')
       table.boolean('paused')
       table.string('paused_trigger')
+      table.jsonb('raw').defaultTo('{}')
     })
     .then(() =>
       knex.schema
