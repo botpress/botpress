@@ -53,9 +53,13 @@ export class DocumentClassifier {
     const trainFile = tmp.tmpNameSync({ postfix: '.txt' })
 
     for (const idx in indexedSnippets) {
-      const content = this._sanitize(indexedSnippets[idx].content)
-      if (content.length > 3) {
-        fs.appendFileSync(trainFile, `__label__${idx} ${content}${EOL}`)
+      const utterances = indexedSnippets[idx].content.split('___|___')
+
+      for (const utterance of utterances) {
+        const content = this._sanitize(utterance)
+        if (content.length > 3) {
+          fs.appendFileSync(trainFile, `__label__${idx} ${content}${EOL}`)
+        }
       }
     }
 
@@ -84,7 +88,12 @@ export class DocumentClassifier {
     const predictions = await this._ft.predict(text, 5)
 
     const results: Prediction[] = predictions
-      .map(c => ({ ...this._index[c.name]!, confidence: c.confidence, ref: c.name }))
+      .map(c => ({
+        ...this._index[c.name]!,
+        confidence: c.confidence,
+        ref: c.name,
+        content: this._index[c.name].content.replace(/___\|___/gi, '')
+      }))
       .filter(c => c.name)
 
     return results

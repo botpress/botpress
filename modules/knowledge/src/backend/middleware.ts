@@ -15,11 +15,11 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
 
       for (const result of results.filter(r => r.confidence > 0.5)) {
         const { content, page, paragraph, name } = result
-        const details = `I found this: "${content}" in ${name} on page ${page}, par. ${paragraph}`
+        const details = `I found this: \n_"${content}"_ \nin ${name} on page ${page}, par. ${paragraph}`
 
         event.suggestedReplies.push({
           confidence: result.confidence,
-          payloads: [{ type: 'text', text: details }],
+          payloads: [{ type: 'text', text: details, markdown: true }],
           intent: 'kdb' // TODO: remove intent requirement in decision engine, add source
         })
       }
