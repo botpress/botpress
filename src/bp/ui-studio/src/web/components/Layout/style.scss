@@ -1,12 +1,5 @@
 @import '../../palette.scss';
 
-.container {
-  margin-top: 50px;
-  border-top: 1px solid $header-border-color;
-  background-color: $background-color;
-  color: $content-color-darker;
-}
-
 .statusBar {
   background-color: var(--c-background--dark-2);
   border-top: 1px solid var(--c-background--dark-3);

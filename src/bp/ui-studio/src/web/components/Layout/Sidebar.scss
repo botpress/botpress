@@ -12,7 +12,6 @@
 }
 
 .sidebar ul {
-
   list-style: none;
 }
 
@@ -62,7 +61,8 @@
 .sidebar .mainMenu {
   padding: 0;
 
-  &-list {}
+  &-list {
+  }
 
   &__item {
     font-size: 14px;

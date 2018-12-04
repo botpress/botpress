@@ -1,0 +1,36 @@
+.statusBar {
+    background-color: var(--c-background--dark-2);
+    border-top: 1px solid var(--c-background--dark-3);
+    color: var(--c-text--light);
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 20px;
+    width: calc(100% - 200px); // 200 is the width of the sidebar
+
+    display: flex;
+    align-items: center;
+
+    &__version {
+        font-weight: var(--fw-bold);
+        margin: 0 var(--s-default--2x);
+    }
+
+    &__botName {
+        font-weight: var(--fw-bold);
+        margin: 0 var(--s-default);
+    }
+
+    &__separator {
+        background-color: var(--c-background--dark-3);
+        width: 1px;
+        height: 12px;
+        margin: 0 0 0 var(--s-default);
+    }
+
+    &Tabs {
+        height: 100%;
+        margin-left: auto;
+    }
+}

@@ -24,6 +24,8 @@ import PluginInjectionSite from '~/components/PluginInjectionSite'
 import { viewModeChanged } from '~/actions'
 
 import style from './style.scss'
+import stylus from './Layout.styl'
+import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
   componentDidMount() {
@@ -46,38 +48,29 @@ class Layout extends React.Component {
     })
 
     return (
-      <div className="wrapper bp-wrapper">
+      <div>
+        <aside className={stylus.aside}>
+          <Sidebar>
+            <Header />
+            <section className={classNames}>
+              <Switch>
+                <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                <Route exact path="/content" component={Content} />
+                <Route exact path="/version-control" component={GhostContent} />
+                <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                <Route exact path="/modules/:moduleName/:subView?" component={Module} />
+                <Route exact path="/notifications" component={Notifications} />
+                <Route exact path="/logs" component={Logs} />
+              </Switch>
+            </section>
+          </Sidebar>
+        </aside>
         {/* <ToastContainer position="bottom-right" /> */}
-        <Sidebar>
-          <Header />
-          <section className={classNames}>
-            <Switch>
-              <Route exact path="/" render={() => <Redirect to="/flows" />} />
-              <Route exact path="/content" component={Content} />
-              <Route exact path="/version-control" component={GhostContent} />
-              <Route exact path="/flows/:flow*" component={FlowBuilder} />
-              <Route exact path="/modules/:moduleName/:subView?" component={Module} />
-              <Route exact path="/notifications" component={Notifications} />
-              <Route exact path="/logs" component={Logs} />
-            </Switch>
-          </section>
-        </Sidebar>
-        {/* <SidebarFooter /> */}
+        <SidebarFooter />
         {/* <PluginInjectionSite site="overlay" /> */}
-        {/* <SelectContentManager /> */}
         {/* <BackendToast /> */}
-        <footer className={style.statusBar}>
-          <span className={style.statusBar__version}>Botpress v.2029</span>
-          <span className={style.statusBar__botName}>Hello-bot</span>
-          <span className={style.statusBar__separator} />
-          <div className={style.statusBarTabs}>
-            <button className="window-trigger">
-              <span className="window-trigger__shortcut">L</span>
-              Console Log
-              <span className="window-trigger__badge">4</span>
-            </button>
-          </div>
-        </footer>
+        {/* <SelectContentManager /> */}
+        <StatusBar />
       </div>
     )
   }

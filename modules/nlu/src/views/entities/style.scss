@@ -113,7 +113,7 @@
 }
 :global(.ReactTags__tagInputField) {
   color: grey;
-  border: none;
+  border: none !important;
 }
 :global(.ReactTags__tagInput input.ReactTags__tagInputField, .ReactTags__tagInput
     input.ReactTags__tagInputField:focus) {
