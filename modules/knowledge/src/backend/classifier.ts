@@ -66,13 +66,13 @@ export class DocumentClassifier {
     const ft = new FastTextWrapper(fullModelPath)
     ft.train(trainFile, {
       method: 'supervised',
-      epoch: 10,
-      bucket: 100000,
+      epoch: 1000,
+      bucket: 25000,
       minCount: 1,
       minn: 3,
       maxn: 6,
       wordGram: 5,
-      dim: 100,
+      dim: 10,
       learningRate: 0.2
     })
 
