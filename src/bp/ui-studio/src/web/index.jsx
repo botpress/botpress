@@ -14,7 +14,6 @@ import { Provider } from 'react-redux'
 
 import store from './store'
 import { keyMap } from './keyboardShortcuts'
-import stylus from './stylus/index.styl'
 
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')

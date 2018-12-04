@@ -12,12 +12,25 @@
     display: flex;
     align-items: center;
 
+    &__list {
+        list-style-type: none;
+        margin-bottom: 0;
+        padding-left: 0;
+
+        &Item {
+            padding-right: 10px;
+            display: inline;
+        }
+    }
+
     &__version {
+        padding-left: 10px
         font-weight: var(--fw-bold);
         margin: 0 var(--s-default--2x);
     }
 
     &__botName {
+        padding-left: 10px
         font-weight: var(--fw-bold);
         margin: 0 var(--s-default);
     }
@@ -27,6 +40,33 @@
         width: 1px;
         height: 12px;
         margin: 0 0 0 var(--s-default);
+    }
+
+    &__worker {
+        -webkit-animation: flash linear 1s infinite;
+        animation: flash linear 1s infinite;
+        @-webkit-keyframes flash {
+            0% {
+            opacity: 1;
+            }
+            50% {
+            opacity: 0.1;
+            }
+            100% {
+            opacity: 1;
+            }
+        }
+        @keyframes flash {
+            0% {
+            opacity: 1;
+            }
+            50% {
+            opacity: 0.1;
+            }
+            100% {
+            opacity: 1;
+            }
+        }
     }
 
     &Tabs {

@@ -10,8 +10,7 @@ export default class IntentsComponent extends React.Component {
     showNavIntents: true,
     intents: [],
     currentIntent: null,
-    filterValue: '',
-    isSyncing: false
+    filterValue: ''
   }
 
   componentDidMount() {
@@ -24,17 +23,15 @@ export default class IntentsComponent extends React.Component {
       .post('/mod/nlu/sync')
       .catch(err => this.setState({ syncFailedError: err.response.data }))
       .then(() => {
-        // Set animation timeout
-        setTimeout(() => this.setState({ isSyncing: false }), 2000)
+        this.props.onModuleEvent({ id: 'nlu.complete', working: false, message: 'Model is up-to-date' })
       })
   }
 
   maybeSyncModel = _.throttle(() => {
     this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (res.data) {
-        this.setState({ isSyncing: true }, this.syncModel)
-      } else {
-        this.setState({ isSyncing: false })
+        this.syncModel()
+        this.props.onModuleEvent({ id: 'nlu.training', working: true, message: 'Training model' })
       }
     })
   }, 1000)
@@ -149,19 +146,6 @@ export default class IntentsComponent extends React.Component {
                 <Button bsStyle="primary" block onClick={this.createNewIntent}>
                   Create new intent
                 </Button>
-              </div>
-              <div className={style.sync}>
-                {this.state.isSyncing ? (
-                  <div className={style.out}>
-                    <Glyphicon glyph="refresh" />
-                    &nbsp;Syncing Model
-                  </div>
-                ) : (
-                  <div className={style.in}>
-                    <Glyphicon glyph="ok" />
-                    &nbsp;Model is up to date
-                  </div>
-                )}
               </div>
 
               <div className={style.filter}>

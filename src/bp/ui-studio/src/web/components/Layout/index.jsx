@@ -24,16 +24,27 @@ import PluginInjectionSite from '~/components/PluginInjectionSite'
 import { viewModeChanged } from '~/actions'
 
 import style from './style.scss'
-import stylus from './Layout.styl'
 import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
+  state = {
+    statusBarModuleEvent: undefined
+  }
+
   componentDidMount() {
+    this.botpressVersion = window.BOTPRESS_VERSION
+    this.botName = window.location.pathname.split('/')[2]
+
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
     setImmediate(() => {
       this.props.viewModeChanged(viewMode || 0)
     })
+  }
+
+  handleModuleEvent = event => {
+    debugger
+    this.setState({ statusBarModuleEvent: event })
   }
 
   render() {
@@ -49,7 +60,7 @@ class Layout extends React.Component {
 
     return (
       <div>
-        <aside className={stylus.aside}>
+        <aside className={style.aside}>
           <Sidebar>
             <Header />
             <section className={classNames}>
@@ -58,19 +69,27 @@ class Layout extends React.Component {
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/version-control" component={GhostContent} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
-                <Route exact path="/modules/:moduleName/:subView?" component={Module} />
+                <Route
+                  exact
+                  path="/modules/:moduleName/:subView?"
+                  render={props => <Module {...props} onModuleEvent={this.handleModuleEvent} />}
+                />
                 <Route exact path="/notifications" component={Notifications} />
                 <Route exact path="/logs" component={Logs} />
               </Switch>
             </section>
           </Sidebar>
         </aside>
-        {/* <ToastContainer position="bottom-right" /> */}
+        <ToastContainer position="bottom-right" />
         <SidebarFooter />
-        {/* <PluginInjectionSite site="overlay" /> */}
-        {/* <BackendToast /> */}
-        {/* <SelectContentManager /> */}
-        <StatusBar />
+        <PluginInjectionSite site="overlay" />
+        <BackendToast />
+        <SelectContentManager />
+        <StatusBar
+          botName={this.botName}
+          botpressVersion={this.botpressVersion}
+          moduleEvent={this.state.statusBarModuleEvent}
+        />
       </div>
     )
   }
