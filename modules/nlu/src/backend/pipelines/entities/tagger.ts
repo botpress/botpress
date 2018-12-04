@@ -1,4 +1,4 @@
-const ENTITIES_REGEX = /\[(.+?)\]\(([\w_-]+)\)/gi
+const ENTITIES_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
 export type Token = { type: string; value: string }
 
