@@ -3,12 +3,14 @@ import * as sdk from 'botpress/sdk'
 import { ClassifierByBot } from './typings'
 
 export const registerMiddleware = async (bp: typeof sdk, classifiers: ClassifierByBot) => {
+  const MIN_TEXT_LENGTH = 10
+
   bp.events.registerMiddleware({
     name: 'knowledge.incoming',
     direction: 'incoming',
     handler: async (event, next) => {
-      if (event.type !== 'text' || !event.preview) {
-        next()
+      if (event.type !== 'text' || !event.preview || event.preview.length < MIN_TEXT_LENGTH) {
+        return next()
       }
 
       const results = await classifiers[event.botId].predict(event.preview)
