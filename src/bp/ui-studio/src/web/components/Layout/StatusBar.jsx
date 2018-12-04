@@ -13,13 +13,15 @@ export default class StatusBar extends React.Component {
 
   constructor(props) {
     super(props)
-    this.animationDelay = 2000
+    this.endOfAnimationDelay = 2000
+    this.expirationDelay = 4000
   }
 
   static getDerivedStateFromProps(props, state) {
     const moduleEventId = _.get(props, 'moduleEvent.id')
 
     if (moduleEventId === 'nlu.training' || moduleEventId === 'nlu.complete') {
+      // Delay end of animation when the status changes from working to non-working
       if (state.working && !props.moduleEvent.working) {
         return { working: true, delayAnimation: true }
       }
@@ -29,11 +31,20 @@ export default class StatusBar extends React.Component {
     return null
   }
 
+  expireLastMessage() {
+    setTimeout(() => {
+      this.setState({ message: undefined })
+    }, this.expirationDelay)
+  }
+
   delayEndOfAnimation() {
     if (this.state.delayAnimation) {
       setTimeout(() => {
-        this.setState({ working: false, delayAnimation: false, message: this.props.moduleEvent.message })
-      }, this.animationDelay)
+        this.setState(
+          { working: false, delayAnimation: false, message: this.props.moduleEvent.message },
+          this.expireLastMessage
+        )
+      }, this.endOfAnimationDelay)
     }
   }
 
