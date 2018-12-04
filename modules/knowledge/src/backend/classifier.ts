@@ -64,7 +64,17 @@ export class DocumentClassifier {
     }
 
     const ft = new FastTextWrapper(fullModelPath)
-    ft.train(trainFile, { method: 'supervised' })
+    ft.train(trainFile, {
+      method: 'supervised',
+      epoch: 10,
+      bucket: 100000,
+      minCount: 1,
+      minn: 3,
+      maxn: 6,
+      wordGram: 5,
+      dim: 100,
+      learningRate: 0.2
+    })
 
     this._ft = ft
     this._index = indexedSnippets
