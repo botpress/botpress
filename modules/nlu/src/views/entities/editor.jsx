@@ -67,7 +67,7 @@ export default class EntityEditor extends React.Component {
     const occurence = this.state.occurenceInput
     let entity = this.state.currentEntity
 
-    if (entity.occurences.includes(occurence)) {
+    if (entity.occurences.find(o => o.name === occurence)) {
       return
     }
 
