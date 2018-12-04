@@ -1,8 +1,6 @@
 /**
- * Store data easily for different time periods.
- * user: never expires
- * session: ends when the user's session is finished
- * temp: ends as soon as the flow is finished
+ * Store data to desired storage based on the time to live expectation. Read the
+ * documentation for more details
  *
  * @title Set Variable
  * @category Storage
