@@ -190,7 +190,7 @@ export class Indexer {
         }
       } else {
         if (currentSnippet) {
-          currentSnippet.content += ' ' + el.content
+          currentSnippet.content += ' ___|___ ' + el.content
         } else {
           currentSnippet = { ...el }
         }
