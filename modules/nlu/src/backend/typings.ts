@@ -1,7 +1,5 @@
 import sdk from 'botpress/sdk'
 
-import { Prediction } from './tools/fastText'
-
 export type EngineByBot = { [botId: string]: Engine }
 
 export type Prediction = { name: string; confidence: number }

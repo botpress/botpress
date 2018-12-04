@@ -8,7 +8,7 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
   bp.events.registerMiddleware({
     name: 'knowledge.incoming',
     direction: 'incoming',
-    handler: async (event, next) => {
+    handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       if (event.type !== 'text' || !event.preview || event.preview.length < MIN_TEXT_LENGTH) {
         return next()
       }

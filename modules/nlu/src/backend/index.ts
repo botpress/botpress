@@ -10,6 +10,7 @@ import fastText from './tools/fastText'
 import ScopedEngine from './engine'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
+import { EngineByBot } from './typings'
 
 const nluByBot: EngineByBot = {}
 
