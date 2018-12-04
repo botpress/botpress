@@ -1,12 +1,9 @@
-import retry from 'bluebird-retry'
-import { ChildProcess, execFile, ExecFileOptions, execFileSync } from 'child_process'
+
+import { ChildProcess, ExecFileOptions, execFileSync, spawn } from 'child_process'
 import fs from 'fs'
-import os from 'os'
 import { join } from 'path'
 
 import { Prediction } from '../typings'
-
-const cnt = 0
 
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
@@ -30,7 +27,7 @@ export type FastTextTrainArgs = {
 export const DefaultFastTextTrainArgs: FastTextTrainArgs = {
   method: 'supervised',
   learningRate: 0.8,
-  epoch: 1000,
+  epoch: 50,
   bucket: 25000,
   dim: 15,
   wordGram: 3,
@@ -56,6 +53,7 @@ export default class FastTextWrapper {
   private static process_cache: { [key: string]: ChildProcess } = {}
   private static process_cache_lock: { [key: string]: boolean } = {}
   private static process_cache_expiry: { [key: string]: NodeJS.Timer } = {}
+  private static __counter: number = 0
 
   static configure(newPath: string) {
     if (fs.existsSync(newPath)) {
@@ -65,7 +63,7 @@ export default class FastTextWrapper {
     }
   }
 
-  constructor(public readonly modelPath: string) {}
+  constructor(public readonly modelPath: string) { }
 
   public async train(
     trainingSetPath: string,
@@ -138,10 +136,10 @@ signal: ${err.signal}
 
   public async wordVectors(word: string): Promise<number[]> {
     const result = await FastTextWrapper._query(this.modelPath, word, { method: 'print-word-vectors' })
-
     return result
       .split(/\s|\n|\r/gi)
       .filter(x => x.trim().length)
+      .splice(1)
       .map(x => parseFloat(x))
       .filter(x => !isNaN(x))
   }
@@ -161,25 +159,44 @@ signal: ${err.signal}
       binArgs.push(fArgs.k.toString())
     }
 
-    try {
-      const process = await this._acquireProcess(modelPath, binArgs)
-      return retry(
-        () =>
-          new Promise<string>((resolve, reject) => {
-            const tmr = setTimeout(() => {
-              reject()
-            }, 100)
-            process.stdin.write(`${input}${os.EOL}`)
-            process.stdout.once('data', dd => {
-              clearTimeout(tmr)
-              resolve(dd)
-            })
-          }),
-        2
-      )
-    } finally {
-      this._releaseProcess(modelPath)
+    const process = await this._acquireProcess(modelPath, binArgs)
+    let ok = true
+    const p = new Promise(resolve => {
+      ok = process.stdin.write(`${input}\n`)
+      if (!ok) {
+        process.stdin.once('drain', () => {
+          ok = true
+        })
+      }
+
+      process.stdout.once('data', data => {
+        if (ok) {
+          this._releaseProcess(modelPath)
+          resolve(data.toString('utf8'))
+        }
+      })
+
+    }) as Promise<string>
+
+    return p
+  }
+
+  private static async _cleanupProcess(modelPath: string) {
+    while (this.process_cache_lock[modelPath]) {
+      await Promise.delay(50) // wait until the lock is released
     }
+
+    if (this.process_cache[modelPath]) {
+      try {
+        this.process_cache[modelPath].kill()
+      } catch (e) {
+        console.error('probably already killed')
+      }
+    }
+
+    delete this.process_cache[modelPath]
+    delete this.process_cache_expiry[modelPath]
+    delete this.process_cache_lock[modelPath]
   }
 
   private static _scheduleProcessCleanup(modelPath: string) {
@@ -187,19 +204,7 @@ signal: ${err.signal}
       clearTimeout(this.process_cache_expiry[modelPath])
     }
 
-    this.process_cache_expiry[modelPath] = setTimeout(async () => {
-      while (this.process_cache_lock[modelPath]) {
-        await Promise.delay(50) // wait until the lock is released
-      }
-
-      if (this.process_cache[modelPath]) {
-        this.process_cache[modelPath].kill()
-      }
-
-      delete this.process_cache[modelPath]
-      delete this.process_cache_expiry[modelPath]
-      delete this.process_cache_lock[modelPath]
-    }, 5000) // kill the process if not called after a while
+    this.process_cache_expiry[modelPath] = setTimeout(this._cleanupProcess.bind(this, modelPath), 5000) // kill the process if not called after a while
   }
 
   /** @description Spins a fastText process for the model in the background
@@ -216,16 +221,11 @@ signal: ${err.signal}
 
     try {
       if (!this.process_cache[modelPath]) {
-        this.process_cache[modelPath] = execFile(this.BINPATH, args, {
+        this.process_cache[modelPath] = spawn(this.BINPATH, args, {
           encoding: 'utf8',
-          stdio: ['pipe', 'ignore', 'ignore']
+          stdio: ['pipe', 'pipe', 'ignore']
         } as ExecFileOptions)
-
-        this.process_cache[modelPath].stdout.on('close', () => {
-          delete this.process_cache[modelPath]
-          delete this.process_cache_expiry[modelPath]
-          delete this.process_cache_lock[modelPath]
-        })
+        this.process_cache[modelPath].stdout.on('close', this._cleanupProcess.bind(this, modelPath))
       }
 
       // Schedule expiry of the process
@@ -233,7 +233,7 @@ signal: ${err.signal}
 
       return this.process_cache[modelPath]
     } catch (err) {
-      this._releaseProcess(modelPath)
+      this._cleanupProcess(modelPath)
       throw err
     }
   }
