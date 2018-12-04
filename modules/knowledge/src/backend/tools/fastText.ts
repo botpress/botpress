@@ -161,7 +161,7 @@ signal: ${err.signal}
     try {
       const process = await this._acquireProcess(modelPath, binArgs)
       return new Promise<string>(resolve => {
-        process.stdin.write(`${input}${EOL}`)
+        process.stdin.write(`${input}\n`)
         process.stdout.once('data', resolve)
       })
     } finally {

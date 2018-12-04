@@ -65,7 +65,9 @@ export class Indexer {
   }
 
   private _snippetToCanonical(snippet: Snippet): string {
-    return `${snippet.source}___${snippet.name}___${snippet.page}___${snippet.paragraph}`.replace(/[^A-Z0-9_-]/gi, '')
+    return `${snippet.source}__${snippet.name.substr(0, 10)}__${snippet.page}__${snippet.paragraph}`
+      .replace(/[^A-Z0-9_]/gi, '')
+      .toLowerCase()
   }
 
   private async *_pullDocuments(): AsyncIterableIterator<Snippet[]> {

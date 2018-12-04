@@ -28,7 +28,7 @@ export default class FastTextClassifier implements IntentClassifier {
     for (const intent of intents) {
       intent.utterances.forEach(text => {
         const clean = this.sanitizeText(text)
-        fileStream.write(`${FastTextWrapper.LABEL_PREFIX}${intent.name} ${clean}${EOL}`)
+        fileStream.write(`${FastTextWrapper.LABEL_PREFIX}${intent.name} ${clean}\n`)
       })
     }
 

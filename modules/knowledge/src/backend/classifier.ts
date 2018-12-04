@@ -58,7 +58,7 @@ export class DocumentClassifier {
       for (const utterance of utterances) {
         const content = this._sanitize(utterance)
         if (content.length > 3) {
-          fs.appendFileSync(trainFile, `__label__${idx} ${content}${EOL}`)
+          fs.appendFileSync(trainFile, `__label__${idx} ${content}\n`)
         }
       }
     }
