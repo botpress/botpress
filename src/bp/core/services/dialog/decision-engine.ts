@@ -18,7 +18,7 @@ export class DecisionEngine {
     @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
-  private readonly MIN_CONFIDENCE = 0.3
+  private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.3
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.suggestedReplies) {
