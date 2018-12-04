@@ -38,16 +38,17 @@ export default class Storage {
     intent = sanitizeFilenameNoExt(intent)
     const sysEntities = this.getSystemEntities()
 
-
-    await Promise.map(content.slots, async slot => {
-      if (!sysEntities.find(e => e.name === slot.entity)) {
-        try {
-          await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
-        } catch (err) {
-          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+    if (content.slots) {
+      await Promise.map(content.slots, async slot => {
+        if (!sysEntities.find(e => e.name === slot.entity)) {
+          try {
+            await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
+          } catch (err) {
+            throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+          }
         }
-      }
-    })
+      })
+    }
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -120,33 +121,35 @@ export default class Storage {
     }
   }
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
-    return [
-      ...this.getSystemEntities(),
-      ...(await this.getCustomEntities())
-    ]
+    return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    const sysEntNames = !this.config.ducklingEnabled ? [] : [
-      'amountOfMoney',
-      'distance',
-      'duration',
-      'email',
-      'numeral',
-      'ordinal',
-      'phoneNumber',
-      'quantity',
-      'temperature',
-      'time',
-      'url',
-      'volume'
-    ]
+    const sysEntNames = !this.config.ducklingEnabled
+      ? []
+      : [
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'numeral',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
     sysEntNames.unshift('any')
 
-    return sysEntNames.map(e => ({
-      name: e,
-      type: 'system',
-      body: {}
-    }) as sdk.NLU.EntityDefinition)
+    return sysEntNames.map(
+      e =>
+        ({
+          name: e,
+          type: 'system',
+          body: {}
+        } as sdk.NLU.EntityDefinition)
+    )
   }
 
   async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
