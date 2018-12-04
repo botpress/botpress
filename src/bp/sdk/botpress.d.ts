@@ -298,6 +298,12 @@ declare module 'botpress/sdk' {
       session: CurrentSession
       /** Data saved to this variable will be remembered until the end of the flow */
       temp: any
+      /**
+       * Variables in the bot object are shared to all users for a specific bot. It is read only,
+       * meaning that changes are not automatically persisted. You need to use the setVariable option to change it.
+       * There is a possible race condition since it is loaded each time a messages comes in. Update it wisely
+       * */
+      bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions*/
       context: DialogContext
     }
