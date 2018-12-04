@@ -9,6 +9,9 @@ export type F1 = {
 }
 
 export interface SuiteResult {
+  tp: number,
+  fp: number,
+  fn: number,
   precision: number
   recall: number
   f1: number
@@ -17,7 +20,7 @@ export interface SuiteResult {
 export type Result = { [suite: string]: { [cls: string]: SuiteResult } }
 
 export class FiveFolder<T> {
-  constructor(private readonly dataset: T[]) {}
+  constructor(private readonly dataset: T[]) { }
 
   results: { [suite: string]: F1 } = {}
 
@@ -28,13 +31,13 @@ export class FiveFolder<T> {
   ) {
     this.results[suiteName] = { fp: {}, tp: {}, fn: {} }
     const shuffled = _.shuffle(this.dataset)
-    const chunks = _.chunk(shuffled, 5)
+    const chunks = _.chunk(shuffled, Math.ceil(shuffled.length / 2))
 
-    for (const chunk of chunks) {
-      const train = _.flatten(chunks.filter(c => c !== chunk))
-      await trainFn([...train])
-      await evaluateFn([...chunk], this._record(suiteName))
-    }
+    await Promise.mapSeries(chunks, async testSet => {
+      const trainSet = _.flatten(chunks.filter(c => c !== testSet))
+      await trainFn([...trainSet])
+      await evaluateFn([...testSet], this._record(suiteName))
+    })
   }
 
   _record = suiteName => (expected: string, actual: string) => {
@@ -64,11 +67,13 @@ export class FiveFolder<T> {
         const recall =
           (this.results[suite].tp[cls] || 0) / ((this.results[suite].tp[cls] || 0) + (this.results[suite].fn[cls] || 0))
         const f1 = 2 * ((precision * recall) / (precision + recall))
-        result[cls] = { precision, recall, f1 }
+        if (this.results[suite].tp[cls] + this.results[suite].fn[cls] >= 5) {
+          result[cls] = { tp: this.results[suite].tp[cls], fp: this.results[suite].fp[cls], fn: this.results[suite].fn[cls], precision, recall, f1 }
+        }
       }
 
       const v = _.values(result)
-      result['all'] = { f1: _.meanBy(v, 'f1'), precision: _.meanBy(v, 'precision'), recall: _.meanBy(v, 'recall') }
+      result['all'] = { f1: _.meanBy(v, 'f1'), precision: _.meanBy(v, 'precision'), recall: _.meanBy(v, 'recall'), tp: 0, fp: 0, fn: 0 }
       ret[suite] = result
     }
 
