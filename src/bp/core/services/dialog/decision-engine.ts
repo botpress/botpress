@@ -21,7 +21,9 @@ export class DecisionEngine {
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.3
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
-    if (event.suggestedReplies) {
+    const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
+
+    if (event.suggestedReplies && !isInMiddleOfFlow) {
       const bestReply = this._findBestReply(event)
       if (bestReply) {
         await this._sendSuggestedReply(bestReply, sessionId, event)
