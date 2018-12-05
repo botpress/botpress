@@ -13,6 +13,7 @@ export class DialogSessionTable extends Table {
         .notNullable()
         .references('id')
         .inTable('srv_bots')
+        .onDelete('CASCADE')
       table.text('context').notNullable()
       table.text('temp_data').notNullable()
       table.text('session_data').notNullable()

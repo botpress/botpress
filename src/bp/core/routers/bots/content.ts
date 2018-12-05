@@ -61,20 +61,22 @@ export class ContentRouter implements CustomRouter {
       }
     )
 
-    this.router.get(
+    this.router.post(
       '/:contentType?/elements',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
       async (req, res) => {
         const { botId, contentType } = req.params
-        const query = req.query || {}
+        const { count, from, searchTerm, filters, sortOrder, ids } = req.body
 
         const elements = await this.cms.listContentElements(botId, contentType, {
           ...DefaultSearchParams,
-          count: Number(query.count) || DefaultSearchParams.count,
-          from: Number(query.from) || DefaultSearchParams.from,
-          searchTerm: query.searchTerm || DefaultSearchParams.searchTerm,
-          ids: (query.ids && query.ids.split(',')) || DefaultSearchParams.ids
+          count: Number(count) || DefaultSearchParams.count,
+          from: Number(from) || DefaultSearchParams.from,
+          sortOrder: sortOrder || DefaultSearchParams.sortOrder,
+          searchTerm,
+          filters,
+          ids
         })
 
         const augmentedElements = await Promise.map(elements, this._augmentElement)
@@ -94,7 +96,7 @@ export class ContentRouter implements CustomRouter {
     )
 
     this.router.get(
-      '/elements/:elementId',
+      '/element/:elementId',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
       async (req, res) => {
@@ -105,7 +107,7 @@ export class ContentRouter implements CustomRouter {
     )
 
     this.router.post(
-      '/:contentType/elements/:elementId?',
+      '/:contentType/element/:elementId?',
       this._checkTokenHeader,
       this._needPermissions('write', 'bot.content'),
       async (req, res) => {

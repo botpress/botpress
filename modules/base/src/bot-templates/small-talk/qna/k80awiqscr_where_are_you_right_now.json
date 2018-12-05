@@ -1,0 +1,19 @@
+{
+  "id": "k80awiqscr_where_are_you_right_now",
+  "data": {
+    "questions": [
+      "where are you right now?",
+      "where do you live?",
+      "where are you?",
+      "where you at?",
+      "where do you live",
+      "what is your habitat"
+    ],
+    "answer": "I'm a computer program, so I live inside a boring server.",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

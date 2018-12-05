@@ -1,0 +1,20 @@
+{
+  "id": "7duaxkkqa8_what_s_your_name",
+  "data": {
+    "questions": [
+      "What's your name?",
+      "what is your name?",
+      "how are you called?",
+      "how should I call you?",
+      "how should I name you?",
+      "who am I speaking with?",
+      "who is this?"
+    ],
+    "answer": "My name is Bob, but please don't tell anyone :-)",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

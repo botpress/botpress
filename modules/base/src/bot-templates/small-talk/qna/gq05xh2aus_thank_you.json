@@ -1,0 +1,21 @@
+{
+  "id": "gq05xh2aus_thank_you",
+  "data": {
+    "questions": [
+      "Thank you",
+      "Thanks",
+      "Thx",
+      "thank you very much!",
+      "thanks alot!",
+      "perfect, thank you!",
+      "gracias",
+      "you're awesome"
+    ],
+    "answer": "You're welcome :-)",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

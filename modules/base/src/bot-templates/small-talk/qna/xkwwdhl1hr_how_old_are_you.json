@@ -1,0 +1,16 @@
+{
+  "id": "xkwwdhl1hr_how_old_are_you",
+  "data": {
+    "questions": [
+      "how old are you?",
+      "what's your age?",
+      "when were you born?"
+    ],
+    "answer": "I am a few days old only, so I'm still learning!",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}
