@@ -35,6 +35,7 @@ export default class IntentsEditor extends React.Component {
     }
   }
 
+  // Deprecated, will be fixed when we fix the whole NLU UI
   componentWillReceiveProps(nextProps) {
     if (nextProps.intent !== this.props.intent) {
       this.initiateStateFromProps(nextProps)
