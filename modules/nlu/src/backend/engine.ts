@@ -110,7 +110,7 @@ export default class ScopedEngine {
   private async _filterIntentSlot(slots: any, intentPrediction: any) {
     const matchingIntentDef = await this.storage.getIntent(intentPrediction.name)
     for (const slot in slots) {
-      if (!matchingIntentDef.slots.find(s => s.name === slot)) {
+      if (!(matchingIntentDef.slots || []).find(s => s.name === slot)) {
         delete slots[slot]
       }
     }
