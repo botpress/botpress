@@ -50,7 +50,7 @@ export default class ScopedEngine {
     }
   }
 
-  public async sync(): Promise<void> {
+  async sync(): Promise<void> {
     const intents = await this.storage.getIntents()
     const modelHash = this._getIntentsHash(intents)
 
@@ -63,6 +63,21 @@ export default class ScopedEngine {
 
     // TODO try to load model if saved(we don't save at the moment)
     await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+  }
+
+  async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
+    return retry(() => this._extract(incomingEvent), this.retryPolicy)
+  }
+
+  async checkSyncNeeded(): Promise<boolean> {
+    const intents = await this.storage.getIntents()
+
+    if (intents.length) {
+      const intentsHash = this._getIntentsHash(intents)
+      return this.intentClassifier.currentModelId !== intentsHash
+    }
+
+    return false
   }
 
   private async _loadModel(modelHash: string) {
@@ -84,17 +99,6 @@ export default class ScopedEngine {
     }
   }
 
-  public async checkSyncNeeded(): Promise<boolean> {
-    const intents = await this.storage.getIntents()
-
-    if (intents.length) {
-      const intentsHash = this._getIntentsHash(intents)
-      return this.intentClassifier.currentModelId !== intentsHash
-    }
-
-    return false
-  }
-
   private _getIntentsHash(intents) {
     return crypto
       .createHash('md5')
@@ -102,8 +106,14 @@ export default class ScopedEngine {
       .digest('hex')
   }
 
-  public async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
-    return retry(() => this._extract(incomingEvent), this.retryPolicy)
+  // maybe maybe this should be done within the extractor ?
+  private async _filterIntentSlot(slots: any, intentPrediction: any) {
+    const matchingIntentDef = await this.storage.getIntent(intentPrediction.name)
+    for (const slot in slots) {
+      if (!matchingIntentDef.slots.find(s => s.name === slot)) {
+        delete slots[slot]
+      }
+    }
   }
 
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
@@ -114,9 +124,9 @@ export default class ScopedEngine {
     const intents: Prediction[] = await this.intentClassifier.predict(text)
     const slots = await this.slotExtractor.extract(text)
 
-    const intent = intents.find(c => {
-      return c.confidence >= this.confidenceTreshold
-    }) || { confidence: 1.0, name: 'none' }
+    const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }
+
+    await this._filterIntentSlot(slots, intent)
 
     return {
       language: lang,
