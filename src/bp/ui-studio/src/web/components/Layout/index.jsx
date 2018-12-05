@@ -43,7 +43,6 @@ class Layout extends React.Component {
   }
 
   handleModuleEvent = event => {
-    debugger
     this.setState({ statusBarModuleEvent: event })
   }
 
