@@ -107,7 +107,7 @@ export default class InjectedModuleView extends React.Component {
         component={moduleComponent}
         name={this.props.moduleName}
         bp={bp}
-        statusBarEvent={this.props.statusBarEvent}
+        onModuleEvent={this.props.onModuleEvent}
       />
     )
   }

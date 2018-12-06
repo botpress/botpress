@@ -28,11 +28,17 @@ export default class IntentsComponent extends React.Component {
   maybeSyncModel = _.throttle(() => {
     this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (res.data) {
-        this.syncModel()
-        this.props.statusBarEvent({ type: 'nlu', name: 'train', working: true, message: 'Training model' })
+        this.props.onModuleEvent({ type: 'nlu', name: 'train', working: true, message: 'Training model' })
+        this.syncModel().then(() => {
+          this.props.onModuleEvent({ type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' })
+        })
       }
     })
   }, 1000)
+
+  syncModel = async () => {
+    await this.props.bp.axios.post('/mod/nlu/sync')
+  }
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {

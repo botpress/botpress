@@ -69,7 +69,7 @@ class ModuleView extends React.Component {
         moduleName={moduleName}
         viewName={subView}
         onNotFound={this.renderNotFound}
-        statusBarEvent={this.props.statusBarEvent}
+        onModuleEvent={this.props.onModuleEvent}
       />
     ) : (
       this.renderNotFound()

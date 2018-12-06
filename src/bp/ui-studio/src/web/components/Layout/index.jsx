@@ -42,7 +42,7 @@ class Layout extends React.Component {
     })
   }
 
-  handleStatusBarEvent = event => {
+  handleModuleEvent = event => {
     this.setState({ statusBarEvent: event })
   }
 
@@ -71,7 +71,7 @@ class Layout extends React.Component {
                 <Route
                   exact
                   path="/modules/:moduleName/:subView?"
-                  render={props => <Module {...props} statusBarEvent={this.handleStatusBarEvent} />}
+                  render={props => <Module {...props} onModuleEvent={this.handleModuleEvent} />}
                 />
                 <Route exact path="/notifications" component={Notifications} />
                 <Route exact path="/logs" component={Logs} />

@@ -5,27 +5,30 @@ import classNames from 'classnames'
 import { Glyphicon } from 'react-bootstrap'
 
 export default class StatusBar extends React.Component {
+  expiryTimeMs = 5000
+
   state = {
-    eventsStack: [],
     currentEvent: undefined,
-    eraseMessage: false
+    timeoutRef: undefined
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props !== prevProps) {
-      const eventStack = this.state.eventsStack
-      eventStack.push(this.props.statusBarEvent)
-      const currentEvent = this.state.eventsStack.pop()
+      const currentEvent = this.props.statusBarEvent
+      let timeoutRef = undefined
 
-      if (currentEvent) {
-        setTimeout(this.expireLastEvent, 3000)
+      if (currentEvent && !currentEvent.working) {
+        timeoutRef = setTimeout(this.expireLastEvent, this.expiryTimeMs)
+      } else {
+        // We clear the timeout on any new events so we dont accidentally clear the event
+        clearTimeout(this.state.timeoutRef)
       }
 
-      this.setState({ eventStack, currentEvent })
+      this.setState({ currentEvent, timeoutRef })
     }
   }
 
-  expireLastEvent() {
+  expireLastEvent = () => {
     this.setState({ currentEvent: undefined })
   }
 
@@ -58,7 +61,6 @@ export default class StatusBar extends React.Component {
           </li>
           {this.renderNluStatus()}
         </ul>
-        <span className={style.statusBar__separator} />
       </footer>
     )
   }
