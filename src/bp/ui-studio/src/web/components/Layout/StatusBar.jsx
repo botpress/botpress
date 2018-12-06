@@ -20,7 +20,7 @@ export default class StatusBar extends React.Component {
       if (currentEvent && !currentEvent.working) {
         timeoutRef = setTimeout(this.expireLastEvent, this.expiryTimeMs)
       } else {
-        // We clear the timeout on any new events so we dont accidentally clear the event
+        // We clear the timeout on any new events so the previous timeout dont accidentally clear the new event
         clearTimeout(this.state.timeoutRef)
       }
 
