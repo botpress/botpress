@@ -19,6 +19,7 @@
   font-size: 16px;
   line-height: 44px;
   border-top: 1px solid #2d2d2d;
+
   a {
     text-decoration: none;
     padding: 0 15px;
@@ -34,6 +35,8 @@
 }
 
 .sidebar ul li a {
+  border-left: solid 5px transparent;
+
   &:hover,
   &:focus,
   &:active {
@@ -45,7 +48,7 @@
 
 .active {
   background-color: var(--c-background--dark-3);
-  border-left: 5px solid var(--c-brand--light-1);
+  border-left: 5px solid var(--c-brand--light-1) !important;
 }
 
 .customIcon {
