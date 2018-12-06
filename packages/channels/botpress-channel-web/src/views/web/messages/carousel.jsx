@@ -61,6 +61,7 @@ export default class CarouselMessage extends Component {
 
     const elements = this.props.carousel.elements || []
     const defaultSettings = {
+      speed: 0,
       dots: false,
       infinite: false,
       responsive: [
@@ -73,7 +74,8 @@ export default class CarouselMessage extends Component {
       slidesToScroll: 1,
       autoplay: false,
       centerMode: false,
-      arrows: elements.length > 1
+      arrows: elements.length > 1,
+      focusOnSelect: false
     }
 
     const settings = Object.assign({}, defaultSettings, this.props.carousel.settings)

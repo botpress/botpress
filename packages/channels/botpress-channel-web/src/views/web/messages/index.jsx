@@ -76,7 +76,14 @@ export default class MessageList extends Component {
     this.messagesDiv = null
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidMount() {
+    this.tryScrollToBottom()
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (JSON.stringify(prevProps) === JSON.stringify(this.props)) {
+      return
+    }
     this.tryScrollToBottom()
   }
 
