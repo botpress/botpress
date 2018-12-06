@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/modules/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+### Bug Fixes
+
+* **webchat:** redundant jumps to the bottom of the chat ([#1188](https://github.com/botpress/modules/issues/1188)) ([2de94eb](https://github.com/botpress/modules/commit/2de94eb))
+* **webchat:** widget iframe shouldn't overflow other els (resolve [#1173](https://github.com/botpress/modules/issues/1173)) ([#1199](https://github.com/botpress/modules/issues/1199)) ([5f367ee](https://github.com/botpress/modules/commit/5f367ee))
+
+
+
+
 <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
 

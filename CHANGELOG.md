@@ -3,7 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.51.1"></a>
+  <a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/botpress/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+### Bug Fixes
+
+* **core:** remove unused module import ([#1172](https://github.com/botpress/botpress/issues/1172)) ([ca7bfd6](https://github.com/botpress/botpress/commit/ca7bfd6))
+* **webchat:** redundant jumps to the bottom of the chat ([#1188](https://github.com/botpress/botpress/issues/1188)) ([2de94eb](https://github.com/botpress/botpress/commit/2de94eb))
+* **webchat:** widget iframe shouldn't overflow other els (resolve [#1173](https://github.com/botpress/botpress/issues/1173)) ([#1199](https://github.com/botpress/botpress/issues/1199)) ([5f367ee](https://github.com/botpress/botpress/commit/5f367ee))
+
+
+
+
+  <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/botpress/compare/v10.51.0...v10.51.1) (2018-11-17)
 
 
@@ -16,7 +29,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.51.0"></a>
+<a name="10.51.0"></a>
 # [10.51.0](https://github.com/botpress/botpress/compare/v10.50.0...v10.51.0) (2018-11-08)
 
 

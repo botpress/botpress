@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/modules/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/nlu
+
 <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
 
