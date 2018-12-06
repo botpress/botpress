@@ -76,7 +76,6 @@ export default class SidePanel extends React.Component {
                   )
                 }
                 )
-
             }
           </ListGroup>
         </div>
