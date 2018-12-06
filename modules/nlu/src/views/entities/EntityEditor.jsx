@@ -1,6 +1,6 @@
 import React from 'react'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon, Label, FormControl } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
@@ -14,17 +14,18 @@ export default class EntityEditor extends React.Component {
   state = {
     currentOccurence: undefined,
     currentEntity: undefined,
-    occurenceInput: ''
+    occurenceInput: '',
+    pattern: ''
   }
 
   static getDerivedStateFromProps(props, state) {
     if (props.entity !== state.currentEntity) {
       return {
         currentEntity: props.entity,
-        currentOccurence: props.entity && props.entity.occurences[0]
+        currentOccurence: props.entity && props.entity.occurences[0],
+        pattern: props.entity.pattern,
       }
     }
-    return null // Will not update
   }
 
   onEnterPressed = (event, cb) => {
@@ -140,12 +141,31 @@ export default class EntityEditor extends React.Component {
     )
   }
 
-  onUpdate = () => {
-    this.props.onUpdate(this.state.currentEntity)
+  onUpdate = _.debounce(() => {
+    this.props.onUpdate({ ...this.state.currentEntity, pattern: this.state.pattern })
+  }, 500)
+
+  handlePatternChange = e => {
+    const pattern = e.target.value
+
+    this.setState({ pattern }, () => {
+      if (this.isPatternValid(pattern)) this.onUpdate()
+    })
   }
 
   renderEmpty() {
     return <h1>No entities have been created yet</h1>
+  }
+
+  isPatternValid = pattern => {
+    var valid = true
+    try {
+      new RegExp(pattern)
+    } catch (e) {
+      valid = false
+    }
+
+    return valid
   }
 
   render() {
@@ -163,7 +183,17 @@ export default class EntityEditor extends React.Component {
             </h1>
           </div>
         </div>
-        <div>{this.renderOccurences()}</div>
+        {
+          this.state.currentEntity.type === 'list' && this.renderOccurences()
+        }
+        {
+          this.state.currentEntity.type === 'pattern' && (
+            <div>
+              <FormControl tabIndex="1" autoFocus type="text" placeholder="/valid regex/" value={this.state.pattern} onChange={this.handlePatternChange} />
+              {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
+            </div>
+          )
+        }
       </div>
     )
   }

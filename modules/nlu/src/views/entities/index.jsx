@@ -1,7 +1,7 @@
 import React from 'react'
 
 import style from '../style.scss'
-import EntityEditor from './editor'
+import EntityEditor from './EntityEditor'
 import SidePanel from './SidePanel'
 import CreateEntityModal from './CreateEntityModal'
 
