@@ -45,7 +45,7 @@ export default class SidePanel extends React.Component {
             <div className={nluSyles.filter}>
               <FormGroup bsSize="large">
                 <InputGroup>
-                  <FormControl type="text" placeholder="Search" value={this.state.filter} onChange={this.handleFilterChange} />
+                  <FormControl tabIndex="1" type="text" placeholder="Search" value={this.state.filter} onChange={this.handleFilterChange} />
                   <InputGroup.Addon>
                     <Glyphicon glyph="search" />
                   </InputGroup.Addon>
@@ -60,18 +60,23 @@ export default class SidePanel extends React.Component {
             {
               entities
                 .filter(ent => this.state.filter === undefined || ent.name.includes(this.state.filter))
-                .map(ent => (
-                  <ListGroupItem
-                    key={ent.id}
-                    className={`${entityStyles.entity} ${ent.id === this.props.selectedEntity.id ? entityStyles.selectedentity : ''}`}
-                    onClick={this.handleEntityClick.bind(null, ent)}
-                  >
-                    {ent.name}
-                    &nbsp;
-                    <Label>{ent.type}</Label>
-                    <Glyphicon glyph="trash" className={entityStyles.deleteEntity} onClick={this.handleDeleteClick.bind(null, ent)} />
-                  </ListGroupItem>
-                ))
+                .map(ent => {
+                  const selected = this.props.selectedEntity && ent.id === this.props.selectedEntity.id
+                  return (
+                    <ListGroupItem
+                      key={ent.id}
+                      className={`${entityStyles.entity} ${selected ? entityStyles.selectedentity : ''}`}
+                      onClick={this.handleEntityClick.bind(null, ent)}
+                    >
+                      {ent.name}
+                      &nbsp;
+                    <Label bsStyle={selected ? "primary" : "default"}>{ent.type}</Label>
+                      <Glyphicon glyph="trash" className={entityStyles.deleteEntity} onClick={this.handleDeleteClick.bind(null, ent)} />
+                    </ListGroupItem>
+                  )
+                }
+                )
+
             }
           </ListGroup>
         </div>

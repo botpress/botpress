@@ -3,11 +3,11 @@ import React from 'react'
 import style from '../style.scss'
 import EntityEditor from './editor'
 import SidePanel from './SidePanel'
+import CreateEntityModal from './CreateEntityModal'
 
 export default class EntitiesComponent extends React.Component {
   state = {
     entities: [],
-    filteredEntities: [],
     selectedEntity: undefined
   }
 
@@ -20,20 +20,9 @@ export default class EntitiesComponent extends React.Component {
       const customEntities = res.data.filter(r => r.type !== 'system')
       this.setState({
         entities: customEntities,
-        filteredEntities: customEntities,
         selectedEntity: customEntities[0]
       })
     })
-  }
-
-  onSearchChange = event => {
-    if (event.target.value !== '') {
-      const searchValue = event.target.value.toLowerCase()
-      const filteredEntities = this.state.entities.filter(e => e.name.toLowerCase().includes(searchValue))
-      this.setState({ filteredEntities })
-    } else {
-      this.setState({ filteredEntities: this.state.entities })
-    }
   }
 
   selectEntity = entity => {
@@ -44,25 +33,8 @@ export default class EntitiesComponent extends React.Component {
     return this.props.bp.axios.put(`/mod/nlu/entities/${entity.name}`, entity)
   }
 
-  createEntityPrompt = () => {
-    const name = prompt('Enter the name of the new entity')
-
-    if (!name || !name.length) {
-      return
-    }
-
-    if (/[^a-z0-9-_.]/i.test(name)) {
-      alert('Invalid name, only alphanumerical characters, underscores and hypens are accepted')
-      return null
-    }
-
-    return this.props.bp.axios
-      .post(`/mod/nlu/entities/`, {
-        name,
-        type: 'list', // TODO: We need a ui option for that.
-        occurences: []
-      })
-      .then(this.fetchEntities)
+  toggleCreateModal = () => {
+    this.setState({ createModalVisible: !this.state.createModalVisible })
   }
 
   deleteEntity = entity => {
@@ -74,6 +46,13 @@ export default class EntitiesComponent extends React.Component {
     return this.props.bp.axios.delete(`/mod/nlu/entities/${entity.name}`).then(this.fetchEntities)
   }
 
+  handleEntityCreated = entity => {
+    this.setState({
+      entities: [...this.state.entities, entity],
+      selectedEntity: entity
+    })
+  }
+
   render() {
     return (
       <div className={style.workspace}>
@@ -82,7 +61,7 @@ export default class EntitiesComponent extends React.Component {
             <SidePanel
               entities={this.state.entities}
               selectedEntity={this.state.selectedEntity}
-              onCreateClick={this.createEntityPrompt}
+              onCreateClick={this.toggleCreateModal}
               onDeleteClick={this.deleteEntity}
               onEntityClick={this.selectEntity}
             />
@@ -91,6 +70,12 @@ export default class EntitiesComponent extends React.Component {
             </div>
           </div>
         </div>
+        <CreateEntityModal
+          visible={this.state.createModalVisible}
+          hide={this.toggleCreateModal}
+          axios={this.props.bp.axios}
+          onEntityCreated={this.handleEntityCreated}
+        />
       </div>
     )
   }
