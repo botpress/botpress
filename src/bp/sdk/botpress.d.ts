@@ -409,8 +409,9 @@ declare module 'botpress/sdk' {
      * @example bp.ghost.forBot('welcome-bot').directoryListing('./questions', '*.json')
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
+     * @param exclude - The pattern to match excluded files.
      */
-    directoryListing(rootFolder: string, fileEndingPattern: string): Promise<string[]>
+    directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
   }
 
   /**

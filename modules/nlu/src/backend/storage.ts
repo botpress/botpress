@@ -91,7 +91,7 @@ export default class Storage {
   }
 
   async getIntents(): Promise<sdk.NLU.Intent[]> {
-    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
+    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json', ['**__qna__**', '**none**'])
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
