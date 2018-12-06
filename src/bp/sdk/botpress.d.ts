@@ -147,10 +147,17 @@ declare module 'botpress/sdk' {
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
+    export interface EntityDefOccurence {
+      name: string
+      synonyms: string[]
+    }
+
     export interface EntityDefinition {
+      id: string
       name: string
       type: EntityType
-      body: any
+      occurences: EntityDefOccurence[]
+      pattern: string
     }
 
     export interface IntentSlot {
@@ -190,7 +197,6 @@ declare module 'botpress/sdk' {
       raw: any
     }
   }
-
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
