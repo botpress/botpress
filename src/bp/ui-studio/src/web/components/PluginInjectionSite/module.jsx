@@ -55,12 +55,13 @@ export default class InjectedModuleView extends React.Component {
   }
 
   setViewInState(moduleName, viewName, isLite) {
-    const viewResolve = name => {
+    const viewResolve = (name, viewName) => {
       const prop = isLite ? 'default' : viewName
-      return window.botpress && window.botpress[name] && window.botpress[name][prop]
+      const module = window.botpress && window.botpress[name]
+      return module && (window.botpress[name][prop] || window.botpress[name]['default'])
     }
 
-    const module = viewResolve(moduleName)
+    const module = viewResolve(moduleName, viewName)
 
     if (!module) {
       this.setState({
@@ -106,7 +107,7 @@ export default class InjectedModuleView extends React.Component {
         component={moduleComponent}
         name={this.props.moduleName}
         bp={bp}
-        onModuleEvent={this.props.onModuleEvent}
+        statusBarEvent={this.props.statusBarEvent}
       />
     )
   }
