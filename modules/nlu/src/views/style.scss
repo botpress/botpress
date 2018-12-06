@@ -51,7 +51,7 @@ footer {
   .list {
     flex-grow: 2;
     position: relative;
-    overflow: hidden;
+    overflow: scroll-y;
     padding: 7px;
     height: 100%;
 

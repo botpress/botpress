@@ -1,8 +1,8 @@
 import React from 'react'
-import { Button, FormGroup, FormControl, InputGroup, Glyphicon, ListGroup, ListGroupItem, Label } from 'react-bootstrap'
 
 import style from '../style.scss'
 import EntityEditor from './editor'
+import SidePanel from './SidePanel'
 
 export default class EntitiesComponent extends React.Component {
   state = {
@@ -36,7 +36,7 @@ export default class EntitiesComponent extends React.Component {
     }
   }
 
-  onEntitySelected = entity => {
+  selectEntity = entity => {
     this.setState({ selectedEntity: entity })
   }
 
@@ -79,40 +79,13 @@ export default class EntitiesComponent extends React.Component {
       <div className={style.workspace}>
         <div>
           <div className={style.main}>
-            <nav className={style.navigationBar}>
-              <div className={style.create}>
-                <Button bsStyle="primary" block onClick={this.createEntityPrompt}>
-                  Create new entity
-                </Button>
-              </div>
-
-              <div className={style.filter}>
-                <FormGroup bsSize="large">
-                  <InputGroup>
-                    <FormControl type="text" placeholder="Search" onChange={this.onSearchChange} />
-                    <InputGroup.Addon>
-                      <Glyphicon glyph="search" />
-                    </InputGroup.Addon>
-                  </InputGroup>
-                </FormGroup>
-              </div>
-              <div className={style.list}>
-                <ListGroup>
-                  {this.state.filteredEntities.map((el, i) => (
-                    <ListGroupItem
-                      key={`nlu_entity_${el.name}`}
-                      className={style.entity}
-                      onClick={() => this.onEntitySelected(el)}
-                    >
-                      {el.name}
-                      &nbsp;(
-                      {_.get(el, 'occurences.length') || 0})
-                      <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteEntity(el)} />
-                    </ListGroupItem>
-                  ))}
-                </ListGroup>
-              </div>
-            </nav>
+            <SidePanel
+              entities={this.state.entities}
+              selectedEntity={this.state.selectedEntity}
+              onCreateClick={this.createEntityPrompt}
+              onDeleteClick={this.deleteEntity}
+              onEntityClick={this.selectEntity}
+            />
             <div className={style.childContent}>
               <EntityEditor entity={this.state.selectedEntity} onUpdate={this.onEntityUpdate} />
             </div>
