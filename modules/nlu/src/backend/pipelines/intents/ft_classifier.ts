@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { createWriteStream, writeFileSync } from 'fs'
-import { EOL } from 'os'
 import tmp from 'tmp'
 
 import FastTextWrapper, { Prediction } from '../../tools/fastText'
@@ -12,7 +11,7 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
-  constructor(private readonly logger: sdk.Logger) {}
+  constructor(private readonly logger: sdk.Logger) { }
 
   private fastTextWrapper: FastTextWrapper
 
@@ -28,7 +27,7 @@ export default class FastTextClassifier implements IntentClassifier {
     for (const intent of intents) {
       intent.utterances.forEach(text => {
         const clean = this.sanitizeText(text)
-        fileStream.write(`${FastTextWrapper.LABEL_PREFIX}${intent.name} ${clean}${EOL}`)
+        fileStream.write(`${FastTextWrapper.LABEL_PREFIX}${intent.name} ${clean}\n`)
       })
     }
 
@@ -63,12 +62,6 @@ export default class FastTextClassifier implements IntentClassifier {
       throw new Error('model is not set')
     }
 
-    let intents: Prediction[] = await this.fastTextWrapper.predict(this.sanitizeText(input), 5)
-
-    if (!intents.length) {
-      intents = [{ name: 'none', confidence: 1 }]
-    }
-
-    return intents
+    return this.fastTextWrapper.predict(this.sanitizeText(input), 5)
   }
 }

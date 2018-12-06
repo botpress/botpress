@@ -42,13 +42,10 @@ const validateChoice = async data => {
   }
 
   if (choice) {
-    return {
-      ...state,
-      'skill-choice-valid': true,
-      'skill-choice-ret': choice
-    }
+    temp['skill-choice-valid'] = true
+    temp['skill-choice-ret'] = choice
   } else {
-    return { ...state, 'skill-choice-valid': false }
+    temp['skill-choice-valid'] = false
   }
 }
 
