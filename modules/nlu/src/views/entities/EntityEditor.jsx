@@ -68,7 +68,7 @@ export default class EntityEditor extends React.Component {
     const occurence = this.state.occurenceInput
     let entity = this.state.currentEntity
 
-    if (entity.occurences.includes(occurence)) {
+    if (entity.occurences.find(o => o.name === occurence)) {
       return
     }
 
@@ -153,10 +153,6 @@ export default class EntityEditor extends React.Component {
     })
   }
 
-  renderEmpty() {
-    return <h1>No entities have been created yet</h1>
-  }
-
   isPatternValid = pattern => {
     var valid = true
     try {
@@ -169,25 +165,25 @@ export default class EntityEditor extends React.Component {
   }
 
   render() {
-    if (!this.state.currentEntity) {
-      return this.renderEmpty()
-    }
-
+    const { currentEntity } = this.state
     return (
       <div className={style.container}>
         <div className={style.header}>
-          <div className="pull-left">
-            <h1>
-              entities/
-              <span className={style.entity}>{this.state.currentEntity.name}</span>
-            </h1>
+          <div>
+            {!currentEntity && <h1>No entities have been created yet</h1>}
+            {currentEntity && (
+              <h1>
+                entities /
+                <span className={style.entity}>{this.state.currentEntity.name}</span>
+              </h1>
+            )}
           </div>
         </div>
         {
-          this.state.currentEntity.type === 'list' && this.renderOccurences()
+          currentEntity && currentEntity.type === 'list' && this.renderOccurences()
         }
         {
-          this.state.currentEntity.type === 'pattern' && (
+          currentEntity && currentEntity.type === 'pattern' && (
             <div>
               <FormControl tabIndex="1" autoFocus type="text" placeholder="/valid regex/" value={this.state.pattern} onChange={this.handlePatternChange} />
               {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}

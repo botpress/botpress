@@ -10,10 +10,7 @@ import Header from './Header'
 import Sidebar from './Sidebar'
 import SidebarFooter from './SidebarFooter'
 
-import GuidedTour from '~/components/Tour'
 import SelectContentManager from '~/components/Content/Select/Manager'
-import Dashboard from '~/views/Dashboard'
-import Middleware from '~/views/Middleware'
 import Content from '~/views/Content'
 import GhostContent from '~/views/GhostContent'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -27,14 +24,26 @@ import PluginInjectionSite from '~/components/PluginInjectionSite'
 import { viewModeChanged } from '~/actions'
 
 import style from './style.scss'
+import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
+  state = {
+    statusBarEvent: undefined
+  }
+
   componentDidMount() {
+    this.botpressVersion = window.BOTPRESS_VERSION
+    this.botName = window.BOT_ID
+
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
     setImmediate(() => {
       this.props.viewModeChanged(viewMode || 0)
     })
+  }
+
+  handleModuleEvent = event => {
+    this.setState({ statusBarEvent: event })
   }
 
   render() {
@@ -49,29 +58,37 @@ class Layout extends React.Component {
     })
 
     return (
-      <div className="wrapper bp-wrapper">
+      <div>
+        <aside className={style.aside}>
+          <Sidebar>
+            <Header />
+            <section className={classNames}>
+              <Switch>
+                <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                <Route exact path="/content" component={Content} />
+                <Route exact path="/version-control" component={GhostContent} />
+                <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                <Route
+                  exact
+                  path="/modules/:moduleName/:subView?"
+                  render={props => <Module {...props} onModuleEvent={this.handleModuleEvent} />}
+                />
+                <Route exact path="/notifications" component={Notifications} />
+                <Route exact path="/logs" component={Logs} />
+              </Switch>
+            </section>
+          </Sidebar>
+        </aside>
         <ToastContainer position="bottom-right" />
-        <Sidebar>
-          <Header />
-          <section className={classNames}>
-            <Switch>
-              <Route exact path="/" render={() => <Redirect to="/flows" />} />
-              <Route exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/middleware" component={Middleware} />
-              <Route exact path="/content" component={Content} />
-              <Route exact path="/version-control" component={GhostContent} />
-              <Route exact path="/flows/:flow*" component={FlowBuilder} />
-              <Route exact path="/modules/:moduleName/:subView?" component={Module} />
-              <Route exact path="/notifications" component={Notifications} />
-              <Route exact path="/logs" component={Logs} />
-            </Switch>
-          </section>
-        </Sidebar>
         <SidebarFooter />
-        <GuidedTour opened={window.SHOW_GUIDED_TOUR} />
         <PluginInjectionSite site="overlay" />
-        <SelectContentManager />
         <BackendToast />
+        <SelectContentManager />
+        <StatusBar
+          botName={this.botName}
+          botpressVersion={this.botpressVersion}
+          statusBarEvent={this.state.statusBarEvent}
+        />
       </div>
     )
   }
