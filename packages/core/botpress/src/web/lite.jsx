@@ -14,7 +14,6 @@ import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
 import { getToken, getUniqueVisitorId } from '~/util/Auth'
-import { fromPromise } from 'rxjs/observable/fromPromise'
 
 const token = getToken()
 if (token) {
