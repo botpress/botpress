@@ -67,7 +67,7 @@ export default class EntityEditor extends React.Component {
     const occurence = this.state.occurenceInput
     let entity = this.state.currentEntity
 
-    if (entity.occurences.includes(occurence)) {
+    if (entity.occurences.find(o => o.name === occurence)) {
       return
     }
 
@@ -144,23 +144,18 @@ export default class EntityEditor extends React.Component {
     this.props.onUpdate(this.state.currentEntity)
   }
 
-  renderEmpty() {
-    return <h1>No entities have been created yet</h1>
-  }
-
   render() {
-    if (!this.state.currentEntity) {
-      return this.renderEmpty()
-    }
-
     return (
       <div className={style.container}>
         <div className={style.header}>
-          <div className="pull-left">
-            <h1>
-              entities/
-              <span className={style.entity}>{this.state.currentEntity.name}</span>
-            </h1>
+          <div>
+            {!this.state.currentEntity && <h1>No entities have been created yet</h1>}
+            {this.state.currentEntity && (
+              <h1>
+                entities/
+                <span className={style.entity}>{this.state.currentEntity.name}</span>
+              </h1>
+            )}
           </div>
         </div>
         <div>{this.renderOccurences()}</div>

@@ -16,12 +16,6 @@ import PermissionsChecker from './PermissionsChecker'
 const style = require('./Sidebar.scss')
 
 const BASIC_MENU_ITEMS = [
-  /*{
-    name: 'Dashboard',
-    path: '/dashboard',
-    rule: { res: 'bot.information', op: 'read' },
-    icon: 'dashboard'
-  },*/
   window.GHOST_ENABLED && {
     name: 'Version Control',
     path: '/version-control',

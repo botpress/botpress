@@ -102,8 +102,13 @@ export default class InjectedModuleView extends React.Component {
       toast
     }
 
-    const extraProps = this.props.extraProps || {}
-
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
+    return (
+      <InjectedComponent
+        component={moduleComponent}
+        name={this.props.moduleName}
+        bp={bp}
+        onModuleEvent={this.props.onModuleEvent}
+      />
+    )
   }
 }

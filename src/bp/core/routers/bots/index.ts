@@ -96,7 +96,6 @@ export class BotsRouter implements CustomRouter {
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
       gaId: gaId,
-      showGuidedTour: false, // TODO
       ghostEnabled: this.ghostService.isGhostEnabled,
       flowEditorDisabled: !process.IS_LICENSED,
       botpress: {
@@ -125,7 +124,6 @@ export class BotsRouter implements CustomRouter {
               // Botpress Studio Specific
               window.AUTH_TOKEN_DURATION = ${data.authentication.tokenDuration};
               window.SEND_USAGE_STATS = ${data.sendUsageStats};
-              window.SHOW_GUIDED_TOUR = ${data.showGuidedTour};
               window.GHOST_ENABLED = ${data.ghostEnabled};
               window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
               window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};

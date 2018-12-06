@@ -111,6 +111,22 @@ const webConfig = {
         ]
       },
       {
+        test: /\.styl$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          { loader: 'postcss-loader' },
+          { loader: 'stylus-loader' }
+        ]
+      },
+      {
         test: /\.scss$/,
         use: [
           { loader: 'style-loader' },

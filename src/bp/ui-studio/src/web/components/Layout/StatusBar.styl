@@ -1,0 +1,76 @@
+.statusBar {
+    background-color: var(--c-brand);
+    border-top: 1px solid var(--c-background--dark-3);
+    color: var(--c-text--light);
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 20px;
+    width: calc(100% - 200px); // 200 is the width of the sidebar
+
+    display: flex;
+    align-items: center;
+
+    &__list {
+        list-style-type: none;
+        margin-bottom: 0;
+        padding-left: 0;
+
+        &Item {
+            padding-right: 10px;
+            display: inline;
+        }
+    }
+
+    &__version {
+        padding-left: 10px
+        font-weight: var(--fw-bold);
+        margin: 0 var(--s-default--2x);
+    }
+
+    &__botName {
+        padding-left: 10px
+        font-weight: var(--fw-bold);
+        margin: 0 var(--s-default);
+    }
+
+    &__separator {
+        background-color: var(--c-background--dark-3);
+        width: 1px;
+        height: 12px;
+        margin: 0 0 0 var(--s-default);
+    }
+
+    &__worker {
+        -webkit-animation: flash linear 1s infinite;
+        animation: flash linear 1s infinite;
+        @-webkit-keyframes flash {
+            0% {
+            opacity: 1;
+            }
+            50% {
+            opacity: 0.1;
+            }
+            100% {
+            opacity: 1;
+            }
+        }
+        @keyframes flash {
+            0% {
+            opacity: 1;
+            }
+            50% {
+            opacity: 0.1;
+            }
+            100% {
+            opacity: 1;
+            }
+        }
+    }
+
+    &Tabs {
+        height: 100%;
+        margin-left: auto;
+    }
+}
