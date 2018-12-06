@@ -5,27 +5,31 @@ import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
 
+const DEFAULT_STATE = {
+  currentOccurence: undefined,
+  currentEntity: undefined,
+  occurenceInput: '',
+  pattern: ''
+}
+
 export default class EntityEditor extends React.Component {
   constructor(props) {
     super(props)
     this.occurenceInputRef = React.createRef()
   }
 
-  state = {
-    currentOccurence: undefined,
-    currentEntity: undefined,
-    occurenceInput: '',
-    pattern: ''
-  }
+  state = { ...DEFAULT_STATE }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.entity !== state.currentEntity) {
+    if (props.entity && props.entity !== state.currentEntity) {
       return {
         currentEntity: props.entity,
         currentOccurence: props.entity && props.entity.occurences[0],
         pattern: props.entity.pattern,
       }
-    }
+    } else if (props.entity === undefined) {
+      return DEFAULT_STATE
+    } else return null
   }
 
   onEnterPressed = (event, cb) => {
@@ -35,27 +39,23 @@ export default class EntityEditor extends React.Component {
     }
   }
 
-  addSynonym = (occurence, synonym) => {
+  addSynonym = (occurenceIndex, synonym) => {
     let entity = this.state.currentEntity
 
-    if (occurence.synonyms.includes(synonym)) {
+    if (entity.occurences[occurenceIndex].synonyms.includes(synonym.text)) {
+      // TODO display something
       return
     }
 
-    occurence.synonyms = [...occurence.synonyms, synonym]
-    const index = entity.occurences.findIndex(o => o.name === occurence.name)
-    entity.occurences[index] = occurence
+    entity.occurences[occurenceIndex].synonyms.push(synonym.text)
 
     this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
-  removeSynonym = (occurence, index) => {
+  removeSynonym = (occurenceIndex, synonymIndex) => {
     let entity = this.state.currentEntity
 
-    occurence.synonyms.splice(index, 1)
-
-    const eIndex = entity.occurences.findIndex(o => o.name === occurence.name)
-    entity.occurences[eIndex] = occurence
+    entity.occurences[occurenceIndex].synonyms.splice(synonymIndex, 1)
     this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
@@ -124,14 +124,14 @@ export default class EntityEditor extends React.Component {
           onKeyDown={this.handleOccurenceEnter}
           onChange={this.onOccurenceInputChange}
         />
-        {occurences.map(o => (
+        {occurences.map((o, occIdx) => (
           <ListGroupItem className={style.occurence} key={`nlu_occurence_${o.name}`}>
             <div className={style.occurenceName}>{o.name}</div>
             <ReactTags
               placeholder="Enter a synonym"
-              tags={o.synonyms}
-              handleDelete={index => this.removeSynonym(o, index)}
-              handleAddition={e => this.addSynonym(o, e)}
+              tags={o.synonyms.map(s => ({ id: s.replace(/[^A-Z0-9_-]/gi, '_'), text: s }))}
+              handleDelete={index => this.removeSynonym(occIdx, index)}
+              handleAddition={e => this.addSynonym(occIdx, e)}
               allowDeleteFromEmptyInput={false}
             />
             <Glyphicon glyph="trash" className={style.occurenceDelete} onClick={() => this.removeOccurence(o)} />
