@@ -90,12 +90,12 @@ export default class Storage {
     }
   }
 
-  async getIntents() {
+  async getIntents(): Promise<sdk.NLU.Intent[]> {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent) {
+  async getIntent(intent): Promise<sdk.NLU.Intent> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
