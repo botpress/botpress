@@ -5,6 +5,8 @@ import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 
+import { Collapse } from 'react-bootstrap'
+
 import ReactSidebar from 'react-sidebar'
 import SidebarHeader from './SidebarHeader'
 
@@ -50,7 +52,8 @@ class Sidebar extends React.Component {
 
   state = {
     sidebarOpen: false,
-    sidebarDocked: false
+    sidebarDocked: false,
+    nluCollapseOpen: false
   }
 
   onSetSidebarOpen = open => {
@@ -71,6 +74,11 @@ class Sidebar extends React.Component {
     this.setState({ sidebarDocked: this.state.mql.matches })
   }
 
+  toggleNluCollapse = event => {
+    event.preventDefault()
+    this.setState({ nluCollapseOpen: !this.state.nluCollapseOpen })
+  }
+
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
     const iconPath = `/assets/module/${module.name}/icon.png`
@@ -81,14 +89,50 @@ class Sidebar extends React.Component {
         <i className="icon material-icons">{module.menuIcon}</i>
       )
 
-    return (
-      <li key={`menu_module_${module.name}`}>
-        <NavLink to={path} title={module.menuText} activeClassName={style.active}>
-          {moduleIcon}
-          <span>{module.menuText}</span>
-        </NavLink>
-      </li>
-    )
+    // TODO: Make generic menu and submenu and use them for intents / entities ui
+    if (module.name === 'nlu') {
+      return (
+        <li key={`menu_module_${module.name}`}>
+          <a onClick={this.toggleNluCollapse}>
+            {moduleIcon}
+            <span>Understanding</span>
+          </a>
+          <Collapse in={this.state.nluCollapseOpen}>
+            <ul className={style.mainMenu_level2}>
+              <li className={style.mainMenu__item}>
+                <NavLink
+                  to={path + '/entities'}
+                  title={module.menuText}
+                  activeClassName={style.active}
+                  className={style.mainMenu__link}
+                >
+                  <span>Entities</span>
+                </NavLink>
+              </li>
+              <li className={style.mainMenu__item}>
+                <NavLink
+                  to={path + '/intents'}
+                  title={module.menuText}
+                  activeClassName={style.active}
+                  className={style.mainMenu__link}
+                >
+                  <span>Intents</span>
+                </NavLink>
+              </li>
+            </ul>
+          </Collapse>
+        </li>
+      )
+    } else {
+      return (
+        <li key={`menu_module_${module.name}`}>
+          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+            {moduleIcon}
+            <span>{module.menuText}</span>
+          </NavLink>
+        </li>
+      )
+    }
   }
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => {
@@ -113,7 +157,7 @@ class Sidebar extends React.Component {
     const sidebarContent = (
       <div className={classnames(style.sidebar, 'bp-sidebar')}>
         <SidebarHeader />
-        <ul className="nav">
+        <ul className={classnames('nav', style.mainMenu)}>
           {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
           {moduleItems}
           <li className={emptyClassName} />
