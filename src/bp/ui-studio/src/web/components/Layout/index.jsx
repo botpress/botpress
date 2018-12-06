@@ -28,7 +28,7 @@ import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
   state = {
-    statusBarModuleEvent: undefined
+    statusBarEvent: undefined
   }
 
   componentDidMount() {
@@ -42,8 +42,8 @@ class Layout extends React.Component {
     })
   }
 
-  handleModuleEvent = event => {
-    this.setState({ statusBarModuleEvent: event })
+  handleStatusBarEvent = event => {
+    this.setState({ statusBarEvent: event })
   }
 
   render() {
@@ -71,7 +71,7 @@ class Layout extends React.Component {
                 <Route
                   exact
                   path="/modules/:moduleName/:subView?"
-                  render={props => <Module {...props} onModuleEvent={this.handleModuleEvent} />}
+                  render={props => <Module {...props} statusBarEvent={this.handleStatusBarEvent} />}
                 />
                 <Route exact path="/notifications" component={Notifications} />
                 <Route exact path="/logs" component={Logs} />
@@ -87,7 +87,7 @@ class Layout extends React.Component {
         <StatusBar
           botName={this.botName}
           botpressVersion={this.botpressVersion}
-          moduleEvent={this.state.statusBarModuleEvent}
+          statusBarEvent={this.state.statusBarEvent}
         />
       </div>
     )

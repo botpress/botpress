@@ -23,7 +23,7 @@ export default class IntentsComponent extends React.Component {
       .post('/mod/nlu/sync')
       .catch(err => this.setState({ syncFailedError: err.response.data }))
       .then(() => {
-        this.props.onModuleEvent({ id: 'nlu.complete', working: false, message: 'Model is up-to-date' })
+        this.props.statusBarEvent({ type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' })
       })
   }
 
@@ -31,7 +31,7 @@ export default class IntentsComponent extends React.Component {
     this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
       if (res.data) {
         this.syncModel()
-        this.props.onModuleEvent({ id: 'nlu.training', working: true, message: 'Training model' })
+        this.props.statusBarEvent({ type: 'nlu', name: 'train', working: true, message: 'Training model' })
       }
     })
   }, 1000)

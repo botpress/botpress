@@ -1,60 +1,50 @@
 import style from './StatusBar.styl'
 import React from 'react'
-import { Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 import classNames from 'classnames'
+import { Glyphicon } from 'react-bootstrap'
 
 export default class StatusBar extends React.Component {
   state = {
-    delayAnimation: false,
-    working: false,
-    message: undefined
+    eventsStack: [],
+    currentEvent: undefined,
+    eraseMessage: false
   }
 
-  constructor(props) {
-    super(props)
-    this.endOfAnimationDelay = 2000
-    this.expirationDelay = 4000
-  }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props !== prevProps) {
+      const eventStack = this.state.eventsStack
+      eventStack.push(this.props.statusBarEvent)
+      const currentEvent = this.state.eventsStack.pop()
 
-  static getDerivedStateFromProps(props, state) {
-    const moduleEventId = _.get(props, 'moduleEvent.id')
-
-    if (moduleEventId === 'nlu.training' || moduleEventId === 'nlu.complete') {
-      // Delay end of animation when the status changes from working to non-working
-      if (state.working && !props.moduleEvent.working) {
-        return { working: true, delayAnimation: true }
+      if (currentEvent) {
+        setTimeout(this.expireLastEvent, 3000)
       }
-      return { working: props.moduleEvent.working, delayAnimation: false, message: props.moduleEvent.message }
-    }
 
-    return null
-  }
-
-  expireLastMessage() {
-    setTimeout(() => {
-      this.setState({ message: undefined })
-    }, this.expirationDelay)
-  }
-
-  delayEndOfAnimation() {
-    if (this.state.delayAnimation) {
-      setTimeout(() => {
-        this.setState(
-          { working: false, delayAnimation: false, message: this.props.moduleEvent.message },
-          this.expireLastMessage
-        )
-      }, this.endOfAnimationDelay)
+      this.setState({ eventStack, currentEvent })
     }
   }
 
-  flashWhileWorking = () => {
-    return this.state.working ? style.statusBar__worker : ''
+  expireLastEvent() {
+    this.setState({ currentEvent: undefined })
+  }
+
+  renderNluStatus() {
+    const isEventFromNlu = _.get(this.state, 'currentEvent.type') === 'nlu'
+    const event = this.state.currentEvent
+
+    if (isEventFromNlu && event.message) {
+      return (
+        <li className={classNames(style.statusBar__listItem, event.working ? style.statusBar__worker : '')}>
+          {!event.working && <Glyphicon glyph="ok" />}
+          &nbsp;
+          {event.message}
+        </li>
+      )
+    }
   }
 
   render() {
-    this.delayEndOfAnimation()
-
     return (
       <footer className={style.statusBar}>
         <ul className={style.statusBar__list}>
@@ -66,14 +56,7 @@ export default class StatusBar extends React.Component {
             Active Bot:&nbsp;
             {this.props.botName}
           </li>
-          {this.state.message && (
-            <li className={classNames(style.statusBar__listItem, this.flashWhileWorking())}>
-              {this.state.working && <Glyphicon glyph="refresh" />}
-              {!this.state.working && <Glyphicon glyph="ok" />}
-              &nbsp;
-              {this.state.message}
-            </li>
-          )}
+          {this.renderNluStatus()}
         </ul>
         <span className={style.statusBar__separator} />
       </footer>
