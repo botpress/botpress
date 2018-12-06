@@ -38,15 +38,17 @@ export default class Storage {
     intent = sanitizeFilenameNoExt(intent)
     const sysEntities = this.getSystemEntities()
 
-    await Promise.map(content.slots, async slot => {
-      if (!sysEntities.find(e => e.name === slot.entity)) {
-        try {
-          await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
-        } catch (err) {
-          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+    if (content.slots) {
+      await Promise.map(content.slots, async slot => {
+        if (!sysEntities.find(e => e.name === slot.entity)) {
+          try {
+            await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
+          } catch (err) {
+            throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+          }
         }
-      }
-    })
+      })
+    }
 
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
@@ -88,12 +90,12 @@ export default class Storage {
     }
   }
 
-  async getIntents() {
+  async getIntents(): Promise<sdk.NLU.Intent[]> {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent) {
+  async getIntent(intent): Promise<sdk.NLU.Intent> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {

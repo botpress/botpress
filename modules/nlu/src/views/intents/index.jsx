@@ -19,14 +19,11 @@ export default class IntentsComponent extends React.Component {
     this.maybeSyncModel()
   }
 
-  syncModel = () => {
-    return this.props.bp.axios
-      .post('/mod/nlu/sync')
-      .catch(err => this.setState({ syncFailedError: err.response.data }))
-      .then(() => {
-        // Set animation timeout
-        setTimeout(() => this.setState({ isSyncing: false }), 2000)
-      })
+  // Deprecated, will be fixed when we fix the whole NLU UI
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.intent !== this.props.intent) {
+      this.initiateStateFromProps(nextProps)
+    }
   }
 
   maybeSyncModel = _.throttle(() => {

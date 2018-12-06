@@ -19,6 +19,16 @@ export default class Slots extends React.Component {
   intentEditor = null
 
   componentDidMount() {
+    this.initiateStateFromProps(this.props)
+  }
+
+  componentDidUpdate(prevprops) {
+    if (prevprops.slots !== this.props.slots) {
+      this.initiateStateFromProps()
+    }
+  }
+
+  initiateStateFromProps = () => {
     const slots = this.getSlots()
     if (slots.length > 0) {
       this.setState({

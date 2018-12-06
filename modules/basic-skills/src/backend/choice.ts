@@ -31,7 +31,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
           args: data
         }
       ],
-      next: [{ condition: `state['skill-choice-valid'] === true`, node: '#' }, { condition: 'true', node: 'invalid' }]
+      next: [{ condition: `temp['skill-choice-valid'] === true`, node: '#' }, { condition: 'true', node: 'invalid' }]
     },
     {
       name: 'invalid',
@@ -43,7 +43,7 @@ const generateFlow = (data): sdk.FlowGenerationResult => {
       ],
       next: [
         {
-          condition: `state['skill-choice-invalid-count'] <= ${maxAttempts}`,
+          condition: `temp['skill-choice-invalid-count'] <= ${maxAttempts}`,
           node: 'sorry'
         },
         { condition: 'true', node: '#' }
@@ -79,7 +79,7 @@ const createTransitions = data => {
 
     return {
       caption: `User picked [${choiceShort}]`,
-      condition: `state['skill-choice-ret'] == "${choice}"`,
+      condition: `temp['skill-choice-ret'] == "${choice}"`,
       node: ''
     }
   })

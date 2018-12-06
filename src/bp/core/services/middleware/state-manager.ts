@@ -10,6 +10,7 @@ import ms from 'ms'
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
+import { KeyValueStore } from '../kvs'
 
 import { EventEngine } from './event-engine'
 
@@ -19,10 +20,12 @@ export class StateManager {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.UserRepository) private userRepo: UserRepository,
-    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository
+    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {}
 
   private LAST_MESSAGES_HISTORY_COUNT = 5
+  private BOT_GLOBAL_KEY = 'global'
 
   public initialize() {
     const stateLoader = async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
@@ -38,6 +41,7 @@ export class StateManager {
       state.context = (session && session.context) || {}
       state.session = (session && session.session_data) || { lastMessages: [] }
       state.temp = (session && session.temp_data) || {}
+      state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
 
       next()
     }

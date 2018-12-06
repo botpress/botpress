@@ -4,9 +4,9 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import Database from '../../database'
-import { safeStringify } from '../../misc/utils'
-import { TYPES } from '../../types'
+import Database from '../database'
+import { safeStringify } from '../misc/utils'
+import { TYPES } from '../types'
 
 // TODO: Create repository to interact with the database
 @injectable()
