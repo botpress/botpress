@@ -1,8 +1,6 @@
-import { resolve } from 'bluebird'
 import fs from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
-import os from 'os'
 import tmp from 'tmp'
 
 import { Tagger, Trainer } from '../../tools/crfsuite'
@@ -12,8 +10,8 @@ import { SlotExtractor } from '../../typings'
 import { Token, tokenize } from './tagger'
 
 const FT_DIMENTIONS = 15
-const K = 15
-const CRF_PARAMAS = {
+const K_CLUSTERS = 15
+const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
   c2: '0.01',
   max_iterations: '500',
@@ -70,9 +68,11 @@ export default class CRFExtractor implements SlotExtractor {
       .reduce((slots: any, [token, tag]) => {
         if (token && tag) {
           const slotName = tag.slice(2)
-          // we could remove the I check if the extractor is not accurate enough
           if (tag[0] === 'I' && slots[slotName]) {
             slots[slotName] + ` ${token.value}`
+          } else if (tag[0] === 'B' && slots[slotName]) {
+            if (Array.isArray(slots[slotName])) slotName[slotName].push(token.value)
+            else slots[slotName] = [slots[slotName], token.value]
           } else {
             slots[slotName] = token.value
           }
@@ -88,7 +88,7 @@ export default class CRFExtractor implements SlotExtractor {
     const seq: string[][] = []
     for (let i = 0; i < sample.length; i++) {
       const x = await this._word2feat(sample, i)
-      seq.push(this._feat2vec(x))
+      seq.push(this._featuresToTaggerParams(x))
     }
     // Here, it would be awesome if we could get some probabilities for each tag
     // CRFSuite offers that option by passing the -i, --marginal option
@@ -100,8 +100,7 @@ export default class CRFExtractor implements SlotExtractor {
   private async _trainKmeans(samples: Token[][]): Promise<any> {
     const data = await Promise.mapSeries(_.flatten(samples), async t => await this._ft.wordVectors(t.value))
     try {
-      this._kmeansModel = kmeans(data, K)
-      return resolve()
+      this._kmeansModel = kmeans(data, K_CLUSTERS)
     } catch (error) {
       console.error('error tra ining Kmeans', error)
       throw error
@@ -111,7 +110,7 @@ export default class CRFExtractor implements SlotExtractor {
   private async _trainCrf(samples: Token[][]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = Trainer()
-    trainer.set_params(CRF_PARAMAS)
+    trainer.set_params(CRF_TRAINER_PARAMS)
 
     for (const sample of samples) {
       const entries: string[][] = []
@@ -119,7 +118,7 @@ export default class CRFExtractor implements SlotExtractor {
       for (let i = 0; i < sample.length; i++) {
         const x = await this._word2feat(sample, i)
         labels.push(sample[i].type)
-        entries.push(this._feat2vec(x))
+        entries.push(this._featuresToTaggerParams(x))
       }
       trainer.append(entries, labels)
     }
@@ -132,8 +131,12 @@ export default class CRFExtractor implements SlotExtractor {
     const ftTrainFn = tmp.fileSync({ postfix: '.txt' }).name
     this._ft = new FastText(this._ftModelFn)
 
-    const trainContent = samples.reduce((current, next) => {
-      return `${current}${next.map(s => s.type == 'o' ? s.value : s.type.slice(2, s.type.length)).join(' ')}${os.EOL}`
+    const trainContent = samples.reduce((corpus, example) => {
+      const cannonicSentence = example.map(s => {
+        if (s.type === 'o') return s.value
+        else return s.type.slice(2)
+      }).join(' ') // TODO replace this by the opposite tokenizer as only latin language use \s...
+      return `${corpus}${cannonicSentence}}\n`
     }, '')
 
     fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
@@ -187,7 +190,7 @@ export default class CRFExtractor implements SlotExtractor {
     return this._kmeansModel.nearest([vector])[0]
   }
 
-  private _feat2vec(f: Features): string[] {
+  private _featuresToTaggerParams(f: Features): string[] {
     const ret: string[] = []
 
     if (f.w_bos) {
