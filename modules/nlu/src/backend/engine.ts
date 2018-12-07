@@ -63,7 +63,11 @@ export default class ScopedEngine {
     }
 
     // TODO try to load model if saved(we don't save at the moment)
-    await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+    try {
+      await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+    } catch (err) {
+      this.logger.error('Error training slot tagger', err)
+    }
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
