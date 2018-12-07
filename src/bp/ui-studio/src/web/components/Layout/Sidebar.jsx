@@ -1,15 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
-
 import { Collapse } from 'react-bootstrap'
-
-import ReactSidebar from 'react-sidebar'
-import SidebarHeader from './SidebarHeader'
-
 import GhostChecker from '~/views/GhostContent/Checker'
 import PermissionsChecker from './PermissionsChecker'
 
@@ -80,7 +74,9 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-        <i className="icon material-icons">{module.menuIcon}</i>
+        <i className="icon material-icons" style={{ marginRight: '5px' }}>
+          {module.menuIcon}
+        </i>
       )
 
     // TODO: Make generic menu and submenu and use them for intents / entities ui
@@ -134,7 +130,9 @@ class Sidebar extends React.Component {
       <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
         <li key={path}>
           <NavLink to={path} title={name} activeClassName={style.active}>
-            <i className="icon material-icons">{icon}</i>
+            <i className="icon material-icons" style={{ marginRight: '5px' }}>
+              {icon}
+            </i>
             {name}
             {renderSuffix && renderSuffix()}
           </NavLink>
@@ -150,7 +148,11 @@ class Sidebar extends React.Component {
 
     const sidebarContent = (
       <div className={classnames(style.sidebar, 'bp-sidebar')}>
-        <SidebarHeader />
+        <div style={{ padding: '10px' }}>
+          <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
+            <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
+          </a>
+        </div>
         <ul className={classnames('nav', style.mainMenu)}>
           {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
           {moduleItems}
@@ -159,21 +161,11 @@ class Sidebar extends React.Component {
       </div>
     )
 
-    const isOpen = this.props.viewMode < 1
-
     return (
-      <ReactSidebar
-        sidebarClassName={classnames(style.sidebarReact, 'bp-sidebar-react')}
-        sidebar={sidebarContent}
-        open={isOpen}
-        docked={isOpen}
-        shadow={false}
-        transitions={false}
-        styles={{ sidebar: { zIndex: 20 } }}
-        onSetOpen={this.onSetSidebarOpen}
-      >
+      <aside>
+        {sidebarContent}
         {this.props.children}
-      </ReactSidebar>
+      </aside>
     )
   }
 }
