@@ -8,7 +8,7 @@ import { Config } from '../config'
 
 import CRFExtractor from './pipelines/entities/crf_extractor'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import { extractAllPaternEntities } from './pipelines/entities/patternExtractor'
+import { extractPatternEntities } from './pipelines/entities/patternExtractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
@@ -123,7 +123,7 @@ export default class ScopedEngine {
 
   private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
-    const patternEntities = extractAllPaternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
+    const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const systemEntities = await this.knownEntityExtractor.extract(text, lang)
 
     return [

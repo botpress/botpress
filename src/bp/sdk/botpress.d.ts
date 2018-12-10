@@ -163,8 +163,8 @@ declare module 'botpress/sdk' {
       id: string
       name: string
       type: EntityType
-      occurences: EntityDefOccurence[]
-      pattern: string
+      occurences?: EntityDefOccurence[]
+      pattern?: string
     }
 
     export interface IntentSlot {
