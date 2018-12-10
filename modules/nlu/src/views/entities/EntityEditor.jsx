@@ -24,12 +24,12 @@ export default class EntityEditor extends React.Component {
     if (props.entity && props.entity !== state.currentEntity) {
       return {
         currentEntity: props.entity,
-        currentOccurence: props.entity && props.entity.occurences[0],
+        currentOccurence: props.entity.occurences && props.entity.occurences[0],
         pattern: props.entity.pattern,
       }
     } else if (props.entity === undefined) {
       return DEFAULT_STATE
-    } else return null
+    } else return null // will not update
   }
 
   onEnterPressed = (event, cb) => {
@@ -154,14 +154,12 @@ export default class EntityEditor extends React.Component {
   }
 
   isPatternValid = pattern => {
-    var valid = true
     try {
       new RegExp(pattern)
+      return true
     } catch (e) {
-      valid = false
+      return false
     }
-
-    return valid
   }
 
   render() {
@@ -185,7 +183,7 @@ export default class EntityEditor extends React.Component {
         {
           currentEntity && currentEntity.type === 'pattern' && (
             <div>
-              <FormControl tabIndex="1" autoFocus type="text" placeholder="/valid regex/" value={this.state.pattern} onChange={this.handlePatternChange} />
+              <FormControl tabIndex="1" autoFocus type="text" placeholder="Enter a valid pattern. Try: howdy[0-9]+" value={this.state.pattern} onChange={this.handlePatternChange} />
               {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
             </div>
           )
