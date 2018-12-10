@@ -39,13 +39,7 @@ class Sidebar extends React.Component {
   }
 
   state = {
-    sidebarOpen: false,
-    sidebarDocked: false,
     nluCollapseOpen: false
-  }
-
-  onSetSidebarOpen = open => {
-    this.setState({ sidebarOpen: open })
   }
 
   componentWillMount() {
@@ -65,6 +59,10 @@ class Sidebar extends React.Component {
   toggleNluCollapse = event => {
     event.preventDefault()
     this.setState({ nluCollapseOpen: !this.state.nluCollapseOpen })
+  }
+
+  handleSideBarLeave = () => {
+    this.setState({ nluCollapseOpen: false })
   }
 
   renderModuleItem = module => {
@@ -147,7 +145,7 @@ class Sidebar extends React.Component {
     const emptyClassName = classnames(style.empty, 'bp-empty')
 
     return (
-      <aside>
+      <aside onMouseLeave={this.handleSideBarLeave}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
           <div style={{ padding: '10px' }}>
             <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
