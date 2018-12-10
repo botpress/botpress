@@ -1,13 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
-import { EOL } from 'os'
 import tmp, { tmpNameSync } from 'tmp'
 
 import { Snippet } from './indexer'
 import FastTextWrapper from './tools/fastText'
-
-const MIN_LENGTH = 80
 
 type Prediction = Snippet & { confidence: number; ref: string }
 

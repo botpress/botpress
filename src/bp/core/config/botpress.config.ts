@@ -52,6 +52,12 @@ export interface DialogConfig {
    * @default 2m
    */
   timeoutInterval: string
+  /**
+   * The delay before we consider that it is a new interaction (ex: different subject). We keep the user's last messages
+   * and variables in the session context to customize interactions.
+   * @default 30m
+   */
+  sessionTimeoutInterval: string
 }
 
 export interface LogsConfig {

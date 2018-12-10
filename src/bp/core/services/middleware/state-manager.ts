@@ -87,8 +87,9 @@ export class StateManager {
     const botpressConfig = await this.getBotpresConfig()
     const botConfig = await this.configProvider.getBotConfig(botId)
 
-    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
-    const sessionExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
+    const { timeoutInterval, sessionTimeoutInterval } = botpressConfig.dialog
+    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || timeoutInterval)
+    const sessionExpireDate = ms(_.get(botConfig, 'dialog.sessionTimeoutInterval') || sessionTimeoutInterval)
 
     return {
       context: moment()
