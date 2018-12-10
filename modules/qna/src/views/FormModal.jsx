@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
+import { FormControl, Button, Modal, Alert, Glyphicon, ListGroup, ListGroupItem, Collapse } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
 
@@ -17,6 +17,7 @@ export default class FormModal extends Component {
     item: {
       questions: [],
       answer: '',
+      answerVariations: [],
       redirectFlow: '',
       redirectNode: '',
       action: ACTIONS.TEXT,
@@ -37,6 +38,11 @@ export default class FormModal extends Component {
   }
 
   state = this.defaultState
+
+  constructor(props) {
+    super(props)
+    this.answerVariationInputRef = React.createRef()
+  }
 
   componentDidUpdate(prevProps) {
     const { id } = this.props
@@ -152,6 +158,55 @@ export default class FormModal extends Component {
     )
   }
 
+  handleVariationChange = (event, variationIndex) => {
+    const variations = this.state.item.answerVariations
+    variations[variationIndex] = event.target.value
+    this.setState({ item: { ...this.state.item, answerVariations: variations } })
+  }
+
+  addAnswerVariation = () => {
+    let answerVariations = this.state.item.answerVariations
+    answerVariations.push('')
+    this.setState({ item: { ...this.state.item, answerVariations } })
+  }
+
+  handleDeleteVariation = index => {
+    let variations = this.state.item.answerVariations
+    variations = variations.splice(index, 1)
+    this.setState({ item: { ...this.state.item, answerVariations: variations } })
+  }
+
+  renderVariation = (variation, index) => {
+    return (
+      <div key={`${index}_variation`} className={style.variation}>
+        <textarea
+          style={{ height: '34px' }}
+          className="form-control"
+          defaultValue={variation}
+          onChange={event => this.handleVariationChange(event, index)}
+        />
+        <Button className={style.variationDelete} onClick={() => this.handleDeleteVariation(index)}>
+          <Glyphicon glyph="trash" />
+        </Button>
+      </div>
+    )
+  }
+
+  renderVariations = () => {
+    const answerVariations = this.state.item.answerVariations
+    return (
+      <div>
+        <Button onClick={this.addAnswerVariation}>Add an answer variation</Button>
+        <div>
+          {answerVariations &&
+            answerVariations.map((variation, variationIndex) => {
+              return this.renderVariation(variation, variationIndex)
+            })}
+        </div>
+      </div>
+    )
+  }
+
   render() {
     const {
       item: { redirectFlow },
@@ -172,8 +227,8 @@ export default class FormModal extends Component {
           <Modal.Body className={style.qnaModalBody}>
             {this.alertMessage()}
             {categories.length ? (
-              <div className={style.qnaCategory}>
-                <span className={style.qnaCategoryTitle}>Category</span>
+              <div className={style.qnaSection}>
+                <span className={style.qnaSectionTitle}>Category</span>
                 <Select
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
@@ -185,10 +240,11 @@ export default class FormModal extends Component {
                 />
               </div>
             ) : null}
-            <div className={style.qnaQuestions}>
-              <span className={style.qnaQuestionsTitle}>Questions</span>
+            <div className={style.qnaSection}>
+              <span className={style.qnaSectionTitle}>Questions</span>
               <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
               <FormControl
+                autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions
                 })}
@@ -197,8 +253,8 @@ export default class FormModal extends Component {
                 componentClass="textarea"
               />
             </div>
-            <div className={style.qnaReply}>
-              <span className={style.qnaReplyTitle}>Reply with:</span>
+            <div className={style.qnaSection}>
+              <span className={style.qnaSectionTitle}>Answer</span>
               <div className={style.qnaAnswer}>
                 <span className={style.qnaAnswerCheck}>
                   <input
@@ -218,6 +274,11 @@ export default class FormModal extends Component {
                   componentClass="textarea"
                 />
               </div>
+              <div className={style.qnaSection}>
+                <span className={style.qnaSectionTitle}>Variations</span>
+                {this.renderVariations()}
+              </div>
+
               <div className={style.qnaAndOr}>
                 <div className={style.qnaAndOrLine} />
                 <div className={style.qnaAndOrText}>and / or</div>
