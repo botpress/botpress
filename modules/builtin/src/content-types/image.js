@@ -31,7 +31,7 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'base_image',
+  id: 'builtin_image',
   group: 'Built-in Messages',
   title: 'Image',
 

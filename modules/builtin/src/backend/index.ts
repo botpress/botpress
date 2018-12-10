@@ -13,9 +13,9 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   botTemplates,
   definition: {
-    name: 'base',
+    name: 'builtin',
     menuIcon: 'fiber_smart_record',
-    fullName: 'Botpress Base',
+    fullName: 'Botpress Builtins',
     homepage: 'https://botpress.io',
     noInterface: true
   }

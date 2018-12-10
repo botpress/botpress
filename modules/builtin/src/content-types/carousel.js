@@ -47,7 +47,7 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'base_carousel',
+  id: 'builtin_carousel',
   group: 'Built-in Messages',
   title: 'Carousel',
 

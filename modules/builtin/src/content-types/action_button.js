@@ -6,7 +6,7 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'base_action-button',
+  id: 'builtin_action-button',
   group: 'Built-in Messages',
   title: 'Action Button',
 
