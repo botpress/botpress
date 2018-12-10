@@ -1,7 +1,10 @@
+$status-bar-height: 20px;
+
 .workspace {
   padding-top: 51px;
   width: 100%;
-  height: calc(100vh - 51px);
+  height: calc(100vh - #{$status-bar-height});
+  position: relative;
 }
 
 .workspace > div {
@@ -130,7 +133,7 @@ footer {
 }
 
 .intentsList {
-  max-height: calc(100% - 20px);
+  max-height: calc(100% - #{$status-bar-height});
   overflow-y: auto;
 
   &::-webkit-scrollbar {
