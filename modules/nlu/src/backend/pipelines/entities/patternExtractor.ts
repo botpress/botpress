@@ -27,7 +27,7 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
   return flatMap(entityDefs, entityDef => {
     // TODO build regex given the entity def (either use the provided pattern or generate one/many given all synonyms of all occurences)
 
-    const regex = new RegExp(entityDef.pattern)
+    const regex = new RegExp(entityDef.pattern!)
     return _extractPatterns(input, regex).map(res => ({
       name: entityDef.name,
       type: entityDef.type,

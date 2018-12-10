@@ -156,7 +156,7 @@ export default class EntityEditor extends React.Component {
   isPatternValid = pattern => {
     try {
       new RegExp(pattern)
-      return true
+      return pattern !== ''
     } catch (e) {
       return false
     }
