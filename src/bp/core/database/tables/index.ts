@@ -10,6 +10,7 @@ import {
   LogsTable,
   NotificationsTable
 } from './bot-specific'
+
 import {
   AuthRolesTable,
   AuthTeamMembersTable,
