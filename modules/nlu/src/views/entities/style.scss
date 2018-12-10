@@ -1,6 +1,3 @@
-.container {
-}
-
 .header {
   height: 50px;
   padding: 0 15px;
@@ -38,19 +35,6 @@
   }
 }
 
-.entitiesPanel {
-}
-
-.utterances {
-  list-style: none;
-  padding: 0;
-}
-
-.deleteIntent {
-  float: right;
-  display: none;
-}
-
 .deleteEntity {
   float: right;
   display: none;
@@ -64,14 +48,16 @@
   display: inline-block;
 }
 
-.entity:hover {
-  background-color: #ececec;
+.selectedentity {
+  background: whitesmoke;
+}
 
+.entity:hover{
+  background-color: #ececec;
   .deleteEntity {
     display: inherit;
   }
 }
-
 .occurenceDelete {
   display: none;
   float: right;
