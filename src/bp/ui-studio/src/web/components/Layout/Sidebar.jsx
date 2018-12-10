@@ -146,24 +146,20 @@ class Sidebar extends React.Component {
     const moduleItems = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
     const emptyClassName = classnames(style.empty, 'bp-empty')
 
-    const sidebarContent = (
-      <div className={classnames(style.sidebar, 'bp-sidebar')}>
-        <div style={{ padding: '10px' }}>
-          <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
-            <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
-          </a>
-        </div>
-        <ul className={classnames('nav', style.mainMenu)}>
-          {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
-          {moduleItems}
-          <li className={emptyClassName} />
-        </ul>
-      </div>
-    )
-
     return (
       <aside>
-        {sidebarContent}
+        <div className={classnames(style.sidebar, 'bp-sidebar')}>
+          <div style={{ padding: '10px' }}>
+            <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
+              <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
+            </a>
+          </div>
+          <ul className={classnames('nav', style.mainMenu)}>
+            {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
+            {moduleItems}
+            <li className={emptyClassName} />
+          </ul>
+        </div>
         {this.props.children}
       </aside>
     )
