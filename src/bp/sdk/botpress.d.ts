@@ -86,11 +86,18 @@ declare module 'botpress/sdk' {
     botTemplates?: BotTemplate[]
   }
 
+  /**
+   * Identifies new Bot Template that can be used to speed up the creation of a new bot without
+   * having to start from scratch
+   */
   export interface BotTemplate {
+    /** Used internally to identify this template  */
     id: string
+    /** The name that will be displayed in the bot templte menu */
     name: string
+    /** Gives a short description of your module, which is displayed once the template is selected */
     desc: string
-    /**  */
+    /** These are used internally by Botpress when they are registered on startup */
     readonly moduleId?: string
     readonly moduleName?: string
   }
@@ -445,6 +452,7 @@ declare module 'botpress/sdk' {
 
   export interface DialogConfig {
     timeoutInterval: string
+    sessionTimeoutInterval: string
   }
 
   /**

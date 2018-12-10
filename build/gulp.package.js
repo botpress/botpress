@@ -50,14 +50,6 @@ const packageApp = async () => {
   }
 }
 
-const copyData = () => {
-  return gulp.src(['out/bp/data/**/*']).pipe(gulp.dest('out/binaries/data'))
-}
-
-const copyTemplates = () => {
-  return gulp.src(['out/bp/templates/**/*']).pipe(gulp.dest('out/binaries/templates'))
-}
-
 const copyNativeExtensions = async () => {
   mkdirp.sync('out/binaries/bindings')
   const files = [
@@ -71,14 +63,12 @@ const copyNativeExtensions = async () => {
   }
 }
 
-const packageCore = () => gulp.series([packageApp, copyData, copyTemplates, copyNativeExtensions])
+const packageCore = () => gulp.series([packageApp, copyNativeExtensions])
 
 const package = modules => {
   return gulp.series([
     package.packageApp,
     ...(process.argv.includes('--skip-modules') ? [] : modules),
-    package.copyData,
-    package.copyTemplates,
     package.copyNativeExtensions
   ])
 }
@@ -86,7 +76,5 @@ const package = modules => {
 module.exports = {
   packageCore,
   packageApp,
-  copyData,
-  copyTemplates,
   copyNativeExtensions
 }
