@@ -8,7 +8,7 @@ import { Config } from '../config'
 
 import CRFExtractor from './pipelines/entities/crf_extractor'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import { extractPatternEntities } from './pipelines/entities/patternExtractor'
+import { extractListEntities, extractPatternEntities } from './pipelines/entities/patternExtractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
@@ -124,11 +124,13 @@ export default class ScopedEngine {
   private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
+    const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
     const systemEntities = await this.knownEntityExtractor.extract(text, lang)
 
     return [
       ...systemEntities,
-      ...patternEntities
+      ...patternEntities,
+      ...listEntities,
     ]
   }
 
@@ -138,6 +140,7 @@ export default class ScopedEngine {
     const lang = await this.langDetector.identify(text)
     const intents: Prediction[] = await this.intentClassifier.predict(text)
     const entities = await this._extractEntities(text, lang)
+    // TODO add entities and detected intent in the slotExtractor
     const slots = await this.slotExtractor.extract(text)
 
     const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }
