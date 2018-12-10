@@ -18,6 +18,7 @@ export default class InjectedComponent extends Component {
     if (!this.state.error) {
       return <Component {...props} />
     }
+
     return (
       <div className="panel panel-danger">
         <div className="panel-heading">Could not display component</div>
