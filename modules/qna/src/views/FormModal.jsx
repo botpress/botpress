@@ -16,9 +16,10 @@ const ACTIONS = {
 export default class FormModal extends Component {
   defaultState = {
     item: {
-      questions: [],
       answer: '',
-      answerVariations: [],
+      question: '',
+      altAnswers: [],
+      altQuestions: [],
       redirectFlow: '',
       redirectNode: '',
       action: ACTIONS.TEXT,
@@ -42,7 +43,6 @@ export default class FormModal extends Component {
 
   constructor(props) {
     super(props)
-    this.answerVariationInputRef = React.createRef()
   }
 
   componentDidUpdate(prevProps) {
@@ -88,7 +88,7 @@ export default class FormModal extends Component {
   validateForm() {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
-      questions: !item.questions.length || !item.questions[0].length,
+      question: !item.question.length,
       answer: isText && !item.answer.length,
       checkbox: !(isText || isRedirect),
       redirectFlow: isRedirect && !item.redirectFlow,
@@ -159,54 +159,34 @@ export default class FormModal extends Component {
     )
   }
 
-  handleVariationChange = (event, variationIndex) => {
-    const variations = this.state.item.answerVariations
-    variations[variationIndex] = event.target.value
-    this.setState({ item: { ...this.state.item, answerVariations: variations } })
+  handleAnswersChange = (event, index) => {
+    const altAnswers = this.state.item.altAnswers
+    altAnswers[index] = event.target.value
+    this.setState({ item: { ...this.state.item, altAnswers } })
   }
 
-  addAnswerVariation = () => {
-    let answerVariations = this.state.item.answerVariations
-    answerVariations.push('')
-    this.setState({ item: { ...this.state.item, answerVariations } })
+  addAnswer = () => {
+    let altAnswers = this.state.item.altAnswers
+    if (!Array.isArray(altAnswers)) {
+      altAnswers = []
+    }
+    altAnswers.push('')
+    this.setState({ item: { ...this.state.item, altAnswers } })
   }
 
-  handleDeleteVariation = index => {
-    let variations = this.state.item.answerVariations
-    variations = variations.splice(index, 1)
-    this.setState({ item: { ...this.state.item, answerVariations: variations } })
+  handleDeleteAnswer = index => {
+    let altAnswers = this.state.item.altAnswers
+    altAnswers = altAnswers.splice(index, 1)
+    this.setState({ item: { ...this.state.item, altAnswers } })
   }
 
-  renderVariation = (variation, index) => {
-    return (
-      <div key={`${index}_variation`} className={style.variation}>
-        <textarea
-          style={{ height: '34px' }}
-          className="form-control"
-          defaultValue={variation}
-          onChange={event => this.handleVariationChange(event, index)}
-        />
-        <Button className={style.variationDelete} onClick={() => this.handleDeleteVariation(index)}>
-          <Glyphicon glyph="trash" />
-        </Button>
-      </div>
-    )
+  handleQuestionVariationChange = (event, index) => {
+    const v = (this.state.item.altQuestions = event.target.value)
   }
 
-  renderVariations = () => {
-    const answerVariations = this.state.item.answerVariations
-    return (
-      <div>
-        <Button onClick={this.addAnswerVariation}>Add an answer variation</Button>
-        <div>
-          {answerVariations &&
-            answerVariations.map((variation, variationIndex) => {
-              return this.renderVariation(variation, variationIndex)
-            })}
-        </div>
-      </div>
-    )
-  }
+  addQuestionVariation = () => {}
+
+  handleDeleteQuestion = index => {}
 
   render() {
     const {
@@ -243,15 +223,23 @@ export default class FormModal extends Component {
             ) : null}
             <div className={style.qnaSection}>
               <span className={style.qnaSectionTitle}>Questions</span>
-              <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
+
               <FormControl
                 autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions
                 })}
-                value={(this.state.item.questions || []).join('\n')}
+                value={this.state.item.question}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
                 componentClass="textarea"
+              />
+
+              <VariationsCollapse
+                title="Questions Variations"
+                elements={this.state.item.altQuestions}
+                onAdd={this.addQuestionVariation}
+                onInputChange={this.handleQuestionVariationChange}
+                onDelete={this.handleDeleteQuestion}
               />
             </div>
             <div className={style.qnaSection}>
@@ -266,6 +254,7 @@ export default class FormModal extends Component {
                   />
                   <label htmlFor="reply">&nbsp; Type your answer</label>
                 </span>
+
                 <FormControl
                   className={classnames(style.qnaAnswerTextarea, {
                     qnaCategoryError: invalidFields.answer
@@ -274,9 +263,15 @@ export default class FormModal extends Component {
                   onChange={event => this.changeItemProperty('answer', event.target.value)}
                   componentClass="textarea"
                 />
-              </div>
 
-              <VariationsCollapse title="Answer variations">{this.renderVariations()}</VariationsCollapse>
+                <VariationsCollapse
+                  title="Answer Variations"
+                  elements={this.state.item.altAnswers}
+                  onAdd={this.addAnswer}
+                  onInputChange={this.handleAnswersChange}
+                  onDelete={this.handleDeleteAnswer}
+                />
+              </div>
 
               <div className={style.qnaAndOr}>
                 <div className={style.qnaAndOrLine} />
