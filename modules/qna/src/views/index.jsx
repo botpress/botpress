@@ -314,29 +314,25 @@ export default class QnaAdmin extends Component {
     </React.Fragment>
   )
 
-  renderQuestionsOverlay = questions => {
+  renderVariationsOverlay = variations => {
     return (
       <Popover id="questions-popover">
         <ul className={style.questionsList}>
-          {questions.map(question => (
-            <li key={question}>{question}</li>
+          {variations.map(variation => (
+            <li key={variation}>{variation}</li>
           ))}
         </ul>
       </Popover>
     )
   }
 
-  renderQuestionsOverlayTrigger = item => {
+  renderVariationsOverlayTrigger = elements => {
     return (
-      item.questions.length > 1 && (
-        <OverlayTrigger
-          trigger={['hover', 'focus']}
-          placement="right"
-          overlay={this.renderQuestionsOverlay(item.questions)}
-        >
+      elements.length > 1 && (
+        <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={this.renderVariationsOverlay(elements)}>
           <span>
             &nbsp;
-            <strong>({item.questions.length})</strong>
+            <strong>({elements.length})</strong>
           </span>
         </OverlayTrigger>
       )
@@ -356,12 +352,13 @@ export default class QnaAdmin extends Component {
           <div className={style.itemQuestions}>
             <span className={style.itemQuestionsTitle}>Q:&nbsp;</span>
             <div className={style.firstQuestionTitle}>{item.questions[0]}</div>
-            {this.renderQuestionsOverlayTrigger(item)}
+            {this.renderVariationsOverlayTrigger(item.questions)}
           </div>
           <div className={style.itemAnswerContainer}>
             <span className={style.itemAnswerTitle}>A: </span>
+            <div className={style.itemAnswerText}>{item.answers[0]}</div>
+            {this.renderVariationsOverlayTrigger(item.answers)}
             <div className={style.itemAnswer}>
-              <span className={style.itemAnswerText}>{item.answer}</span>
               <div className={style.itemRedirect}>
                 {isRedirect ? (
                   <div className={style.itemFlow}>

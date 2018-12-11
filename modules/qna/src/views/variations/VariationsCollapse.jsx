@@ -13,8 +13,12 @@ export class VariationsCollapse extends React.Component {
 
   renderElement = (element, index) => {
     return (
-      <div key={`${index}_element`}>
-        <textarea defaultValue={element} onChange={event => this.props.onInputChange(event, index)} />
+      <div key={`${index}_element`} className={style.elementBody}>
+        <textarea
+          className="form-control"
+          defaultValue={element}
+          onChange={event => this.props.onInputChange(event, index)}
+        />
         <Button onClick={() => this.props.onDelete(index)}>
           <Glyphicon glyph="trash" />
         </Button>
@@ -23,9 +27,10 @@ export class VariationsCollapse extends React.Component {
   }
 
   renderElements = () => {
-    const elements = this.props.elements
+    // We remove the first element that we consider the canonical element from which the other elements derive
+    const elements = this.props.elements.slice(1)
     return (
-      <div>
+      <React.Fragment>
         <Button onClick={this.props.onAdd}>{this.props.addTitle || 'Add a variation'}</Button>
         <div>
           {elements &&
@@ -33,14 +38,14 @@ export class VariationsCollapse extends React.Component {
               return this.renderElement(element, index)
             })}
         </div>
-      </div>
+      </React.Fragment>
     )
   }
 
   render() {
     return (
       <div>
-        <div onClick={this.toggleOpen}>
+        <div onClick={this.toggleOpen} className={style.elementTitle}>
           {this.props.title || 'Variations'}
           &nbsp;
           {this.state.isOpen ? <Glyphicon glyph="triangle-top" /> : <Glyphicon glyph="triangle-bottom" />}
