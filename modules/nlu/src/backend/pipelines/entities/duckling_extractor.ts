@@ -8,7 +8,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
 
-  constructor(private readonly logger: sdk.Logger) {}
+  constructor(private readonly logger: sdk.Logger) { }
 
   static configure(enabled: boolean, url: string) {
     this.enabled = enabled
@@ -35,7 +35,8 @@ export class DucklingEntityExtractor implements EntityExtractor {
       }
 
       return data.map(ent => ({
-        type: ent.dim,
+        name: ent.dim,
+        type: 'system',
         meta: this._mapMeta(ent),
         data: this._mapBody(ent.dim, ent.value)
       }))

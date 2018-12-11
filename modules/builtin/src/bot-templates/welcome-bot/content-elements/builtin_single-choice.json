@@ -1,0 +1,21 @@
+[
+  {
+    "id": "builtin_single-choice-elJyV5",
+    "formData": {
+      "text": "a",
+      "choices": [
+        {
+          "title": "1",
+          "value": "1"
+        },
+        {
+          "title": "2",
+          "value": "2"
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2018-05-17T14:29:04.897Z"
+  }
+]
