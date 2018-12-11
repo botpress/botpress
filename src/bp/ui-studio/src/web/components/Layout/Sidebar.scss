@@ -8,7 +8,22 @@
   background-color: var(--c-background--dark-2);
   color: $sidebar-text-color;
   height: 100%;
+  width: 50px;
   max-width: 200px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+
+  transition-property: width;
+  transition-duration: 200ms;
+  transition-delay: 150ms;
+
+  overflow: hidden;
+
+  &:hover {
+    width: 200px;
+  }
 }
 
 .sidebar ul {

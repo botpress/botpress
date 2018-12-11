@@ -25,12 +25,14 @@ createDatabaseSuite('KVS', (database: Database) => {
   }
 
   beforeEach(async () => {
-    await kvs.set(BOTID, KEY, defaultValue)
+    try {
+      await kvs.set(BOTID, KEY, defaultValue)
+    } catch (err) {}
   })
 
   describe('Get', () => {
     it('Returns undefined if key doesnt exists', async () => {
-      const value = await kvs.get('', '')
+      const value = await kvs.get(BOTID, 'does-not-exist')
       expect(value).toBeUndefined()
     })
 
