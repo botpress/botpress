@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { extractListEntities, extractPatternEntities } from './patternExtractor'
+import { extractListEntities, extractPatternEntities } from './pattern_extractor'
 
 describe('Custom entity extraction', () => {
   test('Extract pattern entitites', () => {
