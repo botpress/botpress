@@ -15,6 +15,9 @@ import { Provider } from 'react-redux'
 import store from './store'
 import { keyMap } from './keyboardShortcuts'
 
+// Required to fix outline issue
+import './style.scss'
+
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')
 require('react-select/dist/react-select.css')

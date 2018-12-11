@@ -1,7 +1,8 @@
 import React from 'react'
 import { Button, FormGroup, FormControl, InputGroup, Glyphicon, ListGroup, ListGroupItem, Label } from 'react-bootstrap'
 import nluSyles from '../style.scss'
-import entityStyles from "./style.scss"
+import entityStyles from './style.scss'
+import classnames from 'classnames'
 
 export default class SidePanel extends React.Component {
   state = {
@@ -37,49 +38,56 @@ export default class SidePanel extends React.Component {
         <div className={nluSyles.create}>
           <Button bsStyle="primary" block onClick={this.handleCreateClick}>
             Create new entity
-        </Button>
+          </Button>
         </div>
 
-        {
-          entities.length > 0 && (
-            <div className={nluSyles.filter}>
-              <FormGroup bsSize="large">
-                <InputGroup>
-                  <FormControl tabIndex="1" type="text" placeholder="Search" value={this.state.filter} onChange={this.handleFilterChange} />
-                  <InputGroup.Addon>
-                    <Glyphicon glyph="search" />
-                  </InputGroup.Addon>
-                </InputGroup>
-              </FormGroup>
-            </div>
-          )
-        }
+        {entities.length > 0 && (
+          <div className={nluSyles.filter}>
+            <FormGroup bsSize="small">
+              <InputGroup>
+                <FormControl
+                  tabIndex="1"
+                  type="text"
+                  placeholder="Search"
+                  value={this.state.filter}
+                  onChange={this.handleFilterChange}
+                />
+                <InputGroup.Addon>
+                  <Glyphicon glyph="search" />
+                </InputGroup.Addon>
+              </InputGroup>
+            </FormGroup>
+          </div>
+        )}
 
         <div className={nluSyles.list}>
           <ListGroup>
-            {
-              entities
-                .filter(ent => this.state.filter === undefined || ent.name.includes(this.state.filter))
-                .map(ent => {
-                  const selected = this.props.selectedEntity && ent.id === this.props.selectedEntity.id
-                  return (
-                    <ListGroupItem
-                      key={ent.id}
-                      className={`${entityStyles.entity} ${selected ? entityStyles.selectedentity : ''}`}
-                      onClick={this.handleEntityClick.bind(null, ent)}
-                    >
-                      {ent.name}
-                      &nbsp;
-                    <Label bsStyle={selected ? "primary" : "default"}>{ent.type}</Label>
-                      <Glyphicon glyph="trash" className={entityStyles.deleteEntity} onClick={this.handleDeleteClick.bind(null, ent)} />
-                    </ListGroupItem>
-                  )
-                }
+            {entities
+              .filter(ent => this.state.filter === undefined || ent.name.includes(this.state.filter))
+              .map(ent => {
+                const selected = this.props.selectedEntity && ent.id === this.props.selectedEntity.id
+                return (
+                  <ListGroupItem
+                    key={ent.id}
+                    className={classnames(entityStyles.entity, { [entityStyles.selectedentity]: selected })}
+                    onClick={this.handleEntityClick.bind(null, ent)}
+                  >
+                    {ent.name}
+                    &nbsp;
+                    <Label bsStyle={selected ? 'primary' : 'default'} className={entityStyles.badge}>
+                      {ent.type}
+                    </Label>
+                    <Glyphicon
+                      glyph="trash"
+                      className={entityStyles.deleteEntity}
+                      onClick={this.handleDeleteClick.bind(null, ent)}
+                    />
+                  </ListGroupItem>
                 )
-            }
+              })}
           </ListGroup>
         </div>
-      </nav >
+      </nav>
     )
   }
 }

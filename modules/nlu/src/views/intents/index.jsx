@@ -153,7 +153,7 @@ export default class IntentsComponent extends React.Component {
               </div>
 
               <div className={style.filter}>
-                <FormGroup bsSize="large">
+                <FormGroup bsSize="small">
                   <InputGroup>
                     <FormControl type="text" placeholder="Search" onChange={this.onFilterChanged} />
                     <InputGroup.Addon>
