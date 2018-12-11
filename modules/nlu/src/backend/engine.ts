@@ -6,12 +6,12 @@ import { flatMap } from 'lodash'
 
 import { Config } from '../config'
 
-import CRFExtractor from './pipelines/entities/crf_extractor'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import { extractListEntities, extractPatternEntities } from './pipelines/entities/patternExtractor'
+import { extractListEntities, extractPatternEntities } from './pipelines/entities/pattern_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
+import CRFExtractor from './pipelines/slots/crf_extractor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
