@@ -1,7 +1,7 @@
 {
-  "name": "base",
+  "name": "builtin",
   "version": "1.0.0",
-  "description": "Botpress Base elements (content types, demo bot)",
+  "description": "Botpress Basic elements (content types, demo bot)",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {

@@ -29,7 +29,7 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'base_text',
+  id: 'builtin_text',
   group: 'Built-in Messages',
   title: 'Text',
 

@@ -2,7 +2,7 @@ const ActionButton = require('./action_button')
 const Carousel = require('./carousel')
 
 module.exports = {
-  id: 'base_card',
+  id: 'builtin_card',
   group: 'Built-in Messages',
   title: 'Card',
 

@@ -33,7 +33,7 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'base_single-choice',
+  id: 'builtin_single-choice',
   group: 'Built-in Messages',
   title: 'Single Choice',
 

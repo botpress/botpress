@@ -45,7 +45,7 @@ export class SafeCodeSandbox {
         external: true,
         context: 'sandbox',
         import: [],
-        root: path.resolve(this.tmpPath, 'base') // TODO: use the correct module path
+        root: path.resolve(this.tmpPath, 'builtin') // TODO: use the correct module path
       }
     })
 
@@ -76,7 +76,7 @@ export class SafeCodeSandbox {
       return this.vm.run(
         code,
         path.join(
-          path.resolve(this.tmpPath, 'base'), // TODO: use the correct module path
+          path.resolve(this.tmpPath, 'builtin'), // TODO: use the correct module path
           `${Math.random()
             .toString()
             .substr(2, 6)}.js`
