@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
@@ -5,9 +6,9 @@ import tmp from 'tmp'
 
 import { Tagger, Trainer } from '../../tools/crfsuite'
 import FastText from '../../tools/fastText'
-import { SlotExtractor } from '../../typings'
+import { EntityExtractor, SlotExtractor } from '../../typings'
 
-import { Token, tokenize } from './tagger'
+import { Sequence, Tok, Token, tokenize } from './tagger'
 
 const FT_DIMENTIONS = 15
 const K_CLUSTERS = 15
@@ -47,13 +48,13 @@ export default class CRFExtractor implements SlotExtractor {
   private _tagger!: typeof Tagger
   private _kmeansModel
 
-  async train(inputs: string[]) {
+  async train(trainingSet: Sequence[]) {
     this._isTrained = false
-    const samples = inputs.map(s => tokenize(s))
-    await this._trainFastText(samples)
-    await this._trainKmeans(samples)
-    await this._trainCrf(samples)
+    await this._trainLanguageModel(trainingSet)
+    await this._trainKmeans(trainingSet)
+    await this._trainCrf(trainingSet)
 
+    // TODO extract this in a load method
     this._tagger = Tagger()
     await this._tagger.open(this._crfModelFn)
     this._isTrained = true
@@ -97,8 +98,9 @@ export default class CRFExtractor implements SlotExtractor {
     return this._tagger.tag(seq)
   }
 
-  private async _trainKmeans(samples: Token[][]): Promise<any> {
-    const data = await Promise.mapSeries(_.flatten(samples), async t => await this._ft.wordVectors(t.value))
+  private async _trainKmeans(sequences: Sequence[]): Promise<any> {
+    const tokens = _.flatMap(sequences, s => s.tokens)
+    const data = await Promise.mapSeries(tokens, async t => await this._ft.wordVectors(t.value))
     try {
       this._kmeansModel = kmeans(data, K_CLUSTERS)
     } catch (error) {
@@ -107,7 +109,13 @@ export default class CRFExtractor implements SlotExtractor {
     }
   }
 
-  private async _trainCrf(samples: Token[][]) {
+  /*
+  ********
+     TODO you are at refactoring this using a sequence instead of a token array
+ ******
+ */
+
+  private async _trainCrf(samples: Sequence[]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = Trainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
@@ -126,16 +134,16 @@ export default class CRFExtractor implements SlotExtractor {
     trainer.train(this._crfModelFn, '-q')
   }
 
-  private async _trainFastText(samples: Token[][]) {
+  private async _trainLanguageModel(samples: Sequence[]) {
     this._ftModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const ftTrainFn = tmp.fileSync({ postfix: '.txt' }).name
     this._ft = new FastText(this._ftModelFn)
 
-    const trainContent = samples.reduce((corpus, example) => {
-      const cannonicSentence = example.map(s => {
-        if (s.type === 'o') return s.value
-        else return s.type.slice(2)
-      }).join(' ') // TODO replace this by the opposite tokenizer as only latin language use \s...
+    const trainContent = samples.reduce((corpus, seq) => {
+      const cannonicSentence = seq.tokens.map(s => {
+        if (s.tag === 'o') return s.value
+        else return s.slot
+      }).join(' ')
       return `${corpus}${cannonicSentence}}\n`
     }, '')
 

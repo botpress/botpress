@@ -15,7 +15,7 @@ export interface EntityExtractor {
 }
 
 export interface SlotExtractor {
-  train(inputs: string[]): Promise<void>
+  train(trainingSet: any[]): Promise<void>
   extract(input: string): Promise<any>
 }
 
