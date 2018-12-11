@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
-import { extractPatternEntities } from './patternExtractor'
+import { extractListEntities, extractPatternEntities } from './pattern_extractor'
 
-describe('Entity pattern extraction', () => {
+describe('Custom entity extraction', () => {
   test('Extract pattern entitites', () => {
     const pattern = 'lol'
     const entityDef = {
@@ -13,20 +13,57 @@ describe('Entity pattern extraction', () => {
     } as sdk.NLU.EntityDefinition
     const userInput = 'lollolppplol hello haha'
 
-    const matches = extractPatternEntities(userInput, [entityDef])
+    const entities = extractPatternEntities(userInput, [entityDef])
 
-    expect(matches.length).toEqual(3)
-    expect(matches[0].name).toEqual(entityDef.name)
-    expect(matches[0].meta.start).toEqual(0)
-    expect(matches[0].meta.end).toEqual(2)
-    expect(matches[0].data.value).toEqual(pattern)
-    expect(matches[1].name).toEqual(entityDef.name)
-    expect(matches[1].meta.start).toEqual(3)
-    expect(matches[1].meta.end).toEqual(5)
-    expect(matches[1].data.value).toEqual(pattern)
-    expect(matches[2].name).toEqual(entityDef.name)
-    expect(matches[2].meta.start).toEqual(9)
-    expect(matches[2].meta.end).toEqual(11)
-    expect(matches[2].data.value).toEqual(pattern)
+    expect(entities.length).toEqual(3)
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(0)
+    expect(entities[0].meta.end).toEqual(2)
+    expect(entities[0].data.value).toEqual(pattern)
+    expect(entities[1].name).toEqual(entityDef.name)
+    expect(entities[1].meta.start).toEqual(3)
+    expect(entities[1].meta.end).toEqual(5)
+    expect(entities[1].data.value).toEqual(pattern)
+    expect(entities[2].name).toEqual(entityDef.name)
+    expect(entities[2].meta.start).toEqual(9)
+    expect(entities[2].meta.end).toEqual(11)
+    expect(entities[2].data.value).toEqual(pattern)
+  })
+
+  test('Extract list entitites', () => {
+    const entityDef = {
+      id: '_',
+      name: 'Fun',
+      type: 'list',
+      occurences: [
+        {
+          name: 'lol',
+          synonyms: ['loll', 'haha', 'LMAO']
+        }
+      ]
+    } as sdk.NLU.EntityDefinition
+    const userInput = 'loLpppHahA so funny lmao!!!'
+
+    const entities = extractListEntities(userInput, [entityDef])
+
+    expect(entities.length).toEqual(3)
+
+    expect(entities[0].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[0].meta.start).toEqual(0)
+    expect(entities[0].meta.end).toEqual(2)
+    expect(entities[0].meta.source).toEqual('loL')
+    expect(entities[0].data.value).toEqual(entityDef.occurences![0].name)
+
+    expect(entities[1].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[1].meta.start).toEqual(6)
+    expect(entities[1].meta.end).toEqual(9)
+    expect(entities[1].meta.source).toEqual('HahA')
+    expect(entities[1].data.value).toEqual(entityDef.occurences![0].name)
+
+    expect(entities[2].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[2].meta.start).toEqual(20)
+    expect(entities[2].meta.end).toEqual(23)
+    expect(entities[2].meta.source).toEqual('lmao')
+    expect(entities[2].data.value).toEqual(entityDef.occurences![0].name)
   })
 })
