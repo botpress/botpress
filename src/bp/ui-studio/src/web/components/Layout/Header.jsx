@@ -22,11 +22,6 @@ class Header extends React.Component {
     this.props.fetchAllBots()
   }
 
-  handleFullscreen = () => {
-    const newViewMode = this.props.viewMode < 1 ? 1 : 0
-    this.props.viewModeChanged(newViewMode)
-  }
-
   renderLogoutButton() {
     const url = this.props.user.avatar_url
     const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
@@ -46,14 +41,6 @@ class Header extends React.Component {
     )
   }
 
-  renderFullScreenButton() {
-    return (
-      <span className={classnames(style.fullScreen, 'bp-full-screen')}>
-        <Glyphicon glyph="fullscreen" />
-      </span>
-    )
-  }
-
   render() {
     if (this.props.viewMode >= 3) {
       return null
@@ -66,7 +53,9 @@ class Header extends React.Component {
       <Navbar className={classNames} style={customStyle}>
         <Navbar.Collapse>
           <Nav pullRight>
-            <NavItem onClick={this.handleFullscreen}>{this.renderFullScreenButton()}</NavItem>
+            <NavItem href="/admin">
+              <Glyphicon glyph="home" />
+            </NavItem>
             <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
               <NavItem href={window.BP_BASE_PATH + '/logs'}>
                 <Glyphicon glyph="list-alt" />
