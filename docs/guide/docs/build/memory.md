@@ -3,44 +3,58 @@ id: memory
 title: Bot Memory and Data Retention
 ---
 
-> **Note**: All of the above methods that start are marked with an asterisk (\*) support variable **expiry**, which means you can control when Botpress should forget the information stored.
-
 ## Dialog Memory
 
-The Dialog Memory is how your bot will remember things in the context of a conversation. The way you can store and retrieve data is by using Actions inside the flows. There are three types of memory available: **user**, **conversation** and **global**.
+The Dialog Memory is how your bot will remember things in the context of a conversation. The way you can store and retrieve data is by using Actions inside the flows. There are four types of memory available: **user**, **session**, **temp** and **bot**
 
 You can consume a memory action just like any other action from the Botpress Flow Editor.
 
 ##### Memory Action Example
 
-![Flow Memory Action](assets/flow-memory-action.jpg)
+![Flow Memory Action](assets/flow-memory-action.png)
 
 ### User Memory
 
-Variables stored inside this memory are persisted and remain available for the same user. They survive the different conversations.
+Variables stored inside this memory are persisted and remain available for the same user. They survive the different conversations. When a message is received from the user, his informations are automatically loaded and are available to actions and nodes without calling anything,.
 
-##### Actions
+They never expires unless there is a data retention policy for some variables.
 
-- **setUserVariable\***
-- **getUserVariable**
+#### User Memory Data Retention
 
-### Conversation Memory
+The botpress global configuration file allows to specify the Time To Live of different user variables. There can be, for example, a policy that says `email expires after 2 months` or `remember user's mood for 1 day`. Expiry is updated whenever data is changed
 
-Variables stored inside this memory are persisted across the conversation and discarded when the session ends; that is, after the flow engine completes.
+Here's how it could be configured:
 
-##### Actions
+```js
+//data/global/botpress.config.json
 
-- **setConversationVariable\***
-- **getConversationVariable**
+dataRetention: {
+  janitorInterval: '2m', // Check each 2 mins for expired data
+  policies: {
+    email: '60d', // Keep email for 30 days, reset if it is changed
+    mood: '1d' // Forget user's mood after 1 day
+    someChoice: '5m' // Keeps the variable alive for 5 minutes
+  }
+}
+```
 
-### Global Memory
+### Session Memory
+
+Variables stored inside this memory are persisted across the conversation and discarded when the session ends; that is defined by the configuration parameter `sessionIntervalTimeout` (defined by bot in bot.config.json or globally in botpress.config.json)
+
+Botpress also stores the last 5 messages of the user in this variable, which could be useful depending on your use case.
+
+### Temporary Memory
+
+Variables stored inside this memory are alive until the end of the flow or when the dialog engine times out (Configuration: `dialog.intervalTimeout`). This variable replaces the `state` that was previously used before Botpress 11.2
+
+### Bot Memory
 
 Variables stored inside this memory are shared between all users and conversations inside the same bot.
 
-##### Actions
+#### Changing the value in memory
 
-- **setGlobalVariable\***
-- **getGlobalVariable**
+Use the action `base.setVariable` to update the value of any scope. There is also the possibility to change directly variables inside actions, check out the [Custom Code](code#actions) section.
 
 ## General Storage
 

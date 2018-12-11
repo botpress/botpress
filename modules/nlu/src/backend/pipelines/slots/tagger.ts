@@ -2,6 +2,8 @@ const ENTITIES_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
 export type Token = { type: string; value: string }
 
+// TODO use pattern-utils extract patterns
+// TODO add entity matching
 export const tokenize = (phrase: string, lowercase: boolean = true): Token[] => {
   let m: RegExpExecArray | null
   let start = 0

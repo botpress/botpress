@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import fs, { rename } from 'fs'
+import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 import { tmpNameSync } from 'tmp'

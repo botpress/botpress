@@ -127,19 +127,19 @@ export default class Storage {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -147,7 +147,6 @@ export default class Storage {
         ({
           name: e,
           type: 'system',
-          body: {}
         } as sdk.NLU.EntityDefinition)
     )
   }

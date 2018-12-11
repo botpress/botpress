@@ -6,11 +6,12 @@ import { flatMap } from 'lodash'
 
 import { Config } from '../config'
 
-import CRFExtractor from './pipelines/entities/crf_extractor'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
+import { extractListEntities, extractPatternEntities } from './pipelines/entities/pattern_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
+import CRFExtractor from './pipelines/slots/crf_extractor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
@@ -62,7 +63,11 @@ export default class ScopedEngine {
     }
 
     // TODO try to load model if saved(we don't save at the moment)
-    await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+    try {
+      await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+    } catch (err) {
+      this.logger.error('Error training slot tagger', err)
+    }
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
@@ -116,12 +121,26 @@ export default class ScopedEngine {
     }
   }
 
+  private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
+    const customEntityDefs = await this.storage.getCustomEntities()
+    const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
+    const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
+    const systemEntities = await this.knownEntityExtractor.extract(text, lang)
+
+    return [
+      ...systemEntities,
+      ...patternEntities,
+      ...listEntities,
+    ]
+  }
+
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     const text = incomingEvent.preview
 
     const lang = await this.langDetector.identify(text)
-    const entities = await this.knownEntityExtractor.extract(text, lang)
     const intents: Prediction[] = await this.intentClassifier.predict(text)
+    const entities = await this._extractEntities(text, lang)
+    // TODO add entities and detected intent in the slotExtractor
     const slots = await this.slotExtractor.extract(text)
 
     const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }

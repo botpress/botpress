@@ -4,12 +4,11 @@ import _ from 'lodash'
 import mime from 'mime'
 import path from 'path'
 
-import { SDK } from '.'
 import Database from './db'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
 
-export default async (bp: SDK, db: Database) => {
+export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 

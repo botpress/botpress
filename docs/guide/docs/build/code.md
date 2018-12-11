@@ -57,17 +57,37 @@ Since they are just regular JavaScript functions, they can, in fact, do pretty m
 
 When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
 
-- `state`: The current state of the conversation. This object is **frozen** and can’t be mutated.
-- `event`: The original (latest) event received from the user in the conversation. This object is **frozen** and can’t be mutated.
+- `user`: Includes all attributes of a user.
+- `session`: Includes variables kept for the session's duration.
+- `temp`: Contains variables which are alive only for the duration of the flow.
+- `bot`: Object containing global variables for this bot (same for all users)
+- `event`: The original (latest) event received from the user in the conversation.
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
 
-The action itself must return a new state object.
+Check out the page [Bot Memory and Data Retention](memory) for more details about the lifetime of these objects.
+
+### Example
+
+Here are some possible ways to use these variables
+
+```js
+/** const virtual_machine = (bp: SDK, user, session, temp, bot, event, args) => { */
+user['firstname'] = 'Bob'
+user['age'] = 17
+
+temp = {
+  text: 'hello there'
+}
+
+session.store = [{ id: 1, id: 2, id: 3 }]
+/** } */
+```
 
 ### Registering new actions
 
 The only way to register new actions is to add your javascript code in a `.js` file and put them in the folder `data/global/actions`. There is no way to programmatically add new ones during runtime.
 
-There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/src/templates/data/global/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful informations (name, description, arguments, default values) on the dialog flow editor.
+There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/modules/base/src/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful informations (name, description, arguments, default values) on the dialog flow editor. It is possible to keep an action hidden in the flow editor by adding the flag `@hidden true` in the javadoc.
 
 ## Hooks
 

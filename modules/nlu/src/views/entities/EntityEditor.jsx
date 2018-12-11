@@ -1,9 +1,16 @@
 import React from 'react'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon, Label, FormControl } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
+
+const DEFAULT_STATE = {
+  currentOccurence: undefined,
+  currentEntity: undefined,
+  occurenceInput: '',
+  pattern: ''
+}
 
 export default class EntityEditor extends React.Component {
   constructor(props) {
@@ -11,20 +18,18 @@ export default class EntityEditor extends React.Component {
     this.occurenceInputRef = React.createRef()
   }
 
-  state = {
-    currentOccurence: undefined,
-    currentEntity: undefined,
-    occurenceInput: ''
-  }
+  state = { ...DEFAULT_STATE }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.entity !== state.currentEntity) {
+    if (props.entity && props.entity !== state.currentEntity) {
       return {
         currentEntity: props.entity,
-        currentOccurence: props.entity && props.entity.occurences[0]
+        currentOccurence: props.entity.occurences && props.entity.occurences[0],
+        pattern: props.entity.pattern,
       }
-    }
-    return null // Will not update
+    } else if (props.entity === undefined) {
+      return DEFAULT_STATE
+    } else return null // will not update
   }
 
   onEnterPressed = (event, cb) => {
@@ -34,27 +39,23 @@ export default class EntityEditor extends React.Component {
     }
   }
 
-  addSynonym = (occurence, synonym) => {
+  addSynonym = (occurenceIndex, synonym) => {
     let entity = this.state.currentEntity
 
-    if (occurence.synonyms.includes(synonym)) {
+    if (entity.occurences[occurenceIndex].synonyms.includes(synonym.text)) {
+      // TODO display something
       return
     }
 
-    occurence.synonyms = [...occurence.synonyms, synonym]
-    const index = entity.occurences.findIndex(o => o.name === occurence.name)
-    entity.occurences[index] = occurence
+    entity.occurences[occurenceIndex].synonyms.push(synonym.text)
 
     this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
-  removeSynonym = (occurence, index) => {
+  removeSynonym = (occurenceIndex, synonymIndex) => {
     let entity = this.state.currentEntity
 
-    occurence.synonyms.splice(index, 1)
-
-    const eIndex = entity.occurences.findIndex(o => o.name === occurence.name)
-    entity.occurences[eIndex] = occurence
+    entity.occurences[occurenceIndex].synonyms.splice(synonymIndex, 1)
     this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
@@ -123,14 +124,14 @@ export default class EntityEditor extends React.Component {
           onKeyDown={this.handleOccurenceEnter}
           onChange={this.onOccurenceInputChange}
         />
-        {occurences.map(o => (
+        {occurences.map((o, occIdx) => (
           <ListGroupItem className={style.occurence} key={`nlu_occurence_${o.name}`}>
             <div className={style.occurenceName}>{o.name}</div>
             <ReactTags
               placeholder="Enter a synonym"
-              tags={o.synonyms}
-              handleDelete={index => this.removeSynonym(o, index)}
-              handleAddition={e => this.addSynonym(o, e)}
+              tags={o.synonyms.map(s => ({ id: s.replace(/[^A-Z0-9_-]/gi, '_'), text: s }))}
+              handleDelete={index => this.removeSynonym(occIdx, index)}
+              handleAddition={e => this.addSynonym(occIdx, e)}
               allowDeleteFromEmptyInput={false}
             />
             <Glyphicon glyph="trash" className={style.occurenceDelete} onClick={() => this.removeOccurence(o)} />
@@ -140,25 +141,53 @@ export default class EntityEditor extends React.Component {
     )
   }
 
-  onUpdate = () => {
-    this.props.onUpdate(this.state.currentEntity)
+  onUpdate = _.debounce(() => {
+    this.props.onUpdate({ ...this.state.currentEntity, pattern: this.state.pattern })
+  }, 500)
+
+  handlePatternChange = e => {
+    const pattern = e.target.value
+
+    this.setState({ pattern }, () => {
+      if (this.isPatternValid(pattern)) this.onUpdate()
+    })
+  }
+
+  isPatternValid = pattern => {
+    try {
+      new RegExp(pattern)
+      return pattern !== ''
+    } catch (e) {
+      return false
+    }
   }
 
   render() {
+    const { currentEntity } = this.state
     return (
       <div className={style.container}>
         <div className={style.header}>
           <div>
-            {!this.state.currentEntity && <h1>No entities have been created yet</h1>}
-            {this.state.currentEntity && (
+            {!currentEntity && <h1>No entities have been created yet</h1>}
+            {currentEntity && (
               <h1>
-                entities/
+                entities /
                 <span className={style.entity}>{this.state.currentEntity.name}</span>
               </h1>
             )}
           </div>
         </div>
-        <div>{this.renderOccurences()}</div>
+        {
+          currentEntity && currentEntity.type === 'list' && this.renderOccurences()
+        }
+        {
+          currentEntity && currentEntity.type === 'pattern' && (
+            <div>
+              <FormControl tabIndex="1" autoFocus type="text" placeholder="Enter a valid pattern. Try: howdy[0-9]+" value={this.state.pattern} onChange={this.handlePatternChange} />
+              {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
+            </div>
+          )
+        }
       </div>
     )
   }

@@ -8,10 +8,13 @@ export interface LogsConfig {
 
 export interface DialogConfig {
   /**
-   *
    * @default 5m
    */
   timeoutInterval: string
+  /**
+   * @default 30m
+   */
+  sessionTimeoutInterval: string
 }
 
 export type BotConfig = {
