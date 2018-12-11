@@ -81,7 +81,7 @@ class Sidebar extends React.Component {
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse}>
+          <a onClick={this.toggleNluCollapse} className={style.link}>
             {moduleIcon}
             <span>Understanding</span>
           </a>
