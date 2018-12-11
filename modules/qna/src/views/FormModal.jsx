@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { FormControl, Button, Modal, Alert, Glyphicon, ListGroup, ListGroupItem, Collapse } from 'react-bootstrap'
+import { FormControl, Button, Modal, Alert, Glyphicon } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
+import { VariationsCollapse } from './variations/VariationsCollapse'
 
 import Select from 'react-select'
 import style from './style.scss'
@@ -274,10 +275,8 @@ export default class FormModal extends Component {
                   componentClass="textarea"
                 />
               </div>
-              <div className={style.qnaSection}>
-                <span className={style.qnaSectionTitle}>Variations</span>
-                {this.renderVariations()}
-              </div>
+
+              <VariationsCollapse title="Answer variations">{this.renderVariations()}</VariationsCollapse>
 
               <div className={style.qnaAndOr}>
                 <div className={style.qnaAndOrLine} />
