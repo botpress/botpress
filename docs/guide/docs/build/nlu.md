@@ -162,7 +162,7 @@ Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage
 
 If for some reason you want to use an external provider, you can do so by using [Hooks](./code.md) and calling the external NLU provider via API.
 
-> **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support for two-way synchronization as there were too many issues in doing (and maintaining) that.
+> **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](#1170)for two-way synchronization as there were too many issues in doing (and maintaining) that.
 
 ### Example
 
