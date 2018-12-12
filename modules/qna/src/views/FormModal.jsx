@@ -51,7 +51,7 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/mod/qna/question/${id}`).then(({ data: { data: item } }) => {
+    this.props.bp.axios.get(`/mod/qna/questions/${id}`).then(({ data: { data: item } }) => {
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -109,7 +109,7 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    return this.props.bp.axios.post('/mod/qna/create', this.state.item).then(() => {
+    return this.props.bp.axios.post('/mod/qna/questions', this.state.item).then(() => {
       this.props.fetchData()
       this.closeAndClear()
     })
@@ -133,7 +133,7 @@ export default class FormModal extends Component {
     } = this.props
 
     return this.props.bp.axios
-      .put(`/mod/qna/${this.props.id}`, this.state.item, {
+      .put(`/mod/qna/questions/${this.props.id}`, this.state.item, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {
@@ -159,21 +159,19 @@ export default class FormModal extends Component {
 
   handleAnswerVariationChange = (event, index) => {
     const answers = this.state.item.answers
-    answers[index + 1] = event.target.value
+    answers[index] = event.target.value
     this.setState({ item: { ...this.state.item, answers } })
   }
 
   addAnswer = () => {
-    debugger
     let answers = this.state.item.answers
     answers.push('')
     this.setState({ item: { ...this.state.item, answers } })
   }
 
   handleDeleteAnswer = index => {
-    debugger
     let answers = this.state.item.answers
-    answers = answers.splice(index + 1, 1)
+    answers.splice(index, 1)
     this.setState({ item: { ...this.state.item, answers } })
   }
 
@@ -254,7 +252,7 @@ export default class FormModal extends Component {
 
                 <VariationsCollapse
                   // We remove the first element that we consider the canonical element from which the other elements derive
-                  elements={this.state.item.answers.splice(1)}
+                  elements={this.state.item.answers}
                   onAdd={this.addAnswer}
                   onInputChange={this.handleAnswerVariationChange}
                   onDelete={this.handleDeleteAnswer}

@@ -14,7 +14,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
   const csvUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 
-  router.get('/list', async (req, res) => {
+  router.get('/questions/list', async (req, res) => {
     try {
       const {
         query: { question = '', categories = [], limit, offset }
@@ -29,7 +29,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.post('/create', async (req, res) => {
+  router.post('/questions', async (req, res) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
       const id = await storage.insert(req.body)
@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.get('/question/:id', async (req, res) => {
+  router.get('/questions/:id', async (req, res) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
       const question = await storage.getQuestion(req.params.id)
@@ -51,7 +51,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.put('/:question', async (req, res) => {
+  router.put('/questions/:question', async (req, res) => {
     const {
       query: { limit, offset, question, categories }
     } = req
@@ -68,7 +68,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.delete('/:question', async (req, res) => {
+  router.delete('/questions/:question', async (req, res) => {
     const {
       query: { limit, offset, question, categories }
     } = req

@@ -67,7 +67,7 @@ export default class QnaAdmin extends Component {
 
   fetchData = (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/list', { params }).then(({ data }) => {
+    this.props.bp.axios.get('/mod/qna/questions/list', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
         label: (questions || []).join(','),
         value: id
@@ -107,7 +107,7 @@ export default class QnaAdmin extends Component {
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/mod/qna/list', {
+      .get('/mod/qna/questions/list', {
         params: {
           question,
           categories,
@@ -354,19 +354,20 @@ export default class QnaAdmin extends Component {
             <span className={style.itemAnswerTitle}>A:</span>
             <div className={style.itemAnswerText}>{item.answers[0]}</div>
             {this.renderVariationsOverlayTrigger(item.answers)}
-            <div className={style.itemAnswer}>
-              <div className={style.itemRedirect}>
-                {isRedirect ? (
+          </div>
+          <div className={style.itemRedirectContainer}>
+            <div className={style.itemRedirect}>
+              {isRedirect && (
+                <React.Fragment>
+                  <div className={style.itemRedirectTitle}>Redirect to:</div>
                   <div className={style.itemFlow}>
                     Flow: <span className={style.itemFlowName}>{item.redirectFlow}</span>
                   </div>
-                ) : null}
-                {isRedirect ? (
                   <div className={style.itemNode}>
                     Node: <span className={style.itemNodeName}>{item.redirectNode}</span>
                   </div>
-                ) : null}
-              </div>
+                </React.Fragment>
+              )}
             </div>
           </div>
           {item.category ? (
@@ -403,7 +404,7 @@ export default class QnaAdmin extends Component {
     }
 
     if (needDelete) {
-      this.props.bp.axios.delete(`/mod/qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios.delete(`/mod/qna/questions/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 
@@ -421,7 +422,9 @@ export default class QnaAdmin extends Component {
     }
 
     item.enabled = value
-    this.props.bp.axios.put(`/mod/qna/${id}`, item, { params }).then(({ data: { items } }) => this.setState({ items }))
+    this.props.bp.axios
+      .put(`/mod/qna/questions/${id}`, item, { params })
+      .then(({ data: { items } }) => this.setState({ items }))
   }
 
   toggleButton = ({ value, onChange }) => {
