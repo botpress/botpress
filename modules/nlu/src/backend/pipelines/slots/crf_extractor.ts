@@ -16,7 +16,7 @@ const CRF_TRAINER_PARAMS = {
   c2: '0.01',
   max_iterations: '500',
   'feature.possible_transitions': '1',
-  'feature.possible_states': '1',
+  'feature.possible_states': '1'
 }
 
 type Features = Partial<{
@@ -109,8 +109,11 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainCrf(samples: Token[][]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = Trainer()
+    const trainer = new Trainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
+    trainer.set_callback(str => {
+      /* swallow training results */
+    })
 
     for (const sample of samples) {
       const entries: string[][] = []
@@ -132,10 +135,12 @@ export default class CRFExtractor implements SlotExtractor {
     this._ft = new FastText(this._ftModelFn)
 
     const trainContent = samples.reduce((corpus, example) => {
-      const cannonicSentence = example.map(s => {
-        if (s.type === 'o') return s.value
-        else return s.type.slice(2)
-      }).join(' ') // TODO replace this by the opposite tokenizer as only latin language use \s...
+      const cannonicSentence = example
+        .map(s => {
+          if (s.type === 'o') return s.value
+          else return s.type.slice(2)
+        })
+        .join(' ') // TODO replace this by the opposite tokenizer as only latin language use \s...
       return `${corpus}${cannonicSentence}}\n`
     }, '')
 
