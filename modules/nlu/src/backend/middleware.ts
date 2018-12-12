@@ -16,7 +16,7 @@ export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByB
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       const botCtx = botScopedNlu[event.botId] as ScopedEngine
 
-      if (!botCtx || EVENTS_TO_IGNORE.includes(event.type)) {
+      if (!botCtx || EVENTS_TO_IGNORE.includes(event.type) || event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)) {
         return next()
       }
 
