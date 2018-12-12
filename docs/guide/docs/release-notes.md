@@ -5,7 +5,7 @@ title: Release Notes
 
 The transition from Botpress to Botpress X was a huge game changer, and the latest one from Botpress X to Botpress Server (v11) is even bigger.
 
-> **Note:** Botpress Server is in public beta and is ready for production usage just yet. We are working hard to stabalize the API and performances before the end of the year.
+> **Note:** Botpress Server is in public beta and is not ready for production usage just yet. We are working hard to stabalize the API and performances before the end of the year.
 
 ## What's new in Botpress Server
 

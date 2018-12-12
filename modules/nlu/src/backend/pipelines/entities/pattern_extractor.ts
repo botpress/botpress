@@ -5,7 +5,7 @@ import { escapeRegex, extractPattern } from '../../tools/patterns-utils'
 
 export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.EntityDefinition[]): sdk.NLU.Entity[] => {
   return flatMap(entityDefs, entityDef => {
-    const regex = new RegExp(escapeRegex(entityDef.pattern!))
+    const regex = new RegExp(entityDef.pattern!)
     return extractPattern(input, regex).map(res => ({
       name: entityDef.name,
       type: entityDef.type, // pattern
@@ -26,7 +26,7 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
   })
 }
 
-const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityDefOccurence): sdk.NLU.Entity[] => {
+const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityDefOccurence, entityDef: sdk.NLU.EntityDefinition): sdk.NLU.Entity[] => {
   const pattern = [
     occurence.name,
     ...occurence.synonyms
@@ -35,7 +35,7 @@ const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityD
   const regex = new RegExp(pattern, 'i')
   return extractPattern(input, regex)
     .map(extracted => ({
-      name: occurence.name,
+      name: entityDef.name,
       type: 'list',
       meta: {
         confidence: 1, // extrated with synonyme as patterns
@@ -56,7 +56,7 @@ const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityD
 export const extractListEntities = (input: string, entityDefs: sdk.NLU.EntityDefinition[]): sdk.NLU.Entity[] => {
   return flatMap(entityDefs, entityDef => {
     return flatMap((entityDef.occurences || []), occurence => {
-      return _extractEntitiesFromOccurence(input, occurence)
+      return _extractEntitiesFromOccurence(input, occurence, entityDef)
     })
   })
 }

@@ -79,10 +79,10 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-          <i className="icon material-icons" style={{ marginRight: '5px' }}>
-            {module.menuIcon}
-          </i>
-        )
+        <i className="icon material-icons" style={{ marginRight: '5px' }}>
+          {module.menuIcon}
+        </i>
+      )
 
     const navClasses = this.state.activeLink === path ? style.active : ''
     const entitiesPath = path + '/entities'
@@ -94,7 +94,7 @@ class Sidebar extends React.Component {
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse} className={nluActiveClass}>
+          <a onClick={this.toggleNluCollapse} className={classnames(nluActiveClass, style.link)}>
             {moduleIcon}
             <span>Understanding</span>
           </a>
