@@ -158,7 +158,7 @@ At the moment, Duckling is hosted on our remote servers. If you don't want your 
 
 ## Providers
 
-Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hist the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
+Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
 If for some reason you want to use an external provider, you can do so by using [Hooks](./code.md) and calling the external NLU provider via API.
 
