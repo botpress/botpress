@@ -39,7 +39,8 @@ class Sidebar extends React.Component {
   }
 
   state = {
-    nluCollapseOpen: false
+    nluCollapseOpen: false,
+    activeLink: undefined
   }
 
   componentWillMount() {
@@ -65,6 +66,12 @@ class Sidebar extends React.Component {
     this.setState({ nluCollapseOpen: false })
   }
 
+  // FIXME: This is a workaround an open issue with the NavLink
+  // see: https://github.com/ReactTraining/react-router/issues/6201
+  onLinkClick = path => {
+    this.setState({ activeLink: path })
+  }
+
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
     const iconPath = `/assets/module/${module.name}/icon.png`
@@ -72,16 +79,22 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-        <i className="icon material-icons" style={{ marginRight: '5px' }}>
-          {module.menuIcon}
-        </i>
-      )
+          <i className="icon material-icons" style={{ marginRight: '5px' }}>
+            {module.menuIcon}
+          </i>
+        )
+
+    const navClasses = this.state.activeLink === path ? style.active : ''
+    const entitiesPath = path + '/entities'
+    const intentsPath = path + '/intents'
+    const nluActiveClass =
+      this.state.activeLink === entitiesPath || this.state.activeLink === intentsPath ? style.active : ''
 
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse} className={style.link}>
+          <a onClick={this.toggleNluCollapse} className={nluActiveClass}>
             {moduleIcon}
             <span>Understanding</span>
           </a>
@@ -89,20 +102,20 @@ class Sidebar extends React.Component {
             <ul className={style.mainMenu_level2}>
               <li className={style.mainMenu__item}>
                 <NavLink
-                  to={path + '/entities'}
+                  to={entitiesPath}
                   title={module.menuText}
-                  activeClassName={style.active}
-                  className={style.mainMenu__link}
+                  onClick={() => this.onLinkClick(entitiesPath)}
+                  className={classnames(style.mainMenu__link, navClasses)}
                 >
                   <span>Entities</span>
                 </NavLink>
               </li>
               <li className={style.mainMenu__item}>
                 <NavLink
-                  to={path + '/intents'}
+                  to={intentsPath}
                   title={module.menuText}
-                  activeClassName={style.active}
-                  className={style.mainMenu__link}
+                  className={classnames(style.mainMenu__link, navClasses)}
+                  onClick={() => this.onLinkClick(intentsPath)}
                 >
                   <span>Intents</span>
                 </NavLink>
@@ -114,7 +127,7 @@ class Sidebar extends React.Component {
     } else {
       return (
         <li key={`menu_module_${module.name}`}>
-          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+          <NavLink to={path} title={module.menuText} className={navClasses} onClick={() => this.onLinkClick(path)}>
             {moduleIcon}
             <span>{module.menuText}</span>
           </NavLink>
@@ -127,7 +140,12 @@ class Sidebar extends React.Component {
     return (
       <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
         <li key={path}>
-          <NavLink to={path} title={name} activeClassName={style.active}>
+          <NavLink
+            to={path}
+            title={name}
+            className={classnames(this.state.activeLink === path ? style.active : '')}
+            onClick={() => this.onLinkClick(path)}
+          >
             <i className="icon material-icons" style={{ marginRight: '5px' }}>
               {icon}
             </i>
@@ -145,9 +163,9 @@ class Sidebar extends React.Component {
     const emptyClassName = classnames(style.empty, 'bp-empty')
 
     return (
-      <aside onMouseLeave={this.handleSideBarLeave}>
+      <aside onMouseLeave={this.handleSideBarLeave} style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '10px' }}>
+          <div style={{ padding: '8px 10px' }}>
             <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
               <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
             </a>
