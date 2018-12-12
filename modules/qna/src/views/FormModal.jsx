@@ -164,6 +164,7 @@ export default class FormModal extends Component {
   }
 
   addAnswer = () => {
+    debugger
     let answers = this.state.item.answers
     answers.push('')
     this.setState({ item: { ...this.state.item, answers } })
