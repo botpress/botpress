@@ -31,6 +31,12 @@ export default class EntitiesComponent extends React.Component {
 
   onEntityUpdate = entity => {
     return this.props.bp.axios.put(`/mod/nlu/entities/${entity.name}`, entity)
+      .then(() => {
+        const i = this.state.entities.findIndex(ent => ent.id == entity.id)
+        this.setState({
+          entities: [...this.state.entities.slice(0, i), entity, ...this.state.entities.slice(i + 1)]
+        })
+      })
   }
 
   toggleCreateModal = () => {
