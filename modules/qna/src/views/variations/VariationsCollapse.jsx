@@ -19,7 +19,7 @@ export class VariationsCollapse extends React.Component {
           defaultValue={element}
           onChange={event => this.props.onInputChange(event, index)}
         />
-        <Button onClick={() => this.props.onDelete(index)}>
+        <Button className={style.elementRemove} onClick={() => this.props.onDelete(index)}>
           <Glyphicon glyph="trash" />
         </Button>
       </div>
@@ -27,8 +27,7 @@ export class VariationsCollapse extends React.Component {
   }
 
   renderElements = () => {
-    // We remove the first element that we consider the canonical element from which the other elements derive
-    const elements = this.props.elements.slice(1)
+    const elements = this.props.elements
     return (
       <React.Fragment>
         <Button onClick={this.props.onAdd}>{this.props.addTitle || 'Add a variation'}</Button>

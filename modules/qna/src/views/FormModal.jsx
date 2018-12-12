@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormControl, Button, Modal, Alert, Glyphicon } from 'react-bootstrap'
+import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
 import { VariationsCollapse } from './variations/VariationsCollapse'
@@ -159,7 +159,7 @@ export default class FormModal extends Component {
 
   handleAnswerVariationChange = (event, index) => {
     const answers = this.state.item.answers
-    answers[index] = event.target.value
+    answers[index + 1] = event.target.value
     this.setState({ item: { ...this.state.item, answers } })
   }
 
@@ -170,8 +170,9 @@ export default class FormModal extends Component {
   }
 
   handleDeleteAnswer = index => {
+    debugger
     let answers = this.state.item.answers
-    answers = answers.splice(index, 1)
+    answers = answers.splice(index + 1, 1)
     this.setState({ item: { ...this.state.item, answers } })
   }
 
@@ -251,7 +252,8 @@ export default class FormModal extends Component {
                 />
 
                 <VariationsCollapse
-                  elements={this.state.item.answers}
+                  // We remove the first element that we consider the canonical element from which the other elements derive
+                  elements={this.state.item.answers.splice(1)}
                   onAdd={this.addAnswer}
                   onInputChange={this.handleAnswerVariationChange}
                   onDelete={this.handleDeleteAnswer}
@@ -300,10 +302,8 @@ export default class FormModal extends Component {
           </Modal.Body>
 
           <Modal.Footer className={style.qnaModalFooter}>
-            <Button className={style.qnaModalFooterCancelBtn} onClick={this.closeAndClear}>
-              Cancel
-            </Button>
-            <Button className={style.qnaModalFooterSaveBtn} type="submit">
+            <Button onClick={this.closeAndClear}>Cancel</Button>
+            <Button bsStyle="primary" type="submit">
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

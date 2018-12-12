@@ -6,10 +6,6 @@ import {
   ControlLabel,
   Checkbox,
   Panel,
-  Collapse,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
   OverlayTrigger,
   ButtonGroup,
   ButtonToolbar,
@@ -350,12 +346,12 @@ export default class QnaAdmin extends Component {
       <Well className={style.qnaItem} bsSize="small" key={id}>
         <div className={style.itemContainer}>
           <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q:&nbsp;</span>
+            <span className={style.itemQuestionsTitle}>Q:</span>
             <div className={style.firstQuestionTitle}>{item.questions[0]}</div>
             {this.renderVariationsOverlayTrigger(item.questions)}
           </div>
           <div className={style.itemAnswerContainer}>
-            <span className={style.itemAnswerTitle}>A: </span>
+            <span className={style.itemAnswerTitle}>A:</span>
             <div className={style.itemAnswerText}>{item.answers[0]}</div>
             {this.renderVariationsOverlayTrigger(item.answers)}
             <div className={style.itemAnswer}>
