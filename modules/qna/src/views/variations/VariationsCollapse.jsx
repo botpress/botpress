@@ -15,6 +15,7 @@ export class VariationsCollapse extends React.Component {
     return (
       <div key={`${index}_element`} className={style.elementBody}>
         <textarea
+          autoFocus
           className="form-control"
           defaultValue={element}
           onChange={event => this.props.onInputChange(event, index)}
@@ -30,7 +31,9 @@ export class VariationsCollapse extends React.Component {
     const elements = this.props.elements
     return (
       <React.Fragment>
-        <Button onClick={this.props.onAdd}>{this.props.addTitle || 'Add a variation'}</Button>
+        <Button bsStyle="primary" onClick={this.props.onAdd} className={style.addVariationBtn}>
+          {this.props.addTitle || 'New'}
+        </Button>
         <div>
           {elements &&
             elements.map((element, index) => {
@@ -45,7 +48,7 @@ export class VariationsCollapse extends React.Component {
     return (
       <div>
         <div onClick={this.toggleOpen} className={style.elementTitle}>
-          {this.props.title || 'Variations'}
+          {this.state.isOpen ? 'Hide Variations' : 'Show Variations'}
           &nbsp;
           {this.state.isOpen ? <Glyphicon glyph="triangle-top" /> : <Glyphicon glyph="triangle-bottom" />}
         </div>

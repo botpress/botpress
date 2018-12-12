@@ -179,6 +179,7 @@ $mainGreen: #1bb68a;
 }
 
 .itemRedirect {
+  margin-top: 10px;
   display: flex;
 }
 
@@ -406,6 +407,7 @@ $mainGreen: #1bb68a;
   border-color: red;
 }
 
+.itemRedirectTitle,
 .itemNode,
 .itemFlow {
   font-weight: 900;
