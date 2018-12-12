@@ -72,10 +72,10 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-        <i className="icon material-icons" style={{ marginRight: '5px' }}>
-          {module.menuIcon}
-        </i>
-      )
+          <i className="icon material-icons" style={{ marginRight: '5px' }}>
+            {module.menuIcon}
+          </i>
+        )
 
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
@@ -145,9 +145,9 @@ class Sidebar extends React.Component {
     const emptyClassName = classnames(style.empty, 'bp-empty')
 
     return (
-      <aside onMouseLeave={this.handleSideBarLeave}>
+      <aside onMouseLeave={this.handleSideBarLeave} style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '10px' }}>
+          <div style={{ padding: '8px 10px' }}>
             <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
               <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
             </a>
