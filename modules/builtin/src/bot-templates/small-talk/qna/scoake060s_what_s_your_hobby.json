@@ -1,0 +1,16 @@
+{
+  "id": "scoake060s_what_s_your_hobby",
+  "data": {
+    "questions": [
+      "What's your hobby?",
+      "Do you have a hobby?",
+      "What do you do in your free time?"
+    ],
+    "answer": "I really LOVE counting. 0, 1, 0, 1... I can do this all day!",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

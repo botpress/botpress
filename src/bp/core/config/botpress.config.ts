@@ -9,35 +9,92 @@ export type ModuleConfigEntry = {
 
 export interface DatabaseConfig {
   migrations?: string
+  /**
+   * @default sqlite
+   */
   type: DatabaseType
   url?: string
+  /**
+   * @default %BOTPRESS_DIR%/data/storage/core.sqlite
+   */
   location?: string
+  /**
+   * @default localhost
+   */
   host?: string
+  /**
+   * @default 5432
+   */
   port?: number
+  /**
+   * @default postgres
+   */
   user?: string
+  /**
+   * @default
+   */
   password?: string
   ssl?: boolean
+  /**
+   * @default botpress_test
+   */
   database?: string
 }
 
 export interface DialogConfig {
+  /**
+   * Interval between executions of the janitor to check for stale sessions
+   * @default 10s
+   */
   janitorInterval: string
+  /**
+   * The delay before a stale session will get sweeped by the janitor
+   * @default 2m
+   */
   timeoutInterval: string
+  /**
+   * The delay before we consider that it is a new interaction (ex: different subject). We keep the user's last messages
+   * and variables in the session context to customize interactions.
+   * @default 30m
+   */
+  sessionTimeoutInterval: string
 }
 
 export interface LogsConfig {
+  /**
+   * Logs will be kept for this amount of time in the database
+   * @default 2 weeks
+   */
   expiration: string
+  /**
+   * @default 30s
+   */
   janitorInterval: string
 }
 
 export type BotpressConfig = {
   jwtSecret: string
   httpServer: {
+    /**
+     * @default localhost
+     */
     host: string
+    /**
+     * @default 3000
+     */
     port: number
+    /**
+     * @default 0
+     */
     backlog: number
+    /**
+     * @default 100kb
+     */
     bodyLimit: string | number
     cors: {
+      /**
+       * @default true
+       */
       enabled?: boolean
       origin?: string
     }
@@ -51,6 +108,9 @@ export type BotpressConfig = {
   }
   database: DatabaseConfig
   ghost: {
+    /**
+     * @default false
+     */
     enabled: boolean | BotpressCondition
   }
   dialog: DialogConfig
@@ -60,8 +120,13 @@ export type BotpressConfig = {
    * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
    * You can purchase a license on https://botpress.io
    * For usage with Botpress Pro/Enterprise.
+   * @default paste your license key here
    */
   licenseKey: string
+  /**
+   * When enabled, Botpress collects anonymous data about the bot's usage
+   * @default true
+   */
   sendUsageStats: boolean
   /**
    * When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified

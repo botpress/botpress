@@ -1,10 +1,11 @@
 import axios from 'axios'
 import Bluebird from 'bluebird'
+import * as sdk from 'botpress/sdk'
 import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { QnaStorage, SDK } from '../qna'
+import { QnaStorage } from '../qna'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -31,13 +32,13 @@ const normalizeQuestions = questions =>
     .filter(Boolean)
 
 export default class Storage implements QnaStorage {
-  private bp: SDK
+  private bp: typeof sdk
   private config
   private botId: string
   private axiosConfig
   private categories: string[]
 
-  constructor(bp: SDK, config, botId) {
+  constructor(bp: typeof sdk, config, botId) {
     this.bp = bp
     this.config = config
     this.botId = botId
@@ -55,7 +56,7 @@ export default class Storage implements QnaStorage {
   async syncNlu() {
     const { data: isNeeded } = await axios.get('/mod/nlu/sync/check', this.axiosConfig)
     if (isNeeded) {
-      await axios.get('/mod/nlu/sync', this.axiosConfig)
+      await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
     }
   }
 

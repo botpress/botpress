@@ -1,0 +1,19 @@
+{
+  "id": "wuz38j0ys7_who_are_you",
+  "data": {
+    "questions": [
+      "who are you?",
+      "what are you?",
+      "who is you?",
+      "tell me who you are?",
+      "tell me your identity",
+      "show me your identity"
+    ],
+    "answer": "I'm Bob, an NSA secret agent, ready to help you ! ",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

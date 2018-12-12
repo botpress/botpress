@@ -1,0 +1,139 @@
+.container {
+  padding-left: 10px;
+}
+
+.badge {
+  float: right;
+  margin-right: 10px;
+}
+
+.header {
+  height: 50px;
+  padding: 0 15px;
+  border-bottom: 1px solid #e8e8e8;
+
+  h1,
+  div {
+    line-height: 50px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #666;
+
+    span {
+      color: black;
+    }
+
+    :global(.badge) {
+      font-weight: bold;
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #73d8b7;
+      color: white;
+    }
+  }
+
+  button {
+    line-height: 20px;
+  }
+
+  button + button {
+    margin-left: 10px;
+  }
+}
+
+.deleteEntity {
+  float: right;
+  display: none;
+  position: absolute;
+  right: 5px;
+  top: 10px;
+}
+
+.removeSynonym:hover {
+  cursor: pointer;
+}
+
+.entity {
+  display: inline-block;
+}
+
+.selectedentity {
+  background: whitesmoke;
+}
+
+.entity:hover {
+  background-color: #ececec;
+  .deleteEntity {
+    display: inherit;
+  }
+}
+.occurenceDelete {
+  display: none;
+  float: right;
+}
+
+.occurenceInput {
+  margin: 10px;
+  margin-bottom: 10px;
+}
+
+.occurence {
+  width: 100%;
+  margin: 10px;
+
+  &:hover {
+    background-color: #ececec;
+
+    .occurenceDelete {
+      display: inherit;
+    }
+
+    :global(.ReactTags__tagInput) {
+      background-color: white;
+    }
+  }
+}
+
+.occurenceName {
+  display: inline-block;
+}
+
+:global(.ReactTags__tags) {
+  display: inline-block;
+  position: relative;
+  padding-left: 4px;
+}
+
+:global(.ReactTags__tagInput) {
+  display: inline-block;
+}
+:global(.ReactTags__tagInputField) {
+  color: grey;
+  border: none !important;
+}
+:global(.ReactTags__tagInput input.ReactTags__tagInputField, .ReactTags__tagInput
+    input.ReactTags__tagInputField:focus) {
+  height: 31px;
+  margin: 0;
+  font-size: 12px;
+  width: 100%;
+  border: 1px solid #eee;
+  padding: 0 4px;
+}
+:global(.ReactTags__selected span.ReactTags__tag) {
+  border: 1px solid #ddd;
+  background: #eee;
+  font-size: 12px;
+  display: inline-block;
+  padding: 5px;
+  margin: 0 5px;
+  border-radius: 2px;
+}
+:global(.ReactTags__selected a.ReactTags__remove) {
+  color: #aaa;
+  margin-left: 5px;
+  cursor: pointer;
+}

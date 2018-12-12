@@ -34,6 +34,20 @@ export default class Database {
     })
   }
 
+  async seedForTests() {
+    await this.knex.batchInsert('srv_bots', [
+      {
+        id: 'welcome-bot',
+        name: 'Welcome Bot',
+        version: '1.0.0',
+        description: 'Welcome Bot',
+        author: 'Botpress, Inc.',
+        license: 'AGPL-3.0',
+        team: 1
+      }
+    ])
+  }
+
   async teardownTables() {
     await Promise.mapSeries(AllTables, async Tbl => {
       const table = new Tbl(this.knex!)

@@ -82,6 +82,24 @@ declare module 'botpress/sdk' {
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
     skills?: Skill[]
+    /** An array of available bot templates when creating a new bot */
+    botTemplates?: BotTemplate[]
+  }
+
+  /**
+   * Identifies new Bot Template that can be used to speed up the creation of a new bot without
+   * having to start from scratch
+   */
+  export interface BotTemplate {
+    /** Used internally to identify this template  */
+    id: string
+    /** The name that will be displayed in the bot templte menu */
+    name: string
+    /** Gives a short description of your module, which is displayed once the template is selected */
+    desc: string
+    /** These are used internally by Botpress when they are registered on startup */
+    readonly moduleId?: string
+    readonly moduleName?: string
   }
 
   export interface ModuleDefinition {
@@ -134,8 +152,30 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export type EntityType = 'system' | 'pattern' | 'list'
+
+    export interface EntityDefOccurence {
+      name: string
+      synonyms: string[]
+    }
+
+    export interface EntityDefinition {
+      id: string
+      name: string
+      type: EntityType
+      occurences?: EntityDefOccurence[]
+      pattern?: string
+    }
+
+    export interface IntentSlot {
+      name: string
+      entity: string
+    }
+
     export interface Intent {
       name: string
+      slots: IntentSlot[]
+      utterances: string[]
       confidence: number
       matches: (intentPattern: string) => boolean
     }
@@ -143,6 +183,7 @@ declare module 'botpress/sdk' {
     export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
 
     export interface Entity {
+      name: string
       type: string
       meta: EntityMeta
       data: EntityBody
@@ -163,7 +204,6 @@ declare module 'botpress/sdk' {
       raw: any
     }
   }
-
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -260,10 +300,25 @@ declare module 'botpress/sdk' {
       intent?: string
     }
 
+    /**
+     * This  object is used to store data which will be persisted on different timeframes. It allows you to easily
+     * store and retrieve data for different kind of situations.
+     */
     export interface EventState {
+      /** Data saved as user attributes; retention policies in Botpress global config applies  */
       user: User
-      context: DialogContext
+      /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
+      /** Data saved to this variable will be remembered until the end of the flow */
+      temp: any
+      /**
+       * Variables in the bot object are shared to all users for a specific bot. It is read only,
+       * meaning that changes are not automatically persisted. You need to use the setVariable option to change it.
+       * There is a possible race condition since it is loaded each time a messages comes in. Update it wisely
+       * */
+      bot: any
+      /** Used internally by Botpress to keep the user's current location and upcoming instructions*/
+      context: DialogContext
     }
 
     export interface DialogContext {
@@ -272,7 +327,6 @@ declare module 'botpress/sdk' {
       currentNode?: string
       currentFlow?: string
       queue?: any
-      data?: any
     }
 
     export interface CurrentSession {
@@ -368,8 +422,9 @@ declare module 'botpress/sdk' {
      * @example bp.ghost.forBot('welcome-bot').directoryListing('./questions', '*.json')
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
+     * @param exclude - The pattern to match excluded files.
      */
-    directoryListing(rootFolder: string, fileEndingPattern: string): Promise<string[]>
+    directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
   }
 
   /**
@@ -383,16 +438,9 @@ declare module 'botpress/sdk' {
     description?: string
     author?: string
     version: string
-    license?: string
     imports: {
-      /** Not currently used */
-      modules: string[]
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
-      /** Not currently used */
-      incomingMiddleware: string[]
-      /** Not currently used */
-      outgoingMiddleware: string[]
     }
     dialog?: DialogConfig
     logs?: LogsConfig
@@ -404,6 +452,7 @@ declare module 'botpress/sdk' {
 
   export interface DialogConfig {
     timeoutInterval: string
+    sessionTimeoutInterval: string
   }
 
   /**
@@ -616,12 +665,31 @@ declare module 'botpress/sdk' {
    * Search parameters when querying content elements
    */
   export type SearchParams = {
+    /** Search in elements id and form data */
     searchTerm?: string
-    /** An array of fields to order the query on */
-    orderBy?: string[]
+    /** Returns the amount of elements from the starting position  */
     from: number
     count: number
+    /** Only returns the items matching these ID */
     ids?: string[]
+    /** An array of columns with direction to sort results */
+    sortOrder?: SortOrder[]
+    /** Apply a filter to a specific field (instead of the 'search all' field) */
+    filters?: Filter[]
+  }
+
+  export interface Filter {
+    /** The name of the column to filter on */
+    column: string
+    /** The value to filter (line %value%) */
+    value: string
+  }
+
+  export interface SortOrder {
+    /** The name of the column  */
+    column: string
+    /** Is the sort order ascending or descending? Asc by default */
+    desc?: boolean
   }
 
   export namespace http {

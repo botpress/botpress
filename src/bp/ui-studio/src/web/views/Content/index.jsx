@@ -17,14 +17,12 @@ import PageHeader from '~/components/Layout/PageHeader'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 
 const style = require('./style.scss')
-const ITEMS_PER_PAGE = 20
 
 class ContentView extends Component {
   state = {
     showModal: false,
     modifyId: null,
     selectedId: 'all',
-    page: 1,
     contentToEdit: null
   }
 
@@ -57,16 +55,14 @@ class ContentView extends Component {
       return Promise.resolve()
     }
     return this.props.fetchContentItems({
-      id,
-      count: ITEMS_PER_PAGE,
-      from: (this.state.page - 1) * ITEMS_PER_PAGE,
-      searchTerm: this.state.searchTerm
+      contentType: id,
+      ...this.state.searchQuery
     })
   }
 
   currentContentType() {
     return this.state.modifyId
-      ? _.find(this.props.contentItems, { id: this.state.modifyId }).contentType
+      ? _.get(_.find(this.props.contentItems, { id: this.state.modifyId }), 'contentType')
       : this.state.selectedId
   }
 
@@ -124,18 +120,8 @@ class ContentView extends Component {
     this.fetchCategoryItems(this.state.selectedId || 'all')
   }
 
-  handlePrevious = () => {
-    this.setState({ page: this.state.page - 1 || 1 })
-    setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
-  }
-
-  handleNext = () => {
-    this.setState({ page: this.state.page + 1 })
-    setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
-  }
-
   handleSearch = input => {
-    this.setState({ searchTerm: input })
+    this.setState({ searchQuery: input })
     setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
@@ -164,7 +150,7 @@ class ContentView extends Component {
       <div>
         <Grid className={classNames}>
           <Row>
-            <Col xs={3}>
+            <Col xs={2}>
               <Sidebar
                 readOnly={!this.canEdit}
                 categories={categories}
@@ -173,20 +159,15 @@ class ContentView extends Component {
                 handleCategorySelected={this.handleCategorySelected}
               />
             </Col>
-            <Col xs={9}>
+            <Col xs={10}>
               <List
                 readOnly={!this.canEdit}
-                page={this.state.page}
                 count={
                   this.state.selectedId === 'all'
                     ? _.sumBy(categories, 'count') || 0
                     : _.find(categories, { id: this.state.selectedId }).count
                 }
-                itemsPerPage={ITEMS_PER_PAGE}
                 contentItems={this.props.contentItems || []}
-                searchTerm={this.state.searchTerm}
-                handlePrevious={this.handlePrevious}
-                handleNext={this.handleNext}
                 handleRefresh={this.handleRefresh}
                 handleEdit={this.handleModalShowForEdit}
                 handleDeleteSelected={this.handleDeleteSelected}

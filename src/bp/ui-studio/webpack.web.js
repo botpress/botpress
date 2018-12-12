@@ -10,6 +10,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 
 const webConfig = {
+  cache: false,
   mode: isProduction ? 'production' : 'development',
   bail: true,
   devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
@@ -107,6 +108,22 @@ const webConfig = {
               cacheDirectory: true
             }
           }
+        ]
+      },
+      {
+        test: /\.styl$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          { loader: 'postcss-loader' },
+          { loader: 'stylus-loader' }
         ]
       },
       {

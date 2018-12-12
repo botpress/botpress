@@ -1,0 +1,108 @@
+.centerContainer {
+  position: relative;
+  height: calc(100vh - 200px);
+  width: 100%;
+}
+
+.link {
+  cursor: pointer;
+}
+
+.centerElement {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  max-width: 400px;
+  transform: translate(-50%, -50%);
+
+  button {
+    margin-top: 20px;
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  .selectionText {
+    color: blue;
+    font-style: italic;
+  }
+}
+
+.buttonTip {
+  margin-top: 7px;
+  font-size: 80%;
+  color: #888;
+}
+
+.entityNameInput {
+  height: 36px;
+  padding: 7px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.normalContainer {
+  width: 100%;
+  padding: 10px;
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    height: 60px;
+    padding: 10px 10px;
+    line-height: 40px;
+  }
+
+  li .type {
+    margin-left: 10px;
+  }
+
+  h3 > button {
+    float: right;
+  }
+}
+
+.entityLabel {
+  height: 40px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+.shortcutLabel {
+  height: 40px;
+  padding: 10px;
+  font-size: 12px;
+  color: white;
+  border-left: 4px solid white;
+
+  &.active {
+    border-left: 4px solid black;
+    color: black;
+  }
+}
+
+.entityItem {
+  a {
+    display: none;
+    margin-left: 10px;
+    color: #888;
+    text-decoration: underline;
+  }
+
+  &:hover {
+    background: #fff889;
+
+    a {
+      display: initial;
+    }
+  }
+}

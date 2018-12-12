@@ -14,6 +14,9 @@ export const SWITCH_TEAM_RECEIVED = 'teams/SWITCH_TEAM_RECEIVED'
 export const FETCH_PERMISSIONS_REQUESTED = 'teams/FETCH_PERMISSIONS_REQUESTED'
 export const FETCH_PERMISSIONS_RECEIVED = 'teams/FETCH_PERMISSIONS_RECEIVED'
 
+export const FETCH_BOT_TEMPLATES_REQUESTED = 'teams/FETCH_BOT_TEMPLATES_REQUESTED'
+export const FETCH_BOT_TEMPLATES_RECEIVED = 'teams/FETCH_BOT_TEMPLATES_RECEIVED'
+
 const initialState = {
   loadingTeams: false,
   loadingTeam: false,
@@ -24,7 +27,8 @@ const initialState = {
   roles: null,
   team: null,
   permissions: null,
-  license: null
+  license: null,
+  botTemplates: null
 }
 
 const teamIdRouteRegex = /^\/teams\/(\d+)/
@@ -86,9 +90,29 @@ export default (state = initialState, action) => {
         ...state,
         permissions: action.permissions
       }
+    case FETCH_BOT_TEMPLATES_RECEIVED:
+      return {
+        ...state,
+        botTemplates: action.botTemplates
+      }
 
     default:
       return state
+  }
+}
+
+export const fetchBotTemplates = () => {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: FETCH_BOT_TEMPLATES_REQUESTED
+    })
+
+    const { data } = await api.getSecured().get('/modules/botTemplates')
+
+    dispatch({
+      type: FETCH_BOT_TEMPLATES_RECEIVED,
+      botTemplates: data
+    })
   }
 }
 

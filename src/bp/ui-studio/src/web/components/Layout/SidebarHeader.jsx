@@ -12,11 +12,6 @@ export default class SidebarHeader extends Component {
     return (
       <Navbar inverse className={headerClass}>
         <Navbar.Header>
-          <Navbar.Brand>
-            <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
-              <img src="/assets/ui-studio/public/img/logo.png" alt="Botpress Logo" />
-            </a>
-          </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
       </Navbar>

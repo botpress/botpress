@@ -21,16 +21,7 @@ gulp.task('build:guide', docs.buildGuide)
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
-gulp.task(
-  'package',
-  gulp.series([
-    package.packageApp,
-    modules.packageModules(),
-    package.copyData,
-    package.copyTemplates,
-    package.copyNativeExtensions
-  ])
-)
+gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll()]))
 gulp.task('watch:core', core.watch)

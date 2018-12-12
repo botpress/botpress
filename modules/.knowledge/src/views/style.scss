@@ -1,0 +1,83 @@
+$mainGreen: #1bb68a;
+
+p {
+  padding: 10px 0 10px 0;
+}
+h3 {
+  padding-bottom: 12px;
+}
+
+.spacing {
+  padding: 5px 0 5px 0;
+}
+
+.searchResult {
+  padding: 10px 0 10px;
+
+  .snippetTitle {
+    color: #0000ff;
+  }
+
+  .link {
+    padding: 10px 0 10px 0;
+  }
+  hr {
+    margin: 5px 0 5px 0;
+  }
+}
+
+.dropzone {
+  width: 280px;
+  height: 100px;
+  border-color: rgb(102, 102, 102);
+  border-style: dashed;
+  border-radius: 5px;
+}
+
+.header {
+  padding: 5px 0;
+  height: 40px;
+  margin: 5px 0 0 0;
+  border-bottom: 1px solid #c9c8ca;
+
+  :global(.checkbox) {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: -2px;
+    height: 18px;
+  }
+
+  button {
+    height: 25px;
+    width: 28px;
+    position: relative;
+    margin-right: 4px;
+
+    i {
+      position: absolute;
+      left: 4px;
+      top: 3px;
+      font-size: 18px;
+      line-height: 18px;
+
+      color: #807f81;
+    }
+  }
+}
+
+.btn_mini {
+  height: 23px;
+  width: 23px;
+  position: relative;
+  margin-right: 4px;
+
+  i {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    font-size: 16px;
+    line-height: 18px;
+
+    color: #807f81;
+  }
+}

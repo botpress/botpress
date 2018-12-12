@@ -1,10 +1,8 @@
-const EscapedRegexChars = /[.+?^${}()|[\]\\]/g
-const WildcardRegex = /\*/g
+import { escapeRegex } from '../../tools/patterns-utils'
 
 export const createIntentMatcher = (intentName: string): ((pattern: string) => boolean) => {
   return (pattern: string) => {
-    pattern = pattern.replace(EscapedRegexChars, '\\$&').replace(WildcardRegex, '.+?')
-    const matcher = new RegExp('^' + pattern + '$', 'i')
+    const matcher = new RegExp(`^${escapeRegex(pattern)}$`, 'i')
     return matcher.test(intentName)
   }
 }

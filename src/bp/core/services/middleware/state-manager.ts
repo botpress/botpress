@@ -10,6 +10,7 @@ import ms from 'ms'
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
+import { KeyValueStore } from '../kvs'
 
 import { EventEngine } from './event-engine'
 
@@ -19,22 +20,28 @@ export class StateManager {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.UserRepository) private userRepo: UserRepository,
-    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository
+    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {}
 
   private LAST_MESSAGES_HISTORY_COUNT = 5
+  private BOT_GLOBAL_KEY = 'global'
 
   public initialize() {
     const stateLoader = async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
       const incomingEvent = <sdk.IO.IncomingEvent>event
+      const state = incomingEvent.state
+
       const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
-      incomingEvent.state.user = user.attributes
+      state.user = user.attributes
 
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       const session = await this.sessionRepo.get(sessionId)
 
-      incomingEvent.state.context = (session && session.context_data) || {}
-      incomingEvent.state.session = (session && session.session_data) || { lastMessages: [] }
+      state.context = (session && session.context) || {}
+      state.session = (session && session.session_data) || { lastMessages: [] }
+      state.temp = (session && session.temp_data) || {}
+      state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
 
       next()
     }
@@ -51,7 +58,7 @@ export class StateManager {
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
-    const { user, context, session } = event.state
+    const { user, context, session, temp } = event.state
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
     await this.userRepo.updateAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
@@ -68,7 +75,8 @@ export class StateManager {
     dialogSession.session_expiry = expiryDates.session
 
     if (!ignoreContext) {
-      dialogSession.context_data = context || {}
+      dialogSession.context = context || {}
+      dialogSession.temp_data = temp || {}
       dialogSession.context_expiry = expiryDates.context
     }
 
@@ -79,8 +87,9 @@ export class StateManager {
     const botpressConfig = await this.getBotpresConfig()
     const botConfig = await this.configProvider.getBotConfig(botId)
 
-    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
-    const sessionExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || botpressConfig.dialog.timeoutInterval)
+    const { timeoutInterval, sessionTimeoutInterval } = botpressConfig.dialog
+    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || timeoutInterval)
+    const sessionExpireDate = ms(_.get(botConfig, 'dialog.sessionTimeoutInterval') || sessionTimeoutInterval)
 
     return {
       context: moment()

@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import iconv from 'iconv-lite'
 import { Parser as Json2csvParser } from 'json2csv'
 import _ from 'lodash'
@@ -6,10 +7,10 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import { QnaStorage, SDK } from './qna'
+import { QnaStorage } from './qna'
 import { importQuestions, prepareExport } from './transfer'
 
-export default async (bp: SDK, botScopedStorage: Map<string, QnaStorage>) => {
+export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>) => {
   const csvUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 

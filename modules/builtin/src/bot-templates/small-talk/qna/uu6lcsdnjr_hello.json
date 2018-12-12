@@ -1,0 +1,22 @@
+{
+  "id": "uu6lcsdnjr_hello",
+  "data": {
+    "questions": [
+      "Hello",
+      "Hi",
+      "Hey",
+      "What's up",
+      "Heya",
+      "hey there",
+      "bonjour",
+      "sup'",
+      "Heyyyy"
+    ],
+    "answer": "Hello! Nice to meet you!",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

@@ -31,7 +31,7 @@ function myKeyBindingFn(e) {
 }
 
 function getEntityStrategy(type) {
-  return function(contentBlock, callback, contentState) {
+  return function (contentBlock, callback, contentState) {
     contentBlock.findEntityRanges(character => {
       const entityKey = character.getEntity()
       if (entityKey === null) {
@@ -115,7 +115,7 @@ const TokenSpanFactory = ({ getEditorState, setEditorState, getEntity }) => prop
   )
 
   const className = classnames(
-    colors[`label-colors-${nluEntity.colors}`],
+    colors[`label-colors-${nluEntity.color}`],
     style[`entity-${entity.getType().toLowerCase()}`]
   )
 
@@ -211,8 +211,8 @@ export default class IntentEditor extends React.Component {
     return {
       getEditorState: () => this.state.editorState,
       setEditorState: state => this.setState({ editorState: state }),
-      getEntity: entityId => _.find(props.entities, { id: entityId }),
-      getEntityIdFromName: name => _.get(_.find(props.entities, { name: name }), 'id')
+      getEntity: slotId => _.find(props.slots, { id: slotId }),
+      getEntityIdFromName: name => _.get(_.find(props.slots, { name: name }), 'id')
     }
   }
 
@@ -261,7 +261,7 @@ export default class IntentEditor extends React.Component {
         this.props.onDone && this.props.onDone()
       }
 
-      const editor = this.props.getEntitiesEditor()
+      const editor = this.props.getSlotsEditor()
       if (editor) {
         editor.executeRecommendedAction(this)
       }
@@ -294,10 +294,10 @@ export default class IntentEditor extends React.Component {
     return 'not-handled'
   }
 
-  tagSelected = entityId => {
+  tagSelected = entity => {
     const selection = this.state.editorState.getSelection()
     const contentState = this.state.editorState.getCurrentContent()
-    const contentStateWithEntity = contentState.createEntity('LABEL', 'MUTABLE', { entityId: entityId })
+    const contentStateWithEntity = contentState.createEntity('LABEL', 'MUTABLE', { entityId: entity.id })
 
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
     const contentStateWithLink = Modifier.applyEntity(contentStateWithEntity, selection, entityKey)
@@ -321,14 +321,11 @@ export default class IntentEditor extends React.Component {
   }
 
   onArrow = action => keyboardEvent => {
-    const editor = this.props.getEntitiesEditor()
-    const selection = this.state.editorState.getSelection()
-
-    console.log(selection, selection.isCollapsed())
+    const editor = this.props.getSlotsEditor()
 
     if (editor) {
-      editor[action] && editor[action]()
       keyboardEvent.preventDefault()
+      editor[action] && editor[action]()
     }
   }
 
@@ -340,21 +337,16 @@ export default class IntentEditor extends React.Component {
     }
   }
 
+  updateSelectedText = selectedText => {
+    const slotEditor = this.props.getSlotsEditor()
+    if (slotEditor) {
+      slotEditor.setSelection(selectedText)
+    }
+  }
+
   render() {
     const selectedText = getSelectionText(this.state.editorState)
-    const selectedEntity = getSelectionFirstEntity(this.state.editorState)
-    let selectedEntityId = null
-
-    if (selectedEntity) {
-      const entity = this.state.editorState.getCurrentContent().getEntity(selectedEntity)
-      selectedEntityId = entity.getData().entityId
-    }
-
-    const editor = this.props.getEntitiesEditor()
-
-    if (editor) {
-      editor.setSelection(selectedText, selectedEntityId, this)
-    }
+    this.updateSelectedText(selectedText)
 
     const onFocus = e => {
       this.setState({ hasFocus: true })
@@ -367,6 +359,7 @@ export default class IntentEditor extends React.Component {
         if (!currentTarget.contains(document.activeElement)) {
           this.updateCanonicalValue()
           this.setState({ hasFocus: false })
+          this.updateSelectedText(null)
         }
       })
     }
@@ -394,7 +387,7 @@ export default class IntentEditor extends React.Component {
         </div>
         <div className={style.controls}>
           <span className={style.action} onClick={this.props.deleteUtterance}>
-            Delete Utterance
+            Remove Utterance
           </span>
         </div>
       </div>

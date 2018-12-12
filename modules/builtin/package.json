@@ -1,0 +1,16 @@
+{
+  "name": "builtin",
+  "version": "1.0.0",
+  "description": "Botpress Basic elements (content types, demo bot)",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress Team",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "module-builder": "../../build/module-builder"
+  }
+}

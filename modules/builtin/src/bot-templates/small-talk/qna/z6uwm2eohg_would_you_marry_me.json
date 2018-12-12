@@ -1,0 +1,15 @@
+{
+  "id": "z6uwm2eohg_would_you_marry_me",
+  "data": {
+    "questions": [
+      "Would you marry me ?",
+      "Will you marry me?"
+    ],
+    "answer": "Absolutely, you are number 132 in line. I'll let you know when it's your turn!",
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "",
+    "enabled": true
+  }
+}

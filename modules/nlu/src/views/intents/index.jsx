@@ -1,271 +1,181 @@
 import React from 'react'
-import { Badge, Button } from 'react-bootstrap'
-
-import SplitterLayout from 'react-splitter-layout'
-import nanoid from 'nanoid'
+import { Button, Glyphicon, ListGroup, ListGroupItem, FormGroup, InputGroup, FormControl } from 'react-bootstrap'
 import _ from 'lodash'
 
-import Editor from './draft/editor'
+import IntentEditor from './editor'
+import style from '../style.scss'
 
-import style from './style.scss'
-import EntitiesEditor from './entities/index'
-
-export default class IntentsEditor extends React.Component {
+export default class IntentsComponent extends React.Component {
   state = {
-    initialUtterances: '',
-    entitiesEditor: null,
-    isDirty: false,
-    entities: [
-      // {
-      //   id: '0',
-      //   colors: 1,
-      //   name: 'DepartureDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '1',
-      //   colors: 3,
-      //   name: 'ArrivalDate',
-      //   type: '@native.date'
-      // },
-      // {
-      //   id: '2',
-      //   colors: 5,
-      //   name: 'PassengerCount',
-      //   type: '@native.number'
-      // }
-    ],
-    utterances: []
+    showNavIntents: true,
+    intents: [],
+    currentIntent: null,
+    filterValue: ''
   }
-
-  firstUtteranceRef = null
 
   componentDidMount() {
-    this.initiateStateFromProps(this.props)
-
-    if (this.props.router) {
-      this.props.router.registerTransitionHook(this.onBeforeLeave)
-    }
+    this.fetchIntents()
+    this.maybeSyncModel()
   }
 
-  componentWillUnmount() {
-    if (this.props.router) {
-      this.props.router.unregisterTransitionHook(this.onBeforeLeave)
-    }
-  }
-
+  // Deprecated, will be fixed when we fix the whole NLU UI
   componentWillReceiveProps(nextProps) {
     if (nextProps.intent !== this.props.intent) {
       this.initiateStateFromProps(nextProps)
     }
   }
 
-  initiateStateFromProps(props) {
-    const { utterances, entities } = (props && props.intent) || { utterances: [], entities: [] }
-    const expanded = this.expandCanonicalUtterances(utterances)
+  maybeSyncModel = _.throttle(() => {
+    this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
+      if (res.data) {
+        this.props.onModuleEvent({ type: 'nlu', name: 'train', working: true, message: 'Training model' })
+        this.syncModel().then(() => {
+          this.props.onModuleEvent({ type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' })
+        })
+      }
+    })
+  }, 1000)
 
-    if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
-      expanded.unshift({ id: nanoid(), text: '' })
-    }
+  syncModel = async () => {
+    await this.props.bp.axios.post('/mod/nlu/sync')
+  }
 
-    this.setState({ utterances: expanded, entities: entities, isDirty: false }, () => {
-      this.initialHash = this.computeHash()
-      this.forceUpdate()
+  fetchIntents = () => {
+    return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
+      const dataToSet = { intents: res.data.filter(x => !x.name.startsWith('__qna__')) }
+
+      if (!this.state.currentIntent) {
+        dataToSet.currentIntent = _.get(_.first(res.data), 'name')
+      }
+
+      this.setState(dataToSet)
     })
   }
 
-  deleteIntent = () => {
-    if (!confirm('Are you sure you want to delete this intent? This is not revertable.')) {
+  toggleProp = prop => () => {
+    this.setState({ [prop]: !this.state[prop] })
+  }
+
+  getIntents = () => this.state.intents || []
+
+  getCurrentIntent = () => _.find(this.getIntents(), { name: this.state.currentIntent })
+
+  onFilterChanged = event => this.setState({ filterValue: event.target.value })
+
+  setCurrentIntent = name => {
+    if (this.state.currentIntent !== name) {
+      if (this.intentEditor && this.intentEditor.onBeforeLeave) {
+        if (this.intentEditor.onBeforeLeave() !== true) {
+          return
+        }
+      }
+
+      this.setState({ currentIntent: name })
+    }
+  }
+
+  createNewIntent = () => {
+    const name = prompt('Enter the name of the new intent')
+
+    if (!name || !name.length) {
       return
     }
 
-    this.props.axios.delete(`/mod/nlu/intents/${this.props.intent.name}`).then(() => {
-      this.props.reloadIntents && this.props.reloadIntents()
+    if (/[^a-z0-9-_.]/i.test(name)) {
+      alert('Invalid name, only alphanumerical characters, underscores and hypens are accepted')
+      return this.createNewIntent()
+    }
+
+    return this.props.bp.axios
+      .post(`/mod/nlu/intents/${name}`, {
+        utterances: [],
+        slots: []
+      })
+      .then(this.fetchIntents)
+      .then(() => this.setCurrentIntent(name))
+  }
+
+  getFilteredIntents() {
+    return this.getIntents().filter(i => {
+      if (this.state.filterValue.length && !i.name.toLowerCase().includes(this.state.filterValue.toLowerCase())) {
+        return false
+      }
+      return true
     })
   }
 
-  saveIntent = () => {
-    this.props.axios
-      .post(`/mod/nlu/intents/${this.props.intent.name}`, {
-        utterances: this.getCanonicalUtterances(),
-        entities: this.state.entities
-      })
-      .then(() => {
-        this.props.reloadIntents && this.props.reloadIntents()
-      })
-  }
-
-  onBeforeLeave = () => {
-    if (this.isDirty()) {
-      return confirm('You have unsaved changed that will be lost. Are you sure you want to leave?')
-    }
-
-    return true
-  }
-
-  getCanonicalUtterances = () => this.state.utterances.map(x => x.text).filter(x => x.length)
-
-  expandCanonicalUtterances = utterances =>
-    utterances.map(u => ({
-      id: nanoid(),
-      text: u
-    }))
-
-  computeHash = () =>
-    JSON.stringify({
-      utterances: this.getCanonicalUtterances(),
-      entities: this.state.entities
-    })
-
-  isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
-
-  fetchEntities = () => {
-    return this.props.axios.get(`/mod/nlu/entities`).then(res => res.data)
-  }
-
-  focusFirstUtterance = () => {
-    if (this.firstUtteranceRef) {
-      this.firstUtteranceRef.focus()
+  deleteIntent = intent => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
+    if (confirmDelete) {
+      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(this.fetchIntents)
     }
   }
 
-  deleteUtterance = id => {
-    const utterances = this.getUtterances()
-    this.setState({ utterances: _.filter(utterances, u => u.id !== id) })
-  }
-
-  renderEditor() {
-    const utterances = this.getUtterances()
-    const preprendNewUtterance = () => {
-      this.setState({ utterances: [{ id: nanoid(), text: '' }, ...utterances] })
-    }
-    const canonicalValueChanged = (id, value) => {
-      this.setState({
-        utterances: utterances.map(utterance => {
-          if (utterance.id === id) {
-            return Object.assign({}, utterance, {
-              text: value
-            })
-          } else {
-            return utterance
-          }
-        })
-      })
-    }
+  renderCategory() {
+    const intents = this.getFilteredIntents()
 
     return (
-      <ul className={style.utterances}>
-        {utterances.map((utterance, i) => {
-          return (
-            <li key={`uttr-${utterance.id}`}>
-              <Editor
-                getEntitiesEditor={() => this.entitiesEditor}
-                ref={el => {
-                  if (i === 0) {
-                    this.firstUtteranceRef = el
-                  }
-                }}
-                utteranceId={utterance.id}
-                deleteUtterance={() => this.deleteUtterance(utterance.id)}
-                onDone={this.focusFirstUtterance}
-                onInputConsumed={preprendNewUtterance}
-                canonicalValue={utterance.text}
-                canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
-                entities={this.state.entities}
-              />
-            </li>
-          )
-        })}
-      </ul>
-    )
-  }
-
-  renderNone() {
-    return (
-      <div>
-        <h1>No intent selected</h1>
+      <div className={style.intentsContainer}>
+        <div className={style.list}>
+          <ListGroup>
+            {intents.map((el, i) => (
+              <ListGroupItem
+                key={`nlu_entity_${el.name}`}
+                className={style.entity}
+                onClick={() => this.setCurrentIntent(el.name)}
+              >
+                {el.name}
+                &nbsp;(
+                {_.get(el, 'utterances.length', 0)})
+                <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
+              </ListGroupItem>
+            ))}
+          </ListGroup>
+        </div>
       </div>
     )
   }
 
-  onEntitiesChanged = (entities, { operation, name, oldName } = {}) => {
-    const replaceObj = { entities: entities }
-
-    if (operation === 'deleted') {
-      let utterances = this.getUtterances()
-
-      const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\(${name}\\)`, 'gi')
-      utterances = utterances.map(u => {
-        const text = u.text.replace(regex, '$1')
-        return Object.assign({}, u, { text: text })
-      })
-
-      replaceObj.utterances = utterances
-    } else if (operation === 'modified') {
-      let utterances = this.getUtterances()
-
-      const regex = new RegExp(`\\[([^\\(\\)\\[\\]]+?)\\]\\(${oldName}\\)`, 'gi')
-      utterances = utterances.map(u => {
-        const text = u.text.replace(regex, `[$1](${name})`)
-        return Object.assign({}, u, { text: text })
-      })
-
-      replaceObj.utterances = utterances
-    }
-
-    this.setState(replaceObj)
-  }
-
-  getUtterances = () => {
-    let utterances = this.state.utterances
-
-    if (!utterances.length) {
-      utterances = [{ id: nanoid(), text: '' }]
-      this.setState({ utterances })
-    }
-
-    return utterances
+  onUtterancesChange = () => {
+    this.maybeSyncModel()
   }
 
   render() {
-    if (!this.props.intent) {
-      return this.renderNone()
-    }
-
-    const { name } = this.props.intent
-
-    const dirtyLabel = this.isDirty() ? <Badge bsClass={style.unsavedBadge}>Unsaved changes</Badge> : null
-
     return (
-      <div className={style.container}>
-        <div className={style.header}>
-          <div className="pull-left">
-            <h1>
-              intents/
-              <span className={style.intent}>{name}</span>
-              {dirtyLabel}
-            </h1>
-          </div>
-          <div className="pull-right">
-            <Button onClick={this.saveIntent} disabled={!this.isDirty()} bsStyle="success" bsSize="small">
-              Save
-            </Button>
-            <Button onClick={this.deleteIntent} bsStyle="danger" bsSize="small">
-              Delete
-            </Button>
+      <div className={style.workspace}>
+        <div>
+          <div className={style.main}>
+            <nav className={style.navigationBar}>
+              <div className={style.create}>
+                <Button bsStyle="primary" block onClick={this.createNewIntent}>
+                  Create new intent
+                </Button>
+              </div>
+
+              <div className={style.filter}>
+                <FormGroup bsSize="small">
+                  <InputGroup>
+                    <FormControl type="text" placeholder="Search" onChange={this.onFilterChanged} />
+                    <InputGroup.Addon>
+                      <Glyphicon glyph="search" />
+                    </InputGroup.Addon>
+                  </InputGroup>
+                </FormGroup>
+              </div>
+              <div className={style.list}>{this.renderCategory()}</div>
+            </nav>
+            <div className={style.childContent}>
+              <IntentEditor
+                ref={el => (this.intentEditor = el)}
+                intent={this.getCurrentIntent()}
+                router={this.props.router}
+                axios={this.props.bp.axios}
+                reloadIntents={this.fetchIntents}
+                onUtterancesChange={this.onUtterancesChange}
+              />
+            </div>
           </div>
         </div>
-        <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
-          {this.renderEditor()}
-          <div className={style.entitiesPanel}>
-            <EntitiesEditor
-              axios={this.props.axios}
-              ref={el => (this.entitiesEditor = el)}
-              entities={this.state.entities}
-              onEntitiesChanged={this.onEntitiesChanged}
-            />
-          </div>
-        </SplitterLayout>
       </div>
     )
   }

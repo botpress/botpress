@@ -18,7 +18,7 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
   const sqlite = new Database(logger.T)
   const postgres = new Database(logger.T)
 
-  describe(`DB[SQLite] ${suiteName}`, () => {
+  describe(`DB[SQLite] ${suiteName}`, async () => {
     beforeAll(async () => {
       await sqlite.initialize({
         location: sqlitePath,
@@ -27,15 +27,17 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
     })
 
     afterAll(async () => {
+      await sqlite.teardownTables()
       await sqlite.knex.destroy()
     })
 
     afterEach(async () => {
       await sqlite.teardownTables()
       await sqlite.bootstrap()
+      await sqlite.seedForTests()
     })
 
-    suite(sqlite)
+    await suite(sqlite)
   })
 
   describe(`DB[Postgres] ${suiteName}`, () => {
@@ -51,12 +53,14 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
     })
 
     afterAll(async () => {
+      await postgres.teardownTables()
       await postgres.knex.destroy()
     })
 
     afterEach(async () => {
       await postgres.teardownTables()
       await postgres.bootstrap()
+      await postgres.seedForTests()
     })
 
     suite(postgres)
