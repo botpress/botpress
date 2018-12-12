@@ -42,7 +42,7 @@ export default class IntentsComponent extends React.Component {
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
-      const dataToSet = { intents: res.data }
+      const dataToSet = { intents: res.data.filter(x => !x.name.startsWith('__qna__')) }
 
       if (!this.state.currentIntent) {
         dataToSet.currentIntent = _.get(_.first(res.data), 'name')
