@@ -24,6 +24,9 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
         location: sqlitePath,
         type: 'sqlite'
       })
+
+      await sqlite.bootstrap()
+      await sqlite.seedForTests()
     })
 
     afterAll(async () => {
@@ -50,6 +53,9 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
         user: process.env.PG_USER || 'postgres',
         password: process.env.PG_PASSWORD || ''
       })
+
+      await postgres.bootstrap()
+      await postgres.seedForTests()
     })
 
     afterAll(async () => {

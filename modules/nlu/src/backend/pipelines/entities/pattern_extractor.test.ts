@@ -48,19 +48,19 @@ describe('Custom entity extraction', () => {
 
     expect(entities.length).toEqual(3)
 
-    expect(entities[0].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[0].name).toEqual(entityDef.name)
     expect(entities[0].meta.start).toEqual(0)
     expect(entities[0].meta.end).toEqual(2)
     expect(entities[0].meta.source).toEqual('loL')
     expect(entities[0].data.value).toEqual(entityDef.occurences![0].name)
 
-    expect(entities[1].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[1].name).toEqual(entityDef.name)
     expect(entities[1].meta.start).toEqual(6)
     expect(entities[1].meta.end).toEqual(9)
     expect(entities[1].meta.source).toEqual('HahA')
     expect(entities[1].data.value).toEqual(entityDef.occurences![0].name)
 
-    expect(entities[2].name).toEqual(entityDef.occurences![0].name)
+    expect(entities[2].name).toEqual(entityDef.name)
     expect(entities[2].meta.start).toEqual(20)
     expect(entities[2].meta.end).toEqual(23)
     expect(entities[2].meta.source).toEqual('lmao')
