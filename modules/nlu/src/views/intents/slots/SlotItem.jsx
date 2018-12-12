@@ -24,10 +24,10 @@ export default class SlotItem extends React.Component {
       <li className={style.entityItem}>
         <span className={className}>{slot.name}</span>
         <span className={style.type}>{slot.type}</span>
-        <a href onClick={this.handleDeleteClicked} className={style.link}>
+        <a onClick={this.handleDeleteClicked} className={style.link}>
           Delete
         </a>
-        <a href onClick={this.handleEditClicked} className={style.link}>
+        <a onClick={this.handleEditClicked} className={style.link}>
           Edit
         </a>
       </li>
