@@ -56,12 +56,14 @@ export default class ListView extends Component {
   }
 
   handleDeleteSelected = () => {
-    this.props.handleDeleteSelected(this.state.checkedIds)
+    if (window.confirm(`Do you really want to delete ${this.state.checkedIds.length} items?`)) {
+      this.props.handleDeleteSelected(this.state.checkedIds)
 
-    this.setState({
-      checkedIds: [],
-      allChecked: false
-    })
+      this.setState({
+        checkedIds: [],
+        allChecked: false
+      })
+    }
   }
 
   handleCloneSelected = () => {
