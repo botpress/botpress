@@ -8,7 +8,7 @@ import { Tagger, Trainer } from '../../tools/crfsuite'
 import FastText, { FastTextTrainArgs } from '../../tools/fastText'
 import { SlotExtractor } from '../../typings'
 
-import { generatePredictionSequence, Sequence, Tok } from './pre-processor'
+import { generatePredictionSequence, Sequence, Token } from './pre-processor'
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
@@ -52,8 +52,8 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // TODO perform intent slot filtering here
-  async extract(text: string, entitites: sdk.NLU.Entity[]): Promise<any> {
-    const seq = generatePredictionSequence(text, entitites)
+  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]): Promise<any> {
+    const seq = generatePredictionSequence(text, intentName, entitites)
     const tags = await this.tag(seq)
 
     return _.zip(seq.tokens, tags)
@@ -62,7 +62,7 @@ export default class CRFExtractor implements SlotExtractor {
         if (token && tag) {
           const slotName = tag.slice(2)
           if (tag[0] === 'I' && slots[slotName]) {
-            slots[slotName] + ` ${token.value}`
+            slots[slotName] += ` ${token.value}`
           } else if (tag[0] === 'B' && slots[slotName]) {
             if (Array.isArray(slots[slotName])) slotName[slotName].push(token.value)
             else slots[slotName] = [slots[slotName], token.value]
@@ -80,14 +80,15 @@ export default class CRFExtractor implements SlotExtractor {
     }
     const inputVectors: string[][] = []
     for (let i = 0; i < seq.tokens.length; i++) {
-      const featureVec = await this._vectorize(seq.tokens, i)
+      const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
+
       inputVectors.push(featureVec)
     }
 
     // Here, it would be awesome if we could get some probabilities for each tag
     // CRFSuite offers that option by passing the -i, --marginal option
     // From the docs: Output the marginal probabilities of labels. When this function is enabled, each predicted label is followed by ":x.xxxx", where "x.xxxx" presents the probability of the label. This function is disabled by default.
-    return this._tagger.tag(seq)
+    return this._tagger.tag(inputVectors)
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
@@ -113,11 +114,12 @@ export default class CRFExtractor implements SlotExtractor {
       const inputVectors: string[][] = []
       const labels: string[] = []
       for (let i = 0; i < seq.tokens.length; i++) {
-        const featureVec = await this._vectorize(seq.tokens, i)
+        const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
+
         inputVectors.push(featureVec)
 
-        const label = seq.tokens[i].tag + seq.tokens[i].tag == 'o' ? 'o' : `-${seq.tokens[i].slot}`
-        labels.push(label)
+        const labelSlot = seq.tokens[i].slot ? `-${seq.tokens[i].slot}` : ''
+        labels.push(`${seq.tokens[i].tag}${labelSlot}`)
       }
       trainer.append(inputVectors, labels)
     }
@@ -135,19 +137,19 @@ export default class CRFExtractor implements SlotExtractor {
         if (s.tag === 'o') return s.value
         else return s.slot
       }).join(' ')
-      return `${corpus}${cannonicSentence}}\n`
+      return `${corpus}${cannonicSentence}\n`
     }, '')
 
     fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
     this._ft.train(ftTrainFn, FT_PARAMS)
   }
 
-  private async _vectorizeToken(token: Tok, featPrefix: string, includeCluster: boolean): Promise<string[]> {
-    const vector: string[] = []
+  private async _vectorizeToken(token: Token, intentName: string, featPrefix: string, includeCluster: boolean): Promise<string[]> {
+    const vector: string[] = [`${featPrefix}intent=${intentName}`]
 
-    if (token.value === token.value.toLocaleLowerCase()) vector.push(`${featPrefix}low`)
-    if (token.value === token.value.toLocaleUpperCase()) vector.push(`${featPrefix}up`)
-    if (token.value[0] === token.value[0].toLocaleUpperCase() && token.value[1] === token.value[1].toLocaleLowerCase()) vector.push(`${featPrefix}title`)
+    if (token.value === token.value.toLowerCase()) vector.push(`${featPrefix}low`)
+    if (token.value === token.value.toUpperCase()) vector.push(`${featPrefix}up`)
+    if (token.value.length > 1 && token.value[0] === token.value[0].toUpperCase() && token.value[1] === token.value[1].toLowerCase()) vector.push(`${featPrefix}title`)
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.value)
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
@@ -159,10 +161,10 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // TODO maybe use a slice instead of the whole token seq ?
-  private async _vectorize(tokens: Tok[], idx: number): Promise<string[]> {
-    const prev = (idx === 0) ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], 'w[-1]', true)
-    const current = await this._vectorizeToken(tokens[idx], 'w[0]', false)
-    const next = (idx === tokens.length - 1) ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx + 1], 'w[1]', true)
+  private async _vectorize(tokens: Token[], intentName: string, idx: number): Promise<string[]> {
+    const prev = (idx === 0) ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
+    const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
+    const next = (idx === tokens.length - 1) ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
 
     return [...prev, ...current, ...next]
   }

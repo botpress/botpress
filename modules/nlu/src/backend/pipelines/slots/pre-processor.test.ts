@@ -86,7 +86,7 @@ describe('Preprocessing', () => {
     ] as sdk.NLU.Entity[]
 
     // some extra spaces on purpose here
-    const testingSeq = generatePredictionSequence('Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com', entities)
+    const testingSeq = generatePredictionSequence('Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com', 'a name', entities)
 
     const entityTokens = testingSeq.tokens.filter(t => t.matchedEntities.length)
     expect(entityTokens.length).toEqual(3)

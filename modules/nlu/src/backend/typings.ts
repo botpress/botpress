@@ -18,7 +18,7 @@ export interface EntityExtractor {
 
 export interface SlotExtractor {
   train(trainingSet: Sequence[]): Promise<void>
-  extract(input: string, entities: sdk.NLU.Entity[]): Promise<any>
+  extract(input: string, intent: string, entities: sdk.NLU.Entity[]): Promise<any>
 }
 
 export interface IntentClassifier {

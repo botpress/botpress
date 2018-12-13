@@ -66,7 +66,7 @@ export default class ScopedEngine {
     // TODO try to load model if saved(we don't save at the moment)
     try {
       const trainingSet = flatMap(intents, intent => {
-        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots))
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
       })
       await this.slotExtractor.train(trainingSet)
     } catch (err) {
@@ -148,7 +148,7 @@ export default class ScopedEngine {
     const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }
 
     // TODO add entities and detected intent in the slotExtractor
-    const slots = await this.slotExtractor.extract(text, entities)
+    const slots = await this.slotExtractor.extract(text, intent.name, entities)
     await this._filterIntentSlot(slots, intent)
 
     return {
