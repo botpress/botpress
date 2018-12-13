@@ -17,7 +17,7 @@ export class AnswersComponent extends React.Component {
     this.setState({ isOpen: !this.state.isOpen })
   }
 
-  handleFirstAnswerChange = event => {
+  handleMainAnswerChange = event => {
     let answers = this.state.answers
     const value = event.target.value
     answers[0] = value
@@ -27,7 +27,7 @@ export class AnswersComponent extends React.Component {
     })
   }
 
-  handleAnswerVariationChange = (event, index) => {
+  handleVariationChange = (event, index) => {
     const answers = this.state.answers
     answers[index] = event.target.value
 
@@ -40,7 +40,7 @@ export class AnswersComponent extends React.Component {
     this.setState({ answers })
   }
 
-  handleDeleteAnswer = index => {
+  deleteAnswer = index => {
     let answers = this.state.answers
     answers.splice(index, 1)
     this.setState({ answers })
@@ -53,9 +53,9 @@ export class AnswersComponent extends React.Component {
           autoFocus
           className="form-control"
           defaultValue={answer}
-          onChange={event => this.handleAnswerVariationChange(event, index)}
+          onChange={event => this.handleVariationChange(event, index)}
         />
-        <Button className={style.elementRemove} onClick={() => this.handleDeleteAnswer(index)}>
+        <Button className={style.elementRemove} onClick={() => this.deleteAnswer(index)}>
           <Glyphicon glyph="trash" />
         </Button>
       </div>
@@ -66,7 +66,7 @@ export class AnswersComponent extends React.Component {
     return (
       <React.Fragment>
         <Button bsStyle="primary" onClick={this.addAnswer} className={style.addVariationBtn}>
-          {this.props.addTitle || 'New'}
+          New
         </Button>
         <div>
           {this.state.answers &&
@@ -87,7 +87,7 @@ export class AnswersComponent extends React.Component {
         <FormControl
           className={(this.state.invalidAnswer && style.qnaInvalidAnswer) || ''}
           value={this.state.answers[0]}
-          onChange={this.handleFirstAnswerChange}
+          onChange={this.handleMainAnswerChange}
           componentClass="textarea"
         />
 

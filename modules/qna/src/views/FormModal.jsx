@@ -38,10 +38,6 @@ export default class FormModal extends Component {
 
   state = this.defaultState
 
-  constructor(props) {
-    super(props)
-  }
-
   componentDidUpdate(prevProps) {
     const { id } = this.props
     if (prevProps.id === id) {

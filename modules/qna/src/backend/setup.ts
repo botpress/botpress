@@ -77,7 +77,6 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
   }
 
   const processEvent = async (event: sdk.IO.IncomingEvent, { bp, storage, config }) => {
-    console.log('process event')
     if (config.qnaMakerApiKey) {
       const qnaQuestion = (await storage.answersOn(event.preview)).pop()
 
