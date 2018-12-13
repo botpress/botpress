@@ -1,5 +1,39 @@
 $mainGreen: #1bb68a;
 
+$elementHeight: 40px;
+
+.elementTitle {
+  margin: 10px 0 10px 0;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.elementBody {
+  display: flex;
+  height: $elementHeight;
+
+  &:hover {
+    .elementRemove {
+      display: inherit;
+    }
+  }
+}
+
+.elementRemove {
+  padding-left: 10px;
+  display: none;
+  height: $elementHeight;
+  width: $elementHeight;
+}
+
+.addVariationBtn {
+  display: block;
+}
+
+.qnaInvalidAnswer {
+  border-color: red;
+}
+
 .qna {
   h4 {
     margin-top: 0;

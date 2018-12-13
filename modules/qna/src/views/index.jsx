@@ -432,7 +432,7 @@ export default class QnaAdmin extends Component {
 
     return (
       <label className={classnames('switch', style.toggleButton)}>
-        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
+        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" tabIndex="-1" />
         <span className={toggleCssClass} />
       </label>
     )

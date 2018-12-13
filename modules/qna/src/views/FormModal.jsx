@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
-import { VariationsCollapse } from './variations/VariationsCollapse'
+import { AnswersComponent } from './AnswersComponent'
 
 import Select from 'react-select'
 import style from './style.scss'
@@ -27,7 +27,6 @@ export default class FormModal extends Component {
     invalidFields: {
       category: false,
       questions: false,
-      answer: false,
       checkbox: false,
       redirectFlow: false,
       redirectNode: false
@@ -157,27 +156,7 @@ export default class FormModal extends Component {
     )
   }
 
-  handleAnswerVariationChange = (event, index) => {
-    const answers = this.state.item.answers
-    answers[index] = event.target.value
-    this.setState({ item: { ...this.state.item, answers } })
-  }
-
-  addAnswer = () => {
-    let answers = this.state.item.answers
-    answers.push('')
-    this.setState({ item: { ...this.state.item, answers } })
-  }
-
-  handleDeleteAnswer = index => {
-    let answers = this.state.item.answers
-    answers.splice(index, 1)
-    this.setState({ item: { ...this.state.item, answers } })
-  }
-
-  handleAnswerChange = event => {
-    let answers = this.state.item.answers
-    answers[0] = event.target.value
+  handleAnswersChange = answers => {
     this.setState({ item: { ...this.state.item, answers } })
   }
 
@@ -237,26 +216,12 @@ export default class FormModal extends Component {
                     type="checkbox"
                     checked={this.state.isText}
                     onChange={this.changeItemAction('isText')}
+                    tabIndex="-1"
                   />
                   <label htmlFor="reply">&nbsp; Type your answer</label>
                 </span>
 
-                <FormControl
-                  className={classnames(style.qnaAnswerTextarea, {
-                    qnaCategoryError: invalidFields.answer
-                  })}
-                  value={this.state.item.answers[0]}
-                  onChange={this.handleAnswerChange}
-                  componentClass="textarea"
-                />
-
-                <VariationsCollapse
-                  // We remove the first element that we consider the canonical element from which the other elements derive
-                  elements={this.state.item.answers}
-                  onAdd={this.addAnswer}
-                  onInputChange={this.handleAnswerVariationChange}
-                  onDelete={this.handleDeleteAnswer}
-                />
+                <AnswersComponent answers={this.state.item.answers} onChange={this.handleAnswersChange} />
               </div>
 
               <div className={style.qnaAndOr}>
@@ -273,6 +238,7 @@ export default class FormModal extends Component {
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
                       className={style.qnaRedirectToFlowCheckCheckbox}
+                      tabIndex="-1"
                     />
                     <label htmlFor="redirect">&nbsp;Redirect to flow</label>
                   </span>

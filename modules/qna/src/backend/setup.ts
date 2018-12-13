@@ -4,6 +4,7 @@ import { NLU_PREFIX } from './providers/nlu'
 import NluStorage from './providers/nlu'
 import MicrosoftQnaMakerStorage from './providers/qnaMaker'
 import { QnaStorage } from './qna'
+
 export const initBot = async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>, botId: string) => {
   const config = await bp.config.getModuleConfigForBot('qna', botId)
 
@@ -35,12 +36,18 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     description: 'Listen for predefined questions and send canned responses.'
   })
 
+  const getAlternativeAnswer = question => {
+    const randomIndex = Math.floor(Math.random() * question.answers.length)
+    return question.answers[randomIndex]
+  }
+
   const buildSuggestedReply = async (event, question, confidence, intent, renderer) => {
     const payloads = []
+
     if (question.action.includes('text')) {
       const element = await bp.cms.renderElement(
         renderer,
-        { text: question.answer, typing: true },
+        { text: getAlternativeAnswer(question), typing: true },
         {
           botId: event.botId,
           channel: event.channel,
@@ -70,6 +77,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
   }
 
   const processEvent = async (event: sdk.IO.IncomingEvent, { bp, storage, config }) => {
+    console.log('process event')
     if (config.qnaMakerApiKey) {
       const qnaQuestion = (await storage.answersOn(event.preview)).pop()
 
