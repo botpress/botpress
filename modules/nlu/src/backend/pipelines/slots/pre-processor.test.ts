@@ -22,7 +22,7 @@ describe('Preprocessing', () => {
     expect(trainingSeq.cannonical).toEqual('hello my name is Jacob Jacobson and your name is Paul')
     expect(trainingSeq.tokens.filter(t => t.tag != 'o').length).toEqual(3)
     expect(trainingSeq.tokens[0].slot).toBeUndefined()
-    expect(trainingSeq.tokens[0].matchedEntities).toBeUndefined()
+    expect(trainingSeq.tokens[0].matchedEntities).toEqual([])
     expect(trainingSeq.tokens[0].tag).toEqual('o')
     expect(trainingSeq.tokens[0].value).toEqual('hello')
     expect(trainingSeq.tokens[4].slot).toEqual(slotDef[0].name)

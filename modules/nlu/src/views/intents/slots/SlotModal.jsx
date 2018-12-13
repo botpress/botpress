@@ -84,7 +84,12 @@ export default class SlotModal extends React.Component {
     return (
       <Modal show={this.props.show} bsSize="small" onHide={this.props.onHide} animation={false}>
         <Modal.Header closeButton>
-          <Modal.Title>Create Slot for your intent</Modal.Title>
+          {
+            this.state.editing && <Modal.Title>Edit slot</Modal.Title>
+          }
+          {
+            !this.state.editing && <Modal.Title>Create Slot for your intent</Modal.Title>
+          }
         </Modal.Header>
         <Modal.Body>
           <h4>Slot Name</h4>
@@ -92,7 +97,7 @@ export default class SlotModal extends React.Component {
             tabIndex="1"
             autoFocus
             className={style.entityNameInput}
-            value={this.state.entityName}
+            value={this.state.name}
             placeholder="Type a name here"
             onChange={this.onNameChange}
           />
@@ -108,7 +113,12 @@ export default class SlotModal extends React.Component {
         </Modal.Body>
         <Modal.Footer>
           <Button tabIndex="3" bsStyle="primary" disabled={!isValid} onClick={this.onSave}>
-            Create Slot
+            {
+              this.state.editing && "Save slot"
+            }
+            {
+              !this.state.editing && "Create slot"
+            }
           </Button>
         </Modal.Footer>
       </Modal>

@@ -1,3 +1,12 @@
+.container {
+  padding-left: 10px;
+}
+
+.badge {
+  float: right;
+  margin-right: 10px;
+}
+
 .header {
   height: 50px;
   padding: 0 15px;
@@ -38,6 +47,9 @@
 .deleteEntity {
   float: right;
   display: none;
+  position: absolute;
+  right: 5px;
+  top: 10px;
 }
 
 .removeSynonym:hover {
@@ -52,7 +64,7 @@
   background: whitesmoke;
 }
 
-.entity:hover{
+.entity:hover {
   background-color: #ececec;
   .deleteEntity {
     display: inherit;
@@ -111,7 +123,6 @@
   border: 1px solid #eee;
   padding: 0 4px;
 }
-
 :global(.ReactTags__selected span.ReactTags__tag) {
   border: 1px solid #ddd;
   background: #eee;

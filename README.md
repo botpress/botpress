@@ -61,6 +61,8 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 
 ## Quick Start
 
+**Prerequisites**: Node 10.11 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
+
 1. Run `yarn` to fetch node packages.
 1. Run `yarn build` to build the core, the UI and the modules.
 1. Run `yarn start` to start the server.

@@ -8,7 +8,7 @@ import { Tagger, Trainer } from '../../tools/crfsuite'
 import FastText, { FastTextTrainArgs } from '../../tools/fastText'
 import { SlotExtractor } from '../../typings'
 
-import { generatePredictionSequence, Sequence, Tok, Token, tokenize } from './pre-processor'
+import { generatePredictionSequence, Sequence, Tok } from './pre-processor'
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
@@ -17,7 +17,7 @@ const CRF_TRAINER_PARAMS = {
   c2: '0.01',
   max_iterations: '500',
   'feature.possible_transitions': '1',
-  'feature.possible_states': '1',
+  'feature.possible_states': '1'
 }
 const FT_PARAMS = {
   method: 'skipgram',
@@ -103,8 +103,11 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainCrf(sequences: Sequence[]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = Trainer()
+    const trainer = new Trainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
+    trainer.set_callback(str => {
+      /* swallow training results */
+    })
 
     for (const seq of sequences) {
       const inputVectors: string[][] = []

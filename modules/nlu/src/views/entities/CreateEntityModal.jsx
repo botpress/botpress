@@ -38,13 +38,11 @@ export default class CreateEntityModal extends React.Component {
       pattern: '',
       occurences: []
     }
-    this.props.axios
-      .post(`/mod/nlu/entities/`, entity)
-      .then(() => {
-        this.setState({ ...DEFAULT_STATE })
-        this.props.onEntityCreated(entity)
-        this.props.hide()
-      })
+    this.props.axios.post(`/mod/nlu/entities/`, entity).then(() => {
+      this.setState({ ...DEFAULT_STATE })
+      this.props.onEntityCreated(entity)
+      this.props.hide()
+    })
   }
 
   render() {
@@ -55,7 +53,14 @@ export default class CreateEntityModal extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <h4>Name</h4>
-          <FormControl tabIndex="1" autoFocus type="text" placeholder="Name" value={this.state.name} onChange={this.handleNameChange} />
+          <FormControl
+            tabIndex="1"
+            autoFocus
+            type="text"
+            placeholder="Name"
+            value={this.state.name}
+            onChange={this.handleNameChange}
+          />
 
           <h4>Type</h4>
           <Select
@@ -67,8 +72,13 @@ export default class CreateEntityModal extends React.Component {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button tabIndex="3" bsStyle="primary" disabled={this.state.name === undefined || this.state.type === undefined} onClick={this.createEntity}>
-            Create Enity
+          <Button
+            tabIndex="3"
+            bsStyle="primary"
+            disabled={this.state.name === undefined || this.state.type === undefined}
+            onClick={this.createEntity}
+          >
+            Create Entity
           </Button>
         </Modal.Footer>
       </Modal>

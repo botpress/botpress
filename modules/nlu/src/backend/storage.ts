@@ -91,7 +91,7 @@ export default class Storage {
   }
 
   async getIntents(): Promise<sdk.NLU.Intent[]> {
-    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json', ['**__qna__**', '**none**'])
+    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
@@ -127,26 +127,26 @@ export default class Storage {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-        'amountOfMoney',
-        'distance',
-        'duration',
-        'email',
-        'numeral',
-        'ordinal',
-        'phoneNumber',
-        'quantity',
-        'temperature',
-        'time',
-        'url',
-        'volume'
-      ]
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'numeral',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
       e =>
         ({
           name: e,
-          type: 'system',
+          type: 'system'
         } as sdk.NLU.EntityDefinition)
     )
   }
