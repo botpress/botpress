@@ -12,8 +12,8 @@ import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
+import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { extractPattern } from './tools/patterns-utils'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
 export default class ScopedEngine {
@@ -65,8 +65,10 @@ export default class ScopedEngine {
 
     // TODO try to load model if saved(we don't save at the moment)
     try {
-      // const trainingSet =
-      await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+      const trainingSet = flatMap(intents, intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots))
+      })
+      await this.slotExtractor.train(trainingSet)
     } catch (err) {
       this.logger.error('Error training slot tagger', err)
     }
@@ -85,31 +87,6 @@ export default class ScopedEngine {
     }
 
     return false
-  }
-
-  private async _generateSlotTrainingSet(utterances: string[]): Promise<Sequence[]> {
-    return Promise.mapSeries(utterances, async u => {
-      const markedSlots = extractMarkedSlots(u)
-      const lang = await this.langDetector.identify(u)
-
-      const entities = await this._extractEntities(u, lang)
-
-      return {
-        cannonical: 'lol',
-        tokens: []
-      }
-    })
-    // const markedSlots = extractPattern(input, SLOTS_REGEX)
-    // const cannonical = 'lol' // build cannonical
-    // const entities = await this._extractEntities(tagg)
-    // // extract entities
-    // // build slotTokens with markedSlots & entities
-    // // bulid 'o' tokens with other words and merge in a whole token sequence
-    // // replace slots by their cannonical value in the input ==> this will be the cannonical prop of the output sequence
-    // return {
-    //   cannonical: 'lol',
-    //   tokens: []
-    // }
   }
 
   private async _loadModel(modelHash: string) {
@@ -167,11 +144,11 @@ export default class ScopedEngine {
     const lang = await this.langDetector.identify(text)
     const intents: Prediction[] = await this.intentClassifier.predict(text)
     const entities = await this._extractEntities(text, lang)
-    // TODO add entities and detected intent in the slotExtractor
-    const slots = await this.slotExtractor.extract(text)
 
     const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }
 
+    // TODO add entities and detected intent in the slotExtractor
+    const slots = await this.slotExtractor.extract(text, entities)
     await this._filterIntentSlot(slots, intent)
 
     return {
