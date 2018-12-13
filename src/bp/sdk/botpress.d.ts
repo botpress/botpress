@@ -211,6 +211,8 @@ declare module 'botpress/sdk' {
       export const SKIP_DIALOG_ENGINE: symbol
       /** When this flag is active, the QNA module won't intercept this event */
       export const SKIP_QNA_PROCESSING: symbol
+      /** When this flag is active, Botpress Native NLU will not process this event */
+      export const SKIP_NATIVE_NLU: symbol
     }
 
     /**

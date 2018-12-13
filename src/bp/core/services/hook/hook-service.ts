@@ -127,8 +127,9 @@ export class HookService {
 
     try {
       const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
+      const enabledFiles = filesPaths.filter(x => !path.basename(x).startsWith('.'))
 
-      const scripts = await Promise.map(filesPaths, async path => {
+      const scripts = await Promise.map(enabledFiles, async path => {
         const script = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
         const filename = path.replace(/^.*[\\\/]/, '')
         return new HookScript(path, filename, script)
