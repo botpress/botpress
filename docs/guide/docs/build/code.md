@@ -45,6 +45,10 @@ It is also possible to wrap your code with an async method:
 
 > Hot Reloading is enabled for these scripts, which means that whenever you edit it, changes are picked up on the next function call, which makes development a lot faster.
 
+## Disabling a file
+
+Files starting with a dot (`.`) will be ignored by Botpress. This way, you can disable a hook or action simply by prefixing the name of the file with a dot.
+
 ## Actions
 
 Actions are essentially server-side functions that get executed by the bot as part of a conversational flow. Actions have the power to do many things:

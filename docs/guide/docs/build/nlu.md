@@ -158,7 +158,17 @@ At the moment, Duckling is hosted on our remote servers. If you don't want your 
 
 ## Providers
 
-Botpress NLU ships with a native NLU engine (Botpress Native NLU) which doesn't have any external dependencies and doesn't hit the cloud. If, for some reason, you want to switch the NLU engine that Botpress will use to extract the information, you can do so by changing the NLU configuration file `data/global/config/nlu.json`.
+Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
+
+If for some reason you want to use an external provider, you can do so by using [Hooks](./code.md) and calling the external NLU provider via API.
+
+> **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](#1170)for two-way synchronization as there were too many issues in doing (and maintaining) that.
+
+### Example
+
+You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
+
+> Feel free to contribute to Botpress to add new external NLU providers
 
 ##### Features by Providers
 
@@ -167,3 +177,4 @@ Botpress NLU ships with a native NLU engine (Botpress Native NLU) which doesn't 
 |   Native   |   X    |   X    |  X   |         |
 | DialogFlow |   X    |   X    |      |    X    |
 |    LUIS    |   X    |   X    |      |         |
+|   RECAST   |   X    |   X    |  X   |         |
