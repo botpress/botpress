@@ -16,7 +16,7 @@ export interface EntityExtractor {
 
 export interface SlotExtractor {
   train(inputs: string[]): Promise<void>
-  extract(input: string): Promise<any>
+  extract(input: string): Promise<sdk.NLU.IntentSlot[]>
 }
 
 export interface IntentClassifier {
