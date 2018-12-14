@@ -4,7 +4,6 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import { Tagger, Trainer } from '../../tools/crfsuite'
 import FastText, { FastTextTrainArgs } from '../../tools/fastText'
 import { SlotExtractor } from '../../typings'
 
@@ -36,8 +35,10 @@ export default class CRFExtractor implements SlotExtractor {
   private _ftModelFn = ''
   private _crfModelFn = ''
   private _ft!: FastText
-  private _tagger!: typeof Tagger
+  private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
+
+  constructor(private toolkit: typeof sdk.MLToolkit) { }
 
   async train(trainingSet: Sequence[]) {
     this._isTrained = false
@@ -45,8 +46,7 @@ export default class CRFExtractor implements SlotExtractor {
     await this._trainKmeans(trainingSet)
     await this._trainCrf(trainingSet)
 
-    // TODO extract this in a load method
-    this._tagger = Tagger()
+    this._tagger = this.toolkit.CRF.createTagger()
     await this._tagger.open(this._crfModelFn)
     this._isTrained = true
   }
@@ -60,6 +60,7 @@ export default class CRFExtractor implements SlotExtractor {
       .filter(tokTag => tokTag[1] != 'o')
       .reduce((slots: any, [token, tag]) => {
         if (token && tag) {
+          console.log(tag)
           const slotName = tag.slice(2)
           if (tag[0] === 'I' && slots[slotName]) {
             slots[slotName] += ` ${token.value}`
@@ -85,10 +86,7 @@ export default class CRFExtractor implements SlotExtractor {
       inputVectors.push(featureVec)
     }
 
-    // Here, it would be awesome if we could get some probabilities for each tag
-    // CRFSuite offers that option by passing the -i, --marginal option
-    // From the docs: Output the marginal probabilities of labels. When this function is enabled, each predicted label is followed by ":x.xxxx", where "x.xxxx" presents the probability of the label. This function is disabled by default.
-    return this._tagger.tag(inputVectors)
+    return this._tagger.tag(inputVectors).result
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
@@ -104,7 +102,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainCrf(sequences: Sequence[]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = new Trainer()
+    const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
     trainer.set_callback(str => {
       /* swallow training results */
@@ -124,7 +122,7 @@ export default class CRFExtractor implements SlotExtractor {
       trainer.append(inputVectors, labels)
     }
 
-    trainer.train(this._crfModelFn, '-q')
+    trainer.train(this._crfModelFn)
   }
 
   private async _trainLanguageModel(samples: Sequence[]) {

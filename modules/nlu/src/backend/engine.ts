@@ -32,12 +32,17 @@ export default class ScopedEngine {
     max_tries: 3
   }
 
-  constructor(private logger: sdk.Logger, private botId: string, private readonly config: Config) {
+  constructor(
+    private logger: sdk.Logger,
+    private botId: string,
+    private readonly config: Config,
+    private readonly toolkit: typeof sdk.MLToolkit
+  ) {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(this.logger)
     this.langDetector = new FastTextLanguageId(this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
-    this.slotExtractor = new CRFExtractor()
+    this.slotExtractor = new CRFExtractor(toolkit)
   }
 
   async init(): Promise<void> {
@@ -131,11 +136,7 @@ export default class ScopedEngine {
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
     const systemEntities = await this.systemEntityExtractor.extract(text, lang)
 
-    return [
-      ...systemEntities,
-      ...patternEntities,
-      ...listEntities,
-    ]
+    return [...systemEntities, ...patternEntities, ...listEntities]
   }
 
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {

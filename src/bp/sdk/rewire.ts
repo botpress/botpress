@@ -3,8 +3,16 @@ import Module from 'module'
 import syspath from 'path'
 
 const originalRequire = Module.prototype.require
-const nativeBindingsPath = syspath.resolve(syspath.dirname(process.execPath), 'bindings')
-const nativeExtensions = ['node_sqlite3.node', 'fse.node']
+let nativeBindingsPath = syspath.resolve(syspath.dirname(process.execPath), 'bindings')
+
+if (!process.pkg) {
+  const platformFolder = { win32: 'windows' }[process.platform] || process.platform
+  const nativeExFolder =
+    process.env.NATIVE_EXTENSIONS_DIR || syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions')
+  nativeBindingsPath = syspath.resolve(nativeExFolder, platformFolder)
+}
+
+const nativeExtensions = ['node_sqlite3.node', 'fse.node', 'crfsuite.node']
 
 function addToNodePath(path) {
   overwritePaths(getPaths().concat(path))
@@ -40,7 +48,7 @@ Module.prototype.require = function(mod) {
     return originalRequire.apply(this, ['core/sdk_impl'])
   }
 
-  if (process.pkg && mod.endsWith('.node')) {
+  if (mod.endsWith('.node')) {
     const ext = syspath.basename(mod)
     const newPath = syspath.join(nativeBindingsPath, ext)
     if (nativeExtensions.includes(ext)) {
