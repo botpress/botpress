@@ -8,6 +8,12 @@
   cursor: pointer;
 }
 
+.logo {
+  img {
+    margin-left: 3px;
+  }
+}
+
 .sidebar {
   background-color: var(--c-background--dark-2);
   color: $sidebar-text-color;
