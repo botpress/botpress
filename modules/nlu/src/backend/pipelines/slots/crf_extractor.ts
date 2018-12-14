@@ -3,7 +3,8 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import { Tagger, Trainer } from '../../tools/crfsuite'
+import * as sdk from 'botpress/sdk'
+
 import FastText from '../../tools/fastText'
 import { SlotExtractor } from '../../typings'
 
@@ -44,8 +45,10 @@ export default class CRFExtractor implements SlotExtractor {
   private _ftModelFn = ''
   private _crfModelFn = ''
   private _ft!: FastText
-  private _tagger!: typeof Tagger
+  private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
+
+  constructor(private toolkit: typeof sdk.MLToolkit) {}
 
   async train(inputs: string[]) {
     this._isTrained = false
@@ -54,7 +57,7 @@ export default class CRFExtractor implements SlotExtractor {
     await this._trainKmeans(samples)
     await this._trainCrf(samples)
 
-    this._tagger = Tagger()
+    this._tagger = this.toolkit.CRF.createTagger()
     await this._tagger.open(this._crfModelFn)
     this._isTrained = true
   }
@@ -94,7 +97,7 @@ export default class CRFExtractor implements SlotExtractor {
     // CRFSuite offers that option by passing the -i, --marginal option
     // From the docs: Output the marginal probabilities of labels. When this function is enabled, each predicted label is followed by ":x.xxxx", where "x.xxxx" presents the probability of the label. This function is disabled by default.
 
-    return this._tagger.tag(seq)
+    return this._tagger.tag(seq).result
   }
 
   private async _trainKmeans(samples: Token[][]): Promise<any> {
@@ -109,7 +112,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainCrf(samples: Token[][]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = new Trainer()
+    const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
     trainer.set_callback(str => {
       /* swallow training results */
@@ -126,7 +129,7 @@ export default class CRFExtractor implements SlotExtractor {
       trainer.append(entries, labels)
     }
 
-    trainer.train(this._crfModelFn, '-q')
+    trainer.train(this._crfModelFn)
   }
 
   private async _trainFastText(samples: Token[][]) {

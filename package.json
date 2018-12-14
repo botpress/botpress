@@ -16,7 +16,7 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
-    "test": "node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
+    "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "tslint": "node_modules/.bin/tslint --project tslint.json",
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
