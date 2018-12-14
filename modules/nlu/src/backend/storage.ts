@@ -199,7 +199,7 @@ export default class Storage {
 
   async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }

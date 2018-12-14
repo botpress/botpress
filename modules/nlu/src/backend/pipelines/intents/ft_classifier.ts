@@ -13,7 +13,7 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   constructor(private readonly logger: sdk.Logger) {}
 
-  private fastTextWrapper: FastTextWrapper
+  private fastTextWrapper!: FastTextWrapper
 
   public currentModelId: string | undefined
 
