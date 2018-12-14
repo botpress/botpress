@@ -26,7 +26,7 @@ const _generateNonSlotTokens = (input: string): Token[] => {
   return _tokenize(input)
     .map(t => ({
       tag: 'o',
-      value: t.toLowerCase(),
+      value: t,
       matchedEntities: []
     } as Token))
 }
@@ -82,7 +82,6 @@ export const generatePredictionSequence = (input: string, intentName: string, en
     currentIdx += value.length
     input = input.slice(inputIdx + value.length)
 
-    console.log(matchedEntities)
     return {
       value,
       matchedEntities
