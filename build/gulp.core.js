@@ -58,8 +58,12 @@ const buildSchemas = cb => {
   cb()
 }
 
+const copyBinaries = () => {
+  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
+}
+
 const build = () => {
-  return gulp.series([maybeFetchPro, writeMetadata, compileTypescript, buildSchemas, createOutputDirs])
+  return gulp.series([maybeFetchPro, writeMetadata, compileTypescript, buildSchemas, createOutputDirs, copyBinaries])
 }
 
 module.exports = {

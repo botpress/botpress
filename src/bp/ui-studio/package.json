@@ -59,6 +59,7 @@
     "json-loader": "^0.5.4",
     "node-sass": "^4.8.3",
     "postcss-loader": "^2.0.8",
+    "progressbar.js": "^1.0.1",
     "prop-types": "^15.6.0",
     "react": "^16.4.0",
     "react-bootstrap": "^0.32.1",

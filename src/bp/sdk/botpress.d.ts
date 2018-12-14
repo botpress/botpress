@@ -151,6 +151,27 @@ declare module 'botpress/sdk' {
     public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
+  export namespace MLToolkit {
+    export namespace CRF {
+      export interface Tagger {
+        tag(xseq: Array<string[]>): { probability: number; result: string[] }
+        open(model_filename: string): boolean
+      }
+
+      export interface TrainerOptions {
+        [key: string]: string
+      }
+      export interface Trainer {
+        append(xseq: Array<string[]>, yseq: string[]): void
+        train(model_filename: string): void
+        SetParams(options: TrainerOptions): void
+      }
+
+      export const createTrainer: () => Trainer
+      export const createTagger: () => Tagger
+    }
+  }
+
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 

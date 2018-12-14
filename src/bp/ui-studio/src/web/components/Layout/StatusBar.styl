@@ -1,79 +1,89 @@
 .statusBar {
-    background-color: var(--c-brand);
-    color: var(--c-text--light);
+  background-color: var(--c-brand);
+  color: var(--c-text--light);
 
-    z-index: 1000
+  z-index: 1000;
 
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 20px;
-    width: 100%;
-    font-size: 12px;
-    padding: 12px 20px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 24px;
+  width: 100%;
+  font-size: 12px;
+  padding: 0 10px;
 
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    &__list {
-        list-style-type: none;
-        margin-bottom: 0;
-        padding-left: 0;
+  &__list {
+    list-style-type: none;
+    margin-bottom: 0;
+    padding-left: 0;
+    z-index: 15;
 
-        &Item {
-            padding-right: 10px;
-            display: inline;
+    li {
+      padding: 0 3px;
+      display: inline-block;
+      line-height: 24px;
+      margin-top: -1px;
+
+      a {
+        color: var(--c-text--light);
+        &:hover {
+          color: var(--c-text--light);
+          text-decoration: none;
         }
+      }
     }
 
-    &__version {
-        padding-left: 10px
-        font-weight: var(--fw-bold);
-        margin: 0 var(--s-default--2x);
+    li + li {
+      margin-left: 8px;
     }
 
-    &__botName {
-        padding-left: 10px
-        font-weight: var(--fw-bold);
-        margin: 0 var(--s-default);
+    &__clickable {
+      &:hover {
+        background-color: var(--c-brand--dark-1);
+        cursor: pointer;
+      }
     }
+  }
 
-    &__separator {
-        background-color: var(--c-background--dark-3);
-        width: 1px;
-        height: 12px;
-        margin: 0 0 0 var(--s-default);
-    }
+  &__separator {
+    background-color: var(--c-background--dark-3);
+    width: 1px;
+    height: 12px;
+    margin: 0 0 0 var(--s-default);
+  }
 
-    &__worker {
-        -webkit-animation: flash linear 1s infinite;
-        animation: flash linear 1s infinite;
-        @-webkit-keyframes flash {
-            0% {
-            opacity: 1;
-            }
-            50% {
-            opacity: 0.1;
-            }
-            100% {
-            opacity: 1;
-            }
-        }
-        @keyframes flash {
-            0% {
-            opacity: 1;
-            }
-            50% {
-            opacity: 0.1;
-            }
-            100% {
-            opacity: 1;
-            }
-        }
+  &__worker {
+    -webkit-animation: flash linear 1s infinite;
+    animation: flash linear 1s infinite;
+    @-webkit-keyframes flash {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.1;
+      }
+      100% {
+        opacity: 1;
+      }
     }
+    @keyframes flash {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.1;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  }
 
-    &Tabs {
-        height: 100%;
-        margin-left: auto;
-    }
+  &Tabs {
+    height: 100%;
+    margin-left: auto;
+  }
 }
