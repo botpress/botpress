@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/modules/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **webchat:** redundant console.log ([#1224](https://github.com/botpress/modules/issues/1224)) ([61ec51f](https://github.com/botpress/modules/commit/61ec51f))
+* **webchat:** styling for disabled button (fix [#1207](https://github.com/botpress/modules/issues/1207), fix [#1173](https://github.com/botpress/modules/issues/1173)) ([c152bc1](https://github.com/botpress/modules/commit/c152bc1))
+
+
+
+
 <a name="10.51.2"></a>
 ## [10.51.2](https://github.com/botpress/modules/compare/v10.51.1...v10.51.2) (2018-12-06)
 

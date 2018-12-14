@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **core:** increase content-items in-memory timeout (resolve [#1203](https://github.com/botpress/botpress/issues/1203)) ([0839c09](https://github.com/botpress/botpress/commit/0839c09))
+
+
+
+
 <a name="10.51.2"></a>
 ## [10.51.2](https://github.com/botpress/botpress/compare/v10.51.1...v10.51.2) (2018-12-06)
 
