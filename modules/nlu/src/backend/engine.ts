@@ -172,7 +172,7 @@ export const NonePrediction: Prediction = {
  * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
  * @param intents
  * @param fixedThreshold
- * @param std number of standard deviation away
+ * @param std number of standard deviation away. normally between 2 and 5
  */
 export function findMostConfidentPredictionMeanStd(
   intents: Prediction[],
@@ -190,9 +190,11 @@ export function findMostConfidentPredictionMeanStd(
   }
 
   const mean = _.meanBy<Prediction>(intents, 'confidence')
-  const sigma = Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length)
+  const stdErr =
+    Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length) /
+    Math.sqrt(intents.length)
 
-  const dominant = intents.find(x => x.confidence >= sigma * std + mean)
+  const dominant = intents.find(x => x.confidence >= stdErr * std + mean)
 
   return dominant || NonePrediction
 }
