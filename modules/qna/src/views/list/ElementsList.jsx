@@ -70,7 +70,7 @@ export class ElementsList extends React.Component {
     return (
       <div>
         <InputElement
-          placeholder="Type and press enter to create an element"
+          placeholder={this.props.placeholder || 'Type and press enter to create an element'}
           eraseValue={true}
           elements={this.state.elements}
           onEnter={this.createElement}

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
-import { AnswersComponent } from './AnswersComponent'
+import { ElementsList } from './list/ElementsList'
 
 import Select from 'react-select'
 import style from './style.scss'
@@ -156,6 +156,10 @@ export default class FormModal extends Component {
     this.setState({ item: { ...this.state.item, answers } })
   }
 
+  handleSubmit = (event, isEdit) => {
+    !isEdit ? this.onCreate(event) : this.onEdit(event)
+  }
+
   render() {
     const {
       item: { redirectFlow },
@@ -168,7 +172,7 @@ export default class FormModal extends Component {
 
     return (
       <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.closeAndClear}>
-        <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
+        <form>
           <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
           </Modal.Header>
@@ -204,7 +208,7 @@ export default class FormModal extends Component {
               />
             </div>
             <div className={style.qnaSection}>
-              <span className={style.qnaSectionTitle}>Answer</span>
+              <span className={style.qnaSectionTitle}>Answers</span>
               <div className={style.qnaAnswer}>
                 <span className={style.qnaAnswerCheck}>
                   <input
@@ -217,7 +221,10 @@ export default class FormModal extends Component {
                   <label htmlFor="reply">&nbsp; Type your answer</label>
                 </span>
 
-                <AnswersComponent answers={this.state.item.answers} onChange={this.handleAnswersChange} />
+                <ElementsList
+                  placeholder="Type and press enter to add an answer"
+                  onElementsChange={this.handleAnswersChange}
+                />
               </div>
 
               <div className={style.qnaAndOr}>
@@ -264,7 +271,7 @@ export default class FormModal extends Component {
 
           <Modal.Footer className={style.qnaModalFooter}>
             <Button onClick={this.closeAndClear}>Cancel</Button>
-            <Button bsStyle="primary" type="submit">
+            <Button bsStyle="primary" type="button" onClick={e => this.handleSubmit(e, isEdit)}>
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>
