@@ -18,7 +18,7 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
-const FT_PARAMS = {
+const FT_PARAMS: FastTextTrainArgs = {
   method: 'skipgram',
   minCount: 2,
   bucket: 25000,
@@ -28,7 +28,7 @@ const FT_PARAMS = {
   maxn: 6,
   minn: 2,
   epoch: 50
-} as FastTextTrainArgs
+}
 
 export default class CRFExtractor implements SlotExtractor {
   private _isTrained: boolean = false

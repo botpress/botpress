@@ -23,26 +23,34 @@ const _tokenize = (input: string): string[] => {
 }
 
 const _generateNonSlotTokens = (input: string): Token[] => {
-  return _tokenize(input)
-    .map(t => ({
-      tag: 'o',
-      value: t,
-      matchedEntities: []
-    } as Token))
+  return _tokenize(input).map(
+    t =>
+      ({
+        tag: 'o',
+        value: t,
+        matchedEntities: []
+      } as Token)
+  )
 }
 
 const _generateSlotTokens = (input: string, slot: string, slotDefinitions: sdk.NLU.IntentSlot[]): Token[] => {
   const entity = slotDefinitions.find(slotDef => slotDef.name === slot)!.entity
-  return _tokenize(input)
-    .map((t, i) => ({
-      tag: i === 0 ? 'B' : 'I',
-      value: t,
-      slot,
-      matchedEntities: [entity],
-    } as Token))
+  return _tokenize(input).map(
+    (t, i) =>
+      ({
+        tag: i === 0 ? 'B' : 'I',
+        value: t,
+        slot,
+        matchedEntities: [entity]
+      } as Token)
+  )
 }
 
-export const generateTrainingSequence = (input: string, slotDefinitions: sdk.NLU.IntentSlot[], intentName: string = ''): Sequence => {
+export const generateTrainingSequence = (
+  input: string,
+  slotDefinitions: sdk.NLU.IntentSlot[],
+  intentName: string = ''
+): Sequence => {
   let m: RegExpExecArray | null
   let start = 0
   let tokens: Token[] = []
@@ -68,19 +76,23 @@ export const generateTrainingSequence = (input: string, slotDefinitions: sdk.NLU
   }
 }
 
-export const generatePredictionSequence = (input: string, intentName: string, entitites: sdk.NLU.Entity[]): Sequence => {
+export const generatePredictionSequence = (
+  input: string,
+  intentName: string,
+  entitites: sdk.NLU.Entity[]
+): Sequence => {
   const cannonical = input // we generate a copy here since input is going to be overriten
   let currentIdx = 0
   const tokens = _tokenize(input).map(value => {
     const inputIdx = input.indexOf(value)
     currentIdx += inputIdx // in case of tokenization uses more than one char or if words separated with multiple spaces)
+    input = input.slice(inputIdx + value.length)
 
     const matchedEntities = entitites
-      .filter(e => e.meta.start <= currentIdx && e.meta.end >= (currentIdx + value.length))
+      .filter(e => e.meta.start <= currentIdx && e.meta.end >= currentIdx + value.length)
       .map(e => e.name)
 
     currentIdx += value.length
-    input = input.slice(inputIdx + value.length)
 
     return {
       value,
@@ -94,4 +106,3 @@ export const generatePredictionSequence = (input: string, intentName: string, en
     tokens
   }
 }
-
