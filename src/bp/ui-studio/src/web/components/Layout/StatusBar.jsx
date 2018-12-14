@@ -25,8 +25,9 @@ const ActionItem = props => (
 )
 
 export default class StatusBar extends React.Component {
-  expiryTimeMs = 5000
+  expiryTimeMs = 2000
   timeoutRef = undefined
+  partialProgressTimeout = undefined
 
   state = {
     currentEvent: undefined
@@ -48,6 +49,7 @@ export default class StatusBar extends React.Component {
       if (prevProps.statusBarEvent && !prevProps.statusBarEvent.working && currentEvent && currentEvent.working) {
         // Started new work
         this.progressBar.set(0)
+        this.partialProgressTimeout - setTimeout(() => this.progressBar.animate(0.15, 200), 50)
       } else if (
         prevProps.statusBarEvent &&
         prevProps.statusBarEvent.working &&
@@ -55,13 +57,15 @@ export default class StatusBar extends React.Component {
         !currentEvent.working
       ) {
         // Was working but now we're done
-        this.progressBar.animate(1, 300)
+        clearTimeout(this.partialProgressTimeout)
+        this.progressBar.animate(1, 100)
       }
 
       if (currentEvent && !currentEvent.working) {
         this.timeoutRef = setTimeout(this.expireLastEvent, this.expiryTimeMs)
       } else {
         // We clear the timeout on any new events so the previous timeout dont accidentally clear the new event
+        clearTimeout(this.partialProgressTimeout)
         clearTimeout(this.timeoutRef)
       }
 
