@@ -18,7 +18,7 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
-const FT_PARAMS = {
+const FT_PARAMS: FastTextTrainArgs = {
   method: 'skipgram',
   minCount: 2,
   bucket: 25000,
@@ -28,7 +28,7 @@ const FT_PARAMS = {
   maxn: 6,
   minn: 2,
   epoch: 50
-} as FastTextTrainArgs
+}
 
 export default class CRFExtractor implements SlotExtractor {
   private _isTrained: boolean = false
@@ -38,7 +38,7 @@ export default class CRFExtractor implements SlotExtractor {
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
 
-  constructor(private toolkit: typeof sdk.MLToolkit) { }
+  constructor(private toolkit: typeof sdk.MLToolkit) {}
 
   async train(trainingSet: Sequence[]) {
     this._isTrained = false
@@ -131,10 +131,12 @@ export default class CRFExtractor implements SlotExtractor {
     this._ft = new FastText(this._ftModelFn)
 
     const trainContent = samples.reduce((corpus, seq) => {
-      const cannonicSentence = seq.tokens.map(s => {
-        if (s.tag === 'o') return s.value
-        else return s.slot
-      }).join(' ')
+      const cannonicSentence = seq.tokens
+        .map(s => {
+          if (s.tag === 'o') return s.value
+          else return s.slot
+        })
+        .join(' ')
       return `${corpus}${cannonicSentence}\n`
     }, '')
 
@@ -142,27 +144,40 @@ export default class CRFExtractor implements SlotExtractor {
     this._ft.train(ftTrainFn, FT_PARAMS)
   }
 
-  private async _vectorizeToken(token: Token, intentName: string, featPrefix: string, includeCluster: boolean): Promise<string[]> {
+  private async _vectorizeToken(
+    token: Token,
+    intentName: string,
+    featPrefix: string,
+    includeCluster: boolean
+  ): Promise<string[]> {
     const vector: string[] = [`${featPrefix}intent=${intentName}`]
 
     if (token.value === token.value.toLowerCase()) vector.push(`${featPrefix}low`)
     if (token.value === token.value.toUpperCase()) vector.push(`${featPrefix}up`)
-    if (token.value.length > 1 && token.value[0] === token.value[0].toUpperCase() && token.value[1] === token.value[1].toLowerCase()) vector.push(`${featPrefix}title`)
+    if (
+      token.value.length > 1 &&
+      token.value[0] === token.value[0].toUpperCase() &&
+      token.value[1] === token.value[1].toLowerCase()
+    )
+      vector.push(`${featPrefix}title`)
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.value)
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
     }
 
-    const entititesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(ent => `${featPrefix}entity=${ent}`)
+    const entititesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
+      ent => `${featPrefix}entity=${ent}`
+    )
 
     return [...vector, ...entititesFeatures]
   }
 
   // TODO maybe use a slice instead of the whole token seq ?
   private async _vectorize(tokens: Token[], intentName: string, idx: number): Promise<string[]> {
-    const prev = (idx === 0) ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
+    const prev = idx === 0 ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
-    const next = (idx === tokens.length - 1) ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
+    const next =
+      idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
 
     return [...prev, ...current, ...next]
   }
