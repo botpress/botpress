@@ -61,9 +61,6 @@ class Header extends React.Component {
             <PermissionsChecker user={this.props.user} res="bot.notifications" op="read">
               <NotificationHub />
             </PermissionsChecker>
-            <NavItem href="/admin">
-              <Glyphicon glyph="home" />
-            </NavItem>
             {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />
