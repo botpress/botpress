@@ -68,8 +68,6 @@ export default class Web extends React.Component {
     const { options } = queryString.parse(location.search)
     const { hideWidget, config } = JSON.parse(decodeURIComponent(options || '{}'))
 
-    console.log('!!!!!!!!!!!!!!!1', hideWidget)
-
     this.state = {
       view: null,
       textToSend: '',
