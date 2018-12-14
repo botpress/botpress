@@ -178,3 +178,7 @@ b {
 :global(.react-autosuggest__suggestion--highlighted) {
   background-color: #ddd;
 }
+
+:global(.tooltip-inner) {
+  border-radius: 0px;
+}

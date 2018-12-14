@@ -167,7 +167,7 @@ class Sidebar extends React.Component {
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
           <div style={{ padding: '8px 10px' }}>
             <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>
-              <img width="110" src="/assets/ui-studio/public/img/logo.svg" alt="Botpress Logo" />
+              <img width="145" src="/assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
             </a>
           </div>
           <ul className={classnames('nav', style.mainMenu)}>
