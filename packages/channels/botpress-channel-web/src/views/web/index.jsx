@@ -68,6 +68,8 @@ export default class Web extends React.Component {
     const { options } = queryString.parse(location.search)
     const { hideWidget, config } = JSON.parse(decodeURIComponent(options || '{}'))
 
+    console.log('!!!!!!!!!!!!!!!1', hideWidget)
+
     this.state = {
       view: null,
       textToSend: '',
@@ -608,8 +610,9 @@ export default class Web extends React.Component {
       return null
     }
 
-    window.parent &&
-      window.parent.postMessage({ type: 'setClass', value: 'bp-widget-web bp-widget-' + this.state.view }, '*')
+    const widgetClass = this.state.view === 'widget' && this.state.isButtonHidden ? '' : `bp-widget-${this.state.view}`
+
+    window.parent && window.parent.postMessage({ type: 'setClass', value: `bp-widget-web ${widgetClass}` }, '*')
 
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
