@@ -14,7 +14,7 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
         provider: 'native',
         source: res.value,
         start: res.sourceIndex,
-        end: res.sourceIndex + res.value.length - 1,
+        end: res.sourceIndex + res.value.length,
         raw: {}
       },
       data: {
@@ -42,7 +42,7 @@ const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityD
         provider: 'native',
         source: extracted.value,
         start: extracted.sourceIndex,
-        end: extracted.sourceIndex + extracted.value.length - 1,
+        end: extracted.sourceIndex + extracted.value.length,
         raw: {}
       },
       data: {

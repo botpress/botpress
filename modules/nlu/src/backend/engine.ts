@@ -13,6 +13,7 @@ import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
+import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
@@ -22,7 +23,7 @@ export default class ScopedEngine {
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
-  private readonly knownEntityExtractor: EntityExtractor
+  private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractor: SlotExtractor
 
   private retryPolicy = {
@@ -41,7 +42,7 @@ export default class ScopedEngine {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(this.logger)
     this.langDetector = new FastTextLanguageId(this.logger)
-    this.knownEntityExtractor = new DucklingEntityExtractor(this.logger)
+    this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
   }
 
@@ -70,7 +71,10 @@ export default class ScopedEngine {
 
     // TODO try to load model if saved(we don't save at the moment)
     try {
-      await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+      const trainingSet = flatMap(intents, intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      })
+      await this.slotExtractor.train(trainingSet)
     } catch (err) {
       this.logger.error('Error training slot tagger', err)
     }
@@ -131,7 +135,7 @@ export default class ScopedEngine {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
-    const systemEntities = await this.knownEntityExtractor.extract(text, lang)
+    const systemEntities = await this.systemEntityExtractor.extract(text, lang)
 
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
@@ -142,11 +146,11 @@ export default class ScopedEngine {
     const lang = await this.langDetector.identify(text)
     const intents: Prediction[] = await this.intentClassifier.predict(text)
     const entities = await this._extractEntities(text, lang)
-    // TODO add entities and detected intent in the slotExtractor
-    const slots = await this.slotExtractor.extract(text)
 
     const intent = findMostConfidentPredictionMeanStd(intents, this.confidenceTreshold)
 
+    // TODO add entities and detected intent in the slotExtractor
+    const slots = await this.slotExtractor.extract(text, intent.name, entities)
     await this._filterIntentSlot(slots, intent)
 
     return {
