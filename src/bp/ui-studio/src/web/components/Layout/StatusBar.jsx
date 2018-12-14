@@ -79,8 +79,8 @@ export default class StatusBar extends React.Component {
       cstrokeWidth: 10,
       easing: 'easeInOut',
       duration: 300,
-      color: 'var(--c-brand--dark-1)',
-      trailColor: 'var(--c-brand)',
+      color: 'var(--c-brand)',
+      trailColor: 'var(--c-background--dark-1)',
       trailWidth: 24,
       svgStyle: {
         display: 'inline',
