@@ -439,12 +439,13 @@ export default class Web extends React.Component {
     return this.props.bp.axios.post(url, data, config).then()
   }
 
-  handleSendData = data => {
+  handleSendData = payload => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId } }
 
-    return this.props.bp.axios.post(url, data, config).then()
+    const { ref: webchatUrlQuery } = queryString.parse(location.search)
+    return this.props.bp.axios.post(url, { ...payload, data: { ...payload.data, webchatUrlQuery } }, config).then()
   }
 
   handleSwitchConvo = convoId => {
