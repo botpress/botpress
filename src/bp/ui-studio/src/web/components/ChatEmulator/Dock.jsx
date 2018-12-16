@@ -29,7 +29,7 @@ export default class EmulatorDock extends React.Component {
         dimMode="transparent"
         duration={0}
         size={this.state.size}
-        dockStyle={{ 'box-shadow': 'none', transition: 'none' }}
+        dockStyle={{ transition: 'none' }}
         onSizeChange={this.handleSizeChange}
       >
         <HotKeys keyMap={keyMap} handlers={this.keyHandlers}>

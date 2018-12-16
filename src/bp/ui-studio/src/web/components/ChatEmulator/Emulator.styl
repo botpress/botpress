@@ -1,12 +1,19 @@
 .msgInput {
   width: 100%;
+  height: 50px;
   outline: none;
   border: none;
+  resize: vertical;
+  padding: 5px;
   border-top: 2px solid var(--c-neutral);
 
   &:focus {
     border-top: 2px solid var(--c-brand);
     background-color: var(--c-background-light-2);
+  }
+
+  &.disabled {
+    opacity: 0.5;
   }
 }
 

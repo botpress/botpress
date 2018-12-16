@@ -69,7 +69,7 @@ class Layout extends React.Component {
     }
 
     return (
-      <HotKeys handlers={keyHandlers} focused>
+      <HotKeys handlers={keyHandlers}>
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <main className={layout.main}>

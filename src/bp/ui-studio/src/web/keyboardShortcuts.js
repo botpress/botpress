@@ -1,6 +1,6 @@
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
-const navigationKey = isMac ? 'ctrl' : 'cmd'
+const navigationKey = isMac ? 'ctrl' : 'ctrl+shift'
 
 export const keyMap = {
   // Navigation to screens
