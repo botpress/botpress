@@ -34,7 +34,7 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent: string, content: sdk.NLU.Intent) {
+  async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
     intent = sanitizeFilenameNoExt(intent)
     const sysEntities = this.getSystemEntities()
 
@@ -90,12 +90,12 @@ export default class Storage {
     }
   }
 
-  async getIntents(): Promise<sdk.NLU.Intent[]> {
+  async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent): Promise<sdk.NLU.Intent> {
+  async getIntent(intent): Promise<sdk.NLU.IntentDefinition> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -120,26 +120,29 @@ export default class Storage {
       ...properties
     }
   }
+
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
+
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
+    // TODO move this array as static method in DucklingExtractor
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -159,17 +162,17 @@ export default class Storage {
   }
 
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entity.name)
+    const fileName = this._getEntityFileName(entity.id)
     return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
   }
 
-  async updateEntity(entityName: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
+  async updateEntity(entityID: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
+    const fileName = this._getEntityFileName(entityID)
     return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(updatedEntity))
   }
 
-  async deleteEntity(entityName: string): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
+  async deleteEntity(entityID: string): Promise<void> {
+    const fileName = this._getEntityFileName(entityID)
     return this.ghost.deleteFile(this.entitiesDir, fileName)
   }
 
@@ -197,17 +200,17 @@ export default class Storage {
 
   async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }
 
-  private _getEntityFileName(entityName: string) {
-    entityName = sanitizeFilenameNoExt(entityName)
-    if (entityName.length < 1) {
+  private _getEntityFileName(entityID: string) {
+    entityID = sanitizeFilenameNoExt(entityID)
+    if (entityID.length < 1) {
       throw new Error('Invalid entity name, expected at least one character')
     }
 
-    return `${entityName}.json`
+    return `${entityID}.json`
   }
 }
