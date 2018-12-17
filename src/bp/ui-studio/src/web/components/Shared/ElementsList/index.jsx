@@ -3,7 +3,7 @@ import { ListGroupItem, Glyphicon } from 'react-bootstrap'
 import { InputElement } from './InputElement'
 import style from './style.scss'
 
-export class ElementsList extends React.Component {
+export default class ElementsList extends React.Component {
   elementInputRef = React.createRef()
   state = {
     inputValue: '',

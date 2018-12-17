@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
-import { ElementsList } from './list/ElementsList'
+import ElementsList from 'botpress/elements-list'
 
 import Select from 'react-select'
 import style from './style.scss'
