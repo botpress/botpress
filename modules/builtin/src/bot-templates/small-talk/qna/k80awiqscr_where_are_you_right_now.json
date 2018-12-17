@@ -9,7 +9,7 @@
       "where do you live",
       "what is your habitat"
     ],
-    "answer": "I'm a computer program, so I live inside a boring server.",
+    "answers": ["I'm a computer program, so I live inside a boring server."],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
