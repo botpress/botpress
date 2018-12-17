@@ -439,7 +439,12 @@ export default class QnaAdmin extends Component {
 
   closeQnAModal = () => this.setState({ showQnAModal: false, currentItemId: null })
 
-  questionsList = () => this.state.items.map(this.renderItem)
+  questionsList = () => {
+    if (this.state.items.length) {
+      return this.state.items.map(this.renderItem)
+    }
+    return <h3>No questions have been added yet.</h3>
+  }
 
   updateQuestion = ({ items }) => this.setState({ items })
 
