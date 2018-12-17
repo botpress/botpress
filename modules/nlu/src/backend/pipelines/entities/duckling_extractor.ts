@@ -8,7 +8,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
 
-  constructor(private readonly logger: sdk.Logger = undefined) { }
+  constructor(private readonly logger?: sdk.Logger) {}
 
   static configure(enabled: boolean, url: string) {
     this.enabled = enabled
@@ -42,9 +42,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
       }))
     } catch (err) {
       const error = err.response ? err.response.data : err
-      if (this.logger) {
-        this.logger.attachError(error).warn('[Native] error extracting duckling entities')
-      }
+      this.logger && this.logger.attachError(error).warn('[Native] error extracting duckling entities')
       return []
     }
   }

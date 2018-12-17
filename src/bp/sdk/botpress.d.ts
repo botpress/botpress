@@ -161,10 +161,16 @@ declare module 'botpress/sdk' {
       export interface TrainerOptions {
         [key: string]: string
       }
+
+      export interface TrainerCallback {
+        (message: string): void
+      }
+
       export interface Trainer {
         append(xseq: Array<string[]>, yseq: string[]): void
         train(model_filename: string): void
-        SetParams(options: TrainerOptions): void
+        set_params(options: TrainerOptions): void
+        set_callback(callback: TrainerCallback): void
       }
 
       export const createTrainer: () => Trainer
@@ -193,15 +199,18 @@ declare module 'botpress/sdk' {
       entity: string
     }
 
+    export interface IntentDefinition {
+      name: string
+      utterances: string[]
+      filename: string
+      slots: IntentSlot[]
+    }
+
     export interface Intent {
       name: string
-      slots: IntentSlot[]
-      utterances: string[]
       confidence: number
       matches: (intentPattern: string) => boolean
     }
-
-    export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
 
     export interface Entity {
       name: string
@@ -303,6 +312,7 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
+      readonly slots: NLU.IntentSlot[]
     }
 
     export interface IncomingEvent extends Event {

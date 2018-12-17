@@ -52,7 +52,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // TODO perform intent slot filtering here
-  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]): Promise<any> {
+  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]): Promise<sdk.NLU.IntentSlot[]> {
     const seq = generatePredictionSequence(text, intentName, entitites)
     const tags = await this.tag(seq)
 

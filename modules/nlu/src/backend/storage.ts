@@ -34,7 +34,7 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent: string, content: sdk.NLU.Intent) {
+  async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
     intent = sanitizeFilenameNoExt(intent)
     const sysEntities = this.getSystemEntities()
 
@@ -90,12 +90,12 @@ export default class Storage {
     }
   }
 
-  async getIntents(): Promise<sdk.NLU.Intent[]> {
+  async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent): Promise<sdk.NLU.Intent> {
+  async getIntent(intent): Promise<sdk.NLU.IntentDefinition> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -120,9 +120,11 @@ export default class Storage {
       ...properties
     }
   }
+
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
+
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
@@ -197,7 +199,7 @@ export default class Storage {
 
   async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }
