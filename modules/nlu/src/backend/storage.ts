@@ -124,22 +124,23 @@ export default class Storage {
     return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
+    // TODO move this array as static method in DucklingExtractor
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -159,17 +160,17 @@ export default class Storage {
   }
 
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entity.name)
+    const fileName = this._getEntityFileName(entity.id)
     return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
   }
 
-  async updateEntity(entityName: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
+  async updateEntity(entityID: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
+    const fileName = this._getEntityFileName(entityID)
     return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(updatedEntity))
   }
 
-  async deleteEntity(entityName: string): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
+  async deleteEntity(entityID: string): Promise<void> {
+    const fileName = this._getEntityFileName(entityID)
     return this.ghost.deleteFile(this.entitiesDir, fileName)
   }
 
@@ -202,12 +203,12 @@ export default class Storage {
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
   }
 
-  private _getEntityFileName(entityName: string) {
-    entityName = sanitizeFilenameNoExt(entityName)
-    if (entityName.length < 1) {
+  private _getEntityFileName(entityID: string) {
+    entityID = sanitizeFilenameNoExt(entityID)
+    if (entityID.length < 1) {
       throw new Error('Invalid entity name, expected at least one character')
     }
 
-    return `${entityName}.json`
+    return `${entityID}.json`
   }
 }
