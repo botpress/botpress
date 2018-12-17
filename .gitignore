@@ -48,3 +48,6 @@ edition.json
 # Botpress docs
 /docs/reference/public
 /docs/guide/build
+
+# for python savvy users
+.python-version
