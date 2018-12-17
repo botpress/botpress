@@ -4,8 +4,6 @@ import { HotKeys } from 'react-hotkeys'
 import Emulator from './Emulator'
 import { keyMap } from '~/keyboardShortcuts'
 
-import { Glyphicon } from 'react-bootstrap'
-
 import style from './Dock.styl'
 
 export default class EmulatorDock extends React.Component {
@@ -26,7 +24,7 @@ export default class EmulatorDock extends React.Component {
         isVisible={this.props.isOpen}
         fluid={false}
         zIndex={5}
-        dimMode="transparent"
+        dimMode="none"
         duration={0}
         size={this.state.size}
         dockStyle={{ transition: 'none' }}
@@ -35,8 +33,7 @@ export default class EmulatorDock extends React.Component {
         <HotKeys keyMap={keyMap} handlers={this.keyHandlers}>
           <div className={style.container} tabIndex={-1}>
             <div className={style.titleBar} onClick={this.props.onToggle}>
-              <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
-              <span>Emulator</span>
+              Chat Emulator
             </div>
             <Emulator isDockOpen={this.props.isOpen} />
           </div>

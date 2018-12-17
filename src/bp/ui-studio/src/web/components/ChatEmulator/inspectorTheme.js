@@ -22,6 +22,7 @@ export default {
     marginBottom: 0,
     marginLeft: 0,
     marginRight: 0,
-    paddingLeft: 5
+    paddingLeft: 5,
+    fontSize: '0.80em'
   }
 }
