@@ -67,7 +67,7 @@ export default class QnaAdmin extends Component {
 
   fetchData = (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/questions/list', { params }).then(({ data }) => {
+    this.props.bp.axios.get('/mod/qna/questions', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
         label: (questions || []).join(','),
         value: id
@@ -107,7 +107,7 @@ export default class QnaAdmin extends Component {
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/mod/qna/questions/list', {
+      .get('/mod/qna/questions', {
         params: {
           question,
           categories,
