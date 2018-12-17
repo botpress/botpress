@@ -113,9 +113,8 @@ export default class EmulatorChat extends React.Component {
 
   handleKeyPress = e => {
     if (!e.shiftKey && e.key === 'Enter') {
-      e.preventDefault()
       this.sendText()
-      return false
+      e.preventDefault()
     }
   }
 
@@ -124,7 +123,6 @@ export default class EmulatorChat extends React.Component {
     if (!e.shiftKey && e.key in maps) {
       e.preventDefault()
       this.navigateSentHistory(maps[e.key])
-      return false
     }
   }
 
@@ -134,7 +132,7 @@ export default class EmulatorChat extends React.Component {
     return this.state.selectedIndex >= 0 ? this.state.messages[this.state.selectedIndex].result : {}
   }
 
-  inspectorShouldExpand(key, data, level) {
+  handleInspectorShouldExpand(key, data, level) {
     return level <= 1
   }
 
@@ -146,6 +144,59 @@ export default class EmulatorChat extends React.Component {
         userId: this.getOrCreateUserId(true)
       },
       () => this.textInputRef.current.focus()
+    )
+  }
+
+  renderHistory() {
+    return (
+      <div className={style.history}>
+        {this.state.messages.map((msg, idx) => (
+          <Message
+            tabIndex={this.state.messages.length - idx + 1}
+            key={`msg-${idx}`}
+            onFocus={() => this.setState({ selectedIndex: idx })}
+            selected={this.state.selectedIndex === idx}
+            message={msg}
+          />
+        ))}
+        {/* This is used to loop using Tab, we're going back to text input */}
+        {/* Also used to scroll to the end of the messages */}
+        <div
+          ref={this.endOfMessagesRef}
+          tabIndex={this.state.messages.length + 1}
+          onFocus={() => this.textInputRef.current.focus()}
+        />
+      </div>
+    )
+  }
+
+  renderInspector() {
+    return (
+      <div className={style.inspector}>
+        <JSONTree
+          data={this.inspectorData}
+          theme={inspectorTheme}
+          invertTheme={false}
+          hideRoot={true}
+          shouldExpandNode={this.handleInspectorShouldExpand}
+        />
+      </div>
+    )
+  }
+
+  renderMessageInput() {
+    return (
+      <textarea
+        tabIndex={1}
+        ref={this.textInputRef}
+        className={classnames(style.msgInput, { [style.disabled]: this.state.sending })}
+        type="text"
+        onKeyPress={this.handleKeyPress}
+        onKeyDown={this.handleKeyDown}
+        value={this.state.textInputValue}
+        placeholder="Type a message here"
+        onChange={this.handleMsgChange}
+      />
     )
   }
 
@@ -162,48 +213,13 @@ export default class EmulatorChat extends React.Component {
             split="horizontal"
             minSize={50}
             defaultSize={'75%'}
-            pane2Style={{ 'overflow-y': 'auto', backgroundColor: '#272822' }}
+            pane2Style={{ 'overflow-y': 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
           >
-            <div className={style.history}>
-              {this.state.messages.map((msg, idx) => (
-                <Message
-                  tabIndex={this.state.messages.length - idx + 1}
-                  key={`msg-${idx}`}
-                  onFocus={() => this.setState({ selectedIndex: idx })}
-                  selected={this.state.selectedIndex === idx}
-                  message={msg}
-                />
-              ))}
-              {/* This is used to loop using Tab, we're going back to text input */}
-              {/* Also used to scroll to the end of the messages */}
-              <div
-                ref={this.endOfMessagesRef}
-                tabIndex={this.state.messages.length + 1}
-                onFocus={() => this.textInputRef.current.focus()}
-              />
-            </div>
-            <div className={style.inspector}>
-              <JSONTree
-                data={this.inspectorData}
-                theme={inspectorTheme}
-                invertTheme={false}
-                hideRoot={true}
-                shouldExpandNode={this.inspectorShouldExpand}
-              />
-            </div>
+            {this.renderHistory()}
+            {this.renderInspector()}
           </SplitPane>
         </div>
-        <textarea
-          tabIndex={1}
-          ref={this.textInputRef}
-          className={classnames(style.msgInput, { [style.disabled]: this.state.sending })}
-          type="text"
-          onKeyPress={this.handleKeyPress}
-          onKeyDown={this.handleKeyDown}
-          value={this.state.textInputValue}
-          placeholder="Type a message here"
-          onChange={this.handleMsgChange}
-        />
+        {this.renderMessageInput()}
       </div>
     )
   }
