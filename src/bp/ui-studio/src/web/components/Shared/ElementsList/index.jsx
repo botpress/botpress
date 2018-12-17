@@ -37,8 +37,9 @@ export default class ElementsList extends React.Component {
     } else {
       return (
         <ListGroupItem key={`elements_create_element_${index}`} className={style.listElement}>
-          <div className={style.listElementValue}>{element}</div>
-          <Glyphicon glyph="pencil" onClick={() => this.toggleEditMode(index)} className={style.listElementIcon} />
+          <a className={style.listElementValue} onClick={() => this.toggleEditMode(index)}>
+            {element}
+          </a>
           <Glyphicon glyph="trash" onClick={() => this.props.delete(index)} className={style.listElementIcon} />
         </ListGroupItem>
       )

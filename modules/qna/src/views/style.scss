@@ -1,5 +1,3 @@
-$mainGreen: #1bb68a;
-
 $elementHeight: 40px;
 
 .elementTitle {
@@ -140,24 +138,7 @@ $elementHeight: 40px;
 }
 
 .qnaNavBarAddNew {
-  background-color: $mainGreen;
   margin-left: 10px;
-
-  &:hover {
-    background-color: #108c67;
-  }
-
-  &:focus {
-    background-color: #108c67;
-
-    &:active {
-      background-color: #108c67;
-    }
-  }
-
-  &:active {
-    background-color: #108c67;
-  }
 }
 
 .itemQuestions {
@@ -169,6 +150,12 @@ $elementHeight: 40px;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 13px;
+
+  &:hover {
+    .itemActionDelete {
+      display: inherit !important;
+    }
+  }
 }
 
 .itemContainer {
@@ -185,7 +172,8 @@ $elementHeight: 40px;
 .firstQuestionTitle {
   font-size: 18px;
   font-weight: 600;
-  color: $mainGreen;
+  color: var(--c-brand);
+  cursor: pointer;
 }
 
 .itemAnswerContainer {
@@ -201,7 +189,6 @@ $elementHeight: 40px;
 .itemAnswerText {
   color: rgb(182, 182, 182);
   font-weight: 600;
-  font-size: 15px;
 }
 
 .itemAction {
@@ -223,6 +210,7 @@ $elementHeight: 40px;
 }
 
 .itemActionDelete {
+  display: none !important;
   margin-right: 30px;
   cursor: pointer;
 

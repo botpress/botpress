@@ -301,7 +301,7 @@ export default class QnaAdmin extends Component {
       ) : null}
       <Button
         className={style.qnaNavBarAddNew}
-        bsStyle="success"
+        bsStyle="primary"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
         type="button"
       >
@@ -347,7 +347,9 @@ export default class QnaAdmin extends Component {
         <div className={style.itemContainer}>
           <div className={style.itemQuestions}>
             <span className={style.itemQuestionsTitle}>Q:</span>
-            <div className={style.firstQuestionTitle}>{item.questions[0]}</div>
+            <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
+              {item.questions[0]}
+            </a>
             {this.renderVariationsOverlayTrigger(item.questions)}
           </div>
           <div className={style.itemAnswerContainer}>
@@ -381,13 +383,10 @@ export default class QnaAdmin extends Component {
           ) : null}
         </div>
         <div className={style.itemAction}>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
           <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          <i className={classnames('material-icons', style.itemActionEdit)} onClick={this.editItem(id)}>
-            edit
-          </i>
+          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
         </div>
       </Well>
     )

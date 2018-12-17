@@ -6,12 +6,23 @@
   display: flex !important;
   width: 100%;
   align-items: stretch;
+
+  &:hover {
+    .listElementIcon {
+      display: inherit !important;
+    }
+  }
 }
 
 .listElementValue {
   width: 100%;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .listElementIcon {
+  display: none !important;
   padding-left: 10px;
 }
