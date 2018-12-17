@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
+import ElementsList from 'botpress/elements-list'
 
 import Select from 'react-select'
 import style from './style.scss'
@@ -15,8 +16,8 @@ const ACTIONS = {
 export default class FormModal extends Component {
   defaultState = {
     item: {
+      answers: [],
       questions: [],
-      answer: '',
       redirectFlow: '',
       redirectNode: '',
       action: ACTIONS.TEXT,
@@ -26,7 +27,6 @@ export default class FormModal extends Component {
     invalidFields: {
       category: false,
       questions: false,
-      answer: false,
       checkbox: false,
       redirectFlow: false,
       redirectNode: false
@@ -46,7 +46,7 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/mod/qna/question/${id}`).then(({ data: { data: item } }) => {
+    this.props.bp.axios.get(`/mod/qna/questions/${id}`).then(({ data: { data: item } }) => {
       this.setState({
         item,
         isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -82,7 +82,7 @@ export default class FormModal extends Component {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
       questions: !item.questions.length || !item.questions[0].length,
-      answer: isText && !item.answer.length,
+      answer: isText && !item.answers[0].length,
       checkbox: !(isText || isRedirect),
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
@@ -104,7 +104,7 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    return this.props.bp.axios.post('/mod/qna/create', this.state.item).then(() => {
+    return this.props.bp.axios.post('/mod/qna/questions', this.state.item).then(() => {
       this.props.fetchData()
       this.closeAndClear()
     })
@@ -128,7 +128,7 @@ export default class FormModal extends Component {
     } = this.props
 
     return this.props.bp.axios
-      .put(`/mod/qna/${this.props.id}`, this.state.item, {
+      .put(`/mod/qna/questions/${this.props.id}`, this.state.item, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
       .then(({ data }) => {
@@ -152,6 +152,31 @@ export default class FormModal extends Component {
     )
   }
 
+  handleSubmit = (event, isEdit) => {
+    !isEdit ? this.onCreate(event) : this.onEdit(event)
+  }
+
+  createAnswer = answer => {
+    const answers = [...this.state.item.answers, answer]
+    this.changeItemProperty('answers', answers)
+  }
+
+  updateAnswer = (answer, index) => {
+    const answers = this.state.item.answers
+    if (answers[index]) {
+      answers[index] = answer
+      this.changeItemProperty('answers', answers)
+    }
+  }
+
+  deleteAnswer = index => {
+    const answers = this.state.item.answers
+    if (answers[index]) {
+      answers.splice(index, 1)
+      this.changeItemProperty('answers', answers)
+    }
+  }
+
   render() {
     const {
       item: { redirectFlow },
@@ -164,7 +189,7 @@ export default class FormModal extends Component {
 
     return (
       <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.closeAndClear}>
-        <form onSubmit={!isEdit ? this.onCreate : this.onEdit}>
+        <form>
           <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
           </Modal.Header>
@@ -172,8 +197,8 @@ export default class FormModal extends Component {
           <Modal.Body className={style.qnaModalBody}>
             {this.alertMessage()}
             {categories.length ? (
-              <div className={style.qnaCategory}>
-                <span className={style.qnaCategoryTitle}>Category</span>
+              <div className={style.qnaSection}>
+                <span className={style.qnaSectionTitle}>Category</span>
                 <Select
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
@@ -185,10 +210,12 @@ export default class FormModal extends Component {
                 />
               </div>
             ) : null}
-            <div className={style.qnaQuestions}>
-              <span className={style.qnaQuestionsTitle}>Questions</span>
+            <div className={style.qnaSection}>
+              <span className={style.qnaSectionTitle}>Questions</span>
               <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
+
               <FormControl
+                autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions
                 })}
@@ -197,8 +224,8 @@ export default class FormModal extends Component {
                 componentClass="textarea"
               />
             </div>
-            <div className={style.qnaReply}>
-              <span className={style.qnaReplyTitle}>Reply with:</span>
+            <div className={style.qnaSection}>
+              <span className={style.qnaSectionTitle}>Answers</span>
               <div className={style.qnaAnswer}>
                 <span className={style.qnaAnswerCheck}>
                   <input
@@ -206,18 +233,20 @@ export default class FormModal extends Component {
                     type="checkbox"
                     checked={this.state.isText}
                     onChange={this.changeItemAction('isText')}
+                    tabIndex="-1"
                   />
                   <label htmlFor="reply">&nbsp; Type your answer</label>
                 </span>
-                <FormControl
-                  className={classnames(style.qnaAnswerTextarea, {
-                    qnaCategoryError: invalidFields.answer
-                  })}
-                  value={this.state.item.answer}
-                  onChange={event => this.changeItemProperty('answer', event.target.value)}
-                  componentClass="textarea"
+
+                <ElementsList
+                  placeholder="Type and press enter to add an answer"
+                  elements={this.state.item.answers}
+                  create={this.createAnswer}
+                  update={this.updateAnswer}
+                  delete={this.deleteAnswer}
                 />
               </div>
+
               <div className={style.qnaAndOr}>
                 <div className={style.qnaAndOrLine} />
                 <div className={style.qnaAndOrText}>and / or</div>
@@ -232,6 +261,7 @@ export default class FormModal extends Component {
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
                       className={style.qnaRedirectToFlowCheckCheckbox}
+                      tabIndex="-1"
                     />
                     <label htmlFor="redirect">&nbsp;Redirect to flow</label>
                   </span>
@@ -260,10 +290,8 @@ export default class FormModal extends Component {
           </Modal.Body>
 
           <Modal.Footer className={style.qnaModalFooter}>
-            <Button className={style.qnaModalFooterCancelBtn} onClick={this.closeAndClear}>
-              Cancel
-            </Button>
-            <Button className={style.qnaModalFooterSaveBtn} type="submit">
+            <Button onClick={this.closeAndClear}>Cancel</Button>
+            <Button bsStyle="primary" type="button" onClick={e => this.handleSubmit(e, isEdit)}>
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

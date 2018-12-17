@@ -10,6 +10,14 @@
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
+  "webpack": {
+    "externals": {
+      "react": "React",
+      "react-dom": "ReactDOM",
+      "react-bootstrap": "ReactBootstrap",
+      "botpress/elements-list": "ElementsList"
+    }
+  },
   "devDependencies": {
     "brace": "^0.11.0",
     "classnames": "^2.2.5",
