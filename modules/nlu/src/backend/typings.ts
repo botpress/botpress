@@ -1,5 +1,7 @@
 import sdk from 'botpress/sdk'
 
+import { Sequence } from './pipelines/slots/pre-processor'
+
 export type EngineByBot = { [botId: string]: Engine }
 
 export type Prediction = { name: string; confidence: number }
@@ -15,8 +17,8 @@ export interface EntityExtractor {
 }
 
 export interface SlotExtractor {
-  train(inputs: string[]): Promise<void>
-  extract(input: string): Promise<any>
+  train(trainingSet: Sequence[]): Promise<void>
+  extract(input: string, intent: string, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.IntentSlot[]>
 }
 
 export interface IntentClassifier {

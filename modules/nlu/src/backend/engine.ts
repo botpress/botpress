@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import fs from 'fs'
 import { flatMap } from 'lodash'
+import _ from 'lodash'
 
 import { Config } from '../config'
 
@@ -12,16 +13,17 @@ import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher } from './pipelines/intents/matcher'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
+import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
 export default class ScopedEngine {
   public readonly storage: Storage
-  public confidenceTreshold: number
+  public confidenceTreshold: number = 0.7
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
-  private readonly knownEntityExtractor: EntityExtractor
+  private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractor: SlotExtractor
 
   private retryPolicy = {
@@ -40,7 +42,7 @@ export default class ScopedEngine {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(this.logger)
     this.langDetector = new FastTextLanguageId(this.logger)
-    this.knownEntityExtractor = new DucklingEntityExtractor(this.logger)
+    this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
   }
 
@@ -69,7 +71,10 @@ export default class ScopedEngine {
 
     // TODO try to load model if saved(we don't save at the moment)
     try {
-      await this.slotExtractor.train(flatMap(intents, intent => intent.utterances))
+      const trainingSet = flatMap(intents, intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      })
+      await this.slotExtractor.train(trainingSet)
     } catch (err) {
       this.logger.error('Error training slot tagger', err)
     }
@@ -130,7 +135,7 @@ export default class ScopedEngine {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
-    const systemEntities = await this.knownEntityExtractor.extract(text, lang)
+    const systemEntities = await this.systemEntityExtractor.extract(text, lang)
 
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
@@ -141,11 +146,11 @@ export default class ScopedEngine {
     const lang = await this.langDetector.identify(text)
     const intents: Prediction[] = await this.intentClassifier.predict(text)
     const entities = await this._extractEntities(text, lang)
+
+    const intent = findMostConfidentPredictionMeanStd(intents, this.confidenceTreshold)
+
     // TODO add entities and detected intent in the slotExtractor
-    const slots = await this.slotExtractor.extract(text)
-
-    const intent = intents.find(i => i.confidence >= this.confidenceTreshold) || { name: 'none', confidence: 1.0 }
-
+    const slots = await this.slotExtractor.extract(text, intent.name, entities)
     await this._filterIntentSlot(slots, intent)
 
     return {
@@ -156,4 +161,40 @@ export default class ScopedEngine {
       intents: intents.map(p => ({ ...p, matches: createIntentMatcher(p.name) }))
     }
   }
+}
+
+export const NonePrediction: Prediction = {
+  confidence: 1.0,
+  name: 'none'
+}
+
+/**
+ * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
+ * @param intents
+ * @param fixedThreshold
+ * @param std number of standard deviation away. normally between 2 and 5
+ */
+export function findMostConfidentPredictionMeanStd(
+  intents: Prediction[],
+  fixedThreshold: number,
+  std: number = 3
+): Prediction {
+  if (!intents.length) {
+    return NonePrediction
+  }
+
+  const best = intents.find(x => x.confidence >= fixedThreshold)
+
+  if (best) {
+    return best
+  }
+
+  const mean = _.meanBy<Prediction>(intents, 'confidence')
+  const stdErr =
+    Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length) /
+    Math.sqrt(intents.length)
+
+  const dominant = intents.find(x => x.confidence >= stdErr * std + mean)
+
+  return dominant || NonePrediction
 }
