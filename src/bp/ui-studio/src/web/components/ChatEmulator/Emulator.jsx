@@ -4,6 +4,10 @@ import Promise from 'bluebird'
 import SplitPane from 'react-split-pane'
 import JSONTree from 'react-json-tree'
 import _ from 'lodash'
+import nanoid from 'nanoid'
+import { Button } from 'react-bootstrap'
+
+import { Glyphicon } from 'react-bootstrap'
 
 import classnames from 'classnames'
 
@@ -12,6 +16,7 @@ import Message from './Message'
 
 import style from './Emulator.styl'
 
+const USER_ID_KEY = `bp::${window.BOT_ID}::emulator::userId`
 const SENT_HISTORY_KEY = `bp::${window.BOT_ID}::emulator::sentHistory`
 const SENT_HISTORY_SIZE = 20
 
@@ -26,8 +31,19 @@ export default class EmulatorChat extends React.Component {
     textInputValue: '',
     sending: false,
     messages: [],
+    userId: this.getOrCreateUserId(false),
     sentHistory: JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]'),
     sentHistoryIndex: 0
+  }
+
+  getOrCreateUserId(forceNew = false) {
+    if (!forceNew && localStorage.getItem(USER_ID_KEY)) {
+      return localStorage.getItem(USER_ID_KEY)
+    }
+
+    const userId = 'emulator_' + nanoid(7)
+    localStorage.setItem(USER_ID_KEY, userId)
+    return userId
   }
 
   componentDidUpdate(prevProps) {
@@ -67,7 +83,7 @@ export default class EmulatorChat extends React.Component {
 
     const sentAt = Date.now()
     const res = await axios.post(
-      `${window.BOT_API_PATH}/converse/my_user`,
+      `${window.BOT_API_PATH}/converse/${this.state.userId}`,
       { text },
       { params: { include: 'nlu,state' } }
     )
@@ -122,9 +138,25 @@ export default class EmulatorChat extends React.Component {
     return level <= 1
   }
 
+  handleChangeUserId = () => {
+    this.setState(
+      {
+        messages: [],
+        selectedIndex: -1,
+        userId: this.getOrCreateUserId(true)
+      },
+      () => this.textInputRef.current.focus()
+    )
+  }
+
   render() {
     return (
       <div className={style.container}>
+        <div className={style.toolbar}>
+          <Button onClick={this.handleChangeUserId}>
+            <Glyphicon glyph="refresh" /> New session
+          </Button>
+        </div>
         <div className={style.panes}>
           <SplitPane
             split="horizontal"

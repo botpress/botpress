@@ -45,6 +45,31 @@
   }
 }
 
+.toolbar {
+  background-color: var(--c-background--dark-1);
+
+  :global(.btn-default) {
+    color: var(--c-neutral--light-1);
+    background-color: var(--c-background--dark-1);
+    border-color: var(--c-background--dark-2);
+    padding: 3px 5px;
+    border-radius: 0;
+    border-top: none;
+    border-bottom: none;
+
+    &:hover {
+      color: var(--c-text--light);
+      background-color: var(--c-background--dark-2);
+    }
+  }
+
+  :global(.glyphicon) {
+    color: var(--c-text--light);
+    font-size: 80%;
+    margin-right: 3px;
+  }
+}
+
 :global(.Resizer.horizontal) {
   background: black;
   height: 8px;
