@@ -9,7 +9,7 @@ export const keyMap = {
   // 'go-nlu': 'g n',
   // 'go-content': 'g c',
   // 'go-emulator': 'g e',
-  // 'go-modul  e-qna': 'g m q',
+  // 'go-module-qna': 'g m q',
 
   // Flow-Editor Actions
   'flow-add-node': `${navigationKey}+a`,
