@@ -14,7 +14,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
   const csvUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 
-  router.get('/questions', async (req, res) => {
+  router.get('/list', async (req, res) => {
     try {
       const {
         query: { question = '', categories = [], limit, offset }
@@ -29,7 +29,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.post('/questions', async (req, res) => {
+  router.post('/create', async (req, res) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
       const id = await storage.insert(req.body)
@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.get('/questions/:id', async (req, res) => {
+  router.get('/question/:id', async (req, res) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
       const question = await storage.getQuestion(req.params.id)
@@ -51,14 +51,14 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.put('/questions/:id', async (req, res) => {
+  router.put('/:question', async (req, res) => {
     const {
       query: { limit, offset, question, categories }
     } = req
 
     try {
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.update(req.body, req.params.id)
+      await storage.update(req.body, req.params.question)
       const questions = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questions)
     } catch (e) {
@@ -68,14 +68,14 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.delete('/questions/:id', async (req, res) => {
+  router.delete('/:question', async (req, res) => {
     const {
       query: { limit, offset, question, categories }
     } = req
 
     try {
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.delete(req.params.id, undefined)
+      await storage.delete(req.params.question, undefined)
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
     } catch (e) {
