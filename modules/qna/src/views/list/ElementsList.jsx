@@ -8,37 +8,16 @@ export class ElementsList extends React.Component {
   state = {
     inputValue: '',
     error: undefined,
-    elements: [],
     editElementIndex: undefined
-  }
-
-  createElement = element => {
-    this.setState({ elements: [...this.state.elements, element] }, this.onElementsChange)
-  }
-
-  updateElement = (element, index) => {
-    const elements = this.state.elements
-    if (elements[index]) {
-      elements[index] = element
-      this.setState({ elements, editElementIndex: undefined }, this.onElementsChange)
-    }
-  }
-
-  deleteElement = index => {
-    const elements = this.state.elements
-
-    if (elements[index]) {
-      elements.splice(index, 1)
-      this.setState({ elements }, this.onElementsChange)
-    }
   }
 
   toggleEditMode = index => {
     this.setState({ editElementIndex: index })
   }
 
-  onElementsChange = () => {
-    this.props.onElementsChange && this.props.onElementsChange(this.state.elements)
+  handleEditEnter = (element, index) => {
+    this.setState({ editElementIndex: undefined })
+    this.props.update(element, index)
   }
 
   renderElement = (element, index) => {
@@ -51,8 +30,8 @@ export class ElementsList extends React.Component {
         <InputElement
           key={`elements_edit_element_${index}`}
           defaultValue={element}
-          elements={this.state.elements}
-          onEnter={element => this.updateElement(element, index)}
+          elements={this.props.elements}
+          onEnter={element => this.handleEditEnter(element, index)}
         />
       )
     } else {
@@ -60,7 +39,7 @@ export class ElementsList extends React.Component {
         <ListGroupItem key={`elements_create_element_${index}`} className={style.listElement}>
           <div className={style.listElementValue}>{element}</div>
           <Glyphicon glyph="pencil" onClick={() => this.toggleEditMode(index)} className={style.listElementIcon} />
-          <Glyphicon glyph="trash" onClick={() => this.deleteElement(index)} className={style.listElementIcon} />
+          <Glyphicon glyph="trash" onClick={() => this.props.delete(index)} className={style.listElementIcon} />
         </ListGroupItem>
       )
     }
@@ -72,10 +51,10 @@ export class ElementsList extends React.Component {
         <InputElement
           placeholder={this.props.placeholder || 'Type and press enter to create an element'}
           eraseValue={true}
-          elements={this.state.elements}
-          onEnter={this.createElement}
+          elements={this.props.elements}
+          onEnter={this.props.create}
         />
-        {this.state.elements.map((element, index) => this.renderElement(element, index))}
+        {this.props.elements && this.props.elements.map((element, index) => this.renderElement(element, index))}
       </div>
     )
   }

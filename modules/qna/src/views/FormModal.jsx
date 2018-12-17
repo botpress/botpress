@@ -152,12 +152,29 @@ export default class FormModal extends Component {
     )
   }
 
-  handleAnswersChange = answers => {
-    this.setState({ item: { ...this.state.item, answers } })
-  }
-
   handleSubmit = (event, isEdit) => {
     !isEdit ? this.onCreate(event) : this.onEdit(event)
+  }
+
+  createAnswer = answer => {
+    const answers = [...this.state.item.answers, answer]
+    this.changeItemProperty('answers', answers)
+  }
+
+  updateAnswer = (answer, index) => {
+    const answers = this.state.item.answers
+    if (answers[index]) {
+      answers[index] = answer
+      this.changeItemProperty('answers', answers)
+    }
+  }
+
+  deleteAnswer = index => {
+    const answers = this.state.item.answers
+    if (answers[index]) {
+      answers.splice(index, 1)
+      this.changeItemProperty('answers', answers)
+    }
   }
 
   render() {
@@ -223,7 +240,10 @@ export default class FormModal extends Component {
 
                 <ElementsList
                   placeholder="Type and press enter to add an answer"
-                  onElementsChange={this.handleAnswersChange}
+                  elements={this.state.item.answers}
+                  create={this.createAnswer}
+                  update={this.updateAnswer}
+                  delete={this.deleteAnswer}
                 />
               </div>
 
