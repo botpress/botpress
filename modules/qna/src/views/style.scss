@@ -1,36 +1,4 @@
-$elementHeight: 40px;
-
-.elementTitle {
-  margin: 10px 0 10px 0;
-  font-size: 15px;
-  font-weight: 400;
-}
-
-.elementBody {
-  display: flex;
-  height: $elementHeight;
-
-  &:hover {
-    .elementRemove {
-      display: inherit;
-    }
-  }
-}
-
-.elementRemove {
-  padding-left: 10px;
-  display: none;
-  height: $elementHeight;
-  width: $elementHeight;
-}
-
-.addVariationBtn {
-  display: block;
-}
-
-.qnaInvalidAnswer {
-  border-color: red;
-}
+$mainGreen: #1bb68a;
 
 .qna {
   h4 {
@@ -63,9 +31,6 @@ $elementHeight: 40px;
   :global(.btn) {
     float: right;
   }
-}
-
-.questionsList {
 }
 
 .pale {
@@ -110,12 +75,12 @@ $elementHeight: 40px;
 }
 
 .qnaHeader {
-  margin-bottom: 20px;
+  margin-bottom: 60px;
 }
 
 .searchBar {
-  float: right;
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 0;
 }
 
@@ -138,7 +103,27 @@ $elementHeight: 40px;
 }
 
 .qnaNavBarAddNew {
-  margin-left: 10px;
+  background-color: $mainGreen;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 30px;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #108c67;
+  }
+
+  &:focus {
+    background-color: #108c67;
+
+    &:active {
+      background-color: #108c67;
+    }
+  }
+
+  &:active {
+    background-color: #108c67;
+  }
 }
 
 .itemQuestions {
@@ -150,12 +135,6 @@ $elementHeight: 40px;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 13px;
-
-  &:hover {
-    .itemActionDelete {
-      display: inherit !important;
-    }
-  }
 }
 
 .itemContainer {
@@ -169,11 +148,12 @@ $elementHeight: 40px;
   margin-right: 10px;
 }
 
-.firstQuestionTitle {
+.questionsList {
+  display: flex;
+  flex-direction: column;
   font-size: 18px;
   font-weight: 600;
-  color: var(--c-brand);
-  cursor: pointer;
+  color: #1bb68a;
 }
 
 .itemAnswerContainer {
@@ -189,6 +169,7 @@ $elementHeight: 40px;
 .itemAnswerText {
   color: rgb(182, 182, 182);
   font-weight: 600;
+  font-size: 15px;
 }
 
 .itemAction {
@@ -200,7 +181,6 @@ $elementHeight: 40px;
 }
 
 .itemRedirect {
-  margin-top: 10px;
   display: flex;
 }
 
@@ -210,7 +190,6 @@ $elementHeight: 40px;
 }
 
 .itemActionDelete {
-  display: none !important;
   margin-right: 30px;
   cursor: pointer;
 
@@ -270,9 +249,23 @@ $elementHeight: 40px;
   border-bottom-right-radius: 10px;
 }
 
+.qnaCategoryTitle,
+.qnaQuestionsTitle,
+.qnaReplyTitle {
+  font-weight: 600;
+  color: #000;
+  font-size: 18px;
+}
+
 .qnaCategorySelect {
   width: 250px;
   margin-top: 5px;
+}
+
+.qnaQuestions {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
 }
 
 .qnaQuestionsHint {
@@ -281,22 +274,24 @@ $elementHeight: 40px;
 
 .qnaQuestionsTextarea {
   margin-top: 5px;
-  height: 100px !important;
 }
 
-.qnaSectionTitle {
-  display: block;
-  font-weight: 600;
-  color: #000;
-  font-size: 18px;
+.qnaReply {
+  margin-top: 40px;
 }
 
-.qnaSection {
-  margin-top: 20px;
+.qnaAnswer {
+  margin-top: 15px;
 }
 
 .qnaAnswerCheck {
   display: flex;
+}
+
+.qnaAnswerTextarea {
+  margin-top: 5px;
+  width: calc(100% - 15px);
+  margin-left: 15px;
 }
 
 .qnaAndOr {
@@ -429,7 +424,6 @@ $elementHeight: 40px;
   border-color: red;
 }
 
-.itemRedirectTitle,
 .itemNode,
 .itemFlow {
   font-weight: 900;
@@ -441,15 +435,4 @@ $elementHeight: 40px;
 .itemNodeName {
   color: #8a888b;
   font-weight: 500;
-}
-
-.variation {
-  &:focus {
-    .variationDelete {
-      display: inherit;
-    }
-  }
-}
-.variationDelete {
-  display: none;
 }

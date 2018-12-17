@@ -36,7 +36,7 @@
 
 .slider.checked:before {
   transform: translateX(19px);
-  background-color: var(--c-brand);
+  background-color: #1bb68a;
 }
 
 .slider {

@@ -9,7 +9,6 @@ import { getToken } from '~/util/Auth'
 import PropTypes from 'expose-loader?PropTypes!prop-types'
 import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
 import ContentPickerWidget from 'expose-loader?BotpressContentPicker!~/components/Content/Select/Widget'
-import ElementsList from 'expose-loader?ElementsList!~/components/Shared/ElementsList'
 import { Provider } from 'react-redux'
 /* eslint-enable */
 
