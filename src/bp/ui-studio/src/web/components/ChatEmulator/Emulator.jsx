@@ -31,7 +31,7 @@ export default class EmulatorChat extends React.Component {
     textInputValue: '',
     sending: false,
     messages: [],
-    userId: this.getOrCreateUserId(false),
+    userId: this.getOrCreateUserId(),
     sentHistory: JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]'),
     sentHistoryIndex: 0
   }
@@ -92,9 +92,9 @@ export default class EmulatorChat extends React.Component {
     const msg = { duration, sent: text, result: res.data }
 
     // Only append to history if it's not the same as last one
-    const newSentHistory = [...this.state.sentHistory]
+    let newSentHistory = this.state.newSentHistory
     if (_.last(newSentHistory) !== text) {
-      newSentHistory.push(text)
+      newSentHistory = [...this.state.sentHistory, text]
     }
 
     this.setState(
