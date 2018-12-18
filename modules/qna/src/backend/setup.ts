@@ -4,7 +4,6 @@ import { NLU_PREFIX } from './providers/nlu'
 import NluStorage from './providers/nlu'
 import MicrosoftQnaMakerStorage from './providers/qnaMaker'
 import { QnaStorage } from './qna'
-
 export const initBot = async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>, botId: string) => {
   const config = await bp.config.getModuleConfigForBot('qna', botId)
 
@@ -36,18 +35,12 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     description: 'Listen for predefined questions and send canned responses.'
   })
 
-  const getAlternativeAnswer = question => {
-    const randomIndex = Math.floor(Math.random() * question.answers.length)
-    return question.answers[randomIndex]
-  }
-
   const buildSuggestedReply = async (event, question, confidence, intent, renderer) => {
     const payloads = []
-
     if (question.action.includes('text')) {
       const element = await bp.cms.renderElement(
         renderer,
-        { text: getAlternativeAnswer(question), typing: true },
+        { text: question.answer, typing: true },
         {
           botId: event.botId,
           channel: event.channel,

@@ -30,7 +30,7 @@ export default class EntitiesComponent extends React.Component {
   }
 
   onEntityUpdate = entity => {
-    return this.props.bp.axios.put(`/mod/nlu/entities/${entity.name}`, entity)
+    return this.props.bp.axios.put(`/mod/nlu/entities/${entity.id}`, entity)
       .then(() => {
         const i = this.state.entities.findIndex(ent => ent.id == entity.id)
         this.setState({
@@ -49,7 +49,7 @@ export default class EntitiesComponent extends React.Component {
       return
     }
 
-    return this.props.bp.axios.delete(`/mod/nlu/entities/${entity.name}`).then(this.fetchEntities)
+    return this.props.bp.axios.delete(`/mod/nlu/entities/${entity.id}`).then(this.fetchEntities)
   }
 
   handleEntityCreated = entity => {

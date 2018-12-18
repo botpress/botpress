@@ -6,16 +6,13 @@ import {
   ControlLabel,
   Checkbox,
   Panel,
-  OverlayTrigger,
-  ButtonGroup,
   ButtonToolbar,
   Button,
   Well,
   Modal,
   HelpBlock,
   Alert,
-  Pagination,
-  Popover
+  Pagination
 } from 'react-bootstrap'
 import Select from 'react-select'
 
@@ -67,7 +64,7 @@ export default class QnaAdmin extends Component {
 
   fetchData = (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/questions', { params }).then(({ data }) => {
+    this.props.bp.axios.get('/mod/qna/list', { params }).then(({ data }) => {
       const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
         label: (questions || []).join(','),
         value: id
@@ -99,7 +96,7 @@ export default class QnaAdmin extends Component {
 
   onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
 
-  onQuestionsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
+  onQuestioinsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
     const { filterQuestion, filterCategory } = this.state
@@ -107,7 +104,7 @@ export default class QnaAdmin extends Component {
     const categories = filterCategory.map(({ value }) => value)
 
     this.props.bp.axios
-      .get('/mod/qna/questions', {
+      .get('/mod/qna/list', {
         params: {
           question,
           categories,
@@ -254,86 +251,59 @@ export default class QnaAdmin extends Component {
 
   renderQnAHeader = () => (
     <FormGroup className={style.qnaHeader}>
-      <ButtonToolbar>
-        <ButtonGroup>
-          <Button
-            bsStyle="default"
-            onClick={() =>
-              this.setState({
-                importCsvModalShow: true,
-                csvToUpload: null,
-                csvUploadStatus: null,
-                isCsvUploadReplace: false
-              })
-            }
-            type="button"
-          >
-            Import from CSV
-          </Button>
-          <Button bsStyle="default" onClick={this.downloadCsv} type="button">
-            Export to CSV
-          </Button>
-        </ButtonGroup>
-        <div className={style.searchBar}>
-          {this.renderSearch()}
-          {this.renderImportModal()}
-        </div>
+      <ButtonToolbar className={style.csvContainer}>
+        <Button
+          className={style.csvButton}
+          onClick={() =>
+            this.setState({
+              importCsvModalShow: true,
+              csvToUpload: null,
+              csvUploadStatus: null,
+              isCsvUploadReplace: false
+            })
+          }
+          type="button"
+        >
+          Import from CSV
+        </Button>
+        <Button className={style.csvButton} onClick={this.downloadCsv} type="button">
+          Export to CSV
+        </Button>
+        {this.renderImportModal()}
       </ButtonToolbar>
     </FormGroup>
   )
 
   renderSearch = () => (
-    <React.Fragment>
-      <FormControl
-        value={this.state.filterQuestion}
-        onChange={this.onQuestionsFilter}
-        placeholder="Search for a question"
-      />
-      {this.state.categoryOptions.length ? (
-        <Select
+    <div className={classnames(style.qnaNavBar, 'qnaNavBar')}>
+      <div className={style.searchBar}>
+        <FormControl
           className={style.serachQuestions}
-          multi
-          value={this.state.filterCategory}
-          options={this.state.categoryOptions}
-          onChange={this.onCategoriesFilter}
-          placeholder="Search for a category"
+          value={this.state.filterQuestion}
+          onChange={this.onQuestioinsFilter}
+          placeholder="Filter questions"
         />
-      ) : null}
+        {this.state.categoryOptions.length ? (
+          <Select
+            className={style.serachQuestions}
+            multi
+            value={this.state.filterCategory}
+            options={this.state.categoryOptions}
+            onChange={this.onCategoriesFilter}
+            placeholder="Filter caterories"
+          />
+        ) : null}
+      </div>
       <Button
         className={style.qnaNavBarAddNew}
-        bsStyle="primary"
+        bsStyle="success"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
         type="button"
       >
-        Add new
+        + Add new
       </Button>
-    </React.Fragment>
+    </div>
   )
-
-  renderVariationsOverlay = variations => {
-    return (
-      <Popover id="questions-popover">
-        <ul className={style.questionsList}>
-          {variations.map(variation => (
-            <li key={variation}>{variation}</li>
-          ))}
-        </ul>
-      </Popover>
-    )
-  }
-
-  renderVariationsOverlayTrigger = elements => {
-    return (
-      elements.length > 1 && (
-        <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={this.renderVariationsOverlay(elements)}>
-          <span>
-            &nbsp;
-            <strong>({elements.length})</strong>
-          </span>
-        </OverlayTrigger>
-      )
-    )
-  }
 
   renderItem = ({ data: item, id }) => {
     if (!id) {
@@ -346,30 +316,25 @@ export default class QnaAdmin extends Component {
       <Well className={style.qnaItem} bsSize="small" key={id}>
         <div className={style.itemContainer}>
           <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q:</span>
-            <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-              {item.questions[0]}
-            </a>
-            {this.renderVariationsOverlayTrigger(item.questions)}
+            <span className={style.itemQuestionsTitle}>Q: </span>
+            <div className={style.questionsList}>{this.renderQustions(item.questions)}</div>
           </div>
           <div className={style.itemAnswerContainer}>
-            <span className={style.itemAnswerTitle}>A:</span>
-            <div className={style.itemAnswerText}>{item.answers[0]}</div>
-            {this.renderVariationsOverlayTrigger(item.answers)}
-          </div>
-          <div className={style.itemRedirectContainer}>
-            <div className={style.itemRedirect}>
-              {isRedirect && (
-                <React.Fragment>
-                  <div className={style.itemRedirectTitle}>Redirect to:</div>
+            <span className={style.itemAnswerTitle}>A: </span>
+            <div className={style.itemAnswer}>
+              <span className={style.itemAnswerText}>{item.answer}</span>
+              <div className={style.itemRedirect}>
+                {isRedirect ? (
                   <div className={style.itemFlow}>
                     Flow: <span className={style.itemFlowName}>{item.redirectFlow}</span>
                   </div>
+                ) : null}
+                {isRedirect ? (
                   <div className={style.itemNode}>
                     Node: <span className={style.itemNodeName}>{item.redirectNode}</span>
                   </div>
-                </React.Fragment>
-              )}
+                ) : null}
+              </div>
             </div>
           </div>
           {item.category ? (
@@ -383,17 +348,20 @@ export default class QnaAdmin extends Component {
           ) : null}
         </div>
         <div className={style.itemAction}>
+          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
           <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
+          <i className={classnames('material-icons', style.itemActionEdit)} onClick={this.editItem(id)}>
+            edit
+          </i>
         </div>
       </Well>
     )
   }
 
   deleteItem = id => () => {
-    const needDelete = confirm('Do you want to delete the question?')
+    const needDetelete = confirm('Do you want delete question?')
     const { filterQuestion, filterCategory, page } = this.state
     const params = {
       question: filterQuestion,
@@ -402,8 +370,8 @@ export default class QnaAdmin extends Component {
       offset: (page - 1) * ITEMS_PER_PAGE
     }
 
-    if (needDelete) {
-      this.props.bp.axios.delete(`/mod/qna/questions/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
+    if (needDetelete) {
+      this.props.bp.axios.delete(`/mod/qna/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 
@@ -421,17 +389,22 @@ export default class QnaAdmin extends Component {
     }
 
     item.enabled = value
-    this.props.bp.axios
-      .put(`/mod/qna/questions/${id}`, item, { params })
-      .then(({ data: { items } }) => this.setState({ items }))
+    this.props.bp.axios.put(`/mod/qna/${id}`, item, { params }).then(({ data: { items } }) => this.setState({ items }))
   }
+
+  renderQustions = questions =>
+    questions.map(question => (
+      <div key={question} className={style.questionText}>
+        {question}
+      </div>
+    ))
 
   toggleButton = ({ value, onChange }) => {
     const toggleCssClass = classnames('slider', { checked: value })
 
     return (
       <label className={classnames('switch', style.toggleButton)}>
-        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" tabIndex="-1" />
+        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" />
         <span className={toggleCssClass} />
       </label>
     )
@@ -439,7 +412,12 @@ export default class QnaAdmin extends Component {
 
   closeQnAModal = () => this.setState({ showQnAModal: false, currentItemId: null })
 
-  questionsList = () => this.state.items.map(this.renderItem)
+  questionsList = () => {
+    if (this.state.items.length) {
+      return this.state.items.map(this.renderItem)
+    }
+    return <h3>No questions have been added yet.</h3>
+  }
 
   updateQuestion = ({ items }) => this.setState({ items })
 
@@ -453,6 +431,7 @@ export default class QnaAdmin extends Component {
         />
         <Panel.Body>
           {this.renderQnAHeader()}
+          {this.renderSearch()}
           {this.renderPagination()}
           {this.questionsList()}
           {this.renderPagination()}
