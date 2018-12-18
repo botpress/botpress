@@ -128,7 +128,7 @@ export default class Storage implements QnaStorage {
   }
 
   /**
-   * This will migration questions to the new format.
+   * This will migrate questions to the new format.
    * @deprecated Questions support multiple answers since v11.3
    */
   private migrate_11_2_to_11_3(question) {
