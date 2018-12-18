@@ -21,17 +21,13 @@ export default class ElementsList extends React.Component {
   }
 
   renderElement = (element, index) => {
-    if (this.props.renderElement) {
-      return this.props.renderElement(element)
-    }
-
     if (this.state.editElementIndex === index) {
       return (
         <InputElement
           key={`elements_edit_element_${index}`}
           defaultValue={element}
           elements={this.props.elements}
-          onEnter={element => this.handleEditEnter(element, index)}
+          onEnterPressed={element => this.handleEditEnter(element, index)}
         />
       )
     } else {
@@ -51,9 +47,10 @@ export default class ElementsList extends React.Component {
       <div>
         <InputElement
           placeholder={this.props.placeholder || 'Type and press enter to create an element'}
-          eraseValue={true}
+          invalid={this.props.invalid}
+          cleanInputAfterEnterPressed={true}
           elements={this.props.elements}
-          onEnter={this.props.create}
+          onEnterPressed={this.props.create}
         />
         {this.props.elements && this.props.elements.map((element, index) => this.renderElement(element, index))}
       </div>

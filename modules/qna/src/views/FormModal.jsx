@@ -27,6 +27,7 @@ export default class FormModal extends Component {
     invalidFields: {
       category: false,
       questions: false,
+      answer: false,
       checkbox: false,
       redirectFlow: false,
       redirectNode: false
@@ -82,7 +83,7 @@ export default class FormModal extends Component {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
       questions: !item.questions.length || !item.questions[0].length,
-      answer: isText && !item.answers[0].length,
+      answer: (isText && !item.answers.length) || !item.answers[0].length,
       checkbox: !(isText || isRedirect),
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
@@ -152,8 +153,8 @@ export default class FormModal extends Component {
     )
   }
 
-  handleSubmit = (event, isEdit) => {
-    !isEdit ? this.onCreate(event) : this.onEdit(event)
+  handleSubmit = event => {
+    this.props.modalType === 'edit' ? this.onEdit(event) : this.onCreate(event)
   }
 
   createAnswer = answer => {
@@ -240,6 +241,7 @@ export default class FormModal extends Component {
 
                 <ElementsList
                   placeholder="Type and press enter to add an answer"
+                  invalid={this.state.invalidFields.answer}
                   elements={this.state.item.answers}
                   create={this.createAnswer}
                   update={this.updateAnswer}
@@ -291,7 +293,7 @@ export default class FormModal extends Component {
 
           <Modal.Footer className={style.qnaModalFooter}>
             <Button onClick={this.closeAndClear}>Cancel</Button>
-            <Button bsStyle="primary" type="button" onClick={e => this.handleSubmit(e, isEdit)}>
+            <Button bsStyle="primary" type="button" onClick={this.handleSubmit}>
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

@@ -9,20 +9,16 @@ export class InputElement extends React.Component {
     error: undefined
   }
 
-  onEnter = value => {
-    this.props.onEnter(value)
-  }
-
   handleOnEnter = event => {
     const inputValue = event.target.value
-    const enterKeyPressed = event.keyCode === 13
     const inputNotEmpty = inputValue !== ''
     const elementUnique = !this.props.elements.includes(inputValue)
 
-    if (enterKeyPressed) {
+    if (event.key === 'Enter') {
       if (inputNotEmpty && elementUnique) {
-        this.setState({ error: undefined }, () => this.onEnter(inputValue))
-        if (this.props.eraseValue) {
+        this.setState({ error: undefined }, () => this.props.onEnterPressed(inputValue))
+
+        if (this.props.cleanInputAfterEnterPressed) {
           this.elementInputRef.current.value = ''
         }
       } else {
@@ -36,7 +32,7 @@ export class InputElement extends React.Component {
       <React.Fragment>
         <input
           autoFocus
-          className={classnames('form-control', this.state.error && style.inputError)}
+          className={classnames('form-control', (this.state.error || this.props.invalid) && style.inputError)}
           ref={this.elementInputRef}
           type="text"
           placeholder={this.props.placeholder || ''}
