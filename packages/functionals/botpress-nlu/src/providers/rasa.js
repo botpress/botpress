@@ -81,6 +81,9 @@ export default class RasaProvider extends Provider {
 
   async _cacheLatestModel() {
     const metadata = await this.kvs.get(RASA_HASH_KVS_KEY)
+    if (!metadata) {
+      throw new Error('[NLU::Rasa] Could not fetch cached model: please make sure syncing succeeded first')
+    }
     this._modelId = metadata.modelId
     return metadata.modelId
   }
@@ -160,7 +163,8 @@ export default class RasaProvider extends Provider {
     } catch (err) {
       this._training = false
 
-      const msg = `"${_.get(err, 'response.data')}" Status: ${err.status} | Message: ${err.message}`
+      const data = _.get(err, 'response.data')
+      const msg = `"${data && JSON.stringify(data)}" Status: ${err.status} | Message: ${err.message}`
 
       if (err.status == 403) {
         const errorMsg = `[NLU::Rasa] A model is already training, aborting sync: ${msg}`
