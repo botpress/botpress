@@ -23,7 +23,7 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
 }
 
 // TODO use the same algorithm as in the prediction sequence
-const _generateTrainingTokens = (input: string, start: number, slot: string = '', slotDefinitions: sdk.NLU.IntentSlot[] = []): Token[] => {
+const _generateTrainingTokens = (input: string, start: number, slot: string = '', slotDefinitions: sdk.NLU.SlotDefinition[] = []): Token[] => {
   const matchedEntities = slotDefinitions
     .filter(slotDef => slot && slotDef.name === slot)
     .map(slotDef => slotDef.entity)
@@ -41,7 +41,7 @@ const _generateTrainingTokens = (input: string, start: number, slot: string = ''
 
 export const generateTrainingSequence = (
   input: string,
-  slotDefinitions: sdk.NLU.IntentSlot[],
+  slotDefinitions: sdk.NLU.SlotDefinition[],
   intentName: string = ''
 ): Sequence => {
   let m: RegExpExecArray | null

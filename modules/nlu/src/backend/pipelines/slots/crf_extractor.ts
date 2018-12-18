@@ -64,7 +64,7 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slots: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, entitites)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entitites)
         if (tag[0] === 'I' && slots[slotName]) {
           slots[slotName].source += ` ${token.value}`
         } else if (tag[0] === 'B' && slots[slotName]) {
@@ -77,20 +77,6 @@ export default class CRFExtractor implements SlotExtractor {
         }
         return slots
       }, {})
-  }
-
-  // TODO use slot definitions here
-  _makeSlot(slotName: string, token: Token, entitites: sdk.NLU.Entity[]): any {
-    // we might only want to attach the entity defined in the slot definition, not more
-    // to do so, instead of find, use a .filter that matches the slot definition for this particural slotName
-    const entity = entitites.find(e => e.meta.start <= token.start && e.meta.end >= token.end)
-    const value = entity ? _.get(entity, 'data.value', token.value) : token.value
-    return {
-      name: slotName,
-      source: token.value,
-      value,
-      entity
-    }
   }
 
   // this is made "protected" to facilitate model validation
@@ -106,6 +92,18 @@ export default class CRFExtractor implements SlotExtractor {
     }
 
     return this._tagger.tag(inputVectors).result
+  }
+
+  private _makeSlot(slotName: string, token: Token, slotDefinitions: sdk.NLU.SlotDefinition[], entitites: sdk.NLU.Entity[]): sdk.NLU.Slot {
+    const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
+    const entity = slotDef ? entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end) : undefined
+    const value = entity ? _.get(entity, 'data.value', token.value) : token.value
+    return {
+      name: slotName,
+      source: token.value,
+      value,
+      entity
+    }
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
