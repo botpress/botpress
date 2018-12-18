@@ -5,6 +5,7 @@ import format from 'date-fns/format'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 import Linkify from 'react-linkify'
 import snarkdown from 'snarkdown'
+import get from 'lodash/get'
 
 import BotAvatar from '../bot_avatar'
 import QuickReplies from './quick_replies'
@@ -311,8 +312,8 @@ class Message extends Component {
   }
 
   render_custom() {
-    const type = this.props.data.message_raw.custom_type.substring(1) || ''
-    const Plugin = ((window.botpress || {})[type] || {})['Plugin']
+    const type = this.props.data.message_raw.custom_type || ''
+    const Plugin = get(window, `botpress.${type}.Plugin`) || get(window, `botpress['@${type}'].Plugin`)
     const data = this.props.data.message_raw.custom_data
     return (
       <Linkify>
