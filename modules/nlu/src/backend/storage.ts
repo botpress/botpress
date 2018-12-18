@@ -91,7 +91,7 @@ export default class Storage {
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent): Promise<sdk.NLU.IntentDefinition> {
+  async getIntent(intent: string): Promise<sdk.NLU.IntentDefinition> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {

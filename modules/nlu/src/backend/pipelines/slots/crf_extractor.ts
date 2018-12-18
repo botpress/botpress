@@ -51,22 +51,17 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = true
   }
 
-  /*
-  slot : {
-    name: string
-    source: string,
-    entity: sdk.NLU.Entity
-  }
-  */
-
-  // TODO use intent definition instead of itent name
-  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]) {
-    const seq = generatePredictionSequence(text, intentName, entitites)
+  async extract(text: string, intentDef: sdk.NLU.IntentDefinition, entitites: sdk.NLU.Entity[]) {
+    const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
 
     return _.zip(seq.tokens, tags)
-      // TODO perform intent slot filtering here
-      .filter(([token, tag]) => token && tag && tag != 'o')
+      .filter(([token, tag]) => {
+        if (!token || !tag || tag === 'o') return false
+
+        const slotName = tag.slice(2)
+        return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
+      })
       .reduce((slots: any, [token, tag]) => {
         const slotName = tag.slice(2)
         const slot = this._makeSlot(slotName, token, entitites)
