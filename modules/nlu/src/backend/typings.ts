@@ -1,6 +1,21 @@
 import sdk from 'botpress/sdk'
 
-import { Sequence } from './pipelines/slots/pre-processor'
+export type Tag = 'o' | 'B' | 'I'
+
+export interface Token {
+  tag?: Tag
+  value: string
+  slot?: string
+  start: number
+  end: number
+  matchedEntities: string[]
+}
+
+export interface Sequence {
+  intent: string
+  cannonical: string
+  tokens: Token[]
+}
 
 export type EngineByBot = { [botId: string]: Engine }
 
@@ -28,3 +43,4 @@ export interface IntentClassifier {
 export interface LanguageIdentifier {
   identify(input: string): Promise<string>
 }
+
