@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
-import { Hooks, HookService } from '../hook/hook-service'
+import { HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
 import { FlowService } from './flow/service'
@@ -114,10 +114,6 @@ export class DialogEngine {
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
     this._logTimeout(botId)
     await this._loadFlows(botId)
-
-    // FIXME: Doesnt play well with tests
-    // const api = await createForGlobalHooks()
-    // await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
 
     // This is the only place we dont want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {

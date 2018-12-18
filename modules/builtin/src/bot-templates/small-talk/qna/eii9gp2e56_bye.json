@@ -17,7 +17,7 @@
       "have a good night",
       "have a good day"
     ],
-    "answer": "C U later! :) Bye.",
+    "answers": ["C U later! :) Bye."],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

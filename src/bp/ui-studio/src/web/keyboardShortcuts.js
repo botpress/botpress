@@ -1,3 +1,7 @@
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+
+const navigationKey = isMac ? 'ctrl' : 'ctrl+shift'
+
 export const keyMap = {
   // Navigation to screens
   // PROPOSAL STAGE
@@ -8,6 +12,8 @@ export const keyMap = {
   // 'go-module-qna': 'g m q',
 
   // Flow-Editor Actions
-  'flow-add-node': ['ctrl+a', 'cmd+a'],
-  'flow-save': ['ctrl+s', 'cmd+s']
+  'flow-add-node': `${navigationKey}+a`,
+  'flow-save': `${navigationKey}+s`,
+  'emulator-toggle': `${navigationKey}+e`,
+  cancel: 'esc'
 }
