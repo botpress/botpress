@@ -15,17 +15,20 @@
   display: flex;
   align-items: center;
 
-  &__list {
+  .list {
     list-style-type: none;
     margin-bottom: 0;
     padding-left: 0;
     z-index: 15;
+    width: 100%;
 
-    li {
-      padding: 0 3px;
+    .item {
+      padding: 0 5px;
+      white-space: pre;
       display: inline-block;
       line-height: 24px;
-      margin-top: -1px;
+      height: 100%;
+      vertical-align: top;
 
       a {
         color: var(--c-text--light);
@@ -34,41 +37,30 @@
           text-decoration: none;
         }
       }
-    }
 
-    li + li {
-      margin-left: 8px;
-    }
+      &.clickable {
+        user-select: none;
 
-    &__clickable {
-      &:hover {
-        background-color: var(--c-background--dark-2);
-        cursor: pointer;
+        &:hover,
+        &.active {
+          background-color: var(--c-background--dark-2);
+          cursor: pointer;
+        }
       }
     }
+
+    .item + .item {
+      margin-left: 5px;
+    }
+
+    .right {
+      float: right;
+      margin-left: 5px;
+    }
   }
 
-  &__separator {
-    background-color: var(--c-background--dark-3);
-    width: 1px;
-    height: 12px;
-    margin: 0 0 0 var(--s-default);
-  }
-
-  &__worker {
-    -webkit-animation: flash linear 1s infinite;
+  &.worker {
     animation: flash linear 1s infinite;
-    @-webkit-keyframes flash {
-      0% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.1;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
     @keyframes flash {
       0% {
         opacity: 1;
@@ -81,9 +73,12 @@
       }
     }
   }
+}
 
-  &Tabs {
-    height: 100%;
-    margin-left: auto;
-  }
+.shortcut {
+  background-color: #111;
+  color: white;
+  padding: 3px 5px;
+  font-size: 14px;
+  margin: 5px auto;
 }
