@@ -51,11 +51,24 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = true
   }
 
+  /**
+   * Returns an object with extracted slots name as keys.
+   * Each slots under each keys can either be a single Slot object or Array<Slot>
+   * return value example:
+   * slots: {
+   *   artist: {
+   *     name: "artist",
+   *     value: "Kanye West",
+   *     entity: [Object] // corresponding sdk.NLU.Entity
+   *   },
+   *   songs : [ multiple slots objects here]
+   * }
+   */
   async extract(text: string, intentDef: sdk.NLU.IntentDefinition, entitites: sdk.NLU.Entity[]) {
     const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
 
-    return _.zip(seq.tokens, tags)
+    return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tag]) => {
         if (!token || !tag || tag === 'o') return false
 
@@ -98,11 +111,14 @@ export default class CRFExtractor implements SlotExtractor {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity = slotDef ? entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end) : undefined
     const value = entity ? _.get(entity, 'data.value', token.value) : token.value
-    return {
+
+    const slot = {
       name: slotName,
-      value,
-      entity
-    }
+      value
+    } as sdk.NLU.Slot
+
+    if (entity) slot.entity = entity
+    return slot
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
