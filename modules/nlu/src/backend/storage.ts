@@ -36,16 +36,12 @@ export default class Storage {
 
   async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
     intent = sanitizeFilenameNoExt(intent)
-    const sysEntities = this.getSystemEntities()
+    const entities = await this.getAvailableEntities()
 
     if (content.slots) {
       await Promise.map(content.slots, async slot => {
-        if (!sysEntities.find(e => e.name === slot.entity)) {
-          try {
-            await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
-          } catch (err) {
-            throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
-          }
+        if (!entities.find(e => e.name === slot.entity)) {
+          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
         }
       })
     }
@@ -95,7 +91,7 @@ export default class Storage {
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent): Promise<sdk.NLU.IntentDefinition> {
+  async getIntent(intent: string): Promise<sdk.NLU.IntentDefinition> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {

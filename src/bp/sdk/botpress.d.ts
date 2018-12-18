@@ -194,7 +194,7 @@ declare module 'botpress/sdk' {
       pattern?: string
     }
 
-    export interface IntentSlot {
+    export interface SlotDefinition {
       name: string
       entity: string
     }
@@ -203,7 +203,7 @@ declare module 'botpress/sdk' {
       name: string
       utterances: string[]
       filename: string
-      slots: IntentSlot[]
+      slots: SlotDefinition[]
     }
 
     export interface Intent {
@@ -232,6 +232,16 @@ declare module 'botpress/sdk' {
       start: number
       end: number
       raw: any
+    }
+
+    export interface Slot {
+      name: string
+      value: any
+      entity: Entity
+    }
+
+    export interface SlotsCollection {
+      [key: string]: Slot | Slot[]
     }
   }
   export namespace IO {
@@ -312,7 +322,7 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.IntentSlot[]
+      readonly slots: NLU.SlotsCollection
     }
 
     export interface IncomingEvent extends Event {

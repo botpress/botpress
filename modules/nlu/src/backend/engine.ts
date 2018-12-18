@@ -121,16 +121,6 @@ export default class ScopedEngine {
       .digest('hex')
   }
 
-  // maybe maybe this should be done within the extractor ?
-  private async _filterIntentSlot(slots: any, intentPrediction: any) {
-    const matchingIntentDef = await this.storage.getIntent(intentPrediction.name)
-    for (const slot in slots) {
-      if (!(matchingIntentDef.slots || []).find(s => s.name === slot)) {
-        delete slots[slot]
-      }
-    }
-  }
-
   private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
@@ -148,10 +138,9 @@ export default class ScopedEngine {
     const entities = await this._extractEntities(text, lang)
 
     const intent = findMostConfidentPredictionMeanStd(intents, this.confidenceTreshold)
+    const intentDef = await this.storage.getIntent(intent.name)
 
-    // TODO add entities and detected intent in the slotExtractor
-    const slots = await this.slotExtractor.extract(text, intent.name, entities)
-    await this._filterIntentSlot(slots, intent)
+    const slots = await this.slotExtractor.extract(text, intentDef, entities)
 
     return {
       language: lang,
