@@ -48,7 +48,7 @@
       "you made my day",
       "you make my day"
     ],
-    "answer": "Thanks, but you should say that to my creators!",
+    "answers": ["Thanks, but you should say that to my creators!"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

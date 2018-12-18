@@ -10,7 +10,7 @@
       "how are you buddy?",
       "how are you feeling?"
     ],
-    "answer": "Pretty good, thank you for asking!",
+    "answers": ["Pretty good, thank you for asking!"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
