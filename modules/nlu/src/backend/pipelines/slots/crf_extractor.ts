@@ -5,7 +5,7 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import FastText, { FastTextTrainArgs } from '../../tools/fastText'
-import { Sequence, SlotExtractor, Token } from '../../typings'
+import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -64,31 +64,39 @@ export default class CRFExtractor implements SlotExtractor {
    *   songs : [ multiple slots objects here]
    * }
    */
-  async extract(text: string, intentDef: sdk.NLU.IntentDefinition, entitites: sdk.NLU.Entity[]) {
+  async extract(text: string, intentDef: sdk.NLU.IntentDefinition, entitites: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection> {
     const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
 
+    // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tag]) => {
-        if (!token || !tag || tag === 'o') return false
+        if (!token || !tag || tag === BIO.OUT) {
+          return false
+        }
 
         const slotName = tag.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
-      .reduce((slots: any, [token, tag]) => {
+      .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
         const slot = this._makeSlot(slotName, token, intentDef.slots, entitites)
-        if (tag[0] === 'I' && slots[slotName]) {
-          slots[slotName].source += ` ${token.value}`
-        } else if (tag[0] === 'B' && slots[slotName]) {
-          if (Array.isArray(slots[slotName])) {
+        if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
+          // simply append the source if the tag is inside a slot
+          slotCollection[slotName].source += ` ${token.value}`
+        } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
+          // if the tag is beginning and the slot already exists, we create need a array slot
+          if (Array.isArray(slotCollection[slotName])) {
             slotName[slotName].push(slot)
           }
-          else slots[slotName] = [slots[slotName], slot]
+          else {
+            // if no slots exist we assign a slot to the slot key
+            slotCollection[slotName] = [slotCollection[slotName], slot]
+          }
         } else {
-          slots[slotName] = slot
+          slotCollection[slotName] = slot
         }
-        return slots
+        return slotCollection
       }, {})
   }
 
@@ -163,7 +171,7 @@ export default class CRFExtractor implements SlotExtractor {
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
         .map(s => {
-          if (s.tag === 'o') return s.value
+          if (s.tag === BIO.OUT) return s.value
           else return s.slot
         })
         .join(' ')

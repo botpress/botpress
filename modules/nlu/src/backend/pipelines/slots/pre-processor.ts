@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { Sequence, Tag, Token } from '../../typings'
+import { BIO, Sequence, Tag, Token } from '../../typings'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
@@ -17,8 +17,12 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
     end: start + value.length,
   } as Token
 
-  if (tag) token.tag = <Tag>tag
-  if (slot) token.slot = slot
+  if (tag) {
+    token.tag = <Tag>tag
+  }
+  if (slot) {
+    token.slot = slot
+  }
   return token
 }
 
@@ -28,9 +32,11 @@ const _generateTrainingTokens = (input: string, start: number, slot: string = ''
     .filter(slotDef => slot && slotDef.name === slot)
     .map(slotDef => slotDef.entity)
 
-  return _tokenize(input).map((t, i) => {
-    let tag = 'o'
-    if (slot) tag = i === 0 ? 'B' : 'I'
+  return _tokenize(input).map((t, idx) => {
+    let tag = BIO.OUT
+    if (slot) {
+      tag = idx === 0 ? BIO.BEGINNING : BIO.INSIDE
+    }
 
     const token = _makeToken(t, matchedEntities, start, tag, slot)
     start += t.length + 1// 1 is the space char, replace this by what was done in the prediction sequence
@@ -44,18 +50,18 @@ export const generateTrainingSequence = (
   slotDefinitions: sdk.NLU.SlotDefinition[],
   intentName: string = ''
 ): Sequence => {
-  let m: RegExpExecArray | null
+  let matches: RegExpExecArray | null
   let start = 0
   let tokens: Token[] = []
 
   do {
-    m = SLOTS_REGEX.exec(input)
-    if (m) {
-      const sub = input.substr(start, m.index - start - 1)
-      tokens = [...tokens, ..._generateTrainingTokens(sub, start), ..._generateTrainingTokens(m[1], start + m.index, m[2], slotDefinitions)]
-      start = m.index + m[0].length
+    matches = SLOTS_REGEX.exec(input)
+    if (matches) {
+      const sub = input.substr(start, matches.index - start - 1)
+      tokens = [...tokens, ..._generateTrainingTokens(sub, start), ..._generateTrainingTokens(matches[1], start + matches.index, matches[2], slotDefinitions)]
+      start = matches.index + matches[0].length
     }
-  } while (m)
+  } while (matches)
 
   if (start !== input.length) {
     const lastingPart = input.substr(start, input.length - start)

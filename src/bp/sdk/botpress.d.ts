@@ -239,6 +239,10 @@ declare module 'botpress/sdk' {
       value: any
       entity: Entity
     }
+
+    export interface SlotsCollection {
+      [key: string]: Slot | Slot[]
+    }
   }
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
@@ -318,7 +322,7 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
-      readonly slots: any
+      readonly slots: NLU.SlotsCollection
     }
 
     export interface IncomingEvent extends Event {

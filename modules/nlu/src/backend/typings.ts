@@ -1,5 +1,11 @@
 import sdk from 'botpress/sdk'
 
+export const BIO = {
+  INSIDE: 'I',
+  BEGINNING: 'B',
+  OUT: 'o'
+}
+
 export type Tag = 'o' | 'B' | 'I'
 
 export interface Token {
@@ -33,7 +39,7 @@ export interface EntityExtractor {
 
 export interface SlotExtractor {
   train(trainingSet: Sequence[]): Promise<void>
-  extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotDefinition[]>
+  extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection>
 }
 
 export interface IntentClassifier {
