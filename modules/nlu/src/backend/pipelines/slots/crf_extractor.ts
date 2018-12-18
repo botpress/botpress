@@ -5,9 +5,9 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import FastText, { FastTextTrainArgs } from '../../tools/fastText'
-import { SlotExtractor } from '../../typings'
+import { Sequence, SlotExtractor, Token } from '../../typings'
 
-import { generatePredictionSequence, Sequence, Token } from './pre-processor'
+import { generatePredictionSequence } from './pre-processor'
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
@@ -38,7 +38,7 @@ export default class CRFExtractor implements SlotExtractor {
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
 
-  constructor(private toolkit: typeof sdk.MLToolkit) {}
+  constructor(private toolkit: typeof sdk.MLToolkit) { }
 
   async train(trainingSet: Sequence[]) {
     this._isTrained = false
@@ -51,31 +51,55 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = true
   }
 
-  // TODO perform intent slot filtering here
-  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]): Promise<sdk.NLU.IntentSlot[]> {
+  /*
+  slot : {
+    name: string
+    source: string,
+    entity: sdk.NLU.Entity
+  }
+  */
+
+  // TODO use intent definition instead of itent name
+  async extract(text: string, intentName: string, entitites: sdk.NLU.Entity[]) {
     const seq = generatePredictionSequence(text, intentName, entitites)
-    const tags = await this.tag(seq)
+    const tags = await this._tag(seq)
 
     return _.zip(seq.tokens, tags)
-      .filter(tokTag => tokTag[1] != 'o')
+      // TODO perform intent slot filtering here
+      .filter(([token, tag]) => token && tag && tag != 'o')
       .reduce((slots: any, [token, tag]) => {
-        if (token && tag) {
-          console.log(tag)
-          const slotName = tag.slice(2)
-          if (tag[0] === 'I' && slots[slotName]) {
-            slots[slotName] += ` ${token.value}`
-          } else if (tag[0] === 'B' && slots[slotName]) {
-            if (Array.isArray(slots[slotName])) slotName[slotName].push(token.value)
-            else slots[slotName] = [slots[slotName], token.value]
-          } else {
-            slots[slotName] = token.value
+        const slotName = tag.slice(2)
+        const slot = this._makeSlot(slotName, token, entitites)
+        if (tag[0] === 'I' && slots[slotName]) {
+          slots[slotName].source += ` ${token.value}`
+        } else if (tag[0] === 'B' && slots[slotName]) {
+          if (Array.isArray(slots[slotName])) {
+            slotName[slotName].push(slot)
           }
-          return slots
+          else slots[slotName] = [slots[slotName], slot]
+        } else {
+          slots[slotName] = slot
         }
+        return slots
       }, {})
   }
 
-  async tag(seq: Sequence): Promise<string[]> {
+  // TODO use slot definitions here
+  _makeSlot(slotName: string, token: Token, entitites: sdk.NLU.Entity[]): any {
+    // we might only want to attach the entity defined in the slot definition, not more
+    // to do so, instead of find, use a .filter that matches the slot definition for this particural slotName
+    const entity = entitites.find(e => e.meta.start <= token.start && e.meta.end >= token.end)
+    const value = entity ? _.get(entity, 'data.value', token.value) : token.value
+    return {
+      name: slotName,
+      source: token.value,
+      value,
+      entity
+    }
+  }
+
+  // this is made "protected" to facilitate model validation
+  async _tag(seq: Sequence): Promise<string[]> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
@@ -104,9 +128,7 @@ export default class CRFExtractor implements SlotExtractor {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
-    trainer.set_callback(str => {
-      /* swallow training results */
-    })
+    trainer.set_callback(str => {/* swallow training results */ })
 
     for (const seq of sequences) {
       const inputVectors: string[][] = []
