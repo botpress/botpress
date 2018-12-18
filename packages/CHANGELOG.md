@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/botpress/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+### Bug Fixes
+
+* **nlu:** improve error-logs for RASA NLU module (ref [#1227](https://github.com/botpress/botpress/issues/1227), ref [#1070](https://github.com/botpress/botpress/issues/1070)) ([#1237](https://github.com/botpress/botpress/issues/1237)) ([376a426](https://github.com/botpress/botpress/commit/376a426))
+* **webchat:** loading webchat-extensions (resolve [#1183](https://github.com/botpress/botpress/issues/1183)) ([#1246](https://github.com/botpress/botpress/issues/1246)) ([6f65039](https://github.com/botpress/botpress/commit/6f65039))
+* **webchat:** move webchatUrlQuery to event.raw.data (ref [#721](https://github.com/botpress/botpress/issues/721)) ([#1236](https://github.com/botpress/botpress/issues/1236)) ([e81a62f](https://github.com/botpress/botpress/commit/e81a62f))
+
+
+
+
 <a name="10.51.3"></a>
 ## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
 

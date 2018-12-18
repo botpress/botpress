@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/botpress/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+### Bug Fixes
+
+* **webchat:** move webchatUrlQuery to event.raw.data (ref [#721](https://github.com/botpress/botpress/issues/721)) ([#1236](https://github.com/botpress/botpress/issues/1236)) ([e81a62f](https://github.com/botpress/botpress/commit/e81a62f))
+
+
+
+
 <a name="10.51.3"></a>
 ## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
 
