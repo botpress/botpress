@@ -100,7 +100,6 @@ export default class CRFExtractor implements SlotExtractor {
     const value = entity ? _.get(entity, 'data.value', token.value) : token.value
     return {
       name: slotName,
-      source: token.value,
       value,
       entity
     }

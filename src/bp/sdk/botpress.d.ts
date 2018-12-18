@@ -237,8 +237,7 @@ declare module 'botpress/sdk' {
     export interface Slot {
       name: string
       value: any
-      source: string
-      entity: Entity,
+      entity: Entity
     }
   }
   export namespace IO {
