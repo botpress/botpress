@@ -217,16 +217,16 @@ export default class Storage implements QnaStorage {
     if (ids.length === 0) {
       return
     }
-    await Promise.all(
-      ids.map(async id => {
-        const data = await this.getQuestion(id)
 
-        if (data.data.enabled) {
-          axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
-        }
-        await this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
-      })
-    )
+    const deletePromise = async (id): Promise<void> => {
+      const data = await this.getQuestion(id)
+      if (data.data.enabled) {
+        await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+      }
+      return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
+    }
+
+    await Promise.all(ids.map(deletePromise))
     await this.syncNlu()
   }
 
