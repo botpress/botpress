@@ -127,6 +127,17 @@ export default class Storage implements QnaStorage {
     return ids
   }
 
+  /**
+   * This will migration questions to the new format.
+   * @deprecated Questions support multiple answers since v11.3
+   */
+  private migrate_11_2_to_11_3(question) {
+    if (!question.data.answers) {
+      question.data.answers = [question.data.answer]
+    }
+    return question
+  }
+
   async getQuestion(opts) {
     let filename
     if (typeof opts === 'string') {
@@ -136,7 +147,8 @@ export default class Storage implements QnaStorage {
       filename = opts.filename
     }
     const data = await this.bp.ghost.forBot(this.botId).readFileAsString(this.config.qnaDir, filename)
-    return JSON.parse(data)
+
+    return this.migrate_11_2_to_11_3(JSON.parse(data))
   }
 
   async fetchAllQuestions(opts?: Paging) {
