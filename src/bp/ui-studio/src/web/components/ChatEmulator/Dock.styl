@@ -1,0 +1,33 @@
+.container {
+  padding: 50px 0 24px 0;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+
+  &:focus-within {
+    .titleBar {
+      background-color: var(--c-brand);
+
+      &:hover {
+        background-color: var(--c-brand--dark-1);
+      }
+    }
+  }
+
+  .titleBar {
+    height: 24px;
+    background-color: var(--c-background--dark-1);
+    width: 100%;
+    color: var(--c-text--light);
+    line-height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    padding-left: 10px;
+    user-select: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--c-background--dark-2);
+    }
+  }
+}
