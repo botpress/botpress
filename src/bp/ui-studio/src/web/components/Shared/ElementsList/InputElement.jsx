@@ -11,7 +11,7 @@ export class InputElement extends React.Component {
 
   handleOnEnter = event => {
     const inputValue = event.target.value
-    const inputNotEmpty = inputValue !== ''
+    const inputNotEmpty = inputValue.trim() !== ''
     const elementUnique = !this.props.elements.includes(inputValue)
 
     if (event.key === 'Enter') {
