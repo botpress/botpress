@@ -196,7 +196,10 @@ export class DialogEngine {
 
       context = {
         currentFlow: flow.name,
-        currentNode: startNode.name
+        currentNode: startNode.name,
+        // We keep a reference of the previous flow so we can return to it later on.
+        previousFlow: event.state.context.currentFlow,
+        previousNode: event.state.context.currentNode
       }
       this._logEnterFlow(
         event.botId,
@@ -206,9 +209,17 @@ export class DialogEngine {
         event.state.context.currentNode
       )
     } else if (transitionTo.indexOf('#') === 0) {
-      // Return to the parent node (coming from a subflow)
+      // Return to the parent node (coming from a flow)
       const parentFlow = this._findFlow(event.botId, event.state.context.previousFlow!)
-      const parentNode = this._findNode(parentFlow, event.state.context.previousNode!)
+      const specificNode = transitionTo.split('#')[1]
+      let parentNode
+
+      if (specificNode) {
+        parentNode = this._findNode(parentFlow, specificNode)
+      } else {
+        parentNode = this._findNode(parentFlow, event.state.context.previousNode!)
+      }
+
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
       const queue = builder.onlyTransitions().build()
 
