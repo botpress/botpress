@@ -14,6 +14,12 @@ export const keyMap = {
   // Flow-Editor Actions
   'flow-add-node': `${navigationKey}+a`,
   'flow-save': `${navigationKey}+s`,
-  'emulator-toggle': `${navigationKey}+e`,
+  'emulator-focus': `e`,
   cancel: 'esc'
+}
+
+export const isInputFocused = () => {
+  const tag = document.activeElement && document.activeElement.tagName
+  const inputTypes = ['textarea', 'input', 'button']
+  return tag && inputTypes.includes(tag.toLowerCase())
 }

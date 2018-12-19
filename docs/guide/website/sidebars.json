@@ -3,6 +3,7 @@
     "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
     "Build": [
       "build/overview",
+      "build/debug",
       "build/nlu",
       "build/dialogs",
       "build/code",

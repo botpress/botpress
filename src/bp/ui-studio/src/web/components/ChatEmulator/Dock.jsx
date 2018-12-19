@@ -14,7 +14,7 @@ export default class EmulatorDock extends React.Component {
   handleSizeChange = e => this.setState({ size: Math.min(Math.max(100, e), 1000) }) // [100, 1000] px
 
   keyHandlers = {
-    cancel: () => this.props.onToggle()
+    cancel: () => this.props.isOpen && this.props.onToggle()
   }
 
   render() {
