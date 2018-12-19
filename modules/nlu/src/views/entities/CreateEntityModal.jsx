@@ -1,7 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 import { Button, Modal, FormControl } from 'react-bootstrap'
-import nanoid from 'nanoid'
+import { sanitizeFilenameNoExt } from '../../util'
 
 const AVAILABLE_TYPES = [
   {
@@ -32,7 +32,7 @@ export default class CreateEntityModal extends React.Component {
 
   createEntity = () => {
     const entity = {
-      id: nanoid(),
+      id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
       type: this.state.type,
       pattern: '',
