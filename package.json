@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "11.3.0",
+  "version": "11.2.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
