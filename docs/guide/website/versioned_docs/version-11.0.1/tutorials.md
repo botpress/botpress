@@ -185,7 +185,7 @@ window.botpressWebChat.sendEvent({
 })
 ```
 
-2. This trigger will be dispatched to the bot so you need to add a handler for it. This should be added as a [Hook](../get_started/hooks)
+2. This trigger will be dispatched to the bot so you need to add a handler for it. This should be added as a [Hook](/docs/build/code#hooks)
 
 ```js
 if (event.type === 'proactive-trigger') {
@@ -239,7 +239,7 @@ When you then resume the conversation, the bot will start from the beginning.
 
 ### Receiving an event when a user timeout
 
-There is a [hook](build/code#hooks) that is called before the user's session timeouts.
+There is a [hook](/docs/build/code#hooks) that is called before the user's session timeouts.
 
 ### Performing actions on timeout
 
@@ -308,11 +308,11 @@ There are many scenarios when dealing with language and depend on your needs, so
 
 In our case, we will keep things simple and just a add a Choice for the user to pick from at the beginning of the conversation.
 
-You can then store the user's choice in the `state` by preparing a [simple action](build/code) for this purpose. Let's assume we offer the choice between English and Arabic, after the user chooses their language, we will set `state.language` either to "En" or "Ar".
+You can then store the user's choice in the `state` by preparing a [simple action](/docs/build/code) for this purpose. Let's assume we offer the choice between English and Arabic, after the user chooses their language, we will set `state.language` either to "En" or "Ar".
 
 ### Adopting content schema
 
-Botpress allows you to define a [custom content type](build/content) that will allow you to store text in multiple languages. Here's an example of a `translate_text` content-type:
+Botpress allows you to define a [custom content type](/docs/build/content) that will allow you to store text in multiple languages. Here's an example of a `translate_text` content-type:
 
 ```js
 function renderElement(data, channel) {
