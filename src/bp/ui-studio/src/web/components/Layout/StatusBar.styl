@@ -1,79 +1,84 @@
 .statusBar {
-    background-color: var(--c-brand);
-    color: var(--c-text--light);
+  background-color: var(--c-brand);
+  color: var(--c-text--light);
 
-    z-index: 1000
+  z-index: 1000;
 
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 20px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 24px;
+  width: 100%;
+  font-size: 12px;
+  padding: 0 10px;
+
+  display: flex;
+  align-items: center;
+
+  .list {
+    list-style-type: none;
+    margin-bottom: 0;
+    padding-left: 0;
+    z-index: 15;
     width: 100%;
-    font-size: 12px;
-    padding: 12px 20px;
 
-    display: flex;
-    align-items: center;
+    .item {
+      padding: 0 5px;
+      white-space: pre;
+      display: inline-block;
+      line-height: 24px;
+      height: 100%;
+      vertical-align: top;
 
-    &__list {
-        list-style-type: none;
-        margin-bottom: 0;
-        padding-left: 0;
-
-        &Item {
-            padding-right: 10px;
-            display: inline;
+      a {
+        color: var(--c-text--light);
+        &:hover {
+          color: var(--c-text--light);
+          text-decoration: none;
         }
-    }
+      }
 
-    &__version {
-        padding-left: 10px
-        font-weight: var(--fw-bold);
-        margin: 0 var(--s-default--2x);
-    }
+      &.clickable {
+        user-select: none;
 
-    &__botName {
-        padding-left: 10px
-        font-weight: var(--fw-bold);
-        margin: 0 var(--s-default);
-    }
-
-    &__separator {
-        background-color: var(--c-background--dark-3);
-        width: 1px;
-        height: 12px;
-        margin: 0 0 0 var(--s-default);
-    }
-
-    &__worker {
-        -webkit-animation: flash linear 1s infinite;
-        animation: flash linear 1s infinite;
-        @-webkit-keyframes flash {
-            0% {
-            opacity: 1;
-            }
-            50% {
-            opacity: 0.1;
-            }
-            100% {
-            opacity: 1;
-            }
+        &:hover,
+        &.active {
+          background-color: var(--c-background--dark-2);
+          cursor: pointer;
         }
-        @keyframes flash {
-            0% {
-            opacity: 1;
-            }
-            50% {
-            opacity: 0.1;
-            }
-            100% {
-            opacity: 1;
-            }
-        }
+      }
     }
 
-    &Tabs {
-        height: 100%;
-        margin-left: auto;
+    .item + .item {
+      margin-left: 5px;
     }
+
+    .right {
+      float: right;
+      margin-left: 5px;
+    }
+  }
+
+  &.worker {
+    animation: flash linear 1s infinite;
+    @keyframes flash {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.1;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.shortcut {
+  background-color: #111;
+  color: white;
+  padding: 3px 5px;
+  font-size: 14px;
+  margin: 5px auto;
 }

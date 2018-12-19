@@ -10,7 +10,7 @@
       "joke",
       "show me your humour"
     ],
-    "answer": "It is the story of 2 ices cubes in the desert and.... nevermind, they're gone.",
+    "answers": ["It is the story of 2 ices cubes in the desert and.... nevermind, they're gone."],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

@@ -151,6 +151,33 @@ declare module 'botpress/sdk' {
     public static forAdmins(eventName: string, payload: any): RealTimePayload
   }
 
+  export namespace MLToolkit {
+    export namespace CRF {
+      export interface Tagger {
+        tag(xseq: Array<string[]>): { probability: number; result: string[] }
+        open(model_filename: string): boolean
+      }
+
+      export interface TrainerOptions {
+        [key: string]: string
+      }
+
+      export interface TrainerCallback {
+        (message: string): void
+      }
+
+      export interface Trainer {
+        append(xseq: Array<string[]>, yseq: string[]): void
+        train(model_filename: string): void
+        set_params(options: TrainerOptions): void
+        set_callback(callback: TrainerCallback): void
+      }
+
+      export const createTrainer: () => Trainer
+      export const createTagger: () => Tagger
+    }
+  }
+
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
@@ -167,20 +194,23 @@ declare module 'botpress/sdk' {
       pattern?: string
     }
 
-    export interface IntentSlot {
+    export interface SlotDefinition {
       name: string
       entity: string
     }
 
+    export interface IntentDefinition {
+      name: string
+      utterances: string[]
+      filename: string
+      slots: SlotDefinition[]
+    }
+
     export interface Intent {
       name: string
-      slots: IntentSlot[]
-      utterances: string[]
       confidence: number
       matches: (intentPattern: string) => boolean
     }
-
-    export type IntentList = Intent[] & { includes: (intentName: string) => boolean }
 
     export interface Entity {
       name: string
@@ -202,6 +232,16 @@ declare module 'botpress/sdk' {
       start: number
       end: number
       raw: any
+    }
+
+    export interface Slot {
+      name: string
+      value: any
+      entity: Entity
+    }
+
+    export interface SlotsCollection {
+      [key: string]: Slot | Slot[]
     }
   }
   export namespace IO {
@@ -282,6 +322,8 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
+      readonly slots: NLU.SlotsCollection
+      readonly errored: boolean
     }
 
     export interface IncomingEvent extends Event {

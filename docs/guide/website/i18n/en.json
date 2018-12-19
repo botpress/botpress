@@ -14,6 +14,9 @@
       "build/content": {
         "title": "Content Management"
       },
+      "build/debug": {
+        "title": "Debugging"
+      },
       "build/dialogs": {
         "title": "Flows & Dialogs"
       },
@@ -118,6 +121,24 @@
       },
       "version-11.0.1-tutorials": {
         "title": "Tutorials"
+      },
+      "version-11.2.0-channels": {
+        "title": "Messaging Channels"
+      },
+      "version-11.2.0-code": {
+        "title": "Custom Code"
+      },
+      "version-11.2.0-memory": {
+        "title": "Bot Memory and Data Retention"
+      },
+      "version-11.2.0-nlu": {
+        "title": "NLU"
+      },
+      "version-11.2.0-create-module": {
+        "title": "Creating Modules"
+      },
+      "version-11.2.0-troubleshoot": {
+        "title": "Troubleshoot"
       }
     },
     "links": {

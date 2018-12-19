@@ -3,7 +3,6 @@
     "declaration": true,
     "sourceMap": true,
     "strict": true,
-    // "declarationMap": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -18,5 +17,5 @@
     "typeRoots": ["./typings", "../node_modules/@types", "./bp/common"],
     "types": ["reflect-metadata", "jest", "bluebird-global"]
   },
-  "exclude": ["**/*.__test__.ts", "../out", "**/node_modules/**/*.ts"]
+  "exclude": ["**/*.__test__.(ts|js)", "../out", "**/node_modules/**/*.(ts|js)", "**/static/**/*.(js|ts)"]
 }

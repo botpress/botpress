@@ -25,6 +25,9 @@ select VERSION in patch minor major "Specific Version"
         yarn version --new-version $VERSION --no-git-tag-version
         NEW_VERSION=$(node -p "require('./package.json').version")
         cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
+        
+        # Update changelog from git history
+        gulp changelog
 
         # Create commit
         git add -A

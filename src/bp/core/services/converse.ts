@@ -141,7 +141,7 @@ export class ConverseService {
 
     Object.assign(this._responseMap[event.target], <ResponseMap>{
       nlu: event.nlu || {},
-      state: _.get(event, 'state.context.data', {})
+      state: _.get(event, 'state.temp', {})
     })
   }
 }

@@ -5,6 +5,7 @@ const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
 const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
+const changelog = require('gulp-conventional-changelog')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
@@ -31,3 +32,25 @@ gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))
 gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
+
+gulp.task('changelog', () => {
+  // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages
+  const changelogOts = {
+    preset: 'angular',
+    releaseCount: 0
+  }
+  const context = {}
+  const gitRawCommitsOpts = {
+    merges: null
+  }
+  const commitsParserOpts = {
+    mergePattern: /^Merge pull request #(\d+) from (.*)/gi,
+    mergeCorrespondence: ['id', 'source']
+  }
+  const changelogWriterOpts = {}
+
+  return gulp
+    .src('CHANGELOG.md')
+    .pipe(changelog(changelogOts, context, gitRawCommitsOpts, commitsParserOpts, changelogWriterOpts))
+    .pipe(gulp.dest('./'))
+})

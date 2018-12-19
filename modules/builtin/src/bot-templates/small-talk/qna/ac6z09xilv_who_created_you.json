@@ -10,7 +10,7 @@
       "who are your parents?",
       "your creator?"
     ],
-    "answer": "I was created by the great team at Botpress",
+    "answers": ["I was created by the great team at Botpress"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
