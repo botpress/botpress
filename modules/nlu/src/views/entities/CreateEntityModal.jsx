@@ -1,6 +1,7 @@
 import React from 'react'
+
 import { Button, Modal, FormControl, ButtonToolbar, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
-import nanoid from 'nanoid'
+import { sanitizeFilenameNoExt } from '../../util'
 
 const DEFAULT_STATE = {
   name: '',
@@ -15,7 +16,7 @@ export default class CreateEntityModal extends React.Component {
 
   createEntity = () => {
     const entity = {
-      id: nanoid(),
+      id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
       type: this.state.type,
       pattern: '',

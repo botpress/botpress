@@ -43,7 +43,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const { botId, id } = req.params
     const updatedEntity = content as sdk.NLU.EntityDefinition
 
-    await (nlus[botId] as ScopedEngine).storage.updateEntity(id, updatedEntity)
+    await (nlus[botId] as ScopedEngine).storage.saveEntity({ ...updatedEntity, id })
     res.sendStatus(201)
   })
 
