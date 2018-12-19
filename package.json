@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "11.2.0",
+  "version": "11.3.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -86,6 +86,7 @@
     "cross-env": "^5.2.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
+    "gulp-conventional-changelog": "^2.0.9",
     "gulp-copy": "^4.0.0",
     "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
