@@ -50,6 +50,10 @@ export default class EmulatorChat extends React.Component {
     if (!prevProps.isDockOpen && this.props.isDockOpen) {
       this.textInputRef.current.focus()
     }
+
+    if (prevProps.isDockOpen && !this.props.isDockOpen) {
+      document.getElementById('main').focus()
+    }
   }
 
   navigateSentHistory(step) {

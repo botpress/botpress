@@ -23,6 +23,7 @@ import BackendToast from '~/components/Util/BackendToast'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
 import { viewModeChanged } from '~/actions'
+import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import style from './style.scss'
@@ -53,6 +54,16 @@ class Layout extends React.Component {
 
   toggleEmulator = () => this.setState({ emulatorOpen: !this.state.emulatorOpen })
 
+  focusEmulator = e => {
+    if (!isInputFocused()) {
+      e.preventDefault()
+
+      this.setState({ emulatorOpen: false }, () => {
+        this.setState({ emulatorOpen: true })
+      })
+    }
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -65,14 +76,14 @@ class Layout extends React.Component {
     })
 
     const keyHandlers = {
-      'emulator-toggle': this.toggleEmulator
+      'emulator-focus': this.focusEmulator
     }
 
     return (
       <HotKeys handlers={keyHandlers}>
         <div style={{ display: 'flex' }}>
           <Sidebar />
-          <main className={layout.main}>
+          <main className={layout.main} id="main" tabIndex={9999}>
             <Header />
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
