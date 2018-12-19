@@ -1,18 +1,40 @@
 import React from 'react'
 
-import { Button, Modal, FormControl, ButtonToolbar, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
+import Select from 'react-select'
+import { Button, Modal, FormControl } from 'react-bootstrap'
 import { sanitizeFilenameNoExt } from '../../util'
+
+const AVAILABLE_TYPES = [
+  {
+    label: 'List',
+    value: 'list'
+  },
+  {
+    label: 'Pattern',
+    value: 'pattern'
+  }
+]
 
 const DEFAULT_STATE = {
   name: '',
-  type: undefined
+  type: 'list',
+  isValid: false
 }
 
 export default class CreateEntityModal extends React.Component {
   state = { ...DEFAULT_STATE }
 
-  handleNameChange = e => this.setState({ name: e.target.value })
-  handleTypeChange = value => this.setState({ type: value })
+  handleNameChange = e => {
+    this.setState({ name: e.target.value })
+    this.validate()
+  }
+
+  handleTypeChange = selected => {
+    this.setState({ type: selected.value })
+    this.validate()
+  }
+
+  handleKeyDown = e => e.key === 'Enter' && this.state.isValid && this.createEntity()
 
   createEntity = () => {
     const entity = {
@@ -27,6 +49,10 @@ export default class CreateEntityModal extends React.Component {
       this.props.onEntityCreated(entity)
       this.props.hide()
     })
+  }
+
+  validate() {
+    this.setState({ isValid: this.state.name.trim().length > 0 && this.state.type !== undefined })
   }
 
   render() {
@@ -44,29 +70,20 @@ export default class CreateEntityModal extends React.Component {
             placeholder="Name"
             value={this.state.name}
             onChange={this.handleNameChange}
+            onKeyDown={this.handleKeyDown}
           />
 
           <h4>Type</h4>
-          <ButtonToolbar>
-            <ToggleButtonGroup
-              justified
-              type="radio"
-              name="entity-type"
-              value={this.state.type}
-              onChange={this.handleTypeChange}
-            >
-              <ToggleButton value={'pattern'}>Pattern</ToggleButton>
-              <ToggleButton value={'list'}>List</ToggleButton>
-            </ToggleButtonGroup>
-          </ButtonToolbar>
+          <Select
+            tabIndex="2"
+            name="entity-type"
+            value={this.state.type}
+            onChange={this.handleTypeChange}
+            options={AVAILABLE_TYPES}
+          />
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            tabIndex="3"
-            bsStyle="primary"
-            disabled={!this.state.name.trim().length || this.state.type === undefined}
-            onClick={this.createEntity}
-          >
+          <Button tabIndex="3" bsStyle="primary" disabled={!this.state.isValid} onClick={this.createEntity}>
             Create Entity
           </Button>
         </Modal.Footer>
