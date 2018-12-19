@@ -17,7 +17,7 @@ export default class SidePanel extends React.Component {
 
   handleFilterChange = e => {
     e.preventDefault()
-    this.setState({ filer: e.target.value })
+    this.setState({ filter: e.target.value })
   }
 
   handleDeleteClick = (entity, e) => {
