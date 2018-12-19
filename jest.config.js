@@ -1,7 +1,7 @@
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/src/tsconfig.json'
+      tsConfig: '<rootDir>/src/tsconfig.test.json'
     }
   },
   setupFiles: ['<rootDir>/src/bp/import-rewire.ts'],
