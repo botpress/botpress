@@ -352,11 +352,13 @@ export default class QnaAdmin extends Component {
             </a>
             {this.renderVariationsOverlayTrigger(item.questions)}
           </div>
-          <div className={style.itemAnswerContainer}>
-            <span className={style.itemAnswerTitle}>A:</span>
-            <div className={style.itemAnswerText}>{item.answers[0]}</div>
-            {this.renderVariationsOverlayTrigger(item.answers)}
-          </div>
+          {item.answers[0] && (
+            <div className={style.itemAnswerContainer}>
+              <span className={style.itemAnswerTitle}>A:</span>
+              <div className={style.itemAnswerText}>{item.answers[0]}</div>
+              {this.renderVariationsOverlayTrigger(item.answers)}
+            </div>
+          )}
           <div className={style.itemRedirectContainer}>
             <div className={style.itemRedirect}>
               {isRedirect && (
