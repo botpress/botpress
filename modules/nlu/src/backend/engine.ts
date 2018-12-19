@@ -131,23 +131,23 @@ export default class ScopedEngine {
   }
 
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
-    const text = incomingEvent.preview
+    const ret: any = { errored: true }
+    try {
+      const text = incomingEvent.preview
+      ret.language = await this.langDetector.identify(text)
+      ret.intents = await this.intentClassifier.predict(text)
+      const intent = findMostConfidentPredictionMeanStd(ret.intents, this.confidenceTreshold)
+      ret.intent = { ...intent, matches: createIntentMatcher(intent.name) }
+      ret.entities = await this._extractEntities(text, ret.language)
 
-    const lang = await this.langDetector.identify(text)
-    const intents: Prediction[] = await this.intentClassifier.predict(text)
-    const entities = await this._extractEntities(text, lang)
+      const intentDef = await this.storage.getIntent(intent.name)
+      ret.slots = await this.slotExtractor.extract(text, intentDef, ret.entities)
+      ret.errored = false
 
-    const intent = findMostConfidentPredictionMeanStd(intents, this.confidenceTreshold)
-    const intentDef = await this.storage.getIntent(intent.name)
-
-    const slots = await this.slotExtractor.extract(text, intentDef, entities)
-
-    return {
-      language: lang,
-      slots,
-      entities,
-      intent: { ...intent, matches: createIntentMatcher(intent.name) },
-      intents: intents.map(p => ({ ...p, matches: createIntentMatcher(p.name) }))
+    } catch (error) {
+      this.logger.warn(`Could not extract whole NLU data, ${error}`)
+    } finally {
+      return ret as sdk.IO.EventUnderstanding
     }
   }
 }

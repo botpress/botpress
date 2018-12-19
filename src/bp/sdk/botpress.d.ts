@@ -323,6 +323,7 @@ declare module 'botpress/sdk' {
       readonly language: string
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotsCollection
+      readonly errored: boolean
     }
 
     export interface IncomingEvent extends Event {
