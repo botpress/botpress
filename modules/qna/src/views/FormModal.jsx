@@ -93,6 +93,10 @@ export default class FormModal extends Component {
     return some(invalidFields)
   }
 
+  trimItemQuestions = questions => {
+    return questions.map(q => q.trim()).filter(q => q !== '')
+  }
+
   onCreate = event => {
     event.preventDefault()
     if (this.validateForm()) {
@@ -105,7 +109,10 @@ export default class FormModal extends Component {
       this.setState({ isValidForm: true })
     }
 
-    return this.props.bp.axios.post('/mod/qna/questions', this.state.item).then(() => {
+    const item = this.state.item
+    const questions = this.trimItemQuestions(item.questions)
+
+    return this.props.bp.axios.post('/mod/qna/questions', { ...item, questions }).then(() => {
       this.props.fetchData()
       this.closeAndClear()
     })
@@ -128,10 +135,17 @@ export default class FormModal extends Component {
       filters: { question, categories }
     } = this.props
 
+    const item = this.state.item
+    const questions = this.trimItemQuestions(item.questions)
+
     return this.props.bp.axios
-      .put(`/mod/qna/questions/${this.props.id}`, this.state.item, {
-        params: { ...page, question, categories: categories.map(({ value }) => value) }
-      })
+      .put(
+        `/mod/qna/questions/${this.props.id}`,
+        { ...item, questions },
+        {
+          params: { ...page, question, categories: categories.map(({ value }) => value) }
+        }
+      )
       .then(({ data }) => {
         this.props.updateQuestion(data)
         this.closeAndClear()
@@ -176,11 +190,6 @@ export default class FormModal extends Component {
       answers.splice(index, 1)
       this.changeItemProperty('answers', answers)
     }
-  }
-
-  splitQuestionsOnNewLines = value => {
-    const questions = value.split(/\n/)
-    return questions.filters(q => q !== '')
   }
 
   render() {
