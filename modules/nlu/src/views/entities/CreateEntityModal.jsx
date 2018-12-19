@@ -1,18 +1,6 @@
 import React from 'react'
-import Select from 'react-select'
-import { Button, Modal, FormControl } from 'react-bootstrap'
+import { Button, Modal, FormControl, ButtonToolbar, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import nanoid from 'nanoid'
-
-const AVAILABLE_TYPES = [
-  {
-    label: 'Pattern',
-    value: 'pattern'
-  },
-  {
-    label: 'List',
-    value: 'list'
-  }
-]
 
 const DEFAULT_STATE = {
   name: '',
@@ -22,13 +10,8 @@ const DEFAULT_STATE = {
 export default class CreateEntityModal extends React.Component {
   state = { ...DEFAULT_STATE }
 
-  handleNameChange = e => {
-    this.setState({ name: e.target.value })
-  }
-
-  handleTypeChange = selected => {
-    this.setState({ type: selected.value })
-  }
+  handleNameChange = e => this.setState({ name: e.target.value })
+  handleTypeChange = value => this.setState({ type: value })
 
   createEntity = () => {
     const entity = {
@@ -63,19 +46,24 @@ export default class CreateEntityModal extends React.Component {
           />
 
           <h4>Type</h4>
-          <Select
-            tabIndex="2"
-            name="entity-type"
-            value={this.state.type}
-            onChange={this.handleTypeChange}
-            options={AVAILABLE_TYPES}
-          />
+          <ButtonToolbar>
+            <ToggleButtonGroup
+              justified
+              type="radio"
+              name="entity-type"
+              value={this.state.type}
+              onChange={this.handleTypeChange}
+            >
+              <ToggleButton value={'pattern'}>Pattern</ToggleButton>
+              <ToggleButton value={'list'}>List</ToggleButton>
+            </ToggleButtonGroup>
+          </ButtonToolbar>
         </Modal.Body>
         <Modal.Footer>
           <Button
             tabIndex="3"
             bsStyle="primary"
-            disabled={this.state.name === undefined || this.state.type === undefined}
+            disabled={!this.state.name.trim().length || this.state.type === undefined}
             onClick={this.createEntity}
           >
             Create Entity
