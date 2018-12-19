@@ -42,13 +42,15 @@ export default class CRFExtractor implements SlotExtractor {
 
   async train(trainingSet: Sequence[]) {
     this._isTrained = false
-    await this._trainLanguageModel(trainingSet)
-    await this._trainKmeans(trainingSet)
-    await this._trainCrf(trainingSet)
+    if (trainingSet.length >= 2) {
+      await this._trainLanguageModel(trainingSet)
+      await this._trainKmeans(trainingSet)
+      await this._trainCrf(trainingSet)
 
-    this._tagger = this.toolkit.CRF.createTagger()
-    await this._tagger.open(this._crfModelFn)
-    this._isTrained = true
+      this._tagger = this.toolkit.CRF.createTagger()
+      await this._tagger.open(this._crfModelFn)
+      this._isTrained = true
+    }
   }
 
   /**
@@ -132,11 +134,11 @@ export default class CRFExtractor implements SlotExtractor {
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
     const data = await Promise.mapSeries(tokens, async t => await this._ft.wordVectors(t.value))
+    const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
-      this._kmeansModel = kmeans(data, K_CLUSTERS)
+      this._kmeansModel = kmeans(data, k)
     } catch (error) {
-      console.error('error tra ining Kmeans', error)
-      throw error
+      throw Error('Error training K-means model')
     }
   }
 
