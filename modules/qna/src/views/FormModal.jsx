@@ -178,6 +178,11 @@ export default class FormModal extends Component {
     }
   }
 
+  splitQuestionsOnNewLines = value => {
+    const questions = value.split(/\n/)
+    return questions.filters(q => q !== '')
+  }
+
   render() {
     const {
       item: { redirectFlow },

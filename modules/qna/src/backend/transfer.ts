@@ -2,6 +2,8 @@ import _ from 'lodash'
 
 import * as parsers from './parsers.js'
 
+const ANSWERS_SPLIT_CHAR = '†'
+
 export const importQuestions = async (questions, params) => {
   const { storage, config, format = 'json', statusCallback, uploadStatusId } = params
 
@@ -21,12 +23,12 @@ export const importQuestions = async (questions, params) => {
   }
 
   let questionsSavedCount = 0
-  return Promise.each(questionsToSave, question =>
-    storage.insert({ ...question, enabled: true }).then(() => {
-      questionsSavedCount += 1
-      statusCallback(uploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
-    })
-  )
+  return Promise.each(questionsToSave, async question => {
+    const answers = question['answer'].split(ANSWERS_SPLIT_CHAR)
+    await storage.insert({ ...question, answers, enabled: true })
+    questionsSavedCount += 1
+    statusCallback(uploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
+  })
 }
 
 export const prepareExport = async (storage, { flat = false } = {}) => {
@@ -34,16 +36,20 @@ export const prepareExport = async (storage, { flat = false } = {}) => {
 
   return _.flatMap(qnas, question => {
     const { data } = question
-    const { questions, answer: textAnswer, action, redirectNode, redirectFlow, category } = data
+    const { questions, action, redirectNode, redirectFlow, category, answers, answer: textAnswer } = data
 
-    let answer = textAnswer
+    // FIXME: Remove v11.2 answer support
+    let answer = answers.join(ANSWERS_SPLIT_CHAR) || textAnswer // textAnswer allow to support v11.2 answer format
     let answer2 = undefined
 
+    // FIXME: Refactor these answer, answer2 fieds for something more meaningful like a 'redirect' field.
+    // redirect dont need text so answer is overriden with the redirect flow
     if (action === 'redirect') {
       answer = redirectFlow
       if (redirectNode) {
         answer += '#' + redirectNode
       }
+      // text_redirect will display a text before redirecting to the desired flow
     } else if (action === 'text_redirect') {
       answer2 = redirectFlow
       if (redirectNode) {
