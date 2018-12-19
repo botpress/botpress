@@ -10,7 +10,7 @@ module.exports = {
   modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
   moduleNameMapper: {
     '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'
