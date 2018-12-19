@@ -86,14 +86,21 @@ export default class EmulatorChat extends React.Component {
     await Promise.fromCallback(cb => this.setState({ textInputValue: '', sending: true }, cb))
 
     const sentAt = Date.now()
-    const res = await axios.post(
-      `${window.BOT_API_PATH}/converse/${this.state.userId}`,
-      { text },
-      { params: { include: 'nlu,state' } }
-    )
-    const duration = Date.now() - sentAt
+    let msg
+    try {
+      const res = await axios.post(
+        `${window.BOT_API_PATH}/converse/${this.state.userId}`,
+        { text },
+        { params: { include: 'nlu,state' } }
+      )
 
-    const msg = { duration, sent: text, result: res.data }
+      const duration = Date.now() - sentAt
+      msg = { duration, sent: text, result: res.data }
+    } catch (err) {
+      this.setState({ sending: false })
+      console.log('Error while sending the message', err)
+      return
+    }
 
     // Only append to history if it's not the same as last one
     let newSentHistory = this.state.newSentHistory
