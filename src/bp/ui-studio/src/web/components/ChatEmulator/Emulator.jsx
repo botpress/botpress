@@ -217,7 +217,7 @@ export default class EmulatorChat extends React.Component {
             split="horizontal"
             minSize={50}
             defaultSize={'75%'}
-            pane2Style={{ 'overflow-y': 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
+            pane2Style={{ overflowY: 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
           >
             {this.renderHistory()}
             {this.renderInspector()}
