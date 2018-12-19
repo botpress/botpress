@@ -37,7 +37,7 @@ gulp.task('changelog', () => {
   // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages
   const changelogOts = {
     preset: 'angular',
-    releaseCount: 1
+    releaseCount: 0
   }
   const context = {}
   const gitRawCommitsOpts = {
