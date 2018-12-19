@@ -19,7 +19,12 @@ export const keyMap = {
 }
 
 export const isInputFocused = () => {
-  const tag = document.activeElement && document.activeElement.tagName
+  if (!document.activeElement) {
+    return false
+  }
+
+  const tag = document.activeElement.tagName
+  const isEditable = document.activeElement.isContentEditable || document.activeElement.contenteditable === 'true'
   const inputTypes = ['textarea', 'input', 'button']
-  return tag && inputTypes.includes(tag.toLowerCase())
+  return (tag && inputTypes.includes(tag.toLowerCase())) || isEditable
 }
