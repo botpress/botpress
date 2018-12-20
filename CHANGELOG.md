@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **dialog-engine:** return to calling node support ([d1f92c8](https://github.com/botpress/botpress/commit/d1f92c8))
 * **nlu:** fix entity search ([8585f0a](https://github.com/botpress/botpress/commit/8585f0a))
 * **nlu:** tests ([a85076f](https://github.com/botpress/botpress/commit/a85076f))
 * **qna:** rename routes for restful ones ([b3856e4](https://github.com/botpress/botpress/commit/b3856e4))
