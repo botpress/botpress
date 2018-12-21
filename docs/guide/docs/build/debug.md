@@ -22,7 +22,7 @@ Using <kbd>↑</kbd> or <kbd>↓</kbd> on your keyboard in the text input will a
 
 ### Payload Inspector
 
-The payload inspector lets you see and understand what the bot understood and why it took the decision he chose. Inside the emulator, you will see the metadata about [NLU](./nlu), the conversation [State](./dialogs) and the raw responses.
+The payload inspector lets you see and understand what the bot understood and why it took the decision he chose. Inside the emulator, you will see the metadata about [NLU](/docs/build/nlu), the conversation [State](/docs/build/dialogs) and the raw responses.
 
 ![Emulator Window](assets/emulator_win_inspector.jpg)
 

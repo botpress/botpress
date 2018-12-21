@@ -54,11 +54,11 @@ Variables stored inside this memory are shared between all users and conversatio
 
 #### Changing the value in memory
 
-Use the action `base.setVariable` to update the value of any scope. There is also the possibility to change directly variables inside actions, check out the [Custom Code](code#actions) section.
+Use the action `base.setVariable` to update the value of any scope. There is also the possibility to change directly variables inside actions, check out the [Custom Code](/docs/build/code#actions) section.
 
 ## General Storage
 
-If you want to store information differently, or when outside of a flow (e.g. from a [Hook](./code)), you can use the lower-level storage API, the Key-Value-Store (KVS).
+If you want to store information differently, or when outside of a flow (e.g. from a [Hook](/docs/build/code#hooks)), you can use the lower-level storage API, the Key-Value-Store (KVS).
 
 The KVS works very similarly to the get/set actions except you have to decide on the storage key yourself. Think of the KVS as an oversimplified NoSQL store where all you need to know to store something is a unique key.
 
