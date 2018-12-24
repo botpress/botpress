@@ -52,7 +52,7 @@ export class AdminRouter implements CustomRouter {
 
     this.router.get('/license', (req, res) => {
       const license = {
-        edition: process.BOTPRESS_EDITION
+        isPro: process.IS_PRO_BUILD && process.IS_PRO_ENABLED
       }
       res.send(license)
     })

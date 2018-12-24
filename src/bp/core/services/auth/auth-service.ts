@@ -31,7 +31,7 @@ export default class AuthService {
   }
 
   async getResources(): Promise<Resource[]> {
-    if (process.BOTPRESS_EDITION !== 'ce') {
+    if (process.IS_PRO_BUILD) {
       const resources = require('pro/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }

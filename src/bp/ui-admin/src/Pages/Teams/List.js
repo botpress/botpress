@@ -126,7 +126,7 @@ class List extends Component {
     )
   }
 
-  isCommunity = () => this.props.license && this.props.license.edition === 'ce'
+  isCommunity = () => !this.props.license || !this.props.license.isPro
 
   renderCreateTeamButton() {
     if (!this.isCommunity()) {

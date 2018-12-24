@@ -1,5 +1,6 @@
 const yn = require('yn')
 const pa = require('path')
+const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 
 const printPlainError = err => {
@@ -71,7 +72,13 @@ try {
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
-  process.BOTPRESS_EDITION = metadataContent.edition
+  process.IS_PRO_BUILD = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro'))
+
+  const configPath = pa.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
+  if (fs.existsSync(configPath)) {
+    const config = require(configPath)
+    process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+  }
 
   require('./bootstrap')
 } catch (err) {

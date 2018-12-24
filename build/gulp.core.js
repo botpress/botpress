@@ -6,16 +6,16 @@ const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
+const fs = require('fs')
 
 const maybeFetchPro = () => {
-  const runningPro = process.env.EDITION === 'pro' || process.env.EDITION === 'ee'
-  return gulp.src('./').pipe(gulpif(runningPro, run('git submodule update --init', { verbosity: 2 })))
+  const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
+  return gulp.src('./').pipe(gulpif(isProBuild, run('git submodule update --init', { verbosity: 2 })))
 }
 
 const writeMetadata = () => {
   const metadata = JSON.stringify(
     {
-      edition: process.env.EDITION || 'ce',
       version: require(path.join(__dirname, '../package.json')).version
     },
     null,
