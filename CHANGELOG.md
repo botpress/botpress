@@ -3,7 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.51.4"></a>
+      <a name="10.51.5"></a>
+## [10.51.5](https://github.com/botpress/botpress/compare/v10.51.4...v10.51.5) (2018-12-26)
+
+
+### Bug Fixes
+
+* **core:** upgrade nodemon to fix event-stream issue ([e171c60](https://github.com/botpress/botpress/commit/e171c60))
+* **webchat:** fix iframe overlaying menu (resolve [#1251](https://github.com/botpress/botpress/issues/1251)) ([23386ea](https://github.com/botpress/botpress/commit/23386ea))
+
+
+
+
+      <a name="10.51.4"></a>
 ## [10.51.4](https://github.com/botpress/botpress/compare/v10.51.3...v10.51.4) (2018-12-18)
 
 
@@ -16,7 +28,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.51.3"></a>
+<a name="10.51.3"></a>
 ## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
 
 
