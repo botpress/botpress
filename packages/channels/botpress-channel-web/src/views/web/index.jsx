@@ -609,9 +609,9 @@ export default class Web extends React.Component {
       return null
     }
 
-    const widgetClass = this.state.view === 'widget' && this.state.isButtonHidden ? '' : `bp-widget-${this.state.view}`
-
-    window.parent && window.parent.postMessage({ type: 'setClass', value: `bp-widget-web ${widgetClass}` }, '*')
+    if (window.parent && (this.state.view !== 'widget' || !this.state.isButtonHidden)) {
+      window.parent.postMessage({ type: 'setClass', value: `bp-widget-web bp-widget-${this.state.view}` }, '*')
+    }
 
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
