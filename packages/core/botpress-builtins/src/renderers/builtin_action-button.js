@@ -44,8 +44,7 @@ export default data => {
                 url: a.url
               }
             } else {
-              return 
-              { title: a.title, encrypt: true, payload: { action: 'gotoFlow', dest: a.flow }
+              return { title: a.title, encrypt: true, payload: { action: 'gotoFlow', dest: a.flow } }
             }
           })
         }
