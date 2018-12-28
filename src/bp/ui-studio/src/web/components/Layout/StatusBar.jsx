@@ -4,7 +4,7 @@ import _ from 'lodash'
 import classNames from 'classnames'
 import { Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { Line } from 'progressbar.js'
-
+import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 
 const COMPLETED_DURATION = 2000
@@ -47,13 +47,7 @@ export default class StatusBar extends React.Component {
     super(props)
     this.progressContainerRef = React.createRef()
 
-    if (props.emitter) {
-      this.listenEvents()
-    }
-  }
-
-  listenEvents() {
-    this.props.emitter.on('module', this.handleModuleEvent)
+    EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
   handleModuleEvent = event => {

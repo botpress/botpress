@@ -58,6 +58,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.post('/sync', async (req, res) => {
+    const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
+
     try {
       await nlus[req.params.botId].sync()
       res.sendStatus(200)
@@ -70,6 +73,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       )
       res.status(500).send(`${e.name} : ${e.message}`)
     }
+
+    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
   })
 
   router.post('/extract', async (req, res) => {
