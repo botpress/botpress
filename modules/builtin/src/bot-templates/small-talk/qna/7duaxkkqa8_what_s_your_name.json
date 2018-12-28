@@ -10,7 +10,7 @@
       "who am I speaking with?",
       "who is this?"
     ],
-    "answer": "My name is Bob, but please don't tell anyone :-)",
+    "answers": ["My name is Bob, but please don't tell anyone :-)"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

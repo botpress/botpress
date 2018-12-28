@@ -1,7 +1,7 @@
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/src/tsconfig.json'
+      tsConfig: '<rootDir>/src/tsconfig.test.json'
     }
   },
   setupFiles: ['<rootDir>/src/bp/import-rewire.ts'],
@@ -10,7 +10,7 @@ module.exports = {
   modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
   moduleNameMapper: {
     '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'

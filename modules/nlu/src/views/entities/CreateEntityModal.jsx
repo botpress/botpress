@@ -1,22 +1,24 @@
 import React from 'react'
+
 import Select from 'react-select'
 import { Button, Modal, FormControl } from 'react-bootstrap'
-import nanoid from 'nanoid'
+import { sanitizeFilenameNoExt } from '../../util'
 
 const AVAILABLE_TYPES = [
   {
-    label: 'Pattern',
-    value: 'pattern'
-  },
-  {
     label: 'List',
     value: 'list'
+  },
+  {
+    label: 'Pattern',
+    value: 'pattern'
   }
 ]
 
 const DEFAULT_STATE = {
   name: '',
-  type: undefined
+  type: 'list',
+  isValid: false
 }
 
 export default class CreateEntityModal extends React.Component {
@@ -24,15 +26,19 @@ export default class CreateEntityModal extends React.Component {
 
   handleNameChange = e => {
     this.setState({ name: e.target.value })
+    this.validate()
   }
 
   handleTypeChange = selected => {
     this.setState({ type: selected.value })
+    this.validate()
   }
+
+  handleKeyDown = e => e.key === 'Enter' && this.state.isValid && this.createEntity()
 
   createEntity = () => {
     const entity = {
-      id: nanoid(),
+      id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
       type: this.state.type,
       pattern: '',
@@ -43,6 +49,10 @@ export default class CreateEntityModal extends React.Component {
       this.props.onEntityCreated(entity)
       this.props.hide()
     })
+  }
+
+  validate() {
+    this.setState({ isValid: this.state.name.trim().length > 0 && this.state.type !== undefined })
   }
 
   render() {
@@ -60,6 +70,7 @@ export default class CreateEntityModal extends React.Component {
             placeholder="Name"
             value={this.state.name}
             onChange={this.handleNameChange}
+            onKeyDown={this.handleKeyDown}
           />
 
           <h4>Type</h4>
@@ -72,12 +83,7 @@ export default class CreateEntityModal extends React.Component {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            tabIndex="3"
-            bsStyle="primary"
-            disabled={this.state.name === undefined || this.state.type === undefined}
-            onClick={this.createEntity}
-          >
+          <Button tabIndex="3" bsStyle="primary" disabled={!this.state.isValid} onClick={this.createEntity}>
             Create Entity
           </Button>
         </Modal.Footer>

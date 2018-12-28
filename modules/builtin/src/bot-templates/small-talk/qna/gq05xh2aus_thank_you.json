@@ -11,7 +11,7 @@
       "gracias",
       "you're awesome"
     ],
-    "answer": "You're welcome :-)",
+    "answers": ["You're welcome :-)"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

@@ -4,13 +4,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import { Config } from '../config'
-
-const sanitizeFilenameNoExt = name =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9-_.]/gi, '_')
-    .replace('.json', '')
-    .replace('.utterances.txt', '')
+import { sanitizeFilenameNoExt } from '../util.js'
 
 export interface AvailableModel {
   created_on: Date
@@ -34,18 +28,14 @@ export default class Storage {
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
-  async saveIntent(intent: string, content: sdk.NLU.Intent) {
+  async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
     intent = sanitizeFilenameNoExt(intent)
-    const sysEntities = this.getSystemEntities()
+    const entities = await this.getAvailableEntities()
 
     if (content.slots) {
       await Promise.map(content.slots, async slot => {
-        if (!sysEntities.find(e => e.name === slot.entity)) {
-          try {
-            await this.ghost.readFileAsString(this.entitiesDir, `${slot.entity}.json`)
-          } catch (err) {
-            throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
-          }
+        if (!entities.find(e => e.name === slot.entity)) {
+          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
         }
       })
     }
@@ -54,13 +44,7 @@ export default class Storage {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
-    const utterancesFile = `${intent}.utterances.txt`
-    const propertiesFile = `${intent}.json`
-
-    const utterances = content.utterances || []
-    await this.ghost.upsertFile(this.intentsDir, utterancesFile, utterances.join('\r\n'))
-
-    await this.ghost.upsertFile(this.intentsDir, propertiesFile, JSON.stringify(content))
+    await this.ghost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
   }
 
   async deleteIntent(intent) {
@@ -70,32 +54,21 @@ export default class Storage {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
-    const utterancesFile = `${intent}.utterances.txt`
-    const propertiesFile = `${intent}.json`
-
     try {
-      await this.ghost.deleteFile(this.intentsDir, utterancesFile)
+      await this.ghost.deleteFile(this.intentsDir, `${intent}.json`)
     } catch (e) {
-      if (e.code !== 'ENOENT' && !e.message.includes("couldn't find it")) {
-        throw e
-      }
-    }
-
-    try {
-      await this.ghost.deleteFile(this.intentsDir, propertiesFile)
-    } catch (e) {
-      if (e.code !== 'ENOENT' && !e.message.includes("couldn't find it")) {
+      if (e.code !== 'ENOENT' && !e.message.includes("couldn't find")) {
         throw e
       }
     }
   }
 
-  async getIntents(): Promise<sdk.NLU.Intent[]> {
+  async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
-  async getIntent(intent): Promise<sdk.NLU.Intent> {
+  async getIntent(intent: string): Promise<sdk.NLU.IntentDefinition> {
     intent = sanitizeFilenameNoExt(intent)
 
     if (intent.length < 1) {
@@ -103,27 +76,44 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-
     const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
-    const utterancesContent = await this.ghost.readFileAsString(
-      this.intentsDir,
-      filename.replace('.json', '.utterances.txt')
-    )
-
-    const utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
     const properties = JSON.parse(propertiesContent)
 
-    return {
+    const obj = {
       name: intent,
       filename: filename,
-      utterances: utterances,
       ...properties
     }
+
+    // @deprecated remove in 12+
+    if (!properties.utterances) {
+      await this._legacyAppendIntentUtterances(obj, intent)
+      console.log('Resaving intent', intent)
+      await this.saveIntent(intent, obj)
+    }
+
+    return obj
   }
+
+  /** @deprecated remove in 12.0+
+   * utterances used to be defined in a separate .txt file
+   * this is not the case anymore since 11.2
+   * we added this method for backward compatibility
+   */
+  private async _legacyAppendIntentUtterances(intent: any, intentName: string) {
+    const filename = `${intentName}.utterances.txt`
+
+    const utterancesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
+    intent.utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
+    await this.ghost.deleteFile(this.intentsDir, filename)
+  }
+
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     return [...this.getSystemEntities(), ...(await this.getCustomEntities())]
   }
+
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
+    // TODO move this array as static method in DucklingExtractor
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
@@ -153,24 +143,19 @@ export default class Storage {
 
   async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     const files = await this.ghost.directoryListing(this.entitiesDir, '*.json')
-    return Promise.mapSeries(files, async f => {
-      return await this.ghost.readFileAsObject<sdk.NLU.EntityDefinition>(this.entitiesDir, f)
+    return Promise.mapSeries(files, async fileName => {
+      const body = await this.ghost.readFileAsObject<sdk.NLU.EntityDefinition>(this.entitiesDir, fileName)
+      return { ...body, id: sanitizeFilenameNoExt(fileName) }
     })
   }
 
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entity.name)
-    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(entity))
+    const obj = _.omit(entity, ['id'])
+    return this.ghost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
   }
 
-  async updateEntity(entityName: string, updatedEntity: sdk.NLU.EntityDefinition): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
-    return this.ghost.upsertFile(this.entitiesDir, fileName, JSON.stringify(updatedEntity))
-  }
-
-  async deleteEntity(entityName: string): Promise<void> {
-    const fileName = this._getEntityFileName(entityName)
-    return this.ghost.deleteFile(this.entitiesDir, fileName)
+  async deleteEntity(entityId: string): Promise<void> {
+    return this.ghost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
   async persistModel(modelBuffer: Buffer, modelName: string) {
@@ -197,17 +182,8 @@ export default class Storage {
 
   async getModelAsBuffer(modelHash: string): Promise<Buffer> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)
+    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
 
     return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
-  }
-
-  private _getEntityFileName(entityName: string) {
-    entityName = sanitizeFilenameNoExt(entityName)
-    if (entityName.length < 1) {
-      throw new Error('Invalid entity name, expected at least one character')
-    }
-
-    return `${entityName}.json`
   }
 }

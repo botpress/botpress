@@ -9,7 +9,7 @@
       "tell me your identity",
       "show me your identity"
     ],
-    "answer": "I'm Bob, an NSA secret agent, ready to help you ! ",
+    "answers": ["I'm Bob, an NSA secret agent, ready to help you ! "],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

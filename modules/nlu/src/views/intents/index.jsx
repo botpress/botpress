@@ -116,22 +116,20 @@ export default class IntentsComponent extends React.Component {
 
     return (
       <div className={style.intentsContainer}>
-        <div className={style.list}>
-          <ListGroup>
-            {intents.map((el, i) => (
-              <ListGroupItem
-                key={`nlu_entity_${el.name}`}
-                className={style.entity}
-                onClick={() => this.setCurrentIntent(el.name)}
-              >
-                {el.name}
-                &nbsp;(
-                {_.get(el, 'utterances.length', 0)})
-                <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
-              </ListGroupItem>
-            ))}
-          </ListGroup>
-        </div>
+        <ListGroup>
+          {intents.map((el, i) => (
+            <ListGroupItem
+              key={`nlu_entity_${el.name}`}
+              className={style.entity}
+              onClick={() => this.setCurrentIntent(el.name)}
+            >
+              {el.name}
+              &nbsp;(
+              {_.get(el, 'utterances.length', 0)})
+              <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
+            </ListGroupItem>
+          ))}
+        </ListGroup>
       </div>
     )
   }

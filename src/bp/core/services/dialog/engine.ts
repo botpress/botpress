@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
-import { Hooks, HookService } from '../hook/hook-service'
+import { HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
 import { FlowService } from './flow/service'
@@ -115,10 +115,6 @@ export class DialogEngine {
     this._logTimeout(botId)
     await this._loadFlows(botId)
 
-    // FIXME: Doesnt play well with tests
-    // const api = await createForGlobalHooks()
-    // await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
-
     // This is the only place we dont want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {
       try {
@@ -200,7 +196,10 @@ export class DialogEngine {
 
       context = {
         currentFlow: flow.name,
-        currentNode: startNode.name
+        currentNode: startNode.name,
+        // We keep a reference of the previous flow so we can return to it later on.
+        previousFlow: event.state.context.currentFlow,
+        previousNode: event.state.context.currentNode
       }
       this._logEnterFlow(
         event.botId,
@@ -210,9 +209,17 @@ export class DialogEngine {
         event.state.context.currentNode
       )
     } else if (transitionTo.indexOf('#') === 0) {
-      // Return to the parent node (coming from a subflow)
+      // Return to the parent node (coming from a flow)
       const parentFlow = this._findFlow(event.botId, event.state.context.previousFlow!)
-      const parentNode = this._findNode(parentFlow, event.state.context.previousNode!)
+      const specificNode = transitionTo.split('#')[1]
+      let parentNode
+
+      if (specificNode) {
+        parentNode = this._findNode(parentFlow, specificNode)
+      } else {
+        parentNode = this._findNode(parentFlow, event.state.context.previousNode!)
+      }
+
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
       const queue = builder.onlyTransitions().build()
 

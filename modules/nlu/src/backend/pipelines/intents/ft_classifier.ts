@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import { createWriteStream, writeFileSync } from 'fs'
 import tmp from 'tmp'
 
-import FastTextWrapper, { Prediction } from '../../tools/fastText'
-import { IntentClassifier } from '../../typings'
+import FastTextWrapper from '../../tools/fastText'
+import { IntentClassifier, Prediction } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -11,9 +11,9 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
-  constructor(private readonly logger: sdk.Logger) { }
+  constructor(private readonly logger: sdk.Logger) {}
 
-  private fastTextWrapper: FastTextWrapper
+  private fastTextWrapper!: FastTextWrapper
 
   public currentModelId: string | undefined
 

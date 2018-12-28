@@ -41,8 +41,8 @@ Behind the scenes, Botpress implements a queuing mechanism that processes ingoin
 
 - **Intent Recognition**: recognizing what the user wants
 - **Entity Extraction**: extracting structured information from messages like dates, time, cities, names and more
+- **Slot tagging**: identify necessary __parameters__ to fulfill given task
 - **Language Identification**: knowing in which language the user is writing
-- **Sentiment Analysis**: evaluating the sentiment of the user (positive or negative)
 
 All of the above will really help you create more natural and pleasurable conversations.
 

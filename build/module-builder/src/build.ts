@@ -69,7 +69,7 @@ export async function buildBackend(modulePath: string) {
 
         for (const file of toCopy) {
           const fromFull = path.join(modulePath, file)
-          const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+          const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
           const destFull = path.join(modulePath, dest)
           mkdirp.sync(path.dirname(destFull))
           fse.copySync(fromFull, destFull)

@@ -31,6 +31,18 @@
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
+    },
+    {
+      "name": "(lldb) Launch",
+      "type": "lldb",
+      "request": "launch",
+      "program": "node",
+      "args": ["index.js"],
+      "env": {
+        "BP_MODULES_PATH": "../../modules",
+        "NODE_PATH": "./"
+      },
+      "cwd": "${workspaceFolder}/out/bp"
     }
   ]
 }

@@ -15,7 +15,7 @@
       "you're horrible",
       "you are a waste of time"
     ],
-    "answer": "Please stay polite!",
+    "answers": ["Please stay polite!"],
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

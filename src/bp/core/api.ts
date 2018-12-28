@@ -3,6 +3,7 @@ import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
+import MLToolkit from 'ml/toolkit'
 
 import { container } from './app.inversify'
 import { BotLoader } from './bot-loader'
@@ -203,6 +204,7 @@ export class BotpressAPIProvider {
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
+  mlToolkit: typeof sdk.MLToolkit
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -233,6 +235,7 @@ export class BotpressAPIProvider {
     this.bots = bots(botLoader)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
+    this.mlToolkit = MLToolkit
   }
 
   @Memoize()
@@ -247,6 +250,7 @@ export class BotpressAPIProvider {
         Event: Event,
         WellKnownFlags: WellKnownFlags
       },
+      MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
       http: this.http,

@@ -1,3 +1,6 @@
 [submodule "src/bp/pro"]
 	path = src/bp/pro
 	url = git@github.com:botpress/botpress-pro.git
+[submodule "src/bp/ml/crfsuite"]
+	path = src/bp/ml/crfsuite
+	url = https://github.com/botpress/node-crfsuite.git
