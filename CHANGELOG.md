@@ -3,7 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-  <a name="10.51.6"></a>
+      <a name="10.51.7"></a>
+## [10.51.7](https://github.com/botpress/botpress/compare/v10.51.6...v10.51.7) (2018-12-29)
+
+
+### Bug Fixes
+
+* **webchat:** fix webchat widget overlaying after first show (ref [#1251](https://github.com/botpress/botpress/issues/1251)) ([f0b672e](https://github.com/botpress/botpress/commit/f0b672e))
+
+
+
+
+      <a name="10.51.6"></a>
 ## [10.51.6](https://github.com/botpress/botpress/compare/v10.51.5...v10.51.6) (2018-12-29)
 
 
@@ -14,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-  <a name="10.51.5"></a>
+<a name="10.51.5"></a>
 ## [10.51.5](https://github.com/botpress/botpress/compare/v10.51.4...v10.51.5) (2018-12-26)
 
 
