@@ -129,6 +129,21 @@ export type BotpressConfig = {
      * @default paste your license key here
      */
     licenseKey: string
+
+    redis: {
+      /**
+       * Whether or not Redis is enabled.  You must enable Redis in order to use the Botpress in cluster mode.
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * The full URL of the Redis server.  Each node in the Botpress cluster must be able to connect to this Redis server.
+       * Format = [redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
+       * See http://www.iana.org/assignments/uri-schemes/prov/redis for more information
+       * @default redis://127.0.0.1:6379
+       */
+      url: string
+    }
   }
   /**
    * When enabled, Botpress collects anonymous data about the bot's usage
@@ -145,7 +160,7 @@ export type BotpressConfig = {
 export interface DataRetentionConfig {
   /**
    * The janitor will check for expired fields at the set interval (second, minute, hour, day)
-   * @example 1m
+   * @default 10m
    */
   janitorInterval: string
   policies: RetentionPolicy
@@ -153,6 +168,7 @@ export interface DataRetentionConfig {
 
 /**
  * @example "profile.email": "30d"
+ * @default {}
  */
 export type RetentionPolicy = {
   [key: string]: string

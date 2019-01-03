@@ -7,7 +7,7 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
-import _ from 'lodash'
+import _, { PartialDeep } from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import yn from 'yn'
@@ -18,7 +18,7 @@ import { BotpressConfig, DatabaseType } from './botpress.config'
 export interface ConfigProvider {
   createDefaultConfigIfMissing(): Promise<void>
   getBotpressConfig(): Promise<BotpressConfig>
-  mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void>
+  mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
@@ -51,7 +51,7 @@ export class GhostConfigProvider implements ConfigProvider {
     return config
   }
 
-  async mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void> {
+  async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void> {
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
@@ -75,7 +75,7 @@ export class GhostConfigProvider implements ConfigProvider {
       const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botpressConfigSchema, 'utf-8')))
 
       const config = {
-        $schema: `../../botpress.config.schema.json`,
+        $schema: `../botpress.config.schema.json`,
         ...defaultConfig,
         modules: await this.getModulesListConfig()
       }

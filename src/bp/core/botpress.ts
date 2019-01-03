@@ -89,7 +89,9 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+
     this.config = await this.loadConfiguration()
+    await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
     await this.createDatabase()

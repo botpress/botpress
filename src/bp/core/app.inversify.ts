@@ -9,7 +9,7 @@ import { BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
-import { applyDisposeOnExit } from './misc/inversify'
+import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
@@ -68,34 +68,42 @@ container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)
   .inSingletonScope()
+
 container
   .bind<Botpress>(TYPES.Botpress)
   .to(Botpress)
   .inSingletonScope()
+
 container
   .bind<HTTPServer>(TYPES.HTTPServer)
   .to(HTTPServer)
   .inSingletonScope()
+
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)
   .inSingletonScope()
+
 container
   .bind<BotLoader>(TYPES.BotLoader)
   .to(BotLoader)
   .inSingletonScope()
+
 container
   .bind<BotConfigWriter>(TYPES.BotConfigWriter)
   .to(BotConfigWriter)
   .inSingletonScope()
+
 container
   .bind<Statistics>(TYPES.Statistics)
   .to(Statistics)
   .inSingletonScope()
+
 container
   .bind<DataRetentionJanitor>(TYPES.DataRetentionJanitor)
   .to(DataRetentionJanitor)
   .inSingletonScope()
+
 container
   .bind<DataRetentionService>(TYPES.DataRetentionService)
   .to(DataRetentionService)
@@ -118,5 +126,6 @@ if (process.IS_PRO_ENABLED) {
 }
 
 applyDisposeOnExit(container)
+applyInitializeFromConfig(container)
 
 export { container }
