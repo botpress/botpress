@@ -17,7 +17,7 @@ export const GhostContainerModule = new ContainerModule((bind: interfaces.Bind) 
   bind<ObjectCache>(TYPES.ObjectCache)
     .to(MemoryObjectCache)
     .inSingletonScope()
-    .when(() => process.BOTPRESS_EDITION !== 'pro')
+    .when(() => !process.IS_PRO_ENABLED)
 
   bind<DiskStorageDriver>(TYPES.DiskStorageDriver)
     .to(DiskStorageDriver)
