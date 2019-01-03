@@ -3,7 +3,7 @@ id: hosting
 title: Hosting & Environment
 ---
 
-When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the ghost is enabled ([click here for more details](../manage/sync-changes)) and debug logs are no longer displayed. We also highly recomment using a Postgres database instead of the embedded SQLite.
+When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the ghost is enabled ([click here for more details](/docs/manage/sync-changes)) and debug logs are no longer displayed. We also highly recomment using a Postgres database instead of the embedded SQLite.
 
 All you need to do is start Botpress with the `-p` flag, like this: `./bp -p`
 

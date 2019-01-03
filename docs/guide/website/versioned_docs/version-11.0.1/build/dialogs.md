@@ -32,7 +32,7 @@ Once the first node is processed, the Dialog Engine will proceed to the next nod
 Flows are stored as JSON files in the bot's source files. In the context of this tutorial, the flows are stored in the `data/bots/trivia-bot/flows/` folder. Each flow is split into two files: the logic (`*.flow.json`) and the visual-specific properties (`*.ui.json`). The reason to split these is to make easier to maintain and review changes.
 
 - `*.ui.json` files can almost always be ignored from code reviews as they don't affect the functionality of the bot.
-- `*.flow.json` files could also, in theory, be created manually by developers instead of using the GUI. This is the case for [Skills](./skills), which we will cover later.
+- `*.flow.json` files could also, in theory, be created manually by developers instead of using the GUI. This is the case for [Skills](#skills), which we will cover later.
 
 ## Nodes
 
@@ -130,7 +130,7 @@ An **Action** is JavaScript code that is executed in a Node.js VM. It can be any
 - **Script**: A user defined Action that is used to run custom code.
 - **Output**: An output Action that is used to make a bot output something.
 
-> To learn more on Actions, please refer to the [Custom Code](code) section.
+> To learn more on Actions, please refer to the [Custom Code](/docs/build/code) section.
 
 ## Skills
 

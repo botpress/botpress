@@ -8,7 +8,7 @@ There are 2 ways of easily adding custom code to enrich your bot's experience: A
 
 Both are executed in a virtual machine to prevent server crash if there is a scripting error. Your scripts may require any module that is loaded by botpress by default (for example: lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
 
-If you want to include other dependency not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your action, or you can [create a module](../next/create-module) that includes your dependency.
+If you want to include other dependency not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your action, or you can [create a module](/docs/create-module) that includes your dependency.
 
 To help you vizualize how it works, check the snippet below. We've commented out the portion of the code that is "hidden", since all you need to include in your `.js` files is your actual code.
 
@@ -68,7 +68,7 @@ The action itself must return a new state object.
 
 The only way to register new actions is to add your javascript code in a `.js` file and put them in the folder `data/global/actions`. There is no way to programmatically add new ones during runtime.
 
-There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/src/templates/data/global/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful informations (name, description, arguments, default values) on the dialog flow editor.
+There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/modules/builtin/src/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful informations (name, description, arguments, default values) on the dialog flow editor.
 
 ## Hooks
 
@@ -78,7 +78,7 @@ They are defined globally as javascript files in the folder `data/global/hooks/$
 
 > Note: subfolders are allowed, but they are ignored in the ordering. If you have 02_hook.js and 03/01_hook.js, the order will be 01_hook.js then 02_hook.js
 
-They all have access to the (Botpress SDK)[https://botpress.io/reference/](`bp`).
+They all have access to the (Botpress SDK)[https://botpress.io/reference/](https://botpress.io/reference/).
 
 ### After Server Starts
 

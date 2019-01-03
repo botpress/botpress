@@ -45,7 +45,7 @@ Variables stored inside this memory are shared between all users and conversatio
 
 ## General Storage
 
-If you want to store information differently, or when outside of a flow (e.g. from a [Hook](./code)), you can use the lower-level storage API, the Key-Value-Store (KVS).
+If you want to store information differently, or when outside of a flow (e.g. from a [Hook](/docs/build/code#hooks)), you can use the lower-level storage API, the Key-Value-Store (KVS).
 
 The KVS works very similarly to the get/set actions except you have to decide on the storage key yourself. Think of the KVS as an oversimplified NoSQL store where all you need to know to store something is a unique key.
 
