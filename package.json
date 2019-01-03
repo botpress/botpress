@@ -54,6 +54,7 @@
     "plur": "^3.0.1",
     "portfinder": "^1.0.19",
     "querystring": "^0.2.0",
+    "redis": "^2.8.0",
     "reflect-metadata": "^0.1.12",
     "semver": "^5.6.0",
     "socket.io": "^2.1.1",

@@ -1,3 +1,4 @@
+import JobService from 'common/job-service'
 import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { ContainerModule, interfaces } from 'inversify'
@@ -12,6 +13,7 @@ import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
+import { CEJobService } from './job'
 import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
@@ -38,6 +40,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<LicensingService>(TYPES.LicensingService)
     .to(CELicensingService)
+    .inSingletonScope()
+    .when(() => !process.IS_PRO_ENABLED)
+
+  bind<JobService>(TYPES.JobService)
+    .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 

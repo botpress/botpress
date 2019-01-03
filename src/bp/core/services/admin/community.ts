@@ -13,6 +13,7 @@ import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
+import { DistributedJobService } from 'pro/services/distributed-job'
 
 import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
@@ -34,7 +35,8 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.Statistics) protected stats: Statistics
+    @inject(TYPES.Statistics) protected stats: Statistics,
+    @inject(TYPES.JobService) private jobService: DistributedJobService
   ) {}
 
   protected get knex() {
@@ -122,7 +124,7 @@ export class CommunityAdminService implements AdminService {
       )
   }
 
-  async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
+  private async _addBot(teamId: number, bot, botTemplate?: BotTemplate): Promise<void> {
     this.stats.track('ce', 'addBot')
     bot.team = teamId
     const { error } = Joi.validate(bot, BotCreationSchema)
@@ -137,6 +139,10 @@ export class CommunityAdminService implements AdminService {
       : await this.botConfigWriter.createEmptyBot(bot)
 
     await this.botLoader.mountBot(bot.id)
+  }
+
+  async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
+    await this.jobService.execJob('mount', () => this._addBot(teamId, bot, botTemplate))
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
