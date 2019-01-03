@@ -12,7 +12,7 @@ Botpress is an open-source bot creation tool written in TypeScript. It is powere
 
 #### ⚠️ Status
 
-Botpress Server (v11) is currently in beta and is **not considered ready for production usage** yet. If you are looking for the latest stable version, please [see Botpress v10.x](https://github.com/botpress/botpress/tree/archive/10.x).
+Botpress Server (v11) is currently in beta and is **not considered ready for production use** yet. If you are looking for the latest stable version, please [checkout Botpress v10.x](https://github.com/botpress/botpress/tree/archive/10.x).
 
 #### What has changed
 
@@ -40,7 +40,7 @@ There are 3 major differences between Botpress X (10.x) and Botpress Server (11.
 
 ## Support the project ⭐
 
-If you feel awesome and want to support us in a small way, please consider starring and sharing the repo! This helps us getting known and grow the community. 🙏
+If you feel awesome and want to support us in a small way, please consider starring and sharing the repo! This helps us get visability and allow the community to grow. 🙏
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
@@ -50,7 +50,7 @@ You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/
 
 ## What's New in Botpress Server
 
-Botpress is on a mission to make useful bots ubiquitous by powering developers with the best possible tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
+Botpress is on a mission to make useful bots ubiquitous by providing developers with cutting-edge tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
 
 <p align="right">
   <img alt="Multi-bots" height="450" src=".github/assets/multi-bots.jpg">  
@@ -69,7 +69,7 @@ Botpress is on a mission to make useful bots ubiquitous by powering developers w
 
 ### Building issues
 
-If you have errors when building modules (timeout, random errors, etc), try the following:
+If you encounter errors when building modules (timeout, random errors, etc), try the following:
 
 1. Go in each module folder and type `yarn && yarn build`
 
@@ -89,7 +89,7 @@ We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
 
 ### SDK Reference
 
-We use [TypeDoc](https://github.com/TypeStrong/typedoc) the generate the SDK Reference directly from the source code.
+We use [TypeDoc](https://github.com/TypeStrong/typedoc) to generate the SDK Reference directly from the source code.
 
 - Run `yarn build:reference` to generate the documentation. THe static files will appear under `/docs/reference/public`.
 
