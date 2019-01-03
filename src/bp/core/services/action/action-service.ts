@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { ObjectCache } from 'common/object-cache'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -10,7 +11,6 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { ObjectCache } from '../ghost'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'

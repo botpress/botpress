@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
+import { ObjectCache } from 'common/object-cache'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -10,7 +11,7 @@ import { GhostService } from '..'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
-import { ObjectCache } from '../ghost'
+
 export namespace Hooks {
   export interface BaseHook {
     readonly folder: string
