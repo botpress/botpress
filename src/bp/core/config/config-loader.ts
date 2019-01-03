@@ -43,7 +43,10 @@ export class GhostConfigProvider implements ConfigProvider {
     config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url
 
     config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
-    config.licenseKey = process.env.BP_LICENSE_KEY || config.licenseKey
+
+    if (config.pro) {
+      config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
+    }
 
     return config
   }

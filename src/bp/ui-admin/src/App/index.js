@@ -41,7 +41,7 @@ class Home extends Component {
 
     const { username, fullName } = this.props.profile
 
-    const licenseEnabled = this.props.licensing && this.props.licensing.edition !== 'ce'
+    const licenseEnabled = this.props.licensing && this.props.licensing.isPro
 
     return (
       <UncontrolledDropdown nav inNavbar>
@@ -87,7 +87,7 @@ class Home extends Component {
 
   renderUnlicensed() {
     const isLicensed =
-      !this.props.licensing || this.props.licensing.edition === 'ce' || this.props.licensing.status === 'licensed'
+      !this.props.licensing || !this.props.licensing.isPro || this.props.licensing.status === 'licensed'
 
     if (isLicensed) {
       return null

@@ -24,8 +24,8 @@ export class LicenseRouter implements CustomRouter {
     router.get(
       '/status',
       this.asyncMiddleware(async (req, res) => {
-        if (process.BOTPRESS_EDITION === 'ce') {
-          return sendSuccess(res, 'License status', { edition: process.BOTPRESS_EDITION })
+        if (!process.IS_PRO_ENABLED) {
+          return sendSuccess(res, 'License status', { isPro: false })
         }
 
         const status = await svc.getLicenseStatus()
@@ -37,7 +37,7 @@ export class LicenseRouter implements CustomRouter {
 
         return sendSuccess(res, 'License status', {
           fingerprint,
-          edition: process.BOTPRESS_EDITION,
+          isPro: true,
           license: info,
           ...status
         })

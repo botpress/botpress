@@ -44,6 +44,7 @@ node_modules
 test-report.html
 metadata.json
 edition.json
+/pro
 
 # Botpress docs
 /docs/reference/public

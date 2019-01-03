@@ -50,36 +50,6 @@ const _RESOURCES: Resource[] = [
         operations: [r]
       },
       {
-        name: 'modules.*',
-        description: 'Bot extensions, such as NLU or HITL',
-        operations: [r]
-      },
-      {
-        name: 'middleware.*',
-        description: 'All middleware operations',
-        operations: [r, w]
-      },
-      {
-        name: 'middleware.list',
-        description: 'Get the list of the installed middlewares',
-        operations: [r]
-      },
-      {
-        name: 'middleware.customizations',
-        description: 'Change the order of the middlewares and their enabled/disabled state',
-        operations: [w]
-      },
-      {
-        name: 'modules.list',
-        description: 'The list of the installed modules',
-        operations: [r]
-      },
-      {
-        name: 'modules.list.community',
-        description: 'The list of the publicly available modules',
-        operations: [r]
-      },
-      {
         name: 'information',
         description: 'General bot details',
         operations: [r]

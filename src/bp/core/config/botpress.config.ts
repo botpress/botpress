@@ -116,13 +116,20 @@ export type BotpressConfig = {
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
-  /**
-   * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
-   * You can purchase a license on https://botpress.io
-   * For usage with Botpress Pro/Enterprise.
-   * @default paste your license key here
-   */
-  licenseKey: string
+  pro: {
+    /**
+     * When pro features are enabled, the license key must be provided
+     * @default false
+     */
+    enabled: boolean
+    /**
+     * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
+     * You can purchase a license on https://botpress.io
+     * For usage with Botpress Pro/Enterprise.
+     * @default paste your license key here
+     */
+    licenseKey: string
+  }
   /**
    * When enabled, Botpress collects anonymous data about the bot's usage
    * @default true

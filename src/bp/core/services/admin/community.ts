@@ -29,8 +29,6 @@ export class CommunityAdminService implements AdminService {
   protected botsTable = 'srv_bots'
   protected ROOT_ADMIN_ID = 1
 
-  private edition = process.BOTPRESS_EDITION
-
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger) private logger: Logger,
@@ -44,15 +42,15 @@ export class CommunityAdminService implements AdminService {
   }
 
   listUsers() {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   createUser(username: string) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   deleteUser(userId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   async resetPassword(userId: any) {
@@ -73,11 +71,11 @@ export class CommunityAdminService implements AdminService {
   }
 
   addMemberToTeam(userId: number, teamId: number, roleName: string) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   removeMemberFromTeam(userId: any, teamId: any) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   async listUserTeams(userId: number) {
@@ -99,15 +97,15 @@ export class CommunityAdminService implements AdminService {
   }
 
   createTeamRole(teamId: number, role: AuthRole) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   deleteTeamRole(teamId: number, roleId: number) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   updateTeamRole(teamId: number, roleId: number, role: Partial<AuthRole>) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   async listTeamRoles(teamId: number) {
@@ -244,7 +242,7 @@ export class CommunityAdminService implements AdminService {
   }
 
   changeUserRole(userId: number, teamId: number, roleName: string) {
-    throw new FeatureNotAvailableError(this.edition)
+    throw new FeatureNotAvailableError()
   }
 
   async listTeamMembers(teamId: number) {
