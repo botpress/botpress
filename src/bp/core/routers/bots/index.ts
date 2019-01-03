@@ -103,7 +103,7 @@ export class BotsRouter implements CustomRouter {
         version: process.BOTPRESS_VERSION
       },
       isLicensed: process.IS_LICENSED,
-      isPro: process.IS_PRO_BUILD && process.IS_PRO_ENABLED
+      isPro: process.IS_PRO_ENABLED
     }
   }
 

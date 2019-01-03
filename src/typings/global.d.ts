@@ -21,7 +21,6 @@ declare namespace NodeJS {
     LOADED_MODULES: { [module: string]: string }
     pkg: any
     IS_LICENSED: boolean
-    IS_PRO_BUILD: boolean
     IS_PRO_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string

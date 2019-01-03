@@ -72,10 +72,11 @@ try {
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
-  process.IS_PRO_BUILD = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro'))
 
+  const isProBuild = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro'))
   const configPath = pa.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
-  if (fs.existsSync(configPath)) {
+
+  if (isProBuild && fs.existsSync(configPath)) {
     const config = require(configPath)
     process.IS_PRO_ENABLED = config.pro && config.pro.enabled
   }

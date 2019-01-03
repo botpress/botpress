@@ -24,7 +24,7 @@ export class LicenseRouter implements CustomRouter {
     router.get(
       '/status',
       this.asyncMiddleware(async (req, res) => {
-        if (!process.IS_PRO_BUILD || !process.IS_PRO_ENABLED) {
+        if (!process.IS_PRO_ENABLED) {
           return sendSuccess(res, 'License status', { isPro: false })
         }
 

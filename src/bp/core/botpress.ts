@@ -225,9 +225,7 @@ Node: ${err.nodeName}`
     this.stats.track(
       'server',
       'start',
-      `isProBuild: ${process.IS_PRO_BUILD}; isProEnabled: ${process.IS_PRO_ENABLED}; version: ${
-        process.BOTPRESS_VERSION
-      }; licensed: ${process.IS_LICENSED}`
+      `isProEnabled: ${process.IS_PRO_ENABLED}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
     )
   }
 }

@@ -31,7 +31,7 @@ export default class AuthService {
   }
 
   async getResources(): Promise<Resource[]> {
-    if (process.IS_PRO_BUILD) {
+    if (process.IS_PRO_ENABLED) {
       const resources = require('pro/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }
