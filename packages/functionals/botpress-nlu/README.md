@@ -88,7 +88,7 @@ Botpress NLU use the V2 API of Dialogflow, checkout this [link](https://dialogfl
 
 | Key | Environment Variable | Required |
 | ------------- | -------- | ----- |
-| googleProjectId | `GOOGLE_PROJECT_ID` | Yes |
+| googleProjectId | `NLU_GOOGLE_PROJECT_ID` | Yes |
 | https://cloud.google.com/docs/authentication/getting-started | `GOOGLE_APPLICATION_CREDENTIALS` | Yes |
 
 ## LUIS
