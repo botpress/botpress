@@ -28,11 +28,8 @@ import { isInputFocused } from '~/keyboardShortcuts'
 import layout from './Layout.styl'
 import style from './style.scss'
 import StatusBar from './StatusBar'
-import EventEmitter2 from 'eventemitter2'
 
 class Layout extends React.Component {
-  statusBarEmitter = new EventEmitter2({ wildcard: true })
-
   state = {
     emulatorOpen: false
   }
@@ -46,10 +43,6 @@ class Layout extends React.Component {
     setImmediate(() => {
       this.props.viewModeChanged(viewMode || 0)
     })
-  }
-
-  handleModuleEvent = event => {
-    this.statusBarEmitter.emit('module', event)
   }
 
   toggleEmulator = () => this.setState({ emulatorOpen: !this.state.emulatorOpen })
@@ -90,11 +83,7 @@ class Layout extends React.Component {
               <Route exact path="/content" component={Content} />
               <Route exact path="/version-control" component={GhostContent} />
               <Route exact path="/flows/:flow*" component={FlowBuilder} />
-              <Route
-                exact
-                path="/modules/:moduleName/:subView?"
-                render={props => <Module {...props} onModuleEvent={this.handleModuleEvent} />}
-              />
+              <Route exact path="/modules/:moduleName/:subView?" render={props => <Module {...props} />} />
               <Route exact path="/notifications" component={Notifications} />
               <Route exact path="/logs" component={Logs} />
             </Switch>

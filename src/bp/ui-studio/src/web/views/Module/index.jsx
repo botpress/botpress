@@ -65,12 +65,7 @@ class ModuleView extends React.Component {
     const module = _.find(modules, { name: moduleName })
 
     const contents = module ? (
-      <InjectedModuleView
-        moduleName={moduleName}
-        viewName={subView}
-        onNotFound={this.renderNotFound}
-        onModuleEvent={this.props.onModuleEvent}
-      />
+      <InjectedModuleView moduleName={moduleName} viewName={subView} onNotFound={this.renderNotFound} />
     ) : (
       this.renderNotFound()
     )

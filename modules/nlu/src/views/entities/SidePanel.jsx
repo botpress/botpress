@@ -31,6 +31,14 @@ export default class SidePanel extends React.Component {
     this.setState({ activeId: entity.id })
   }
 
+  entityFilter = entity => {
+    if (this.state.filter === undefined || !entity.name) {
+      return true
+    }
+
+    return entity.name.toLowerCase().includes(this.state.filter.toLowerCase())
+  }
+
   render() {
     const entities = this.props.entities || []
     return (
@@ -62,29 +70,27 @@ export default class SidePanel extends React.Component {
 
         <div className={nluSyles.list}>
           <ListGroup>
-            {entities
-              .filter(ent => this.state.filter === undefined || ent.name.includes(this.state.filter))
-              .map(ent => {
-                const selected = this.props.selectedEntity && ent.id === this.props.selectedEntity.id
-                return (
-                  <ListGroupItem
-                    key={ent.id}
-                    className={classnames(entityStyles.entity, { [entityStyles.selectedentity]: selected })}
-                    onClick={this.handleEntityClick.bind(null, ent)}
-                  >
-                    {ent.name}
-                    &nbsp;
-                    <Label bsStyle={selected ? 'primary' : 'default'} className={entityStyles.badge}>
-                      {ent.type}
-                    </Label>
-                    <Glyphicon
-                      glyph="trash"
-                      className={entityStyles.deleteEntity}
-                      onClick={this.handleDeleteClick.bind(null, ent)}
-                    />
-                  </ListGroupItem>
-                )
-              })}
+            {entities.filter(this.entityFilter).map(ent => {
+              const selected = this.props.selectedEntity && ent.id === this.props.selectedEntity.id
+              return (
+                <ListGroupItem
+                  key={ent.id}
+                  className={classnames(entityStyles.entity, { [entityStyles.selectedentity]: selected })}
+                  onClick={this.handleEntityClick.bind(null, ent)}
+                >
+                  {ent.name}
+                  &nbsp;
+                  <Label bsStyle={selected ? 'primary' : 'default'} className={entityStyles.badge}>
+                    {ent.type}
+                  </Label>
+                  <Glyphicon
+                    glyph="trash"
+                    className={entityStyles.deleteEntity}
+                    onClick={this.handleDeleteClick.bind(null, ent)}
+                  />
+                </ListGroupItem>
+              )
+            })}
           </ListGroup>
         </div>
       </nav>

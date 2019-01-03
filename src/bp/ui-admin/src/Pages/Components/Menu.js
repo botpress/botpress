@@ -120,7 +120,7 @@ class Menu extends Component {
   }
 
   renderBadge = isBadge => (isBadge && this.isCommunity() ? <Badge color="primary">Pro</Badge> : null)
-  isCommunity = () => this.props.license && this.props.license.edition === 'ce'
+  isCommunity = () => !this.props.license || !this.props.license.isPro
 }
 
 const mapStateToProps = state => ({
