@@ -115,7 +115,7 @@ class SelectContent extends Component {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
-    const { data: id } = response
+    const { data: id } = response || {}
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -148,7 +148,7 @@ class SelectContent extends Component {
     }
 
     const { contentType } = this.state
-    return contentType ? categories.filter(({ id }) => id === contentType) : categories
+    return contentType ? categories.filter(({ id }) => id === contentType) : categories.filter(cat => !cat.hidden)
   }
 
   setCurrentCategory(contentType) {
@@ -168,7 +168,7 @@ class SelectContent extends Component {
           <a href="#" onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
             All
           </a>
-          {categories.map((category, i) => (
+          {categories.filter(cat => !cat.hidden).map((category, i) => (
             <a
               href="#"
               key={i}
