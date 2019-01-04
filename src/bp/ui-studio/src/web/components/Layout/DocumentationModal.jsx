@@ -1,13 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-
 import { Modal, Button } from 'react-bootstrap'
-
 import ReactMarkdown from 'react-markdown'
 import classnames from 'classnames'
 
 import { updateDocumentationModal } from '~/actions'
+
+import style from './DocumentationModal.styl'
 
 const docs = {
   flows: require('DOCS/build/dialogs.md'),
@@ -18,12 +18,8 @@ const docs = {
   debug: require('DOCS/build/debug.md')
 }
 
-import style from './DocumentationModal.styl'
-
 class DocumentationModal extends React.Component {
-  handleClose = () => {
-    this.props.updateDocumentationModal(null)
-  }
+  handleClose = () => this.props.updateDocumentationModal(null)
 
   renderPage = src => {
     const transformImg = url =>
@@ -31,7 +27,7 @@ class DocumentationModal extends React.Component {
 
     return (
       <ReactMarkdown
-        source={src}
+        source={this.removeFileHeader(src)}
         linkTarget="_blank"
         disallowedTypes={['link', 'linkReference']}
         transformImageUri={transformImg}
@@ -39,21 +35,24 @@ class DocumentationModal extends React.Component {
     )
   }
 
+  renderNotFound = doc => `
+## Documentation "${doc}" Not Found
+This is probably a bug, please report it on https://github.com/botpress/botpress/issues
+`
+
+  removeFileHeader = source => (source.startsWith('---') ? _.drop(source.split('---'), 2).join('---') : source)
+
   render() {
     const { currentDoc } = this.props
 
-    if (!this.props.currentDoc) {
+    if (!currentDoc) {
       return null
     }
 
-    let source = docs[this.props.currentDoc] || '## Doc not found'
+    let source = docs[currentDoc] || this.renderNotFound(currentDoc)
 
     const titleMatch = source.match(/title: \"?(.+)\"?/i)
-    const title = (titleMatch && titleMatch[1]) || this.props.currentDoc
-
-    if (source.startsWith('---')) {
-      source = _.drop(source.split('---'), 2).join('---')
-    }
+    const title = (titleMatch && titleMatch[1]) || currentDoc
 
     return (
       <Modal

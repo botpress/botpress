@@ -132,9 +132,7 @@ class StatusBar extends React.Component {
       return null
     }
 
-    const onClick = () => {
-      this.props.updateDocumentationModal(this.props.docHints[0])
-    }
+    const onClick = () => this.props.updateDocumentationModal(this.props.docHints[0])
 
     return (
       <ActionItem

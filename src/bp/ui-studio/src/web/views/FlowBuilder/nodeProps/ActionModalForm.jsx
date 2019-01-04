@@ -89,7 +89,7 @@ export default class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
-    const paramsHelp = <LinkDocumentationProvider file="memory" />
+    const paramsHelp = <LinkDocumentationProvider file="memory">SEE DOCS</LinkDocumentationProvider>
 
     const onParamsChange = params => {
       params = _.values(params).reduce((sum, n) => {

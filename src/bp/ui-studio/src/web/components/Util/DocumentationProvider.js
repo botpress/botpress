@@ -15,26 +15,23 @@ class StatusBarDocumentationProvider extends Component {
   }
 
   render() {
+    // This is just a lifecycle utility component, it doesn't actually render anything
     return null
   }
 }
 
-const _LinkDocumentationProvider = props => (
-  <a
-    {..._.omit(props, 'children', 'onClick', 'href')}
-    href="#"
-    onClick={e => {
-      props.updateDocumentationModal(props.file)
-      e.preventDefault()
-    }}
-  >
-    {props.children ? (
-      props.children
-    ) : (
-      <Glyphicon glyph="question-sign" style={{ marginLeft: '3px', marginRight: '3px' }} />
-    )}
-  </a>
-)
+const _LinkDocumentationProvider = props => {
+  const passthroughProps = _.omit(props, 'children', 'onClick', 'href')
+  const onClick = e => {
+    props.updateDocumentationModal(props.file)
+    e.preventDefault()
+  }
+  return (
+    <a {...passthroughProps} href="#" onClick={onClick}>
+      {props.children || <Glyphicon glyph="question-sign" style={{ marginLeft: '3px', marginRight: '3px' }} />}
+    </a>
+  )
+}
 
 export default connect(
   null,
