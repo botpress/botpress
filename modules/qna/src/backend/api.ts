@@ -24,7 +24,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
       const items = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send({ ...items })
     } catch (e) {
-      bp.logger.error('Error while listing: ', e)
+      bp.logger.attachError(e).error('Error listing questions')
       res.status(500).send(e.message || 'Error')
     }
   })
@@ -35,7 +35,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
       const id = await storage.insert(req.body)
       res.send(id)
     } catch (e) {
-      bp.logger.error('Error while creating: ', e)
+      bp.logger.attachError(e).error('Error while creating QnA')
       res.status(500).send(e.message || 'Error')
       sendToastError('Save', e.message)
     }
@@ -62,7 +62,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
       const questions = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questions)
     } catch (e) {
-      bp.logger.error('Update error: ', e)
+      bp.logger.attachError(e).error('Update error')
       res.status(500).send(e.message || 'Error')
       sendToastError('Update', e.message)
     }
@@ -79,9 +79,8 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
     } catch (e) {
-      bp.logger.error('Delete error: ', e)
+      bp.logger.attachError(e).error('Could not delete QnA #' + req.params.id)
       res.status(500).send(e.message || 'Error')
-
       sendToastError('Delete', e.message)
     }
   })
@@ -146,7 +145,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
 
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
-      bp.logger.error('Upload error :', e)
+      bp.logger.attachError(e).error('CSV Import Failure')
       updateUploadStatus(uploadStatusId, `Error: ${e.message}`)
     }
   })
