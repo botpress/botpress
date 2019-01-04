@@ -77,7 +77,7 @@ export default class Storage {
 
     const filename = `${intent}.json`
     const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
-    let properties = {}
+    let properties: any = {}
 
     try {
       properties = JSON.parse(propertiesContent)
