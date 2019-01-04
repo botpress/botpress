@@ -1,8 +1,12 @@
+$header-bar-height: 50px;
+$status-bar-height: 24px;
+$toolbar-bar-height: 42px;
+
 .workspace {
   position: relative !important;
   width: 100%;
   min-height: 500px;
-  height: calc(100vh - 93px);
+  height: calc(100vh - #{$status-bar-height} - #{$header-bar-height} - #{$toolbar-bar-height});
 }
 
 .workspace :global(.Resizer.vertical) {
@@ -51,7 +55,7 @@
 }
 
 .workspace :global(.SplitPane) {
-  height: calc(100vh - 93px) !important;
+  height: calc(100vh);
 }
 
 .diagram {
@@ -61,7 +65,7 @@
 
 .sidePanel {
   width: 100%;
-  height: calc(100vh - 93px);
+  height: calc(100vh);
   background: #fafafa;
   border-right: 2px solid #cecece;
   padding: 0;
