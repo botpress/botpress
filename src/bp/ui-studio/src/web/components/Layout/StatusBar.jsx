@@ -6,6 +6,9 @@ import { Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
+import { connect } from 'react-redux'
+
+import { updateDocumentationModal } from '~/actions'
 
 const COMPLETED_DURATION = 2000
 
@@ -34,7 +37,7 @@ const ActionItem = props => (
   </OverlayTrigger>
 )
 
-export default class StatusBar extends React.Component {
+class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
 
   state = {
@@ -124,13 +127,35 @@ export default class StatusBar extends React.Component {
     ))
   }
 
+  renderDocHints() {
+    if (!this.props.docHints.length) {
+      return null
+    }
+
+    const onClick = () => {
+      this.props.updateDocumentationModal(this.props.docHints[0])
+    }
+
+    return (
+      <ActionItem
+        title="Read Documentation"
+        shortcut={keyMap['docs-toggle']}
+        description="This screen has documentation available."
+        onClick={onClick}
+      >
+        <Glyphicon glyph="question-sign" style={{ marginRight: '5px' }} />
+        Documentation
+      </ActionItem>
+    )
+  }
+
   render() {
     return (
       <footer ref={this.progressContainerRef} className={style.statusBar}>
         <div className={style.list}>
           <ActionItem
             title="Toggle Emulator"
-            shortcut={keyMap['emulator-toggle']}
+            shortcut={keyMap['emulator-focus']}
             description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
             className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
@@ -147,9 +172,19 @@ export default class StatusBar extends React.Component {
               <strong>{this.props.botName}</strong> (bot)
             </a>
           </ActionItem>
+          {this.renderDocHints()}
           {this.renderTaskProgress()}
         </div>
       </footer>
     )
   }
 }
+
+const mapStateToProps = state => ({
+  docHints: state.ui.docHints
+})
+
+export default connect(
+  mapStateToProps,
+  { updateDocumentationModal }
+)(StatusBar)
