@@ -8,7 +8,7 @@ import style from './Dock.styl'
 
 export default class EmulatorDock extends React.Component {
   state = {
-    size: 500
+    size: 650
   }
 
   handleSizeChange = e => this.setState({ size: Math.min(Math.max(100, e), 1000) }) // [100, 1000] px
