@@ -8,8 +8,7 @@ import style from './style.scss'
 const availableProps = [
   { label: 'User Data', value: 'user' },
   { label: 'Current User Session', value: 'session' },
-  { label: 'Temporary Dialog Context', value: 'temp' },
-  { label: 'Global Bot Variable', value: 'bot' }
+  { label: 'Temporary Dialog Context', value: 'temp' }
 ]
 
 export default class ConditionModalForm extends Component {
@@ -343,7 +342,7 @@ export default class ConditionModalForm extends Component {
         </Radio>
 
         <Radio checked={this.state.conditionType === 'intent'} value="intent" onChange={this.changeConditionType}>
-          Matches Intent
+          Intent is
         </Radio>
         {this.state.conditionType === 'intent' && this.renderIntentPicker()}
 
