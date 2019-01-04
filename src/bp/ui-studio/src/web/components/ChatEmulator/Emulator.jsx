@@ -244,7 +244,7 @@ export default class EmulatorChat extends React.Component {
           <SplitPane
             split={this.state.isVerticalView ? 'vertical' : 'horizontal'}
             minSize={150}
-            defaultSize={'65%'}
+            defaultSize={'70%'}
             pane2Style={{ overflowY: 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
             pane1ClassName={classnames({ [style.historyFullWidth]: !this.state.isInspectorVisible })}
           >

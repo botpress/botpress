@@ -528,6 +528,12 @@ declare module 'botpress/sdk' {
     title: string
     description: string
     /**
+     * Hiding content types prevents users from adding these kind of elements via the Flow Editor.
+     * They are still visible in the Content Manager, and it's still possible to use these elements by specifying
+     * their name as a property "contentType" to ContentPickerWidget.
+     */
+    hidden: boolean
+    /**
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
