@@ -77,7 +77,13 @@ export default class Storage {
 
     const filename = `${intent}.json`
     const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
-    const properties = JSON.parse(propertiesContent)
+    let properties: any = {}
+
+    try {
+      properties = JSON.parse(propertiesContent)
+    } catch (err) {
+      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}"`)
+    }
 
     const obj = {
       name: intent,
@@ -88,7 +94,6 @@ export default class Storage {
     // @deprecated remove in 12+
     if (!properties.utterances) {
       await this._legacyAppendIntentUtterances(obj, intent)
-      console.log('Resaving intent', intent)
       await this.saveIntent(intent, obj)
     }
 

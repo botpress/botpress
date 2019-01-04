@@ -14,7 +14,7 @@ export async function copyDir(src: string, dest: string, filter: CopyFilter = de
 
   ensureDirSync(dest)
 
-  let files = glob.sync('**/*', { cwd: src, nodir: true })
+  let files = glob.sync('**/*', { cwd: src, nodir: true, dot: true })
 
   if (filter) {
     files = files.filter(filter)
