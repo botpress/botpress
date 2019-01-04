@@ -73,7 +73,7 @@ try {
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
 
-  const isProBuild = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro'))
+  const isProBuild = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg
   const configPath = pa.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
   if (isProBuild && fs.existsSync(configPath)) {
