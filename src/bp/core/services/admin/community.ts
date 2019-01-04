@@ -124,16 +124,7 @@ export class CommunityAdminService implements AdminService {
       )
   }
 
-  private async _addBot(teamId: number, bot, botTemplate?: BotTemplate): Promise<void> {
-    this.stats.track('ce', 'addBot')
-    bot.team = teamId
-    const { error } = Joi.validate(bot, BotCreationSchema)
-    if (error) {
-      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
-    }
-
-    await this.knex(this.botsTable).insert(bot)
-
+  private async _addBot(bot, botTemplate?: BotTemplate): Promise<void> {
     botTemplate
       ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
       : await this.botConfigWriter.createEmptyBot(bot)
@@ -142,7 +133,15 @@ export class CommunityAdminService implements AdminService {
   }
 
   async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
-    await this.jobService.execJob('mount', () => this._addBot(teamId, bot, botTemplate))
+    this.stats.track('ce', 'addBot')
+    bot.team = teamId
+    const { error } = Joi.validate(bot, BotCreationSchema)
+    if (error) {
+      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
+    }
+
+    await this.knex(this.botsTable).insert(bot)
+    await this.jobService.execJob('mount', () => this._addBot(bot, botTemplate))
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
