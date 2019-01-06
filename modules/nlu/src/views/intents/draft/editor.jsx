@@ -340,7 +340,7 @@ export default class IntentEditor extends React.Component {
   updateSelectedText = selectedText => {
     const slotEditor = this.props.getSlotsEditor()
     if (slotEditor) {
-      slotEditor.setSelection(selectedText)
+      slotEditor.setSelection(selectedText, this)
     }
   }
 
