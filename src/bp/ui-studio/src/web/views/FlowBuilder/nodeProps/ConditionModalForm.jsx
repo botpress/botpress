@@ -34,6 +34,9 @@ export default class ConditionModalForm extends Component {
     }
 
     const { item } = this.props
+    const condition = (item && item.condition) || ''
+    const conditionType = this.getConditionType(condition)
+
     if (item && item.node) {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
@@ -41,21 +44,23 @@ export default class ConditionModalForm extends Component {
 
       this.setState({
         typeOfTransition,
-        condition: item.condition,
-        conditionType: this.getConditionType(item.condition),
+        conditionType,
+        condition,
         flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
         flowToNode: typeOfTransition === 'node' ? item.node : null,
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
-      const condition = (item && item.condition) || ''
-      this.resetForm({
-        condition,
-        conditionType: this.getConditionType(condition)
-      })
+      this.resetForm({ condition, conditionType })
     }
 
     this.setState({ isEdit: Boolean(item) })
+
+    if (conditionType === 'intent') {
+      this.extractIntent(condition)
+    } else if (conditionType === 'props') {
+      this.extractProps(condition)
+    }
   }
 
   getConditionType(condition) {
@@ -64,10 +69,8 @@ export default class ConditionModalForm extends Component {
     if (condition === 'true') {
       return 'always'
     } else if (condition.includes('event.nlu.intent.name')) {
-      this.extractIntent(condition)
       return 'intent'
-    } else if (availableProps.some(props => condition.indexOf(props.value) === 0)) {
-      this.extractProps(condition)
+    } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
       return 'props'
     } else {
       return 'raw'
