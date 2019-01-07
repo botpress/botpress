@@ -143,9 +143,7 @@ export class CommunityAdminService implements AdminService {
       ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
       : await this.botConfigWriter.createEmptyBot(bot)
 
-    await this.jobService.executeJob('mount', [bot.id]).catch(err => {
-      // TODO: Rollback mount job
-    })
+    await this.jobService.executeJob('mount', [bot.id])
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
