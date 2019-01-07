@@ -32,7 +32,7 @@ const actionEventTypes = [
 ]
 
 module.exports = (bp, telegram) => {
-  const messagesCache = LRU({
+  const messagesCache = new LRU({
     max: 10000,
     maxAge: 60 * 60 * 1000
   })
