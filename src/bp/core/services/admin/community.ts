@@ -1,5 +1,6 @@
 import { BotTemplate, Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
+import JobService from 'common/job-service'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
@@ -8,12 +9,11 @@ import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser,
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
-import { DistributedJobService } from 'pro/services/distributed-job'
 
 import { InvalidOperationError, UnauthorizedAccessError } from '../auth/errors'
 
@@ -36,8 +36,14 @@ export class CommunityAdminService implements AdminService {
     @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.Statistics) protected stats: Statistics,
-    @inject(TYPES.JobService) private jobService: DistributedJobService
+    @inject(TYPES.JobService) private jobService: JobService
   ) {}
+
+  @postConstruct()
+  init() {
+    this.jobService.onMount = async botId => this.botLoader.mountBot(botId)
+    this.jobService.onUnmount = async botId => this.botLoader.unmountBot(botId)
+  }
 
   protected get knex() {
     return this.database.knex!
@@ -124,14 +130,6 @@ export class CommunityAdminService implements AdminService {
       )
   }
 
-  private async _addBot(bot, botTemplate?: BotTemplate): Promise<void> {
-    botTemplate
-      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
-      : await this.botConfigWriter.createEmptyBot(bot)
-
-    await this.botLoader.mountBot(bot.id)
-  }
-
   async addBot(teamId: number, bot: Bot, botTemplate?: BotTemplate): Promise<void> {
     this.stats.track('ce', 'addBot')
     bot.team = teamId
@@ -141,7 +139,13 @@ export class CommunityAdminService implements AdminService {
     }
 
     await this.knex(this.botsTable).insert(bot)
-    await this.jobService.execJob('mount', () => this._addBot(bot, botTemplate))
+    botTemplate
+      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
+      : await this.botConfigWriter.createEmptyBot(bot)
+
+    await this.jobService.executeJob('mount', [bot.id]).catch(err => {
+      // TODO: Rollback mount job
+    })
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {

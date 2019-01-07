@@ -13,7 +13,7 @@ import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HookService } from './hook/hook-service'
-import { CEJobService } from './job'
+import { SingleNodeJobService } from './job'
 import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
@@ -44,7 +44,7 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .when(() => !process.IS_PRO_ENABLED)
 
   bind<JobService>(TYPES.JobService)
-    .to(CEJobService)
+    .to(SingleNodeJobService)
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 
