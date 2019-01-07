@@ -48,6 +48,40 @@ process.on('uncaughtException', err => {
 
 try {
   const argv = require('yargs')
+    .command('bench', 'Run a benchmark on your bot', {
+      url: {
+        default: 'http://localhost:3000'
+      },
+      botId: {
+        description: 'The name of the bot to run the benchmark on',
+        default: 'welcome-bot'
+      },
+      users: {
+        alias: 'u',
+        description: 'The number of users sending a message at the same time',
+        default: 10
+      },
+      messages: {
+        alias: 'm',
+        description: 'The number of messages that each users will send',
+        default: 5
+      },
+      slaLimit: {
+        alias: 'limit',
+        description: 'Message response delay must be below this threshold (ms)',
+        default: 1500
+      },
+      slaTarget: {
+        alias: 'target',
+        description: 'Minimum percentage of respected SLA required to continue incrementing users',
+        default: 100
+      },
+      increments: {
+        alias: 'i',
+        description: 'If set, the test will increment users by this value until the SLA is breached',
+        default: 0
+      }
+    })
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
@@ -81,7 +115,13 @@ try {
     process.IS_PRO_ENABLED = config.pro && config.pro.enabled
   }
 
-  require('./bootstrap')
+  if (argv._.includes('bench')) {
+    const Bench = require('./bench').default
+    const benchmark = new Bench(argv)
+    benchmark.start()
+  } else {
+    require('./bootstrap')
+  }
 } catch (err) {
   global.printErrorDefault(err)
 }
