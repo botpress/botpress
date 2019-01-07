@@ -5,7 +5,7 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
 import Database from 'core/database'
-import { AuthRole, AuthRoleDb, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
+import { AuthRole, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -120,12 +120,12 @@ export class CommunityAdminService implements AdminService {
     return this.knex(this.rolesTable)
       .select('id', 'name', 'description', 'rules', 'created_at', 'updated_at')
       .where({ team: teamId })
-      .then<Array<AuthRoleDb>>(res => res)
+      .then<Array<AuthRole>>(res => res)
       .map(
         r =>
           ({
             ...r,
-            rules: JSON.parse(r.rules) as Array<AuthRule>
+            rules: r.rules as Array<AuthRule>
           } as AuthRole)
       )
   }
@@ -232,10 +232,9 @@ export class CommunityAdminService implements AdminService {
 
   async getUserPermissions(userId: number, teamId: number): Promise<AuthRule[]> {
     const roleName = await this.getUserRole(userId, teamId)
-
     const role = await this.getRole({ team: teamId, name: roleName }, ['rules'])
 
-    return (role && JSON.parse(role.rules!)) || []
+    return (role && role.rules!) || []
   }
 
   async getUserRole(userId: number, teamId: number) {
@@ -343,8 +342,15 @@ export class CommunityAdminService implements AdminService {
       .select(select || ['*'])
       .where(where)
       .limit(1)
-      .then<Partial<AuthRoleDb>[]>(res => res)
       .get(0)
+      .then(res => {
+        // Issue: sqlite doesnt parse json objects
+        // TODO: Write a json parser for sqlite
+        if (this.knex.isLite && (!select || select.includes('rules'))) {
+          res.rules = JSON.parse(res.rules)
+        }
+        return res
+      })
   }
 
   protected async getMembership(where: {}, select?: Array<keyof AuthTeamMembership>) {
