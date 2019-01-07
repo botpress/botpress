@@ -6,9 +6,18 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
-export interface AvailableModel {
+// we might want to declare a ts type the type key just like we did for BIO
+// TODO move this into typings
+export interface ModelMeta {
+  fileName: string
   created_on: Date
   hash: string
+  type: string
+}
+
+export interface Model {
+  meta: ModelMeta
+  model: Buffer
 }
 
 export default class Storage {
@@ -122,19 +131,19 @@ export default class Storage {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -168,14 +177,16 @@ export default class Storage {
     return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
   }
 
-  async getAvailableModels(): Promise<AvailableModel[]> {
+  async getAvailableModels(): Promise<ModelMeta[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     return models.map(x => {
-      const fileName = path.basename(x, '.bin')
-      const parts = fileName.split('__')
-      return <AvailableModel>{
+      const fileName = path.basename(x)
+      const parts = fileName.replace('.bin', '').split('__')
+      return {
+        fileName,
         created_on: new Date(parts[0]),
-        hash: parts[1]
+        hash: parts[1],
+        type: parts[2],
       }
     })
   }
@@ -185,10 +196,17 @@ export default class Storage {
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
-    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
-
-    return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  async getModelsFromHash(modelHash: string): Promise<Model[]> {
+    const modelsMeta = await this.getAvailableModels()
+    return Promise.all(
+      modelsMeta
+        .filter(meta => meta.hash === modelHash)
+        .map(async meta => {
+          return {
+            meta,
+            model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName)
+          }
+        })
+    )
   }
 }

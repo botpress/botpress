@@ -43,7 +43,23 @@ export default class CRFExtractor implements SlotExtractor {
 
   constructor(private toolkit: typeof sdk.MLToolkit) { }
 
-  // async load(Mo) {loadLangModel, loadCRF, trainKmeans (because there is no simple way to store kmeans model)}
+
+  async load(traingingSet: Sequence[], skipgram: Buffer, crf: Buffer) {
+    // load language model
+    this._ftModelFn = tmp.tmpNameSync()
+    fs.writeFileSync(this._ftModelFn, skipgram)
+    this._ft = new FastText(this._ftModelFn)
+
+    // load kmeans (retrain because there is no simple way to store it)
+    this._trainKmeans(traingingSet)
+
+    // load crf model
+    this._crfModelFn = tmp.tmpNameSync()
+    fs.writeFileSync(this._crfModelFn, crf)
+    this._tagger = this.toolkit.CRF.createTagger()
+    await this._tagger.open(this._crfModelFn)
+    this._isTrained = true
+  }
 
   async train(trainingSet: Sequence[]) {
     this._isTrained = false

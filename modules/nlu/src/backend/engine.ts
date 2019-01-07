@@ -17,9 +17,10 @@ import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
-const INTENT_FN = 'intent.bin'
-const SKIPGRAM_FN = 'slot-skipgram.bin'
-const CRF_FN = 'slot-crf.bin'
+// this could be extracted in a constant map written in typings just like BIO
+const INTENT_FN = 'intent'
+const SKIPGRAM_FN = 'slot-skipgram'
+const CRF_FN = 'slot-crf'
 
 export default class ScopedEngine {
   public readonly storage: Storage
@@ -67,11 +68,15 @@ export default class ScopedEngine {
     const modelHash = this._getModelHash(intents)
 
     if (await this.storage.modelExists(modelHash)) {
-      await this._loadModel(modelHash)
-    } else {
-      this.logger.debug('Model is out of date, training model ...')
-      await this._trainModel(intents, modelHash)
+      try {
+        return this._loadModel(intents, modelHash)
+      } catch (e) {
+        this.logger.warn('Cannot load models from storage')
+      }
     }
+
+    this.logger.debug('Models need to be retrained')
+    await this._trainModel(intents, modelHash)
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
@@ -89,13 +94,28 @@ export default class ScopedEngine {
     return false
   }
 
-  private async _loadModel(modelHash: string) {
+  private async _loadModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     // TODO you are at refectoring this so it works for intents & slot tagger
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
-    const intentModel = await this.storage.getModelAsBuffer(modelHash) // load models buffs
-    this.intentClassifier.loadModel(intentModel, modelHash)
-    //  load intent classifier
-    //  load slot tagger
+
+    const models = await this.storage.getModelsFromHash(modelHash)
+    const intentModel = models.find(model => model.meta.type === INTENT_FN)
+    const skipgramModel = models.find(model => model.meta.type === SKIPGRAM_FN)
+    const crfModel = models.find(model => model.meta.type === CRF_FN)
+
+    if (!intentModel || !skipgramModel || !crfModel) {
+      throw new Error('no such model')
+    }
+
+    this.intentClassifier.loadModel(intentModel.model, modelHash)
+
+    const trainingSet = flatMap(intents, intent => {
+      return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+    })
+
+    await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
+
+    this.logger.debug(`Done restoring models from storage`)
   }
 
   // Persistence logic feels weird as we need to know the internals of the SlotTagger & IntentClassifier
@@ -107,7 +127,8 @@ export default class ScopedEngine {
       this.logger.debug('Training intent classifier')
       const intentModelPath = await this.intentClassifier.train(intents, modelHash)
       const intentModelBuffer = fs.readFileSync(intentModelPath)
-      const intentModelName = `${timestamp}__${modelHash}__${INTENT_FN}`
+      const intentModelName = `${timestamp}__${modelHash}__${INTENT_FN}.bin`
+      // TODO pass model meta here instead of writing the fname
       await this.storage.persistModel(intentModelBuffer, intentModelName)
       this.logger.debug('Done training intent classifier')
     } catch (err) {
@@ -121,10 +142,10 @@ export default class ScopedEngine {
       })
       const crfExtractorModel = await this.slotExtractor.train(trainingSet)
       const skipgramModelBuff = fs.readFileSync(crfExtractorModel.skipgramFN)
-      const skipgramModelName = `${timestamp}__${modelHash}__${SKIPGRAM_FN}`
+      const skipgramModelName = `${timestamp}__${modelHash}__${SKIPGRAM_FN}.bin`
       await this.storage.persistModel(skipgramModelBuff, skipgramModelName)
       const crfModelBuff = fs.readFileSync(crfExtractorModel.crfFN)
-      const crfModelName = `${timestamp}__${modelHash}__${CRF_FN}`
+      const crfModelName = `${timestamp}__${modelHash}__${CRF_FN}.bin`
       await this.storage.persistModel(crfModelBuff, crfModelName)
       this.logger.debug('Done training slot tagger')
     } catch (err) {
