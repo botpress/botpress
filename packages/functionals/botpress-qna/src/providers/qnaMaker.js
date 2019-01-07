@@ -153,18 +153,24 @@ export default class Storage {
 
   async answersOn(question, category = null) {
     const metadataFilters = category ? [{ name: 'category', value: category }] : []
-    const resp = await axios.post(
-      `/qnamaker/knowledgebases/${this.knowledgebase.id}/generateAnswer`,
-      { question, top: 10, strictFilters: [{ name: 'enabled', value: true }, ...metadataFilters] },
-      { baseURL: this.knowledgebase.hostName, headers: { Authorization: `EndpointKey ${this.endpointKey}` } }
-    )
-    const { data: { answers } } = resp
+    try {
+      const resp = await axios.post(
+        `/qnamaker/knowledgebases/${this.knowledgebase.id}/generateAnswer`,
+        { question, top: 10, strictFilters: [{ name: 'enabled', value: true }, ...metadataFilters] },
+        { baseURL: this.knowledgebase.hostName, headers: { Authorization: `EndpointKey ${this.endpointKey}` } }
+      )
+      const { data: { answers } } = resp
 
-    return _.orderBy(answers, ['score'], ['desc']).map(answer => ({
-      ..._.pick(answer, ['questions', 'answer', 'id', 'metadata', 'enabled']),
-      confidence: answer.score / 100,
-      ...qnaItemData(answer)
-    }))
+      return _.orderBy(answers, ['score'], ['desc']).map(answer => ({
+        ..._.pick(answer, ['questions', 'answer', 'id', 'metadata', 'enabled']),
+        confidence: answer.score / 100,
+        ...qnaItemData(answer)
+      }))
+    } catch (e) {
+      const errDescription = JSON.stringify(_.get(e, 'response.data.error'))
+      this.bp.logger.error(`[QNA] QnA Maker failed to fetch answer on "${question}": ${errDescription}`)
+      return []
+    }
   }
 
   async delete(id, statusCb) {

@@ -32,13 +32,12 @@ module.exports = {
     qnaShowTyping: { type: 'string', required: false, default: '0s', env: 'QNA_SHOW_TYPING' }
   },
   async init(bp, configurator) {
+    logger = bp.logger
     const config = await configurator.loadAll()
     this.isMicrosoftMakerUsed = config.qnaMakerApiKey
     const Storage = this.isMicrosoftMakerUsed ? MicrosoftQnaMakerStorage : NluStorage
     this.storage = new Storage({ bp, config })
     await this.storage.initialize()
-
-    logger = bp.logger
 
     bp.middlewares.register({
       name: 'qna.incoming',
