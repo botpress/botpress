@@ -17,6 +17,10 @@ import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
 
+const INTENT_FN = 'intent.bin'
+const SKIPGRAM_FN = 'slot-skipgram.bin'
+const CRF_FN = 'slot-crf.bin'
+
 export default class ScopedEngine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
@@ -60,23 +64,13 @@ export default class ScopedEngine {
 
   async sync(): Promise<void> {
     const intents = await this.storage.getIntents()
-    const modelHash = this._getIntentsHash(intents)
+    const modelHash = this._getModelHash(intents)
 
-    // this is only good for intents model at the moment. soon we'll store crf, skipgram an kmeans model necessary for crf extractor
     if (await this.storage.modelExists(modelHash)) {
       await this._loadModel(modelHash)
     } else {
+      this.logger.debug('Model is out of date, training model ...')
       await this._trainModel(intents, modelHash)
-    }
-
-    // TODO try to load model if saved(we don't save at the moment)
-    try {
-      const trainingSet = flatMap(intents, intent => {
-        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
-      })
-      await this.slotExtractor.train(trainingSet)
-    } catch (err) {
-      this.logger.error('Error training slot tagger', err)
     }
   }
 
@@ -88,7 +82,7 @@ export default class ScopedEngine {
     const intents = await this.storage.getIntents()
 
     if (intents.length) {
-      const intentsHash = this._getIntentsHash(intents)
+      const intentsHash = this._getModelHash(intents)
       return this.intentClassifier.currentModelId !== intentsHash
     }
 
@@ -96,32 +90,58 @@ export default class ScopedEngine {
   }
 
   private async _loadModel(modelHash: string) {
-    this.logger.debug(`Restoring intents model '${modelHash}' from storage`)
-    const modelBuffer = await this.storage.getModelAsBuffer(modelHash)
-    this.intentClassifier.loadModel(modelBuffer, modelHash)
+    // TODO you are at refectoring this so it works for intents & slot tagger
+    this.logger.debug(`Restoring models '${modelHash}' from storage`)
+    const intentModel = await this.storage.getModelAsBuffer(modelHash) // load models buffs
+    this.intentClassifier.loadModel(intentModel, modelHash)
+    //  load intent classifier
+    //  load slot tagger
   }
 
-  private async _trainModel(intents: any[], modelHash: string) {
+  // Persistence logic feels weird as we need to know the internals of the SlotTagger & IntentClassifier
+  // TODO: either move this within classifier or in a "model service" layer between storage and classifiers
+  private async _trainModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
+    const timestamp = Date.now()
+
     try {
-      this.logger.debug('The intents model needs to be updated, training model ...')
+      this.logger.debug('Training intent classifier')
       const intentModelPath = await this.intentClassifier.train(intents, modelHash)
       const intentModelBuffer = fs.readFileSync(intentModelPath)
-      const intentModelName = `${Date.now()}__${modelHash}.bin`
+      const intentModelName = `${timestamp}__${modelHash}__${INTENT_FN}`
       await this.storage.persistModel(intentModelBuffer, intentModelName)
-      this.logger.debug('Intents done training')
+      this.logger.debug('Done training intent classifier')
     } catch (err) {
       return this.logger.attachError(err).error('Error training intents')
     }
+
+    try {
+      this.logger.debug('Training slot tagger')
+      const trainingSet = flatMap(intents, intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      })
+      const crfExtractorModel = await this.slotExtractor.train(trainingSet)
+      const skipgramModelBuff = fs.readFileSync(crfExtractorModel.skipgramFN)
+      const skipgramModelName = `${timestamp}__${modelHash}__${SKIPGRAM_FN}`
+      await this.storage.persistModel(skipgramModelBuff, skipgramModelName)
+      const crfModelBuff = fs.readFileSync(crfExtractorModel.crfFN)
+      const crfModelName = `${timestamp}__${modelHash}__${CRF_FN}`
+      await this.storage.persistModel(crfModelBuff, crfModelName)
+      this.logger.debug('Done training slot tagger')
+    } catch (err) {
+      this.logger.error('Error training slot tagger', err)
+    }
+
+    // TODO perform models cleanup here !!
   }
 
-  private _getIntentsHash(intents) {
+  private _getModelHash(intents: sdk.NLU.IntentDefinition[]) {
     return crypto
       .createHash('md5')
       .update(JSON.stringify(intents))
       .digest('hex')
   }
 
-  private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
+  private async _extractEntities(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
@@ -152,6 +172,7 @@ export default class ScopedEngine {
   }
 }
 
+// We might want to move this in the intent pipeline
 export const NonePrediction: Prediction = {
   confidence: 1.0,
   name: 'none'
@@ -159,6 +180,7 @@ export const NonePrediction: Prediction = {
 
 /**
  * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
+ * We might want to move this in the intent pipeline as it is stricly related to it
  * @param intents
  * @param fixedThreshold
  * @param std number of standard deviation away. normally between 2 and 5
