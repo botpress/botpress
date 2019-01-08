@@ -11,6 +11,9 @@ import { generatePredictionSequence } from './pre-processor'
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
+const KMEANS_OPTIONS = {
+  iterations: 250,
+}
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
   c2: '0.01',
@@ -40,6 +43,24 @@ export default class CRFExtractor implements SlotExtractor {
 
   constructor(private toolkit: typeof sdk.MLToolkit) { }
 
+
+  async load(traingingSet: Sequence[], skipgram: Buffer, crf: Buffer) {
+    // load language model
+    this._ftModelFn = tmp.tmpNameSync()
+    fs.writeFileSync(this._ftModelFn, skipgram)
+    this._ft = new FastText(this._ftModelFn)
+
+    // load kmeans (retrain because there is no simple way to store it)
+    this._trainKmeans(traingingSet)
+
+    // load crf model
+    this._crfModelFn = tmp.tmpNameSync()
+    fs.writeFileSync(this._crfModelFn, crf)
+    this._tagger = this.toolkit.CRF.createTagger()
+    await this._tagger.open(this._crfModelFn)
+    this._isTrained = true
+  }
+
   async train(trainingSet: Sequence[]) {
     this._isTrained = false
     if (trainingSet.length >= 2) {
@@ -50,6 +71,11 @@ export default class CRFExtractor implements SlotExtractor {
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
+    }
+
+    return {
+      crfFN: this._crfModelFn,
+      skipgramFN: this._ftModelFn
     }
   }
 
@@ -136,7 +162,7 @@ export default class CRFExtractor implements SlotExtractor {
     const data = await Promise.mapSeries(tokens, async t => await this._ft.wordVectors(t.value))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
-      this._kmeansModel = kmeans(data, k)
+      this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
       throw Error('Error training K-means model')
     }
