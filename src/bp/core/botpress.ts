@@ -204,9 +204,10 @@ export class Botpress {
           'Postgres is required in order to work in a cluster mode. Please change your database type to "postgres" in your botpress.config.json file.'
         )
       } else if (!this.config!.ghost.enabled) {
-        throw new Error(
-          'BP Ghost have to be enabled in order for Botpress to work in a cluster. Please enable the Ghost in your botpress.config.json file.'
-        )
+        // TODO: Uncomment this once the ghost has been fixed
+        // throw new Error(
+        //   'BP Ghost have to be enabled in order for Botpress to work in a cluster. Please enable the Ghost in your botpress.config.json file.'
+        // )
       }
     }
     await this.database.initialize(this.config!.database)
