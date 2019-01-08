@@ -198,15 +198,12 @@ export default class Storage {
 
   async getModelsFromHash(modelHash: string): Promise<Model[]> {
     const modelsMeta = await this.getAvailableModels()
-    return Promise.all(
-      modelsMeta
-        .filter(meta => meta.hash === modelHash)
-        .map(async meta => {
-          return {
-            meta,
-            model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName)
-          }
-        })
+    return Promise.map(
+      modelsMeta.filter(meta => meta.hash === modelHash),
+      async meta => ({
+        meta,
+        model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName)
+      })
     )
   }
 }

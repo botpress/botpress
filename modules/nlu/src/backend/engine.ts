@@ -149,7 +149,7 @@ export default class ScopedEngine {
       await this.storage.persistModel(crfModelBuff, crfModelName)
       this.logger.debug('Done training slot tagger')
     } catch (err) {
-      this.logger.error('Error training slot tagger', err)
+      this.logger.attachError(err).error('Error training slot tagger')
     }
 
     // TODO perform models cleanup here !!
