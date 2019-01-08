@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import { createWriteStream, writeFileSync } from 'fs'
+import { createWriteStream, fstat, readFileSync, writeFileSync } from 'fs'
 import tmp from 'tmp'
 
 import FastTextWrapper from '../../tools/fastText'
-import { IntentClassifier } from '../../typings'
+import { IntentClassifier, Model } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -34,7 +34,7 @@ export default class FastTextClassifier implements IntentClassifier {
     return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
-  async train(intents: Array<TrainSet>, modelId: string) {
+  async train(intents: Array<TrainSet>, modelId: string): Promise<Buffer> {
     const dataFn = tmp.tmpNameSync()
     await this._writeTrainingSet(intents, dataFn)
 
@@ -47,7 +47,7 @@ export default class FastTextClassifier implements IntentClassifier {
     this.fastTextWrapper.train(dataFn, { method: 'supervised' })
     this.currentModelId = modelId
 
-    return modelPath
+    return readFileSync(modelPath)
   }
 
   loadModel(model: Buffer, modelId?: string) {

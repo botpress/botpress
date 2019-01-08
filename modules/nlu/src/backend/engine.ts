@@ -1,7 +1,6 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import fs from 'fs'
 import { flatMap } from 'lodash'
 import _ from 'lodash'
 
@@ -15,12 +14,7 @@ import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier, SlotExtractor } from './typings'
-
-// this could be extracted in a constant map written in typings just like BIO
-const INTENT_FN = 'intent'
-const SKIPGRAM_FN = 'slot-skipgram'
-const CRF_FN = 'slot-crf'
+import { EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
 export default class ScopedEngine {
   public readonly storage: Storage
@@ -76,14 +70,14 @@ export default class ScopedEngine {
     }
 
     this.logger.debug('Models need to be retrained')
-    await this._trainModel(intents, modelHash)
+    await this._trainModels(intents, modelHash)
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     return retry(() => this._extract(incomingEvent), this.retryPolicy)
   }
 
-  async checkSyncNeeded(): Promise<boolean> {
+  private async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
 
     if (intents.length) {
@@ -98,9 +92,9 @@ export default class ScopedEngine {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     const models = await this.storage.getModelsFromHash(modelHash)
-    const intentModel = models.find(model => model.meta.type === INTENT_FN)
-    const skipgramModel = models.find(model => model.meta.type === SKIPGRAM_FN)
-    const crfModel = models.find(model => model.meta.type === CRF_FN)
+    const intentModel = models.find(model => model.meta.type === MODEL_TYPES.INTENT)
+    const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
+    const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
     if (!intentModel || !skipgramModel || !crfModel) {
       throw new Error('no such model')
@@ -114,44 +108,64 @@ export default class ScopedEngine {
 
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
 
-    this.logger.debug(`Done restoring models from storage`)
+    this.logger.debug(`Done restoring models '${modelHash}' from storage`)
   }
 
-  // Persistence logic feels weird as we need to know the internals of the SlotTagger & IntentClassifier
-  // TODO: either move this within classifier or in a "model service" layer between storage and classifiers
-  private async _trainModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
-    const timestamp = Date.now()
-
-    try {
-      this.logger.debug('Training intent classifier')
-      const intentModelPath = await this.intentClassifier.train(intents, modelHash)
-      const intentModelBuffer = fs.readFileSync(intentModelPath)
-      const intentModelName = `${timestamp}__${modelHash}__${INTENT_FN}.bin`
-      // TODO pass model meta here instead of writing the fname
-      await this.storage.persistModel(intentModelBuffer, intentModelName)
-      this.logger.debug('Done training intent classifier')
-    } catch (err) {
-      return this.logger.attachError(err).error('Error training intents')
+  private _makeModel(hash: string, model: Buffer, type: string): Model {
+    return {
+      meta: {
+        created_on: Date.now(),
+        hash,
+        type
+      },
+      model
     }
+  }
+
+  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash): Promise<Model> {
+    this.logger.debug('Training intent classifier')
 
     try {
-      this.logger.debug('Training slot tagger')
-      const trainingSet = flatMap(intents, intent => {
+      const intentBuff = await this.intentClassifier.train(intentDefs, modelHash)
+      this.logger.debug('Done training intent classifier')
+
+      return this._makeModel(modelHash, intentBuff, MODEL_TYPES.INTENT)
+    } catch (err) {
+      this.logger.attachError(err).error('Error training intents')
+      throw Error('Unable to train model')
+    }
+  }
+
+  private async _trainSlotTagger(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    this.logger.debug('Training slot tagger')
+
+    try {
+      const trainingSet = flatMap(intentDefs, intent => {
         return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
       })
-      const crfExtractorModel = await this.slotExtractor.train(trainingSet)
-      const skipgramModelBuff = fs.readFileSync(crfExtractorModel.skipgramFN)
-      const skipgramModelName = `${timestamp}__${modelHash}__${SKIPGRAM_FN}.bin`
-      await this.storage.persistModel(skipgramModelBuff, skipgramModelName)
-      const crfModelBuff = fs.readFileSync(crfExtractorModel.crfFN)
-      const crfModelName = `${timestamp}__${modelHash}__${CRF_FN}.bin`
-      await this.storage.persistModel(crfModelBuff, crfModelName)
+      const { language, crf } = await this.slotExtractor.train(trainingSet)
       this.logger.debug('Done training slot tagger')
+
+      return [
+        this._makeModel(modelHash, language, MODEL_TYPES.SLOT_LANG),
+        this._makeModel(modelHash, crf, MODEL_TYPES.SLOT_CRF)
+      ]
     } catch (err) {
       this.logger.attachError(err).error('Error training slot tagger')
+      throw Error('Unable to train model')
     }
+  }
 
-    // TODO perform models cleanup here !!
+
+  private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+    try {
+      const intentModel = await this._trainIntentClassifier(intentDefs, modelHash)
+      const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
+
+      await this.storage.persistModels([...slotTaggerModels, intentModel])
+    } catch (err) {
+      this.logger.attachError(err)
+    }
   }
 
   private _getModelHash(intents: sdk.NLU.IntentDefinition[]) {

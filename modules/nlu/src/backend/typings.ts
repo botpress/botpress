@@ -36,8 +36,8 @@ export interface EntityExtractor {
 }
 
 export interface SlotExtractor {
-  load: Function
-  train(trainingSet: Sequence[]): Promise<any>
+  load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
+  train(trainingSet: Sequence[]): Promise<{ language: Buffer, crf: Buffer }>
   extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection>
 }
 
@@ -49,3 +49,22 @@ export interface LanguageIdentifier {
   identify(input: string): Promise<string>
 }
 
+export const MODEL_TYPES = {
+  INTENT: <ModelType>'intent',
+  SLOT_LANG: <ModelType>'slot-language-model',
+  SLOT_CRF: <ModelType>'slot-crf',
+}
+
+export type ModelType = 'intent' | 'slot-language-model' | 'slot-crf'
+
+export interface ModelMeta {
+  fileName?: string
+  created_on: number // timestamp
+  hash: string
+  type: string
+}
+
+export interface Model {
+  meta: ModelMeta
+  model: Buffer
+}
