@@ -1,6 +1,5 @@
-import { BotTemplate, Logger } from 'botpress/sdk'
+import { BotTemplate } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import JobService from 'common/job-service'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
@@ -9,7 +8,7 @@ import { AuthRole, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 
 import { saltHashPassword } from 'core/services/auth/util'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable } from 'inversify'
 import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -32,18 +31,10 @@ export class CommunityAdminService implements AdminService {
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.Logger) private logger: Logger,
-    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.Statistics) protected stats: Statistics,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
+    @inject(TYPES.Statistics) protected stats: Statistics
   ) {}
-
-  @postConstruct()
-  init() {
-    this.jobService.onMount = async botId => this.botLoader.mountBot(botId)
-    this.jobService.onUnmount = async botId => this.botLoader.unmountBot(botId)
-  }
 
   protected get knex() {
     return this.database.knex!
@@ -143,7 +134,7 @@ export class CommunityAdminService implements AdminService {
       ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
       : await this.botConfigWriter.createEmptyBot(bot)
 
-    await this.jobService.executeJob('mount', [bot.id])
+    await this.botLoader.mountBot(bot.id)
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {
@@ -169,10 +160,10 @@ export class CommunityAdminService implements AdminService {
   }
 
   async deleteBot(teamId: number, botId: string) {
+    await this.botLoader.unmountBot(botId)
     await this.knex(this.botsTable)
       .where({ team: teamId, id: botId })
       .del()
-    await this.jobService.executeJob('unmount', [botId])
   }
 
   async listBots(teamId: number, offset?: number, limit?: number) {

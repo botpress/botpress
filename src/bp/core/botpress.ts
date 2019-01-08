@@ -139,9 +139,7 @@ export class Botpress {
 
   async discoverBots(): Promise<void> {
     const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.botLoader.mountBot(bot)
-    }
+    await Promise.map(botIds, botId => this.botLoader.mountBot(botId))
   }
 
   async initializeGhost(): Promise<void> {
