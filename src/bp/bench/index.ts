@@ -43,7 +43,7 @@ export default class Bench {
     this.stats = new Stats(this.slaLimit, this.slaTarget)
     this.defaultMessage = {
       type: 'text',
-      text: 'Hey!'
+      text: args.text
     }
   }
 
@@ -105,8 +105,6 @@ export default class Bench {
     for (let i = 0; i < this.messages; i++) {
       await this.sendMessage(userId, i)
     }
-
-    return Promise.resolve()
   }
 
   async sendMessage(userId, index) {

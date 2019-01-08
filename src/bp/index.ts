@@ -80,6 +80,10 @@ try {
         alias: 'i',
         description: 'If set, the test will increment users by this value until the SLA is breached',
         default: 0
+      },
+      text: {
+        description: 'Configure the text message that will be send by the fake users',
+        default: 'Hey'
       }
     })
     .option('verbose', {
