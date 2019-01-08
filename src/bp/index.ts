@@ -70,7 +70,7 @@ try {
 
   process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
   process.IS_LICENSED = true
-  process.ASSERT_LICENSED = () => {}
+  process.ASSERT_LICENSED = (feature?: PRO_FEATURES) => {}
   process.BOTPRESS_VERSION = metadataContent.version
 
   const isProBuild = fs.existsSync(pa.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg

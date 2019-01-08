@@ -36,7 +36,7 @@ export interface DatabaseConfig {
   password?: string
   ssl?: boolean
   /**
-   * @default botpress_test
+   * @default botpress
    */
   database?: string
 }

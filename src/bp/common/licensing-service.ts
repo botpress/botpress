@@ -36,7 +36,6 @@ export interface Limit {
 export interface LicenseInfo {
   fingerprintType: FingerprintType
   fingerprint: string
-  edition: 'pro'
   startDate: string
   endDate: string
   paidUntil: Date

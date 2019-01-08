@@ -139,9 +139,7 @@ export class Botpress {
 
   async discoverBots(): Promise<void> {
     const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.botLoader.mountBot(bot)
-    }
+    await Promise.map(botIds, botId => this.botLoader.mountBot(botId))
   }
 
   async initializeGhost(): Promise<void> {
@@ -199,6 +197,11 @@ export class Botpress {
   }
 
   private async createDatabase(): Promise<void> {
+    if (this.config!.pro.enabled && this.config!.database.type.toLowerCase() === 'sqlite') {
+      this.logger.error(
+        'Postgresql required: Botpress Pro require postresql in order to work in a distributed environment. You can refer to our guide (https://botpress.io) to help you migrate your database.'
+      )
+    }
     await this.database.initialize(this.config!.database)
   }
 
