@@ -8,6 +8,8 @@ import { sanitizeFilenameNoExt } from '../util.js'
 
 import { Model, ModelMeta } from './typings'
 
+const N_KEEP_MODELS = 10
+
 export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
 
@@ -166,10 +168,29 @@ export default class Storage {
     return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
   }
 
-  async persistModels(models: Model[]) {
-    // TODO perform models cleanup here !!
-    return Promise.map(models, model => this._persistModel(model))
+  private async _cleanupModels(): Promise<void> {
+    const models = await this.getAvailableModels()
+    const uniqModelMeta = _
+      .chain(models)
+      .orderBy('created_on', 'desc')
+      .uniqBy('hash')
+      .value()
+
+    if (uniqModelMeta.length > N_KEEP_MODELS) {
+      const threshModel = uniqModelMeta[N_KEEP_MODELS - 1]
+      await Promise.all(
+        models
+          .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
+          .map(model => this.ghost.deleteFile(this.modelsDir, model.fileName))
+      )
+    }
   }
+
+  async persistModels(models: Model[]) {
+    await Promise.map(models, model => this._persistModel(model))
+    return this._cleanupModels()
+  }
+
 
   async getAvailableModels(): Promise<ModelMeta[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
