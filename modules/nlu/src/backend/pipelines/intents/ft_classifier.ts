@@ -3,7 +3,7 @@ import { createWriteStream, writeFileSync } from 'fs'
 import tmp from 'tmp'
 
 import FastTextWrapper from '../../tools/fastText'
-import { IntentClassifier, Prediction } from '../../typings'
+import { IntentClassifier } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -11,7 +11,7 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
-  constructor(private readonly logger: sdk.Logger) {}
+  constructor(private readonly logger: sdk.Logger) { }
 
   private fastTextWrapper!: FastTextWrapper
 
@@ -57,11 +57,11 @@ export default class FastTextClassifier implements IntentClassifier {
     this.fastTextWrapper = new FastTextWrapper(tmpFn)
   }
 
-  public async predict(input: string): Promise<Prediction[]> {
+  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
     if (!this.fastTextWrapper) {
       throw new Error('model is not set')
     }
 
-    return this.fastTextWrapper.predict(this.sanitizeText(input), 5)
+    return this.fastTextWrapper.predict(this.sanitizeText(input), 5) as Promise<sdk.NLU.Intent[]>
   }
 }

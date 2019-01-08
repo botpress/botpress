@@ -25,8 +25,6 @@ export interface Sequence {
 
 export type EngineByBot = { [botId: string]: Engine }
 
-export type Prediction = { name: string; confidence: number }
-
 export interface Engine {
   sync(): Promise<void>
   checkSyncNeeded(): Promise<boolean>
@@ -44,7 +42,7 @@ export interface SlotExtractor {
 }
 
 export interface IntentClassifier {
-  predict(input: string): Promise<Prediction[]>
+  predict(input: string): Promise<sdk.NLU.Intent[]>
 }
 
 export interface LanguageIdentifier {

@@ -10,12 +10,12 @@ import { Config } from '../config'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { extractListEntities, extractPatternEntities } from './pipelines/entities/pattern_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
-import { createIntentMatcher } from './pipelines/intents/matcher'
+import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
+import { EntityExtractor, LanguageIdentifier, SlotExtractor } from './typings'
 
 // this could be extracted in a constant map written in typings just like BIO
 const INTENT_FN = 'intent'
@@ -95,7 +95,6 @@ export default class ScopedEngine {
   }
 
   private async _loadModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
-    // TODO you are at refectoring this so it works for intents & slot tagger
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     const models = await this.storage.getModelsFromHash(modelHash)
@@ -171,18 +170,31 @@ export default class ScopedEngine {
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
 
+  private async _extractIntents(text: string): Promise<{ intents: sdk.NLU.Intent[], intent: sdk.NLU.Intent }> {
+    const intents = await this.intentClassifier.predict(text)
+    const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
+    intent.matches = createIntentMatcher(intent.name)
+
+    return {
+      intents,
+      intent
+    }
+  }
+
+  private async _extractSlots(text: string, intent: sdk.NLU.Intent, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection> {
+    const intentDef = await this.storage.getIntent(intent.name)
+    return await this.slotExtractor.extract(text, intentDef, entities)
+  }
+
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
-    const ret: any = { errored: true }
+    let ret: any = { errored: true }
     try {
       const text = incomingEvent.preview
       ret.language = await this.langDetector.identify(text)
-      ret.intents = await this.intentClassifier.predict(text)
-      const intent = findMostConfidentPredictionMeanStd(ret.intents, this.confidenceTreshold)
-      ret.intent = { ...intent, matches: createIntentMatcher(intent.name) }
-      ret.entities = await this._extractEntities(text, ret.language)
 
-      const intentDef = await this.storage.getIntent(intent.name)
-      ret.slots = await this.slotExtractor.extract(text, intentDef, ret.entities)
+      ret = { ...ret, ...(await this._extractIntents(text)) }
+      ret.entities = await this._extractEntities(text, ret.language)
+      ret.slots = this._extractSlots(text, ret.intent, ret.entities)
       ret.errored = false
 
     } catch (error) {
@@ -191,42 +203,4 @@ export default class ScopedEngine {
       return ret as sdk.IO.EventUnderstanding
     }
   }
-}
-
-// We might want to move this in the intent pipeline
-export const NonePrediction: Prediction = {
-  confidence: 1.0,
-  name: 'none'
-}
-
-/**
- * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
- * We might want to move this in the intent pipeline as it is stricly related to it
- * @param intents
- * @param fixedThreshold
- * @param std number of standard deviation away. normally between 2 and 5
- */
-export function findMostConfidentPredictionMeanStd(
-  intents: Prediction[],
-  fixedThreshold: number,
-  std: number = 3
-): Prediction {
-  if (!intents.length) {
-    return NonePrediction
-  }
-
-  const best = intents.find(x => x.confidence >= fixedThreshold)
-
-  if (best) {
-    return best
-  }
-
-  const mean = _.meanBy<Prediction>(intents, 'confidence')
-  const stdErr =
-    Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length) /
-    Math.sqrt(intents.length)
-
-  const dominant = intents.find(x => x.confidence >= stdErr * std + mean)
-
-  return dominant || NonePrediction
 }
