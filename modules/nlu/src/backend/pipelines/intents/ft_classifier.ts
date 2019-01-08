@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { createWriteStream, fstat, readFileSync, writeFileSync } from 'fs'
+import { createWriteStream, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
@@ -15,8 +15,6 @@ export default class FastTextClassifier implements IntentClassifier {
   constructor(private readonly logger: sdk.Logger) { }
 
   private fastTextWrapper!: FastTextWrapper
-
-  public currentModelId: string | undefined
 
   private sanitizeText(text: string): string {
     return text.toLowerCase().replace(/[^\w\s]/gi, '')
@@ -40,7 +38,7 @@ export default class FastTextClassifier implements IntentClassifier {
     return intents.length > 0 && datasetSize > 0
   }
 
-  async train(intents: sdk.NLU.IntentDefinition[], modelId: string): Promise<Buffer> {
+  async train(intents: sdk.NLU.IntentDefinition[]): Promise<Buffer | undefined> {
     if (this._hasSufficientData(intents)) {
       const dataFn = tmp.tmpNameSync()
       await this._writeTrainingSet(intents, dataFn)
@@ -52,7 +50,6 @@ export default class FastTextClassifier implements IntentClassifier {
       this.fastTextWrapper = new FastTextWrapper(modelPath)
 
       this.fastTextWrapper.train(dataFn, { method: 'supervised' })
-      this.currentModelId = modelId
 
       return readFileSync(modelPath)
     } else {
@@ -60,8 +57,7 @@ export default class FastTextClassifier implements IntentClassifier {
     }
   }
 
-  loadModel(model: Buffer, modelId?: string) {
-    this.currentModelId = modelId
+  load(model: Buffer) {
     const tmpFn = tmp.tmpNameSync()
     writeFileSync(tmpFn, model)
     this.fastTextWrapper = new FastTextWrapper(tmpFn)

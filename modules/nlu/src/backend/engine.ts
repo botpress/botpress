@@ -20,6 +20,8 @@ export default class ScopedEngine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
 
+  private _currentModelHash: string
+
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
@@ -71,6 +73,7 @@ export default class ScopedEngine {
 
     this.logger.debug('Models need to be retrained')
     await this._trainModels(intents, modelHash)
+    this._currentModelHash = modelHash
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
@@ -82,7 +85,7 @@ export default class ScopedEngine {
 
     if (intents.length) {
       const intentsHash = this._getModelHash(intents)
-      return this.intentClassifier.currentModelId !== intentsHash
+      return this._currentModelHash !== intentsHash
     }
 
     return false
@@ -100,7 +103,7 @@ export default class ScopedEngine {
       throw new Error('no such model')
     }
 
-    this.intentClassifier.loadModel(intentModel.model, modelHash)
+    this.intentClassifier.load(intentModel.model)
 
     const trainingSet = flatMap(intents, intent => {
       return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
@@ -126,7 +129,7 @@ export default class ScopedEngine {
     this.logger.debug('Training intent classifier')
 
     try {
-      const intentBuff = await this.intentClassifier.train(intentDefs, modelHash)
+      const intentBuff = await this.intentClassifier.train(intentDefs)
       this.logger.debug('Done training intent classifier')
 
       return intentBuff ? [this._makeModel(modelHash, intentBuff, MODEL_TYPES.INTENT)] : []
