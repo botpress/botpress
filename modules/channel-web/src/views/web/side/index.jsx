@@ -87,6 +87,10 @@ export default class Side extends React.Component {
   }
 
   renderConvoButton() {
+    if (!this.props.config.showConversationsButton) {
+      return null
+    }
+
     return (
       <span className={style.icon}>
         <i onClick={::this.handleToggleShowConvos}>
