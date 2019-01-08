@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { createWriteStream, fstat, readFileSync, writeFileSync } from 'fs'
+import _ from 'lodash'
 import tmp from 'tmp'
 
 import FastTextWrapper from '../../tools/fastText'
-import { IntentClassifier, Model } from '../../typings'
+import { IntentClassifier } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -34,20 +35,29 @@ export default class FastTextClassifier implements IntentClassifier {
     return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
-  async train(intents: Array<TrainSet>, modelId: string): Promise<Buffer> {
-    const dataFn = tmp.tmpNameSync()
-    await this._writeTrainingSet(intents, dataFn)
+  private _hasSufficientData(intents: sdk.NLU.IntentDefinition[]) {
+    const datasetSize = _.flatMap(intents, intent => intent.utterances).length
+    return intents.length > 0 && datasetSize > 0
+  }
 
-    const modelFn = tmp.tmpNameSync()
-    const modelPath = `${modelFn}.bin`
+  async train(intents: sdk.NLU.IntentDefinition[], modelId: string): Promise<Buffer> {
+    if (this._hasSufficientData(intents)) {
+      const dataFn = tmp.tmpNameSync()
+      await this._writeTrainingSet(intents, dataFn)
 
-    // TODO: Add parameters Grid Search logic here
-    this.fastTextWrapper = new FastTextWrapper(modelPath)
+      const modelFn = tmp.tmpNameSync()
+      const modelPath = `${modelFn}.bin`
 
-    this.fastTextWrapper.train(dataFn, { method: 'supervised' })
-    this.currentModelId = modelId
+      // TODO: Add parameters Grid Search logic here
+      this.fastTextWrapper = new FastTextWrapper(modelPath)
 
-    return readFileSync(modelPath)
+      this.fastTextWrapper.train(dataFn, { method: 'supervised' })
+      this.currentModelId = modelId
+
+      return readFileSync(modelPath)
+    } else {
+      return undefined
+    }
   }
 
   loadModel(model: Buffer, modelId?: string) {

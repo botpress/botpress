@@ -122,14 +122,14 @@ export default class ScopedEngine {
     }
   }
 
-  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash): Promise<Model> {
+  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash): Promise<Model[]> {
     this.logger.debug('Training intent classifier')
 
     try {
       const intentBuff = await this.intentClassifier.train(intentDefs, modelHash)
       this.logger.debug('Done training intent classifier')
 
-      return this._makeModel(modelHash, intentBuff, MODEL_TYPES.INTENT)
+      return intentBuff ? [this._makeModel(modelHash, intentBuff, MODEL_TYPES.INTENT)] : []
     } catch (err) {
       this.logger.attachError(err).error('Error training intents')
       throw Error('Unable to train model')
@@ -146,10 +146,12 @@ export default class ScopedEngine {
       const { language, crf } = await this.slotExtractor.train(trainingSet)
       this.logger.debug('Done training slot tagger')
 
-      return [
-        this._makeModel(modelHash, language, MODEL_TYPES.SLOT_LANG),
-        this._makeModel(modelHash, crf, MODEL_TYPES.SLOT_CRF)
-      ]
+      if (language && crf) {
+        return [
+          this._makeModel(modelHash, language, MODEL_TYPES.SLOT_LANG),
+          this._makeModel(modelHash, crf, MODEL_TYPES.SLOT_CRF)
+        ]
+      } else return []
     } catch (err) {
       this.logger.attachError(err).error('Error training slot tagger')
       throw Error('Unable to train model')
@@ -159,10 +161,10 @@ export default class ScopedEngine {
 
   private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
-      const intentModel = await this._trainIntentClassifier(intentDefs, modelHash)
+      const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
       const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
 
-      await this.storage.persistModels([...slotTaggerModels, intentModel])
+      await this.storage.persistModels([...slotTaggerModels, ...intentModels])
     } catch (err) {
       this.logger.attachError(err)
     }

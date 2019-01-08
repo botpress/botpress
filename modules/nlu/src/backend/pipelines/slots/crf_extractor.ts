@@ -71,11 +71,16 @@ export default class CRFExtractor implements SlotExtractor {
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
-    }
 
-    return {
-      language: readFileSync(this._ftModelFn),
-      crf: readFileSync(this._crfModelFn)
+      return {
+        language: readFileSync(this._ftModelFn),
+        crf: readFileSync(this._crfModelFn)
+      }
+    } else {
+      return {
+        language: undefined,
+        crf: undefined
+      }
     }
   }
 
