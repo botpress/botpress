@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
+import fs, { readFileSync } from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
@@ -44,10 +44,10 @@ export default class CRFExtractor implements SlotExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) { }
 
 
-  async load(traingingSet: Sequence[], skipgram: Buffer, crf: Buffer) {
+  async load(traingingSet: Sequence[], language: Buffer, crf: Buffer) {
     // load language model
     this._ftModelFn = tmp.tmpNameSync()
-    fs.writeFileSync(this._ftModelFn, skipgram)
+    fs.writeFileSync(this._ftModelFn, language)
     this._ft = new FastText(this._ftModelFn)
 
     // load kmeans (retrain because there is no simple way to store it)
@@ -61,7 +61,7 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = true
   }
 
-  async train(trainingSet: Sequence[]) {
+  async train(trainingSet: Sequence[]): Promise<{ language: Buffer, crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
       await this._trainLanguageModel(trainingSet)
@@ -71,11 +71,16 @@ export default class CRFExtractor implements SlotExtractor {
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
-    }
 
-    return {
-      crfFN: this._crfModelFn,
-      skipgramFN: this._ftModelFn
+      return {
+        language: readFileSync(this._ftModelFn),
+        crf: readFileSync(this._crfModelFn)
+      }
+    } else {
+      return {
+        language: undefined,
+        crf: undefined
+      }
     }
   }
 

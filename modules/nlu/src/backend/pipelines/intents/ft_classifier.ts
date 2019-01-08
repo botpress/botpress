@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import { createWriteStream, writeFileSync } from 'fs'
+import { createWriteStream, readFileSync, writeFileSync } from 'fs'
+import _ from 'lodash'
 import tmp from 'tmp'
 
 import FastTextWrapper from '../../tools/fastText'
-import { IntentClassifier, Prediction } from '../../typings'
+import { IntentClassifier } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -11,11 +12,9 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
-  constructor(private readonly logger: sdk.Logger) {}
+  constructor(private readonly logger: sdk.Logger) { }
 
   private fastTextWrapper!: FastTextWrapper
-
-  public currentModelId: string | undefined
 
   private sanitizeText(text: string): string {
     return text.toLowerCase().replace(/[^\w\s]/gi, '')
@@ -34,34 +33,41 @@ export default class FastTextClassifier implements IntentClassifier {
     return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
-  async train(intents: Array<TrainSet>, modelId: string) {
-    const dataFn = tmp.tmpNameSync()
-    await this._writeTrainingSet(intents, dataFn)
-
-    const modelFn = tmp.tmpNameSync()
-    const modelPath = `${modelFn}.bin`
-
-    // TODO: Add parameters Grid Search logic here
-    this.fastTextWrapper = new FastTextWrapper(modelPath)
-
-    this.fastTextWrapper.train(dataFn, { method: 'supervised' })
-    this.currentModelId = modelId
-
-    return modelPath
+  private _hasSufficientData(intents: sdk.NLU.IntentDefinition[]) {
+    const datasetSize = _.flatMap(intents, intent => intent.utterances).length
+    return intents.length > 0 && datasetSize > 0
   }
 
-  loadModel(model: Buffer, modelId?: string) {
-    this.currentModelId = modelId
+  async train(intents: sdk.NLU.IntentDefinition[]): Promise<Buffer | undefined> {
+    if (this._hasSufficientData(intents)) {
+      const dataFn = tmp.tmpNameSync()
+      await this._writeTrainingSet(intents, dataFn)
+
+      const modelFn = tmp.tmpNameSync()
+      const modelPath = `${modelFn}.bin`
+
+      // TODO: Add parameters Grid Search logic here
+      this.fastTextWrapper = new FastTextWrapper(modelPath)
+
+      this.fastTextWrapper.train(dataFn, { method: 'supervised' })
+
+      return readFileSync(modelPath)
+    } else {
+      return undefined
+    }
+  }
+
+  load(model: Buffer) {
     const tmpFn = tmp.tmpNameSync()
     writeFileSync(tmpFn, model)
     this.fastTextWrapper = new FastTextWrapper(tmpFn)
   }
 
-  public async predict(input: string): Promise<Prediction[]> {
+  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
     if (!this.fastTextWrapper) {
       throw new Error('model is not set')
     }
 
-    return this.fastTextWrapper.predict(this.sanitizeText(input), 5)
+    return this.fastTextWrapper.predict(this.sanitizeText(input), 5) as Promise<sdk.NLU.Intent[]>
   }
 }

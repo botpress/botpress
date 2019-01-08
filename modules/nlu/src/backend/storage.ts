@@ -6,19 +6,7 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
-// we might want to declare a ts type the type key just like we did for BIO
-// TODO move this into typings
-export interface ModelMeta {
-  fileName: string
-  created_on: Date
-  hash: string
-  type: string
-}
-
-export interface Model {
-  meta: ModelMeta
-  model: Buffer
-}
+import { Model, ModelMeta } from './typings'
 
 export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
@@ -172,9 +160,15 @@ export default class Storage {
     return this.ghost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
-  async persistModel(modelBuffer: Buffer, modelName: string) {
+  private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
-    return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
+    const modelName = `${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
+    return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
+  }
+
+  async persistModels(models: Model[]) {
+    // TODO perform models cleanup here !!
+    return Promise.map(models, model => this._persistModel(model))
   }
 
   async getAvailableModels(): Promise<ModelMeta[]> {
@@ -184,7 +178,7 @@ export default class Storage {
       const parts = fileName.replace('.bin', '').split('__')
       return {
         fileName,
-        created_on: new Date(parts[0]),
+        created_on: parseInt(parts[0]) || 0,
         hash: parts[1],
         type: parts[2],
       }
@@ -202,7 +196,7 @@ export default class Storage {
       modelsMeta.filter(meta => meta.hash === modelHash),
       async meta => ({
         meta,
-        model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName)
+        model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
       })
     )
   }
