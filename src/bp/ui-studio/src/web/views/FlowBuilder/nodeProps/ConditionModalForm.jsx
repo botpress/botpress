@@ -1,9 +1,15 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, FormControl, Alert } from 'react-bootstrap'
+import { Modal, Button, Radio, FormControl, Alert, Form } from 'react-bootstrap'
 import Select from 'react-select'
 import _ from 'lodash'
+import axios from 'axios'
+import style from './style.scss'
 
-const style = require('./style.scss')
+const availableProps = [
+  { label: 'User Data', value: 'user' },
+  { label: 'Current User Session', value: 'session' },
+  { label: 'Temporary Dialog Context', value: 'temp' }
+]
 
 export default class ConditionModalForm extends Component {
   state = {
@@ -11,15 +17,25 @@ export default class ConditionModalForm extends Component {
     flowToSubflow: null,
     flowToNode: null,
     transitionError: null,
-    conditionError: null
+    conditionError: null,
+    conditionType: 'always',
+    condition: 'true',
+    matchPropsFieldName: '',
+    matchPropsExpression: ''
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { item } = nextProps
+  componentDidMount() {
+    this.fetchIntents()
+  }
 
-    if (this.props.show || !nextProps.show) {
+  componentDidUpdate(prevProps) {
+    if (this.props === prevProps) {
       return
     }
+
+    const { item } = this.props
+    const condition = (item && item.condition) || ''
+    const conditionType = this.getConditionType(condition)
 
     if (item && item.node) {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
@@ -28,16 +44,61 @@ export default class ConditionModalForm extends Component {
 
       this.setState({
         typeOfTransition,
-        condition: item.condition,
+        conditionType,
+        condition,
         flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
         flowToNode: typeOfTransition === 'node' ? item.node : null,
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
-      this.resetForm({ condition: (item && item.condition) || '' })
+      this.resetForm({ condition, conditionType })
     }
 
     this.setState({ isEdit: Boolean(item) })
+
+    if (conditionType === 'intent') {
+      this.extractIntent(condition)
+    } else if (conditionType === 'props') {
+      this.extractProps(condition)
+    }
+  }
+
+  getConditionType(condition) {
+    condition = condition.trim()
+
+    if (condition === 'true') {
+      return 'always'
+    } else if (condition.includes('event.nlu.intent.name')) {
+      return 'intent'
+    } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
+      return 'props'
+    } else {
+      return 'raw'
+    }
+  }
+
+  extractIntent(condition) {
+    const intent = condition.match(/'(.*)'/)
+    if (intent) {
+      this.setState({ matchIntent: { value: intent[1], label: intent[1] } })
+    }
+  }
+
+  extractProps(condition) {
+    const props = condition.match(/(.*)\.(.*?) (.*)/)
+    if (props && props.length > 3) {
+      this.setState({
+        matchPropsType: availableProps.find(x => x.value === props[1]),
+        matchPropsFieldName: props[2],
+        matchPropsExpression: props[3]
+      })
+    }
+  }
+
+  fetchIntents() {
+    return axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
+      this.setState({ intents: data })
+    })
   }
 
   changeTransitionType(type) {
@@ -185,8 +246,146 @@ export default class ConditionModalForm extends Component {
     )
   }
 
-  onConditionChanged = event => {
-    this.setState({ condition: event.target.value })
+  changeConditionType = event => {
+    const conditionType = event.target.value
+
+    if (conditionType === 'always') {
+      this.setState({ conditionType, condition: 'true' })
+    } else if (conditionType === 'intent') {
+      this.setState({ conditionType, condition: `event.nlu.intent.name === ''` })
+    } else {
+      this.setState({ conditionType })
+    }
+  }
+
+  handlePropsTypeChanged = option => this.setState({ matchPropsType: option }, this.updatePropertyMatch)
+  handlePropsFieldNameChanged = e => this.setState({ matchPropsFieldName: e.target.value }, this.updatePropertyMatch)
+  handlePropsExpressionChanged = e => this.setState({ matchPropsExpression: e.target.value }, this.updatePropertyMatch)
+  handleConditionChanged = e => this.setState({ condition: e.target.value })
+
+  handleMatchIntentChanged = option => {
+    this.setState({
+      matchIntent: option,
+      condition: `event.nlu.intent.name === '${option.value}'`
+    })
+  }
+
+  updatePropertyMatch() {
+    const { matchPropsType, matchPropsFieldName, matchPropsExpression } = this.state
+
+    if (matchPropsType && matchPropsFieldName && matchPropsExpression) {
+      this.setState({
+        condition: `${matchPropsType.value}.${matchPropsFieldName} ${matchPropsExpression}`
+      })
+    }
+  }
+
+  renderIntentPicker() {
+    if (!this.state.intents) {
+      return null
+    }
+
+    const intents = this.state.intents.map(({ name }) => ({ label: name, value: name }))
+    return (
+      <Select
+        name="matchIntent"
+        value={this.state.matchIntent}
+        options={intents}
+        onChange={this.handleMatchIntentChanged}
+      />
+    )
+  }
+
+  renderMatchProperty() {
+    return (
+      <Form inline>
+        <Select
+          name="matchPropsType"
+          value={this.state.matchPropsType}
+          options={availableProps}
+          onChange={this.handlePropsTypeChanged}
+        />
+
+        <FormControl
+          type="text"
+          placeholder="Field Name (ex: nickname, age)"
+          value={this.state.matchPropsFieldName}
+          onChange={this.handlePropsFieldNameChanged}
+          className={style.textFields}
+        />
+
+        <FormControl
+          type="text"
+          placeholder="Expression (ex: !== undefined)"
+          value={this.state.matchPropsExpression}
+          onChange={this.handlePropsExpressionChanged}
+          className={style.textFields}
+        />
+      </Form>
+    )
+  }
+
+  renderRawExpression() {
+    return (
+      <FormControl
+        type="text"
+        placeholder="Javascript expression"
+        value={this.state.condition}
+        onChange={this.handleConditionChanged}
+      />
+    )
+  }
+
+  renderConditions() {
+    return (
+      <div className={style.section}>
+        {this.state.conditionError && <Alert bsStyle="danger">{this.state.conditionError}</Alert>}
+        <Radio checked={this.state.conditionType === 'always'} value="always" onChange={this.changeConditionType}>
+          Always
+        </Radio>
+
+        <Radio checked={this.state.conditionType === 'intent'} value="intent" onChange={this.changeConditionType}>
+          Intent is
+        </Radio>
+        {this.state.conditionType === 'intent' && this.renderIntentPicker()}
+
+        <Radio checked={this.state.conditionType === 'props'} value="props" onChange={this.changeConditionType}>
+          Matches Property
+        </Radio>
+        {this.state.conditionType === 'props' && this.renderMatchProperty()}
+
+        <Radio checked={this.state.conditionType === 'raw'} value="raw" onChange={this.changeConditionType}>
+          Raw Expression (advanced)
+        </Radio>
+        {this.state.conditionType === 'raw' && this.renderRawExpression()}
+      </div>
+    )
+  }
+
+  renderActions() {
+    return (
+      <div className={style.section}>
+        <Radio checked={this.state.typeOfTransition === 'end'} onChange={() => this.changeTransitionType('end')}>
+          End flow <span className={style.endBloc} />
+        </Radio>
+        <Radio checked={this.state.typeOfTransition === 'return'} onChange={() => this.changeTransitionType('return')}>
+          Return to previous flow <span className={style.returnBloc} />
+        </Radio>
+        {this.state.typeOfTransition === 'return' && this.renderReturnToNode()}
+        <Radio checked={this.state.typeOfTransition === 'node'} onChange={() => this.changeTransitionType('node')}>
+          Transition to node <span className={style.nodeBloc} />
+        </Radio>
+        {this.state.typeOfTransition === 'node' && this.renderNodesChoice()}
+        <Radio
+          checked={this.state.typeOfTransition === 'subflow'}
+          onChange={() => this.changeTransitionType('subflow')}
+        >
+          Transition to subflow <span className={style.subflowBloc} />
+        </Radio>
+        {this.state.transitionError && <Alert bsStyle="danger">{this.state.transitionError}</Alert>}
+        {this.state.typeOfTransition === 'subflow' && this.renderSubflowChoice()}
+      </div>
+    )
   }
 
   render() {
@@ -197,41 +396,9 @@ export default class ConditionModalForm extends Component {
         </Modal.Header>
         <Modal.Body>
           <h5>Condition:</h5>
-          <div className={style.section}>
-            {this.state.conditionError && <Alert bsStyle="danger">{this.state.conditionError}</Alert>}
-            <Radio defaultChecked={true}>Raw Expression</Radio>
-            <FormControl
-              type="text"
-              placeholder="Javascript expression"
-              value={this.state.condition}
-              onChange={this.onConditionChanged}
-            />
-          </div>
+          {this.renderConditions()}
           <h5>When condition is met, do:</h5>
-          <div className={style.section}>
-            <Radio checked={this.state.typeOfTransition === 'end'} onChange={() => this.changeTransitionType('end')}>
-              End flow <span className={style.endBloc} />
-            </Radio>
-            <Radio
-              checked={this.state.typeOfTransition === 'return'}
-              onChange={() => this.changeTransitionType('return')}
-            >
-              Return to previous flow <span className={style.returnBloc} />
-            </Radio>
-            {this.state.typeOfTransition === 'return' && this.renderReturnToNode()}
-            <Radio checked={this.state.typeOfTransition === 'node'} onChange={() => this.changeTransitionType('node')}>
-              Transition to node <span className={style.nodeBloc} />
-            </Radio>
-            {this.state.typeOfTransition === 'node' && this.renderNodesChoice()}
-            <Radio
-              checked={this.state.typeOfTransition === 'subflow'}
-              onChange={() => this.changeTransitionType('subflow')}
-            >
-              Transition to subflow <span className={style.subflowBloc} />
-            </Radio>
-            {this.state.transitionError && <Alert bsStyle="danger">{this.state.transitionError}</Alert>}
-            {this.state.typeOfTransition === 'subflow' && this.renderSubflowChoice()}
-          </div>
+          {this.renderActions()}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.props.onClose}>Cancel</Button>
