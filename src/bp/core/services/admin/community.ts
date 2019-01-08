@@ -2,6 +2,7 @@ import { BotTemplate } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
+import { BotConfigWriter } from 'core/config'
 import Database from 'core/database'
 import { AuthRole, AuthRule, AuthTeam, AuthTeamMembership, AuthUser, Bot } from 'core/misc/interfaces'
 import { saltHashPassword } from 'core/services/auth/util'
@@ -31,6 +32,7 @@ export class CommunityAdminService implements AdminService {
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.Statistics) protected stats: Statistics
   ) {}
 
@@ -128,7 +130,11 @@ export class CommunityAdminService implements AdminService {
     }
 
     await this.knex(this.botsTable).insert(bot)
-    await this.botLoader.mountBot(bot, botTemplate)
+    botTemplate
+      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
+      : await this.botConfigWriter.createEmptyBot(bot)
+
+    await this.botLoader.mountBot(bot.id)
   }
 
   async updateBot(teamId: number, botId: string, bot: Bot): Promise<void> {

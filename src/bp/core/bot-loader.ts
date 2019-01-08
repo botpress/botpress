@@ -1,13 +1,11 @@
-import { BotTemplate, Logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { createForGlobalHooks } from './api'
-import { BotConfigWriter } from './config'
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
-import { Bot } from './misc/interfaces'
 import { ModuleLoader } from './module-loader'
 import { GhostService } from './services'
 import { CMSService } from './services/cms'
@@ -17,6 +15,9 @@ import { TYPES } from './types'
 
 @injectable()
 export class BotLoader {
+  public mountBot: Function
+  public unmountBot: Function
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'BotLoader')
@@ -24,15 +25,14 @@ export class BotLoader {
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.BotConfigWriter) private botConfigWriter: BotConfigWriter,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.JobService) private jobService: JobService
-  ) {}
-
-  public mountBot!: Function
-  public unmountBot!: Function
+  ) {
+    this.mountBot = this._mountBot
+    this.unmountBot = this._unmountBot
+  }
 
   @postConstruct()
   async init() {
@@ -63,13 +63,7 @@ export class BotLoader {
     return bots
   }
 
-  private async _mountBot(bot: Bot, botTemplate?: BotTemplate) {
-    const botId = bot.id
-
-    botTemplate
-      ? await this.botConfigWriter.createFromTemplate(bot, botTemplate)
-      : await this.botConfigWriter.createEmptyBot(bot)
-
+  private async _mountBot(botId: string) {
     await this.ghost.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
     await this.cms.loadContentElementsForBot(botId)
     await this.moduleLoader.loadModulesForBot(botId)

@@ -3,6 +3,7 @@ import { copyDir } from 'core/misc/pkg-fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
@@ -197,10 +198,16 @@ export class Botpress {
   }
 
   private async createDatabase(): Promise<void> {
-    if (this.config!.pro.enabled && this.config!.database.type.toLowerCase() === 'sqlite') {
-      this.logger.error(
-        'Postgresql required: Botpress Pro require postresql in order to work in a distributed environment. You can refer to our guide (https://botpress.io) to help you migrate your database.'
-      )
+    if (_.get(this.config, 'pro.redis.enabled')) {
+      if (this.config!.database.type.toLowerCase() === 'sqlite') {
+        throw new Error(
+          'Postgres is required in order to work in a cluster mode. Please change your database type to "postgres" in your botpress.config.json file.'
+        )
+      } else if (!this.config!.ghost.enabled) {
+        throw new Error(
+          'BP Ghost have to be enabled in order for Botpress to work in a cluster. Please enable the Ghost in your botpress.config.json file.'
+        )
+      }
     }
     await this.database.initialize(this.config!.database)
   }

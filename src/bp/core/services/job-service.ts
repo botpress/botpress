@@ -8,14 +8,13 @@ export interface JobService {
    *
    * * In Botpress CE, the function will be returned directly.
    * @param fn The function or "job" to execute
-   * @param jobName The optionnal name of the job. If not specified, only a unique Id will identify the job.
    */
-  broadcast(fn: Function, jobName?: string): Promise<Function>
+  broadcast(fn: Function): Promise<Function>
 }
 
 @injectable()
 export class CEJobService implements JobService {
-  async broadcast(fn: Function, jobName?: string): Promise<Function> {
+  async broadcast(fn: Function): Promise<Function> {
     return fn
   }
 }
