@@ -210,7 +210,7 @@ export default class ScopedEngine {
 
       ret = { ...ret, ...(await this._extractIntents(text)) }
       ret.entities = await this._extractEntities(text, ret.language)
-      ret.slots = this._extractSlots(text, ret.intent, ret.entities)
+      ret.slots = await this._extractSlots(text, ret.intent, ret.entities)
       ret.errored = false
 
     } catch (error) {
