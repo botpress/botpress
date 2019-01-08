@@ -116,6 +116,13 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get('/:app(studio|lite)/js/env.js', async (req, res) => {
       const { botId, app } = req.params
+
+      try {
+        await this.botRepository.getBotById(botId)
+      } catch (err) {
+        return res.sendStatus(404)
+      }
+
       const data = this.studioParams(botId)
       const liteEnv = `
               // Lite Views Specific
