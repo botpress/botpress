@@ -1,7 +1,13 @@
 import { Request } from 'express'
 
+import { BotpressConfig } from '../config/botpress.config'
+
 export interface IDisposeOnExit {
   disposeOnExit(): void
+}
+
+export interface IInitializeFromConfig {
+  initializeFromConfig(config: BotpressConfig): void
 }
 
 export interface AuthUser {

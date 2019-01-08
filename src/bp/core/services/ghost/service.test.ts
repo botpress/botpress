@@ -1,11 +1,12 @@
 import 'bluebird-global'
+import { ObjectCache } from 'common/object-cache'
 import path from 'path'
 import 'reflect-metadata'
 
 import { PersistedConsoleLogger } from '../../logger'
 import { createSpyObject, MockObject } from '../../misc/utils'
 
-import { GhostFileRevision, ObjectCache } from '.'
+import { GhostFileRevision } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import { GhostService } from './service'
