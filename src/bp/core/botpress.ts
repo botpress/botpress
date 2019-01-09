@@ -3,7 +3,6 @@ import { copyDir } from 'core/misc/pkg-fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
@@ -95,6 +94,7 @@ export class Botpress {
     await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
+    await this.checkEditionRequirements()
     await this.createDatabase()
     await this.initializeGhost()
     await this.loadModules(options.modules)
@@ -117,6 +117,38 @@ export class Botpress {
     }
 
     process.JWT_SECRET = jwtSecret
+  }
+
+  async checkEditionRequirements() {
+    const pro = this.config!.pro.enabled
+    const redis = this.config!.pro.redis.enabled
+    const ghost = this.config!.ghost.enabled
+    const postgres = this.config!.database.type.toLowerCase() === 'postgres'
+
+    if (pro) {
+      if (postgres) {
+        if (!ghost) {
+          throw new Error(
+            'Botpress ghost has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+          )
+        }
+        if (!redis) {
+          throw new Error(
+            'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+          )
+        }
+      } else if (redis) {
+        throw new Error(
+          'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
+        )
+      }
+    } else {
+      if (redis) {
+        this.logger.warn(
+          'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
+        )
+      }
+    }
   }
 
   async deployAssets() {
@@ -198,18 +230,6 @@ export class Botpress {
   }
 
   private async createDatabase(): Promise<void> {
-    if (_.get(this.config, 'pro.redis.enabled')) {
-      if (this.config!.database.type.toLowerCase() === 'sqlite') {
-        throw new Error(
-          'Postgres is required in order to work in a cluster mode. Please change your database type to "postgres" in your botpress.config.json file.'
-        )
-      } else if (!this.config!.ghost.enabled) {
-        // TODO: Uncomment this once the ghost has been fixed
-        // throw new Error(
-        //   'BP Ghost have to be enabled in order for Botpress to work in a cluster. Please enable the Ghost in your botpress.config.json file.'
-        // )
-      }
-    }
     await this.database.initialize(this.config!.database)
   }
 
