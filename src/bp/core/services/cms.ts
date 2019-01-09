@@ -7,7 +7,6 @@ import _ from 'lodash'
 import Mustache from 'mustache'
 import nanoid from 'nanoid'
 import path from 'path'
-import plur from 'plur'
 import { VError } from 'verror'
 
 import { ConfigProvider } from '../config/config-loader'
@@ -17,6 +16,7 @@ import { IDisposeOnExit } from '../misc/interfaces'
 import { TYPES } from '../types'
 
 import { GhostService } from '.'
+import { JobService } from './job-service'
 
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -26,6 +26,8 @@ export const DefaultSearchParams: SearchParams = {
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
+  public createOrUpdateContentElement!: Function
+
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
   private readonly elementsDir = 'content-elements'
@@ -41,7 +43,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension
+    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {}
 
   disposeOnExit() {
@@ -49,6 +52,8 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async initialize() {
+    this.createOrUpdateContentElement = await this.jobService.broadcast(this._createOrUpdateContentElement.bind(this))
+
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
   }
@@ -65,20 +70,6 @@ export class CMSService implements IDisposeOnExit {
       table.timestamp('createdOn')
       table.timestamp('modifiedOn')
     })
-  }
-
-  async preloadContentForAllBots(botIds: string[]): Promise<void> {
-    const elementCount = await Promise.reduce(
-      botIds,
-      async (total, botId) => {
-        const elements = await this.loadContentElementsForBot(botId)
-        return total + elements.length
-      },
-      0
-    )
-    this.logger.info(
-      `Loaded ${elementCount} ${plur('element', elementCount)} from ${botIds.length} ${plur('bot', botIds.length)}`
-    )
   }
 
   async loadContentElementsForBot(botId: string): Promise<any[]> {
@@ -252,7 +243,7 @@ export class CMSService implements IDisposeOnExit {
       .get(0)
   }
 
-  async createOrUpdateContentElement(
+  private async _createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
     formData: string,

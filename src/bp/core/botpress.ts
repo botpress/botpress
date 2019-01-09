@@ -128,9 +128,10 @@ export class Botpress {
     if (pro) {
       if (postgres) {
         if (!ghost) {
-          throw new Error(
-            'Botpress ghost has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
-          )
+          // FIXME: Uncomment once the ghost has been fixed.
+          // throw new Error(
+          //   'Botpress ghost has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+          // )
         }
         if (!redis) {
           throw new Error(
