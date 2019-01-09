@@ -32,7 +32,7 @@ export default class WebchatDb {
       .createTableIfNotExists('web_conversations', function(table) {
         table.increments('id').primary()
         table.string('userId')
-        table.integer('botId')
+        table.string('botId')
         table.string('title')
         table.string('description')
         table.string('logo_url')
