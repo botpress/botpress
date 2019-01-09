@@ -1,12 +1,14 @@
 import React, { Fragment } from 'react'
+import { connect } from 'react-redux'
 import { Col, Button } from 'reactstrap'
+import _ from 'lodash'
 import SectionLayout from '../Layouts/Section'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import CustomizeLicenseForm from '../Components/Licensing/CustomizeLicenseForm'
 
 const DEFAULT_SEATS = 1
 
-export default class BuyPage extends React.Component {
+class BuyPage extends React.Component {
   constructor(props) {
     super(props)
 
@@ -39,10 +41,10 @@ export default class BuyPage extends React.Component {
         </div>
 
         <BuyLicenseModal
-          {...this.props.loginData}
           seats={this.state.seats}
           opened={this.state.buyModalOpen}
           toggle={this.toggleBuyModal}
+          userInfo={_.omit(this.props.licensingAccount, ['token'])}
           onSuccess={() => {
             this.props.history.push('/my-account')
           }}
@@ -55,3 +57,12 @@ export default class BuyPage extends React.Component {
     return <SectionLayout title="Buy new license" activePage="licensing-buy" mainContent={this.renderContent()} />
   }
 }
+
+const mapStateToProps = state => ({
+  licensingAccount: state.license.licensingAccount
+})
+
+export default connect(
+  mapStateToProps,
+  null
+)(BuyPage)

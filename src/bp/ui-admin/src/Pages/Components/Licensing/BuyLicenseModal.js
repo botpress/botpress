@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, ModalHeader, ModalBody, Button } from 'reactstrap'
+import { Modal, ModalHeader, ModalBody } from 'reactstrap'
 import Iframe from 'react-iframe'
 import api from '../../../api'
 
@@ -16,6 +16,21 @@ export default class BuyLicenseModal extends React.Component {
   state = { ...DEFAULT_STATE }
   promoCodeInput = React.createRef()
 
+  componentDidMount() {
+    window.onmessage = e => {
+      if (e.data.action === 'getUserInfo') {
+        const message = {
+          action: 'updateUserInfo',
+          payload: this.props.userInfo
+        }
+
+        document.getElementById('iframe').contentWindow.postMessage(message, '*')
+      } else if (e.data.action === 'saveUserCard') {
+        this.subscribeUser(e.data.payload)
+      }
+    }
+  }
+
   toggle = () => {
     this.setState({ ...DEFAULT_STATE })
     this.props.toggle()
@@ -26,17 +41,8 @@ export default class BuyLicenseModal extends React.Component {
   }
 
   buySuccess = () => {
-    const { onSuccess } = this.props
     this.setState({ success: true })
-    window.setTimeout(onSuccess, 1250)
-  }
-
-  togglePromoCode = () => {
-    this.setState({ promoCodeVisible: !this.state.promoCodeVisible }, () => {
-      if (this.promoCodeInput.current) {
-        this.promoCodeInput.current.focus()
-      }
-    })
+    window.setTimeout(this.props.onSuccess, 1250)
   }
 
   subscribeUser = source => {
@@ -57,12 +63,18 @@ export default class BuyLicenseModal extends React.Component {
   }
 
   render() {
-    const { opened, userInfo } = this.props
     return (
-      <Modal isOpen={opened} toggle={this.toggle}>
+      <Modal isOpen={this.props.opened} toggle={this.toggle}>
         <ModalHeader toggle={this.toggle}>Confirm your payment</ModalHeader>
         <ModalBody>
-          <Iframe url="https://botpress.io/" width="450px" height="150px" display="initial" position="relative" />
+          <Iframe
+            id="iframe"
+            url={api.getStripePath()}
+            width="470px"
+            height="300px"
+            display="initial"
+            position="relative"
+          />
         </ModalBody>
       </Modal>
     )

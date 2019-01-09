@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect, Link } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup } from 'reactstrap'
-import { updateLicensingToken } from '../../modules/license'
+import { updateLicensingAccount } from '../../modules/license'
 import SectionLayout from '../Layouts/Section'
 import firebase from '../../utils/firebase'
 import api from '../../api'
@@ -21,9 +21,15 @@ class Login extends Component {
     firebase
       .auth()
       .signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then(res => {
-        api.setLicensingToken(res.user.ra)
-        this.props.updateLicensingToken(res.user.ra)
+      .then(result => {
+        const user = {
+          email: result.user.email,
+          name: result.user.displayName,
+          token: result.user.ra
+        }
+
+        api.setLicensingToken(user.token)
+        this.props.updateLicensingAccount(user)
 
         this.setState({ isLoggedIn: true })
       })
@@ -123,7 +129,7 @@ class Login extends Component {
   }
 }
 
-const mapDispatchToProps = { updateLicensingToken }
+const mapDispatchToProps = { updateLicensingAccount }
 export default connect(
   null,
   mapDispatchToProps

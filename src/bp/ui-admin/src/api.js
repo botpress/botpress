@@ -64,6 +64,10 @@ const overrideLicensingServer = process.env.REACT_APP_LICENSING_SERVER
   ? { baseURL: `${process.env.REACT_APP_LICENSING_SERVER}` }
   : { baseURL: `https://license.botpress.io` }
 
+const overrideStripePath = process.env.REACT_APP_STRIPE_PATH
+  ? `${process.env.REACT_APP_STRIPE_PATH}`
+  : `https://botpress.io/stripe`
+
 let licensingServerToken
 export default {
   getSecured({ token, toastErrors = true } = {}) {
@@ -101,5 +105,9 @@ export default {
       },
       { toastErrors }
     )
+  },
+
+  getStripePath() {
+    return overrideStripePath
   }
 }

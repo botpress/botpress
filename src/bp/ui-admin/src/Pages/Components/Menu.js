@@ -29,7 +29,7 @@ class Menu extends Component {
     const activePage = this.props.activePage
     const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
     const currentPath = _.get(this.props, 'location.pathname', '')
-    const isLoggedOnLicensing = this.props.licensingServerToken !== null
+    const isLoggedOnLicensing = this.props.licensingAccount !== null
 
     const menu = [
       {
@@ -161,7 +161,7 @@ const mapStateToProps = state => ({
   teams: state.teams.items,
   license: state.license.license,
   currentUserPermissions: state.user.permissions[state.teams.teamId],
-  licensingServerToken: state.license.licensingServerToken
+  licensingAccount: state.license.licensingAccount
 })
 
 const mapDispatchToProps = dispatch =>
