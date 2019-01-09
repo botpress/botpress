@@ -60,6 +60,11 @@ const overrideApiUrl = process.env.REACT_APP_API_URL
   ? { baseURL: `${process.env.REACT_APP_API_URL}/api/v1` }
   : { baseURL: `/api/v1` }
 
+const overrideLicensingServer = process.env.REACT_APP_LICENSING_SERVER
+  ? { baseURL: `${process.env.REACT_APP_LICENSING_SERVER}` }
+  : { baseURL: `https://license.botpress.io` }
+
+let licensingServerToken
 export default {
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
@@ -80,5 +85,21 @@ export default {
 
   getAnonymous({ toastErrors = true } = {}) {
     return createClient(overrideApiUrl, { toastErrors })
+  },
+
+  setLicensingToken(token) {
+    licensingServerToken = token
+  },
+
+  getLicensing({ toastErrors = true } = {}) {
+    return createClient(
+      {
+        headers: {
+          'X-AUTH-TOKEN': `bearer ${licensingServerToken}`
+        },
+        ...overrideLicensingServer
+      },
+      { toastErrors }
+    )
   }
 }
