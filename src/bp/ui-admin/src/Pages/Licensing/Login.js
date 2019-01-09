@@ -11,11 +11,12 @@ class Login extends Component {
   state = {
     email: '',
     password: '',
-    error: null
+    error: null,
+    success: null
   }
 
   login = async () => {
-    this.setState({ error: null })
+    this.setState({ error: null, success: null })
 
     firebase
       .auth()
@@ -35,10 +36,16 @@ class Login extends Component {
   }
 
   sendResetPassword = () => {
+    this.setState({ error: null, success: null, showResetPasswordLink: false })
+
     firebase
       .auth()
       .sendPasswordResetEmail(this.state.email)
-      .then(result => {})
+      .then(() => {
+        this.setState({
+          success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
+        })
+      })
       .catch(error => {
         this.setState({ error: error.message })
       })
@@ -50,11 +57,10 @@ class Login extends Component {
   renderResetPassword() {
     return (
       <small>
-        Forgot your password?&nbsp;
-        <Button color="link" onClick={this.sendResetPassword}>
-          Click here
-        </Button>
-        &nbsp; and we'll send you an email right away to change it.
+        Forgot your password? &nbsp;
+        <a className="link" onClick={this.sendResetPassword}>
+          Click here and we'll send you an email right away to change it.
+        </a>
       </small>
     )
   }
@@ -67,6 +73,7 @@ class Login extends Component {
     return (
       <Col xs="4">
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+        {this.state.success && <Alert color="success">{this.state.success}</Alert>}
 
         <FormGroup>
           <label htmlFor="email">Email Address</label>

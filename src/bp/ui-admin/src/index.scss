@@ -187,3 +187,12 @@ pre.code {
   font-size: 12px;
   padding: 10px;
 }
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
