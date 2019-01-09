@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Navbar, Nav, NavItem, NavLink, Badge } from 'reactstrap'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { fetchLicense } from '../../modules/license'
 import { fetchPermissions } from '../../modules/user'
 import _ from 'lodash'
@@ -28,6 +28,8 @@ class Menu extends Component {
   generateMenu() {
     const activePage = this.props.activePage
     const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
+    const currentPath = _.get(this.props, 'location.pathname', '')
+    const isLoggedOnLicensing = this.props.licensingServerToken !== null
 
     const menu = [
       {
@@ -64,6 +66,38 @@ class Menu extends Component {
             link: `/teams/${currentTeamId}/roles`,
             show: this.checkPermissions('admin.team.roles', 'read'),
             isPro: true
+          }
+        ]
+      },
+      {
+        title: 'Licensing',
+        active: activePage === 'license',
+        show: true,
+        link: '/licensing',
+        childs: [
+          {
+            title: 'Login',
+            active: activePage === 'licensing-login',
+            link: `/licensing/login`,
+            show: currentPath.includes('licensing') && !isLoggedOnLicensing
+          },
+          {
+            title: 'Logout',
+            active: activePage === 'licensing-logout',
+            link: `/licensing/logout`,
+            show: currentPath.includes('licensing') && isLoggedOnLicensing
+          },
+          {
+            title: 'Manage Keys',
+            active: activePage === 'licensing-keys',
+            link: `/licensing/keys`,
+            show: currentPath.includes('licensing') && isLoggedOnLicensing
+          },
+          {
+            title: 'Buy License',
+            active: activePage === 'licensing-buy',
+            link: `/licensing/buy`,
+            show: currentPath.includes('licensing') && isLoggedOnLicensing
           }
         ]
       }
@@ -126,7 +160,8 @@ class Menu extends Component {
 const mapStateToProps = state => ({
   teams: state.teams.items,
   license: state.license.license,
-  currentUserPermissions: state.user.permissions[state.teams.teamId]
+  currentUserPermissions: state.user.permissions[state.teams.teamId],
+  licensingServerToken: state.license.licensingServerToken
 })
 
 const mapDispatchToProps = dispatch =>
@@ -140,4 +175,4 @@ const mapDispatchToProps = dispatch =>
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Menu)
+)(withRouter(Menu))

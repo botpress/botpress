@@ -1,17 +1,16 @@
 import React, { Fragment } from 'react'
-
-import SectionLayout from './Layouts/Section'
-import LoadingSection from './Components/LoadingSection'
-import LicensePolicies from './Components/LicensePolicies'
-import EditLicense from './Components/EditLicense'
+import { Button, Col, Row, Tooltip, Alert } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { fetchLicensing } from '../modules/license'
-import { Button, Col, Row, Tooltip, Alert } from 'reactstrap'
 import moment from 'moment'
 
-import api from '../api'
+import SectionLayout from '../Layouts/Section'
+import LoadingSection from '../Components/LoadingSection'
+import LicensePolicies from '../Components/LicensePolicies'
+import EditLicense from '../Components/EditLicense'
+import { fetchLicensing } from '../../modules/license'
+import api from '../../api'
 
 class BuyPage extends React.Component {
   constructor(props) {
@@ -82,7 +81,7 @@ class BuyPage extends React.Component {
           <svg className="icon" viewBox="0 0 90 80" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M74.59 57.824l10.498-5.863a3 3 0 1 1 2.926 5.238l-17.779 9.93a2.998 2.998 0 0 1-4.16-1.302l-8.934-18.299a3.002 3.002 0 0 1 1.38-4.013 3.005 3.005 0 0 1 4.013 1.38l5.795 11.87A33.02 33.02 0 0 0 72.865 40c0-18.311-14.897-33.207-33.209-33.207-18.31 0-33.206 14.896-33.206 33.207 0 18.312 14.896 33.209 33.206 33.209 1.236 0 2.476-.068 3.685-.202a3 3 0 0 1 .663 5.963 39.448 39.448 0 0 1-4.348.239C18.038 79.208.45 61.619.45 39.999.45 18.38 18.038.792 39.656.792c21.62 0 39.209 17.588 39.209 39.207a39.011 39.011 0 0 1-4.276 17.825z"
-              fill-rule="evenodd"
+              fillRule="evenodd"
             />
           </svg>
         </Button>
@@ -119,10 +118,9 @@ class BuyPage extends React.Component {
             Copy to clipboard
           </Tooltip>
         </div>
-        {licenseFingerprint !== undefined &&
-          serverFingerprint !== licenseFingerprint && (
-            <Alert color="danger">Your machine fingerprint doesn't match your license fingerprint.</Alert>
-          )}
+        {licenseFingerprint !== undefined && serverFingerprint !== licenseFingerprint && (
+          <Alert color="danger">Your machine fingerprint doesn't match your license fingerprint.</Alert>
+        )}
       </Fragment>
     )
   }
@@ -178,16 +176,12 @@ class BuyPage extends React.Component {
               </Tooltip>
             </div>
             <hr />
-            {this.props.licensing &&
-              this.props.licensing.license && (
-                <div>
-                  <h5>Policies</h5>
-                  <LicensePolicies
-                    license={this.props.licensing.license}
-                    breachs={this.props.licensing.breachReasons}
-                  />
-                </div>
-              )}
+            {this.props.licensing && this.props.licensing.license && (
+              <div>
+                <h5>Policies</h5>
+                <LicensePolicies license={this.props.licensing.license} breachs={this.props.licensing.breachReasons} />
+              </div>
+            )}
           </Col>
         </Row>
       </Fragment>

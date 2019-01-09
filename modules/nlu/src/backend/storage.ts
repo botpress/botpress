@@ -6,10 +6,9 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
-export interface AvailableModel {
-  created_on: Date
-  hash: string
-}
+import { Model, ModelMeta } from './typings'
+
+const N_KEEP_MODELS = 10
 
 export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
@@ -122,19 +121,19 @@ export default class Storage {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'numeral',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
+        'amountOfMoney',
+        'distance',
+        'duration',
+        'email',
+        'numeral',
+        'ordinal',
+        'phoneNumber',
+        'quantity',
+        'temperature',
+        'time',
+        'url',
+        'volume'
+      ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -163,19 +162,46 @@ export default class Storage {
     return this.ghost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
-  async persistModel(modelBuffer: Buffer, modelName: string) {
+  private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
-    return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
+    const modelName = `${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
+    return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
   }
 
-  async getAvailableModels(): Promise<AvailableModel[]> {
+  private async _cleanupModels(): Promise<void> {
+    const models = await this.getAvailableModels()
+    const uniqModelMeta = _
+      .chain(models)
+      .orderBy('created_on', 'desc')
+      .uniqBy('hash')
+      .value()
+
+    if (uniqModelMeta.length > N_KEEP_MODELS) {
+      const threshModel = uniqModelMeta[N_KEEP_MODELS - 1]
+      await Promise.all(
+        models
+          .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
+          .map(model => this.ghost.deleteFile(this.modelsDir, model.fileName))
+      )
+    }
+  }
+
+  async persistModels(models: Model[]) {
+    await Promise.map(models, model => this._persistModel(model))
+    return this._cleanupModels()
+  }
+
+
+  async getAvailableModels(): Promise<ModelMeta[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
     return models.map(x => {
-      const fileName = path.basename(x, '.bin')
-      const parts = fileName.split('__')
-      return <AvailableModel>{
-        created_on: new Date(parts[0]),
-        hash: parts[1]
+      const fileName = path.basename(x)
+      const parts = fileName.replace('.bin', '').split('__')
+      return {
+        fileName,
+        created_on: parseInt(parts[0]) || 0,
+        hash: parts[1],
+        type: parts[2],
       }
     })
   }
@@ -185,10 +211,14 @@ export default class Storage {
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
-    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
-
-    return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  async getModelsFromHash(modelHash: string): Promise<Model[]> {
+    const modelsMeta = await this.getAvailableModels()
+    return Promise.map(
+      modelsMeta.filter(meta => meta.hash === modelHash),
+      async meta => ({
+        meta,
+        model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
+      })
+    )
   }
 }

@@ -3,8 +3,6 @@ import { ChildProcess, ExecFileOptions, execFileSync, spawn } from 'child_proces
 import fs from 'fs'
 import { join } from 'path'
 
-import { Prediction } from '../typings'
-
 let bin = 'ft_linux'
 if (process.platform === 'win32') {
   bin = 'ft_win.exe'
@@ -39,6 +37,11 @@ export const DefaultFastTextTrainArgs: FastTextTrainArgs = {
 export type FastTextQueryArgs = {
   method: 'nn' | 'predict-prob' | 'print-word-vectors'
   k: number
+}
+
+export type Prediction = {
+  name: string
+  confidence: number
 }
 
 export const DefaultFastTextQueryArgs: FastTextQueryArgs = {
