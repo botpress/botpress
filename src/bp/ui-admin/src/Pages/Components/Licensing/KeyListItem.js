@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Button, Tooltip } from 'reactstrap'
-import { MdEdit } from 'react-icons/lib/md'
+import { Button, Badge, Tooltip } from 'reactstrap'
 import api from '../../../api'
 
 export default class KeyListItem extends Component {
@@ -35,10 +34,28 @@ export default class KeyListItem extends Component {
     const assignedClass = license.assigned ? 'assigned' : 'not-assigned'
     const consideredCanceled = license.canceled || this.state.isCancelled
 
+    const badge = this.props.active ? (
+      <Badge id="badge" color="primary">
+        Active
+      </Badge>
+    ) : null
+
     return (
       <tr disabled={consideredCanceled}>
         <td>
-          <span className="table--keys__users">{license.label}</span>
+          <span className="table--keys__users">
+            {license.label} {badge}
+            <Tooltip
+              placement="right"
+              size="small"
+              delay={{ show: 400, hide: 300 }}
+              isOpen={this.state.tooltipOpen}
+              toggle={this.toggleTooltip}
+              target="badge"
+            >
+              That license is activated on this server
+            </Tooltip>
+          </span>
         </td>
         <td>
           <span className="table--keys__users">{license.seats}</span>

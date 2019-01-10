@@ -38,6 +38,7 @@ class KeyList extends Component {
   }
 
   renderKeysTable() {
+    const currentServerFingerprint = this.props.licensing && this.props.licensing.fingerprint
     return (
       <Table className="table--keys">
         <thead>
@@ -58,10 +59,11 @@ class KeyList extends Component {
               if (a.subscription > b) return 1
               return 0
             })
-            .map(k => (
+            .map(key => (
               <KeyListItem
-                key={k.subscription}
-                license={k}
+                key={key.subscription}
+                license={key}
+                active={currentServerFingerprint === key.fingerprint}
                 onRevealActivate={this.toggleKeyModal}
                 onLicenseUpdated={this.toggleUpdateModal}
                 refreshLicense={this.fetchLicenses}
@@ -118,7 +120,8 @@ class KeyList extends Component {
 
 const mapStateToProps = state => ({
   keys: state.license.keys,
-  isLoadingKeys: state.license.isLoadingKeys
+  isLoadingKeys: state.license.isLoadingKeys,
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = { fetchAllKeys }
