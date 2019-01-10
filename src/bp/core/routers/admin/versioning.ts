@@ -26,6 +26,7 @@ export class VersioningRouter implements CustomRouter {
       '/pending',
       // TODO add "need super admin" once superadmin is implemented
       this._checkTokenHeader,
+      // TODO generate export token in kvs
       async (req, res) => {
         res.send(await this.ghost.global().getPending())
       }
@@ -33,8 +34,9 @@ export class VersioningRouter implements CustomRouter {
 
     this.router.get(
       '/export',
-      this._checkTokenHeader,
+      // this._checkTokenHeader,
       // TODO add "need super admin" once superadmin is implemented
+      // TODO check that export token is valid in kvs
       async (req, res) => {
         const tarball = await this.ghost.global().exportArchive()
 
@@ -47,13 +49,15 @@ export class VersioningRouter implements CustomRouter {
       }
     )
 
-    const archiveUploadMulter = multer({
-      limits: {
-        fileSize: 1024 * 1000 * 100 // 100mb
-      }
-    })
 
     // TODO WIP Partial progress towards importing tarballs from the UI
+
+    // const archiveUploadMulter = multer({
+    //   limits: {
+    //     fileSize: 1024 * 1000 * 100 // 100mb
+    //   }
+    // })
+
     // this.router.get(
     //   '/import',
     //   this.checkTokenHeader,
