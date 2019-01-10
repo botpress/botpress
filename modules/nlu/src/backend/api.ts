@@ -53,14 +53,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.sendStatus(204)
   })
 
-  router.get('/sync/check', async (req, res) => {
-    res.send(await nlus[req.params.botId].checkSyncNeeded())
-  })
-
   router.post('/sync', async (req, res) => {
+    if (!await nlus[req.params.botId].checkSyncNeeded()) {
+      return res.sendStatus(200)
+    }
+
     const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
-
     try {
       await nlus[req.params.botId].sync()
       res.sendStatus(200)

@@ -15,7 +15,7 @@ export default class IntentsComponent extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
-    this.maybeSyncModel()
+    this.syncModel()
   }
 
   // Deprecated, will be fixed when we fix the whole NLU UI
@@ -25,15 +25,9 @@ export default class IntentsComponent extends React.Component {
     }
   }
 
-  maybeSyncModel = _.throttle(() => {
-    this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
-      res.data && this.syncModel()
-    })
-  }, 1000)
-
-  syncModel = async () => {
-    await this.props.bp.axios.post('/mod/nlu/sync')
-  }
+  syncModel = _.debounce(() => {
+    this.props.bp.axios.post('/mod/nlu/sync')
+  }, 1000, { leading: true })
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
@@ -129,10 +123,6 @@ export default class IntentsComponent extends React.Component {
     )
   }
 
-  onUtterancesChange = () => {
-    this.maybeSyncModel()
-  }
-
   render() {
     return (
       <div className={style.workspace}>
@@ -164,7 +154,7 @@ export default class IntentsComponent extends React.Component {
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}
-                onUtterancesChange={this.onUtterancesChange}
+                onUtterancesChange={this.syncModel}
               />
             </div>
           </div>
