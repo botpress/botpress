@@ -2,26 +2,30 @@ import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup } from 'reactstrap'
 import SectionLayout from '../Layouts/Section'
-import { register } from '../../Auth/licensing'
+import { register, isAuthenticated } from '../../Auth/licensing'
 
 export default class Register extends Component {
   state = {
     email: '',
     password: '',
-    error: null
+    error: null,
+    isLoading: false
   }
 
   register = async () => {
+    this.setState({ error: null, isLoading: true })
+
     try {
       await register({
         email: this.state.email,
         password: this.state.password
       })
 
-      this.setState({ isLoggedIn: true })
+      this.forceUpdate()
     } catch (error) {
       this.setState({
-        error: error.message
+        error: error.message,
+        isLoading: false
       })
     }
   }
@@ -30,8 +34,8 @@ export default class Register extends Component {
   handleInputKeyPress = e => e.key === 'Enter' && this.register()
 
   renderForm = () => {
-    if (this.state.isLoggedIn) {
-      return <Redirect to={{ pathname: '/licensing/keys' }} />
+    if (isAuthenticated()) {
+      return <Redirect to="/licensing/keys" />
     }
 
     return (
@@ -61,7 +65,12 @@ export default class Register extends Component {
           />
         </FormGroup>
 
-        <Button onClick={this.register} size="sm" color="primary">
+        <Button
+          onClick={this.register}
+          disabled={!this.state.email.length || !this.state.password.length || this.state.isLoading}
+          size="sm"
+          color="primary"
+        >
           Create my account
         </Button>
       </Col>

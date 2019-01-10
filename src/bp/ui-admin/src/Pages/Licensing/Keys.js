@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Table, Button } from 'reactstrap'
@@ -8,6 +9,7 @@ import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyMod
 import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import { fetchAllKeys } from '../../modules/license'
+import { isAuthenticated } from '../../Auth/licensing'
 
 class KeyList extends Component {
   state = {
@@ -106,6 +108,9 @@ class KeyList extends Component {
   }
 
   render() {
+    if (!isAuthenticated()) {
+      return <Redirect to={{ pathname: '/licensing/login' }} />
+    }
     const renderLoading = () => <LoadingSection />
 
     return (

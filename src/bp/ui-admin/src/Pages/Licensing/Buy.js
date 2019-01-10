@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react'
+import { Redirect } from 'react-router-dom'
 import { Col, Button } from 'reactstrap'
 import _ from 'lodash'
 import SectionLayout from '../Layouts/Section'
 import CustomizeLicenseForm from '../Components/Licensing/CustomizeLicenseForm'
 import api from '../../api'
-import { getSession } from '../../Auth/licensing'
+import { getSession, isAuthenticated } from '../../Auth/licensing'
 
 const DEFAULT_SEATS = 1
 let childWindow
@@ -114,6 +115,10 @@ export default class BuyPage extends React.Component {
   }
 
   render() {
+    if (!isAuthenticated()) {
+      return <Redirect to="/licensing/login" />
+    }
+
     const page = this.state.success ? this.renderSuccess() : this.renderForm()
     return <SectionLayout title="Buy new license" activePage="licensing-buy" mainContent={page} />
   }

@@ -45,12 +45,13 @@ export default class CustomizeLicenseForm extends Component {
 
   render() {
     return (
-      <form className="form">
+      <div>
         <fieldset className="form-fieldset">
           <label className="form__label">Label</label>
           <Input
             type="text"
             placeholder="Pick a name to easily identify this license"
+            maxLength={50}
             value={this.state.label}
             onChange={this.handleLabelChanged}
           />
@@ -132,7 +133,7 @@ export default class CustomizeLicenseForm extends Component {
             </IconTooltip>
           </label>
         </fieldset>
-      </form>
+      </div>
     )
   }
 }
