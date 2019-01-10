@@ -26,24 +26,6 @@ export default class KeyListItem extends Component {
     }
   }
 
-  showEditLabelBox = () => {
-    const { license, refreshLicense } = this.props
-    const newLabel = window.prompt(`Edit the label of the selected license`, license.label)
-
-    if (newLabel === undefined || newLabel === license.label) {
-      return
-    }
-
-    api
-      .getLicensing()
-      .put(`/me/keys/${license.subscription}/label`, { label: newLabel })
-      .then(refreshLicense)
-      .catch(err => {
-        console.error('cannot edit license label', err)
-        this.setState({ loading: false, error: true })
-      })
-  }
-
   updateLicense = () => this.props.onLicenseUpdated(this.props.license)
   revealActivate = () => this.props.onRevealActivate(this.props.license)
   toggleTooltip = () => this.setState({ tooltipOpen: !this.state.tooltipOpen })
@@ -56,23 +38,7 @@ export default class KeyListItem extends Component {
     return (
       <tr disabled={consideredCanceled}>
         <td>
-          <span className="table--keys__users">
-            {license.label}
-            <Button color="link">
-              <MdEdit id="editLabel" onClick={this.showEditLabelBox} />
-            </Button>
-
-            <Tooltip
-              placement="right"
-              size="small"
-              delay={{ show: 400, hide: 300 }}
-              isOpen={this.state.tooltipOpen}
-              toggle={this.toggleTooltip}
-              target="editLabel"
-            >
-              Change the label
-            </Tooltip>
-          </span>
+          <span className="table--keys__users">{license.label}</span>
         </td>
         <td>
           <span className="table--keys__users">{license.seats}</span>

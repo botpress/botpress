@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Input } from 'reactstrap'
 import RangeSlider from '../RangeSlider'
 import IconTooltip from '../IconTooltip'
 
@@ -9,12 +10,14 @@ export default class CustomizeLicenseForm extends Component {
     seats: 1,
     total: PRO_SEAT_PRICE,
     support: 'standard',
-    type: 'online'
+    type: 'online',
+    label: ''
   }
 
   componentDidMount() {
     if (this.props.license) {
       this.handleSeatsChanged(this.props.license.seats)
+      this.setState({ label: this.props.license.label })
     }
   }
 
@@ -29,9 +32,23 @@ export default class CustomizeLicenseForm extends Component {
   handleChangeSupport = e => this.setState({ support: e.target.value })
   handleChangeType = e => this.setState({ type: e.target.value })
 
+  handleLabelChanged = e => {
+    this.setState({ label: e.target.value })
+    this.props.onLabelChanged(e.target.value)
+  }
+
   render() {
     return (
       <form className="form">
+        <fieldset className="form-fieldset">
+          <label className="form__label">Label</label>
+          <Input
+            type="text"
+            placeholder="Pick a name to easily identify this license"
+            value={this.state.label}
+            onChange={this.handleLabelChanged}
+          />
+        </fieldset>
         <fieldset className="form-fieldset">
           <label className="form__label">Nodes</label>
           <RangeSlider initialValue={this.state.seats} min={1} max={50} onUpdate={this.handleSeatsChanged} />

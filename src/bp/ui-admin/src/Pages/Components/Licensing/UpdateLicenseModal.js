@@ -21,6 +21,7 @@ export default class UpdateLicenseModal extends React.Component {
 
   handleSeatsChanged = seats => this.setState({ seats })
   handleTotalChanged = newTotal => this.setState({ newTotal })
+  handleLabelChanged = label => this.setState({ label })
 
   updateLicense = () => {
     this.setState({ loading: true })
@@ -30,7 +31,8 @@ export default class UpdateLicenseModal extends React.Component {
       .getLicensing()
       .put(`/me/keys/${license.subscription}`, {
         seats: this.state.seats,
-        support: license.support //TODO change this when the customize form enables changing support
+        support: license.support, //TODO change this when the customize form enables changing support
+        label: this.state.label
       })
       .then(() => {
         this.props.refreshLicenses()
@@ -52,6 +54,7 @@ export default class UpdateLicenseModal extends React.Component {
               <CustomizeLicenseForm
                 onSeatsChanged={this.handleSeatsChanged}
                 onTotalChanged={this.handleTotalChanged}
+                onLabelChanged={this.handleLabelChanged}
                 license={license}
               />
               <span className="form__label">Totals</span>
