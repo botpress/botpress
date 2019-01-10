@@ -93,7 +93,8 @@ export default class IntentsComponent extends React.Component {
     })
   }
 
-  deleteIntent = intent => {
+  deleteIntent = (intent, event) => {
+    event.stopPropagation()
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
       return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(() => {
@@ -118,7 +119,9 @@ export default class IntentsComponent extends React.Component {
               {el.name}
               &nbsp;(
               {_.get(el, 'utterances.length', 0)})
-              <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
+              <a onClick={this.deleteIntent.bind(this, el.name)} >
+                <Glyphicon glyph="trash" className={style.deleteEntity} />
+              </a>
             </ListGroupItem>
           ))}
         </ListGroup>
