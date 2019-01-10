@@ -2,13 +2,14 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
 import { pullToken, logout } from './Auth'
+import * as licensing from './Auth/licensing'
 import { toast } from 'react-toastify'
 
 const defaultOptions = {
   timeout: 2000
 }
 
-const createClient = (clientOptions, { toastErrors }) => {
+const createClient = (clientOptions, { toastErrors, addInterceptor }) => {
   const client = axios.create({
     ...defaultOptions,
     ...clientOptions
@@ -64,7 +65,10 @@ const overrideLicensingServer = process.env.REACT_APP_LICENSING_SERVER
   ? { baseURL: `${process.env.REACT_APP_LICENSING_SERVER}` }
   : { baseURL: `https://license.botpress.io` }
 
-let licensingServerToken
+const overrideStripePath = process.env.REACT_APP_STRIPE_PATH
+  ? `${process.env.REACT_APP_STRIPE_PATH}`
+  : `https://botpress.io/stripe`
+
 export default {
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
@@ -87,19 +91,33 @@ export default {
     return createClient(overrideApiUrl, { toastErrors })
   },
 
-  setLicensingToken(token) {
-    licensingServerToken = token
-  },
-
   getLicensing({ toastErrors = true } = {}) {
-    return createClient(
+    const client = createClient(
       {
+        timeout: 5000,
         headers: {
-          'X-AUTH-TOKEN': `bearer ${licensingServerToken}`
+          'X-AUTH-TOKEN': `bearer ${licensing.getToken()}`
         },
         ...overrideLicensingServer
       },
       { toastErrors }
     )
+
+    client.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response.status === 401) {
+          licensing.logout()
+        }
+
+        throw error
+      }
+    )
+
+    return client
+  },
+
+  getStripePath() {
+    return overrideStripePath
   }
 }

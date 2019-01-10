@@ -4,14 +4,14 @@ export const FETCH_LICENSE_RECEIVED = 'license/FETCH_LICENSE_RECEIVED'
 export const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 export const FETCH_KEYS_REQUESTED = 'license/FETCH_KEYS_REQUESTED'
 export const FETCH_KEYS_RECEIVED = 'license/FETCH_KEYS_RECEIVED'
-export const UPDATE_LICENSING_SERVER_TOKEN = 'license/UPDATE_LICENSING_SERVER_TOKEN'
+export const UPDATE_LICENSING_ACCOUNT = 'license/UPDATE_LICENSING_ACCOUNT'
 
 const initialState = {
   license: null,
   licensing: null,
   keys: [],
   isLoadingKeys: false,
-  licensingServerToken: null
+  licensingAccount: null
 }
 
 export default (state = initialState, action) => {
@@ -41,10 +41,10 @@ export default (state = initialState, action) => {
         isLoadingKeys: false
       }
 
-    case UPDATE_LICENSING_SERVER_TOKEN:
+    case UPDATE_LICENSING_ACCOUNT:
       return {
         ...state,
-        licensingServerToken: action.token
+        licensingAccount: action.account
       }
 
     default:
@@ -85,9 +85,9 @@ export const fetchAllKeys = () => async dispatch => {
   })
 }
 
-export const updateLicensingToken = token => async dispatch => {
+export const updateLicensingAccount = account => async dispatch => {
   dispatch({
-    type: UPDATE_LICENSING_SERVER_TOKEN,
-    token
+    type: UPDATE_LICENSING_ACCOUNT,
+    account
   })
 }

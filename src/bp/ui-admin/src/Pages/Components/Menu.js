@@ -7,6 +7,7 @@ import { fetchLicense } from '../../modules/license'
 import { fetchPermissions } from '../../modules/user'
 import _ from 'lodash'
 import { checkRule } from 'common/auth'
+import { isAuthenticated as isAuthenticatedLicensing } from '../../Auth/licensing'
 
 class Menu extends Component {
   constructor(props) {
@@ -29,7 +30,6 @@ class Menu extends Component {
     const activePage = this.props.activePage
     const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
     const currentPath = _.get(this.props, 'location.pathname', '')
-    const isLoggedOnLicensing = this.props.licensingServerToken !== null
 
     const menu = [
       {
@@ -79,25 +79,25 @@ class Menu extends Component {
             title: 'Login',
             active: activePage === 'licensing-login',
             link: `/licensing/login`,
-            show: currentPath.includes('licensing') && !isLoggedOnLicensing
+            show: currentPath.includes('licensing') && !isAuthenticatedLicensing()
           },
           {
             title: 'Logout',
             active: activePage === 'licensing-logout',
             link: `/licensing/logout`,
-            show: currentPath.includes('licensing') && isLoggedOnLicensing
+            show: currentPath.includes('licensing') && isAuthenticatedLicensing()
           },
           {
             title: 'Manage Keys',
             active: activePage === 'licensing-keys',
             link: `/licensing/keys`,
-            show: currentPath.includes('licensing') && isLoggedOnLicensing
+            show: currentPath.includes('licensing') && isAuthenticatedLicensing()
           },
           {
             title: 'Buy License',
             active: activePage === 'licensing-buy',
             link: `/licensing/buy`,
-            show: currentPath.includes('licensing') && isLoggedOnLicensing
+            show: currentPath.includes('licensing') && isAuthenticatedLicensing()
           }
         ]
       }
@@ -161,7 +161,7 @@ const mapStateToProps = state => ({
   teams: state.teams.items,
   license: state.license.license,
   currentUserPermissions: state.user.permissions[state.teams.teamId],
-  licensingServerToken: state.license.licensingServerToken
+  licensingAccount: state.license.licensingAccount
 })
 
 const mapDispatchToProps = dispatch =>
