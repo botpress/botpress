@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import { connect } from 'react-redux'
 import { Col, Button } from 'reactstrap'
 import _ from 'lodash'
 import SectionLayout from '../Layouts/Section'
@@ -10,13 +9,13 @@ import { getSession } from '../../Auth/licensing'
 const DEFAULT_SEATS = 1
 let childWindow
 
-class BuyPage extends React.Component {
+export default class BuyPage extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
       seats: DEFAULT_SEATS,
-      price: DEFAULT_SEATS * 100,
+      total: DEFAULT_SEATS * 100,
       success: false,
       error: false
     }
@@ -55,7 +54,8 @@ class BuyPage extends React.Component {
         source,
         promoCode,
         user: this.state.user,
-        seats: this.state.seats
+        seats: this.state.seats,
+        label: this.state.label
       })
       .then(this.buySuccess)
       .catch(err => {
@@ -76,8 +76,7 @@ class BuyPage extends React.Component {
     childWindow = this.centerPopup(api.getStripePath(), 'Payment Option', 480, 280)
   }
 
-  handleTotalChanged = price => this.setState({ price })
-  handleSeatsChanged = seats => this.setState({ seats })
+  handleDetailsUpdated = details => this.setState({ ...details })
 
   renderSuccess() {
     return (
@@ -97,17 +96,19 @@ class BuyPage extends React.Component {
     return (
       <Fragment>
         <Col md={{ size: 4 }}>
-          <CustomizeLicenseForm onSeatsChanged={this.handleSeatsChanged} onTotalChanged={this.handleTotalChanged} />
-        </Col>
+          <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} />
 
-        <div className="checkout">
-          <span className="checkout__total">
-            <strong>Total:</strong> {this.state.price}$<sup>/month</sup>
-          </span>
-          <div className="checkout__buy">
-            <Button onClick={this.openBuyPopup}>Buy</Button>
+          <div className="checkout">
+            <span className="checkout__total">
+              <strong>Total:</strong> {this.state.total}$<sup>/month</sup>
+            </span>
+            <div className="checkout__buy">
+              <Button size="sm" color="primary" onClick={this.openBuyPopup}>
+                Buy
+              </Button>
+            </div>
           </div>
-        </div>
+        </Col>
       </Fragment>
     )
   }
@@ -117,12 +118,3 @@ class BuyPage extends React.Component {
     return <SectionLayout title="Buy new license" activePage="licensing-buy" mainContent={page} />
   }
 }
-
-const mapStateToProps = state => ({
-  licensingAccount: state.license.licensingAccount
-})
-
-export default connect(
-  mapStateToProps,
-  null
-)(BuyPage)

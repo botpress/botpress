@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import { connect } from 'react-redux'
 import { Modal, ModalHeader, ModalBody, Button } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import api from '../../../api'
@@ -10,7 +11,7 @@ const DEFAULT_STATE = {
   keyCopied: false
 }
 
-export default class KeyModal extends React.Component {
+class KeyModal extends React.Component {
   constructor(props) {
     super(props)
 
@@ -63,6 +64,8 @@ export default class KeyModal extends React.Component {
     this.props.toggle()
   }
 
+  useCurrentServer = () => this.setState({ newFingerPrint: this.props.licensing.fingerprint })
+
   render() {
     const { isOpen } = this.props
     const toggle = this.close
@@ -102,7 +105,7 @@ export default class KeyModal extends React.Component {
           <Fragment>
             <ModalBody>
               <div>
-                <label for="fingerprint">
+                <label htmlFor="fingerprint">
                   <strong>Fingerprint:</strong>
                 </label>
                 <input
@@ -114,13 +117,19 @@ export default class KeyModal extends React.Component {
                   value={this.state.newFingerPrint}
                   onChange={this.onFingerPrintChanged}
                 />
+                <br />
+                <label htmlFor="fingerprint">
+                  <strong>Current server:</strong>
+                  <small>&nbsp;(click to fill automatically)</small>
+                </label>
+                <br />
+                <Button color="link" onClick={this.useCurrentServer}>
+                  {this.props.licensing.fingerprint}
+                </Button>
               </div>
+
               <div className="modal-footer">
-                <Button
-                  loading={this.state.loading}
-                  onClick={this.activateLicense}
-                  disabled={!this.state.newFingerPrint}
-                >
+                <Button color="primary" onClick={this.activateLicense} disabled={!this.state.newFingerPrint}>
                   Confirm
                 </Button>
               </div>
@@ -131,3 +140,12 @@ export default class KeyModal extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  licensing: state.license.licensing
+})
+
+export default connect(
+  mapStateToProps,
+  null
+)(KeyModal)

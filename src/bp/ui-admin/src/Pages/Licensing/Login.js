@@ -34,7 +34,7 @@ export default class Login extends Component {
     this.setState({ error: null, success: null, showResetPasswordLink: false })
 
     try {
-      await sendResetPassword(this.state.email)
+      await sendResetPassword({ email: this.state.email })
       this.setState({
         success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
       })
@@ -50,9 +50,9 @@ export default class Login extends Component {
     return (
       <small>
         Forgot your password? &nbsp;
-        <a className="link" onClick={this.sendResetPassword}>
+        <Button color="link" onClick={this.sendResetPassword}>
           Click here and we'll send you an email right away to change it.
-        </a>
+        </Button>
       </small>
     )
   }
