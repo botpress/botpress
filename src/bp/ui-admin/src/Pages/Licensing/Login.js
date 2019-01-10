@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Redirect, Link } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup } from 'reactstrap'
-import { updateLicensingAccount } from '../../modules/license'
 import SectionLayout from '../Layouts/Section'
-import firebase from '../../utils/firebase'
-import api from '../../api'
+import { login, sendResetPassword, isAuthenticated } from '../../Auth/licensing'
 
-class Login extends Component {
+export default class Login extends Component {
   state = {
     email: '',
     password: '',
@@ -18,43 +15,32 @@ class Login extends Component {
   login = async () => {
     this.setState({ error: null, success: null })
 
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then(result => {
-        const user = {
-          email: result.user.email,
-          name: result.user.displayName,
-          token: result.user.ra
-        }
-
-        api.setLicensingToken(user.token)
-        this.props.updateLicensingAccount(user)
-
-        this.setState({ isLoggedIn: true })
+    try {
+      await login({
+        email: this.state.email,
+        password: this.state.password
       })
-      .catch(error => {
-        this.setState({
-          error: error.message,
-          showResetPasswordLink: error.code === 'auth/wrong-password'
-        })
+
+      this.setState({ isLoggedIn: true })
+    } catch (error) {
+      this.setState({
+        error: error.message,
+        showResetPasswordLink: error.code === 'auth/wrong-password'
       })
+    }
   }
 
-  sendResetPassword = () => {
+  sendResetPassword = async () => {
     this.setState({ error: null, success: null, showResetPasswordLink: false })
 
-    firebase
-      .auth()
-      .sendPasswordResetEmail(this.state.email)
-      .then(() => {
-        this.setState({
-          success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
-        })
+    try {
+      await sendResetPassword(this.state.email)
+      this.setState({
+        success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
       })
-      .catch(error => {
-        this.setState({ error: error.message })
-      })
+    } catch (error) {
+      this.setState({ error: error.message })
+    }
   }
 
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
@@ -72,7 +58,7 @@ class Login extends Component {
   }
 
   renderForm = () => {
-    if (this.state.isLoggedIn) {
+    if (isAuthenticated()) {
       return <Redirect to={{ pathname: '/licensing/keys' }} />
     }
 
@@ -128,9 +114,3 @@ class Login extends Component {
     )
   }
 }
-
-const mapDispatchToProps = { updateLicensingAccount }
-export default connect(
-  null,
-  mapDispatchToProps
-)(Login)

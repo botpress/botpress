@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup } from 'reactstrap'
-import { updateLicensingAccount } from '../../modules/license'
 import SectionLayout from '../Layouts/Section'
-import firebase from '../../utils/firebase'
-import api from '../../api'
+import { register } from '../../Auth/licensing'
 
-class Register extends Component {
+export default class Register extends Component {
   state = {
     email: '',
     password: '',
@@ -15,25 +12,18 @@ class Register extends Component {
   }
 
   register = async () => {
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(result => {
-        const user = {
-          email: result.user.email,
-          name: result.user.displayName,
-          token: result.user.ra
-        }
-
-        firebase.auth().currentUser.sendEmailVerification()
-
-        api.setLicensingToken(user.token)
-        this.props.updateLicensingAccount(user)
-        this.setState({ isLoggedIn: true })
+    try {
+      await register({
+        email: this.state.email,
+        password: this.state.password
       })
-      .catch(error => {
-        this.setState({ error: error.message })
+
+      this.setState({ isLoggedIn: true })
+    } catch (error) {
+      this.setState({
+        error: error.message
       })
+    }
   }
 
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
@@ -88,9 +78,3 @@ class Register extends Component {
     )
   }
 }
-
-const mapDispatchToProps = { updateLicensingAccount }
-export default connect(
-  null,
-  mapDispatchToProps
-)(Register)

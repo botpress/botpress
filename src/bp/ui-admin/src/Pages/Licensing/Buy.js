@@ -5,6 +5,7 @@ import _ from 'lodash'
 import SectionLayout from '../Layouts/Section'
 import CustomizeLicenseForm from '../Components/Licensing/CustomizeLicenseForm'
 import api from '../../api'
+import { getSession } from '../../Auth/licensing'
 
 const DEFAULT_SEATS = 1
 let childWindow
@@ -22,8 +23,9 @@ class BuyPage extends React.Component {
   }
 
   componentDidMount() {
+    const session = getSession()
     this.setState({
-      user: _.omit(this.props.licensingAccount, ['token'])
+      user: _.pick(session, ['email', 'name'])
     })
 
     window.onmessage = e => {

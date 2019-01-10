@@ -118,10 +118,11 @@ export default class KeyModal extends React.Component {
               <div className="modal-footer">
                 <Button
                   loading={this.state.loading}
-                  label="Confirm"
-                  action={this.activateLicense}
+                  onClick={this.activateLicense}
                   disabled={!this.state.newFingerPrint}
-                />
+                >
+                  Confirm
+                </Button>
               </div>
             </ModalBody>
           </Fragment>
