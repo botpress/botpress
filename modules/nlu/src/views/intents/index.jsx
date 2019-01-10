@@ -96,7 +96,10 @@ export default class IntentsComponent extends React.Component {
   deleteIntent = intent => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
-      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(this.fetchIntents)
+      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(() => {
+        this.syncModel()
+        this.fetchIntents()
+      })
     }
   }
 
