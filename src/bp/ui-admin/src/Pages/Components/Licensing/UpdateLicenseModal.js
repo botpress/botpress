@@ -44,7 +44,6 @@ export default class UpdateLicenseModal extends React.Component {
   }
 
   render() {
-    console.log(this.state)
     const { isOpen, license } = this.props
     return (
       <Modal isOpen={isOpen} toggle={this.toggle}>
