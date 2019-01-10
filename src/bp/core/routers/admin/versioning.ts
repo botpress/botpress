@@ -24,23 +24,23 @@ export class VersioningRouter implements CustomRouter {
   setupRoutes() {
     this.router.get(
       '/pending',
+      // TODO add "need super admin" once superadmin is implemented
       this._checkTokenHeader,
-      this._needPermissions('read', 'bot.ghost_content'),
       async (req, res) => {
-        res.send(await this.ghost.forBot(req.params.botId).getPending())
+        res.send(await this.ghost.global().getPending())
       }
     )
 
     this.router.get(
       '/export',
       this._checkTokenHeader,
-      this._needPermissions('read', 'bot.ghost_content'),
+      // TODO add "need super admin" once superadmin is implemented
       async (req, res) => {
-        const tarball = await this.ghost.forBot(req.params.botId).exportArchive()
-        const name = 'archive_' + req.params.botId.replace(/\W/gi, '') + '_' + Date.now() + '.tgz'
+        const tarball = await this.ghost.global().exportArchive()
+
         res.writeHead(200, {
           'Content-Type': 'application/tar+gzip',
-          'Content-Disposition': `attachment; filename=${name}`,
+          'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
           'Content-Length': tarball.length
         })
         res.end(tarball)
