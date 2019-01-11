@@ -2,7 +2,6 @@ import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
-import multer from 'multer'
 
 import { CustomRouter } from '..'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -26,7 +25,6 @@ export class VersioningRouter implements CustomRouter {
       '/pending',
       // TODO add "need super admin" once superadmin is implemented
       this._checkTokenHeader,
-      // TODO generate export token in kvs
       async (req, res) => {
         res.send(await this.ghost.global().getPending())
       }
@@ -34,9 +32,8 @@ export class VersioningRouter implements CustomRouter {
 
     this.router.get(
       '/export',
-      // this._checkTokenHeader,
+      this._checkTokenHeader,
       // TODO add "need super admin" once superadmin is implemented
-      // TODO check that export token is valid in kvs
       async (req, res) => {
         const tarball = await this.ghost.global().exportArchive()
 
@@ -48,28 +45,6 @@ export class VersioningRouter implements CustomRouter {
         res.end(tarball)
       }
     )
-
-
-    // TODO WIP Partial progress towards importing tarballs from the UI
-
-    // const archiveUploadMulter = multer({
-    //   limits: {
-    //     fileSize: 1024 * 1000 * 100 // 100mb
-    //   }
-    // })
-
-    // this.router.get(
-    //   '/import',
-    //   this.checkTokenHeader,
-    //   this.needPermissions('write', 'bot.ghost_content'),
-    //   archiveUploadMulter.single('file'),
-    //   async (req, res) => {
-    //     const buffer = req['file'].buffer
-    //     const botId = req.params.botId
-    //     await this.ghost.forBot(botId).importArchive(buffer)
-    //     res.sendStatus(200)
-    //   }
-    // )
 
     // Revision ID
     this.router.post(

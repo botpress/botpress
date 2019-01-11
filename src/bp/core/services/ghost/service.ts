@@ -34,7 +34,7 @@ export class GhostService {
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
-  ) {}
+  ) { }
 
   async initialize(config: Partial<BotpressConfig>) {
     this.config = config
@@ -208,25 +208,6 @@ export class ScopedGhostService {
 
     return fse.readFile(outFile)
   }
-
-  // TODO WIP Partial progress towards importing tarballs from the UI
-
-  // public async importArchive(tarball: Buffer): Promise<void> {
-  //   const tgzStream = new stream.PassThrough()
-  //   const tmpDir = tmp.dirSync()
-  //   tgzStream.end(tarball)
-  //   tgzStream.pipe(
-  //     tar.x({
-  //       cwd: tmpDir.name
-  //     })
-  //   )
-  //   await Promise.fromCallback(cb => {
-  //     tgzStream.on('end', () => cb(undefined))
-  //     tgzStream.on('error', err => cb(err))
-  //   })
-
-  //   const files = await fse.readdir(tmpDir.name)
-  // }
 
   public async isFullySynced(): Promise<boolean> {
     if (!this.useDbDriver) {
