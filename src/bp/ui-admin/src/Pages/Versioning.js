@@ -10,7 +10,8 @@ import { pullToken } from '../Auth'
 
 class Versioning extends Component {
   state = {
-    command: ''
+    command: '',
+    copied: false
   }
 
   componentDidMount() {
@@ -25,6 +26,10 @@ class Versioning extends Component {
     const host = window.location.origin
     const command = `${bpcli} pull --host ${host} --target { YOUR_DATA_TARGET_DIR } --auth ${token}`
     this.setState({ command })
+  }
+
+  setCopied = () => {
+    this.setState({ copied: true })
   }
 
   renderMainContent = () => (
@@ -42,7 +47,7 @@ class Versioning extends Component {
           <code>
             {this.state.command}
           </code>
-          <CopyToClipboard text={this.state.command}>
+          <CopyToClipboard text={this.state.command} onCopy={this.setCopied}>
             <Button color="link" size="sm" className="license-infos__icon">
               <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -53,6 +58,9 @@ class Versioning extends Component {
               </svg>
             </Button>
           </CopyToClipboard>
+          {
+            this.state.copied && <span>&nbsp;copied</span>
+          }
         </div>
       }
     </div>
