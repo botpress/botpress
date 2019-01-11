@@ -33,6 +33,7 @@ export default class ScopedEngine {
     timeout: 5000,
     max_tries: 3
   }
+  private _isSyncing: boolean
 
   constructor(
     private logger: sdk.Logger,
@@ -54,41 +55,42 @@ export default class ScopedEngine {
       this.confidenceTreshold = 0.7
     }
 
-    if (await this.checkSyncNeeded()) {
-      await this.sync()
-    }
+    await this.sync()
   }
 
   async sync(): Promise<void> {
-    const intents = await this.storage.getIntents()
-    const modelHash = this._getModelHash(intents)
+    try {
+      this._isSyncing = true
+      const intents = await this.storage.getIntents()
+      const modelHash = this._getModelHash(intents)
 
-    if (await this.storage.modelExists(modelHash)) {
-      try {
-        return this._loadModel(intents, modelHash)
-      } catch (e) {
-        this.logger.warn('Cannot load models from storage')
+      if (await this.storage.modelExists(modelHash)) {
+        try {
+          await this._loadModel(intents, modelHash)
+        } catch (e) {
+          this.logger.warn('Cannot load models from storage')
+          await this._trainModels(intents, modelHash)
+        }
+      } else {
+        this.logger.debug('Models need to be retrained')
+        await this._trainModels(intents, modelHash)
       }
-    }
 
-    this.logger.debug('Models need to be retrained')
-    await this._trainModels(intents, modelHash)
-    this._currentModelHash = modelHash
+      this._currentModelHash = modelHash
+    } finally {
+      this._isSyncing = false
+    }
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     return retry(() => this._extract(incomingEvent), this.retryPolicy)
   }
 
-  private async checkSyncNeeded(): Promise<boolean> {
+  async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
+    const modelHash = this._getModelHash(intents)
 
-    if (intents.length) {
-      const intentsHash = this._getModelHash(intents)
-      return this._currentModelHash !== intentsHash
-    }
-
-    return false
+    return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
   private async _loadModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
