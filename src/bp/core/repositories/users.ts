@@ -47,15 +47,25 @@ export class KnexUserRepository implements UserRepository {
       return { result: user, created: false }
     }
 
-    const newUser = await this.database.knex.insertAndRetrieve<User>(
-      this.tableName,
-      {
-        channel,
-        user_id: id,
-        attributes: this.database.knex.json.set({})
-      },
-      ['attributes', 'channel', 'created_at', 'updated_at']
-    )
+    const newUser = await this.database.knex
+      .insertAndRetrieve<User>(
+        this.tableName,
+        {
+          channel,
+          user_id: id,
+          attributes: this.database.knex.json.set({})
+        },
+        ['attributes', 'channel', 'created_at', 'updated_at']
+      )
+      .then(res => {
+        return {
+          id: res.id,
+          attributes: res.attributes,
+          channel: res.channel,
+          createdOn: res['created_at'],
+          updatedOn: res['updated_at']
+        }
+      })
 
     return { result: newUser, created: true }
   }
