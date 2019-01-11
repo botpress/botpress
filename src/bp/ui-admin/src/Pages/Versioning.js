@@ -6,38 +6,25 @@ import { Button } from 'reactstrap'
 import _ from 'lodash'
 
 import { fetchPendingChanges } from '../modules/versioning'
-
-const OSX = 'Mac'
-const WIN = 'Win'
-const LNX = 'Linux'
-
-const BP_COMMAND = {
-  [OSX]: 'darwin command',
-  [WIN]: 'windows command',
-  [LNX]: 'linux command',
-}
+import { pullToken } from '../Auth'
 
 class Versioning extends Component {
   state = {
-    command: BP_COMMAND[OSX]
+    command: ''
   }
 
   componentDidMount() {
     this.props.fetchPendingChanges()
-    this.setBPcommandFromOs()
+    this.setPullCommand()
   }
 
-  setBPcommandFromOs = () => {
-    let os = ""
-    if (navigator.appVersion.indexOf(WIN) != -1) {
-      os = WIN
-    } else if (navigator.appVersion.indexOf(OSX) != -1) {
-      os = OSX
-    } else if (navigator.appVersion.indexOf(LNX) != -1) {
-      os = LNX
-    }
+  setPullCommand = () => {
+    let bpcli = navigator.appVersion.indexOf("Win") !== -1 ? "bp.exe" : "bp"
 
-    this.setState({ command: BP_COMMAND[os] })
+    const { token } = pullToken()
+    const host = window.location.origin
+    const command = `${bpcli} pull --host ${host} --target { YOUR_DATA_TARGET_DIR } --auth ${token}`
+    this.setState({ command })
   }
 
   renderMainContent = () => (
