@@ -32,7 +32,7 @@ export default class UpdateLicenseModal extends React.Component {
       .put(`/me/keys/${license.stripeSubscriptionId}`, {
         support: this.state.order.isGoldSupport ? 'gold' : 'standard',
         nodes: Number(this.state.order.nodes),
-        label: this.state.order.label,
+        label: this.state.order.label || '',
         partTime: this.state.order.isPartTimeEnabled
       })
       .then(() => {
@@ -40,43 +40,49 @@ export default class UpdateLicenseModal extends React.Component {
         this.toggle()
       })
       .catch(err => {
-        this.setState({ isLoading: false, error: true })
+        this.setState({ isLoading: false, error: true, errorMessage: err.message })
       })
   }
 
+  renderForm() {
+    const { license } = this.props
+
+    return (
+      <Fragment>
+        <div style={{ padding: '10px' }}>
+          <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
+        </div>
+        <span className="form__label">Totals</span>
+        <span className="text-small">
+          <strong>Current total:</strong> {license.cost}$
+        </span>
+        <Row className="align-items-center">
+          <Col md="6">
+            <strong>
+              New total: <span className="text-brand">{this.state.total}$</span>
+            </strong>
+          </Col>
+          <Col md="6" className="text-right">
+            <Button color="primary" onClick={this.updateLicense} disabled={!this.state.isDirty || this.state.isLoading}>
+              Confirm
+            </Button>
+          </Col>
+        </Row>
+      </Fragment>
+    )
+  }
+  renderError() {
+    return <Fragment>An error occurred: {this.state.errorMessage}</Fragment>
+  }
+
   render() {
-    const { isOpen, license } = this.props
+    const { isOpen } = this.props
     return (
       <Modal isOpen={isOpen} toggle={this.toggle} size="lg">
         <ModalHeader toggle={this.toggle}>Update your license</ModalHeader>
         <ModalBody>
-          {!this.state.error && license && (
-            <Fragment>
-              <div style={{ padding: '10px' }}>
-                <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
-              </div>
-              <span className="form__label">Totals</span>
-              <span className="text-small">
-                <strong>Current total:</strong> {license.cost}$
-              </span>
-              <Row className="align-items-center">
-                <Col md="6">
-                  <strong>
-                    New total: <span className="text-brand">{this.state.total}$</span>
-                  </strong>
-                </Col>
-                <Col md="6" className="text-right">
-                  <Button
-                    color="primary"
-                    onClick={this.updateLicense}
-                    disabled={!this.state.isDirty || this.state.isLoading}
-                  >
-                    Confirm
-                  </Button>
-                </Col>
-              </Row>
-            </Fragment>
-          )}
+          {!this.state.error && this.props.license && this.renderForm()}
+          {this.state.error && this.renderError()}
         </ModalBody>
       </Modal>
     )
