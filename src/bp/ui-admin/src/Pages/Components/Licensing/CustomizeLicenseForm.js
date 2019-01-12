@@ -1,138 +1,169 @@
 import React, { Component } from 'react'
 import { Input } from 'reactstrap'
-import RangeSlider from '../RangeSlider'
-import IconTooltip from '../IconTooltip'
+import PriceItem from './PriceItem'
+import api from '../../../api'
 
-const PRO_SEAT_PRICE = 95
-
-export default class CustomizeLicenseForm extends Component {
+export default class CustomizeLicenseForm2 extends Component {
   state = {
-    seats: 1,
-    total: PRO_SEAT_PRICE,
-    support: 'standard',
-    type: 'online',
-    label: ''
+    nodes: 0,
+    isGoldSupport: false,
+    isPartTimeEnabled: false,
+    totalNodes: 0,
+    totalGoldSupport: 0,
+    totalPartTimeEnabled: 0,
+    totalPrice: 0
   }
 
   componentDidMount() {
-    if (this.props.license) {
-      const seats = this.props.license.seats
+    this.fetchPrices()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.license !== prevProps.license) {
+      const { limits, quantities } = this.props.license
 
       this.setState({
-        label: this.props.license.label,
-        total: PRO_SEAT_PRICE * seats,
-        seats
+        nodes: limits.nodes,
+        isGoldSupport: quantities.isGoldSupport
       })
     }
   }
 
-  handleSeatsChanged = seats => {
-    const total = PRO_SEAT_PRICE * seats
-    this.setState({ seats, total }, () => this.updateDetails())
+  async fetchPrices() {
+    try {
+      const { data } = await api.getLicensing().get(`/prices`)
+      this.setState({ products: data.products })
+      this.calculatePrice()
+    } catch (error) {
+      this.setState({ error: error.message })
+    }
   }
 
-  handleChangeSupport = e => this.setState({ support: e.target.value })
-  handleChangeType = e => this.setState({ type: e.target.value })
-  handleLabelChanged = e => this.setState({ label: e.target.value }, () => this.updateDetails())
+  getPrice(productName) {
+    if (!this.state.products) {
+      return
+    }
 
-  updateDetails = () => {
+    const product = this.state.products.find(p => p.product === productName)
+    return product && product.price
+  }
+
+  updateParent = () => {
     this.props.onUpdate({
-      seats: this.state.seats,
-      total: this.state.total,
-      label: this.state.label
+      nodes: this.state.nodes,
+      isGoldSupport: this.state.isGoldSupport,
+      isPartTimeEnabled: this.state.isPartTimeEnabled,
+      totalPrice: this.state.totalPrice
     })
   }
 
+  calculatePrice() {
+    const pro = this.getPrice('pro')
+    const totalNodes = this.state.nodes * this.getPrice('full-time-node')
+    const totalGoldSupport = this.state.isGoldSupport ? this.getPrice('gold-support') : 0
+    const totalPartTimeEnabled = this.state.isPartTimeEnabled ? this.getPrice('part-time-node') : 0
+    const totalPrice = pro + totalNodes + totalGoldSupport + totalPartTimeEnabled
+
+    this.setState({ totalNodes, totalGoldSupport, totalPartTimeEnabled, totalPrice }, this.updateParent)
+  }
+
+  handleLabelChanged = e => this.setState({ label: e.target.value }, () => this.updateParent())
+  handleCheckboxChanged = e => this.setState({ [e.target.name]: e.target.checked }, this.calculatePrice)
+  handleInputChanged = e => this.setState({ [e.target.name]: e.target.value }, this.calculatePrice)
+
   render() {
+    if (!this.state.products) {
+      return null
+    }
     return (
       <div>
-        <fieldset className="form-fieldset">
-          <label className="form__label">Label</label>
+        <div className="license_label">
+          <label className="form__label">Friendly name</label>
           <Input
             type="text"
-            placeholder="Pick a name to easily identify this license"
+            placeholder="My first license"
+            style={{ width: '250px' }}
             maxLength={50}
+            size="sm"
             value={this.state.label}
             onChange={this.handleLabelChanged}
           />
-        </fieldset>
-        <fieldset className="form-fieldset">
-          <label className="form__label">Nodes</label>
-          <RangeSlider initialValue={this.state.seats} min={1} max={50} onUpdate={this.handleSeatsChanged} />
-          {this.state.seats > 15 && (
-            <small>
-              Seems like you're special, &nbsp;
-              <a href="https://botpress.typeform.com/to/QaznSq" target="_blank" rel="noopener noreferrer">
-                Let's talk !
-              </a>
-            </small>
-          )}
-        </fieldset>
-        <span className="form__label">Support</span>
-        <fieldset className="form-fieldset">
-          <label htmlFor="standard" className="form__label form__label--radio">
-            <input
-              name="support"
-              type="radio"
-              value="standard"
-              checked={this.state.support === 'standard'}
-              onChange={this.handleChangeSupport}
-            />
-            <span>Standard (included)</span>
-            <IconTooltip className="tooltip--light">
-              <span>Technical questions by email or forum. We respond in under 48hrs..</span>
-            </IconTooltip>
-          </label>
-          <label htmlFor="gold" className="form__label form__label--radio">
-            <input
-              name="support"
-              type="radio"
-              value="gold"
-              disabled
-              checked={this.state.support === 'gold'}
-              onChange={this.handleChangeSupport}
-            />
-            <span>Gold (Available soon)</span>
-            <IconTooltip className="tooltip--light">
-              <span>
-                Technical questions by email, support center or phone. Priority bug fixes. Same-day reply (10AM - 4PM
-                EST).
-              </span>
-            </IconTooltip>
-          </label>
-        </fieldset>
-        <span className="form__label">Type</span>
-        <fieldset className="form-fieldset">
-          <label htmlFor="online" className="form__label form__label--radio">
-            <input
-              id="online"
-              type="radio"
-              value="online"
-              checked={this.state.type === 'online'}
-              onChange={this.handleChangeType}
-            />
-            <span>Online verification</span>
-            <IconTooltip className="tooltip--light">
-              <span>Your installation of Botpress will need to contact our licensing server on a daily basis.</span>
-            </IconTooltip>
-          </label>
-          <label htmlFor="offline" className="form__label form__label--radio">
-            <input
-              id="offline"
-              type="radio"
-              value="offline"
-              disabled
-              checked={this.state.type === 'offline'}
-              onChange={this.handleChangeType}
-            />
-            <span>Offline license</span>
-            <IconTooltip className="tooltip--light">
-              <span>
-                <a href="mailto:info@botpress.io">Contact us</a>. Available for contracts over 5000$/month.
-              </span>
-            </IconTooltip>
-          </label>
-        </fieldset>
+        </div>
+        <hr />
+
+        <table className="licensing_table">
+          <thead>
+            <tr>
+              <th />
+              <th />
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            <PriceItem
+              title="Pro License"
+              description="This is the basic license, it allows you unlimited admins, unlimited bots, but only on one node."
+              price={this.getPrice('pro') + '$'}
+              total={this.getPrice('pro')}
+            >
+              <Input type="checkbox" disabled={true} checked={true} />
+            </PriceItem>
+            <tr>
+              <td colSpan="3" className="addons">
+                Unleash Botpress's power by adding these optional add-ons
+              </td>
+            </tr>
+            <PriceItem
+              title="Additional Nodes"
+              description="Scale your Botpress installation by adding multiple nodes in the same cluster"
+              price={this.getPrice('full-time-node') + '$ each'}
+              total={this.state.totalNodes}
+            >
+              <Input
+                type="number"
+                name="nodes"
+                bsSize="sm"
+                size="2"
+                maxLength="3"
+                value={this.state.nodes}
+                onChange={this.handleInputChanged}
+              />
+            </PriceItem>
+            <PriceItem
+              title="Gold Support"
+              description="Technical questions by email, support center or phone. Priority bug fixes. Same-day reply (10AM - 4PM EST)."
+              price={this.getPrice('gold-support') + '$'}
+              total={this.state.totalGoldSupport}
+            >
+              <Input
+                type="checkbox"
+                name="isGoldSupport"
+                checked={this.state.isGoldSupport}
+                onChange={this.handleCheckboxChanged}
+              />
+            </PriceItem>
+            <PriceItem
+              type="checkbox"
+              title="Part-Time Nodes"
+              description="Allows you to enable on-demand additional nodes, billed by the hour"
+              price={this.getPrice('part-time-node') + '$ per hour'}
+            >
+              <Input
+                type="checkbox"
+                name="isPartTimeEnabled"
+                checked={this.state.isPartTimeEnabled}
+                onChange={this.handleCheckboxChanged}
+              />
+            </PriceItem>
+            <tr>
+              <td>&nbsp;</td>
+              <td align="right">
+                <b>Total: </b>
+              </td>
+              <td>{this.state.totalPrice}$</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     )
   }

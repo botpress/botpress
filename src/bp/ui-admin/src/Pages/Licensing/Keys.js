@@ -57,13 +57,13 @@ class KeyList extends Component {
         <tbody>
           {this.props.keys
             .sort((a, b) => {
-              if (a.subscription < b.subscription) return -1
-              if (a.subscription > b) return 1
+              if (a.stripeSubscriptionId < b.stripeSubscriptionId) return -1
+              if (a.stripeSubscriptionId > b) return 1
               return 0
             })
             .map(key => (
               <KeyListItem
-                key={key.subscription}
+                key={key.stripeSubscriptionId}
                 license={key}
                 active={currentServerFingerprint === key.fingerprint}
                 onRevealActivate={this.toggleKeyModal}

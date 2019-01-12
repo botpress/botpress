@@ -16,7 +16,7 @@ export default class KeyListItem extends Component {
 
       api
         .getLicensing()
-        .delete(`/me/keys/${license.subscription}`)
+        .delete(`/me/keys/${license.stripeSubscriptionId}`)
         .then(refreshLicense)
         .catch(err => {
           console.error('error canceling license')
@@ -58,10 +58,10 @@ export default class KeyListItem extends Component {
           </span>
         </td>
         <td>
-          <span className="table--keys__users">{license.seats}</span>
+          <span className="table--keys__users">{license.limits && license.limits.nodes}</span>
         </td>
         <td>
-          <span className="table--keys__users">{license.support}</span>
+          <span className="table--keys__users">{license.quantities.isGoldSupport ? 'Gold' : 'Standard'}</span>
         </td>
         <td>
           <span className={`table--keys__assigned ${assignedClass}`}>{license.assigned ? 'Yes' : 'No'}</span>
