@@ -18,6 +18,17 @@ export default class CustomizeLicenseForm2 extends Component {
     this.fetchPrices()
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.license !== prevProps.license) {
+      const { limits, quantities } = this.props.license
+
+      this.setState({
+        nodes: limits.nodes,
+        isGoldSupport: quantities.isGoldSupport
+      })
+    }
+  }
+
   async fetchPrices() {
     try {
       const { data } = await api.getLicensing().get(`/prices`)

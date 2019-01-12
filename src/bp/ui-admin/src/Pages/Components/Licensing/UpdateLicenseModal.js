@@ -21,7 +21,7 @@ export default class UpdateLicenseModal extends React.Component {
     this.props.toggle()
   }
 
-  handleDetailsUpdated = details => this.setState({ ...details, isDirty: true })
+  handleDetailsUpdated = details => this.setState({ order: details, isDirty: true })
 
   updateLicense = () => {
     this.setState({ isLoading: true })
@@ -29,10 +29,11 @@ export default class UpdateLicenseModal extends React.Component {
 
     api
       .getLicensing()
-      .put(`/me/keys/${license.subscription}`, {
-        seats: this.state.seats,
-        support: license.support, //TODO change this when the customize form enables changing support
-        label: this.state.label
+      .put(`/me/keys/${license.stripeSubscriptionId}`, {
+        support: this.state.order.isGoldSupport ? 'gold' : 'standard',
+        nodes: Number(this.state.order.nodes),
+        label: this.state.order.label,
+        partTime: this.state.order.isPartTimeEnabled
       })
       .then(() => {
         this.props.refreshLicenses()

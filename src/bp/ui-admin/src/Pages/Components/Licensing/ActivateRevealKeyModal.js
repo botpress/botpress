@@ -23,6 +23,10 @@ class KeyModal extends React.Component {
     if (!prevProps.isOpen && this.props.isOpen && !this.props.license.assigned) {
       this.fingerprintInput.current.focus()
     }
+
+    if (this.props.license !== prevProps.license) {
+      this.getLicenseKey()
+    }
   }
 
   onKeyCopied = e => {
@@ -33,17 +37,27 @@ class KeyModal extends React.Component {
     }, 1500)
   }
 
+  async getLicenseKey() {
+    const { license } = this.props
+    try {
+      const { data } = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/generate`)
+      this.setState({ key: data.key, isLoading: false })
+    } catch (error) {
+      this.setState({ error: error.message })
+    }
+  }
+
   activateLicense = async () => {
-    const { license, onLicenseChanged } = this.props
+    const { license } = this.props
     this.setState({ loading: true })
 
     try {
-      const res = await api.getLicensing().post(`/me/keys/${license.subscription}/activate`, {
+      const res = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/activate`, {
         fingerprint: this.state.newFingerPrint
       })
 
       const newLicense = res.data.license
-      onLicenseChanged(newLicense)
+      this.props.onLicenseChanged(newLicense)
 
       this.setState({
         activatedLicense: newLicense,
@@ -84,7 +98,7 @@ class KeyModal extends React.Component {
             <div className="modal-section-title">
               <strong>Key:</strong>
               <div>
-                <CopyToClipboard onCopy={this.onKeyCopied} text={license.key}>
+                <CopyToClipboard onCopy={this.onKeyCopied} text={this.state.key}>
                   <Button color="link" size="sm">
                     <small>copy to clipboard</small>
                     {this.state.keyCopied && (
@@ -97,7 +111,7 @@ class KeyModal extends React.Component {
               </div>
             </div>
             <div className="modal__key">
-              <code>{license && license.key}</code>
+              <code>{this.state.key}</code>
             </div>
           </ModalBody>
         )}
