@@ -5,10 +5,12 @@ import CustomizeLicenseForm from './CustomizeLicenseForm'
 import api from '../../../api'
 
 const DEFAULT_STATE = {
-  loading: false,
+  isLoading: false,
+  isDirty: false,
   error: false,
   seats: 0,
-  newTotal: 0
+  total: 0,
+  label: ''
 }
 
 export default class UpdateLicenseModal extends React.Component {
@@ -19,12 +21,10 @@ export default class UpdateLicenseModal extends React.Component {
     this.props.toggle()
   }
 
-  handleSeatsChanged = seats => this.setState({ seats })
-  handleTotalChanged = newTotal => this.setState({ newTotal })
-  handleLabelChanged = label => this.setState({ label })
+  handleDetailsUpdated = details => this.setState({ ...details, isDirty: true })
 
   updateLicense = () => {
-    this.setState({ loading: true })
+    this.setState({ isLoading: true })
     const { license } = this.props
 
     api
@@ -39,7 +39,7 @@ export default class UpdateLicenseModal extends React.Component {
         this.toggle()
       })
       .catch(err => {
-        this.setState({ loading: false, error: true })
+        this.setState({ isLoading: false, error: true })
       })
   }
 
@@ -51,12 +51,7 @@ export default class UpdateLicenseModal extends React.Component {
         <ModalBody>
           {!this.state.error && license && (
             <Fragment>
-              <CustomizeLicenseForm
-                onSeatsChanged={this.handleSeatsChanged}
-                onTotalChanged={this.handleTotalChanged}
-                onLabelChanged={this.handleLabelChanged}
-                license={license}
-              />
+              <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
               <span className="form__label">Totals</span>
               <span className="text-small">
                 <strong>Current total:</strong> {license.cost}$
@@ -64,11 +59,15 @@ export default class UpdateLicenseModal extends React.Component {
               <Row className="align-items-center">
                 <Col md="6">
                   <strong>
-                    New total: <span className="text-brand">{this.state.newTotal}$</span>
+                    New total: <span className="text-brand">{this.state.total}$</span>
                   </strong>
                 </Col>
                 <Col md="6" className="text-right">
-                  <Button onClick={this.updateLicense} disabled={license.cost === this.state.newTotal}>
+                  <Button
+                    color="primary"
+                    onClick={this.updateLicense}
+                    disabled={!this.state.isDirty || this.state.isLoading}
+                  >
                     Confirm
                   </Button>
                 </Col>

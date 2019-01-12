@@ -16,35 +16,42 @@ export default class CustomizeLicenseForm extends Component {
 
   componentDidMount() {
     if (this.props.license) {
-      this.handleSeatsChanged(this.props.license.seats)
-      this.setState({ label: this.props.license.label })
+      const seats = this.props.license.seats
+
+      this.setState({
+        label: this.props.license.label,
+        total: PRO_SEAT_PRICE * seats,
+        seats
+      })
     }
   }
 
   handleSeatsChanged = seats => {
     const total = PRO_SEAT_PRICE * seats
-    this.setState({ seats, total })
-
-    this.props.onSeatsChanged(seats)
-    this.props.onTotalChanged(total)
+    this.setState({ seats, total }, () => this.updateDetails())
   }
 
   handleChangeSupport = e => this.setState({ support: e.target.value })
   handleChangeType = e => this.setState({ type: e.target.value })
+  handleLabelChanged = e => this.setState({ label: e.target.value }, () => this.updateDetails())
 
-  handleLabelChanged = e => {
-    this.setState({ label: e.target.value })
-    this.props.onLabelChanged(e.target.value)
+  updateDetails = () => {
+    this.props.onUpdate({
+      seats: this.state.seats,
+      total: this.state.total,
+      label: this.state.label
+    })
   }
 
   render() {
     return (
-      <form className="form">
+      <div>
         <fieldset className="form-fieldset">
           <label className="form__label">Label</label>
           <Input
             type="text"
             placeholder="Pick a name to easily identify this license"
+            maxLength={50}
             value={this.state.label}
             onChange={this.handleLabelChanged}
           />
@@ -53,12 +60,12 @@ export default class CustomizeLicenseForm extends Component {
           <label className="form__label">Nodes</label>
           <RangeSlider initialValue={this.state.seats} min={1} max={50} onUpdate={this.handleSeatsChanged} />
           {this.state.seats > 15 && (
-            <p>
-              Seems like you're special,
+            <small>
+              Seems like you're special, &nbsp;
               <a href="https://botpress.typeform.com/to/QaznSq" target="_blank" rel="noopener noreferrer">
                 Let's talk !
               </a>
-            </p>
+            </small>
           )}
         </fieldset>
         <span className="form__label">Support</span>
@@ -126,7 +133,7 @@ export default class CustomizeLicenseForm extends Component {
             </IconTooltip>
           </label>
         </fieldset>
-      </form>
+      </div>
     )
   }
 }

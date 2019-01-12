@@ -9,11 +9,12 @@ export default class Login extends Component {
     email: '',
     password: '',
     error: null,
-    success: null
+    success: null,
+    isLoading: false
   }
 
   login = async () => {
-    this.setState({ error: null, success: null })
+    this.setState({ error: null, success: null, isLoading: true })
 
     try {
       await login({
@@ -21,11 +22,12 @@ export default class Login extends Component {
         password: this.state.password
       })
 
-      this.setState({ isLoggedIn: true })
+      this.forceUpdate()
     } catch (error) {
       this.setState({
         error: error.message,
-        showResetPasswordLink: error.code === 'auth/wrong-password'
+        showResetPasswordLink: error.code === 'auth/wrong-password',
+        isLoading: false
       })
     }
   }
@@ -34,7 +36,7 @@ export default class Login extends Component {
     this.setState({ error: null, success: null, showResetPasswordLink: false })
 
     try {
-      await sendResetPassword(this.state.email)
+      await sendResetPassword({ email: this.state.email })
       this.setState({
         success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
       })
@@ -50,23 +52,22 @@ export default class Login extends Component {
     return (
       <small>
         Forgot your password? &nbsp;
-        <a className="link" onClick={this.sendResetPassword}>
+        <Button color="link" onClick={this.sendResetPassword}>
           Click here and we'll send you an email right away to change it.
-        </a>
+        </Button>
       </small>
     )
   }
 
   renderForm = () => {
     if (isAuthenticated()) {
-      return <Redirect to={{ pathname: '/licensing/keys' }} />
+      return <Redirect to="/licensing/keys" />
     }
 
     return (
       <Col xs="4">
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         {this.state.success && <Alert color="success">{this.state.success}</Alert>}
-
         <FormGroup>
           <label htmlFor="email">Email Address</label>
           <Input
@@ -89,16 +90,24 @@ export default class Login extends Component {
             onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
-
-        <p>
-          <Button onClick={this.login} size="sm" color="primary">
+        <div>
+          <Button
+            onClick={this.login}
+            disabled={!this.state.email.length || !this.state.password.length || this.state.isLoading}
+            size="m"
+            color="primary"
+          >
             Login
           </Button>
-          &nbsp;
-          <Link to="/licensing/register">
-            <Button size="sm">Create an account</Button>
-          </Link>
-        </p>
+
+          <div className="registerBtn">
+            <Link to="/licensing/register">
+              <Button size="sm" color="link">
+                Create an account
+              </Button>
+            </Link>
+          </div>
+        </div>
         {this.state.showResetPasswordLink && this.renderResetPassword()}
       </Col>
     )
