@@ -8,7 +8,6 @@ import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
-import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import yn from 'yn'
 
@@ -25,14 +24,19 @@ export interface ConfigProvider {
 
 @injectable()
 export class GhostConfigProvider implements ConfigProvider {
+  private _botpressConfigCache: BotpressConfig | undefined
+
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.IsProduction) private isProduction: string,
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
-  @Memoize()
   async getBotpressConfig(): Promise<BotpressConfig> {
+    if (this._botpressConfigCache) {
+      return this._botpressConfigCache
+    }
+
     await this.createDefaultConfigIfMissing()
 
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
@@ -48,10 +52,12 @@ export class GhostConfigProvider implements ConfigProvider {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
     }
 
+    this._botpressConfigCache = config
     return config
   }
 
   async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void> {
+    this._botpressConfigCache = undefined
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))

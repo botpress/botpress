@@ -7,9 +7,6 @@ export default interface LicensingService {
   getLicenseInfo(licenseKey?: string): Promise<LicenseInfo>
   getLicenseKey(): Promise<string>
   getFingerprint(fingerprintType: FingerprintType): Promise<string>
-
-  assertFeatureLicensed(feature: Features): void
-  setFeatureValue(feature: Features, value: number): void
 }
 
 export interface LicenseStatus {
@@ -38,6 +35,7 @@ export interface LicenseInfo {
   fingerprint: string
   startDate: string
   endDate: string
+  offline: boolean
   paidUntil: Date
   versions: string
   support: SupportType

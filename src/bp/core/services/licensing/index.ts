@@ -31,12 +31,4 @@ export default class CELicensingService implements LicensingService {
   getLicenseInfo(): Promise<LicenseInfo> {
     throw new Error('Not implemented')
   }
-
-  assertFeatureLicensed(feature: Features): void {
-    throw new Error('Method not implemented.')
-  }
-
-  setFeatureValue(feature: Features, value: number): void {
-    throw new Error('Method not implemented.')
-  }
 }
