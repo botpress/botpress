@@ -46,12 +46,14 @@ export default class UpdateLicenseModal extends React.Component {
   render() {
     const { isOpen, license } = this.props
     return (
-      <Modal isOpen={isOpen} toggle={this.toggle}>
+      <Modal isOpen={isOpen} toggle={this.toggle} size="lg">
         <ModalHeader toggle={this.toggle}>Update your license</ModalHeader>
         <ModalBody>
           {!this.state.error && license && (
             <Fragment>
-              <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
+              <div style={{ padding: '10px' }}>
+                <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
+              </div>
               <span className="form__label">Totals</span>
               <span className="text-small">
                 <strong>Current total:</strong> {license.cost}$

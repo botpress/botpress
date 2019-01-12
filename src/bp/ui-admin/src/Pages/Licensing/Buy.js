@@ -4,21 +4,21 @@ import { Col, Button } from 'reactstrap'
 import _ from 'lodash'
 import SectionLayout from '../Layouts/Section'
 import CustomizeLicenseForm from '../Components/Licensing/CustomizeLicenseForm'
+import CreditCardPicker from '../Components/Licensing/CreditCardPicker'
+import PromoCodePicker from '../Components/Licensing/PromoCodePicker'
 import api from '../../api'
 import { getSession, isAuthenticated } from '../../Auth/licensing'
-
-const DEFAULT_SEATS = 1
-let childWindow
 
 export default class BuyPage extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      seats: DEFAULT_SEATS,
-      total: DEFAULT_SEATS * 100,
       success: false,
-      error: false
+      error: false,
+      currentStep: 'input',
+      promoCode: '',
+      isPromoCodeValid: undefined
     }
   }
 
@@ -27,57 +27,34 @@ export default class BuyPage extends React.Component {
     this.setState({
       user: _.pick(session, ['email', 'name'])
     })
+  }
 
-    window.onmessage = e => {
-      if (e.data.action === 'getUserInfo') {
-        const message = {
-          action: 'updateUserInfo',
-          payload: this.state.user
-        }
-
-        childWindow.postMessage(message, '*')
-      } else if (e.data.action === 'saveUserCard') {
-        this.subscribeUser(e.data.payload, e.data.promoCode)
+  confirmPurchase = async () => {
+    try {
+      const subscription = {
+        source: this.state.card,
+        promoCode: this.state.promoCode,
+        support: this.state.order.isGoldSupport ? 'gold' : 'standard',
+        nodes: Number(this.state.order.nodes),
+        label: this.state.order.label,
+        partTime: this.state.order.isPartTimeEnabled
       }
+
+      await api.getLicensing().post(`/me/keys`, subscription)
+      this.setState({ success: true })
+
+      window.setTimeout(() => {
+        this.props.history.push('/licensing/keys')
+      }, 1250)
+    } catch (error) {
+      console.error('cannot buy license', error)
+      this.setState({ loading: false, error: true })
     }
   }
 
-  centerPopup(url, title, w, h) {
-    const y = window.outerHeight / 2 + window.screenY - h / 2
-    const x = window.outerWidth / 2 + window.screenX - w / 2
-    return window.open(url, title, 'toolbar=no, status=no, width=' + w + ', height=' + h + ', top=' + y + ', left=' + x)
-  }
-
-  subscribeUser = (source, promoCode) => {
-    api
-      .getLicensing()
-      .post(`/me/keys`, {
-        source,
-        promoCode,
-        user: this.state.user,
-        seats: this.state.seats,
-        label: this.state.label
-      })
-      .then(this.buySuccess)
-      .catch(err => {
-        console.error('cannot buy license', err)
-        this.setState({ loading: false, error: true })
-      })
-  }
-
-  buySuccess = () => {
-    this.setState({ success: true })
-
-    window.setTimeout(() => {
-      this.props.history.push('/licensing/keys')
-    }, 1250)
-  }
-
-  openBuyPopup = () => {
-    childWindow = this.centerPopup(api.getStripePath(), 'Payment Option', 480, 280)
-  }
-
-  handleDetailsUpdated = details => this.setState({ ...details })
+  handleOrderUpdated = details => this.setState({ order: details })
+  handleCardChanged = card => this.setState({ card })
+  handlePromoCodeUpdated = ({ promoCode, isPromoCodeValid }) => this.setState({ promoCode, isPromoCodeValid })
 
   renderSuccess() {
     return (
@@ -93,19 +70,42 @@ export default class BuyPage extends React.Component {
     )
   }
 
+  renderValidation() {
+    return (
+      <Col md="4">
+        <CreditCardPicker userInfo={this.state.user} onCardChanged={this.handleCardChanged} />
+        <br />
+        <PromoCodePicker onUpdate={this.handlePromoCodeUpdated} />
+        <br />
+        <b>Total:</b> {this.state.order && this.state.order.totalPrice}$ per month
+        <br />
+        <br />
+        <Button
+          size="sm"
+          color="primary"
+          style={{ float: 'right' }}
+          onClick={this.confirmPurchase}
+          disabled={!this.state.card || this.state.isPromoCodeValid === false}
+        >
+          Confirm my purchase
+        </Button>
+        <Button size="sm" style={{ float: 'left' }} onClick={() => this.setState({ currentStep: 'input' })}>
+          Edit my order
+        </Button>
+      </Col>
+    )
+  }
+
   renderForm() {
     return (
       <Fragment>
-        <Col md={{ size: 4 }}>
-          <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} />
+        <Col md={{ size: 6 }}>
+          <CustomizeLicenseForm onUpdate={this.handleOrderUpdated} />
 
           <div className="checkout">
-            <span className="checkout__total">
-              <strong>Total:</strong> {this.state.total}$<sup>/month</sup>
-            </span>
             <div className="checkout__buy">
-              <Button size="sm" color="primary" onClick={this.openBuyPopup}>
-                Buy
+              <Button size="sm" color="primary" onClick={() => this.setState({ currentStep: 'validation' })}>
+                Next
               </Button>
             </div>
           </div>
@@ -119,7 +119,15 @@ export default class BuyPage extends React.Component {
       return <Redirect to="/licensing/login" />
     }
 
-    const page = this.state.success ? this.renderSuccess() : this.renderForm()
+    let page
+    if (this.state.currentStep === 'input') {
+      page = this.renderForm()
+    } else if (this.state.currentStep === 'validation') {
+      page = this.renderValidation()
+    } else {
+      page = this.renderSuccess()
+    }
+
     return <SectionLayout title="Buy new license" activePage="licensing-buy" mainContent={page} />
   }
 }

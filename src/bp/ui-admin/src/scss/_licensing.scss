@@ -214,3 +214,53 @@
 .registerBtn {
   float: right;
 }
+
+.licensing_table {
+  width: 100%;
+  font-size: 80%;
+  table-layout: fixed;
+
+  thead th:nth-child(1) {
+    width: 110px;
+  }
+  thead th:nth-child(2) {
+    width: 80%;
+  }
+
+  td {
+    padding-bottom: 15px;
+  }
+
+  .addons {
+    font-weight: bold;
+    height: 55px;
+  }
+
+  .title {
+    font-weight: bold;
+  }
+
+  .description {
+    max-width: 400px;
+  }
+
+  .form-check-input {
+    margin: 0px;
+    position: relative;
+  }
+}
+
+.sourcesList {
+  border: 1px solid #ccc;
+  margin: 20px 0 10px 0;
+
+  .sourceItem {
+    padding: 10px;
+    padding-left: 40px;
+    border-bottom: 1px solid #ccc;
+
+    .deleteButton {
+      float: right;
+    }
+  }
+}
