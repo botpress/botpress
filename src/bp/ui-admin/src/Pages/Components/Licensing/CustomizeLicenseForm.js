@@ -3,7 +3,7 @@ import { Input } from 'reactstrap'
 import PriceItem from './PriceItem'
 import api from '../../../api'
 
-export default class CustomizeLicenseForm2 extends Component {
+export default class CustomizeLicenseForm extends Component {
   state = {
     label: '',
     nodes: 0,
@@ -11,7 +11,6 @@ export default class CustomizeLicenseForm2 extends Component {
     isPartTimeEnabled: false,
     totalNodes: 0,
     totalGoldSupport: 0,
-    totalPartTimeEnabled: 0,
     totalPrice: 0
   }
 
@@ -51,8 +50,12 @@ export default class CustomizeLicenseForm2 extends Component {
   updateParent = () => {
     this.props.onUpdate({
       label: this.state.label,
-      nodes: this.state.nodes,
-      isGoldSupport: this.state.isGoldSupport,
+      limits: {
+        nodes: this.state.nodes
+      },
+      quantities: {
+        isGoldSupport: this.state.isGoldSupport
+      },
       isPartTimeEnabled: this.state.isPartTimeEnabled,
       totalPrice: this.state.totalPrice
     })
@@ -62,10 +65,9 @@ export default class CustomizeLicenseForm2 extends Component {
     const pro = this.getPrice('pro')
     const totalNodes = this.state.nodes * this.getPrice('full-time-node')
     const totalGoldSupport = this.state.isGoldSupport ? this.getPrice('gold-support') : 0
-    const totalPartTimeEnabled = this.state.isPartTimeEnabled ? this.getPrice('part-time-node') : 0
-    const totalPrice = pro + totalNodes + totalGoldSupport + totalPartTimeEnabled
+    const totalPrice = pro + totalNodes + totalGoldSupport
 
-    this.setState({ totalNodes, totalGoldSupport, totalPartTimeEnabled, totalPrice }, this.updateParent)
+    this.setState({ totalNodes, totalGoldSupport, totalPrice }, this.updateParent)
   }
 
   handleLabelChanged = e => this.setState({ label: e.target.value }, () => this.updateParent())
@@ -126,6 +128,8 @@ export default class CustomizeLicenseForm2 extends Component {
                 bsSize="sm"
                 size="2"
                 maxLength="3"
+                min="0"
+                max="100"
                 value={this.state.nodes}
                 onChange={this.handleInputChanged}
               />

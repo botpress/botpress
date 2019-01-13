@@ -34,6 +34,10 @@ export default class CreditCardPicker extends Component {
     try {
       const { data } = await api.getLicensing().get(`/me/cards`)
       this.setState({ sources: data, isLoading: false })
+
+      if (data && data.length) {
+        this.selectSource(data[0].id)
+      }
     } catch (error) {
       this.setState({ error: error.message })
     }
@@ -69,10 +73,12 @@ export default class CreditCardPicker extends Component {
     childWindow = this.centerPopup(api.getStripePath(), 'Add Credit Card', 480, 280)
   }
 
-  handleInputChanged = e => {
-    this.setState({ selectedSource: e.target.value })
-    this.props.onCardChanged(e.target.value)
+  selectSource = selectedSource => {
+    this.setState({ selectedSource })
+    this.props.onCardChanged(selectedSource)
   }
+
+  handleCardChanged = e => this.selectSource(e.target.value)
 
   render() {
     return (
@@ -91,7 +97,7 @@ export default class CreditCardPicker extends Component {
                     id={source.id}
                     value={source.id}
                     checked={this.state.selectedSource === source.id}
-                    onChange={this.handleInputChanged}
+                    onChange={this.handleCardChanged}
                   />
                   <label htmlFor={source.id}>
                     {brand} ending with {last4}

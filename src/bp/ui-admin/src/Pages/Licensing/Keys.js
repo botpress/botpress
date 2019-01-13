@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { Table, Button } from 'reactstrap'
 import SectionLayout from '../Layouts/Section'
 import KeyListItem from '../Components/Licensing/KeyListItem'
 import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyModal'
 import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
+import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import { fetchAllKeys } from '../../modules/license'
 import { isAuthenticated } from '../../Auth/licensing'
@@ -18,12 +18,15 @@ class KeyList extends Component {
     loading: true,
     selectedLicense: null,
     keyModalOpen: false,
-    updateModalOpen: false
+    updateModalOpen: false,
+    buyModalOpen: false
   }
 
   componentDidMount() {
     !this.props.keys.length && this.props.fetchAllKeys()
   }
+
+  toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
 
   toggleUpdateModal = selectedLicense => {
     this.setState({
@@ -83,12 +86,10 @@ class KeyList extends Component {
           <Fragment>
             {this.props.keys.length > 0 && this.renderKeysTable()}
 
-            <Link to="/licensing/buy">
-              <Button size="sm" color="success">
-                {this.props.keys.length > 0 && <span>Buy more licenses</span>}
-                {this.props.keys.length === 0 && <span>Buy your first license</span>}
-              </Button>
-            </Link>
+            <Button size="sm" color="success" onClick={this.toggleBuyModal}>
+              {this.props.keys.length > 0 && <span>Buy more licenses</span>}
+              {this.props.keys.length === 0 && <span>Buy your first license</span>}
+            </Button>
           </Fragment>
         )}
         <ActivateRevealKeyModal
@@ -100,6 +101,12 @@ class KeyList extends Component {
         <UpdateLicenseModal
           isOpen={this.state.updateModalOpen}
           toggle={this.toggleUpdateModal}
+          license={this.state.selectedLicense}
+          refreshLicenses={this.props.fetchAllKeys}
+        />
+        <BuyLicenseModal
+          isOpen={this.state.buyModalOpen}
+          toggle={this.toggleBuyModal}
           license={this.state.selectedLicense}
           refreshLicenses={this.props.fetchAllKeys}
         />
