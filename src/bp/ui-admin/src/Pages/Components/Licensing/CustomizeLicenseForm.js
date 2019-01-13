@@ -5,6 +5,7 @@ import api from '../../../api'
 
 export default class CustomizeLicenseForm2 extends Component {
   state = {
+    label: '',
     nodes: 0,
     isGoldSupport: false,
     isPartTimeEnabled: false,
@@ -49,6 +50,7 @@ export default class CustomizeLicenseForm2 extends Component {
 
   updateParent = () => {
     this.props.onUpdate({
+      label: this.state.label,
       nodes: this.state.nodes,
       isGoldSupport: this.state.isGoldSupport,
       isPartTimeEnabled: this.state.isPartTimeEnabled,

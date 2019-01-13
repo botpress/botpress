@@ -94,7 +94,7 @@ export default {
   getLicensing({ toastErrors = true } = {}) {
     const client = createClient(
       {
-        timeout: 5000,
+        timeout: 10000,
         headers: {
           'X-AUTH-TOKEN': `bearer ${licensing.getToken()}`
         },
