@@ -11,7 +11,7 @@ export default class KeyListItem extends Component {
   cancelLicense = () => {
     const { license, refreshLicense } = this.props
 
-    if (window.confirm('Are you sure you want to cancel this license?')) {
+    if (window.confirm('Are you sure you want to cancel auto-renew for this license?')) {
       this.setState({ isCancelled: true })
 
       api
@@ -84,12 +84,13 @@ export default class KeyListItem extends Component {
           </span>
         </td>
         <td>
-          {consideredCanceled && <span>canceled</span>}
+          <Button color="primary" size="sm" onClick={this.revealActivate}>
+            {license.assigned ? 'Reveal' : 'Activate'}
+          </Button>
+          {consideredCanceled && <span>&nbsp; Auto-Renew Canceled</span>}
+
           {!consideredCanceled && (
             <Fragment>
-              <Button color="primary" size="sm" onClick={this.revealActivate}>
-                {license.assigned ? 'Reveal' : 'Activate'}
-              </Button>
               &nbsp;|&nbsp;
               <Button size="sm" onClick={this.updateLicense}>
                 Update

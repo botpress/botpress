@@ -26,14 +26,15 @@ export default class UpdateLicenseModal extends React.Component {
   updateLicense = () => {
     this.setState({ isLoading: true })
     const { license } = this.props
+    const { quantities, limits, label, isPartTimeEnabled } = this.state.order
 
     api
       .getLicensing()
       .put(`/me/keys/${license.stripeSubscriptionId}`, {
-        support: this.state.order.isGoldSupport ? 'gold' : 'standard',
-        nodes: Number(this.state.order.nodes),
-        label: this.state.order.label || '',
-        partTime: this.state.order.isPartTimeEnabled
+        support: quantities.isGoldSupport ? 'gold' : 'standard',
+        nodes: Number(limits.nodes),
+        label: label || '',
+        partTime: isPartTimeEnabled
       })
       .then(() => {
         this.props.refreshLicenses()

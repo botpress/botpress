@@ -92,12 +92,6 @@ class Menu extends Component {
             active: activePage === 'licensing-keys',
             link: `/licensing/keys`,
             show: currentPath.includes('licensing') && isAuthenticatedLicensing()
-          },
-          {
-            title: 'Buy License',
-            active: activePage === 'licensing-buy',
-            link: `/licensing/buy`,
-            show: currentPath.includes('licensing') && isAuthenticatedLicensing()
           }
         ]
       }

@@ -165,22 +165,10 @@
     padding: 10px;
   }
 
-  &-section-title {
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
   code {
     background-color: transparent;
     font-size: 12px;
     padding: 0;
-  }
-
-  &-footer {
-    border: 0;
-    padding: 1rem 0 0;
   }
 }
 
