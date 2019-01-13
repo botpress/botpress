@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+### Bug Fixes
+
+* **builtins:** add missing raw-renderer (resolve [#1169](https://github.com/botpress/botpress/issues/1169)) ([108c5cc](https://github.com/botpress/botpress/commit/108c5cc))
+
+
+
+
 <a name="10.51.7"></a>
 ## [10.51.7](https://github.com/botpress/botpress/compare/v10.51.6...v10.51.7) (2018-12-29)
 

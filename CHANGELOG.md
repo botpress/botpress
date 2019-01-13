@@ -3,7 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.51.7"></a>
+  <a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+### Bug Fixes
+
+* **builtins:** add missing raw-renderer (resolve [#1169](https://github.com/botpress/botpress/issues/1169)) ([108c5cc](https://github.com/botpress/botpress/commit/108c5cc))
+* **nlu:** dialogflow process.env ([d726084](https://github.com/botpress/botpress/commit/d726084))
+* **telegram:** proper lru-cache initialization (resolve [#1240](https://github.com/botpress/botpress/issues/1240)) ([989edae](https://github.com/botpress/botpress/commit/989edae))
+* **twilio:** updated to fix webhook response ([56c86f7](https://github.com/botpress/botpress/commit/56c86f7))
+
+
+
+
+  <a name="10.51.7"></a>
 ## [10.51.7](https://github.com/botpress/botpress/compare/v10.51.6...v10.51.7) (2018-12-29)
 
 
@@ -14,7 +28,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.51.6"></a>
+<a name="10.51.6"></a>
 ## [10.51.6](https://github.com/botpress/botpress/compare/v10.51.5...v10.51.6) (2018-12-29)
 
 

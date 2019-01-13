@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/modules/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+### Bug Fixes
+
+* **telegram:** proper lru-cache initialization (resolve [#1240](https://github.com/botpress/modules/issues/1240)) ([989edae](https://github.com/botpress/modules/commit/989edae))
+
+
+
+
 <a name="10.51.7"></a>
 ## [10.51.7](https://github.com/botpress/modules/compare/v10.51.6...v10.51.7) (2018-12-29)
 
