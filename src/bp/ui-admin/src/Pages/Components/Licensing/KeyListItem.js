@@ -29,32 +29,40 @@ export default class KeyListItem extends Component {
   revealActivate = () => this.props.onRevealActivate(this.props.license)
   toggleTooltip = () => this.setState({ tooltipOpen: !this.state.tooltipOpen })
 
+  renderBadge() {
+    if (!this.props.active) {
+      return null
+    }
+
+    return (
+      <Fragment>
+        <Badge id="badge" color="primary">
+          Active
+        </Badge>
+        <Tooltip
+          placement="right"
+          size="small"
+          delay={{ show: 400, hide: 300 }}
+          isOpen={this.state.tooltipOpen}
+          toggle={this.toggleTooltip}
+          target="badge"
+        >
+          That license is activated on this server
+        </Tooltip>
+      </Fragment>
+    )
+  }
+
   render() {
     const { license } = this.props
     const assignedClass = license.assigned ? 'assigned' : 'not-assigned'
     const consideredCanceled = license.canceled || this.state.isCancelled
 
-    const badge = this.props.active ? (
-      <Badge id="badge" color="primary">
-        Active
-      </Badge>
-    ) : null
-
     return (
       <tr disabled={consideredCanceled}>
         <td>
           <span className="table--keys__users">
-            {license.label} {badge}
-            <Tooltip
-              placement="right"
-              size="small"
-              delay={{ show: 400, hide: 300 }}
-              isOpen={this.state.tooltipOpen}
-              toggle={this.toggleTooltip}
-              target="badge"
-            >
-              That license is activated on this server
-            </Tooltip>
+            {license.label} {this.renderBadge()}
           </span>
         </td>
         <td>
