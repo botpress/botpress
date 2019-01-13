@@ -16,13 +16,12 @@ export default class CustomizeLicenseForm2 extends Component {
 
   componentDidMount() {
     this.fetchPrices()
-  }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.license !== prevProps.license) {
-      const { limits, quantities } = this.props.license
+    if (this.props.license) {
+      const { limits, quantities, label } = this.props.license
 
       this.setState({
+        label,
         nodes: limits.nodes,
         isGoldSupport: quantities.isGoldSupport
       })
