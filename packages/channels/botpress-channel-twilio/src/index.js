@@ -41,10 +41,10 @@ module.exports = {
         body: event.text
       }
 
-      if (!_.isNil(messagingServiceSid)) {
-        payload.messagingServiceSid = messagingServiceSid
-      } else {
+      if (!_.isNil(fromNumber)) {
         payload.from = fromNumber
+      } else {
+        payload.messagingServiceSid = messagingServiceSid
       }
 
       client.messages.create(payload).then(() => {
@@ -116,7 +116,7 @@ module.exports = {
       }
 
       logDebug('Message verified')
-      res.sendStatus(200)
+      res.sendStatus(204)
 
       const {
         Body: message,

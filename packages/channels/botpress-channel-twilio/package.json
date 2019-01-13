@@ -55,6 +55,6 @@
     "body-parser": "^1.17.2",
     "lodash": "^4.17.4",
     "querystring": "^0.2.0",
-    "twilio": "^3.3.0"
+    "twilio": "^3.27.1"
   }
 }
