@@ -5,9 +5,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import api from '../../../api'
 
 const DEFAULT_STATE = {
-  loading: false,
+  isLoading: false,
   newFingerPrint: '',
-  activatedLicense: null,
   keyCopied: false
 }
 
@@ -21,11 +20,15 @@ class KeyModal extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.isOpen && this.props.isOpen && !this.props.license.assigned) {
-      this.fingerprintInput.current.focus()
+      this.fingerprintInput.current && this.fingerprintInput.current.focus()
     }
 
-    if (this.props.license !== prevProps.license) {
-      this.getLicenseKey()
+    if (this.props.license && this.props.license !== prevProps.license) {
+      if (this.props.license.assigned) {
+        this.getLicenseKey()
+      }
+
+      this.setState({ license: this.props.license })
     }
   }
 
@@ -49,7 +52,7 @@ class KeyModal extends React.Component {
 
   activateLicense = async () => {
     const { license } = this.props
-    this.setState({ loading: true })
+    this.setState({ isLoading: true })
 
     try {
       const res = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/activate`, {
@@ -60,8 +63,8 @@ class KeyModal extends React.Component {
       this.props.onLicenseChanged(newLicense)
 
       this.setState({
-        activatedLicense: newLicense,
-        loading: false
+        license: newLicense,
+        isLoading: false
       })
     } catch (err) {
       console.error('something went wrong trying to activate license', err)
@@ -79,77 +82,94 @@ class KeyModal extends React.Component {
   }
 
   useCurrentServer = () => this.setState({ newFingerPrint: this.props.licensing.fingerprint })
+  changeFingerprint = () => this.setState({ license: { assigned: false } })
+
+  renderAssigned() {
+    return (
+      <ModalBody>
+        <div className="modal-section-title">
+          <strong>Fingerprint:</strong>
+          <div>
+            <Button color="link" size="sm" onClick={this.changeFingerprint}>
+              <small>change fingerprint</small>
+            </Button>
+          </div>
+        </div>
+        <code>{this.state.license.fingerprint}</code>
+        <hr />
+        <div className="modal-section-title">
+          <strong>Key:</strong>
+          <div>
+            <CopyToClipboard onCopy={this.onKeyCopied} text={this.state.key}>
+              <Button color="link" size="sm">
+                <small>copy to clipboard</small>
+                {this.state.keyCopied && (
+                  <span className="copied">
+                    <span className="check" />
+                  </span>
+                )}
+              </Button>
+            </CopyToClipboard>
+          </div>
+        </div>
+        <div className="modal__key">
+          <code>{this.state.key}</code>
+        </div>
+      </ModalBody>
+    )
+  }
+
+  renderUnassigned() {
+    return (
+      <ModalBody>
+        <div>
+          <label htmlFor="fingerprint">
+            <strong>Fingerprint:</strong>
+          </label>
+          <input
+            ref={this.fingerprintInput}
+            className="form-control"
+            type="text"
+            name="fingerprint"
+            id="fingerprint"
+            value={this.state.newFingerPrint}
+            onChange={this.onFingerPrintChanged}
+          />
+          <br />
+          <label htmlFor="fingerprint">
+            <strong>Current server:</strong>
+            <small>&nbsp;(click to fill automatically)</small>
+          </label>
+          <br />
+          <Button color="link" onClick={this.useCurrentServer}>
+            {this.props.licensing.fingerprint}
+          </Button>
+        </div>
+
+        <div className="modal-footer">
+          <Button
+            color="primary"
+            onClick={this.activateLicense}
+            disabled={!this.state.newFingerPrint || this.state.isLoading}
+          >
+            Confirm
+          </Button>
+        </div>
+      </ModalBody>
+    )
+  }
 
   render() {
-    const { isOpen } = this.props
-    const toggle = this.close
-    const license = this.state.activatedLicense || this.props.license
+    const { license } = this.state
+    if (!license) {
+      return null
+    }
 
     return (
-      <Modal {...{ isOpen, toggle }}>
-        <ModalHeader toggle={toggle}>Your key</ModalHeader>
-        {license && license.assigned && (
-          <ModalBody>
-            <div className="modal-section-title">
-              <strong>Fingerprint:</strong>
-            </div>
-            <code>{license.fingerprint}</code>
-            <hr />
-            <div className="modal-section-title">
-              <strong>Key:</strong>
-              <div>
-                <CopyToClipboard onCopy={this.onKeyCopied} text={this.state.key}>
-                  <Button color="link" size="sm">
-                    <small>copy to clipboard</small>
-                    {this.state.keyCopied && (
-                      <span className="copied">
-                        <span className="check" />
-                      </span>
-                    )}
-                  </Button>
-                </CopyToClipboard>
-              </div>
-            </div>
-            <div className="modal__key">
-              <code>{this.state.key}</code>
-            </div>
-          </ModalBody>
-        )}
-        {license && !license.assigned && (
-          <Fragment>
-            <ModalBody>
-              <div>
-                <label htmlFor="fingerprint">
-                  <strong>Fingerprint:</strong>
-                </label>
-                <input
-                  ref={this.fingerprintInput}
-                  className="form-control"
-                  type="text"
-                  name="fingerprint"
-                  id="fingerprint"
-                  value={this.state.newFingerPrint}
-                  onChange={this.onFingerPrintChanged}
-                />
-                <br />
-                <label htmlFor="fingerprint">
-                  <strong>Current server:</strong>
-                  <small>&nbsp;(click to fill automatically)</small>
-                </label>
-                <br />
-                <Button color="link" onClick={this.useCurrentServer}>
-                  {this.props.licensing.fingerprint}
-                </Button>
-              </div>
-
-              <div className="modal-footer">
-                <Button color="primary" onClick={this.activateLicense} disabled={!this.state.newFingerPrint}>
-                  Confirm
-                </Button>
-              </div>
-            </ModalBody>
-          </Fragment>
-        )}
+      <Modal isOpen={this.props.isOpen} toggle={this.close}>
+        <ModalHeader toggle={this.close}>Your key</ModalHeader>
+        {license.assigned && this.renderAssigned()}
+        {!license.assigned && this.renderUnassigned()}
       </Modal>
     )
   }
