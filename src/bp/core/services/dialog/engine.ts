@@ -303,7 +303,7 @@ export class DialogEngine {
   }
 
   private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`(${previousFlow})[${previousNode}] >> (${currentFlow})[${currentNode}]`)
+    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] << (${previousFlow})[${previousNode}]`)
   }
 
   private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {

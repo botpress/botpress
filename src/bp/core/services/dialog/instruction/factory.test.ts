@@ -66,15 +66,15 @@ describe('Instruction Factory', () => {
       ])
     })
 
-    it('Doesnt create flow level transition if theres no node level transition', () => {
-      const node = {}
+    it('Skip transitions that contain the current node', () => {
+      const node = { name: 'abc' }
       const flow = {
         catchAll: {
-          next: [{ condition: 'xyz {}', node: 'a' }]
+          next: [{ condition: 'xyz {}', node: 'abc' }, { condition: 'xyz {}', node: 'bcd' }]
         }
       }
       const value = InstructionFactory.createTransition(node, flow)
-      expect(value).toEqual([])
+      expect(value).toEqual([{ type: 'transition', fn: 'xyz {}', node: 'bcd' }])
     })
   })
 
