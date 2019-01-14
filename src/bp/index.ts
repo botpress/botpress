@@ -3,8 +3,6 @@ const path = require('path')
 const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 
-import pull from './pull'
-
 const printPlainError = err => {
   console.log('Error starting botpress')
   console.log(err)
@@ -60,7 +58,6 @@ try {
     },
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
-        // TODO add use gost from args
 
         let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
@@ -104,7 +101,9 @@ try {
         type: 'string'
       }
     },
-      pull
+      argv => {
+        require('./pull')(argv)
+      }
     )
     .command('bench', 'Run a benchmark on your bot', {
       url: {
@@ -146,8 +145,6 @@ try {
     },
       argv => {
         require('./bench')(argv)
-        // const benchmark = new Bench(argv)
-        // benchmark.start()
       })
     .option('verbose', {
       alias: 'v',

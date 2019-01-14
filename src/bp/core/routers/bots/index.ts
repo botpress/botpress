@@ -96,7 +96,7 @@ export class BotsRouter implements CustomRouter {
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
       gaId: gaId,
-      ghostEnabled: this.ghostService.isGhostEnabled,
+      ghostEnabled: this.ghostService.enabled,
       flowEditorDisabled: !process.IS_LICENSED,
       botpress: {
         name: 'Botpress Server',

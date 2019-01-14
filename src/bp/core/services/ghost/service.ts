@@ -9,7 +9,6 @@ import path from 'path'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
-import { BotpressConfig } from '../../config/botpress.config'
 import { TYPES } from '../../types'
 
 import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
@@ -20,12 +19,8 @@ const tar = require('tar')
 
 @injectable()
 export class GhostService {
-  private config: Partial<BotpressConfig> | undefined
   private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
-
-  public get isGhostEnabled() {
-    return _.get(this.config, 'ghost.enabled', false)
-  }
+  public enabled: boolean = false
 
   constructor(
     @inject(TYPES.DiskStorageDriver) private diskDriver: DiskStorageDriver,
@@ -33,25 +28,25 @@ export class GhostService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
-    private logger: Logger
+    private logger: Logger,
   ) { }
 
-  async initialize(config: Partial<BotpressConfig>) {
-    this.config = config
+  initialize(enabled: boolean) {
+    this.enabled = enabled
   }
 
-  global(ghostEnabled?: boolean): ScopedGhostService {
+  global(): ScopedGhostService {
     return new ScopedGhostService(
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
-      typeof ghostEnabled === 'undefined' ? this.isGhostEnabled : ghostEnabled,
+      this.enabled,
       this.cache,
       this.logger
     )
   }
 
-  forBot(botId: string, ghostEnabled?: boolean): ScopedGhostService {
+  forBot(botId: string): ScopedGhostService {
     if (!isValidBotId(botId)) {
       throw new Error(`Invalid botId "${botId}"`)
     }
@@ -64,7 +59,8 @@ export class GhostService {
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
-      typeof ghostEnabled === 'undefined' ? this.isGhostEnabled : ghostEnabled,
+      this.enabled,
+
       this.cache,
       this.logger
     )
