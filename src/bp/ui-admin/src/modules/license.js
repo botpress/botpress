@@ -5,11 +5,13 @@ export const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 export const FETCH_KEYS_REQUESTED = 'license/FETCH_KEYS_REQUESTED'
 export const FETCH_KEYS_RECEIVED = 'license/FETCH_KEYS_RECEIVED'
 export const UPDATE_LICENSING_ACCOUNT = 'license/UPDATE_LICENSING_ACCOUNT'
+export const FETCH_PRODUCTS_RECEIVED = 'license/FETCH_PRODUCTS_RECEIVED'
 
 const initialState = {
   license: null,
   licensing: null,
   keys: [],
+  products: [],
   isLoadingKeys: false,
   licensingAccount: null
 }
@@ -47,6 +49,12 @@ export default (state = initialState, action) => {
         licensingAccount: action.account
       }
 
+    case FETCH_PRODUCTS_RECEIVED:
+      return {
+        ...state,
+        products: action.products
+      }
+
     default:
       return state
   }
@@ -82,6 +90,15 @@ export const fetchAllKeys = () => async dispatch => {
   dispatch({
     type: FETCH_KEYS_RECEIVED,
     keys: data.licenses
+  })
+}
+
+export const fetchProducts = () => async dispatch => {
+  const { data } = await api.getLicensing().get(`/prices`)
+
+  dispatch({
+    type: FETCH_PRODUCTS_RECEIVED,
+    products: data.products
   })
 }
 

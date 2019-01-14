@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Input } from 'reactstrap'
 import PriceItem from './PriceItem'
-import api from '../../../api'
+import { fetchProducts } from '../../../modules/license'
 
-export default class CustomizeLicenseForm extends Component {
+class CustomizeLicenseForm extends Component {
   state = {
     label: '',
     nodes: 0,
@@ -15,35 +16,31 @@ export default class CustomizeLicenseForm extends Component {
   }
 
   componentDidMount() {
-    this.fetchPrices()
+    if (!this.props.products.length) {
+      this.props.fetchProducts()
+    }
 
     if (this.props.license) {
       const { limits, quantities, label } = this.props.license
 
-      this.setState({
-        label,
-        nodes: limits.nodes,
-        isGoldSupport: quantities.isGoldSupport
-      })
+      this.setState(
+        {
+          label,
+          nodes: limits.nodes,
+          isGoldSupport: quantities.isGoldSupport
+        },
+        this.calculatePrice
+      )
     }
-  }
-
-  async fetchPrices() {
-    try {
-      const { data } = await api.getLicensing().get(`/prices`)
-      this.setState({ products: data.products })
-      this.calculatePrice()
-    } catch (error) {
-      this.setState({ error: error.message })
-    }
+    this.calculatePrice()
   }
 
   getPrice(productName) {
-    if (!this.state.products) {
+    if (!this.props.products) {
       return
     }
 
-    const product = this.state.products.find(p => p.product === productName)
+    const product = this.props.products.find(p => p.product === productName)
     return product && product.price
   }
 
@@ -75,7 +72,7 @@ export default class CustomizeLicenseForm extends Component {
   handleInputChanged = e => this.setState({ [e.target.name]: e.target.value }, this.calculatePrice)
 
   render() {
-    if (!this.state.products) {
+    if (!this.props.products) {
       return null
     }
     return (
@@ -87,7 +84,7 @@ export default class CustomizeLicenseForm extends Component {
             placeholder="My first license"
             style={{ width: '250px' }}
             maxLength={50}
-            size="sm"
+            bsSize="sm"
             value={this.state.label}
             onChange={this.handleLabelChanged}
           />
@@ -173,3 +170,13 @@ export default class CustomizeLicenseForm extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  products: state.license.products
+})
+
+const mapDispatchToProps = { fetchProducts }
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CustomizeLicenseForm)

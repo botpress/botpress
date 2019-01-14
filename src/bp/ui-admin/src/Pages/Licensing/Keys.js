@@ -2,20 +2,20 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Table, Button } from 'reactstrap'
+import _ from 'lodash'
+import IconTooltip from '../Components/IconTooltip'
 import SectionLayout from '../Layouts/Section'
 import KeyListItem from '../Components/Licensing/KeyListItem'
 import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyModal'
 import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
-import { fetchAllKeys } from '../../modules/license'
+import { fetchAllKeys, fetchProducts } from '../../modules/license'
 import { isAuthenticated } from '../../Auth/licensing'
 
 class KeyList extends Component {
   state = {
-    licenses: [],
     error: false,
-    loading: true,
     selectedLicense: null,
     keyModalOpen: false,
     updateModalOpen: false,
@@ -23,7 +23,17 @@ class KeyList extends Component {
   }
 
   componentDidMount() {
-    !this.props.keys.length && this.props.fetchAllKeys()
+    if (!isAuthenticated()) {
+      return
+    }
+
+    if (!this.props.keys.length) {
+      this.props.fetchAllKeys()
+    }
+
+    if (!this.props.products.length) {
+      this.props.fetchProducts()
+    }
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
@@ -43,7 +53,7 @@ class KeyList extends Component {
   }
 
   renderKeysTable() {
-    const currentServerFingerprint = this.props.licensing && this.props.licensing.fingerprint
+    const clusterFingerprint = _.get(this.props.licensing, 'fingerprints.cluster_url')
     return (
       <Table className="table--keys">
         <thead>
@@ -53,7 +63,12 @@ class KeyList extends Component {
             <th>Support</th>
             <th>Assigned</th>
             <th>Renews on</th>
-            <th>Cost</th>
+            <th>
+              Cost &nbsp;
+              <IconTooltip className="tooltip--light">
+                <span>This price doesn't include part-time nodes or any coupon you may have used</span>
+              </IconTooltip>
+            </th>
             <th />
           </tr>
         </thead>
@@ -68,10 +83,11 @@ class KeyList extends Component {
               <KeyListItem
                 key={key.stripeSubscriptionId}
                 license={key}
-                active={currentServerFingerprint === key.fingerprint}
+                products={this.props.products}
+                clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
                 onLicenseUpdated={this.toggleUpdateModal}
-                refreshLicense={this.fetchLicenses}
+                refreshLicense={this.props.fetchAllKeys}
               />
             ))}
         </tbody>
@@ -132,11 +148,12 @@ class KeyList extends Component {
 
 const mapStateToProps = state => ({
   keys: state.license.keys,
+  products: state.license.products,
   isLoadingKeys: state.license.isLoadingKeys,
   licensing: state.license.licensing
 })
 
-const mapDispatchToProps = { fetchAllKeys }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

@@ -7,19 +7,15 @@ import PromoCodePicker from './PromoCodePicker'
 import api from '../../../api'
 import { getSession } from '../../../Auth/licensing'
 
-export default class BuyPage extends React.Component {
-  constructor(props) {
-    super(props)
+const DEFAULT_STATE = {
+  currentStep: 'input',
+  promoCode: '',
+  isPromoCodeValid: undefined,
+  isLoading: false
+}
 
-    this.state = {
-      success: false,
-      error: false,
-      currentStep: 'input',
-      promoCode: '',
-      isPromoCodeValid: undefined,
-      isLoading: false
-    }
-  }
+export default class BuyLicenseModal extends React.Component {
+  state = { ...DEFAULT_STATE }
 
   componentDidMount() {
     const session = getSession()
@@ -29,11 +25,13 @@ export default class BuyPage extends React.Component {
   }
 
   toggle = () => {
+    this.setState({ ...DEFAULT_STATE })
     this.props.toggle()
   }
 
   confirmPurchase = async () => {
     this.setState({ isLoading: true })
+
     try {
       const subscription = {
         source: this.state.card,
@@ -53,7 +51,7 @@ export default class BuyPage extends React.Component {
       }, 1250)
     } catch (error) {
       console.error('cannot buy license', error)
-      this.setState({ isLoading: false, error: true })
+      this.setState({ isLoading: false, error: error.message })
     }
   }
 
@@ -63,14 +61,8 @@ export default class BuyPage extends React.Component {
 
   renderSuccess() {
     return (
-      <div className="confirmation">
-        <div class="checkmark">
-          <div class="checkmark-icon">
-            <span class="checkmark-icon__line checkmark-icon__line--short" />
-            <span class="checkmark-icon__line checkmark-icon__line--long" />
-          </div>
-        </div>
-        <span>Thank you</span>
+      <div>
+        <span>Thank you for your purchase!</span>
       </div>
     )
   }
@@ -81,10 +73,10 @@ export default class BuyPage extends React.Component {
         <CreditCardPicker userInfo={this.state.user} onCardChanged={this.handleCardChanged} />
         <br />
         <PromoCodePicker onUpdate={this.handlePromoCodeUpdated} />
-        <br />
-        <b>Total:</b> {this.state.order && this.state.order.totalPrice}$ per month
-        <br />
-        <br />
+        <p>
+          <br />
+          <b>Total:</b> {this.state.order && this.state.order.totalPrice}$ per month
+        </p>
         <Button
           size="sm"
           color="primary"
@@ -95,7 +87,7 @@ export default class BuyPage extends React.Component {
           Confirm my purchase
         </Button>
         <Button size="sm" style={{ float: 'left' }} onClick={() => this.setState({ currentStep: 'input' })}>
-          Edit my order
+          &lt; Edit my order
         </Button>
       </Col>
     )
@@ -105,14 +97,14 @@ export default class BuyPage extends React.Component {
     return (
       <Col>
         <CustomizeLicenseForm license={this.state.order} onUpdate={this.handleOrderUpdated} />
-
-        <div className="checkout">
-          <div className="checkout__buy">
-            <Button size="sm" color="primary" onClick={() => this.setState({ currentStep: 'validation' })}>
-              Next
-            </Button>
-          </div>
-        </div>
+        <Button
+          size="sm"
+          color="primary"
+          style={{ float: 'right' }}
+          onClick={() => this.setState({ currentStep: 'validation' })}
+        >
+          Continue to checkout
+        </Button>
       </Col>
     )
   }
@@ -127,9 +119,8 @@ export default class BuyPage extends React.Component {
       page = this.renderSuccess()
     }
 
-    const { isOpen } = this.props
     return (
-      <Modal isOpen={isOpen} toggle={this.toggle} size="lg">
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} size="lg">
         <ModalHeader toggle={this.toggle}>Buy new license</ModalHeader>
         <ModalBody>{page}</ModalBody>
       </Modal>

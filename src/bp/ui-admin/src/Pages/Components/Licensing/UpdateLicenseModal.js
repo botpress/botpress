@@ -50,17 +50,17 @@ export default class UpdateLicenseModal extends React.Component {
 
     return (
       <Fragment>
+        {license.canceled && <small>* Note: Updating a canceled license will re-enable the automatic renewal</small>}
         <div style={{ padding: '10px' }}>
           <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
         </div>
-        <span className="form__label">Totals</span>
         <span className="text-small">
           <strong>Current total:</strong> {license.cost}$
         </span>
         <Row className="align-items-center">
           <Col md="6">
             <strong>
-              New total: <span className="text-brand">{this.state.total}$</span>
+              New total: <span className="text-brand">{this.state.order && this.state.order.totalPrice}$</span>
             </strong>
           </Col>
           <Col md="6" className="text-right">
@@ -72,18 +72,14 @@ export default class UpdateLicenseModal extends React.Component {
       </Fragment>
     )
   }
-  renderError() {
-    return <Fragment>An error occurred: {this.state.errorMessage}</Fragment>
-  }
 
   render() {
-    const { isOpen } = this.props
     return (
-      <Modal isOpen={isOpen} toggle={this.toggle} size="lg">
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} size="lg">
         <ModalHeader toggle={this.toggle}>Update your license</ModalHeader>
         <ModalBody>
           {!this.state.error && this.props.license && this.renderForm()}
-          {this.state.error && this.renderError()}
+          {this.state.error && <Fragment>An error occurred: {this.state.errorMessage}</Fragment>}
         </ModalBody>
       </Modal>
     )

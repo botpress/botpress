@@ -1,68 +1,156 @@
 import React, { Component, Fragment } from 'react'
-import { Button, Badge, Tooltip } from 'reactstrap'
+import _ from 'lodash'
+import {
+  Badge,
+  UncontrolledTooltip,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledButtonDropdown
+} from 'reactstrap'
 import api from '../../../api'
 
 export default class KeyListItem extends Component {
   state = {
     isCancelled: false,
-    tooltipOpen: false
+    isLoading: false
   }
 
-  cancelLicense = () => {
-    const { license, refreshLicense } = this.props
+  componentDidMount() {
+    this.calculateCost()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.license !== this.props.license) {
+      this.calculateCost()
+    }
+  }
+
+  calculateCost() {
+    const nodePrice = _.get(this.props, 'license.limits.nodes', 0) * this.getPrice('full-time-node')
+    const goldSupport = _.get(this.props, 'license.quantities.isGoldSupport', false) ? this.getPrice('gold-support') : 0
+    this.setState({ cost: this.getPrice('pro') + nodePrice + goldSupport })
+  }
+
+  getPrice(productName) {
+    if (!this.props.products) {
+      return
+    }
+
+    const product = this.props.products.find(p => p.product === productName)
+    return product && product.price
+  }
+
+  disableAutoRenew = async () => {
+    const { license } = this.props
 
     if (window.confirm('Are you sure you want to cancel auto-renew for this license?')) {
-      this.setState({ isCancelled: true })
-
-      api
-        .getLicensing()
-        .delete(`/me/keys/${license.stripeSubscriptionId}`)
-        .then(refreshLicense)
-        .catch(err => {
-          console.error('error canceling license')
-          this.setState({ isCancelled: false })
-        })
+      try {
+        await api.getLicensing().delete(`/me/keys/${license.stripeSubscriptionId}`)
+        this.props.refreshLicense()
+      } catch (error) {
+        console.error('error canceling license')
+      }
     }
   }
 
-  updateLicense = () => this.props.onLicenseUpdated(this.props.license)
-  revealActivate = () => this.props.onRevealActivate(this.props.license)
-  toggleTooltip = () => this.setState({ tooltipOpen: !this.state.tooltipOpen })
+  revealLicense = () => this.props.onRevealActivate(this.props.license)
+  updateLicense = () => this.props.onLicenseUpdated({ ...this.props.license, cost: this.state.cost })
+  assignFingerprint = () => this.props.onRevealActivate({ ...this.props.license, assigned: false })
 
-  renderBadge() {
-    if (!this.props.active) {
-      return null
+  useOnServer = async () => {
+    this.setState({ isLoading: true })
+
+    try {
+      const licenseKey = await this.activateWithServerFingerprint()
+      await this.updateServerKey(licenseKey)
+      this.props.refreshLicense()
+    } catch (error) {
+      console.log('error while setting up license')
     }
+    this.setState({ isLoading: false })
+  }
 
+  updateServerKey = async licenseKey => {
+    await api.getSecured().post(
+      'admin/license/update',
+      {
+        licenseKey
+      },
+      {
+        timeout: 10 * 1000
+      }
+    )
+  }
+
+  activateWithServerFingerprint = async () => {
+    const res = await api.getLicensing().post(`/me/keys/${this.props.license.stripeSubscriptionId}/activate`, {
+      fingerprint: this.props.clusterFingerprint
+    })
+
+    return res.data.key
+  }
+
+  renderActiveBadge() {
+    const badgeId = this.props.license.stripeSubscriptionId
     return (
       <Fragment>
-        <Badge id="badge" color="primary">
+        <Badge id={`active${badgeId}`} color="primary" style={{ float: 'right', marginRight: '2px' }}>
           Active
         </Badge>
-        <Tooltip
-          placement="right"
-          size="small"
-          delay={{ show: 400, hide: 300 }}
-          isOpen={this.state.tooltipOpen}
-          toggle={this.toggleTooltip}
-          target="badge"
-        >
-          That license is activated on this server
-        </Tooltip>
+
+        <UncontrolledTooltip placement="right" target={`active${badgeId}`}>
+          This license matches the fingerprint of the current server
+        </UncontrolledTooltip>
       </Fragment>
+    )
+  }
+
+  renderCancelledBadge() {
+    const badgeId = this.props.license.stripeSubscriptionId
+    const expiry = new Date(this.props.license.paidUntil).toLocaleDateString()
+    return (
+      <Fragment>
+        <Badge id={`cancelled${badgeId}`} color="danger" style={{ float: 'right', marginRight: '2px' }}>
+          Cancelled
+        </Badge>
+        <UncontrolledTooltip placement="right" target={`cancelled${badgeId}`}>
+          Auto-Renew is disabled for this license and it will expire on {expiry}
+        </UncontrolledTooltip>
+      </Fragment>
+    )
+  }
+
+  renderActions() {
+    const { license } = this.props
+    return (
+      <UncontrolledButtonDropdown>
+        <DropdownToggle caret size="sm" disabled={this.state.isLoading}>
+          Actions
+        </DropdownToggle>
+        <DropdownMenu>
+          {license.assigned && <DropdownItem onClick={this.revealLicense}>Reveal License Key</DropdownItem>}
+          <DropdownItem onClick={this.assignFingerprint}>Assign Fingerprint</DropdownItem>
+          <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>
+          <DropdownItem onClick={this.updateLicense}>Update License</DropdownItem>
+          {!license.canceled && <DropdownItem onClick={this.disableAutoRenew}>Disable Auto-Renew</DropdownItem>}
+        </DropdownMenu>
+      </UncontrolledButtonDropdown>
     )
   }
 
   render() {
     const { license } = this.props
     const assignedClass = license.assigned ? 'assigned' : 'not-assigned'
-    const consideredCanceled = license.canceled || this.state.isCancelled
+    const isActive = this.props.clusterFingerprint === license.fingerprint
 
     return (
-      <tr disabled={consideredCanceled}>
+      <tr disabled={license.canceled}>
         <td>
           <span className="table--keys__users">
-            {license.label} {this.renderBadge()}
+            {license.label}&nbsp;
+            {license.canceled && this.renderCancelledBadge()}
+            {isActive && this.renderActiveBadge()}
           </span>
         </td>
         <td>
@@ -75,33 +163,14 @@ export default class KeyListItem extends Component {
           <span className={`table--keys__assigned ${assignedClass}`}>{license.assigned ? 'Yes' : 'No'}</span>
         </td>
         <td>
-          <span className="table--keys__users">{new Date(license.paidUntil).toLocaleDateString()}</span>
-        </td>
-        <td>
-          <span className="table--keys__cost">
-            {license.cost}
-            $/month
+          <span className="table--keys__users">
+            {license.canceled ? 'Disabled' : new Date(license.paidUntil).toLocaleDateString()}
           </span>
         </td>
         <td>
-          <Button color="primary" size="sm" onClick={this.revealActivate}>
-            {license.assigned ? 'Reveal' : 'Activate'}
-          </Button>
-          {consideredCanceled && <span>&nbsp; Auto-Renew Canceled</span>}
-
-          {!consideredCanceled && (
-            <Fragment>
-              &nbsp;|&nbsp;
-              <Button size="sm" onClick={this.updateLicense}>
-                Update
-              </Button>
-              &nbsp;|&nbsp;
-              <Button color="danger" size="sm" onClick={this.cancelLicense}>
-                Cancel
-              </Button>
-            </Fragment>
-          )}
+          <span className="table--keys__cost">{this.state.cost}$ / month</span>
         </td>
+        <td>{this.renderActions()}</td>
       </tr>
     )
   }

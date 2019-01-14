@@ -34,7 +34,7 @@ class KeyModal extends React.Component {
     }
   }
 
-  onKeyCopied = e => {
+  handleKeyCopied = e => {
     this.setState({ keyCopied: true })
 
     window.setTimeout(() => {
@@ -46,7 +46,7 @@ class KeyModal extends React.Component {
     const { license } = this.props
     try {
       const { data } = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/generate`)
-      this.setState({ key: data.key, isLoading: false })
+      this.setState({ key: data.key })
     } catch (error) {
       this.setState({ error: error.message })
     }
@@ -74,10 +74,6 @@ class KeyModal extends React.Component {
     }
   }
 
-  onFingerPrintChanged = e => {
-    this.setState({ newFingerPrint: e.target.value })
-  }
-
   close = () => {
     this.setState({ ...DEFAULT_STATE })
     this.props.toggle()
@@ -87,6 +83,7 @@ class KeyModal extends React.Component {
     return _.get(this.props.licensing, 'fingerprints.cluster_url')
   }
 
+  handleFingerPrintChanged = e => this.setState({ newFingerPrint: e.target.value })
   useCurrentServer = () => this.setState({ newFingerPrint: this.clusterFingerprint })
   changeFingerprint = () => this.setState({ license: { assigned: false } })
 
@@ -106,7 +103,7 @@ class KeyModal extends React.Component {
         <div className="modal-section-title">
           <strong>Key:</strong>
           <div>
-            <CopyToClipboard onCopy={this.onKeyCopied} text={this.state.key}>
+            <CopyToClipboard onCopy={this.handleKeyCopied} text={this.state.key}>
               <Button color="link" size="sm">
                 <small>copy to clipboard</small>
                 {this.state.keyCopied && (
@@ -139,7 +136,7 @@ class KeyModal extends React.Component {
             name="fingerprint"
             id="fingerprint"
             value={this.state.newFingerPrint}
-            onChange={this.onFingerPrintChanged}
+            onChange={this.handleFingerPrintChanged}
           />
           <br />
           <label htmlFor="fingerprint">

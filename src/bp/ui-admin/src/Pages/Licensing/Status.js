@@ -109,7 +109,7 @@ class BuyPage extends React.Component {
             <hr />
             <h5>Edit key</h5>
             <p>To set a license key, make sure you purchase a license key and assign it your current fingerprint.</p>
-            <p>{this.renderFingerprintStatus()}</p>
+            {this.renderFingerprintStatus()}
             <EditLicense refresh={this.props.fetchLicensing} />
           </Col>
           <Col sm="12" lg="7">

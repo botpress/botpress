@@ -70,7 +70,7 @@ export default class CreditCardPicker extends Component {
   }
 
   openAddCardPopup = () => {
-    childWindow = this.centerPopup(api.getStripePath(), 'Add Credit Card', 480, 280)
+    childWindow = this.centerPopup(api.getStripePath(), 'Add Credit Card', 480, 200)
   }
 
   selectSource = selectedSource => {
