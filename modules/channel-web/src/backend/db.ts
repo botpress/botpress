@@ -49,7 +49,7 @@ export default class WebchatDb {
           table.string('message_type')
           table.text('message_text')
           table.jsonb('message_raw')
-          table.binary('message_data') // Only useful if type = file
+          table.jsonb('message_data') // Only useful if type = file
           table.string('full_name')
           table.string('avatar_url')
           table.timestamp('sent_on')
