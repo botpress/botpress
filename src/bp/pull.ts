@@ -1,7 +1,10 @@
 import Axios from 'axios'
+import chalk from 'chalk'
 import fs from 'fs'
 import stream from 'stream'
 import tar from 'tar'
+
+const _log = console.log
 
 const _extractToDir = async (archive, target) => {
   if (!fs.existsSync(target)) {
@@ -40,20 +43,19 @@ const _pull = async (host: string, auth: string, dir: string) => {
   return _extractToDir(changes, dir)
 }
 
-// TODO use chalk here to make it beautiful
 export default ({ host, auth, dir }) => {
   // Better param validation? (host is a valid url, auth valid jwt)
   if (!host || !auth || !dir) {
-    console.log('one onf parameters is not valid, login to the host admin and head to the versioning tab.')
+    _log(chalk.red(`${chalk.bold('Error:')} parameters are not valid, login to the host admin and head to the versioning tab.`))
     return
   }
 
-  console.log('Pulling pending changes from', host)
+  _log(chalk.blue(`Pulling pending changes from ${chalk.bold(host)}`))
   _pull(host, auth, dir)
     .then(() => {
-      console.log(`Successfully extracted ${host} changes in ${dir}`)
+      _log(chalk.green(`Successfully extracted changes from ${chalk.bold(host)} in ${chalk.bold(dir)}`))
     })
     .catch(err => {
-      console.log(err)
+      _log(chalk.red(err))
     })
 }
