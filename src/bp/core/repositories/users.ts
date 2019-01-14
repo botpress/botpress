@@ -47,20 +47,25 @@ export class KnexUserRepository implements UserRepository {
       return { result: user, created: false }
     }
 
-    await this.database.knex(this.tableName).insert({
-      channel,
-      user_id: id,
-      attributes: this.database.knex.json.set({})
-    })
-
-    const newUser: User = {
-      attributes: {},
-      channel: channel,
-      id,
-      createdOn: new Date(),
-      updatedOn: new Date(),
-      otherChannels: []
-    }
+    const newUser = await this.database.knex
+      .insertAndRetrieve<User>(
+        this.tableName,
+        {
+          channel,
+          user_id: id,
+          attributes: this.database.knex.json.set({})
+        },
+        ['attributes', 'channel', 'created_at', 'updated_at']
+      )
+      .then(res => {
+        return {
+          id: res.id,
+          attributes: res.attributes,
+          channel: res.channel,
+          createdOn: res['created_at'],
+          updatedOn: res['updated_at']
+        }
+      })
 
     return { result: newUser, created: true }
   }
@@ -79,7 +84,7 @@ export class KnexUserRepository implements UserRepository {
   async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
     channel = channel.toLowerCase()
 
-    if (await this.dataRetentionService.hasPolicy()) {
+    if (this.dataRetentionService.hasPolicy()) {
       const originalAttributes = await this.getAttributes(channel, user_id)
       await this.dataRetentionService.updateExpirationForChangedFields(channel, user_id, originalAttributes, attributes)
     }

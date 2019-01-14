@@ -8,7 +8,7 @@ export class ChannelUsersTable extends Table {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('channel')
       table.string('user_id')
-      table.text('attributes')
+      table.json('attributes')
       table.timestamps(true, true)
       created = true
     })
