@@ -1,7 +1,9 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, ModalHeader, ModalBody, Button } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import _ from 'lodash'
+
 import api from '../../../api'
 
 const DEFAULT_STATE = {
@@ -81,7 +83,11 @@ class KeyModal extends React.Component {
     this.props.toggle()
   }
 
-  useCurrentServer = () => this.setState({ newFingerPrint: this.props.licensing.fingerprint })
+  get clusterFingerprint() {
+    return _.get(this.props.licensing, 'fingerprints.cluster_url')
+  }
+
+  useCurrentServer = () => this.setState({ newFingerPrint: this.clusterFingerprint })
   changeFingerprint = () => this.setState({ license: { assigned: false } })
 
   renderAssigned() {
@@ -142,7 +148,7 @@ class KeyModal extends React.Component {
           </label>
           <br />
           <Button color="link" onClick={this.useCurrentServer}>
-            {this.props.licensing.fingerprint}
+            {this.clusterFingerprint}
           </Button>
         </div>
 

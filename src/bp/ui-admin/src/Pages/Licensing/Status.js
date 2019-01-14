@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
-import { Link } from 'react-router-dom'
-import { Button, Col, Row, Tooltip, Alert } from 'reactstrap'
+import { Button, Col, Row, UncontrolledTooltip, Alert } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import _ from 'lodash'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
@@ -14,68 +14,50 @@ import { fetchLicensing } from '../../modules/license'
 import api from '../../api'
 
 class BuyPage extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      loading: false,
-      isLicensed: false,
-      isUnderLimits: true,
-      serverFingerprint: '',
-      paidUntil: undefined,
-      supportLevel: 'none',
-      tooltipOpen: false
-    }
-  }
-
   componentDidMount() {
     this.props.fetchLicensing()
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.licensing !== prevProps.licensing) {
-      this.props.licensing.license && this.displayStatus()
-      this.setState({ serverFingerprint: this.props.licensing.fingerprint })
+  get isUnderLimits() {
+    return _.get(this.props.licensing, 'status') !== 'breached'
+  }
+
+  get isLicensed() {
+    return _.get(this.props.licensing, 'status') === 'licensed'
+  }
+
+  get renewDate() {
+    return moment(_.get(this.props.licensing, 'license.paidUntil', new Date())).format('lll')
+  }
+
+  get serverFingerprints() {
+    return _.get(this.props.licensing, 'fingerprints', {})
+  }
+
+  get license() {
+    return (this.props.licensing && this.props.licensing.license) || {}
+  }
+
+  get isWrongFingerprint() {
+    if (!this.serverFingerprints || !this.license || !this.license.fingerprint) {
+      return false
     }
-  }
 
-  displayStatus = () => {
-    const { license, status } = this.props.licensing
-    const { fingerprint, paidUntil, support } = license
-
-    this.setState({
-      isLicensed: status === 'licensed',
-      isUnderLimits: status !== 'breached',
-      licenseFingerprint: fingerprint,
-      renewDate: moment(paidUntil).format('lll'),
-      supportLevel: support
-    })
-  }
-
-  toggle = () => {
-    this.setState({
-      tooltipOpen: !this.state.tooltipOpen
-    })
+    return this.serverFingerprints[this.license.fingerprintType] !== this.license.fingerprint
   }
 
   refreshKey = async () => {
-    await api
-      .getSecured()
-      .post('/admin/license/refresh', {
-        licenseKey: this.state.licenseKey
-      })
-      .then(() => this.props.fetchLicensing())
+    await api.getSecured().post('/admin/license/refresh')
+    await this.props.fetchLicensing()
   }
 
   renderLicenseStatus() {
     return (
-      <div className={'license-status ' + (this.state.isLicensed ? 'licensed' : 'unlicensed')}>
+      <div className={'license-status ' + (this.isLicensed ? 'licensed' : 'unlicensed')}>
         <div>
           <span className="license-status__badge" />
-          <span className="license-status__status">{this.state.isLicensed ? 'Licensed' : 'Unlicensed'}</span>
-          <span className="license-status__limits">
-            {this.state.isUnderLimits ? 'Under Limits' : 'Limits breached'}
-          </span>
+          <span className="license-status__status">{this.isLicensed ? 'Licensed' : 'Unlicensed'}</span>
+          <span className="license-status__limits">{this.isUnderLimits ? 'Under Limits' : 'Limits breached'}</span>
         </div>
 
         <Button color="link" className="license-status__refresh" onClick={this.refreshKey}>
@@ -91,13 +73,12 @@ class BuyPage extends React.Component {
   }
 
   renderFingerprintStatus() {
-    const { serverFingerprint, licenseFingerprint } = this.state
     return (
       <Fragment>
         <div className="license-infos license-infos--fingerprint">
-          <strong className="license-infos__label">Server fingerprint:</strong>
-          <code>{serverFingerprint}</code>
-          <CopyToClipboard text={serverFingerprint}>
+          <strong className="license-infos__label">Cluster fingerprint:</strong>
+          <code>{this.serverFingerprints.cluster_url}</code>
+          <CopyToClipboard text={this.serverFingerprints.cluster_url}>
             <Button color="link" size="sm" className="license-infos__icon">
               <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -108,19 +89,12 @@ class BuyPage extends React.Component {
               </svg>
             </Button>
           </CopyToClipboard>
-          <Tooltip
-            placement="right"
-            isOpen={this.state.tooltipCopy}
-            target="TooltipCopy"
-            toggle={() => {
-              this.setState({ tooltipCopy: !this.state.tooltipCopy })
-            }}
-          >
+          <UncontrolledTooltip placement="right" target="TooltipCopy">
             Copy to clipboard
-          </Tooltip>
+          </UncontrolledTooltip>
         </div>
-        {licenseFingerprint !== undefined && serverFingerprint !== licenseFingerprint && (
-          <Alert color="danger">Your machine fingerprint doesn't match your license fingerprint.</Alert>
+        {this.isWrongFingerprint && (
+          <Alert color="danger">Your license fingerprint doesn't match your machine/cluster fingerprints.</Alert>
         )}
       </Fragment>
     )
@@ -130,28 +104,26 @@ class BuyPage extends React.Component {
     return (
       <Fragment>
         <Row>
-          <Col sm="12" md="5">
+          <Col sm="12" lg="5">
             {this.renderLicenseStatus()}
-            <div className="license-renew">
-              <EditLicense refresh={this.props.fetchLicensing} />
-              <span className="license__or">or</span>
-              <Link to="/licensing/buy">
-                <Button size="sm" color="link">
-                  Buy license
-                </Button>
-              </Link>
-            </div>
-          </Col>
-          <Col sm="12" md="7">
-            {this.renderFingerprintStatus()}
             <hr />
+            <h5>Edit key</h5>
+            <p>To set a license key, make sure you purchase a license key and assign it your current fingerprint.</p>
+            <p>{this.renderFingerprintStatus()}</p>
+            <EditLicense refresh={this.props.fetchLicensing} />
+          </Col>
+          <Col sm="12" lg="7">
+            <div className="license-infos">
+              <strong className="license-infos__label">Friendly name:</strong>
+              {this.license.label || 'N/A'}
+            </div>
             <div className="license-infos">
               <strong className="license-infos__label">Renew date:</strong>
-              {this.state.renewDate}
+              {this.renewDate}
             </div>
             <div className="license-infos">
               <strong className="license-infos__label">Support:</strong>
-              {this.state.supportLevel}
+              {this.license.support}
               <svg
                 className="license-infos__icon"
                 href="#"
@@ -167,22 +139,15 @@ class BuyPage extends React.Component {
                   fillRule="nonzero"
                 />
               </svg>
-              <Tooltip
-                placement="right"
-                isOpen={this.state.tooltip2}
-                target="TooltipSupport"
-                toggle={() => {
-                  this.setState({ tooltip2: !this.state.tooltip2 })
-                }}
-              >
+              <UncontrolledTooltip placement="right" target="TooltipSupport">
                 This is the support offered by Botpress
-              </Tooltip>
+              </UncontrolledTooltip>
             </div>
             <hr />
-            {this.props.licensing && this.props.licensing.license && (
+            {this.props.licensing && (
               <div>
                 <h5>Policies</h5>
-                <LicensePolicies license={this.props.licensing.license} breachs={this.props.licensing.breachReasons} />
+                <LicensePolicies license={this.license} breachs={this.props.licensing.breachReasons} />
               </div>
             )}
           </Col>
@@ -198,7 +163,7 @@ class BuyPage extends React.Component {
       <SectionLayout
         title="License Status"
         activePage="license"
-        mainContent={this.state.loading ? renderLoading() : this.renderBody()}
+        mainContent={this.props.loading ? renderLoading() : this.renderBody()}
       />
     )
   }

@@ -29,14 +29,18 @@ export class LicenseRouter implements CustomRouter {
         }
 
         const status = await svc.getLicenseStatus()
-        const fingerprint = await svc.getFingerprint('machine_v1')
+        const clusterFingerprint = await svc.getFingerprint('cluster_url')
+        const machineFingerprint = await svc.getFingerprint('machine_v1')
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
         } catch (err) {}
 
         return sendSuccess(res, 'License status', {
-          fingerprint,
+          fingerprints: {
+            machine_v1: machineFingerprint,
+            cluster_url: clusterFingerprint
+          },
           isPro: true,
           license: info,
           ...status

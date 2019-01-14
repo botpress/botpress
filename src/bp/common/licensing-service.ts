@@ -31,6 +31,7 @@ export interface Limit {
 }
 
 export interface LicenseInfo {
+  label: string
   fingerprintType: FingerprintType
   fingerprint: string
   startDate: string
