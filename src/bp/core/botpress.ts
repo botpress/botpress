@@ -134,7 +134,7 @@ export class Botpress {
           // )
         }
         if (!redis) {
-          throw new Error(
+          this.logger.warn(
             'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
           )
         }
