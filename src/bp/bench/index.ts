@@ -6,7 +6,7 @@ import nanoid from 'nanoid'
 
 import { Stats } from './stats'
 
-export default class Bench {
+class Bench {
   stats: Stats
   /** The default payload that each users will send */
   defaultMessage: any
@@ -164,4 +164,9 @@ export default class Bench {
       console.log(message)
     }
   }
+}
+
+module.exports = (argv) => {
+  const benchmark = new Bench(argv)
+  benchmark.start()
 }
