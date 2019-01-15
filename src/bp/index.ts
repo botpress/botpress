@@ -48,14 +48,17 @@ process.on('uncaughtException', err => {
 
 try {
   const argv = require('yargs')
-    .command(['serve', '$0'], 'Start your botpress server', {
-      production: {
-        alias: 'p',
-        description: 'Whether you want to run in production mode or not',
-        default: false,
-        type: 'boolean',
-      }
-    },
+    .command(
+      ['serve', '$0'],
+      'Start your botpress server',
+      {
+        production: {
+          alias: 'p',
+          description: 'Whether you want to run in production mode or not',
+          default: false,
+          type: 'boolean'
+        }
+      },
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
 
@@ -66,7 +69,7 @@ try {
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.IS_LICENSED = true
-        process.ASSERT_LICENSED = () => { }
+        process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
 
         const isProBuild = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg
@@ -80,79 +83,85 @@ try {
         require('./bootstrap')
       }
     )
-    .command('pull', 'Sync pending changes from an external server running botpress to local files', {
-      host: {
-        alias: 'h',
-        description: 'host of the botpress server from which you want to pull changes',
-        default: 'http://localhost:3000',
-        type: 'string'
+    .command(
+      'pull',
+      'Sync pending changes from an external server running botpress to local files',
+      {
+        host: {
+          alias: 'h',
+          description: 'host of the botpress server from which you want to pull changes',
+          default: 'http://localhost:3000',
+          type: 'string'
+        },
+        authorization: {
+          alias: 'auth',
+          description: 'your authorization token on the remote botpress server',
+          // tslint:disable-next-line:no-null-keyword
+          default: null,
+          type: 'string'
+        },
+        targetDir: {
+          alias: 'dir',
+          description: 'target directory in which you want sync the changes. will be created if doesnt exist',
+          default: path.join(__dirname, 'data'),
+          type: 'string'
+        }
       },
-      authorization: {
-        alias: 'auth',
-        description: 'your authorization token on the remote botpress server',
-        // tslint:disable-next-line:no-null-keyword
-        default: null,
-        type: 'string'
-      },
-      'tagetDir': {
-        alias: 'dir',
-        description: 'tagert directory in which you want sync the changes. Directory will be created if inexistant',
-        default: path.join(__dirname, 'data'),
-        type: 'string'
-      }
-    },
       argv => {
         require('./pull')(argv)
       }
     )
-    .command('bench', 'Run a benchmark on your bot', {
-      url: {
-        default: 'http://localhost:3000'
+    .command(
+      'bench',
+      'Run a benchmark on your bot',
+      {
+        url: {
+          default: 'http://localhost:3000'
+        },
+        botId: {
+          description: 'The name of the bot to run the benchmark on',
+          default: 'welcome-bot'
+        },
+        users: {
+          alias: 'u',
+          description: 'The number of users sending a message at the same time',
+          default: 10
+        },
+        messages: {
+          alias: 'm',
+          description: 'The number of messages that each users will send',
+          default: 5
+        },
+        slaLimit: {
+          alias: 'limit',
+          description: 'Message response delay must be below this threshold (ms)',
+          default: 1500
+        },
+        slaTarget: {
+          alias: 'target',
+          description: 'Minimum percentage of respected SLA required to continue incrementing users',
+          default: 100
+        },
+        increments: {
+          alias: 'i',
+          description: 'If set, the test will increment users by this value until the SLA is breached',
+          default: 0
+        },
+        text: {
+          description: 'Configure the text message that will be send by the fake users',
+          default: 'Hey'
+        }
       },
-      botId: {
-        description: 'The name of the bot to run the benchmark on',
-        default: 'welcome-bot'
-      },
-      users: {
-        alias: 'u',
-        description: 'The number of users sending a message at the same time',
-        default: 10
-      },
-      messages: {
-        alias: 'm',
-        description: 'The number of messages that each users will send',
-        default: 5
-      },
-      slaLimit: {
-        alias: 'limit',
-        description: 'Message response delay must be below this threshold (ms)',
-        default: 1500
-      },
-      slaTarget: {
-        alias: 'target',
-        description: 'Minimum percentage of respected SLA required to continue incrementing users',
-        default: 100
-      },
-      increments: {
-        alias: 'i',
-        description: 'If set, the test will increment users by this value until the SLA is breached',
-        default: 0
-      },
-      text: {
-        description: 'Configure the text message that will be send by the fake users',
-        default: 'Hey'
-      }
-    },
       argv => {
         require('./bench')(argv)
-      })
+      }
+    )
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
     })
     .count('verbose')
-    .help()
-    .argv
+    .help().argv
 } catch (err) {
   global.printErrorDefault(err)
 }
