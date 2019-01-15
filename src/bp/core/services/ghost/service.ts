@@ -105,6 +105,11 @@ export class GhostService {
   }
 }
 
+export interface FileContent {
+  name: string
+  content: string | Buffer
+}
+
 export class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
@@ -150,6 +155,15 @@ export class ScopedGhostService {
 
     await this.primaryDriver.upsertFile(fileName, content, true)
     this.invalidateFile(fileName)
+  }
+
+  async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
+    await Promise.all(
+      content.map(c => {
+        console.log(c.name)
+        this.upsertFile(rootFolder, c.name, c.content)
+      })
+    )
   }
 
   async sync(paths: string[]) {
