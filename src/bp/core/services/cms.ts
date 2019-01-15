@@ -26,8 +26,8 @@ export const DefaultSearchParams: SearchParams = {
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
-  public createOrUpdateContentElement!: Function
-  public deleteContentElements!: Function
+  public deleteContentElements: Function = this._deleteContentElements
+  public createOrUpdateContentElement: Function = this._createOrUpdateContentElement
 
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
@@ -53,8 +53,10 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async initialize() {
-    this.createOrUpdateContentElement = await this.jobService.broadcast(this._createOrUpdateContentElement.bind(this))
-    this.deleteContentElements = await this.jobService.broadcast(this._deleteContentElements.bind(this))
+    this.createOrUpdateContentElement = await this.jobService.broadcast<string>(
+      this._createOrUpdateContentElement.bind(this)
+    )
+    this.deleteContentElements = await this.jobService.broadcast<void>(this._deleteContentElements.bind(this))
 
     await this.prepareDb()
     await this.loadContentTypesFromFiles()

@@ -15,8 +15,8 @@ import { TYPES } from './types'
 
 @injectable()
 export class BotLoader {
-  public mountBot: Function
-  public unmountBot: Function
+  public mountBot: Function = this._mountBot
+  public unmountBot: Function = this._unmountBot
 
   constructor(
     @inject(TYPES.Logger)
@@ -29,15 +29,12 @@ export class BotLoader {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.JobService) private jobService: JobService
-  ) {
-    this.mountBot = this._mountBot
-    this.unmountBot = this._unmountBot
-  }
+  ) {}
 
   @postConstruct()
   async init() {
-    this.mountBot = await this.jobService.broadcast(this._mountBot.bind(this))
-    this.unmountBot = await this.jobService.broadcast(this._unmountBot.bind(this))
+    this.mountBot = await this.jobService.broadcast<void>(this._mountBot.bind(this))
+    this.unmountBot = await this.jobService.broadcast<void>(this._unmountBot.bind(this))
   }
 
   public async getAllBotIds(): Promise<string[]> {
