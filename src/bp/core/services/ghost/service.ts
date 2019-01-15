@@ -70,10 +70,6 @@ export class GhostService {
   }
 
   public async exportArchive(botIds: string[]): Promise<Buffer> {
-    if (!this.enabled) {
-      throw new Error('Ghost must be enabled to export archive')
-    }
-
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const files: string[] = []
 
