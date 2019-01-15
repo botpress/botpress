@@ -28,8 +28,8 @@ export class GhostService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
-    private logger: Logger,
-  ) { }
+    private logger: Logger
+  ) {}
 
   initialize(enabled: boolean) {
     this.enabled = enabled
@@ -67,6 +67,44 @@ export class GhostService {
 
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
+  }
+
+  public async exportArchive(botIds: string[]): Promise<Buffer> {
+    if (!this.enabled) {
+      throw new Error('Ghost must be enabled to export archive')
+    }
+
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const files: string[] = []
+
+    try {
+      await mkdirp.sync(path.join(tmpDir.name, 'global'))
+      const outDir = path.join(tmpDir.name, 'global')
+      const outFiles = (await this.global().exportToDirectory(outDir)).map(f => path.join('global', f))
+      files.push(...outFiles)
+
+      await Promise.mapSeries(botIds, async bid => {
+        const p = path.join(tmpDir.name, `bots/${bid}`)
+        await mkdirp.sync(p)
+        const outFiles = (await this.forBot(bid).exportToDirectory(p)).map(f => path.join(`bots/${bid}`, f))
+        files.push(...outFiles)
+      })
+      const outFile = path.join(tmpDir.name, 'archive.tgz')
+
+      await tar.create(
+        {
+          cwd: tmpDir.name,
+          file: outFile,
+          portable: true,
+          gzip: true
+        },
+        files
+      )
+
+      return fse.readFile(outFile)
+    } finally {
+      tmpDir.removeCallback()
+    }
   }
 }
 
@@ -126,6 +164,7 @@ export class ScopedGhostService {
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
+
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
     if (!(await this.isFullySynced())) {
@@ -158,6 +197,27 @@ export class ScopedGhostService {
     }
   }
 
+  public async exportToDirectory(directory: string): Promise<string[]> {
+    const allFiles = await this.directoryListing('./')
+
+    for (const file of allFiles.filter(x => x !== 'revisions.json')) {
+      const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
+      const outPath = path.join(directory, file)
+      mkdirp.sync(path.dirname(outPath))
+      await fse.writeFile(outPath, content)
+    }
+
+    const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
+    const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
+    const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
+    if (!allFiles.includes('revisions.json')) {
+      allFiles.push('revisions.json')
+    }
+
+    return allFiles
+  }
+
   public async revertFileRevision(fullFilePath: string, revision: string): Promise<void> {
     const backup = await this.dbDriver.readFile(fullFilePath)
     try {
@@ -169,40 +229,6 @@ export class ScopedGhostService {
       await this.dbDriver.upsertFile(fullFilePath, backup)
       throw err
     }
-  }
-
-  public async exportArchive(): Promise<Buffer> {
-    const allFiles = await this.directoryListing('./')
-    const tmpDir = tmp.dirSync()
-
-    for (const file of allFiles.filter(x => x !== 'revisions.json')) {
-      const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
-      const outPath = path.join(tmpDir.name, file)
-      mkdirp.sync(path.dirname(outPath))
-      await fse.writeFile(outPath, content)
-    }
-
-    const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
-    const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
-    const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
-    await fse.writeFile(path.join(tmpDir.name, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
-    if (!allFiles.includes('revisions.json')) {
-      allFiles.push('revisions.json')
-    }
-
-    const outFile = path.join(tmpDir.name, 'archive.tgz')
-
-    await tar.create(
-      {
-        cwd: tmpDir.name,
-        file: outFile,
-        portable: true,
-        gzip: true
-      },
-      allFiles
-    )
-
-    return fse.readFile(outFile)
   }
 
   public async isFullySynced(): Promise<boolean> {

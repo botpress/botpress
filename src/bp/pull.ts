@@ -46,7 +46,11 @@ const _pull = async (host: string, auth: string, dir: string) => {
 module.exports = ({ host, auth, dir }) => {
   // Better param validation? (host is a valid url, auth valid jwt)
   if (!host || !auth || !dir) {
-    _log(chalk.red(`${chalk.bold('Error:')} parameters are not valid, login to the host admin and head to the versioning tab.`))
+    _log(
+      chalk.red(
+        `${chalk.bold('Error:')} parameters are not valid, login to the host admin and head to the versioning tab.`
+      )
+    )
     return
   }
 

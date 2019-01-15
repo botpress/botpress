@@ -1,3 +1,4 @@
+import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -12,7 +13,12 @@ export class VersioningRouter implements CustomRouter {
   private _checkTokenHeader: RequestHandler
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(private adminService: AdminService, private authService: AuthService, private ghost: GhostService) {
+  constructor(
+    private adminService: AdminService,
+    private authService: AuthService,
+    private ghost: GhostService,
+    private botLoader: BotLoader
+  ) {
     this._needPermissions = needPermissions(this.adminService)
     this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
@@ -35,7 +41,8 @@ export class VersioningRouter implements CustomRouter {
       this._checkTokenHeader,
       // TODO add "need super admin" once superadmin is implemented
       async (req, res) => {
-        const tarball = await this.ghost.global().exportArchive()
+        const botIds = await this.botLoader.getAllBotIds()
+        const tarball = await this.ghost.exportArchive(botIds)
 
         res.writeHead(200, {
           'Content-Type': 'application/tar+gzip',
