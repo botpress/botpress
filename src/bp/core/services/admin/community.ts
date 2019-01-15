@@ -117,7 +117,7 @@ export class CommunityAdminService implements AdminService {
         r =>
           ({
             ...r,
-            rules: JSON.parse(r.rules) as Array<AuthRule>
+            rules: _.isObject(r.rules) ? r.rules : JSON.parse(r.rules) as Array<AuthRule>
           } as AuthRole)
       )
   }
@@ -225,8 +225,11 @@ export class CommunityAdminService implements AdminService {
     const roleName = await this.getUserRole(userId, teamId)
 
     const role = await this.getRole({ team: teamId, name: roleName }, ['rules'])
+    if (!role)  {
+      return []
+    }
 
-    return (role && JSON.parse(role.rules!)) || []
+    return _.isObject(role.rules) ? role.rules : JSON.parse(role.rules!)
   }
 
   async getUserRole(userId: number, teamId: number) {
