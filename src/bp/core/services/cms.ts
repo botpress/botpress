@@ -91,7 +91,12 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const elements = await Promise.map(contentElements, element => {
-      return this.memDb(this.contentTable).insert(this.transformItemApiToDb(botId, element))
+      return this.memDb(this.contentTable)
+        .insert(this.transformItemApiToDb(botId, element))
+        .catch(err => {
+          // ignore duplicate key errors
+          // TODO: Knex error handling
+        })
     })
 
     await this.recomputeElementsForBot(botId)

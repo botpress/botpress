@@ -122,7 +122,6 @@ export class Botpress {
   async checkEditionRequirements() {
     const pro = this.config!.pro.enabled
     const redis = this.config!.pro.redis.enabled
-    const ghost = this.config!.ghost.enabled
     const postgres = this.config!.database.type.toLowerCase() === 'postgres'
 
     if (!pro && redis) {
@@ -130,22 +129,12 @@ export class Botpress {
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
-
-    if (pro && postgres) {
-      if (!ghost) {
-        // FIXME: Uncomment once the ghost has been fixed.
-        // throw new Error(
-        //   'Botpress ghost has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
-        // )
-      }
-      if (!redis) {
-        this.logger.warn(
-          'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
-        )
-      }
+    if (pro && postgres && !redis) {
+      this.logger.warn(
+        'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+      )
     }
-
-    if (pro && redis && !postgres) {
+    if (pro && !postgres && redis) {
       throw new Error(
         'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
       )
