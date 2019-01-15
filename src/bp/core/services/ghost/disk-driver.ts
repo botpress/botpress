@@ -46,6 +46,11 @@ export default class DiskStorageDriver implements StorageDriver {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
     } catch (e) {
+      // if directory doesn't exist we don't care
+      if (e.code === 'ENOENT') {
+        return []
+      }
+
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 

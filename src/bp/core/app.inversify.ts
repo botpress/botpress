@@ -104,7 +104,6 @@ container
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
 
-container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 
 container.load(...DatabaseContainerModules)

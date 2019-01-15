@@ -16,6 +16,7 @@ import LicensePage from '../Pages/License'
 import Landing from '../Pages/Landing'
 import LandingStep2 from '../Pages/LandingStep2'
 import UsersListPage from '../Pages/Users'
+import VersioningPage from '../Pages/Versioning'
 
 import Auth from '../Auth'
 import PrivateRoute from './PrivateRoute'
@@ -69,6 +70,7 @@ export const makeMainRoutes = () => {
               <Route exact path="/teams/:teamId/members" render={props => <TeamMembersPage {...props} />} />
               <Route exact path="/teams/:teamId/roles" render={props => <TeamRolesPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
+              <Route exact path="/versioning" render={props => <VersioningPage {...props} />} />
               <Redirect from="/" to="/teams" />
             </Switch>
           </PrivateRoute>

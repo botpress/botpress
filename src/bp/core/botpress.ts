@@ -143,8 +143,8 @@ export class Botpress {
   }
 
   async initializeGhost(): Promise<void> {
-    await this.ghostService.initialize(this.config!)
-    await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
+    this.ghostService.initialize(process.IS_PRODUCTION)
+    await this.ghostService.global().sync(['config', 'actions', 'content-types', 'hooks'])
   }
 
   private async initializeServices() {

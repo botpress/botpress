@@ -11,13 +11,13 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
 
+import { BotLoader } from './bot-loader'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
-import { VersioningRouter } from './routers/bots/versioning'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
@@ -47,7 +47,6 @@ export default class HTTPServer {
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
-  private versioningRouter!: VersioningRouter
   private converseRouter!: ConverseRouter
 
   constructor(
@@ -55,7 +54,6 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
@@ -69,11 +67,12 @@ export default class HTTPServer {
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
-    @inject(TYPES.ConverseService) private converseService: ConverseService
+    @inject(TYPES.ConverseService) private converseService: ConverseService,
+    @inject(TYPES.BotLoader) private botLoader: BotLoader
   ) {
     this.app = express()
 
-    if (!isProduction) {
+    if (!process.IS_PRODUCTION) {
       this.app.use(errorHandler())
     }
 
@@ -81,7 +80,14 @@ export default class HTTPServer {
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
     this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, licenseService)
+    this.adminRouter = new AdminRouter(
+      this.logger,
+      this.authService,
+      this.adminService,
+      licenseService,
+      this.ghostService,
+      this.botLoader
+    )
     this.shortlinksRouter = new ShortLinksRouter()
     this.botsRouter = new BotsRouter({
       actionService,
@@ -101,11 +107,9 @@ export default class HTTPServer {
   async initialize() {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
-    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

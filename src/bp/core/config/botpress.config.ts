@@ -107,12 +107,6 @@ export type BotpressConfig = {
     externalUrl?: string
   }
   database: DatabaseConfig
-  ghost: {
-    /**
-     * @default false
-     */
-    enabled: boolean | BotpressCondition
-  }
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
