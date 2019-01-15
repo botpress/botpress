@@ -87,14 +87,13 @@ try {
       'pull',
       'Sync pending changes from an external server running botpress to local files',
       {
-        host: {
-          alias: 'h',
-          description: 'host of the botpress server from which you want to pull changes',
+        url: {
+          description: 'url of the botpress server from which you want to pull changes',
           default: 'http://localhost:3000',
           type: 'string'
         },
-        authorization: {
-          alias: 'auth',
+        authToken: {
+          alias: 'token',
           description: 'your authorization token on the remote botpress server',
           // tslint:disable-next-line:no-null-keyword
           default: null,
@@ -107,9 +106,7 @@ try {
           type: 'string'
         }
       },
-      argv => {
-        require('./pull')(argv)
-      }
+      argv => require('./pull').default(argv)
     )
     .command(
       'bench',
@@ -153,7 +150,7 @@ try {
         }
       },
       argv => {
-        require('./bench')(argv)
+        require('./bench').default(argv)
       }
     )
     .option('verbose', {

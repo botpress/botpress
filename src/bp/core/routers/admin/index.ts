@@ -39,7 +39,7 @@ export class AdminRouter implements CustomRouter {
     this.teamsRouter = new TeamsRouter(logger, this.authService, this.adminService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.adminService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService, this.botLoader)
+    this.versioningRouter = new VersioningRouter(this.adminService, this.ghostService, this.botLoader)
 
     this.setupRoutes()
   }
@@ -67,6 +67,6 @@ export class AdminRouter implements CustomRouter {
     router.use('/teams', this.checkTokenHeader, this.loadUser, this.teamsRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.loadUser, this.licenseRouter.router)
-    router.use('/versioning', this.versioningRouter.router)
+    router.use('/versioning', this.checkTokenHeader, this.versioningRouter.router)
   }
 }

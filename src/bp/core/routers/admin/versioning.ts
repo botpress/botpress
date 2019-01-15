@@ -1,26 +1,18 @@
 import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 
 import { CustomRouter } from '..'
-import { checkTokenHeader, needPermissions } from '../util'
+import { needPermissions } from '../util'
 
 export class VersioningRouter implements CustomRouter {
   public readonly router: Router
 
-  private _checkTokenHeader: RequestHandler
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(
-    private adminService: AdminService,
-    private authService: AuthService,
-    private ghost: GhostService,
-    private botLoader: BotLoader
-  ) {
+  constructor(private adminService: AdminService, private ghost: GhostService, private botLoader: BotLoader) {
     this._needPermissions = needPermissions(this.adminService)
-    this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -30,7 +22,6 @@ export class VersioningRouter implements CustomRouter {
     this.router.get(
       '/pending',
       // TODO add "need super admin" once superadmin is implemented
-      this._checkTokenHeader,
       async (req, res) => {
         res.send(await this.ghost.global().getPending())
       }
@@ -38,7 +29,6 @@ export class VersioningRouter implements CustomRouter {
 
     this.router.get(
       '/export',
-      this._checkTokenHeader,
       // TODO add "need super admin" once superadmin is implemented
       async (req, res) => {
         const botIds = await this.botLoader.getAllBotIds()
@@ -54,16 +44,11 @@ export class VersioningRouter implements CustomRouter {
     )
 
     // Revision ID
-    this.router.post(
-      '/revert',
-      this._checkTokenHeader,
-      this._needPermissions('write', 'bot.ghost_content'),
-      async (req, res) => {
-        const revisionId = req.body.revision
-        const filePath = req.body.filePath
-        await this.ghost.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
-        res.sendStatus(200)
-      }
-    )
+    this.router.post('/revert', this._needPermissions('write', 'bot.ghost_content'), async (req, res) => {
+      const revisionId = req.body.revision
+      const filePath = req.body.filePath
+      await this.ghost.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
+      res.sendStatus(200)
+    })
   }
 }

@@ -24,7 +24,7 @@ class Versioning extends Component {
 
     const { token } = pullToken()
     const host = window.location.origin
-    const command = `${bpcli} pull --host ${host} --auth ${token} --targetDir data`
+    const command = `${bpcli} pull --url ${host} --authToken ${token} --targetDir data`
     this.setState({ command })
   }
 
