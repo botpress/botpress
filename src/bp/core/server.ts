@@ -54,7 +54,6 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
@@ -73,7 +72,7 @@ export default class HTTPServer {
   ) {
     this.app = express()
 
-    if (!isProduction) {
+    if (!process.IS_PRODUCTION) {
       this.app.use(errorHandler())
     }
 

@@ -73,8 +73,7 @@ export class Botpress {
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
-    @inject(TYPES.IsProduction) private isProduction: boolean
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -144,7 +143,7 @@ export class Botpress {
   }
 
   async initializeGhost(): Promise<void> {
-    this.ghostService.initialize(this.isProduction)
+    this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync(['config', 'actions', 'content-types', 'hooks'])
   }
 

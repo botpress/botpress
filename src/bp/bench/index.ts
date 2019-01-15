@@ -166,7 +166,7 @@ class Bench {
   }
 }
 
-module.exports = (argv) => {
+export default argv => {
   const benchmark = new Bench(argv)
   benchmark.start()
 }

@@ -10,7 +10,6 @@ import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
-import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig, DatabaseType } from './botpress.config'
@@ -27,9 +26,8 @@ export interface ConfigProvider {
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.IsProduction) private isProduction: string,
     @inject(TYPES.Logger) private logger: Logger
-  ) { }
+  ) {}
 
   @Memoize()
   async getBotpressConfig(): Promise<BotpressConfig> {
@@ -127,8 +125,8 @@ export class GhostConfigProvider implements ConfigProvider {
       // Variables substitution
       // TODO Check of a better way to handle path correction
       content = content.replace('%BOTPRESS_DIR%', process.PROJECT_LOCATION.replace(/\\/g, '/'))
-      content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
-      content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
+      content = content.replace('"$isProduction"', process.IS_PRODUCTION ? 'true' : 'false')
+      content = content.replace('"$isDevelopment"', process.IS_PRODUCTION ? 'false' : 'true')
 
       return <T>JSON.parse(content)
     } catch (e) {
