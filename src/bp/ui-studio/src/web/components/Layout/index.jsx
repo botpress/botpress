@@ -11,6 +11,7 @@ import Header from './Header'
 import Sidebar from './Sidebar'
 
 import Dock from '~/components/ChatEmulator/Dock'
+import DocumentationModal from '~/components/Layout/DocumentationModal'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Content from '~/views/Content'
 import GhostContent from '~/views/GhostContent'
@@ -22,7 +23,7 @@ import BackendToast from '~/components/Util/BackendToast'
 
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 
-import { viewModeChanged } from '~/actions'
+import { viewModeChanged, updateDocumentationModal } from '~/actions'
 import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
@@ -57,6 +58,14 @@ class Layout extends React.Component {
     }
   }
 
+  toggleDocs = () => {
+    if (this.props.docModal) {
+      this.props.updateDocumentationModal(null)
+    } else if (this.props.docHints.length) {
+      this.props.updateDocumentationModal(this.props.docHints[0])
+    }
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -69,11 +78,13 @@ class Layout extends React.Component {
     })
 
     const keyHandlers = {
-      'emulator-focus': this.focusEmulator
+      'emulator-focus': this.focusEmulator,
+      'docs-toggle': this.toggleDocs
     }
 
     return (
       <HotKeys handlers={keyHandlers}>
+        <DocumentationModal />
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <main className={layout.main} id="main" tabIndex={9999}>
@@ -108,10 +119,11 @@ class Layout extends React.Component {
 
 const mapStateToProps = state => ({
   license: state.license,
-  viewMode: state.ui.viewMode
+  viewMode: state.ui.viewMode,
+  docHints: state.ui.docHints
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, updateDocumentationModal }, dispatch)
 
 export default connect(
   mapStateToProps,

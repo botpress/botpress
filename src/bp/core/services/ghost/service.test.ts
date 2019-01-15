@@ -30,10 +30,8 @@ describe('Ghost Service', () => {
   })
 
   describe(`Using Disk Driver`, () => {
-    beforeEach(async () => {
-      await ghost.initialize({
-        ghost: { enabled: false }
-      })
+    beforeEach(() => {
+      ghost.initialize(false)
     })
 
     it('DB Driver is never ever called', async () => {
@@ -117,9 +115,7 @@ describe('Ghost Service', () => {
       }
 
     beforeEach(() => {
-      ghost.initialize({
-        ghost: { enabled: true }
-      })
+      ghost.initialize(true)
     })
 
     describe('read/write/delete', async () => {

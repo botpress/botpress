@@ -10,7 +10,6 @@ import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
-import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig, DatabaseType } from './botpress.config'
@@ -27,7 +26,6 @@ export interface ConfigProvider {
 export class GhostConfigProvider implements ConfigProvider {
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.IsProduction) private isProduction: string,
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
@@ -41,8 +39,6 @@ export class GhostConfigProvider implements ConfigProvider {
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
     config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
     config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url
-
-    config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
 
     if (config.pro) {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
@@ -114,12 +110,12 @@ export class GhostConfigProvider implements ConfigProvider {
         content = await this.ghostService
           .forBot(botId)
           .readFileAsString('/', fileName)
-          .catch(_err => this.ghostService.forBot(botId, false).readFileAsString('/', fileName))
+          .catch(_err => this.ghostService.forBot(botId).readFileAsString('/', fileName))
       } else {
         content = await this.ghostService
           .global()
           .readFileAsString('/', fileName)
-          .catch(_err => this.ghostService.global(false).readFileAsString('/', fileName))
+          .catch(_err => this.ghostService.global().readFileAsString('/', fileName))
       }
 
       if (!content) {
@@ -129,8 +125,8 @@ export class GhostConfigProvider implements ConfigProvider {
       // Variables substitution
       // TODO Check of a better way to handle path correction
       content = content.replace('%BOTPRESS_DIR%', process.PROJECT_LOCATION.replace(/\\/g, '/'))
-      content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
-      content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
+      content = content.replace('"$isProduction"', process.IS_PRODUCTION ? 'true' : 'false')
+      content = content.replace('"$isDevelopment"', process.IS_PRODUCTION ? 'false' : 'true')
 
       return <T>JSON.parse(content)
     } catch (e) {

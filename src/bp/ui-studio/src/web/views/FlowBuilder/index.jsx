@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom'
 import _ from 'lodash'
 import { HotKeys } from 'react-hotkeys'
 
+import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import ContentWrapper from '~/components/Layout/ContentWrapper'
 import PageHeader from '~/components/Layout/PageHeader'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
@@ -85,6 +86,7 @@ class FlowBuilder extends Component {
 
     return (
       <HotKeys handlers={keyHandlers} focused>
+        <DocumentationProvider file="flows" />
         <ContentWrapper stretch={true} className={style.wrapper}>
           <PageHeader className={style.header} width="100%">
             <Topbar readOnly={readOnly} />

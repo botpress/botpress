@@ -229,6 +229,7 @@ export default class EmulatorChat extends React.Component {
           <Button onClick={this.handleChangeUserId}>
             <Glyphicon glyph="refresh" /> New session
           </Button>
+
           <OverlayTrigger placement="bottom" overlay={toggleInspector}>
             <Button onClick={this.toggleInspector} className={style.pullRight}>
               <Glyphicon glyph="search" />

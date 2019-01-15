@@ -1,5 +1,4 @@
 import axios from 'axios'
-import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
@@ -54,10 +53,7 @@ export default class Storage implements QnaStorage {
   }
 
   async syncNlu() {
-    const { data: isNeeded } = await axios.get('/mod/nlu/sync/check', this.axiosConfig)
-    if (isNeeded) {
-      await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
-    }
+    await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
   }
 
   // TODO Find better way to implement. When manually copying QNA, intents are not created.
@@ -67,9 +63,9 @@ export default class Storage implements QnaStorage {
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, this.axiosConfig)
 
     for (const question of allQuestions) {
-      const found = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
+      const matchedIntent = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
 
-      if (question.data.enabled && !found) {
+      if (question.data.enabled && !matchedIntent) {
         const intent = {
           entities: [],
           utterances: normalizeQuestions(question.data.questions)

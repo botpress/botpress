@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Modal, Button, Radio, OverlayTrigger, Tooltip, Glyphicon } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import axios from 'axios'
 import _ from 'lodash'
+
+import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
 
 import SelectActionDropdown from './SelectActionDropdown'
 import ParametersTable from './ParametersTable'
@@ -87,11 +89,7 @@ export default class ActionModalForm extends Component {
       </OverlayTrigger>
     )
 
-    const paramsHelp = (
-      <OverlayTrigger placement="bottom" overlay={tooltip2}>
-        <span className={style.tip}>What is this?</span>
-      </OverlayTrigger>
-    )
+    const paramsHelp = <LinkDocumentationProvider file="memory" />
 
     const onParamsChange = params => {
       params = _.values(params).reduce((sum, n) => {
@@ -207,7 +205,7 @@ export default class ActionModalForm extends Component {
               💬 Say something
             </Radio>
             <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
-              ⚡ Execute code
+              ⚡ Execute code <LinkDocumentationProvider file="action" />
             </Radio>
           </div>
 

@@ -25,8 +25,13 @@ history.listen(() => {
 })
 
 const logPageView = () => {
-  ReactGA.set({ page: history.location.pathname })
-  ReactGA.pageview(history.location.pathname)
+  let page = history.location.pathname
+  // Strips the bot path param so we get unified data
+  if (page.startsWith('/flows')) {
+    page = '/flows'
+  }
+  ReactGA.set({ page })
+  ReactGA.pageview(page)
 }
 
 export default () => {

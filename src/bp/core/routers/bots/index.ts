@@ -96,7 +96,7 @@ export class BotsRouter implements CustomRouter {
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
       gaId: gaId,
-      ghostEnabled: this.ghostService.isGhostEnabled,
+      ghostEnabled: this.ghostService.enabled,
       flowEditorDisabled: !process.IS_LICENSED,
       botpress: {
         name: 'Botpress Server',
@@ -116,6 +116,13 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get('/:app(studio|lite)/js/env.js', async (req, res) => {
       const { botId, app } = req.params
+
+      try {
+        await this.botRepository.getBotById(botId)
+      } catch (err) {
+        return res.sendStatus(404)
+      }
+
       const data = this.studioParams(botId)
       const liteEnv = `
               // Lite Views Specific
