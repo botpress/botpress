@@ -3,6 +3,7 @@ import { copyDir } from 'core/misc/pkg-fs'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
@@ -120,8 +121,8 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
-    const pro = this.config!.pro.enabled
-    const redis = this.config!.pro.redis.enabled
+    const pro = _.get(this.config, 'pro.enabled', undefined)
+    const redis = _.get(this.config, 'pro.redis.enabled', undefined)
     const postgres = this.config!.database.type.toLowerCase() === 'postgres'
 
     if (!pro && redis) {
