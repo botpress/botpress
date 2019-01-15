@@ -89,9 +89,12 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+
     this.config = await this.loadConfiguration()
+    await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
+    await this.checkEditionRequirements()
     await this.createDatabase()
     await this.initializeGhost()
     await this.loadModules(options.modules)
@@ -116,6 +119,28 @@ export class Botpress {
     process.JWT_SECRET = jwtSecret
   }
 
+  async checkEditionRequirements() {
+    const pro = this.config!.pro.enabled
+    const redis = this.config!.pro.redis.enabled
+    const postgres = this.config!.database.type.toLowerCase() === 'postgres'
+
+    if (!pro && redis) {
+      this.logger.warn(
+        'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
+      )
+    }
+    if (pro && postgres && !redis) {
+      this.logger.warn(
+        'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+      )
+    }
+    if (pro && !postgres && redis) {
+      throw new Error(
+        'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
+      )
+    }
+  }
+
   async deployAssets() {
     try {
       const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
@@ -137,9 +162,7 @@ export class Botpress {
 
   async discoverBots(): Promise<void> {
     const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.botLoader.mountBot(bot)
-    }
+    await Promise.map(botIds, botId => this.botLoader.mountBot(botId))
   }
 
   async initializeGhost(): Promise<void> {

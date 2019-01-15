@@ -62,7 +62,7 @@ export class KnexSessionRepository implements SessionRepository {
         modified_on: this.database.knex.date.now(),
         created_on: this.database.knex.date.now()
       },
-      ['id', 'botId', 'context', 'temp_data', 'session_data', 'active_on', 'modified_on', 'created_on']
+      ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on']
     )
 
     if (newSession) {

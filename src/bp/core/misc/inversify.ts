@@ -1,11 +1,10 @@
+import { ConfigProvider } from 'core/config/config-loader'
+import { TYPES } from 'core/types'
 import { Container, interfaces } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
-/**
- * Installs an Inversify middleware that scan classes implementing the "IDisposeOnExit" interface
- * And calls their disposal method before the process exits
- */
-export const applyDisposeOnExit = (container: Container) => {
-  const disposeMethods: Function[] = []
+const getBoundInstancesFn = (container: Container, functionName: string): (() => Function[]) => {
+  const bound: Function[] = []
 
   const applyToBinding = (binding: interfaces.Binding<any>): void => {
     const bindingOnActivation = binding.onActivation
@@ -15,8 +14,8 @@ export const applyDisposeOnExit = (container: Container) => {
         target = bindingOnActivation(context, target)
       }
 
-      if (target && typeof target.disposeOnExit === 'function') {
-        disposeMethods.push(target.disposeOnExit.bind(target))
+      if (target && typeof target[functionName] === 'function') {
+        bound.push(target[functionName].bind(target))
       }
 
       return target
@@ -30,8 +29,18 @@ export const applyDisposeOnExit = (container: Container) => {
     })
   })
 
+  return () => bound
+}
+
+/**
+ * Installs an Inversify middleware that scan classes implementing the "IDisposeOnExit" interface
+ * And calls their disposal method before the process exits
+ */
+export const applyDisposeOnExit = (container: Container) => {
+  const provider = getBoundInstancesFn(container, 'disposeOnExit')
+
   const cleanup = code => {
-    disposeMethods.forEach(m => m())
+    provider().forEach(m => m())
     process.exit(process.exitCode)
   }
 
@@ -41,4 +50,15 @@ export const applyDisposeOnExit = (container: Container) => {
   process.on('SIGHUP', cleanup)
   process.on('SIGUSR2', cleanup)
   process.on('SIGTERM', cleanup)
+}
+
+export const applyInitializeFromConfig = (container: Container) => {
+  const provider = getBoundInstancesFn(container, 'initializeFromConfig')
+
+  const appLifecycle = container.get<AppLifecycle>(TYPES.AppLifecycle)
+  appLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED).then(async () => {
+    const configProvider = container.get<ConfigProvider>(TYPES.ConfigProvider)
+    const botpressConfig = await configProvider.getBotpressConfig()
+    provider().forEach(m => m(botpressConfig))
+  })
 }

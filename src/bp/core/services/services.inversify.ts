@@ -1,5 +1,6 @@
 import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
+import { CEJobService, JobService } from 'core/services/job-service'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -38,6 +39,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<LicensingService>(TYPES.LicensingService)
     .to(CELicensingService)
+    .inSingletonScope()
+    .when(() => !process.IS_PRO_ENABLED)
+
+  bind<JobService>(TYPES.JobService)
+    .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 

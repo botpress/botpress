@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -11,7 +12,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../types'
 
-import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ObjectCache, StorageDriver } from '.'
+import { GhostPendingRevisions, GhostPendingRevisionsWithContent, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 

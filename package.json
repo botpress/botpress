@@ -50,7 +50,7 @@
     "mustache": "^3.0.0",
     "nanoid": "^1.2.3",
     "node-machine-id": "^1.1.10",
-    "pg": "^7.4.3",
+    "pg": "^7.8.0",
     "plur": "^3.0.1",
     "portfinder": "^1.0.19",
     "querystring": "^0.2.0",
@@ -78,6 +78,7 @@
     "@types/lodash": "^4.14.116",
     "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
+    "@types/redis": "^2.8.10",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
@@ -115,6 +116,7 @@
     "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {
+    "redis": "^2.8.0",
     "sqlite3": "^4.0.3"
   },
   "husky": {
