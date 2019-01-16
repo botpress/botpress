@@ -58,7 +58,6 @@ export class EventEngine {
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
-    @inject(TYPES.IsProduction) private isProduction: boolean,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
   ) {
@@ -161,7 +160,7 @@ export class EventEngine {
   }
 
   private validateEvent(event: sdk.IO.Event) {
-    if (this.isProduction) {
+    if (process.IS_PRODUCTION) {
       // In production we optimize for speed, validation is useful for debugging purposes
       return
     }

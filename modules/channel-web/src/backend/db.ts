@@ -32,7 +32,7 @@ export default class WebchatDb {
       .createTableIfNotExists('web_conversations', function(table) {
         table.increments('id').primary()
         table.string('userId')
-        table.integer('botId')
+        table.string('botId')
         table.string('title')
         table.string('description')
         table.string('logo_url')
@@ -49,7 +49,7 @@ export default class WebchatDb {
           table.string('message_type')
           table.text('message_text')
           table.jsonb('message_raw')
-          table.binary('message_data') // Only useful if type = file
+          table.jsonb('message_data') // Only useful if type = file
           table.string('full_name')
           table.string('avatar_url')
           table.timestamp('sent_on')

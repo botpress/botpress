@@ -41,6 +41,12 @@ class Menu extends Component {
         isPro: true
       },
       {
+        title: 'Versioning',
+        active: activePage === 'versioning',
+        show: true, // display this only if user is superadmin (once we have the superadmin concept)
+        link: '/versioning'
+      },
+      {
         title: 'Teams',
         active: activePage === 'teams',
         show: true,

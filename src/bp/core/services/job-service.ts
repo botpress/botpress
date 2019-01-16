@@ -8,13 +8,14 @@ export interface JobService {
    *
    * * In Botpress CE, the function will be returned directly.
    * @param fn The function or "job" to execute
+   * @param T The return type of the returned function
    */
-  broadcast(fn: Function): Promise<Function>
+  broadcast<T>(fn: Function): Promise<Function>
 }
 
 @injectable()
 export class CEJobService implements JobService {
-  async broadcast(fn: Function): Promise<Function> {
+  async broadcast<T>(fn: Function): Promise<Function> {
     return fn
   }
 }

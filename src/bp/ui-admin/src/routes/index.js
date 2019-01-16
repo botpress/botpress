@@ -20,6 +20,7 @@ import LicensingStatus from '../Pages/Licensing/Status'
 import LicensingLogin from '../Pages/Licensing/Login'
 import LicensingKeys from '../Pages/Licensing/Keys'
 import LicensingRegister from '../Pages/Licensing/Register'
+import VersioningPage from '../Pages/Versioning'
 
 import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
@@ -85,6 +86,7 @@ export const makeMainRoutes = () => {
               <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
               <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
               <Route exact path="/licensing/keys" render={props => <LicensingKeys {...props} />} />
+              <Route exact path="/versioning" render={props => <VersioningPage {...props} />} />
               <Redirect from="/" to="/teams" />
             </Switch>
           </PrivateRoute>
