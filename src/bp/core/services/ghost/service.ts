@@ -61,7 +61,6 @@ export class GhostService {
       this.diskDriver,
       this.dbDriver,
       this.enabled,
-
       this.cache,
       this.logger
     )
@@ -289,6 +288,15 @@ export class ScopedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
     await this.invalidateFile(fileName)
+  }
+
+  async deleteFolder(folder: string): Promise<void> {
+    if (this.isDirectoryGlob) {
+      throw new Error(`Ghost can't read or write under this scope`)
+    }
+
+    const folderName = this.normalizeFolderName(folder)
+    await this.primaryDriver.deleteDir(folderName)
   }
 
   async directoryListing(

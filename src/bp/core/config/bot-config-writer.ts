@@ -96,9 +96,9 @@ export class BotConfigWriter {
     await scopedGhost.upsertFile('/', fileName, JSON.stringify(config, undefined, 2))
   }
 
-  async deleteBotFolder(botId: string) {
+  async deleteBot(botId: string) {
     const scopedGhost = this.ghost.forBot(botId)
-    await scopedGhost.deleteFile('/', 'bot.config.json')
+    await scopedGhost.deleteFolder('/')
   }
 
   private _listDir(
