@@ -158,12 +158,7 @@ export class ScopedGhostService {
   }
 
   async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
-    await Promise.all(
-      content.map(c => {
-        console.log(c.name)
-        this.upsertFile(rootFolder, c.name, c.content)
-      })
-    )
+    await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
   async sync(paths: string[]) {
