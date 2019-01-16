@@ -161,6 +161,7 @@ pre.code {
 @import './scss/_tables.scss';
 @import './scss/_profile.scss';
 @import './scss/_license.scss';
+@import './scss/_licensing.scss';
 
 // BP
 
@@ -185,4 +186,21 @@ pre.code {
 .bot-template-desc {
   font-size: 12px;
   padding: 10px;
+}
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.btn-link {
+  padding: 0px 3px 0px 3px !important;
+}
+
+.form-range {
+  padding-right: 25px;
 }

@@ -6742,7 +6742,7 @@ abbr {
   display: flex;
   align-items: center;
   font-size: 14px;
-  margin-bottom: 20px; }
+  margin-bottom: 5px; }
   .license-infos__label {
     display: inline-block;
     margin-right: 5px; }
@@ -6752,6 +6752,180 @@ abbr {
     text-decoration: dotted underline; }
   .license-infos--fingerprint .license-infos__icon {
     margin-left: auto; }
+
+.form-fieldset {
+  margin-bottom: 2em; }
+  .form-fieldset__icon {
+    margin-left: 0.5rem;
+    margin-bottom: -3px; }
+    .form-fieldset__icon path {
+      fill: currentColor; }
+
+.form__label,
+.form .label-like {
+  color: var(--c-brand--light);
+  display: block;
+  font-size: 1rem;
+  font-weight: 600; }
+  .form__label--radio,
+  .form .label-like--radio {
+    color: currentColor;
+    font-size: 14px;
+    text-transform: none; }
+
+.form__select {
+  width: 100%; }
+
+.form-range {
+  display: flex;
+  align-items: center;
+  position: relative; }
+  .form-range__value {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 5px;
+    position: absolute;
+    right: 0; }
+
+.form__range {
+  background-color: #e3e3e3;
+  border-radius: 12px;
+  height: 25px;
+  outline: none;
+  width: calc(100% - 30px);
+  transition: opacity 0.2s;
+  -webkit-transition: opacity 0.2s;
+  -webkit-appearance: none; }
+  .form__range:hover {
+    opacity: 1; }
+
+.form__range::-webkit-slider-thumb {
+  background-color: var(--c-brand);
+  border-radius: 50%;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative; }
+
+.form input[type='radio'] {
+  margin-right: 10px; }
+  .form input[type='radio'][disabled] + span {
+    cursor: not-allowed;
+    opacity: 0.5; }
+
+.table--scroll {
+  overflow-x: scroll; }
+
+.table--keys {
+  color: var(--c-dark);
+  border: 1px solid #ccc;
+  font-size: 14px; }
+  .table--keys tr[disabled] span,
+  .table--keys tr[disabled] a {
+    color: #ccc; }
+  .table--keys tr:nth-child(odd) {
+    background-color: #f1f1f1; }
+  .table--keys th {
+    color: var(--c-text--light);
+    background: var(--c-brand); }
+  .table--keys td:last-of-type {
+    text-align: right; }
+    .table--keys td:last-of-type .btn--text {
+      border: 0;
+      color: #007bff;
+      font-size: 12px;
+      margin: 0;
+      padding: 0; }
+      .table--keys td:last-of-type .btn--text::after {
+        content: none; }
+  .table--keys__users {
+    font-weight: 600;
+    text-align: center;
+    width: 50px; }
+    .table--keys__users[disabled] {
+      background-color: transparent;
+      border-color: transparent; }
+  .table--keys__assigned[disabled] {
+    background-color: transparent;
+    border-color: transparent;
+    -webkit-appearance: none; }
+  .table--keys__assigned.assigned {
+    color: green; }
+  .table--keys__assigned.not-assigned {
+    color: red; }
+  .table--keys__cost {
+    font-weight: 600; }
+
+.modal__key {
+  background: #f1f1f1;
+  max-height: 250px;
+  overflow: scroll;
+  padding: 10px; }
+
+.modal code {
+  background-color: transparent;
+  font-size: 12px;
+  padding: 0; }
+
+.copied {
+  color: green;
+  font-size: 13px;
+  position: relative;
+  animation: copied 1.5s linear both;
+  animation-play-state: running; }
+
+.check {
+  animation: check 0.5s ease both;
+  animation-play-state: running;
+  border: 2px solid green;
+  border-right: none;
+  border-top: none;
+  bottom: 2px;
+  height: 7px;
+  position: absolute;
+  left: 3px;
+  transform: rotate(-45deg);
+  transform-origin: top left;
+  width: 15px; }
+
+.checkout__buy {
+  float: right; }
+
+.registerBtn {
+  float: right; }
+
+.licensing_table {
+  width: 100%;
+  font-size: 80%;
+  table-layout: fixed; }
+  .licensing_table thead th:nth-child(1) {
+    width: 110px; }
+  .licensing_table thead th:nth-child(2) {
+    width: 80%; }
+  .licensing_table td {
+    padding-bottom: 15px; }
+  .licensing_table .addons {
+    font-weight: bold;
+    height: 55px; }
+  .licensing_table .title {
+    font-weight: bold; }
+  .licensing_table .description {
+    max-width: 400px; }
+  .licensing_table .form-check-input {
+    margin: 0px;
+    position: relative; }
+
+.sourcesList {
+  border: 1px solid #ccc;
+  margin: 20px 0 10px 0; }
+  .sourcesList .sourceItem {
+    padding: 10px;
+    padding-left: 40px;
+    border-bottom: 1px solid #ccc; }
+    .sourcesList .sourceItem .deleteButton {
+      float: right; }
 
 .form-check-label {
   font-size: 12px; }
@@ -6769,3 +6943,15 @@ abbr {
 .bot-template-desc {
   font-size: 12px;
   padding: 10px; }
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer; }
+  .link:hover {
+    opacity: 0.8; }
+
+.btn-link {
+  padding: 0px !important; }
+
+.form-range {
+  padding-right: 25px; }
