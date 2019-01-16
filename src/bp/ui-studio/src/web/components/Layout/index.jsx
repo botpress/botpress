@@ -14,7 +14,6 @@ import Dock from '~/components/ChatEmulator/Dock'
 import DocumentationModal from '~/components/Layout/DocumentationModal'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Content from '~/views/Content'
-import GhostContent from '~/views/GhostContent'
 import FlowBuilder from '~/views/FlowBuilder'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
@@ -92,7 +91,6 @@ class Layout extends React.Component {
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
               <Route exact path="/content" component={Content} />
-              <Route exact path="/version-control" component={GhostContent} />
               <Route exact path="/flows/:flow*" component={FlowBuilder} />
               <Route exact path="/modules/:moduleName/:subView?" render={props => <Module {...props} />} />
               <Route exact path="/notifications" component={Notifications} />
