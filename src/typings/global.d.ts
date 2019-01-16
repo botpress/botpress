@@ -22,10 +22,11 @@ declare namespace NodeJS {
     pkg: any
     IS_LICENSED: boolean
     IS_PRO_ENABLED: boolean
-    ASSERT_LICENSED: Function
+    ASSERT_LICENSED: (featureName?: PRO_FEATURES) => void
     BOTPRESS_VERSION: string
   }
 }
 
 declare var process: NodeJS.Process
 declare var global: NodeJS.Global
+declare type PRO_FEATURES = 'seats'

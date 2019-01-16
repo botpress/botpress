@@ -12,13 +12,18 @@ import TeamMembersPage from '../Pages/Teams/Members'
 import TeamRolesPage from '../Pages/Teams/Roles'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
-import LicensePage from '../Pages/License'
+
 import Landing from '../Pages/Landing'
 import LandingStep2 from '../Pages/LandingStep2'
 import UsersListPage from '../Pages/Users'
+import LicensingStatus from '../Pages/Licensing/Status'
+import LicensingLogin from '../Pages/Licensing/Login'
+import LicensingKeys from '../Pages/Licensing/Keys'
+import LicensingRegister from '../Pages/Licensing/Register'
 import VersioningPage from '../Pages/Versioning'
 
 import Auth from '../Auth'
+import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 
 import store, { history } from '../store'
@@ -57,7 +62,6 @@ export const makeMainRoutes = () => {
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route exact path="/profile" render={props => <ProfilePage {...props} />} />
-              <Route exact path="/license" render={props => <LicensePage {...props} />} />
               <Route
                 exact
                 from="/teams/:teamId"
@@ -65,11 +69,23 @@ export const makeMainRoutes = () => {
                   return <Redirect to={`/teams/${match.params.teamId}/bots`} />
                 }}
               />
+              <Route
+                exact
+                path="/licensing/logout"
+                render={() => {
+                  logoutLicensing()
+                  return <Redirect to={{ pathname: '/licensing' }} />
+                }}
+              />
               <Route exact path="/teams" render={props => <TeamsListPage {...props} />} />
               <Route exact path="/teams/:teamId/bots" render={props => <TeamBotsPage {...props} />} />
               <Route exact path="/teams/:teamId/members" render={props => <TeamMembersPage {...props} />} />
               <Route exact path="/teams/:teamId/roles" render={props => <TeamRolesPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
+              <Route exact path="/licensing" render={props => <LicensingStatus {...props} />} />
+              <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
+              <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
+              <Route exact path="/licensing/keys" render={props => <LicensingKeys {...props} />} />
               <Route exact path="/versioning" render={props => <VersioningPage {...props} />} />
               <Redirect from="/" to="/teams" />
             </Switch>

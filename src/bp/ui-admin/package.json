@@ -13,6 +13,7 @@
     "bluebird": "^3.5.1",
     "bootstrap": "^4.1.0",
     "classnames": "^2.2.5",
+    "firebase": "^5.7.2",
     "jdenticon": "^2.0.0",
     "joi-browser": "^13.0.1",
     "moment": "^2.21.0",
