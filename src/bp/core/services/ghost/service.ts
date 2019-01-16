@@ -12,7 +12,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../types'
 
-import { GhostPendingRevisions, GhostPendingRevisionsWithContent, StorageDriver } from '.'
+import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ServerGhostPendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
@@ -30,7 +30,7 @@ export class GhostService {
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
-  ) {}
+  ) { }
 
   initialize(enabled: boolean) {
     this.enabled = enabled
@@ -61,7 +61,6 @@ export class GhostService {
       this.diskDriver,
       this.dbDriver,
       this.enabled,
-
       this.cache,
       this.logger
     )
@@ -101,6 +100,19 @@ export class GhostService {
       return fse.readFile(outFile)
     } finally {
       tmpDir.removeCallback()
+    }
+  }
+
+  public async getPending(botIds: string[]): Promise<ServerGhostPendingRevisions | {}> {
+    if (!this.enabled) {
+      return {}
+    }
+
+    const global = await this.global().getPending()
+    const bots = await Promise.mapSeries(botIds, async botId => this.forBot(botId).getPending())
+    return {
+      global,
+      bots
     }
   }
 }

@@ -22,4 +22,9 @@ export type GhostPendingRevisionsWithContent = {
   [rootFolder: string]: Array<GhostFileRevision & { content: Buffer }>
 }
 
+export interface ServerGhostPendingRevisions {
+  global: GhostPendingRevisions
+  bots: GhostPendingRevisions[]
+}
+
 export * from './cache-invalidators'

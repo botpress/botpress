@@ -23,7 +23,8 @@ export class VersioningRouter implements CustomRouter {
       '/pending',
       // TODO add "need super admin" once superadmin is implemented
       async (req, res) => {
-        res.send(await this.ghost.global().getPending())
+        const botIds = await this.botLoader.getAllBotIds()
+        res.send(await this.ghost.getPending(botIds))
       }
     )
 
