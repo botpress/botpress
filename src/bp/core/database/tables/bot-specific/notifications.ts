@@ -10,10 +10,7 @@ export class NotificationsTable extends Table {
         .increments('id')
         .notNullable()
         .primary()
-      table
-        .string('botId')
-        .references('id')
-        .inTable('srv_bots')
+      table.string('botId').notNullable()
       table.string('message')
       table.string('level')
       table.string('module_id')

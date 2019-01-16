@@ -16,6 +16,7 @@ import HTTPServer from './server'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
+import { WorkspaceService } from './services/workspace'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -107,6 +108,11 @@ container
 container
   .bind<DataRetentionService>(TYPES.DataRetentionService)
   .to(DataRetentionService)
+  .inSingletonScope()
+
+container
+  .bind<WorkspaceService>(TYPES.WorkspaceService)
+  .to(WorkspaceService)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

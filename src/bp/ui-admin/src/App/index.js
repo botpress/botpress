@@ -16,7 +16,6 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { fetchTeams } from '../modules/teams'
 import { fetchProfile } from '../modules/user'
 import { fetchLicensing } from '../modules/license'
 
@@ -29,7 +28,6 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    !this.props.teams && this.props.fetchTeams()
     !this.props.profile && this.props.fetchProfile()
     !this.props.licensing && this.props.fetchLicensing()
   }
@@ -111,9 +109,6 @@ class Home extends Component {
 }
 
 const mapStateToProps = state => ({
-  teams: state.teams.items,
-  currentTeamId: state.teams.teamId,
-  currentTeam: state.teams.team,
   profile: state.user.profile,
   licensing: state.license.licensing
 })
@@ -122,7 +117,6 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       fetchProfile,
-      fetchTeams,
       fetchLicensing
     },
     dispatch

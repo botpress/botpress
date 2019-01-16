@@ -12,7 +12,7 @@ import { isAuthenticated as isAuthenticatedLicensing } from '../../Auth/licensin
 class Menu extends Component {
   constructor(props) {
     super(props)
-    this.state = { menu: [], currentTeam: undefined }
+    this.state = { menu: [] }
   }
 
   componentDidMount() {
@@ -33,7 +33,7 @@ class Menu extends Component {
 
     const menu = [
       {
-        title: 'Users',
+        title: 'Collaborators',
         active: activePage === 'users',
         show: true,
         disabled: this.isCommunity(),
@@ -47,33 +47,16 @@ class Menu extends Component {
         link: '/versioning'
       },
       {
-        title: 'Teams',
-        active: activePage === 'teams',
+        title: 'Bots',
+        active: activePage === 'bots',
         show: true,
-        link: '/teams',
-        subHeader: this.props.currentTeam && this.props.currentTeam.name,
-        childs: [
-          {
-            title: 'Bots',
-            active: activePage === 'bots',
-            link: `/teams/${currentTeamId}/bots`,
-            show: this.checkPermissions('admin.team.bots', 'read')
-          },
-          {
-            title: 'Members',
-            active: activePage === 'members',
-            link: `/teams/${currentTeamId}/members`,
-            show: this.checkPermissions('admin.team.members', 'read'),
-            isPro: true
-          },
-          {
-            title: 'Roles',
-            active: activePage === 'roles',
-            link: `/teams/${currentTeamId}/roles`,
-            show: this.checkPermissions('admin.team.roles', 'read'),
-            isPro: true
-          }
-        ]
+        link: '/bots'
+      },
+      {
+        title: 'Roles',
+        active: activePage === 'roles',
+        show: true,
+        link: '/roles'
       },
       {
         title: 'Licensing',
@@ -158,9 +141,8 @@ class Menu extends Component {
 }
 
 const mapStateToProps = state => ({
-  teams: state.teams.items,
   license: state.license.license,
-  currentUserPermissions: state.user.permissions[state.teams.teamId],
+  currentUserPermissions: state.user.permissions,
   licensingAccount: state.license.licensingAccount
 })
 

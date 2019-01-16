@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import jsonwebtoken from 'jsonwebtoken'
 
 const generateRandomString = length => {
   return crypto
@@ -20,3 +21,19 @@ export const saltHashPassword = password => {
 }
 
 export const validateHash = (password: string, hash: string, salt: string) => calculateHash(password, salt) === hash
+
+export const generateUserToken = async (userId: number, audience?: string) => {
+  return Promise.fromCallback<string>(cb => {
+    jsonwebtoken.sign(
+      {
+        id: userId
+      },
+      process.JWT_SECRET,
+      {
+        expiresIn: '6h',
+        audience
+      },
+      cb
+    )
+  })
+}

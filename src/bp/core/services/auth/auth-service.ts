@@ -1,19 +1,18 @@
 import { Logger } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
+
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
-import Knex from 'knex'
 
 import Database from '../../database'
 import { AuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
+import { WorkspaceService } from '../workspace'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'
-import { saltHashPassword, validateHash } from './util'
+import { generateUserToken, saltHashPassword, validateHash } from './util'
 
-const USERS_TABLE = 'auth_users'
 export const TOKEN_AUDIENCE = 'web-login'
 
 @injectable()
@@ -23,12 +22,9 @@ export default class AuthService {
     @tagged('name', 'Auth')
     private logger: Logger,
     @inject(TYPES.Database) private db: Database,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
   ) {}
-
-  get knex(): Knex & KnexExtension {
-    return this.db.knex!
-  }
 
   async getResources(): Promise<Resource[]> {
     if (process.IS_PRO_ENABLED) {
@@ -39,11 +35,7 @@ export default class AuthService {
   }
 
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.knex(USERS_TABLE)
-      .where(where)
-      .select(selectFields || ['*'])
-      .then<Array<AuthUser>>(res => res)
-      .get(0)
+    return this.workspace.findUser(where, selectFields)
   }
 
   findUserByUsername(username: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
@@ -57,7 +49,7 @@ export default class AuthService {
   async checkUserAuth(username: string, password: string, newPassword?: string) {
     const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt', 'password_expired'])
 
-    if (!user || !validateHash(password || '', user.password, user.salt)) {
+    if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
       throw new InvalidCredentialsError()
     }
@@ -68,34 +60,13 @@ export default class AuthService {
 
     return user.id
   }
-
-  async createUser(user: Partial<AuthUser>) {
-    return this.knex.insertAndRetrieve<number>(USERS_TABLE, user)
+  async createUser(user: AuthUser) {
+    return this.workspace.createUser(user)
   }
 
-  async updateUser(username: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
-    // Shady thing because knex date is a raw and can't be assigned to a date object...
-    const more = updateLastLogon ? { last_logon: this.db.knex.date.now() } : {}
-    return this.knex(USERS_TABLE)
-      .where({ username })
-      .update({ ...userData, ...more })
-      .then()
-  }
-
-  async generateUserToken(userId: number, audience?: string) {
-    return Promise.fromCallback<string>(cb => {
-      jsonwebtoken.sign(
-        {
-          id: userId
-        },
-        process.JWT_SECRET,
-        {
-          expiresIn: '6h',
-          audience
-        },
-        cb
-      )
-    })
+  async updateUser(userId: number, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
+    const more = updateLastLogon ? { last_logon: new Date() } : {}
+    return await this.workspace.updateUser(userId, { ...userData, ...more })
   }
 
   async checkToken(token: string, audience?: string) {
@@ -112,14 +83,14 @@ export default class AuthService {
 
     if (newPassword) {
       const hash = saltHashPassword(newPassword)
-      await this.updateUser(username, {
+      await this.updateUser(userId, {
         password: hash.hash,
         salt: hash.salt,
         password_expired: false
       })
     }
 
-    await this.updateUser(username, { last_ip: ipAddress }, true)
-    return this.generateUserToken(userId, TOKEN_AUDIENCE)
+    await this.updateUser(userId, { last_ip: ipAddress }, true)
+    return generateUserToken(userId, TOKEN_AUDIENCE)
   }
 }

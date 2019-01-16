@@ -23,6 +23,8 @@ export type BotConfig = {
   id: string
   /** The name of the bot, used for display purpose only */
   name: string
+  /** The name of the workspace where the bot belongs */
+  workspace: string
   /**
    * @default true
    */

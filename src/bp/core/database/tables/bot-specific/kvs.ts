@@ -8,11 +8,8 @@ export class KeyValueStoreTable extends Table {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('key').primary()
       table.text('value').notNullable()
-      table
-        .string('botId')
-        .references('id')
-        .inTable('srv_bots')
-        .onDelete('CASCADE')
+      table.string('botId').notNullable()
+
       table.timestamp('modified_on')
       created = true
     })

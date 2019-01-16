@@ -1,14 +1,14 @@
 import { combineReducers } from 'redux'
 import { routerReducer } from 'react-router-redux'
-import teams from './teams'
 import user from './user'
 import license from './license'
 import versioning from './versioning'
+import bots from './bots'
 
 export default combineReducers({
   routing: routerReducer,
   versioning,
   license,
-  teams,
-  user,
+  bots,
+  user
 })

@@ -27,13 +27,13 @@ import {
 
 import _ from 'lodash'
 
-import { fetchTeamData, fetchBotTemplates } from '../../modules/teams'
-import { fetchPermissions } from '../../modules/user'
+import { fetchPermissions } from '../modules/user'
+import { fetchBotTemplates, fetchBots } from '../modules/bots'
 
-import SectionLayout from '../Layouts/Section'
-import LoadingSection from '../Components/LoadingSection'
+import SectionLayout from './Layouts/Section'
+import LoadingSection from './Components/LoadingSection'
 
-import api from '../../api'
+import api from '../api'
 
 class Bots extends Component {
   state = {
@@ -52,17 +52,16 @@ class Bots extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchTeamData(this.props.teamId, { bots: true })
-    this.props.fetchPermissions(this.props.teamId)
     this.props.fetchBotTemplates()
+    this.props.fetchBots()
   }
 
   componentDidUpdate(prevProps) {
     if ((!this.props.bots && !this.props.loading) || prevProps.teamId !== this.props.teamId) {
-      this.props.fetchTeamData(this.props.teamId, { bots: true })
+      //  this.props.fetchTeamData(this.props.teamId, { bots: true })
     }
     if (prevProps.teamId !== this.props.teamId) {
-      this.props.fetchPermissions(this.props.teamId)
+      // this.props.fetchPermissions(this.props.teamId)
     }
   }
 
@@ -80,14 +79,13 @@ class Bots extends Component {
 
   createBot = async () => {
     const name = this.state.name
-    const teamId = this.props.teamId
     let id = this.state.id
 
     if (id[id.length - 1] === '-') {
       id = id.slice(0, id.length - 1)
     }
 
-    const { error } = Joi.validate({ id, name, team: teamId }, BotCreationSchema)
+    const { error } = Joi.validate({ id, name }, BotCreationSchema)
     if (error) {
       console.log(error)
       this.setState({ errorCreateBot: error })
@@ -97,9 +95,10 @@ class Bots extends Component {
     const template = _.pick(this.state.botTemplate, ['id', 'moduleId'])
     await api
       .getSecured()
-      .post(`/admin/teams/${teamId}/bots`, { id, name, template: template.id !== undefined ? template : undefined })
+      .post(`/admin/bots`, { id, name, template: template.id !== undefined ? template : undefined })
       .catch(err => this.setState({ errorCreateBot: err }))
-    await this.props.fetchTeamData(this.props.teamId)
+    await this.props.fetchBots()
+
     this.toggleCreateBotModal()
   }
 
@@ -116,12 +115,12 @@ class Bots extends Component {
 
     await api
       .getSecured()
-      .put(`/admin/teams/${this.props.teamId}/bots/${id}`, {
+      .put(`/admin/bots/${id}`, {
         name,
         description
       })
       .catch(err => this.setState({ errorEditBot: err }))
-    await this.props.fetchTeamData(this.props.teamId)
+    await this.props.fetchBots()
     this.toggleEditBotModal()
   }
 
@@ -345,7 +344,7 @@ class Bots extends Component {
   }
 
   render() {
-    if (this.props.loading || !this.props.bots) {
+    if (!this.props.bots) {
       return this.renderLoading()
     }
 
@@ -355,7 +354,7 @@ class Bots extends Component {
 
     return (
       <SectionLayout
-        title={`${this.props.team.name}'s bots`}
+        title={`${this.props.team}'s bots`}
         helpText="This page lists all the bots created under this team."
         activePage="bots"
         currentTeam={this.props.team}
@@ -367,17 +366,15 @@ class Bots extends Component {
 }
 
 const mapStateToProps = state => ({
-  bots: state.teams.bots,
-  teamId: state.teams.teamId,
-  team: state.teams.team,
-  loading: state.teams.loadingTeam,
-  botTemplates: state.teams.botTemplates
+  bots: state.bots.bots,
+  loading: state.bots.loadingBots,
+  botTemplates: state.bots.botTemplates
 })
 
 const mapDispatchToProps = {
-  fetchTeamData,
   fetchPermissions,
-  fetchBotTemplates
+  fetchBotTemplates,
+  fetchBots
 }
 
 export default connect(

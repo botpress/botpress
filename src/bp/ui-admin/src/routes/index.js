@@ -6,10 +6,7 @@ import { ConnectedRouter } from 'react-router-redux'
 import App from '../App'
 
 import LoginPage from '../Pages/Login'
-import TeamBotsPage from '../Pages/Teams/Bots'
-import TeamsListPage from '../Pages/Teams/List'
-import TeamMembersPage from '../Pages/Teams/Members'
-import TeamRolesPage from '../Pages/Teams/Roles'
+import BotsPage from '../Pages/Bots'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
 
@@ -25,7 +22,6 @@ import VersioningPage from '../Pages/Versioning'
 import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
-
 import store, { history } from '../store'
 
 export const makeMainRoutes = () => {
@@ -77,17 +73,14 @@ export const makeMainRoutes = () => {
                   return <Redirect to={{ pathname: '/licensing' }} />
                 }}
               />
-              <Route exact path="/teams" render={props => <TeamsListPage {...props} />} />
-              <Route exact path="/teams/:teamId/bots" render={props => <TeamBotsPage {...props} />} />
-              <Route exact path="/teams/:teamId/members" render={props => <TeamMembersPage {...props} />} />
-              <Route exact path="/teams/:teamId/roles" render={props => <TeamRolesPage {...props} />} />
+              <Route exact path="/bots" render={props => <BotsPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
               <Route exact path="/licensing" render={props => <LicensingStatus {...props} />} />
               <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
               <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
               <Route exact path="/licensing/keys" render={props => <LicensingKeys {...props} />} />
               <Route exact path="/versioning" render={props => <VersioningPage {...props} />} />
-              <Redirect from="/" to="/teams" />
+              <Redirect from="/" to="/bots" />
             </Switch>
           </PrivateRoute>
         </Switch>

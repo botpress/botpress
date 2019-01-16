@@ -11,8 +11,8 @@ import _ from 'lodash'
 import { CustomRouter } from '..'
 import { checkTokenHeader, loadUser } from '../util'
 
+import { BotsRouter } from './bots'
 import { LicenseRouter } from './license'
-import { TeamsRouter } from './teams'
 import { UsersRouter } from './users'
 import { VersioningRouter } from './versioning'
 
@@ -20,7 +20,7 @@ export class AdminRouter implements CustomRouter {
   public readonly router: Router
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
-  private teamsRouter!: TeamsRouter
+  private botsRouter!: BotsRouter
   private usersRouter!: UsersRouter
   private licenseRouter!: LicenseRouter
   private versioningRouter!: VersioningRouter
@@ -36,7 +36,7 @@ export class AdminRouter implements CustomRouter {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
-    this.teamsRouter = new TeamsRouter(logger, this.authService, this.adminService)
+    this.botsRouter = new BotsRouter(logger, this.authService, this.adminService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.adminService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
     this.versioningRouter = new VersioningRouter(this.adminService, this.ghostService, this.botLoader)
@@ -64,7 +64,7 @@ export class AdminRouter implements CustomRouter {
       res.send(license)
     })
 
-    router.use('/teams', this.checkTokenHeader, this.loadUser, this.teamsRouter.router)
+    router.use('/bots', this.checkTokenHeader, this.loadUser, this.botsRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.loadUser, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, this.versioningRouter.router)

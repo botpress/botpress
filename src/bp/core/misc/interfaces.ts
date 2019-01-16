@@ -10,11 +10,18 @@ export interface IInitializeFromConfig {
   initializeFromConfig(config: BotpressConfig): void
 }
 
+export interface Workspace {
+  name: string
+  users: AuthUser[]
+  roles: AuthRole[]
+}
+
 export interface AuthUser {
   id: number
   username: string
-  password: string
-  salt: string
+  password?: string
+  salt?: string
+  role?: string
   firstname?: string
   lastname?: string
   fullName?: string
@@ -23,9 +30,11 @@ export interface AuthUser {
   last_ip?: string
   email?: string
   location?: string
+  provider?: string
   last_logon?: Date
   password_expired?: boolean
 }
+
 
 export interface AuthTeam {
   id: number

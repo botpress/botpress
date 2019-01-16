@@ -61,7 +61,7 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       "Retrieved team member's permissions successfully",
-      await this.adminService.getUserPermissions((req as RequestWithUser).dbUser!.id, req.params.teamId)
+      await this.adminService.getUserPermissions((req as RequestWithUser).dbUser!.id)
     )
   }
 
