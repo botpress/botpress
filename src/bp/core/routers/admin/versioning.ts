@@ -1,19 +1,13 @@
 import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
-import { AdminService } from 'core/services/admin/service'
-import { RequestHandler, Router } from 'express'
+import { Router } from 'express'
 
 import { CustomRouter } from '..'
-import { needPermissions } from '../util'
 
 export class VersioningRouter implements CustomRouter {
   public readonly router: Router
 
-  private _needPermissions: (operation: string, resource: string) => RequestHandler
-
-  constructor(private adminService: AdminService, private ghost: GhostService, private botLoader: BotLoader) {
-    this._needPermissions = needPermissions(this.adminService)
-
+  constructor(private ghost: GhostService, private botLoader: BotLoader) {
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -43,13 +37,5 @@ export class VersioningRouter implements CustomRouter {
         res.end(tarball)
       }
     )
-
-    // Revision ID
-    this.router.post('/revert', this._needPermissions('write', 'bot.ghost_content'), async (req, res) => {
-      const revisionId = req.body.revision
-      const filePath = req.body.filePath
-      await this.ghost.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
-      res.sendStatus(200)
-    })
   }
 }

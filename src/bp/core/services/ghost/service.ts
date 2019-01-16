@@ -12,7 +12,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../types'
 
-import { GhostPendingRevisions, GhostPendingRevisionsWithContent, ServerGhostPendingRevisions, StorageDriver } from '.'
+import { GhostPendingRevisions, ServerGhostPendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
@@ -108,8 +108,8 @@ export class GhostService {
       return {}
     }
 
-    const global = await this.global().getPending()
-    const bots = await Promise.mapSeries(botIds, async botId => this.forBot(botId).getPending())
+    const global = await this.global().getPendingChanges()
+    const bots = await Promise.mapSeries(botIds, async botId => this.forBot(botId).getPendingChanges())
     return {
       global,
       bots
@@ -227,19 +227,6 @@ export class ScopedGhostService {
     return allFiles
   }
 
-  public async revertFileRevision(fullFilePath: string, revision: string): Promise<void> {
-    const backup = await this.dbDriver.readFile(fullFilePath)
-    try {
-      const content = await this.diskDriver.readFile(fullFilePath)
-      await this.dbDriver.upsertFile(fullFilePath, content, false)
-      await this.dbDriver.deleteRevision(fullFilePath, revision)
-      await this.cache.invalidateStartingWith(fullFilePath)
-    } catch (err) {
-      await this.dbDriver.upsertFile(fullFilePath, backup)
-      throw err
-    }
-  }
-
   public async isFullySynced(): Promise<boolean> {
     if (!this.useDbDriver) {
       return true
@@ -313,7 +300,7 @@ export class ScopedGhostService {
     }
   }
 
-  async getPending(): Promise<GhostPendingRevisions> {
+  async getPendingChanges(): Promise<GhostPendingRevisions> {
     if (!this.useDbDriver) {
       return {}
     }
@@ -332,18 +319,6 @@ export class ScopedGhostService {
       result[folder].push(revision)
     }
 
-    return result
-  }
-
-  async getPendingWithContent(): Promise<GhostPendingRevisionsWithContent> {
-    const revisions = await this.getPending()
-    const result = {}
-    for (const folder in revisions) {
-      result[folder] = await Promise.mapSeries(revisions[folder], async x => {
-        const content = await this.dbDriver.readFile(x.path)
-        return { ...x, content: content.toString() }
-      })
-    }
     return result
   }
 }
