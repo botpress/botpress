@@ -1,4 +1,4 @@
-import LicensingService, { FingerprintType, LicenseInfo, LicenseStatus } from 'common/licensing-service'
+import LicensingService, { Features, FingerprintType, LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { injectable } from 'inversify'
 
 @injectable()
