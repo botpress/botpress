@@ -33,7 +33,7 @@ export class BotConfigWriter {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfig = path.resolve(templatePath, this.BOT_CONFIG_FILENAME)
-    const botDestinationPath = path.join(process.PROJECT_LOCATION, `./data/bots/${bot.id}/`)
+    const botDestinationPath = path.join(process.PROJECT_LOCATION, `data/bots/${bot.id}/`)
 
     try {
       await fse.ensureDir(botDestinationPath)
