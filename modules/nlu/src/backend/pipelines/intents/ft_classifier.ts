@@ -17,7 +17,7 @@ export default class FastTextClassifier implements IntentClassifier {
   private fastTextWrapper!: FastTextWrapper
 
   private sanitizeText(text: string): string {
-    return text.toLowerCase().replace(/[^\w\s]/gi, '')
+    return text.toLowerCase().replace(/[^\w\s]|\r|\f/gi, '')
   }
 
   private _writeTrainingSet(intents: TrainSet[], trainingFilePath: string) {
