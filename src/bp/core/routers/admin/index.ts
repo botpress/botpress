@@ -39,7 +39,7 @@ export class AdminRouter implements CustomRouter {
     this.teamsRouter = new TeamsRouter(logger, this.authService, this.adminService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.adminService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.ghostService, this.botLoader)
+    this.versioningRouter = new VersioningRouter(this.ghostService, this.botLoader)
 
     this.setupRoutes()
   }
