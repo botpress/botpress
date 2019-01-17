@@ -130,7 +130,7 @@ export class Botpress {
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
-    if (pro && postgres && !redis) {
+    if (pro && !redis) {
       this.logger.warn(
         'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
       )

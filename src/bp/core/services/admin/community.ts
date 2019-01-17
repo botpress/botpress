@@ -159,10 +159,11 @@ export class CommunityAdminService implements AdminService {
       })
   }
 
-  async deleteBot(teamId: number, botId: string) {
+  async deleteBot(teamId: number, botId: string): Promise<void> {
     await this.botLoader.unmountBot(botId)
+    await this.botConfigWriter.deleteBot(botId)
     await this.knex(this.botsTable)
-      .where({ team: teamId, id: botId })
+      .where({ id: botId, team: teamId })
       .del()
   }
 

@@ -117,6 +117,11 @@ export class GhostService {
   }
 }
 
+export interface FileContent {
+  name: string
+  content: string | Buffer
+}
+
 export class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
@@ -162,6 +167,10 @@ export class ScopedGhostService {
 
     await this.primaryDriver.upsertFile(fileName, content, true)
     this.invalidateFile(fileName)
+  }
+
+  async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
+    await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
   async sync(paths: string[]) {
@@ -279,6 +288,15 @@ export class ScopedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
     await this.invalidateFile(fileName)
+  }
+
+  async deleteFolder(folder: string): Promise<void> {
+    if (this.isDirectoryGlob) {
+      throw new Error(`Ghost can't read or write under this scope`)
+    }
+
+    const folderName = this.normalizeFolderName(folder)
+    await this.primaryDriver.deleteDir(folderName)
   }
 
   async directoryListing(
