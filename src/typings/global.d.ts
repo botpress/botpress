@@ -22,7 +22,7 @@ declare namespace NodeJS {
     pkg: any
     IS_LICENSED: boolean
     IS_PRO_ENABLED: boolean
-    IS_REDIS_ENABLED: boolean
+    CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
   }
