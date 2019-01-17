@@ -36,8 +36,6 @@ export class BotConfigWriter {
     const botDestinationPath = path.join(process.PROJECT_LOCATION, `data/bots/${bot.id}/`)
 
     try {
-      await fse.ensureDir(botDestinationPath)
-
       const startsWithADot = /^\./gm
       const templateFiles = this._listDir(templatePath, [startsWithADot])
       const scopedGhost = this.ghost.forBot(bot.id)
