@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
-import { GhostFileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
@@ -70,7 +70,7 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+  async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
     try {
       const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
       return JSON.parse(content.toString())

@@ -4,21 +4,11 @@ import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 import { Collapse } from 'react-bootstrap'
-import GhostChecker from '~/views/GhostContent/Checker'
 import PermissionsChecker from './PermissionsChecker'
 
 const style = require('./Sidebar.scss')
 
 const BASIC_MENU_ITEMS = [
-  window.GHOST_ENABLED && {
-    name: 'Version Control',
-    path: '/version-control',
-    rule: { res: 'bot.ghost_content', op: 'read' },
-    icon: 'content_copy',
-    renderSuffix() {
-      return <GhostChecker />
-    }
-  },
   {
     name: 'Content',
     path: '/content',
@@ -79,10 +69,10 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-        <i className="icon material-icons" style={{ marginRight: '5px' }}>
-          {module.menuIcon}
-        </i>
-      )
+          <i className="icon material-icons" style={{ marginRight: '5px' }}>
+            {module.menuIcon}
+          </i>
+        )
 
     const navClasses = this.state.activeLink === path ? style.active : ''
     const entitiesPath = path + '/entities'

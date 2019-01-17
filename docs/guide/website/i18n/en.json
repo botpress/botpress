@@ -50,6 +50,9 @@
       "manage/sync-changes": {
         "title": "Syncing Changes"
       },
+      "manage/versions": {
+        "title": "Versions"
+      },
       "migrate": {
         "title": "Migrating from 10.X"
       },
@@ -139,6 +142,21 @@
       },
       "version-11.2.0-troubleshoot": {
         "title": "Troubleshoot"
+      },
+      "version-11.3.0-channels": {
+        "title": "Messaging Channels"
+      },
+      "version-11.3.0-code": {
+        "title": "Custom Code"
+      },
+      "version-11.3.0-debug": {
+        "title": "Debugging"
+      },
+      "version-11.3.0-nlu": {
+        "title": "NLU"
+      },
+      "version-11.3.0-overview": {
+        "title": "High-level Overview"
       }
     },
     "links": {
@@ -150,6 +168,7 @@
       "Getting Started": "Getting Started",
       "Build": "Build",
       "Deploy": "Deploy",
+      "Manage": "Manage",
       "Developers": "Developers"
     }
   },

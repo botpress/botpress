@@ -1,6 +1,11 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Getting Started": [
+      "introduction",
+      "installation",
+      "troubleshoot",
+      "quickstart"
+    ],
     "Build": [
       "build/overview",
       "build/debug",
@@ -12,7 +17,17 @@
       "build/channels",
       "build/debugging"
     ],
-    "Deploy": ["deploy/hosting"],
-    "Developers": ["release-notes", "migrate", "create-module", "tutorials"]
+    "Deploy": [
+      "deploy/hosting"
+    ],
+    "Manage": [
+      "manage/versions"
+    ],
+    "Developers": [
+      "release-notes",
+      "migrate",
+      "create-module",
+      "tutorials"
+    ]
   }
 }
