@@ -27,4 +27,8 @@ export interface Config {
    * @default 6 hours
    */
   recentConversationLifetime?: string
+  /**
+   * @default 360
+   */
+  maxMessageLength?: number
 }
