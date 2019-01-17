@@ -1,10 +1,11 @@
 import { Logger } from 'botpress/sdk'
-import { AuthUser, Workspace } from 'core/misc/interfaces'
+import { AuthUser, BasicAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
+import defaultRoles from './admin/default-roles'
 import { GhostService } from './ghost/service'
 
 @injectable()
@@ -21,12 +22,20 @@ export class WorkspaceService {
   }
 
   async loadAll(): Promise<void> {
-    const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
-    this._workspace = workspaces[0]
+    try {
+      const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
+      this._workspace = workspaces[0]
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        this._workspace = this.getDefaultWorkspace()
+      } else {
+        this.logger.attachError(error).error(`Error loading workspace`)
+      }
+    }
   }
 
   async save() {
-    const workspaces = [{ ...this._workspace, name: 'default' }]
+    const workspaces = [this._workspace]
     this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
   }
 
@@ -44,7 +53,7 @@ export class WorkspaceService {
     return user
   }
 
-  async createUser(authUser: AuthUser): Promise<number> {
+  async createUser(authUser: BasicAuthUser): Promise<AuthUser> {
     const highestId = _.max(_.map(this._workspace.users, 'id')) || 0
 
     const newUser: AuthUser = {
@@ -56,7 +65,7 @@ export class WorkspaceService {
 
     this._workspace.users = newList
     await this.save()
-    return newUser.id
+    return newUser
   }
 
   async updateUser(userId: number, userData: Partial<AuthUser>) {
@@ -81,6 +90,14 @@ export class WorkspaceService {
     if (index > -1) {
       this._workspace.users.splice(index, 1)
       await this.save()
+    }
+  }
+
+  getDefaultWorkspace() {
+    return {
+      name: 'default',
+      users: [],
+      roles: defaultRoles
     }
   }
 }

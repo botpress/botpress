@@ -16,6 +16,16 @@ export interface Workspace {
   roles: AuthRole[]
 }
 
+export interface AuthConfig {
+  isFirstTimeUse: boolean
+}
+
+export type BasicAuthUser = Partial<AuthUser> & {
+  username: string
+  password: string
+  salt: string
+}
+
 export interface AuthUser {
   id: number
   username: string
@@ -35,37 +45,16 @@ export interface AuthUser {
   password_expired?: boolean
 }
 
-
-export interface AuthTeam {
-  id: number
-  name: string
-  invite_code: string
-}
-
-export interface AuthTeamMembership {
-  id: number
-  user: number
-  team: number
-  role: string
-}
-
 export interface AuthRule {
   res: string
   op: string
 }
 
-interface AuthRoleCommon {
-  id?: number
+export interface AuthRole {
+  id: string
   name: string
   description: string
-}
-
-export type AuthRole = AuthRoleCommon & {
   rules: Array<AuthRule>
-}
-
-export type AuthRoleDb = AuthRoleCommon & {
-  rules: string
 }
 
 export interface TokenUser {

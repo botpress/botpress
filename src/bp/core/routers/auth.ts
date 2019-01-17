@@ -1,7 +1,9 @@
 import { Logger } from 'botpress/sdk'
-import { RequestWithUser } from 'core/misc/interfaces'
+import { ConfigProvider } from 'core/config/config-loader'
+import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { WorkspaceService } from 'core/services/workspace'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
@@ -19,7 +21,13 @@ export class AuthRouter implements CustomRouter {
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
+  constructor(
+    logger: Logger,
+    private authService: AuthService,
+    private adminService: AdminService,
+    private configProvider: ConfigProvider,
+    private workspaceService: WorkspaceService
+  ) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -32,6 +40,28 @@ export class AuthRouter implements CustomRouter {
     const token = await this.authService.login(req.body.username, req.body.password, req.body.newPassword, getIp(req))
 
     return sendSuccess(res, 'Login successful', { token })
+  }
+
+  getAuthConfig = async () => {
+    const usersList = this.workspaceService.listUsers()
+    const isFirstTimeUse = !usersList || !usersList.length
+
+    return { isFirstTimeUse } as AuthConfig
+  }
+
+  register = async (req, res) => {
+    const config = await this.getAuthConfig()
+    if (!config.isFirstTimeUse) {
+      res.status(403).send(`Registration is disabled`)
+    } else {
+      const { username, password } = req.body
+      const token = await this.authService.register(username, password)
+      return sendSuccess(res, 'Registration successful', { token })
+    }
+  }
+
+  sendConfig = async (req, res) => {
+    return sendSuccess(res, 'Auth Config', await this.getAuthConfig())
   }
 
   getProfile = async (req, res) => {
@@ -72,9 +102,13 @@ export class AuthRouter implements CustomRouter {
   setupRoutes() {
     const router = this.router
 
+    router.get('/config', this.asyncMiddleware(this.sendConfig))
+
     router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
 
     router.post('/login', this.asyncMiddleware(this.login))
+
+    router.post('/register', this.asyncMiddleware(this.register))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
 

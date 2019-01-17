@@ -1,82 +1,78 @@
 import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
-import logo from '../media/nobg_white.png'
-import api from '../api'
+import logo from '../../media/nobg_white.png'
+
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
-export default class Login extends Component {
+export default class Register extends Component {
   state = {
-    isFirstTimeUse: false,
     username: '',
     password: '',
-    passwordExpired: false,
-    error: null
+    confirmPassword: ''
   }
 
-  loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous().get('/auth/config')
-
-    this.setState({ isFirstTimeUse: data.payload.isFirstTimeUse })
-  }
-
-  componentDidMount() {
-    this.loadAuthConfig()
-  }
-
-  login = async ({ username, password, showError = true } = {}) => {
+  register = async () => {
     this.setState({ error: null })
 
+    if (this.state.password !== this.state.confirmPassword) {
+      this.setState({ error: `Passwords don't match` })
+      return
+    }
+
     try {
-      await this.props.auth.login({
-        username: username || this.state.username,
-        password: password || this.state.password
+      await this.props.auth.register({
+        username: this.state.username,
+        password: this.state.password
       })
     } catch (err) {
-      if (err.type === 'PasswordExpiredError') {
-        if (!this.state.username || !this.state.password) {
-          this.setState({ username, password })
-        }
-
-        this.setState({ passwordExpired: true })
-      } else {
-        showError && this.setState({ error: err.message })
-      }
+      this.setState({ error: err.message })
     }
   }
 
   handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
-  handleInputKeyPress = e => e.key === 'Enter' && this.login()
+  handleInputKeyPress = e => e.key === 'Enter' && this.register()
 
   renderForm = () => {
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>
-        <CardText>Login</CardText>
+        <CardText>This is the first time you run Botpress. Please create the master admin account.</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
           <label htmlFor="username">Username</label>
           <Input
-            value={this.state.username}
-            onChange={this.handleInputChange}
             type="text"
             name="username"
             id="username"
+            value={this.state.username}
+            onChange={this.handleInputChange}
             onKeyPress={this.onInputKeyPress}
           />
         </FormGroup>
         <FormGroup>
           <label htmlFor="password">Password</label>
           <Input
-            value={this.state.password}
-            onChange={this.handleInputChange}
             type="password"
             name="password"
             id="password"
-            onKeyPress={this.onInputKeyPress}
+            value={this.state.password}
+            onChange={this.handleInputChange}
+            onKeyPress={this.handleInputKeyPress}
+          />
+        </FormGroup>
+        <FormGroup>
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <Input
+            type="password"
+            name="confirmPassword"
+            id="confirmPassword"
+            value={this.state.confirmPassword}
+            onChange={this.handleInputChange}
+            onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
         <p>
-          <Button onClick={this.login}>Sign in</Button>
+          <Button onClick={this.register}>Create Account</Button>
         </p>
       </Fragment>
     )
@@ -85,14 +81,6 @@ export default class Login extends Component {
   render() {
     if (this.props.auth.isAuthenticated()) {
       return <Redirect to="/" />
-    }
-
-    if (this.state.isFirstTimeUse) {
-      return <Redirect to="/register" />
-    }
-
-    if (this.state.passwordExpired) {
-      return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
     }
 
     return (

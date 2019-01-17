@@ -5,7 +5,7 @@ import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 
 import Database from '../../database'
-import { AuthUser, TokenUser } from '../../misc/interfaces'
+import { AuthUser, BasicAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace'
@@ -60,7 +60,7 @@ export default class AuthService {
 
     return user.id
   }
-  async createUser(user: AuthUser) {
+  async createUser(user: BasicAuthUser) {
     return this.workspace.createUser(user)
   }
 
@@ -75,6 +75,21 @@ export default class AuthService {
         cb(err, !err ? (user as TokenUser) : undefined)
       })
     })
+  }
+
+  async register(username: string, password: string, ipAddress: string = ''): Promise<string> {
+    this.stats.track('auth', 'register', 'success')
+
+    const pw = saltHashPassword(password)
+    const user = await this.createUser({
+      username,
+      password: pw.hash,
+      salt: pw.salt,
+      last_ip: ipAddress,
+      last_logon: new Date()
+    })
+
+    return generateUserToken(user.id, TOKEN_AUDIENCE)
   }
 
   async login(username: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {

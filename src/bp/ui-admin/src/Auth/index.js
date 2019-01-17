@@ -49,6 +49,23 @@ export default class BasicAuthentication {
     }
   }
 
+  register = async ({ username, password }) => {
+    if (this.isAuthenticated()) {
+      return
+    }
+    await this.doRegister({ username, password })
+  }
+
+  async doRegister({ username, password }) {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/register', {
+      username,
+      password
+    })
+
+    this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+    history.replace(HOME_ROUTE)
+  }
+
   setSession({ expiresIn, idToken }) {
     // Set the time that the access token will expire at
     const expiresAt = JSON.stringify((expiresIn || 7200) * 1000 + new Date().getTime())

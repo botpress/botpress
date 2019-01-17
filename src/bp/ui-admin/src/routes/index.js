@@ -6,6 +6,7 @@ import { ConnectedRouter } from 'react-router-redux'
 import App from '../App'
 
 import LoginPage from '../Pages/Login'
+import RegisterPage from '../Pages/Account/Register'
 import BotsPage from '../Pages/Bots'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
@@ -43,12 +44,9 @@ export const makeMainRoutes = () => {
               return <LandingStep2 />
             }}
           />
-          <Route
-            path="/login"
-            render={props => {
-              return <LoginPage auth={auth} {...props} />
-            }}
-          />
+          <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />
+          <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
+
           <Route
             path="/changePassword"
             render={props => {

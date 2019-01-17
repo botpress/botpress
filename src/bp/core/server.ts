@@ -31,6 +31,7 @@ import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
+import { WorkspaceService } from './services/workspace'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
@@ -68,7 +69,8 @@ export default class HTTPServer {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     this.app = express()
 
@@ -79,7 +81,13 @@ export default class HTTPServer {
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
-    this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
+    this.authRouter = new AuthRouter(
+      this.logger,
+      this.authService,
+      this.adminService,
+      this.configProvider,
+      this.workspaceService
+    )
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
