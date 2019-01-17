@@ -12,7 +12,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../types'
 
-import { GhostPendingRevisions, ServerGhostPendingRevisions, StorageDriver } from '.'
+import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
@@ -103,7 +103,7 @@ export class GhostService {
     }
   }
 
-  public async getPending(botIds: string[]): Promise<ServerGhostPendingRevisions | {}> {
+  public async getPending(botIds: string[]): Promise<ServerWidePendingRevisions | {}> {
     if (!this.enabled) {
       return {}
     }
@@ -300,13 +300,13 @@ export class ScopedGhostService {
     }
   }
 
-  async getPendingChanges(): Promise<GhostPendingRevisions> {
+  async getPendingChanges(): Promise<PendingRevisions> {
     if (!this.useDbDriver) {
       return {}
     }
 
     const revisions = await this.dbDriver.listRevisions(this.baseDir)
-    const result: GhostPendingRevisions = {}
+    const result: PendingRevisions = {}
 
     for (const revision of revisions) {
       const rPath = path.relative(this.baseDir, revision.path)

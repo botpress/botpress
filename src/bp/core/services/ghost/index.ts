@@ -3,28 +3,24 @@ export interface StorageDriver {
   readFile(filePath: string): Promise<Buffer>
   deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   directoryListing(folder: string, exlude?): Promise<string[]>
-  listRevisions(pathPrefix: string): Promise<GhostFileRevision[]>
+  listRevisions(pathPrefix: string): Promise<FileRevision[]>
   deleteRevision(filePath: string, revision: string): Promise<void>
 }
 
-export type GhostFileRevision = {
+export type FileRevision = {
   path: string
   revision: string
   created_by: string
   created_on: Date
 }
 
-export type GhostPendingRevisions = {
-  [rootFolder: string]: Array<GhostFileRevision>
+export type PendingRevisions = {
+  [rootFolder: string]: Array<FileRevision>
 }
 
-export type GhostPendingRevisionsWithContent = {
-  [rootFolder: string]: Array<GhostFileRevision & { content: Buffer }>
-}
-
-export interface ServerGhostPendingRevisions {
-  global: GhostPendingRevisions
-  bots: GhostPendingRevisions[]
+export interface ServerWidePendingRevisions {
+  global: PendingRevisions
+  bots: PendingRevisions[]
 }
 
 export * from './cache-invalidators'

@@ -6,7 +6,7 @@ import 'reflect-metadata'
 import { PersistedConsoleLogger } from '../../logger'
 import { createSpyObject, MockObject } from '../../misc/utils'
 
-import { GhostFileRevision } from '.'
+import { FileRevision } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import { GhostService } from './service'
@@ -108,7 +108,7 @@ describe('Ghost Service', () => {
 
   describe('Using DB Driver', async () => {
     const buildRev = n =>
-      <GhostFileRevision>{
+      <FileRevision>{
         path: 'file',
         revision: n
       }
