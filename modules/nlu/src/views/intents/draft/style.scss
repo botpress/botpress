@@ -1,41 +1,44 @@
 .editorContainer {
-  width: 100%;
+  display: flex;
   padding: 10px;
 
   .controls {
-    display: none;
-    margin-top: 5px;
-    text-align: right;
+    display: block;
+    width: 5%;
+    text-align: center;
   }
 
   .action {
-    text-decoration: underline;
     cursor: pointer;
+    margin-top: 7px;
+    display: none;
   }
 
   &.focus {
-    background-color: #fff889;
+    background-color: #eee;
     outline: none;
+  }
 
-    .controls {
+  &:hover {
+    .action {
       display: block;
     }
   }
-}
 
-.editor {
-  background-color: white;
-  width: 100%;
-  border: 1px solid #ececec;
-  font-size: 16px;
-  padding: 5px;
-  display: block;
+  .editor {
+    background-color: white;
+    width: 95%;
+    border: 1px solid #ececec;
+    font-size: 16px;
+    padding: 5px;
+    display: block;
 
-  &:hover {
-    border: 1px solid #cbcbcb;
+    &:hover {
+      border: 1px solid #cbcbcb;
+    }
   }
-}
 
-.entity-label {
-  cursor: pointer;
+  .entity-label {
+    cursor: pointer;
+  }
 }
