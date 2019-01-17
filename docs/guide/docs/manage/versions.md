@@ -7,7 +7,7 @@ Once your bot is deployed, the good part is that you (and non-technical team mem
 
 ## Overview
 
-As for now, you pobably know that some of your bot's behavior is determined by the content coming from the files (Content, Flows, Actions).
+As for now, you probably know that some of your bot's behavior is determined by the content coming from the files (Content, Flows, Actions).
 
 For your convenience Botpress provides the GUI tools to edit these files while in development. We also provide the same tools in production, but there's a caveat. Writing changes to the server's file system is not always possible, they could easily be lost due to the nature of ephemeral server instances. (e.g. when the new version of the bot is deployed, the old server instance may be shut down by the cloud hosting platform).
 
@@ -22,9 +22,9 @@ Notice that without any changes, you will see a **You're all set!** message.
 
 ## Workflow
 
-A best practice is to keep the changes of your bots in your prefered Source Control Management tool (e.g Git) and always deploy the master branch in production. Once deployed, you can regularly pull production changes and apply them to your SCM, or revert them at any moment. With this technique you can harness the power of your SCM for branches, merge conflicted files, review changes & create revisions.
+A best practice is to keep the changes of your bots in your prefered Source Control Management tool (e.g Git) and always deploy the master branch in production. Once deployed, you can regularly pull production changes and apply them to your SCM, or revert them at any moment. With this tip you can harness the power of your SCM for branches, merge conflicted files, review changes & create revisions.
 
-Fine, now what if if you have a more complex deployment pipeine with a(or multiple) staging environment with pending changes on each enviroment? That's what we'll learn next.
+Fine, now what if you have a more complex deployment pipeine with a(or multiple) staging environment with pending changes on each enviroment? That's what we'll learn next.
 
 ## Pipelines
 
