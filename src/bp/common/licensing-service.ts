@@ -14,16 +14,31 @@ export interface LicenseStatus {
   breachReasons: string[]
 }
 
-export type FingerprintType = 'machine_v1'
+export type FingerprintType = 'machine_v1' | 'cluster_url'
+export type SupportType = 'standard' | 'gold'
+export enum Features {
+  Admins,
+  FullTimeNodes
+}
+
+export interface Limit {
+  min: number
+  max: number
+  feature: Features
+  description: string
+  breachMessage: string
+  breachConsequence: 'crash' | 'throw'
+}
 
 export interface LicenseInfo {
+  label: string
   fingerprintType: FingerprintType
   fingerprint: string
-  edition: 'pro' | 'enterprise'
   startDate: string
   endDate: string
+  offline: boolean
   paidUntil: Date
   versions: string
-  seats: number
-  support: 'standard'
+  support: SupportType
+  limits: Limit[]
 }

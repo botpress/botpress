@@ -72,7 +72,7 @@ export default class EditLicense extends Component {
     return (
       <div>
         <Button size="sm" color="primary" outline onClick={this.toggleModal}>
-          Enter License Key
+          Enter license key
         </Button>
         {this.renderModal()}
       </div>

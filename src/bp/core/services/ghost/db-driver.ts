@@ -105,6 +105,19 @@ export default class DBStorageDriver implements StorageDriver {
     }
   }
 
+  async deleteDir(dirPath: string): Promise<void> {
+    try {
+      // TODO: Consider soft-delete however you wont be able to create a bot with the
+      // same name as a bot that has been soft deleted until its completely gone from the DB.
+      await this.database
+        .knex('srv_ghost_files')
+        .where('file_path', 'like', `${dirPath}%`)
+        .del()
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error deleting folder "${dirPath}"`)
+    }
+  }
+
   async directoryListing(folder: string): Promise<string[]> {
     try {
       let query = this.database

@@ -33,7 +33,7 @@ export class BotConfigWriter {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfig = path.resolve(templatePath, this.BOT_CONFIG_FILENAME)
-    const botDestinationPath = path.join(process.PROJECT_LOCATION, `./data/bots/${bot.id}/`)
+    const botDestinationPath = path.join(process.PROJECT_LOCATION, `data/bots/${bot.id}/`)
 
     try {
       await fse.ensureDir(botDestinationPath)
@@ -96,9 +96,9 @@ export class BotConfigWriter {
     await scopedGhost.upsertFile('/', fileName, JSON.stringify(config, undefined, 2))
   }
 
-  async deleteBotFolder(botId: string) {
+  async deleteBot(botId: string) {
     const scopedGhost = this.ghost.forBot(botId)
-    await scopedGhost.deleteFile('/', 'bot.config.json')
+    await scopedGhost.deleteFolder('/')
   }
 
   private _listDir(

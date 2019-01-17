@@ -42,6 +42,14 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async deleteDir(dirPath: string): Promise<void> {
+    try {
+      return fse.removeSync(this.resolvePath(dirPath))
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error deleting directory "${dirPath}"`)
+    }
+  }
+
   async directoryListing(folder: string, exclude?: string | string[]): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)

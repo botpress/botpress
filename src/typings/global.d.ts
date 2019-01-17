@@ -30,3 +30,4 @@ declare namespace NodeJS {
 
 declare var process: NodeJS.Process
 declare var global: NodeJS.Global
+declare type PRO_FEATURES = 'seats'
