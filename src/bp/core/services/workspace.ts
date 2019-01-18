@@ -54,22 +54,19 @@ export class WorkspaceService {
   }
 
   async createUser(authUser: BasicAuthUser): Promise<AuthUser> {
-    const highestId = _.max(_.map(this._workspace.users, 'id')) || 0
-
     const newUser: AuthUser = {
       ...authUser,
-      id: highestId + 1
+      id: ++this._workspace.userSeq
     }
 
-    const newList: AuthUser[] = [...this._workspace.users, newUser]
-
-    this._workspace.users = newList
+    this._workspace.users.push(newUser)
     await this.save()
+
     return newUser
   }
 
   async updateUser(userId: number, userData: Partial<AuthUser>) {
-    const original = await this.findUser({ id: userId })
+    const original = this.findUser({ id: userId })
     if (!original) {
       throw Error('Cannot find user')
     }
@@ -96,6 +93,7 @@ export class WorkspaceService {
   getDefaultWorkspace() {
     return {
       name: 'default',
+      userSeq: 0,
       users: [],
       roles: defaultRoles
     }
