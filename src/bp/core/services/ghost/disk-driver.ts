@@ -21,6 +21,10 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async createDir(dirname: string): Promise<any> {
+    return fse.ensureDir(dirname)
+  }
+
   async readFile(filePath: string): Promise<Buffer> {
     try {
       return fse.readFile(this.resolvePath(filePath))

@@ -28,7 +28,7 @@ const initialState = {
   team: null,
   permissions: null,
   license: null,
-  botTemplates: null
+  botTemplates: []
 }
 
 const teamIdRouteRegex = /^\/teams\/(\d+)/

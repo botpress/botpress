@@ -30,7 +30,7 @@ export class GhostService {
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
-  ) { }
+  ) {}
 
   initialize(enabled: boolean) {
     this.enabled = enabled
@@ -156,6 +156,12 @@ export class ScopedGhostService {
   private async invalidateFile(fileName: string) {
     await this.cache.invalidate(this.objectCacheKey(fileName))
     await this.cache.invalidate(this.bufferCacheKey(fileName))
+  }
+
+  async ensureDirs(rootFolder: string, directories: string[]): Promise<void> {
+    if (!this.useDbDriver) {
+      await Promise.mapSeries(directories, d => this.diskDriver.createDir(this.normalizeFileName(rootFolder, d)))
+    }
   }
 
   async upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void> {
