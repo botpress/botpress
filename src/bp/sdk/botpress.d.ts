@@ -93,7 +93,7 @@ declare module 'botpress/sdk' {
   export interface BotTemplate {
     /** Used internally to identify this template  */
     id: string
-    /** The name that will be displayed in the bot templte menu */
+    /** The name that will be displayed in the bot template menu */
     name: string
     /** Gives a short description of your module, which is displayed once the template is selected */
     desc: string
