@@ -87,7 +87,7 @@ class ChangePassword extends Component {
 
   render() {
     return (
-      <div>
+      <div className="profile__change-pwd">
         <Button color="primary" size="sm" onClick={this.toggleModal}>
           Change Password
         </Button>
