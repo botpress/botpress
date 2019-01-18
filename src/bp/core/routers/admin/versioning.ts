@@ -1,7 +1,8 @@
 import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
 import { WorkspaceService } from 'core/services/workspace'
-import { RequestHandler, Router } from 'express'
+import { RequestHandler } from 'express'
+import { Router } from 'express'
 
 import { CustomRouter } from '..'
 import { needPermissions } from '../util'
@@ -23,7 +24,8 @@ export class VersioningRouter implements CustomRouter {
       '/pending',
       // TODO add "need super admin" once superadmin is implemented
       async (req, res) => {
-        res.send(await this.ghost.global().getPending())
+        const botIds = await this.botLoader.getAllBotIds()
+        res.send(await this.ghost.getPending(botIds))
       }
     )
 
@@ -42,13 +44,5 @@ export class VersioningRouter implements CustomRouter {
         res.end(tarball)
       }
     )
-
-    // Revision ID
-    this.router.post('/revert', this._needPermissions('write', 'bot.ghost_content'), async (req, res) => {
-      const revisionId = req.body.revision
-      const filePath = req.body.filePath
-      await this.ghost.forBot(req.params.botId).revertFileRevision(filePath, revisionId)
-      res.sendStatus(200)
-    })
   }
 }

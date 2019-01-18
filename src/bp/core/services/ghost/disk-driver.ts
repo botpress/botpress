@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import path from 'path'
 import { VError } from 'verror'
 
-import { GhostFileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
@@ -42,6 +42,14 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async deleteDir(dirPath: string): Promise<void> {
+    try {
+      return fse.removeSync(this.resolvePath(dirPath))
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error deleting directory "${dirPath}"`)
+    }
+  }
+
   async directoryListing(folder: string, exclude?: string | string[]): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
@@ -70,7 +78,7 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+  async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
     try {
       const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
       return JSON.parse(content.toString())

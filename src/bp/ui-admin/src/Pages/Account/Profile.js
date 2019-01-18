@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Row, Col } from 'reactstrap'
 
 import SectionLayout from '../Layouts/Section'
@@ -9,26 +10,27 @@ import ProfileUpdate from '../Components/ProfileUpdate'
 class Me extends Component {
   state = { loading: false }
 
-  renderBody() {
+  renderBody = () => {
     return (
-      <Row className="profile">
-        <Col sm="12" md="3">
-          <div className="profile__avatar" />
-          <ChangePassword />
-        </Col>
-        <Col sm="12" md="6">
-          <ProfileUpdate />
-        </Col>
-      </Row>
+      this.props.profile && (
+        <Row>
+          <Col sm="12" md="3" className="profile">
+            <img src={`${this.props.profile.picture}?size=200`} className="profile__picture" />
+            <ChangePassword />
+          </Col>
+          <Col sm="12" md="6">
+            <ProfileUpdate />
+          </Col>
+        </Row>
+      )
     )
   }
 
   render() {
     const renderLoading = () => <LoadingSection />
-
     return (
       <SectionLayout
-        title="Profile"
+        title="My profile"
         activePage="profile"
         mainContent={this.state.loading ? renderLoading() : this.renderBody()}
       />
@@ -36,4 +38,8 @@ class Me extends Component {
   }
 }
 
-export default Me
+const mapStateToProps = state => ({
+  profile: state.user.profile
+})
+
+export default connect(mapStateToProps)(Me)

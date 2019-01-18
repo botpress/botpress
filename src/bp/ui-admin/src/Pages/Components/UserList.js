@@ -28,7 +28,7 @@ class UserList extends Component {
         <Table className="table bp-table">
           <thead>
             <tr>
-              <th>Username</th>
+              <th>Email</th>
               <th>Name</th>
               <th style={isDetailed}>Created at</th>
               <th style={isDetailed}>Last Logon</th>
@@ -44,9 +44,11 @@ class UserList extends Component {
 
                 return (
                   <tr key={user.id}>
-                    <td>{user.username}</td>
+                    <td>{user.email}</td>
                     <td className="table-cell--ellipsis">
-                      {user.firstname}&nbsp;{user.lastname}
+                      {user.firstname}
+                      &nbsp;
+                      {user.lastname}
                     </td>
                     <td style={isDetailed}>{moment(user.created_at).format('lll')}</td>
                     <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>

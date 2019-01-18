@@ -135,6 +135,7 @@ export default class IntentsEditor extends React.Component {
           return (
             <li key={`uttr-${utterance.id}`}>
               <Editor
+                tabIndex={i + 1}
                 getSlotsEditor={() => this.slotsEditor}
                 ref={el => {
                   if (i === 0) {

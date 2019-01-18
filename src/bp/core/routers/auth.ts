@@ -37,7 +37,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   login = async (req, res) => {
-    const token = await this.authService.login(req.body.username, req.body.password, req.body.newPassword, getIp(req))
+    const token = await this.authService.login(req.body.email, req.body.password, req.body.newPassword, getIp(req))
 
     return sendSuccess(res, 'Login successful', { token })
   }
@@ -54,8 +54,8 @@ export class AuthRouter implements CustomRouter {
     if (!config.isFirstTimeUse) {
       res.status(403).send(`Registration is disabled`)
     } else {
-      const { username, password } = req.body
-      const token = await this.authService.register(username, password)
+      const { email, password } = req.body
+      const token = await this.authService.register(email, password)
       return sendSuccess(res, 'Registration successful', { token })
     }
   }
@@ -75,7 +75,6 @@ export class AuthRouter implements CustomRouter {
         'id',
         'picture',
         'provider',
-        'username',
         'firstname',
         'lastname'
       ])

@@ -7,7 +7,7 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } 
 export default class Login extends Component {
   state = {
     isFirstTimeUse: false,
-    username: '',
+    email: '',
     password: '',
     passwordExpired: false,
     error: null
@@ -23,18 +23,18 @@ export default class Login extends Component {
     this.loadAuthConfig()
   }
 
-  login = async ({ username, password, showError = true } = {}) => {
+  login = async ({ email, password, showError = true } = {}) => {
     this.setState({ error: null })
 
     try {
       await this.props.auth.login({
-        username: username || this.state.username,
+        email: email || this.state.email,
         password: password || this.state.password
       })
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
-        if (!this.state.username || !this.state.password) {
-          this.setState({ username, password })
+        if (!this.state.email || !this.state.password) {
+          this.setState({ email, password })
         }
 
         this.setState({ passwordExpired: true })
@@ -54,13 +54,13 @@ export default class Login extends Component {
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">email</label>
           <Input
-            value={this.state.username}
+            value={this.state.email}
             onChange={this.handleInputChange}
             type="text"
-            name="username"
-            id="username"
+            name="email"
+            id="email"
             onKeyPress={this.onInputKeyPress}
           />
         </FormGroup>

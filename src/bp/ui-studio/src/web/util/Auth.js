@@ -34,8 +34,8 @@ export const logout = () => {
   authEvents.emit('logout')
 }
 
-export const login = (username, password) => {
-  return axios.post(`${window.API_PATH}/auth/login`, { username, password }).then(result => {
+export const login = (email, password) => {
+  return axios.post(`${window.API_PATH}/auth/login`, { email, password }).then(result => {
     const { success, token, reason } = result.data.payload
 
     if (success) {
