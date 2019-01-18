@@ -12,11 +12,13 @@ import _ from 'lodash'
 import { TYPES } from '../types'
 
 import defaultRoles from './admin/default-roles'
-import { InvalidOperationError } from './auth/errors'
+import { InvalidOperationError, UnauthorizedAccessError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
 @injectable()
 export class WorkspaceService {
+  protected ROOT_ADMIN_ID = 1 // FIXME: UserIds will disapear to favor email address. Use a flag instead.
+
   private _workspace!: Workspace
 
   constructor(
@@ -113,6 +115,12 @@ export class WorkspaceService {
     const user = this.findUser({ id: userId })
     if (!user) {
       throw new Error(`User "${userId}" is not a part of the workspace "${this._workspace.name}"`)
+    }
+  }
+
+  async assertIsRootAdmin(userId: number) {
+    if (userId !== this.ROOT_ADMIN_ID) {
+      throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
   }
 

@@ -21,8 +21,6 @@ import { AdminService } from './service'
 
 @injectable()
 export class CommunityAdminService implements AdminService {
-  protected ROOT_ADMIN_ID = 1
-
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
@@ -161,12 +159,6 @@ export class CommunityAdminService implements AdminService {
       throw new UnauthorizedAccessError(`User does not have role ${roleName} in the team`)
     }
   }*/
-
-  async assertIsRootAdmin(userId: number) {
-    if (userId !== this.ROOT_ADMIN_ID) {
-      throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
-    }
-  }
 
   /*protected async getRole(where: {}, select?: Array<keyof AuthRole>) {
     return this.knex(this.rolesTable)
