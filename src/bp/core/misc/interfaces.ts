@@ -29,7 +29,7 @@ export type BasicAuthUser = Partial<AuthUser> & {
 
 export interface AuthUser {
   id: number
-  email?: string
+  email: string
   password?: string
   salt?: string
   role?: string
