@@ -34,27 +34,27 @@ export class UsersRouter implements CustomRouter {
     router.post(
       '/', // Create user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         validateBodySchema(
           req,
           Joi.object().keys({
-            username: Joi.string()
+            email: Joi.string()
               .email()
               .trim()
               .required()
           })
         )
-        const username = req.body.username
-        const alreadyExists = await this.authService.findUserByUsername(username, ['id'])
+        const email = req.body.email
+        const alreadyExists = await this.authService.findUserByEmail(email, ['id'])
 
         if (alreadyExists) {
-          throw new InvalidOperationError(`User ${username} is already taken`)
+          throw new InvalidOperationError(`User ${email} is already taken`)
         }
 
-        const tempPassword = await svc.createUser(username)
+        const tempPassword = await svc.createUser(email)
 
         return sendSuccess(res, 'User created successfully', {
-          username,
+          email,
           tempPassword
         })
       })
@@ -63,7 +63,7 @@ export class UsersRouter implements CustomRouter {
     router.delete(
       '/:userId', // Delete user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         const { userId } = req.params
 
         if (userId == 1) {
@@ -80,7 +80,7 @@ export class UsersRouter implements CustomRouter {
     router.get(
       '/reset/:userId',
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         const tempPassword = await svc.resetPassword(req.params.userId)
         return sendSuccess(res, 'Password reseted', {
           tempPassword

@@ -31,7 +31,7 @@ class ChangePassword extends Component {
     await api
       .getSecured()
       .post('/auth/login', {
-        username: this.props.profile.username,
+        email: this.props.profile.email,
         password: this.state.password,
         newPassword: this.state.newPassword
       })
@@ -87,7 +87,7 @@ class ChangePassword extends Component {
 
   render() {
     return (
-      <div>
+      <div className="profile__change-pwd">
         <Button color="primary" size="sm" onClick={this.toggleModal}>
           Change Password
         </Button>

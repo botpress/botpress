@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
-import { checkRule } from 'common/auth'
 import { AdminService } from 'core/services/admin/service'
+import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
@@ -73,6 +73,15 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next()
 }
 
+const generateGravatarURL = (email: string): string => {
+  const hash = crypto
+    .createHash('md5')
+    .update(email)
+    .digest('hex')
+
+  return `https://www.gravatar.com/avatar/${hash}`
+}
+
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
   const reqWithUser = req as RequestWithUser
   const { user } = reqWithUser
@@ -80,15 +89,15 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
     throw new ProcessingError('No user property in the request')
   }
 
-  const dbUser = await authService.findUserById(user.id)
-
-  if (!dbUser) {
+  const authUser = await authService.findUserById(user.id)
+  if (!authUser) {
     throw new UnauthorizedAccessError('Unknown user ID')
   }
 
-  reqWithUser.dbUser = {
-    ...dbUser,
-    fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  reqWithUser.authUser = {
+    ...authUser,
+    picture: generateGravatarURL(authUser.email),
+    fullName: [authUser.firstname, authUser.lastname].filter(Boolean).join(' ')
   }
 
   next()

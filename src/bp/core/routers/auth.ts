@@ -37,7 +37,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   login = async (req, res) => {
-    const token = await this.authService.login(req.body.username, req.body.password, req.body.newPassword, getIp(req))
+    const token = await this.authService.login(req.body.email, req.body.password, req.body.newPassword, getIp(req))
 
     return sendSuccess(res, 'Login successful', { token })
   }
@@ -54,8 +54,8 @@ export class AuthRouter implements CustomRouter {
     if (!config.isFirstTimeUse) {
       res.status(403).send(`Registration is disabled`)
     } else {
-      const { username, password } = req.body
-      const token = await this.authService.register(username, password)
+      const { email, password } = req.body
+      const token = await this.authService.register(email, password)
       return sendSuccess(res, 'Registration successful', { token })
     }
   }
@@ -68,14 +68,13 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).dbUser, [
+      _.pick((req as RequestWithUser).authUser, [
         'company',
         'email',
         'fullName',
         'id',
         'picture',
         'provider',
-        'username',
         'firstname',
         'lastname'
       ])
@@ -83,7 +82,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.adminService.updateUserProfile(req.dbUser.id, req.body.firstname, req.body.lastname)
+    await this.adminService.updateUserProfile(req.authUser.id, req.body.firstname, req.body.lastname)
     return sendSuccess(res, 'Updated profile successfully')
   }
 
@@ -91,7 +90,7 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       "Retrieved team member's permissions successfully",
-      await this.adminService.getUserPermissions((req as RequestWithUser).dbUser!.id)
+      await this.adminService.getUserPermissions((req as RequestWithUser).authUser!.id)
     )
   }
 

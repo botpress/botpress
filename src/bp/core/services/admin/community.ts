@@ -41,7 +41,7 @@ export class CommunityAdminService implements AdminService {
     throw new FeatureNotAvailableError()
   }
 
-  createUser(username: string) {
+  createUser(email: string) {
     throw new FeatureNotAvailableError()
   }
 

@@ -25,16 +25,16 @@ export function logout() {
 }
 
 export default class BasicAuthentication {
-  login = async ({ username, password, newPassword }) => {
+  login = async ({ email, password, newPassword }) => {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doLogin({ username, password, newPassword })
+    await this.doLogin({ email, password, newPassword })
   }
 
-  async doLogin({ username, password, newPassword }) {
+  async doLogin({ email, password, newPassword }) {
     const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/login', {
-      username,
+      email,
       password,
       newPassword
     })
@@ -49,16 +49,16 @@ export default class BasicAuthentication {
     }
   }
 
-  register = async ({ username, password }) => {
+  register = async ({ email, password }) => {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doRegister({ username, password })
+    await this.doRegister({ email, password })
   }
 
-  async doRegister({ username, password }) {
+  async doRegister({ email, password }) {
     const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/register', {
-      username,
+      email,
       password
     })
 
