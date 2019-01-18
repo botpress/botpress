@@ -92,6 +92,7 @@ export default class HTTPServer {
       this.logger,
       this.authService,
       this.adminService,
+      this.workspaceService,
       licenseService,
       this.ghostService,
       this.botLoader
@@ -113,6 +114,7 @@ export default class HTTPServer {
 
   @postConstruct()
   async initialize() {
+    await this.workspaceService.initialize()
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService)

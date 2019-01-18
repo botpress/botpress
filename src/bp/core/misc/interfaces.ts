@@ -63,7 +63,7 @@ export interface TokenUser {
 
 export type RequestWithUser = Request & {
   user?: TokenUser
-  dbUser?: AuthUser
+  authUser?: AuthUser
 }
 
 export interface Bot {

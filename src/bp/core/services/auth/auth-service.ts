@@ -1,10 +1,9 @@
 import { Logger } from 'botpress/sdk'
-
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import nanoid from 'nanoid'
 
-import Database from '../../database'
 import { AuthUser, BasicAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
@@ -21,7 +20,6 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database,
     @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
   ) {}
@@ -67,6 +65,19 @@ export default class AuthService {
   async updateUser(userId: number, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
     const more = updateLastLogon ? { last_logon: new Date() } : {}
     return await this.workspace.updateUser(userId, { ...userData, ...more })
+  }
+
+  async resetPassword(userId: number) {
+    const password = nanoid(15)
+    const { hash, salt } = saltHashPassword(password)
+
+    await this.workspace.updateUser(Number(userId), {
+      password: hash,
+      salt,
+      password_expired: true
+    })
+
+    return password
   }
 
   async checkToken(token: string, audience?: string) {

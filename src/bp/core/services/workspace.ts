@@ -1,11 +1,18 @@
-import { Logger } from 'botpress/sdk'
-import { AuthUser, BasicAuthUser, Workspace } from 'core/misc/interfaces'
+import { BotTemplate, Logger } from 'botpress/sdk'
+import { BotCreationSchema, BotEditSchema } from 'common/validation'
+import { BotLoader } from 'core/bot-loader'
+import { BotConfigWriter } from 'core/config'
+import { ConfigProvider } from 'core/config/config-loader'
+import { AuthUser, BasicAuthUser, Bot, Workspace } from 'core/misc/interfaces'
+import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
 import defaultRoles from './admin/default-roles'
+import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
 @injectable()
@@ -16,12 +23,14 @@ export class WorkspaceService {
     @inject(TYPES.Logger)
     @tagged('name', 'WorkspaceService')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
-  ) {
-    this.loadAll()
-  }
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.BotConfigWriter) private configWriter: BotConfigWriter,
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.Statistics) private stats: Statistics
+  ) {}
 
-  async loadAll(): Promise<void> {
+  async initialize(): Promise<void> {
     try {
       const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
       this._workspace = workspaces[0]
@@ -34,6 +43,59 @@ export class WorkspaceService {
     }
   }
 
+  async addBot(bot: Bot, botTemplate?: BotTemplate): Promise<void> {
+    this.stats.track('ce', 'addBot')
+
+    const { error } = Joi.validate(bot, BotCreationSchema)
+    if (error) {
+      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
+    }
+
+    botTemplate
+      ? await this.configWriter.createFromTemplate(bot, botTemplate)
+      : await this.configWriter.createEmptyBot(bot)
+
+    await this.botLoader.mountBot(bot.id)
+  }
+
+  async updateBot(botId: string, bot: Bot): Promise<void> {
+    this.stats.track('ce', 'updateBot')
+
+    const { error } = Joi.validate(bot, BotEditSchema)
+    if (error) {
+      throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
+    }
+
+    const actualBot = await this.configProvider.getBotConfig(botId)
+    actualBot.name = bot.name
+    actualBot.description = bot.description
+    await this.configProvider.setBotConfig(botId, actualBot)
+  }
+
+  async deleteBot(botId: string) {
+    await this.botLoader.unmountBot(botId)
+    /*await this.knex(this.botsTable)
+      .where({ team: teamId, id: botId })
+      .del()*/
+  }
+
+  async listBots() {
+    const bots = await this.botLoader.getAllBots()
+    // console.log(bots.values())
+    return { count: bots.size, bots: [...bots.values()] }
+    /*const query = this.knex(this.botsTable)
+      .where({ team: teamId })
+      .select('*')
+
+    if (offset && limit) {
+      query.offset(offset).limit(limit)
+    }
+
+    const bots = await query.then<Array<Bot>>(res => res)
+
+    return { count: bots.length, bots }*/
+  }
+
   async save() {
     const workspaces = [this._workspace]
     this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
@@ -44,6 +106,13 @@ export class WorkspaceService {
       return this._workspace.users
     } else {
       return _.map(this._workspace.users, x => _.pick(x, selectFields))
+    }
+  }
+
+  assertUserExists(userId: string): void {
+    const user = this.findUser({ id: userId })
+    if (!user) {
+      throw new Error(`User "${userId}" is not a part of the workspace "${this._workspace.name}"`)
     }
   }
 

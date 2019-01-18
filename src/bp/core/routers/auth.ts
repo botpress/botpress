@@ -68,7 +68,7 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).dbUser, [
+      _.pick((req as RequestWithUser).authUser, [
         'company',
         'email',
         'fullName',
@@ -83,7 +83,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.adminService.updateUserProfile(req.dbUser.id, req.body.firstname, req.body.lastname)
+    await this.adminService.updateUserProfile(req.authUser.id, req.body.firstname, req.body.lastname)
     return sendSuccess(res, 'Updated profile successfully')
   }
 
@@ -91,7 +91,7 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(
       res,
       "Retrieved team member's permissions successfully",
-      await this.adminService.getUserPermissions((req as RequestWithUser).dbUser!.id)
+      await this.adminService.getUserPermissions((req as RequestWithUser).authUser!.id)
     )
   }
 

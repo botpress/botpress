@@ -1,5 +1,4 @@
 import { BotTemplate } from 'botpress/sdk'
-import { checkRule } from 'common/auth'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
@@ -104,19 +103,7 @@ export class CommunityAdminService implements AdminService {
 
   async listBots() {
     const bots = await this.botLoader.getAllBots()
-    // console.log(bots.values())
     return { count: bots.size, bots: [...bots.values()] }
-    /*const query = this.knex(this.botsTable)
-      .where({ team: teamId })
-      .select('*')
-
-    if (offset && limit) {
-      query.offset(offset).limit(limit)
-    }
-
-    const bots = await query.then<Array<Bot>>(res => res)
-
-    return { count: bots.length, bots }*/
   }
 
   async getUserPermissions(userId: number): Promise<AuthRule[]> {

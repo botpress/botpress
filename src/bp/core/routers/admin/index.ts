@@ -5,6 +5,7 @@ import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
 import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { WorkspaceService } from 'core/services/workspace'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
@@ -29,6 +30,7 @@ export class AdminRouter implements CustomRouter {
     logger: Logger,
     private authService: AuthService,
     private adminService: AdminService,
+    private workspaceService: WorkspaceService,
     private licenseService: LicensingService,
     private ghostService: GhostService,
     private botLoader: BotLoader
@@ -36,7 +38,7 @@ export class AdminRouter implements CustomRouter {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.loadUser = loadUser(this.authService)
-    this.botsRouter = new BotsRouter(logger, this.authService, this.adminService)
+    this.botsRouter = new BotsRouter(logger, this.workspaceService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.adminService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
     this.versioningRouter = new VersioningRouter(this.adminService, this.ghostService, this.botLoader)

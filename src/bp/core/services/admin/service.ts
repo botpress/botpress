@@ -1,5 +1,5 @@
 import { BotTemplate } from 'botpress/sdk'
-import { AuthRole, AuthRule, Bot } from 'core/misc/interfaces'
+import { AuthRule, Bot } from 'core/misc/interfaces'
 
 export interface AdminService {
   listUsers()
