@@ -29,7 +29,6 @@ export class AdminRouter implements CustomRouter {
   constructor(
     logger: Logger,
     private authService: AuthService,
-    private adminService: AdminService,
     private workspaceService: WorkspaceService,
     private licenseService: LicensingService,
     private ghostService: GhostService,
@@ -41,7 +40,7 @@ export class AdminRouter implements CustomRouter {
     this.botsRouter = new BotsRouter(logger, this.workspaceService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.ghostService, this.botLoader)
+    this.versioningRouter = new VersioningRouter(this.workspaceService, this.ghostService, this.botLoader)
 
     this.setupRoutes()
   }

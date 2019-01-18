@@ -1,6 +1,6 @@
 import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
-import { AdminService } from 'core/services/admin/service'
+import { WorkspaceService } from 'core/services/workspace'
 import { RequestHandler, Router } from 'express'
 
 import { CustomRouter } from '..'
@@ -11,8 +11,8 @@ export class VersioningRouter implements CustomRouter {
 
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(private adminService: AdminService, private ghost: GhostService, private botLoader: BotLoader) {
-    this._needPermissions = needPermissions(this.adminService)
+  constructor(private workspaceService: WorkspaceService, private ghost: GhostService, private botLoader: BotLoader) {
+    this._needPermissions = needPermissions(this.workspaceService)
 
     this.router = Router({ mergeParams: true })
     this.setupRoutes()

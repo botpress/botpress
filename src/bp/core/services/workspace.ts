@@ -3,7 +3,7 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
 import { ConfigProvider } from 'core/config/config-loader'
-import { AuthUser, BasicAuthUser, Bot, Workspace } from 'core/misc/interfaces'
+import { AuthRole, AuthUser, BasicAuthUser, Bot, Workspace } from 'core/misc/interfaces'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
@@ -128,6 +128,19 @@ export class WorkspaceService {
     const user = _.head(_.filter(this._workspace.users, where))
     // return selectFields ? _.pick(user, selectFields) : user
     return user
+  }
+
+  findRole(name: string): AuthRole {
+    const role = this._workspace.roles.find(r => r.name === name)
+    if (!role) {
+      throw new Error(`Role "${name}" does not exists in workspace "${this._workspace.name}"`)
+    }
+    return role
+  }
+
+  getRoleForUser(userId): AuthRole {
+    const user = this.findUser({ id: userId })!
+    return this.findRole(user.role!)
   }
 
   async createUser(authUser: BasicAuthUser): Promise<AuthUser> {
