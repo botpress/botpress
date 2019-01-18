@@ -1,6 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
 import { CMSService } from 'core/services/cms'
-import { converseApiEvents } from 'core/services/converse'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -70,7 +69,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
     }
 
-    this.logger.debug(`Output "${outputType}"`)
+    this.logger.debug(`SEND "${outputType}"`)
 
     const message: IO.MessageHistory = {
       user: event.preview,
@@ -152,7 +151,7 @@ export class TransitionStrategy implements InstructionStrategy {
     })
 
     if (conditionSuccessful) {
-      this.logger.forBot(botId).debug(`Condition "${instruction.fn}" OK for "${instruction.node}"`)
+      this.logger.forBot(botId).debug(`EVAL "${instruction.fn}" ON [${instruction.node}]`)
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()

@@ -22,7 +22,7 @@ import { GhostService } from './services'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
-import { DialogEngine, ProcessingError } from './services/dialog/engine'
+import { DialogEngine, ProcessingError } from './services/dialog/dialog-engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
@@ -130,7 +130,7 @@ export class Botpress {
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
-    if (pro && postgres && !redis) {
+    if (pro && !redis) {
       this.logger.warn(
         'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
       )

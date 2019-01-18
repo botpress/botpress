@@ -45,7 +45,7 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<JobService>(TYPES.JobService)
     .to(CEJobService)
     .inSingletonScope()
-    .when(() => !process.IS_PRO_ENABLED)
+    .when(() => !process.CLUSTER_ENABLED)
 
   bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))

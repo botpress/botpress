@@ -28,7 +28,6 @@ class DialogEngineError extends Error {}
 class FlowNotFoundError extends DialogEngineError {}
 class NodeNotFoundError extends DialogEngineError {}
 
-// TODO: Add integration tests and use the default welcome-bot flow as a test bench
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError) => void) | undefined
@@ -82,6 +81,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
+        this._logWait(botId)
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
@@ -303,26 +303,30 @@ export class DialogEngine {
   }
 
   private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] << (${previousFlow})[${previousNode}]`)
+    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
   }
 
   private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`(${previousFlow})[${previousNode}] >> (${currentFlow})[${currentNode}]`)
+    this.logger.forBot(botId).debug(`TRANSIT (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
   }
 
   private _logTransition(botId, currentFlow, currentNode, transitionTo) {
-    this.logger.forBot(botId).debug(`(${currentFlow})[${currentNode}] -> [${transitionTo}]`)
+    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
   }
 
   private _logEnd(botId) {
-    this.logger.forBot(botId).debug('Flow ended.')
+    this.logger.forBot(botId).debug('END FLOW')
   }
 
   private _logStart(botId) {
-    this.logger.forBot(botId).debug('Flow started.')
+    this.logger.forBot(botId).debug('EVENT RECV')
   }
 
   private _logTimeout(botId) {
-    this.logger.forBot(botId).debug('Flow timed out.')
+    this.logger.forBot(botId).debug('TIMEOUT')
+  }
+
+  private _logWait(botId) {
+    this.logger.forBot(botId).debug('WAIT')
   }
 }

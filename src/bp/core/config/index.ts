@@ -1,1 +1,1 @@
-export * from './config-writer'
+export * from './bot-config-writer'

@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
-import { DialogEngine } from './engine'
+import { DialogEngine } from './dialog-engine'
 
 @injectable()
 export class DecisionEngine {

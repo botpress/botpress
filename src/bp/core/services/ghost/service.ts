@@ -12,7 +12,7 @@ import { VError } from 'verror'
 
 import { TYPES } from '../../types'
 
-import { GhostPendingRevisions, GhostPendingRevisionsWithContent, StorageDriver } from '.'
+import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
@@ -30,7 +30,7 @@ export class GhostService {
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
-  ) {}
+  ) { }
 
   initialize(enabled: boolean) {
     this.enabled = enabled
@@ -65,7 +65,6 @@ export class GhostService {
       this.diskDriver,
       this.dbDriver,
       this.enabled,
-
       this.cache,
       this.logger
     )
@@ -107,6 +106,24 @@ export class GhostService {
       tmpDir.removeCallback()
     }
   }
+
+  public async getPending(botIds: string[]): Promise<ServerWidePendingRevisions | {}> {
+    if (!this.enabled) {
+      return {}
+    }
+
+    const global = await this.global().getPendingChanges()
+    const bots = await Promise.mapSeries(botIds, async botId => this.forBot(botId).getPendingChanges())
+    return {
+      global,
+      bots
+    }
+  }
+}
+
+export interface FileContent {
+  name: string
+  content: string | Buffer
 }
 
 export class ScopedGhostService {
@@ -154,6 +171,10 @@ export class ScopedGhostService {
 
     await this.primaryDriver.upsertFile(fileName, content, true)
     this.invalidateFile(fileName)
+  }
+
+  async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
+    await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
   async sync(paths: string[]) {
@@ -219,19 +240,6 @@ export class ScopedGhostService {
     return allFiles
   }
 
-  public async revertFileRevision(fullFilePath: string, revision: string): Promise<void> {
-    const backup = await this.dbDriver.readFile(fullFilePath)
-    try {
-      const content = await this.diskDriver.readFile(fullFilePath)
-      await this.dbDriver.upsertFile(fullFilePath, content, false)
-      await this.dbDriver.deleteRevision(fullFilePath, revision)
-      await this.cache.invalidateStartingWith(fullFilePath)
-    } catch (err) {
-      await this.dbDriver.upsertFile(fullFilePath, backup)
-      throw err
-    }
-  }
-
   public async isFullySynced(): Promise<boolean> {
     if (!this.useDbDriver) {
       return true
@@ -286,6 +294,15 @@ export class ScopedGhostService {
     await this.invalidateFile(fileName)
   }
 
+  async deleteFolder(folder: string): Promise<void> {
+    if (this.isDirectoryGlob) {
+      throw new Error(`Ghost can't read or write under this scope`)
+    }
+
+    const folderName = this.normalizeFolderName(folder)
+    await this.primaryDriver.deleteDir(folderName)
+  }
+
   async directoryListing(
     rootFolder: string,
     fileEndingPattern: string = '*.*',
@@ -305,13 +322,13 @@ export class ScopedGhostService {
     }
   }
 
-  async getPending(): Promise<GhostPendingRevisions> {
+  async getPendingChanges(): Promise<PendingRevisions> {
     if (!this.useDbDriver) {
       return {}
     }
 
     const revisions = await this.dbDriver.listRevisions(this.baseDir)
-    const result: GhostPendingRevisions = {}
+    const result: PendingRevisions = {}
 
     for (const revision of revisions) {
       const rPath = path.relative(this.baseDir, revision.path)
@@ -324,18 +341,6 @@ export class ScopedGhostService {
       result[folder].push(revision)
     }
 
-    return result
-  }
-
-  async getPendingWithContent(): Promise<GhostPendingRevisionsWithContent> {
-    const revisions = await this.getPending()
-    const result = {}
-    for (const folder in revisions) {
-      result[folder] = await Promise.mapSeries(revisions[folder], async x => {
-        const content = await this.dbDriver.readFile(x.path)
-        return { ...x, content: content.toString() }
-      })
-    }
     return result
   }
 }
