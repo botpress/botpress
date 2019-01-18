@@ -80,15 +80,15 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
     throw new ProcessingError('No user property in the request')
   }
 
-  const dbUser = await authService.findUserById(user.id)
+  const authUser = await authService.findUserById(user.id)
 
-  if (!dbUser) {
+  if (!authUser) {
     throw new UnauthorizedAccessError('Unknown user ID')
   }
 
-  reqWithUser.dbUser = {
-    ...dbUser,
-    fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  reqWithUser.authUser = {
+    ...authUser,
+    fullName: [authUser.firstname, authUser.lastname].filter(Boolean).join(' ')
   }
 
   next()

@@ -34,7 +34,7 @@ export class UsersRouter implements CustomRouter {
     router.post(
       '/', // Create user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         validateBodySchema(
           req,
           Joi.object().keys({
@@ -63,7 +63,7 @@ export class UsersRouter implements CustomRouter {
     router.delete(
       '/:userId', // Delete user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         const { userId } = req.params
 
         if (userId == 1) {
@@ -80,7 +80,7 @@ export class UsersRouter implements CustomRouter {
     router.get(
       '/reset/:userId',
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.dbUser.id)
+        await svc.assertIsRootAdmin(req.authUser.id)
         const tempPassword = await svc.resetPassword(req.params.userId)
         return sendSuccess(res, 'Password reseted', {
           tempPassword
