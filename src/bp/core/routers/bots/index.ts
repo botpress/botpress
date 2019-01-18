@@ -10,7 +10,6 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { BotRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
-import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { FlowView } from 'core/services/dialog'
 import { FlowService } from 'core/services/dialog/flow/service'
@@ -56,7 +55,6 @@ export class BotsRouter implements CustomRouter {
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    adminService: AdminService
     ghostService: GhostService
     workspaceService: WorkspaceService
   }) {

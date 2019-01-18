@@ -21,7 +21,6 @@ import { ConverseRouter } from './routers/bots/converse'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
-import { AdminService } from './services/admin/service'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
 import { CMSService } from './services/cms'
@@ -61,7 +60,6 @@ export default class HTTPServer {
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.AdminService) private adminService: AdminService,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
@@ -81,13 +79,7 @@ export default class HTTPServer {
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
-    this.authRouter = new AuthRouter(
-      this.logger,
-      this.authService,
-      this.adminService,
-      this.configProvider,
-      this.workspaceService
-    )
+    this.authRouter = new AuthRouter(this.logger, this.authService, this.workspaceService)
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
@@ -106,7 +98,6 @@ export default class HTTPServer {
       logsService,
       notificationService,
       authService,
-      adminService,
       ghostService,
       workspaceService
     })
