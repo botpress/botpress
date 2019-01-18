@@ -38,16 +38,16 @@ export default class AuthService {
     return this.workspace.findUser(where, selectFields)
   }
 
-  findUserByUsername(username: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.findUser({ username }, selectFields)
+  async findUserByEmail(email: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
+    return this.findUser({ email }, selectFields)
   }
 
-  findUserById(id: number, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
+  async findUserById(id: number, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
     return this.findUser({ id }, selectFields)
   }
 
-  async checkUserAuth(username: string, password: string, newPassword?: string) {
-    const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt', 'password_expired'])
+  async checkUserAuth(email: string, password: string, newPassword?: string) {
+    const user = await this.findUserByEmail(email || '', ['id', 'password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
@@ -60,6 +60,7 @@ export default class AuthService {
 
     return user.id
   }
+
   async createUser(user: BasicAuthUser) {
     return this.workspace.createUser(user)
   }
@@ -77,12 +78,12 @@ export default class AuthService {
     })
   }
 
-  async register(username: string, password: string, ipAddress: string = ''): Promise<string> {
+  async register(email: string, password: string, ipAddress: string = ''): Promise<string> {
     this.stats.track('auth', 'register', 'success')
 
     const pw = saltHashPassword(password)
     const user = await this.createUser({
-      username,
+      email,
       password: pw.hash,
       salt: pw.salt,
       last_ip: ipAddress,
@@ -92,8 +93,8 @@ export default class AuthService {
     return generateUserToken(user.id, TOKEN_AUDIENCE)
   }
 
-  async login(username: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
-    const userId = await this.checkUserAuth(username, password, newPassword)
+  async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
+    const userId = await this.checkUserAuth(email, password, newPassword)
     this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {

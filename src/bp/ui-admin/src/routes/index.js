@@ -12,7 +12,6 @@ import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
 
 import Landing from '../Pages/Landing'
-import LandingStep2 from '../Pages/LandingStep2'
 import UsersListPage from '../Pages/Users'
 import LicensingStatus from '../Pages/Licensing/Status'
 import LicensingLogin from '../Pages/Licensing/Login'
@@ -36,12 +35,6 @@ export const makeMainRoutes = () => {
             path="/landing"
             render={props => {
               return <Landing />
-            }}
-          />
-          <Route
-            path="/landingstep2"
-            render={props => {
-              return <LandingStep2 />
             }}
           />
           <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />

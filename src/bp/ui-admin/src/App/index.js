@@ -37,7 +37,7 @@ class Home extends Component {
       return null
     }
 
-    const { username, fullName } = this.props.profile
+    const { email, fullName } = this.props.profile
 
     const licenseEnabled = this.props.licensing && this.props.licensing.isPro
 
@@ -46,7 +46,7 @@ class Home extends Component {
         <DropdownToggle nav caret>
           <span className="user-profile">
             <img alt="" src={this.props.profile.picture} className="user-avatar" />
-            <span>{fullName ? fullName : username}</span>
+            <span>{fullName ? fullName : email}</span>
           </span>
         </DropdownToggle>
         <DropdownMenu right>

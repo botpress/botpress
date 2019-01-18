@@ -6,7 +6,7 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } 
 
 export default class Register extends Component {
   state = {
-    username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   }
@@ -21,7 +21,7 @@ export default class Register extends Component {
 
     try {
       await this.props.auth.register({
-        username: this.state.username,
+        email: this.state.email,
         password: this.state.password
       })
     } catch (err) {
@@ -39,12 +39,12 @@ export default class Register extends Component {
         <CardText>This is the first time you run Botpress. Please create the master admin account.</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">email</label>
           <Input
             type="text"
-            name="username"
-            id="username"
-            value={this.state.username}
+            name="email"
+            id="email"
+            value={this.state.email}
             onChange={this.handleInputChange}
             onKeyPress={this.onInputKeyPress}
           />

@@ -12,6 +12,7 @@ export interface IInitializeFromConfig {
 
 export interface Workspace {
   name: string
+  userSeq: number
   users: AuthUser[]
   roles: AuthRole[]
 }
@@ -21,14 +22,14 @@ export interface AuthConfig {
 }
 
 export type BasicAuthUser = Partial<AuthUser> & {
-  username: string
+  email: string
   password: string
   salt: string
 }
 
 export interface AuthUser {
   id: number
-  username: string
+  email?: string
   password?: string
   salt?: string
   role?: string
@@ -38,7 +39,6 @@ export interface AuthUser {
   picture?: string
   company?: string
   last_ip?: string
-  email?: string
   location?: string
   provider?: string
   last_logon?: Date

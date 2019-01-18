@@ -10,7 +10,7 @@ import SectionLayout from './Layouts/Section'
 import api from '../api'
 import { fetchUsers } from '../modules/user'
 
-const UserNameValidationSchema = Joi.string()
+const UserEmailValidationSchema = Joi.string()
   .email()
   .trim()
 
@@ -18,7 +18,7 @@ class List extends Component {
   state = {
     isCreateUserModalOpen: false,
     isRenderEmailModalOpen: false,
-    userName: '',
+    email: '',
     createUserError: null
   }
 
@@ -32,11 +32,11 @@ class List extends Component {
 
   onInputKeyPress = e => e.key === 'Enter' && this.createUser()
 
-  onUserNameChange = event => {
-    const { error } = Joi.validate(event.target.value, UserNameValidationSchema)
+  onNewUserEmailChange = event => {
+    const { error } = Joi.validate(event.target.value, UserEmailValidationSchema)
 
     this.setState({
-      userName: event.target.value,
+      email: event.target.value,
       canCreateUser: !error,
       createUserError: error
     })
@@ -46,17 +46,17 @@ class List extends Component {
     const {
       data: { payload }
     } = await api.getSecured().post('/admin/users', {
-      username: this.state.userName
+      email: this.state.email
     })
 
     const message = `Your botpress account is ready! 
 
 Sign-in here: ${window.location.origin}/admin/login
-Username: ${this.state.userName}
+Email: ${this.state.email}
 Password: ${payload.tempPassword}`
 
     this.setState({
-      userName: '',
+      email: '',
       isCreateUserModalOpen: false,
       isRenderEmailModalOpen: true,
       emailSubject: 'Account creation successful',
@@ -68,14 +68,14 @@ Password: ${payload.tempPassword}`
   }
 
   async resetPassword(user, list) {
-    if (window.confirm(`Are you sure you want to reset ${user.username}'s password?`)) {
+    if (window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       const {
         data: { payload }
       } = await api.getSecured().get(`/admin/users/reset/${user.id}`)
 
       const message = `Your password has been reset.
      
-Username: ${user.username}
+Email: ${user.email}
 Password: ${payload.tempPassword}`
 
       this.setState({
@@ -88,7 +88,7 @@ Password: ${payload.tempPassword}`
   }
 
   async deleteUser(user, list) {
-    if (window.confirm(`Are you sure you want to delete ${user.username}'s account?`)) {
+    if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
       await api.getSecured().delete(`/admin/users/${user.id}`)
     }
   }
@@ -122,13 +122,13 @@ Password: ${payload.tempPassword}`
         <ModalHeader toggle={this.toggleCreateUserModalOpen}>Create a new user</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="userName">E-mail</Label>
+            <Label for="email">E-mail</Label>
             <Input
-              id="userName"
-              onChange={this.onUserNameChange}
+              id="email"
+              onChange={this.onNewUserEmailChange}
               onKeyPress={this.onInputKeyPress}
               invalid={!!this.state.createUserError}
-              value={this.state.userName}
+              value={this.state.email}
             />
             {!!this.state.createUserError && <FormFeedback>{this.state.createUserError.message}</FormFeedback>}
           </FormGroup>
