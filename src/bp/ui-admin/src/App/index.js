@@ -46,13 +46,18 @@ class Home extends Component {
         <DropdownToggle nav caret>
           <span className="user-profile">
             <img alt="" src={this.props.profile.picture} className="user-avatar" />
-            <span>{fullName ? fullName : email}</span>
           </span>
         </DropdownToggle>
         <DropdownMenu right>
-          <DropdownItem onClick={() => this.props.history.push('/profile')}>My profile</DropdownItem>
-          {licenseEnabled && <DropdownItem onClick={() => this.props.history.push('/license')}>License</DropdownItem>}
+          <DropdownItem onClick={() => this.props.history.push('/profile')}>
+            Signed in as&nbsp;
+            <strong>{fullName || email}</strong>
+          </DropdownItem>
           <DropdownItem divider />
+          <DropdownItem onClick={() => this.props.history.push('/profile')}>Your profile</DropdownItem>
+          {licenseEnabled && (
+            <DropdownItem onClick={() => this.props.history.push('/license')}>Your Licenses</DropdownItem>
+          )}
           <DropdownItem onClick={() => this.props.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
