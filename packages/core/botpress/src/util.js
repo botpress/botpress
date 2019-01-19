@@ -91,7 +91,7 @@ const collectArgs = (val, memo) => {
 const getInMemoryDb = () =>
   knex({
     client: 'sqlite3',
-    connection: ':memory:',
+    connection: 'cache.db',
     pool: {
       min: 1,
       max: 1,
