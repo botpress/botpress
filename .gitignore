@@ -67,3 +67,10 @@ packages/yarn.lock
 **/.DS_Store
 
 *.cache
+
+# 11.x files
+build/
+metadata.json
+modules/
+out/
+src/
