@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.10"></a>
+## [10.51.10](https://github.com/botpress/botpress/compare/v10.51.9...v10.51.10) (2019-01-19)
+
+
+### Bug Fixes
+
+* **util-roles:** proper event-stream package version (ref [#1303](https://github.com/botpress/botpress/issues/1303)) ([4bd54d3](https://github.com/botpress/botpress/commit/4bd54d3))
+
+
+
+
 <a name="10.51.9"></a>
 ## [10.51.9](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.9) (2019-01-17)
 
