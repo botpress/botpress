@@ -7,7 +7,7 @@ let lock = false
 let daemon = null
 
 const createDaemon = bp => {
-  const reschedule = task => {
+  const reschedule = async task => {
     if (task.schedule_type.toLowerCase() === 'once') {
       return Promise.resolve(null)
     }
@@ -63,16 +63,17 @@ const createDaemon = bp => {
     const rescheduled = {}
     const list = await db(bp).listExpired()
 
-    return Promise.mapSeries(list, expired => {
-      return runSingleTask(expired)
-        .catch(err => {
+    return Promise.mapSeries(list, async expired =>
+      runSingleTask(expired)
+        .catch(async err => {
           bp.logger.error('[scheduler]', err.message, err.stack)
           bp.notifications.send({
             message:
               'An error occured while running task: ' + expired.taskId + '. Please check the logs for more info.',
             level: 'error'
           })
-          return db(bp).updateTask(expired.taskId, 'error', null, null)
+          const result = await db(bp).updateTask(expired.taskId, 'error', null, null)
+          return result
         })
         .finally(async () => {
           if (!rescheduled[expired.taskId]) {
@@ -80,7 +81,7 @@ const createDaemon = bp => {
             rescheduled[expired.taskId] = true
           }
         })
-    })
+    )
   }
 
   const run = () => {

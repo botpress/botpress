@@ -79,7 +79,6 @@ async function update(knex, id, options) {
   return knex('scheduler_schedules')
     .where({ id })
     .update({ ...options })
-    .then()
 }
 
 async function updateTask(knex, taskId, status, logs, returned) {
@@ -92,28 +91,25 @@ async function updateTask(knex, taskId, status, logs, returned) {
   return knex('scheduler_tasks')
     .where({ id: taskId })
     .update(options)
-    .then()
 }
 
 async function reviveAllExecuting(knex) {
   return knex('scheduler_tasks')
     .where({ status: 'executing' })
     .update({ status: 'pending' })
-    .then()
 }
 
 async function remove(knex, id) {
   return knex('scheduler_schedules')
     .where({ id })
     .del()
-    .then(() => deleteScheduled(knex, id))
+    .then(async () => deleteScheduled(knex, id))
 }
 
 async function listUpcoming(knex) {
   return knex('scheduler_tasks')
     .where({ status: 'pending' })
     .join('scheduler_schedules', 'scheduler_tasks.scheduleId', 'scheduler_schedules.id')
-    .then()
 }
 
 async function listPrevious(knex) {
@@ -123,7 +119,6 @@ async function listPrevious(knex) {
     .whereRaw(dt.isBefore('scheduledOn', dt.now()))
     .andWhere('status', '!=', 'pending')
     .join('scheduler_schedules', 'scheduler_tasks.scheduleId', 'scheduler_schedules.id')
-    .then()
 }
 
 async function listExpired(knex) {
@@ -134,14 +129,12 @@ async function listExpired(knex) {
     .andWhere('status', '=', 'pending')
     .join('scheduler_schedules', 'scheduler_tasks.scheduleId', 'scheduler_schedules.id')
     .select(['scheduler_tasks.id as taskId', '*'])
-    .then()
 }
 
 async function deleteScheduled(knex, id) {
   return knex('scheduler_tasks')
     .where({ scheduleId: id })
     .del()
-    .then()
 }
 
 async function scheduleNext(knex, id, time) {
@@ -151,20 +144,17 @@ async function scheduleNext(knex, id, time) {
 
   const ts = helpers(knex).date.format(rounded)
 
-  return knex('scheduler_tasks')
-    .insert({
-      scheduleId: id,
-      scheduledOn: ts,
-      status: 'pending'
-    })
-    .then()
+  return knex('scheduler_tasks').insert({
+    scheduleId: id,
+    scheduledOn: ts,
+    status: 'pending'
+  })
 }
 
 async function deleteDone(knex) {
   return knex('scheduler_tasks')
     .whereNotNull('finishedOn')
     .del()
-    .then()
 }
 
 function validateCreateOptions(options) {
