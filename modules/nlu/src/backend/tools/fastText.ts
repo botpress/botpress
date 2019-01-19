@@ -226,7 +226,7 @@ signal: ${err.signal}
       if (!this.process_cache[modelPath]) {
         this.process_cache[modelPath] = spawn(this.BINPATH, args, {
           encoding: 'utf8',
-          stdio: ['pipe', 'pipe', 'ignore']
+          stdio: ['pipe', 'pipe', 'inherit']
         } as ExecFileOptions)
         this.process_cache[modelPath].stdout.on('close', this._cleanupProcess.bind(this, modelPath))
       }
