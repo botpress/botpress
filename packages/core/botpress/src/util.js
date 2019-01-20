@@ -95,8 +95,8 @@ const getInMemoryDb = () =>
     pool: {
       min: 1,
       max: 1,
-      disposeTimeout: 360000 * 1000 * 1000,
-      idleTimeoutMillis: 360000 * 1000 * 1000
+      disposeTimeout: 360000000 * 1000,
+      idleTimeoutMillis: 360000000 * 1000
     },
     useNullAsDefault: true
   })

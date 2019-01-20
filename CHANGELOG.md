@@ -3,7 +3,109 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-      <a name="10.51.1"></a>
+      <a name="10.51.9"></a>
+## [10.51.9](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.9) (2019-01-17)
+
+
+### Bug Fixes
+
+* **builtins:** add missing raw-renderer (resolve [#1169](https://github.com/botpress/botpress/issues/1169)) ([108c5cc](https://github.com/botpress/botpress/commit/108c5cc))
+* **nlu:** dialogflow process.env ([d726084](https://github.com/botpress/botpress/commit/d726084))
+* **telegram:** proper lru-cache initialization (resolve [#1240](https://github.com/botpress/botpress/issues/1240)) ([989edae](https://github.com/botpress/botpress/commit/989edae))
+* **twilio:** updated to fix webhook response ([56c86f7](https://github.com/botpress/botpress/commit/56c86f7))
+
+
+
+
+      <a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+### Bug Fixes
+
+* **builtins:** add missing raw-renderer (resolve [#1169](https://github.com/botpress/botpress/issues/1169)) ([108c5cc](https://github.com/botpress/botpress/commit/108c5cc))
+* **nlu:** dialogflow process.env ([d726084](https://github.com/botpress/botpress/commit/d726084))
+* **telegram:** proper lru-cache initialization (resolve [#1240](https://github.com/botpress/botpress/issues/1240)) ([989edae](https://github.com/botpress/botpress/commit/989edae))
+* **twilio:** updated to fix webhook response ([56c86f7](https://github.com/botpress/botpress/commit/56c86f7))
+
+
+
+
+<a name="10.51.7"></a>
+## [10.51.7](https://github.com/botpress/botpress/compare/v10.51.6...v10.51.7) (2018-12-29)
+
+
+### Bug Fixes
+
+* **webchat:** fix webchat widget overlaying after first show (ref [#1251](https://github.com/botpress/botpress/issues/1251)) ([f0b672e](https://github.com/botpress/botpress/commit/f0b672e))
+
+
+
+
+<a name="10.51.6"></a>
+## [10.51.6](https://github.com/botpress/botpress/compare/v10.51.5...v10.51.6) (2018-12-29)
+
+
+### Bug Fixes
+
+* **builtins:** syntax error in renderers (resolve [#1262](https://github.com/botpress/botpress/issues/1262)) ([4dd3707](https://github.com/botpress/botpress/commit/4dd3707))
+
+
+
+
+<a name="10.51.5"></a>
+## [10.51.5](https://github.com/botpress/botpress/compare/v10.51.4...v10.51.5) (2018-12-26)
+
+
+### Bug Fixes
+
+* **core:** upgrade nodemon to fix event-stream issue ([e171c60](https://github.com/botpress/botpress/commit/e171c60))
+* **webchat:** fix iframe overlaying menu (resolve [#1251](https://github.com/botpress/botpress/issues/1251)) ([23386ea](https://github.com/botpress/botpress/commit/23386ea))
+
+
+
+
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/botpress/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+### Bug Fixes
+
+* **nlu:** improve error-logs for RASA NLU module (ref [#1227](https://github.com/botpress/botpress/issues/1227), ref [#1070](https://github.com/botpress/botpress/issues/1070)) ([#1237](https://github.com/botpress/botpress/issues/1237)) ([376a426](https://github.com/botpress/botpress/commit/376a426))
+* **webchat:** loading webchat-extensions (resolve [#1183](https://github.com/botpress/botpress/issues/1183)) ([#1246](https://github.com/botpress/botpress/issues/1246)) ([6f65039](https://github.com/botpress/botpress/commit/6f65039))
+* **webchat:** move webchatUrlQuery to event.raw.data (ref [#721](https://github.com/botpress/botpress/issues/721)) ([#1236](https://github.com/botpress/botpress/issues/1236)) ([e81a62f](https://github.com/botpress/botpress/commit/e81a62f))
+
+
+
+
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **core:** increase content-items in-memory timeout (resolve [#1203](https://github.com/botpress/botpress/issues/1203)) ([0839c09](https://github.com/botpress/botpress/commit/0839c09))
+* **webchat:** redundant console.log ([5cfeb3a](https://github.com/botpress/botpress/commit/5cfeb3a))
+* **webchat:** redundant console.log ([#1224](https://github.com/botpress/botpress/issues/1224)) ([61ec51f](https://github.com/botpress/botpress/commit/61ec51f))
+* **webchat:** styling for disabled button (fix [#1207](https://github.com/botpress/botpress/issues/1207), fix [#1173](https://github.com/botpress/botpress/issues/1173)) ([c152bc1](https://github.com/botpress/botpress/commit/c152bc1))
+
+
+
+
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/botpress/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+### Bug Fixes
+
+* **core:** remove unused module import ([#1172](https://github.com/botpress/botpress/issues/1172)) ([ca7bfd6](https://github.com/botpress/botpress/commit/ca7bfd6))
+* **webchat:** redundant jumps to the bottom of the chat ([#1188](https://github.com/botpress/botpress/issues/1188)) ([2de94eb](https://github.com/botpress/botpress/commit/2de94eb))
+* **webchat:** widget iframe shouldn't overflow other els (resolve [#1173](https://github.com/botpress/botpress/issues/1173)) ([#1199](https://github.com/botpress/botpress/issues/1199)) ([5f367ee](https://github.com/botpress/botpress/commit/5f367ee))
+
+
+
+
+<a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/botpress/compare/v10.51.0...v10.51.1) (2018-11-17)
 
 
@@ -16,7 +118,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-      <a name="10.51.0"></a>
+<a name="10.51.0"></a>
 # [10.51.0](https://github.com/botpress/botpress/compare/v10.50.0...v10.51.0) (2018-11-08)
 
 

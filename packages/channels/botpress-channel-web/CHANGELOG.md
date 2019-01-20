@@ -3,6 +3,88 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.9"></a>
+## [10.51.9](https://github.com/botpress/modules/compare/v10.51.7...v10.51.9) (2019-01-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/modules/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.51.7"></a>
+## [10.51.7](https://github.com/botpress/modules/compare/v10.51.6...v10.51.7) (2018-12-29)
+
+
+### Bug Fixes
+
+* **webchat:** fix webchat widget overlaying after first show (ref [#1251](https://github.com/botpress/modules/issues/1251)) ([f0b672e](https://github.com/botpress/modules/commit/f0b672e))
+
+
+
+
+<a name="10.51.6"></a>
+## [10.51.6](https://github.com/botpress/modules/compare/v10.51.5...v10.51.6) (2018-12-29)
+
+
+
+
+**Note:** Version bump only for package @botpress/channel-web
+
+<a name="10.51.5"></a>
+## [10.51.5](https://github.com/botpress/modules/compare/v10.51.4...v10.51.5) (2018-12-26)
+
+
+### Bug Fixes
+
+* **webchat:** fix iframe overlaying menu (resolve [#1251](https://github.com/botpress/modules/issues/1251)) ([23386ea](https://github.com/botpress/modules/commit/23386ea))
+
+
+
+
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/modules/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+### Bug Fixes
+
+* **webchat:** loading webchat-extensions (resolve [#1183](https://github.com/botpress/modules/issues/1183)) ([#1246](https://github.com/botpress/modules/issues/1246)) ([6f65039](https://github.com/botpress/modules/commit/6f65039))
+* **webchat:** move webchatUrlQuery to event.raw.data (ref [#721](https://github.com/botpress/modules/issues/721)) ([#1236](https://github.com/botpress/modules/issues/1236)) ([e81a62f](https://github.com/botpress/modules/commit/e81a62f))
+
+
+
+
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/modules/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **webchat:** redundant console.log ([#1224](https://github.com/botpress/modules/issues/1224)) ([61ec51f](https://github.com/botpress/modules/commit/61ec51f))
+* **webchat:** styling for disabled button (fix [#1207](https://github.com/botpress/modules/issues/1207), fix [#1173](https://github.com/botpress/modules/issues/1173)) ([c152bc1](https://github.com/botpress/modules/commit/c152bc1))
+
+
+
+
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/modules/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+### Bug Fixes
+
+* **webchat:** redundant jumps to the bottom of the chat ([#1188](https://github.com/botpress/modules/issues/1188)) ([2de94eb](https://github.com/botpress/modules/commit/2de94eb))
+* **webchat:** widget iframe shouldn't overflow other els (resolve [#1173](https://github.com/botpress/modules/issues/1173)) ([#1199](https://github.com/botpress/modules/issues/1199)) ([5f367ee](https://github.com/botpress/modules/commit/5f367ee))
+
+
+
+
 <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
 

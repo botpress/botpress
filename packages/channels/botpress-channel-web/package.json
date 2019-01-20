@@ -1,6 +1,6 @@
 {
   "name": "@botpress/channel-web",
-  "version": "10.51.1",
+  "version": "10.51.9",
   "description": "An embeddable web chat for Botpress bots",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/modules",
@@ -56,7 +56,7 @@
     "react-dropzone": "^3.13.1",
     "react-linkify": "^0.2.2",
     "react-resizable-box": "^2.0.4",
-    "react-slick": "^0.15.4",
+    "react-slick": "^0.23.2",
     "react-spinkit": "^3.0.0",
     "sass-loader": "^6.0.6",
     "slick-carousel": "^1.8.1",

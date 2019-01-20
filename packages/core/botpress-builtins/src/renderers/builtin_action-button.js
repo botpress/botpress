@@ -56,9 +56,7 @@ export default data => {
                 url: a.url
               }
             } else {
-              return {
-                title: '<Unsupported action>'
-              }
+              return { title: a.title, encrypt: true, payload: { action: 'gotoFlow', dest: a.flow } }
             }
           })
         }

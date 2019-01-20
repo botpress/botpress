@@ -3,6 +3,70 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.9"></a>
+## [10.51.9](https://github.com/botpress/modules/compare/v10.51.7...v10.51.9) (2019-01-17)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/modules/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.7"></a>
+## [10.51.7](https://github.com/botpress/modules/compare/v10.51.6...v10.51.7) (2018-12-29)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.6"></a>
+## [10.51.6](https://github.com/botpress/modules/compare/v10.51.5...v10.51.6) (2018-12-29)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.5"></a>
+## [10.51.5](https://github.com/botpress/modules/compare/v10.51.4...v10.51.5) (2018-12-26)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/modules/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/modules/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/modules/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+
+
+**Note:** Version bump only for package @botpress/broadcast
+
 <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/modules/compare/v10.51.0...v10.51.1) (2018-11-17)
 

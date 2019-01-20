@@ -3,6 +3,82 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="10.51.9"></a>
+## [10.51.9](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.9) (2019-01-17)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.51.8"></a>
+## [10.51.8](https://github.com/botpress/botpress/compare/v10.51.7...v10.51.8) (2019-01-13)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.51.7"></a>
+## [10.51.7](https://github.com/botpress/botpress/compare/v10.51.6...v10.51.7) (2018-12-29)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.51.6"></a>
+## [10.51.6](https://github.com/botpress/botpress/compare/v10.51.5...v10.51.6) (2018-12-29)
+
+
+
+
+**Note:** Version bump only for package botpress
+
+<a name="10.51.5"></a>
+## [10.51.5](https://github.com/botpress/botpress/compare/v10.51.4...v10.51.5) (2018-12-26)
+
+
+### Bug Fixes
+
+* **core:** upgrade nodemon to fix event-stream issue ([e171c60](https://github.com/botpress/botpress/commit/e171c60))
+
+
+
+
+<a name="10.51.4"></a>
+## [10.51.4](https://github.com/botpress/botpress/compare/v10.51.3...v10.51.4) (2018-12-18)
+
+
+### Bug Fixes
+
+* **webchat:** move webchatUrlQuery to event.raw.data (ref [#721](https://github.com/botpress/botpress/issues/721)) ([#1236](https://github.com/botpress/botpress/issues/1236)) ([e81a62f](https://github.com/botpress/botpress/commit/e81a62f))
+
+
+
+
+<a name="10.51.3"></a>
+## [10.51.3](https://github.com/botpress/botpress/compare/v10.51.2...v10.51.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **core:** increase content-items in-memory timeout (resolve [#1203](https://github.com/botpress/botpress/issues/1203)) ([0839c09](https://github.com/botpress/botpress/commit/0839c09))
+
+
+
+
+<a name="10.51.2"></a>
+## [10.51.2](https://github.com/botpress/botpress/compare/v10.51.1...v10.51.2) (2018-12-06)
+
+
+### Bug Fixes
+
+* **core:** remove unused module import ([#1172](https://github.com/botpress/botpress/issues/1172)) ([ca7bfd6](https://github.com/botpress/botpress/commit/ca7bfd6))
+
+
+
+
 <a name="10.51.1"></a>
 ## [10.51.1](https://github.com/botpress/botpress/compare/v10.51.0...v10.51.1) (2018-11-17)
 

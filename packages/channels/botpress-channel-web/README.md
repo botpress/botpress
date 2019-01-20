@@ -352,7 +352,7 @@ You can open/close sidebar programmatically by calling `window.botpressWebChat.s
 
 ### Modify url
 
-You can add `ref` query parameter to url(example `bot/s/chat?ref=[content]`) and all content will be set to user state as `webchatUrlQuery`. User state could be fetched via [DialogStateManager](https://botpress.io/docs/latest/reference/DialogStateManager.html).
+You can add `ref` query parameter to url(example `bot/s/chat?ref=[content]`) and content will be available within events as `event.raw.data.webchatUrlQuery`.
 
 ## Configuring file uploads
 

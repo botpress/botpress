@@ -439,12 +439,13 @@ export default class Web extends React.Component {
     return this.props.bp.axios.post(url, data, config).then()
   }
 
-  handleSendData = data => {
+  handleSendData = payload => {
     const userId = window.__BP_VISITOR_ID
     const url = `${BOT_HOSTNAME}/api/botpress-platform-webchat/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId } }
 
-    return this.props.bp.axios.post(url, data, config).then()
+    const { ref: webchatUrlQuery } = queryString.parse(location.search)
+    return this.props.bp.axios.post(url, { ...payload, data: { ...payload.data, webchatUrlQuery } }, config).then()
   }
 
   handleSwitchConvo = convoId => {
@@ -608,8 +609,11 @@ export default class Web extends React.Component {
       return null
     }
 
-    window.parent &&
-      window.parent.postMessage({ type: 'setClass', value: 'bp-widget-web bp-widget-' + this.state.view }, '*')
+    if (window.parent && (this.state.view !== 'widget' || !this.state.isButtonHidden)) {
+      window.parent.postMessage({ type: 'setClass', value: `bp-widget-web bp-widget-${this.state.view}` }, '*')
+    } else {
+      window.parent.postMessage({ type: 'setClass', value: '' }, '*')
+    }
 
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
