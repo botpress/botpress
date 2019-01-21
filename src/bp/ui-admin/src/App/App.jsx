@@ -1,67 +1,23 @@
 import React, { Component, Fragment } from 'react'
 
-import {
-  Nav,
-  NavLink,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  Collapse,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
-} from 'reactstrap'
+import { Nav, NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse } from 'reactstrap'
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 
 import { fetchProfile } from '../modules/user'
 import { fetchLicensing } from '../modules/license'
 
 import logo from '../botpress.svg'
+import ProfileDropdownMenu from './ProfileDropdownMenu'
 
-class Home extends Component {
+class App extends Component {
   state = { isMenuOpen: true }
   toggleMenu = () => {
     this.setState({ isMenuOpen: !this.state.isMenuOpen })
   }
 
   componentDidMount() {
-    !this.props.profile && this.props.fetchProfile()
     !this.props.licensing && this.props.fetchLicensing()
-  }
-
-  renderProfileMenu() {
-    if (!this.props.profile) {
-      return null
-    }
-
-    const { email, fullName } = this.props.profile
-
-    const licenseEnabled = this.props.licensing && this.props.licensing.isPro
-
-    return (
-      <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle nav caret>
-          <span className="user-profile">
-            <img alt="" src={this.props.profile.picture} className="user-avatar" />
-          </span>
-        </DropdownToggle>
-        <DropdownMenu right>
-          <DropdownItem onClick={() => this.props.history.push('/profile')}>
-            Signed in as&nbsp;
-            <strong>{fullName || email}</strong>
-          </DropdownItem>
-          <DropdownItem divider />
-          <DropdownItem onClick={() => this.props.history.push('/profile')}>Your profile</DropdownItem>
-          {licenseEnabled && (
-            <DropdownItem onClick={() => this.props.history.push('/license')}>Your Licenses</DropdownItem>
-          )}
-          <DropdownItem onClick={() => this.props.auth.logout()}>Logout</DropdownItem>
-        </DropdownMenu>
-      </UncontrolledDropdown>
-    )
   }
 
   render() {
@@ -77,7 +33,7 @@ class Home extends Component {
             <NavbarToggler onClick={this.toggleMenu} />
             <Collapse isOpen={this.state.isMenuOpen} navbar>
               <Nav className="ml-auto" navbar>
-                {this.renderProfileMenu()}
+                <ProfileDropdownMenu />
               </Nav>
             </Collapse>
           </Navbar>
@@ -118,16 +74,12 @@ const mapStateToProps = state => ({
   licensing: state.license.licensing
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      fetchProfile,
-      fetchLicensing
-    },
-    dispatch
-  )
+const mapDispatchToProps = {
+  fetchProfile,
+  fetchLicensing
+}
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Home)
+)(App)

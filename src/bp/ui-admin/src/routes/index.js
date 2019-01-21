@@ -3,7 +3,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
 
-import App from '../App'
+import App from '../App/App'
 
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
@@ -13,16 +13,15 @@ import ChangePassword from '../Pages/Account/ChangePassword'
 
 import Landing from '../Pages/Landing'
 import UsersListPage from '../Pages/Users'
-import LicensingStatus from '../Pages/Licensing/Status'
+import LicensingRegister from '../Pages/Licensing/Register'
 import LicensingLogin from '../Pages/Licensing/Login'
 import LicensingKeys from '../Pages/Licensing/Keys'
-import LicensingRegister from '../Pages/Licensing/Register'
-import VersioningPage from '../Pages/Versioning'
 
 import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
+import ServerSettings from '../Pages/ServerSettings/ServerSettings'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -66,11 +65,11 @@ export const makeMainRoutes = () => {
               />
               <Route exact path="/bots" render={props => <BotsPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
-              <Route exact path="/licensing" render={props => <LicensingStatus {...props} />} />
+              <Route exact path="/settings" component={ServerSettings} />
+
+              <Route exact path="/licensing" component={LicensingKeys} />
               <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
               <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
-              <Route exact path="/licensing/keys" render={props => <LicensingKeys {...props} />} />
-              <Route exact path="/versioning" render={props => <VersioningPage {...props} />} />
               <Redirect from="/" to="/bots" />
             </Switch>
           </PrivateRoute>
