@@ -48,12 +48,9 @@ class ProfileDropdown extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    profile: state.user.profile,
-    history: state.routing.history
-  }
-}
+const mapStateToProps = state => ({
+  profile: state.user.profile
+})
 
 const mapDispatchToProps = {
   fetchProfile,
