@@ -15,7 +15,7 @@ class Me extends Component {
       this.props.profile && (
         <Row>
           <Col sm="12" md="3" className="profile">
-            <img src={`${this.props.profile.picture}?size=200`} className="profile__picture" />
+            <img src={`${this.props.profile.picture}?size=200`} className="profile__picture" alt="profile" />
             <ChangePassword />
           </Col>
           <Col sm="12" md="6">

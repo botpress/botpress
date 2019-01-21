@@ -28,7 +28,6 @@ class Menu extends Component {
 
   generateMenu() {
     const activePage = this.props.activePage
-    const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
     const currentPath = _.get(this.props, 'location.pathname', '')
 
     const menu = [

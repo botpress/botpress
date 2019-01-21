@@ -1,19 +1,20 @@
 import { Logger } from 'botpress/sdk'
-import { AdminService } from 'core/services/admin/service'
+import AuthService from 'core/services/auth/auth-service'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import AuthService from '../../services/auth/auth-service'
 import { InvalidOperationError } from '../../services/auth/errors'
 import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
 
 export class UsersRouter implements CustomRouter {
-  private asyncMiddleware!: Function
   public readonly router: Router
 
-  constructor(logger: Logger, private authService: AuthService, private adminService: AdminService) {
+  private asyncMiddleware!: Function
+
+  constructor(logger: Logger, private authService: AuthService, private workspace: WorkspaceService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -21,12 +22,11 @@ export class UsersRouter implements CustomRouter {
 
   setupRoutes() {
     const router = this.router
-    const svc = this.adminService
 
     router.get(
       '/', // List users
       this.asyncMiddleware(async (req, res) => {
-        const users = await svc.listUsers()
+        const users = await this.workspace.listUsers()
         return sendSuccess(res, 'Retrieved users', users)
       })
     )
@@ -34,7 +34,7 @@ export class UsersRouter implements CustomRouter {
     router.post(
       '/', // Create user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.authUser.id)
+        await this.workspace.assertIsRootAdmin(req.authUser.id)
         validateBodySchema(
           req,
           Joi.object().keys({
@@ -51,7 +51,7 @@ export class UsersRouter implements CustomRouter {
           throw new InvalidOperationError(`User ${email} is already taken`)
         }
 
-        const tempPassword = await svc.createUser(email)
+        const tempPassword = await this.authService.createUser(email)
 
         return sendSuccess(res, 'User created successfully', {
           email,
@@ -63,14 +63,14 @@ export class UsersRouter implements CustomRouter {
     router.delete(
       '/:userId', // Delete user
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.authUser.id)
+        await this.workspace.assertIsRootAdmin(req.authUser.id)
         const { userId } = req.params
 
         if (userId == 1) {
           throw new InvalidOperationError(`You cannot delete the main admin account.`)
         }
 
-        await svc.deleteUser(userId)
+        await this.workspace.deleteUser(userId)
         return sendSuccess(res, 'User deleted', {
           userId
         })
@@ -80,8 +80,8 @@ export class UsersRouter implements CustomRouter {
     router.get(
       '/reset/:userId',
       this.asyncMiddleware(async (req, res) => {
-        await svc.assertIsRootAdmin(req.authUser.id)
-        const tempPassword = await svc.resetPassword(req.params.userId)
+        await this.workspace.assertIsRootAdmin(req.authUser.id)
+        const tempPassword = await this.authService.resetPassword(req.params.userId)
         return sendSuccess(res, 'Password reseted', {
           tempPassword
         })

@@ -273,9 +273,9 @@ class Bots extends Component {
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
                 <IoIosBoxOutline />
-                &nbsp; This team has no bot, yet.
+                &nbsp; This workspace has no bot, yet.
               </h1>
-              <p>In Botpress, bots are always assigned to a team.</p>
+              <p>In Botpress, bots are always assigned to a workspace.</p>
               <p>{this.renderCreateNewBotButton(true)}</p>
             </Col>
           </Row>
@@ -299,7 +299,7 @@ class Bots extends Component {
   }
 
   renderBots() {
-    const bots = _.orderBy(this.props.bots, ['id'], ['desc'])
+    const bots = this.props.bots && _.orderBy(this.props.bots, ['id'], ['desc'])
 
     if (!bots.length) {
       return this.renderEmptyBots()
@@ -354,8 +354,8 @@ class Bots extends Component {
 
     return (
       <SectionLayout
-        title={`${this.props.team}'s bots`}
-        helpText="This page lists all the bots created under this team."
+        title={`${this.props.workspace} workspace's bots`}
+        helpText="This page lists all the bots created under the default workspace."
         activePage="bots"
         currentTeam={this.props.team}
         mainContent={this.renderBots()}
@@ -367,6 +367,7 @@ class Bots extends Component {
 
 const mapStateToProps = state => ({
   bots: state.bots.bots,
+  workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
   botTemplates: state.bots.botTemplates
 })

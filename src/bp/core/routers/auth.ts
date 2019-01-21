@@ -1,9 +1,7 @@
 import { Logger } from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
 import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
-import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
@@ -21,13 +19,7 @@ export class AuthRouter implements CustomRouter {
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
 
-  constructor(
-    logger: Logger,
-    private authService: AuthService,
-    private adminService: AdminService,
-    private configProvider: ConfigProvider,
-    private workspaceService: WorkspaceService
-  ) {
+  constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -82,16 +74,16 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.adminService.updateUserProfile(req.authUser.id, req.body.firstname, req.body.lastname)
+    await this.workspaceService.updateUser(req.authUser.id, {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname
+    })
     return sendSuccess(res, 'Updated profile successfully')
   }
 
   getPermissions = async (req, res) => {
-    return sendSuccess(
-      res,
-      "Retrieved team member's permissions successfully",
-      await this.adminService.getUserPermissions((req as RequestWithUser).authUser!.id)
-    )
+    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.id)
+    return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
 
   sendSuccess = async (req, res) => {
@@ -113,11 +105,7 @@ export class AuthRouter implements CustomRouter {
 
     router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
 
-    router.get(
-      '/me/permissions/:teamId',
-      this.checkTokenHeader,
-      this.loadUser,
-      this.asyncMiddleware(this.getPermissions)
-    )
+    // use the default workspace
+    router.get('/me/permissions', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getPermissions))
   }
 }

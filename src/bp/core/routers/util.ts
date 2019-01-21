@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
-import { AdminService } from 'core/services/admin/service'
+import { checkRule } from 'common/auth'
+import { WorkspaceService } from 'core/services/workspace-service'
 import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
@@ -112,41 +113,23 @@ class PermissionError extends AssertionError {
   }
 }
 
-export const needPermissions = (teamsService: AdminService) => (operation: string, resource: string) => async (
+export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   const userId = req.user && req.user.id
-  /*
-  if (userId == undefined) {
-    next(new PermissionError('user is not authenticated'))
-    return
+  const user = workspaceService.findUser({ id: userId })
+  if (!user) {
+    throw new Error(`User "${userId}" does not exists`)
   }
 
-  const botId = getParam(req, 'botId')
-  let teamId = getParam(req, 'teamId')
+  const role = workspaceService.getRoleForUser(user.id)
 
-  if (!botId && !teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
-  }
-
-  if (!teamId) {
-    teamId = await teamsService.getBotTeam(botId!)
-  }
-
-  if (!teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
-  }
-
-  const rules = await teamsService.getUserPermissions(userId, teamId)
-
-  if (!checkRule(rules, operation, resource)) {
+  if (!checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
     return
   }
-*/
+
   next()
 }
