@@ -164,7 +164,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, async t => await this._ft.wordVectors(t.value))
+    const data = await Promise.mapSeries(tokens, t => this._ft.wordVectors(t.value))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)

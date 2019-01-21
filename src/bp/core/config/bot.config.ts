@@ -42,3 +42,5 @@ export type BotConfig = {
   dialog?: DialogConfig
   logs?: LogsConfig
 }
+
+export const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
