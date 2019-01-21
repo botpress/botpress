@@ -13,7 +13,7 @@ import EditLicense from '../Components/EditLicense'
 import { fetchLicensing } from '../../modules/license'
 import api from '../../api'
 
-class BuyPage extends React.Component {
+class LicenseStatus extends React.Component {
   componentDidMount() {
     this.props.fetchLicensing()
   }
@@ -157,15 +157,7 @@ class BuyPage extends React.Component {
   }
 
   render() {
-    const renderLoading = () => <LoadingSection />
-
-    return (
-      <SectionLayout
-        title="License Status"
-        activePage="license"
-        mainContent={this.props.loading ? renderLoading() : this.renderBody()}
-      />
-    )
+    return this.props.loading ? <LoadingSection /> : this.renderBody()
   }
 }
 
@@ -175,4 +167,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({ fetchLicensing }, di
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(BuyPage)
+)(LicenseStatus)

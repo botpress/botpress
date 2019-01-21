@@ -28,7 +28,6 @@ class Menu extends Component {
 
   generateMenu() {
     const activePage = this.props.activePage
-    const currentTeamId = this.props.currentTeam && this.props.currentTeam.id
     const currentPath = _.get(this.props, 'location.pathname', '')
 
     const menu = [
@@ -39,12 +38,6 @@ class Menu extends Component {
         disabled: this.isCommunity(),
         link: '/users',
         isPro: true
-      },
-      {
-        title: 'Versioning',
-        active: activePage === 'versioning',
-        show: true, // display this only if user is superadmin (once we have the superadmin concept)
-        link: '/versioning'
       },
       {
         title: 'Bots',
