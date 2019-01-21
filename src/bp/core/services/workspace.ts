@@ -1,18 +1,12 @@
-import { BotTemplate, Logger } from 'botpress/sdk'
-import { BotCreationSchema, BotEditSchema } from 'common/validation'
-import { BotLoader } from 'core/bot-loader'
-import { BotConfigWriter } from 'core/config'
-import { ConfigProvider } from 'core/config/config-loader'
-import { AuthRole, AuthUser, BasicAuthUser, Bot, Workspace } from 'core/misc/interfaces'
-import { Statistics } from 'core/stats'
+import { BotConfig, Logger } from 'botpress/sdk'
+import { AuthRole, AuthUser, BasicAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
-import Joi from 'joi'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
 import defaultRoles from './admin/default-roles'
-import { InvalidOperationError, UnauthorizedAccessError } from './auth/errors'
+import { UnauthorizedAccessError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
 @injectable()
@@ -25,11 +19,7 @@ export class WorkspaceService {
     @inject(TYPES.Logger)
     @tagged('name', 'WorkspaceService')
     private logger: Logger,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.BotConfigWriter) private configWriter: BotConfigWriter,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
   async initialize(): Promise<void> {
@@ -45,62 +35,22 @@ export class WorkspaceService {
     }
   }
 
-  async addBot(bot: Bot, botTemplate?: BotTemplate): Promise<void> {
-    this.stats.track('ce', 'addBot')
-
-    const { error } = Joi.validate(bot, BotCreationSchema)
-    if (error) {
-      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
-    }
-
-    botTemplate
-      ? await this.configWriter.createFromTemplate(bot, botTemplate)
-      : await this.configWriter.createEmptyBot(bot)
-
-    await this.botLoader.mountBot(bot.id)
-  }
-
-  async updateBot(botId: string, bot: Bot): Promise<void> {
-    this.stats.track('ce', 'updateBot')
-
-    const { error } = Joi.validate(bot, BotEditSchema)
-    if (error) {
-      throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
-    }
-
-    const actualBot = await this.configProvider.getBotConfig(botId)
-    actualBot.name = bot.name
-    actualBot.description = bot.description
-    await this.configProvider.setBotConfig(botId, actualBot)
-  }
-
-  async deleteBot(botId: string) {
-    await this.botLoader.unmountBot(botId)
-    /*await this.knex(this.botsTable)
-      .where({ team: teamId, id: botId })
-      .del()*/
-  }
-
-  async listBots() {
-    const bots = await this.botLoader.getAllBots()
-    // console.log(bots.values())
-    return { count: bots.size, bots: [...bots.values()] }
-    /*const query = this.knex(this.botsTable)
-      .where({ team: teamId })
-      .select('*')
-
-    if (offset && limit) {
-      query.offset(offset).limit(limit)
-    }
-
-    const bots = await query.then<Array<Bot>>(res => res)
-
-    return { count: bots.length, bots }*/
-  }
-
   async save() {
     const workspaces = [this._workspace]
     this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+  }
+
+  addBotRef(botId: string): void {
+    this._workspace.bots.push(botId)
+  }
+
+  deleteBotRef(botId: any): void {
+    const index = this._workspace.bots.findIndex(botId)
+    this._workspace.bots.splice(index, 1)
+  }
+
+  getBotRefs(): string[] {
+    return this._workspace.bots
   }
 
   listUsers(selectFields?: Array<keyof AuthUser>): Partial<AuthUser[]> {
@@ -182,9 +132,10 @@ export class WorkspaceService {
 
   getDefaultWorkspace() {
     return {
-      name: 'default',
+      name: 'Default',
       userSeq: 0,
       users: [],
+      bots: [],
       roles: defaultRoles
     }
   }

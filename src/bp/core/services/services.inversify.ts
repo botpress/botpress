@@ -7,6 +7,7 @@ import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
 import AuthService from './auth/auth-service'
+import { BotService } from './bot'
 import { CMSService } from './cms'
 import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
@@ -92,6 +93,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<ConverseService>(TYPES.ConverseService)
     .to(ConverseService)
+    .inSingletonScope()
+
+  bind<BotService>(TYPES.BotService)
+    .to(BotService)
     .inSingletonScope()
 })
 

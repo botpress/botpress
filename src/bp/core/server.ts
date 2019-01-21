@@ -23,6 +23,7 @@ import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
+import { BotService } from './services/bot'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
@@ -68,7 +69,8 @@ export default class HTTPServer {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     this.app = express()
 
@@ -84,6 +86,7 @@ export default class HTTPServer {
       this.logger,
       this.authService,
       this.workspaceService,
+      this.botService,
       licenseService,
       this.ghostService,
       this.botLoader

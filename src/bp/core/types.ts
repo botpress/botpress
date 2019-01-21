@@ -64,7 +64,8 @@ const TYPES = {
   DataRetentionJanitor: Symbol.for('DataRetentionJanitor'),
   DataRetentionService: Symbol.for('DataRetentionService'),
   JobService: Symbol.for('JobService'),
-  WorkspaceService: Symbol.for('WorkspaceService')
+  WorkspaceService: Symbol.for('WorkspaceService'),
+  BotService: Symbol.for('BotService')
 }
 
 export { TYPES }

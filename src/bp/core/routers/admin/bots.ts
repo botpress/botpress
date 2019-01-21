@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { BotService } from 'core/services/bot'
 import { WorkspaceService } from 'core/services/workspace'
 import { Router } from 'express'
 import _ from 'lodash'
@@ -12,7 +13,7 @@ export class BotsRouter implements CustomRouter {
 
   private asyncMiddleware!: Function
 
-  constructor(logger: Logger, private workspace: WorkspaceService) {
+  constructor(private logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -25,11 +26,18 @@ export class BotsRouter implements CustomRouter {
       '/',
       this.asyncMiddleware(async (req, res) => {
         const userId = req.authUser.id
-        this.workspace.assertUserExists(userId)
+        this.workspaceService.assertUserExists(userId)
 
-        const { bots } = await this.workspace.listBots()
+        const botIds = this.workspaceService.getBotRefs()
+        const bots = await Promise.map(botIds, async botId => await this.botService.getBotById(botId))
 
-        return sendSuccess(res, 'Retrieved bots for all teams', bots)
+        // TODO: List bots by workspaces under /workspaces instead of calling this route
+        const workspaceName = this.workspaceService.getDefaultWorkspace().name
+
+        return sendSuccess(res, 'Retrieved bots for all teams', {
+          bots,
+          workspace: workspaceName
+        })
       })
     )
 
@@ -38,9 +46,10 @@ export class BotsRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const bot = <Bot>_.pick(req.body, ['id', 'name'])
         const userId = req.authUser.id
-        this.workspace.assertUserExists(userId)
+        this.workspaceService.assertUserExists(userId)
 
-        await this.workspace.addBot(bot, req.body.template)
+        await this.botService.addBot(bot, req.body.template)
+        this.workspaceService.addBotRef(bot.id)
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id
@@ -54,9 +63,9 @@ export class BotsRouter implements CustomRouter {
         const { botId } = req.params
         const bot = <Bot>req.body
         const userId = req.authUser.id
-        this.workspace.assertUserExists(userId)
+        this.workspaceService.assertUserExists(userId)
 
-        await this.workspace.updateBot(botId, bot)
+        await this.botService.updateBot(botId, bot)
 
         return sendSuccess(res, 'Updated bot', {
           botId
@@ -69,9 +78,10 @@ export class BotsRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const userId = req.authUser.id
-        this.workspace.assertUserExists(userId)
+        this.workspaceService.assertUserExists(userId)
 
-        await this.workspace.deleteBot(botId)
+        await this.botService.deleteBot(botId)
+        this.workspaceService.deleteBotRef(botId)
 
         return sendSuccess(res, 'Removed bot from team', { botId })
       })

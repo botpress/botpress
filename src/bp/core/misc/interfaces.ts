@@ -15,6 +15,7 @@ export interface Workspace {
   userSeq: number
   users: AuthUser[]
   roles: AuthRole[]
+  bots: string[]
 }
 
 export interface AuthConfig {
@@ -69,7 +70,6 @@ export type RequestWithUser = Request & {
 export interface Bot {
   id: string
   name: string
-  team: number
   description: string
   created_at: string
   updated_at: string

@@ -1,9 +1,4 @@
-import _ from 'lodash'
-import Promise from 'bluebird'
-
 import api from '../api'
-
-import { LOCATION_CHANGE } from 'react-router-redux'
 
 export const FETCH_BOTS_REQUESTED = 'teams/FETCH_BOTS_REQUESTED'
 export const FETCH_BOTS_RECEIVED = 'teams/FETCH_BOTS_RECEIVED'
@@ -34,7 +29,8 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loadingBots: false,
-        bots: action.bots
+        bots: action.bots,
+        workspace: action.workspace
       }
 
     default:
@@ -67,7 +63,8 @@ export const fetchBots = () => {
 
     dispatch({
       type: FETCH_BOTS_RECEIVED,
-      bots: data.payload
+      bots: data.payload.bots,
+      workspace: data.payload.workspace
     })
   }
 }
