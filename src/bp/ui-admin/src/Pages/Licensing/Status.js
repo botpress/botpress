@@ -10,7 +10,7 @@ import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 import LicensePolicies from '../Components/LicensePolicies'
 import EditLicense from '../Components/EditLicense'
-import { fetchLicensing } from '../../modules/license'
+import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 class BuyPage extends React.Component {

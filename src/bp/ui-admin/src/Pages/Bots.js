@@ -27,8 +27,8 @@ import {
 
 import _ from 'lodash'
 
-import { fetchPermissions } from '../modules/user'
-import { fetchBotTemplates, fetchBots } from '../modules/bots'
+import { fetchPermissions } from '../reducers/user'
+import { fetchBotTemplates, fetchBots } from '../reducers/bots'
 
 import SectionLayout from './Layouts/Section'
 import LoadingSection from './Components/LoadingSection'

@@ -5,7 +5,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import { Button } from 'reactstrap'
 import _ from 'lodash'
 
-import { fetchPendingChanges } from '../modules/versioning'
+import { fetchPendingChanges } from '../reducers/versioning'
 import { pullToken } from '../Auth'
 
 class Versioning extends Component {

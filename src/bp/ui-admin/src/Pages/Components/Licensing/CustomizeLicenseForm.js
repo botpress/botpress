@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Input } from 'reactstrap'
 import PriceItem from './PriceItem'
-import { fetchProducts } from '../../../modules/license'
+import { fetchProducts } from '../../../reducers/license'
 
 class CustomizeLicenseForm extends Component {
   state = {

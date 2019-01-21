@@ -8,6 +8,7 @@ import App from '../App'
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
 import BotsPage from '../Pages/Bots'
+import RolesPage from '../Pages/Roles'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
 
@@ -65,6 +66,7 @@ export const makeMainRoutes = () => {
                 }}
               />
               <Route exact path="/bots" render={props => <BotsPage {...props} />} />
+              <Route exact path="/roles" render={props => <RolesPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
               <Route exact path="/licensing" render={props => <LicensingStatus {...props} />} />
               <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
