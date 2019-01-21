@@ -1,7 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 

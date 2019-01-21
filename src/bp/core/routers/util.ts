@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'

@@ -1,6 +1,6 @@
 import { BotLoader } from 'core/bot-loader'
 import { GhostService } from 'core/services'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler } from 'express'
 import { Router } from 'express'
 

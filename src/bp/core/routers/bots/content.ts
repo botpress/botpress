@@ -2,7 +2,7 @@ import { ContentElement } from 'botpress/sdk'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { DefaultSearchParams } from 'core/services/cms'
 import { CMSService } from 'core/services/cms'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 
 import { CustomRouter } from '..'

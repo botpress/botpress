@@ -7,7 +7,7 @@ import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
 import AuthService from './auth/auth-service'
-import { BotService } from './bot'
+import { BotService } from './bot-service'
 import { CMSService } from './cms'
 import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'

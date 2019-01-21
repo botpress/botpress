@@ -7,7 +7,7 @@ import nanoid from 'nanoid'
 import { AuthUser, BasicAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
-import { WorkspaceService } from '../workspace'
+import { WorkspaceService } from '../workspace-service'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'
 import { generateUserToken, saltHashPassword, validateHash } from './util'

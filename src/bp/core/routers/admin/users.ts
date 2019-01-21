@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import AuthService from 'core/services/auth/auth-service'
-import { WorkspaceService } from 'core/services/workspace'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
