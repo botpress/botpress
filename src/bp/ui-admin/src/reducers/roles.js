@@ -30,8 +30,6 @@ export const fetchRoles = () => {
   return async (dispatch, getState) => {
     const { roles: state } = getState()
 
-    console.log('Fetch!!')
-
     if (state.loading) {
       return
     }
@@ -41,7 +39,6 @@ export const fetchRoles = () => {
     })
 
     const { data } = await api.getSecured().get('/admin/roles')
-    console.log('data', data)
 
     dispatch({
       type: FETCH_ROLES_RECEIVED,

@@ -2,18 +2,18 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { fetchRoles } from '../reducers/roles'
 import { Row, Col, ListGroup, ListGroupItem } from 'reactstrap'
+import SectionLayout from './Layouts/Section'
 
 class Roles extends Component {
   componentDidMount() {
     this.props.fetchRoles()
   }
 
-  render() {
+  renderRoles() {
     return (
       <div>
         <Row>
           <Col xs={12} md={12}>
-            <h1>Contributor Roles</h1>
             <ListGroup>
               {this.props.roles.map(r => {
                 return (
@@ -27,6 +27,18 @@ class Roles extends Component {
           </Col>
         </Row>
       </div>
+    )
+  }
+
+  render() {
+    return (
+      <SectionLayout
+        title={`Contributor Roles`}
+        helpText="This page lists all the possible contributors roles."
+        activePage="roles"
+        currentTeam={this.props.team}
+        mainContent={this.renderRoles()}
+      />
     )
   }
 }
