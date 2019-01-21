@@ -46,7 +46,7 @@ export class WorkspaceService {
   }
 
   async deleteBotRef(botId: any): Promise<void> {
-    const index = this._workspace.bots.findIndex(botId)
+    const index = this._workspace.bots.findIndex(x => x === botId)
     this._workspace.bots.splice(index, 1)
     await this.save()
   }
@@ -70,8 +70,8 @@ export class WorkspaceService {
     }
   }
 
-  async assertIsRootAdmin(userId: number) {
-    if (userId !== this.ROOT_ADMIN_ID) {
+  async assertIsRootAdmin(role: string) {
+    if (this._workspace.roles.find(r => r.id === 'admin') && role !== 'admin') {
       throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
   }

@@ -98,7 +98,8 @@ export default class AuthService {
       password: pw.hash,
       salt: pw.salt,
       last_ip: ipAddress,
-      last_logon: new Date()
+      last_logon: new Date(),
+      role: 'admin' // TODO: First user to register is an admin
     })
 
     return generateUserToken(user.id, TOKEN_AUDIENCE)

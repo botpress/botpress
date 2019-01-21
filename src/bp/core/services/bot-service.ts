@@ -51,6 +51,7 @@ export class BotService {
 
   async deleteBot(botId: string) {
     await this.botLoader.unmountBot(botId)
+    await this.ghostService.forBot(botId).deleteFolder('/')
   }
 
   async getBotById(botId: string): Promise<BotConfig> {
