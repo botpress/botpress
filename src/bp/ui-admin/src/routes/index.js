@@ -39,7 +39,19 @@ export const makeMainRoutes = () => {
           />
           <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />
           <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
+          <Route
+            path="/setToken"
+            render={props => {
+              const userToken = ('; ' + document.cookie)
+                .split('; userToken=')
+                .pop()
+                .split(';')
+                .shift()
 
+              auth.setSession({ expiresIn: 7200, idToken: userToken })
+              return <Redirect to={`/`} />
+            }}
+          />
           <Route
             path="/changePassword"
             render={props => {

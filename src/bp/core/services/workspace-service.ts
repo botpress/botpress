@@ -1,5 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
-import { AuthRole, AuthUser, BasicAuthUser, Workspace } from 'core/misc/interfaces'
+import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
@@ -57,7 +57,7 @@ export class WorkspaceService {
 
   listUsers(selectFields?: Array<keyof AuthUser>): Partial<AuthUser[]> {
     if (!selectFields) {
-      return this._workspace.users
+      return this._workspace && this._workspace.users
     } else {
       return _.map(this._workspace.users, x => _.pick(x, selectFields))
     }
@@ -95,7 +95,7 @@ export class WorkspaceService {
     return this.findRole(user.role!)
   }
 
-  async createUser(authUser: BasicAuthUser): Promise<AuthUser> {
+  async createUser(authUser: BasicAuthUser | ExternalAuthUser): Promise<AuthUser> {
     const newUser: AuthUser = {
       ...authUser,
       id: ++this._workspace.userSeq

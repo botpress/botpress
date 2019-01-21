@@ -1,4 +1,7 @@
+import { AuthUser } from 'core/misc/interfaces'
+
 export type DatabaseType = 'postgres' | 'sqlite'
+export type AuthStrategy = 'basic' | 'saml' | 'ldap'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -138,6 +141,28 @@ export type BotpressConfig = {
        */
       url: string
     }
+    auth: {
+      /**
+       * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
+       * @default basic
+       */
+      strategy: AuthStrategy
+      /**
+       * Defines custom options based on the chosen authentication strategy
+       */
+      options: AuthStrategySaml | AuthStrategyLdap
+      /**
+       * Maps the values returned by your provider to Botpress user parameters.
+       * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
+       */
+      fieldMapping: FieldMapping
+      /**
+       * When enabled, users are able to register new accounts by themselves. For example, if you use the SAML strategy and this is enabled,
+       * any user able to sign in using your SAML provider will create automatically an account on Botpress.
+       * @default false
+       */
+      allowSelfSignup: boolean
+    }
   }
   /**
    * When enabled, Botpress collects anonymous data about the bot's usage
@@ -167,3 +192,47 @@ export interface DataRetentionConfig {
 export type RetentionPolicy = {
   [key: string]: string
 }
+
+export interface AuthStrategySaml {
+  /**
+   * This is the page of the external saml provider where users will input their username / password
+   */
+  authEndpoint: string
+  /**
+   * The callback url is called by the SAML provider with the payload. The path provided here is relative to ${externalUrl}/admin
+   * For example, if you use the default callback, it will be available at http://localhost:3000/admin/login-callback
+   * @default /login-callback
+   */
+  callbackUrl: string
+  issuer: string
+  certificate: string
+  /**
+   * Change if there is a significant time difference between this server and your identity provider
+   * @default 5000
+   */
+  acceptedClockSkewMs: number
+}
+
+export interface AuthStrategyLdap {
+  serverUrl: string
+  /**
+   * @example cn=read-only-admin,dc=example,dc=com
+   */
+  bindDn: string
+  bindCredentials: string
+  /**
+   * @example dc=example,dc=com
+   */
+  searchBase: string
+  /**
+   * @example (uid={{username}})
+   */
+  searchFilter: string
+  timeout: number
+  tlsEnabled: boolean
+  tlsOptions: {
+    ca: string
+  }
+}
+
+export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }

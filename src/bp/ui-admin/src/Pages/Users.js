@@ -22,6 +22,15 @@ class List extends Component {
     createUserError: null
   }
 
+  componentDidMount() {
+    this.loadAuthStrategy()
+  }
+
+  loadAuthStrategy = async () => {
+    const { data } = await api.getAnonymous().get('/auth/config')
+    this.setState({ authStrategy: data.payload.strategy })
+  }
+
   toggleCreateUserModalOpen = () => {
     this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen })
   }
@@ -143,19 +152,20 @@ Password: ${payload.tempPassword}`
   }
 
   renderAllUsers() {
-    const actions = [
-      {
-        label: 'Reset Password',
-        type: 'link',
-        onClick: user => this.resetPassword(user)
-      },
-      {
-        label: 'Delete',
-        type: 'link',
-        needRefresh: true,
-        onClick: user => this.deleteUser(user)
-      }
-    ]
+    const resetPassword = {
+      label: 'Reset Password',
+      type: 'link',
+      onClick: user => this.resetPassword(user)
+    }
+
+    const deleteUser = {
+      label: 'Delete',
+      type: 'link',
+      needRefresh: true,
+      onClick: user => this.deleteUser(user)
+    }
+
+    const actions = this.state.authStrategy === 'basic' ? [resetPassword, deleteUser] : [deleteUser]
 
     return (
       <div>

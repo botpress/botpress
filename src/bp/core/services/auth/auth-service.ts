@@ -4,7 +4,7 @@ import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import nanoid from 'nanoid'
 
-import { AuthUser, BasicAuthUser, TokenUser } from '../../misc/interfaces'
+import { AuthUser, BasicAuthUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
@@ -59,7 +59,7 @@ export default class AuthService {
     return user.id
   }
 
-  async createUser(user: BasicAuthUser) {
+  async createUser(user: BasicAuthUser | ExternalAuthUser) {
     return this.workspace.createUser(user)
   }
 

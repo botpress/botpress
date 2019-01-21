@@ -6,6 +6,7 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
+import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
 import { BotService } from './bot-service'
 import { CMSService } from './cms'
@@ -46,6 +47,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.CLUSTER_ENABLED)
+
+  bind<AuthStrategies>(TYPES.AuthStrategies)
+    .to(CEAuthStrategies)
+    .inSingletonScope()
+    .when(() => !process.IS_PRO_ENABLED)
 
   bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
