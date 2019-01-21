@@ -22,7 +22,7 @@ export class BotService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
-  async addBot(bot: Bot, botTemplate?: BotTemplate): Promise<void> {
+  async addBot(bot: Bot, botTemplate: BotTemplate): Promise<void> {
     this.stats.track('ce', 'addBot')
 
     const { error } = Joi.validate(bot, BotCreationSchema)
@@ -30,10 +30,7 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    botTemplate
-      ? await this.configWriter.createFromTemplate(bot, botTemplate)
-      : await this.configWriter.createEmptyBot(bot)
-
+    await this.configWriter.createFromTemplate(bot, botTemplate)
     await this.botLoader.mountBot(bot.id)
     this.botLoader.invalidateBotIds()
   }
