@@ -45,7 +45,7 @@ export class UsersRouter implements CustomRouter {
           })
         )
         const email = req.body.email
-        const alreadyExists = await this.authService.findUserByEmail(email, ['id'])
+        const alreadyExists = await this.authService.findUserByEmail(email, ['email'])
 
         if (alreadyExists) {
           throw new InvalidOperationError(`User ${email} is already taken`)
@@ -61,18 +61,14 @@ export class UsersRouter implements CustomRouter {
     )
 
     router.delete(
-      '/:userId', // Delete user
+      '/:email', // Delete user
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
-        const { userId } = req.params
+        const { email } = req.params
 
-        if (userId == 1) {
-          throw new InvalidOperationError(`You cannot delete the main admin account.`)
-        }
-
-        await this.workspace.deleteUser(userId)
+        await this.workspace.deleteUser(email)
         return sendSuccess(res, 'User deleted', {
-          userId
+          email
         })
       })
     )

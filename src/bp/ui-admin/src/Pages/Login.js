@@ -122,7 +122,7 @@ export default class Login extends Component {
       return <Redirect to="/" />
     }
 
-    if (this.state.isFirstTimeUse) {
+    if (this.state.isFirstTimeUse && this.state.authStrategy === 'basic') {
       return <Redirect to="/register" />
     }
 
@@ -133,15 +133,16 @@ export default class Login extends Component {
     if (this.state.isLoading) {
       return null
     }
-    //
-    const isExternalAuth = this.state.authStrategy !== 'basic'
+
     return (
       <div className="centered-container">
         <div className="middle">
           <div className="inner">
             <img className="logo" src={logo} alt="loading" />
             <Card body>
-              <CardBody className="login-box">{isExternalAuth ? this.renderExternal() : this.renderForm()}</CardBody>
+              <CardBody className="login-box">
+                {this.state.authEndpoint ? this.renderExternal() : this.renderForm()}
+              </CardBody>
             </Card>
           </div>
         </div>

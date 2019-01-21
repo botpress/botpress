@@ -86,7 +86,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.workspaceService.updateUser(req.authUser.id, {
+    await this.workspaceService.updateUser(req.authUser.email, {
       firstname: req.body.firstname,
       lastname: req.body.lastname
     })
@@ -94,7 +94,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   getPermissions = async (req, res) => {
-    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.id)
+    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.email)
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
 

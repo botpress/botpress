@@ -36,7 +36,6 @@ export type ExternalAuthUser = Partial<AuthUser> & {
 }
 
 export interface AuthUser {
-  id: number
   email: string
   password?: string
   salt?: string
@@ -51,6 +50,7 @@ export interface AuthUser {
   location?: string
   provider?: string
   last_logon?: Date
+  created_on?: Date
   password_expired?: boolean
 }
 

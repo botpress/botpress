@@ -63,10 +63,10 @@ export class WorkspaceService {
     }
   }
 
-  assertUserExists(userId: string): void {
-    const user = this.findUser({ id: userId })
+  assertUserExists(email: string): void {
+    const user = this.findUser({ email })
     if (!user) {
-      throw new Error(`User "${userId}" is not a part of the workspace "${this._workspace.name}"`)
+      throw new Error(`User "${email}" is not a part of the workspace "${this._workspace.name}"`)
     }
   }
 
@@ -90,15 +90,15 @@ export class WorkspaceService {
     return role
   }
 
-  getRoleForUser(userId): AuthRole {
-    const user = this.findUser({ id: userId })!
+  getRoleForUser(email: string): AuthRole {
+    const user = this.findUser({ email })!
     return this.findRole(user.role!)
   }
 
   async createUser(authUser: BasicAuthUser | ExternalAuthUser): Promise<AuthUser> {
     const newUser: AuthUser = {
       ...authUser,
-      id: ++this._workspace.userSeq
+      created_on: new Date()
     }
 
     this._workspace.users.push(newUser)
@@ -107,8 +107,8 @@ export class WorkspaceService {
     return newUser
   }
 
-  async updateUser(userId: number, userData: Partial<AuthUser>) {
-    const original = this.findUser({ id: userId })
+  async updateUser(email: string, userData: Partial<AuthUser>) {
+    const original = this.findUser({ email })
     if (!original) {
       throw Error('Cannot find user')
     }
@@ -117,14 +117,14 @@ export class WorkspaceService {
       ...original,
       ...userData
     }
-    const idx = _.findIndex(this._workspace!.users, x => x.id === userId)
+    const idx = _.findIndex(this._workspace!.users, x => x.email === email)
     this._workspace.users.splice(idx, 1, newUser)
 
     await this.save()
   }
 
-  async deleteUser(userId: number) {
-    const index = _.findIndex(this._workspace.users, x => x.id === userId)
+  async deleteUser(email: string) {
+    const index = _.findIndex(this._workspace.users, x => x.email === email)
 
     if (index > -1) {
       this._workspace.users.splice(index, 1)

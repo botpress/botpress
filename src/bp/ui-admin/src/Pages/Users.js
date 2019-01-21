@@ -98,7 +98,7 @@ Password: ${payload.tempPassword}`
 
   async deleteUser(user, list) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      await api.getSecured().delete(`/admin/users/${user.id}`)
+      await api.getSecured().delete(`/admin/users/${user.email}`)
     }
   }
 

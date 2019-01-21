@@ -6,7 +6,7 @@ export interface AuthStrategies {
   setup(router: Router)
   getOrCreateUser(authUser: Partial<AuthUser>): Promise<AuthUser>
   mapFields(userProfile: any)
-  createTokenForUser(userId: number): Promise<string>
+  createTokenForUser(email: string): Promise<string>
 }
 
 @injectable()
@@ -23,7 +23,7 @@ export class CEAuthStrategies implements AuthStrategies {
     throw new Error('Not implemented')
   }
 
-  createTokenForUser(userId: number): Promise<string> {
+  createTokenForUser(email: string): Promise<string> {
     throw new Error('Not implemented')
   }
 }

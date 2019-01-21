@@ -90,7 +90,7 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
     throw new ProcessingError('No user property in the request')
   }
 
-  const authUser = await authService.findUserById(user.id)
+  const authUser = await authService.findUserByEmail(user.email)
   if (!authUser) {
     throw new UnauthorizedAccessError('Unknown user ID')
   }
@@ -118,13 +118,13 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.user && req.user.id
-  const user = workspaceService.findUser({ id: userId })
+  const email = req.user && req.user.email
+  const user = workspaceService.findUser({ email })
   if (!user) {
-    throw new Error(`User "${userId}" does not exists`)
+    throw new Error(`User "${email}" does not exists`)
   }
 
-  const role = workspaceService.getRoleForUser(user.id)
+  const role = workspaceService.getRoleForUser(user.email)
 
   if (!checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))

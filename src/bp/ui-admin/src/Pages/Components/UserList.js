@@ -30,6 +30,7 @@ class UserList extends Component {
             <tr>
               <th>Email</th>
               <th>Name</th>
+              <th>Role</th>
               <th style={isDetailed}>Created at</th>
               <th style={isDetailed}>Last Logon</th>
               <th>Actions</th>
@@ -50,6 +51,7 @@ class UserList extends Component {
                       &nbsp;
                       {user.lastname}
                     </td>
+                    <td style={isDetailed}>{user.role}</td>
                     <td style={isDetailed}>{moment(user.created_at).format('lll')}</td>
                     <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>
                     <td>
