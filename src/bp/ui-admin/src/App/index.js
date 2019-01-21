@@ -16,8 +16,8 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { fetchProfile } from '../modules/user'
-import { fetchLicensing } from '../modules/license'
+import { fetchProfile } from '../reducers/user'
+import { fetchLicensing } from '../reducers/license'
 
 import logo from '../botpress.svg'
 
