@@ -37,16 +37,18 @@ export class WorkspaceService {
 
   async save() {
     const workspaces = [this._workspace]
-    this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+    await this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
   }
 
-  addBotRef(botId: string): void {
+  async addBotRef(botId: string): Promise<void> {
     this._workspace.bots.push(botId)
+    await this.save()
   }
 
-  deleteBotRef(botId: any): void {
+  async deleteBotRef(botId: any): Promise<void> {
     const index = this._workspace.bots.findIndex(botId)
     this._workspace.bots.splice(index, 1)
+    await this.save()
   }
 
   getBotRefs(): string[] {

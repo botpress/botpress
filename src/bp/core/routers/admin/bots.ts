@@ -49,7 +49,7 @@ export class BotsRouter implements CustomRouter {
         this.workspaceService.assertUserExists(userId)
 
         await this.botService.addBot(bot, req.body.template)
-        this.workspaceService.addBotRef(bot.id)
+        await this.workspaceService.addBotRef(bot.id)
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id
@@ -81,7 +81,7 @@ export class BotsRouter implements CustomRouter {
         this.workspaceService.assertUserExists(userId)
 
         await this.botService.deleteBot(botId)
-        this.workspaceService.deleteBotRef(botId)
+        await this.workspaceService.deleteBotRef(botId)
 
         return sendSuccess(res, 'Removed bot from team', { botId })
       })
