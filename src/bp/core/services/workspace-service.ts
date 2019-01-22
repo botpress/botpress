@@ -101,6 +101,11 @@ export class WorkspaceService {
       created_on: new Date()
     }
 
+    // If there's no users, make the first account's role as Admin
+    if (!this._workspace.users.length) {
+      newUser.role = 'admin'
+    }
+
     this._workspace.users.push(newUser)
     await this.save()
 
