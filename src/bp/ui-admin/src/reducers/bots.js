@@ -14,6 +14,10 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case FETCH_BOT_TEMPLATES_REQUESTED:
+      return {
+        ...state
+      }
     case FETCH_BOT_TEMPLATES_RECEIVED:
       return {
         ...state,

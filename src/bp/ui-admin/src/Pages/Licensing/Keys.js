@@ -10,7 +10,7 @@ import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyMod
 import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
-import { fetchAllKeys, fetchProducts } from '../../modules/license'
+import { fetchAllKeys, fetchProducts } from '../../reducers/license'
 import { isAuthenticated } from '../../Auth/licensing'
 
 class KeyList extends Component {

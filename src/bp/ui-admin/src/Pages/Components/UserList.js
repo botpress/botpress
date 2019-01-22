@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Table, Button } from 'reactstrap'
-import { fetchUsers } from '../../modules/user'
+import { fetchUsers } from '../../reducers/user'
 import moment from 'moment'
 import LoadingSection from '../Components/LoadingSection'
 

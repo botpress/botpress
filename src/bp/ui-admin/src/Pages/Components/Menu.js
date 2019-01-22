@@ -3,8 +3,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Navbar, Nav, NavItem, NavLink, Badge } from 'reactstrap'
 import { Link, withRouter } from 'react-router-dom'
-import { fetchLicense } from '../../modules/license'
-import { fetchPermissions } from '../../modules/user'
+import { fetchLicense } from '../../reducers/license'
+import { fetchPermissions } from '../../reducers/user'
 import _ from 'lodash'
 import { checkRule } from 'common/auth'
 import { isAuthenticated as isAuthenticatedLicensing } from '../../Auth/licensing'
@@ -38,12 +38,6 @@ class Menu extends Component {
         disabled: this.isCommunity(),
         link: '/users',
         isPro: true
-      },
-      {
-        title: 'Versioning',
-        active: activePage === 'versioning',
-        show: true, // display this only if user is superadmin (once we have the superadmin concept)
-        link: '/versioning'
       },
       {
         title: 'Bots',

@@ -35,6 +35,11 @@ export class WorkspaceService {
     }
   }
 
+  // TODO: get by name or ID
+  getWorkspace(): Workspace {
+    return this._workspace
+  }
+
   async save() {
     const workspaces = [this._workspace]
     await this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))

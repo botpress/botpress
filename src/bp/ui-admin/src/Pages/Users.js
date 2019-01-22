@@ -8,7 +8,7 @@ import Joi from 'joi-browser'
 import UserList from './Components/UserList'
 import SectionLayout from './Layouts/Section'
 import api from '../api'
-import { fetchUsers } from '../modules/user'
+import { fetchUsers } from '../reducers/user'
 
 const UserEmailValidationSchema = Joi.string()
   .email()
