@@ -19,7 +19,6 @@ class ProfileDropdown extends Component {
   }
 
   renderDropdown = () => {
-    debugger
     const { email, fullName } = this.props.profile
 
     return (
@@ -32,7 +31,7 @@ class ProfileDropdown extends Component {
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.push('/profile')}>
             Signed in as&nbsp;
-            <strong>{fullName || email}</strong>
+            <strong>{fullName || email}</strong>`
           </DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.push('/profile')}>Your profile</DropdownItem>

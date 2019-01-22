@@ -3,7 +3,7 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
 
-import App from '../App/App'
+import App from '../App/Layout'
 
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'

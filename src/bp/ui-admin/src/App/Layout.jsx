@@ -4,7 +4,6 @@ import { Nav, NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse } from 'reac
 
 import { connect } from 'react-redux'
 
-import { fetchProfile } from '../modules/user'
 import { fetchLicensing } from '../modules/license'
 
 import logo from '../botpress.svg'
@@ -75,7 +74,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
-  fetchProfile,
   fetchLicensing
 }
 
