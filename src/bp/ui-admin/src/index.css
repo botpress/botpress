@@ -6683,15 +6683,11 @@ abbr {
     text-overflow: ellipsis;
     white-space: nowrap; }
 
-.profile__avatar {
-  background: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M11.537 8.835A5.957 5.957 0 0 1 8 10a5.957 5.957 0 0 1-3.537-1.165C1.823 10.144 0 12.86 0 16h16c0-3.14-1.823-5.856-4.463-7.165z" fill="#ddd"/><circle fill="#ddd" cx="8" cy="4" r="4"/><path d="M0 0h16v16H0z"/></g></svg>') no-repeat center center;
-  background-size: contain;
-  border: 3px solid var(--c-neutral--light-1);
-  border-radius: 50%;
-  display: block;
-  height: 150px;
-  margin-bottom: 20px;
-  width: 150px; }
+.profile {
+  text-align: center; }
+  .profile__picture {
+    border-radius: 50%;
+    margin-bottom: 20px; }
 
 .license-status {
   background-color: var(--c-neutral--light-2);
@@ -6742,7 +6738,7 @@ abbr {
   display: flex;
   align-items: center;
   font-size: 14px;
-  margin-bottom: 5px; }
+  margin-bottom: 20px; }
   .license-infos__label {
     display: inline-block;
     margin-right: 5px; }
@@ -6752,68 +6748,6 @@ abbr {
     text-decoration: dotted underline; }
   .license-infos--fingerprint .license-infos__icon {
     margin-left: auto; }
-
-.form-fieldset {
-  margin-bottom: 2em; }
-  .form-fieldset__icon {
-    margin-left: 0.5rem;
-    margin-bottom: -3px; }
-    .form-fieldset__icon path {
-      fill: currentColor; }
-
-.form__label,
-.form .label-like {
-  color: var(--c-brand--light);
-  display: block;
-  font-size: 1rem;
-  font-weight: 600; }
-  .form__label--radio,
-  .form .label-like--radio {
-    color: currentColor;
-    font-size: 14px;
-    text-transform: none; }
-
-.form__select {
-  width: 100%; }
-
-.form-range {
-  display: flex;
-  align-items: center;
-  position: relative; }
-  .form-range__value {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0 5px;
-    position: absolute;
-    right: 0; }
-
-.form__range {
-  background-color: #e3e3e3;
-  border-radius: 12px;
-  height: 25px;
-  outline: none;
-  width: calc(100% - 30px);
-  transition: opacity 0.2s;
-  -webkit-transition: opacity 0.2s;
-  -webkit-appearance: none; }
-  .form__range:hover {
-    opacity: 1; }
-
-.form__range::-webkit-slider-thumb {
-  background-color: var(--c-brand);
-  border-radius: 50%;
-  cursor: pointer;
-  width: 25px;
-  height: 25px;
-  appearance: none;
-  -webkit-appearance: none;
-  position: relative; }
-
-.form input[type='radio'] {
-  margin-right: 10px; }
-  .form input[type='radio'][disabled] + span {
-    cursor: not-allowed;
-    opacity: 0.5; }
 
 .table--scroll {
   overflow-x: scroll; }
@@ -6858,6 +6792,12 @@ abbr {
   .table--keys__cost {
     font-weight: 600; }
 
+.modal-section-title {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; }
+
 .modal__key {
   background: #f1f1f1;
   max-height: 250px;
@@ -6889,9 +6829,6 @@ abbr {
   transform: rotate(-45deg);
   transform-origin: top left;
   width: 15px; }
-
-.checkout__buy {
-  float: right; }
 
 .registerBtn {
   float: right; }
@@ -6951,7 +6888,7 @@ abbr {
     opacity: 0.8; }
 
 .btn-link {
-  padding: 0px !important; }
+  padding: 0px 3px 0px 3px !important; }
 
 .form-range {
   padding-right: 25px; }

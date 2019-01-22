@@ -1,11 +1,11 @@
-import { BotConfig, Logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
 import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
-import defaultRoles from './admin/default-roles'
+import { defaultRole, defaultRoles } from './admin/default-roles'
 import { UnauthorizedAccessError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
@@ -148,7 +148,8 @@ export class WorkspaceService {
       userSeq: 0,
       users: [],
       bots: [],
-      roles: defaultRoles
+      roles: defaultRoles,
+      defaultRole: defaultRole
     }
   }
 }

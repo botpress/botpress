@@ -1,6 +1,7 @@
 import { AuthRole } from 'core/misc/interfaces'
 
-const defaultRoles: AuthRole[] = [
+export const defaultRole = 'dev'
+export const defaultRoles: AuthRole[] = [
   {
     id: 'admin',
     name: 'Administrator',
@@ -22,5 +23,3 @@ const defaultRoles: AuthRole[] = [
     rules: [{ res: '*', op: '+r' }]
   }
 ]
-
-export default defaultRoles
