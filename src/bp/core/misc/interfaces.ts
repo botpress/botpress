@@ -35,12 +35,16 @@ export type ExternalAuthUser = Partial<AuthUser> & {
   provider: string
 }
 
+export interface CreatedUser {
+  user: AuthUser
+  password?: string
+}
+
 export interface AuthUser {
   email: string
   password?: string
   salt?: string
   role?: string
-  root_admin?: boolean
   firstname?: string
   lastname?: string
   fullName?: string

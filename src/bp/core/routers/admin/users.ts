@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { CreatedUser } from 'core/misc/interfaces'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
@@ -51,11 +52,11 @@ export class UsersRouter implements CustomRouter {
           throw new InvalidOperationError(`User ${email} is already taken`)
         }
 
-        const tempPassword = await this.authService.createUser(email)
+        const createdUser: CreatedUser = await this.authService.createUser({ email })
 
         return sendSuccess(res, 'User created successfully', {
           email,
-          tempPassword
+          tempPassword: createdUser.password
         })
       })
     )

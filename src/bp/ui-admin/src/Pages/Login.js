@@ -141,7 +141,7 @@ export default class Login extends Component {
             <img className="logo" src={logo} alt="loading" />
             <Card body>
               <CardBody className="login-box">
-                {this.state.authEndpoint ? this.renderExternal() : this.renderForm()}
+                {this.state.authStrategy === 'saml' ? this.renderExternal() : this.renderForm()}
               </CardBody>
             </Card>
           </div>

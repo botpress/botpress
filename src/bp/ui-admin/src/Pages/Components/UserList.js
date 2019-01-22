@@ -52,7 +52,7 @@ class UserList extends Component {
                       {user.lastname}
                     </td>
                     <td style={isDetailed}>{user.role}</td>
-                    <td style={isDetailed}>{moment(user.created_at).format('lll')}</td>
+                    <td style={isDetailed}>{moment(user.created_on).format('lll')}</td>
                     <td style={isDetailed}>{user.last_logon ? moment(user.last_logon).fromNow() : 'never'}</td>
                     <td>
                       {this.props.actions.map((action, idx) => {

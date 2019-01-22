@@ -1,10 +1,12 @@
 import { Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { AuthUser, BasicAuthUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
+import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
@@ -20,6 +22,7 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
   ) {}
@@ -55,8 +58,38 @@ export default class AuthService {
     return user.email
   }
 
-  async createUser(user: BasicAuthUser | ExternalAuthUser) {
-    return this.workspace.createUser(user)
+  async createBasicUser(user: Partial<BasicAuthUser>): Promise<CreatedUser> {
+    const newUser = {
+      ...user
+    } as BasicAuthUser
+
+    const createdUser = await this.workspace.createUser(newUser)
+    return {
+      password: user.password ? user.password : await this.resetPassword(user.email!),
+      user: createdUser
+    }
+  }
+
+  async createExternalUser(user: Partial<ExternalAuthUser>, provider: string): Promise<CreatedUser> {
+    const newUser = {
+      ...user,
+      provider
+    } as ExternalAuthUser
+
+    return {
+      user: await this.workspace.createUser(newUser)
+    }
+  }
+
+  async createUser(user: Partial<BasicAuthUser> | Partial<ExternalAuthUser>): Promise<CreatedUser> {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategy = _.get(config, 'pro.auth.strategy', 'basic')
+
+    if (strategy === 'basic') {
+      return this.createBasicUser(user)
+    } else {
+      return this.createExternalUser(user, strategy)
+    }
   }
 
   async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {

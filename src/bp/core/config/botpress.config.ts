@@ -165,6 +165,11 @@ export type BotpressConfig = {
     }
   }
   /**
+   * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
+   * @example: [admin@botpress.io]
+   */
+  superAdmins: string[]
+  /**
    * When enabled, Botpress collects anonymous data about the bot's usage
    * @default true
    */
