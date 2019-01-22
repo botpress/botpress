@@ -87,10 +87,10 @@ export class WorkspaceService {
     return user
   }
 
-  findRole(name: string): AuthRole {
-    const role = this._workspace.roles.find(r => r.name === name)
+  findRole(roleId: string): AuthRole {
+    const role = this._workspace.roles.find(r => r.id === roleId)
     if (!role) {
-      throw new Error(`Role "${name}" does not exists in workspace "${this._workspace.name}"`)
+      throw new Error(`Role "${roleId}" does not exists in workspace "${this._workspace.name}"`)
     }
     return role
   }
