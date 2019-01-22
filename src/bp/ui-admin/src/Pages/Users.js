@@ -9,6 +9,7 @@ import UserList from './Components/UserList'
 import SectionLayout from './Layouts/Section'
 import api from '../api'
 import { fetchUsers } from '../reducers/user'
+import { fetchRoles } from '../reducers/roles'
 
 const UserEmailValidationSchema = Joi.string()
   .email()
@@ -18,12 +19,16 @@ class List extends Component {
   state = {
     isCreateUserModalOpen: false,
     isRenderEmailModalOpen: false,
+    isUpdateRoleModalOpen: false,
     email: '',
+    isRoleChanged: false,
+    user: null,
     createUserError: null
   }
 
   componentDidMount() {
     this.loadAuthStrategy()
+    this.props.fetchRoles()
   }
 
   loadAuthStrategy = async () => {
@@ -37,6 +42,15 @@ class List extends Component {
 
   toggleRenderEmailModal = () => {
     this.setState({ isRenderEmailModalOpen: !this.state.isRenderEmailModalOpen })
+  }
+
+  toggleUpdateUserModal = user => {
+    const toggle = !this.state.isUpdateRoleModalOpen
+    if (user) {
+      this.setState({ isUpdateRoleModalOpen: toggle, user })
+    } else {
+      this.setState({ isUpdateRoleModalOpen: toggle })
+    }
   }
 
   onInputKeyPress = e => e.key === 'Enter' && this.createUser()
@@ -76,7 +90,7 @@ Password: ${payload.tempPassword}`
     this.props.fetchUsers()
   }
 
-  async resetPassword(user, list) {
+  async resetPassword(user) {
     if (window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       const {
         data: { payload }
@@ -96,10 +110,21 @@ Password: ${payload.tempPassword}`
     }
   }
 
-  async deleteUser(user, list) {
+  async deleteUser(user) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
       await api.getSecured().delete(`/admin/users/${user.email}`)
     }
+  }
+
+  updateUser = async () => {
+    const user = this.state.user
+    await api.getSecured().put(`/admin/users/${user.email}`, user)
+    this.setState({ isRoleChanged: false, isUpdateRoleModalOpen: false, user: null }, this.props.fetchUsers)
+  }
+
+  onRoleChange = event => {
+    const role = event.target.value
+    this.setState({ user: { ...this.state.user, role }, isRoleChanged: true })
   }
 
   onCopy = () => {
@@ -107,6 +132,30 @@ Password: ${payload.tempPassword}`
     window.setTimeout(() => {
       this.setState({ copied: false })
     }, 750)
+  }
+
+  renderUpdateUserModal() {
+    return (
+      <Modal isOpen={this.state.isUpdateRoleModalOpen} toggle={this.toggleUpdateUserModal}>
+        <ModalHeader toggle={this.toggleUpdateUserModal}>Change Role</ModalHeader>
+        <ModalBody>
+          <Input type="select" defaultValue={this.state.user && this.state.user.role} onChange={this.onRoleChange}>
+            {this.props.roles.map(role => {
+              return (
+                <option value={role.id} key={'role-' + role.id}>
+                  {role.name}
+                </option>
+              )
+            })}
+          </Input>
+        </ModalBody>
+        <ModalFooter>
+          <Button disabled={!this.state.isRoleChanged} onClick={this.updateUser}>
+            Save
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
   }
 
   renderEmailModal() {
@@ -165,7 +214,15 @@ Password: ${payload.tempPassword}`
       onClick: user => this.deleteUser(user)
     }
 
-    const actions = this.state.authStrategy === 'basic' ? [resetPassword, deleteUser] : [deleteUser]
+    const changeRole = {
+      label: 'Change Role',
+      type: 'link',
+      needRefresh: true,
+      onClick: user => this.toggleUpdateUserModal(user)
+    }
+
+    const actions =
+      this.state.authStrategy === 'basic' ? [resetPassword, deleteUser, changeRole] : [deleteUser, changeRole]
 
     return (
       <div>
@@ -182,6 +239,7 @@ Password: ${payload.tempPassword}`
         </Button>
         {this.renderCreateUserModal()}
         {this.renderEmailModal()}
+        {this.renderUpdateUserModal()}
       </div>
     )
   }
@@ -190,7 +248,7 @@ Password: ${payload.tempPassword}`
     return (
       <SectionLayout
         title="Collaborators"
-        helpText="Add or delete user"
+        helpText="Create, delete users or update their role."
         activePage="users"
         mainContent={this.renderAllUsers()}
         sideMenu={this.renderSideMenu()}
@@ -200,10 +258,11 @@ Password: ${payload.tempPassword}`
 }
 
 const mapStateToProps = state => ({
-  loading: state.user.loadingUsers
+  loading: state.user.loadingUsers,
+  roles: state.roles.roles
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchUsers }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchUsers, fetchRoles }, dispatch)
 
 export default connect(
   mapStateToProps,

@@ -33,7 +33,7 @@ class Roles extends Component {
   render() {
     return (
       <SectionLayout
-        title={`Contributor Roles`}
+        title="Roles"
         helpText="To change roles, please see “roles” in the workspaces.json file."
         activePage="roles"
         currentTeam={this.props.team}
