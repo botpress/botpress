@@ -92,5 +92,16 @@ export class UsersRouter implements CustomRouter {
         })
       })
     )
+
+    router.put(
+      '/:email',
+      this.asyncMiddleware(async (req, res) => {
+        await this.workspace.assertIsRootAdmin(req.authUser.role)
+        const { email } = req.params
+
+        await this.authService.updateUser(email, req.body)
+        return sendSuccess(res, 'User updated')
+      })
+    )
   }
 }
