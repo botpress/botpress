@@ -4,7 +4,14 @@
   --c-neutral: #9b9b9b;
   --c-neutral--light-1: #ddd;
   --c-neutral--light-2: #f2f1f1;
-  --c-neutral--light-3: #fff; }
+  --c-neutral--light-3: #fff;
+  --c-background--light-3: #dddddd;
+  --c-background--light-2: #9b9b9b;
+  --c-background--light-1: #626262;
+  --c-background: #555556;
+  --c-background--dark-1: #353535;
+  --c-background--dark-2: #1e1e1e;
+  --c-background--dark-3: #000; }
 
 body {
   margin: 0;
@@ -6438,10 +6445,10 @@ a.text-dark:hover, a.text-dark:focus {
   margin: 0; }
 
 .bp-header {
-  background-color: var(--c-neutral--dark-1);
+  background-color: var(--c-background--dark-2);
   border-bottom: 1px solid #999; }
   .bp-header__logo {
-    width: 100px; }
+    width: 120px; }
   .bp-header__title {
     font-size: 14px; }
   .bp-header .navbar-brand,
@@ -6512,7 +6519,7 @@ a.text-dark:hover, a.text-dark:focus {
   position: relative;
   opacity: 1; }
   .bp-menu-aside-level1 > .nav-item.active > .nav-link::before {
-    content: "";
+    content: '';
     background-color: #3a3a3a;
     display: block;
     height: 100%;
@@ -6526,11 +6533,11 @@ a.text-dark:hover, a.text-dark:focus {
   border-radius: 0;
   color: #494949;
   font-weight: 600;
-  padding: 0.5rem 1rem .5rem 2rem; }
+  padding: 0.5rem 1rem 0.5rem 2rem; }
   .bp-menu-aside-level1 .nav-link:hover {
     background-color: var(--c-neutral--light-2); }
   .bp-menu-aside-level1 .nav-link.disabled {
-    opacity: .5; }
+    opacity: 0.5; }
 
 .bp-menu-aside-level2.nav {
   background-color: #e3e3e3;
@@ -6542,7 +6549,7 @@ a.text-dark:hover, a.text-dark:focus {
   font-size: 12px;
   font-weight: 600;
   width: 100%;
-  padding: .25rem 1rem .25rem 2rem; }
+  padding: 0.25rem 1rem 0.25rem 2rem; }
 
 .bp-menu-aside-level2 .nav-item.active .nav-link {
   background-color: #d9d9d9;
@@ -6557,7 +6564,7 @@ a.text-dark:hover, a.text-dark:focus {
   border-top: 1px solid transparent;
   color: #595959;
   font-size: 12px;
-  padding: .25rem 1rem .25rem 2.5rem; }
+  padding: 0.25rem 1rem 0.25rem 2.5rem; }
   .bp-menu-aside-level2 .nav-link:hover {
     background-color: #d9d9d9;
     border-bottom: 1px solid #d1d1d1;

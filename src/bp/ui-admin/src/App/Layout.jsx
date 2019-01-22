@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { fetchLicensing } from '../reducers/license'
 
-import logo from '../botpress.svg'
+import logo from '../media/logo_white.png'
 import ProfileDropdownMenu from './ProfileDropdownMenu'
 
 class App extends Component {

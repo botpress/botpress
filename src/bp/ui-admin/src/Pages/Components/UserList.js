@@ -26,10 +26,11 @@ class UserList extends Component {
     }
   }
 
-  toggle(role) {
-    this.setState({ [role]: !this.state[role] })
+  toggle(roleId) {
+    this.setState({ [roleId]: !this.state[roleId] })
   }
 
+  // TODO: WIP still need some love
   renderUsersForRole(users, roleId) {
     return (
       <Collapse isOpen={this.state[roleId]}>

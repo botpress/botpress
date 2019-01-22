@@ -73,7 +73,6 @@ export interface AuthRole {
 }
 
 export interface TokenUser {
-  id: number
   email: string
 }
 
