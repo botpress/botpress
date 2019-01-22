@@ -131,7 +131,7 @@ export default class AuthService {
       last_logon: new Date()
     })
 
-    return generateUserToken(email, TOKEN_AUDIENCE)
+    return generateUserToken(email, TOKEN_AUDIENCE, await this.configProvider.getBotpressConfig())
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
@@ -148,6 +148,6 @@ export default class AuthService {
     }
 
     await this.updateUser(email, { last_ip: ipAddress }, true)
-    return generateUserToken(email, TOKEN_AUDIENCE)
+    return generateUserToken(email, TOKEN_AUDIENCE, await this.configProvider.getBotpressConfig())
   }
 }

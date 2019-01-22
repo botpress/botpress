@@ -1,3 +1,4 @@
+import { BotpressConfig } from 'core/config/botpress.config'
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
 
@@ -22,11 +23,14 @@ export const saltHashPassword = password => {
 
 export const validateHash = (password: string, hash: string, salt: string) => calculateHash(password, salt) === hash
 
-export const generateUserToken = async (email: string, audience?: string) => {
+export const generateUserToken = async (email: string, audience?: string, botpressConfig?: BotpressConfig) => {
+  const isSuperAdmin = botpressConfig && botpressConfig.superAdmins.includes(email)
+
   return Promise.fromCallback<string>(cb => {
     jsonwebtoken.sign(
       {
-        email
+        email,
+        isSuperAdmin
       },
       process.JWT_SECRET,
       {
