@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 
-import { fetchProfile } from '../modules/user'
+import { fetchProfile } from '../reducers/user'
 import Auth from '../Auth/index'
 
 import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'

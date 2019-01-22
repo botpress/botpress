@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import _ from 'lodash'
 
-import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 import LicensePolicies from '../Components/LicensePolicies'
 import EditLicense from '../Components/EditLicense'
