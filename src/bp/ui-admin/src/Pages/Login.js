@@ -76,7 +76,7 @@ export default class Login extends Component {
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
-          <label htmlFor="email">email</label>
+          <label htmlFor="email">E-mail</label>
           <Input
             value={this.state.email}
             onChange={this.handleInputChange}

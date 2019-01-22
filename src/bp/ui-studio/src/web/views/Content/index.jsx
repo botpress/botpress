@@ -30,7 +30,7 @@ class ContentView extends Component {
   initialized = false
 
   init() {
-    if (this.initialized || !this.props.user || this.props.user.id == null) {
+    if (this.initialized || !this.props.user || this.props.user.email == null) {
       return
     }
     this.initialized = true
