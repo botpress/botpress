@@ -235,9 +235,11 @@ export interface AuthStrategyLdap {
   searchFilter: string
   timeout: number
   tlsEnabled: boolean
-  tlsOptions: {
-    ca: string
-  }
+  /**
+   * Path to certificates on the file system
+   * @example certificates: ["/path/to/ca/certificate.pem"]
+   */
+  certificates: string[]
 }
 
 export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }
