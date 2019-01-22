@@ -154,7 +154,7 @@ class Bots extends Component {
     let templates = []
     if (this.props.botTemplates) {
       const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
-      const templates = templateModules.map(module => ({
+      templates = templateModules.map(module => ({
         label: module,
         options: _.filter(this.props.botTemplates, x => x.moduleName === module)
       }))
