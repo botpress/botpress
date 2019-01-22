@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
+import { GhostConfigProvider } from 'core/config/config-loader'
 import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -19,7 +20,8 @@ export class WorkspaceService {
     @inject(TYPES.Logger)
     @tagged('name', 'WorkspaceService')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ConfigProvider) private configProvider: GhostConfigProvider
   ) {}
 
   async initialize(): Promise<void> {
@@ -110,6 +112,7 @@ export class WorkspaceService {
     // If there's no users, make the first account's role as Admin
     if (!this._workspace.users.length) {
       newUser.role = this._workspace.adminRole
+      await this.configProvider.mergeBotpressConfig({ superAdmins: [newUser.email] })
     }
 
     this._workspace.users.push(newUser)
