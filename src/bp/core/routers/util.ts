@@ -104,6 +104,20 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
   next()
 }
 
+export const needSuperAdminAccess = (req: Request, res: Response, next: Function) => {
+  const { authUser } = <RequestWithUser>req
+  if (!authUser) {
+    throw new ProcessingError('No authUser property in the request')
+  }
+
+  if (!authUser.isSuperAdmin) {
+    next(new PermissionError('User needs to be super admin to perform this action'))
+    return
+  }
+
+  next()
+}
+
 const getParam = (req: Request, name: string, defaultValue?: any) =>
   req.params[name] || req.body[name] || req.query[name]
 
