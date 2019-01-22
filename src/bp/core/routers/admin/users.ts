@@ -33,7 +33,8 @@ export class UsersRouter implements CustomRouter {
           'lastname',
           'role',
           'picture',
-          'last_logon'
+          'last_logon',
+          'created_on'
         ])
         return sendSuccess(res, 'Retrieved users', users)
       })

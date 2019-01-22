@@ -128,7 +128,7 @@ Password: ${payload.tempPassword}`
   renderCreateUserModal() {
     return (
       <Modal isOpen={this.state.isCreateUserModalOpen} toggle={this.toggleCreateUserModalOpen}>
-        <ModalHeader toggle={this.toggleCreateUserModalOpen}>Create a new user</ModalHeader>
+        <ModalHeader toggle={this.toggleCreateUserModalOpen}>Add Collaborator</ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label for="email">E-mail</Label>
@@ -189,7 +189,7 @@ Password: ${payload.tempPassword}`
   render() {
     return (
       <SectionLayout
-        title="Users"
+        title="Collaborators"
         helpText="Add or delete user"
         activePage="users"
         mainContent={this.renderAllUsers()}

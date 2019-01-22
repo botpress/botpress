@@ -16,6 +16,7 @@ export interface Workspace {
   users: AuthUser[]
   roles: AuthRole[]
   defaultRole: string
+  adminRole: string
   bots: string[]
 }
 
@@ -73,6 +74,7 @@ export interface AuthRole {
 
 export interface TokenUser {
   id: number
+  email: string
 }
 
 export type RequestWithUser = Request & {
