@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { fetchLicensing } from '../reducers/license'
 
 import logo from '../media/logo_white.png'
-import ProfileDropdownMenu from './ProfileDropdownMenu'
+import UserDropdownMenu from './UserDropdownMenu'
 
 class App extends Component {
   state = { isMenuOpen: true }
@@ -30,7 +30,7 @@ class App extends Component {
             <NavbarToggler onClick={this.toggleMenu} />
             <Collapse isOpen={this.state.isMenuOpen} navbar>
               <Nav className="ml-auto" navbar>
-                <ProfileDropdownMenu />
+                <UserDropdownMenu />
               </Nav>
             </Collapse>
           </Navbar>
