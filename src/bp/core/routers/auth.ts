@@ -1,5 +1,7 @@
 import { Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
+import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Request, RequestHandler, Router } from 'express'
@@ -19,7 +21,13 @@ export class AuthRouter implements CustomRouter {
   private checkTokenHeader!: RequestHandler
   private loadUser!: RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
+  constructor(
+    logger: Logger,
+    private authService: AuthService,
+    private configProvider: ConfigProvider,
+    private workspaceService: WorkspaceService,
+    private authStrategies: AuthStrategies
+  ) {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -35,10 +43,14 @@ export class AuthRouter implements CustomRouter {
   }
 
   getAuthConfig = async () => {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategy = _.get(config, 'pro.auth.strategy', 'basic')
+    const authEndpoint = _.get(config, 'pro.auth.options.authEndpoint')
+
     const usersList = this.workspaceService.listUsers()
     const isFirstTimeUse = !usersList || !usersList.length
 
-    return { isFirstTimeUse } as AuthConfig
+    return { strategy, isFirstTimeUse, authEndpoint } as AuthConfig
   }
 
   register = async (req, res) => {
@@ -74,7 +86,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.workspaceService.updateUser(req.authUser.id, {
+    await this.workspaceService.updateUser(req.authUser.email, {
       firstname: req.body.firstname,
       lastname: req.body.lastname
     })
@@ -82,7 +94,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   getPermissions = async (req, res) => {
-    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.id)
+    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.email)
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
 
@@ -90,16 +102,21 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(res)
   }
 
-  setupRoutes() {
+  async setupRoutes() {
     const router = this.router
+
+    const authConfig = await this.getAuthConfig()
+
+    if (process.IS_PRO_ENABLED && authConfig.strategy !== 'basic') {
+      this.authStrategies.setup(router)
+    } else {
+      router.post('/login', this.asyncMiddleware(this.login))
+      router.post('/register', this.asyncMiddleware(this.register))
+    }
 
     router.get('/config', this.asyncMiddleware(this.sendConfig))
 
     router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
-
-    router.post('/login', this.asyncMiddleware(this.login))
-
-    router.post('/register', this.asyncMiddleware(this.register))
 
     router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
 

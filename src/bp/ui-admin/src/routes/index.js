@@ -22,6 +22,7 @@ import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
+import { extractCookie } from '../utils/cookies'
 import ServerSettings from '../Pages/ServerSettings'
 
 export const makeMainRoutes = () => {
@@ -39,7 +40,13 @@ export const makeMainRoutes = () => {
           />
           <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />
           <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
-
+          <Route
+            path="/setToken"
+            render={() => {
+              auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+              return <Redirect to="/" />
+            }}
+          />
           <Route
             path="/changePassword"
             render={props => {

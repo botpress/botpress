@@ -21,6 +21,7 @@ import { ConverseRouter } from './routers/bots/converse'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
+import { AuthStrategies } from './services/auth-strategies'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
 import { BotService } from './services/bot-service'
@@ -70,7 +71,8 @@ export default class HTTPServer {
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
   ) {
     this.app = express()
 
@@ -81,7 +83,13 @@ export default class HTTPServer {
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
-    this.authRouter = new AuthRouter(this.logger, this.authService, this.workspaceService)
+    this.authRouter = new AuthRouter(
+      this.logger,
+      this.authService,
+      this.configProvider,
+      this.workspaceService,
+      this.authStrategies
+    )
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
