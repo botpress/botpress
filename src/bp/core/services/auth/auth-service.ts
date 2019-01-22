@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { AuthStrategy } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
@@ -70,7 +71,7 @@ export default class AuthService {
     }
   }
 
-  async createExternalUser(user: Partial<ExternalAuthUser>, provider: string): Promise<CreatedUser> {
+  async createExternalUser(user: Partial<ExternalAuthUser>, provider: AuthStrategy): Promise<CreatedUser> {
     const newUser = {
       ...user,
       provider
