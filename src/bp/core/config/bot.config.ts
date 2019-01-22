@@ -25,10 +25,6 @@ export type BotConfig = {
   name: string
   /** The name of the workspace where the bot belongs */
   workspace: string
-  /**
-   * @default true
-   */
-  active: boolean
   description?: string
   author?: string
   /**
