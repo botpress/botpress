@@ -8,6 +8,7 @@ import App from '../App/Layout'
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
 import BotsPage from '../Pages/Bots'
+import RolesPage from '../Pages/Roles'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
 
@@ -21,7 +22,7 @@ import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
-import ServerSettings from '../Pages/ServerSettings/ServerSettings'
+import ServerSettings from '../Pages/ServerSettings'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -64,6 +65,7 @@ export const makeMainRoutes = () => {
                 }}
               />
               <Route exact path="/bots" render={props => <BotsPage {...props} />} />
+              <Route exact path="/roles" render={props => <RolesPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
               <Route exact path="/settings" component={ServerSettings} />
 

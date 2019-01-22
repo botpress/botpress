@@ -8,19 +8,17 @@ import { TYPES } from 'core/types'
 import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
-import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BotConfig } from './bot.config'
+import { BOT_DIRECTORIES, BotConfig } from './bot.config'
 
 type FileListing = { relativePath: string; absolutePath: string }
 
 @injectable()
 export class BotConfigWriter {
   private BOT_CONFIG_FILENAME = 'bot.config.json'
-  private BOT_SCHEMA_FILENAME = 'bot.config.schema.json'
 
   constructor(
     @inject(TYPES.Logger) private logger: Logger,
@@ -36,8 +34,6 @@ export class BotConfigWriter {
     const botDestinationPath = path.join(process.PROJECT_LOCATION, `data/bots/${bot.id}/`)
 
     try {
-      await fse.ensureDir(botDestinationPath)
-
       const startsWithADot = /^\./gm
       const templateFiles = this._listDir(templatePath, [startsWithADot])
       const scopedGhost = this.ghost.forBot(bot.id)
@@ -50,15 +46,15 @@ export class BotConfigWriter {
 
       await scopedGhost.upsertFiles('/', files)
 
-      fse.existsSync(templateConfig) ? this._writeTemplateConfig(templateConfig, bot) : this._writeDefaultConfig(bot)
-    } catch (e) {
-      throw new VError(e, `Error writing file "${botDestinationPath}"`)
+      if (fse.existsSync(templateConfig)) {
+        this._writeTemplateConfig(templateConfig, bot)
+        await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
+      } else {
+        throw new Error("Bot template doesn't exist")
+      }
+    } catch (err) {
+      throw new VError(err, `Error writing file "${botDestinationPath}"`)
     }
-  }
-
-  async createEmptyBot(bot: Bot) {
-    await this._writeDefaultConfig(bot)
-    await this.flowService.createMainFlow(bot.id)
   }
 
   private async _writeTemplateConfig(configFile: string, bot: Bot) {
@@ -67,26 +63,6 @@ export class BotConfigWriter {
       this._writeConfig(bot.id, { ...templateConfig, id: bot.id, name: bot.name })
     } catch (e) {
       throw new VError(e, `Error writing configuration file from "${configFile}"`)
-    }
-  }
-
-  private async _writeDefaultConfig(bot: Bot) {
-    try {
-      const botConfigSchema = path.resolve(process.PROJECT_LOCATION, 'data', this.BOT_SCHEMA_FILENAME)
-      const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botConfigSchema, 'utf-8')))
-      const contentTypes = await this.cms.getAllContentTypes()
-
-      await this._writeConfig(bot.id, {
-        $schema: `../${this.BOT_SCHEMA_FILENAME}`,
-        id: bot.id,
-        name: bot.name,
-        ...defaultConfig,
-        imports: {
-          contentTypes: contentTypes && contentTypes.map(x => x.id)
-        }
-      })
-    } catch (e) {
-      throw new VError(e, `Error writing default configuration file for "${bot.name}"`)
     }
   }
 

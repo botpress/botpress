@@ -27,8 +27,8 @@ import {
 
 import _ from 'lodash'
 
-import { fetchPermissions } from '../modules/user'
-import { fetchBotTemplates, fetchBots } from '../modules/bots'
+import { fetchPermissions } from '../reducers/user'
+import { fetchBotTemplates, fetchBots } from '../reducers/bots'
 
 import SectionLayout from './Layouts/Section'
 import LoadingSection from './Components/LoadingSection'
@@ -151,19 +151,12 @@ class Bots extends Component {
   }
 
   renderCreateBot() {
-    let moduleTemplates = []
-    if (this.props.botTemplates) {
-      const modules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
+    const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
 
-      moduleTemplates = modules.map(module => {
-        return {
-          label: module,
-          options: _.filter(this.props.botTemplates, x => x.moduleName === module)
-        }
-      })
-    }
-
-    const templates = [{ id: undefined, name: 'Empty Bot' }, ...moduleTemplates]
+    const templates = templateModules.map(module => ({
+      label: module,
+      options: _.filter(this.props.botTemplates, x => x.moduleName === module)
+    }))
 
     if (!this.state.botTemplate) {
       const first = _.head(templates)
@@ -260,8 +253,8 @@ class Bots extends Component {
 
   async deleteBot(botId) {
     if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
-      await api.getSecured().delete(`/admin/teams/${this.props.teamId}/bots/${botId}`)
-      await this.props.fetchTeamData(this.props.teamId)
+      await api.getSecured().delete(`/admin/bots/${botId}`)
+      await this.props.fetchBots()
     }
   }
 
@@ -273,9 +266,9 @@ class Bots extends Component {
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
                 <IoIosBoxOutline />
-                &nbsp; This team has no bot, yet.
+                &nbsp; This workspace has no bot, yet.
               </h1>
-              <p>In Botpress, bots are always assigned to a team.</p>
+              <p>In Botpress, bots are always assigned to a workspace.</p>
               <p>{this.renderCreateNewBotButton(true)}</p>
             </Col>
           </Row>
@@ -299,7 +292,7 @@ class Bots extends Component {
   }
 
   renderBots() {
-    const bots = _.orderBy(this.props.bots, ['id'], ['desc'])
+    const bots = this.props.bots && _.orderBy(this.props.bots, ['id'], ['desc'])
 
     if (!bots.length) {
       return this.renderEmptyBots()
@@ -354,8 +347,8 @@ class Bots extends Component {
 
     return (
       <SectionLayout
-        title={`${this.props.team}'s bots`}
-        helpText="This page lists all the bots created under this team."
+        title={`${this.props.workspace} workspace's bots`}
+        helpText="This page lists all the bots created under the default workspace."
         activePage="bots"
         currentTeam={this.props.team}
         mainContent={this.renderBots()}
@@ -367,6 +360,7 @@ class Bots extends Component {
 
 const mapStateToProps = state => ({
   bots: state.bots.bots,
+  workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
   botTemplates: state.bots.botTemplates
 })

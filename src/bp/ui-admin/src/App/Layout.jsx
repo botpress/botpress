@@ -1,7 +1,5 @@
 import React, { Component, Fragment } from 'react'
-
 import { Nav, NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse } from 'reactstrap'
-
 import { connect } from 'react-redux'
 
 import { fetchLicensing } from '../modules/license'

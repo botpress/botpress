@@ -79,6 +79,27 @@ Botpress NLU also provides two convenient methods to the NLU Object : `nlu.inten
 | Recast     |       ✅        |          ✅           |        ✅         |           ❌           |
 | Native     |       ✅        |          ✅           |        ❌         |           ❌           |
 
+## Native
+
+Native NLU module usually doesn't require any configuration.
+
+It depends on [fastText](https://github.com/facebookresearch/fastText) and includes prebuilt binaries for it. Still in some cases (e.g. on older versions of operating systems) you may run into error like this:
+
+```
+/botpress/modules/nlu/dist/backend/tools/bin/ft_linux: /lib/x86_64-linux-gnu/libm.so.6:
+  version `GLIBC_2.27' not found (required by /botpress/modules/nlu/dist/backend/tools/bin/ft_linux)
+13:22:51.447 Launcher Unhandled Rejection [Error, write EPIPE]
+STACK TRACE
+Error: write EPIPE
+    at WriteWrap.afterWrite [as oncomplete] (net.js:792:14)
+```
+
+In this case you may need to:
+
+1. [Build fastText](https://github.com/facebookresearch/fastText#building-fasttext) manually
+2. Set path to correct binary at `global/config/nlu.json` within `fastTextPath` option or pass it via `BP_NLU_FASTTEXTPATH` env-variable
+ 
+
 ## DIALOGFLOW
 
 NOTE: Dialogflow-provider is not fully implemented yet and isn't recommended to use at this point.
