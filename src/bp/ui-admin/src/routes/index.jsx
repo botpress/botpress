@@ -23,6 +23,7 @@ import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import ServerSettings from '../Pages/ServerSettings'
+import Workspace from '../Pages/Workspace'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -64,6 +65,7 @@ export const makeMainRoutes = () => {
                   return <Redirect to={{ pathname: '/licensing' }} />
                 }}
               />
+              <Route path="/workspace" component={Workspace} />
               <Route exact path="/bots" render={props => <BotsPage {...props} />} />
               <Route exact path="/roles" render={props => <RolesPage {...props} />} />
               <Route exact path="/users" render={props => <UsersListPage {...props} />} />
@@ -72,7 +74,7 @@ export const makeMainRoutes = () => {
               <Route exact path="/licensing" component={LicensingKeys} />
               <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
               <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
-              <Redirect from="/" to="/bots" />
+              <Redirect from="/" to="/workspace" />
             </Switch>
           </PrivateRoute>
         </Switch>

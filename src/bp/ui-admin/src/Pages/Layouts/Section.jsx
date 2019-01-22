@@ -29,9 +29,7 @@ class Section extends Component {
           </Col>
         </Row>
         <Row>
-          <Col xs={12} md={10}>
-            {this.props.mainContent}
-          </Col>
+          <Col xs={12}>{this.props.mainContent}</Col>
         </Row>
       </div>
     )
