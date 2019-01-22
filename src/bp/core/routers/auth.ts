@@ -80,7 +80,8 @@ export class AuthRouter implements CustomRouter {
         'picture',
         'provider',
         'firstname',
-        'lastname'
+        'lastname',
+        'isSuperAdmin'
       ])
     )
   }

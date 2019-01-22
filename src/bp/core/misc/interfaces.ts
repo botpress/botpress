@@ -58,6 +58,7 @@ export interface AuthUser {
   last_logon?: Date
   created_on?: Date
   password_expired?: boolean
+  isSuperAdmin?: boolean
 }
 
 export interface AuthRule {
