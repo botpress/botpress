@@ -119,14 +119,14 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   next: NextFunction
 ) => {
   const email = req.user && req.user.email
-  const user = workspaceService.findUser({ email })
+  const user = await workspaceService.findUser({ email })
   if (!user) {
     throw new Error(`User "${email}" does not exists`)
   }
 
-  const role = workspaceService.getRoleForUser(user.email)
+  const role = await workspaceService.getRoleForUser(user.email)
 
-  if (!checkRule(role.rules, operation, resource)) {
+  if (!role || checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
     return
   }
