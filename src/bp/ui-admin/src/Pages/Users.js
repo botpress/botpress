@@ -80,7 +80,7 @@ Password: ${payload.tempPassword}`
     if (window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       const {
         data: { payload }
-      } = await api.getSecured().get(`/admin/users/reset/${user.id}`)
+      } = await api.getSecured().get(`/admin/users/reset/${user.email}`)
 
       const message = `Your password has been reset.
      
