@@ -6,14 +6,13 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import _ from 'lodash'
 
-import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 import LicensePolicies from '../Components/LicensePolicies'
 import EditLicense from '../Components/EditLicense'
 import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
-class BuyPage extends React.Component {
+class LicenseStatus extends React.Component {
   componentDidMount() {
     this.props.fetchLicensing()
   }
@@ -157,15 +156,7 @@ class BuyPage extends React.Component {
   }
 
   render() {
-    const renderLoading = () => <LoadingSection />
-
-    return (
-      <SectionLayout
-        title="License Status"
-        activePage="license"
-        mainContent={this.props.loading ? renderLoading() : this.renderBody()}
-      />
-    )
+    return this.props.loading ? <LoadingSection /> : this.renderBody()
   }
 }
 
@@ -175,4 +166,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({ fetchLicensing }, di
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(BuyPage)
+)(LicenseStatus)

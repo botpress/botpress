@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import SectionLayout from './Layouts/Section'
 import { connect } from 'react-redux'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { Button } from 'reactstrap'
 import _ from 'lodash'
 
-import { fetchPendingChanges } from '../reducers/versioning'
-import { pullToken } from '../Auth'
+import { fetchPendingChanges } from '../../reducers/versioning'
+import { pullToken } from '../../Auth'
 
 class Versioning extends Component {
   state = {
@@ -62,14 +61,7 @@ class Versioning extends Component {
   )
 
   render() {
-    return (
-      <SectionLayout
-        title="Versioning"
-        helpText="Changes on your server"
-        activePage="versioning"
-        mainContent={this.renderMainContent()}
-      />
-    )
+    return this.renderMainContent()
   }
 }
 
