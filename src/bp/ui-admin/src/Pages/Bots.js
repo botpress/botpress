@@ -151,19 +151,18 @@ class Bots extends Component {
   }
 
   renderCreateBot() {
-    let templateModules = []
+    let templates = []
     if (this.props.botTemplates) {
-      templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
-    }
+      const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
+      const templates = templateModules.map(module => ({
+        label: module,
+        options: _.filter(this.props.botTemplates, x => x.moduleName === module)
+      }))
 
-    const templates = templateModules.map(module => ({
-      label: module,
-      options: _.filter(this.props.botTemplates, x => x.moduleName === module)
-    }))
-
-    if (!this.state.botTemplate) {
-      const first = _.head(templates)
-      this.setState({ botTemplate: first.options ? first.options[0] : first })
+      if (!this.state.botTemplate) {
+        const first = _.head(templates)
+        this.setState({ botTemplate: first.options ? first.options[0] : first })
+      }
     }
 
     return (
