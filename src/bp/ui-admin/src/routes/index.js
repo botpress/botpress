@@ -23,6 +23,7 @@ import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
+import { extractCookie } from '../utils/cookies'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -41,15 +42,9 @@ export const makeMainRoutes = () => {
           <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
           <Route
             path="/setToken"
-            render={props => {
-              const userToken = ('; ' + document.cookie)
-                .split('; userToken=')
-                .pop()
-                .split(';')
-                .shift()
-
-              auth.setSession({ expiresIn: 7200, idToken: userToken })
-              return <Redirect to={`/`} />
+            render={() => {
+              auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+              return <Redirect to="/" />
             }}
           />
           <Route

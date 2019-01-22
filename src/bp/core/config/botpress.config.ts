@@ -150,7 +150,7 @@ export type BotpressConfig = {
       /**
        * Defines custom options based on the chosen authentication strategy
        */
-      options: AuthStrategySaml | AuthStrategyLdap
+      options: AuthStrategySaml | AuthStrategyLdap | undefined
       /**
        * Maps the values returned by your provider to Botpress user parameters.
        * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
