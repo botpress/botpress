@@ -27,7 +27,15 @@ export class UsersRouter implements CustomRouter {
     router.get(
       '/', // List users
       this.asyncMiddleware(async (req, res) => {
-        const users = await this.workspace.listUsers()
+        const users = await this.workspace.listUsers([
+          'email',
+          'firstname',
+          'lastname',
+          'role',
+          'picture',
+          'last_logon',
+          'created_on'
+        ])
         return sendSuccess(res, 'Retrieved users', users)
       })
     )

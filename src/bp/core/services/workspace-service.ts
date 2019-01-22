@@ -1,11 +1,11 @@
-import { BotConfig, Logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
+import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
 import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Workspace } from 'core/misc/interfaces'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
-import defaultRoles from './admin/default-roles'
 import { UnauthorizedAccessError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
@@ -103,12 +103,13 @@ export class WorkspaceService {
   async createUser(authUser: BasicAuthUser | ExternalAuthUser): Promise<AuthUser> {
     const newUser: AuthUser = {
       ...authUser,
+      role: this._workspace.defaultRole,
       created_on: new Date()
     }
 
     // If there's no users, make the first account's role as Admin
     if (!this._workspace.users.length) {
-      newUser.role = 'admin'
+      newUser.role = this._workspace.adminRole
     }
 
     this._workspace.users.push(newUser)
@@ -148,7 +149,9 @@ export class WorkspaceService {
       userSeq: 0,
       users: [],
       bots: [],
-      roles: defaultRoles
+      roles: defaultRoles,
+      defaultRole: defaultUserRole,
+      adminRole: defaultAdminRole
     }
   }
 }

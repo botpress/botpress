@@ -15,6 +15,8 @@ export interface Workspace {
   userSeq: number
   users: AuthUser[]
   roles: AuthRole[]
+  defaultRole: string
+  adminRole: string
   bots: string[]
 }
 
