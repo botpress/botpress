@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { CreatedUser } from 'core/misc/interfaces'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
@@ -45,34 +46,30 @@ export class UsersRouter implements CustomRouter {
           })
         )
         const email = req.body.email
-        const alreadyExists = await this.authService.findUserByEmail(email, ['id'])
+        const alreadyExists = await this.authService.findUserByEmail(email, ['email'])
 
         if (alreadyExists) {
           throw new InvalidOperationError(`User ${email} is already taken`)
         }
 
-        const tempPassword = await this.authService.createUser(email)
+        const createdUser: CreatedUser = await this.authService.createUser({ email })
 
         return sendSuccess(res, 'User created successfully', {
           email,
-          tempPassword
+          tempPassword: createdUser.password
         })
       })
     )
 
     router.delete(
-      '/:userId', // Delete user
+      '/:email', // Delete user
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
-        const { userId } = req.params
+        const { email } = req.params
 
-        if (userId == 1) {
-          throw new InvalidOperationError(`You cannot delete the main admin account.`)
-        }
-
-        await this.workspace.deleteUser(userId)
+        await this.workspace.deleteUser(email)
         return sendSuccess(res, 'User deleted', {
-          userId
+          email
         })
       })
     )

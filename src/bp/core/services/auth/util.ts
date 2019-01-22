@@ -22,11 +22,11 @@ export const saltHashPassword = password => {
 
 export const validateHash = (password: string, hash: string, salt: string) => calculateHash(password, salt) === hash
 
-export const generateUserToken = async (userId: number, audience?: string) => {
+export const generateUserToken = async (email: string, audience?: string) => {
   return Promise.fromCallback<string>(cb => {
     jsonwebtoken.sign(
       {
-        id: userId
+        email
       },
       process.JWT_SECRET,
       {

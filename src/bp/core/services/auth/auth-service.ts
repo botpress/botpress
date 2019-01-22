@@ -1,10 +1,13 @@
 import { Logger } from 'botpress/sdk'
+import { AuthStrategy } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { AuthUser, BasicAuthUser, TokenUser } from '../../misc/interfaces'
+import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
@@ -20,6 +23,7 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
   ) {}
@@ -40,12 +44,8 @@ export default class AuthService {
     return this.findUser({ email }, selectFields)
   }
 
-  async findUserById(id: number, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.findUser({ id }, selectFields)
-  }
-
   async checkUserAuth(email: string, password: string, newPassword?: string) {
-    const user = await this.findUserByEmail(email || '', ['id', 'password', 'salt', 'password_expired'])
+    const user = await this.findUserByEmail(email || '', ['password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
@@ -56,23 +56,53 @@ export default class AuthService {
       throw new PasswordExpiredError()
     }
 
-    return user.id
+    return user.email
   }
 
-  async createUser(user: BasicAuthUser) {
-    return this.workspace.createUser(user)
+  async createBasicUser(user: Partial<BasicAuthUser>): Promise<CreatedUser> {
+    const newUser = {
+      ...user
+    } as BasicAuthUser
+
+    const createdUser = await this.workspace.createUser(newUser)
+    return {
+      password: user.password ? user.password : await this.resetPassword(user.email!),
+      user: createdUser
+    }
   }
 
-  async updateUser(userId: number, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
+  async createExternalUser(user: Partial<ExternalAuthUser>, provider: AuthStrategy): Promise<CreatedUser> {
+    const newUser = {
+      ...user,
+      provider
+    } as ExternalAuthUser
+
+    return {
+      user: await this.workspace.createUser(newUser)
+    }
+  }
+
+  async createUser(user: Partial<BasicAuthUser> | Partial<ExternalAuthUser>): Promise<CreatedUser> {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategy = _.get(config, 'pro.auth.strategy', 'basic')
+
+    if (strategy === 'basic') {
+      return this.createBasicUser(user)
+    } else {
+      return this.createExternalUser(user, strategy)
+    }
+  }
+
+  async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
     const more = updateLastLogon ? { last_logon: new Date() } : {}
-    return await this.workspace.updateUser(userId, { ...userData, ...more })
+    return await this.workspace.updateUser(email, { ...userData, ...more })
   }
 
-  async resetPassword(userId: number) {
+  async resetPassword(email: string) {
     const password = nanoid(15)
     const { hash, salt } = saltHashPassword(password)
 
-    await this.workspace.updateUser(Number(userId), {
+    await this.workspace.updateUser(email, {
       password: hash,
       salt,
       password_expired: true
@@ -93,32 +123,31 @@ export default class AuthService {
     this.stats.track('auth', 'register', 'success')
 
     const pw = saltHashPassword(password)
-    const user = await this.createUser({
+    await this.createUser({
       email,
       password: pw.hash,
       salt: pw.salt,
       last_ip: ipAddress,
-      last_logon: new Date(),
-      role: 'admin' // TODO: First user to register is an admin
+      last_logon: new Date()
     })
 
-    return generateUserToken(user.id, TOKEN_AUDIENCE)
+    return generateUserToken(email, TOKEN_AUDIENCE)
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
-    const userId = await this.checkUserAuth(email, password, newPassword)
+    await this.checkUserAuth(email, password, newPassword)
     this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {
       const hash = saltHashPassword(newPassword)
-      await this.updateUser(userId, {
+      await this.updateUser(email, {
         password: hash.hash,
         salt: hash.salt,
         password_expired: false
       })
     }
 
-    await this.updateUser(userId, { last_ip: ipAddress }, true)
-    return generateUserToken(userId, TOKEN_AUDIENCE)
+    await this.updateUser(email, { last_ip: ipAddress }, true)
+    return generateUserToken(email, TOKEN_AUDIENCE)
   }
 }

@@ -22,6 +22,15 @@ class List extends Component {
     createUserError: null
   }
 
+  componentDidMount() {
+    this.loadAuthStrategy()
+  }
+
+  loadAuthStrategy = async () => {
+    const { data } = await api.getAnonymous().get('/auth/config')
+    this.setState({ authStrategy: data.payload.strategy })
+  }
+
   toggleCreateUserModalOpen = () => {
     this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen })
   }
@@ -71,7 +80,7 @@ Password: ${payload.tempPassword}`
     if (window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       const {
         data: { payload }
-      } = await api.getSecured().get(`/admin/users/reset/${user.id}`)
+      } = await api.getSecured().get(`/admin/users/reset/${user.email}`)
 
       const message = `Your password has been reset.
      
@@ -89,7 +98,7 @@ Password: ${payload.tempPassword}`
 
   async deleteUser(user, list) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      await api.getSecured().delete(`/admin/users/${user.id}`)
+      await api.getSecured().delete(`/admin/users/${user.email}`)
     }
   }
 
@@ -143,19 +152,20 @@ Password: ${payload.tempPassword}`
   }
 
   renderAllUsers() {
-    const actions = [
-      {
-        label: 'Reset Password',
-        type: 'link',
-        onClick: user => this.resetPassword(user)
-      },
-      {
-        label: 'Delete',
-        type: 'link',
-        needRefresh: true,
-        onClick: user => this.deleteUser(user)
-      }
-    ]
+    const resetPassword = {
+      label: 'Reset Password',
+      type: 'link',
+      onClick: user => this.resetPassword(user)
+    }
+
+    const deleteUser = {
+      label: 'Delete',
+      type: 'link',
+      needRefresh: true,
+      onClick: user => this.deleteUser(user)
+    }
+
+    const actions = this.state.authStrategy === 'basic' ? [resetPassword, deleteUser] : [deleteUser]
 
     return (
       <div>

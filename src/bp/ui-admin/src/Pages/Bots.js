@@ -151,7 +151,10 @@ class Bots extends Component {
   }
 
   renderCreateBot() {
-    const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
+    let templateModules = []
+    if (this.props.botTemplates) {
+      templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
+    }
 
     const templates = templateModules.map(module => ({
       label: module,

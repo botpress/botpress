@@ -19,7 +19,9 @@ export interface Workspace {
 }
 
 export interface AuthConfig {
+  strategy: string
   isFirstTimeUse: boolean
+  authEndpoint: string
 }
 
 export type BasicAuthUser = Partial<AuthUser> & {
@@ -28,8 +30,17 @@ export type BasicAuthUser = Partial<AuthUser> & {
   salt: string
 }
 
+export type ExternalAuthUser = Partial<AuthUser> & {
+  email: string
+  provider: string
+}
+
+export interface CreatedUser {
+  user: AuthUser
+  password?: string
+}
+
 export interface AuthUser {
-  id: number
   email: string
   password?: string
   salt?: string
@@ -43,6 +54,7 @@ export interface AuthUser {
   location?: string
   provider?: string
   last_logon?: Date
+  created_on?: Date
   password_expired?: boolean
 }
 
@@ -59,7 +71,7 @@ export interface AuthRole {
 }
 
 export interface TokenUser {
-  id: number
+  email: string
 }
 
 export type RequestWithUser = Request & {

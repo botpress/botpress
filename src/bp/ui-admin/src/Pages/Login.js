@@ -6,8 +6,11 @@ import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } 
 
 export default class Login extends Component {
   state = {
+    isLoading: true,
     isFirstTimeUse: false,
     email: '',
+    authStrategy: 'basic',
+    authEndpoint: null,
     password: '',
     passwordExpired: false,
     error: null
@@ -16,11 +19,17 @@ export default class Login extends Component {
   loadAuthConfig = async () => {
     const { data } = await api.getAnonymous().get('/auth/config')
 
-    this.setState({ isFirstTimeUse: data.payload.isFirstTimeUse })
+    this.setState({
+      isLoading: false,
+      isFirstTimeUse: data.payload.isFirstTimeUse,
+      authStrategy: data.payload.strategy,
+      authEndpoint: data.payload.authEndpoint
+    })
   }
 
   componentDidMount() {
     this.loadAuthConfig()
+    this.checkErrorMessages()
   }
 
   login = async ({ email, password, showError = true } = {}) => {
@@ -44,8 +53,21 @@ export default class Login extends Component {
     }
   }
 
+  checkErrorMessages = () => {
+    const urlParams = new window.URLSearchParams(window.location.search)
+    const errorMessage = urlParams.get('error')
+
+    if (errorMessage && errorMessage.length) {
+      this.setState({ error: errorMessage })
+    }
+  }
+
   handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
   handleInputKeyPress = e => e.key === 'Enter' && this.login()
+
+  redirectToExternalAuthProvider = () => {
+    window.location = this.state.authEndpoint
+  }
 
   renderForm = () => {
     return (
@@ -61,7 +83,7 @@ export default class Login extends Component {
             type="text"
             name="email"
             id="email"
-            onKeyPress={this.onInputKeyPress}
+            onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
         <FormGroup>
@@ -72,11 +94,24 @@ export default class Login extends Component {
             type="password"
             name="password"
             id="password"
-            onKeyPress={this.onInputKeyPress}
+            onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
         <p>
           <Button onClick={this.login}>Sign in</Button>
+        </p>
+      </Fragment>
+    )
+  }
+
+  renderExternal() {
+    return (
+      <Fragment>
+        <CardTitle>Botpress Admin Panel</CardTitle>
+        <CardText>Login</CardText>
+        {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+        <p>
+          <Button onClick={this.redirectToExternalAuthProvider}>Sign in with SSO</Button>
         </p>
       </Fragment>
     )
@@ -87,12 +122,16 @@ export default class Login extends Component {
       return <Redirect to="/" />
     }
 
-    if (this.state.isFirstTimeUse) {
+    if (this.state.isFirstTimeUse && this.state.authStrategy === 'basic') {
       return <Redirect to="/register" />
     }
 
     if (this.state.passwordExpired) {
       return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
+    }
+
+    if (this.state.isLoading) {
+      return null
     }
 
     return (
@@ -101,7 +140,9 @@ export default class Login extends Component {
           <div className="inner">
             <img className="logo" src={logo} alt="loading" />
             <Card body>
-              <CardBody className="login-box">{this.renderForm()}</CardBody>
+              <CardBody className="login-box">
+                {this.state.authStrategy === 'saml' ? this.renderExternal() : this.renderForm()}
+              </CardBody>
             </Card>
           </div>
         </div>

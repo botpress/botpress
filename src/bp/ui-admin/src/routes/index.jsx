@@ -7,13 +7,10 @@ import App from '../App/Layout'
 
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
-import BotsPage from '../Pages/Bots'
-import RolesPage from '../Pages/Roles'
 import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
 
 import Landing from '../Pages/Landing'
-import UsersListPage from '../Pages/Users'
 import LicensingRegister from '../Pages/Licensing/Register'
 import LicensingLogin from '../Pages/Licensing/Login'
 import LicensingKeys from '../Pages/Licensing/Keys'
@@ -66,9 +63,6 @@ export const makeMainRoutes = () => {
                 }}
               />
               <Route path="/workspace" component={Workspace} />
-              <Route exact path="/bots" render={props => <BotsPage {...props} />} />
-              <Route exact path="/roles" render={props => <RolesPage {...props} />} />
-              <Route exact path="/users" render={props => <UsersListPage {...props} />} />
               <Route exact path="/settings" component={ServerSettings} />
 
               <Route exact path="/licensing" component={LicensingKeys} />
