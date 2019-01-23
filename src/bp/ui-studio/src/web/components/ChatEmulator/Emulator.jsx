@@ -89,7 +89,7 @@ export default class EmulatorChat extends React.Component {
     let msg
     try {
       const res = await axios.post(
-        `${window.BOT_API_PATH}/converse/${this.state.userId}`,
+        `${window.BOT_API_PATH}/converse/${this.state.userId}/secured`,
         { text },
         { params: { include: 'nlu,state' } }
       )
