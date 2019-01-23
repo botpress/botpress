@@ -67,6 +67,7 @@ class UserList extends Component {
   }
 
   renderUsersForRole(users, roleId) {
+    debugger
     return (
       <Collapse isOpen={this.state[roleId]}>
         <div className="bp_table">
@@ -78,7 +79,9 @@ class UserList extends Component {
                 <Media object src={user.picture || 'https://via.placeholder.com/64'} className="pullLeft" />
                 <div className="pullLeft details">
                   <div className="nameZone">
-                    {user.firstname}&nbsp;{user.lastname}
+                    {user.firstname}
+                    &nbsp;
+                    {user.lastname}
                   </div>
 
                   <p>
@@ -88,7 +91,7 @@ class UserList extends Component {
                     </span>
                     <span className="field">
                       <b>Last Login: </b>
-                      {moment(user.last_logon).fromNow()}
+                      {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
                     </span>
                     <span className="field">
                       <b>Joined: </b>
