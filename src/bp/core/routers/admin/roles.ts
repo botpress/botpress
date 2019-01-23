@@ -1,17 +1,18 @@
 import { Logger } from 'botpress/sdk'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 
 import { CustomRouter } from '..'
-import { asyncMiddleware, success as sendSuccess } from '../util'
+import { asyncMiddleware, needPermissions, success as sendSuccess } from '../util'
 
-// TODO: Migrate to eventual workspace router
 export class RolesRouter implements CustomRouter {
   public readonly router: Router
 
+  private needPermissions!: (operation: string, resource: string) => RequestHandler
   private asyncMiddleware!: Function
 
   constructor(logger: Logger, private workspaceService: WorkspaceService) {
+    this.needPermissions = needPermissions(this.workspaceService)
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -20,6 +21,7 @@ export class RolesRouter implements CustomRouter {
   private setupRoutes() {
     this.router.get(
       '/',
+      this.needPermissions('read', 'admin.roles'),
       this.asyncMiddleware(async (req, res) => {
         const workspace = await this.workspaceService.getWorkspace()
         sendSuccess(res, 'Roles retrieved', {

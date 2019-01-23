@@ -1,20 +1,23 @@
 import { Logger } from 'botpress/sdk'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'
-import { asyncMiddleware, success as sendSuccess } from '../util'
+import { asyncMiddleware, needPermissions, success as sendSuccess } from '../util'
 
 export class BotsRouter implements CustomRouter {
   public readonly router: Router
 
+  private readonly resource = 'admin.bots'
   private asyncMiddleware!: Function
+  private needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(private logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
+  constructor(logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
+    this.needPermissions = needPermissions(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -24,6 +27,7 @@ export class BotsRouter implements CustomRouter {
 
     router.get(
       '/',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         this.workspaceService.assertUserExists(req.tokenUser.email)
 
@@ -42,7 +46,8 @@ export class BotsRouter implements CustomRouter {
     )
 
     router.post(
-      '/', // Add new bot
+      '/',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const bot = <Bot>_.pick(req.body, ['id', 'name'])
 
@@ -58,7 +63,8 @@ export class BotsRouter implements CustomRouter {
     )
 
     router.put(
-      '/:botId', // Update bot
+      '/:botId',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const bot = <Bot>req.body
@@ -73,7 +79,8 @@ export class BotsRouter implements CustomRouter {
     )
 
     router.delete(
-      '/:botId', // Delete a bot
+      '/:botId',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         this.workspaceService.assertUserExists(req.tokenUser.email)
