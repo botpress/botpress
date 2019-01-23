@@ -9,9 +9,15 @@ import Roles from './Roles'
 const Workspace = props => {
   const title = 'Workspace'
   const tabs = [
-    { name: 'Bots', icon: <MdAndroid />, component: <Bots /> },
-    { name: 'Collaborators', icon: <MdPeople />, component: <Users /> },
-    { name: 'Roles', icon: <MdVerifiedUser />, component: <Roles /> }
+    { name: 'Bots', icon: <MdAndroid />, component: <Bots />, resource: 'admin.bots.*', operation: 'read' },
+    {
+      name: 'Collaborators',
+      icon: <MdPeople />,
+      component: <Users />,
+      resource: 'admin.collaborators.*',
+      operation: 'read'
+    },
+    { name: 'Roles', icon: <MdVerifiedUser />, component: <Roles />, resource: 'admin.roles.*', operation: 'read' }
   ]
 
   return <TabLayout {...{ title, tabs, ...props }} />

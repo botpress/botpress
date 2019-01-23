@@ -14,13 +14,13 @@ export const defaultRoles: AuthRole[] = [
     id: 'dev',
     name: 'Developer',
     description: 'Developers have full read/write access to bots, including flows, content, NLU and actions',
-    rules: [{ res: '*', op: '+r+w' }, { res: 'admin.*', op: '+r-w' }]
+    rules: [{ res: '*', op: '+r+w' }, { res: 'admin.*', op: '+r-w' }, { res: 'admin.collaborators.*', op: '-r' }]
   },
   {
     id: 'editor',
     name: 'Content Editor',
     description:
       'Content Editors have read/write access to content and NLU, and read-only access to flows and actions.',
-    rules: [{ res: '*', op: '+r' }]
+    rules: [{ res: '*', op: '+r' }, { res: 'admin.collaborators.*', op: '-r' }]
   }
 ]

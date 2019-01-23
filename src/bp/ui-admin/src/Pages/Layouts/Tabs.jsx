@@ -1,7 +1,10 @@
 import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
 
 import { Container, TabContent, TabPane, Nav, NavItem, NavLink, Row, Col } from 'reactstrap'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/lib/md'
+import { AccessControl } from '../../App/AccessControl'
+import { fetchPermissions } from '../../reducers/user'
 
 class TabLayout extends Component {
   state = {
@@ -9,6 +12,7 @@ class TabLayout extends Component {
   }
 
   componentDidMount() {
+    !this.props.permissions && this.props.fetchPermissions()
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
@@ -40,15 +44,22 @@ class TabLayout extends Component {
                 <Nav tabs className="bp_container-tabs">
                   {this.props.showHome && this.renderHomeTab()}
                   {this.props.tabs.map(tab => (
-                    <NavItem key={tab.name}>
-                      <NavLink
-                        className={this.state.activeTab === tab.name ? 'active' : ''}
-                        onClick={this.toggleTab.bind(this, tab.name)}
-                      >
-                        {tab.icon}
-                        {tab.name}
-                      </NavLink>
-                    </NavItem>
+                    <AccessControl
+                      permissions={this.props.permissions}
+                      resource={tab.resource}
+                      operation={tab.operation}
+                      key={tab.name}
+                    >
+                      <NavItem>
+                        <NavLink
+                          className={this.state.activeTab === tab.name ? 'active' : ''}
+                          onClick={this.toggleTab.bind(this, tab.name)}
+                        >
+                          {tab.icon}
+                          {tab.name}
+                        </NavLink>
+                      </NavItem>
+                    </AccessControl>
                   ))}
                 </Nav>
               </Col>
@@ -74,4 +85,15 @@ class TabLayout extends Component {
   }
 }
 
-export default TabLayout
+const mapStateToProps = state => ({
+  permissions: state.user.permissions
+})
+
+const mapDispatchToProps = {
+  fetchPermissions
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TabLayout)
