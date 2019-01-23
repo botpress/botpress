@@ -73,7 +73,7 @@ class UserList extends Component {
           {users.map(user => {
             return (
               <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
-                {this.renderActionButton(user)}
+                {user.email !== this.props.profile.email && this.renderActionButton(user)}
 
                 <Media object src={user.picture || 'https://via.placeholder.com/64'} className="pullLeft" />
                 <div className="pullLeft details">
@@ -139,6 +139,7 @@ class UserList extends Component {
 }
 
 const mapStateToProps = state => ({
+  profile: state.user.profile,
   roles: state.roles.roles,
   users: state.user.items,
   loading: state.user.loadingUsers
