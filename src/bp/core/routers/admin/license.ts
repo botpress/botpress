@@ -5,7 +5,7 @@ import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { asyncMiddleware, success as sendSuccess } from '../util'
+import { assertSuperAdmin, asyncMiddleware, success as sendSuccess } from '../util'
 
 export class LicenseRouter implements CustomRouter {
   public readonly router: Router
@@ -51,6 +51,7 @@ export class LicenseRouter implements CustomRouter {
 
     router.post(
       '/update',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const result = await svc.replaceLicenseKey(req.body.licenseKey)
         if (!result) {
@@ -63,6 +64,7 @@ export class LicenseRouter implements CustomRouter {
 
     router.post(
       '/refresh',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         await svc.refreshLicenseKey()
         return sendSuccess(res, 'License refreshed')

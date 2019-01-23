@@ -69,13 +69,10 @@ export class AdminRouter implements CustomRouter {
       res.send(license)
     })
 
-    // Admin routes
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
-
-    // Super admin routes
-    router.use('/license', this.checkTokenHeader, assertSuperAdmin, this.licenseRouter.router)
+    router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
   }
 }
