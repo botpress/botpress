@@ -1,13 +1,20 @@
 import React, { Component } from 'react'
-import { ListGroup, ListGroupItem, Collapse, Badge, Button, Media } from 'reactstrap'
+import {
+  Collapse,
+  Badge,
+  Media,
+  DropdownItem,
+  UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownMenu
+} from 'reactstrap'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { fetchUsers } from '../../reducers/user'
 import { fetchRoles } from '../../reducers/roles'
 import moment from 'moment'
 import LoadingSection from '../Components/LoadingSection'
-import _ from 'lodash'
-import style from '../../scss/_userlist.scss'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
 
 class UserList extends Component {
   state = {
@@ -30,90 +37,100 @@ class UserList extends Component {
     this.setState({ [roleId]: !this.state[roleId] })
   }
 
-  // TODO: WIP still need some love
+  renderActionButton(user) {
+    return (
+      <UncontrolledButtonDropdown>
+        <DropdownToggle caret outline color="secondary" size="sm">
+          More
+        </DropdownToggle>
+        <DropdownMenu>
+          {this.props.actions.map((action, idx) => {
+            return (
+              <DropdownItem
+                color={action.type ? action.type : 'link'}
+                size="sm"
+                key={idx}
+                onClick={() => {
+                  action.onClick(user)
+                  if (action.needRefresh) {
+                    this.setState({ needRefresh: true })
+                  }
+                }}
+              >
+                {action.label}
+              </DropdownItem>
+            )
+          })}
+        </DropdownMenu>
+      </UncontrolledButtonDropdown>
+    )
+  }
+
   renderUsersForRole(users, roleId) {
     return (
       <Collapse isOpen={this.state[roleId]}>
-        <ListGroup>
+        <div className="bp_table">
           {users.map(user => {
             return (
-              <ListGroupItem key={'user-' + user.email}>
-                <Media object src={user.picture || 'https://via.placeholder.com/64'} alt="" />
-                <div className={style.userName}>
-                  {user.firstname}
-                  &nbsp;
-                  {user.lastname}
+              <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
+                {this.renderActionButton(user)}
+
+                <Media object src={user.picture || 'https://via.placeholder.com/64'} className="pullLeft" />
+                <div className="pullLeft details">
+                  <div className="nameZone">
+                    {user.firstname}&nbsp;{user.lastname}
+                  </div>
+
+                  <p>
+                    <span className="field">
+                      <b>Email:</b> {user.email}
+                    </span>
+                    <span className="field">
+                      <b>Last Login:</b> {moment(user.last_logon).fromNow()}
+                    </span>
+                    <span className="field">
+                      <b>Joined:</b>
+                      {moment(user.created_on).fromNow()}
+                    </span>
+                  </p>
                 </div>
-                <div>
-                  <b>Email:</b>
-                  &nbsp;
-                  {user.email}
-                </div>
-                <div>
-                  <b>Last Login:</b>
-                  &nbsp;
-                  {moment(user.last_logon).fromNow()}
-                </div>
-                <div>
-                  <b>Joined:</b>
-                  &nbsp;
-                  {moment(user.created_on).fromNow()}
-                </div>
-                <div>
-                  {this.props.actions.map((action, idx) => {
-                    return (
-                      <Button
-                        color={action.type ? action.type : 'link'}
-                        size="sm"
-                        key={idx}
-                        onClick={() => {
-                          action.onClick(user)
-                          if (action.needRefresh) {
-                            this.setState({ needRefresh: true })
-                          }
-                        }}
-                      >
-                        {action.label}
-                      </Button>
-                    )
-                  })}
-                </div>
-              </ListGroupItem>
+                <div style={{ clear: 'both' }} />
+              </div>
             )
           })}
-        </ListGroup>
+        </div>
       </Collapse>
     )
   }
 
-  renderUsers() {
-    return this.props.roles.map(role => {
-      const users = this.props.users.filter(user => user.role === role.id)
-      if (!users.length) {
-        return null
-      }
-
-      return (
-        <div key={'role-' + role.id}>
-          <div onClick={() => this.toggle(role.id)}>
-            {role.name}
-            &nbsp;
-            <Badge pill>{users.length}</Badge>
-            <i
-              className={
-                this.state[role.id] ? 'glyphicon glyphicon-triangle-bottom' : 'glyphicon glyphicon-triangle-bottom'
-              }
-            />
-          </div>
-          {this.renderUsersForRole(users, role.id)}
+  renderRole(users, role) {
+    return (
+      <div key={'role-' + role.id}>
+        <div onClick={() => this.toggle(role.id)} className="bp_users-role_header">
+          <span className="title">{role.name}</span>
+          &nbsp;
+          <Badge pill>{users.length}</Badge>
+          {this.state[role.id] ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
         </div>
-      )
-    })
+        {this.renderUsersForRole(users, role.id)}
+      </div>
+    )
+  }
+
+  renderPage() {
+    return (
+      <div className="bp_users-container">
+        {this.props.roles.map(role => {
+          const users = this.props.users.filter(user => user.role === role.id)
+          return users.length ? this.renderRole(users, role) : null
+        })}
+      </div>
+    )
   }
 
   render() {
     const renderLoading = () => <LoadingSection />
-    return !this.props.users || this.props.loading ? renderLoading() : this.renderUsers()
+    return !this.props.users || this.props.loading ? renderLoading() : this.renderPage()
   }
 }
 

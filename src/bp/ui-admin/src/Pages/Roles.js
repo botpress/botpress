@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { fetchRoles } from '../reducers/roles'
-import { Row, Col, ListGroup, ListGroupItem } from 'reactstrap'
 import SectionLayout from './Layouts/Section'
 
 class Roles extends Component {
@@ -11,21 +10,15 @@ class Roles extends Component {
 
   renderRoles() {
     return (
-      <div>
-        <Row>
-          <Col xs={12} md={12}>
-            <ListGroup>
-              {this.props.roles.map(r => {
-                return (
-                  <ListGroupItem key={'role-' + r.name}>
-                    <h3>{r.name}</h3>
-                    <p>{r.description}</p>
-                  </ListGroupItem>
-                )
-              })}
-            </ListGroup>
-          </Col>
-        </Row>
+      <div className="bp_table">
+        {this.props.roles.map(role => {
+          return (
+            <div className="bp_table-row" key={role.id}>
+              <div className="title">{role.name}</div>
+              <p>{role.description}</p>
+            </div>
+          )
+        })}
       </div>
     )
   }

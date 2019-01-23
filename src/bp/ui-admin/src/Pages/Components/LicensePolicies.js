@@ -49,7 +49,7 @@ export default class LicenseLimits extends React.Component {
 
   render() {
     return (
-      <table className="table bp-table">
+      <table className="table bp-licensing">
         <tbody>
           {this.state.policies.map((policy, idx) => {
             return (
@@ -60,7 +60,7 @@ export default class LicenseLimits extends React.Component {
                       ❌
                     </span>
                   ) : (
-                    <span className="bp-table__check">✓</span>
+                    <span className="bp-licensing__check">✓</span>
                   )}
                 </td>
                 <td>{policy.name}</td>
