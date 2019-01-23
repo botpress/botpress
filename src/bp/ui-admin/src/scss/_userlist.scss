@@ -1,4 +1,44 @@
-.userName {
-  display: inline-block;
-  font-size: 24px;
+.bp_users {
+  &-container {
+    border: 1px solid #efefef;
+  }
+
+  &-role_header {
+    height: 35px;
+    border-bottom: 1px solid #efefef;
+    background: #fefefe;
+    padding: 5px;
+    cursor: pointer;
+
+    .title {
+      display: inline-block;
+      width: 150px;
+    }
+
+    svg {
+      position: relative;
+      float: right;
+      right: 8px;
+      top: 5px;
+    }
+  }
+
+  &-list {
+    .btn-group {
+      float: right;
+    }
+
+    .details {
+      margin-left: 8px;
+    }
+
+    .nameZone {
+      height: 45px;
+    }
+
+    .field {
+      display: inline-block;
+      min-width: 240px;
+    }
+  }
 }

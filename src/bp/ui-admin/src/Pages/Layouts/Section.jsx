@@ -8,8 +8,8 @@ class Section extends Component {
   render() {
     const help = this.props.helpText ? (
       <span>
-        <MdInfoOutline id="sectionTitleHelp" className="section-title-help" />
-        <UncontrolledTooltip placement="right" target="sectionTitleHelp">
+        <MdInfoOutline id={`help${this.props.activePage}`} className="section-title-help" />
+        <UncontrolledTooltip placement="right" target={`help${this.props.activePage}`}>
           {this.props.helpText}
         </UncontrolledTooltip>
       </span>

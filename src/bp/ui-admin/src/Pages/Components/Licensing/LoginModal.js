@@ -1,17 +1,20 @@
 import React, { Component } from 'react'
 import { Redirect, Link } from 'react-router-dom'
-import { Alert, Col, Button, Input, FormGroup } from 'reactstrap'
-import SectionLayout from '../Layouts/Section'
-import { login, sendResetPassword, isAuthenticated } from '../../Auth/licensing'
+import { Alert, Col, Button, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+
+import { login, register, sendResetPassword, isAuthenticated } from '../../../Auth/licensing'
+
+const DEFAULT_STATE = {
+  email: '',
+  password: '',
+  error: null,
+  success: null,
+  isLoading: false,
+  isRegistering: false
+}
 
 export default class Login extends Component {
-  state = {
-    email: '',
-    password: '',
-    error: null,
-    success: null,
-    isLoading: false
-  }
+  state = { ...DEFAULT_STATE }
 
   login = async () => {
     this.setState({ error: null, success: null, isLoading: true })
@@ -32,6 +35,24 @@ export default class Login extends Component {
     }
   }
 
+  register = async () => {
+    this.setState({ error: null, isLoading: true })
+
+    try {
+      await register({
+        email: this.state.email,
+        password: this.state.password
+      })
+
+      this.forceUpdate()
+    } catch (error) {
+      this.setState({
+        error: error.message,
+        isLoading: false
+      })
+    }
+  }
+
   sendResetPassword = async () => {
     this.setState({ error: null, success: null, showResetPasswordLink: false })
 
@@ -45,8 +66,16 @@ export default class Login extends Component {
     }
   }
 
+  setRegisterMode = () => {
+    this.setState({ error: null, isRegistering: true, showResetPasswordLink: false })
+  }
+
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
-  handleInputKeyPress = e => e.key === 'Enter' && this.login()
+  handleInputKeyPress = e => {
+    if (e.key === 'Enter') {
+      this.state.isRegistering ? this.register() : this.login()
+    }
+  }
 
   renderResetPassword() {
     return (
@@ -59,13 +88,18 @@ export default class Login extends Component {
     )
   }
 
+  toggle = () => {
+    this.setState({ ...DEFAULT_STATE })
+    this.props.toggle()
+  }
+
   renderForm = () => {
     if (isAuthenticated()) {
       return <Redirect to="/licensing/keys" />
     }
 
     return (
-      <Col xs="4">
+      <Col>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         {this.state.success && <Alert color="success">{this.state.success}</Alert>}
         <FormGroup>
@@ -97,29 +131,31 @@ export default class Login extends Component {
             size="m"
             color="primary"
           >
-            Login
+            {this.state.isRegistering ? 'Register' : 'Login'}
           </Button>
 
-          <div className="registerBtn">
-            <Link to="/licensing/register">
-              <Button size="sm" color="link">
+          {!this.state.isRegistering && (
+            <div className="registerBtn">
+              <Button size="sm" color="link" onClick={this.setRegisterMode}>
                 Create an account
               </Button>
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
-        {this.state.showResetPasswordLink && this.renderResetPassword()}
       </Col>
     )
   }
 
   render() {
+    const page = this.renderForm()
     return (
-      <SectionLayout
-        title="Login to Botpress Licensing Server"
-        activePage="licensing-login"
-        mainContent={this.renderForm()}
-      />
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} size="md">
+        <ModalHeader toggle={this.toggle}>
+          {this.state.isRegistering ? 'Create an account' : 'Login to your account'}
+        </ModalHeader>
+        <ModalBody>{page}</ModalBody>
+        <ModalFooter>{this.state.showResetPasswordLink && this.renderResetPassword()}</ModalFooter>
+      </Modal>
     )
   }
 }

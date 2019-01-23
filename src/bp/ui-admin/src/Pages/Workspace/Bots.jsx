@@ -8,10 +8,7 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
 import {
-  ListGroup,
   Jumbotron,
-  ListGroupItemHeading,
-  ListGroupItem,
   Row,
   Col,
   Button,
@@ -27,13 +24,13 @@ import {
 
 import _ from 'lodash'
 
-import { fetchPermissions } from '../reducers/user'
-import { fetchBotTemplates, fetchBots } from '../reducers/bots'
+import { fetchPermissions } from '../../reducers/user'
+import { fetchBotTemplates, fetchBots } from '../../reducers/bots'
 
-import SectionLayout from './Layouts/Section'
-import LoadingSection from './Components/LoadingSection'
+import SectionLayout from '../Layouts/Section'
+import LoadingSection from '../Components/LoadingSection'
 
-import api from '../api'
+import api from '../../api'
 
 class Bots extends Component {
   state = {
@@ -301,35 +298,29 @@ class Bots extends Component {
     }
 
     return (
-      <div className="bots">
-        <Row>
-          <Col xs={12} md={8}>
-            {this.renderCreateBot()}
-            {this.renderEditBot()}
-            <ListGroup>
-              {bots.map(bot => {
-                return (
-                  <ListGroupItem key={'bot-' + bot.id}>
-                    <ListGroupItemHeading>
-                      <a className="title" href={`/studio/${bot.id}`}>
-                        {bot.name}
-                      </a>
-                    </ListGroupItemHeading>
-                    <span>{bot.description}</span>
-                    <div className="list-group-item__actions">
-                      <Button color="link" onClick={() => this.toggleEditBotModal(bot)}>
-                        Edit
-                      </Button>
-                      <Button color="link" onClick={() => this.deleteBot(bot.id)}>
-                        Delete
-                      </Button>
-                    </div>
-                  </ListGroupItem>
-                )
-              })}
-            </ListGroup>
-          </Col>
-        </Row>
+      <div className="bp_table">
+        {this.renderCreateBot()}
+        {this.renderEditBot()}
+
+        {bots.map(bot => {
+          return (
+            <div className="bp_table-row" key={bot.id}>
+              <div className="actions">
+                <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
+                  Edit
+                </Button>
+                |
+                <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
+                  Delete
+                </Button>
+              </div>
+              <div className="title">
+                <a href={`/studio/${bot.id}`}>{bot.name}</a>
+              </div>
+              <p>{bot.description}</p>
+            </div>
+          )
+        })}
       </div>
     )
   }

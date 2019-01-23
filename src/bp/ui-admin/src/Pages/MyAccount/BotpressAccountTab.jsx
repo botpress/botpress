@@ -10,6 +10,7 @@ import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyMod
 import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
+import LoginModal from '../Components/Licensing/LoginModal'
 import { fetchAllKeys, fetchProducts } from '../../reducers/license'
 import { isAuthenticated } from '../../Auth/licensing'
 
@@ -19,7 +20,8 @@ class KeyList extends Component {
     selectedLicense: null,
     keyModalOpen: false,
     updateModalOpen: false,
-    buyModalOpen: false
+    buyModalOpen: false,
+    loginModalOpen: false
   }
 
   componentDidMount() {
@@ -37,6 +39,7 @@ class KeyList extends Component {
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
+  toggleLoginModal = () => this.setState({ loginModalOpen: !this.state.loginModalOpen })
 
   toggleUpdateModal = selectedLicense => {
     this.setState({
@@ -96,6 +99,10 @@ class KeyList extends Component {
   }
 
   renderPage() {
+    if (!isAuthenticated()) {
+      return this.renderNotLoggedIn()
+    }
+
     return (
       <Fragment>
         {!this.state.error && (
@@ -130,10 +137,19 @@ class KeyList extends Component {
     )
   }
 
+  renderNotLoggedIn() {
+    return (
+      <div>
+        To manage your license keys or to buy a new one, you need to login to your Botpress Account.
+        <br />
+        <br />
+        <Button onClick={this.toggleLoginModal}>Login to Botpress Licensing Server</Button>
+        <LoginModal isOpen={this.state.loginModalOpen} toggle={this.toggleLoginModal} />
+      </div>
+    )
+  }
+
   render() {
-    if (!isAuthenticated()) {
-      return <Redirect to={{ pathname: '/licensing/login' }} />
-    }
     const renderLoading = () => <LoadingSection />
 
     return (
