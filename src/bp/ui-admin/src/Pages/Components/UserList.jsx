@@ -67,7 +67,6 @@ class UserList extends Component {
   }
 
   renderUsersForRole(users, roleId) {
-    debugger
     return (
       <Collapse isOpen={this.state[roleId]}>
         <div className="bp_table">
