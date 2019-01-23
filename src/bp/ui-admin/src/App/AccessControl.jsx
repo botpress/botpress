@@ -1,11 +1,8 @@
-import React, { Component } from 'react'
 import { checkRule } from 'common/auth'
 
-export class AccessControl extends Component {
-  render() {
-    if (checkRule(this.props.permissions, this.props.operation, this.props.resource)) {
-      return this.props.children
-    }
-    return null
+export const AccessControl = props => {
+  if (props.operation && props.resource && checkRule(props.permissions, props.operation, props.resource)) {
+    return props.children
   }
+  return null
 }

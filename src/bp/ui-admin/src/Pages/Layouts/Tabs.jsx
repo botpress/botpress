@@ -46,8 +46,8 @@ class TabLayout extends Component {
                   {this.props.tabs.map(tab => (
                     <AccessControl
                       permissions={this.props.permissions}
-                      resource={tab.resource}
-                      operation={tab.operation}
+                      resource={tab.res}
+                      operation={tab.op}
                       key={tab.name}
                     >
                       <NavItem>
