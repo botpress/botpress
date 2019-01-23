@@ -103,15 +103,15 @@ export class WorkspaceService {
 
   async createUser(authUser: BasicAuthUser | ExternalAuthUser): Promise<AuthUser> {
     const workspace = await this.getWorkspace()
-    const newUser: AuthUser = {
+    const newUser = {
       ...authUser,
       role: workspace.defaultRole,
       created_on: new Date()
-    }
+    } as AuthUser
 
     // If there's no users, make the first account's role as Admin
     if (!workspace.users.length) {
-      newUser.role = newUser.role = workspace.adminRole
+      newUser.role = workspace.adminRole
       await this.configProvider.mergeBotpressConfig({ superAdmins: [newUser.email] })
     }
 
