@@ -24,12 +24,12 @@ class Section extends Component {
               {help}
             </h2>
           </Col>
-          <Col xs={12} md={2}>
-            {this.props.sideMenu}
-          </Col>
         </Row>
         <Row>
-          <Col xs={12}>{this.props.mainContent}</Col>
+          <Col xs={10}>{this.props.mainContent}</Col>
+          <Col xs={2} md={2}>
+            {this.props.sideMenu}
+          </Col>
         </Row>
       </div>
     )
