@@ -35,7 +35,7 @@ class UserDropdownMenu extends Component {
           </DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.push('/profile')}>Your account</DropdownItem>
-          {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Cluster settings</DropdownItem>}
+          {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Server settings</DropdownItem>}
           <DropdownItem onClick={() => this.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
