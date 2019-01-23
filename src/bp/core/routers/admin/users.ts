@@ -2,20 +2,22 @@ import { Logger } from 'botpress/sdk'
 import { CreatedUser } from 'core/misc/interfaces'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
+import { asyncMiddleware, loadUser, success as sendSuccess, validateBodySchema } from '../util'
 
 export class UsersRouter implements CustomRouter {
   public readonly router: Router
 
   private asyncMiddleware!: Function
+  private loadUser!: RequestHandler
 
   constructor(logger: Logger, private authService: AuthService, private workspace: WorkspaceService) {
+    this.loadUser = loadUser(this.authService)
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -42,6 +44,7 @@ export class UsersRouter implements CustomRouter {
 
     router.post(
       '/', // Create user
+      this.loadUser,
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
         validateBodySchema(
@@ -71,6 +74,7 @@ export class UsersRouter implements CustomRouter {
 
     router.delete(
       '/:email', // Delete user
+      this.loadUser,
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
         const { email } = req.params
@@ -84,6 +88,7 @@ export class UsersRouter implements CustomRouter {
 
     router.get(
       '/reset/:userId',
+      this.loadUser,
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
         const tempPassword = await this.authService.resetPassword(req.params.userId)
@@ -95,6 +100,7 @@ export class UsersRouter implements CustomRouter {
 
     router.put(
       '/:email',
+      this.loadUser,
       this.asyncMiddleware(async (req, res) => {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
         const { email } = req.params

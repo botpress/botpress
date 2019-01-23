@@ -10,7 +10,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
+import { assertSuperAdmin, checkTokenHeader } from '../util'
 
 import { BotsRouter } from './bots'
 import { LicenseRouter } from './license'
@@ -21,7 +21,6 @@ import { VersioningRouter } from './versioning'
 export class AdminRouter implements CustomRouter {
   public readonly router: Router
   private checkTokenHeader!: RequestHandler
-  private loadUser!: RequestHandler
   private botsRouter!: BotsRouter
   private usersRouter!: UsersRouter
   private licenseRouter!: LicenseRouter
@@ -39,7 +38,6 @@ export class AdminRouter implements CustomRouter {
   ) {
     this.router = Router({ mergeParams: true })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.loadUser = loadUser(this.authService)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
@@ -69,10 +67,10 @@ export class AdminRouter implements CustomRouter {
       res.send(license)
     })
 
-    router.use('/bots', this.checkTokenHeader, this.loadUser, this.botsRouter.router)
-    router.use('/roles', this.checkTokenHeader, this.loadUser, this.rolesRouter.router)
-    router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
-    router.use('/license', this.checkTokenHeader, this.loadUser, this.licenseRouter.router)
-    router.use('/versioning', this.checkTokenHeader, this.loadUser, assertSuperAdmin, this.versioningRouter.router)
+    router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
+    router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
+    router.use('/users', this.checkTokenHeader, this.usersRouter.router)
+    router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
+    router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
   }
 }
