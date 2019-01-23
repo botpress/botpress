@@ -152,6 +152,57 @@ declare module 'botpress/sdk' {
   }
 
   export namespace MLToolkit {
+    export namespace FastText {
+      export type TrainCommand = 'supervised' | 'quantize' | 'skipgram' | 'cbow'
+      export type Loss = 'hs' | 'softmax'
+
+      export type TrainArgs = {
+        lr: number
+        dim: number
+        ws: number
+        epoch: number
+        minCount: number
+        minCountLabel: number
+        neg: number
+        wordNgrams: number
+        loss: Loss
+        model: string
+        input: string
+        bucket: number
+        minn: number
+        maxn: number
+        thread: number
+        lrUpdateRate: number
+        t: number
+        label: string
+        pretrainedVectors: string
+        qout: boolean
+        retrain: boolean
+        qnorm: boolean
+        cutoff: number
+        dsub: number
+      }
+
+      export type PredictResult = {
+        label: string
+        value: number
+      }
+
+      export interface Model {
+        trainToFile: (method: TrainCommand, modelPath: string, args: Partial<TrainArgs>) => Promise<void>
+        loadFromFile: (modelPath: string) => Promise<void>
+        predict: (str: string, nbLabels: number) => Promise<PredictResult[]>
+        queryWordVectors(word: string): Promise<number[]>
+        queryNearestNeighbors(word: string, nb: number): Promise<string[]>
+      }
+
+      export interface ModelConstructor {
+        new (): Model
+      }
+
+      export const Model: ModelConstructor
+    }
+
     export namespace CRF {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }

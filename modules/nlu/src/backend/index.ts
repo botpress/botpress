@@ -5,7 +5,6 @@ import { Config } from '../config'
 
 import api from './api'
 import { registerMiddleware } from './middleware'
-import fastText from './tools/fastText'
 
 import ScopedEngine from './engine'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
@@ -18,7 +17,6 @@ const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = botId => bp.ghost.forBot(botId)
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  globalConfig.fastTextPath && fastText.configure(globalConfig.fastTextPath)
   DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL)
 
   await registerMiddleware(bp, nluByBot)
