@@ -7,9 +7,7 @@ import App from '../App/Layout'
 
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
-import MyAccount from '../Pages/MyAccount'
 import ChangePassword from '../Pages/Account/ChangePassword'
-
 import Landing from '../Pages/Landing'
 
 import Auth from '../Auth'
@@ -17,8 +15,10 @@ import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
+
 import ServerSettings from '../Pages/ServerSettings'
 import Workspace from '../Pages/Workspace'
+import MyAccount from '../Pages/MyAccount'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -66,8 +66,8 @@ export const makeMainRoutes = () => {
                   return <Redirect to={{ pathname: '/licensing' }} />
                 }}
               />
-              <Route path="/workspace" render={props => <Workspace {...props} />} />
-              <Route exact path="/settings" render={props => <ServerSettings {...props} />} />
+              <Route path="/workspace" component={Workspace} />
+              <Route exact path="/settings" component={ServerSettings} />
 
               <Redirect from="/" to="/workspace" />
             </Switch>

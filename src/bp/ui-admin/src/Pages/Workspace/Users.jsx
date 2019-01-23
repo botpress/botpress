@@ -5,11 +5,11 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button, Modal, FormGroup, Input, Label, FormFeedback, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { MdGroupAdd } from 'react-icons/lib/md'
 import Joi from 'joi-browser'
-import UserList from './Components/UserList'
-import SectionLayout from './Layouts/Section'
-import api from '../api'
-import { fetchUsers } from '../reducers/user'
-import { fetchRoles } from '../reducers/roles'
+import UserList from '../Components/UserList'
+import SectionLayout from '../Layouts/Section'
+import api from '../../api'
+import { fetchUsers } from '../../reducers/user'
+import { fetchRoles } from '../../reducers/roles'
 
 const UserEmailValidationSchema = Joi.string()
   .email()

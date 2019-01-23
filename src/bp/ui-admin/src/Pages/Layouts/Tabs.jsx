@@ -18,7 +18,7 @@ class TabLayout extends Component {
 
   renderHomeTab() {
     return (
-      <NavItem className="bringMeHome" onClick={() => this.props.history.push('/admin/workspace')}>
+      <NavItem className="bringMeHome" onClick={() => this.props.history.push('/admin')}>
         <MdKeyboardArrowLeft />
         <MdHome />
       </NavItem>

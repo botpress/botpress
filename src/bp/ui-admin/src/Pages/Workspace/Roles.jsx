@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { fetchRoles } from '../reducers/roles'
-import SectionLayout from './Layouts/Section'
+import { fetchRoles } from '../../reducers/roles'
+import SectionLayout from '../Layouts/Section'
 
 class Roles extends Component {
   componentDidMount() {

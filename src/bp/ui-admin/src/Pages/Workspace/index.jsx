@@ -1,10 +1,10 @@
 import React from 'react'
+import { MdPeople, MdAndroid, MdVerifiedUser } from 'react-icons/lib/md'
 
-import TabLayout from './Layouts/Tabs'
+import TabLayout from '../Layouts/Tabs'
 import Bots from './Bots'
 import Users from './Users'
 import Roles from './Roles'
-import { MdPeople, MdAndroid, MdVerifiedUser } from 'react-icons/lib/md'
 
 const Workspace = props => {
   const title = 'Workspace'

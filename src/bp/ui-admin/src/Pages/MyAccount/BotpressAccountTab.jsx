@@ -99,6 +99,10 @@ class KeyList extends Component {
   }
 
   renderPage() {
+    if (!isAuthenticated()) {
+      return this.renderNotLoggedIn()
+    }
+
     return (
       <Fragment>
         {!this.state.error && (
@@ -152,9 +156,7 @@ class KeyList extends Component {
       <SectionLayout
         title="Keys"
         activePage="keys"
-        mainContent={
-          this.props.isLoadingKeys ? renderLoading() : isAuthenticated() ? this.renderPage() : this.renderNotLoggedIn()
-        }
+        mainContent={this.props.isLoadingKeys ? renderLoading() : this.renderPage()}
       />
     )
   }

@@ -24,13 +24,13 @@ import {
 
 import _ from 'lodash'
 
-import { fetchPermissions } from '../reducers/user'
-import { fetchBotTemplates, fetchBots } from '../reducers/bots'
+import { fetchPermissions } from '../../reducers/user'
+import { fetchBotTemplates, fetchBots } from '../../reducers/bots'
 
-import SectionLayout from './Layouts/Section'
-import LoadingSection from './Components/LoadingSection'
+import SectionLayout from '../Layouts/Section'
+import LoadingSection from '../Components/LoadingSection'
 
-import api from '../api'
+import api from '../../api'
 
 class Bots extends Component {
   state = {
