@@ -271,7 +271,7 @@ class Bots extends Component {
 
   renderCreateNewBotButton(isCentered) {
     return (
-      <AccessControl permissions={this.props.permissions} resource="admin.bots.create" operation="write">
+      <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
         <Button
           className={isCentered ? '' : 'float-right'}
           onClick={() => this.setState({ isCreateBotModalOpen: true })}
@@ -300,13 +300,11 @@ class Bots extends Component {
           return (
             <div className="bp_table-row" key={bot.id}>
               <div className="actions">
-                <AccessControl permissions={this.props.permissions} resource="admin.bots.edit" operation="write">
+                <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
                   <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
                     Edit
                   </Button>
-                </AccessControl>
-                |
-                <AccessControl permissions={this.props.permissions} resource="admin.bots.delete" operation="write">
+                  |
                   <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
                     Delete
                   </Button>
