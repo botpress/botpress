@@ -34,7 +34,7 @@ class UserDropdownMenu extends Component {
             <strong>{fullName || email}</strong>
           </DropdownItem>
           <DropdownItem divider />
-          <DropdownItem onClick={() => this.props.push('/profile')}>Your account</DropdownItem>
+          <DropdownItem onClick={() => this.props.push('/profile')}>My account</DropdownItem>
           {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Server settings</DropdownItem>}
           <DropdownItem onClick={() => this.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
