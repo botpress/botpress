@@ -10,7 +10,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { assertSuperAdmin, checkTokenHeader } from '../util'
+import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
 
 import { BotsRouter } from './bots'
 import { LicenseRouter } from './license'
@@ -26,6 +26,7 @@ export class AdminRouter implements CustomRouter {
   private licenseRouter!: LicenseRouter
   private versioningRouter!: VersioningRouter
   private rolesRouter!: RolesRouter
+  private loadUser!: RequestHandler
 
   constructor(
     logger: Logger,
@@ -43,6 +44,7 @@ export class AdminRouter implements CustomRouter {
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
     this.versioningRouter = new VersioningRouter(this.ghostService, this.botLoader)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
+    this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
   }
@@ -69,7 +71,7 @@ export class AdminRouter implements CustomRouter {
 
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
-    router.use('/users', this.checkTokenHeader, this.usersRouter.router)
+    router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
   }
