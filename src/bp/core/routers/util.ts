@@ -122,7 +122,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
 
   const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
-  if (!role || checkRule(role.rules, operation, resource)) {
+  if (!role || !checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
     return
   }
