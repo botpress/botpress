@@ -60,13 +60,13 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   }
 
   try {
-    const user = await authService.checkToken(token, audience)
+    const tokenUser = await authService.checkToken(token, audience)
 
-    if (!user) {
+    if (!tokenUser) {
       return next(new UnauthorizedAccessError('Invalid authentication token'))
     }
 
-    req.user = user
+    req.tokenUser = tokenUser
   } catch (err) {
     return next(new UnauthorizedAccessError('Invalid authentication token'))
   }
@@ -85,12 +85,12 @@ const generateGravatarURL = (email: string): string => {
 
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
   const reqWithUser = req as RequestWithUser
-  const { user } = reqWithUser
-  if (!user) {
+  const { tokenUser } = reqWithUser
+  if (!tokenUser) {
     throw new ProcessingError('No user property in the request')
   }
 
-  const authUser = await authService.findUserByEmail(user.email)
+  const authUser = await authService.findUserByEmail(tokenUser.email)
   if (!authUser) {
     throw new UnauthorizedAccessError('Unknown user ID')
   }
@@ -132,7 +132,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   res: Response,
   next: NextFunction
 ) => {
-  const email = req.user && req.user.email
+  const email = req.tokenUser && req.tokenUser.email
   const user = workspaceService.findUser({ email })
   if (!user) {
     throw new Error(`User "${email}" does not exists`)

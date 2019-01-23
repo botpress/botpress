@@ -78,7 +78,7 @@ export interface TokenUser {
 }
 
 export type RequestWithUser = Request & {
-  user?: TokenUser
+  tokenUser?: TokenUser
   authUser?: AuthUser
 }
 
