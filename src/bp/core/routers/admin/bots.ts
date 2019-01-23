@@ -27,14 +27,15 @@ export class BotsRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         this.workspaceService.assertUserExists(req.authUser.email)
 
-        const botIds = this.workspaceService.getBotRefs()
-        const bots = await Promise.map(botIds, async botId => await this.botService.getBotById(botId))
+        const botIds = await this.workspaceService.getBotRefs()
+        const validBotIds = this.botService.validateBotIds(botIds)
+        const bots = await Promise.map(validBotIds, async botId => await this.botService.getBotById(botId))
 
         // TODO: List bots by workspaces under /workspaces instead of calling this route
         const workspaceName = this.workspaceService.getDefaultWorkspace().name
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
-          bots,
+          bots: bots && bots.filter(Boolean),
           workspace: workspaceName
         })
       })

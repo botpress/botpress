@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { BotLoader } from 'core/bot-loader'
 import { BotConfigWriter } from 'core/config'
@@ -6,8 +6,9 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { Bot } from 'core/misc/interfaces'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
+import { invalid } from 'moment'
 
 import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
@@ -15,6 +16,9 @@ import { GhostService } from './ghost/service'
 @injectable()
 export class BotService {
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'BotService')
+    private logger: Logger,
     @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.BotConfigWriter) private configWriter: BotConfigWriter,
     @inject(TYPES.BotLoader) private botLoader: BotLoader,
@@ -57,5 +61,16 @@ export class BotService {
 
   async getBotById(botId: string): Promise<BotConfig> {
     return await this.configProvider.getBotConfig(botId)
+  }
+
+  async validateBotIds(botIds: string[]): Promise<string[]> {
+    const allBotIds = await this.botLoader.getAllBotIds()
+
+    const invalidIds = botIds.filter(id => !allBotIds.includes(id))
+    for (const id of invalidIds) {
+      this.logger.warn(`Bot "${id}" doesn't exist`)
+    }
+
+    return botIds.filter(id => allBotIds.includes(id))
   }
 }

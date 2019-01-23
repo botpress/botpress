@@ -340,7 +340,7 @@ class Bots extends Component {
 
     return (
       <SectionLayout
-        title={`${this.props.workspace} workspace's bots`}
+        title={`Your bots`}
         helpText="This page lists all the bots created under the default workspace."
         activePage="bots"
         currentTeam={this.props.team}
