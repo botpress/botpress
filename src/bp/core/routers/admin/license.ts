@@ -8,8 +8,9 @@ import { CustomRouter } from '..'
 import { asyncMiddleware, success as sendSuccess } from '../util'
 
 export class LicenseRouter implements CustomRouter {
-  private asyncMiddleware!: Function
   public readonly router: Router
+
+  private asyncMiddleware!: Function
 
   constructor(logger: Logger, private licenseService: LicensingService) {
     this.asyncMiddleware = asyncMiddleware({ logger })

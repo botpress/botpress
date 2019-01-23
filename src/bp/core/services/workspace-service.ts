@@ -7,7 +7,6 @@ import _ from 'lodash'
 
 import { TYPES } from '../types'
 
-import { UnauthorizedAccessError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
 @injectable()
@@ -70,13 +69,6 @@ export class WorkspaceService {
     const user = await this.findUser({ email })
     if (!user) {
       throw new Error(`User "${email}" is not a part of the workspace`)
-    }
-  }
-
-  async assertIsRootAdmin(role: string) {
-    const workspace = await this.getWorkspace()
-    if (workspace.roles.find(r => r.id === 'admin') && role !== 'admin') {
-      throw new UnauthorizedAccessError(`Only root admin is allowed to use this`)
     }
   }
 

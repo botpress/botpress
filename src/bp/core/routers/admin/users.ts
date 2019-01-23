@@ -2,21 +2,24 @@ import { Logger } from 'botpress/sdk'
 import { CreatedUser } from 'core/misc/interfaces'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { asyncMiddleware, success as sendSuccess, validateBodySchema } from '../util'
+import { asyncMiddleware, needPermissions, success as sendSuccess, validateBodySchema } from '../util'
 
 export class UsersRouter implements CustomRouter {
   public readonly router: Router
 
+  private readonly resource = 'admin.users'
   private asyncMiddleware!: Function
+  private needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private workspace: WorkspaceService) {
+  constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
+    this.needPermissions = needPermissions(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -25,9 +28,10 @@ export class UsersRouter implements CustomRouter {
     const router = this.router
 
     router.get(
-      '/', // List users
+      '/',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const users = await this.workspace.listUsers([
+        const users = await this.workspaceService.listUsers([
           'email',
           'firstname',
           'lastname',
@@ -41,9 +45,9 @@ export class UsersRouter implements CustomRouter {
     )
 
     router.post(
-      '/', // Create user
+      '/',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        await this.workspace.assertIsRootAdmin(req.authUser.role)
         validateBodySchema(
           req,
           Joi.object().keys({
@@ -70,16 +74,16 @@ export class UsersRouter implements CustomRouter {
     )
 
     router.delete(
-      '/:email', // Delete user
+      '/:email',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        await this.workspace.assertIsRootAdmin(req.authUser.role)
         const { email } = req.params
 
         if (req.authUser.email === email) {
           throw new InvalidOperationError(`Sorry, you can't delete your own account.`)
         }
 
-        await this.workspace.deleteUser(email)
+        await this.workspaceService.deleteUser(email)
         return sendSuccess(res, 'User deleted', {
           email
         })
@@ -88,8 +92,8 @@ export class UsersRouter implements CustomRouter {
 
     router.get(
       '/reset/:userId',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        await this.workspace.assertIsRootAdmin(req.authUser.role)
         const tempPassword = await this.authService.resetPassword(req.params.userId)
         return sendSuccess(res, 'Password reseted', {
           tempPassword
@@ -99,8 +103,8 @@ export class UsersRouter implements CustomRouter {
 
     router.put(
       '/:email',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        await this.workspace.assertIsRootAdmin(req.authUser.role)
         const { email } = req.params
 
         await this.authService.updateUser(email, req.body)
