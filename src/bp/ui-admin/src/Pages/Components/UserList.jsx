@@ -15,6 +15,7 @@ import { fetchRoles } from '../../reducers/roles'
 import moment from 'moment'
 import LoadingSection from '../Components/LoadingSection'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
+import GravatarImage from './GravatarImage'
 
 class UserList extends Component {
   state = {
@@ -74,8 +75,7 @@ class UserList extends Component {
             return (
               <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
                 {user.email !== this.props.profile.email && this.renderActionButton(user)}
-
-                <Media object src={user.picture || 'https://via.placeholder.com/64'} className="pullLeft" />
+                <GravatarImage email={user.email} size="md" className="pullLeft" />
                 <div className="pullLeft details">
                   <div className="nameZone">
                     {user.firstname}

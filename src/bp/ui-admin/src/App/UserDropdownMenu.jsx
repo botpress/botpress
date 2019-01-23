@@ -4,6 +4,7 @@ import { push } from 'react-router-redux'
 
 import { fetchProfile } from '../reducers/user'
 import Auth from '../Auth/index'
+import GravatarImage from '../Pages/Components/GravatarImage'
 
 import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
 
@@ -25,7 +26,7 @@ class UserDropdownMenu extends Component {
       <UncontrolledDropdown nav inNavbar>
         <DropdownToggle nav caret>
           <span className="user-profile">
-            <img alt="" src={this.props.profile.picture} className="user-avatar" />
+            <GravatarImage email={this.props.profile.email} size="sm" className="user-avatar" />
           </span>
         </DropdownToggle>
         <DropdownMenu right>
