@@ -222,7 +222,7 @@ Password: ${payload.tempPassword}`
     }
 
     const actions =
-      this.state.authStrategy === 'basic' ? [resetPassword, deleteUser, changeRole] : [deleteUser, changeRole]
+      this.state.authStrategy === 'basic' ? [resetPassword, changeRole, deleteUser] : [changeRole, deleteUser]
 
     return (
       <div>

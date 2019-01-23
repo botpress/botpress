@@ -83,13 +83,15 @@ class UserList extends Component {
 
                   <p>
                     <span className="field">
-                      <b>Email:</b> {user.email}
+                      <b>Email: </b>
+                      {user.email}
                     </span>
                     <span className="field">
-                      <b>Last Login:</b> {moment(user.last_logon).fromNow()}
+                      <b>Last Login: </b>
+                      {moment(user.last_logon).fromNow()}
                     </span>
                     <span className="field">
-                      <b>Joined:</b>
+                      <b>Joined: </b>
                       {moment(user.created_on).fromNow()}
                     </span>
                   </p>

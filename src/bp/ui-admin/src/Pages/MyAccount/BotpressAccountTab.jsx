@@ -139,7 +139,7 @@ class KeyList extends Component {
         To manage your license keys or to buy a new one, you need to login to your Botpress Account.
         <br />
         <br />
-        <Button onClick={() => this.toggleLoginModal()}>Login to Botpress Licensing Server</Button>
+        <Button onClick={this.toggleLoginModal}>Login to Botpress Licensing Server</Button>
         <LoginModal isOpen={this.state.loginModalOpen} toggle={this.toggleLoginModal} />
       </div>
     )
