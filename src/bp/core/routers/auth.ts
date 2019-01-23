@@ -4,11 +4,12 @@ import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
+import crypto from 'crypto'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '.'
-import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess } from './util'
+import { asyncMiddleware, checkTokenHeader, success as sendSuccess } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
@@ -19,7 +20,6 @@ export class AuthRouter implements CustomRouter {
   public readonly router: Router
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
-  private loadUser!: RequestHandler
 
   constructor(
     logger: Logger,
@@ -31,7 +31,6 @@ export class AuthRouter implements CustomRouter {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
   }
@@ -68,25 +67,38 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(res, 'Auth Config', await this.getAuthConfig())
   }
 
+  private _generateGravatarURL(email: string): string {
+    const hash = crypto
+      .createHash('md5')
+      .update(email)
+      .digest('hex')
+
+    return `https://www.gravatar.com/avatar/${hash}`
+  }
+
   getProfile = async (req, res) => {
-    return sendSuccess(
-      res,
-      'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).authUser, [
-        'company',
-        'email',
-        'fullName',
-        'id',
-        'picture',
-        'provider',
-        'firstname',
-        'lastname'
-      ])
-    )
+    const { tokenUser } = <RequestWithUser>req
+    const user = await this.authService.findUserByEmail(tokenUser!.email, [
+      'company',
+      'email',
+      'picture',
+      'provider',
+      'firstname',
+      'lastname'
+    ])
+
+    const userProfile = {
+      ...user,
+      isSuperAdmin: tokenUser!.isSuperAdmin,
+      picture: this._generateGravatarURL(user!.email),
+      fullName: [user!.firstname, user!.lastname].filter(Boolean).join(' ')
+    }
+
+    return sendSuccess(res, 'Retrieved profile successfully', userProfile)
   }
 
   updateProfile = async (req, res) => {
-    await this.workspaceService.updateUser(req.authUser.email, {
+    await this.workspaceService.updateUser(req.tokenUser.email, {
       firstname: req.body.firstname,
       lastname: req.body.lastname
     })
@@ -94,10 +106,10 @@ export class AuthRouter implements CustomRouter {
   }
 
   getPermissions = async (req, res) => {
-    const email = (req as RequestWithUser).authUser!.email
-    const role = await this.workspaceService.getRoleForUser(email)
+    const { tokenUser } = <RequestWithUser>req
+    const role = await this.workspaceService.getRoleForUser(tokenUser!.email)
     if (!role) {
-      return res.status(404).send(`Role not found for user ${email}`)
+      return res.status(404).send(`Role not found for user ${tokenUser!.email}`)
     }
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
@@ -122,11 +134,11 @@ export class AuthRouter implements CustomRouter {
 
     router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
 
-    router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
+    router.get('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.getProfile))
 
-    router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
+    router.post('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.updateProfile))
 
     // use the default workspace
-    router.get('/me/permissions', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getPermissions))
+    router.get('/me/permissions', this.checkTokenHeader, this.asyncMiddleware(this.getPermissions))
   }
 }

@@ -74,10 +74,11 @@ export interface AuthRole {
 
 export interface TokenUser {
   email: string
+  isSuperAdmin: boolean
 }
 
 export type RequestWithUser = Request & {
-  user?: TokenUser
+  tokenUser?: TokenUser
   authUser?: AuthUser
 }
 

@@ -7,7 +7,7 @@ import Auth from '../Auth/index'
 
 import { UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
 
-class ProfileDropdown extends Component {
+class UserDropdownMenu extends Component {
   constructor(props) {
     super(props)
 
@@ -19,7 +19,7 @@ class ProfileDropdown extends Component {
   }
 
   renderDropdown = () => {
-    const { email, fullName } = this.props.profile
+    const { email, fullName, isSuperAdmin } = this.props.profile
 
     return (
       <UncontrolledDropdown nav inNavbar>
@@ -31,11 +31,11 @@ class ProfileDropdown extends Component {
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.push('/profile')}>
             Signed in as&nbsp;
-            <strong>{fullName || email}</strong>`
+            <strong>{fullName || email}</strong>
           </DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.push('/profile')}>Your account</DropdownItem>
-          <DropdownItem onClick={() => this.props.push('/settings')}>Cluster settings</DropdownItem>
+          {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Server settings</DropdownItem>}
           <DropdownItem onClick={() => this.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
@@ -59,4 +59,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ProfileDropdown)
+)(UserDropdownMenu)

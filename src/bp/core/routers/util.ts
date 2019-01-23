@@ -1,7 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import { WorkspaceService } from 'core/services/workspace-service'
-import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
@@ -60,13 +59,13 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   }
 
   try {
-    const user = await authService.checkToken(token, audience)
+    const tokenUser = await authService.checkToken(token, audience)
 
-    if (!user) {
+    if (!tokenUser) {
       return next(new UnauthorizedAccessError('Invalid authentication token'))
     }
 
-    req.user = user
+    req.tokenUser = tokenUser
   } catch (err) {
     return next(new UnauthorizedAccessError('Invalid authentication token'))
   }
@@ -74,38 +73,35 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next()
 }
 
-const generateGravatarURL = (email: string): string => {
-  const hash = crypto
-    .createHash('md5')
-    .update(email)
-    .digest('hex')
+export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
+  const reqWithUser = <RequestWithUser>req
+  const { tokenUser } = reqWithUser
+  if (!tokenUser) {
+    return next(new ProcessingError('No tokenUser in request'))
+  }
 
-  return `https://www.gravatar.com/avatar/${hash}`
+  const authUser = await authService.findUserByEmail(tokenUser.email)
+  if (!authUser) {
+    return next(new UnauthorizedAccessError('Unknown user'))
+  }
+
+  reqWithUser.authUser = authUser
+  next()
 }
 
-export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const reqWithUser = req as RequestWithUser
-  const { user } = reqWithUser
-  if (!user) {
-    throw new ProcessingError('No user property in the request')
+export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
+  const { tokenUser } = <RequestWithUser>req
+  if (!tokenUser) {
+    return next(new ProcessingError('No tokenUser in request'))
   }
 
-  const authUser = await authService.findUserByEmail(user.email)
-  if (!authUser) {
-    throw new UnauthorizedAccessError('Unknown user ID')
-  }
-
-  reqWithUser.authUser = {
-    ...authUser,
-    picture: generateGravatarURL(authUser.email),
-    fullName: [authUser.firstname, authUser.lastname].filter(Boolean).join(' ')
+  if (!tokenUser.isSuperAdmin) {
+    next(new PermissionError('User needs to be super admin to perform this action'))
+    return
   }
 
   next()
 }
-
-const getParam = (req: Request, name: string, defaultValue?: any) =>
-  req.params[name] || req.body[name] || req.query[name]
 
 class PermissionError extends AssertionError {
   constructor(message: string) {
@@ -118,13 +114,13 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   res: Response,
   next: NextFunction
 ) => {
-  const email = req.user && req.user.email
-  const user = await workspaceService.findUser({ email })
+  const email = req.tokenUser && req.tokenUser!.email
+  const user = workspaceService.findUser({ email })
   if (!user) {
     throw new Error(`User "${email}" does not exists`)
   }
 
-  const role = await workspaceService.getRoleForUser(user.email)
+  const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
   if (!role || checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
