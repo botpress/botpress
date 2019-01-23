@@ -39,7 +39,7 @@ export default class Register extends Component {
         <CardText>This is the first time you run Botpress. Please create the master admin account.</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
-          <label htmlFor="email">email</label>
+          <label htmlFor="email">E-mail</label>
           <Input
             type="text"
             name="email"
