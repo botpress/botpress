@@ -104,7 +104,7 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
   next()
 }
 
-export const needSuperAdminAccess = (req: Request, res: Response, next: Function) => {
+export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
   const { authUser } = <RequestWithUser>req
   if (!authUser) {
     throw new ProcessingError('No authUser property in the request')

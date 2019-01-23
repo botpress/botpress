@@ -10,7 +10,7 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { checkTokenHeader, loadUser, needSuperAdminAccess } from '../util'
+import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
 
 import { BotsRouter } from './bots'
 import { LicenseRouter } from './license'
@@ -73,6 +73,6 @@ export class AdminRouter implements CustomRouter {
     router.use('/roles', this.checkTokenHeader, this.loadUser, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.loadUser, this.licenseRouter.router)
-    router.use('/versioning', this.checkTokenHeader, this.loadUser, needSuperAdminAccess, this.versioningRouter.router)
+    router.use('/versioning', this.checkTokenHeader, this.loadUser, assertSuperAdmin, this.versioningRouter.router)
   }
 }
