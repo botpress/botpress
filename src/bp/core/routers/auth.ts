@@ -9,7 +9,7 @@ import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '.'
-import { asyncMiddleware, checkTokenHeader, loadUser, success as sendSuccess } from './util'
+import { asyncMiddleware, checkTokenHeader, success as sendSuccess } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
@@ -20,7 +20,6 @@ export class AuthRouter implements CustomRouter {
   public readonly router: Router
   private asyncMiddleware!: Function
   private checkTokenHeader!: RequestHandler
-  private loadUser!: RequestHandler
 
   constructor(
     logger: Logger,
@@ -32,7 +31,6 @@ export class AuthRouter implements CustomRouter {
     this.router = Router({ mergeParams: true })
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
   }
@@ -100,7 +98,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   updateProfile = async (req, res) => {
-    await this.workspaceService.updateUser(req.authUser.email, {
+    await this.workspaceService.updateUser(req.tokenUser.email, {
       firstname: req.body.firstname,
       lastname: req.body.lastname
     })
@@ -108,7 +106,7 @@ export class AuthRouter implements CustomRouter {
   }
 
   getPermissions = async (req, res) => {
-    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).authUser!.email)
+    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).tokenUser!.email)
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
 
@@ -132,11 +130,11 @@ export class AuthRouter implements CustomRouter {
 
     router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
 
-    router.get('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getProfile))
+    router.get('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.getProfile))
 
-    router.post('/me/profile', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.updateProfile))
+    router.post('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.updateProfile))
 
     // use the default workspace
-    router.get('/me/permissions', this.checkTokenHeader, this.loadUser, this.asyncMiddleware(this.getPermissions))
+    router.get('/me/permissions', this.checkTokenHeader, this.asyncMiddleware(this.getPermissions))
   }
 }

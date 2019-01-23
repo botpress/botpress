@@ -1,7 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import { WorkspaceService } from 'core/services/workspace-service'
-import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
@@ -74,40 +73,26 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next()
 }
 
-const generateGravatarURL = (email: string): string => {
-  const hash = crypto
-    .createHash('md5')
-    .update(email)
-    .digest('hex')
-
-  return `https://www.gravatar.com/avatar/${hash}`
-}
-
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const reqWithUser = req as RequestWithUser
+  const reqWithUser = <RequestWithUser>req
   const { tokenUser } = reqWithUser
   if (!tokenUser) {
-    throw new ProcessingError('No user property in the request')
+    return next(new ProcessingError('No tokenUser in request'))
   }
 
   const authUser = await authService.findUserByEmail(tokenUser.email)
   if (!authUser) {
-    throw new UnauthorizedAccessError('Unknown user ID')
+    return next(new UnauthorizedAccessError('Unknown user'))
   }
 
-  reqWithUser.authUser = {
-    ...authUser,
-    picture: generateGravatarURL(authUser.email),
-    fullName: [authUser.firstname, authUser.lastname].filter(Boolean).join(' ')
-  }
-
+  reqWithUser.authUser = authUser
   next()
 }
 
 export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
   const { tokenUser } = <RequestWithUser>req
   if (!tokenUser) {
-    throw new ProcessingError('No authUser property in the request')
+    return next(new ProcessingError('No tokenUser in request'))
   }
 
   if (!tokenUser.isSuperAdmin) {
