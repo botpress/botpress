@@ -4,6 +4,7 @@ import { AuthConfig, RequestWithUser } from 'core/misc/interfaces'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
+import crypto from 'crypto'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
@@ -68,22 +69,34 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(res, 'Auth Config', await this.getAuthConfig())
   }
 
+  private _generateGravatarURL(email: string): string {
+    const hash = crypto
+      .createHash('md5')
+      .update(email)
+      .digest('hex')
+
+    return `https://www.gravatar.com/avatar/${hash}`
+  }
+
   getProfile = async (req, res) => {
-    return sendSuccess(
-      res,
-      'Retrieved profile successfully',
-      _.pick((req as RequestWithUser).authUser, [
-        'company',
-        'email',
-        'fullName',
-        'id',
-        'picture',
-        'provider',
-        'firstname',
-        'lastname',
-        'isSuperAdmin'
-      ])
-    )
+    const { tokenUser } = <RequestWithUser>req
+    const user = await this.authService.findUserByEmail(tokenUser!.email, [
+      'company',
+      'email',
+      'picture',
+      'provider',
+      'firstname',
+      'lastname'
+    ])
+
+    const userProfile = {
+      ...user,
+      isSuperAdmin: tokenUser!.isSuperAdmin,
+      picture: this._generateGravatarURL(user!.email),
+      fullName: [user!.firstname, user!.lastname].filter(Boolean).join(' ')
+    }
+
+    return sendSuccess(res, 'Retrieved profile successfully', userProfile)
   }
 
   updateProfile = async (req, res) => {

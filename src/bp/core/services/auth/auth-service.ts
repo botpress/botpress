@@ -41,13 +41,7 @@ export default class AuthService {
   }
 
   async findUserByEmail(email: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    const user = await this.findUser({ email }, selectFields)
-    if (user) {
-      const superAdmins = (await this.configProvider.getBotpressConfig()).superAdmins
-      user.isSuperAdmin = superAdmins.includes(email)
-    }
-
-    return user
+    return await this.findUser({ email }, selectFields)
   }
 
   async checkUserAuth(email: string, password: string, newPassword?: string) {
