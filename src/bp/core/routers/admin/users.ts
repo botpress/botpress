@@ -75,6 +75,10 @@ export class UsersRouter implements CustomRouter {
         await this.workspace.assertIsRootAdmin(req.authUser.role)
         const { email } = req.params
 
+        if (req.authUser.email === email) {
+          throw new InvalidOperationError(`Sorry, you can't delete your own account.`)
+        }
+
         await this.workspace.deleteUser(email)
         return sendSuccess(res, 'User deleted', {
           email

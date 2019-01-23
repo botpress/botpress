@@ -37,7 +37,7 @@ class List extends Component {
   }
 
   toggleCreateUserModalOpen = () => {
-    this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen })
+    this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen, email: '', error: null })
   }
 
   toggleRenderEmailModal = () => {

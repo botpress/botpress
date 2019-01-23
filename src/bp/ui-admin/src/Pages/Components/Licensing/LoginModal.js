@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 import { login, register, sendResetPassword, isAuthenticated } from '../../../Auth/licensing'

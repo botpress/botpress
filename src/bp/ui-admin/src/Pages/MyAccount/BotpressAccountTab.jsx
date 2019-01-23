@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Table, Button } from 'reactstrap'
 import _ from 'lodash'
