@@ -149,17 +149,21 @@ export default class CRFExtractor implements SlotExtractor {
     entitites: sdk.NLU.Entity[]
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
-    const entity = slotDef
-      ? entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
-      : undefined
-    const value = entity ? _.get(entity, 'data.value', token.value) : token.value
+    const entity =
+      slotDef &&
+      entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
+
+    const value = _.get(entity, 'data.value', token.value)
 
     const slot = {
       name: slotName,
       value
     } as sdk.NLU.Slot
 
-    if (entity) slot.entity = entity
+    if (entity) {
+      slot.entity = entity
+    }
+
     return slot
   }
 
