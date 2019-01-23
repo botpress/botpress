@@ -5,11 +5,7 @@
   border-bottom: 1px solid #999;
 
   &__logo {
-    width: 120px;
-  }
-
-  &__title {
-    font-size: 14px;
+    width: 130px;
   }
 
   .navbar-brand,
@@ -51,42 +47,57 @@
   }
 
   &-header {
-    border-bottom: 1px solid var(--c-neutral--light-2);
     padding: 5px;
     margin-bottom: 10px;
 
     &__nav {
       padding: 0;
     }
-
-    .nav-item {
-      &.active .nav-link.disabled {
-        color: #007bff;
-        cursor: default;
-        font-weight: 600;
-      }
-    }
-
-    .nav-link {
-      color: #494949;
-
-      &:hover {
-        color: var(--c-neutral--dark-1);
-      }
-
-      &.disabled {
-        color: #6c757d;
-      }
-    }
   }
 
   &-main {
-    padding: 20px 0px;
+    padding: 0px 0px;
   }
 
   &__title {
     font-size: 1.35rem;
     font-weight: 700;
     margin-bottom: 20px;
+  }
+}
+
+.bp_container {
+  &-header {
+    padding-top: 20px;
+    margin-bottom: 40px;
+    background: var(--c-neutral--light-2);
+    border-bottom: 1px solid var(--c-background--light-3);
+  }
+
+  &-tabs {
+    border-bottom: 1px solid var(--c-background--light-3);
+    position: relative;
+    top: 1px;
+
+    .nav-item {
+      margin-bottom: -1px;
+      cursor: pointer;
+    }
+
+    .nav-link {
+      svg {
+        margin-right: 5px;
+      }
+    }
+  }
+}
+
+.bringMeHome {
+  width: 50px;
+  margin-top: 1px;
+  font-size: 140%;
+
+  &:hover {
+    color: #666666;
   }
 }

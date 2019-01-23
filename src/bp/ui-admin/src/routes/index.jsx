@@ -7,21 +7,18 @@ import App from '../App/Layout'
 
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
-import ProfilePage from '../Pages/Account/Profile'
 import ChangePassword from '../Pages/Account/ChangePassword'
-
 import Landing from '../Pages/Landing'
-import LicensingRegister from '../Pages/Licensing/Register'
-import LicensingLogin from '../Pages/Licensing/Login'
-import LicensingKeys from '../Pages/Licensing/Keys'
 
 import Auth from '../Auth'
 import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
+
 import ServerSettings from '../Pages/ServerSettings'
 import Workspace from '../Pages/Workspace'
+import MyAccount from '../Pages/MyAccount'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -53,7 +50,7 @@ export const makeMainRoutes = () => {
           />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
-              <Route exact path="/profile" render={props => <ProfilePage {...props} />} />
+              <Route exact path="/profile" render={props => <MyAccount {...props} />} />
               <Route
                 exact
                 from="/teams/:teamId"
@@ -72,9 +69,6 @@ export const makeMainRoutes = () => {
               <Route path="/workspace" component={Workspace} />
               <Route exact path="/settings" component={ServerSettings} />
 
-              <Route exact path="/licensing" component={LicensingKeys} />
-              <Route exact path="/licensing/register" render={props => <LicensingRegister {...props} />} />
-              <Route exact path="/licensing/login" render={props => <LicensingLogin {...props} />} />
               <Redirect from="/" to="/workspace" />
             </Switch>
           </PrivateRoute>

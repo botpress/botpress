@@ -19,6 +19,7 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
@@ -33,6 +34,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
+import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -74,7 +76,9 @@ export class Botpress {
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -162,8 +166,9 @@ export class Botpress {
   }
 
   async discoverBots(): Promise<void> {
-    const botIds = await this.botLoader.getAllBotIds()
-    await Promise.map(botIds, botId => this.botLoader.mountBot(botId))
+    const botIds = await this.workspaceService.getBotRefs()
+    const validBotIds = await this.botService.validateBotIds(botIds)
+    await Promise.map(validBotIds, botId => this.botLoader.mountBot(botId))
   }
 
   async initializeGhost(): Promise<void> {

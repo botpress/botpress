@@ -46,7 +46,7 @@ export class AuthRouter implements CustomRouter {
     const strategy = _.get(config, 'pro.auth.strategy', 'basic')
     const authEndpoint = _.get(config, 'pro.auth.options.authEndpoint')
 
-    const usersList = this.workspaceService.listUsers()
+    const usersList = await this.workspaceService.listUsers()
     const isFirstTimeUse = !usersList || !usersList.length
 
     return { strategy, isFirstTimeUse, authEndpoint } as AuthConfig
@@ -106,7 +106,11 @@ export class AuthRouter implements CustomRouter {
   }
 
   getPermissions = async (req, res) => {
-    const role = await this.workspaceService.getRoleForUser((req as RequestWithUser).tokenUser!.email)
+    const { tokenUser } = <RequestWithUser>req
+    const role = await this.workspaceService.getRoleForUser(tokenUser!.email)
+    if (!role) {
+      return res.status(404).send(`Role not found for user ${tokenUser!.email}`)
+    }
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
 

@@ -24,8 +24,6 @@ class App extends Component {
           <Navbar expand="md">
             <NavbarBrand href="/admin">
               <img src={logo} alt="logo" className="bp-header__logo" />
-              &nbsp;|&nbsp;
-              <span className="bp-header__title">Admin</span>
             </NavbarBrand>
             <NavbarToggler onClick={this.toggleMenu} />
             <Collapse isOpen={this.state.isMenuOpen} navbar>

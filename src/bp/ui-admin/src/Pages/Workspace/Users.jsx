@@ -5,11 +5,11 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Button, Modal, FormGroup, Input, Label, FormFeedback, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { MdGroupAdd } from 'react-icons/lib/md'
 import Joi from 'joi-browser'
-import UserList from './Components/UserList'
-import SectionLayout from './Layouts/Section'
-import api from '../api'
-import { fetchUsers } from '../reducers/user'
-import { fetchRoles } from '../reducers/roles'
+import UserList from '../Components/UserList'
+import SectionLayout from '../Layouts/Section'
+import api from '../../api'
+import { fetchUsers } from '../../reducers/user'
+import { fetchRoles } from '../../reducers/roles'
 
 const UserEmailValidationSchema = Joi.string()
   .email()
@@ -37,7 +37,7 @@ class List extends Component {
   }
 
   toggleCreateUserModalOpen = () => {
-    this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen })
+    this.setState({ isCreateUserModalOpen: !this.state.isCreateUserModalOpen, email: '', error: null })
   }
 
   toggleRenderEmailModal = () => {
@@ -222,7 +222,7 @@ Password: ${payload.tempPassword}`
     }
 
     const actions =
-      this.state.authStrategy === 'basic' ? [resetPassword, deleteUser, changeRole] : [deleteUser, changeRole]
+      this.state.authStrategy === 'basic' ? [resetPassword, changeRole, deleteUser] : [changeRole, deleteUser]
 
     return (
       <div>
