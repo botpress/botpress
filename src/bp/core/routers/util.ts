@@ -118,9 +118,6 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
   next()
 }
 
-const getParam = (req: Request, name: string, defaultValue?: any) =>
-  req.params[name] || req.body[name] || req.query[name]
-
 class PermissionError extends AssertionError {
   constructor(message: string) {
     super('Permission check error: ' + message)
