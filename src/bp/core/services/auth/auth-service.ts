@@ -13,7 +13,7 @@ import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'
-import { generateUserToken, saltHashPassword, validateHash } from './util'
+import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from './util'
 
 export const TOKEN_AUDIENCE = 'web-login'
 
@@ -137,7 +137,8 @@ export default class AuthService {
       last_logon: new Date()
     })
 
-    return generateUserToken(email, TOKEN_AUDIENCE, await this.configProvider.getBotpressConfig())
+    const config = await this.configProvider.getBotpressConfig()
+    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
@@ -154,6 +155,7 @@ export default class AuthService {
     }
 
     await this.updateUser(email, { last_ip: ipAddress }, true)
-    return generateUserToken(email, TOKEN_AUDIENCE, await this.configProvider.getBotpressConfig())
+    const config = await this.configProvider.getBotpressConfig()
+    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
   }
 }

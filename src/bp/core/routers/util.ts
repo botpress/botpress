@@ -105,12 +105,12 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 }
 
 export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
-  const { authUser } = <RequestWithUser>req
-  if (!authUser) {
+  const { tokenUser } = <RequestWithUser>req
+  if (!tokenUser) {
     throw new ProcessingError('No authUser property in the request')
   }
 
-  if (!authUser.isSuperAdmin) {
+  if (!tokenUser.isSuperAdmin) {
     next(new PermissionError('User needs to be super admin to perform this action'))
     return
   }
