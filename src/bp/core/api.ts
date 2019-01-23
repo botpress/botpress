@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
+import _ from 'lodash'
 
 import { container } from './app.inversify'
 import { BotLoader } from './bot-loader'
@@ -183,7 +184,7 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
+  constructor(private realtimeService: RealtimeService) { }
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)
@@ -238,6 +239,16 @@ export class BotpressAPIProvider {
     this.mlToolkit = MLToolkit
   }
 
+  private custom = {}
+
+  defineCustomProperty(path: string, instance: object | Function, options = { overwrite: false }): any {
+    if (!options.overwrite && _.has(this.custom, path)) {
+      throw new Error('You are trying to overwrite existing property.')
+    }
+
+    _.set(this.custom, path, instance)
+  }
+
   @Memoize()
   async create(loggerName: string): Promise<typeof sdk> {
     return {
@@ -263,7 +274,9 @@ export class BotpressAPIProvider {
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
-      cms: this.cms
+      cms: this.cms,
+      defineCustomProperty: this.defineCustomProperty,
+      custom: this.custom,
     }
   }
 }

@@ -967,4 +967,29 @@ declare module 'botpress/sdk' {
       contentElementId?: string
     ): Promise<string>
   }
+
+  /*
+    It's place where module will save all custom instance
+  */
+  export const custom: any
+
+  export type DefineOptions = {
+    /**
+     * Default behavior doesn't allow overwrite existing instance but you can change it
+     * @default false
+     */
+    overwrite: boolean
+  }
+
+  /**
+   * This method help attach the custom instance
+   * @param path - path to place where you want to save instance
+   * @param instance - module instance
+   * @param options - Additional options
+   * 
+   * @example bp.defineCustomProperty('skill', instance, { overwrite: true })
+   * 
+   * @returns undefined
+   */
+  export function defineCustomProperty(path: string, instance: object | Function, options?: DefineOptions): any
 }
