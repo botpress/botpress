@@ -12,7 +12,7 @@ const initialState = {
   loading: false,
   loadingUsers: false,
   profile: null,
-  permissions: {}
+  permissions: null
 }
 
 export default (state = initialState, action) => {
@@ -41,10 +41,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        permissions: {
-          ...state.permissions,
-          [action.teamId]: action.permissions
-        }
+        permissions: action.permissions
       }
 
     case FETCH_USERS_RECEIVED:
@@ -93,15 +90,14 @@ export const fetchProfile = () => {
   }
 }
 
-export const fetchPermissions = teamId => {
+export const fetchPermissions = () => {
   return async dispatch => {
     dispatch({ type: MY_PERMISSIONS_REQUESTED })
 
-    const { data } = await api.getSecured().get(`/auth/me/permissions/${teamId}`)
+    const { data } = await api.getSecured().get(`/auth/me/permissions`)
 
     dispatch({
       type: MY_PERMISSIONS_RECEIVED,
-      teamId,
       permissions: data.payload
     })
   }

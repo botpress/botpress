@@ -138,7 +138,6 @@ export class AuthRouter implements CustomRouter {
 
     router.post('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.updateProfile))
 
-    // use the default workspace
     router.get('/me/permissions', this.checkTokenHeader, this.asyncMiddleware(this.getPermissions))
   }
 }

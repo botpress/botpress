@@ -6858,11 +6858,12 @@ abbr {
   margin-left: 8px; }
 
 .bp_users-list .nameZone {
-  height: 45px; }
+  height: 45px;
+  font-weight: bold; }
 
 .bp_users-list .field {
   display: inline-block;
-  min-width: 240px; }
+  min-width: 200px; }
 
 .form-check-label {
   font-size: 12px; }

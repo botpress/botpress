@@ -24,13 +24,14 @@ import {
 
 import _ from 'lodash'
 
-import { fetchPermissions } from '../../reducers/user'
 import { fetchBotTemplates, fetchBots } from '../../reducers/bots'
+import { fetchPermissions } from '../../reducers/user'
 
 import SectionLayout from '../Layouts/Section'
 import LoadingSection from '../Components/LoadingSection'
 
 import api from '../../api'
+import { AccessControl } from '../../App/AccessControl'
 
 class Bots extends Component {
   state = {
@@ -51,15 +52,7 @@ class Bots extends Component {
   componentDidMount() {
     this.props.fetchBotTemplates()
     this.props.fetchBots()
-  }
-
-  componentDidUpdate(prevProps) {
-    if ((!this.props.bots && !this.props.loading) || prevProps.teamId !== this.props.teamId) {
-      //  this.props.fetchTeamData(this.props.teamId, { bots: true })
-    }
-    if (prevProps.teamId !== this.props.teamId) {
-      // this.props.fetchPermissions(this.props.teamId)
-    }
+    this.props.fetchPermissions()
   }
 
   onInputKeyPress = e => e.key === 'Enter' && this.createBot()
@@ -84,7 +77,6 @@ class Bots extends Component {
 
     const { error } = Joi.validate({ id, name }, BotCreationSchema)
     if (error) {
-      console.log(error)
       this.setState({ errorCreateBot: error })
       return
     }
@@ -279,14 +271,16 @@ class Bots extends Component {
 
   renderCreateNewBotButton(isCentered) {
     return (
-      <Button
-        className={isCentered ? '' : 'float-right'}
-        onClick={() => this.setState({ isCreateBotModalOpen: true })}
-        color="primary"
-        size="sm"
-      >
-        <MdCreate /> Create Bot
-      </Button>
+      <AccessControl permissions={this.props.permissions} resource="admin.bots.create" operation="write">
+        <Button
+          className={isCentered ? '' : 'float-right'}
+          onClick={() => this.setState({ isCreateBotModalOpen: true })}
+          color="primary"
+          size="sm"
+        >
+          <MdCreate /> Create Bot
+        </Button>
+      </AccessControl>
     )
   }
 
@@ -306,13 +300,17 @@ class Bots extends Component {
           return (
             <div className="bp_table-row" key={bot.id}>
               <div className="actions">
-                <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
-                  Edit
-                </Button>
+                <AccessControl permissions={this.props.permissions} resource="admin.bots.edit" operation="write">
+                  <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
+                    Edit
+                  </Button>
+                </AccessControl>
                 |
-                <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
-                  Delete
-                </Button>
+                <AccessControl permissions={this.props.permissions} resource="admin.bots.delete" operation="write">
+                  <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
+                    Delete
+                  </Button>
+                </AccessControl>
               </div>
               <div className="title">
                 <a href={`/studio/${bot.id}`}>{bot.name}</a>
@@ -355,13 +353,14 @@ const mapStateToProps = state => ({
   bots: state.bots.bots,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  botTemplates: state.bots.botTemplates
+  botTemplates: state.bots.botTemplates,
+  permissions: state.user.permissions
 })
 
 const mapDispatchToProps = {
-  fetchPermissions,
   fetchBotTemplates,
-  fetchBots
+  fetchBots,
+  fetchPermissions
 }
 
 export default connect(
