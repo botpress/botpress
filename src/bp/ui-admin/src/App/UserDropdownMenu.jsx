@@ -31,7 +31,7 @@ class UserDropdownMenu extends Component {
         <DropdownMenu right>
           <DropdownItem onClick={() => this.props.push('/profile')}>
             Signed in as&nbsp;
-            <strong>{fullName || email}</strong>`
+            <strong>{fullName || email}</strong>
           </DropdownItem>
           <DropdownItem divider />
           <DropdownItem onClick={() => this.props.push('/profile')}>Your profile</DropdownItem>
