@@ -9,17 +9,20 @@
     background: #fefefe;
     padding: 5px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    .title {
-      display: inline-block;
-      width: 150px;
+    .role {
+      display: flex;
+      align-items: center;
+      .title {
+        margin-left: 10px;
+      }
     }
 
     svg {
-      position: relative;
-      float: right;
-      right: 8px;
-      top: 5px;
+      margin-right: 5px;
     }
   }
 

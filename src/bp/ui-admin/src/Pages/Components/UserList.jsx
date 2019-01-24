@@ -111,9 +111,12 @@ class UserList extends Component {
     return (
       <div key={'role-' + role.id}>
         <div onClick={() => this.toggle(role.id)} className="bp_users-role_header">
-          <span className="title">{role.name}</span>
-          &nbsp;
-          <Badge pill>{users.length}</Badge>
+          <div className="role float-left">
+            <Badge pill color="light">
+              {users.length}
+            </Badge>
+            <span className="title">{role.name}</span>
+          </div>
           {this.state[role.id] ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
         </div>
         {this.renderUsersForRole(users, role.id)}
