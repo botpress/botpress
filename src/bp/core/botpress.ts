@@ -166,9 +166,14 @@ export class Botpress {
   }
 
   async discoverBots(): Promise<void> {
-    const botIds = await this.workspaceService.getBotRefs()
-    const validBotIds = await this.botService.validateBotIds(botIds)
+    const linkedBots = await this.workspaceService.getBotRefs()
+    const validBotIds = await this.botService.validateBotIds(linkedBots)
     await Promise.map(validBotIds, botId => this.botLoader.mountBot(botId))
+
+    const allBots = await this.botLoader.getAllBotIds()
+    if (_.without(allBots, ...validBotIds).length > 0) {
+      this.logger.warn('Some unlinked bots exist on your server, to enable them add them to workspaces.json')
+    }
   }
 
   async initializeGhost(): Promise<void> {
