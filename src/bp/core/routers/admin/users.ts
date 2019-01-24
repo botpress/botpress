@@ -36,7 +36,6 @@ export class UsersRouter implements CustomRouter {
           'firstname',
           'lastname',
           'role',
-          'picture',
           'last_logon',
           'created_on'
         ])

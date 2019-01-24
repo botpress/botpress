@@ -50,7 +50,6 @@ export interface AuthUser {
   firstname?: string
   lastname?: string
   fullName?: string
-  picture?: string
   company?: string
   last_ip?: string
   location?: string
