@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-
-import { Container, TabContent, TabPane, Nav, NavItem, NavLink, Row, Col } from 'reactstrap'
+import { Container, Nav, NavItem, NavLink, Row, Col } from 'reactstrap'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/lib/md'
 import { AccessControl } from '../../App/AccessControl'
 import { fetchPermissions } from '../../reducers/user'
 import { fetchLicensing } from '../../reducers/license'
+import { Switch, Route } from 'react-router-dom'
 
 class TabLayout extends Component {
   state = {
@@ -18,9 +18,7 @@ class TabLayout extends Component {
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
-  toggleTab = activeTab => {
-    this.setState({ activeTab })
-  }
+  updateRoute = route => this.props.history.push(route)
 
   renderHomeTab() {
     return (
@@ -35,12 +33,13 @@ class TabLayout extends Component {
     if (!this.props.licensing || (tab.proOnly && !this.props.licensing.isPro)) {
       return null
     }
+
     return (
       <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
           <NavLink
-            className={this.state.activeTab === tab.name ? 'active' : ''}
-            onClick={this.toggleTab.bind(this, tab.name)}
+            className={this.props.location.pathname === tab.route ? 'active' : ''}
+            onClick={() => this.updateRoute(tab.route)}
           >
             {tab.icon}
             {tab.name}
@@ -74,13 +73,11 @@ class TabLayout extends Component {
         <Container>
           <Row>
             <Col xs={12} md={{ size: 10, offset: 1 }}>
-              <TabContent activeTab={this.state.activeTab}>
+              <Switch>
                 {this.props.tabs.map(tab => (
-                  <TabPane tabId={tab.name} key={tab.name}>
-                    {tab.component}
-                  </TabPane>
+                  <Route path={tab.route} exact component={tab.component} key={tab.name} />
                 ))}
-              </TabContent>
+              </Switch>
             </Col>
           </Row>
         </Container>

@@ -1,6 +1,6 @@
 import React from 'react'
-import Versioning from './VersioningTab'
-import LicenseStatusTab from './LicenseStatusTab'
+import Versioning from './Versioning'
+import LicenseStatus from './LicenseStatus'
 import TabLayout from '../Layouts/Tabs'
 import { MdCompareArrows, MdCopyright } from 'react-icons/lib/md'
 
@@ -9,13 +9,15 @@ const ServerSettings = props => {
   const tabs = [
     {
       name: 'Server License',
+      route: '/settings',
       icon: <MdCopyright />,
-      component: <LicenseStatusTab />
+      component: LicenseStatus
     },
     {
       name: 'Version control',
+      route: '/settings/version',
       icon: <MdCompareArrows />,
-      component: <Versioning />
+      component: Versioning
     }
   ]
 

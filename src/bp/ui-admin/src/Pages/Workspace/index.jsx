@@ -11,23 +11,26 @@ const Workspace = props => {
   const tabs = [
     {
       name: 'Bots',
+      route: '/workspace',
       icon: <MdAndroid />,
-      component: <Bots />,
+      component: Bots,
       res: 'admin.bots.*',
       op: 'read'
     },
     {
       name: 'Collaborators',
+      route: '/workspace/users',
       icon: <MdPeople />,
-      component: <Users />,
+      component: Users,
       res: 'admin.collaborators.*',
       op: 'read',
       proOnly: true
     },
     {
       name: 'Roles',
+      route: '/workspace/roles',
       icon: <MdVerifiedUser />,
-      component: <Roles />,
+      component: Roles,
       res: 'admin.roles.*',
       op: 'read',
       proOnly: true

@@ -2,10 +2,11 @@
   &--scroll {
     overflow-x: scroll;
   }
+
   &--keys {
     color: var(--c-dark);
-    border: 1px solid #ccc;
-    font-size: 14px;
+    border: 1px solid #e1e4e8;
+    font-size: 0.8rem;
 
     tr {
       &[disabled] span,
