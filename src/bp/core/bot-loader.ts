@@ -40,7 +40,6 @@ export class BotLoader {
     this.unmountBot = await this.jobService.broadcast<void>(this._unmountBot.bind(this))
   }
 
-  // TODO: Call invalidate when adding or deleting bots
   public invalidateBotIds(): void {
     this._botIds = undefined
   }
