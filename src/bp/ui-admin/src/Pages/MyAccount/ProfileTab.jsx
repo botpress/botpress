@@ -17,6 +17,9 @@ class Me extends Component {
           <Row>
             <Col sm="12" md="3" className="profile">
               <GravatarImage email={this.props.profile.email} size="lg" className="profile__picture" />
+              <p>
+                We use <a href="https://gravatar.com">gravatar</a> to display profile pictures
+              </p>
               <ChangePassword />
             </Col>
             <Col sm="12" md="6">
