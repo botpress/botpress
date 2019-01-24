@@ -80,7 +80,7 @@ export class UsersRouter implements CustomRouter {
         const { email } = req.params
 
         if (req.authUser.email === email) {
-          throw new InvalidOperationError(`Sorry, you can't delete your own account.`)
+          return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
         await this.workspaceService.deleteUser(email)
