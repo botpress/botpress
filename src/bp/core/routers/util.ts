@@ -59,7 +59,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 
   const [scheme, token] = req.headers.authorization.split(' ')
   if (scheme.toLowerCase() !== 'bearer') {
-    return next(new UnauthorizedError(`Unknown scheme ${scheme}`))
+    return next(new UnauthorizedError(`Unknown scheme "${scheme}"`))
   }
 
   if (!token) {
@@ -140,7 +140,9 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
-    return next(new ForbiddenError(`user does not have sufficient permissions to ${operation} ${resource}`))
+    return next(
+      new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
+    )
   }
 
   next()

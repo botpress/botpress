@@ -69,7 +69,7 @@ export class UsersRouter implements CustomRouter {
         const alreadyExists = await this.authService.findUserByEmail(email, ['email'])
 
         if (alreadyExists) {
-          throw new ConflictError(`User ${email} is already taken`)
+          throw new ConflictError(`User "${email}" is already taken`)
         }
 
         const createdUser: CreatedUser = await this.authService.createUser({ email })

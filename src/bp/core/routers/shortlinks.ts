@@ -37,7 +37,7 @@ export class ShortLinksRouter implements CustomRouter {
     name = name.toLocaleLowerCase()
 
     if (this.shortlinks.get(name)) {
-      throw new ConflictError(`There is already a shortlink named ${name}`)
+      throw new ConflictError(`There is already a shortlink named "${name}"`)
     }
 
     const query = params ? `?${qs.stringify(params)}` : ''

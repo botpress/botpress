@@ -157,7 +157,7 @@ export default class HTTPServer {
 
     this.app.use(function handleErrors(err, req, res, next) {
       if (err instanceof UnlicensedError) {
-        next(new PaymentRequiredError(`Server is unlicensed ${err.message}`))
+        next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       }
     })
 

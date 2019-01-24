@@ -98,7 +98,7 @@ export class AuthRouter implements CustomRouter {
     const { tokenUser } = <RequestWithUser>req
     const role = await this.workspaceService.getRoleForUser(tokenUser!.email)
     if (!role) {
-      throw new NotFoundError(`Role for user ${tokenUser!.email} dosn't exist`)
+      throw new NotFoundError(`Role for user "${tokenUser!.email}" dosn't exist`)
     }
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
