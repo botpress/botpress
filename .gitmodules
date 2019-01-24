@@ -4,3 +4,6 @@
 [submodule "src/bp/ml/crfsuite"]
 	path = src/bp/ml/crfsuite
 	url = https://github.com/botpress/node-crfsuite.git
+[submodule "src/bp/ml/fasttext"]
+	path = src/bp/ml/fasttext
+	url = https://github.com/botpress/node-fasttext.git
