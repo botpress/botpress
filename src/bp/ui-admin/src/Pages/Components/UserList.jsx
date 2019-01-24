@@ -1,13 +1,5 @@
 import React, { Component } from 'react'
-import {
-  Collapse,
-  Badge,
-  Media,
-  DropdownItem,
-  UncontrolledButtonDropdown,
-  DropdownToggle,
-  DropdownMenu
-} from 'reactstrap'
+import { Collapse, Badge, DropdownItem, UncontrolledButtonDropdown, DropdownToggle, DropdownMenu } from 'reactstrap'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { fetchUsers } from '../../reducers/user'

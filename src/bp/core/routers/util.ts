@@ -7,7 +7,14 @@ import Joi from 'joi'
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from './errors'
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  PaymentRequiredError,
+  UnauthorizedError
+} from './errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -101,6 +108,22 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
   }
 
   next()
+}
+
+export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
+    const workspace = await workspaceService.getWorkspace()
+    // Allow to create the first user
+    if (workspace.users.length > 0) {
+      return next(new PaymentRequiredError('Botpress Pro is required to perform this action'))
+    }
+  }
+
+  return next()
 }
 
 export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
