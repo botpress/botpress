@@ -8,6 +8,7 @@ import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '.'
+import { NotFoundError } from './errors'
 import { asyncMiddleware, checkTokenHeader, success as sendSuccess } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
@@ -97,7 +98,7 @@ export class AuthRouter implements CustomRouter {
     const { tokenUser } = <RequestWithUser>req
     const role = await this.workspaceService.getRoleForUser(tokenUser!.email)
     if (!role) {
-      return res.status(404).send(`Role not found for user ${tokenUser!.email}`)
+      throw new NotFoundError(`Role for user "${tokenUser!.email}" dosn't exist`)
     }
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }

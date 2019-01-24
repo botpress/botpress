@@ -6,6 +6,7 @@ import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'
+import { ConflictError } from '../errors'
 import { asyncMiddleware, needPermissions, success as sendSuccess } from '../util'
 
 export class BotsRouter implements CustomRouter {
@@ -14,8 +15,10 @@ export class BotsRouter implements CustomRouter {
   private readonly resource = 'admin.bots'
   private asyncMiddleware!: Function
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private logger!: Logger
 
   constructor(logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
+    this.logger = logger
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.needPermissions = needPermissions(this.workspaceService)
     this.router = Router({ mergeParams: true })
@@ -53,8 +56,24 @@ export class BotsRouter implements CustomRouter {
 
         this.workspaceService.assertUserExists(req.tokenUser.email)
 
-        await this.botService.addBot(bot, req.body.template)
-        await this.workspaceService.addBotRef(bot.id)
+        const botExists = (await this.botService.listAvailableBots()).includes(bot.id)
+        const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
+
+        if (botExists && botLinked) {
+          throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
+        }
+
+        if (botExists) {
+          this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
+        } else {
+          await this.botService.addBot(bot, req.body.template)
+        }
+
+        if (botLinked) {
+          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workpaces.json for more details`)
+        } else {
+          await this.workspaceService.addBotRef(bot.id)
+        }
 
         return sendSuccess(res, 'Added new bot', {
           botId: bot.id

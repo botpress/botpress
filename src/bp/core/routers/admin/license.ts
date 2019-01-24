@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo } from 'common/licensing-service'
-import { InvalidLicenseKey } from 'core/services/auth/errors'
 import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
+import { BadRequestError } from '../errors'
 import { assertSuperAdmin, asyncMiddleware, success as sendSuccess } from '../util'
 
 export class LicenseRouter implements CustomRouter {
@@ -55,7 +55,7 @@ export class LicenseRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const result = await svc.replaceLicenseKey(req.body.licenseKey)
         if (!result) {
-          throw new InvalidLicenseKey()
+          throw new BadRequestError('Invalid License Key')
         }
 
         return sendSuccess(res, 'License Key updated')
