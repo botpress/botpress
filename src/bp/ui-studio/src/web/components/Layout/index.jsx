@@ -36,7 +36,7 @@ class Layout extends React.Component {
 
   componentDidMount() {
     this.botpressVersion = window.BOTPRESS_VERSION
-    this.botName = window.BOT_ID
+    this.botName = window.BOT_NAME
 
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
