@@ -21,14 +21,16 @@ const Workspace = props => {
       icon: <MdPeople />,
       component: <Users />,
       res: 'admin.collaborators.*',
-      op: 'read'
+      op: 'read',
+      proOnly: true
     },
     {
       name: 'Roles',
       icon: <MdVerifiedUser />,
       component: <Roles />,
       res: 'admin.roles.*',
-      op: 'read'
+      op: 'read',
+      proOnly: true
     }
   ]
 

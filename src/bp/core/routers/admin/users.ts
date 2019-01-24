@@ -8,7 +8,13 @@ import _ from 'lodash'
 
 import { CustomRouter } from '..'
 import { InvalidOperationError } from '../../services/auth/errors'
-import { asyncMiddleware, needPermissions, success as sendSuccess, validateBodySchema } from '../util'
+import {
+  assertBotpressPro,
+  asyncMiddleware,
+  needPermissions,
+  success as sendSuccess,
+  validateBodySchema
+} from '../util'
 
 export class UsersRouter implements CustomRouter {
   public readonly router: Router
@@ -16,10 +22,12 @@ export class UsersRouter implements CustomRouter {
   private readonly resource = 'admin.users'
   private asyncMiddleware!: Function
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private assertBotpressPro: RequestHandler
 
   constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
     this.needPermissions = needPermissions(this.workspaceService)
+    this.assertBotpressPro = assertBotpressPro(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -45,6 +53,7 @@ export class UsersRouter implements CustomRouter {
 
     router.post(
       '/',
+      this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         validateBodySchema(
