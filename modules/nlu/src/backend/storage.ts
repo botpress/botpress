@@ -91,11 +91,11 @@ export default class Storage {
     const obj = {
       name: intent,
       filename: filename,
-      contexts: ['global'], // @deprecated remove in 12+
+      contexts: ['global'], // @deprecated remove in bp > 11
       ...properties
     }
 
-    // @deprecated remove in 12+
+    // @deprecated remove in bp > 11
     if (!properties.utterances) {
       await this._legacyAppendIntentUtterances(obj, intent)
       await this.saveIntent(intent, obj)
@@ -205,7 +205,7 @@ export default class Storage {
         if (parts.length !== 4) {
           // we don't support legacy format (old models)
           // this is non-breaking as it will simply re-train the models
-          // DEPRECATED – REMOVED THIS CONDITION IN BP >= 12
+          // DEPRECATED – REMOVED THIS CONDITION IN BP > 11
           return undefined
         }
 
