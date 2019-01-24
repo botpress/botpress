@@ -6,7 +6,8 @@ import Joi from 'joi'
 
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
-import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
+
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from './errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -24,7 +25,7 @@ export const validateRequestSchema = (property: string, req: Request, schema: Jo
   const result = Joi.validate(req[property], schema)
 
   if (result.error) {
-    throw new AssertionError(result.error.message)
+    throw new BadRequestError(result.error.message)
   }
 
   Object.assign(req[property], result.value)
@@ -46,28 +47,28 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next: NextFunction
 ) => {
   if (!req.headers.authorization) {
-    return next(new UnauthorizedAccessError('No Authorization header'))
+    return next(new UnauthorizedError('Authorization header is missing'))
   }
 
   const [scheme, token] = req.headers.authorization.split(' ')
   if (scheme.toLowerCase() !== 'bearer') {
-    return next(new UnauthorizedAccessError(`Unknown scheme ${scheme}`))
+    return next(new UnauthorizedError(`Unknown scheme ${scheme}`))
   }
 
   if (!token) {
-    return next(new UnauthorizedAccessError('Missing authentication token'))
+    return next(new UnauthorizedError('Authentication token is missing'))
   }
 
   try {
     const tokenUser = await authService.checkToken(token, audience)
 
     if (!tokenUser) {
-      return next(new UnauthorizedAccessError('Invalid authentication token'))
+      return next(new UnauthorizedError('Invalid authentication token'))
     }
 
     req.tokenUser = tokenUser
   } catch (err) {
-    return next(new UnauthorizedAccessError('Invalid authentication token'))
+    return next(new UnauthorizedError('Invalid authentication token'))
   }
 
   next()
@@ -77,12 +78,12 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
   const reqWithUser = <RequestWithUser>req
   const { tokenUser } = reqWithUser
   if (!tokenUser) {
-    return next(new ProcessingError('No tokenUser in request'))
+    return next(new InternalServerError('No tokenUser in request'))
   }
 
   const authUser = await authService.findUserByEmail(tokenUser.email)
   if (!authUser) {
-    return next(new UnauthorizedAccessError('Unknown user'))
+    return next(new UnauthorizedError('Unknown user'))
   }
 
   reqWithUser.authUser = authUser
@@ -92,21 +93,14 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
   const { tokenUser } = <RequestWithUser>req
   if (!tokenUser) {
-    return next(new ProcessingError('No tokenUser in request'))
+    return next(new InternalServerError('No tokenUser in request'))
   }
 
   if (!tokenUser.isSuperAdmin) {
-    next(new PermissionError('User needs to be super admin to perform this action'))
-    return
+    return next(new ForbiddenError('User needs to be super admin to perform this action'))
   }
 
   next()
-}
-
-class PermissionError extends AssertionError {
-  constructor(message: string) {
-    super('Permission check error: ' + message)
-  }
 }
 
 export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
@@ -117,14 +111,13 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   const email = req.tokenUser && req.tokenUser!.email
   const user = workspaceService.findUser({ email })
   if (!user) {
-    throw new Error(`User "${email}" does not exists`)
+    return next(new NotFoundError(`User "${email}" does not exists`))
   }
 
   const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
-    next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
-    return
+    return next(new ForbiddenError(`user does not have sufficient permissions to ${operation} ${resource}`))
   }
 
   next()

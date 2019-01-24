@@ -2,6 +2,7 @@ import { Router } from 'express'
 import qs from 'querystring'
 
 import { CustomRouter } from '.'
+import { ConflictError } from './errors'
 
 export class ShortLinksRouter implements CustomRouter {
   public readonly router: Router
@@ -36,7 +37,7 @@ export class ShortLinksRouter implements CustomRouter {
     name = name.toLocaleLowerCase()
 
     if (this.shortlinks.get(name)) {
-      throw new Error(`There is already a shortlink named ${name}`)
+      throw new ConflictError(`There is already a shortlink named ${name}`)
     }
 
     const query = params ? `?${qs.stringify(params)}` : ''
