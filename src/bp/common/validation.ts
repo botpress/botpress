@@ -14,8 +14,7 @@ export const BotCreationSchema = Joi.object().keys({
     .required(),
   description: Joi.string()
     .min(3)
-    .max(50),
-  team: Joi.number().required()
+    .max(50)
 })
 
 export const BotEditSchema = Joi.object().keys({

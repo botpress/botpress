@@ -56,10 +56,7 @@ export default class HitlDb {
     return this.knex
       .createTableIfNotExists('hitl_sessions', function(table) {
         table.increments('id').primary()
-        table
-          .string('botId')
-          .references('srv_bots.id')
-          .onDelete('CASCADE')
+        table.string('botId').notNullable()
         table.string('channel')
         table.string('userId')
         table.string('full_name')

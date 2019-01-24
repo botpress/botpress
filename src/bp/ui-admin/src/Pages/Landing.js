@@ -35,10 +35,10 @@ class Landing extends Component {
         <ModalHeader toggle={this.toggle}>Complete your profile</ModalHeader>
         <ModalBody>
           <FormGroup>
-            <Label for="username">
-              <strong>Username</strong>
+            <Label for="email">
+              <strong>email</strong>
             </Label>
-            <Input type="text" id="username" />
+            <Input type="text" id="email" />
           </FormGroup>
           <FormGroup>
             <Label for="email">

@@ -13,29 +13,21 @@ export class VersioningRouter implements CustomRouter {
   }
 
   setupRoutes() {
-    this.router.get(
-      '/pending',
-      // TODO add "need super admin" once superadmin is implemented
-      async (req, res) => {
-        const botIds = await this.botLoader.getAllBotIds()
-        res.send(await this.ghost.getPending(botIds))
-      }
-    )
+    this.router.get('/pending', async (req, res) => {
+      const botIds = await this.botLoader.getAllBotIds()
+      res.send(await this.ghost.getPending(botIds))
+    })
 
-    this.router.get(
-      '/export',
-      // TODO add "need super admin" once superadmin is implemented
-      async (req, res) => {
-        const botIds = await this.botLoader.getAllBotIds()
-        const tarball = await this.ghost.exportArchive(botIds)
+    this.router.get('/export', async (req, res) => {
+      const botIds = await this.botLoader.getAllBotIds()
+      const tarball = await this.ghost.exportArchive(botIds)
 
-        res.writeHead(200, {
-          'Content-Type': 'application/tar+gzip',
-          'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
-          'Content-Length': tarball.length
-        })
-        res.end(tarball)
-      }
-    )
+      res.writeHead(200, {
+        'Content-Type': 'application/tar+gzip',
+        'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
+        'Content-Length': tarball.length
+      })
+      res.end(tarball)
+    })
   }
 }

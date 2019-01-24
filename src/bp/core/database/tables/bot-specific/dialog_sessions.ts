@@ -8,12 +8,7 @@ export class DialogSessionTable extends Table {
 
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('id').primary()
-      table
-        .string('botId')
-        .notNullable()
-        .references('id')
-        .inTable('srv_bots')
-        .onDelete('CASCADE')
+      table.string('botId').notNullable()
       table.json('context').notNullable()
       table.json('temp_data').notNullable()
       table.json('session_data').notNullable()

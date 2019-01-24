@@ -478,7 +478,6 @@ declare module 'botpress/sdk' {
     $schema?: string
     id: string
     name: string
-    active: boolean
     description?: string
     author?: string
     version: string

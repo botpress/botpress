@@ -47,6 +47,10 @@ export class GhostService {
     )
   }
 
+  bots(): ScopedGhostService {
+    return new ScopedGhostService(`./data/bots`, this.diskDriver, this.dbDriver, this.enabled, this.cache, this.logger)
+  }
+
   forBot(botId: string): ScopedGhostService {
     if (!isValidBotId(botId)) {
       throw new Error(`Invalid botId "${botId}"`)
