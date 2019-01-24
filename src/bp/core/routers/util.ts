@@ -103,6 +103,22 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
   next()
 }
 
+export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
+    const workspace = await workspaceService.getWorkspace()
+    // Allow to create the first user
+    if (workspace.users.length > 0) {
+      return next(new PermissionError('Botpress Pro is required to perform this action'))
+    }
+  }
+
+  return next()
+}
+
 class PermissionError extends AssertionError {
   constructor(message: string) {
     super('Permission check error: ' + message)

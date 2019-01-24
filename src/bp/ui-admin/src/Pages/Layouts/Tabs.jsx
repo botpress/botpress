@@ -5,6 +5,7 @@ import { Container, TabContent, TabPane, Nav, NavItem, NavLink, Row, Col } from 
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/lib/md'
 import { AccessControl } from '../../App/AccessControl'
 import { fetchPermissions } from '../../reducers/user'
+import { fetchLicensing } from '../../reducers/license'
 
 class TabLayout extends Component {
   state = {
@@ -13,6 +14,7 @@ class TabLayout extends Component {
 
   componentDidMount() {
     !this.props.permissions && this.props.fetchPermissions()
+    !this.props.licensing && this.props.fetchLicensing()
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
@@ -26,6 +28,25 @@ class TabLayout extends Component {
         <MdKeyboardArrowLeft />
         <MdHome />
       </NavItem>
+    )
+  }
+
+  renderNavItem(tab) {
+    if (!this.props.licensing || (tab.proOnly && !this.props.licensing.isPro)) {
+      return null
+    }
+    return (
+      <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
+        <NavItem>
+          <NavLink
+            className={this.state.activeTab === tab.name ? 'active' : ''}
+            onClick={this.toggleTab.bind(this, tab.name)}
+          >
+            {tab.icon}
+            {tab.name}
+          </NavLink>
+        </NavItem>
+      </AccessControl>
     )
   }
 
@@ -43,24 +64,7 @@ class TabLayout extends Component {
               <Col xs={12} md={{ size: 10, offset: 1 }}>
                 <Nav tabs className="bp_container-tabs">
                   {this.props.showHome && this.renderHomeTab()}
-                  {this.props.tabs.map(tab => (
-                    <AccessControl
-                      permissions={this.props.permissions}
-                      resource={tab.res}
-                      operation={tab.op}
-                      key={tab.name}
-                    >
-                      <NavItem>
-                        <NavLink
-                          className={this.state.activeTab === tab.name ? 'active' : ''}
-                          onClick={this.toggleTab.bind(this, tab.name)}
-                        >
-                          {tab.icon}
-                          {tab.name}
-                        </NavLink>
-                      </NavItem>
-                    </AccessControl>
-                  ))}
+                  {this.props.tabs.map(tab => this.renderNavItem(tab))}
                 </Nav>
               </Col>
             </Row>
@@ -86,11 +90,13 @@ class TabLayout extends Component {
 }
 
 const mapStateToProps = state => ({
-  permissions: state.user.permissions
+  permissions: state.user.permissions,
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
-  fetchPermissions
+  fetchPermissions,
+  fetchLicensing
 }
 
 export default connect(
