@@ -125,7 +125,7 @@ export default class KeyListItem extends Component {
     const { license } = this.props
     return (
       <UncontrolledButtonDropdown>
-        <DropdownToggle caret size="sm" disabled={this.state.isLoading}>
+        <DropdownToggle caret size="sm" outline disabled={this.state.isLoading}>
           Actions
         </DropdownToggle>
         <DropdownMenu>

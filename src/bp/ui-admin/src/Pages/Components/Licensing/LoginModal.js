@@ -25,7 +25,7 @@ export default class Login extends Component {
         password: this.state.password
       })
 
-      this.forceUpdate()
+      this.props.toggle()
     } catch (error) {
       this.setState({
         error: error.message,
@@ -44,7 +44,7 @@ export default class Login extends Component {
         password: this.state.password
       })
 
-      this.forceUpdate()
+      this.props.toggle()
     } catch (error) {
       this.setState({
         error: error.message,
