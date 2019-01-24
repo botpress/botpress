@@ -171,8 +171,12 @@ export class Botpress {
     await Promise.map(validBotIds, botId => this.botLoader.mountBot(botId))
 
     const allBots = await this.botLoader.getAllBotIds()
-    if (_.without(allBots, ...validBotIds).length > 0) {
-      this.logger.warn('Some unlinked bots exist on your server, to enable them add them to workspaces.json')
+    const invalidBotIds = _.without(allBots, ...validBotIds)
+    if (invalidBotIds.length > 0) {
+      const errBots = invalidBotIds.join(', ')
+      this.logger.warn(
+        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${errBots}]`
+      )
     }
   }
 

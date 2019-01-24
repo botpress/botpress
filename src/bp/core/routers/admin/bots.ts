@@ -60,17 +60,17 @@ export class BotsRouter implements CustomRouter {
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
 
         if (botExists && botLinked) {
-          throw new ConflictError(`Bot ${bot.id} already exists and is already linked in workspace`)
+          throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
         }
 
         if (botExists) {
-          this.logger.warn(`Bot ${bot.id} already exists. Linking to workspace`)
+          this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
         } else {
           await this.botService.addBot(bot, req.body.template)
         }
 
         if (botLinked) {
-          this.logger.warn(`Bot ${bot.id} already linked in workspace. See workpaces.json for more details`)
+          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workpaces.json for more details`)
         } else {
           await this.workspaceService.addBotRef(bot.id)
         }
