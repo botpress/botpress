@@ -6841,15 +6841,17 @@ abbr {
   border-bottom: 1px solid #efefef;
   background: #fefefe;
   padding: 5px;
-  cursor: pointer; }
-  .bp_users-role_header .title {
-    display: inline-block;
-    width: 150px; }
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; }
+  .bp_users-role_header .role {
+    display: flex;
+    align-items: center; }
+    .bp_users-role_header .role .title {
+      margin-left: 10px; }
   .bp_users-role_header svg {
-    position: relative;
-    float: right;
-    right: 8px;
-    top: 5px; }
+    margin-right: 5px; }
 
 .bp_users-list .btn-group {
   float: right; }
@@ -6858,11 +6860,12 @@ abbr {
   margin-left: 8px; }
 
 .bp_users-list .nameZone {
-  height: 45px; }
+  height: 45px;
+  font-weight: bold; }
 
 .bp_users-list .field {
   display: inline-block;
-  min-width: 240px; }
+  min-width: 200px; }
 
 .form-check-label {
   font-size: 12px; }
