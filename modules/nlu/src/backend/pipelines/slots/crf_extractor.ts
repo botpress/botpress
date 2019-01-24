@@ -31,10 +31,10 @@ export default class CRFExtractor implements SlotExtractor {
 
   constructor(private toolkit: typeof sdk.MLToolkit) {}
 
-  async load(traingingSet: Sequence[], language: Buffer, crf: Buffer) {
+  async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
     // load language model
     const ftModelFn = tmp.tmpNameSync({ postfix: '.bin' })
-    fs.writeFileSync(ftModelFn, language)
+    fs.writeFileSync(ftModelFn, languageModelBuf)
 
     const ft = new this.toolkit.FastText.Model()
     await ft.loadFromFile(ftModelFn)
