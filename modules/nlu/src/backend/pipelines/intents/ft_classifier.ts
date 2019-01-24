@@ -2,8 +2,9 @@ import * as sdk from 'botpress/sdk'
 import { createWriteStream, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
+import { VError } from 'verror'
 
-import { IntentClassifier } from '../../typings'
+import { IntentClassifier, IntentModel } from '../../typings'
 
 interface TrainSet {
   name: string
@@ -11,11 +12,11 @@ interface TrainSet {
 }
 
 export default class FastTextClassifier implements IntentClassifier {
+  private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
+
   model: sdk.MLToolkit.FastText.Model
 
-  constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {
-    this.model = new this.toolkit.FastText.Model()
-  }
+  constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
   private sanitizeText(text: string): string {
     return text.toLowerCase().replace(/[^\w\s]|\r|\f/gi, '')
@@ -39,59 +40,118 @@ export default class FastTextClassifier implements IntentClassifier {
     return intents.length > 0 && datasetSize > 0
   }
 
-  async train(intents: sdk.NLU.IntentDefinition[]): Promise<Buffer | undefined> {
-    if (this._hasSufficientData(intents)) {
-      const dataFn = tmp.tmpNameSync({ postfix: '.txt' })
-      await this._writeTrainingSet(intents, dataFn)
+  private async _trainForOneModel(
+    intents: sdk.NLU.IntentDefinition[],
+    modelName: string
+  ): Promise<{ ft: sdk.MLToolkit.FastText.Model; data: Buffer }> {
+    const dataFn = tmp.tmpNameSync({ prefix: modelName + '-', postfix: '.txt' })
+    await this._writeTrainingSet(intents, dataFn)
 
-      const modelFn = tmp.tmpNameSync({ postfix: '.bin' })
+    const modelFn = tmp.tmpNameSync({ postfix: '.bin' })
 
-      // TODO Apply parameters from Grid-search here
-      const ft = new this.toolkit.FastText.Model()
-      await ft.trainToFile('supervised', modelFn, {
-        input: dataFn,
-        loss: 'hs',
-        dim: 15,
-        wordNgrams: 3,
-        minCount: 1,
-        minn: 3,
-        maxn: 6,
-        bucket: 25000,
-        epoch: 50,
-        lr: 0.8
-      })
-
-      this.model = ft
-
-      return readFileSync(modelFn)
-    } else {
-      return undefined
-    }
-  }
-
-  async load(model: Buffer) {
-    const tmpFn = tmp.tmpNameSync({ postfix: '.bin' })
-    writeFileSync(tmpFn, model)
+    // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
-    await ft.loadFromFile(tmpFn)
+    await ft.trainToFile('supervised', modelFn, {
+      input: dataFn,
+      loss: 'hs',
+      dim: 15,
+      wordNgrams: 3,
+      minCount: 1,
+      minn: 3,
+      maxn: 6,
+      bucket: 25000,
+      epoch: 50,
+      lr: 0.8
+    })
 
     this.model = ft
+
+    return { ft, data: readFileSync(modelFn) }
   }
 
-  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
-    if (!this.model) {
-      throw new Error('No model loaded')
+  async train(intents: sdk.NLU.IntentDefinition[]): Promise<IntentModel[]> {
+    const contextNames = _.uniq(_.flatMap(intents, x => x.contexts))
+
+    const models: IntentModel[] = []
+    const modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
+
+    for (const context of contextNames) {
+      // TODO Make the `none` intent undeletable, mandatory and pre-filled with random data
+      const intentSet = intents.filter(x => x.contexts.includes(context) || x.name === 'none')
+
+      if (this._hasSufficientData(intentSet)) {
+        try {
+          const { ft, data } = await this._trainForOneModel(intentSet, context)
+          modelsByContext[context] = ft
+          models.push({ name: context, model: data })
+        } catch (err) {
+          throw new VError(err, `Error training set of intents for context "${context}"`)
+        }
+      }
     }
 
-    const sanitized = this.sanitizeText(input)
+    this._modelsByContext = modelsByContext
+
+    return models
+  }
+
+  async load(models: IntentModel[]) {
+    const m: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
+
+    if (!models.length) {
+      throw new Error(`You need to provide at least one model to load`)
+    }
+
+    if (_.uniqBy(models, 'name').length !== models.length) {
+      const names = models.map(x => x.name).join(', ')
+      throw new Error(`You can't train different models with the same names. Names = [${names}]`)
+    }
+
+    for (const model of models) {
+      const tmpFn = tmp.tmpNameSync({ postfix: '.bin', prefix: model.name + '-' })
+      writeFileSync(tmpFn, model.model)
+      const ft = new this.toolkit.FastText.Model()
+      await ft.loadFromFile(tmpFn)
+      m[model.name] = ft
+    }
+
+    this._modelsByContext = m
+  }
+
+  private async _predictForOneModel(sanitizedInput: string, modelName: string): Promise<sdk.NLU.Intent[]> {
+    if (!this._modelsByContext[modelName]) {
+      throw new Error(`Can't predict for model named "${modelName}" (model not loaded)`)
+    }
+
     try {
-      const pred = await this.model.predict(sanitized, 5)
+      const pred = await this._modelsByContext[modelName].predict(sanitizedInput, 5)
       if (!pred || !pred.length) {
         return []
       }
-      return pred.map(x => ({ name: x.label.replace('__label__', ''), confidence: x.value }))
+      return pred.map(x => ({ name: x.label.replace('__label__', ''), confidence: x.value, context: modelName }))
     } catch (e) {
-      this.logger.attachError(e).error(`Error predicting intent for "${sanitized}"`)
+      throw new VError(e, `Error predicting intent for model "${modelName}"`)
+    }
+  }
+
+  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
+    if (!Object.keys(this._modelsByContext).length) {
+      throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
+    }
+
+    const sanitized = this.sanitizeText(input)
+    const modelNames = Object.keys(this._modelsByContext)
+    try {
+      // TODO Add model discrimination logic here
+      const predictions = await Promise.map(modelNames, modelName => this._predictForOneModel(sanitized, modelName))
+
+      return _.chain(predictions)
+        .flatten()
+        .orderBy('confidence', 'desc')
+        .uniqBy(x => x.name)
+        .value()
+    } catch (e) {
+      throw new VError(e, `Error predicting intent for "${sanitized}"`)
     }
   }
 }

@@ -4,7 +4,8 @@ import { createIntentMatcher, findMostConfidentIntentMeanStd } from './utils'
 
 describe('NLU intent utils', () => {
   test('findMostConfidentIntentMeanStd', () => {
-    const mapSet = (n: number[]): sdk.NLU.Intent[] => n.map((x, i) => <sdk.NLU.Intent>{ confidence: x, name: i.toString() })
+    const mapSet = (n: number[]): sdk.NLU.Intent[] =>
+      n.map((x, i) => <sdk.NLU.Intent>{ confidence: x, name: i.toString(), context: 'global' })
     const set1 = mapSet([0.8, 0.1, 0.09, 0.08])
     const set2 = mapSet([0.8, 0.7])
     const set3 = mapSet([])
@@ -67,5 +68,3 @@ describe('NLU intent utils', () => {
     })
   })
 })
-
-

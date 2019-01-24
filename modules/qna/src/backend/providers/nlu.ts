@@ -101,12 +101,13 @@ export default class Storage implements QnaStorage {
   }
 
   async insert(qna, statusCb) {
-    const ids = await Promise.each(_.isArray(qna) ? qna : [qna], async (data, i) => {
+    const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = getQuestionId(data)
 
       if (data.enabled) {
         const intent = {
           entities: [],
+          contexts: [data.category || 'global'],
           utterances: normalizeQuestions(data.questions)
         }
         await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
@@ -116,6 +117,7 @@ export default class Storage implements QnaStorage {
         .forBot(this.botId)
         .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
       statusCb && statusCb(i + 1)
+      return id
     })
 
     await this.syncNlu()

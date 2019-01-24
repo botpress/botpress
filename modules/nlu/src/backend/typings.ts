@@ -41,9 +41,11 @@ export interface SlotExtractor {
   extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection>
 }
 
+export type IntentModel = { name: string; model: Buffer }
+
 export interface IntentClassifier {
-  load(model: Buffer): Promise<void>
-  train(intents: sdk.NLU.IntentDefinition[]): Promise<Buffer | undefined>
+  load(models: IntentModel[]): Promise<void>
+  train(intents: sdk.NLU.IntentDefinition[]): Promise<IntentModel[]>
   predict(input: string): Promise<sdk.NLU.Intent[]>
 }
 
@@ -63,6 +65,7 @@ export interface ModelMeta {
   fileName?: string
   created_on: number // timestamp
   hash: string
+  context: string
   type: string
 }
 

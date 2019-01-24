@@ -39,6 +39,10 @@ export default class Storage {
       })
     }
 
+    if (!content.contexts) {
+      content.contexts = ['global']
+    }
+
     if (intent.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
     }
@@ -87,6 +91,7 @@ export default class Storage {
     const obj = {
       name: intent,
       filename: filename,
+      contexts: ['global'], // @deprecated remove in 12+
       ...properties
     }
 
@@ -121,19 +126,19 @@ export default class Storage {
     const sysEntNames = !this.config.ducklingEnabled
       ? []
       : [
-        'amountOfMoney',
-        'distance',
-        'duration',
-        'email',
-        'numeral',
-        'ordinal',
-        'phoneNumber',
-        'quantity',
-        'temperature',
-        'time',
-        'url',
-        'volume'
-      ]
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'numeral',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
@@ -164,14 +169,13 @@ export default class Storage {
 
   private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
-    const modelName = `${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
+    const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
     return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
   }
 
   private async _cleanupModels(): Promise<void> {
     const models = await this.getAvailableModels()
-    const uniqModelMeta = _
-      .chain(models)
+    const uniqModelMeta = _.chain(models)
       .orderBy('created_on', 'desc')
       .uniqBy('hash')
       .value()
@@ -191,19 +195,29 @@ export default class Storage {
     return this._cleanupModels()
   }
 
-
   async getAvailableModels(): Promise<ModelMeta[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    return models.map(x => {
-      const fileName = path.basename(x)
-      const parts = fileName.replace('.bin', '').split('__')
-      return {
-        fileName,
-        created_on: parseInt(parts[0]) || 0,
-        hash: parts[1],
-        type: parts[2],
-      }
-    })
+    return models
+      .map(x => {
+        const fileName = path.basename(x)
+        const parts = fileName.replace(/\.bin$/i, '').split('__')
+
+        if (parts.length !== 4) {
+          // we don't support legacy format (old models)
+          // this is non-breaking as it will simply re-train the models
+          // DEPRECATED – REMOVED THIS CONDITION IN BP >= 12
+          return undefined
+        }
+
+        return {
+          fileName,
+          context: parts[0],
+          created_on: parseInt(parts[1]) || 0,
+          hash: parts[2],
+          type: parts[3]
+        }
+      })
+      .filter(x => typeof x !== 'undefined')
   }
 
   async modelExists(modelHash: string): Promise<boolean> {
@@ -213,12 +227,9 @@ export default class Storage {
 
   async getModelsFromHash(modelHash: string): Promise<Model[]> {
     const modelsMeta = await this.getAvailableModels()
-    return Promise.map(
-      modelsMeta.filter(meta => meta.hash === modelHash),
-      async meta => ({
-        meta,
-        model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
-      })
-    )
+    return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash), async meta => ({
+      meta,
+      model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
+    }))
   }
 }

@@ -5,7 +5,8 @@ import { escapeRegex } from '../../tools/patterns-utils'
 
 export const NoneIntent: sdk.NLU.Intent = {
   confidence: 1.0,
-  name: 'none'
+  name: 'none',
+  context: 'global'
 }
 
 /**
