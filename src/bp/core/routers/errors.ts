@@ -19,3 +19,12 @@ export class ResponseError extends Error {
     this.errorCode = errorCode
   }
 }
+
+export class ConflictError extends ResponseError {
+  type = 'ConflictError'
+
+  constructor(message?: string) {
+    super(`Conflict: ${message}`, 409, 'BP_0012')
+    this.skipLogging = true
+  }
+}

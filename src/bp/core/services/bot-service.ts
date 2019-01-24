@@ -63,6 +63,10 @@ export class BotService {
     return await this.configProvider.getBotConfig(botId)
   }
 
+  async listAvailableBots(): Promise<string[]> {
+    return this.botLoader.getAllBotIds()
+  }
+
   async validateBotIds(botIds: string[]): Promise<string[]> {
     const allBotIds = await this.botLoader.getAllBotIds()
 
