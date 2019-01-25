@@ -1,8 +1,6 @@
 import { BotTemplate, Logger } from 'botpress/sdk'
 import { Bot } from 'core/misc/interfaces'
 import { FileContent, GhostService } from 'core/services'
-import { CMSService } from 'core/services/cms'
-import { FlowService } from 'core/services/dialog/flow/service'
 import { ModuleResourceLoader } from 'core/services/module/resources-loader'
 import { TYPES } from 'core/types'
 import fs from 'fs'
@@ -20,12 +18,7 @@ type FileListing = { relativePath: string; absolutePath: string }
 export class BotConfigWriter {
   private BOT_CONFIG_FILENAME = 'bot.config.json'
 
-  constructor(
-    @inject(TYPES.Logger) private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.FlowService) private flowService: FlowService
-  ) {}
+  constructor(@inject(TYPES.Logger) private logger: Logger, @inject(TYPES.GhostService) private ghost: GhostService) {}
 
   async createFromTemplate(bot: Bot, template: BotTemplate) {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!)
@@ -69,7 +62,8 @@ export class BotConfigWriter {
   private async _writeConfig(botId: string, config: BotConfig) {
     const fileName = 'bot.config.json'
     const scopedGhost = this.ghost.forBot(botId)
-    await scopedGhost.upsertFile('/', fileName, JSON.stringify(config, undefined, 2))
+    const content = JSON.stringify(config, undefined, 2)
+    await scopedGhost.upsertFile('/', fileName, content)
   }
 
   async deleteBot(botId: string) {

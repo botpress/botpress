@@ -14,12 +14,12 @@ export class VersioningRouter implements CustomRouter {
 
   setupRoutes() {
     this.router.get('/pending', async (req, res) => {
-      const botIds = await this.botLoader.getAllBotIds()
+      const botIds = await this.botLoader.getGhostBotsIds()
       res.send(await this.ghost.getPending(botIds))
     })
 
     this.router.get('/export', async (req, res) => {
-      const botIds = await this.botLoader.getAllBotIds()
+      const botIds = await this.botLoader.getGhostBotsIds()
       const tarball = await this.ghost.exportArchive(botIds)
 
       res.writeHead(200, {

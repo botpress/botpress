@@ -8,7 +8,6 @@ import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
-import { invalid } from 'moment'
 
 import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
@@ -63,18 +62,18 @@ export class BotService {
     return await this.configProvider.getBotConfig(botId)
   }
 
-  async listAvailableBots(): Promise<string[]> {
-    return this.botLoader.getAllBotIds()
+  async getGhostBotsIds(): Promise<string[]> {
+    return this.botLoader.getGhostBotsIds()
   }
 
-  async validateBotIds(botIds: string[]): Promise<string[]> {
-    const allBotIds = await this.botLoader.getAllBotIds()
+  async compareBotsIdsWithGhost(botIds: string[]): Promise<string[]> {
+    const ghostBotIds = await this.botLoader.getGhostBotsIds()
 
-    const invalidIds = botIds.filter(id => !allBotIds.includes(id))
+    const invalidIds = botIds.filter(id => !ghostBotIds.includes(id))
     for (const id of invalidIds) {
       this.logger.warn(`Bot "${id}" doesn't exist`)
     }
 
-    return botIds.filter(id => allBotIds.includes(id))
+    return botIds.filter(id => ghostBotIds.includes(id))
   }
 }

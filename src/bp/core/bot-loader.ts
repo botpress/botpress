@@ -5,7 +5,6 @@ import _ from 'lodash'
 import { createForGlobalHooks } from './api'
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
-import Database from './database'
 import { ModuleLoader } from './module-loader'
 import { GhostService } from './services'
 import { CMSService } from './services/cms'
@@ -24,7 +23,6 @@ export class BotLoader {
     @tagged('name', 'BotLoader')
     private logger: Logger,
     @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
@@ -44,7 +42,7 @@ export class BotLoader {
     this._botIds = undefined
   }
 
-  public async getAllBotIds(): Promise<string[]> {
+  public async getGhostBotsIds(): Promise<string[]> {
     if (this._botIds) {
       return this._botIds
     }
@@ -54,7 +52,7 @@ export class BotLoader {
   }
 
   public async getAllBots(): Promise<Map<string, BotConfig>> {
-    const botIds = await this.getAllBotIds()
+    const botIds = await this.getGhostBotsIds()
     const bots = new Map<string, BotConfig>()
 
     for (const botId of botIds) {
