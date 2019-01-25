@@ -6,4 +6,4 @@
 	url = https://github.com/botpress/node-crfsuite.git
 [submodule "src/bp/ml/fasttext"]
 	path = src/bp/ml/fasttext
-	url = git@github.com:botpress/node-fasttext.git
+	url = https://github.com/botpress/node-fasttext.git

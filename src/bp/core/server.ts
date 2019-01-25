@@ -18,12 +18,12 @@ import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AuthStrategies } from './services/auth-strategies'
 import AuthService from './services/auth/auth-service'
-import { InvalidLicenseKey } from './services/auth/errors'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
@@ -99,7 +99,7 @@ export default class HTTPServer {
       this.ghostService,
       this.botLoader
     )
-    this.shortlinksRouter = new ShortLinksRouter()
+    this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
@@ -157,9 +157,8 @@ export default class HTTPServer {
 
     this.app.use(function handleErrors(err, req, res, next) {
       if (err instanceof UnlicensedError) {
-        throw new InvalidLicenseKey(err.message)
+        next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       }
-      next(err)
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {

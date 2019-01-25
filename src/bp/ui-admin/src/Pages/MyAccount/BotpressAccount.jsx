@@ -10,8 +10,9 @@ import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import LoginModal from '../Components/Licensing/LoginModal'
-import { fetchAllKeys, fetchProducts } from '../../reducers/license'
+import { fetchAllKeys, fetchProducts, fetchLicensing } from '../../reducers/license'
 import { isAuthenticated } from '../../Auth/licensing'
+import { logout } from '../../Auth/licensing'
 
 class KeyList extends Component {
   state = {
@@ -23,18 +24,13 @@ class KeyList extends Component {
     loginModalOpen: false
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps) {
     if (!isAuthenticated()) {
       return
     }
 
-    if (!this.props.keys.length) {
-      this.props.fetchAllKeys()
-    }
-
-    if (!this.props.products.length) {
-      this.props.fetchProducts()
-    }
+    !this.props.keys.length && this.props.fetchAllKeys()
+    !this.props.products.length && this.props.fetchProducts()
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
@@ -52,6 +48,16 @@ class KeyList extends Component {
       keyModalOpen: !this.state.keyModalOpen,
       selectedLicense
     })
+  }
+
+  logoutAccount = () => {
+    logout()
+    this.forceUpdate()
+  }
+
+  refresh = () => {
+    this.props.fetchAllKeys()
+    this.props.fetchLicensing()
   }
 
   renderKeysTable() {
@@ -89,7 +95,7 @@ class KeyList extends Component {
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
                 onLicenseUpdated={this.toggleUpdateModal}
-                refreshLicense={this.props.fetchAllKeys}
+                refreshLicense={this.refresh}
               />
             ))}
         </tbody>
@@ -104,16 +110,7 @@ class KeyList extends Component {
 
     return (
       <Fragment>
-        {!this.state.error && (
-          <Fragment>
-            {this.props.keys.length > 0 && this.renderKeysTable()}
-
-            <Button size="sm" color="success" onClick={this.toggleBuyModal}>
-              {this.props.keys.length > 0 && <span>Buy more licenses</span>}
-              {this.props.keys.length === 0 && <span>Buy your first license</span>}
-            </Button>
-          </Fragment>
-        )}
+        {!this.state.error && <Fragment>{this.props.keys.length > 0 && this.renderKeysTable()}</Fragment>}
         <ActivateRevealKeyModal
           isOpen={this.state.keyModalOpen}
           toggle={this.toggleKeyModal}
@@ -139,13 +136,38 @@ class KeyList extends Component {
   renderNotLoggedIn() {
     return (
       <div>
-        To manage your license keys or to buy a new one, you need to login to your Botpress Account.
+        To purchase a new license key or to manage existing ones, please login to your Botpress Account.
         <br />
         <br />
-        <Button onClick={this.toggleLoginModal}>Login to Botpress Licensing Server</Button>
-        <LoginModal isOpen={this.state.loginModalOpen} toggle={this.toggleLoginModal} />
       </div>
     )
+  }
+
+  renderSideMenu() {
+    if (!isAuthenticated()) {
+      return (
+        <div>
+          <Button size="sm" onClick={this.toggleLoginModal}>
+            Login
+          </Button>
+          <LoginModal isOpen={this.state.loginModalOpen} toggle={this.toggleLoginModal} />
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <Button size="sm" onClick={this.logoutAccount}>
+            Logout
+          </Button>
+          <br />
+          <br />
+          <Button size="sm" color="success" onClick={this.toggleBuyModal}>
+            {this.props.keys.length > 0 && <span>Buy more licenses</span>}
+            {this.props.keys.length === 0 && <span>Buy your first license</span>}
+          </Button>
+        </div>
+      )
+    }
   }
 
   render() {
@@ -154,8 +176,10 @@ class KeyList extends Component {
     return (
       <SectionLayout
         title="Keys"
+        helpText="Manage your license keys, edit your subscriptions and purchase new license keys"
         activePage="keys"
         mainContent={this.props.isLoadingKeys ? renderLoading() : this.renderPage()}
+        sideMenu={this.renderSideMenu()}
       />
     )
   }
@@ -168,7 +192,7 @@ const mapStateToProps = state => ({
   licensing: state.license.licensing
 })
 
-const mapDispatchToProps = { fetchAllKeys, fetchProducts }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

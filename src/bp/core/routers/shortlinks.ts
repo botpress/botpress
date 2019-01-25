@@ -1,3 +1,4 @@
+import { Logger } from 'botpress/sdk'
 import { Router } from 'express'
 import qs from 'querystring'
 
@@ -7,7 +8,7 @@ export class ShortLinksRouter implements CustomRouter {
   public readonly router: Router
   private shortlinks: Map<string, string>
 
-  constructor() {
+  constructor(private logger: Logger) {
     this.shortlinks = new Map<string, string>()
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -35,8 +36,8 @@ export class ShortLinksRouter implements CustomRouter {
   createShortLink(name: string, destination: string, params?: any) {
     name = name.toLocaleLowerCase()
 
-    if (this.shortlinks.get(name)) {
-      throw new Error(`There is already a shortlink named ${name}`)
+    if (this.shortlinks.has(name)) {
+      this.logger.warn(`A shortlink named "${name}" already exists.`)
     }
 
     const query = params ? `?${qs.stringify(params)}` : ''

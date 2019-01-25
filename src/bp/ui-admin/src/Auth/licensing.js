@@ -1,9 +1,7 @@
-import history from '../history'
 import firebase from '../utils/firebase'
 import ms from 'ms'
 
 export const SESSION_KEY = 'bp/licensing/session'
-const HOME_ROUTE = '/licensing'
 
 export function getSession() {
   const ls = localStorage.getItem(SESSION_KEY)
@@ -60,7 +58,6 @@ export async function sendResetPassword({ email }) {
 export async function logout() {
   firebase.auth().signOut()
   localStorage.removeItem(SESSION_KEY)
-  history.replace(HOME_ROUTE)
 }
 
 export function isAuthenticated() {

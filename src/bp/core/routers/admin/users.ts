@@ -7,7 +7,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { InvalidOperationError } from '../../services/auth/errors'
+import { ConflictError } from '../errors'
 import {
   assertBotpressPro,
   asyncMiddleware,
@@ -69,7 +69,7 @@ export class UsersRouter implements CustomRouter {
         const alreadyExists = await this.authService.findUserByEmail(email, ['email'])
 
         if (alreadyExists) {
-          throw new InvalidOperationError(`User ${email} is already taken`)
+          throw new ConflictError(`User "${email}" is already taken`)
         }
 
         const createdUser: CreatedUser = await this.authService.createUser({ email })

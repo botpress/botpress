@@ -116,9 +116,11 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get('/:app(studio|lite)/js/env.js', async (req, res) => {
       const { botId, app } = req.params
+      let botName
 
       try {
-        await this.botRepository.getBotById(botId)
+       const botDetails = await this.botRepository.getBotById(botId)
+       botName = botDetails.name
       } catch (err) {
         return res.sendStatus(404)
       }
@@ -146,6 +148,7 @@ export class BotsRouter implements CustomRouter {
               window.API_PATH = "/api/v1";
               window.BOT_API_PATH = "/api/v1/bots/${botId}";
               window.BOT_ID = "${botId}";
+              window.BOT_NAME = "${botName}";
               window.BP_BASE_PATH = "/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";

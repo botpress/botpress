@@ -8,10 +8,8 @@ import App from '../App/Layout'
 import LoginPage from '../Pages/Login'
 import RegisterPage from '../Pages/Account/Register'
 import ChangePassword from '../Pages/Account/ChangePassword'
-import Landing from '../Pages/Landing'
 
 import Auth from '../Auth'
-import { logout as logoutLicensing } from '../Auth/licensing'
 import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
@@ -27,12 +25,6 @@ export const makeMainRoutes = () => {
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <Switch>
-          <Route
-            path="/landing"
-            render={props => {
-              return <Landing />
-            }}
-          />
           <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />
           <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
           <Route
@@ -50,25 +42,9 @@ export const makeMainRoutes = () => {
           />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
-              <Route exact path="/profile" render={props => <MyAccount {...props} />} />
-              <Route
-                exact
-                from="/teams/:teamId"
-                render={({ match }) => {
-                  return <Redirect to={`/teams/${match.params.teamId}/bots`} />
-                }}
-              />
-              <Route
-                exact
-                path="/licensing/logout"
-                render={() => {
-                  logoutLicensing()
-                  return <Redirect to={{ pathname: '/licensing' }} />
-                }}
-              />
+              <Route path="/profile" component={MyAccount} />
               <Route path="/workspace" component={Workspace} />
-              <Route exact path="/settings" component={ServerSettings} />
-
+              <Route path="/settings" component={ServerSettings} />
               <Redirect from="/" to="/workspace" />
             </Switch>
           </PrivateRoute>
