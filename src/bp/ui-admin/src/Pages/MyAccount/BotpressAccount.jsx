@@ -10,7 +10,7 @@ import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import LoginModal from '../Components/Licensing/LoginModal'
-import { fetchAllKeys, fetchProducts } from '../../reducers/license'
+import { fetchAllKeys, fetchProducts, fetchLicensing } from '../../reducers/license'
 import { isAuthenticated } from '../../Auth/licensing'
 import { logout } from '../../Auth/licensing'
 
@@ -55,6 +55,11 @@ class KeyList extends Component {
     this.forceUpdate()
   }
 
+  refresh = () => {
+    this.props.fetchAllKeys()
+    this.props.fetchLicensing()
+  }
+
   renderKeysTable() {
     const clusterFingerprint = _.get(this.props.licensing, 'fingerprints.cluster_url')
     return (
@@ -90,7 +95,7 @@ class KeyList extends Component {
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
                 onLicenseUpdated={this.toggleUpdateModal}
-                refreshLicense={this.props.fetchAllKeys}
+                refreshLicense={this.refresh}
               />
             ))}
         </tbody>
@@ -187,7 +192,7 @@ const mapStateToProps = state => ({
   licensing: state.license.licensing
 })
 
-const mapDispatchToProps = { fetchAllKeys, fetchProducts }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing }
 export default connect(
   mapStateToProps,
   mapDispatchToProps
