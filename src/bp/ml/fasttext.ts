@@ -5,7 +5,7 @@ import { VError } from 'verror'
 const binding = require('./fasttext.node')
 
 const FAST_TEXT_VERBOSOSITY = parseInt(process.env.FAST_TEXT_VERBOSOSITY || '0')
-const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '5000') // 5s caching by default
+const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
 
 /** A wrapper class around the fasttext node bindings.
  * This wrapper adds support for lazy loading of the models, which
@@ -79,6 +79,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
 
   private async _getModel(): Promise<any> {
     if (this._modelPromise && !this._modelPromise!.isRejected()) {
+      this._resetModelBomb()
       return this._modelPromise
     }
 
@@ -98,6 +99,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
 
   private async _getQuery(): Promise<any> {
     if (this._queryPromise && !this._queryPromise!.isRejected()) {
+      this._resetQueryBomb()
       return this._queryPromise
     }
 
