@@ -1,1 +1,12 @@
-{"entities":[]}
+{
+  "name": "__qna__z6uwm2eohg_would_you_marry_me",
+  "filename": "__qna__z6uwm2eohg_would_you_marry_me.json",
+  "contexts": [
+    "global"
+  ],
+  "entities": [],
+  "utterances": [
+    "Would you marry me ?",
+    "Will you marry me?"
+  ]
+}

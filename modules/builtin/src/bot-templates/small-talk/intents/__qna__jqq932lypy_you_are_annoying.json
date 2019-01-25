@@ -1,1 +1,16 @@
-{"entities":[]}
+{
+  "name": "__qna__jqq932lypy_you_are_annoying",
+  "filename": "__qna__jqq932lypy_you_are_annoying.json",
+  "contexts": [
+    "global"
+  ],
+  "entities": [],
+  "utterances": [
+    "you are annoying",
+    "stop talking",
+    "please stop it",
+    "shut your mouth",
+    "you annoy me",
+    "you are unpleasant"
+  ]
+}

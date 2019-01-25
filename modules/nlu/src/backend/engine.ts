@@ -55,7 +55,7 @@ export default class ScopedEngine {
       this.confidenceTreshold = 0.7
     }
 
-    await this.sync()
+    this.sync() // This is a voluntary floating promise. We don't want to block server loading
   }
 
   async sync(): Promise<void> {
