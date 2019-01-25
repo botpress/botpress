@@ -43,6 +43,14 @@
         "NODE_PATH": "./"
       },
       "cwd": "${workspaceFolder}/out/bp"
+    },
+    {
+      "name": "(lldb) FastText Launch",
+      "type": "lldb",
+      "request": "launch",
+      "program": "node",
+      "args": ["test/start.js"],
+      "cwd": "${workspaceFolder}/src/bp/ml/fasttext"
     }
   ]
 }

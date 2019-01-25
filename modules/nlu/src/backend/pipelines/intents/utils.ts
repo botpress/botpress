@@ -5,7 +5,8 @@ import { escapeRegex } from '../../tools/patterns-utils'
 
 export const NoneIntent: sdk.NLU.Intent = {
   confidence: 1.0,
-  name: 'none'
+  name: 'none',
+  context: 'global'
 }
 
 /**
@@ -15,7 +16,11 @@ export const NoneIntent: sdk.NLU.Intent = {
  * @param fixedThreshold
  * @param std number of standard deviation away. normally between 2 and 5
  */
-export function findMostConfidentIntentMeanStd(intents: sdk.NLU.Intent[], fixedThreshold: number, std: number = 3): sdk.NLU.Intent {
+export function findMostConfidentIntentMeanStd(
+  intents: sdk.NLU.Intent[],
+  fixedThreshold: number,
+  std: number = 3
+): sdk.NLU.Intent {
   if (!intents.length) {
     return NoneIntent
   }

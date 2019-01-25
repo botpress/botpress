@@ -42,8 +42,8 @@ export default class ScopedEngine {
     private readonly toolkit: typeof sdk.MLToolkit
   ) {
     this.storage = new Storage(config, this.botId)
-    this.intentClassifier = new FastTextClassifier(this.logger)
-    this.langDetector = new FastTextLanguageId(this.logger)
+    this.intentClassifier = new FastTextClassifier(toolkit, this.logger)
+    this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
   }
@@ -66,9 +66,9 @@ export default class ScopedEngine {
 
       if (await this.storage.modelExists(modelHash)) {
         try {
-          await this._loadModel(intents, modelHash)
+          await this._loadModels(intents, modelHash)
         } catch (e) {
-          this.logger.warn('Cannot load models from storage')
+          this.logger.attachError(e).warn('Cannot load models from storage')
           await this._trainModels(intents, modelHash)
         }
       } else {
@@ -93,19 +93,21 @@ export default class ScopedEngine {
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
-  private async _loadModel(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
+  private async _loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     const models = await this.storage.getModelsFromHash(modelHash)
-    const intentModel = models.find(model => model.meta.type === MODEL_TYPES.INTENT)
+    const intentModels = models
+      .filter(model => model.meta.type === MODEL_TYPES.INTENT)
+      .map(x => ({ name: x.meta.context, model: x.model }))
     const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
     const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
-    if (!intentModel || !skipgramModel || !crfModel) {
-      throw new Error('no such model')
+    if (!intentModels || !intentModels.length || !skipgramModel || !crfModel) {
+      throw new Error(`No such model. Hash = "${modelHash}"`)
     }
 
-    this.intentClassifier.load(intentModel.model)
+    await this.intentClassifier.load(intentModels)
 
     const trainingSet = flatMap(intents, intent => {
       return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
@@ -116,9 +118,10 @@ export default class ScopedEngine {
     this.logger.debug(`Done restoring models '${modelHash}' from storage`)
   }
 
-  private _makeModel(hash: string, model: Buffer, type: string): Model {
+  private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
     return {
       meta: {
+        context,
         created_on: Date.now(),
         hash,
         type
@@ -127,14 +130,13 @@ export default class ScopedEngine {
     }
   }
 
-  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash): Promise<Model[]> {
+  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
     this.logger.debug('Training intent classifier')
 
     try {
       const intentBuff = await this.intentClassifier.train(intentDefs)
       this.logger.debug('Done training intent classifier')
-
-      return intentBuff ? [this._makeModel(modelHash, intentBuff, MODEL_TYPES.INTENT)] : []
+      return intentBuff.map(x => this._makeModel(x.name, modelHash, x.model, MODEL_TYPES.INTENT))
     } catch (err) {
       this.logger.attachError(err).error('Error training intents')
       throw Error('Unable to train model')
@@ -153,8 +155,8 @@ export default class ScopedEngine {
 
       if (language && crf) {
         return [
-          this._makeModel(modelHash, language, MODEL_TYPES.SLOT_LANG),
-          this._makeModel(modelHash, crf, MODEL_TYPES.SLOT_CRF)
+          this._makeModel('global', modelHash, language, MODEL_TYPES.SLOT_LANG),
+          this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)
         ]
       } else return []
     } catch (err) {
@@ -162,7 +164,6 @@ export default class ScopedEngine {
       throw Error('Unable to train model')
     }
   }
-
 
   private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
@@ -191,7 +192,7 @@ export default class ScopedEngine {
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
 
-  private async _extractIntents(text: string): Promise<{ intents: sdk.NLU.Intent[], intent: sdk.NLU.Intent }> {
+  private async _extractIntents(text: string): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent }> {
     const intents = await this.intentClassifier.predict(text)
     const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
     intent.matches = createIntentMatcher(intent.name)
@@ -202,7 +203,11 @@ export default class ScopedEngine {
     }
   }
 
-  private async _extractSlots(text: string, intent: sdk.NLU.Intent, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection> {
+  private async _extractSlots(
+    text: string,
+    intent: sdk.NLU.Intent,
+    entities: sdk.NLU.Entity[]
+  ): Promise<sdk.NLU.SlotsCollection> {
     const intentDef = await this.storage.getIntent(intent.name)
     return await this.slotExtractor.extract(text, intentDef, entities)
   }
@@ -212,14 +217,12 @@ export default class ScopedEngine {
     try {
       const text = incomingEvent.preview
       ret.language = await this.langDetector.identify(text)
-
       ret = { ...ret, ...(await this._extractIntents(text)) }
       ret.entities = await this._extractEntities(text, ret.language)
       ret.slots = await this._extractSlots(text, ret.intent, ret.entities)
       ret.errored = false
-
     } catch (error) {
-      this.logger.warn(`Could not extract whole NLU data, ${error}`)
+      this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
       return ret as sdk.IO.EventUnderstanding
     }
