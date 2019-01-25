@@ -6,8 +6,9 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
-import { AdminContainerModule } from './admin/admin.inversify'
+import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
+import { BotService } from './bot-service'
 import { CMSService } from './cms'
 import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
@@ -46,6 +47,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.CLUSTER_ENABLED)
+
+  bind<AuthStrategies>(TYPES.AuthStrategies)
+    .to(CEAuthStrategies)
+    .inSingletonScope()
+    .when(() => !process.IS_PRO_ENABLED)
 
   bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
@@ -94,11 +100,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ConverseService>(TYPES.ConverseService)
     .to(ConverseService)
     .inSingletonScope()
+
+  bind<BotService>(TYPES.BotService)
+    .to(BotService)
+    .inSingletonScope()
 })
 
-export const ServicesContainerModules = [
-  ServicesContainerModule,
-  AdminContainerModule,
-  DialogContainerModule,
-  GhostContainerModule
-]
+export const ServicesContainerModules = [ServicesContainerModule, DialogContainerModule, GhostContainerModule]

@@ -25,7 +25,7 @@ export default class ChangePassword extends Component {
 
     try {
       await this.props.auth.login({
-        username: this.state.username,
+        email: this.state.email,
         password: this.state.password,
         newPassword: this.state.newPassword
       })
@@ -53,7 +53,7 @@ export default class ChangePassword extends Component {
   }
 
   renderForm = () => {
-    if (!this.state.username) {
+    if (!this.state.email) {
       return <Redirect to="/" />
     }
 

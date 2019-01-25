@@ -1,0 +1,48 @@
+.bp_users {
+  &-container {
+    border: 1px solid #efefef;
+  }
+
+  &-role_header {
+    height: 35px;
+    border-bottom: 1px solid #efefef;
+    background: #fefefe;
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .role {
+      display: flex;
+      align-items: center;
+      .title {
+        margin-left: 10px;
+      }
+    }
+
+    svg {
+      margin-right: 5px;
+    }
+  }
+
+  &-list {
+    .btn-group {
+      float: right;
+    }
+
+    .details {
+      margin-left: 8px;
+    }
+
+    .nameZone {
+      height: 45px;
+      font-weight: bold;
+    }
+
+    .field {
+      display: inline-block;
+      min-width: 200px;
+    }
+  }
+}

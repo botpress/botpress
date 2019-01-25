@@ -23,10 +23,6 @@ export type BotConfig = {
   id: string
   /** The name of the bot, used for display purpose only */
   name: string
-  /**
-   * @default true
-   */
-  active: boolean
   description?: string
   author?: string
   /**

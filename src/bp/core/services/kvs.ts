@@ -8,14 +8,8 @@ import Database from '../database'
 import { safeStringify } from '../misc/utils'
 import { TYPES } from '../types'
 
-// TODO: Create repository to interact with the database
 @injectable()
 export class KeyValueStore {
-  /**
-   * onGetOrSet will be called between the get and the set and wait for promise to resolve
-   */
-  public onGetOrSet: (() => Promise<void>) | undefined
-
   private readonly tableName = 'srv_kvs'
 
   constructor(

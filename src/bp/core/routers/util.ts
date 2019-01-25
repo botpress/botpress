@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { AdminService } from 'core/services/admin/service'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
@@ -59,13 +59,13 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   }
 
   try {
-    const user = await authService.checkToken(token, audience)
+    const tokenUser = await authService.checkToken(token, audience)
 
-    if (!user) {
+    if (!tokenUser) {
       return next(new UnauthorizedAccessError('Invalid authentication token'))
     }
 
-    req.user = user
+    req.tokenUser = tokenUser
   } catch (err) {
     return next(new UnauthorizedAccessError('Invalid authentication token'))
   }
@@ -74,28 +74,50 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 }
 
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const reqWithUser = req as RequestWithUser
-  const { user } = reqWithUser
-  if (!user) {
-    throw new ProcessingError('No user property in the request')
+  const reqWithUser = <RequestWithUser>req
+  const { tokenUser } = reqWithUser
+  if (!tokenUser) {
+    return next(new ProcessingError('No tokenUser in request'))
   }
 
-  const dbUser = await authService.findUserById(user.id)
-
-  if (!dbUser) {
-    throw new UnauthorizedAccessError('Unknown user ID')
+  const authUser = await authService.findUserByEmail(tokenUser.email)
+  if (!authUser) {
+    return next(new UnauthorizedAccessError('Unknown user'))
   }
 
-  reqWithUser.dbUser = {
-    ...dbUser,
-    fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  reqWithUser.authUser = authUser
+  next()
+}
+
+export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
+  const { tokenUser } = <RequestWithUser>req
+  if (!tokenUser) {
+    return next(new ProcessingError('No tokenUser in request'))
+  }
+
+  if (!tokenUser.isSuperAdmin) {
+    next(new PermissionError('User needs to be super admin to perform this action'))
+    return
   }
 
   next()
 }
 
-const getParam = (req: Request, name: string, defaultValue?: any) =>
-  req.params[name] || req.body[name] || req.query[name]
+export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
+    const workspace = await workspaceService.getWorkspace()
+    // Allow to create the first user
+    if (workspace.users.length > 0) {
+      return next(new PermissionError('Botpress Pro is required to perform this action'))
+    }
+  }
+
+  return next()
+}
 
 class PermissionError extends AssertionError {
   constructor(message: string) {
@@ -103,38 +125,20 @@ class PermissionError extends AssertionError {
   }
 }
 
-export const needPermissions = (teamsService: AdminService) => (operation: string, resource: string) => async (
+export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.user && req.user.id
-
-  if (userId == undefined) {
-    next(new PermissionError('user is not authenticated'))
-    return
+  const email = req.tokenUser && req.tokenUser!.email
+  const user = workspaceService.findUser({ email })
+  if (!user) {
+    throw new Error(`User "${email}" does not exists`)
   }
 
-  const botId = getParam(req, 'botId')
-  let teamId = getParam(req, 'teamId')
+  const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
-  if (!botId && !teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
-  }
-
-  if (!teamId) {
-    teamId = await teamsService.getBotTeam(botId!)
-  }
-
-  if (!teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
-  }
-
-  const rules = await teamsService.getUserPermissions(userId, teamId)
-
-  if (!checkRule(rules, operation, resource)) {
+  if (!role || !checkRule(role.rules, operation, resource)) {
     next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
     return
   }

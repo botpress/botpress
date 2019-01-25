@@ -17,6 +17,7 @@ import { TYPES } from './types'
 export class BotLoader {
   public mountBot: Function = this._mountBot
   public unmountBot: Function = this._unmountBot
+  private _botIds: string[] | undefined
 
   constructor(
     @inject(TYPES.Logger)
@@ -29,7 +30,9 @@ export class BotLoader {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.JobService) private jobService: JobService
-  ) {}
+  ) {
+    this._botIds = undefined
+  }
 
   @postConstruct()
   async init() {
@@ -37,12 +40,17 @@ export class BotLoader {
     this.unmountBot = await this.jobService.broadcast<void>(this._unmountBot.bind(this))
   }
 
+  public invalidateBotIds(): void {
+    this._botIds = undefined
+  }
+
   public async getAllBotIds(): Promise<string[]> {
-    return this.database
-      .knex('srv_bots')
-      .select('id')
-      .then<any[]>()
-      .map(x => x['id'] as string)
+    if (this._botIds) {
+      return this._botIds
+    }
+
+    const bots = await this.ghost.bots().directoryListing('/', '*bot.config.json')
+    return (this._botIds = _.map(bots, x => x.split('/')[0]))
   }
 
   public async getAllBots(): Promise<Map<string, BotConfig>> {

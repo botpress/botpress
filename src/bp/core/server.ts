@@ -21,9 +21,10 @@ import { ConverseRouter } from './routers/bots/converse'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
-import { AdminService } from './services/admin/service'
+import { AuthStrategies } from './services/auth-strategies'
 import AuthService from './services/auth/auth-service'
 import { InvalidLicenseKey } from './services/auth/errors'
+import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
@@ -31,6 +32,7 @@ import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
+import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
@@ -60,7 +62,6 @@ export default class HTTPServer {
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.AdminService) private adminService: AdminService,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
@@ -68,7 +69,10 @@ export default class HTTPServer {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
   ) {
     this.app = express()
 
@@ -79,11 +83,18 @@ export default class HTTPServer {
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
-    this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
+    this.authRouter = new AuthRouter(
+      this.logger,
+      this.authService,
+      this.configProvider,
+      this.workspaceService,
+      this.authStrategies
+    )
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
-      this.adminService,
+      this.workspaceService,
+      this.botService,
       licenseService,
       this.ghostService,
       this.botLoader
@@ -98,16 +109,16 @@ export default class HTTPServer {
       logsService,
       notificationService,
       authService,
-      adminService,
-      ghostService
+      ghostService,
+      workspaceService
     })
   }
 
   @postConstruct()
   async initialize() {
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService)
+    this.contentRouter = new ContentRouter(this.authService, this.cmsService, this.workspaceService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
