@@ -139,6 +139,6 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
   }
 
   private _cleanPath(modelPath: string): string {
-    return modelPath.replace(/\.bin|\.ftz$/i, '')
+    return modelPath.replace(/\.bin$/i, '')
   }
 }
