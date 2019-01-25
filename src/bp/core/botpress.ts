@@ -12,7 +12,6 @@ import path from 'path'
 import plur from 'plur'
 
 import { createForGlobalHooks } from './api'
-import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
@@ -62,7 +61,6 @@ export class Botpress {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -168,7 +166,7 @@ export class Botpress {
 
   async discoverBots(): Promise<void> {
     const workspaceBotsIds = await this.workspaceService.getBotRefs()
-    await Promise.map(workspaceBotsIds, botId => this.botLoader.mountBot(botId))
+    await Promise.map(workspaceBotsIds, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')

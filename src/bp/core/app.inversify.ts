@@ -3,7 +3,6 @@ import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
 
 import { BotpressAPIProvider } from './api'
-import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
@@ -83,11 +82,6 @@ container
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)
-  .inSingletonScope()
-
-container
-  .bind<BotLoader>(TYPES.BotLoader)
-  .to(BotLoader)
   .inSingletonScope()
 
 container
