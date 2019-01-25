@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Button, Col, Row, UncontrolledTooltip, Alert } from 'reactstrap'
+import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -99,19 +99,42 @@ class LicenseStatus extends React.Component {
     )
   }
 
+  renderProDisabled = () => {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+            <p>
+              To manage your server license, please enable the Professionnal Edition of Botpress by editing the file{' '}
+              <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
+              true
+            </p>
+          </Col>
+        </Row>
+      </Jumbotron>
+    )
+  }
+
   renderBody() {
+    if (this.props.licensing && !this.props.licensing.isPro) {
+      return this.renderProDisabled()
+    }
+
     return (
       <Fragment>
         <Row>
-          <Col sm="12" lg="5">
+          <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
             <hr />
             <h5>Edit key</h5>
-            <p>To set a license key, make sure you purchase a license key and assign it your current fingerprint.</p>
+            <p>
+              To set a license key, make sure you <a href="/admin/profile/account">purchase a license key</a> and assign
+              it your current fingerprint.
+            </p>
             {this.renderFingerprintStatus()}
             <EditLicense refresh={this.props.fetchLicensing} />
           </Col>
-          <Col sm="12" lg="7">
+          <Col sm="12" lg="5">
             <div className="license-infos">
               <strong className="license-infos__label">Friendly name:</strong>
               {this.license.label || 'N/A'}
