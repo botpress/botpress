@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -180,6 +181,7 @@ export class Botpress {
     }
   }
 
+  @WrapErrorsWith('Error initializing Ghost Service')
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync(['config', 'actions', 'content-types', 'hooks'])
