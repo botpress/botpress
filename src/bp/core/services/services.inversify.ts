@@ -46,7 +46,7 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<JobService>(TYPES.JobService)
     .to(CEJobService)
     .inSingletonScope()
-    .when(() => !process.CLUSTER_ENABLED)
+    .when(() => !process.IS_PRODUCTION)
 
   bind<AuthStrategies>(TYPES.AuthStrategies)
     .to(CEAuthStrategies)
