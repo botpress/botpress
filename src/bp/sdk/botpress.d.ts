@@ -260,6 +260,7 @@ declare module 'botpress/sdk' {
     export interface Intent {
       name: string
       confidence: number
+      context: string
       matches?: (intentPattern: string) => boolean
     }
 
