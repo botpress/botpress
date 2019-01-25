@@ -99,7 +99,7 @@ export default class HTTPServer {
       this.ghostService,
       this.botLoader
     )
-    this.shortlinksRouter = new ShortLinksRouter()
+    this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
