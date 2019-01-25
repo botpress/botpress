@@ -214,6 +214,7 @@ export default class ScopedEngine {
 
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
     let ret: any = { errored: true }
+    const t1 = Date.now()
     try {
       const text = incomingEvent.preview
       ret.language = await this.langDetector.identify(text)
@@ -224,6 +225,7 @@ export default class ScopedEngine {
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
+      ret.ms = Date.now() - t1
       return ret as sdk.IO.EventUnderstanding
     }
   }
