@@ -53,3 +53,5 @@ const getCircularReplacer = () => {
 }
 
 export const safeStringify = (obj: any, spaces?: number) => JSON.stringify(obj, getCircularReplacer(), spaces || 0)
+
+export const forceForwardSlashes = path => path.replace(/\\/g, '/')

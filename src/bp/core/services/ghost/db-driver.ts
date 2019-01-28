@@ -1,3 +1,4 @@
+import { forceForwardSlashes } from 'core/misc/utils'
 import { inject, injectable } from 'inversify'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -10,7 +11,7 @@ import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DBStorageDriver implements StorageDriver {
-  constructor(@inject(TYPES.Database) private database: Database) { }
+  constructor(@inject(TYPES.Database) private database: Database) {}
 
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
@@ -132,7 +133,7 @@ export default class DBStorageDriver implements StorageDriver {
       }
 
       return query.then().map((x: any) => {
-        return path.relative(folder, x.file_path)
+        return forceForwardSlashes(path.relative(folder, x.file_path))
       })
     } catch (e) {
       throw new VError(e, `[DB Storage] Error listing directory content for folder "${folder}"`)

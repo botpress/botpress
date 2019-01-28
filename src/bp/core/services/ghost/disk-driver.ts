@@ -1,3 +1,4 @@
+import { forceForwardSlashes } from 'core/misc/utils'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { inject, injectable } from 'inversify'
@@ -72,7 +73,8 @@ export default class DiskStorageDriver implements StorageDriver {
     }
 
     try {
-      return Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      return files.map(filePath => forceForwardSlashes(filePath))
     } catch (e) {
       return []
     }
