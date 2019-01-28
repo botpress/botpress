@@ -113,14 +113,12 @@ export class BotService {
   }
 
   private async _mountBot(botId: string) {
-    const bot = await this.getBotById(botId)
-
-    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
-    await this.cms.loadContentElementsForBot(bot.id)
-    await this.moduleLoader.loadModulesForBot(bot.id)
+    await this.ghostService.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
+    await this.cms.loadContentElementsForBot(botId)
+    await this.moduleLoader.loadModulesForBot(botId)
 
     const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotMount(api, bot.id))
+    await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
   }
 
   private async _unmountBot(botId: string) {
