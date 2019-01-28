@@ -41,15 +41,19 @@ export class AuthRouter implements CustomRouter {
     return sendSuccess(res, 'Login successful', { token })
   }
 
-  getAuthConfig = async () => {
+  getAuthStrategy = async () => {
     const config = await this.configProvider.getBotpressConfig()
     const strategy = _.get(config, 'pro.auth.strategy', 'basic')
     const authEndpoint = _.get(config, 'pro.auth.options.authEndpoint')
 
+    return { strategy, authEndpoint } as Partial<AuthConfig>
+  }
+
+  getAuthConfig = async () => {
     const usersList = await this.workspaceService.listUsers()
     const isFirstTimeUse = !usersList || !usersList.length
 
-    return { strategy, isFirstTimeUse, authEndpoint } as AuthConfig
+    return { isFirstTimeUse, ...(await this.getAuthStrategy()) } as AuthConfig
   }
 
   register = async (req, res) => {
@@ -110,9 +114,9 @@ export class AuthRouter implements CustomRouter {
   async setupRoutes() {
     const router = this.router
 
-    const authConfig = await this.getAuthConfig()
+    const authStrategy = await this.getAuthStrategy()
 
-    if (process.IS_PRO_ENABLED && authConfig.strategy !== 'basic') {
+    if (process.IS_PRO_ENABLED && authStrategy.strategy !== 'basic') {
       this.authStrategies.setup(router)
     } else {
       router.post('/login', this.asyncMiddleware(this.login))
