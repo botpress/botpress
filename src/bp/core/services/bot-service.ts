@@ -48,7 +48,11 @@ export class BotService {
   }
 
   async getBotById(botId: string): Promise<BotConfig> {
-    return await this.configProvider.getBotConfig(botId)
+    try {
+      return await this.configProvider.getBotConfig(botId)
+    } catch (err) {
+      throw new FatalError(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+    }
   }
 
   async getBots(): Promise<Map<string, BotConfig>> {
@@ -57,7 +61,7 @@ export class BotService {
 
     for (const botId of botIds) {
       try {
-        bots.set(botId, await this.configProvider.getBotConfig(botId))
+        bots.set(botId, await this.getBotById(botId))
       } catch (err) {
         this.logger.attachError(err).error(`Bot configuration file not found for bot "${botId}"`)
       }
@@ -108,26 +112,15 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  async findBots(botIds: string[]): Promise<string[]> {
-    const ghostBotIds = await this.getBotsIds()
-    const idsNotFound = botIds.filter(id => !ghostBotIds.includes(id))
-    idsNotFound.forEach(id => this.logger.warn(`Bot "${id}" not found.`))
-
-    return botIds.filter(id => ghostBotIds.includes(id))
-  }
-
   private async _mountBot(botId: string) {
-    try {
-      const bot = await this.getBotById(botId)
-      await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
-      await this.cms.loadContentElementsForBot(bot.id)
-      await this.moduleLoader.loadModulesForBot(bot.id)
+    const bot = await this.getBotById(botId)
 
-      const api = await createForGlobalHooks()
-      await this.hookService.executeHook(new Hooks.AfterBotMount(api, bot.id))
-    } catch (err) {
-      throw new FatalError(err, `Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
-    }
+    await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
+    await this.cms.loadContentElementsForBot(bot.id)
+    await this.moduleLoader.loadModulesForBot(bot.id)
+
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.AfterBotMount(api, bot.id))
   }
 
   private async _unmountBot(botId: string) {
