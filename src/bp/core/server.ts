@@ -11,7 +11,6 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import path from 'path'
 import portFinder from 'portfinder'
 
-import { BotLoader } from './bot-loader'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
@@ -69,7 +68,6 @@ export default class HTTPServer {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
@@ -96,8 +94,7 @@ export default class HTTPServer {
       this.workspaceService,
       this.botService,
       licenseService,
-      this.ghostService,
-      this.botLoader
+      this.ghostService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({

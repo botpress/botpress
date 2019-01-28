@@ -12,7 +12,6 @@ import path from 'path'
 import plur from 'plur'
 
 import { createForGlobalHooks } from './api'
-import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
@@ -62,7 +61,6 @@ export class Botpress {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -166,19 +164,17 @@ export class Botpress {
     }
   }
 
+  @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
-    const linkedBots = await this.workspaceService.getBotRefs()
-    const validBotIds = await this.botService.validateBotIds(linkedBots)
-    await Promise.map(validBotIds, botId => this.botLoader.mountBot(botId))
+    const botsRef = await this.workspaceService.getBotRefs()
+    const botsIds = await this.botService.getBotsIds()
 
-    const allBots = await this.botLoader.getAllBotIds()
-    const invalidBotIds = _.without(allBots, ...validBotIds)
-    if (invalidBotIds.length > 0) {
-      const errBots = invalidBotIds.join(', ')
-      this.logger.warn(
-        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${errBots}]`
-      )
-    }
+    const unlinkedBots = _.difference(botsIds, botsRef)
+    this.logger.warn(
+      `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinkedBots.join(', ')}]`
+    )
+
+    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')
