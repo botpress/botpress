@@ -97,9 +97,14 @@ export default class ScopedEngine {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     const models = await this.storage.getModelsFromHash(modelHash)
-    const intentModels = models
+
+    const intentModels = _.chain(models)
       .filter(model => model.meta.type === MODEL_TYPES.INTENT)
+      .orderBy(model => model.meta.created_on, 'desc')
+      .uniqBy(model => model.meta.hash + ' ' + model.meta.type)
       .map(x => ({ name: x.meta.context, model: x.model }))
+      .value()
+
     const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
     const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
