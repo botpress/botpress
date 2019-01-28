@@ -167,15 +167,6 @@ export class Botpress {
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
     const botsRef = await this.workspaceService.getBotRefs()
-    const botsIds = await this.botService.getBotsIds()
-
-    const unlinked = _.difference(botsIds, botsRef)
-    if (unlinked.length) {
-      this.logger.warn(
-        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinked.join(', ')}]`
-      )
-    }
-
     await Promise.map(botsRef, botId => this.botService.mountBot(botId))
   }
 

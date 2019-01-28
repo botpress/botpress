@@ -7,7 +7,6 @@ import { Bot } from 'core/misc/interfaces'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
-import { FatalError } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -47,12 +46,31 @@ export class BotService {
     this.unmountBot = await this.jobService.broadcast<void>(this._unmountBot.bind(this))
   }
 
-  async getBotById(botId: string): Promise<BotConfig> {
-    try {
-      return await this.configProvider.getBotConfig(botId)
-    } catch (err) {
-      throw new FatalError(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+  async findBotById(botId: string): Promise<BotConfig | undefined> {
+    const bot = await this.configProvider.getBotConfig(botId)
+    !bot && this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+
+    return bot
+  }
+
+  async findBotsByIds(botsIds: string[]): Promise<BotConfig[]> {
+    const actualBotsIds = await this.getBotsIds()
+    const unlinked = _.difference(actualBotsIds, botsIds)
+    if (unlinked.length) {
+      this.logger.warn(
+        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinked.join(', ')}]`
+      )
     }
+
+    const linkedBots = _.without(actualBotsIds, ...unlinked)
+    const botConfigs: BotConfig[] = []
+
+    for (const botId of linkedBots) {
+      const config = await this.findBotById(botId)
+      config && botConfigs.push(config)
+    }
+
+    return botConfigs
   }
 
   async getBots(): Promise<Map<string, BotConfig>> {
@@ -61,7 +79,8 @@ export class BotService {
 
     for (const botId of botIds) {
       try {
-        bots.set(botId, await this.getBotById(botId))
+        const bot = await this.findBotById(botId)
+        bot && bots.set(botId, bot)
       } catch (err) {
         this.logger.attachError(err).error(`Bot configuration file not found for bot "${botId}"`)
       }
@@ -113,12 +132,17 @@ export class BotService {
   }
 
   private async _mountBot(botId: string) {
-    await this.ghostService.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
-    await this.cms.loadContentElementsForBot(botId)
-    await this.moduleLoader.loadModulesForBot(botId)
+    try {
+      await this.ghostService.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
 
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
+      await this.cms.loadContentElementsForBot(botId)
+      await this.moduleLoader.loadModulesForBot(botId)
+
+      const api = await createForGlobalHooks()
+      await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
+    } catch (err) {
+      this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
+    }
   }
 
   private async _unmountBot(botId: string) {
