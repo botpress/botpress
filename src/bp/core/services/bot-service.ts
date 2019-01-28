@@ -7,6 +7,7 @@ import { Bot } from 'core/misc/interfaces'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
+import { FatalError } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -50,7 +51,7 @@ export class BotService {
     return await this.configProvider.getBotConfig(botId)
   }
 
-  async getBotsConfigs(): Promise<Map<string, BotConfig>> {
+  async getBots(): Promise<Map<string, BotConfig>> {
     const botIds = await this.getBotsIds()
     const bots = new Map<string, BotConfig>()
 
@@ -116,12 +117,17 @@ export class BotService {
   }
 
   private async _mountBot(botId: string) {
-    await this.ghostService.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
-    await this.cms.loadContentElementsForBot(botId)
-    await this.moduleLoader.loadModulesForBot(botId)
+    try {
+      const bot = await this.getBotById(botId)
+      await this.ghostService.forBot(bot.id).sync(['actions', 'content-elements', 'flows', 'intents'])
+      await this.cms.loadContentElementsForBot(bot.id)
+      await this.moduleLoader.loadModulesForBot(bot.id)
 
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
+      const api = await createForGlobalHooks()
+      await this.hookService.executeHook(new Hooks.AfterBotMount(api, bot.id))
+    } catch (err) {
+      throw new FatalError(err, `Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+    }
   }
 
   private async _unmountBot(botId: string) {

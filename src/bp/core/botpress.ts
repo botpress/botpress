@@ -164,9 +164,17 @@ export class Botpress {
     }
   }
 
+  @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
-    const workspaceBotsIds = await this.workspaceService.getBotRefs()
-    await Promise.map(workspaceBotsIds, botId => this.botService.mountBot(botId))
+    const botsRef = await this.workspaceService.getBotRefs()
+    const botsIds = await this.botService.getBotsIds()
+
+    const unlinkedBots = _.difference(botsIds, botsRef)
+    this.logger.warn(
+      `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinkedBots.join(', ')}]`
+    )
+
+    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')

@@ -40,7 +40,7 @@ export class DialogJanitor extends Janitor {
 
   protected async runTask(): Promise<void> {
     // Bot config can change at runtime
-    const botsConfigs = await this.botService.getBotsConfigs()
+    const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
 
     await Promise.mapSeries(botsIds, async botId => {

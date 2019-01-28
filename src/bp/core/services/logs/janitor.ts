@@ -42,7 +42,7 @@ export class LogsJanitor extends Janitor {
     }
 
     const botpressConfig = await this.getBotpresConfig()
-    const botsConfigs = await this.botService.getBotsConfigs()
+    const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
     const globalLogsExpiryTime = ms(botpressConfig.logs.expiration)
 

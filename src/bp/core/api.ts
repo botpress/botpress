@@ -92,7 +92,7 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
     getAllBots(): Promise<Map<string, BotConfig>> {
-      return botService.getBotsConfigs()
+      return botService.getBots()
     }
   }
 }
