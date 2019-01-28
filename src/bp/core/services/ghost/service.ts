@@ -101,7 +101,7 @@ export class GhostService {
         files
       )
 
-      return fse.readFile(outFile)
+      return await fse.readFile(outFile)
     } finally {
       tmpDir.removeCallback()
     }

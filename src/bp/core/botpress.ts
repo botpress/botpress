@@ -236,6 +236,7 @@ export class Botpress {
     return this.configProvider.getBotpressConfig()
   }
 
+  @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
   private async createDatabase(): Promise<void> {
     await this.database.initialize(this.config!.database)
   }
