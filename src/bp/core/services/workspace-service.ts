@@ -19,19 +19,25 @@ export class WorkspaceService {
     @inject(TYPES.ConfigProvider) private configProvider: GhostConfigProvider
   ) {}
 
-  async getWorkspace(): Promise<Workspace> {
-    try {
-      const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
-      if (workspaces && workspaces.length) {
-        return workspaces[0]
-      }
-    } catch (error) {
-      if (error.code !== 'ENOENT') {
-        throw new Error(`Couldn't read file workspaces.json`)
-      }
-    }
+  async initialize(): Promise<void> {
+    await this.getWorkspace().catch(async () => {
+      await this.save(this._getDefaultWorkspace())
+      this.logger.info('Created workspace')
+    })
+  }
 
-    return this.getDefaultWorkspace()
+  async getWorkspace(): Promise<Workspace> {
+    return new Promise<Workspace>(async (resolve, reject) => {
+      try {
+        const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
+        if (workspaces && workspaces.length) {
+          resolve(workspaces[0])
+        }
+      } catch (err) {
+        reject(err)
+      }
+      reject(Error('No workspace found in workspaces.json'))
+    })
   }
 
   async save(workspace: Workspace) {
@@ -141,7 +147,7 @@ export class WorkspaceService {
     }
   }
 
-  getDefaultWorkspace() {
+  private _getDefaultWorkspace() {
     return {
       name: 'Default',
       userSeq: 0,
