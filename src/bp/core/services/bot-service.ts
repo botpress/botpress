@@ -11,6 +11,7 @@ import { FatalError } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
+import path from 'path'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
@@ -76,7 +77,7 @@ export class BotService {
     }
 
     const bots = await this.ghostService.bots().directoryListing('/', '*bot.config.json')
-    return (this._botIds = _.map(bots, x => x.split('/')[0]))
+    return (this._botIds = _.map(bots, x => path.dirname(x)))
   }
 
   async addBot(bot: Bot, botTemplate: BotTemplate): Promise<void> {
