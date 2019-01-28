@@ -36,12 +36,11 @@ export class BotsRouter implements CustomRouter {
 
         const botsRefs = await this.workspaceService.getBotRefs()
         const bots = await this.botService.findBotsByIds(botsRefs)
-
-        const workspaceName = this.workspaceService.getDefaultWorkspace().name
+        const workpace = await this.workspaceService.getWorkspace()
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
           bots: bots && bots.filter(Boolean),
-          workspace: workspaceName
+          workspace: workpace.name
         })
       })
     )

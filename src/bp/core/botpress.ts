@@ -180,6 +180,7 @@ export class Botpress {
     await this.loggerPersister.initialize(this.database, await this.loggerProvider('LogPersister'))
     this.loggerPersister.start()
 
+    await this.workspaceService.initialize()
     await this.cmsService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
