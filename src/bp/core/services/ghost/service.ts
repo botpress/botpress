@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
+import { forceForwardSlashes } from 'core/misc/utils'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -147,11 +148,11 @@ export class ScopedGhostService {
   }
 
   private normalizeFolderName(rootFolder: string) {
-    return path.join(this.baseDir, rootFolder)
+    return forceForwardSlashes(path.join(this.baseDir, rootFolder))
   }
 
   private normalizeFileName(rootFolder: string, file: string) {
-    return path.join(this.normalizeFolderName(rootFolder), file)
+    return forceForwardSlashes(path.join(this.normalizeFolderName(rootFolder), file))
   }
 
   objectCacheKey = str => `string::${str}`

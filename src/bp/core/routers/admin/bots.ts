@@ -35,7 +35,7 @@ export class BotsRouter implements CustomRouter {
         this.workspaceService.assertUserExists(req.tokenUser.email)
 
         const botsRefs = await this.workspaceService.getBotRefs()
-        const bots = await Promise.map(botsRefs, async botId => await this.botService.getBotById(botId))
+        const bots = await this.botService.findBotsByIds(botsRefs)
         const workpace = await this.workspaceService.getWorkspace()
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
