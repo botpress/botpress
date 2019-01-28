@@ -169,10 +169,12 @@ export class Botpress {
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
 
-    const unlinkedBots = _.difference(botsIds, botsRef)
-    this.logger.warn(
-      `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinkedBots.join(', ')}]`
-    )
+    const unlinked = _.difference(botsIds, botsRef)
+    if (unlinked.length) {
+      this.logger.warn(
+        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinked.join(', ')}]`
+      )
+    }
 
     await Promise.map(botsRef, botId => this.botService.mountBot(botId))
   }
