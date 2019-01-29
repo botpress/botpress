@@ -49,7 +49,7 @@ export default class Storage implements QnaStorage {
 
   async initialize() {
     this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId)
-    this.syncQnaToNlu()
+    await this.syncQnaToNlu()
   }
 
   async syncNlu() {
@@ -87,7 +87,7 @@ export default class Storage implements QnaStorage {
         utterances: normalizeQuestions(data.questions)
       }
 
-      axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
     } else {
       await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
