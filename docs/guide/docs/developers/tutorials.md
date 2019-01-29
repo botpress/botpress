@@ -64,6 +64,7 @@ window.botpressWebChat.init({
   textColorOnBackground: '#666666', // Color of the text on the background
   foregroundColor: '#0176ff', // Element background color (header, composer, button..)
   textColorOnForeground: '#ffffff', // Element text color (header, composer, button..)
+  showConversationsButton: true, // Whether or not to show the conversations button
   showUserName: false, // Whether or not to show the user's name
   showUserAvatar: false, // Whether or not to show the user's avatar
   enableTranscriptDownload: false // Whether or not to show the transcript download button
@@ -109,7 +110,7 @@ To enable Postgres, you can edit the configuration or pass 2 environment variabl
 Botpress allows you to build a powerful tool for autonomous communication with your users.
 However there may be cases where it is difficult or very resource-consuming to implement a conversation flow within the bot. At this point you may consider having a human take over the conversation and continue to communicate with your user.
 
-The [Human-in-the-Loop (hitl)](https://github.com/botpress/botpress/tree/master/modules/hitl) module allows you to do just that!
+The [Human-in-the-Loop (hitl)](https://github.com/botpress/botpress/tree/master/modules/.hitl) module allows you to do just that!
 
 Human-in-the-Loop is currently supported on `channel-web` and `channel-messenger`.
 

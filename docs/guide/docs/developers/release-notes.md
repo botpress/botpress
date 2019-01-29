@@ -13,8 +13,8 @@ There are 4 major differences between Botpress X (10.x) and Botpress Server (11.
 
 - **v11** is not an NPM library anymore – it is a standalone application. We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
 - **v11** now supports multiple bots natively – thus the naming of Botpress Server.
-- **v11** is a complete backend rewrite to TypeScript. We have made significant architectural changes [that are not backward-compatible](./migrate).
-- We introduced our first version of [Botpress Native NLU](./learn/nlu)
+- **v11** is a complete backend rewrite to TypeScript. We have made significant architectural changes [that are not backward-compatible](/docs/migrate).
+- We introduced our first version of [Botpress Native NLU](/docs/build/nlu)
 
 ---
 
@@ -22,6 +22,6 @@ With Botpress Server, we went back to the roots and completely rewrote the engin
 
 ### Other minor changes
 
-- Modules can now deploy [Actions](./build/code)
+- Modules can now deploy [Actions](/docs/build/code)
 - Modules can export static assets
-- [Hooks](./build/code) have been added to replace `bp.hear` in your `index.js` file
+- [Hooks](/docs/build/code) have been added to replace `bp.hear` in your `index.js` file
