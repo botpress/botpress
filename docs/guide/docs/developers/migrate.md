@@ -16,7 +16,7 @@ Botpress Workspace is specified by `workspaces.json` and is used to associate bo
 
 ### Users table removed
 
-**Users** should be listed by their email in `workspaces.json` under `users`. All user data is stored in the workspace. This includes: email, password, salt, last login, role, creation date.
+**Users** should be listed by their email in `workspaces.json` under `users`. All user data is stored in the workspace. This includes: email, hashed password and salt, last login, role, creation date.
 
 ### User ID -> User Email
 
@@ -32,13 +32,12 @@ User ID has been replaced by user email.
 
 ### Example
 
-Bellow is an example of a `workspaces.json`:
+Below is an example of a `workspaces.json`:
 
 ```json
 [
   {
     "name": "Default",
-    "userSeq": 0,
     "users": [
       {
         "email": "renaud@botpress.io",
