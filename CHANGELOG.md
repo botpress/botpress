@@ -1,9 +1,67 @@
+# [11.4.0](https://github.com/botpress/botpress/compare/v11.3.0...v11.4.0) (2019-01-29)
+
+
+### Bug Fixes
+
+* **channel-web:** fixed event params and removed unnecessary db call ([f0511ef](https://github.com/botpress/botpress/commit/f0511ef))
+* **channel-web:** fixed event params and removed unnecessary db call ([17671fc](https://github.com/botpress/botpress/commit/17671fc))
+* **core:** ghost syncs all dirs ([ab90df6](https://github.com/botpress/botpress/commit/ab90df6))
+* **core:** load non-required module config-keys from env-variables ([00d2c22](https://github.com/botpress/botpress/commit/00d2c22))
+* **core:** pkg-fs copy files with dot ([bad858b](https://github.com/botpress/botpress/commit/bad858b))
+* **core:** require modules and files.. fixes [#1258](https://github.com/botpress/botpress/issues/1258) fixes [#1252](https://github.com/botpress/botpress/issues/1252) ([1f23221](https://github.com/botpress/botpress/commit/1f23221))
+* **db:** mem leak caused by wrong data type for channel user attributes ([f64197d](https://github.com/botpress/botpress/commit/f64197d))
+* **db:** mem leak caused by wrong data type for channel user attributes ([b2c5017](https://github.com/botpress/botpress/commit/b2c5017))
+* **dialog-engine:** skip transitions that contain the active node ([bd5f449](https://github.com/botpress/botpress/commit/bd5f449))
+* **docs:** fix cross-links in docs (resolve [#1235](https://github.com/botpress/botpress/issues/1235)) ([787300d](https://github.com/botpress/botpress/commit/787300d))
+* **docs:** fix cross-links in docs (resolve [#1235](https://github.com/botpress/botpress/issues/1235)) ([234ea40](https://github.com/botpress/botpress/commit/234ea40))
+* **docs:** try fixing links in tutorial (ref [#1235](https://github.com/botpress/botpress/issues/1235)) ([db828f3](https://github.com/botpress/botpress/commit/db828f3))
+* **docs:** try fixing links in tutorial (ref [#1235](https://github.com/botpress/botpress/issues/1235)) ([5383372](https://github.com/botpress/botpress/commit/5383372))
+* **docs:** typo in README ([9bdd884](https://github.com/botpress/botpress/commit/9bdd884))
+* **module-builder:** copy files starting with dot ([e2e308b](https://github.com/botpress/botpress/commit/e2e308b))
+* **nlu:** better error on invalid JSON ([e9aa45e](https://github.com/botpress/botpress/commit/e9aa45e))
+* tag slot on click ([6927123](https://github.com/botpress/botpress/commit/6927123))
+* **nlu:** faster faster faster ([453355b](https://github.com/botpress/botpress/commit/453355b))
+* create bot using ghost to copy template files and bot config ([7135e83](https://github.com/botpress/botpress/commit/7135e83))
+* typo in bot template tsdoc ([8d81964](https://github.com/botpress/botpress/commit/8d81964))
+* **qna:** better error reporting ([9c86656](https://github.com/botpress/botpress/commit/9c86656))
+* various ghost issues ([ef90bf6](https://github.com/botpress/botpress/commit/ef90bf6))
+* **nlu:** fix train on intent delete ([d6fb4cd](https://github.com/botpress/botpress/commit/d6fb4cd))
+* **nlu:** logs on EPIPE error + instructions on fixing it ([2f01183](https://github.com/botpress/botpress/commit/2f01183))
+* **nlu:** logs on EPIPE error + instructions on fixing it (fix [#1171](https://github.com/botpress/botpress/issues/1171)) ([b24ae2e](https://github.com/botpress/botpress/commit/b24ae2e))
+* **nlu:** scrollbar styling ([176fa03](https://github.com/botpress/botpress/commit/176fa03))
+* **NLU:** concurrent trainings ([83b9545](https://github.com/botpress/botpress/commit/83b9545))
+* **NLU:** various fixes => see desc ([db04ed8](https://github.com/botpress/botpress/commit/db04ed8))
+* **qna:** fix qna train ([98a66fd](https://github.com/botpress/botpress/commit/98a66fd))
+* **qna:** textual input bad ux ([9c74674](https://github.com/botpress/botpress/commit/9c74674))
+* **qna:** textual input bad ux ([5b9659e](https://github.com/botpress/botpress/commit/5b9659e))
+* **studio:** default status bar color ([1632f1d](https://github.com/botpress/botpress/commit/1632f1d))
+
+
+### Features
+
+* **admin:** list collaborators by roles ([697a349](https://github.com/botpress/botpress/commit/697a349))
+* **converse:** add secured route ([f838fa6](https://github.com/botpress/botpress/commit/f838fa6))
+* **core:** add distributed job service ([2004e35](https://github.com/botpress/botpress/commit/2004e35))
+* **core:** benchmark CLI tool ([b68f39a](https://github.com/botpress/botpress/commit/b68f39a))
+* **core:** embedded contextual documentation ([abe4ad2](https://github.com/botpress/botpress/commit/abe4ad2))
+* **core:** ghost pull from cli ([74cb15c](https://github.com/botpress/botpress/commit/74cb15c))
+* **core:** migrate bots, users and roles to filesystem ([2aef7bb](https://github.com/botpress/botpress/commit/2aef7bb))
+* **flow:** added builtin transitions ([8fc3710](https://github.com/botpress/botpress/commit/8fc3710))
+* **flow:** added builtin transitions ([3ee982a](https://github.com/botpress/botpress/commit/3ee982a))
+* **web:** added config var for message length (resolve [#1298](https://github.com/botpress/botpress/issues/1298)) ([a442b43](https://github.com/botpress/botpress/commit/a442b43))
+* **web:** added config var for message length (resolve [#1298](https://github.com/botpress/botpress/issues/1298)) ([990d542](https://github.com/botpress/botpress/commit/990d542))
+* **web-channel:** add an option to hide the conversations button ([d58158a](https://github.com/botpress/botpress/commit/d58158a))
+* **web-channel:** add an option to hide the conversations button ([972b8a4](https://github.com/botpress/botpress/commit/972b8a4))
+
+
+
 # [11.3.0](https://github.com/botpress/botpress/compare/v11.2.0...v11.3.0) (2018-12-19)
 
 
 ### Bug Fixes
 
 * **dialog-engine:** return to calling node support ([d1f92c8](https://github.com/botpress/botpress/commit/d1f92c8))
+* **dialog-engine:** return to calling node support ([f816be7](https://github.com/botpress/botpress/commit/f816be7))
 * **nlu:** fix entity search ([8585f0a](https://github.com/botpress/botpress/commit/8585f0a))
 * **nlu:** tests ([a85076f](https://github.com/botpress/botpress/commit/a85076f))
 * **qna:** rename routes for restful ones ([b3856e4](https://github.com/botpress/botpress/commit/b3856e4))
