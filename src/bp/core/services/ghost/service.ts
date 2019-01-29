@@ -184,6 +184,9 @@ export class ScopedGhostService {
     await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
+  /** All tracked directories will be synced
+   * Directories are tracked by default, unless a `.noghost` file is present in the directory
+   */
   async sync() {
     if (!this.useDbDriver) {
       // We don't have to sync anything as we're just using the files from disk
