@@ -48,7 +48,7 @@ $status-bar-height: 24px;
   .list {
     flex-grow: 2;
     position: relative;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 7px;
     height: 100%;
 
