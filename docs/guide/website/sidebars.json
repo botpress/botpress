@@ -1,11 +1,6 @@
 {
   "docs": {
-    "Getting Started": [
-      "introduction",
-      "installation",
-      "troubleshoot",
-      "quickstart"
-    ],
+    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
     "Build": [
       "build/overview",
       "build/debug",
@@ -17,17 +12,15 @@
       "build/channels",
       "build/debugging"
     ],
-    "Deploy": [
-      "deploy/hosting"
-    ],
-    "Manage": [
-      "manage/versions"
-    ],
+    "Deploy": ["deploy/hosting"],
+    "Manage": ["manage/versions"],
     "Developers": [
-      "release-notes",
-      "migrate",
-      "create-module",
-      "tutorials"
+      "developers/release-notes",
+      "developers/migrate-from-10",
+      "developers/migrate",
+      "developers/create-module",
+      "developers/cluster",
+      "developers/tutorials"
     ]
   }
 }

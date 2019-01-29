@@ -1,5 +1,5 @@
 ---
-id: migrate
+id: migrate-from-10
 title: Migrating from 10.X
 ---
 
