@@ -1,8 +1,9 @@
-$status-bar-height: 20px;
+$header-bar-height: 50px;
+$status-bar-height: 24px;
 
 .workspace {
   width: 100%;
-  height: calc(100vh - #{$status-bar-height});
+  height: calc(100vh - #{$status-bar-height} - #{$header-bar-height});
   position: relative;
 }
 
@@ -47,7 +48,7 @@ $status-bar-height: 20px;
   .list {
     flex-grow: 2;
     position: relative;
-    overflow: scroll-y;
+    overflow-y: auto;
     padding: 7px;
     height: 100%;
 

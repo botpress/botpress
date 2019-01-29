@@ -10,13 +10,13 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { BotRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
-import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { FlowView } from 'core/services/dialog'
 import { FlowService } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -39,12 +39,12 @@ export class BotsRouter implements CustomRouter {
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private adminService: AdminService
   private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private machineId: string | undefined
   private botpressConfig: BotpressConfig | undefined
+  private workspaceService: WorkspaceService
 
   constructor(args: {
     actionService: ActionService
@@ -55,8 +55,8 @@ export class BotsRouter implements CustomRouter {
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    adminService: AdminService
     ghostService: GhostService
+    workspaceService: WorkspaceService
   }) {
     this.actionService = args.actionService
     this.botRepository = args.botRepository
@@ -66,10 +66,10 @@ export class BotsRouter implements CustomRouter {
     this.logsService = args.logsService
     this.notificationService = args.notificationService
     this.authService = args.authService
-    this.adminService = args.adminService
     this.ghostService = args.ghostService
+    this.workspaceService = args.workspaceService
 
-    this.needPermissions = needPermissions(this.adminService)
+    this.needPermissions = needPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
@@ -96,14 +96,14 @@ export class BotsRouter implements CustomRouter {
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
       gaId: gaId,
-      ghostEnabled: this.ghostService.isGhostEnabled,
+      ghostEnabled: this.ghostService.enabled,
       flowEditorDisabled: !process.IS_LICENSED,
       botpress: {
         name: 'Botpress Server',
         version: process.BOTPRESS_VERSION
       },
       isLicensed: process.IS_LICENSED,
-      edition: process.BOTPRESS_EDITION
+      isPro: process.IS_PRO_ENABLED
     }
   }
 
@@ -116,6 +116,15 @@ export class BotsRouter implements CustomRouter {
 
     this.router.get('/:app(studio|lite)/js/env.js', async (req, res) => {
       const { botId, app } = req.params
+      let botName
+
+      try {
+       const botDetails = await this.botRepository.getBotById(botId)
+       botName = botDetails.name
+      } catch (err) {
+        return res.sendStatus(404)
+      }
+
       const data = this.studioParams(botId)
       const liteEnv = `
               // Lite Views Specific
@@ -128,7 +137,7 @@ export class BotsRouter implements CustomRouter {
               window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
               window.BOTPRESS_CLOUD_SETTINGS = {"botId":"","endpoint":"","teamId":"","env":"dev"};
               window.IS_LICENSED = ${data.isLicensed};
-              window.EDITION = '${data.edition}';
+              window.IS_PRO_ENABLED = '${data.isPro}';
           `
 
       const totalEnv = `
@@ -139,6 +148,7 @@ export class BotsRouter implements CustomRouter {
               window.API_PATH = "/api/v1";
               window.BOT_API_PATH = "/api/v1/bots/${botId}";
               window.BOT_ID = "${botId}";
+              window.BOT_NAME = "${botName}";
               window.BP_BASE_PATH = "/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";

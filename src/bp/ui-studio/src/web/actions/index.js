@@ -137,6 +137,9 @@ export const fetchLicense = () => dispatch => {
 // UI
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
 export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
+export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
+export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
+export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
@@ -156,7 +159,7 @@ export const fetchBotInformation = () => dispatch => {
 
 export const botsReceived = createAction('BOTS/RECEIVED')
 export const fetchAllBots = () => dispatch => {
-  axios.get(`${window.API_PATH}/admin/teams/bots`).then(res => dispatch(botsReceived(res.data)))
+  axios.get(`${window.API_PATH}/admin/bots`).then(res => dispatch(botsReceived(res.data)))
 }
 
 // Modules

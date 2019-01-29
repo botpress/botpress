@@ -9,6 +9,7 @@
     "scripts": ["./core/**/*.js", "./*.js", "./pro/**/*.js", "./common/**/*.js", "./ml/**/*.js"],
     "assets": [
       "../../node_modules/vm2/lib/*.js",
+      "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
       "./ui-admin/**",
       "./ui-studio/**",
       "./core/config/schemas/**",

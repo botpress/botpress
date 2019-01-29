@@ -1,11 +1,10 @@
 import { Logger } from 'botpress/sdk'
 import chokidar from 'chokidar'
+import { ObjectCache } from 'common/object-cache'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 
 import { TYPES } from '../../types'
-
-import { ObjectCache } from '.'
 
 export namespace CacheInvalidators {
   enum ChangeEventAction {

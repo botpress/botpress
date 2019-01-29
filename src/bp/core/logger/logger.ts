@@ -1,3 +1,4 @@
+import { AxiosError, AxiosRequestConfig } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
@@ -72,13 +73,38 @@ export class PersistedConsoleLogger implements Logger {
       this.willPersistMessage = true
     }
 
-    if (level === LoggerLevel.Error && this.attachedError) {
-      message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
-    }
-
-    if (this.attachedError && this.displayLevel >= LogLevel.DEV && this.attachedError.stack) {
-      message += chalk.grey(os.EOL + '----- STACK -----')
-      message += chalk.grey(os.EOL + this.attachedError.stack)
+    if (this.attachedError) {
+      try {
+        const asAxios = this.attachedError as AxiosError
+        if (asAxios.response && asAxios.config) {
+          message += os.EOL + `HTTP (${asAxios.config.method}) URL ${asAxios.config.url}`
+          if (asAxios.config.params && Object.keys(asAxios.config.params).length > 0) {
+            message += os.EOL + `Params (${JSON.stringify(asAxios.config.params)})`
+          }
+          if (asAxios.response && asAxios.response.data) {
+            let errMsg = ''
+            if (typeof asAxios.response.data === 'string') {
+              errMsg = asAxios.response.data
+            } else if (typeof asAxios.response.data === 'object') {
+              errMsg =
+                _.get(asAxios.response.data, 'error.message') ||
+                _.get(asAxios.response.data, 'error') ||
+                _.get(asAxios.response.data, 'message') ||
+                _.get(asAxios.response.data, 'reason')
+            }
+            if (typeof errMsg === 'string' && errMsg.length) {
+              errMsg = errMsg.trim()
+              if (errMsg.length >= 100) {
+                errMsg = errMsg.substr(0, 100) + ' (...)'
+              }
+              message += os.EOL + `Received "${errMsg}"`
+            }
+          }
+          message += os.EOL + this.attachedError.message
+        } else {
+          message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
+        }
+      } catch (err) {}
     }
 
     const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
@@ -87,7 +113,12 @@ export class PersistedConsoleLogger implements Logger {
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
-    const indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
+    let indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
+
+    if (this.attachedError && this.displayLevel >= LogLevel.DEV && this.attachedError.stack) {
+      indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
+      indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
+    }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
       console.log(

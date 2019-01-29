@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup, Alert } from 'reactstrap'
 import api from '../../api'
-import { fetchProfile } from '../../modules/user'
+import { fetchProfile } from '../../reducers/user'
 
 class ProfileUpdate extends Component {
   state = { isInit: false, forceClose: false, firstName: '', lastName: '', isDirty: false }

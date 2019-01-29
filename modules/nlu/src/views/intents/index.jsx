@@ -15,7 +15,7 @@ export default class IntentsComponent extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
-    this.maybeSyncModel()
+    this.syncModel()
   }
 
   // Deprecated, will be fixed when we fix the whole NLU UI
@@ -25,20 +25,9 @@ export default class IntentsComponent extends React.Component {
     }
   }
 
-  maybeSyncModel = _.throttle(() => {
-    this.props.bp.axios.get('/mod/nlu/sync/check').then(res => {
-      if (res.data) {
-        this.props.onModuleEvent({ type: 'nlu', name: 'train', working: true, message: 'Training model' })
-        this.syncModel().then(() => {
-          this.props.onModuleEvent({ type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' })
-        })
-      }
-    })
-  }, 1000)
-
-  syncModel = async () => {
-    await this.props.bp.axios.post('/mod/nlu/sync')
-  }
+  syncModel = _.debounce(() => {
+    this.props.bp.axios.post('/mod/nlu/sync')
+  }, 1000, { leading: true })
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
@@ -104,10 +93,14 @@ export default class IntentsComponent extends React.Component {
     })
   }
 
-  deleteIntent = intent => {
+  deleteIntent = (intent, event) => {
+    event.stopPropagation()
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
-      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(this.fetchIntents)
+      return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(() => {
+        this.syncModel()
+        this.fetchIntents()
+      })
     }
   }
 
@@ -126,16 +119,14 @@ export default class IntentsComponent extends React.Component {
               {el.name}
               &nbsp;(
               {_.get(el, 'utterances.length', 0)})
-              <Glyphicon glyph="trash" className={style.deleteEntity} onClick={() => this.deleteIntent(el.name)} />
+              <a onClick={this.deleteIntent.bind(this, el.name)} >
+                <Glyphicon glyph="trash" className={style.deleteEntity} />
+              </a>
             </ListGroupItem>
           ))}
         </ListGroup>
       </div>
     )
-  }
-
-  onUtterancesChange = () => {
-    this.maybeSyncModel()
   }
 
   render() {
@@ -169,7 +160,7 @@ export default class IntentsComponent extends React.Component {
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}
-                onUtterancesChange={this.onUtterancesChange}
+                onUtterancesChange={this.syncModel}
               />
             </div>
           </div>

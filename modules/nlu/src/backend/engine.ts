@@ -1,7 +1,6 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import fs from 'fs'
 import { flatMap } from 'lodash'
 import _ from 'lodash'
 
@@ -10,16 +9,18 @@ import { Config } from '../config'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { extractListEntities, extractPatternEntities } from './pipelines/entities/pattern_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
-import { createIntentMatcher } from './pipelines/intents/matcher'
+import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier, Prediction, SlotExtractor } from './typings'
+import { EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
 export default class ScopedEngine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
+
+  private _currentModelHash: string
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -32,6 +33,7 @@ export default class ScopedEngine {
     timeout: 5000,
     max_tries: 3
   }
+  private _isSyncing: boolean
 
   constructor(
     private logger: sdk.Logger,
@@ -40,8 +42,8 @@ export default class ScopedEngine {
     private readonly toolkit: typeof sdk.MLToolkit
   ) {
     this.storage = new Storage(config, this.botId)
-    this.intentClassifier = new FastTextClassifier(this.logger)
-    this.langDetector = new FastTextLanguageId(this.logger)
+    this.intentClassifier = new FastTextClassifier(toolkit, this.logger)
+    this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
   }
@@ -53,30 +55,30 @@ export default class ScopedEngine {
       this.confidenceTreshold = 0.7
     }
 
-    if (await this.checkSyncNeeded()) {
-      await this.sync()
-    }
+    this.sync() // This is a voluntary floating promise. We don't want to block server loading
   }
 
   async sync(): Promise<void> {
-    const intents = await this.storage.getIntents()
-    const modelHash = this._getIntentsHash(intents)
-
-    // this is only good for intents model at the moment. soon we'll store crf, skipgram an kmeans model necessary for crf extractor
-    if (await this.storage.modelExists(modelHash)) {
-      await this._loadModel(modelHash)
-    } else {
-      await this._trainModel(intents, modelHash)
-    }
-
-    // TODO try to load model if saved(we don't save at the moment)
     try {
-      const trainingSet = flatMap(intents, intent => {
-        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
-      })
-      await this.slotExtractor.train(trainingSet)
-    } catch (err) {
-      this.logger.error('Error training slot tagger', err)
+      this._isSyncing = true
+      const intents = await this.storage.getIntents()
+      const modelHash = this._getModelHash(intents)
+
+      if (await this.storage.modelExists(modelHash)) {
+        try {
+          await this._loadModels(intents, modelHash)
+        } catch (e) {
+          this.logger.attachError(e).warn('Cannot load models from storage')
+          await this._trainModels(intents, modelHash)
+        }
+      } else {
+        this.logger.debug('Models need to be retrained')
+        await this._trainModels(intents, modelHash)
+      }
+
+      this._currentModelHash = modelHash
+    } finally {
+      this._isSyncing = false
     }
   }
 
@@ -86,42 +88,107 @@ export default class ScopedEngine {
 
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
+    const modelHash = this._getModelHash(intents)
 
-    if (intents.length) {
-      const intentsHash = this._getIntentsHash(intents)
-      return this.intentClassifier.currentModelId !== intentsHash
+    return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
+  }
+
+  private async _loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
+    this.logger.debug(`Restoring models '${modelHash}' from storage`)
+
+    const models = await this.storage.getModelsFromHash(modelHash)
+
+    const intentModels = _.chain(models)
+      .filter(model => model.meta.type === MODEL_TYPES.INTENT)
+      .orderBy(model => model.meta.created_on, 'desc')
+      .uniqBy(model => model.meta.hash + ' ' + model.meta.type)
+      .map(x => ({ name: x.meta.context, model: x.model }))
+      .value()
+
+    const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
+    const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
+
+    if (!intentModels || !intentModels.length || !skipgramModel || !crfModel) {
+      throw new Error(`No such model. Hash = "${modelHash}"`)
     }
 
-    return false
+    await this.intentClassifier.load(intentModels)
+
+    const trainingSet = flatMap(intents, intent => {
+      return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+    })
+
+    await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
+
+    this.logger.debug(`Done restoring models '${modelHash}' from storage`)
   }
 
-  private async _loadModel(modelHash: string) {
-    this.logger.debug(`Restoring intents model '${modelHash}' from storage`)
-    const modelBuffer = await this.storage.getModelAsBuffer(modelHash)
-    this.intentClassifier.loadModel(modelBuffer, modelHash)
+  private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
+    return {
+      meta: {
+        context,
+        created_on: Date.now(),
+        hash,
+        type
+      },
+      model
+    }
   }
 
-  private async _trainModel(intents: any[], modelHash: string) {
+  private async _trainIntentClassifier(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    this.logger.debug('Training intent classifier')
+
     try {
-      this.logger.debug('The intents model needs to be updated, training model ...')
-      const intentModelPath = await this.intentClassifier.train(intents, modelHash)
-      const intentModelBuffer = fs.readFileSync(intentModelPath)
-      const intentModelName = `${Date.now()}__${modelHash}.bin`
-      await this.storage.persistModel(intentModelBuffer, intentModelName)
-      this.logger.debug('Intents done training')
+      const intentBuff = await this.intentClassifier.train(intentDefs)
+      this.logger.debug('Done training intent classifier')
+      return intentBuff.map(x => this._makeModel(x.name, modelHash, x.model, MODEL_TYPES.INTENT))
     } catch (err) {
-      return this.logger.attachError(err).error('Error training intents')
+      this.logger.attachError(err).error('Error training intents')
+      throw Error('Unable to train model')
     }
   }
 
-  private _getIntentsHash(intents) {
+  private async _trainSlotTagger(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    this.logger.debug('Training slot tagger')
+
+    try {
+      const trainingSet = flatMap(intentDefs, intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      })
+      const { language, crf } = await this.slotExtractor.train(trainingSet)
+      this.logger.debug('Done training slot tagger')
+
+      if (language && crf) {
+        return [
+          this._makeModel('global', modelHash, language, MODEL_TYPES.SLOT_LANG),
+          this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)
+        ]
+      } else return []
+    } catch (err) {
+      this.logger.attachError(err).error('Error training slot tagger')
+      throw Error('Unable to train model')
+    }
+  }
+
+  private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+    try {
+      const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
+      const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
+
+      await this.storage.persistModels([...slotTaggerModels, ...intentModels])
+    } catch (err) {
+      this.logger.attachError(err)
+    }
+  }
+
+  private _getModelHash(intents: sdk.NLU.IntentDefinition[]) {
     return crypto
       .createHash('md5')
       .update(JSON.stringify(intents))
       .digest('hex')
   }
 
-  private async _extractEntities(text, lang): Promise<sdk.NLU.Entity[]> {
+  private async _extractEntities(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
@@ -130,60 +197,41 @@ export default class ScopedEngine {
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
 
+  private async _extractIntents(text: string): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent }> {
+    const intents = await this.intentClassifier.predict(text)
+    const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
+    intent.matches = createIntentMatcher(intent.name)
+
+    return {
+      intents,
+      intent
+    }
+  }
+
+  private async _extractSlots(
+    text: string,
+    intent: sdk.NLU.Intent,
+    entities: sdk.NLU.Entity[]
+  ): Promise<sdk.NLU.SlotsCollection> {
+    const intentDef = await this.storage.getIntent(intent.name)
+    return await this.slotExtractor.extract(text, intentDef, entities)
+  }
+
   private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
-    const ret: any = { errored: true }
+    let ret: any = { errored: true }
+    const t1 = Date.now()
     try {
       const text = incomingEvent.preview
       ret.language = await this.langDetector.identify(text)
-      ret.intents = await this.intentClassifier.predict(text)
-      const intent = findMostConfidentPredictionMeanStd(ret.intents, this.confidenceTreshold)
-      ret.intent = { ...intent, matches: createIntentMatcher(intent.name) }
+      ret = { ...ret, ...(await this._extractIntents(text)) }
       ret.entities = await this._extractEntities(text, ret.language)
-
-      const intentDef = await this.storage.getIntent(intent.name)
-      ret.slots = await this.slotExtractor.extract(text, intentDef, ret.entities)
+      ret.slots = await this._extractSlots(text, ret.intent, ret.entities)
       ret.errored = false
-
     } catch (error) {
-      this.logger.warn(`Could not extract whole NLU data, ${error}`)
+      this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
+      ret.ms = Date.now() - t1
       return ret as sdk.IO.EventUnderstanding
     }
   }
-}
-
-export const NonePrediction: Prediction = {
-  confidence: 1.0,
-  name: 'none'
-}
-
-/**
- * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
- * @param intents
- * @param fixedThreshold
- * @param std number of standard deviation away. normally between 2 and 5
- */
-export function findMostConfidentPredictionMeanStd(
-  intents: Prediction[],
-  fixedThreshold: number,
-  std: number = 3
-): Prediction {
-  if (!intents.length) {
-    return NonePrediction
-  }
-
-  const best = intents.find(x => x.confidence >= fixedThreshold)
-
-  if (best) {
-    return best
-  }
-
-  const mean = _.meanBy<Prediction>(intents, 'confidence')
-  const stdErr =
-    Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length) /
-    Math.sqrt(intents.length)
-
-  const dominant = intents.find(x => x.confidence >= stdErr * std + mean)
-
-  return dominant || NonePrediction
 }

@@ -26,7 +26,8 @@ const webConfig = {
   resolve: {
     extensions: ['.js', '.jsx', '.css'],
     alias: {
-      '~': path.resolve(__dirname, './src/web')
+      '~': path.resolve(__dirname, './src/web'),
+      DOCS: path.resolve(__dirname, '../../../docs/guide/docs')
     }
   },
   optimization: {
@@ -87,12 +88,25 @@ const webConfig = {
       {
         from: path.resolve(__dirname, './src/web/external'),
         to: path.resolve(__dirname, './public/external')
+      },
+      {
+        from: path.resolve(__dirname, '../../../docs/guide/docs/assets'),
+        to: path.resolve(__dirname, './public/external/docs')
       }
     ]),
     new CleanWebpackPlugin(['public'])
   ],
+
   module: {
     rules: [
+      {
+        test: /\.md$/,
+        use: [
+          {
+            loader: 'raw-loader'
+          }
+        ]
+      },
       {
         test: /\.jsx?$/i,
         include: path.resolve(__dirname, 'src/web'),

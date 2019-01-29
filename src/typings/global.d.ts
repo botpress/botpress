@@ -21,11 +21,13 @@ declare namespace NodeJS {
     LOADED_MODULES: { [module: string]: string }
     pkg: any
     IS_LICENSED: boolean
+    IS_PRO_ENABLED: boolean
+    CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
-    BOTPRESS_EDITION: 'ce' | 'pro' | 'ee'
   }
 }
 
 declare var process: NodeJS.Process
 declare var global: NodeJS.Global
+declare type PRO_FEATURES = 'seats'

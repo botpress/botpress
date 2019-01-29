@@ -6,8 +6,9 @@ import Analytics from './analytics'
 import api from './api'
 import CustomAnalytics from './custom-analytics'
 import setup from './setup'
+import { AnalyticsByBot } from './typings'
 
-const scopedAnalytics: Map<string, Analytics> = new Map<string, Analytics>()
+const analyticsByBot: AnalyticsByBot = {}
 
 export type Extension = {
   analytics: {
@@ -29,20 +30,19 @@ const onServerStarted = async (bp: SDK) => {
   await setup(bp, interactionsToTrack)
 }
 
-const onServerReady = async (bp: SDK) => {}
+const onServerReady = async (bp: SDK) => {
+  await api(bp, analyticsByBot)
+}
 
 const onBotMount = async (bp: SDK, botId: string) => {
   const analytics = new Analytics(bp, botId)
-  scopedAnalytics.set(botId, analytics)
-
-  await api(bp, analytics)
+  analyticsByBot[botId] = analytics
   await analytics.start()
 }
 
 const onBotUnmount = async (bp: SDK, botId: string) => {
-  const analytics = scopedAnalytics.get(botId)
-  await analytics.stop()
-  scopedAnalytics.delete(botId)
+  await analyticsByBot[botId].stop()
+  delete analyticsByBot[botId]
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

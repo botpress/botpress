@@ -13,6 +13,14 @@
       "build/debugging"
     ],
     "Deploy": ["deploy/hosting"],
-    "Developers": ["release-notes", "migrate", "create-module", "tutorials"]
+    "Manage": ["manage/versions"],
+    "Developers": [
+      "developers/release-notes",
+      "developers/migrate-from-10",
+      "developers/migrate",
+      "developers/create-module",
+      "developers/cluster",
+      "developers/tutorials"
+    ]
   }
 }

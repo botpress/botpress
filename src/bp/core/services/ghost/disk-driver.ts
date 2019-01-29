@@ -1,10 +1,12 @@
+import { forceForwardSlashes } from 'core/misc/utils'
 import fse from 'fs-extra'
 import glob from 'glob'
-import { inject, injectable } from 'inversify'
+import { injectable } from 'inversify'
+import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { GhostFileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
@@ -19,6 +21,10 @@ export default class DiskStorageDriver implements StorageDriver {
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error upserting file "${filePath}"`)
     }
+  }
+
+  async createDir(dirname: string): Promise<any> {
+    return fse.ensureDir(dirname)
   }
 
   async readFile(filePath: string): Promise<Buffer> {
@@ -42,20 +48,38 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async directoryListing(folder: string, exclude?: string | string[]): Promise<string[]> {
+  async deleteDir(dirPath: string): Promise<void> {
+    try {
+      return fse.removeSync(this.resolvePath(dirPath))
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error deleting directory "${dirPath}"`)
+    }
+  }
+
+  async directoryListing(
+    folder: string,
+    exclude?: string | string[],
+    includeDotFiles: boolean = false
+  ): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
     } catch (e) {
+      // if directory doesn't exist we don't care
+      if (e.code === 'ENOENT') {
+        return []
+      }
+
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
-    const options = { cwd: this.resolvePath(folder) }
+    const options = { cwd: this.resolvePath(folder), dot: includeDotFiles }
     if (exclude) {
       options['ignore'] = exclude
     }
 
     try {
-      return Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      return files.map(filePath => forceForwardSlashes(filePath))
     } catch (e) {
       return []
     }
@@ -65,12 +89,33 @@ export default class DiskStorageDriver implements StorageDriver {
     throw new Error('Method not implemented.')
   }
 
-  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+  async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
     try {
       const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
       return JSON.parse(content.toString())
     } catch (err) {
       return []
     }
+  }
+
+  async discoverTrackableFolders(baseDir: string): Promise<string[]> {
+    try {
+      const allFiles = await this.directoryListing(baseDir, undefined, true)
+      const allDirectories = this._getBaseDirectories(allFiles)
+      const noghostFiles = allFiles.filter(x => path.basename(x).toLowerCase() === '.noghost')
+      const noghostDirectories = this._getBaseDirectories(noghostFiles)
+      return _.without(allDirectories, ...noghostDirectories)
+    } catch (err) {
+      return []
+    }
+  }
+
+  private _getBaseDirectories(files: string[]): string[] {
+    return _.chain(files)
+      .map(f => path.relative(process.PROJECT_LOCATION, f))
+      .map(f => path.dirname(f))
+      .map(f => f.split('/')[0])
+      .uniq()
+      .value()
   }
 }

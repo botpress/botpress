@@ -44,7 +44,7 @@ class ContentPickerWidget extends Component {
 
   render() {
     const { inputId, contentItem, placeholder } = this.props
-    const contentType = contentItem && contentItem.contentType
+    const contentType = (contentItem && contentItem.contentType) || this.props.contentType
     const schema = (contentItem && contentItem.schema) || { json: {}, ui: {} }
     const textContent = (contentItem && `${schema.title} | ${contentItem.previewText}`) || ''
 

@@ -22,25 +22,6 @@ class Header extends React.Component {
     this.props.fetchAllBots()
   }
 
-  renderLogoutButton() {
-    const url = this.props.user.avatar_url
-    const label = url ? <img src={url} /> : <i className="material-icons">account_circle</i>
-
-    return (
-      <NavDropdown className={style.account} noCaret title={label} id="account-button">
-        <MenuItem header>Signed in as</MenuItem>
-        <MenuItem>
-          👤&nbsp;
-          {this.props.user.username}
-        </MenuItem>
-        <MenuItem divider />
-        <MenuItem eventKey={1} onClick={logout}>
-          <b>Logout</b>
-        </MenuItem>
-      </NavDropdown>
-    )
-  }
-
   render() {
     if (this.props.viewMode >= 3) {
       return null
@@ -61,7 +42,6 @@ class Header extends React.Component {
             <PermissionsChecker user={this.props.user} res="bot.notifications" op="read">
               <NotificationHub />
             </PermissionsChecker>
-            {this.renderLogoutButton()}
           </Nav>
           <Nav pullRight className="bp-navbar-module-buttons" />
         </Navbar.Collapse>

@@ -75,10 +75,10 @@ export default class ConfigReader {
   }
 
   private async loadFromEnvVariables(moduleId: string) {
-    const options = await this.loadFromDefaultValues(moduleId)
+    const schema = await this.getModuleConfigSchema(moduleId)
     const config = {}
 
-    for (const option of _.keys(options)) {
+    for (const option of _.keys(schema.properties)) {
       const key = `BP_${moduleId}_${option}`.toUpperCase()
 
       if (key in process.env) {

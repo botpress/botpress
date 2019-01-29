@@ -1,37 +1,62 @@
 import { Request } from 'express'
 
+import { BotpressConfig } from '../config/botpress.config'
+
 export interface IDisposeOnExit {
   disposeOnExit(): void
 }
 
-export interface AuthUser {
-  id: number
-  username: string
+export interface IInitializeFromConfig {
+  initializeFromConfig(config: BotpressConfig): void
+}
+
+export interface Workspace {
+  name: string
+  userSeq: number
+  users: AuthUser[]
+  roles: AuthRole[]
+  defaultRole: string
+  adminRole: string
+  bots: string[]
+}
+
+export interface AuthConfig {
+  strategy: string
+  isFirstTimeUse: boolean
+  authEndpoint: string
+}
+
+export type BasicAuthUser = Partial<AuthUser> & {
+  email: string
   password: string
   salt: string
+}
+
+export type ExternalAuthUser = Partial<AuthUser> & {
+  email: string
+  provider: string
+}
+
+export interface CreatedUser {
+  user: AuthUser
+  password?: string
+}
+
+export interface AuthUser {
+  email: string
+  password?: string
+  salt?: string
+  role?: string
   firstname?: string
   lastname?: string
   fullName?: string
-  picture?: string
   company?: string
   last_ip?: string
-  email?: string
   location?: string
+  provider?: string
   last_logon?: Date
+  created_on?: Date
   password_expired?: boolean
-}
-
-export interface AuthTeam {
-  id: number
-  name: string
-  invite_code: string
-}
-
-export interface AuthTeamMembership {
-  id: number
-  user: number
-  team: number
-  role: string
 }
 
 export interface AuthRule {
@@ -39,33 +64,26 @@ export interface AuthRule {
   op: string
 }
 
-interface AuthRoleCommon {
-  id?: number
+export interface AuthRole {
+  id: string
   name: string
   description: string
-}
-
-export type AuthRole = AuthRoleCommon & {
   rules: Array<AuthRule>
 }
 
-export type AuthRoleDb = AuthRoleCommon & {
-  rules: string
-}
-
 export interface TokenUser {
-  id: number
+  email: string
+  isSuperAdmin: boolean
 }
 
 export type RequestWithUser = Request & {
-  user?: TokenUser
-  dbUser?: AuthUser
+  tokenUser?: TokenUser
+  authUser?: AuthUser
 }
 
 export interface Bot {
   id: string
   name: string
-  team: number
   description: string
   created_at: string
   updated_at: string

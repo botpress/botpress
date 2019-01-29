@@ -41,7 +41,7 @@ export const requireAtPaths = (module: string, locations: string[]) => {
 
   for (const loc of lookups) {
     try {
-      if (loc.endsWith('.js')) {
+      if (['.js', '.json'].includes(path.extname(loc))) {
         if (!fs.existsSync(loc)) {
           continue
         }
@@ -62,5 +62,9 @@ export const requireAtPaths = (module: string, locations: string[]) => {
     } catch (err) {}
   }
 
-  throw new Error(`Module "${module}" not found. Tried these locations: "${locations.join(', ')}"`)
+  try {
+    return require(module)
+  } catch (err) {
+    throw new Error(`Module "${module}" not found. Tried these locations: "${locations.join(', ')}"`)
+  }
 }

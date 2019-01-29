@@ -25,8 +25,6 @@ export interface Sequence {
 
 export type EngineByBot = { [botId: string]: Engine }
 
-export type Prediction = { name: string; confidence: number }
-
 export interface Engine {
   sync(): Promise<void>
   checkSyncNeeded(): Promise<boolean>
@@ -38,15 +36,40 @@ export interface EntityExtractor {
 }
 
 export interface SlotExtractor {
-  train(trainingSet: Sequence[]): Promise<void>
+  load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
+  train(trainingSet: Sequence[]): Promise<{ language: Buffer | undefined; crf: Buffer | undefined }>
   extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection>
 }
 
+export type IntentModel = { name: string; model: Buffer }
+
 export interface IntentClassifier {
-  predict(input: string): Promise<Prediction[]>
+  load(models: IntentModel[]): Promise<void>
+  train(intents: sdk.NLU.IntentDefinition[]): Promise<IntentModel[]>
+  predict(input: string): Promise<sdk.NLU.Intent[]>
 }
 
 export interface LanguageIdentifier {
   identify(input: string): Promise<string>
 }
 
+export const MODEL_TYPES = {
+  INTENT: <ModelType>'intent',
+  SLOT_LANG: <ModelType>'slot-language-model',
+  SLOT_CRF: <ModelType>'slot-crf'
+}
+
+export type ModelType = 'intent' | 'slot-language-model' | 'slot-crf'
+
+export interface ModelMeta {
+  fileName?: string
+  created_on: number // timestamp
+  hash: string
+  context: string
+  type: string
+}
+
+export interface Model {
+  meta: ModelMeta
+  model: Buffer
+}

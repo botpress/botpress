@@ -7,7 +7,6 @@ import _ from 'lodash'
 import Mustache from 'mustache'
 import nanoid from 'nanoid'
 import path from 'path'
-import plur from 'plur'
 import { VError } from 'verror'
 
 import { ConfigProvider } from '../config/config-loader'
@@ -17,6 +16,7 @@ import { IDisposeOnExit } from '../misc/interfaces'
 import { TYPES } from '../types'
 
 import { GhostService } from '.'
+import { JobService } from './job-service'
 
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -26,6 +26,9 @@ export const DefaultSearchParams: SearchParams = {
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
+  public deleteContentElements: Function = this._deleteContentElements
+  public createOrUpdateContentElement: Function = this._createOrUpdateContentElement
+
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
   private readonly elementsDir = 'content-elements'
@@ -41,7 +44,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension
+    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {}
 
   disposeOnExit() {
@@ -49,6 +53,11 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async initialize() {
+    this.createOrUpdateContentElement = await this.jobService.broadcast<string>(
+      this._createOrUpdateContentElement.bind(this)
+    )
+    this.deleteContentElements = await this.jobService.broadcast<void>(this._deleteContentElements.bind(this))
+
     await this.prepareDb()
     await this.loadContentTypesFromFiles()
   }
@@ -67,20 +76,6 @@ export class CMSService implements IDisposeOnExit {
     })
   }
 
-  async preloadContentForAllBots(botIds: string[]): Promise<void> {
-    const elementCount = await Promise.reduce(
-      botIds,
-      async (total, botId) => {
-        const elements = await this.loadContentElementsForBot(botId)
-        return total + elements.length
-      },
-      0
-    )
-    this.logger.info(
-      `Loaded ${elementCount} ${plur('element', elementCount)} from ${botIds.length} ${plur('bot', botIds.length)}`
-    )
-  }
-
   async loadContentElementsForBot(botId: string): Promise<any[]> {
     const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
     let contentElements: ContentElement[] = []
@@ -96,7 +91,12 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const elements = await Promise.map(contentElements, element => {
-      return this.memDb(this.contentTable).insert(this.transformItemApiToDb(botId, element))
+      return this.memDb(this.contentTable)
+        .insert(this.transformItemApiToDb(botId, element))
+        .catch(err => {
+          // ignore duplicate key errors
+          // TODO: Knex error handling
+        })
     })
 
     await this.recomputeElementsForBot(botId)
@@ -219,7 +219,7 @@ export class CMSService implements IDisposeOnExit {
       .then(row => (row && Number(row.count)) || 0)
   }
 
-  async deleteContentElements(botId: string, ids: string[]): Promise<void> {
+  private async _deleteContentElements(botId: string, ids: string[]): Promise<void> {
     return this.memDb(this.contentTable)
       .where({ botId })
       .whereIn('id', ids)
@@ -252,7 +252,7 @@ export class CMSService implements IDisposeOnExit {
       .get(0)
   }
 
-  async createOrUpdateContentElement(
+  private async _createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
     formData: string,

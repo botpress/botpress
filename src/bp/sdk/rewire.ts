@@ -12,7 +12,7 @@ if (!process.pkg) {
   nativeBindingsPath = syspath.resolve(nativeExFolder, platformFolder)
 }
 
-const nativeExtensions = ['node_sqlite3.node', 'fse.node', 'crfsuite.node']
+const nativeExtensions = ['node_sqlite3.node', 'fse.node', 'crfsuite.node', 'fasttext.node']
 
 function addToNodePath(path) {
   overwritePaths(getPaths().concat(path))

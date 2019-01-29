@@ -1,5 +1,4 @@
 import axios from 'axios'
-import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
@@ -50,14 +49,11 @@ export default class Storage implements QnaStorage {
 
   async initialize() {
     this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId)
-    this.syncQnaToNlu()
+    await this.syncQnaToNlu()
   }
 
   async syncNlu() {
-    const { data: isNeeded } = await axios.get('/mod/nlu/sync/check', this.axiosConfig)
-    if (isNeeded) {
-      await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
-    }
+    await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
   }
 
   // TODO Find better way to implement. When manually copying QNA, intents are not created.
@@ -67,9 +63,9 @@ export default class Storage implements QnaStorage {
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, this.axiosConfig)
 
     for (const question of allQuestions) {
-      const found = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
+      const matchedIntent = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
 
-      if (question.data.enabled && !found) {
+      if (question.data.enabled && !matchedIntent) {
         const intent = {
           entities: [],
           utterances: normalizeQuestions(question.data.questions)
@@ -91,7 +87,7 @@ export default class Storage implements QnaStorage {
         utterances: normalizeQuestions(data.questions)
       }
 
-      axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
     } else {
       await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
@@ -105,12 +101,13 @@ export default class Storage implements QnaStorage {
   }
 
   async insert(qna, statusCb) {
-    const ids = await Promise.each(_.isArray(qna) ? qna : [qna], async (data, i) => {
+    const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = getQuestionId(data)
 
       if (data.enabled) {
         const intent = {
           entities: [],
+          contexts: [data.category || 'global'],
           utterances: normalizeQuestions(data.questions)
         }
         await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
@@ -120,6 +117,7 @@ export default class Storage implements QnaStorage {
         .forBot(this.botId)
         .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
       statusCb && statusCb(i + 1)
+      return id
     })
 
     await this.syncNlu()

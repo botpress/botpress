@@ -1,4 +1,7 @@
+import { AuthUser } from 'core/misc/interfaces'
+
 export type DatabaseType = 'postgres' | 'sqlite'
+export type AuthStrategy = 'basic' | 'saml' | 'ldap'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -36,7 +39,7 @@ export interface DatabaseConfig {
   password?: string
   ssl?: boolean
   /**
-   * @default botpress_test
+   * @default botpress
    */
   database?: string
 }
@@ -107,22 +110,65 @@ export type BotpressConfig = {
     externalUrl?: string
   }
   database: DatabaseConfig
-  ghost: {
-    /**
-     * @default false
-     */
-    enabled: boolean | BotpressCondition
-  }
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
+  pro: {
+    /**
+     * When pro features are enabled, the license key must be provided
+     * @default false
+     */
+    enabled: boolean
+    /**
+     * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
+     * You can purchase a license on https://botpress.io
+     * For usage with Botpress Pro/Enterprise.
+     * @default paste your license key here
+     */
+    licenseKey: string
+
+    redis: {
+      /**
+       * Whether or not Redis is enabled.  You must enable Redis in order to use the Botpress in cluster mode.
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * The full URL of the Redis server.  Each node in the Botpress cluster must be able to connect to this Redis server.
+       * Format = [redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
+       * See http://www.iana.org/assignments/uri-schemes/prov/redis for more information
+       * @default redis://127.0.0.1:6379
+       */
+      url: string
+    }
+    auth: {
+      /**
+       * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
+       * @default basic
+       */
+      strategy: AuthStrategy
+      /**
+       * Defines custom options based on the chosen authentication strategy
+       */
+      options: AuthStrategySaml | AuthStrategyLdap | undefined
+      /**
+       * Maps the values returned by your provider to Botpress user parameters.
+       * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
+       */
+      fieldMapping: FieldMapping
+      /**
+       * When enabled, users are able to register new accounts by themselves. For example, if you use the SAML strategy and this is enabled,
+       * any user able to sign in using your SAML provider will create automatically an account on Botpress.
+       * @default false
+       */
+      allowSelfSignup: boolean
+    }
+  }
   /**
-   * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
-   * You can purchase a license on https://botpress.io
-   * For usage with Botpress Pro/Enterprise.
-   * @default paste your license key here
+   * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
+   * @example: [admin@botpress.io]
    */
-  licenseKey: string
+  superAdmins: string[]
   /**
    * When enabled, Botpress collects anonymous data about the bot's usage
    * @default true
@@ -138,7 +184,7 @@ export type BotpressConfig = {
 export interface DataRetentionConfig {
   /**
    * The janitor will check for expired fields at the set interval (second, minute, hour, day)
-   * @example 1m
+   * @default 10m
    */
   janitorInterval: string
   policies: RetentionPolicy
@@ -146,7 +192,54 @@ export interface DataRetentionConfig {
 
 /**
  * @example "profile.email": "30d"
+ * @default {}
  */
 export type RetentionPolicy = {
   [key: string]: string
 }
+
+export interface AuthStrategySaml {
+  /**
+   * This is the page of the external saml provider where users will input their username / password
+   */
+  authEndpoint: string
+  /**
+   * The callback url is called by the SAML provider with the payload. The path provided here is relative to ${externalUrl}/admin
+   * For example, if you use the default callback, it will be available at http://localhost:3000/admin/login-callback
+   * @default /login-callback
+   */
+  callbackUrl: string
+  issuer: string
+  certificate: string
+  /**
+   * Change if there is a significant time difference between this server and your identity provider
+   * @default 5000
+   */
+  acceptedClockSkewMs: number
+}
+
+export interface AuthStrategyLdap {
+  serverUrl: string
+  /**
+   * @example cn=read-only-admin,dc=example,dc=com
+   */
+  bindDn: string
+  bindCredentials: string
+  /**
+   * @example dc=example,dc=com
+   */
+  searchBase: string
+  /**
+   * @example (uid={{username}})
+   */
+  searchFilter: string
+  timeout: number
+  tlsEnabled: boolean
+  /**
+   * Path to certificates on the file system
+   * @example certificates: ["/path/to/ca/certificate.pem"]
+   */
+  certificates: string[]
+}
+
+export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }

@@ -52,6 +52,7 @@ export async function buildBackend(modulePath: string) {
 
   const files = glob.sync('src/**/*.+(ts|js|jsx|tsx)', {
     cwd: modulePath,
+    dot: true,
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
 
@@ -64,7 +65,8 @@ export async function buildBackend(modulePath: string) {
     if (extras && extras.copyFiles) {
       for (const instruction of extras.copyFiles) {
         const toCopy = glob.sync(instruction, {
-          cwd: modulePath
+          cwd: modulePath,
+          dot: true
         })
 
         for (const file of toCopy) {

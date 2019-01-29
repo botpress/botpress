@@ -11,7 +11,6 @@ const TYPES = {
   BotRepository: Symbol.for('BotRepository'),
   ProjectLocation: Symbol.for('ProjectLocation'),
   GhostService: Symbol.for('GhostService'),
-  IsProduction: Symbol.for('IsProduction'),
   CMSService: Symbol.for('CMSService'),
   InMemoryDatabase: Symbol.for('InMemoryDatabase'),
   FlowService: Symbol.for('FlowService'),
@@ -63,7 +62,11 @@ const TYPES = {
   StateManager: Symbol.for('StateManager'),
   ConverseService: Symbol.for('ConverseService'),
   DataRetentionJanitor: Symbol.for('DataRetentionJanitor'),
-  DataRetentionService: Symbol.for('DataRetentionService')
+  DataRetentionService: Symbol.for('DataRetentionService'),
+  JobService: Symbol.for('JobService'),
+  WorkspaceService: Symbol.for('WorkspaceService'),
+  BotService: Symbol.for('BotService'),
+  AuthStrategies: Symbol.for('AuthStrategies')
 }
 
 export { TYPES }

@@ -4,16 +4,14 @@ import { IOEvent } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import moment from 'moment'
-import ms from 'ms'
 
-import { BotLoader } from '../../bot-loader'
 import { BotpressConfig } from '../../config/botpress.config'
 import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../types'
+import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
-import { DialogEngine } from './engine'
+import { DialogEngine } from './dialog-engine'
 import { SessionIdFactory } from './session/id-factory'
 
 @injectable()
@@ -24,7 +22,7 @@ export class DialogJanitor extends Janitor {
     protected logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
+    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository
   ) {
     super(logger)
@@ -42,7 +40,7 @@ export class DialogJanitor extends Janitor {
 
   protected async runTask(): Promise<void> {
     // Bot config can change at runtime
-    const botsConfigs = await this.botLoader.getAllBots()
+    const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
 
     await Promise.mapSeries(botsIds, async botId => {

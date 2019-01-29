@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
-import { DialogEngine } from './engine'
+import { DialogEngine } from './dialog-engine'
 
 @injectable()
 export class DecisionEngine {
@@ -23,10 +23,10 @@ export class DecisionEngine {
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
 
-    if (event.suggestedReplies && !isInMiddleOfFlow) {
+    if (event.suggestions && !isInMiddleOfFlow) {
       const bestReply = this._findBestReply(event)
       if (bestReply) {
-        await this._sendSuggestedReply(bestReply, sessionId, event)
+        await this._sendSuggestion(bestReply, sessionId, event)
       }
     }
 
@@ -36,12 +36,12 @@ export class DecisionEngine {
     }
   }
 
-  protected _findBestReply(event: IO.IncomingEvent): IO.SuggestedReply | undefined {
-    const replies = _.sortBy(event.suggestedReplies, reply => -reply.confidence)
+  protected _findBestReply(event: IO.IncomingEvent): IO.Suggestion | undefined {
+    const replies = _.sortBy(event.suggestions, reply => -reply.confidence)
     const lastMsg = _.last(event.state.session.lastMessages)
 
     // If the user asks the same question, chances are he didnt get the response he wanted.
-    // So we cycle through the other suggested replies and return the next best reply with a high enough confidence.
+    // So we cycle through the other suggestions and return the next best reply with a high enough confidence.
     for (let i = 0; i < replies.length; i++) {
       const bestReplyIntent = replies[i].intent
       const lastMessageIntent = lastMsg && lastMsg.intent
@@ -68,7 +68,7 @@ export class DecisionEngine {
     return reply && reply.confidence > this.MIN_CONFIDENCE
   }
 
-  private async _sendSuggestedReply(reply, sessionId, event) {
+  private async _sendSuggestion(reply, sessionId, event) {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
     if (payloads) {
       await this.eventEngine.replyToEvent(event, payloads)

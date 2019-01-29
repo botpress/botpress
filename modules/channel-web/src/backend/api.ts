@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -59,7 +59,7 @@ export default async (bp: typeof sdk, db: Database) => {
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function(req, file, cb) {
+      key: function (req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -187,7 +187,9 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   async function sendNewMessage(botId: string, userId: string, conversationId, payload) {
-    if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
+    const config = await bp.config.getModuleConfigForBot('channel-web', botId)
+
+    if (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
@@ -211,8 +213,6 @@ export default async (bp: typeof sdk, db: Database) => {
       persistedPayload.data.formId = payload.formId
     }
 
-    const { result: user } = await bp.users.getOrCreateUser('web', userId)
-
     const event = bp.IO.Event({
       botId,
       channel: 'web',
@@ -232,17 +232,23 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/events/:userId',
     asyncApi(async (req, res) => {
-      const { type = undefined, payload = undefined } = req.body || {}
-      const { userId = undefined } = req.params || {}
-      const { result: user } = await bp.users.getOrCreateUser('web', userId)
-      bp.events.sendEvent({
+      const { payload = undefined } = req.body || {}
+      const { botId = undefined, userId = undefined } = req.params || {}
+
+      await bp.users.getOrCreateUser('web', userId)
+      const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+
+      const event = bp.IO.Event({
+        botId,
         channel: 'web',
-        type,
-        user,
-        text: payload.text,
-        raw: _.pick(payload, ['text', 'type', 'data']),
-        ...payload.data
+        direction: 'incoming',
+        target: userId,
+        threadId: conversationId,
+        type: payload.type,
+        payload
       })
+
+      bp.events.sendEvent(event)
       res.status(200).send({})
     })
   )
@@ -251,7 +257,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/:userId/:conversationId/reset',
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
-      const { result: user } = await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId)
 
       const payload = {
         text: `Reset the conversation`,

@@ -15,6 +15,7 @@ export const keyMap = {
   'flow-add-node': `${navigationKey}+a`,
   'flow-save': `${navigationKey}+s`,
   'emulator-focus': `e`,
+  'docs-toggle': `${navigationKey}+h`,
   cancel: 'esc'
 }
 
@@ -25,6 +26,6 @@ export const isInputFocused = () => {
 
   const tag = document.activeElement.tagName
   const isEditable = document.activeElement.isContentEditable || document.activeElement.contenteditable === 'true'
-  const inputTypes = ['textarea', 'input', 'button']
+  const inputTypes = ['textarea', 'input']
   return (tag && inputTypes.includes(tag.toLowerCase())) || isEditable
 }

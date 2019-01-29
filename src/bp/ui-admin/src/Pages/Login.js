@@ -1,24 +1,49 @@
 import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
-
+import api from '../api'
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
 export default class Login extends Component {
-  state = { username: '', password: '', passwordExpired: false, error: null }
+  state = {
+    isLoading: true,
+    isFirstTimeUse: false,
+    email: '',
+    authStrategy: 'basic',
+    authEndpoint: null,
+    password: '',
+    passwordExpired: false,
+    error: null
+  }
 
-  login = async ({ username, password, showError = true } = {}) => {
+  loadAuthConfig = async () => {
+    const { data } = await api.getAnonymous().get('/auth/config')
+
+    this.setState({
+      isLoading: false,
+      isFirstTimeUse: data.payload.isFirstTimeUse,
+      authStrategy: data.payload.strategy,
+      authEndpoint: data.payload.authEndpoint
+    })
+  }
+
+  componentDidMount() {
+    this.loadAuthConfig()
+    this.checkErrorMessages()
+  }
+
+  login = async ({ email, password, showError = true } = {}) => {
     this.setState({ error: null })
 
     try {
       await this.props.auth.login({
-        username: username || this.state.username,
+        email: email || this.state.email,
         password: password || this.state.password
       })
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
-        if (!this.state.username || !this.state.password) {
-          this.setState({ username, password })
+        if (!this.state.email || !this.state.password) {
+          this.setState({ email, password })
         }
 
         this.setState({ passwordExpired: true })
@@ -28,52 +53,48 @@ export default class Login extends Component {
     }
   }
 
-  componentDidMount() {
-    // When we first load the page, we try to connect with default credentials automatically
-    // We don't display an error if the default credentials fail
-    this.login({ username: 'admin', password: '', showError: false })
-  }
+  checkErrorMessages = () => {
+    const urlParams = new window.URLSearchParams(window.location.search)
+    const errorMessage = urlParams.get('error')
 
-  onInputChange = name => event => {
-    this.setState({ [name]: event.target.value })
-  }
-
-  onInputKeyPress = e => {
-    if (e.key === 'Enter') {
-      this.login()
+    if (errorMessage && errorMessage.length) {
+      this.setState({ error: errorMessage })
     }
+  }
+
+  handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
+  handleInputKeyPress = e => e.key === 'Enter' && this.login()
+
+  redirectToExternalAuthProvider = () => {
+    window.location = this.state.authEndpoint
   }
 
   renderForm = () => {
-    if (this.state.passwordExpired) {
-      return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
-    }
-
     return (
       <Fragment>
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <FormGroup>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">E-mail</label>
           <Input
-            value={this.state.username}
-            onChange={this.onInputChange('username')}
+            value={this.state.email}
+            onChange={this.handleInputChange}
             type="text"
-            name="username"
-            id="username"
-            onKeyPress={this.onInputKeyPress}
+            name="email"
+            id="email"
+            onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
         <FormGroup>
           <label htmlFor="password">Password</label>
           <Input
             value={this.state.password}
-            onChange={this.onInputChange('password')}
+            onChange={this.handleInputChange}
             type="password"
             name="password"
             id="password"
-            onKeyPress={this.onInputKeyPress}
+            onKeyPress={this.handleInputKeyPress}
           />
         </FormGroup>
         <p>
@@ -83,17 +104,34 @@ export default class Login extends Component {
     )
   }
 
-  render() {
-    const isAuthenticated = this.props.auth.isAuthenticated()
+  renderExternal() {
+    return (
+      <Fragment>
+        <CardTitle>Botpress Admin Panel</CardTitle>
+        <CardText>Login</CardText>
+        {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+        <p>
+          <Button onClick={this.redirectToExternalAuthProvider}>Sign in with SSO</Button>
+        </p>
+      </Fragment>
+    )
+  }
 
-    if (isAuthenticated) {
-      return (
-        <Redirect
-          to={{
-            pathname: '/'
-          }}
-        />
-      )
+  render() {
+    if (this.props.auth.isAuthenticated()) {
+      return <Redirect to="/" />
+    }
+
+    if (this.state.isFirstTimeUse && this.state.authStrategy === 'basic') {
+      return <Redirect to="/register" />
+    }
+
+    if (this.state.passwordExpired) {
+      return <Redirect to={{ pathname: '/ChangePassword', state: this.state }} />
+    }
+
+    if (this.state.isLoading) {
+      return null
     }
 
     return (
@@ -102,7 +140,9 @@ export default class Login extends Component {
           <div className="inner">
             <img className="logo" src={logo} alt="loading" />
             <Card body>
-              <CardBody className="login-box">{this.renderForm()}</CardBody>
+              <CardBody className="login-box">
+                {this.state.authStrategy === 'saml' ? this.renderExternal() : this.renderForm()}
+              </CardBody>
             </Card>
           </div>
         </div>

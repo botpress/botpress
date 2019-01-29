@@ -152,6 +152,57 @@ declare module 'botpress/sdk' {
   }
 
   export namespace MLToolkit {
+    export namespace FastText {
+      export type TrainCommand = 'supervised' | 'quantize' | 'skipgram' | 'cbow'
+      export type Loss = 'hs' | 'softmax'
+
+      export type TrainArgs = {
+        lr: number
+        dim: number
+        ws: number
+        epoch: number
+        minCount: number
+        minCountLabel: number
+        neg: number
+        wordNgrams: number
+        loss: Loss
+        model: string
+        input: string
+        bucket: number
+        minn: number
+        maxn: number
+        thread: number
+        lrUpdateRate: number
+        t: number
+        label: string
+        pretrainedVectors: string
+        qout: boolean
+        retrain: boolean
+        qnorm: boolean
+        cutoff: number
+        dsub: number
+      }
+
+      export type PredictResult = {
+        label: string
+        value: number
+      }
+
+      export interface Model {
+        trainToFile: (method: TrainCommand, modelPath: string, args: Partial<TrainArgs>) => Promise<void>
+        loadFromFile: (modelPath: string) => Promise<void>
+        predict: (str: string, nbLabels: number) => Promise<PredictResult[]>
+        queryWordVectors(word: string): Promise<number[]>
+        queryNearestNeighbors(word: string, nb: number): Promise<string[]>
+      }
+
+      export interface ModelConstructor {
+        new (): Model
+      }
+
+      export const Model: ModelConstructor
+    }
+
     export namespace CRF {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
@@ -209,7 +260,8 @@ declare module 'botpress/sdk' {
     export interface Intent {
       name: string
       confidence: number
-      matches: (intentPattern: string) => boolean
+      context: string
+      matches?: (intentPattern: string) => boolean
     }
 
     export interface Entity {
@@ -268,7 +320,7 @@ declare module 'botpress/sdk' {
       payload: any
       threadId?: string
       botId: string
-      suggestedReplies?: SuggestedReply[]
+      suggestions?: Suggestion[]
     }
 
     /**
@@ -328,14 +380,14 @@ declare module 'botpress/sdk' {
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
-      readonly suggestedReplies?: SuggestedReply[]
+      readonly suggestions?: Suggestion[]
       /** Contains data related to the state of the event */
       readonly state: EventState
       /** Holds NLU extraction results (when the event is natural language) */
       readonly nlu?: EventUnderstanding
     }
 
-    export interface SuggestedReply {
+    export interface Suggestion {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
       /** An array of the raw payloads to send as an answer */
@@ -478,7 +530,6 @@ declare module 'botpress/sdk' {
     $schema?: string
     id: string
     name: string
-    active: boolean
     description?: string
     author?: string
     version: string
@@ -527,6 +578,12 @@ declare module 'botpress/sdk' {
     id: string
     title: string
     description: string
+    /**
+     * Hiding content types prevents users from adding these kind of elements via the Flow Editor.
+     * They are still visible in the Content Manager, and it's still possible to use these elements by specifying
+     * their name as a property "contentType" to ContentPickerWidget.
+     */
+    hidden: boolean
     /**
      * The jsonSchema used to validate the form data of the Content Elements.
      */

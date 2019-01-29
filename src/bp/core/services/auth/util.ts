@@ -1,4 +1,6 @@
+import { BotpressConfig } from 'core/config/botpress.config'
 import crypto from 'crypto'
+import jsonwebtoken from 'jsonwebtoken'
 
 const generateRandomString = length => {
   return crypto
@@ -20,3 +22,11 @@ export const saltHashPassword = password => {
 }
 
 export const validateHash = (password: string, hash: string, salt: string) => calculateHash(password, salt) === hash
+
+export const isSuperAdmin = (email: string, config: BotpressConfig): boolean => {
+  return config.superAdmins.includes(email)
+}
+
+export const generateUserToken = (email: string, isSuperAdmin: boolean, audience?: string): string => {
+  return jsonwebtoken.sign({ email, isSuperAdmin }, process.JWT_SECRET, { expiresIn: '6h', audience })
+}

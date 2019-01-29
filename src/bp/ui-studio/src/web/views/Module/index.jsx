@@ -18,21 +18,6 @@ class ModuleView extends React.Component {
     return JSON.stringify(nextProps) !== JSON.stringify(this.props)
   }
 
-  renderLink(module) {
-    if (!module || !module.homepage) {
-      return null
-    }
-    return (
-      <small>
-        {' '}
-        &middot;{' '}
-        <a target="_blank" href={module.homepage}>
-          docs
-        </a>
-      </small>
-    )
-  }
-
   renderNotFound(err) {
     return (
       <div className="panel panel-warning">
@@ -65,23 +50,12 @@ class ModuleView extends React.Component {
     const module = _.find(modules, { name: moduleName })
 
     const contents = module ? (
-      <InjectedModuleView
-        moduleName={moduleName}
-        viewName={subView}
-        onNotFound={this.renderNotFound}
-        onModuleEvent={this.props.onModuleEvent}
-      />
+      <InjectedModuleView moduleName={moduleName} viewName={subView} onNotFound={this.renderNotFound} />
     ) : (
       this.renderNotFound()
     )
 
-    const header = module ? (
-      <span>
-        {module && module.menuText} {this.renderLink(module)}
-      </span>
-    ) : (
-      `Module ${moduleName} Not Found`
-    )
+    const header = module ? <span>{module && module.menuText}</span> : `Module ${moduleName} Not Found`
 
     const stretch = _.get(module, 'moduleView.stretched')
 

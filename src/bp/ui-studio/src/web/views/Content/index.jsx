@@ -10,6 +10,7 @@ import Sidebar from './Sidebar'
 import { fetchContentCategories, fetchContentItems, upsertContentItem, deleteContentItems } from '~/actions'
 
 import List from './List'
+import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 
 import ContentWrapper from '~/components/Layout/ContentWrapper'
@@ -29,7 +30,7 @@ class ContentView extends Component {
   initialized = false
 
   init() {
-    if (this.initialized || !this.props.user || this.props.user.id == null) {
+    if (this.initialized || !this.props.user || this.props.user.email == null) {
       return
     }
     this.initialized = true
@@ -196,6 +197,7 @@ class ContentView extends Component {
     return (
       <ContentWrapper>
         <PageHeader>Content Manager</PageHeader>
+        <DocumentationProvider file="content" />
         {this.renderBody()}
       </ContentWrapper>
     )

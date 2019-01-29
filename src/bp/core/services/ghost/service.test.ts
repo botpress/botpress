@@ -1,11 +1,12 @@
 import 'bluebird-global'
+import { ObjectCache } from 'common/object-cache'
 import path from 'path'
 import 'reflect-metadata'
 
 import { PersistedConsoleLogger } from '../../logger'
 import { createSpyObject, MockObject } from '../../misc/utils'
 
-import { GhostFileRevision, ObjectCache } from '.'
+import { FileRevision } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 import { GhostService } from './service'
@@ -29,20 +30,17 @@ describe('Ghost Service', () => {
   })
 
   describe(`Using Disk Driver`, () => {
-    beforeEach(async () => {
-      await ghost.initialize({
-        ghost: { enabled: false }
-      })
+    beforeEach(() => {
+      ghost.initialize(false)
     })
 
     it('DB Driver is never ever called', async () => {
       await ghost.global().deleteFile('', '')
       await ghost.global().directoryListing('', '')
-      await ghost.global().getPending()
-      await ghost.global().getPendingWithContent()
+      await ghost.global().getPendingChanges()
       await ghost.global().isFullySynced()
       await ghost.global().readFileAsBuffer('', '')
-      await ghost.global().sync([''])
+      await ghost.global().sync()
       await ghost.global().upsertFile('', '', '')
 
       expect(dbDriver.deleteFile).not.toHaveBeenCalled()
@@ -103,22 +101,20 @@ describe('Ghost Service', () => {
       dbDriver.listRevisions.mockReturnValue([{ file_path: 'abc', revision: 'rev' }]) // Even if DB driver says there are some revisions
       await ghost.forBot(BOT_ID).upsertFile('test', 'a.json', 'Hello') // And that we modify a file
 
-      const revisions = await ghost.global().getPending()
+      const revisions = await ghost.global().getPendingChanges()
       expect(revisions).toMatchObject({})
     })
   })
 
   describe('Using DB Driver', async () => {
     const buildRev = n =>
-      <GhostFileRevision>{
+      <FileRevision>{
         path: 'file',
         revision: n
       }
 
     beforeEach(() => {
-      ghost.initialize({
-        ghost: { enabled: true }
-      })
+      ghost.initialize(true)
     })
 
     describe('read/write/delete', async () => {
@@ -176,8 +172,9 @@ describe('Ghost Service', () => {
       it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
         diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
+        diskDriver.discoverTrackableFolders.mockReturnValue(['test', '.'])
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // We make sure the user is warned of the dirty state
         expect(logger.warn).toHaveBeenCalled()
@@ -190,6 +187,7 @@ describe('Ghost Service', () => {
       })
       it('if disk is up to date, sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
+        diskDriver.discoverTrackableFolders.mockReturnValue(['.'])
         diskDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev)) // All synced!
         diskDriver.readFile.mockReturnValueOnce('FILE A CONTENT')
         diskDriver.readFile.mockReturnValueOnce('FILE D CONTENT')
@@ -202,7 +200,7 @@ describe('Ghost Service', () => {
           dbDriver.listRevisions.mockReturnValue([])
         })
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // Deleted revisions
         expect(dbDriver.deleteRevision).toHaveBeenCalledTimes(3)
@@ -227,7 +225,7 @@ describe('Ghost Service', () => {
     describe('revisions', async () => {
       it('empty when no revisions', async () => {
         dbDriver.listRevisions.mockReturnValue([])
-        const pending = await ghost.global().getPending()
+        const pending = await ghost.global().getPendingChanges()
         expect(Object.keys(pending)).toHaveLength(0)
       })
       it('returns grouped list of revisions when files modified', async () => {
@@ -236,7 +234,7 @@ describe('Ghost Service', () => {
         const r3 = { path: './data/global/b/3.txt', revision: 'r3' }
 
         dbDriver.listRevisions.mockReturnValue([r1, r2, r3])
-        const pending = await ghost.global().getPending()
+        const pending = await ghost.global().getPendingChanges()
 
         expect(Object.keys(pending)).toHaveLength(2)
         expect(pending['a']).toHaveLength(2)
@@ -244,24 +242,6 @@ describe('Ghost Service', () => {
 
         expect(pending['a'][0].path).toContain('1.txt')
         expect(pending['a'][0].revision).toContain('r1')
-      })
-
-      it('revision with content works', async () => {
-        const r1 = { path: './data/global/a/1.txt', revision: 'r1' }
-        const r2 = { path: './data/global/a/2.txt', revision: 'r2' }
-        const r3 = { path: './data/global/b/3.txt', revision: 'r3' }
-
-        dbDriver.readFile.mockReturnValue(Buffer.from('content'))
-        dbDriver.listRevisions.mockReturnValue([r1, r2, r3])
-
-        const pending = await ghost.global().getPendingWithContent()
-
-        expect(Object.keys(pending)).toHaveLength(2)
-        expect(pending['a']).toHaveLength(2)
-        expect(pending['b']).toHaveLength(1)
-
-        expect(pending['a'][0].content).toBeDefined()
-        expect(pending['a'][0].content.toString()).toBe('content')
       })
     })
   })

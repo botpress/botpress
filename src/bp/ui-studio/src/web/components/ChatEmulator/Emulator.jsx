@@ -5,9 +5,7 @@ import SplitPane from 'react-split-pane'
 import JSONTree from 'react-json-tree'
 import _ from 'lodash'
 import nanoid from 'nanoid'
-import { Button } from 'react-bootstrap'
-
-import { Glyphicon } from 'react-bootstrap'
+import { Button, Tooltip, OverlayTrigger, Glyphicon } from 'react-bootstrap'
 
 import classnames from 'classnames'
 
@@ -33,7 +31,9 @@ export default class EmulatorChat extends React.Component {
     messages: [],
     userId: this.getOrCreateUserId(),
     sentHistory: JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]'),
-    sentHistoryIndex: 0
+    sentHistoryIndex: 0,
+    isInspectorVisible: true,
+    isVerticalView: true
   }
 
   getOrCreateUserId(forceNew = false) {
@@ -89,7 +89,7 @@ export default class EmulatorChat extends React.Component {
     let msg
     try {
       const res = await axios.post(
-        `${window.BOT_API_PATH}/converse/${this.state.userId}`,
+        `${window.BOT_API_PATH}/converse/${this.state.userId}/secured`,
         { text },
         { params: { include: 'nlu,state' } }
       )
@@ -211,20 +211,43 @@ export default class EmulatorChat extends React.Component {
     )
   }
 
+  toggleInspector = () => {
+    this.setState({ isInspectorVisible: !this.state.isInspectorVisible })
+  }
+
+  toggleView = () => {
+    this.setState({ isVerticalView: !this.state.isVerticalView })
+  }
+
   render() {
+    const toggleTooltip = <Tooltip id="toggleTooltip">Toggle Display</Tooltip>
+    const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
+
     return (
       <div className={style.container}>
         <div className={style.toolbar}>
           <Button onClick={this.handleChangeUserId}>
             <Glyphicon glyph="refresh" /> New session
           </Button>
+
+          <OverlayTrigger placement="bottom" overlay={toggleInspector}>
+            <Button onClick={this.toggleInspector} className={style.pullRight}>
+              <Glyphicon glyph="search" />
+            </Button>
+          </OverlayTrigger>
+          <OverlayTrigger placement="bottom" overlay={toggleTooltip}>
+            <Button onClick={this.toggleView} className={style.pullRight}>
+              <Glyphicon glyph="expand" />
+            </Button>
+          </OverlayTrigger>
         </div>
         <div className={style.panes}>
           <SplitPane
-            split="horizontal"
-            minSize={50}
-            defaultSize={'75%'}
+            split={this.state.isVerticalView ? 'vertical' : 'horizontal'}
+            minSize={150}
+            defaultSize={'70%'}
             pane2Style={{ overflowY: 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
+            pane1ClassName={classnames({ [style.historyFullWidth]: !this.state.isInspectorVisible })}
           >
             {this.renderHistory()}
             {this.renderInspector()}

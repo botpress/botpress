@@ -340,7 +340,7 @@ export default class IntentEditor extends React.Component {
   updateSelectedText = selectedText => {
     const slotEditor = this.props.getSlotsEditor()
     if (slotEditor) {
-      slotEditor.setSelection(selectedText)
+      slotEditor.setSelection(selectedText, this)
     }
   }
 
@@ -369,26 +369,29 @@ export default class IntentEditor extends React.Component {
     })
 
     return (
-      <div className={className} tabIndex={0} onBlur={onBlur} onFocus={onFocus}>
+      <div className={className}>
         <div className={style.editor}>
           <Editor
+            tabIndex={this.props.tabIndex}
             handleBeforeInput={this.handleBeforeInput}
             handleKeyCommand={this.handleKeyCommand}
             keyBindingFn={myKeyBindingFn}
             editorState={this.state.editorState}
             onChange={this.onChange}
             placeholder="Type to create a new utterance"
-            onBlur={this.onBlur}
+            onBlur={onBlur}
+            onFocus={onFocus}
             ref={el => (this.domRef = el)}
             onUpArrow={this.onArrow('moveUp')}
             onDownArrow={this.onArrow('moveDown')}
-            onTab={this.onArrow('moveDown')}
           />
         </div>
         <div className={style.controls}>
-          <span className={style.action} onClick={this.props.deleteUtterance}>
-            Remove Utterance
-          </span>
+          {
+            this.state.editorState.getCurrentContent().hasText() && (
+              <span className={`${style.action} glyphicon glyphicon-trash`} onClick={this.props.deleteUtterance}></span>
+            )
+          }
         </div>
       </div>
     )

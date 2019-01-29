@@ -17,13 +17,13 @@ import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
-import { VersioningRouter } from './routers/bots/versioning'
+import { PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
-import { AdminService } from './services/admin/service'
+import { AuthStrategies } from './services/auth-strategies'
 import AuthService from './services/auth/auth-service'
-import { InvalidLicenseKey } from './services/auth/errors'
+import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
@@ -31,6 +31,7 @@ import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { NotificationsService } from './services/notification/service'
+import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
@@ -47,7 +48,6 @@ export default class HTTPServer {
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
-  private versioningRouter!: VersioningRouter
   private converseRouter!: ConverseRouter
 
   constructor(
@@ -55,34 +55,48 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.IsProduction) isProduction: boolean,
     @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.AdminService) private adminService: AdminService,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
-    @inject(TYPES.ConverseService) private converseService: ConverseService
+    @inject(TYPES.ConverseService) private converseService: ConverseService,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
   ) {
     this.app = express()
 
-    if (!isProduction) {
+    if (!process.IS_PRODUCTION) {
       this.app.use(errorHandler())
     }
 
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
-    this.authRouter = new AuthRouter(this.logger, this.authService, this.adminService)
-    this.adminRouter = new AdminRouter(this.logger, this.authService, this.adminService, licenseService)
-    this.shortlinksRouter = new ShortLinksRouter()
+    this.authRouter = new AuthRouter(
+      this.logger,
+      this.authService,
+      this.configProvider,
+      this.workspaceService,
+      this.authStrategies
+    )
+    this.adminRouter = new AdminRouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
+      this.botService,
+      licenseService,
+      this.ghostService
+    )
+    this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
       botRepository,
@@ -92,20 +106,18 @@ export default class HTTPServer {
       logsService,
       notificationService,
       authService,
-      adminService,
-      ghostService
+      ghostService,
+      workspaceService
     })
   }
 
   @postConstruct()
   async initialize() {
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.adminService, this.authService, this.cmsService)
-    this.versioningRouter = new VersioningRouter(this.adminService, this.authService, this.ghostService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService)
+    this.contentRouter = new ContentRouter(this.authService, this.cmsService, this.workspaceService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
-    this.botsRouter.router.use('/versioning', this.versioningRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
@@ -142,9 +154,10 @@ export default class HTTPServer {
 
     this.app.use(function handleErrors(err, req, res, next) {
       if (err instanceof UnlicensedError) {
-        throw new InvalidLicenseKey(err.message)
+        next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
+      } else {
+        next(err)
       }
-      next(err)
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {

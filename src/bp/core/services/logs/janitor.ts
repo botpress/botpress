@@ -1,5 +1,4 @@
 import { Logger } from 'botpress/sdk'
-import { BotLoader } from 'core/bot-loader'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
@@ -9,6 +8,7 @@ import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
+import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
@@ -21,7 +21,7 @@ export class LogsJanitor extends Janitor {
     protected logger: Logger,
     @inject(TYPES.LogsService) private logsService: LogsService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     super(logger)
   }
@@ -42,7 +42,7 @@ export class LogsJanitor extends Janitor {
     }
 
     const botpressConfig = await this.getBotpresConfig()
-    const botsConfigs = await this.botLoader.getAllBots()
+    const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
     const globalLogsExpiryTime = ms(botpressConfig.logs.expiration)
 

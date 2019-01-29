@@ -4,11 +4,13 @@ import { HotKeys } from 'react-hotkeys'
 import Emulator from './Emulator'
 import { keyMap } from '~/keyboardShortcuts'
 
+import DocumentationProvider from '~/components/Util/DocumentationProvider'
+
 import style from './Dock.styl'
 
 export default class EmulatorDock extends React.Component {
   state = {
-    size: 500
+    size: 650
   }
 
   handleSizeChange = e => this.setState({ size: Math.min(Math.max(100, e), 1000) }) // [100, 1000] px
@@ -35,6 +37,7 @@ export default class EmulatorDock extends React.Component {
             <div className={style.titleBar} onClick={this.props.onToggle}>
               Chat Emulator
             </div>
+            {this.props.isOpen && <DocumentationProvider file="debug" />}
             <Emulator isDockOpen={this.props.isOpen} />
           </div>
         </HotKeys>

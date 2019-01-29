@@ -4,7 +4,7 @@ import { ContainerModule, interfaces } from 'inversify'
 import { StateManager } from '../middleware/state-manager'
 
 import { DecisionEngine } from './decision-engine'
-import { DialogEngine } from './engine'
+import { DialogEngine } from './dialog-engine'
 import { FlowNavigator } from './flow/navigator'
 import { FlowService } from './flow/service'
 import { InstructionFactory } from './instruction/factory'

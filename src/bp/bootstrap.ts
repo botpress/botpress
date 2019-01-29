@@ -6,7 +6,6 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { BotpressEditions } from 'common/editions'
 import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
@@ -16,17 +15,9 @@ import path from 'path'
 import { FatalError } from './errors'
 
 async function start() {
-  let currentEdition = BotpressEditions[process.BOTPRESS_EDITION] + ' Edition'
-
-  if (process.BOTPRESS_EDITION === 'ce') {
-    currentEdition = chalk.cyan(currentEdition)
-  } else {
-    currentEdition = chalk.yellow(currentEdition)
-  }
-
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server - ${currentEdition}`, 40)}}
+{bold ${center(`Botpress Server`, 40)}}
 {dim ${center(`Version ${sdk.version}`, 40)}}
 ========================================`)
 
@@ -90,7 +81,10 @@ async function start() {
     process.exit(1)
   }
 
-  await Botpress.start({ modules })
+  await Botpress.start({ modules }).catch(err => {
+    logger.attachError(err).error('Error starting Botpress')
+    process.exit(1)
+  })
 
   logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}/`)
 }

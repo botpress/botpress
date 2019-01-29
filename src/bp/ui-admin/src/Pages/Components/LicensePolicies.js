@@ -19,12 +19,11 @@ export default class LicenseLimits extends React.Component {
   }
 
   displayPolicies = () => {
-    const { seats, versions, edition, startDate, endDate } = this.props.license
+    const { seats, versions, startDate, endDate } = this.props.license
     this.setState({ policies: [] })
 
     this.addPolicy('Admins', seats, this.getBreach('studio seats'))
     this.addPolicy('Version', versions, this.getBreach('version'))
-    this.addPolicy('Edition', edition, this.getBreach('edition'))
     this.addPolicy('Start Date', moment(startDate).format('YYYY-MM-DD'), this.getBreach('date'))
     this.addPolicy('End Date', moment(endDate).format('YYYY-MM-DD'), this.getBreach('date'))
     this.addPolicy('Server Fingerprint', '', this.getBreach('fingerprint'))
@@ -50,7 +49,7 @@ export default class LicenseLimits extends React.Component {
 
   render() {
     return (
-      <table className="table bp-table">
+      <table className="table bp-licensing">
         <tbody>
           {this.state.policies.map((policy, idx) => {
             return (
@@ -61,7 +60,7 @@ export default class LicenseLimits extends React.Component {
                       ❌
                     </span>
                   ) : (
-                    <span className="bp-table__check">✓</span>
+                    <span className="bp-licensing__check">✓</span>
                   )}
                 </td>
                 <td>{policy.name}</td>

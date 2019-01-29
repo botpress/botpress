@@ -6,7 +6,6 @@ import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
 import { container } from './app.inversify'
-import { BotLoader } from './bot-loader'
 import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
@@ -16,8 +15,9 @@ import { SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
-import { DialogEngine } from './services/dialog/engine'
+import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs'
@@ -89,10 +89,10 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
   }
 }
 
-const bots = (botLoader: BotLoader): typeof sdk.bots => {
+const bots = (botService: BotService): typeof sdk.bots => {
   return {
     getAllBots(): Promise<Map<string, BotConfig>> {
-      return botLoader.getAllBots()
+      return botService.getBots()
     }
   }
 }
@@ -218,7 +218,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.SessionRepository) sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
-    @inject(TYPES.BotLoader) botLoader: BotLoader,
+    @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
@@ -232,7 +232,7 @@ export class BotpressAPIProvider {
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
     this.notifications = notifications(notificationService)
-    this.bots = bots(botLoader)
+    this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
     this.mlToolkit = MLToolkit

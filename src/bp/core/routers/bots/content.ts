@@ -1,8 +1,8 @@
 import { ContentElement } from 'botpress/sdk'
-import { AdminService } from 'core/services/admin/service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { DefaultSearchParams } from 'core/services/cms'
 import { CMSService } from 'core/services/cms'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 
 import { CustomRouter } from '..'
@@ -14,8 +14,8 @@ export class ContentRouter implements CustomRouter {
   private _checkTokenHeader: RequestHandler
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
-  constructor(private adminService: AdminService, private authService: AuthService, private cms: CMSService) {
-    this._needPermissions = needPermissions(this.adminService)
+  constructor(private authService: AuthService, private cms: CMSService, private workspaceService: WorkspaceService) {
+    this._needPermissions = needPermissions(this.workspaceService)
     this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
@@ -37,6 +37,7 @@ export class ContentRouter implements CustomRouter {
             id: type.id,
             count,
             title: type.title,
+            hidden: type.hidden,
             schema: {
               json: type.jsonSchema,
               ui: type.uiSchema,

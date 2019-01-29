@@ -1,3 +1,4 @@
+import { forceForwardSlashes } from 'core/misc/utils'
 import { inject, injectable } from 'inversify'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -6,7 +7,7 @@ import { VError } from 'verror'
 import Database from '../../database'
 import { TYPES } from '../../types'
 
-import { GhostFileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DBStorageDriver implements StorageDriver {
@@ -105,6 +106,19 @@ export default class DBStorageDriver implements StorageDriver {
     }
   }
 
+  async deleteDir(dirPath: string): Promise<void> {
+    try {
+      // TODO: Consider soft-delete however you wont be able to create a bot with the
+      // same name as a bot that has been soft deleted until its completely gone from the DB.
+      await this.database
+        .knex('srv_ghost_files')
+        .where('file_path', 'like', `${dirPath}%`)
+        .del()
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error deleting folder "${dirPath}"`)
+    }
+  }
+
   async directoryListing(folder: string): Promise<string[]> {
     try {
       let query = this.database
@@ -119,14 +133,14 @@ export default class DBStorageDriver implements StorageDriver {
       }
 
       return query.then().map((x: any) => {
-        return path.relative(folder, x.file_path)
+        return forceForwardSlashes(path.relative(folder, x.file_path))
       })
     } catch (e) {
       throw new VError(e, `[DB Storage] Error listing directory content for folder "${folder}"`)
     }
   }
 
-  async listRevisions(pathPrefix: string): Promise<GhostFileRevision[]> {
+  async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
     try {
       let query = this.database.knex('srv_ghost_index')
 
@@ -138,7 +152,7 @@ export default class DBStorageDriver implements StorageDriver {
       return await query.then(entries =>
         entries.map(
           x =>
-            <GhostFileRevision>{
+            <FileRevision>{
               path: x.file_path,
               revision: x.revision,
               created_on: new Date(x.created_on),

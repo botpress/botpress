@@ -73,9 +73,10 @@ If you encounter errors when building modules (timeout, random errors, etc), try
 
 1. Go in each module folder and type `yarn && yarn build`
 
-## Target a specific Botpress Edition
+## Build the Botpress Pro Edition
 
-You can target a specific Botpress Edition when building the app. Just add the following environment variable: `EDITION=<ce|pro|ee> yarn build`. This will fetch the pro submodule and build the app. By default, `yarn build` will target the Community Edition.
+To build the Pro Edition, set the environment variable `EDITION` or create an empty file named `pro` in the root folder.
+This will fetch the pro submodule and build the app. By default, `yarn build` will target the Community Edition.
 
 ## Documentation
 

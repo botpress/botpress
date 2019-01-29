@@ -7,10 +7,8 @@ import fs from 'fs'
 import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
-import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
+import _, { PartialDeep } from 'lodash'
 import path from 'path'
-import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig, DatabaseType } from './botpress.config'
@@ -18,21 +16,25 @@ import { BotpressConfig, DatabaseType } from './botpress.config'
 export interface ConfigProvider {
   createDefaultConfigIfMissing(): Promise<void>
   getBotpressConfig(): Promise<BotpressConfig>
-  mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void>
+  mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
 }
 
 @injectable()
 export class GhostConfigProvider implements ConfigProvider {
+  private _botpressConfigCache: BotpressConfig | undefined
+
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.IsProduction) private isProduction: string,
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
-  @Memoize()
   async getBotpressConfig(): Promise<BotpressConfig> {
+    if (this._botpressConfigCache) {
+      return this._botpressConfigCache
+    }
+
     await this.createDefaultConfigIfMissing()
 
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
@@ -42,13 +44,16 @@ export class GhostConfigProvider implements ConfigProvider {
     config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
     config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url
 
-    config.ghost.enabled = yn(process.env.GHOST_ENABLED) || config.ghost.enabled
-    config.licenseKey = process.env.BP_LICENSE_KEY || config.licenseKey
+    if (config.pro) {
+      config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
+    }
 
+    this._botpressConfigCache = config
     return config
   }
 
-  async mergeBotpressConfig(partialConfig: Partial<BotpressConfig>): Promise<void> {
+  async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void> {
+    this._botpressConfigCache = undefined
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
@@ -72,7 +77,7 @@ export class GhostConfigProvider implements ConfigProvider {
       const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botpressConfigSchema, 'utf-8')))
 
       const config = {
-        $schema: `../../botpress.config.schema.json`,
+        $schema: `../botpress.config.schema.json`,
         ...defaultConfig,
         modules: await this.getModulesListConfig()
       }
@@ -111,12 +116,12 @@ export class GhostConfigProvider implements ConfigProvider {
         content = await this.ghostService
           .forBot(botId)
           .readFileAsString('/', fileName)
-          .catch(_err => this.ghostService.forBot(botId, false).readFileAsString('/', fileName))
+          .catch(_err => this.ghostService.forBot(botId).readFileAsString('/', fileName))
       } else {
         content = await this.ghostService
           .global()
           .readFileAsString('/', fileName)
-          .catch(_err => this.ghostService.global(false).readFileAsString('/', fileName))
+          .catch(_err => this.ghostService.global().readFileAsString('/', fileName))
       }
 
       if (!content) {
@@ -126,8 +131,8 @@ export class GhostConfigProvider implements ConfigProvider {
       // Variables substitution
       // TODO Check of a better way to handle path correction
       content = content.replace('%BOTPRESS_DIR%', process.PROJECT_LOCATION.replace(/\\/g, '/'))
-      content = content.replace('"$isProduction"', this.isProduction ? 'true' : 'false')
-      content = content.replace('"$isDevelopment"', this.isProduction ? 'false' : 'true')
+      content = content.replace('"$isProduction"', process.IS_PRODUCTION ? 'true' : 'false')
+      content = content.replace('"$isDevelopment"', process.IS_PRODUCTION ? 'false' : 'true')
 
       return <T>JSON.parse(content)
     } catch (e) {

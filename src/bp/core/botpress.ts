@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { copyDir } from 'core/misc/pkg-fs'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
@@ -10,7 +12,6 @@ import path from 'path'
 import plur from 'plur'
 
 import { createForGlobalHooks } from './api'
-import { BotLoader } from './bot-loader'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
@@ -18,10 +19,11 @@ import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
-import { DialogEngine, ProcessingError } from './services/dialog/engine'
+import { DialogEngine, ProcessingError } from './services/dialog/dialog-engine'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
@@ -32,6 +34,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
+import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -58,7 +61,6 @@ export class Botpress {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.BotLoader) private botLoader: BotLoader,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -73,7 +75,9 @@ export class Botpress {
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -89,9 +93,12 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+
     this.config = await this.loadConfiguration()
+    await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
+    await this.checkEditionRequirements()
     await this.createDatabase()
     await this.initializeGhost()
     await this.loadModules(options.modules)
@@ -116,6 +123,28 @@ export class Botpress {
     process.JWT_SECRET = jwtSecret
   }
 
+  async checkEditionRequirements() {
+    const pro = _.get(this.config, 'pro.enabled', undefined)
+    const redis = _.get(this.config, 'pro.redis.enabled', undefined)
+    const postgres = this.config!.database.type.toLowerCase() === 'postgres'
+
+    if (!pro && redis) {
+      this.logger.warn(
+        'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
+      )
+    }
+    if (pro && !redis) {
+      this.logger.warn(
+        'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+      )
+    }
+    if (pro && !postgres && redis) {
+      throw new Error(
+        'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
+      )
+    }
+  }
+
   async deployAssets() {
     try {
       const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
@@ -135,22 +164,32 @@ export class Botpress {
     }
   }
 
+  @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
-    const botIds = await this.botLoader.getAllBotIds()
-    for (const bot of botIds) {
-      await this.botLoader.mountBot(bot)
+    const botsRef = await this.workspaceService.getBotRefs()
+    const botsIds = await this.botService.getBotsIds()
+    const unlinked = _.difference(botsIds, botsRef)
+
+    if (unlinked.length) {
+      this.logger.warn(
+        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinked.join(', ')}]`
+      )
     }
+
+    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
   }
 
+  @WrapErrorsWith('Error initializing Ghost Service')
   async initializeGhost(): Promise<void> {
-    await this.ghostService.initialize(this.config!)
-    await this.ghostService.global().sync(['actions', 'content-types', 'hooks'])
+    this.ghostService.initialize(process.IS_PRODUCTION)
+    await this.ghostService.global().sync()
   }
 
   private async initializeServices() {
     await this.loggerPersister.initialize(this.database, await this.loggerProvider('LogPersister'))
     this.loggerPersister.start()
 
+    await this.workspaceService.initialize()
     await this.cmsService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
@@ -196,6 +235,7 @@ export class Botpress {
     return this.configProvider.getBotpressConfig()
   }
 
+  @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
   private async createDatabase(): Promise<void> {
     await this.database.initialize(this.config!.database)
   }
@@ -225,7 +265,7 @@ Node: ${err.nodeName}`
     this.stats.track(
       'server',
       'start',
-      `edition: ${process.BOTPRESS_EDITION}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
+      `isProEnabled: ${process.IS_PRO_ENABLED}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
     )
   }
 }

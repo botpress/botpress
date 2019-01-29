@@ -1,15 +1,16 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo } from 'common/licensing-service'
-import { InvalidLicenseKey } from 'core/services/auth/errors'
 import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '..'
-import { asyncMiddleware, success as sendSuccess } from '../util'
+import { BadRequestError } from '../errors'
+import { assertSuperAdmin, asyncMiddleware, success as sendSuccess } from '../util'
 
 export class LicenseRouter implements CustomRouter {
-  private asyncMiddleware!: Function
   public readonly router: Router
+
+  private asyncMiddleware!: Function
 
   constructor(logger: Logger, private licenseService: LicensingService) {
     this.asyncMiddleware = asyncMiddleware({ logger })
@@ -24,20 +25,24 @@ export class LicenseRouter implements CustomRouter {
     router.get(
       '/status',
       this.asyncMiddleware(async (req, res) => {
-        if (process.BOTPRESS_EDITION === 'ce') {
-          return sendSuccess(res, 'License status', { edition: process.BOTPRESS_EDITION })
+        if (!process.IS_PRO_ENABLED) {
+          return sendSuccess(res, 'License status', { isPro: false })
         }
 
         const status = await svc.getLicenseStatus()
-        const fingerprint = await svc.getFingerprint('machine_v1')
+        const clusterFingerprint = await svc.getFingerprint('cluster_url')
+        const machineFingerprint = await svc.getFingerprint('machine_v1')
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
         } catch (err) {}
 
         return sendSuccess(res, 'License status', {
-          fingerprint,
-          edition: process.BOTPRESS_EDITION,
+          fingerprints: {
+            machine_v1: machineFingerprint,
+            cluster_url: clusterFingerprint
+          },
+          isPro: true,
           license: info,
           ...status
         })
@@ -46,10 +51,11 @@ export class LicenseRouter implements CustomRouter {
 
     router.post(
       '/update',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const result = await svc.replaceLicenseKey(req.body.licenseKey)
         if (!result) {
-          throw new InvalidLicenseKey()
+          throw new BadRequestError('Invalid License Key')
         }
 
         return sendSuccess(res, 'License Key updated')
@@ -58,6 +64,7 @@ export class LicenseRouter implements CustomRouter {
 
     router.post(
       '/refresh',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         await svc.refreshLicenseKey()
         return sendSuccess(res, 'License refreshed')

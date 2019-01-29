@@ -1,19 +1,20 @@
 import { Logger } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
+import { AuthStrategy } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
-import Knex from 'knex'
+import _ from 'lodash'
+import nanoid from 'nanoid'
 
-import Database from '../../database'
-import { AuthUser, TokenUser } from '../../misc/interfaces'
+import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
+import { WorkspaceService } from '../workspace-service'
 
 import { InvalidCredentialsError, PasswordExpiredError } from './errors'
-import { saltHashPassword, validateHash } from './util'
+import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from './util'
 
-const USERS_TABLE = 'auth_users'
 export const TOKEN_AUDIENCE = 'web-login'
 
 @injectable()
@@ -22,16 +23,13 @@ export default class AuthService {
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
-    @inject(TYPES.Database) private db: Database,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
   ) {}
 
-  get knex(): Knex & KnexExtension {
-    return this.db.knex!
-  }
-
   async getResources(): Promise<Resource[]> {
-    if (process.BOTPRESS_EDITION !== 'ce') {
+    if (process.IS_PRO_ENABLED) {
       const resources = require('pro/services/admin/pro-resources')
       return resources.PRO_RESOURCES
     }
@@ -39,25 +37,17 @@ export default class AuthService {
   }
 
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.knex(USERS_TABLE)
-      .where(where)
-      .select(selectFields || ['*'])
-      .then<Array<AuthUser>>(res => res)
-      .get(0)
+    return this.workspace.findUser(where, selectFields)
   }
 
-  findUserByUsername(username: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.findUser({ username }, selectFields)
+  async findUserByEmail(email: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
+    return await this.findUser({ email }, selectFields)
   }
 
-  findUserById(id: number, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.findUser({ id }, selectFields)
-  }
+  async checkUserAuth(email: string, password: string, newPassword?: string) {
+    const user = await this.findUserByEmail(email || '', ['password', 'salt', 'password_expired'])
 
-  async checkUserAuth(username: string, password: string, newPassword?: string) {
-    const user = await this.findUserByUsername(username || '', ['id', 'password', 'salt', 'password_expired'])
-
-    if (!user || !validateHash(password || '', user.password, user.salt)) {
+    if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
       throw new InvalidCredentialsError()
     }
@@ -66,36 +56,59 @@ export default class AuthService {
       throw new PasswordExpiredError()
     }
 
-    return user.id
+    return user.email
   }
 
-  async createUser(user: Partial<AuthUser>) {
-    return this.knex.insertAndRetrieve<number>(USERS_TABLE, user)
+  async createBasicUser(user: Partial<BasicAuthUser>): Promise<CreatedUser> {
+    const newUser = {
+      ...user
+    } as BasicAuthUser
+
+    const createdUser = await this.workspace.createUser(newUser)
+    return {
+      password: user.password ? user.password : await this.resetPassword(user.email!),
+      user: createdUser
+    }
   }
 
-  async updateUser(username: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
-    // Shady thing because knex date is a raw and can't be assigned to a date object...
-    const more = updateLastLogon ? { last_logon: this.db.knex.date.now() } : {}
-    return this.knex(USERS_TABLE)
-      .where({ username })
-      .update({ ...userData, ...more })
-      .then()
+  async createExternalUser(user: Partial<ExternalAuthUser>, provider: AuthStrategy): Promise<CreatedUser> {
+    const newUser = {
+      ...user,
+      provider
+    } as ExternalAuthUser
+
+    return {
+      user: await this.workspace.createUser(newUser)
+    }
   }
 
-  async generateUserToken(userId: number, audience?: string) {
-    return Promise.fromCallback<string>(cb => {
-      jsonwebtoken.sign(
-        {
-          id: userId
-        },
-        process.JWT_SECRET,
-        {
-          expiresIn: '6h',
-          audience
-        },
-        cb
-      )
+  async createUser(user: Partial<BasicAuthUser> | Partial<ExternalAuthUser>): Promise<CreatedUser> {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategy = _.get(config, 'pro.auth.strategy', 'basic')
+
+    if (strategy === 'basic') {
+      return this.createBasicUser(user)
+    } else {
+      return this.createExternalUser(user, strategy)
+    }
+  }
+
+  async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
+    const more = updateLastLogon ? { last_logon: new Date() } : {}
+    return await this.workspace.updateUser(email, { ...userData, ...more })
+  }
+
+  async resetPassword(email: string) {
+    const password = nanoid(15)
+    const { hash, salt } = saltHashPassword(password)
+
+    await this.workspace.updateUser(email, {
+      password: hash,
+      salt,
+      password_expired: true
     })
+
+    return password
   }
 
   async checkToken(token: string, audience?: string) {
@@ -106,20 +119,37 @@ export default class AuthService {
     })
   }
 
-  async login(username: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
-    const userId = await this.checkUserAuth(username, password, newPassword)
+  async register(email: string, password: string, ipAddress: string = ''): Promise<string> {
+    this.stats.track('auth', 'register', 'success')
+
+    const pw = saltHashPassword(password)
+    await this.createUser({
+      email,
+      password: pw.hash,
+      salt: pw.salt,
+      last_ip: ipAddress,
+      last_logon: new Date()
+    })
+
+    const config = await this.configProvider.getBotpressConfig()
+    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
+  }
+
+  async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
+    await this.checkUserAuth(email, password, newPassword)
     this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {
       const hash = saltHashPassword(newPassword)
-      await this.updateUser(username, {
+      await this.updateUser(email, {
         password: hash.hash,
         salt: hash.salt,
         password_expired: false
       })
     }
 
-    await this.updateUser(username, { last_ip: ipAddress }, true)
-    return this.generateUserToken(userId, TOKEN_AUDIENCE)
+    await this.updateUser(email, { last_ip: ipAddress }, true)
+    const config = await this.configProvider.getBotpressConfig()
+    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
   }
 }

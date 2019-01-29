@@ -6,10 +6,9 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
-export interface AvailableModel {
-  created_on: Date
-  hash: string
-}
+import { Model, ModelMeta } from './typings'
+
+const N_KEEP_MODELS = 10
 
 export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
@@ -38,6 +37,10 @@ export default class Storage {
           throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
         }
       })
+    }
+
+    if (!content.contexts) {
+      content.contexts = ['global']
     }
 
     if (intent.length < 1) {
@@ -77,18 +80,24 @@ export default class Storage {
 
     const filename = `${intent}.json`
     const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
-    const properties = JSON.parse(propertiesContent)
+    let properties: any = {}
+
+    try {
+      properties = JSON.parse(propertiesContent)
+    } catch (err) {
+      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}"`)
+    }
 
     const obj = {
       name: intent,
       filename: filename,
+      contexts: ['global'], // @deprecated remove in bp > 11
       ...properties
     }
 
-    // @deprecated remove in 12+
+    // @deprecated remove in bp > 11
     if (!properties.utterances) {
       await this._legacyAppendIntentUtterances(obj, intent)
-      console.log('Resaving intent', intent)
       await this.saveIntent(intent, obj)
     }
 
@@ -158,21 +167,57 @@ export default class Storage {
     return this.ghost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
-  async persistModel(modelBuffer: Buffer, modelName: string) {
+  private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
-    return this.ghost.upsertFile(this.modelsDir, modelName, modelBuffer)
+    const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
+    return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
   }
 
-  async getAvailableModels(): Promise<AvailableModel[]> {
+  private async _cleanupModels(): Promise<void> {
+    const models = await this.getAvailableModels()
+    const uniqModelMeta = _.chain(models)
+      .orderBy('created_on', 'desc')
+      .uniqBy('hash')
+      .value()
+
+    if (uniqModelMeta.length > N_KEEP_MODELS) {
+      const threshModel = uniqModelMeta[N_KEEP_MODELS - 1]
+      await Promise.all(
+        models
+          .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
+          .map(model => this.ghost.deleteFile(this.modelsDir, model.fileName))
+      )
+    }
+  }
+
+  async persistModels(models: Model[]) {
+    await Promise.map(models, model => this._persistModel(model))
+    return this._cleanupModels()
+  }
+
+  async getAvailableModels(): Promise<ModelMeta[]> {
     const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    return models.map(x => {
-      const fileName = path.basename(x, '.bin')
-      const parts = fileName.split('__')
-      return <AvailableModel>{
-        created_on: new Date(parts[0]),
-        hash: parts[1]
-      }
-    })
+    return models
+      .map(x => {
+        const fileName = path.basename(x)
+        const parts = fileName.replace(/\.bin$/i, '').split('__')
+
+        if (parts.length !== 4) {
+          // we don't support legacy format (old models)
+          // this is non-breaking as it will simply re-train the models
+          // DEPRECATED – REMOVED THIS CONDITION IN BP > 11
+          return undefined
+        }
+
+        return {
+          fileName,
+          context: parts[0],
+          created_on: parseInt(parts[1]) || 0,
+          hash: parts[2],
+          type: parts[3]
+        }
+      })
+      .filter(x => typeof x !== 'undefined')
   }
 
   async modelExists(modelHash: string): Promise<boolean> {
@@ -180,10 +225,11 @@ export default class Storage {
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelAsBuffer(modelHash: string): Promise<Buffer> {
-    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    const modelFn = _.find(models, m => m.indexOf(modelHash) !== -1)!
-
-    return this.ghost.readFileAsBuffer(this.modelsDir, modelFn)
+  async getModelsFromHash(modelHash: string): Promise<Model[]> {
+    const modelsMeta = await this.getAvailableModels()
+    return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash), async meta => ({
+      meta,
+      model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
+    }))
   }
 }

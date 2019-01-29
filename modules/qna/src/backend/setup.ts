@@ -41,7 +41,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     return question.answers[randomIndex]
   }
 
-  const buildSuggestedReply = async (event, question, confidence, intent, renderer) => {
+  const buildSuggestions = async (event, question, confidence, intent, renderer) => {
     const payloads = []
 
     if (question.action.includes('text')) {
@@ -81,8 +81,8 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
       const qnaQuestion = (await storage.answersOn(event.preview)).pop()
 
       if (qnaQuestion && qnaQuestion.enabled) {
-        event.suggestedReplies.push(
-          await buildSuggestedReply(event, qnaQuestion, qnaQuestion.confidence, undefined, config.textRenderer)
+        event.suggestions.push(
+          await buildSuggestions(event, qnaQuestion, qnaQuestion.confidence, undefined, config.textRenderer)
         )
       }
 
@@ -96,8 +96,8 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     for (const intent of event.nlu.intents) {
       const question = await getQuestionForIntent(storage, intent.name)
       if (question && question.enabled) {
-        event.suggestedReplies.push(
-          await buildSuggestedReply(event, question, intent.confidence, intent.name, config.textRenderer)
+        event.suggestions.push(
+          await buildSuggestions(event, question, intent.confidence, intent.name, config.textRenderer)
         )
       }
     }

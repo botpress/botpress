@@ -66,6 +66,7 @@ async function zipFiles(modulePath, outPath) {
   const files = glob.sync('**/*', {
     cwd: modulePath,
     nodir: true,
+    dot: true,
     ignore: ['node_modules/**', 'src/**']
   })
 

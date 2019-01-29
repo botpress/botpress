@@ -3,19 +3,19 @@ import { Container } from 'inversify'
 import { AppLifecycle } from 'lifecycle'
 
 import { BotpressAPIProvider } from './api'
-import { BotLoader } from './bot-loader'
 import { Botpress } from './botpress'
 import { BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
-import { applyDisposeOnExit } from './misc/inversify'
+import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
+import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
@@ -68,55 +68,63 @@ container
   .bind<ModuleLoader>(TYPES.ModuleLoader)
   .to(ModuleLoader)
   .inSingletonScope()
+
 container
   .bind<Botpress>(TYPES.Botpress)
   .to(Botpress)
   .inSingletonScope()
+
 container
   .bind<HTTPServer>(TYPES.HTTPServer)
   .to(HTTPServer)
   .inSingletonScope()
+
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
   .to(GhostConfigProvider)
   .inSingletonScope()
-container
-  .bind<BotLoader>(TYPES.BotLoader)
-  .to(BotLoader)
-  .inSingletonScope()
+
 container
   .bind<BotConfigWriter>(TYPES.BotConfigWriter)
   .to(BotConfigWriter)
   .inSingletonScope()
+
 container
   .bind<Statistics>(TYPES.Statistics)
   .to(Statistics)
   .inSingletonScope()
+
 container
   .bind<DataRetentionJanitor>(TYPES.DataRetentionJanitor)
   .to(DataRetentionJanitor)
   .inSingletonScope()
+
 container
   .bind<DataRetentionService>(TYPES.DataRetentionService)
   .to(DataRetentionService)
   .inSingletonScope()
 
+container
+  .bind<WorkspaceService>(TYPES.WorkspaceService)
+  .to(WorkspaceService)
+  .inSingletonScope()
+
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
 
-container.bind<boolean>(TYPES.IsProduction).toConstantValue(isProduction)
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
 
-if (process.BOTPRESS_EDITION && process.BOTPRESS_EDITION !== 'ce') {
+if (process.IS_PRO_ENABLED) {
   // Otherwise this will fail on compile when the submodule is not available.
   const ProContainerModule = require('pro/services/pro.inversify')
   container.load(ProContainerModule)
 }
 
 applyDisposeOnExit(container)
+applyInitializeFromConfig(container)
 
 export { container }

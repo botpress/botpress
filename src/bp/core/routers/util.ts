@@ -1,12 +1,20 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { AdminService } from 'core/services/admin/service'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
 import { RequestWithUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
-import { AssertionError, ProcessingError, UnauthorizedAccessError } from '../services/auth/errors'
+
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  PaymentRequiredError,
+  UnauthorizedError
+} from './errors'
 
 export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
   fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
@@ -24,7 +32,7 @@ export const validateRequestSchema = (property: string, req: Request, schema: Jo
   const result = Joi.validate(req[property], schema)
 
   if (result.error) {
-    throw new AssertionError(result.error.message)
+    throw new BadRequestError(result.error.message)
   }
 
   Object.assign(req[property], result.value)
@@ -46,97 +54,95 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next: NextFunction
 ) => {
   if (!req.headers.authorization) {
-    return next(new UnauthorizedAccessError('No Authorization header'))
+    return next(new UnauthorizedError('Authorization header is missing'))
   }
 
   const [scheme, token] = req.headers.authorization.split(' ')
   if (scheme.toLowerCase() !== 'bearer') {
-    return next(new UnauthorizedAccessError(`Unknown scheme ${scheme}`))
+    return next(new UnauthorizedError(`Unknown scheme "${scheme}"`))
   }
 
   if (!token) {
-    return next(new UnauthorizedAccessError('Missing authentication token'))
+    return next(new UnauthorizedError('Authentication token is missing'))
   }
 
   try {
-    const user = await authService.checkToken(token, audience)
+    const tokenUser = await authService.checkToken(token, audience)
 
-    if (!user) {
-      return next(new UnauthorizedAccessError('Invalid authentication token'))
+    if (!tokenUser) {
+      return next(new UnauthorizedError('Invalid authentication token'))
     }
 
-    req.user = user
+    req.tokenUser = tokenUser
   } catch (err) {
-    return next(new UnauthorizedAccessError('Invalid authentication token'))
+    return next(new UnauthorizedError('Invalid authentication token'))
   }
 
   next()
 }
 
 export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const reqWithUser = req as RequestWithUser
-  const { user } = reqWithUser
-  if (!user) {
-    throw new ProcessingError('No user property in the request')
+  const reqWithUser = <RequestWithUser>req
+  const { tokenUser } = reqWithUser
+  if (!tokenUser) {
+    return next(new InternalServerError('No tokenUser in request'))
   }
 
-  const dbUser = await authService.findUserById(user.id)
-
-  if (!dbUser) {
-    throw new UnauthorizedAccessError('Unknown user ID')
+  const authUser = await authService.findUserByEmail(tokenUser.email)
+  if (!authUser) {
+    return next(new UnauthorizedError('Unknown user'))
   }
 
-  reqWithUser.dbUser = {
-    ...dbUser,
-    fullName: [dbUser.firstname, dbUser.lastname].filter(Boolean).join(' ')
+  reqWithUser.authUser = authUser
+  next()
+}
+
+export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
+  const { tokenUser } = <RequestWithUser>req
+  if (!tokenUser) {
+    return next(new InternalServerError('No tokenUser in request'))
+  }
+
+  if (!tokenUser.isSuperAdmin) {
+    return next(new ForbiddenError('User needs to be super admin to perform this action'))
   }
 
   next()
 }
 
-const getParam = (req: Request, name: string, defaultValue?: any) =>
-  req.params[name] || req.body[name] || req.query[name]
-
-class PermissionError extends AssertionError {
-  constructor(message: string) {
-    super('Permission check error: ' + message)
-  }
-}
-
-export const needPermissions = (teamsService: AdminService) => (operation: string, resource: string) => async (
+export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.user && req.user.id
-
-  if (userId == undefined) {
-    next(new PermissionError('user is not authenticated'))
-    return
+  if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
+    const workspace = await workspaceService.getWorkspace()
+    // Allow to create the first user
+    if (workspace.users.length > 0) {
+      return next(new PaymentRequiredError('Botpress Pro is required to perform this action'))
+    }
   }
 
-  const botId = getParam(req, 'botId')
-  let teamId = getParam(req, 'teamId')
+  return next()
+}
 
-  if (!botId && !teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
+export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const email = req.tokenUser && req.tokenUser!.email
+  const user = workspaceService.findUser({ email })
+  if (!user) {
+    return next(new NotFoundError(`User "${email}" does not exists`))
   }
 
-  if (!teamId) {
-    teamId = await teamsService.getBotTeam(botId!)
-  }
+  const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
-  if (!teamId) {
-    next(new PermissionError('botId or teamId must be present on the request'))
-    return
-  }
-
-  const rules = await teamsService.getUserPermissions(userId, teamId)
-
-  if (!checkRule(rules, operation, resource)) {
-    next(new PermissionError(`user does not have sufficient permissions to ${operation} ${resource}`))
-    return
+  if (!role || !checkRule(role.rules, operation, resource)) {
+    return next(
+      new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
+    )
   }
 
   next()

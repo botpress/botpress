@@ -1,4 +1,4 @@
-import { createIntentMatcher } from './matcher'
+import { createIntentMatcher } from './utils'
 
 describe('matches', () => {
   test('Exact match', () => {

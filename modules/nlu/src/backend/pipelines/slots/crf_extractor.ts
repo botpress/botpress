@@ -1,16 +1,18 @@
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
+import fs, { readFileSync } from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import FastText, { FastTextTrainArgs } from '../../tools/fastText'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
+const KMEANS_OPTIONS = {
+  iterations: 250
+}
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
   c2: '0.01',
@@ -18,29 +20,39 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
-const FT_PARAMS: FastTextTrainArgs = {
-  method: 'skipgram',
-  minCount: 2,
-  bucket: 25000,
-  dim: 15,
-  learningRate: 0.5,
-  wordGram: 3,
-  maxn: 6,
-  minn: 2,
-  epoch: 50
-}
 
 export default class CRFExtractor implements SlotExtractor {
   private _isTrained: boolean = false
   private _ftModelFn = ''
   private _crfModelFn = ''
-  private _ft!: FastText
+  private _ft!: sdk.MLToolkit.FastText.Model
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
 
-  constructor(private toolkit: typeof sdk.MLToolkit) { }
+  constructor(private toolkit: typeof sdk.MLToolkit) {}
 
-  async train(trainingSet: Sequence[]) {
+  async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
+    // load language model
+    const ftModelFn = tmp.tmpNameSync({ postfix: '.bin' })
+    fs.writeFileSync(ftModelFn, languageModelBuf)
+
+    const ft = new this.toolkit.FastText.Model()
+    await ft.loadFromFile(ftModelFn)
+    this._ft = ft
+    this._ftModelFn = ftModelFn
+
+    // load kmeans (retrain because there is no simple way to store it)
+    this._trainKmeans(traingingSet)
+
+    // load crf model
+    this._crfModelFn = tmp.tmpNameSync()
+    fs.writeFileSync(this._crfModelFn, crf)
+    this._tagger = this.toolkit.CRF.createTagger()
+    await this._tagger.open(this._crfModelFn)
+    this._isTrained = true
+  }
+
+  async train(trainingSet: Sequence[]): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
       await this._trainLanguageModel(trainingSet)
@@ -50,6 +62,16 @@ export default class CRFExtractor implements SlotExtractor {
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
+
+      return {
+        language: readFileSync(this._ftModelFn),
+        crf: readFileSync(this._crfModelFn)
+      }
+    } else {
+      return {
+        language: undefined,
+        crf: undefined
+      }
     }
   }
 
@@ -66,7 +88,11 @@ export default class CRFExtractor implements SlotExtractor {
    *   songs : [ multiple slots objects here]
    * }
    */
-  async extract(text: string, intentDef: sdk.NLU.IntentDefinition, entitites: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection> {
+  async extract(
+    text: string,
+    intentDef: sdk.NLU.IntentDefinition,
+    entitites: sdk.NLU.Entity[]
+  ): Promise<sdk.NLU.SlotsCollection> {
     const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
 
@@ -90,8 +116,7 @@ export default class CRFExtractor implements SlotExtractor {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
             slotName[slotName].push(slot)
-          }
-          else {
+          } else {
             // if no slots exist we assign a slot to the slot key
             slotCollection[slotName] = [slotCollection[slotName], slot]
           }
@@ -117,26 +142,37 @@ export default class CRFExtractor implements SlotExtractor {
     return this._tagger.tag(inputVectors).result
   }
 
-  private _makeSlot(slotName: string, token: Token, slotDefinitions: sdk.NLU.SlotDefinition[], entitites: sdk.NLU.Entity[]): sdk.NLU.Slot {
+  private _makeSlot(
+    slotName: string,
+    token: Token,
+    slotDefinitions: sdk.NLU.SlotDefinition[],
+    entitites: sdk.NLU.Entity[]
+  ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
-    const entity = slotDef ? entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end) : undefined
-    const value = entity ? _.get(entity, 'data.value', token.value) : token.value
+    const entity =
+      slotDef &&
+      entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
+
+    const value = _.get(entity, 'data.value', token.value)
 
     const slot = {
       name: slotName,
       value
     } as sdk.NLU.Slot
 
-    if (entity) slot.entity = entity
+    if (entity) {
+      slot.entity = entity
+    }
+
     return slot
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, async t => await this._ft.wordVectors(t.value))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.value))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
-      this._kmeansModel = kmeans(data, k)
+      this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
       throw Error('Error training K-means model')
     }
@@ -146,7 +182,9 @@ export default class CRFExtractor implements SlotExtractor {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
-    trainer.set_callback(str => {/* swallow training results */ })
+    trainer.set_callback(str => {
+      /* swallow training results */
+    })
 
     for (const seq of sequences) {
       const inputVectors: string[][] = []
@@ -168,7 +206,8 @@ export default class CRFExtractor implements SlotExtractor {
   private async _trainLanguageModel(samples: Sequence[]) {
     this._ftModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const ftTrainFn = tmp.fileSync({ postfix: '.txt' }).name
-    this._ft = new FastText(this._ftModelFn)
+
+    const ft = new this.toolkit.FastText.Model()
 
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
@@ -181,7 +220,21 @@ export default class CRFExtractor implements SlotExtractor {
     }, '')
 
     fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
-    this._ft.train(ftTrainFn, FT_PARAMS)
+
+    await ft.trainToFile('skipgram', this._ftModelFn, {
+      input: ftTrainFn,
+      minCount: 2,
+      bucket: 25000,
+      dim: 15,
+      lr: 0.5,
+      wordNgrams: 3,
+      maxn: 6,
+      minn: 2,
+      epoch: 50,
+      loss: 'hs'
+    })
+
+    this._ft = ft
   }
 
   private async _vectorizeToken(
@@ -223,7 +276,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.wordVectors(word)
+    const vector = await this._ft.queryWordVectors(word)
     return this._kmeansModel.nearest([vector])[0]
   }
 }

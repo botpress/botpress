@@ -29,11 +29,26 @@
       "build/overview": {
         "title": "High-level Overview"
       },
-      "create-module": {
-        "title": "Creating Modules"
-      },
       "deploy/hosting": {
         "title": "Hosting & Environment"
+      },
+      "developers/cluster": {
+        "title": "Server Cluster"
+      },
+      "developers/create-module": {
+        "title": "Creating Modules"
+      },
+      "developers/migrate-from-10": {
+        "title": "Migrating from 10.X"
+      },
+      "developers/migrate": {
+        "title": "Migrating from 11.3"
+      },
+      "developers/release-notes": {
+        "title": "Release Notes"
+      },
+      "developers/tutorials": {
+        "title": "Tutorials"
       },
       "installation": {
         "title": "Installation"
@@ -50,20 +65,14 @@
       "manage/sync-changes": {
         "title": "Syncing Changes"
       },
-      "migrate": {
-        "title": "Migrating from 10.X"
+      "manage/versions": {
+        "title": "Version control"
       },
       "quickstart": {
         "title": "Quick Start"
       },
-      "release-notes": {
-        "title": "Release Notes"
-      },
       "troubleshoot": {
         "title": "Troubleshoot"
-      },
-      "tutorials": {
-        "title": "Tutorials"
       },
       "version-11.0.1-channels": {
         "title": "Messaging Channels"
@@ -165,6 +174,7 @@
       "Getting Started": "Getting Started",
       "Build": "Build",
       "Deploy": "Deploy",
+      "Manage": "Manage",
       "Developers": "Developers"
     }
   },
