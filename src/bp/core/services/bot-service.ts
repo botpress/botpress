@@ -56,14 +56,8 @@ export class BotService {
 
   async findBotsByIds(botsIds: string[]): Promise<BotConfig[]> {
     const actualBotsIds = await this.getBotsIds()
-    const unlinked = _.difference(actualBotsIds, botsIds)
-    if (unlinked.length) {
-      this.logger.warn(
-        `Some unlinked bots exist on your server, to enable them add them to workspaces.json [${unlinked.join(', ')}]`
-      )
-    }
-
-    const linkedBots = _.without(actualBotsIds, ...unlinked)
+    const unlinkedBots = _.difference(actualBotsIds, botsIds)
+    const linkedBots = _.without(actualBotsIds, ...unlinkedBots)
     const botConfigs: BotConfig[] = []
 
     for (const botId of linkedBots) {
