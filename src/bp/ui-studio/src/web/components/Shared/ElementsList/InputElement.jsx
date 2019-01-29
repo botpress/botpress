@@ -19,7 +19,6 @@ export class InputElement extends React.Component {
   }
 
   handleOnEnter = event => {
-    // console.log(event.key, this.inputNotEmpty)
     if (event.key === 'Enter' && this.inputNotEmpty) {
       this.tryAddElement(this.inputValue)
     }
