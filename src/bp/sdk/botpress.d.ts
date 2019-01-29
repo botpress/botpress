@@ -320,7 +320,7 @@ declare module 'botpress/sdk' {
       payload: any
       threadId?: string
       botId: string
-      suggestedReplies?: SuggestedReply[]
+      suggestions?: Suggestion[]
     }
 
     /**
@@ -380,14 +380,14 @@ declare module 'botpress/sdk' {
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
-      readonly suggestedReplies?: SuggestedReply[]
+      readonly suggestions?: Suggestion[]
       /** Contains data related to the state of the event */
       readonly state: EventState
       /** Holds NLU extraction results (when the event is natural language) */
       readonly nlu?: EventUnderstanding
     }
 
-    export interface SuggestedReply {
+    export interface Suggestion {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
       /** An array of the raw payloads to send as an answer */

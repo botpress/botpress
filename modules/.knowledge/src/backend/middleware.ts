@@ -19,7 +19,7 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
         const { content, page, paragraph, name } = result
         const details = `I found this: \n_"${content}"_ \nin ${name} on page ${page}, par. ${paragraph}`
 
-        event.suggestedReplies.push({
+        event.suggestions.push({
           confidence: result.confidence,
           payloads: [{ type: 'text', text: details, markdown: true }],
           intent: 'kdb' // TODO: remove intent requirement in decision engine, add source

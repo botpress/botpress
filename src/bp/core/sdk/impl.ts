@@ -41,7 +41,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly botId: string
   public readonly threadId?: string
   public readonly preview: string
-  public readonly suggestedReplies?: sdk.IO.SuggestedReply[]
+  public readonly suggestions?: sdk.IO.Suggestion[]
   public readonly state: any
   private readonly flags: any
 
@@ -60,7 +60,7 @@ export class IOEvent implements sdk.IO.Event {
     this.state = {}
 
     if (this.direction === 'incoming') {
-      this.suggestedReplies = []
+      this.suggestions = []
     }
   }
 

@@ -27,7 +27,7 @@ const eventSchema = {
   botId: joi.string().required(),
   threadId: joi.string().optional(),
   flags: joi.any().required(),
-  suggestedReplies: joi.array().optional(),
+  suggestions: joi.array().optional(),
   state: joi.any().optional()
 }
 
