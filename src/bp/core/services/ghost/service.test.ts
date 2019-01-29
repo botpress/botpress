@@ -172,6 +172,7 @@ describe('Ghost Service', () => {
       it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
         diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
+        diskDriver.discoverTrackableFolders.mockReturnValue(['test', '.'])
 
         await ghost.global().sync()
 
@@ -186,6 +187,7 @@ describe('Ghost Service', () => {
       })
       it('if disk is up to date, sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
+        diskDriver.discoverTrackableFolders.mockReturnValue(['test', '.'])
         diskDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev)) // All synced!
         diskDriver.readFile.mockReturnValueOnce('FILE A CONTENT')
         diskDriver.readFile.mockReturnValueOnce('FILE D CONTENT')
