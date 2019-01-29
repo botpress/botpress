@@ -6451,7 +6451,7 @@ a.text-dark:hover, a.text-dark:focus {
   background-color: var(--c-background--dark-2);
   border-bottom: 1px solid #999; }
   .bp-header__logo {
-    width: 130px; }
+    width: 140px; }
   .bp-header .navbar-brand,
   .bp-header .nav-link {
     color: var(--c-neutral--light-3);
