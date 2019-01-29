@@ -250,7 +250,7 @@ export default class FormModal extends Component {
                     onChange={this.changeItemAction('isText')}
                     tabIndex="-1"
                   />
-                  <label htmlFor="reply">&nbsp; Type your answer</label>
+                  <label htmlFor="reply">&nbsp; Bot will say:</label>
                 </span>
 
                 <ElementsList

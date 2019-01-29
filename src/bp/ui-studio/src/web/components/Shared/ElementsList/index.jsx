@@ -15,7 +15,7 @@ export default class ElementsList extends React.Component {
     this.setState({ editElementIndex: index })
   }
 
-  handleEditEnter = (element, index) => {
+  handleNewElement = (element, index) => {
     this.setState({ editElementIndex: undefined })
     this.props.update(element, index)
   }
@@ -27,7 +27,7 @@ export default class ElementsList extends React.Component {
           key={`elements_edit_element_${index}`}
           defaultValue={element}
           elements={this.props.elements}
-          onEnterPressed={element => this.handleEditEnter(element, index)}
+          onElementAdd={element => this.handleNewElement(element, index)}
         />
       )
     } else {
@@ -50,7 +50,7 @@ export default class ElementsList extends React.Component {
           invalid={this.props.invalid}
           cleanInputAfterEnterPressed={true}
           elements={this.props.elements}
-          onEnterPressed={this.props.create}
+          onElementAdd={this.props.create}
         />
         {this.props.elements && this.props.elements.map((element, index) => this.renderElement(element, index))}
       </div>
