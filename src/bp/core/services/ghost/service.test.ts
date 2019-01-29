@@ -40,7 +40,7 @@ describe('Ghost Service', () => {
       await ghost.global().getPendingChanges()
       await ghost.global().isFullySynced()
       await ghost.global().readFileAsBuffer('', '')
-      await ghost.global().sync([''])
+      await ghost.global().sync()
       await ghost.global().upsertFile('', '', '')
 
       expect(dbDriver.deleteFile).not.toHaveBeenCalled()
@@ -172,8 +172,9 @@ describe('Ghost Service', () => {
       it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
         diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
+        diskDriver.discoverTrackableFolders.mockReturnValue(['test', '.'])
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // We make sure the user is warned of the dirty state
         expect(logger.warn).toHaveBeenCalled()
@@ -186,6 +187,7 @@ describe('Ghost Service', () => {
       })
       it('if disk is up to date, sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
+        diskDriver.discoverTrackableFolders.mockReturnValue(['.'])
         diskDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev)) // All synced!
         diskDriver.readFile.mockReturnValueOnce('FILE A CONTENT')
         diskDriver.readFile.mockReturnValueOnce('FILE D CONTENT')
@@ -198,7 +200,7 @@ describe('Ghost Service', () => {
           dbDriver.listRevisions.mockReturnValue([])
         })
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // Deleted revisions
         expect(dbDriver.deleteRevision).toHaveBeenCalledTimes(3)

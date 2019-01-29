@@ -182,7 +182,7 @@ export class Botpress {
   @WrapErrorsWith('Error initializing Ghost Service')
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
-    await this.ghostService.global().sync(['config', 'actions', 'content-types', 'hooks'])
+    await this.ghostService.global().sync()
   }
 
   private async initializeServices() {
