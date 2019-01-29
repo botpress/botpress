@@ -184,11 +184,13 @@ export class ScopedGhostService {
     await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
-  async sync(paths: string[]) {
+  async sync() {
     if (!this.useDbDriver) {
       // We don't have to sync anything as we're just using the files from disk
       return
     }
+
+    const paths = await this.diskDriver.discoverTrackableFolders(this.normalizeFolderName('./'))
 
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
@@ -201,7 +203,7 @@ export class ScopedGhostService {
       return
     }
 
-    for (const path of [...paths, './']) {
+    for (const path of paths) {
       const normalizedPath = this.normalizeFolderName(path)
       let currentFiles = await this.dbDriver.directoryListing(normalizedPath)
       let newFiles = await this.diskDriver.directoryListing(normalizedPath)

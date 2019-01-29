@@ -134,7 +134,7 @@ export class BotService {
 
   private async _mountBot(botId: string) {
     try {
-      await this.ghostService.forBot(botId).sync(['actions', 'content-elements', 'flows', 'intents'])
+      await this.ghostService.forBot(botId).sync()
 
       await this.cms.loadContentElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)

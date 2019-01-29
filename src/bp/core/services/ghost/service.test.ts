@@ -40,7 +40,7 @@ describe('Ghost Service', () => {
       await ghost.global().getPendingChanges()
       await ghost.global().isFullySynced()
       await ghost.global().readFileAsBuffer('', '')
-      await ghost.global().sync([''])
+      await ghost.global().sync()
       await ghost.global().upsertFile('', '', '')
 
       expect(dbDriver.deleteFile).not.toHaveBeenCalled()
@@ -173,7 +173,7 @@ describe('Ghost Service', () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
         diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // We make sure the user is warned of the dirty state
         expect(logger.warn).toHaveBeenCalled()
@@ -198,7 +198,7 @@ describe('Ghost Service', () => {
           dbDriver.listRevisions.mockReturnValue([])
         })
 
-        await ghost.global().sync(['test'])
+        await ghost.global().sync()
 
         // Deleted revisions
         expect(dbDriver.deleteRevision).toHaveBeenCalledTimes(3)
