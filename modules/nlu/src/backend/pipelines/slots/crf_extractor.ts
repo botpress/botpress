@@ -230,8 +230,10 @@ export default class CRFExtractor implements SlotExtractor {
       wordNgrams: 3,
       maxn: 6,
       minn: 2,
-      epoch: 50
+      epoch: 50,
+      loss: 'hs'
     })
+
     this._ft = ft
   }
 
