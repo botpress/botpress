@@ -39,10 +39,7 @@ export class DecisionEngine {
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
         await this.stateManager.persist(processedEvent, false)
       } catch (err) {
-        this.logger
-          .forBot(event.botId)
-          .attachError(err)
-          .error(err)
+        this.logger.forBot(event.botId).error(err)
         await this._sendErrorMessage(event)
       }
     }

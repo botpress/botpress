@@ -17,6 +17,6 @@ export class FlowError extends Error {
     public readonly flowName: string,
     public readonly nodeName?: string
   ) {
-    super(message)
+    super(`${message}, Bot: ${botId}, Flow: ${flowName || 'N/A'}, Node: ${nodeName || 'N/A'}`)
   }
 }
