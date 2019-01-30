@@ -115,7 +115,12 @@ export class PersistedConsoleLogger implements Logger {
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
     let indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
-    if (this.attachedError && this.displayLevel >= LogLevel.DEV && this.attachedError.stack) {
+    if (
+      this.attachedError &&
+      this.displayLevel >= LogLevel.DEV &&
+      this.attachedError.stack &&
+      this.attachedError['__hideStackTrace'] !== true
+    ) {
       indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
       indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
     }
