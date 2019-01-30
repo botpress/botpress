@@ -9,7 +9,7 @@ export class MigrationsTable extends Table {
       table.increments('id')
       table.string('name')
       table.integer('batch')
-      table.timestamp('migrated_time')
+      table.timestamp('migration_time')
       created = true
     })
     return created

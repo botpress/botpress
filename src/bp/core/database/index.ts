@@ -21,7 +21,7 @@ export default class Database {
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
     private logger: Logger
-  ) {}
+  ) { }
 
   async bootstrap() {
     await Promise.mapSeries(AllTables, async Tbl => {
@@ -32,6 +32,8 @@ export default class Database {
       }
       this.tables.push(table)
     })
+
+    await this.runMigrations()
   }
 
   async seedForTests() {
@@ -79,6 +81,11 @@ export default class Database {
   }
 
   runMigrations() {
-    // TODO
+    return this.knex.migrate.latest({
+      directory: './core/database/migrations',
+      tableName: 'knex_core_migrations',
+      //@ts-ignore
+      loadExtensions: ['.js']
+    })
   }
 }
