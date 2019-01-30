@@ -67,7 +67,7 @@ class KeyList extends Component {
         <thead>
           <tr>
             <th>Label</th>
-            <th>Nodes</th>
+            <th>Available Nodes</th>
             <th>Support</th>
             <th>Assigned</th>
             <th>Renews on</th>
