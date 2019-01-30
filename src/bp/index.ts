@@ -154,6 +154,9 @@ try {
         require('./bench').default(argv)
       }
     )
+    .command('extract', 'Extract archives in their respective folders', {}, argv => {
+      require('./extractor').default(argv)
+    })
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
