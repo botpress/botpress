@@ -154,7 +154,7 @@ try {
         require('./bench').default(argv)
       }
     )
-    .command('extract', 'Extract archives in their respective folders', {}, argv => {
+    .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {
       require('./extractor').default(argv)
     })
     .option('verbose', {
