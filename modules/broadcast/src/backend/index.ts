@@ -1,8 +1,7 @@
 import 'bluebird-global'
 
+// @ts-ignore
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
-import path from 'path'
 
 import api from './api'
 
@@ -13,22 +12,23 @@ export type Extension = {}
 
 export type SDK = typeof sdk & Extension
 
-let db = undefined
+const onServerStarted = async (bp: SDK) => { }
 
-const onServerStarted = async (bp: SDK) => {
-  db = new BroadcastDb(bp)
+const onServerReady = async (bp: SDK) => { }
+
+const onBotMount = async (bp: SDK, botId: string) => {
+  const db = new BroadcastDb(bp, botId)
   await db.initialize()
 
   Daemon(bp, db)
-}
 
-const onServerReady = async (bp: SDK) => {
   await api(bp, db)
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
+  onBotMount,
   definition: {
     name: 'broadcast',
     menuIcon: 'settings_input_antenna',
