@@ -23,7 +23,8 @@ import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
-import { DialogEngine, ProcessingError } from './services/dialog/dialog-engine'
+import { DialogEngine } from './services/dialog/dialog-engine'
+import { ProcessingError } from './services/dialog/errors'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
@@ -206,10 +207,10 @@ export class Botpress {
     this.dataRetentionService.initialize()
     this.stateManager.initialize()
 
-    const flowLogger = await this.loggerProvider('DialogEngine')
+    const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
-      const message = this.formatError(err)
-      flowLogger.forBot(err.botId).warn(message)
+      const message = this.formatProcessingError(err)
+      dialogEngineLogger.forBot(err.botId).warn(message)
     }
 
     this.notificationService.onNotification = notification => {
@@ -254,7 +255,7 @@ export class Botpress {
     this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
   }
 
-  private formatError(err: ProcessingError) {
+  private formatProcessingError(err: ProcessingError) {
     return `Error processing "${err.instruction}"
 Err: ${err.message}
 Flow: ${err.flowName}
