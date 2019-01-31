@@ -1,66 +1,51 @@
-import firebase from '../utils/firebase'
-import ms from 'ms'
+import * as firebase from 'firebase/app'
+import 'firebase/auth'
 
-export const SESSION_KEY = 'bp/licensing/session'
+// Move from legacy utils/firebase
+// TODO make this env vars on the build server so it's easily replacable
+var config = {
+  apiKey: 'AIzaSyBorvBTBW8GbNjJSmhqLbJsu-SvzqTx5OY',
+  authDomain: 'botpress-licensing.firebaseapp.com',
+  databaseURL: 'https://botpress-licensing.firebaseio.com',
+  projectId: 'botpress-licensing',
+  storageBucket: '',
+  messagingSenderId: '355555448753'
+}
+firebase.initializeApp(config)
 
-export function getSession() {
-  const ls = localStorage.getItem(SESSION_KEY)
-  return (ls && JSON.parse(ls)) || { token: null, email: null, expires: 0 }
+export const getToken = async () => {
+  return firebase.auth().currentUser.getIdToken()
 }
 
-export function setSession(params) {
-  const ls = JSON.stringify({
-    ...params,
-    expires: new Date().getTime() + ms('4h'),
-    time: new Date()
-  })
-
-  localStorage.setItem(SESSION_KEY, ls)
+export const getCurrentUser = () => {
+  return firebase.auth().currentUser
 }
 
-export function getToken() {
-  const session = getSession()
-  return session && session.token
+// TODO verify signature
+export const login = async ({ email, password }) => {
+  return firebase.auth().signInWithEmailAndPassword(email, password)
 }
 
-export async function login({ email, password }) {
-  return firebase
-    .auth()
-    .signInWithEmailAndPassword(email, password)
-    .then(result => {
-      setSession({
-        email: result.user.email,
-        name: result.user.displayName,
-        token: result.user.ra
-      })
-    })
-}
-
-export async function register({ email, password }) {
+// TODO verify signature
+export const register = async ({ email, password }) => {
   return firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
     .then(result => {
-      setSession({
-        email: result.user.email,
-        name: result.user.displayName,
-        token: result.user.ra
-      })
-
+      // TODO smth with res ?
       firebase.auth().currentUser.sendEmailVerification()
     })
 }
 
-export async function sendResetPassword({ email }) {
+// TODO verify signature
+export const sendResetPassword = ({ email }) => {
   return firebase.auth().sendPasswordResetEmail(email)
 }
 
-export async function logout() {
-  firebase.auth().signOut()
-  localStorage.removeItem(SESSION_KEY)
+export const logout = async () => {
+  return firebase.auth().signOut()
 }
 
-export function isAuthenticated() {
-  const { token, expires } = getSession()
-  return token && new Date().getTime() < expires
+export const isAuthenticated = () => {
+  return !!firebase.auth().currentUser
 }

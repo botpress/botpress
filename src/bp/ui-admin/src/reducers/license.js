@@ -85,7 +85,8 @@ export const fetchLicensing = () => {
 export const fetchAllKeys = () => async dispatch => {
   dispatch({ type: FETCH_KEYS_REQUESTED })
 
-  const { data } = await api.getLicensing().get('/me/keys')
+  const licensing = await api.getLicensing()
+  const { data } = await licensing.get('/me/keys')
 
   dispatch({
     type: FETCH_KEYS_RECEIVED,
@@ -94,7 +95,8 @@ export const fetchAllKeys = () => async dispatch => {
 }
 
 export const fetchProducts = () => async dispatch => {
-  const { data } = await api.getLicensing().get(`/prices`)
+  const licensing = await api.getLicensing()
+  const { data } = await licensing.get(`/prices`)
 
   dispatch({
     type: FETCH_PRODUCTS_RECEIVED,

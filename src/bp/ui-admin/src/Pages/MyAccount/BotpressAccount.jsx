@@ -11,8 +11,7 @@ import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import LoginModal from '../Components/Licensing/LoginModal'
 import { fetchAllKeys, fetchProducts, fetchLicensing } from '../../reducers/license'
-import { isAuthenticated } from '../../Auth/licensing'
-import { logout } from '../../Auth/licensing'
+import { logout, isAuthenticated } from '../../Auth/licensing'
 
 class KeyList extends Component {
   state = {
