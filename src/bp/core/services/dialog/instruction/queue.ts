@@ -6,12 +6,6 @@ import { InstructionFactory } from './factory'
 export class InstructionQueue {
   instructions: Instruction[] = []
 
-  constructor(instructions?: any) {
-    if (instructions) {
-      this.instructions = instructions
-    }
-  }
-
   clear() {
     this.instructions = []
   }
