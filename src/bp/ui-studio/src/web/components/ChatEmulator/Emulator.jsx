@@ -6,9 +6,9 @@ import JSONTree from 'react-json-tree'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import { Button, Tooltip, OverlayTrigger, Glyphicon } from 'react-bootstrap'
-
+import { HotKeys } from 'react-hotkeys'
+import { keyMap } from '~/keyboardShortcuts'
 import classnames from 'classnames'
-
 import inspectorTheme from './inspectorTheme'
 import Message from './Message'
 
@@ -220,16 +220,22 @@ export default class EmulatorChat extends React.Component {
   }
 
   render() {
+    const keyHandlers = {
+      'emulator-reset': this.handleChangeUserId
+    }
+
     const toggleTooltip = <Tooltip id="toggleTooltip">Toggle Display</Tooltip>
     const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
+    const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session ({keyMap['emulator-reset']})</Tooltip>
 
     return (
-      <div className={style.container}>
+      <HotKeys handlers={keyHandlers} className={style.container}>
         <div className={style.toolbar}>
-          <Button onClick={this.handleChangeUserId}>
-            <Glyphicon glyph="refresh" /> New session
-          </Button>
-
+          <OverlayTrigger placement="bottom" overlay={newSessionTooltip}>
+            <Button onClick={this.handleChangeUserId}>
+              <Glyphicon glyph="refresh" /> New session
+            </Button>
+          </OverlayTrigger>
           <OverlayTrigger placement="bottom" overlay={toggleInspector}>
             <Button onClick={this.toggleInspector} className={style.pullRight}>
               <Glyphicon glyph="search" />
@@ -254,7 +260,7 @@ export default class EmulatorChat extends React.Component {
           </SplitPane>
         </div>
         {this.renderMessageInput()}
-      </div>
+      </HotKeys>
     )
   }
 }
