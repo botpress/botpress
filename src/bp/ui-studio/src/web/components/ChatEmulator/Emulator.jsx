@@ -33,7 +33,8 @@ export default class EmulatorChat extends React.Component {
     sentHistory: JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]'),
     sentHistoryIndex: 0,
     isInspectorVisible: true,
-    isVerticalView: true
+    isVerticalView: true,
+    isTypingHidden: true
   }
 
   getOrCreateUserId(forceNew = false) {
@@ -167,6 +168,7 @@ export default class EmulatorChat extends React.Component {
             key={`msg-${idx}`}
             onFocus={() => this.setState({ selectedIndex: idx })}
             selected={this.state.selectedIndex === idx}
+            hideTyping={this.state.isTypingHidden}
             message={msg}
           />
         ))}
@@ -219,12 +221,17 @@ export default class EmulatorChat extends React.Component {
     this.setState({ isVerticalView: !this.state.isVerticalView })
   }
 
+  toggleTyping = () => {
+    this.setState({ isTypingHidden: !this.state.isTypingHidden })
+  }
+
   render() {
     const keyHandlers = {
       'emulator-reset': this.handleChangeUserId
     }
 
-    const toggleTooltip = <Tooltip id="toggleTooltip">Toggle Display</Tooltip>
+    const toggleTyping = <Tooltip id="toggleTyping">Toggle Display of 'Typing' indicator</Tooltip>
+    const toggleTooltip = <Tooltip id="toggleTooltip">Toggle View</Tooltip>
     const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
     const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session ({keyMap['emulator-reset']})</Tooltip>
 
@@ -236,16 +243,23 @@ export default class EmulatorChat extends React.Component {
               <Glyphicon glyph="refresh" /> New session
             </Button>
           </OverlayTrigger>
-          <OverlayTrigger placement="bottom" overlay={toggleInspector}>
-            <Button onClick={this.toggleInspector} className={style.pullRight}>
-              <Glyphicon glyph="search" />
-            </Button>
-          </OverlayTrigger>
-          <OverlayTrigger placement="bottom" overlay={toggleTooltip}>
-            <Button onClick={this.toggleView} className={style.pullRight}>
-              <Glyphicon glyph="expand" />
-            </Button>
-          </OverlayTrigger>
+          <div style={{ float: 'right' }}>
+            <OverlayTrigger placement="bottom" overlay={toggleTyping}>
+              <Button onClick={this.toggleTyping}>
+                <Glyphicon glyph="pencil" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger placement="bottom" overlay={toggleInspector}>
+              <Button onClick={this.toggleInspector}>
+                <Glyphicon glyph="search" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger placement="bottom" overlay={toggleTooltip}>
+              <Button onClick={this.toggleView}>
+                <Glyphicon glyph="expand" />
+              </Button>
+            </OverlayTrigger>
+          </div>
         </div>
         <div className={style.panes}>
           <SplitPane
