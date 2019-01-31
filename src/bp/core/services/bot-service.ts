@@ -7,6 +7,7 @@ import { Bot } from 'core/misc/interfaces'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
+import { WrapErrorsWith } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -121,6 +122,7 @@ export class BotService {
     await this.configProvider.setBotConfig(botId, actualBot)
   }
 
+  @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
   async deleteBot(botId: string) {
     await this.unmountBot(botId)
     await this.ghostService.forBot(botId).deleteFolder('/')
