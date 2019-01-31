@@ -148,13 +148,14 @@ export default class KeyListItem extends Component {
       <tr disabled={license.canceled}>
         <td>
           <span className="table--keys__users">
-            {license.label}&nbsp;
+            {license.label}
+            &nbsp;
             {license.canceled && this.renderCancelledBadge()}
             {isActive && this.renderActiveBadge()}
           </span>
         </td>
         <td>
-          <span className="table--keys__users">{license.limits && license.limits.nodes}</span>
+          <span className="table--keys__users">{license.limits && license.limits.nodes + 1}</span>
         </td>
         <td>
           <span className="table--keys__users">{license.quantities.isGoldSupport ? 'Gold' : 'Standard'}</span>
