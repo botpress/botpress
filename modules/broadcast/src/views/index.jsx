@@ -12,20 +12,13 @@ import {
   Panel,
   Table,
   Modal,
-  Popover,
-  Tooltip,
-  OverlayTrigger,
   Form,
   FormGroup,
   FormControl,
   InputGroup,
   Checkbox,
   Col,
-  Row,
   ControlLabel,
-  Alert,
-  FlatButton,
-  Link,
   ListGroupItem,
   Label
 } from 'react-bootstrap'
@@ -33,7 +26,6 @@ import {
 import DatePicker from 'react-bootstrap-date-picker'
 import TimePicker from 'react-bootstrap-time-picker'
 import moment from 'moment'
-import dateformat from 'dateformat'
 import classnames from 'classnames'
 
 import _ from 'lodash'
@@ -43,32 +35,10 @@ import DismissableAlert from './alert'
 import style from './style.scss'
 
 export default class BroadcastModule extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      loading: true,
-      showModalForm: false,
-      broadcast: {}
-    }
-
-    this.handleAddBroadcast = this.handleAddBroadcast.bind(this)
-    this.handleModifyBroadcast = this.handleModifyBroadcast.bind(this)
-    this.handleRemoveBroadcast = this.handleRemoveBroadcast.bind(this)
-    this.handleOpenModalForm = this.handleOpenModalForm.bind(this)
-    this.handleCloseModalForm = this.handleCloseModalForm.bind(this)
-    this.handleContentChange = this.handleContentChange.bind(this)
-    this.handleDateChange = this.handleDateChange.bind(this)
-    this.handleTimeChange = this.handleTimeChange.bind(this)
-    this.handleUserTimezoneChange = this.handleUserTimezoneChange.bind(this)
-    this.handleRequestError = this.handleRequestError.bind(this)
-
-    this.renderFilteringConditionElement = this.renderFilteringConditionElement.bind(this)
-    this.handleAddToFilteringConditions = this.handleAddToFilteringConditions.bind(this)
-    this.handleRemoveFromFilteringConditions = this.handleRemoveFromFilteringConditions.bind(this)
-
-    this.fetchAllBroadcasts = this.fetchAllBroadcasts.bind(this)
-    this.closeModal = this.closeModal.bind(this)
+  state = {
+    loading: true,
+    showModalForm: false,
+    broadcast: {}
   }
 
   getAxios() {
@@ -84,7 +54,7 @@ export default class BroadcastModule extends React.Component {
     this.props.bp.events.off('broadcast.changed', this.fetchAllBroadcasts)
   }
 
-  fetchAllBroadcasts() {
+  fetchAllBroadcasts = () => {
     this.setState({ loading: true })
 
     return this.getAxios()
@@ -111,12 +81,12 @@ export default class BroadcastModule extends React.Component {
     }
   }
 
-  closeModal() {
+  closeModal = () => {
     this.setState({ showModalForm: false, error: null })
     return Promise.resolve(true)
   }
 
-  handleRequestError(err) {
+  handleRequestError = err => {
     if (err && err.response) {
       return this.setState({
         loading: false,
@@ -130,7 +100,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleAddBroadcast() {
+  handleAddBroadcast = () => {
     const broadcast = this.extractBroadcastFromModal()
     this.getAxios()
       .put('/mod/broadcast/broadcasts', broadcast)
@@ -139,7 +109,7 @@ export default class BroadcastModule extends React.Component {
       .catch(this.handleRequestError)
   }
 
-  handleModifyBroadcast() {
+  handleModifyBroadcast = () => {
     const broadcast = this.extractBroadcastFromModal()
     const { broadcastId: id } = this.state
     this.getAxios()
@@ -149,18 +119,16 @@ export default class BroadcastModule extends React.Component {
       .catch(this.handleRequestError)
   }
 
-  handleRemoveBroadcast(id) {
+  handleRemoveBroadcast = (id) => {
     this.getAxios()
       .delete('/mod/broadcast/broadcasts/' + id)
       .then(this.fetchAllBroadcasts)
       .catch(this.handleRequestError)
   }
 
-  handleCloseModalForm() {
-    this.setState({ showModalForm: false })
-  }
+  handleCloseModalForm = () => this.setState({ showModalForm: false })
 
-  handleOpenModalForm(broadcast, id) {
+  handleOpenModalForm = (broadcast, id) => {
     if (!id) {
       id = null
     }
@@ -192,7 +160,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleContentChange(element) {
+  handleContentChange = element => {
     const newBroadcast = this.state.broadcast
     newBroadcast.content = element.id
     this.setState({
@@ -200,7 +168,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleDateChange(value) {
+  handleDateChange = value => {
     const newBroadcast = this.state.broadcast
     newBroadcast.date = value
     this.setState({
@@ -208,7 +176,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleTimeChange(value) {
+  handleTimeChange = value => {
     const newBroadcast = this.state.broadcast
     newBroadcast.time = value
 
@@ -217,7 +185,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleUserTimezoneChange() {
+  handleUserTimezoneChange = () => {
     const newBroadcast = this.state.broadcast
     newBroadcast.userTimezone = !newBroadcast.userTimezone
     this.setState({
@@ -225,7 +193,7 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
-  handleAddToFilteringConditions() {
+  handleAddToFilteringConditions = () => {
     const input = ReactDOM.findDOMNode(this.filterInput)
     if (input && input.value !== '') {
       const newBroadcast = this.state.broadcast
@@ -238,7 +206,7 @@ export default class BroadcastModule extends React.Component {
     }
   }
 
-  handleRemoveFromFilteringConditions(filter) {
+  handleRemoveFromFilteringConditions = filter => {
     const newBroadcast = this.state.broadcast
     newBroadcast.filteringConditions = _.without(newBroadcast.filteringConditions, filter)
 
@@ -438,7 +406,7 @@ export default class BroadcastModule extends React.Component {
     )
   }
 
-  renderFilteringConditionElement(filter) {
+  renderFilteringConditionElement = (filter) => {
     const removeHandler = () => this.handleRemoveFromFilteringConditions(filter)
 
     return (
@@ -553,12 +521,12 @@ export default class BroadcastModule extends React.Component {
     const allBroadcasts = _.assign([], this.state.broadcasts)
     const hasSomeError = _.some(allBroadcasts, ['errored', true])
 
-    const upcomingBroadcasts = _.remove(allBroadcasts, function(value) {
+    const upcomingBroadcasts = _.remove(allBroadcasts, function (value) {
       const datetime = moment(value.date + ' ' + value.time, 'YYYY-MM-DD HH:mm')
       return datetime.isBefore(moment().add(3, 'days')) && datetime.isAfter(moment())
     })
 
-    const pastBroadcasts = _.remove(allBroadcasts, function(value) {
+    const pastBroadcasts = _.remove(allBroadcasts, function (value) {
       const datetime = moment(value.date + ' ' + value.time, 'YYYY-MM-DD HH:mm')
       return datetime.isBefore(moment()) && datetime.isAfter(moment().subtract(3, 'days'))
     })

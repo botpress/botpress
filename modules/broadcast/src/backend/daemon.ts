@@ -14,9 +14,13 @@ const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
 export default (bp: SDK, db: Database) => {
-  const emitChanged = _.throttle(() => {
-    bp && bp.events.emit('broadcast.changed')
-  }, 1000)
+  // console.log('bp: ', bp)
+  const emitChanged = () => ({})
+  // NOTE: look as bp.events make other job
+  // const emitChanged = _.throttle(() => {
+
+  //   bp && bp.events.emit('broadcast.changed')
+  // }, 1000)
 
   const _sendBroadcast = Promise.method(row => {
     let dropPromise = Promise.resolve(false)
@@ -41,13 +45,22 @@ export default (bp: SDK, db: Database) => {
       })
     }
 
-    return dropPromise.then(drop => {
+    return dropPromise.then(async drop => {
       if (drop) {
         bp.logger.debug(`Drop sending #${row.scheduleId} to user: ${row.userId}. Reason = Filters`)
         return
       }
 
-      return bp.renderers.sendToUser(row.userId, '#!' + row.text)
+      const content = await bp.cms.getContentElement(db.botId, row.text)
+
+      return bp.events.sendEvent(bp.IO.Event({
+        botId: db.botId,
+        channel: row.platform,
+        target: row.userId,
+        type: 'text',
+        direction: 'outgoing',
+        payload: content.formData
+      }))
     })
   })
 
@@ -138,10 +151,10 @@ export default (bp: SDK, db: Database) => {
 
               bp.logger.error(`Broadcast #${scheduleId}' failed. Broadcast aborted. Reason: ${err.message}`)
 
-              bp.notifications.send({
+              bp.notifications.create(db.botId, {
+                botId: db.botId,
                 level: 'error',
-                message: 'Broadcast #' + row['scheduleId'] + ' failed.' + ' Please check logs for the reason why.',
-                url: '/logs'
+                message: 'Broadcast #' + row['scheduleId'] + ' failed.' + ' Please check logs for the reason why.'
               })
 
               return db.knex('broadcast_schedules')

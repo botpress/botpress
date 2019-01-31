@@ -1,4 +1,5 @@
 import moment from 'moment'
+import _ from 'lodash'
 
 import { SDK } from '.'
 
@@ -133,11 +134,14 @@ export default class BroadcastDb {
       })
   }
 
-  getUsersTimezone() {
+  async getUsersTimezone() {
     // TODO: need add "timezone" to users
-    return this.knex('users')
-      .distinct('timezone')
-      .select()
+    const attrs = await this.knex('srv_channel_users')
+      .select('attributes')
+
+    const timezones = attrs.map(({ attributes: { timezone } }) => ({ timezone }))
+
+    return timezones
   }
 
   setBroadcastOutbox(schedule, tz) {
@@ -147,13 +151,13 @@ export default class BroadcastDb {
     const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
 
-    const whereClause = _.isNil(initialTz) ? 'where timezone IS NULL' : 'where timezone = :initialTz'
+    const whereClause = _.isNil(initialTz) ? "where attributes -> 'timezone' IS NULL" : "where attributes -> 'timezone' = :initialTz"
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "ts")
       select userId, :scheduleId, :adjustedTime
       from (
-        select id as userId
-        from users
+        select user_id as userId
+        from srv_channel_users
         ${whereClause}
       ) as q1`
 
@@ -168,6 +172,7 @@ export default class BroadcastDb {
 
   // TODO: check naming
   getOutboxCount(schedule) {
+    // this.bp.users.get
     return this.knex('broadcast_outbox')
       .where({ scheduleId: schedule['id'] })
       .select(this.knex.raw('count(*) as count'))

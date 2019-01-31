@@ -42,6 +42,8 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
     } else if (messageType === 'text' || messageType === 'carousel') {
+      console.log('messageType: ', messageType)
+      console.log('eventL: ', event)
       const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: event.payload,
         raw: event.payload,
