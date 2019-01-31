@@ -358,4 +358,36 @@ export class ScopedGhostService {
 
     return result
   }
+
+  /**
+   * Find and replace a value through specific folders
+   * @param searchValue The value to search and replace
+   * @param replaceValue The replacement value
+   * @param folders The folders to search
+   * @returns A string array of the files that were updated
+   */
+  async replaceInFolders(searchValue: RegExp, replaceValue: string, folders: string[]): Promise<string[]> {
+    const matchingFiles: string[] = []
+
+    for (const folder of folders) {
+      const filePaths = await this.directoryListing(folder, '*.*')
+
+      for (const filePath of filePaths) {
+        const fileContent = await this.readFileAsString(folder, filePath)
+        const newContent = fileContent.replace(searchValue, replaceValue)
+        await this.upsertFile(folder, filePath, newContent)
+
+        const normalizedPath = this.normalizeFileName(folder, filePath)
+        matchingFiles.push(normalizedPath)
+      }
+    }
+
+    if (matchingFiles.length) {
+      this.logger.debug(
+        `References to "${searchValue}" has been replaced by "${replaceValue}" in files: [${matchingFiles.join(', ')}]`
+      )
+    }
+
+    return matchingFiles
+  }
 }

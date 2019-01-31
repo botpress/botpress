@@ -85,10 +85,11 @@ export class FlowService {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
 
-    const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
+    const flowsToSave = await Promise.map(flowViews, flow => this._prepareSaveFlow(botId, flow))
+
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
-        this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
+        this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
         this.ghost.forBot(botId).upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
       ])
     )
@@ -126,10 +127,23 @@ export class FlowService {
     this.saveAll(botId, [flow])
   }
 
-  private prepareSaveFlow(flow) {
+  private async _prepareSaveFlow(botId: string, flow: FlowView): Promise<any> {
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {
       throw new Error(schemaError)
+    }
+
+    // Find and replace any node name that has changed though all the files that referenced the old name.
+    // FIXME Refactor: Use the node ID instead of the node name to reference it.
+    if (flow.location) {
+      const existingFlow = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, flow.location)
+      for (const n1 of existingFlow.nodes) {
+        for (const n2 of flow.nodes) {
+          if (n1.id === n2.id && n1.name !== n2.name) {
+            await this.ghost.forBot(botId).replaceInFolders(new RegExp(`${n1.name}`, 'i'), n2.name, ['./qna'])
+          }
+        }
+      }
     }
 
     const uiContent = {
