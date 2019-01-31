@@ -254,12 +254,13 @@ export default class FormModal extends Component {
                 </span>
 
                 <ElementsList
-                  placeholder="Type and press enter to add an answer"
-                  invalid={this.state.invalidFields.answer}
+                  placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
                   elements={this.state.item.answers}
-                  create={this.createAnswer}
-                  update={this.updateAnswer}
-                  delete={this.deleteAnswer}
+                  allowMultiline={true}
+                  onInvalid={this.state.invalidFields.answer}
+                  onCreate={this.createAnswer}
+                  onUpdate={this.updateAnswer}
+                  onDelete={this.deleteAnswer}
                 />
               </div>
 
