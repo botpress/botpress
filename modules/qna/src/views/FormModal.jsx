@@ -218,7 +218,7 @@ export default class FormModal extends Component {
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
                   })}
-                  value={this.state.item.category}
+                  value={this.state.item.category || categories[0].value}
                   options={categories}
                   onChange={this.handleSelect('category')}
                   placeholder="Search or choose category"

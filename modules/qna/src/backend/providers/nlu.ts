@@ -68,6 +68,7 @@ export default class Storage implements QnaStorage {
       if (question.data.enabled && !matchedIntent) {
         const intent = {
           entities: [],
+          contexts: [question.data.category || 'global'],
           utterances: normalizeQuestions(question.data.questions)
         }
 
@@ -84,6 +85,7 @@ export default class Storage implements QnaStorage {
     if (data.enabled) {
       const intent = {
         entities: [],
+        contexts: [data.category || 'global'],
         utterances: normalizeQuestions(data.questions)
       }
 
@@ -92,10 +94,11 @@ export default class Storage implements QnaStorage {
       await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
 
-    await this.syncNlu()
     await this.bp.ghost
       .forBot(this.botId)
       .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
+
+    await this.syncNlu()
 
     return id
   }
