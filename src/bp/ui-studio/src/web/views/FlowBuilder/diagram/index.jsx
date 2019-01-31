@@ -472,6 +472,27 @@ export default class FlowBuilder extends Component {
     }
   }
 
+  renderCatchAllInfo() {
+    const nbOnReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
+    const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
+
+    return (
+      <div>
+        {nbOnReceive > 0 ? (
+          <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+            <Label bsStyle="danger">{nbOnReceive}</Label> flow-wide onReceive
+          </Button>
+        ) : null}
+        {nbNext > 0 ? (
+          <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+            <Label bsStyle="primary">{nbNext}</Label> flow-wide
+            {nbNext === 1 ? ' transition' : ' transitions'}
+          </Button>
+        ) : null}
+      </div>
+    )
+  }
+
   render() {
     const isInserting = this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')
     const classNames = classnames({ [style.insertNode]: isInserting })
@@ -484,16 +505,20 @@ export default class FlowBuilder extends Component {
         className={classNames}
         style={{ outline: 'none', width: '100%', height: '100%' }}
       >
-        {isInserting && (
-          <div className={style.insertMode}>
-            <div>
-              <Label bsStyle="primary">Insertion Mode</Label>
+        <div className={style.floatingInfo}>
+          {this.renderCatchAllInfo()}
+          {isInserting && (
+            <div className={style.insertMode}>
+              <div>
+                <Label bsStyle="primary">Insertion Mode</Label>
+              </div>
+              <Button bsStyle="danger" onClick={cancelInsert}>
+                Cancel
+              </Button>
             </div>
-            <Button bsStyle="danger" onClick={cancelInsert}>
-              Cancel
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
+
         <DiagramWidget
           readOnly={this.props.readOnly}
           ref={w => (this.diagramWidget = w)}
