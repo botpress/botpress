@@ -6,26 +6,11 @@ import _ from 'lodash'
 import { converseApiEvents } from '../converse'
 
 import { FlowView } from '.'
+import { FlowError, ProcessingError } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
-
-export class ProcessingError extends Error {
-  constructor(
-    message: string,
-    public readonly botId: string,
-    public readonly nodeName: string,
-    public readonly flowName: string,
-    public readonly instruction: string
-  ) {
-    super(message)
-  }
-}
-
-class DialogEngineError extends Error {}
-class FlowNotFoundError extends DialogEngineError {}
-class NodeNotFoundError extends DialogEngineError {}
 
 @injectable()
 export class DialogEngine {
@@ -45,7 +30,7 @@ export class DialogEngine {
 
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
-    const currentNode = this._findNode(currentFlow, context.currentNode)
+    const currentNode = this._findNode(botId, currentFlow, context.currentNode)
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
@@ -106,8 +91,8 @@ export class DialogEngine {
 
     const targetFlow = this._findFlow(botId, targetFlowName)
     const targetNode = targetNodeName
-      ? this._findNode(targetFlow, targetNodeName)
-      : this._findNode(targetFlow, targetFlow.startNode)
+      ? this._findNode(botId, targetFlow, targetNodeName)
+      : this._findNode(botId, targetFlow, targetFlow.startNode)
 
     event.state.context.currentFlow = targetFlow.name
     event.state.context.currentNode = targetNode.name
@@ -121,7 +106,7 @@ export class DialogEngine {
     // This is the only place we dont want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {
       try {
-        return this._findNode(flow, nodeName)
+        return this._findNode(botId, flow, nodeName)
       } catch (err) {
         // ignore
       }
@@ -180,8 +165,7 @@ export class DialogEngine {
     this._logStart(event.botId)
 
     const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
-    const startNode = this._findNode(defaultFlow, defaultFlow.startNode)
-
+    const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.context = {
       currentNode: startNode.name,
       currentFlow: defaultFlow.name
@@ -196,7 +180,7 @@ export class DialogEngine {
     if (transitionTo.includes('.flow.json')) {
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
-      const startNode = this._findNode(flow, flow.startNode)
+      const startNode = this._findNode(event.botId, flow, flow.startNode)
 
       context = {
         currentFlow: flow.name,
@@ -219,9 +203,9 @@ export class DialogEngine {
       let parentNode
 
       if (specificNode) {
-        parentNode = this._findNode(parentFlow, specificNode)
+        parentNode = this._findNode(event.botId, parentFlow, specificNode)
       } else {
-        parentNode = this._findNode(parentFlow, event.state.context.previousNode!)
+        parentNode = this._findNode(event.botId, parentFlow, event.state.context.previousNode!)
       }
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
@@ -252,7 +236,7 @@ export class DialogEngine {
   private async _goToSubflow(botId, event, sessionId, parentNode, parentFlow) {
     const subflowName = parentNode.flow // Name of the subflow to transition to
     const subflow = this._findFlow(botId, subflowName)
-    const subflowStartNode = this._findNode(subflow, subflow.startNode)
+    const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
     // We only update previousNodeName and previousFlowName when we transition to a subblow.
     // When the sublow ends, we will transition back to previousNodeName / previousFlowName.
@@ -275,20 +259,20 @@ export class DialogEngine {
   private _findFlow(botId: string, flowName: string) {
     const flows = this._flowsByBot.get(botId)
     if (!flows) {
-      throw new FlowNotFoundError(`Could not find any flow for ${botId}.`)
+      throw new FlowError(`Could not find any flow.`, botId, flowName)
     }
 
     const flow = flows.find(x => x.name === flowName)
     if (!flow) {
-      throw new FlowNotFoundError(`Flow ${flowName} not found for bot ${botId}.`)
+      throw new FlowError(`Flow not found."`, botId, flowName)
     }
     return flow
   }
 
-  private _findNode(flow, nodeName: string) {
+  private _findNode(botId: string, flow: FlowView, nodeName: string) {
     const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
     if (!node) {
-      throw new NodeNotFoundError(`Could not find any node called "${nodeName}" under flow "${flow.name}"`)
+      throw new FlowError(`Node not found.`, botId, flow.name, nodeName)
     }
     return node
   }
