@@ -478,17 +478,14 @@ export default class FlowBuilder extends Component {
 
     return (
       <div>
-        {nbOnReceive > 0 ? (
-          <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
-            <Label bsStyle="danger">{nbOnReceive}</Label> flow-wide onReceive
-          </Button>
-        ) : null}
-        {nbNext > 0 ? (
-          <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
-            <Label bsStyle="primary">{nbNext}</Label> flow-wide
-            {nbNext === 1 ? ' transition' : ' transitions'}
-          </Button>
-        ) : null}
+        <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+          <Label bsStyle={nbOnReceive > 0 ? 'danger' : 'default'}>{nbOnReceive}</Label> flow-wide onReceive
+        </Button>
+
+        <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+          <Label bsStyle={nbNext > 0 ? 'primary' : 'default'}>{nbNext}</Label> flow-wide
+          {nbNext === 1 ? ' transition' : ' transitions'}
+        </Button>
       </div>
     )
   }
