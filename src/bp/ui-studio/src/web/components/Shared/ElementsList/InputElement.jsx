@@ -25,7 +25,7 @@ export class InputElement extends React.Component {
   handleKeyDown = event => {
     if (event.key === 'Enter') {
       if (event.altKey && this.props.allowMultiline) {
-        this.setState({ text: this.state.text + '\r\n' }, this.updateTextareaHeight)
+        this.setState({ text: this.state.text + '\n' }, this.updateTextareaHeight)
       } else if (!event.altKey && this.inputNotEmpty) {
         this.tryAddElement()
       }
