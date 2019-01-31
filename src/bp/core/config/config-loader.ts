@@ -19,6 +19,7 @@ export interface ConfigProvider {
   mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
+  getModulesListConfig(): Promise<any>
 }
 
 @injectable()
@@ -101,7 +102,7 @@ export class GhostConfigProvider implements ConfigProvider {
     }
   }
 
-  private async getModulesListConfig() {
+  public async getModulesListConfig() {
     const resolver = new ModuleResolver(this.logger)
     return await resolver.getModulesList().map(module => {
       return { location: `MODULES_ROOT/${module}`, enabled: true }

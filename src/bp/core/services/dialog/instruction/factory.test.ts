@@ -45,7 +45,7 @@ describe('Instruction Factory', () => {
 
     it('Returns transitions in order', () => {
       const flow = {}
-      const value = InstructionFactory.createTransition(node, flow)
+      const value = InstructionFactory.createTransition(flow, node)
       expect(value).toEqual([
         { type: 'transition', fn: 'abc {}', node: 'x' },
         { type: 'transition', fn: 'def {}', node: 'y' }
@@ -58,7 +58,7 @@ describe('Instruction Factory', () => {
           next: [{ condition: 'xyz {}', node: 'a' }]
         }
       }
-      const value = InstructionFactory.createTransition(node, flow)
+      const value = InstructionFactory.createTransition(flow, node)
       expect(value).toEqual([
         { type: 'transition', fn: 'xyz {}', node: 'a' },
         { type: 'transition', fn: 'abc {}', node: 'x' },
@@ -73,7 +73,7 @@ describe('Instruction Factory', () => {
           next: [{ condition: 'xyz {}', node: 'abc' }, { condition: 'xyz {}', node: 'bcd' }]
         }
       }
-      const value = InstructionFactory.createTransition(node, flow)
+      const value = InstructionFactory.createTransition(flow, node)
       expect(value).toEqual([{ type: 'transition', fn: 'xyz {}', node: 'bcd' }])
     })
   })

@@ -25,6 +25,7 @@ export class BotService {
   public unmountBot: Function = this._unmountBot
 
   private _botIds: string[] | undefined
+  private static _mountedBots: Map<string, boolean> = new Map()
 
   constructor(
     @inject(TYPES.Logger)
@@ -128,7 +129,15 @@ export class BotService {
     this._invalidateBotIds()
   }
 
+  private isBotMounted(botId: string): boolean {
+    return BotService._mountedBots.get(botId) || false
+  }
+
   private async _mountBot(botId: string) {
+    if (this.isBotMounted(botId)) {
+      return
+    }
+
     try {
       await this.ghostService.forBot(botId).sync()
 
@@ -137,17 +146,23 @@ export class BotService {
 
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
+      BotService._mountedBots.set(botId, true)
     } catch (err) {
       this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
     }
   }
 
   private async _unmountBot(botId: string) {
+    if (!this.isBotMounted(botId)) {
+      return
+    }
+
     await this.cms.unloadContentElementsForBot(botId)
     this.moduleLoader.unloadModulesForBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
+    BotService._mountedBots.set(botId, false)
   }
 
   private _invalidateBotIds(): void {
