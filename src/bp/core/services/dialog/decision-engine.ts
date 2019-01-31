@@ -1,4 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -16,6 +17,7 @@ export class DecisionEngine {
     @inject(TYPES.Logger)
     @tagged('name', 'DialogEngine')
     private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.StateManager) private stateManager: StateManager,
@@ -39,7 +41,10 @@ export class DecisionEngine {
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
         await this.stateManager.persist(processedEvent, false)
       } catch (err) {
-        this.logger.forBot(event.botId).error(err)
+        this.logger
+          .forBot(event.botId)
+          .attachError(err)
+          .error('An unexpected flow error occurred.')
         await this._sendErrorMessage(event)
       }
     }
@@ -101,9 +106,14 @@ export class DecisionEngine {
   }
 
   private async _sendErrorMessage(event) {
-    const text = "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨"
+    const config = await this.configProvider.getBotConfig(event.botId)
+    const element = _.get(config, 'dialog.error.args', {
+      text: "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
+      typing: true
+    })
+    const contentType = _.get(config, 'dialog.error.contentType', 'builtin_text')
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const payloads = await this.cms.renderElement('builtin_text', { text, typing: true }, eventDestination)
+    const payloads = await this.cms.renderElement(contentType, element, eventDestination)
 
     await this.eventEngine.replyToEvent(event, payloads)
   }

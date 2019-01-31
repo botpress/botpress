@@ -15,6 +15,16 @@ export interface DialogConfig {
    * @default 30m
    */
   sessionTimeoutInterval: string
+  /** The content element to send to the end-user when an unexpected error occur in a flow */
+  error?: {
+    /** The content type of the element */
+    contentType: string
+    /**
+     * The form data of the element
+     * @example {"text": "👋 Hello!", "typing": true},
+     */
+    args
+  }
 }
 
 export type BotConfig = {
