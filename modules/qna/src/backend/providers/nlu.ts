@@ -87,6 +87,8 @@ export default class Storage implements QnaStorage {
         utterances: normalizeQuestions(data.questions)
       }
 
+      await this.checkForDuplicatedQuestions(intent.utterances, id)
+
       await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
     } else {
       await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
@@ -110,6 +112,8 @@ export default class Storage implements QnaStorage {
           contexts: [data.category || 'global'],
           utterances: normalizeQuestions(data.questions)
         }
+
+        await this.checkForDuplicatedQuestions(intent.utterances)
         await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
       }
 
@@ -123,6 +127,22 @@ export default class Storage implements QnaStorage {
     await this.syncNlu()
 
     return ids
+  }
+
+  private async checkForDuplicatedQuestions(newQuestions, editingQnaId?) {
+    let allQuestions = await this.fetchAllQuestions()
+
+    if (editingQnaId) {
+      // when updating, we remove the question from the check
+      allQuestions = allQuestions.filter(q => q.id !== editingQnaId)
+    }
+
+    const questionsList = _.flatten(_.map(allQuestions, entry => entry.data.questions))
+    const dupes = _.uniq(_.filter(questionsList, question => newQuestions.includes(question)))
+
+    if (dupes.length) {
+      throw new Error(`These questions already exists in another entry: ${dupes.join(', ')}`)
+    }
   }
 
   /**
