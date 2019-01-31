@@ -30,13 +30,12 @@ export class InstructionFactory {
     )
   }
 
-  static createTransition(node, flow): Instruction[] {
+  static createTransition(flow, node?): Instruction[] {
     const nodeNext = _.get(node, 'next', []) || []
     let flowNext = _.get(flow, 'catchAll.next', []) || []
 
-    // Skip transitions that contains the current node
-    // To prevent infinite loop
-    flowNext = flowNext.filter(n => n.node !== node.name)
+    // Skip transitions that contains the current node to prevent infinite looping
+    flowNext = flowNext.filter(n => n.node !== ((node && node.name) || undefined))
 
     return [...flowNext, ...nodeNext].map(
       (x): Instruction => ({

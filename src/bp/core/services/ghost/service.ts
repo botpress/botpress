@@ -202,7 +202,10 @@ export class ScopedGhostService {
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
     if (!(await this.isFullySynced())) {
-      this.logger.warn(`Found unsynced file changes in "${this.baseDir}"`)
+      const scUrl = `<botpress_url>/admin/settings/version`
+      this.logger.warn(
+        `Found unsynced file changes in "${this.baseDir}". Visit ${scUrl} to save changes back to your Source Control.`
+      )
       return
     }
 

@@ -4,7 +4,6 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
-import { HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
 import { FlowService } from './flow/service'
@@ -37,8 +36,7 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
-    @inject(TYPES.HookService) private hookService: HookService
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -55,12 +53,16 @@ export class DialogEngine {
       return this._goToSubflow(botId, event, sessionId, currentNode, currentFlow)
     }
 
+    const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
     let queue: InstructionQueue
+
     if (context.queue) {
-      queue = new InstructionQueue(context.queue.instructions)
+      queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
+    } else if (context.hasJumped) {
+      queue = queueBuilder.hasJumped().build()
+      context.hasJumped = false
     } else {
-      const builder = new InstructionsQueueBuilder(currentNode, currentFlow)
-      queue = builder.build()
+      queue = queueBuilder.build()
     }
 
     const instruction = queue.dequeue()
@@ -109,6 +111,7 @@ export class DialogEngine {
 
     event.state.context.currentFlow = targetFlow.name
     event.state.context.currentNode = targetNode.name
+    event.state.context.hasJumped = true
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
@@ -168,6 +171,7 @@ export class DialogEngine {
 
     event.state.context.currentNode = timeoutNode.name
     event.state.context.currentFlow = timeoutFlow.name
+    event.state.context.hasJumped = true
 
     return await this.processEvent(sessionId, event)
   }
