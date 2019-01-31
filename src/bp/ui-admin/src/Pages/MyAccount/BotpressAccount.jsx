@@ -60,7 +60,6 @@ class KeyList extends Component {
   renderKeysTable() {
     const clusterFingerprint = _.get(this.props.licensing, 'fingerprints.cluster_url')
 
-    console.log('yoppop')
     return (
       <Table className="table--keys">
         <thead>
