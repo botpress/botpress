@@ -21,7 +21,7 @@ export interface DialogConfig {
     contentType: string
     /**
      * The form data of the element
-     * @example {"text": "👋 Hello!", "typing": true},
+     * @example {"text": "Whoops! An error occurred. Please try something else.", "typing": true},
      */
     args
   }
