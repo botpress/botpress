@@ -21,23 +21,17 @@ export const getCurrentUser = () => {
   return firebase.auth().currentUser
 }
 
-// TODO verify signature
 export const login = async ({ email, password }) => {
   return firebase.auth().signInWithEmailAndPassword(email, password)
 }
 
-// TODO verify signature
 export const register = async ({ email, password }) => {
   return firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
-    .then(result => {
-      // TODO smth with res ?
-      firebase.auth().currentUser.sendEmailVerification()
-    })
+    .then(({ user }) => user.sendEmailVerification())
 }
 
-// TODO verify signature
 export const sendResetPassword = ({ email }) => {
   return firebase.auth().sendPasswordResetEmail(email)
 }

@@ -10,8 +10,8 @@ import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../Components/LoadingSection'
 import LoginModal from '../Components/Licensing/LoginModal'
-import { fetchAllKeys, fetchProducts, fetchLicensing } from '../../reducers/license'
-import { logout, isAuthenticated } from '../../Auth/licensing'
+import { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser } from '../../reducers/license'
+import { isAuthenticated } from '../../Auth/licensing'
 
 class KeyList extends Component {
   state = {
@@ -28,8 +28,8 @@ class KeyList extends Component {
       return
     }
 
-    !this.props.keys.length && this.props.fetchAllKeys()
-    !this.props.products.length && this.props.fetchProducts()
+    !this.props.keys && !this.props.fetchingKeys && this.props.fetchAllKeys()
+    !this.props.products && !this.props.fetchingProducts && this.props.fetchProducts()
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
@@ -50,17 +50,17 @@ class KeyList extends Component {
   }
 
   logoutAccount = () => {
-    logout()
-    this.forceUpdate()
+    this.props.logoutUser()
   }
 
-  refresh = () => {
-    this.props.fetchAllKeys()
-    this.props.fetchLicensing()
+  hasKeys = () => {
+    return this.props.keys && this.props.keys.length > 0
   }
 
   renderKeysTable() {
     const clusterFingerprint = _.get(this.props.licensing, 'fingerprints.cluster_url')
+
+    console.log('yoppop')
     return (
       <Table className="table--keys">
         <thead>
@@ -94,7 +94,6 @@ class KeyList extends Component {
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
                 onLicenseUpdated={this.toggleUpdateModal}
-                refreshLicense={this.refresh}
               />
             ))}
         </tbody>
@@ -109,7 +108,7 @@ class KeyList extends Component {
 
     return (
       <Fragment>
-        {!this.state.error && <Fragment>{this.props.keys.length > 0 && this.renderKeysTable()}</Fragment>}
+        {!this.state.error && this.hasKeys() && this.renderKeysTable()}
         <ActivateRevealKeyModal
           isOpen={this.state.keyModalOpen}
           toggle={this.toggleKeyModal}
@@ -161,8 +160,7 @@ class KeyList extends Component {
           <br />
           <br />
           <Button size="sm" color="success" onClick={this.toggleBuyModal}>
-            {this.props.keys.length > 0 && <span>Buy more licenses</span>}
-            {this.props.keys.length === 0 && <span>Buy your first license</span>}
+            {this.hasKeys() ? <span>Buy more licenses</span> : <span>Buy your first license</span>}
           </Button>
         </div>
       )
@@ -184,14 +182,9 @@ class KeyList extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  keys: state.license.keys,
-  products: state.license.products,
-  isLoadingKeys: state.license.isLoadingKeys,
-  licensing: state.license.licensing
-})
+const mapStateToProps = state => ({ ...state.license })
 
-const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser }
 export default connect(
   mapStateToProps,
   mapDispatchToProps
