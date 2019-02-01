@@ -32,7 +32,8 @@ export default class CreditCardPicker extends Component {
   async refreshSources() {
     this.setState({ isLoading: true })
     try {
-      const { data } = await api.getLicensing().get(`/me/cards`)
+      const licensing = await api.getLicensing()
+      const { data } = await licensing.get(`/me/cards`)
       this.setState({ sources: data, isLoading: false })
 
       if (data && data.length) {
@@ -46,7 +47,8 @@ export default class CreditCardPicker extends Component {
   async addSource(sourceId) {
     this.setState({ isLoading: true })
     try {
-      await api.getLicensing().post(`/me/cards`, { sourceId })
+      const licensing = await api.getLicensing()
+      await licensing.post(`/me/cards`, { sourceId })
       this.refreshSources()
     } catch (error) {
       this.setState({ error: error.message, isLoading: false })
@@ -56,7 +58,8 @@ export default class CreditCardPicker extends Component {
   deleteSource = async source => {
     this.setState({ isLoading: true })
     try {
-      await api.getLicensing().delete(`/me/cards/${source.target.id}`)
+      const licensing = await api.getLicensing()
+      await licensing.delete(`/me/cards/${source.target.id}`)
       this.refreshSources()
     } catch (error) {
       this.setState({ error: error.message, isLoading: false })

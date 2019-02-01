@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
 import { Alert, Col, Button, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
-import { login, register, sendResetPassword, isAuthenticated } from '../../../Auth/licensing'
+import * as licensing from '../../../Auth/licensing'
 
 const DEFAULT_STATE = {
   email: '',
@@ -20,7 +19,7 @@ export default class Login extends Component {
     this.setState({ error: null, success: null, isLoading: true })
 
     try {
-      await login({
+      await licensing.login({
         email: this.state.email,
         password: this.state.password
       })
@@ -39,7 +38,7 @@ export default class Login extends Component {
     this.setState({ error: null, isLoading: true })
 
     try {
-      await register({
+      await licensing.register({
         email: this.state.email,
         password: this.state.password
       })
@@ -57,7 +56,7 @@ export default class Login extends Component {
     this.setState({ error: null, success: null, showResetPasswordLink: false })
 
     try {
-      await sendResetPassword({ email: this.state.email })
+      await licensing.sendResetPassword({ email: this.state.email })
       this.setState({
         success: `An email was sent to ${this.state.email} with instructions on how to reset your password.`
       })
@@ -71,6 +70,7 @@ export default class Login extends Component {
   }
 
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
+  //TODO use form submit event instead
   handleInputKeyPress = e => {
     if (e.key === 'Enter') {
       this.state.isRegistering ? this.register() : this.login()
@@ -94,10 +94,6 @@ export default class Login extends Component {
   }
 
   renderForm = () => {
-    if (isAuthenticated()) {
-      return <Redirect to="/licensing/keys" />
-    }
-
     return (
       <Col>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
@@ -148,11 +144,10 @@ export default class Login extends Component {
 
   render() {
     const page = this.renderForm()
+    const headerLabel = this.state.isRegistering ? 'Create an account' : 'Login to your account'
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.toggle} size="md">
-        <ModalHeader toggle={this.toggle}>
-          {this.state.isRegistering ? 'Create an account' : 'Login to your account'}
-        </ModalHeader>
+        <ModalHeader toggle={this.toggle}>{headerLabel}</ModalHeader>
         <ModalBody>{page}</ModalBody>
         <ModalFooter>{this.state.showResetPasswordLink && this.renderResetPassword()}</ModalFooter>
       </Modal>

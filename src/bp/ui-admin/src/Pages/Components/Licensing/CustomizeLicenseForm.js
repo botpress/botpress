@@ -16,7 +16,7 @@ class CustomizeLicenseForm extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.products.length) {
+    if (!this.props.products) {
       this.props.fetchProducts()
     }
 

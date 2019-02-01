@@ -1,11 +1,10 @@
 import React from 'react'
 import { Modal, ModalHeader, ModalBody, Col, Button } from 'reactstrap'
-import _ from 'lodash'
 import CustomizeLicenseForm from './CustomizeLicenseForm'
 import CreditCardPicker from './CreditCardPicker'
 import PromoCodePicker from './PromoCodePicker'
 import api from '../../../api'
-import { getSession } from '../../../Auth/licensing'
+import { getCurrentUser } from '../../../Auth/licensing'
 
 const DEFAULT_STATE = {
   currentStep: 'input',
@@ -18,9 +17,12 @@ export default class BuyLicenseModal extends React.Component {
   state = { ...DEFAULT_STATE }
 
   componentDidMount() {
-    const session = getSession()
+    const user = getCurrentUser()
     this.setState({
-      user: _.pick(session, ['email', 'name'])
+      user: {
+        name: user.displayName,
+        email: user.email
+      }
     })
   }
 
@@ -42,7 +44,8 @@ export default class BuyLicenseModal extends React.Component {
         partTime: this.state.order.isPartTimeEnabled
       }
 
-      await api.getLicensing().post(`/me/keys`, subscription)
+      const licensing = await api.getLicensing()
+      await licensing.post(`/me/keys`, subscription)
       this.setState({ isLoading: false, currentStep: 'success' })
 
       window.setTimeout(() => {

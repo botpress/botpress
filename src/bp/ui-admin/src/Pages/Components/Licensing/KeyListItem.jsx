@@ -46,7 +46,8 @@ export default class KeyListItem extends Component {
 
     if (window.confirm('Are you sure you want to cancel auto-renew for this license?')) {
       try {
-        await api.getLicensing().delete(`/me/keys/${license.stripeSubscriptionId}`)
+        const licensing = await api.getLicensing()
+        await licensing.delete(`/me/keys/${license.stripeSubscriptionId}`)
         this.props.refreshLicense()
       } catch (error) {
         console.error('error canceling license')
@@ -84,7 +85,8 @@ export default class KeyListItem extends Component {
   }
 
   activateWithServerFingerprint = async () => {
-    const res = await api.getLicensing().post(`/me/keys/${this.props.license.stripeSubscriptionId}/activate`, {
+    const licensing = await api.getLicensing()
+    const res = await licensing.post(`/me/keys/${this.props.license.stripeSubscriptionId}/activate`, {
       fingerprint: this.props.clusterFingerprint
     })
 
