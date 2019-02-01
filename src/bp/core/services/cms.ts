@@ -446,12 +446,10 @@ export class CMSService implements IDisposeOnExit {
         ...args,
         ...content.formData
       }
-    } else {
-      if (args.text) {
-        args = {
-          ...args,
-          text: Mustache.render(args.text, args)
-        }
+    } else if (args.text) {
+      args = {
+        ...args,
+        text: Mustache.render(args.text, args)
       }
     }
 
