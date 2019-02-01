@@ -34,6 +34,15 @@ import DismissableAlert from './alert'
 
 import style from './style.scss'
 
+const convertHHmmToSeconds = time => {
+  const HH = Number(time.split(':')[0])
+  const mm = Number(time.split(':')[1]) / 60
+
+  const seconds = (HH + mm) * 3600
+
+  return seconds
+}
+
 export default class BroadcastModule extends React.Component {
   state = {
     loading: true,
@@ -126,7 +135,7 @@ export default class BroadcastModule extends React.Component {
       .catch(this.handleRequestError)
   }
 
-  handleCloseModalForm = () => this.setState({ showModalForm: false })
+  handleCloseModalForm = () => this.setState({ showModalForm: false, broadcast: {} })
 
   handleOpenModalForm = (broadcast, id) => {
     if (!id) {
@@ -153,7 +162,7 @@ export default class BroadcastModule extends React.Component {
         content: broadcast.content,
         userTimezone: broadcast.userTimezone,
         date: broadcast.date,
-        time: broadcast.time,
+        time: _.isString(broadcast.time) ? convertHHmmToSeconds(broadcast.time) : broadcast.time,
         filteringConditions: broadcast.filteringConditions,
         progress: broadcast.progress
       }
