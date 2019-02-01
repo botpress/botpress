@@ -28,26 +28,20 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
   const qnaStorage = await botScopedStorage.get(botId)
   const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
 
-  // Detect nodes that has their name changed
+  // Detect nodes that had their name changed
   for (const oldNode of oldFlow.nodes) {
     for (const newNode of newFlow.nodes) {
+      // Update all questions that refer to the old node name
       if (oldNode.id === newNode.id && oldNode.name !== newNode.name) {
-        // Detected
-        // Update all questions that refer to the old node name
-
         const updatedItems = questions.items
-          .filter(q => {
-            const sameFlow = q.data.redirectFlow === newFlow.name
-            const sameNode = q.data.redirectNode === oldNode.name
-            return sameFlow && sameNode
-          })
+          .filter(q => q.data.redirectFlow === newFlow.name && q.data.redirectNode === oldNode.name)
           .map(q => {
             q.data.redirectNode = newNode.name
             return q
           })
 
-        for (const q of updatedItems) {
-          await qnaStorage.update(q.data, q.id)
+        for (const item of updatedItems) {
+          await qnaStorage.update(item.data, item.id)
           bp.logger.debug(`References to node "${oldNode.name}" has been updated to "${newNode.name}"`)
         }
       }
