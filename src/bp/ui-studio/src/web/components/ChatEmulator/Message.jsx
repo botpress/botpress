@@ -1,6 +1,7 @@
 import React from 'react'
 import classnames from 'classnames'
 import style from './Message.styl'
+import { NavLink } from 'react-router-dom'
 import { Glyphicon } from 'react-bootstrap'
 
 export default class Message extends React.Component {
@@ -14,6 +15,19 @@ export default class Message extends React.Component {
     }
 
     return <span className={classnames(style.message, style.other)}>{message.type} (can't render)</span>
+  }
+
+  renderIntentLink(intent) {
+    if (intent === 'N/A') {
+      return intent
+    }
+
+    const QNA_PREFIX = '__qna__'
+    const link = intent.includes(QNA_PREFIX)
+      ? `/modules/qna#search:${intent.replace(QNA_PREFIX, '')}`
+      : `/modules/nlu/intents#search:${intent}`
+
+    return <NavLink to={link}>{intent}</NavLink>
   }
 
   render() {
@@ -38,7 +52,7 @@ export default class Message extends React.Component {
           <div className={style.header}>
             <div className={style.intent}>
               <span className={style.title}>intent</span>
-              <span className={style.value}>{intent}</span>
+              <span className={style.value}>{this.renderIntentLink(intent)}</span>
               <span className={style.confidence}>{confidenceFormatted}%</span>
             </div>
             <div className={style.duration}>

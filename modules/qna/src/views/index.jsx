@@ -92,9 +92,20 @@ export default class QnaAdmin extends Component {
   }
 
   componentDidMount() {
-    this.fetchData()
+    this.filterOrFetch()
     this.fetchFlows()
     this.fetchCategories()
+  }
+
+  filterOrFetch() {
+    const { hash } = window.location
+    const searchCmd = '#search:'
+
+    if (hash && hash.includes(searchCmd)) {
+      this.setState({ filterQuestion: hash.replace(searchCmd, '') }, this.filterQuestions)
+    } else {
+      this.fetchData()
+    }
   }
 
   onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
@@ -255,7 +266,11 @@ export default class QnaAdmin extends Component {
   renderQnAHeader = () => (
     <FormGroup className={style.qnaHeader}>
       <ButtonToolbar>
-        <ButtonGroup>
+        <div className={style.searchBar}>
+          {this.renderSearch()}
+          {this.renderImportModal()}
+        </div>
+        <ButtonGroup style={{ float: 'right' }}>
           <Button
             bsStyle="default"
             onClick={() =>
@@ -274,10 +289,6 @@ export default class QnaAdmin extends Component {
             Export to CSV
           </Button>
         </ButtonGroup>
-        <div className={style.searchBar}>
-          {this.renderSearch()}
-          {this.renderImportModal()}
-        </div>
       </ButtonToolbar>
     </FormGroup>
   )
@@ -335,12 +346,33 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  renderRedirectInfo(redirectFlow, redirectNode) {
+    if (!redirectFlow || !redirectNode) {
+      return null
+    }
+
+    const flowName = redirectFlow.replace('.flow.json', '')
+    const flowBuilderLink = `/studio/${window.BOT_ID}/flows/${flowName}/#search:${redirectNode}`
+
+    return (
+      <React.Fragment>
+        <div className={style.itemRedirectTitle}>Redirect to:</div>
+        <a href={flowBuilderLink}>
+          <div className={style.itemFlow}>
+            Flow: <span className={style.itemFlowName}>{redirectFlow}</span>
+          </div>
+          <div className={style.itemNode}>
+            Node: <span className={style.itemNodeName}>{redirectNode}</span>
+          </div>
+        </a>
+      </React.Fragment>
+    )
+  }
+
   renderItem = ({ data: item, id }) => {
     if (!id) {
       return null
     }
-
-    const isRedirect = item.redirectFlow && item.redirectNode
 
     return (
       <Well className={style.qnaItem} bsSize="small" key={id}>
@@ -360,19 +392,7 @@ export default class QnaAdmin extends Component {
             </div>
           )}
           <div className={style.itemRedirectContainer}>
-            <div className={style.itemRedirect}>
-              {isRedirect && (
-                <React.Fragment>
-                  <div className={style.itemRedirectTitle}>Redirect to:</div>
-                  <div className={style.itemFlow}>
-                    Flow: <span className={style.itemFlowName}>{item.redirectFlow}</span>
-                  </div>
-                  <div className={style.itemNode}>
-                    Node: <span className={style.itemNodeName}>{item.redirectNode}</span>
-                  </div>
-                </React.Fragment>
-              )}
-            </div>
+            <div className={style.itemRedirect}>{this.renderRedirectInfo(item.redirectFlow, item.redirectNode)}</div>
           </div>
           {item.category ? (
             <div className={style.questionCategory}>

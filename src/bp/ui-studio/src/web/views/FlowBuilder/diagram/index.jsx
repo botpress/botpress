@@ -40,6 +40,17 @@ export default class FlowBuilder extends Component {
     this.setModel()
   }
 
+  async checkForNodeSearch() {
+    const { hash } = window.location
+    const searchCmd = '#search:'
+
+    if (hash && hash.includes(searchCmd)) {
+      const chosenNode = this.props.currentFlow.nodes.find(node => node.name === hash.replace(searchCmd, ''))
+      await this.props.switchFlowNode(chosenNode.id)
+      await this.props.openFlowNodeProps()
+    }
+  }
+
   setTranslation(x = 0, y = 0) {
     this.activeModel.setOffset(x, y)
     this.diagramWidget.fireAction()
@@ -258,6 +269,10 @@ export default class FlowBuilder extends Component {
     } else {
       // Update the current model with the new properties
       this.syncModel()
+    }
+
+    if (this.props.currentFlow && !prevProps.currentFlow) {
+      this.checkForNodeSearch()
     }
   }
 

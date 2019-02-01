@@ -198,7 +198,7 @@ export default class Storage implements QnaStorage {
           .indexOf(question.toLowerCase()) !== -1
 
       if (!categories.length) {
-        return isRightId
+        return isRightId || q.id.includes(question)
       }
 
       if (!question) {
