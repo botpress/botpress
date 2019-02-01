@@ -8,16 +8,17 @@ import Editor from './draft/editor'
 import style from './style.scss'
 import Slots from './slots/Slots'
 
+const NLU_TABIDX = 3745
+
 export default class IntentsEditor extends React.Component {
   state = {
     initialUtterances: '',
     slotsEditor: null,
-    isDirty: false,
     slots: [],
     utterances: []
   }
 
-  firstUtteranceRef = null
+  editorRef = null
 
   componentDidMount() {
     this.initiateStateFromProps(this.props)
@@ -40,17 +41,20 @@ export default class IntentsEditor extends React.Component {
   }
 
   initiateStateFromProps(props) {
-    const { utterances, slots } = (props && props.intent) || { utterances: [], slots: [] }
+    const { utterances, slots, contexts } = (props && props.intent) || {
+      utterances: [],
+      slots: [],
+      contexts: ['global']
+    }
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
+      // ensure there's an empty utterance at the beginning
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
-    this.setState({ utterances: expanded, slots: slots, isDirty: false }, () => {
-      this.initialHash = this.computeHash()
-      this.forceUpdate()
-    })
+    this.initialHash = this.computeHash({ slots, utterances: expanded, contexts })
+    this.setState({ utterances: expanded, slots: slots, contexts })
   }
 
   deleteIntent = () => {
@@ -63,15 +67,27 @@ export default class IntentsEditor extends React.Component {
     })
   }
 
-  saveIntent = () => {
-    this.props.axios
-      .post(`/mod/nlu/intents/${this.props.intent.name}`, {
-        utterances: this.getCanonicalUtterances(),
-        slots: this.state.slots
-      })
-      .then(() => {
-        this.props.reloadIntents && this.props.reloadIntents()
-      })
+  saveIntent = async () => {
+    await this.props.axios.post(`/mod/nlu/intents/${this.props.intent.name}`, {
+      utterances: this.getCanonicalUtterances(this.state.utterances),
+      slots: this.state.slots,
+      contexts: this.state.contexts
+    })
+
+    this.initialHash = this.computeHash({
+      utterances: this.state.utterances,
+      slots: this.state.slots,
+      contexts: this.state.contexts
+    })
+
+    this.props.reloadIntents && (await this.props.reloadIntents())
+  }
+
+  componentDidUpdate() {
+    if (this.isDirty()) {
+      this.saveIntent()
+      this.props.onUtterancesChange && this.props.onUtterancesChange()
+    }
   }
 
   onBeforeLeave = () => {
@@ -82,7 +98,7 @@ export default class IntentsEditor extends React.Component {
     return true
   }
 
-  getCanonicalUtterances = () => this.state.utterances.map(x => x.text).filter(x => x.length)
+  getCanonicalUtterances = utterances => (utterances || []).map(x => x.text).filter(x => x.length)
 
   expandCanonicalUtterances = utterances =>
     utterances.map(u => ({
@@ -90,20 +106,18 @@ export default class IntentsEditor extends React.Component {
       text: u
     }))
 
-  // TODO use somekind of web crypto to compute an actuall hash
-  computeHash = () =>
+  computeHash = ({ contexts, utterances, slots }) =>
     JSON.stringify({
-      utterances: this.getCanonicalUtterances(),
-      slots: this.state.slots
+      utterances: this.getCanonicalUtterances(utterances),
+      slots,
+      contexts
     })
 
-  isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
+  isDirty = () =>
+    this.computeHash({ utterances: this.state.utterances, slots: this.state.slots, contexts: this.state.contexts }) !==
+    this.initialHash
 
-  focusFirstUtterance = () => {
-    if (this.firstUtteranceRef) {
-      this.firstUtteranceRef.focus()
-    }
-  }
+  focusFirstUtterance = () => this.editorRef && this.editorRef.focus()
 
   deleteUtterance = id => {
     const utterances = this.getUtterances()
@@ -135,16 +149,21 @@ export default class IntentsEditor extends React.Component {
           return (
             <li key={`uttr-${utterance.id}`}>
               <Editor
-                tabIndex={i + 1}
+                tabIndex={i + NLU_TABIDX}
                 getSlotsEditor={() => this.slotsEditor}
                 ref={el => {
                   if (i === 0) {
-                    this.firstUtteranceRef = el
+                    this.editorRef = el
+                    if (el && this.currFocus === i) {
+                      el.focus()
+                    }
                   }
                 }}
+                onFocus={() => (this.currFocus = i)}
+                onBlur={() => (this.currFocus = null)}
                 utteranceId={utterance.id}
                 deleteUtterance={() => this.deleteUtterance(utterance.id)}
-                onDone={this.focusFirstUtterance}
+                onDone={() => setTimeout(this.focusFirstUtterance, 500)}
                 onInputConsumed={preprendNewUtterance}
                 canonicalValue={utterance.text}
                 canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
@@ -153,6 +172,7 @@ export default class IntentsEditor extends React.Component {
             </li>
           )
         })}
+        <div tabIndex={utterances.length + NLU_TABIDX + 1} onFocus={this.focusFirstUtterance} />
       </ul>
     )
   }
@@ -210,11 +230,6 @@ export default class IntentsEditor extends React.Component {
     }
 
     const { name } = this.props.intent
-
-    if (this.isDirty()) {
-      this.saveIntent()
-      this.props.onUtterancesChange()
-    }
 
     return (
       <div className={style.container}>

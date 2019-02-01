@@ -31,7 +31,7 @@ function myKeyBindingFn(e) {
 }
 
 function getEntityStrategy(type) {
-  return function (contentBlock, callback, contentState) {
+  return function(contentBlock, callback, contentState) {
     contentBlock.findEntityRanges(character => {
       const entityKey = character.getEntity()
       if (entityKey === null) {
@@ -97,7 +97,6 @@ const TokenSpanFactory = ({ getEditorState, setEditorState, getEntity }) => prop
   const nluEntity = getEntity(entityId)
 
   if (!nluEntity) {
-    console.log('entityId', entityId, entity, entity.getData())
     return null
   }
 
@@ -350,10 +349,12 @@ export default class IntentEditor extends React.Component {
 
     const onFocus = e => {
       this.setState({ hasFocus: true })
+      this.props.onFocus && this.props.onFocus(e)
     }
 
     const onBlur = e => {
       const currentTarget = e.currentTarget
+      this.props.onBlur && this.props.onBlur(e)
 
       setImmediate(() => {
         if (!currentTarget.contains(document.activeElement)) {
@@ -387,11 +388,9 @@ export default class IntentEditor extends React.Component {
           />
         </div>
         <div className={style.controls}>
-          {
-            this.state.editorState.getCurrentContent().hasText() && (
-              <span className={`${style.action} glyphicon glyphicon-trash`} onClick={this.props.deleteUtterance}></span>
-            )
-          }
+          {this.state.editorState.getCurrentContent().hasText() && (
+            <span className={`${style.action} glyphicon glyphicon-trash`} onClick={this.props.deleteUtterance} />
+          )}
         </div>
       </div>
     )
