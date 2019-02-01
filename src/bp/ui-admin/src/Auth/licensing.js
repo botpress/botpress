@@ -43,7 +43,3 @@ export const sendResetPassword = ({ email }) => {
 export const logout = async () => {
   return firebase.auth().signOut()
 }
-
-export const isAuthenticated = () => {
-  return !!firebase.auth().currentUser
-}

@@ -8,7 +8,6 @@ export const FETCH_KEYS_RECEIVED = 'license/FETCH_KEYS_RECEIVED'
 export const UPDATE_LICENSING_ACCOUNT = 'license/UPDATE_LICENSING_ACCOUNT'
 export const FETCH_PRODUCTS_REQUESTED = 'license/FETCH_PRODUCTS_REQUESTED'
 export const FETCH_PRODUCTS_RECEIVED = 'license/FETCH_PRODUCTS_RECEIVED'
-// export const USER_LOGGED_IN_TO_LICENSE_SERVER = 'license/USER_LOGGED_IN_TO_LICENSE_SERVER'
 export const LOGOUT_USER_FROM_LICENSE_SERVER = 'license/LOGOUT_USER_FROM_LICENSE_SERVER'
 
 const initialState = {
@@ -23,11 +22,6 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    // case USER_LOGGED_IN_TO_LICENSE_SERVER:
-    //   return {
-    //     ...state,
-    //     loggedI
-    //   }
     case LOGOUT_USER_FROM_LICENSE_SERVER:
       return {
         ...initialState

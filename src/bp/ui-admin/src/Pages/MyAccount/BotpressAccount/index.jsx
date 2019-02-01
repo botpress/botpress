@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { registerAuthStateChanged, isAuthenticated } from '../../../Auth/licensing'
+import { registerAuthStateChanged } from '../../../Auth/licensing'
 import KeyList from './KeyList'
 import Login from './Login'
 
 class BotpressAccount extends Component {
-  //TODO move this into redux store
+  //TODO move this into redux store if necessary
   state = {
     currentUser: null
   }
