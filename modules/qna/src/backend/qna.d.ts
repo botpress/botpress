@@ -5,7 +5,7 @@ export interface QnaStorage {
   fetchAllQuestions(paging?: sdk.Paging)
   getQuestions({ question, categories }, { limit, offset })
   insert(qna: any, statusCallback?: any)
-  update(data: any, id: any)
+  update(data: any, id: any): Promise<void>
   delete(id: any, statusCallback?: any): void
   count(): Promise<number>
   answersOn(question)

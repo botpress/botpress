@@ -1,4 +1,4 @@
-import { BotTemplate, Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
+import { BotTemplate, Flow, Logger, ModuleDefinition, ModuleEntryPoint, Skill } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 
 import { inject, injectable, tagged } from 'inversify'
@@ -18,6 +18,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
+  onFlowChanged: joi.func().optional(),
   skills: joi.array().optional(),
   botTemplates: joi.array().optional(),
   definition: joi.object().keys({
@@ -124,6 +125,15 @@ export class ModuleLoader {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
       await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+    }
+  }
+
+  public async onFlowChanged(botId: string, flow: Flow) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await (entryPoint.onFlowChanged && entryPoint.onFlowChanged(api, botId, flow))
     }
   }
 
