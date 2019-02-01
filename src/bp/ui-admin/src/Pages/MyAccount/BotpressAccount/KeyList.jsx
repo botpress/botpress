@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Table, Button } from 'reactstrap'
+import { Table, Button, Jumbotron, Row, Col } from 'reactstrap'
 import _ from 'lodash'
+import FaFrownO from 'react-icons/lib/fa/frown-o'
+import MdVpnKey from 'react-icons/lib/md/vpn-key'
 import IconTooltip from '../../Components/IconTooltip'
 import SectionLayout from '../../Layouts/Section'
 import KeyListItem from '../../Components/Licensing/KeyListItem'
@@ -92,10 +94,31 @@ class KeyList extends Component {
     )
   }
 
+  renderNoKeys = () => {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+            <h1>
+              <FaFrownO />
+              &nbsp;You have no keys
+            </h1>
+            <p>License keys are necessary to enable Professional Edition</p>
+            <Button size="sm" color="primary" onClick={this.toggleBuyModal}>
+              <MdVpnKey />
+              &nbsp;Buy your first key
+            </Button>
+          </Col>
+        </Row>
+      </Jumbotron>
+    )
+  }
+
   renderPage() {
     return (
       <Fragment>
         {!this.state.error && this.hasKeys() && this.renderKeysTable()}
+        {!this.state.error && !this.hasKeys() && this.renderNoKeys()}
         <ActivateRevealKeyModal
           isOpen={this.state.keyModalOpen}
           toggle={this.toggleKeyModal}
@@ -122,6 +145,8 @@ class KeyList extends Component {
     return (
       <div className="licensing_sideMenu">
         <Button size="sm" color="primary" onClick={this.toggleBuyModal}>
+          <MdVpnKey />
+          &nbsp;
           {this.hasKeys() ? <span>Buy more keys</span> : <span>Buy your first key</span>}
         </Button>
         <Button size="sm" color="link" onClick={this.logoutAccount}>
@@ -134,7 +159,7 @@ class KeyList extends Component {
   render() {
     return (
       <SectionLayout
-        title="Keys"
+        title="License Keys"
         helpText="Manage your license keys, edit your subscriptions and purchase new license keys"
         activePage="keys"
         mainContent={this.props.fetchingKeys ? <LoadingSection /> : this.renderPage()}
