@@ -13,6 +13,10 @@ var config = {
 }
 firebase.initializeApp(config)
 
+export const registerAuthStateChanged = handler => {
+  firebase.auth().onAuthStateChanged(handler)
+}
+
 export const getToken = async () => {
   return firebase.auth().currentUser.getIdToken()
 }
