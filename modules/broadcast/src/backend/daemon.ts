@@ -15,7 +15,6 @@ const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
 export default (bp: SDK, db: Database) => {
-  // console.log('bp: ', bp)
   const emitChanged = () => ({})
   // NOTE: look as bp.events make other job
   // const emitChanged = _.throttle(() => {
@@ -77,7 +76,6 @@ export default (bp: SDK, db: Database) => {
       .add(14, 'hours')
       .toDate()
 
-    // TODO: rename both
     const upcomingFixedTime = db.knex.date.isAfter(inFiveMinutes, 'ts')
     const upcomingVariableTime = db.knex.date.isAfter(endOfDay, 'date_time')
 

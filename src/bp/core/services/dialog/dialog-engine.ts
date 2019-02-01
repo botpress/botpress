@@ -28,8 +28,6 @@ export class DialogEngine {
     const botId = event.botId
     await this._loadFlows(botId)
 
-    // console.log('processEvent: ', event)
-
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
     const currentNode = this._findNode(botId, currentFlow, context.currentNode)
