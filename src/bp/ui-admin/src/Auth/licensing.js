@@ -13,6 +13,10 @@ var config = {
 }
 firebase.initializeApp(config)
 
+export const registerAuthStateChanged = handler => {
+  firebase.auth().onAuthStateChanged(handler)
+}
+
 export const getToken = async () => {
   return firebase.auth().currentUser.getIdToken()
 }
@@ -38,8 +42,4 @@ export const sendResetPassword = ({ email }) => {
 
 export const logout = async () => {
   return firebase.auth().signOut()
-}
-
-export const isAuthenticated = () => {
-  return !!firebase.auth().currentUser
 }
