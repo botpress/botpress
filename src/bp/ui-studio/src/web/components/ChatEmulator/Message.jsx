@@ -23,6 +23,11 @@ export default class Message extends React.Component {
     const confidence = Number(_.get(result, 'nlu.intent.confidence', 0))
     const confidenceFormatted = (confidence * 100).toFixed(1)
 
+    let responses = result.responses
+    if (this.props.hideTyping) {
+      responses = responses.filter(response => response.type !== 'typing')
+    }
+
     return (
       <div
         onFocus={this.props.onFocus}
@@ -46,7 +51,7 @@ export default class Message extends React.Component {
             <span className={style.message}>{sent}</span>
           </div>
           <div className={style.response}>
-            {result.responses.map((msg, idx) => {
+            {responses.map((msg, idx) => {
               return (
                 <div className={style.content} key={`b-res-${idx}`}>
                   <span className={classnames(style.from, { [style.invisible]: idx > 0 })}>Bot</span>
