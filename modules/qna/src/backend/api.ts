@@ -29,15 +29,13 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.post('/questions', async (req, res) => {
+  router.post('/questions', async (req, res, next) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
       const id = await storage.insert(req.body)
       res.send(id)
     } catch (e) {
-      bp.logger.attachError(e).error('Error while creating QnA')
-      res.status(500).send(e.message || 'Error')
-      sendToastError('Save', e.message)
+      next(new Error(e.message))
     }
   })
 
@@ -51,7 +49,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     }
   })
 
-  router.put('/questions/:id', async (req, res) => {
+  router.put('/questions/:id', async (req, res, next) => {
     const {
       query: { limit, offset, question, categories }
     } = req
@@ -62,9 +60,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
       const questions = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questions)
     } catch (e) {
-      bp.logger.attachError(e).error('Update error')
-      res.status(500).send(e.message || 'Error')
-      sendToastError('Update', e.message)
+      next(new Error(e.message))
     }
   })
 
