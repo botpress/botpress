@@ -86,6 +86,16 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     )
   }
 
+  const binary: Knex.Binary = {
+    set: (data: string | Buffer): any => {
+      if (isLite || typeof data !== 'string') {
+        return data
+      }
+
+      return new Buffer(data, 'utf8')
+    }
+  }
+
   const date: Knex.Date = {
     format: dateFormat,
     now: () => (isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`) : knex.raw('now()')),
@@ -133,7 +143,16 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }
 
-  const extensions: KnexExtension = { isLite, location, date, json, bool, createTableIfNotExists, insertAndRetrieve }
+  const extensions: KnexExtension = {
+    isLite,
+    location,
+    binary,
+    date,
+    json,
+    bool,
+    createTableIfNotExists,
+    insertAndRetrieve
+  }
 
   return Object.assign(knex, extensions)
 }

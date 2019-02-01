@@ -7,6 +7,7 @@ export interface KnexExtension {
   date: Knex.Date
   bool: Knex.Bool
   json: Knex.Json
+  binary: Knex.Binary
   insertAndRetrieve<T>(
     tableName: string,
     data: {},

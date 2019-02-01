@@ -30,6 +30,10 @@ declare module 'knex' {
     get(obj: any): any
   }
 
+  interface Binary {
+    set(data: string | Buffer): any
+  }
+
   type KnexCallback = (tableBuilder: CreateTableBuilder) => any
 
   type GetOrCreateResult<T> = Promise<{
