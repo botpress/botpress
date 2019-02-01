@@ -157,7 +157,7 @@ export default class KeyListItem extends Component {
           </span>
         </td>
         <td>
-          <span className="table--keys__users">{license.limits && license.limits.nodes + 1}</span>
+          <span className="table--keys__users">{license.limits && Number(license.limits.nodes) + 1}</span>
         </td>
         <td>
           <span className="table--keys__users">{license.quantities.isGoldSupport ? 'Gold' : 'Standard'}</span>
