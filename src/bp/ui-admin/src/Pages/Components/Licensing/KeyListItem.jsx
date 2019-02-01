@@ -133,7 +133,7 @@ export default class KeyListItem extends Component {
         <DropdownMenu>
           {license.assigned && <DropdownItem onClick={this.revealLicense}>Reveal License Key</DropdownItem>}
           <DropdownItem onClick={this.assignFingerprint}>Assign Fingerprint</DropdownItem>
-          <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>
+          {this.props.clusterFingerprint && <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>}
           <DropdownItem onClick={this.updateLicense}>Update License</DropdownItem>
           {!license.canceled && <DropdownItem onClick={this.disableAutoRenew}>Disable Auto-Renew</DropdownItem>}
         </DropdownMenu>
@@ -144,7 +144,7 @@ export default class KeyListItem extends Component {
   render() {
     const { license } = this.props
     const assignedClass = license.assigned ? 'assigned' : 'not-assigned'
-    const isActive = this.props.clusterFingerprint === license.fingerprint
+    const isActive = this.props.clusterFingerprint && this.props.clusterFingerprint === license.fingerprint
 
     return (
       <tr disabled={license.canceled}>
