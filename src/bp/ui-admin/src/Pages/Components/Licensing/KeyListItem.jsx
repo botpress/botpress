@@ -48,7 +48,7 @@ export default class KeyListItem extends Component {
       try {
         const licensing = await api.getLicensing()
         await licensing.delete(`/me/keys/${license.stripeSubscriptionId}`)
-        this.props.refreshLicense()
+        this.props.onLicenseUpdated({ ...license, canceled: true })
       } catch (error) {
         console.error('error canceling license')
       }
@@ -65,7 +65,7 @@ export default class KeyListItem extends Component {
     try {
       const licenseKey = await this.activateWithServerFingerprint()
       await this.updateServerKey(licenseKey)
-      this.props.refreshLicense()
+      this.props.onLicenseUpdated(licenseKey)
     } catch (error) {
       console.log('error while setting up license')
     }
