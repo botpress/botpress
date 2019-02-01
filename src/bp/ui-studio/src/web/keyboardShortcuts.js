@@ -15,6 +15,7 @@ export const keyMap = {
   'flow-add-node': `${navigationKey}+a`,
   'flow-save': `${navigationKey}+s`,
   'emulator-focus': `e`,
+  'emulator-reset': `alt+r`,
   'docs-toggle': `${navigationKey}+h`,
   cancel: 'esc'
 }

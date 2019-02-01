@@ -40,6 +40,17 @@ export default class FlowBuilder extends Component {
     this.setModel()
   }
 
+  async checkForNodeSearch() {
+    const { hash } = window.location
+    const searchCmd = '#search:'
+
+    if (hash && hash.includes(searchCmd)) {
+      const chosenNode = this.props.currentFlow.nodes.find(node => node.name === hash.replace(searchCmd, ''))
+      await this.props.switchFlowNode(chosenNode.id)
+      await this.props.openFlowNodeProps()
+    }
+  }
+
   setTranslation(x = 0, y = 0) {
     this.activeModel.setOffset(x, y)
     this.diagramWidget.fireAction()
@@ -259,6 +270,10 @@ export default class FlowBuilder extends Component {
       // Update the current model with the new properties
       this.syncModel()
     }
+
+    if (this.props.currentFlow && !prevProps.currentFlow) {
+      this.checkForNodeSearch()
+    }
   }
 
   onDiagramDoubleClick = () => {
@@ -472,6 +487,24 @@ export default class FlowBuilder extends Component {
     }
   }
 
+  renderCatchAllInfo() {
+    const nbOnReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
+    const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
+
+    return (
+      <div>
+        <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+          <Label bsStyle={nbOnReceive > 0 ? 'danger' : 'default'}>{nbOnReceive}</Label> flow-wide onReceive
+        </Button>
+
+        <Button bsStyle="link" onClick={this.onDiagramDoubleClick}>
+          <Label bsStyle={nbNext > 0 ? 'primary' : 'default'}>{nbNext}</Label> flow-wide
+          {nbNext === 1 ? ' transition' : ' transitions'}
+        </Button>
+      </div>
+    )
+  }
+
   render() {
     const isInserting = this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')
     const classNames = classnames({ [style.insertNode]: isInserting })
@@ -484,16 +517,20 @@ export default class FlowBuilder extends Component {
         className={classNames}
         style={{ outline: 'none', width: '100%', height: '100%' }}
       >
-        {isInserting && (
-          <div className={style.insertMode}>
-            <div>
-              <Label bsStyle="primary">Insertion Mode</Label>
+        <div className={style.floatingInfo}>
+          {this.renderCatchAllInfo()}
+          {isInserting && (
+            <div className={style.insertMode}>
+              <div>
+                <Label bsStyle="primary">Insertion Mode</Label>
+              </div>
+              <Button bsStyle="danger" onClick={cancelInsert}>
+                Cancel
+              </Button>
             </div>
-            <Button bsStyle="danger" onClick={cancelInsert}>
-              Cancel
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
+
         <DiagramWidget
           readOnly={this.props.readOnly}
           ref={w => (this.diagramWidget = w)}

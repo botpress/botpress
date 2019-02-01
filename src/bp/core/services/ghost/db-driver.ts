@@ -29,7 +29,7 @@ export default class DBStorageDriver implements StorageDriver {
         INSERT INTO :tableName: (:keyCol:, :valueCol:, deleted, :modifiedOnCol:)
         VALUES (:key, :value, false, :now)
         ON CONFLICT (:keyCol:) DO UPDATE
-          SET :valueCol: = :value, :modifiedOnCol: = :now
+          SET :valueCol: = :value, :modifiedOnCol: = :now, deleted = false
         `
       }
 
@@ -39,7 +39,7 @@ export default class DBStorageDriver implements StorageDriver {
         keyCol: 'file_path',
         key: filePath,
         valueCol: 'content',
-        value: content,
+        value: this.database.knex.binary.set(content),
         now: this.database.knex.date.now()
       })
 
