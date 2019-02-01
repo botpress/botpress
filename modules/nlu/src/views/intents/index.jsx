@@ -78,7 +78,7 @@ export default class IntentsComponent extends React.Component {
     }
   }
 
-  createNewIntent = () => {
+  createNewIntent = async () => {
     const name = prompt('Enter the name of the new intent')
 
     if (!name || !name.length) {
@@ -90,13 +90,12 @@ export default class IntentsComponent extends React.Component {
       return this.createNewIntent()
     }
 
-    return this.props.bp.axios
-      .post(`/mod/nlu/intents/${name}`, {
-        utterances: [],
-        slots: []
-      })
-      .then(this.fetchIntents)
-      .then(() => this.setCurrentIntent(name))
+    await this.props.bp.axios.post(`/mod/nlu/intents/${name}`, {
+      utterances: [],
+      slots: []
+    })
+    await this.fetchIntents()
+    await this.setCurrentIntent(name)
   }
 
   getFilteredIntents() {

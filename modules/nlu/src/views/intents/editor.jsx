@@ -12,7 +12,6 @@ export default class IntentsEditor extends React.Component {
   state = {
     initialUtterances: '',
     slotsEditor: null,
-    isDirty: false,
     slots: [],
     utterances: []
   }
@@ -44,13 +43,12 @@ export default class IntentsEditor extends React.Component {
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
+      // ensure there's an empty utterance at the beginning
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
-    this.setState({ utterances: expanded, slots: slots, isDirty: false }, () => {
-      this.initialHash = this.computeHash()
-      this.forceUpdate()
-    })
+    this.initialHash = this.computeHash({ slots, utterances: expanded })
+    this.setState({ utterances: expanded, slots: slots })
   }
 
   deleteIntent = () => {
@@ -63,15 +61,20 @@ export default class IntentsEditor extends React.Component {
     })
   }
 
-  saveIntent = () => {
-    this.props.axios
-      .post(`/mod/nlu/intents/${this.props.intent.name}`, {
-        utterances: this.getCanonicalUtterances(),
-        slots: this.state.slots
-      })
-      .then(() => {
-        this.props.reloadIntents && this.props.reloadIntents()
-      })
+  saveIntent = async () => {
+    await this.props.axios.post(`/mod/nlu/intents/${this.props.intent.name}`, {
+      utterances: this.getCanonicalUtterances(this.state.utterances),
+      slots: this.state.slots
+    })
+
+    this.props.reloadIntents && (await this.props.reloadIntents())
+  }
+
+  componentDidUpdate() {
+    if (this.isDirty()) {
+      this.saveIntent()
+      this.props.onUtterancesChange && this.props.onUtterancesChange()
+    }
   }
 
   onBeforeLeave = () => {
@@ -82,7 +85,7 @@ export default class IntentsEditor extends React.Component {
     return true
   }
 
-  getCanonicalUtterances = () => this.state.utterances.map(x => x.text).filter(x => x.length)
+  getCanonicalUtterances = utterances => (utterances || []).map(x => x.text).filter(x => x.length)
 
   expandCanonicalUtterances = utterances =>
     utterances.map(u => ({
@@ -90,14 +93,13 @@ export default class IntentsEditor extends React.Component {
       text: u
     }))
 
-  // TODO use somekind of web crypto to compute an actuall hash
-  computeHash = () =>
+  computeHash = ({ utterances, slots }) =>
     JSON.stringify({
-      utterances: this.getCanonicalUtterances(),
-      slots: this.state.slots
+      utterances: this.getCanonicalUtterances(utterances),
+      slots
     })
 
-  isDirty = () => this.initialHash && this.computeHash() !== this.initialHash
+  isDirty = () => this.computeHash({ utterances: this.state.utterances, slots: this.state.slots }) !== this.initialHash
 
   focusFirstUtterance = () => {
     if (this.firstUtteranceRef) {
@@ -210,11 +212,6 @@ export default class IntentsEditor extends React.Component {
     }
 
     const { name } = this.props.intent
-
-    if (this.isDirty()) {
-      this.saveIntent()
-      this.props.onUtterancesChange()
-    }
 
     return (
       <div className={style.container}>
