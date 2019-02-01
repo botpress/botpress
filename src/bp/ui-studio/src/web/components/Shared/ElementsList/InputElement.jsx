@@ -3,59 +3,78 @@ import React from 'react'
 import classnames from 'classnames'
 import style from './style.scss'
 
+const DEFAULT_ROW_HEIGHT = 32
+
 export class InputElement extends React.Component {
   elementInputRef = React.createRef()
 
   state = {
-    error: undefined
+    rowHeight: DEFAULT_ROW_HEIGHT,
+    error: undefined,
+    text: ''
   }
 
-  get inputValue() {
-    return get(this.elementInputRef, 'current.value', '')
+  componentDidMount() {
+    this.setState({ text: this.props.defaultValue }, this.updateTextareaHeight)
   }
 
   get inputNotEmpty() {
-    return this.inputValue.length > 0
+    return this.state.text && this.state.text.trim().length > 0
   }
 
-  handleOnEnter = event => {
-    if (event.key === 'Enter' && this.inputNotEmpty) {
-      this.tryAddElement(this.inputValue)
+  handleKeyDown = event => {
+    if (event.key === 'Enter') {
+      if (event.altKey && this.props.allowMultiline) {
+        this.setState({ text: this.state.text + '\n' }, this.updateTextareaHeight)
+      } else if (!event.altKey && this.inputNotEmpty) {
+        this.tryAddElement()
+      }
+
+      event.preventDefault()
     }
+  }
+
+  handleOnChange = event => {
+    this.setState({ text: event.target.value }, this.updateTextareaHeight)
+  }
+
+  updateTextareaHeight = () => {
+    this.setState({ rowHeight: this.elementInputRef.current.scrollHeight })
   }
 
   handleOnBlur = _event => {
-    if (this.inputNotEmpty && this.inputNotEmpty) {
-      this.tryAddElement()
-    }
+    this.inputNotEmpty && this.tryAddElement()
   }
 
   tryAddElement = () => {
-    const elementUnique = !this.props.elements.includes(this.inputValue)
+    const elementUnique = !this.props.elements.includes(this.state.text)
     if (!this.inputNotEmpty || !elementUnique) {
       return this.setState({ error: new Error('The element must be unique and cannot be an empty string.') })
     }
 
-    const value = this.inputValue // make a copy because of async
+    const value = this.state.text // make a copy because of async
     this.setState({ error: undefined }, () => this.props.onElementAdd(value))
 
     if (this.props.cleanInputAfterEnterPressed) {
-      this.elementInputRef.current.value = ''
+      this.setState({ text: '', rowHeight: DEFAULT_ROW_HEIGHT })
     }
   }
 
   render() {
     return (
       <React.Fragment>
-        <input
+        <textarea
           autoFocus
-          className={classnames('form-control', (this.state.error || this.props.invalid) && style.inputError)}
+          className={classnames('form-control', style.inputArea, {
+            [style.inputError]: this.state.error || this.props.invalid
+          })}
           ref={this.elementInputRef}
-          type="text"
+          style={{ height: this.state.rowHeight }}
+          value={this.state.text}
           placeholder={this.props.placeholder || ''}
-          defaultValue={this.props.defaultValue || ''}
           onBlur={this.handleOnBlur}
-          onKeyDown={this.handleOnEnter}
+          onKeyDown={this.handleKeyDown}
+          onChange={this.handleOnChange}
         />
         {this.state.error && <div>{this.state.error.message}</div>}
       </React.Fragment>
