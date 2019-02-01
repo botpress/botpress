@@ -1,3 +1,4 @@
+// @ts-ignore
 import Promise from 'bluebird'
 import retry from 'bluebird-retry'
 import _ from 'lodash'
@@ -36,7 +37,7 @@ export default (bp: SDK, db: Database) => {
         return Promise.method(fn)(bp, row.userId, row.platform)
       }).then(values => {
         return _.some(values, v => {
-          if (v !== true && v !== false) {
+          if (!_.isBoolean(v)) {
             bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
           }
 
@@ -64,7 +65,7 @@ export default (bp: SDK, db: Database) => {
     })
   })
 
-  function scheduleToOutbox() {
+  async function scheduleToOutbox() {
     if (!db.knex || schedulingLock) {
       return
     }
@@ -82,36 +83,31 @@ export default (bp: SDK, db: Database) => {
 
     schedulingLock = true
 
-    return db.getBroadcastSchedulesByTime(upcomingFixedTime, upcomingVariableTime)
-      .then(schedules => {
-        return Promise.map(schedules, schedule =>
-          db.getUsersTimezone()
-            .then(timezones => Promise.mapSeries(timezones, ({ timezone: tz }) =>
-              db.setBroadcastOutbox(schedule, tz)
-                .then(() =>
-                  db.getOutboxCount(schedule)
-                    .then(({ count }) =>
-                      db.updateTotalCount(schedule, count)
-                        .then(() => {
-                          bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
+    const schedules = await db.getBroadcastSchedulesByTime(upcomingFixedTime, upcomingVariableTime)
 
-                          if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
-                            bp.logger.info(
-                              `Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`
-                            )
-                          }
+    await Promise.map(schedules, async schedule => {
+      const timezones = await db.getUsersTimezone()
 
-                          emitChanged()
-                        })
-                    )
-                )
-            )
-            )
-        )
+      await Promise.mapSeries(timezones, async ({ timezone: tz }) => {
+
+        await db.setBroadcastOutbox(schedule, tz)
+        const { count } = await db.getOutboxCount(schedule)
+
+        await db.updateTotalCount(schedule, count)
+
+        bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
+
+        if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
+          bp.logger.info(
+            `Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`
+          )
+        }
+
+        emitChanged()
       })
-      .finally(() => {
-        schedulingLock = false
-      })
+    })
+
+    schedulingLock = false
   }
 
   function sendBroadcasts() {
