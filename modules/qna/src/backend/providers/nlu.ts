@@ -137,7 +137,7 @@ export default class Storage implements QnaStorage {
       allQuestions = allQuestions.filter(q => q.id !== editingQnaId)
     }
 
-    const questionsList = _.flatten(_.map(allQuestions, entry => entry.data.questions))
+    const questionsList = _.flatMap(allQuestions, entry => entry.data.questions)
     const dupes = _.uniq(_.filter(questionsList, question => newQuestions.includes(question)))
 
     if (dupes.length) {

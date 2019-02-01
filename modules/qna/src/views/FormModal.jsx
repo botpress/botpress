@@ -98,8 +98,7 @@ export default class FormModal extends Component {
     const item = this.state.item
     const questions = this.trimItemQuestions(item.questions)
 
-    const dupes = _.filter(questions, (value, index) => _.includes(questions, value, Number(index) + 1))
-    return dupes.length > 0
+    return _.some(questions, (value, index) => _.includes(questions, value, Number(index) + 1))
   }
 
   trimItemQuestions = questions => {
