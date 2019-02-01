@@ -1,4 +1,5 @@
 import { Flow, FlowNode, Logger } from 'botpress/sdk'
+import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
@@ -20,7 +21,8 @@ export class FlowService {
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
   async loadAll(botId: string): Promise<FlowView[]> {
@@ -85,7 +87,7 @@ export class FlowService {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
 
-    const flowsToSave = flowViews.map(flow => this.prepareSaveFlow(flow))
+    const flowsToSave = await Promise.map(flowViews, flow => this.prepareSaveFlow(botId, flow))
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
         this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
@@ -126,11 +128,13 @@ export class FlowService {
     this.saveAll(botId, [flow])
   }
 
-  private prepareSaveFlow(flow) {
+  private async prepareSaveFlow(botId, flow) {
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {
       throw new Error(schemaError)
     }
+
+    await this.moduleLoader.onFlowChanged(botId, flow)
 
     const uiContent = {
       nodes: flow.nodes.map(node => ({ id: node.id, position: _.pick(node, 'x', 'y') })),
