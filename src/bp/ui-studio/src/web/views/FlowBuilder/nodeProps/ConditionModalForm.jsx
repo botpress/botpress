@@ -38,6 +38,7 @@ export default class ConditionModalForm extends Component {
     const conditionType = this.getConditionType(condition)
 
     if (item && item.node) {
+      const nodeOptions = this.getNodeOptions()
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
       typeOfTransition = /^#/.test(item.node) ? 'return' : typeOfTransition
@@ -47,7 +48,7 @@ export default class ConditionModalForm extends Component {
         conditionType,
         condition,
         flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
-        flowToNode: typeOfTransition === 'node' ? item.node : null,
+        flowToNode: typeOfTransition === 'node' ? item.node : _.get(nodeOptions, '[0]'),
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
@@ -106,8 +107,8 @@ export default class ConditionModalForm extends Component {
     const nodeOptions = this.getNodeOptions()
     this.setState({
       typeOfTransition: type,
-      flowToSubflow: this.state.flowToSubflow || _.get(subflowOptions, '[0].value'),
-      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0].value'),
+      flowToSubflow: this.state.flowToSubflow || _.get(subflowOptions, '[0]'),
+      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0]'),
       transitionError: null
     })
   }
@@ -138,10 +139,12 @@ export default class ConditionModalForm extends Component {
   }
 
   resetForm(props) {
+    const nodeOptions = this.getNodeOptions()
+
     this.setState({
       typeOfTransition: 'node',
       flowToSubflow: null,
-      flowToNode: null,
+      flowToNode: _.get(nodeOptions, '[0]'),
       returnToNode: '',
       conditionError: null,
       transitionError: null,
@@ -227,7 +230,11 @@ export default class ConditionModalForm extends Component {
   getNodeOptions() {
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []
-    return nodes.filter(({ name }) => name !== currentNodeName).map(({ name }) => ({ label: name, value: name }))
+    const options = nodes
+      .filter(({ name }) => name !== currentNodeName)
+      .map(({ name }) => ({ label: name, value: name }))
+
+    return [{ label: 'No specific node', value: null }, ...options]
   }
 
   renderNodesChoice() {
