@@ -16,6 +16,7 @@ gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:modules', gulp.series([modules.build()]))
+gulp.task('build:sdk', gulp.series([modules.buildSdk()]))
 
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide)
