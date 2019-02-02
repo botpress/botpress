@@ -27,17 +27,12 @@ export class WorkspaceService {
   }
 
   async getWorkspace(): Promise<Workspace> {
-    return new Promise<Workspace>(async (resolve, reject) => {
-      try {
-        const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
-        if (workspaces && workspaces.length) {
-          resolve(workspaces[0])
-        }
-      } catch (err) {
-        reject(err)
-      }
-      reject(Error('No workspace found in workspaces.json'))
-    })
+    const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
+    if (!workspaces || !workspaces.length) {
+      throw new Error('No workspace found in workspaces.json')
+    }
+
+    return workspaces[0]
   }
 
   async save(workspace: Workspace) {
@@ -81,7 +76,6 @@ export class WorkspaceService {
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
     const workspace = await this.getWorkspace()
     const user = _.head(_.filter(workspace.users, where))
-    // return selectFields ? _.pick(user, selectFields) : user
     return user
   }
 
