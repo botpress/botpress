@@ -56,8 +56,17 @@ export class ConverseRouter implements CustomRouter {
     if (!parts.includes('nlu')) {
       delete output.nlu
     }
+
     if (!parts.includes('state')) {
       delete output.state
+    }
+
+    if (!parts.includes('suggestions')) {
+      delete output.suggestions
+    }
+
+    if (!parts.includes('decision')) {
+      delete output.decision
     }
 
     return output
