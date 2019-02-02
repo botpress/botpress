@@ -16,6 +16,7 @@ export default class IntentsComponent extends React.Component {
   componentDidMount() {
     this.fetchIntents()
     this.syncModel()
+    this.checkForIntentSearch()
   }
 
   // Deprecated, will be fixed when we fix the whole NLU UI
@@ -25,9 +26,23 @@ export default class IntentsComponent extends React.Component {
     }
   }
 
-  syncModel = _.debounce(() => {
-    this.props.bp.axios.post('/mod/nlu/sync')
-  }, 1000, { leading: true })
+  checkForIntentSearch() {
+    const { hash } = window.location
+    const searchCmd = '#search:'
+
+    if (hash && hash.includes(searchCmd)) {
+      const intent = hash.replace(searchCmd, '')
+      this.setState({ filterValue: intent, currentIntent: intent })
+    }
+  }
+
+  syncModel = _.debounce(
+    () => {
+      this.props.bp.axios.post('/mod/nlu/sync')
+    },
+    1000,
+    { leading: true }
+  )
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
@@ -63,7 +78,7 @@ export default class IntentsComponent extends React.Component {
     }
   }
 
-  createNewIntent = () => {
+  createNewIntent = async () => {
     const name = prompt('Enter the name of the new intent')
 
     if (!name || !name.length) {
@@ -75,13 +90,13 @@ export default class IntentsComponent extends React.Component {
       return this.createNewIntent()
     }
 
-    return this.props.bp.axios
-      .post(`/mod/nlu/intents/${name}`, {
-        utterances: [],
-        slots: []
-      })
-      .then(this.fetchIntents)
-      .then(() => this.setCurrentIntent(name))
+    await this.props.bp.axios.post(`/mod/nlu/intents/${name}`, {
+      utterances: [],
+      slots: [],
+      contexts: ['global']
+    })
+    await this.fetchIntents()
+    await this.setCurrentIntent(name)
   }
 
   getFilteredIntents() {
@@ -119,7 +134,7 @@ export default class IntentsComponent extends React.Component {
               {el.name}
               &nbsp;(
               {_.get(el, 'utterances.length', 0)})
-              <a onClick={this.deleteIntent.bind(this, el.name)} >
+              <a onClick={this.deleteIntent.bind(this, el.name)}>
                 <Glyphicon glyph="trash" className={style.deleteEntity} />
               </a>
             </ListGroupItem>
@@ -144,7 +159,12 @@ export default class IntentsComponent extends React.Component {
               <div className={style.filter}>
                 <FormGroup bsSize="small">
                   <InputGroup>
-                    <FormControl type="text" placeholder="Search" onChange={this.onFilterChanged} />
+                    <FormControl
+                      value={this.state.filterValue}
+                      type="text"
+                      placeholder="Search"
+                      onChange={this.onFilterChanged}
+                    />
                     <InputGroup.Addon>
                       <Glyphicon glyph="search" />
                     </InputGroup.Addon>

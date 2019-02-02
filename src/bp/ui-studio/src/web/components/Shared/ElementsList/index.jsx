@@ -17,7 +17,7 @@ export default class ElementsList extends React.Component {
 
   handleNewElement = (element, index) => {
     this.setState({ editElementIndex: undefined })
-    this.props.update(element, index)
+    this.props.onUpdate(element, index)
   }
 
   renderElement = (element, index) => {
@@ -26,7 +26,8 @@ export default class ElementsList extends React.Component {
         <InputElement
           key={`elements_edit_element_${index}`}
           defaultValue={element}
-          elements={this.props.elements}
+          allowMultiline={this.props.allowMultiline}
+          elements={this.props.elements.filter(el => el !== element)}
           onElementAdd={element => this.handleNewElement(element, index)}
         />
       )
@@ -36,21 +37,23 @@ export default class ElementsList extends React.Component {
           <a className={style.listElementValue} onClick={() => this.toggleEditMode(index)}>
             {element}
           </a>
-          <Glyphicon glyph="trash" onClick={() => this.props.delete(index)} className={style.listElementIcon} />
+          <Glyphicon glyph="trash" onClick={() => this.props.onDelete(index)} className={style.listElementIcon} />
         </ListGroupItem>
       )
     }
   }
 
   render() {
+    const multilineHint = this.props.allowMultiline ? ' Use ALT+Enter for a new line' : ''
     return (
       <div>
         <InputElement
-          placeholder={this.props.placeholder || 'Type and press enter to create an element'}
-          invalid={this.props.invalid}
+          placeholder={this.props.placeholder || 'Type and press enter to create an element.' + multilineHint}
+          onInvalid={this.props.onInvalid}
           cleanInputAfterEnterPressed={true}
+          allowMultiline={this.props.allowMultiline}
           elements={this.props.elements}
-          onElementAdd={this.props.create}
+          onElementAdd={this.props.onCreate}
         />
         {this.props.elements && this.props.elements.map((element, index) => this.renderElement(element, index))}
       </div>

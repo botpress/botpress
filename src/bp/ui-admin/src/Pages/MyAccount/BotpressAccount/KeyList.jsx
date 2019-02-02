@@ -1,18 +1,17 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Table, Button } from 'reactstrap'
+import { Table, Button, Jumbotron, Row, Col } from 'reactstrap'
 import _ from 'lodash'
-import IconTooltip from '../Components/IconTooltip'
-import SectionLayout from '../Layouts/Section'
-import KeyListItem from '../Components/Licensing/KeyListItem'
-import ActivateRevealKeyModal from '../Components/Licensing/ActivateRevealKeyModal'
-import UpdateLicenseModal from '../Components/Licensing/UpdateLicenseModal'
-import BuyLicenseModal from '../Components/Licensing/BuyLicenseModal'
-import LoadingSection from '../Components/LoadingSection'
-import LoginModal from '../Components/Licensing/LoginModal'
-import { fetchAllKeys, fetchProducts, fetchLicensing } from '../../reducers/license'
-import { isAuthenticated } from '../../Auth/licensing'
-import { logout } from '../../Auth/licensing'
+import FaFrownO from 'react-icons/lib/fa/frown-o'
+import MdVpnKey from 'react-icons/lib/md/vpn-key'
+import IconTooltip from '../../Components/IconTooltip'
+import SectionLayout from '../../Layouts/Section'
+import KeyListItem from '../../Components/Licensing/KeyListItem'
+import ActivateRevealKeyModal from '../../Components/Licensing/ActivateRevealKeyModal'
+import UpdateLicenseModal from '../../Components/Licensing/UpdateLicenseModal'
+import BuyLicenseModal from '../../Components/Licensing/BuyLicenseModal'
+import LoadingSection from '../../Components/LoadingSection'
+import { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser, licenseUpdated } from '../../../reducers/license'
 
 class KeyList extends Component {
   state = {
@@ -20,21 +19,20 @@ class KeyList extends Component {
     selectedLicense: null,
     keyModalOpen: false,
     updateModalOpen: false,
-    buyModalOpen: false,
-    loginModalOpen: false
+    buyModalOpen: false
   }
 
-  componentDidUpdate(prevProps) {
-    if (!isAuthenticated()) {
-      return
-    }
-
-    !this.props.keys.length && this.props.fetchAllKeys()
-    !this.props.products.length && this.props.fetchProducts()
+  componentDidMount(prevProps) {
+    !this.props.keys && !this.props.fetchingKeys && this.props.fetchAllKeys()
+    !this.props.products && !this.props.fetchingProducts && this.props.fetchProducts()
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
-  toggleLoginModal = () => this.setState({ loginModalOpen: !this.state.loginModalOpen })
+
+  onLicenseUpdated = license => {
+    this.props.licenseUpdated(license)
+    this.setState({ updateModalOpen: false })
+  }
 
   toggleUpdateModal = selectedLicense => {
     this.setState({
@@ -51,17 +49,16 @@ class KeyList extends Component {
   }
 
   logoutAccount = () => {
-    logout()
-    this.forceUpdate()
+    this.props.logoutUser()
   }
 
-  refresh = () => {
-    this.props.fetchAllKeys()
-    this.props.fetchLicensing()
+  hasKeys = () => {
+    return this.props.keys && this.props.keys.length > 0
   }
 
   renderKeysTable() {
     const clusterFingerprint = _.get(this.props.licensing, 'fingerprints.cluster_url')
+
     return (
       <Table className="table--keys">
         <thead>
@@ -94,8 +91,7 @@ class KeyList extends Component {
                 products={this.props.products}
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
-                onLicenseUpdated={this.toggleUpdateModal}
-                refreshLicense={this.refresh}
+                onLicenseUpdated={this.onLicenseUpdated}
               />
             ))}
         </tbody>
@@ -103,14 +99,31 @@ class KeyList extends Component {
     )
   }
 
-  renderPage() {
-    if (!isAuthenticated()) {
-      return this.renderNotLoggedIn()
-    }
+  renderNoKeys = () => {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+            <h1>
+              <FaFrownO />
+              &nbsp;You have no keys
+            </h1>
+            <p>License keys are necessary to enable Professional Edition</p>
+            <Button size="sm" color="primary" onClick={this.toggleBuyModal}>
+              <MdVpnKey />
+              &nbsp;Buy your first key
+            </Button>
+          </Col>
+        </Row>
+      </Jumbotron>
+    )
+  }
 
+  renderPage() {
     return (
       <Fragment>
-        {!this.state.error && <Fragment>{this.props.keys.length > 0 && this.renderKeysTable()}</Fragment>}
+        {!this.state.error && this.hasKeys() && this.renderKeysTable()}
+        {!this.state.error && !this.hasKeys() && this.renderNoKeys()}
         <ActivateRevealKeyModal
           isOpen={this.state.keyModalOpen}
           toggle={this.toggleKeyModal}
@@ -133,66 +146,37 @@ class KeyList extends Component {
     )
   }
 
-  renderNotLoggedIn() {
+  renderSideMenu() {
     return (
-      <div>
-        To purchase a new license key or to manage existing ones, please login to your Botpress Account.
-        <br />
-        <br />
+      <div className="licensing_sideMenu">
+        <Button size="sm" color="primary" onClick={this.toggleBuyModal}>
+          <MdVpnKey />
+          &nbsp;
+          {this.hasKeys() ? <span>Buy more keys</span> : <span>Buy your first key</span>}
+        </Button>
+        <Button size="sm" color="link" onClick={this.logoutAccount}>
+          Logout
+        </Button>
       </div>
     )
   }
 
-  renderSideMenu() {
-    if (!isAuthenticated()) {
-      return (
-        <div>
-          <Button size="sm" onClick={this.toggleLoginModal}>
-            Login
-          </Button>
-          <LoginModal isOpen={this.state.loginModalOpen} toggle={this.toggleLoginModal} />
-        </div>
-      )
-    } else {
-      return (
-        <div>
-          <Button size="sm" onClick={this.logoutAccount}>
-            Logout
-          </Button>
-          <br />
-          <br />
-          <Button size="sm" color="success" onClick={this.toggleBuyModal}>
-            {this.props.keys.length > 0 && <span>Buy more licenses</span>}
-            {this.props.keys.length === 0 && <span>Buy your first license</span>}
-          </Button>
-        </div>
-      )
-    }
-  }
-
   render() {
-    const renderLoading = () => <LoadingSection />
-
     return (
       <SectionLayout
-        title="Keys"
+        title="License Keys"
         helpText="Manage your license keys, edit your subscriptions and purchase new license keys"
         activePage="keys"
-        mainContent={this.props.isLoadingKeys ? renderLoading() : this.renderPage()}
-        sideMenu={this.renderSideMenu()}
+        mainContent={this.props.fetchingKeys ? <LoadingSection /> : this.renderPage()}
+        sideMenu={this.props.fetchingKeys ? <span /> : this.renderSideMenu()}
       />
     )
   }
 }
 
-const mapStateToProps = state => ({
-  keys: state.license.keys,
-  products: state.license.products,
-  isLoadingKeys: state.license.isLoadingKeys,
-  licensing: state.license.licensing
-})
+const mapStateToProps = state => ({ ...state.license })
 
-const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser, licenseUpdated }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

@@ -202,9 +202,11 @@ export class ScopedGhostService {
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
     if (!(await this.isFullySynced())) {
-      const scUrl = `<botpress_url>/admin/settings/version`
+      const scUrl = `/admin/settings/version`
       this.logger.warn(
-        `Found unsynced file changes in "${this.baseDir}". Visit ${scUrl} to save changes back to your Source Control.`
+        `Found unsynced file changes in "${
+          this.baseDir
+        }". Visit '${scUrl}' to save changes back to your Source Control.`
       )
       return
     }
@@ -247,6 +249,7 @@ export class ScopedGhostService {
     const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
     const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
     const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+
     await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
     if (!allFiles.includes('revisions.json')) {
       allFiles.push('revisions.json')
@@ -325,10 +328,9 @@ export class ScopedGhostService {
   ): Promise<string[]> {
     try {
       const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
-      if (files) {
-        return files.filter(minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false }))
-      }
-      return []
+      return (files || []).filter(
+        minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false })
+      )
     } catch (err) {
       if (err && err.message && err.message.includes('ENOENT')) {
         return []

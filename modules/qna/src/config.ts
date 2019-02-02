@@ -18,6 +18,7 @@ export interface Config {
   qnaMakerKnowledgebase?: string
   /**
    * List of categories, separated by a comma
+   * @default global
    */
   qnaCategories?: string
 }

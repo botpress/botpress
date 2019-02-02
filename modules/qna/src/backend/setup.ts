@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { NLU_PREFIX } from './providers/nlu'
 import NluStorage from './providers/nlu'
@@ -45,16 +46,21 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     const payloads = []
 
     if (question.action.includes('text')) {
-      const element = await bp.cms.renderElement(
-        renderer,
-        { text: getAlternativeAnswer(question), typing: true },
-        {
-          botId: event.botId,
-          channel: event.channel,
-          target: event.target,
-          threadId: event.threadId
-        }
-      )
+      const args = {
+        user: _.get(event, 'state.user') || {},
+        session: _.get(event, 'state.session') || {},
+        temp: _.get(event, 'state.temp') || {},
+        text: getAlternativeAnswer(question),
+        typing: true
+      }
+
+      const element = await bp.cms.renderElement(renderer, args, {
+        botId: event.botId,
+        channel: event.channel,
+        target: event.target,
+        threadId: event.threadId
+      })
+
       payloads.push(...element)
     }
 

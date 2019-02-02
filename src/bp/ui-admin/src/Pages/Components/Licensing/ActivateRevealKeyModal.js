@@ -45,7 +45,8 @@ class KeyModal extends React.Component {
   async getLicenseKey() {
     const { license } = this.props
     try {
-      const { data } = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/generate`)
+      const licensing = await api.getLicensing()
+      const { data } = await licensing.post(`/me/keys/${license.stripeSubscriptionId}/generate`)
       this.setState({ key: data.key })
     } catch (error) {
       this.setState({ error: error.message })
@@ -57,7 +58,8 @@ class KeyModal extends React.Component {
     this.setState({ isLoading: true })
 
     try {
-      const res = await api.getLicensing().post(`/me/keys/${license.stripeSubscriptionId}/activate`, {
+      const licensing = await api.getLicensing()
+      const res = await licensing.post(`/me/keys/${license.stripeSubscriptionId}/activate`, {
         fingerprint: this.state.newFingerPrint
       })
 

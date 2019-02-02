@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { bindActionCreators } from 'redux'
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import _ from 'lodash'
@@ -103,11 +103,12 @@ class LicenseStatus extends React.Component {
     return (
       <Jumbotron>
         <Row>
-          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
             <p>
               To manage your server license, please enable the Professionnal Edition of Botpress by editing the file{' '}
               <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
-              true
+              true. If you don't have any license keys yet, go to your{' '}
+              <Link to="/profile/account">Botpress account</Link>
             </p>
           </Col>
         </Row>
@@ -184,7 +185,7 @@ class LicenseStatus extends React.Component {
 }
 
 const mapStateToProps = state => ({ loading: state.license.loading, licensing: state.license.licensing })
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchLicensing }, dispatch)
+const mapDispatchToProps = { fetchLicensing }
 
 export default connect(
   mapStateToProps,

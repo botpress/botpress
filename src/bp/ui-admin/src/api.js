@@ -2,8 +2,8 @@ import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
 import { pullToken, logout } from './Auth'
-import * as licensing from './Auth/licensing'
 import { toast } from 'react-toastify'
+import * as licensing from './Auth/licensing'
 
 const defaultOptions = {
   timeout: 2000
@@ -91,12 +91,13 @@ export default {
     return createClient(overrideApiUrl, { toastErrors })
   },
 
-  getLicensing({ toastErrors = true } = {}) {
+  async getLicensing({ toastErrors = true } = {}) {
+    const token = await licensing.getToken()
     const client = createClient(
       {
         timeout: 10000,
         headers: {
-          'X-AUTH-TOKEN': `bearer ${licensing.getToken()}`
+          'X-AUTH-TOKEN': `bearer ${token}`
         },
         ...overrideLicensingServer
       },
@@ -106,7 +107,7 @@ export default {
     client.interceptors.response.use(
       response => response,
       error => {
-        if (error.response && error.response.status === 401) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
           licensing.logout()
         }
 

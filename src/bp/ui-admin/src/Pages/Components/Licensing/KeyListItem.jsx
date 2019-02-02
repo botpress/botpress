@@ -46,8 +46,9 @@ export default class KeyListItem extends Component {
 
     if (window.confirm('Are you sure you want to cancel auto-renew for this license?')) {
       try {
-        await api.getLicensing().delete(`/me/keys/${license.stripeSubscriptionId}`)
-        this.props.refreshLicense()
+        const licensing = await api.getLicensing()
+        await licensing.delete(`/me/keys/${license.stripeSubscriptionId}`)
+        this.props.onLicenseUpdated({ ...license, canceled: true })
       } catch (error) {
         console.error('error canceling license')
       }
@@ -64,7 +65,7 @@ export default class KeyListItem extends Component {
     try {
       const licenseKey = await this.activateWithServerFingerprint()
       await this.updateServerKey(licenseKey)
-      this.props.refreshLicense()
+      this.props.onLicenseUpdated(licenseKey)
     } catch (error) {
       console.log('error while setting up license')
     }
@@ -84,7 +85,8 @@ export default class KeyListItem extends Component {
   }
 
   activateWithServerFingerprint = async () => {
-    const res = await api.getLicensing().post(`/me/keys/${this.props.license.stripeSubscriptionId}/activate`, {
+    const licensing = await api.getLicensing()
+    const res = await licensing.post(`/me/keys/${this.props.license.stripeSubscriptionId}/activate`, {
       fingerprint: this.props.clusterFingerprint
     })
 
@@ -131,7 +133,7 @@ export default class KeyListItem extends Component {
         <DropdownMenu>
           {license.assigned && <DropdownItem onClick={this.revealLicense}>Reveal License Key</DropdownItem>}
           <DropdownItem onClick={this.assignFingerprint}>Assign Fingerprint</DropdownItem>
-          <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>
+          {this.props.clusterFingerprint && <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>}
           <DropdownItem onClick={this.updateLicense}>Update License</DropdownItem>
           {!license.canceled && <DropdownItem onClick={this.disableAutoRenew}>Disable Auto-Renew</DropdownItem>}
         </DropdownMenu>
@@ -142,7 +144,7 @@ export default class KeyListItem extends Component {
   render() {
     const { license } = this.props
     const assignedClass = license.assigned ? 'assigned' : 'not-assigned'
-    const isActive = this.props.clusterFingerprint === license.fingerprint
+    const isActive = this.props.clusterFingerprint && this.props.clusterFingerprint === license.fingerprint
 
     return (
       <tr disabled={license.canceled}>
@@ -155,7 +157,7 @@ export default class KeyListItem extends Component {
           </span>
         </td>
         <td>
-          <span className="table--keys__users">{license.limits && license.limits.nodes + 1}</span>
+          <span className="table--keys__users">{license.limits && Number(license.limits.nodes) + 1}</span>
         </td>
         <td>
           <span className="table--keys__users">{license.quantities.isGoldSupport ? 'Gold' : 'Standard'}</span>

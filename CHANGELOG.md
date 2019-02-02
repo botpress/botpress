@@ -1,3 +1,38 @@
+## [11.4.2](https://github.com/botpress/botpress/compare/v11.4.1...v11.4.2) (2019-02-02)
+
+
+### Bug Fixes
+
+* **admin:** nodes parsing & ensure fingerprint ([1670eb1](https://github.com/botpress/botpress/commit/1670eb1))
+* **admin-ui:** better usage of firebase ([f14e8fb](https://github.com/botpress/botpress/commit/f14e8fb))
+* **bot-templates:** added basic content types for empty bot ([13bbd48](https://github.com/botpress/botpress/commit/13bbd48))
+* **bot-templates:** added basic content types for empty bot ([81c2bba](https://github.com/botpress/botpress/commit/81c2bba))
+* **core:** ghost content on postgres ([9ccacc6](https://github.com/botpress/botpress/commit/9ccacc6))
+* **flow:** now clearer that transition node is optional ([3af2e49](https://github.com/botpress/botpress/commit/3af2e49))
+* **flow:** now clearer that transition node is optional ([3af8cbb](https://github.com/botpress/botpress/commit/3af8cbb))
+* **nlu:** fixed unnecessary syncs ([54736d9](https://github.com/botpress/botpress/commit/54736d9))
+* **nlu:** focus first box on enter ([9cd7e24](https://github.com/botpress/botpress/commit/9cd7e24))
+* **qna:** added a check to prevent duplicated qna ([be359be](https://github.com/botpress/botpress/commit/be359be))
+* **qna:** added a check to prevent duplicated qna ([9beeabd](https://github.com/botpress/botpress/commit/9beeabd))
+* **qna:** default categories ([12a8c72](https://github.com/botpress/botpress/commit/12a8c72))
+* **qna:** default categories ([0856e0e](https://github.com/botpress/botpress/commit/0856e0e))
+* **qna:** styling fixes ([45ac054](https://github.com/botpress/botpress/commit/45ac054))
+* **qna:** update references to a node when its name change ([4b7ecbc](https://github.com/botpress/botpress/commit/4b7ecbc))
+* **ui:** display nb of catchalls in flow ([0b38455](https://github.com/botpress/botpress/commit/0b38455))
+
+
+### Features
+
+* **core:** notify the end-user when an error has occurred in the dialog engine ([ad78502](https://github.com/botpress/botpress/commit/ad78502))
+* **emulator:** added shortcut to reset session ([7bfb405](https://github.com/botpress/botpress/commit/7bfb405))
+* **emulator:** added shortcut to reset session ([805cd3a](https://github.com/botpress/botpress/commit/805cd3a))
+* **emulator:** added shortcuts from emulator to intent/qna + flow ed ([9c1959c](https://github.com/botpress/botpress/commit/9c1959c))
+* **emulator:** added shortcuts from emulator to intent/qna + flow ed ([7c542b6](https://github.com/botpress/botpress/commit/7c542b6))
+* **emulator:** added toggle button for typing indicator ([c752a16](https://github.com/botpress/botpress/commit/c752a16))
+* **emulator:** added toggle button for typing indicator ([55216af](https://github.com/botpress/botpress/commit/55216af))
+
+
+
 ## [11.4.1](https://github.com/botpress/botpress/compare/v11.3.0...v11.4.1) (2019-01-31)
 
 
@@ -51,6 +86,7 @@
 * **core:** migrate bots, users and roles to filesystem ([2aef7bb](https://github.com/botpress/botpress/commit/2aef7bb))
 * **flow:** added builtin transitions ([8fc3710](https://github.com/botpress/botpress/commit/8fc3710))
 * **flow:** added builtin transitions ([3ee982a](https://github.com/botpress/botpress/commit/3ee982a))
+* **qna:** add multiline support, ux adjustments ([91cc5f4](https://github.com/botpress/botpress/commit/91cc5f4))
 * **web:** added config var for message length (resolve [#1298](https://github.com/botpress/botpress/issues/1298)) ([a442b43](https://github.com/botpress/botpress/commit/a442b43))
 * **web:** added config var for message length (resolve [#1298](https://github.com/botpress/botpress/issues/1298)) ([990d542](https://github.com/botpress/botpress/commit/990d542))
 * **web-channel:** add an option to hide the conversations button ([d58158a](https://github.com/botpress/botpress/commit/d58158a))

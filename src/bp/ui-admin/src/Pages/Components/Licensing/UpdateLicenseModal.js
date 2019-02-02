@@ -23,13 +23,13 @@ export default class UpdateLicenseModal extends React.Component {
 
   handleDetailsUpdated = details => this.setState({ order: details, isDirty: true })
 
-  updateLicense = () => {
+  updateLicense = async () => {
     this.setState({ isLoading: true })
     const { license } = this.props
     const { quantities, limits, label, isPartTimeEnabled } = this.state.order
 
-    api
-      .getLicensing()
+    const licensing = await api.getLicensing()
+    licensing
       .put(`/me/keys/${license.stripeSubscriptionId}`, {
         support: quantities.isGoldSupport ? 'gold' : 'standard',
         nodes: Number(limits.nodes),

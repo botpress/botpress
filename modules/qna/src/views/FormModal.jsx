@@ -3,7 +3,7 @@ import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
 import classnames from 'classnames'
 import some from 'lodash/some'
 import ElementsList from 'botpress/elements-list'
-
+import _ from 'lodash'
 import Select from 'react-select'
 import style from './style.scss'
 
@@ -32,9 +32,9 @@ export default class FormModal extends Component {
       redirectFlow: false,
       redirectNode: false
     },
+    errorMessage: undefined,
     isText: true,
-    isRedirect: false,
-    isValidForm: true
+    isRedirect: false
   }
 
   state = this.defaultState
@@ -88,87 +88,79 @@ export default class FormModal extends Component {
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
     }
+    const hasDuplicates = this.isQuestionDuplicated()
 
-    this.setState({ invalidFields })
-    return some(invalidFields)
+    this.setState({ invalidFields, hasDuplicates, errorMessage: undefined })
+    return some(invalidFields) || hasDuplicates
+  }
+
+  isQuestionDuplicated() {
+    const item = this.state.item
+    const questions = this.trimItemQuestions(item.questions)
+
+    return _.some(questions, (value, index) => _.includes(questions, value, Number(index) + 1))
   }
 
   trimItemQuestions = questions => {
     return questions.map(q => q.trim()).filter(q => q !== '')
   }
 
-  onCreate = event => {
-    event.preventDefault()
-    if (this.validateForm()) {
-      this.setState({ isValidForm: false })
+  onCreate = async questions => {
+    try {
+      await this.props.bp.axios.post('/mod/qna/questions', { ...this.state.item, questions })
 
-      return
-    }
-
-    if (!this.state.isValidForm) {
-      this.setState({ isValidForm: true })
-    }
-
-    const item = this.state.item
-    const questions = this.trimItemQuestions(item.questions)
-
-    return this.props.bp.axios.post('/mod/qna/questions', { ...item, questions }).then(() => {
       this.props.fetchData()
       this.closeAndClear()
-    })
+    } catch (error) {
+      this.setState({ errorMessage: _.get(error, 'response.data.full', error.message) })
+    }
   }
 
-  onEdit = event => {
-    event.preventDefault()
-    if (this.validateForm()) {
-      this.setState({ isValidForm: false })
-
-      return
-    }
-
-    if (!this.state.isValidForm) {
-      this.setState({ isValidForm: true })
-    }
-
+  onEdit = async questions => {
     const {
       page,
       filters: { question, categories }
     } = this.props
 
-    const item = this.state.item
-    const questions = this.trimItemQuestions(item.questions)
-
-    return this.props.bp.axios
-      .put(
+    try {
+      const { data } = await this.props.bp.axios.put(
         `/mod/qna/questions/${this.props.id}`,
-        { ...item, questions },
+        { ...this.state.item, questions },
         {
           params: { ...page, question, categories: categories.map(({ value }) => value) }
         }
       )
-      .then(({ data }) => {
-        this.props.updateQuestion(data)
-        this.closeAndClear()
-      })
+
+      this.props.updateQuestion(data)
+      this.closeAndClear()
+    } catch (error) {
+      this.setState({ errorMessage: _.get(error, 'response.data.full', error.message) })
+    }
   }
 
   alertMessage() {
-    if (this.state.isValidForm) {
-      return null
-    }
-
     const hasInvalidInputs = Object.values(this.state.invalidFields).find(Boolean)
 
     return (
       <div>
-        {this.state.invalidFields.checkbox ? <Alert bsStyle="danger">Action checkbox is required</Alert> : null}
-        {hasInvalidInputs ? <Alert bsStyle="danger">Inputs are required</Alert> : null}
+        {this.state.invalidFields.checkbox && <Alert bsStyle="danger">Action checkbox is required</Alert>}
+        {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
+        {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
+        {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
       </div>
     )
   }
 
   handleSubmit = event => {
-    this.props.modalType === 'edit' ? this.onEdit(event) : this.onCreate(event)
+    event.preventDefault()
+    if (this.validateForm()) {
+      return
+    }
+
+    const item = this.state.item
+    const questions = this.trimItemQuestions(item.questions)
+
+    this.props.modalType === 'edit' ? this.onEdit(questions) : this.onCreate(questions)
   }
 
   createAnswer = answer => {
@@ -218,7 +210,7 @@ export default class FormModal extends Component {
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
                   })}
-                  value={this.state.item.category}
+                  value={this.state.item.category || categories[0].value}
                   options={categories}
                   onChange={this.handleSelect('category')}
                   placeholder="Search or choose category"
@@ -232,7 +224,7 @@ export default class FormModal extends Component {
               <FormControl
                 autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
-                  qnaCategoryError: invalidFields.questions
+                  qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
                 })}
                 value={(this.state.item.questions || []).join('\n')}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
@@ -254,12 +246,13 @@ export default class FormModal extends Component {
                 </span>
 
                 <ElementsList
-                  placeholder="Type and press enter to add an answer"
-                  invalid={this.state.invalidFields.answer}
+                  placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
                   elements={this.state.item.answers}
-                  create={this.createAnswer}
-                  update={this.updateAnswer}
-                  delete={this.deleteAnswer}
+                  allowMultiline={true}
+                  onInvalid={this.state.invalidFields.answer}
+                  onCreate={this.createAnswer}
+                  onUpdate={this.updateAnswer}
+                  onDelete={this.deleteAnswer}
                 />
               </div>
 

@@ -23,11 +23,38 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   botScopedStorage.delete(botId)
 }
 
+const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
+  const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
+  const qnaStorage = await botScopedStorage.get(botId)
+  const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+
+  // Detect nodes that had their name changed
+  for (const oldNode of oldFlow.nodes) {
+    for (const newNode of newFlow.nodes) {
+      // Update all questions that refer to the old node name
+      if (oldNode.id === newNode.id && oldNode.name !== newNode.name) {
+        const updatedItems = questions.items
+          .filter(q => q.data.redirectFlow === newFlow.name && q.data.redirectNode === oldNode.name)
+          .map(q => {
+            q.data.redirectNode = newNode.name
+            return q
+          })
+
+        for (const item of updatedItems) {
+          await qnaStorage.update(item.data, item.id)
+          bp.logger.debug(`References to node "${oldNode.name}" has been updated to "${newNode.name}"`)
+        }
+      }
+    }
+  }
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onFlowChanged,
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',

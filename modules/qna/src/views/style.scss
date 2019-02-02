@@ -114,7 +114,7 @@ $elementHeight: 40px;
 }
 
 .searchBar {
-  float: right;
+  float: left;
   display: flex;
   margin-bottom: 0;
 }
@@ -200,7 +200,6 @@ $elementHeight: 40px;
 }
 
 .itemRedirect {
-  margin-top: 10px;
   display: flex;
 }
 
@@ -229,7 +228,6 @@ $elementHeight: 40px;
 
 .questionCategory {
   font-weight: 600;
-  margin-top: 25px;
   font-size: 16px;
 }
 
@@ -433,13 +431,12 @@ $elementHeight: 40px;
 .itemNode,
 .itemFlow {
   font-weight: 900;
-  color: #686669;
   margin-right: 30px;
+  float: left;
 }
 
 .itemFlowName,
 .itemNodeName {
-  color: #8a888b;
   font-weight: 500;
 }
 

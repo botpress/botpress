@@ -21,7 +21,8 @@ export default class PromoCodePicker extends React.Component {
     }
 
     try {
-      await api.getLicensing().post(`/promo/check`, { promoCode: this.state.promoCode })
+      const licensing = await api.getLicensing()
+      await licensing.post(`/promo/check`, { promoCode: this.state.promoCode })
       this.setState({ isCodeValid: true })
       this.props.onUpdate({ promoCode: this.state.promoCode, isPromoCodeValid: true })
     } catch (error) {

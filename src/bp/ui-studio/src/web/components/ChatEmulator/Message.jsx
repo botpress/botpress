@@ -1,6 +1,7 @@
 import React from 'react'
 import classnames from 'classnames'
 import style from './Message.styl'
+import { NavLink } from 'react-router-dom'
 import { Glyphicon } from 'react-bootstrap'
 
 export default class Message extends React.Component {
@@ -16,12 +17,30 @@ export default class Message extends React.Component {
     return <span className={classnames(style.message, style.other)}>{message.type} (can't render)</span>
   }
 
+  renderIntentLink(intent) {
+    if (intent === 'N/A') {
+      return intent
+    }
+
+    const QNA_PREFIX = '__qna__'
+    const link = intent.includes(QNA_PREFIX)
+      ? `/modules/qna#search:${intent.replace(QNA_PREFIX, '')}`
+      : `/modules/nlu/intents#search:${intent}`
+
+    return <NavLink to={link}>{intent}</NavLink>
+  }
+
   render() {
     const { duration, sent, result } = this.props.message
 
     const intent = _.get(result, 'nlu.intent.name', 'N/A')
     const confidence = Number(_.get(result, 'nlu.intent.confidence', 0))
     const confidenceFormatted = (confidence * 100).toFixed(1)
+
+    let responses = result.responses
+    if (this.props.hideTyping) {
+      responses = responses.filter(response => response.type !== 'typing')
+    }
 
     return (
       <div
@@ -33,7 +52,7 @@ export default class Message extends React.Component {
           <div className={style.header}>
             <div className={style.intent}>
               <span className={style.title}>intent</span>
-              <span className={style.value}>{intent}</span>
+              <span className={style.value}>{this.renderIntentLink(intent)}</span>
               <span className={style.confidence}>{confidenceFormatted}%</span>
             </div>
             <div className={style.duration}>
@@ -46,7 +65,7 @@ export default class Message extends React.Component {
             <span className={style.message}>{sent}</span>
           </div>
           <div className={style.response}>
-            {result.responses.map((msg, idx) => {
+            {responses.map((msg, idx) => {
               return (
                 <div className={style.content} key={`b-res-${idx}`}>
                   <span className={classnames(style.from, { [style.invisible]: idx > 0 })}>Bot</span>

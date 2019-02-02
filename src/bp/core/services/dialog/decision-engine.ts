@@ -1,9 +1,11 @@
 import { IO, Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
+import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -12,10 +14,14 @@ import { DialogEngine } from './dialog-engine'
 @injectable()
 export class DecisionEngine {
   constructor(
-    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogEngine')
+    private logger: Logger,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.StateManager) private stateManager: StateManager
+    @inject(TYPES.StateManager) private stateManager: StateManager,
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.3
@@ -31,8 +37,16 @@ export class DecisionEngine {
     }
 
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
-      const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
-      await this.stateManager.persist(processedEvent, false)
+      try {
+        const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        await this.stateManager.persist(processedEvent, false)
+      } catch (err) {
+        this.logger
+          .forBot(event.botId)
+          .attachError(err)
+          .error('An unexpected flow error occurred.')
+        await this._sendErrorMessage(event)
+      }
     }
   }
 
@@ -89,5 +103,18 @@ export class DecisionEngine {
     } else {
       event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
     }
+  }
+
+  private async _sendErrorMessage(event) {
+    const config = await this.configProvider.getBotConfig(event.botId)
+    const element = _.get(config, 'dialog.error.args', {
+      text: "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
+      typing: true
+    })
+    const contentType = _.get(config, 'dialog.error.contentType', 'builtin_text')
+    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
+    const payloads = await this.cms.renderElement(contentType, element, eventDestination)
+
+    await this.eventEngine.replyToEvent(event, payloads)
   }
 }

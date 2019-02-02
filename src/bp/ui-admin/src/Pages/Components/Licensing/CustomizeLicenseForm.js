@@ -16,7 +16,7 @@ class CustomizeLicenseForm extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.products.length) {
+    if (!this.props.products) {
       this.props.fetchProducts()
     }
 
@@ -69,7 +69,7 @@ class CustomizeLicenseForm extends Component {
 
   handleLabelChanged = e => this.setState({ label: e.target.value }, () => this.updateParent())
   handleCheckboxChanged = e => this.setState({ [e.target.name]: e.target.checked }, this.calculatePrice)
-  handleInputChanged = e => this.setState({ [e.target.name]: e.target.value }, this.calculatePrice)
+  handleNumberInputChanged = e => this.setState({ [e.target.name]: e.target.valueAsNumber }, this.calculatePrice)
 
   render() {
     if (!this.props.products) {
@@ -128,7 +128,7 @@ class CustomizeLicenseForm extends Component {
                 min="0"
                 max="100"
                 value={this.state.nodes}
-                onChange={this.handleInputChanged}
+                onChange={this.handleNumberInputChanged}
               />
             </PriceItem>
             <PriceItem
