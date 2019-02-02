@@ -11,7 +11,7 @@ import ActivateRevealKeyModal from '../../Components/Licensing/ActivateRevealKey
 import UpdateLicenseModal from '../../Components/Licensing/UpdateLicenseModal'
 import BuyLicenseModal from '../../Components/Licensing/BuyLicenseModal'
 import LoadingSection from '../../Components/LoadingSection'
-import { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser } from '../../../reducers/license'
+import { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser, licenseUpdated } from '../../../reducers/license'
 
 class KeyList extends Component {
   state = {
@@ -28,6 +28,11 @@ class KeyList extends Component {
   }
 
   toggleBuyModal = () => this.setState({ buyModalOpen: !this.state.buyModalOpen })
+
+  onLicenseUpdated = license => {
+    this.props.licenseUpdated(license)
+    this.setState({ updateModalOpen: false })
+  }
 
   toggleUpdateModal = selectedLicense => {
     this.setState({
@@ -86,7 +91,7 @@ class KeyList extends Component {
                 products={this.props.products}
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
-                onLicenseUpdated={this.toggleUpdateModal}
+                onLicenseUpdated={this.onLicenseUpdated}
               />
             ))}
         </tbody>
@@ -171,7 +176,7 @@ class KeyList extends Component {
 
 const mapStateToProps = state => ({ ...state.license })
 
-const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser }
+const mapDispatchToProps = { fetchAllKeys, fetchProducts, fetchLicensing, logoutUser, licenseUpdated }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

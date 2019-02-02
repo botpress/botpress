@@ -9,6 +9,7 @@ export const UPDATE_LICENSING_ACCOUNT = 'license/UPDATE_LICENSING_ACCOUNT'
 export const FETCH_PRODUCTS_REQUESTED = 'license/FETCH_PRODUCTS_REQUESTED'
 export const FETCH_PRODUCTS_RECEIVED = 'license/FETCH_PRODUCTS_RECEIVED'
 export const LOGOUT_USER_FROM_LICENSE_SERVER = 'license/LOGOUT_USER_FROM_LICENSE_SERVER'
+export const LICENSE_KEY_UPDATED = 'license/LICENSE_KEY_UPDATED'
 
 const initialState = {
   license: null,
@@ -22,6 +23,12 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case LICENSE_KEY_UPDATED:
+      const idx = state.keys.findIndex(k => k.stripeSubscriptionId === action.license.stripeSubscriptionId)
+      return {
+        ...state,
+        keys: [...state.keys.slice(0, idx), action.license, ...state.keys.slice(idx + 1)]
+      }
     case LOGOUT_USER_FROM_LICENSE_SERVER:
       return {
         ...initialState
@@ -74,6 +81,11 @@ export default (state = initialState, action) => {
       return state
   }
 }
+
+export const licenseUpdated = license => ({
+  type: LICENSE_KEY_UPDATED,
+  license
+})
 
 export const logoutUser = () => {
   logout()
