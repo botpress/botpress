@@ -204,6 +204,14 @@ export class Botpress {
       await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
 
+    this.decisionEngine.onBeforeSuggestionsElection = async (
+      sessionId: string,
+      event: sdk.IO.IncomingEvent,
+      suggestions: sdk.IO.Suggestion[]
+    ) => {
+      await this.hookService.executeHook(new Hooks.BeforeSuggestionsElection(this.api, sessionId, event, suggestions))
+    }
+
     this.dataRetentionService.initialize()
     this.stateManager.initialize()
 

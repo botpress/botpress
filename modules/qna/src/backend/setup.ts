@@ -42,7 +42,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     return question.answers[randomIndex]
   }
 
-  const buildSuggestions = async (event, question, confidence, intent, renderer) => {
+  const buildSuggestions = async (event, question, confidence, intent, renderer): Promise<sdk.IO.Suggestion> => {
     const payloads = []
 
     if (question.action.includes('text')) {
@@ -68,10 +68,11 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
       payloads.push({ type: 'redirect', flow: question.redirectFlow, node: question.redirectNode })
     }
 
-    return {
+    return <sdk.IO.Suggestion>{
       confidence,
       payloads,
-      intent
+      source: 'qna',
+      sourceDetails: intent
     }
   }
 

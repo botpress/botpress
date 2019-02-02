@@ -16,12 +16,13 @@ type ResponseMap = Partial<{
   responses: any[]
   nlu: IO.EventUnderstanding
   state: any
+  suggestions: IO.Suggestion[]
+  decision: IO.Suggestion
 }>
 
 @injectable()
 export class ConverseService {
   private readonly timeoutInMs = 2000
-
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
 
   constructor(
@@ -87,6 +88,11 @@ export class ConverseService {
     return new Promise((resolve, reject) => {
       converseApiEvents.once(`done.${userId}`, event => {
         if (this._responseMap[event.target]) {
+          Object.assign(this._responseMap[event.target], <ResponseMap>{
+            state: event.state,
+            suggestions: event.suggestions,
+            decision: event.decision || {}
+          })
           return resolve(this._responseMap[event.target])
         } else {
           return reject(new Error(`No responses found for event target "${event.target}".`))
@@ -130,7 +136,7 @@ export class ConverseService {
     this._responseMap[event.target].responses!.push(event.payload)
   }
 
-  private _handleCaptureContext(event: IO.IncomingEvent) {
+  public _handleCaptureContext(event: IO.IncomingEvent) {
     if (event.channel !== 'api') {
       return
     }
@@ -141,8 +147,7 @@ export class ConverseService {
 
     Object.assign(this._responseMap[event.target], <ResponseMap>{
       nlu: event.nlu || {},
-      state: event.state,
-      suggestions: event.suggestions
+      suggestions: event.suggestions || []
     })
   }
 }
