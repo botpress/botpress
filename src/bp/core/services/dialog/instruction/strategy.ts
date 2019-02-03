@@ -3,10 +3,10 @@ import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import Mustache from 'mustache'
 import { NodeVM } from 'vm2'
 
 import { container } from '../../../app.inversify'
+import { renderRecursive } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
@@ -109,16 +109,7 @@ export class ActionStrategy implements InstructionStrategy {
 
     const view = { event }
 
-    args = _.mapValues(args, value => {
-      if (this.containsTemplate(value)) {
-        const output = Mustache.render(value, view)
-        if (this.containsTemplate(output)) {
-          return Mustache.render(output, view)
-        }
-        return output
-      }
-      return value
-    })
+    args = _.mapValues(args, value => renderRecursive(value, args))
 
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {
@@ -127,10 +118,6 @@ export class ActionStrategy implements InstructionStrategy {
 
     await this.actionService.forBot(botId).runAction(actionName, event, args)
     return ProcessingResult.none()
-  }
-
-  private containsTemplate(value: string) {
-    return _.isString(value) && value.indexOf('{{') < value.indexOf('}}')
   }
 }
 

@@ -1,6 +1,7 @@
 import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
+import { renderRecursive } from 'core/misc/templating'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -431,7 +432,7 @@ export class CMSService implements IDisposeOnExit {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      _.set(content, 'previewPath', Mustache.render(content.previewText, args))
+      _.set(content, 'previewPath', renderRecursive(content.previewText, args))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')
