@@ -32,6 +32,7 @@ export default class AnalyticsDb {
       })
       .then(() => {
         return this.knex.createTableIfNotExists('analytics_custom', table => {
+          table.string('botId')
           table.string('date')
           table.string('name')
           table.integer('count')

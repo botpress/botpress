@@ -1,15 +1,14 @@
 import _ from 'lodash'
 import moment from 'moment'
 
-export default ({ bp }) => {
+export default ({ bp, botId }) => {
   const graphs = []
+  const knex = bp.database
 
   async function update(name, operation, value, racing = false) {
     if (!_.isString(name)) {
       throw new Error('Invalid name, expected a string')
     }
-
-    const knex = await bp.db.get()
 
     const today = moment().format('YYYY-MM-DD')
     name = name.toLowerCase().trim()
@@ -20,6 +19,7 @@ export default ({ bp }) => {
 
     const result = await knex('analytics_custom')
       .where('date', today)
+      .andWhere('botId', botId)
       .andWhere('name', name)
       .update('count', operation)
       .then()
@@ -27,6 +27,7 @@ export default ({ bp }) => {
     if (result == 0 && !racing) {
       await knex('analytics_custom')
         .insert({
+          botId,
           name: name,
           date: today,
           count: value
@@ -43,8 +44,6 @@ export default ({ bp }) => {
     }
 
     const countQuery = count < 0 ? 'count - ' + Math.abs(count) : 'count + ' + Math.abs(count)
-
-    const knex = await bp.db.get()
 
     return update(name, knex.raw(countQuery), count)
   }
@@ -67,11 +66,11 @@ export default ({ bp }) => {
   }
 
   const countUniqRecords = async (from, to, variable) => {
-    const knex = await bp.db.get()
     const uniqRecordsQuery = function() {
       this.select(knex.raw('distinct name'))
         .from('analytics_custom')
         .where('date', '>=', from)
+        .andWhere('botId', botId)
         .andWhere('date', '<=', to)
         .andWhere('name', 'LIKE', variable + '~%')
         .as('t1')
@@ -87,27 +86,21 @@ export default ({ bp }) => {
 
   const getters = {
     count: async function(graph, from, to) {
-      const knex = await bp.db.get()
-
       const variable = _.first(graph.variables)
 
       const rows = await knex('analytics_custom')
         .select(['date', knex.raw('sum(count) as count')])
         .where('date', '>=', from)
+        .andWhere('botId', botId)
         .andWhere('date', '<=', to)
         .andWhere('name', 'LIKE', variable + '~%')
         .groupBy('date')
-        .then(rows => {
-          return rows.map(row => {
-            return { ...row, count: parseInt(row.count) }
-          })
-        })
+        .then(rows => rows.map(row => ({ ...row, count: parseInt(row.count) })))
 
       return { ...graph, results: rows }
     },
 
     async countUniq(graph, from, to) {
-      const knex = await bp.db.get()
       const variable = _.first(graph.variables)
       const countUniq = await countUniqRecords(from, to, variable)
       const results = await this.count(graph, from, to)
@@ -145,13 +138,13 @@ export default ({ bp }) => {
     },
 
     piechart: async function(graph, from, to) {
-      const knex = await bp.db.get()
 
       const variable = _.first(graph.variables)
 
       const rows = await knex('analytics_custom')
         .select(['name', knex.raw('sum(count) as count')])
         .where('date', '>=', from)
+        .andWhere('botId', botId)
         .andWhere('date', '<=', to)
         .andWhere('name', 'LIKE', variable + '~%')
         .groupBy('name')
@@ -167,7 +160,7 @@ export default ({ bp }) => {
     }
   }
 
-  async function getAll(from, to) {
+  function getAll(from, to) {
     return Promise.map(graphs, graph => getters[graph['type']](graph, from, to))
   }
 
