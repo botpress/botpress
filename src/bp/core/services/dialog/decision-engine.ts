@@ -13,6 +13,8 @@ import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
 
+type SendSuggestionResult = { repliedWithContent: boolean }
+
 @injectable()
 export class DecisionEngine {
   public onBeforeSuggestionsElection:
@@ -55,13 +57,17 @@ export class DecisionEngine {
     }
 
     const elected = event.suggestions!.find(x => x.decision.status === 'elected')
+    let sendSuggestionResult: SendSuggestionResult | undefined
 
     if (elected) {
       Object.assign(event, { decision: elected })
-      await this._sendSuggestion(elected, sessionId, event)
+      sendSuggestionResult = await this._sendSuggestion(elected, sessionId, event)
     }
 
-    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)) {
+    if (
+      !_.get(sendSuggestionResult, 'repliedWithContent', false) &&
+      !event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)
+    ) {
       try {
         Object.assign(event, {
           decision: <IO.Suggestion>{
@@ -115,8 +121,10 @@ export class DecisionEngine {
     }
   }
 
-  private async _sendSuggestion(reply: IO.Suggestion, sessionId, event) {
+  private async _sendSuggestion(reply: IO.Suggestion, sessionId, event): Promise<SendSuggestionResult> {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
+    const result: SendSuggestionResult = { repliedWithContent: false }
+
     if (payloads) {
       await this.eventEngine.replyToEvent(event, payloads)
 
@@ -128,6 +136,7 @@ export class DecisionEngine {
         replyPreview: _.find(payloads, p => p.text !== undefined)
       }
 
+      result.repliedWithContent = true
       event.state.session.lastMessages.push(message)
       await this.stateManager.persist(event, true)
     }
@@ -135,9 +144,9 @@ export class DecisionEngine {
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')
     if (redirect && redirect.flow && redirect.node) {
       await this.dialogEngine.jumpTo(sessionId, event, redirect.flow, redirect.node)
-    } else {
-      event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
     }
+
+    return result
   }
 
   private async _sendErrorMessage(event) {
