@@ -101,7 +101,7 @@ export default class ScopedEngine {
     const intentModels = _.chain(models)
       .filter(model => model.meta.type === MODEL_TYPES.INTENT)
       .orderBy(model => model.meta.created_on, 'desc')
-      .uniqBy(model => model.meta.hash + ' ' + model.meta.type)
+      .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
       .map(x => ({ name: x.meta.context, model: x.model }))
       .value()
 

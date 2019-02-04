@@ -217,7 +217,7 @@ export default class Storage {
           type: parts[3]
         }
       })
-      .filter(x => typeof x !== 'undefined')
+      .filter(x => !!x)
   }
 
   async modelExists(modelHash: string): Promise<boolean> {
