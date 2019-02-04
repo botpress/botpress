@@ -13,7 +13,7 @@ export class ModulesRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    this.router.get('/', async (req, res) => {
+    this.router.get('/', (req, res) => {
       res.json(this.moduleLoader.getLoadedModules())
     })
 

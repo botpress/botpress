@@ -49,15 +49,21 @@ export class AdminRouter extends CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/permissions', async (req, res) => {
-      const { permissions, operation, resource } = req.body
-      const valid = checkRule(permissions, operation, resource)
-      res.send(valid)
-    })
+    router.get(
+      '/permissions',
+      this.asyncMiddleware(async (req, res) => {
+        const { permissions, operation, resource } = req.body
+        const valid = checkRule(permissions, operation, resource)
+        res.send(valid)
+      })
+    )
 
-    router.get('/all-permissions', async (req, res) => {
-      res.json(await this.authService.getResources())
-    })
+    router.get(
+      '/all-permissions',
+      this.asyncMiddleware(async (req, res) => {
+        res.json(await this.authService.getResources())
+      })
+    )
 
     this.router.get('/license', (req, res) => {
       const license = {

@@ -14,7 +14,7 @@ export class ShortLinksRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    this.router.get('/:name', async (req, res) => {
+    this.router.get('/:name', (req, res) => {
       const name = req.params.name
       let link = name && this.shortlinks.get(name)
 

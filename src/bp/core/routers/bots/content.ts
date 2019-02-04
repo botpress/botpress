@@ -29,7 +29,7 @@ export class ContentRouter extends CustomRouter {
       '/types',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const types = await this.cms.getAllContentTypes(botId)
 
@@ -50,25 +50,25 @@ export class ContentRouter extends CustomRouter {
         })
 
         res.send(response)
-      }
+      })
     )
 
     this.router.get(
       '/elements/count',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const count = await this.cms.countContentElements(botId)
         res.send({ count })
-      }
+      })
     )
 
     this.router.post(
       '/:contentType?/elements',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const { botId, contentType } = req.params
         const { count, from, searchTerm, filters, sortOrder, ids } = req.body
 
@@ -84,50 +84,50 @@ export class ContentRouter extends CustomRouter {
 
         const augmentedElements = await Promise.map(elements, this._augmentElement)
         res.send(augmentedElements)
-      }
+      })
     )
 
     this.router.get(
       '/:contentType?/elements/count',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const { botId, contentType } = req.params
         const count = await this.cms.countContentElementsForContentType(botId, contentType)
         res.send({ count })
-      }
+      })
     )
 
     this.router.get(
       '/element/:elementId',
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const { botId, elementId } = req.params
         const element = await this.cms.getContentElement(botId, elementId)
         res.send(await this._augmentElement(element))
-      }
+      })
     )
 
     this.router.post(
       '/:contentType/element/:elementId?',
       this._checkTokenHeader,
       this._needPermissions('write', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         const { botId, contentType, elementId } = req.params
         const element = await this.cms.createOrUpdateContentElement(botId, contentType, req.body.formData, elementId)
         res.send(element)
-      }
+      })
     )
 
     this.router.post(
       '/elements/bulk_delete',
       this._checkTokenHeader,
       this._needPermissions('write', 'bot.content'),
-      async (req, res) => {
+      this.asyncMiddleware(async (req, res) => {
         await this.cms.deleteContentElements(req.params.botId, req.body)
         res.sendStatus(200)
-      }
+      })
     )
   }
 
