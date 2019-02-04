@@ -179,6 +179,3 @@ Location: `data/global/hooks/before_suggestions_election`
 Parameters: `bp`, `event`, `suggestions`, `sessionId`
 
 A common operation here is to add a new (elected) suggestion when there is no elected winner.
-
-```js
-```
