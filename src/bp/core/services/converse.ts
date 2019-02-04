@@ -136,7 +136,7 @@ export class ConverseService {
     this._responseMap[event.target].responses!.push(event.payload)
   }
 
-  public _handleCaptureContext(event: IO.IncomingEvent) {
+  private _handleCaptureContext(event: IO.IncomingEvent) {
     if (event.channel !== 'api') {
       return
     }
