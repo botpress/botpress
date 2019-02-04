@@ -386,6 +386,8 @@ declare module 'botpress/sdk' {
       readonly state: EventState
       /** Holds NLU extraction results (when the event is natural language) */
       readonly nlu?: EventUnderstanding
+      /** The final decision that the Decision Engine took */
+      readonly decision?: Suggestion
     }
 
     export interface Suggestion {
@@ -393,8 +395,15 @@ declare module 'botpress/sdk' {
       confidence: number
       /** An array of the raw payloads to send as an answer */
       payloads: any[]
-      /** The intent of the reply given by the NLU */
-      intent?: string
+      /** The source (usually the name of the module or core component) this suggestion is coming from */
+      source: string
+      /** More specific details from the source of the suggestion, e.g. the name of the QnA */
+      sourceDetails?: string
+      /** The Decision Engine's decison about this suggestion */
+      decision: {
+        status: 'dropped' | 'elected'
+        reason: string
+      }
     }
 
     /**
@@ -437,13 +446,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface CurrentSession {
-      lastMessages: MessageHistory[]
+      lastMessages: DialogTurnHistory[]
     }
 
-    export interface MessageHistory {
-      intent?: string
-      user: string
-      reply: string
+    export interface DialogTurnHistory {
+      incomingPreview: string
+      replySource: string
+      replyPreview: string
+      replyConfidence: number
+      replyDate: Date
     }
 
     /**

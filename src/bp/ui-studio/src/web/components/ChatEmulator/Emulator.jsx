@@ -92,7 +92,7 @@ export default class EmulatorChat extends React.Component {
       const res = await axios.post(
         `${window.BOT_API_PATH}/converse/${this.state.userId}/secured`,
         { text },
-        { params: { include: 'nlu,state' } }
+        { params: { include: 'nlu,state,suggestions,decision' } }
       )
 
       const duration = Date.now() - sentAt

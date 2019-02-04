@@ -71,9 +71,12 @@ export class ActionStrategy implements InstructionStrategy {
 
     this.logger.debug(`SEND "${outputType}"`)
 
-    const message: IO.MessageHistory = {
-      user: event.preview,
-      reply: outputType
+    const message: IO.DialogTurnHistory = {
+      incomingPreview: event.preview,
+      replyConfidence: 1.0,
+      replySource: 'dialogManager',
+      replyDate: new Date(),
+      replyPreview: outputType
     }
 
     event.state.session.lastMessages.push(message)

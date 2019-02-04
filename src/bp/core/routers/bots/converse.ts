@@ -26,8 +26,8 @@ export class ConverseRouter implements CustomRouter {
         const { userId, botId } = req.params
         const params = req.query.include
 
-        if (params && params.includes('state')) {
-          return res.send("The state can't be provided on a non-secure route").status(401)
+        if (params.length && params.toLowerCase() !== 'responses') {
+          return res.status(401).send("Unauthenticated converse API can only return 'responses'")
         }
 
         const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
@@ -56,8 +56,17 @@ export class ConverseRouter implements CustomRouter {
     if (!parts.includes('nlu')) {
       delete output.nlu
     }
+
     if (!parts.includes('state')) {
       delete output.state
+    }
+
+    if (!parts.includes('suggestions')) {
+      delete output.suggestions
+    }
+
+    if (!parts.includes('decision')) {
+      delete output.decision
     }
 
     return output
