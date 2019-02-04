@@ -4,7 +4,7 @@ import { VError } from 'verror'
 
 const binding = require('./fasttext.node')
 
-const FAST_TEXT_VERBOSOSITY = parseInt(process.env.FAST_TEXT_VERBOSOSITY || '0')
+const FAST_TEXT_VERBOSITY = parseInt(process.env.FAST_TEXT_VERBOSITY || '0')
 const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
 
 /** A wrapper class around the fasttext node bindings.
@@ -43,7 +43,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
     await model.train(method, {
       ...args,
       output: outPath,
-      verbose: FAST_TEXT_VERBOSOSITY
+      verbose: FAST_TEXT_VERBOSITY
     })
     this._modelPath = outPath
 
