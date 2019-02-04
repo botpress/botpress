@@ -99,7 +99,7 @@ export class BotsRouter implements CustomRouter {
       ghostEnabled: this.ghostService.enabled,
       flowEditorDisabled: !process.IS_LICENSED,
       botpress: {
-        name: 'Botpress Server',
+        name: 'Botpress Studio',
         version: process.BOTPRESS_VERSION
       },
       isLicensed: process.IS_LICENSED,
@@ -119,8 +119,8 @@ export class BotsRouter implements CustomRouter {
       let botName
 
       try {
-       const botDetails = await this.botRepository.getBotById(botId)
-       botName = botDetails.name
+        const botDetails = await this.botRepository.getBotById(botId)
+        botName = botDetails.name
       } catch (err) {
         return res.sendStatus(404)
       }

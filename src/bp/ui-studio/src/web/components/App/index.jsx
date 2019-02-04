@@ -19,9 +19,9 @@ import {
 
 class App extends Component {
   componentWillMount() {
-    if (window.APP_NAME) {
-      window.document.title = window.APP_NAME
-    }
+    const appName = window.APP_NAME || 'Botpress Studio'
+    const botName = window.BOT_NAME ? ` – ${window.BOT_NAME}` : ''
+    window.document.title = `${appName}${botName}`
 
     EventBus.default.setup()
   }
