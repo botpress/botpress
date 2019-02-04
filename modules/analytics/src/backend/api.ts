@@ -1,4 +1,5 @@
-import { SDK } from '.'
+import { SDK } from 'botpress'
+
 import { AnalyticsByBot } from './typings'
 
 export default async (bp: SDK, analytics: AnalyticsByBot) => {
@@ -14,8 +15,24 @@ export default async (bp: SDK, analytics: AnalyticsByBot) => {
     res.send(metadata)
   })
 
+  router.post('/graphs', async (req, res) => {
+    const fn = req.body.fn ? { fn: eval(req.body.fn) } : {}
+    const fnAvg = req.body.fnAvg ? { fnAvg: eval(req.body.fnAvg) } : {}
+    analytics[req.params.botId].custom.addGraph({ ...req.body, ...fn, ...fnAvg })
+    res.end()
+  })
+
   router.get('/custom_metrics', async (req, res) => {
-    const metrics = await bp.analytics.custom.getAll(req.query.from, req.query.to)
+    const metrics = await analytics[req.params.botId].custom.getAll(req.query.from, req.query.to)
     res.send(metrics)
+  })
+
+  const methods = ['increment', 'decrement', 'set']
+  methods.map(method => {
+    router.post(`/custom_metrics/${method}`, async (req, res) => {
+      const params = [req.body.name, ...(typeof req.body.count === 'number' ? [req.body.count] : [])]
+      analytics[req.params.botId].custom[method](...params)
+      res.end()
+    })
   })
 }
