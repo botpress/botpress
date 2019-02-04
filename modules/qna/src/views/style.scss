@@ -117,15 +117,17 @@ $elementHeight: 40px;
   float: left;
   display: flex;
   margin-bottom: 0;
+  margin-bottom: 20px;
 }
 
-.serachQuestions,
-.serachCategory {
-  max-width: 300px;
+.searchField {
+  width: 200px;
+}
+
+.categoryFilter {
   width: 300px;
-  margin-right: 15px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  margin: 0 15px 0 15px;
+  font-weight: 500;
   z-index: 4;
 
   .dropdown-button {
@@ -133,12 +135,10 @@ $elementHeight: 40px;
   }
 }
 
-.serachQuestions {
-  height: 36px;
-}
-
 .qnaNavBarAddNew {
   margin-left: 10px;
+  width: 100px;
+  height: 34px;
 }
 
 .itemQuestions {
