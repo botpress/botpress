@@ -3,6 +3,7 @@
 *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
 *--------------------------------------------------------------------------------------------*/
 
+import { Logger } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -25,12 +26,10 @@ import multer from 'multer'
 import path from 'path'
 import { RouterOptions } from 'request'
 
-import { CustomRouter } from '..'
+import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
-export class BotsRouter implements CustomRouter {
-  public readonly router: Router
-
+export class BotsRouter extends CustomRouter {
   private actionService: ActionService
   private botRepository: BotRepository
   private configProvider: ConfigProvider
@@ -57,7 +56,9 @@ export class BotsRouter implements CustomRouter {
     authService: AuthService
     ghostService: GhostService
     workspaceService: WorkspaceService
+    logger: Logger
   }) {
+    super('Bots', args.logger, Router({ mergeParams: true }))
     this.actionService = args.actionService
     this.botRepository = args.botRepository
     this.configProvider = args.configProvider
@@ -68,11 +69,8 @@ export class BotsRouter implements CustomRouter {
     this.authService = args.authService
     this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
-
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-
-    this.router = Router({ mergeParams: true })
   }
 
   async initialize() {
@@ -179,13 +177,18 @@ export class BotsRouter implements CustomRouter {
       res.send(flows)
     })
 
-    this.router.post('/flows', this.checkTokenHeader, this.needPermissions('write', 'bot.flows'), async (req, res) => {
-      const botId = req.params.botId
-      const flowViews = <FlowView[]>req.body
+    this.router.post(
+      '/flows',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const flowViews = <FlowView[]>req.body
 
-      await this.flowService.saveAll(botId, flowViews)
-      res.sendStatus(201)
-    })
+        await this.flowService.saveAll(botId, flowViews)
+        res.sendStatus(201)
+      })
+    )
 
     this.router.get('/actions', this.checkTokenHeader, this.needPermissions('read', 'bot.flows'), async (req, res) => {
       const botId = req.params.botId

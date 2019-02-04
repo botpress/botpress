@@ -4,16 +4,11 @@ import { Router } from 'express'
 import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
-import { CustomRouter } from '.'
-import { asyncMiddleware } from './util'
+import { CustomRouter } from './customRouter'
 
-export class ModulesRouter implements CustomRouter {
-  public readonly router: Router
-  private asyncMiddleware!: Function
-
+export class ModulesRouter extends CustomRouter {
   constructor(logger: Logger, private moduleLoader: ModuleLoader, private skillService: SkillService) {
-    this.asyncMiddleware = asyncMiddleware({ logger })
-    this.router = Router({ mergeParams: true })
+    super('Modules', logger, Router({ mergeParams: true }))
     this.setupRoutes()
   }
 

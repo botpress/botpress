@@ -1,14 +1,13 @@
+import { Logger } from 'botpress/sdk'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
 import { Router } from 'express'
 
-import { CustomRouter } from '..'
+import { CustomRouter } from '../customRouter'
 
-export class VersioningRouter implements CustomRouter {
-  public readonly router: Router
-
-  constructor(private ghost: GhostService, private botService: BotService) {
-    this.router = Router({ mergeParams: true })
+export class VersioningRouter extends CustomRouter {
+  constructor(logger: Logger, private ghost: GhostService, private botService: BotService) {
+    super('Versioning', logger, Router({ mergeParams: true }))
     this.setupRoutes()
   }
 
