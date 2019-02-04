@@ -386,7 +386,7 @@ declare module 'botpress/sdk' {
       readonly state: EventState
       /** Holds NLU extraction results (when the event is natural language) */
       readonly nlu?: EventUnderstanding
-      /**  */
+      /** The final decision that the Decision Engine took */
       readonly decision?: Suggestion
     }
 
