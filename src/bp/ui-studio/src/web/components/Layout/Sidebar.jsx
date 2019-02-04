@@ -68,11 +68,15 @@ class Sidebar extends React.Component {
     const entitiesPath = path + '/entities'
     const intentsPath = path + '/intents'
 
+    const isNluActive = _.get(this.context.router, 'route.location.pathname', '')
+      .toLowerCase()
+      .includes('/modules/nlu/')
+
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse} className={style.link}>
+          <a onClick={this.toggleNluCollapse} className={classnames(style.link, { [style.active]: isNluActive })}>
             {moduleIcon}
             <span>Understanding</span>
           </a>
