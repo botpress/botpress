@@ -65,7 +65,7 @@ export default class KeyListItem extends Component {
     try {
       const licenseKey = await this.activateWithServerFingerprint()
       await this.updateServerKey(licenseKey)
-      this.props.onLicenseUpdated(licenseKey)
+      this.props.onLicenseUpdated({ ...this.props.license, assigned: true })
     } catch (error) {
       console.log('error while setting up license')
     }
