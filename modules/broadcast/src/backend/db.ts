@@ -9,11 +9,9 @@ function padDigits(number, digits) {
 
 export default class BroadcastDb {
   knex: any
-  botId: string
 
-  constructor(private bp: SDK, botId: string) {
+  constructor(private bp: SDK) {
     this.knex = bp.database
-    this.botId = botId
   }
 
   initialize() {
@@ -49,7 +47,7 @@ export default class BroadcastDb {
       })
   }
 
-  addSchedule({ date, time, timezone, content, type, filters }) {
+  addSchedule({ botId, date, time, timezone, content, type, filters }) {
     const dateTime = date + ' ' + time
     let ts = undefined
 
@@ -58,7 +56,7 @@ export default class BroadcastDb {
     }
 
     const row = {
-      botId: this.botId,
+      botId,
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
       text: content,
@@ -113,16 +111,16 @@ export default class BroadcastDb {
       })
   }
 
-  listSchedules() {
+  listSchedules(botId) {
     return this.knex('broadcast_schedules')
-      .where({ botId: this.botId })
+      .where({ botId })
       .then()
   }
 
-  getBroadcastSchedulesByTime(upcomingFixedTime, upcomingVariableTime) {
+  getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime) {
     return this.knex('broadcast_schedules')
       .where({
-        botId: this.botId,
+        botId,
         outboxed: this.knex.bool.false()
       })
       .andWhere(function () {
@@ -135,9 +133,10 @@ export default class BroadcastDb {
   }
 
   async getUsersTimezone() {
-    const timezones = await this.knex('srv_channel_users')
-      .distinct('timezone')
-      .select()
+    // TODO: need add "timezone" to users
+    const attrs = await this.knex('srv_channel_users')
+      .select('attributes')
+    const timezones = attrs.map(({ attributes: { timezone } }) => ({ timezone }))
 
     return timezones
   }
@@ -148,8 +147,7 @@ export default class BroadcastDb {
     tz = padDigits(Math.abs(Number(tz)), 2)
     const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
-
-    const whereClause = _.isNil(initialTz) ? 'where timezone IS NULL' : 'where timezone = :initialTz'
+    const whereClause = _.isNil(initialTz) ? "where attributes -> 'timezone' IS NULL" : "where attributes -> 'timezone' = :initialTz"
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "ts")
       select userId, :scheduleId, :adjustedTime
@@ -220,5 +218,13 @@ export default class BroadcastDb {
     return this.knex('broadcast_schedules')
       .where({ id })
       .update({ sent_count: this.knex.raw('sent_count + 1') })
+  }
+
+  updateErrorField(scheduleId) {
+    return this.knex('broadcast_schedules')
+      .where({ id: scheduleId })
+      .update({
+        errored: this.knex.bool.true()
+      })
   }
 }

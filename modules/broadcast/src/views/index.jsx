@@ -44,6 +44,12 @@ const convertHHmmToSeconds = time => {
 }
 
 export default class BroadcastModule extends React.Component {
+  constructor(props) {
+    super(props)
+
+    // window.location = '#'
+  }
+
   state = {
     loading: true,
     showModalForm: false,
@@ -74,10 +80,23 @@ export default class BroadcastModule extends React.Component {
           broadcasts: _.orderBy(res.data, ['date', 'time'])
         })
       })
+      .catch(err => {
+        this.setState({ loading: false })
+
+        console.error(err)
+        this.props.bp.toast("Can't fetch broadcast list from the server.")
+      })
   }
 
   extractBroadcastFromModal() {
     const { content, date, userTimezone, time, filteringConditions } = this.state.broadcast
+
+    if (!content) {
+      this.props.bp.toast.error('Content field is required.')
+
+      return
+    }
+
     return {
       date: moment(date).format('YYYY-MM-DD'),
       time: moment()
@@ -111,8 +130,13 @@ export default class BroadcastModule extends React.Component {
 
   handleAddBroadcast = () => {
     const broadcast = this.extractBroadcastFromModal()
+
+    if (!broadcast) {
+      return
+    }
+
     this.getAxios()
-      .put('/mod/broadcast/broadcasts', broadcast)
+      .put(`/mod/broadcast/broadcasts`, broadcast)
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -121,6 +145,11 @@ export default class BroadcastModule extends React.Component {
   handleModifyBroadcast = () => {
     const broadcast = this.extractBroadcastFromModal()
     const { broadcastId: id } = this.state
+
+    if (!broadcast) {
+      return
+    }
+
     this.getAxios()
       .post('/mod/broadcast/broadcasts', { id, ...broadcast })
       .then(this.fetchAllBroadcasts)

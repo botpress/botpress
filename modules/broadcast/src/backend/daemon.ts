@@ -7,14 +7,14 @@ import moment from 'moment'
 import { SDK } from '.'
 import Database from './db'
 
-let schedulingLock = false
-let sendingLock = false
-
 const INTERVAL_BASE = 10 * 1000
 const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
-export default (bp: SDK, db: Database) => {
+export default (botId: string, bp: SDK, db: Database) => {
+  let schedulingLock = false
+  let sendingLock = false
+
   const emitChanged = () => ({})
   // NOTE: look as bp.events make other job
   // const emitChanged = _.throttle(() => {
@@ -22,7 +22,7 @@ export default (bp: SDK, db: Database) => {
   //   bp && bp.events.emit('broadcast.changed')
   // }, 1000)
 
-  const _sendBroadcast = Promise.method(row => {
+  const _sendBroadcast = Promise.method((botId, row) => {
     let dropPromise = Promise.resolve(false)
 
     if (row.filters) {
@@ -51,10 +51,10 @@ export default (bp: SDK, db: Database) => {
         return
       }
 
-      const content = await bp.cms.getContentElement(db.botId, row.text)
+      const content = await bp.cms.getContentElement(botId, row.text)
 
       return bp.events.sendEvent(bp.IO.Event({
-        botId: db.botId,
+        botId,
         channel: row.platform,
         target: row.userId,
         type: 'text',
@@ -64,7 +64,33 @@ export default (bp: SDK, db: Database) => {
     })
   })
 
-  async function scheduleToOutbox() {
+  const trySendBroadcast = async (broadcast, { scheduleUser, scheduleId }) => {
+    await retry(() => _sendBroadcast(botId, broadcast), {
+      max_tries: 3,
+      interval: 1000,
+      backoff: 3
+    })
+
+    await db.deleteBroadcastOutbox(scheduleUser, scheduleId)
+
+    await db.increaseBroadcastSentCount(scheduleId)
+  }
+
+  const handleFailedSending = async (err, scheduleId) => {
+    bp.logger.error(`Broadcast #${scheduleId}' failed. Broadcast aborted. Reason: ${err.message}`)
+
+    bp.notifications.create(botId, {
+      botId,
+      level: 'error',
+      message: 'Broadcast #' + scheduleId + ' failed.' + ' Please check logs for the reason why.'
+    })
+
+    await db.updateErrorField(scheduleId)
+
+    await db.deleteBroadcastOutboxById(scheduleId)
+  }
+
+  async function scheduleToOutbox(botId) {
     if (!db.knex || schedulingLock) {
       return
     }
@@ -81,7 +107,7 @@ export default (bp: SDK, db: Database) => {
 
     schedulingLock = true
 
-    const schedules = await db.getBroadcastSchedulesByTime(upcomingFixedTime, upcomingVariableTime)
+    const schedules = await db.getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime)
 
     await Promise.map(schedules, async schedule => {
       const timezones = await db.getUsersTimezone()
@@ -108,66 +134,43 @@ export default (bp: SDK, db: Database) => {
     schedulingLock = false
   }
 
-  function sendBroadcasts() {
-    if (!db.knex || sendingLock) {
-      return
+  async function sendBroadcasts(botId) {
+    try {
+      if (!db.knex || sendingLock) {
+        return
+      }
+
+      sendingLock = true
+
+      const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
+
+      const broadcasts = await db.getBroadcastOutbox(isPast)
+      let abort = false
+
+      await Promise.mapSeries(broadcasts, async broadcast => {
+        if (abort) {
+          return
+        }
+        // @ts-ignore
+        const { scheduleId, scheduleUser } = broadcast
+
+        try {
+          await trySendBroadcast(broadcast, { scheduleUser, scheduleId })
+        } catch (err) {
+          abort = true
+
+          await handleFailedSending(err, scheduleId)
+        } finally {
+          emitChanged()
+        }
+      })
+    } catch (error) {
+      bp.logger.error('Broadcast sending error: ', error.message)
+    } finally {
+      sendingLock = false
     }
-
-    sendingLock = true
-
-    const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
-
-    db.getBroadcastOutbox(isPast)
-      .then(broadcastRows => {
-        let abort = false
-
-        return Promise.mapSeries(broadcastRows, row => {
-          if (abort) {
-            return
-          }
-          // @ts-ignore
-          const { scheduleId, scheduleUser } = row
-
-          return retry(() => _sendBroadcast(row), {
-            max_tries: 3,
-            interval: 1000,
-            backoff: 3
-          })
-            .then(() =>
-              db.deleteBroadcastOutbox(scheduleUser, scheduleId)
-                .then(() =>
-                  db.increaseBroadcastSentCount(scheduleId)
-                    .then(() => emitChanged())
-                )
-            )
-            .catch(err => {
-              abort = true
-
-              bp.logger.error(`Broadcast #${scheduleId}' failed. Broadcast aborted. Reason: ${err.message}`)
-
-              bp.notifications.create(db.botId, {
-                botId: db.botId,
-                level: 'error',
-                message: 'Broadcast #' + row['scheduleId'] + ' failed.' + ' Please check logs for the reason why.'
-              })
-
-              return db.knex('broadcast_schedules')
-                .where({ id: scheduleId })
-                .update({
-                  errored: db.knex.bool.true()
-                })
-                .then(() =>
-                  db.deleteBroadcastOutboxById(scheduleId)
-                    .then(() => emitChanged())
-                )
-            })
-        })
-      })
-      .finally(() => {
-        sendingLock = false
-      })
   }
 
-  setInterval(scheduleToOutbox, SCHEDULE_TO_OUTBOX_INTERVAL)
-  setInterval(sendBroadcasts, SEND_BROADCAST_INTERVAL)
+  setInterval(scheduleToOutbox.bind(null, botId), SCHEDULE_TO_OUTBOX_INTERVAL)
+  setInterval(sendBroadcasts.bind(null, botId), SEND_BROADCAST_INTERVAL)
 }

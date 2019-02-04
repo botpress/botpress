@@ -12,17 +12,19 @@ export type Extension = {}
 
 export type SDK = typeof sdk & Extension
 
-const onServerStarted = async (bp: SDK) => { }
+let db;
 
-const onServerReady = async (bp: SDK) => { }
+const onServerStarted = async (bp: SDK) => {
+  db = new BroadcastDb(bp)
+  await db.initialize()
+}
+
+const onServerReady = async (bp: SDK) => {
+  await api(bp, db)
+}
 
 const onBotMount = async (bp: SDK, botId: string) => {
-  const db = new BroadcastDb(bp, botId)
-  await db.initialize()
-
-  Daemon(bp, db)
-
-  await api(bp, db)
+  Daemon(botId, bp, db)
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
