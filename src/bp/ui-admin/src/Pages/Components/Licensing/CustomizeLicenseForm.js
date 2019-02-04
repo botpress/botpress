@@ -101,8 +101,8 @@ class CustomizeLicenseForm extends Component {
           </thead>
           <tbody>
             <PriceItem
-              title="Pro License"
-              description="This is the basic license, it allows you unlimited admins, unlimited bots, but only on one node."
+              title="Botpress License"
+              description="This is the basic license, it allows you to add unlimited collaborators, unlimited bots and run botpress on a single node."
               price={this.getPrice('pro') + '$'}
               total={this.getPrice('pro')}
             >
@@ -146,13 +146,14 @@ class CustomizeLicenseForm extends Component {
             </PriceItem>
             <PriceItem
               type="checkbox"
-              title="Part-Time Nodes"
+              title="Part-Time Nodes (available soon)"
               description="Allows you to enable on-demand additional nodes, billed by the hour"
               price={this.getPrice('part-time-node') + '$ per hour'}
             >
               <Input
                 type="checkbox"
                 name="isPartTimeEnabled"
+                disabled={true}
                 checked={this.state.isPartTimeEnabled}
                 onChange={this.handleCheckboxChanged}
               />
