@@ -299,22 +299,22 @@ export default class QnaAdmin extends Component {
         value={this.state.filterQuestion}
         onChange={this.onQuestionsFilter}
         placeholder="Search for a question"
+        className={style.searchField}
       />
-      {this.state.categoryOptions.length ? (
+      {this.state.categoryOptions.length && (
         <Select
-          className={style.serachQuestions}
+          className={style.categoryFilter}
           multi
           value={this.state.filterCategory}
           options={this.state.categoryOptions}
           onChange={this.onCategoriesFilter}
           placeholder="Search for a category"
         />
-      ) : null}
+      )}
       <Button
         className={style.qnaNavBarAddNew}
         bsStyle="primary"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
-        type="button"
       >
         Add new
       </Button>
