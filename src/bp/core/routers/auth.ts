@@ -78,6 +78,10 @@ export class AuthRouter extends CustomRouter {
       'lastname'
     ])
 
+    if (!user) {
+      throw new NotFoundError(`User ${tokenUser!.email || ''} not found`)
+    }
+
     const userProfile = {
       ...user,
       isSuperAdmin: tokenUser!.isSuperAdmin,
@@ -99,7 +103,7 @@ export class AuthRouter extends CustomRouter {
     const { tokenUser } = <RequestWithUser>req
     const role = await this.workspaceService.getRoleForUser(tokenUser!.email)
     if (!role) {
-      throw new NotFoundError(`Role for user "${tokenUser!.email}" dosn't exist`)
+      throw new NotFoundError(`Role for user "${tokenUser!.email}" doesn't exist`)
     }
     return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
   }
