@@ -44,7 +44,9 @@ To activate your license on your current Botpress installation, simply click on 
 
 ![BP license keys active](assets/bp-keys-active.jpg)
 
-**Note**: If you happen to breach your license (e.g you try to add more nodes then allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state.
+**Note**: If you happen to breach your license (e.g you try to add more nodes then allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state. If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
+
+![BP license keys active](assets/bp-server-settings.jpg)
 
 ## Advanced users
 
