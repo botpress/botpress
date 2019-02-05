@@ -14,7 +14,7 @@ import plur from 'plur'
 import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
-import Database from './database'
+import Database, { DatabaseType } from './database'
 import { LoggerPersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
@@ -129,24 +129,25 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
-    const pro = _.get(this.config, 'pro.enabled', undefined)
-    const redis = _.get(this.config, 'pro.redis.enabled', undefined)
-    const postgres = this.config!.database.type.toLowerCase() === 'postgres'
+    const postgres = process.env.DATABASE && process.env.DATABASE.toLowerCase() === 'postgres'
 
-    if (!pro && redis) {
+    if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
-    if (pro && !redis) {
+    if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
       )
     }
-    if (pro && !postgres && redis) {
+    if (process.IS_PRO_ENABLED && !postgres && process.CLUSTER_ENABLED) {
       throw new Error(
         'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
       )
+    }
+    if (process.CLUSTER_ENABLED && !process.env.REDIS_URL) {
+      throw new Error('The environment variable REDIS_URL is required when cluster is enabled')
     }
   }
 
@@ -252,7 +253,10 @@ export class Botpress {
 
   @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
   private async createDatabase(): Promise<void> {
-    await this.database.initialize(this.config!.database)
+    const databaseType = process.env.DATABASE || 'sqlite'
+    const databaseUrl = process.env.DATABASE_URL
+
+    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), databaseUrl)
   }
 
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
