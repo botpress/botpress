@@ -49,6 +49,9 @@ Module.prototype.require = function(mod) {
   }
 
   if (mod.endsWith('.node')) {
+    if (mod.startsWith('!')) {
+      return originalRequire.apply(this, [mod.substr(1)])
+    }
     const ext = syspath.basename(mod)
     const newPath = syspath.join(nativeBindingsPath, ext)
     if (nativeExtensions.includes(ext)) {

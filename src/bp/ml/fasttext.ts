@@ -2,7 +2,8 @@ import { reject, resolve } from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { VError } from 'verror'
 
-const binding = require('./fasttext.node')
+const customFastTextPath = process.env.FAST_TEXT_PATH ? '!' + process.env.FAST_TEXT_PATH : undefined
+const binding = require(customFastTextPath || './fasttext.node')
 
 const FAST_TEXT_VERBOSITY = parseInt(process.env.FAST_TEXT_VERBOSITY || '0')
 const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
