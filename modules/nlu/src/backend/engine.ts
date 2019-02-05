@@ -39,7 +39,7 @@ export default class ScopedEngine {
     private logger: sdk.Logger,
     private botId: string,
     private readonly config: Config,
-    private readonly toolkit: typeof sdk.MLToolkit
+    readonly toolkit: typeof sdk.MLToolkit
   ) {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(toolkit, this.logger)
@@ -56,6 +56,7 @@ export default class ScopedEngine {
     }
 
     this.sync() // This is a voluntary floating promise. We don't want to block server loading
+    return
   }
 
   async sync(): Promise<void> {
