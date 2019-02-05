@@ -4,6 +4,7 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
+import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../types'
@@ -41,6 +42,10 @@ export default class RealtimeService {
       origins: '*:*',
       serveClient: false
     })
+
+    if (process.CLUSTER_ENABLED && process.env.REDIS_URL) {
+      io.adapter(redisAdapter({ url: process.env.REDIS_URL }))
+    }
 
     const admin = io.of('/admin')
     const guest = io.of('/guest')
