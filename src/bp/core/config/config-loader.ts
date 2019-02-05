@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
+import yn from 'yn'
 
 import { BotConfig } from './bot.config'
 import { BotpressConfig, DatabaseType } from './botpress.config'
@@ -48,6 +49,8 @@ export class GhostConfigProvider implements ConfigProvider {
 
     if (config.pro) {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
+      config.pro.redis.enabled = yn(process.env.CLUSTER_ENABLED) || config.pro.redis.enabled
+      config.pro.redis.url = process.env.REDIS_URL || config.pro.redis.url
     }
 
     this._botpressConfigCache = config
