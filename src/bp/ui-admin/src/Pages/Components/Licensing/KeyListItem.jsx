@@ -70,6 +70,7 @@ export default class KeyListItem extends Component {
       console.log('error while setting up license')
     }
     this.setState({ isLoading: false })
+    this.props.onUseOnServer()
   }
 
   updateServerKey = async licenseKey => {

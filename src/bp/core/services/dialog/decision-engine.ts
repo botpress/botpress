@@ -13,7 +13,7 @@ import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
 
-type SendSuggestionResult = { repliedWithContent: boolean }
+type SendSuggestionResult = { executeFlows: boolean }
 
 @injectable()
 export class DecisionEngine {
@@ -65,8 +65,8 @@ export class DecisionEngine {
     }
 
     if (
-      !_.get(sendSuggestionResult, 'repliedWithContent', false) &&
-      !event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE)
+      !event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) &&
+      (!sendSuggestionResult || sendSuggestionResult!.executeFlows)
     ) {
       try {
         Object.assign(event, {
@@ -123,7 +123,7 @@ export class DecisionEngine {
 
   private async _sendSuggestion(reply: IO.Suggestion, sessionId, event): Promise<SendSuggestionResult> {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
-    const result: SendSuggestionResult = { repliedWithContent: false }
+    const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
       await this.eventEngine.replyToEvent(event, payloads)
@@ -136,7 +136,7 @@ export class DecisionEngine {
         replyPreview: _.find(payloads, p => p.text !== undefined)
       }
 
-      result.repliedWithContent = true
+      result.executeFlows = false
       event.state.session.lastMessages.push(message)
       await this.stateManager.persist(event, true)
     }
@@ -144,6 +144,7 @@ export class DecisionEngine {
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')
     if (redirect && redirect.flow && redirect.node) {
       await this.dialogEngine.jumpTo(sessionId, event, redirect.flow, redirect.node)
+      result.executeFlows = true
     }
 
     return result

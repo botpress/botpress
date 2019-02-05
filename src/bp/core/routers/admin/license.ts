@@ -3,18 +3,13 @@ import LicensingService, { LicenseInfo } from 'common/licensing-service'
 import { Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
+import { CustomRouter } from '../customRouter'
 import { BadRequestError } from '../errors'
-import { assertSuperAdmin, asyncMiddleware, success as sendSuccess } from '../util'
+import { assertSuperAdmin, success as sendSuccess } from '../util'
 
-export class LicenseRouter implements CustomRouter {
-  public readonly router: Router
-
-  private asyncMiddleware!: Function
-
+export class LicenseRouter extends CustomRouter {
   constructor(logger: Logger, private licenseService: LicensingService) {
-    this.asyncMiddleware = asyncMiddleware({ logger })
-    this.router = Router({ mergeParams: true })
+    super('License', logger, Router({ mergeParams: true }))
     this.setupRoutes()
   }
 
