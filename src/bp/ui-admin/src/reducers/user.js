@@ -1,4 +1,5 @@
 import api from '../api'
+import { logout } from '../Auth'
 
 export const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 export const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
@@ -81,7 +82,10 @@ export const fetchProfile = () => {
   return async dispatch => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
-    const { data } = await api.getSecured().get('/auth/me/profile')
+    const { data } = await api
+      .getSecured()
+      .get('/auth/me/profile')
+      .catch(() => logout())
 
     dispatch({
       type: MY_PROFILE_RECEIVED,
