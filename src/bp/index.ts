@@ -77,8 +77,9 @@ try {
 
         if (isProBuild && fs.existsSync(configPath)) {
           const config = require(configPath)
-          process.IS_PRO_ENABLED = config.pro && config.pro.enabled
-          process.CLUSTER_ENABLED = config.pro && config.pro.redis && config.pro.redis.enabled
+          process.IS_PRO_ENABLED = process.env.PRO_ENABLED || (config.pro && config.pro.enabled)
+          process.CLUSTER_ENABLED =
+            process.env.CLUSTED_ENABLED || (config.pro && config.pro.redis && config.pro.redis.enabled)
         }
 
         require('./bootstrap')

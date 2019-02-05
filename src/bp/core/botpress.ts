@@ -96,12 +96,16 @@ export class Botpress {
     this.trackStart()
 
     this.config = await this.loadConfiguration()
+    await this.createDatabase()
+    await this.initializeGhost()
+
+    // Invalidating the configuration to force it to load it from the ghost if enabled
+    this.config = await this.loadConfiguration(true)
+
     await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
     await this.checkEditionRequirements()
-    await this.createDatabase()
-    await this.initializeGhost()
     await this.loadModules(options.modules)
     await this.initializeServices()
     await this.deployAssets()
@@ -239,8 +243,10 @@ export class Botpress {
     await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
-  @Memoize()
-  private async loadConfiguration(): Promise<BotpressConfig> {
+  private async loadConfiguration(forceInvalidate?): Promise<BotpressConfig> {
+    if (forceInvalidate) {
+      await this.configProvider.invalidateBotpressConfig()
+    }
     return this.configProvider.getBotpressConfig()
   }
 
