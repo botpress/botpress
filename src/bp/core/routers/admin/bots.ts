@@ -4,22 +4,21 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
 import { Bot } from '../../misc/interfaces'
+import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import { asyncMiddleware, needPermissions, success as sendSuccess } from '../util'
+import { needPermissions, success as sendSuccess } from '../util'
 
-export class BotsRouter implements CustomRouter {
+export class BotsRouter extends CustomRouter {
   public readonly router: Router
 
   private readonly resource = 'admin.bots'
-  private asyncMiddleware!: Function
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private logger!: Logger
 
   constructor(logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
+    super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
-    this.asyncMiddleware = asyncMiddleware({ logger })
     this.needPermissions = needPermissions(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -32,7 +31,7 @@ export class BotsRouter implements CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        this.workspaceService.assertUserExists(req.tokenUser.email)
+        this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         const botsRefs = await this.workspaceService.getBotRefs()
         const bots = await this.botService.findBotsByIds(botsRefs)
@@ -51,7 +50,7 @@ export class BotsRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const bot = <Bot>_.pick(req.body, ['id', 'name'])
 
-        this.workspaceService.assertUserExists(req.tokenUser.email)
+        this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
@@ -84,7 +83,7 @@ export class BotsRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const bot = <Bot>req.body
-        this.workspaceService.assertUserExists(req.tokenUser.email)
+        this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.updateBot(botId, bot)
 
@@ -99,7 +98,7 @@ export class BotsRouter implements CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        this.workspaceService.assertUserExists(req.tokenUser.email)
+        this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.deleteBot(botId)
         await this.workspaceService.deleteBotRef(botId)
