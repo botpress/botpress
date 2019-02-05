@@ -163,7 +163,7 @@ class CustomizeLicenseForm extends Component {
               <td align="right">
                 <b>Total: </b>
               </td>
-              <td>{this.state.totalPrice}$</td>
+              <td>{this.state.totalPrice}$ / month</td>
             </tr>
           </tbody>
         </table>
