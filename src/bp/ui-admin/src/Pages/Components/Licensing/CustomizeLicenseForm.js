@@ -133,7 +133,7 @@ class CustomizeLicenseForm extends Component {
             </PriceItem>
             <PriceItem
               title="Gold Support"
-              description="Technical questions by email, support center or phone. Priority bug fixes. Same-day reply (10AM - 4PM EST)."
+              description="Technical questions by email. Engineer to engineer. Priority bug fixes. Same-day reply (9AM - 4PM EST). Maximum of 8 tickets per month."
               price={this.getPrice('gold-support') + '$'}
               total={this.state.totalGoldSupport}
             >
