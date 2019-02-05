@@ -56,7 +56,7 @@ export default class KeyListItem extends Component {
   }
 
   revealLicense = () => this.props.onRevealActivate(this.props.license)
-  updateLicense = () => this.props.onLicenseUpdated({ ...this.props.license, cost: this.state.cost })
+  showLicenseUpdateModal = () => this.props.onShowLicenseUpdateModal({ ...this.props.license, cost: this.state.cost })
   assignFingerprint = () => this.props.onRevealActivate({ ...this.props.license, assigned: false })
 
   useOnServer = async () => {
@@ -135,7 +135,7 @@ export default class KeyListItem extends Component {
           {license.assigned && <DropdownItem onClick={this.revealLicense}>Reveal License Key</DropdownItem>}
           <DropdownItem onClick={this.assignFingerprint}>Assign Fingerprint</DropdownItem>
           {this.props.clusterFingerprint && <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>}
-          <DropdownItem onClick={this.updateLicense}>Update License</DropdownItem>
+          <DropdownItem onClick={this.showLicenseUpdateModal}>Update License</DropdownItem>
           {!license.canceled && <DropdownItem onClick={this.disableAutoRenew}>Disable Auto-Renew</DropdownItem>}
         </DropdownMenu>
       </UncontrolledButtonDropdown>

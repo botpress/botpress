@@ -117,7 +117,7 @@ class CustomizeLicenseForm extends Component {
               title="Additional Nodes"
               description="Scale your Botpress installation by adding multiple nodes in the same cluster"
               price={this.getPrice('full-time-node') + '$ each'}
-              total={this.state.totalNodes}
+              total={this.state.totalNodes || 0}
             >
               <Input
                 type="number"
@@ -163,7 +163,7 @@ class CustomizeLicenseForm extends Component {
               <td align="right">
                 <b>Total: </b>
               </td>
-              <td>{this.state.totalPrice}$</td>
+              <td>{this.state.totalPrice || 0}$</td>
             </tr>
           </tbody>
         </table>

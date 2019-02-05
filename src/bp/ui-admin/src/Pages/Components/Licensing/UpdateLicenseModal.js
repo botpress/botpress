@@ -55,12 +55,12 @@ export default class UpdateLicenseModal extends React.Component {
           <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
         </div>
         <span className="text-small">
-          <strong>Current total:</strong> {license.cost}$
+          <strong>Current total:</strong> {license.cost || 0}$
         </span>
         <Row className="align-items-center">
           <Col md="6">
             <strong>
-              New total: <span className="text-brand">{this.state.order && this.state.order.totalPrice}$</span>
+              New total: <span className="text-brand">{(this.state.order && this.state.order.totalPrice) || 0}$</span>
             </strong>
           </Col>
           <Col md="6" className="text-right">
