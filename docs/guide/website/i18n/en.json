@@ -68,6 +68,12 @@
       "manage/versions": {
         "title": "Version control"
       },
+      "pro/about-pro": {
+        "title": "About"
+      },
+      "pro/licensing": {
+        "title": "Licensing"
+      },
       "quickstart": {
         "title": "Quick Start"
       },
@@ -163,6 +169,24 @@
       },
       "version-11.3.0-overview": {
         "title": "High-level Overview"
+      },
+      "version-11.4.0-code": {
+        "title": "Custom Code"
+      },
+      "version-11.4.0-cluster": {
+        "title": "Server Cluster"
+      },
+      "version-11.4.0-migrate-from-10": {
+        "title": "Migrating from 10.X"
+      },
+      "version-11.4.0-migrate": {
+        "title": "Migrating from 11.3"
+      },
+      "version-11.4.0-tutorials": {
+        "title": "Tutorials"
+      },
+      "version-11.4.0-versions": {
+        "title": "Version control"
       }
     },
     "links": {
@@ -172,6 +196,7 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
+      "Botpress Pro": "Botpress Pro",
       "Build": "Build",
       "Deploy": "Deploy",
       "Manage": "Manage",
