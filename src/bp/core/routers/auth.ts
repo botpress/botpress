@@ -7,18 +7,16 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import { Request, RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '.'
+import { CustomRouter } from './customRouter'
 import { NotFoundError } from './errors'
-import { asyncMiddleware, checkTokenHeader, success as sendSuccess } from './util'
+import { checkTokenHeader, success as sendSuccess } from './util'
 
 const REVERSE_PROXY = !!process.env.REVERSE_PROXY
 
 const getIp = (req: Request) =>
   (REVERSE_PROXY ? <string | undefined>req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
 
-export class AuthRouter implements CustomRouter {
-  public readonly router: Router
-  private asyncMiddleware!: Function
+export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
   constructor(
@@ -28,8 +26,7 @@ export class AuthRouter implements CustomRouter {
     private workspaceService: WorkspaceService,
     private authStrategies: AuthStrategies
   ) {
-    this.router = Router({ mergeParams: true })
-    this.asyncMiddleware = asyncMiddleware({ logger })
+    super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.setupRoutes()

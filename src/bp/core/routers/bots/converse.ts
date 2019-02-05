@@ -4,18 +4,15 @@ import { ConverseService } from 'core/services/converse'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
-import { asyncMiddleware, checkTokenHeader } from '../util'
+import { CustomRouter } from '../customRouter'
+import { checkTokenHeader } from '../util'
 
-export class ConverseRouter implements CustomRouter {
-  public readonly router: Router
-  private asyncMiddleware!: Function
+export class ConverseRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
-  constructor(private logger: Logger, private converseService: ConverseService, private authService: AuthService) {
-    this.asyncMiddleware = asyncMiddleware({ logger })
+  constructor(logger: Logger, private converseService: ConverseService, private authService: AuthService) {
+    super('Converse', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 
