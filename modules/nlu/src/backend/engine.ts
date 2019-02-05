@@ -20,6 +20,7 @@ export default class ScopedEngine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
 
+  private _preloaded: boolean = false
   private _currentModelHash: string
 
   private readonly intentClassifier: FastTextClassifier
@@ -54,9 +55,6 @@ export default class ScopedEngine {
     if (isNaN(this.confidenceTreshold) || this.confidenceTreshold < 0 || this.confidenceTreshold > 1) {
       this.confidenceTreshold = 0.7
     }
-
-    this.sync() // This is a voluntary floating promise. We don't want to block server loading
-    return
   }
 
   async sync(): Promise<void> {
@@ -78,12 +76,17 @@ export default class ScopedEngine {
       }
 
       this._currentModelHash = modelHash
+      this._preloaded = true
     } finally {
       this._isSyncing = false
     }
   }
 
   async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
+    if (!this._preloaded) {
+      await this.sync()
+    }
+
     return retry(() => this._extract(incomingEvent), this.retryPolicy)
   }
 
