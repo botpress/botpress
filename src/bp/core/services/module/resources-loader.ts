@@ -2,8 +2,8 @@ import { Logger } from 'botpress/sdk'
 import fse from 'fs-extra'
 import path from 'path'
 
-import { addHashToFile, isOriginalFile } from '../../misc/checksum'
 import ModuleResolver from '../../modules/resolver'
+import { FileContent, GhostService } from '../ghost/service'
 
 /** Describes a resource that the module will export to the data folder */
 interface ResourceExportPath {
@@ -19,7 +19,7 @@ export class ModuleResourceLoader {
   private modulePath: string = ''
   private exportPaths: ResourceExportPath[] = []
 
-  constructor(private logger: Logger, private moduleName: string) {}
+  constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {}
 
   async importResources() {
     const resolver = new ModuleResolver(this.logger)
@@ -28,27 +28,27 @@ export class ModuleResourceLoader {
     this.exportPaths = [
       {
         src: `${this.modulePath}/dist/actions`,
-        dest: `${process.PROJECT_LOCATION}/data/global/actions/${this.moduleName}`
+        dest: `/actions/${this.moduleName}`
       },
       {
         src: `${this.modulePath}/assets`,
-        dest: `${process.PROJECT_LOCATION}/assets/modules/${this.moduleName}`,
+        dest: `/assets/modules/${this.moduleName}`,
         ignoreChecksum: true
       },
       {
         src: `${this.modulePath}/dist/content-types`,
-        dest: `${process.PROJECT_LOCATION}/data/global/content-types/${this.moduleName}`
+        dest: `/content-types/${this.moduleName}`
       },
       ...(await this._getHooksPaths())
     ]
 
-    this._loadModuleResources()
+    await this._loadModuleResources()
   }
 
-  private _loadModuleResources() {
+  private async _loadModuleResources(): Promise<void> {
     for (const resource of this.exportPaths) {
       if (fse.pathExistsSync(resource.src)) {
-        this._upsertModuleResources(resource)
+        await this._upsertModuleResources(resource)
       }
     }
   }
@@ -70,34 +70,27 @@ export class ModuleResourceLoader {
     for (const hookType of await fse.readdir(moduleHooks)) {
       hooks.push({
         src: `${this.modulePath}/dist/hooks/${hookType}`,
-        dest: `${process.PROJECT_LOCATION}/data/global/hooks/${hookType}/${this.moduleName}`
+        dest: `/hooks/${hookType}/${this.moduleName}`
       })
     }
     return hooks
   }
 
-  private _upsertModuleResources(rootPath: ResourceExportPath): void {
-    fse.mkdirpSync(rootPath.dest)
-
+  private async _upsertModuleResources(rootPath: ResourceExportPath): Promise<void> {
     if (rootPath.ignoreChecksum) {
-      fse.copySync(rootPath.src, rootPath.dest)
+      const absoluteRootPathDest = process.PROJECT_LOCATION + rootPath.dest
+      fse.mkdirpSync(absoluteRootPathDest)
+      fse.copySync(rootPath.src, absoluteRootPathDest)
     } else {
       const files = fse.readdirSync(rootPath.src)
-      this._updateOutdatedFiles(files, rootPath)
-    }
-  }
+      const filesContents = files.map(file => {
+        return {
+          name: `${rootPath.dest}/${file}`,
+          content: fse.readFileSync(`${rootPath.src}/${file}`)
+        } as FileContent
+      })
 
-  private _updateOutdatedFiles(files, rootPath: ResourceExportPath): void {
-    for (const file of files) {
-      const from = path.join(rootPath.src, file)
-      const to = path.join(rootPath.dest, file)
-
-      if (!fse.existsSync(to) || isOriginalFile(to)) {
-        fse.copySync(from, to)
-        addHashToFile(to)
-      } else {
-        this.logger.debug(`File ${file} has been changed manually, skipping...`)
-      }
+      await this.ghost.global().upsertFiles('/', filesContents)
     }
   }
 }
