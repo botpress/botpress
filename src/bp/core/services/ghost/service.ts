@@ -163,9 +163,9 @@ export class ScopedGhostService {
     await this.cache.invalidate(this.bufferCacheKey(fileName))
   }
 
-  async invalidateFile(rootFolder: string, fileName: string) {
+  async invalidateFile(rootFolder: string, fileName: string): Promise<void> {
     const filePath = this.normalizeFileName(rootFolder, fileName)
-    this._invalidateFile(filePath)
+    await this._invalidateFile(filePath)
   }
 
   async ensureDirs(rootFolder: string, directories: string[]): Promise<void> {
@@ -182,7 +182,7 @@ export class ScopedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
 
     await this.primaryDriver.upsertFile(fileName, content, true)
-    this._invalidateFile(fileName)
+    await this._invalidateFile(fileName)
   }
 
   async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {

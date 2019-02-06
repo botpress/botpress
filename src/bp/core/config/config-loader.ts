@@ -20,7 +20,7 @@ export interface ConfigProvider {
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
   getModulesListConfig(): Promise<any>
-  invalidateBotpressConfig()
+  invalidateBotpressConfig(): Promise<void>
 }
 
 @injectable()
@@ -59,7 +59,7 @@ export class GhostConfigProvider implements ConfigProvider {
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
   }
 
-  async invalidateBotpressConfig() {
+  async invalidateBotpressConfig(): Promise<void> {
     this._botpressConfigCache = undefined
     await this.ghostService.global().invalidateFile('/', 'botpress.config.json')
   }
