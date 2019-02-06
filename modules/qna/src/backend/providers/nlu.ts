@@ -76,8 +76,6 @@ export default class Storage implements QnaStorage {
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
-
-    await this.syncNlu()
   }
 
   async update(data, id) {
@@ -100,7 +98,7 @@ export default class Storage implements QnaStorage {
       .forBot(this.botId)
       .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
 
-    await this.syncNlu()
+    this.syncNlu()
 
     return id
   }
@@ -127,7 +125,7 @@ export default class Storage implements QnaStorage {
       return id
     })
 
-    await this.syncNlu()
+    this.syncNlu()
 
     return ids
   }
