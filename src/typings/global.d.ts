@@ -17,6 +17,7 @@ declare namespace NodeJS {
     HOST: string
     PORT: number
     EXTERNAL_URL: string
+    LOCAL_URL: string
     PROJECT_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any

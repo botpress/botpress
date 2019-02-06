@@ -48,7 +48,7 @@ export default class Storage implements QnaStorage {
   }
 
   async initialize() {
-    this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId)
+    this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId, { localUrl: true })
     await this.syncQnaToNlu()
   }
 
