@@ -4,7 +4,7 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 
-import { RequestWithUser } from '../misc/interfaces'
+import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
 
 import {
@@ -16,12 +16,17 @@ import {
   UnauthorizedError
 } from './errors'
 
-export const asyncMiddleware = ({ logger }: { logger: Logger }) => (
-  fn: (req: Request, res: Response, next?: NextFunction) => Promise<any>
-) => (req: Request, res: Response, next: NextFunction) => {
-  Promise.resolve(fn(req, res, next)).catch(err => {
+export type BPRequest = Request & { authUser: AuthUser | undefined; tokenUser: TokenUser | undefined }
+
+export type AsyncMiddleware = (
+  fn: (req: BPRequest, res: Response, next?: NextFunction | undefined) => Promise<any>
+) => (req: Request, res: Response, next: NextFunction) => void
+
+export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddleware => fn => (req, res, next) => {
+  Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
+    err.router = routerName
     if (!err.skipLogging && !process.IS_PRODUCTION) {
-      logger.attachError(err).debug(`Async request error ${err.message}`)
+      logger.attachError(err).debug(`[${routerName}] Async request error ${err.message}`)
     }
 
     next(err)

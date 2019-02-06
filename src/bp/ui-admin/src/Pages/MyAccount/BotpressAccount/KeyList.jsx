@@ -34,6 +34,10 @@ class KeyList extends Component {
     this.setState({ updateModalOpen: false })
   }
 
+  onUseOnServer = () => {
+    this.props.fetchLicensing()
+  }
+
   toggleUpdateModal = selectedLicense => {
     this.setState({
       updateModalOpen: !this.state.updateModalOpen,
@@ -91,7 +95,8 @@ class KeyList extends Component {
                 products={this.props.products}
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
-                onLicenseUpdated={this.onLicenseUpdated}
+                onShowLicenseUpdateModal={this.toggleUpdateModal}
+                onUseOnServer={this.onUseOnServer}
               />
             ))}
         </tbody>

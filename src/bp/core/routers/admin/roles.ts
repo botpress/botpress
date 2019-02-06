@@ -2,19 +2,15 @@ import { Logger } from 'botpress/sdk'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 
-import { CustomRouter } from '..'
-import { asyncMiddleware, needPermissions, success as sendSuccess } from '../util'
+import { CustomRouter } from '../customRouter'
+import { needPermissions, success as sendSuccess } from '../util'
 
-export class RolesRouter implements CustomRouter {
-  public readonly router: Router
-
+export class RolesRouter extends CustomRouter {
   private needPermissions!: (operation: string, resource: string) => RequestHandler
-  private asyncMiddleware!: Function
 
   constructor(logger: Logger, private workspaceService: WorkspaceService) {
+    super('Roles', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
-    this.asyncMiddleware = asyncMiddleware({ logger })
-    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 

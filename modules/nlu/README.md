@@ -96,8 +96,8 @@ Error: write EPIPE
 
 In this case you may need to:
 
-1. [Build fastText](https://github.com/facebookresearch/fastText#building-fasttext) manually
-2. Set path to correct binary at `global/config/nlu.json` within `fastTextPath` option or pass it via `BP_NLU_FASTTEXTPATH` env-variable
+1. [Build fastText node-binding](https://github.com/botpress/node-fasttext#build-from-source) manually
+2. Pass path to correct binary via `FAST_TEXT_PATH` env-variable
  
 
 ## DIALOGFLOW

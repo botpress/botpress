@@ -87,16 +87,20 @@ export class FlowService {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
 
-    const flowsToSave = await Promise.map(flowViews, flow => this.prepareSaveFlow(botId, flow))
+    const flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.json')
+    const flowsToSave = await Promise.map(flowViews, flow => {
+      const isNew = !flowFiles.find(x => flow.location === x)
+      return this.prepareSaveFlow(botId, flow, isNew)
+    })
+
     const flowsSavePromises = _.flatten(
       flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
         this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
         this.ghost.forBot(botId).upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
       ])
     )
-    const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
-    const flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.json')
 
+    const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
     const flowsToDelete = flowFiles.filter(f => !pathsToOmit.includes(f))
     const flowsDeletePromises = flowsToDelete.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
 
@@ -128,13 +132,15 @@ export class FlowService {
     this.saveAll(botId, [flow])
   }
 
-  private async prepareSaveFlow(botId, flow) {
+  private async prepareSaveFlow(botId, flow, isNew: boolean) {
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {
       throw new Error(schemaError)
     }
 
-    await this.moduleLoader.onFlowChanged(botId, flow)
+    if (!isNew) {
+      await this.moduleLoader.onFlowChanged(botId, flow)
+    }
 
     const uiContent = {
       nodes: flow.nodes.map(node => ({ id: node.id, position: _.pick(node, 'x', 'y') })),

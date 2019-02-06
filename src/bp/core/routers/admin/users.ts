@@ -6,29 +6,19 @@ import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
+import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import {
-  assertBotpressPro,
-  asyncMiddleware,
-  needPermissions,
-  success as sendSuccess,
-  validateBodySchema
-} from '../util'
+import { assertBotpressPro, needPermissions, success as sendSuccess, validateBodySchema } from '../util'
 
-export class UsersRouter implements CustomRouter {
-  public readonly router: Router
-
+export class UsersRouter extends CustomRouter {
   private readonly resource = 'admin.users'
-  private asyncMiddleware!: Function
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private assertBotpressPro: RequestHandler
 
   constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
-    this.asyncMiddleware = asyncMiddleware({ logger })
+    super('Users', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
     this.assertBotpressPro = assertBotpressPro(this.workspaceService)
-    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 
@@ -87,7 +77,7 @@ export class UsersRouter implements CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { email } = req.params
 
-        if (req.authUser.email === email) {
+        if (req.authUser!.email === email) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
