@@ -24,7 +24,7 @@ Go on the **My Botpress Account** tab and click on **Login to Botpress**. There 
 
 ## Customize your license
 
-Now that we have a Botpress account setup, we can buy license. Go ahead an click on **Buy your first key**. You can five your license a friendly name to make it easy to recognize which license is used where. By default, only the Botpress pro license is enabled which it gives allows you to:
+Now that we have a Botpress account setup, we can buy license. Go ahead an click on **Buy your first key**. You can fill your license a friendly name to make it easy to recognize which license is used where. By default, only the Botpress pro license is enabled which allows you to:
 
 - Create unlimited bots
 - Add collaborators
@@ -34,7 +34,7 @@ Note that all bots will run on a single instance, where you might end up with a 
 
 ![BP customie license](assets/bp-customize-license.jpg)
 
-Don't worry, uou don't have to plan everything in advance, you can always change your plan later on. If you feel like you need additional support from the Botpress team, you can check the Gold support. Go ahead and complete the checkout form! If all is fine, you should end up with a screen like the following :
+Don't worry, you don't have to plan everything in advance, you can always change your plan later on. If you feel like you need additional support from the Botpress team, you can check the Gold support. Go ahead and complete the checkout form! If all is fine, you should end up with a screen like the following :
 
 ![BP license keys not active](assets/bp-keys-not-active.jpg)
 
@@ -44,7 +44,7 @@ To activate your license on your current Botpress installation, simply click on 
 
 ![BP license keys active](assets/bp-keys-active.jpg)
 
-**Note**: If you happen to breach your license (e.g you try to add more nodes then allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state. If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
+**Note**: If you happen to breach your license (e.g you try to add more nodes than allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state. If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
 
 ![BP license keys active](assets/bp-server-settings.jpg)
 
