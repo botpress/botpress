@@ -42,6 +42,7 @@ export default class BroadcastDb {
             .onDelete('CASCADE')
           table.string('userId').references('srv_channel_users.user_id')
           table.primary(['scheduleId', 'userId'])
+          table.string('botId')
           table.timestamp('ts')
         })
       })
@@ -136,12 +137,13 @@ export default class BroadcastDb {
     // TODO: need add "timezone" to users
     const attrs = await this.knex('srv_channel_users')
       .select('attributes')
-    const timezones = attrs.map(({ attributes: { timezone } }) => ({ timezone }))
+    const timezones = attrs.map(({ attributes: { timezone } }) => timezone)
+    const timezonesMap = [...new Set(timezones)]
 
-    return timezones
+    return timezonesMap
   }
 
-  setBroadcastOutbox(schedule, tz) {
+  setBroadcastOutbox(botId, schedule, tz) {
     const initialTz = tz
     const sign = Number(tz) >= 0 ? '+' : '-'
     tz = padDigits(Math.abs(Number(tz)), 2)
@@ -149,8 +151,8 @@ export default class BroadcastDb {
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
     const whereClause = _.isNil(initialTz) ? "where attributes -> 'timezone' IS NULL" : "where attributes -> 'timezone' = :initialTz"
 
-    const sql = `insert into broadcast_outbox ("userId", "scheduleId", "ts")
-      select userId, :scheduleId, :adjustedTime
+    const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
+      select userId, :scheduleId, :botId, :adjustedTime
       from (
         select user_id as userId
         from srv_channel_users
@@ -161,15 +163,16 @@ export default class BroadcastDb {
       .raw(sql, {
         scheduleId: schedule['id'],
         adjustedTime,
-        initialTz
+        initialTz,
+        botId
       })
       .then()
   }
 
   // TODO: check naming
-  getOutboxCount(schedule) {
+  getOutboxCount(botId, schedule) {
     return this.knex('broadcast_outbox')
-      .where({ scheduleId: schedule['id'] })
+      .where({ botId, scheduleId: schedule['id'] })
       .select(this.knex.raw('count(*) as count'))
       .then()
       .get(0)
@@ -184,9 +187,11 @@ export default class BroadcastDb {
       })
   }
 
-  getBroadcastOutbox(isPast) {
+  getBroadcastOutbox(botId, isPast) {
     return this.knex('broadcast_outbox')
-      .where(isPast)
+      .where(function () {
+        this.where(isPast).andWhere('broadcast_outbox.botId', botId)
+      })
       .join('srv_channel_users', 'srv_channel_users.user_id', 'broadcast_outbox.userId')
       .join('broadcast_schedules', 'scheduleId', 'broadcast_schedules.id')
       .limit(1000)

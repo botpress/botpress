@@ -11,16 +11,15 @@ const INTERVAL_BASE = 10 * 1000
 const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
-export default (botId: string, bp: SDK, db: Database) => {
-  let schedulingLock = false
-  let sendingLock = false
+export default async (botId: string, bp: SDK, db: Database) => {
+  let { schedulingLock } = await bp.kvs.get(botId, 'broadcast/lock/scheduling')
+  let { sendingLock } = await bp.kvs.get(botId, 'broadcast/lock/sending')
 
-  const emitChanged = () => ({})
+  // const emitChanged = () => ({})
   // NOTE: look as bp.events make other job
-  // const emitChanged = _.throttle(() => {
-
-  //   bp && bp.events.emit('broadcast.changed')
-  // }, 1000)
+  const emitChanged = _.throttle(() => {
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('broadcast.changed', {}))
+  }, 1000)
 
   const _sendBroadcast = Promise.method((botId, row) => {
     let dropPromise = Promise.resolve(false)
@@ -106,16 +105,17 @@ export default (botId: string, bp: SDK, db: Database) => {
     const upcomingVariableTime = db.knex.date.isAfter(endOfDay, 'date_time')
 
     schedulingLock = true
+    await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: true })
 
     const schedules = await db.getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime)
 
     await Promise.map(schedules, async schedule => {
       const timezones = await db.getUsersTimezone()
 
-      await Promise.mapSeries(timezones, async ({ timezone: tz }) => {
+      await Promise.mapSeries(timezones, async tz => {
 
-        await db.setBroadcastOutbox(schedule, tz)
-        const { count } = await db.getOutboxCount(schedule)
+        await db.setBroadcastOutbox(botId, schedule, tz)
+        const { count } = await db.getOutboxCount(botId, schedule)
 
         await db.updateTotalCount(schedule, count)
 
@@ -132,6 +132,7 @@ export default (botId: string, bp: SDK, db: Database) => {
     })
 
     schedulingLock = false
+    await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: false })
   }
 
   async function sendBroadcasts(botId) {
@@ -141,10 +142,11 @@ export default (botId: string, bp: SDK, db: Database) => {
       }
 
       sendingLock = true
+      await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: true })
 
       const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
 
-      const broadcasts = await db.getBroadcastOutbox(isPast)
+      const broadcasts = await db.getBroadcastOutbox(botId, isPast)
       let abort = false
 
       await Promise.mapSeries(broadcasts, async broadcast => {
@@ -168,9 +170,10 @@ export default (botId: string, bp: SDK, db: Database) => {
       bp.logger.error('Broadcast sending error: ', error.message)
     } finally {
       sendingLock = false
+      await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: false })
     }
   }
 
-  setInterval(scheduleToOutbox.bind(null, botId), SCHEDULE_TO_OUTBOX_INTERVAL)
-  setInterval(sendBroadcasts.bind(null, botId), SEND_BROADCAST_INTERVAL)
+  setInterval(scheduleToOutbox.bind(undefined, botId), SCHEDULE_TO_OUTBOX_INTERVAL)
+  setInterval(sendBroadcasts.bind(undefined, botId), SEND_BROADCAST_INTERVAL)
 }

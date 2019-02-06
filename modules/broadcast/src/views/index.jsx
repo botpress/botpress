@@ -421,7 +421,7 @@ export default class BroadcastModule extends React.Component {
           Time
         </Col>
         <Col sm={10}>
-          <TimePicker step={30} onChange={this.handleTimeChange} value={this.state.broadcast.time} />
+          <TimePicker step={15} onChange={this.handleTimeChange} value={this.state.broadcast.time} />
         </Col>
       </FormGroup>
     )

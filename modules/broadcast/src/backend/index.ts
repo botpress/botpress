@@ -12,7 +12,7 @@ export type Extension = {}
 
 export type SDK = typeof sdk & Extension
 
-let db;
+let db
 
 const onServerStarted = async (bp: SDK) => {
   db = new BroadcastDb(bp)
@@ -24,7 +24,10 @@ const onServerReady = async (bp: SDK) => {
 }
 
 const onBotMount = async (bp: SDK, botId: string) => {
-  Daemon(botId, bp, db)
+  await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: false })
+  await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: false })
+
+  await Daemon(botId, bp, db)
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
