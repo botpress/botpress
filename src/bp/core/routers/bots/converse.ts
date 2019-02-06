@@ -23,7 +23,7 @@ export class ConverseRouter extends CustomRouter {
         const { userId, botId } = req.params
         const params = req.query.include
 
-        if (params.length && params.toLowerCase() !== 'responses') {
+        if (params && params.toLowerCase() !== 'responses') {
           return res.status(401).send("Unauthenticated converse API can only return 'responses'")
         }
 

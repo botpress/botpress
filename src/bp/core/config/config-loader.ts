@@ -11,7 +11,7 @@ import _, { PartialDeep } from 'lodash'
 import path from 'path'
 
 import { BotConfig } from './bot.config'
-import { BotpressConfig, DatabaseType } from './botpress.config'
+import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {
   createDefaultConfigIfMissing(): Promise<void>
@@ -20,6 +20,7 @@ export interface ConfigProvider {
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
   getModulesListConfig(): Promise<any>
+  invalidateBotpressConfig(): Promise<void>
 }
 
 @injectable()
@@ -42,8 +43,6 @@ export class GhostConfigProvider implements ConfigProvider {
 
     config.httpServer.port = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.port
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
-    config.database.type = process.env.DATABASE ? <DatabaseType>process.env.DATABASE : config.database.type
-    config.database.url = process.env.DATABASE_URL ? process.env.DATABASE_URL : config.database.url
 
     if (config.pro) {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
@@ -58,6 +57,11 @@ export class GhostConfigProvider implements ConfigProvider {
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
+  }
+
+  async invalidateBotpressConfig(): Promise<void> {
+    this._botpressConfigCache = undefined
+    await this.ghostService.global().invalidateFile('/', 'botpress.config.json')
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {

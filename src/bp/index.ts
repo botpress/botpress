@@ -47,6 +47,8 @@ process.on('uncaughtException', err => {
 })
 
 try {
+  require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
+
   const argv = require('yargs')
     .command(
       ['serve', '$0'],
@@ -77,8 +79,8 @@ try {
 
         if (isProBuild && fs.existsSync(configPath)) {
           const config = require(configPath)
-          process.IS_PRO_ENABLED = config.pro && config.pro.enabled
-          process.CLUSTER_ENABLED = config.pro && config.pro.redis && config.pro.redis.enabled
+          process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || (config.pro && config.pro.enabled)
+          process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
         }
 
         require('./bootstrap')

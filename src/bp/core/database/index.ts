@@ -5,11 +5,11 @@ import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { DatabaseConfig } from '../config/botpress.config'
-
 import { patchKnex } from './helpers'
 import { Table } from './interfaces'
 import AllTables from './tables'
+
+export type DatabaseType = 'postgres' | 'sqlite'
 
 @injectable()
 export default class Database {
@@ -51,20 +51,22 @@ export default class Database {
     })
   }
 
-  async initialize(dbConfig: DatabaseConfig) {
+  async initialize(databaseType: DatabaseType, databaseUrl?: string) {
     const config: Knex.Config = {
       useNullAsDefault: true
     }
 
-    if (dbConfig.type.toLowerCase() === 'postgres') {
+    if (databaseType === 'postgres') {
       Object.assign(config, {
         client: 'pg',
-        connection: dbConfig.url || _.pick(dbConfig, ['host', 'port', 'user', 'password', 'database', 'ssl'])
+        connection: databaseUrl
       })
     } else {
+      const dbLocation = databaseUrl ? databaseUrl : `${process.PROJECT_LOCATION}/data/storage/core.sqlite`
+
       Object.assign(config, {
         client: 'sqlite3',
-        connection: { filename: dbConfig.location },
+        connection: { filename: dbLocation },
         pool: {
           afterCreate: (conn, cb) => {
             conn.run('PRAGMA foreign_keys = ON', cb)

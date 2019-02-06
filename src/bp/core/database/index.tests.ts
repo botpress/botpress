@@ -20,10 +20,7 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
 
   describe(`DB[SQLite] ${suiteName}`, async () => {
     beforeAll(async () => {
-      await sqlite.initialize({
-        location: sqlitePath,
-        type: 'sqlite'
-      })
+      await sqlite.initialize('sqlite', sqlitePath)
 
       await sqlite.bootstrap()
       await sqlite.seedForTests()
@@ -45,14 +42,16 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
 
   describe(`DB[Postgres] ${suiteName}`, () => {
     beforeAll(async () => {
-      await postgres.initialize({
-        type: 'postgres',
+      const config = {
         host: process.env.PG_HOST || 'localhost',
         port: Number(process.env.PG_PORT || 5432),
         database: process.env.PG_DB || TEST_DATABASE,
         user: process.env.PG_USER || 'postgres',
         password: process.env.PG_PASSWORD || ''
-      })
+      }
+      const dbUrl = `postgres://${config.user}:${config.password}@${config.host}:${config.port}/${config.database}`
+
+      await postgres.initialize('postgres', process.env.DATABASE_URL || dbUrl)
 
       await postgres.bootstrap()
       await postgres.seedForTests()
