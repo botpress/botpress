@@ -12,6 +12,7 @@ import { TYPES } from '../../types'
 @injectable()
 export default class RealtimeService {
   private readonly ee: EventEmitter2
+  private useRedis: boolean
 
   constructor(
     @inject(TYPES.Logger)
@@ -22,6 +23,8 @@ export default class RealtimeService {
       wildcard: true,
       maxListeners: 100
     })
+
+    this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL)
   }
 
   private isEventTargeted(eventName: string | string[]): boolean {
@@ -43,7 +46,7 @@ export default class RealtimeService {
       serveClient: false
     })
 
-    if (process.CLUSTER_ENABLED && process.env.REDIS_URL) {
+    if (this.useRedis) {
       io.adapter(redisAdapter({ url: process.env.REDIS_URL }))
     }
 
@@ -78,7 +81,11 @@ export default class RealtimeService {
       // bp.stats.track('socket', 'connected') // TODO/FIXME Add tracking
 
       if (visitorId && visitorId.length > 0) {
-        socket.join('visitor:' + visitorId)
+        if (this.useRedis) {
+          socket.adapter.remoteJoin('visitor:' + visitorId)
+        } else {
+          socket.join('visitor:' + visitorId)
+        }
       }
 
       socket.on('event', event => {
