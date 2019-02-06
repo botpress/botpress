@@ -27,7 +27,7 @@ WORKDIR /botpress
 CMD ["./bp"]
 ```
 
-Then open a command prompt and type these commands:
+Make sure Docker is running on your computer. Then open a command prompt and type these commands:
 
 ```bash
 # This will create a new app with a random name. Copy the name, we'll need it later
@@ -78,6 +78,8 @@ heroku addons:create heroku-postgresql --app $APP_NAME
 # Tell Botpress to use Postgres
 heroku config:set DATABASE=postgres --app $APP_NAME
 ```
+
+Edit your `botpress.config` and update your database credentials. You can find your Postgres credentials on the Heroku dashboard: Overview > Heroku Postgres > Settings > View Credentials.
 
 ## Deploying on AWS using Dokku
 
