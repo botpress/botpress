@@ -4,6 +4,7 @@ import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import socketio from 'socket.io'
+import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../types'
@@ -11,6 +12,7 @@ import { TYPES } from '../../types'
 @injectable()
 export default class RealtimeService {
   private readonly ee: EventEmitter2
+  private useRedis: boolean
 
   constructor(
     @inject(TYPES.Logger)
@@ -21,6 +23,8 @@ export default class RealtimeService {
       wildcard: true,
       maxListeners: 100
     })
+
+    this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL)
   }
 
   private isEventTargeted(eventName: string | string[]): boolean {
@@ -41,6 +45,10 @@ export default class RealtimeService {
       origins: '*:*',
       serveClient: false
     })
+
+    if (this.useRedis) {
+      io.adapter(redisAdapter({ url: process.env.REDIS_URL }))
+    }
 
     const admin = io.of('/admin')
     const guest = io.of('/guest')
@@ -73,7 +81,17 @@ export default class RealtimeService {
       // bp.stats.track('socket', 'connected') // TODO/FIXME Add tracking
 
       if (visitorId && visitorId.length > 0) {
-        socket.join('visitor:' + visitorId)
+        if (this.useRedis) {
+          guest.adapter.remoteJoin(socket.id, 'visitor:' + visitorId, err => {
+            if (err) {
+              return this.logger
+                .attachError(err)
+                .error(`socket "${socket.id}" for visitor "${visitorId}" can't join the socket.io redis room`)
+            }
+          })
+        } else {
+          socket.join('visitor:' + visitorId)
+        }
       }
 
       socket.on('event', event => {

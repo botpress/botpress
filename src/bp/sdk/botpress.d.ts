@@ -815,6 +815,11 @@ declare module 'botpress/sdk' {
     desc?: boolean
   }
 
+  export interface AxiosOptions {
+    /** When true, it will return the local url instead of the external url  */
+    localUrl: boolean
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -852,7 +857,7 @@ declare module 'botpress/sdk' {
      * @param botId - The ID of the bot for which to get the configuration
      * @returns The configuration to use
      */
-    export function getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig>
+    export function getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig>
   }
 
   /**
