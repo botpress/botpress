@@ -82,7 +82,11 @@ export default class RealtimeService {
 
       if (visitorId && visitorId.length > 0) {
         if (this.useRedis) {
-          socket.adapter.remoteJoin('visitor:' + visitorId)
+          guest.adapter.remoteJoin(socket.id, 'visitor:' + visitorId, err => {
+            this.logger
+              .attachError(err)
+              .error(`socket "${socket.id}" for visitor "${visitorId}" can't join the socket.io redis room`)
+          })
         } else {
           socket.join('visitor:' + visitorId)
         }
