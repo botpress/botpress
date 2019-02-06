@@ -1,6 +1,7 @@
 {
   "docs": {
     "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Botpress Pro": ["pro/about-pro", "pro/licensing"],
     "Build": [
       "build/overview",
       "build/debug",
