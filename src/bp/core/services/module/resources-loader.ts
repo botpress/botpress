@@ -101,7 +101,7 @@ export class ModuleResourceLoader {
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
       const isModified = isNewFile || (await this._isModified(to))
 
-      if (isNewFile || isModified) {
+      if (isNewFile || !isModified) {
         await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
         await this._addHashToFile(to)
       } else {
