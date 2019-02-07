@@ -166,6 +166,10 @@ class LicenseStatus extends React.Component {
                 This is the support offered by Botpress
               </UncontrolledTooltip>
             </div>
+            <div className="license-infos">
+              <strong className="license-infos__label">Allowed Nodes:</strong>
+              {this.license.limits && Number(this.license.limits.nodes) + 1}
+            </div>
             <hr />
             {this.props.licensing && (
               <div>
