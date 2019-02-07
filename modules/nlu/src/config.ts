@@ -15,7 +15,6 @@ export interface Config {
   ducklingURL: string
 
   /**
-   * Whether or not
    * @default true
    */
   ducklingEnabled: boolean
@@ -25,5 +24,5 @@ export interface Config {
    * Set this value to "false" to disable background sync
    * @default 30s
    */
-  autoSyncInterval: string
+  autoTrainInterval: string
 }

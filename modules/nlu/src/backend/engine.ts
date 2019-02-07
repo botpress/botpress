@@ -38,8 +38,8 @@ export default class ScopedEngine {
 
   private _isSyncing: boolean
   private _isSyncingTwice: boolean
-  private _autoSyncInterval: number = 0
-  private _autoSyncTimer: NodeJS.Timer
+  private _autoTrainInterval: number = 0
+  private _autoTrainTimer: NodeJS.Timer
 
   constructor(
     private logger: sdk.Logger,
@@ -52,7 +52,7 @@ export default class ScopedEngine {
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
-    this._autoSyncInterval = ms(config.autoSyncInterval || 0)
+    this._autoTrainInterval = ms(config.autoTrainInterval || 0)
   }
 
   async init(): Promise<void> {
@@ -62,16 +62,16 @@ export default class ScopedEngine {
       this.confidenceTreshold = 0.7
     }
 
-    if (!isNaN(this._autoSyncInterval) && this._autoSyncInterval >= 5000) {
-      if (this._autoSyncTimer) {
-        clearInterval(this._autoSyncTimer)
+    if (!isNaN(this._autoTrainInterval) && this._autoTrainInterval >= 5000) {
+      if (this._autoTrainTimer) {
+        clearInterval(this._autoTrainTimer)
       }
-      this._autoSyncTimer = setInterval(async () => {
+      this._autoTrainTimer = setInterval(async () => {
         if (this._preloaded && (await this.checkSyncNeeded())) {
           // Sync only if the model has been already loaded
           this.sync()
         }
-      }, this._autoSyncInterval)
+      }, this._autoTrainInterval)
     }
   }
 
