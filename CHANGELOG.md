@@ -1,3 +1,49 @@
+# [11.5.0](https://github.com/botpress/botpress/compare/v11.4.2...v11.5.0) (2019-02-07)
+
+
+### Bug Fixes
+
+* **admin:** update license key when use on this server ([a226324](https://github.com/botpress/botpress/commit/a226324))
+* **admin-ui:** on invalid token, logout user ([581126b](https://github.com/botpress/botpress/commit/581126b))
+* **analytics:** upgrade module to work with 11.x ([3b92364](https://github.com/botpress/botpress/commit/3b92364))
+* **analytics:** upgrade module to work with 11.x ([f823df6](https://github.com/botpress/botpress/commit/f823df6))
+* **builtin:** include actions folder ([d2d4c60](https://github.com/botpress/botpress/commit/d2d4c60))
+* **converse-api:** fixed unsecured converse api metadata ([2c790c1](https://github.com/botpress/botpress/commit/2c790c1))
+* **converse-api:** proper filtering, documentation ([9551543](https://github.com/botpress/botpress/commit/9551543))
+* **core:** added decision details to decision engine ([da8ab79](https://github.com/botpress/botpress/commit/da8ab79))
+* **core:** builtins were not ghosted on startup ([c957984](https://github.com/botpress/botpress/commit/c957984))
+* **core:** creating new flow broken ([843cac7](https://github.com/botpress/botpress/commit/843cac7))
+* **core:** decision engine not continuing processing flow in QnA jumps ([1fb3682](https://github.com/botpress/botpress/commit/1fb3682))
+* **core:** made all routes async ([5d385c6](https://github.com/botpress/botpress/commit/5d385c6))
+* **core:** rendering of mustache ([7b866a5](https://github.com/botpress/botpress/commit/7b866a5))
+* **core:** rendering of nested mustache ([e34a60f](https://github.com/botpress/botpress/commit/e34a60f))
+* **core:** rephrase cluster warning ([eee3d47](https://github.com/botpress/botpress/commit/eee3d47))
+* **core:** standard customRouter for async routes ([6d490b8](https://github.com/botpress/botpress/commit/6d490b8))
+* **ghost:** reloading config from the ghost if enabled ([d04c4af](https://github.com/botpress/botpress/commit/d04c4af))
+* **nlu:** adding the filename to show more context around empty intent ([ee11896](https://github.com/botpress/botpress/commit/ee11896))
+* **nlu:** allow custom fasttext.node binding (resolve [#1171](https://github.com/botpress/botpress/issues/1171)) ([3e74025](https://github.com/botpress/botpress/commit/3e74025))
+* **nlu:** allow custom fasttext.node binding (resolve [#1171](https://github.com/botpress/botpress/issues/1171)) ([3a16249](https://github.com/botpress/botpress/commit/3a16249))
+* **nlu:** background sync task ([12dac0c](https://github.com/botpress/botpress/commit/12dac0c))
+* **nlu:** don't prefetch NLU models on init ([161963d](https://github.com/botpress/botpress/commit/161963d))
+* **nlu:** fixed naming ([fd3e4e2](https://github.com/botpress/botpress/commit/fd3e4e2))
+* **nlu:** floating promise race condition ([c140dc6](https://github.com/botpress/botpress/commit/c140dc6))
+* **nlu:** intent election ([f1935a5](https://github.com/botpress/botpress/commit/f1935a5))
+* **nlu:** loading of multi-model intents ([723b6d6](https://github.com/botpress/botpress/commit/723b6d6))
+* **nlu:** queue multiple sync calls ([6023927](https://github.com/botpress/botpress/commit/6023927))
+* **NLU:** sync & save nlu background sync ([76520f2](https://github.com/botpress/botpress/commit/76520f2))
+* **qna:** correctly selecting global and ui ajustments ([f9faad6](https://github.com/botpress/botpress/commit/f9faad6))
+* **qna:** correctly selecting global and ui ajustments ([d46dfad](https://github.com/botpress/botpress/commit/d46dfad))
+* **qna:** removed sync on mount and made non-blocking ([4846379](https://github.com/botpress/botpress/commit/4846379))
+* **qna:** removed sync on mount and made non-blocking ([804f0ec](https://github.com/botpress/botpress/commit/804f0ec))
+* nlu cleanup of old models ([273d4a9](https://github.com/botpress/botpress/commit/273d4a9))
+* **studio:** nlu active link ([9285023](https://github.com/botpress/botpress/commit/9285023))
+* **tests:** ghost service ([10959be](https://github.com/botpress/botpress/commit/10959be))
+* **ui:** sidebar navlink ([10d9190](https://github.com/botpress/botpress/commit/10d9190))
+* **ui:** sidebar navlink ([33cab98](https://github.com/botpress/botpress/commit/33cab98))
+* **ui:** window title includes bot name ([728be2a](https://github.com/botpress/botpress/commit/728be2a))
+
+
+
 ## [11.4.2](https://github.com/botpress/botpress/compare/v11.4.1...v11.4.2) (2019-02-02)
 
 
