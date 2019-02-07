@@ -40,9 +40,7 @@ export default class CreateEntityModal extends React.Component {
     const entity = {
       id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
-      type: this.state.type,
-      pattern: '',
-      occurences: []
+      type: this.state.type
     }
     this.props.axios.post(`/mod/nlu/entities/`, entity).then(() => {
       this.setState({ ...DEFAULT_STATE })
