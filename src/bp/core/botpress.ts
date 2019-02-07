@@ -138,7 +138,7 @@ export class Botpress {
     }
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
       this.logger.warn(
-        'Redis has to be enabled to use Botpress in a cluster. Please enable it in your Botpress configuration file.'
+        'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
       )
     }
     if (process.IS_PRO_ENABLED && !postgres && process.CLUSTER_ENABLED) {

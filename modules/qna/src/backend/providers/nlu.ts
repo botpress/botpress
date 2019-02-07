@@ -52,10 +52,6 @@ export default class Storage implements QnaStorage {
     await this.syncQnaToNlu()
   }
 
-  async syncNlu() {
-    await axios.post('/mod/nlu/sync', {}, this.axiosConfig)
-  }
-
   // TODO Find better way to implement. When manually copying QNA, intents are not created.
   // Manual edit & save of each one is required for the intent to be created.
   async syncQnaToNlu() {
@@ -76,8 +72,6 @@ export default class Storage implements QnaStorage {
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
-
-    await this.syncNlu()
   }
 
   async update(data, id) {
@@ -99,8 +93,6 @@ export default class Storage implements QnaStorage {
     await this.bp.ghost
       .forBot(this.botId)
       .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
-
-    await this.syncNlu()
 
     return id
   }
@@ -126,8 +118,6 @@ export default class Storage implements QnaStorage {
       statusCb && statusCb(i + 1)
       return id
     })
-
-    await this.syncNlu()
 
     return ids
   }
@@ -248,7 +238,6 @@ export default class Storage implements QnaStorage {
     }
 
     await Promise.all(ids.map(deletePromise))
-    await this.syncNlu()
   }
 
   async answersOn(text) {

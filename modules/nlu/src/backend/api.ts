@@ -6,6 +6,24 @@ import { EngineByBot } from './typings'
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
 
+  const syncNLU = async (botEngine: ScopedEngine): Promise<void> => {
+    const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
+    try {
+      await botEngine.sync()
+    } catch (e) {
+      bp.realtime.sendPayload(
+        bp.RealTimePayload.forAdmins('toast.nlu-sync', {
+          text: `NLU Sync Error: ${e.name} : ${e.message}`,
+          type: 'error'
+        })
+      )
+    }
+
+    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
+  }
+
   router.get('/intents', async (req, res) => {
     res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntents())
   })
@@ -15,12 +33,19 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.delete('/intents/:intent', async (req, res) => {
-    await (nlus[req.params.botId] as ScopedEngine).storage.deleteIntent(req.params.intent)
+    const botEngine = nlus[req.params.botId] as ScopedEngine
+
+    await botEngine.storage.deleteIntent(req.params.intent)
+    await syncNLU(botEngine)
+
     res.sendStatus(204)
   })
 
   router.post('/intents/:intent', async (req, res) => {
-    await (nlus[req.params.botId] as ScopedEngine).storage.saveIntent(req.params.intent, req.body)
+    const botEngine = nlus[req.params.botId] as ScopedEngine
+    await botEngine.storage.saveIntent(req.params.intent, req.body)
+    await syncNLU(botEngine)
+
     res.sendStatus(201)
   })
 
@@ -34,7 +59,10 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const { botId } = req.params
     const entity = content as sdk.NLU.EntityDefinition
 
-    await (nlus[botId] as ScopedEngine).storage.saveEntity(entity)
+    const botEngine = nlus[botId] as ScopedEngine
+    await botEngine.storage.saveEntity(entity)
+    await syncNLU(botEngine)
+
     res.sendStatus(201)
   })
 
@@ -43,38 +71,20 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const { botId, id } = req.params
     const updatedEntity = content as sdk.NLU.EntityDefinition
 
-    await (nlus[botId] as ScopedEngine).storage.saveEntity({ ...updatedEntity, id })
+    const botEngine = nlus[botId] as ScopedEngine
+    await botEngine.storage.saveEntity({ ...updatedEntity, id })
+    await syncNLU(botEngine)
+
     res.sendStatus(201)
   })
 
   router.delete('/entities/:id', async (req, res) => {
     const { botId, id } = req.params
-    await (nlus[botId] as ScopedEngine).storage.deleteEntity(id)
+    const botEngine = nlus[botId] as ScopedEngine
+    await botEngine.storage.deleteEntity(id)
+    await syncNLU(botEngine)
+
     res.sendStatus(204)
-  })
-
-  router.post('/sync', async (req, res) => {
-    if (!await nlus[req.params.botId].checkSyncNeeded()) {
-      return res.sendStatus(200)
-    }
-
-    const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
-    try {
-      await nlus[req.params.botId].sync()
-      res.sendStatus(200)
-    } catch (e) {
-      bp.realtime.sendPayload(
-        bp.RealTimePayload.forAdmins('toast.nlu-sync', {
-          text: `NLU Sync Error: ${e.name} : ${e.message}`,
-          type: 'error'
-        })
-      )
-      res.status(500).send(`${e.name} : ${e.message}`)
-    }
-
-    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
   })
 
   router.post('/extract', async (req, res) => {

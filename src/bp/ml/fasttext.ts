@@ -1,4 +1,3 @@
-import { reject, resolve } from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { VError } from 'verror'
 
@@ -33,6 +32,11 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
   }
 
   constructor(private lazy: boolean = true, private keepInMemory = false) {}
+
+  cleanup() {
+    this._modelPromise = undefined
+    this._queryPromise = undefined
+  }
 
   async trainToFile(
     method: sdk.MLToolkit.FastText.TrainCommand,
