@@ -307,6 +307,8 @@ declare module 'botpress/sdk' {
       export const SKIP_QNA_PROCESSING: symbol
       /** When this flag is active, Botpress Native NLU will not process this event */
       export const SKIP_NATIVE_NLU: symbol
+      /** When this flag is active, the Event State is persisted even if the dialog engine is skipped */
+      export const FORCE_PERSIST_STATE: symbol
     }
 
     /**
@@ -739,6 +741,9 @@ declare module 'botpress/sdk' {
      * @example http://localhost:3000/
      * */
     baseURL: string
+    headers: {
+      Authorization: string
+    }
   }
 
   /**
@@ -782,7 +787,7 @@ declare module 'botpress/sdk' {
      * Parse the body as JSON when possible
      * @default true
      */
-    enableJsonBodyParser: RouterCondition
+    enableJsonBodyParser?: RouterCondition
   }
 
   /**

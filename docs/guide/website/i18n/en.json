@@ -38,11 +38,8 @@
       "developers/create-module": {
         "title": "Creating Modules"
       },
-      "developers/migrate-from-10": {
-        "title": "Migrating from 10.X"
-      },
       "developers/migrate": {
-        "title": "Migrating from 11.3"
+        "title": "Migration"
       },
       "developers/release-notes": {
         "title": "Release Notes"
@@ -187,6 +184,27 @@
       },
       "version-11.4.0-versions": {
         "title": "Version control"
+      },
+      "version-11.5.0-channels": {
+        "title": "Messaging Channels"
+      },
+      "version-11.5.0-code": {
+        "title": "Custom Code"
+      },
+      "version-11.5.0-hosting": {
+        "title": "Hosting & Environment"
+      },
+      "version-11.5.0-cluster": {
+        "title": "Server Cluster"
+      },
+      "version-11.5.0-sync-changes": {
+        "title": "Syncing Changes"
+      },
+      "version-11.5.0-about-pro": {
+        "title": "About"
+      },
+      "version-11.5.0-licensing": {
+        "title": "Licensing"
       }
     },
     "links": {

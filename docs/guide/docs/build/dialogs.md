@@ -65,8 +65,8 @@ You can define an onReceive instruction that will **always** be executed before 
 > - Authentication Gate: Run some authentication
 > - Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
 
-To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
-![GIF showing how to show the Flow Properties pop up](assets/GettingStarted_TriviaFlows_FlowWideOnReceive.gif)
+To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. You can also click on the links in the top left corner of the flow editor. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
+![Flow Properties](assets/flow_wide_onreceive.png)
 
 #### onNext
 

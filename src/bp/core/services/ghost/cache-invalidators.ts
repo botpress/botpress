@@ -4,6 +4,7 @@ import { ObjectCache } from 'common/object-cache'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 
+import { forceForwardSlashes } from '../../misc/utils'
 import { TYPES } from '../../types'
 
 export namespace CacheInvalidators {
@@ -71,7 +72,7 @@ export namespace CacheInvalidators {
         return
       }
 
-      const relativePath = path.relative(process.PROJECT_LOCATION, path.dirname(file))
+      const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, path.dirname(file)))
       this.cache.events.emit('invalidation', relativePath)
       this.cache.invalidateStartingWith(relativePath)
     }

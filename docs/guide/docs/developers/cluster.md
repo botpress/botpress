@@ -46,27 +46,9 @@ To enable server clustering:
    - Make it accessible by each BP nodes
    - Create a new database
 
-4) Before creating your nodes, we need to initialize the database and setup the license.
+4. Create a droplet (_Ubuntu Docker 18.06_) for each BP node you want to use. We will use the first one to configure the database and licensing of our cluster.
 
-   - Download the Botpress binary that matches your Docker image version.
-   - Create a file named `.env` in the same folder as the executable and configure the DB URL:
-
-   ```yml
-   DATABASE=postgres
-   DATABASE_URL=postgres://user:pass@host/dbName
-   PRO_ENABLED=true
-   EXTERNAL_URL=https://yourbot.yourhostname.com
-   ```
-
-   - Start Botpress and access the admin interface
-   - In the upper right corner, open the menu and click `Server settings`
-   - Purchase or enter your license key, then close the server.
-   - Edit the `.env` file and add the entry `BP_PRODUCTION=true`
-   - Start Botpress again. At this point, your local content, user account and license are stored in the database.
-
-5. Create a droplet (_Ubuntu Docker 18.06_) for each Botpress instances you want to run.
-
-6. Create a `server.yml` file which will specify which Docker image to use and required environment variables. Upload this file on each nodes:
+5. Create a `server.yml` file and upload it on the first droplet. This file identifies which Docker image we will use and sets the required environment variables.
 
 ```yml
 version: '3.5'
@@ -78,13 +60,25 @@ services:
       - DATABASE=postgres
       - DATABASE_URL=postgres://user:pass@host/dbName
       - PRO_ENABLED=true
-      - BP_PRODUCTION=true
-      - CLUSTER_ENABLED=true
-      - REDIS_URL=redis://host:port?password=yourpw
       - EXTERNAL_URL=https://yourbot.yourhostname.com
+      - BP_PRODUCTION=true
     command: './bp'
     ports:
       - '3000:3000'
 ```
 
-7. Start your Botpress instances: `docker-compose -f server.yml up -d`
+6. Start your Botpress node using Docker compose with this command: `docker-compose -f server.yml up -d`
+
+   - Open your browser and access the Botpress Admin Panel
+   - In the upper right corner, open the menu and click `Server settings`
+   - Purchase or enter your license key, then close the server.
+   - Edit the `server.yml` file and add your Redis configuration in the `environment` section:
+
+```yml
+- CLUSTER_ENABLED=true
+- REDIS_URL=redis://host:port?password=yourpw
+```
+
+7. Upload the file `server.yml` file on each nodes created in step 4
+
+8. Run the command `docker-compose -f server.yml up -d` on each node, and your Botpress Cluster is ready !

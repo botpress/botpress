@@ -102,6 +102,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onFlowChanged,
   skills,
   botTemplates,
   definition: {
@@ -164,6 +165,18 @@ const onBotUnmount = async (botId: string) => {
 }
 ```
 
+### onFlowChanged
+
+This method is called whenever a node is renamed in a flow. This allows you to update your module's data so you are up-to-date with the new changes. For more information on how to implement this metho, please refer yourself to our implementation in the [QNA Module](https://github.com/botpress/botpress/blob/master/modules/qna/src/backend/index.ts)
+
+Example:
+
+```js
+const onFlowChanged = async (bp: SDK, botId: string, flow: Flow) => {
+  ...
+}
+```
+
 ### skills
 
 When you create new skills, they need a way to generate the custom flow that will be used by the dialog engine. Skills defined here will be displayed in the flow editor in the drop down menu.
@@ -209,6 +222,8 @@ All modules are isolated and receives their own instance of `bp`
 ### Consuming API externally or from another module
 
 The Botpress SDK exposes a method to get the axios headers for a request. It will automatically sets the base URL for the request, and will set the required headers to communicate with the specific bot. This method is `bp.http.getAxiosConfigForBot('bot123')`
+
+The method also accepts a second parameter with additional options. Right now, the only available option is `localUrl`. When set to true, the module will communicate with the local url instead of the external one. Ex: `bp.http.getAxiosConfigForBot('bot123', { localUrl: true })`
 
 Once you have this, you simply have to call the axios method of your choice, and add the config as the last parameter. Example:
 
