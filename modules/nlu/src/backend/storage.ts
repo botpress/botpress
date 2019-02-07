@@ -85,7 +85,9 @@ export default class Storage {
     try {
       properties = JSON.parse(propertiesContent)
     } catch (err) {
-      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}"`)
+      throw new Error(
+        `Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}" in file "${filename}"`
+      )
     }
 
     const obj = {
