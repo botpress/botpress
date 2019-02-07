@@ -209,9 +209,7 @@ export class ScopedGhostService {
     if (!(await this.isFullySynced())) {
       const scUrl = `/admin/settings/version`
       this.logger.warn(
-        `Found unsynced file changes in "${
-          this.baseDir
-        }". Visit '${scUrl}' to save changes back to your Source Control.`
+        `You have changes on your production environment that aren't synced on your local file system. Visit '${scUrl}' to save changes back to your Source Control.`
       )
       return
     }
