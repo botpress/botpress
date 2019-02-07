@@ -77,10 +77,17 @@ try {
         const isProBuild = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
-        if (isProBuild && fs.existsSync(configPath)) {
-          const config = require(configPath)
-          process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || (config.pro && config.pro.enabled)
+        if (isProBuild) {
           process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
+
+          if (process.env.PRO_ENABLED === undefined) {
+            if (fs.existsSync(configPath)) {
+              const config = require(configPath)
+              process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+            }
+          } else {
+            process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+          }
         }
 
         require('./bootstrap')
