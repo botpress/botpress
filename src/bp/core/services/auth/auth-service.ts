@@ -86,6 +86,8 @@ export default class AuthService {
     const config = await this.configProvider.getBotpressConfig()
     const strategy = _.get(config, 'pro.auth.strategy', 'basic')
 
+    this.stats.track('user', 'create', strategy)
+
     if (strategy === 'basic') {
       return this.createBasicUser(user)
     } else {
