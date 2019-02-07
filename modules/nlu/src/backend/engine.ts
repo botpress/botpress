@@ -37,6 +37,7 @@ export default class ScopedEngine {
   }
 
   private _isSyncing: boolean
+  private _isSyncingTwice: boolean
   private _autoSyncInterval: number = 0
   private _autoSyncTimer: NodeJS.Timer
 
@@ -75,6 +76,11 @@ export default class ScopedEngine {
   }
 
   async sync(): Promise<void> {
+    if (this._isSyncing) {
+      this._isSyncingTwice = true
+      return
+    }
+
     try {
       this._isSyncing = true
       const intents = await this.storage.getIntents()
@@ -96,6 +102,10 @@ export default class ScopedEngine {
       this._preloaded = true
     } finally {
       this._isSyncing = false
+      if (this._isSyncingTwice) {
+        this._isSyncingTwice = false
+        this.sync() // This floating promise is voluntary
+      }
     }
   }
 

@@ -14,8 +14,6 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  model: sdk.MLToolkit.FastText.Model
-
   constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
   private sanitizeText(text: string): string {
@@ -63,8 +61,6 @@ export default class FastTextClassifier implements IntentClassifier {
       epoch: 50,
       lr: 0.8
     })
-
-    this.model = ft
 
     return { ft, data: readFileSync(modelFn) }
   }
