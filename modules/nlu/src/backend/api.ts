@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
+import { validate } from 'joi'
 
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
+import { IntentDefCreateSchema } from './validation'
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -41,12 +43,21 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.sendStatus(204)
   })
 
-  router.post('/intents/:intent', async (req, res) => {
-    const botEngine = nlus[req.params.botId] as ScopedEngine
-    await botEngine.storage.saveIntent(req.params.intent, req.body)
-    await syncNLU(botEngine)
+  router.post('/intents', async (req, res) => {
+    try {
+      const intentDef = await validate(req.body, IntentDefCreateSchema, {
+        stripUnknown: true
+      })
 
-    res.sendStatus(201)
+      const botEngine = nlus[req.params.botId] as ScopedEngine
+      await botEngine.storage.saveIntent(intentDef.name, intentDef)
+      await syncNLU(botEngine)
+
+      res.sendStatus(201)
+    } catch (err) {
+      bp.logger.attachError(err).warn('Cannot create intent, imvalid schema')
+      res.status(400).send('Cannot create intent, imvalid schema')
+    }
   })
 
   router.get('/entities', async (req, res) => {
@@ -55,6 +66,8 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.post('/entities', async (req, res) => {
+    // TODO validate entity schema
+
     const content = req.body
     const { botId } = req.params
     const entity = content as sdk.NLU.EntityDefinition
