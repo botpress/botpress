@@ -7,6 +7,7 @@ const gulp = require('gulp')
 const glob = require('glob')
 const print = require('gulp-print').default
 const mkdirp = require('mkdirp')
+const { symlink } = require('gulp')
 
 const cwd = path.join(__dirname, '../modules')
 
@@ -141,4 +142,13 @@ const buildSdk = () => {
   return gulp.series([copySdkDefinitions])
 }
 
-module.exports = { build, buildSdk, buildModules, packageModules, buildModuleBuilder }
+const createModuleAssetsSymlink = cb => {
+  const moduleName = _.last(process.argv)
+
+  console.log(`Creating symlink for module "${moduleName}"`)
+  return gulp
+    .src(`./modules/${moduleName}/assets/`)
+    .pipe(symlink(`./out/bp/assets/modules/${moduleName}/`, { type: 'dir' }))
+}
+
+module.exports = { build, buildSdk, buildModules, packageModules, buildModuleBuilder, createModuleAssetsSymlink }

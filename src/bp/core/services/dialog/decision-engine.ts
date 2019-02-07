@@ -80,6 +80,7 @@ export class DecisionEngine {
         })
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
         await this.stateManager.persist(processedEvent, false)
+        return
       } catch (err) {
         this.logger
           .forBot(event.botId)
@@ -87,6 +88,10 @@ export class DecisionEngine {
           .error('An unexpected error occurred.')
         await this._sendErrorMessage(event)
       }
+    }
+
+    if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
+      await this.stateManager.persist(event, false)
     }
   }
 
