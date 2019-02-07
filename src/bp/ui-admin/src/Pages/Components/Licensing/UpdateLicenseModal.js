@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Modal, ModalHeader, ModalBody, Row, Col, Button } from 'reactstrap'
+import { Modal, ModalHeader, ModalBody, Row, Col, Button, Input, Label } from 'reactstrap'
 
 import CustomizeLicenseForm from './CustomizeLicenseForm'
 import api from '../../../api'
@@ -8,6 +8,7 @@ const DEFAULT_STATE = {
   isLoading: false,
   isDirty: false,
   error: false,
+  termsRead: false,
   seats: 0,
   total: 0,
   label: ''
@@ -19,6 +20,10 @@ export default class UpdateLicenseModal extends React.Component {
   toggle = () => {
     this.setState({ ...DEFAULT_STATE })
     this.props.toggle()
+  }
+
+  toggleReadTerms = () => {
+    this.setState({ termsRead: !this.state.termsRead })
   }
 
   handleDetailsUpdated = details => this.setState({ order: details, isDirty: true })
@@ -55,16 +60,27 @@ export default class UpdateLicenseModal extends React.Component {
           <CustomizeLicenseForm onUpdate={this.handleDetailsUpdated} license={license} />
         </div>
         <span className="text-small">
-          <strong>Current total:</strong> {license.cost}$
+          <strong>Current total:</strong> {license.cost || 0}$
         </span>
         <Row className="align-items-center">
-          <Col md="6">
+          <Col md="4">
             <strong>
-              New total: <span className="text-brand">{this.state.order && this.state.order.totalPrice}$</span>
+              New total: <span className="text-brand">{(this.state.order && this.state.order.totalPrice) || 0}$</span>
             </strong>
           </Col>
-          <Col md="6" className="text-right">
-            <Button color="primary" onClick={this.updateLicense} disabled={!this.state.isDirty || this.state.isLoading}>
+          <Col md="4">
+            <Input type="checkbox" name="terms" onChange={this.toggleReadTerms} />
+            <Label check>
+              I accept the <a href="https://botpress.io/company/terms/">Terms of Service</a> and the{' '}
+              <a href="https://botpress.io/company/terms/">Privacy Policy</a>
+            </Label>
+          </Col>
+          <Col md="4" className="text-right">
+            <Button
+              color="primary"
+              onClick={this.updateLicense}
+              disabled={!this.state.isDirty || this.state.isLoading || !this.state.termsRead}
+            >
               Confirm
             </Button>
           </Col>

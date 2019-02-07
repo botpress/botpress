@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser'
-import { AxiosBotConfig, Logger, RouterOptions } from 'botpress/sdk'
+import { AxiosBotConfig, AxiosOptions, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -107,14 +107,15 @@ export default class HTTPServer {
       notificationService,
       authService,
       ghostService,
-      workspaceService
+      workspaceService,
+      logger: this.logger
     })
   }
 
   @postConstruct()
   async initialize() {
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.authService, this.cmsService, this.workspaceService)
+    this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
@@ -182,6 +183,7 @@ export default class HTTPServer {
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+    process.LOCAL_URL = `http://${process.HOST}:${process.PORT}`
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
@@ -230,9 +232,10 @@ export default class HTTPServer {
     this.shortlinksRouter.deleteShortLink(name)
   }
 
-  async getAxiosConfigForBot(botId: string): Promise<AxiosBotConfig> {
+  async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
+    const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
     return {
-      baseURL: `${process.EXTERNAL_URL}/api/v1/bots/${botId}`
+      baseURL: `${basePath}/api/v1/bots/${botId}`
     }
   }
 }

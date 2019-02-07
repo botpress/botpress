@@ -1,9 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
+import { NavLink, withRouter } from 'react-router-dom'
 import classnames from 'classnames'
 import { Collapse } from 'react-bootstrap'
+import _ from 'lodash'
+
 import PermissionsChecker from './PermissionsChecker'
 
 const style = require('./Sidebar.scss')
@@ -29,8 +31,7 @@ class Sidebar extends React.Component {
   }
 
   state = {
-    nluCollapseOpen: false,
-    activeLink: undefined
+    nluCollapseOpen: false
   }
 
   componentWillMount() {
@@ -43,24 +44,14 @@ class Sidebar extends React.Component {
     this.state.mql.removeListener(this.mediaQueryChanged)
   }
 
-  mediaQueryChanged = () => {
-    this.setState({ sidebarDocked: this.state.mql.matches })
-  }
+  mediaQueryChanged = () => this.setState({ sidebarDocked: this.state.mql.matches })
 
   toggleNluCollapse = event => {
     event.preventDefault()
     this.setState({ nluCollapseOpen: !this.state.nluCollapseOpen })
   }
 
-  handleSideBarLeave = () => {
-    this.setState({ nluCollapseOpen: false })
-  }
-
-  // FIXME: This is a workaround an open issue with the NavLink
-  // see: https://github.com/ReactTraining/react-router/issues/6201
-  onLinkClick = path => {
-    this.setState({ activeLink: path })
-  }
+  handleSideBarLeave = () => this.setState({ nluCollapseOpen: false })
 
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
@@ -69,22 +60,23 @@ class Sidebar extends React.Component {
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
       ) : (
-          <i className="icon material-icons" style={{ marginRight: '5px' }}>
-            {module.menuIcon}
-          </i>
-        )
+        <i className="icon material-icons" style={{ marginRight: '5px' }}>
+          {module.menuIcon}
+        </i>
+      )
 
-    const navClasses = this.state.activeLink === path ? style.active : ''
     const entitiesPath = path + '/entities'
     const intentsPath = path + '/intents'
-    const nluActiveClass =
-      this.state.activeLink === entitiesPath || this.state.activeLink === intentsPath ? style.active : ''
+
+    const isNluActive = _.get(this.context.router, 'route.location.pathname', '')
+      .toLowerCase()
+      .includes('/modules/nlu/')
 
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse} className={classnames(nluActiveClass, style.link)}>
+          <a onClick={this.toggleNluCollapse} className={classnames(style.link, { [style.active]: isNluActive })}>
             {moduleIcon}
             <span>Understanding</span>
           </a>
@@ -93,19 +85,19 @@ class Sidebar extends React.Component {
               <li className={style.mainMenu__item}>
                 <NavLink
                   to={entitiesPath}
+                  activeClassName={style.active}
                   title={module.menuText}
-                  onClick={() => this.onLinkClick(entitiesPath)}
-                  className={classnames(style.mainMenu__link, navClasses)}
+                  className={style.mainMenu__link}
                 >
                   <span>Entities</span>
                 </NavLink>
               </li>
               <li className={style.mainMenu__item}>
                 <NavLink
+                  activeClassName={style.active}
                   to={intentsPath}
                   title={module.menuText}
-                  className={classnames(style.mainMenu__link, navClasses)}
-                  onClick={() => this.onLinkClick(intentsPath)}
+                  className={style.mainMenu__link}
                 >
                   <span>Intents</span>
                 </NavLink>
@@ -117,7 +109,7 @@ class Sidebar extends React.Component {
     } else {
       return (
         <li key={`menu_module_${module.name}`}>
-          <NavLink to={path} title={module.menuText} className={navClasses} onClick={() => this.onLinkClick(path)}>
+          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
             {moduleIcon}
             <span>{module.menuText}</span>
           </NavLink>
@@ -126,26 +118,19 @@ class Sidebar extends React.Component {
     }
   }
 
-  renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => {
-    return (
-      <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
-        <li key={path}>
-          <NavLink
-            to={path}
-            title={name}
-            className={classnames(this.state.activeLink === path ? style.active : '')}
-            onClick={() => this.onLinkClick(path)}
-          >
-            <i className="icon material-icons" style={{ marginRight: '5px' }}>
-              {icon}
-            </i>
-            {name}
-            {renderSuffix && renderSuffix()}
-          </NavLink>
-        </li>
-      </PermissionsChecker>
-    )
-  }
+  renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
+    <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
+      <li key={path}>
+        <NavLink to={path} title={name} activeClassName={style.active}>
+          <i className="icon material-icons" style={{ marginRight: '5px' }}>
+            {icon}
+          </i>
+          {name}
+          {renderSuffix && renderSuffix()}
+        </NavLink>
+      </li>
+    </PermissionsChecker>
+  )
 
   render() {
     const modules = this.props.modules
@@ -178,4 +163,4 @@ const mapStateToProps = state => ({
   modules: state.modules
 })
 
-export default connect(mapStateToProps)(Sidebar)
+export default withRouter(connect(mapStateToProps)(Sidebar))

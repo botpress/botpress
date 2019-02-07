@@ -2,20 +2,19 @@ import { Logger } from 'botpress/sdk'
 import { Router } from 'express'
 import qs from 'querystring'
 
-import { CustomRouter } from '.'
+import { CustomRouter } from './customRouter'
 
-export class ShortLinksRouter implements CustomRouter {
-  public readonly router: Router
+export class ShortLinksRouter extends CustomRouter {
   private shortlinks: Map<string, string>
 
   constructor(private logger: Logger) {
+    super('Shortlinks', logger, Router({ mergeParams: true }))
     this.shortlinks = new Map<string, string>()
-    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 
   private setupRoutes(): void {
-    this.router.get('/:name', async (req, res) => {
+    this.router.get('/:name', (req, res) => {
       const name = req.params.name
       let link = name && this.shortlinks.get(name)
 

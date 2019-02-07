@@ -4,18 +4,15 @@ import { ConverseService } from 'core/services/converse'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
-import { asyncMiddleware, checkTokenHeader } from '../util'
+import { CustomRouter } from '../customRouter'
+import { checkTokenHeader } from '../util'
 
-export class ConverseRouter implements CustomRouter {
-  public readonly router: Router
-  private asyncMiddleware!: Function
+export class ConverseRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
-  constructor(private logger: Logger, private converseService: ConverseService, private authService: AuthService) {
-    this.asyncMiddleware = asyncMiddleware({ logger })
+  constructor(logger: Logger, private converseService: ConverseService, private authService: AuthService) {
+    super('Converse', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
 
@@ -26,8 +23,8 @@ export class ConverseRouter implements CustomRouter {
         const { userId, botId } = req.params
         const params = req.query.include
 
-        if (params && params.includes('state')) {
-          return res.send("The state can't be provided on a non-secure route").status(401)
+        if (params && params.toLowerCase() !== 'responses') {
+          return res.status(401).send("Unauthenticated converse API can only return 'responses'")
         }
 
         const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
@@ -56,8 +53,17 @@ export class ConverseRouter implements CustomRouter {
     if (!parts.includes('nlu')) {
       delete output.nlu
     }
+
     if (!parts.includes('state')) {
       delete output.state
+    }
+
+    if (!parts.includes('suggestions')) {
+      delete output.suggestions
+    }
+
+    if (!parts.includes('decision')) {
+      delete output.decision
     }
 
     return output

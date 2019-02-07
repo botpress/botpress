@@ -8,7 +8,7 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '..'
+import { CustomRouter } from '../customRouter'
 import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
 
 import { BotsRouter } from './bots'
@@ -17,8 +17,7 @@ import { RolesRouter } from './roles'
 import { UsersRouter } from './users'
 import { VersioningRouter } from './versioning'
 
-export class AdminRouter implements CustomRouter {
-  public readonly router: Router
+export class AdminRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
   private botsRouter!: BotsRouter
   private usersRouter!: UsersRouter
@@ -35,12 +34,12 @@ export class AdminRouter implements CustomRouter {
     private licenseService: LicensingService,
     private ghostService: GhostService
   ) {
-    this.router = Router({ mergeParams: true })
+    super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
-    this.versioningRouter = new VersioningRouter(this.ghostService, this.botService)
+    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.loadUser = loadUser(this.authService)
 
@@ -50,15 +49,21 @@ export class AdminRouter implements CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/permissions', async (req, res) => {
-      const { permissions, operation, resource } = req.body
-      const valid = checkRule(permissions, operation, resource)
-      res.send(valid)
-    })
+    router.get(
+      '/permissions',
+      this.asyncMiddleware(async (req, res) => {
+        const { permissions, operation, resource } = req.body
+        const valid = checkRule(permissions, operation, resource)
+        res.send(valid)
+      })
+    )
 
-    router.get('/all-permissions', async (req, res) => {
-      res.json(await this.authService.getResources())
-    })
+    router.get(
+      '/all-permissions',
+      this.asyncMiddleware(async (req, res) => {
+        res.json(await this.authService.getResources())
+      })
+    )
 
     this.router.get('/license', (req, res) => {
       const license = {

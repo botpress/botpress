@@ -10,16 +10,16 @@ export const NoneIntent: sdk.NLU.Intent = {
 }
 
 /**
- * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param std} standard deviation (outlier method).
+ * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param zThresh} standard deviation (outlier method) from the mean.
  * NOTE: If you ever need this in another context, we could move this into tools and replace the "intent" concept for a more generic "prediction"
  * @param intents
  * @param fixedThreshold
- * @param std number of standard deviation away. normally between 2 and 5
+ * @param zThresh number of standard deviation between 2 furthest from the mean
  */
 export function findMostConfidentIntentMeanStd(
   intents: sdk.NLU.Intent[],
   fixedThreshold: number,
-  std: number = 3
+  zThresh: number = 1.25
 ): sdk.NLU.Intent {
   if (!intents.length) {
     return NoneIntent
@@ -31,14 +31,19 @@ export function findMostConfidentIntentMeanStd(
     return best
   }
 
+  if (intents.length < 3) {
+    return NoneIntent
+  }
+
   const mean = _.meanBy<sdk.NLU.Intent>(intents, 'confidence')
-  const stdErr =
-    Math.sqrt(intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / intents.length) /
-    Math.sqrt(intents.length)
+  const stdDeviation = Math.sqrt(
+    intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / (intents.length - 1)
+  )
+  const zintents = intents
+    .map(intent => ({ intent, z: (intent.confidence - mean) / stdDeviation }))
+    .sort((a, b) => (a.z > b.z ? -1 : 1))
 
-  const dominant = intents.find(x => x.confidence >= stdErr * std + mean)
-
-  return dominant || NoneIntent
+  return zintents[0].z - zintents[1].z > zThresh ? zintents[0].intent : NoneIntent
 }
 
 export const createIntentMatcher = (intentName: string): ((pattern: string) => boolean) => {

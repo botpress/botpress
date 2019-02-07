@@ -1,10 +1,10 @@
-import { reject, resolve } from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { VError } from 'verror'
 
-const binding = require('./fasttext.node')
+const customFastTextPath = process.env.FAST_TEXT_PATH ? '!' + process.env.FAST_TEXT_PATH : undefined
+const binding = require(customFastTextPath || './fasttext.node')
 
-const FAST_TEXT_VERBOSOSITY = parseInt(process.env.FAST_TEXT_VERBOSOSITY || '0')
+const FAST_TEXT_VERBOSITY = parseInt(process.env.FAST_TEXT_VERBOSITY || '0')
 const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
 
 /** A wrapper class around the fasttext node bindings.
@@ -33,6 +33,11 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
 
   constructor(private lazy: boolean = true, private keepInMemory = false) {}
 
+  cleanup() {
+    this._modelPromise = undefined
+    this._queryPromise = undefined
+  }
+
   async trainToFile(
     method: sdk.MLToolkit.FastText.TrainCommand,
     modelPath: string,
@@ -43,7 +48,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
     await model.train(method, {
       ...args,
       output: outPath,
-      verbose: FAST_TEXT_VERBOSOSITY
+      verbose: FAST_TEXT_VERBOSITY
     })
     this._modelPath = outPath
 

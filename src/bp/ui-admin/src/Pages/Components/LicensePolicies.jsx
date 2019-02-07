@@ -23,6 +23,7 @@ export default class LicenseLimits extends React.Component {
     this.setState({ policies: [] })
 
     this.addPolicy('Admins', seats, this.getBreach('studio seats'))
+    this.addPolicy('Nodes', '', this.getBreach('nodes'))
     this.addPolicy('Version', versions, this.getBreach('version'))
     this.addPolicy('Start Date', moment(startDate).format('YYYY-MM-DD'), this.getBreach('date'))
     this.addPolicy('End Date', moment(endDate).format('YYYY-MM-DD'), this.getBreach('date'))

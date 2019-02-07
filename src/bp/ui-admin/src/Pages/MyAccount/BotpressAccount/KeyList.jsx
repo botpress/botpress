@@ -34,6 +34,10 @@ class KeyList extends Component {
     this.setState({ updateModalOpen: false })
   }
 
+  onUseOnServer = () => {
+    this.props.fetchLicensing()
+  }
+
   toggleUpdateModal = selectedLicense => {
     this.setState({
       updateModalOpen: !this.state.updateModalOpen,
@@ -91,7 +95,8 @@ class KeyList extends Component {
                 products={this.props.products}
                 clusterFingerprint={clusterFingerprint}
                 onRevealActivate={this.toggleKeyModal}
-                onLicenseUpdated={this.onLicenseUpdated}
+                onShowLicenseUpdateModal={this.toggleUpdateModal}
+                onUseOnServer={this.onUseOnServer}
               />
             ))}
         </tbody>
@@ -108,7 +113,11 @@ class KeyList extends Component {
               <FaFrownO />
               &nbsp;You have no keys
             </h1>
-            <p>License keys are necessary to enable Professional Edition</p>
+            <p>
+              License keys are necessary to enable Professional Edition. See{' '}
+              <a href="https://botpress.io/docs/pro/licensing">the docs</a> to learn how buy, and activate a pro
+              license.
+            </p>
             <Button size="sm" color="primary" onClick={this.toggleBuyModal}>
               <MdVpnKey />
               &nbsp;Buy your first key

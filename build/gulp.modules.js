@@ -137,4 +137,8 @@ const build = () => {
   return gulp.series([buildModuleBuilder, copySdkDefinitions, buildModules()])
 }
 
-module.exports = { build, copySdkDefinitions, buildModules, packageModules, buildModuleBuilder }
+const buildSdk = () => {
+  return gulp.series([copySdkDefinitions])
+}
+
+module.exports = { build, buildSdk, buildModules, packageModules, buildModuleBuilder }

@@ -56,20 +56,21 @@ export default class KeyListItem extends Component {
   }
 
   revealLicense = () => this.props.onRevealActivate(this.props.license)
-  updateLicense = () => this.props.onLicenseUpdated({ ...this.props.license, cost: this.state.cost })
+  showLicenseUpdateModal = () => this.props.onShowLicenseUpdateModal({ ...this.props.license, cost: this.state.cost })
   assignFingerprint = () => this.props.onRevealActivate({ ...this.props.license, assigned: false })
 
   useOnServer = async () => {
     this.setState({ isLoading: true })
 
     try {
-      const licenseKey = await this.activateWithServerFingerprint()
-      await this.updateServerKey(licenseKey)
-      this.props.onLicenseUpdated(licenseKey)
+      const key = await this.activateWithServerFingerprint()
+      await this.updateServerKey(key)
+      this.props.onLicenseUpdated({ ...this.props.license, fingerprint: this.props.clusterFingerprint, assigned: true })
     } catch (error) {
       console.log('error while setting up license')
     }
     this.setState({ isLoading: false })
+    this.props.onUseOnServer()
   }
 
   updateServerKey = async licenseKey => {
@@ -134,7 +135,7 @@ export default class KeyListItem extends Component {
           {license.assigned && <DropdownItem onClick={this.revealLicense}>Reveal License Key</DropdownItem>}
           <DropdownItem onClick={this.assignFingerprint}>Assign Fingerprint</DropdownItem>
           {this.props.clusterFingerprint && <DropdownItem onClick={this.useOnServer}>Use on this Server</DropdownItem>}
-          <DropdownItem onClick={this.updateLicense}>Update License</DropdownItem>
+          <DropdownItem onClick={this.showLicenseUpdateModal}>Update License</DropdownItem>
           {!license.canceled && <DropdownItem onClick={this.disableAutoRenew}>Disable Auto-Renew</DropdownItem>}
         </DropdownMenu>
       </UncontrolledButtonDropdown>

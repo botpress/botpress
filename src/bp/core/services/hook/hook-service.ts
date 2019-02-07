@@ -87,6 +87,18 @@ export namespace Hooks {
       this.folder = 'before_session_timeout'
     }
   }
+
+  export class BeforeSuggestionsElection implements BaseHook {
+    folder: string
+    args: any
+    timeout: number
+
+    constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
+      this.timeout = 1000
+      this.args = { bp, event, suggestions }
+      this.folder = 'before_suggestions_election'
+    }
+  }
 }
 
 class HookScript {

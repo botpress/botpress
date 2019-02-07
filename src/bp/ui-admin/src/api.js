@@ -21,7 +21,7 @@ const createClient = (clientOptions, { toastErrors, addInterceptor }) => {
       const wrappedError = _.get(error, 'response.data')
       const errorCode = _.get(wrappedError, 'errorCode')
       if (errorCode) {
-        if (errorCode === 'BP_0005') {
+        if (['BP_0005', 'BP_0041', 'BP_000'].includes(errorCode)) {
           return logout()
         }
         return Promise.reject(wrappedError)

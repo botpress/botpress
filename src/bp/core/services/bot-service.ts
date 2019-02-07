@@ -147,8 +147,11 @@ export class BotService {
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
+      this._invalidateBotIds()
     } catch (err) {
-      this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
+      this.logger
+        .attachError(err)
+        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
     }
   }
 
@@ -163,6 +166,7 @@ export class BotService {
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
     BotService._mountedBots.set(botId, false)
+    this._invalidateBotIds()
   }
 
   private _invalidateBotIds(): void {

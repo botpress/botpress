@@ -22,7 +22,8 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
         event.suggestions.push({
           confidence: result.confidence,
           payloads: [{ type: 'text', text: details, markdown: true }],
-          intent: 'kdb' // TODO: remove intent requirement in decision engine, add source
+          source: 'knowledge',
+          sourceDetails: `Doc: ${name} Page: ${page} Paragraph: ${paragraph}`
         })
       }
 

@@ -169,3 +169,13 @@ This hook is called right before a user timeouts on a node.
 Location: `data/global/hooks/before_session_timeout`
 
 Parameters: `bp`, `event`
+
+### Before Suggestions Election
+
+This hook is called after the Decision Engine Ranking, but before the Suggestion Election. This allows you to override the ranking of the Decision Engine by altering the `event.suggestions` array directly.
+
+Location: `data/global/hooks/before_suggestions_election`
+
+Parameters: `bp`, `event`, `suggestions`, `sessionId`
+
+A common operation here is to add a new (elected) suggestion when there is no elected winner.

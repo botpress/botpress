@@ -9,7 +9,7 @@ title: Messaging Channels
 
 The JSON Channel is an easy way to integrate Botpress with any application or any other channels. This API will allow you to speak to your bot and get an answer synchronously.
 
-#### How to uses
+#### Usage (Public API)
 
 `POST /api/v1/bots/{botId}/converse/{userId}` where **userId** is a unique string identifying a user that chats with your bot (**botId**).
 
@@ -22,14 +22,22 @@ The JSON Channel is an easy way to integrate Botpress with any application or an
 }
 ```
 
-#### Optionnal Data
+#### Usage (Debug API)
 
-You can include more data to your response by using the `?include=nlu,state` query params.
+There's also a secured route (requires authentication to Botpress to consume this API). Using this route, you can include more data to your response by using the `include` query params separated by commas.
+
+##### Example
+
+```
+POST /api/v1/bots/{botId}/converse/{userId}/secured?include=nlu,state,suggestions,decision
+```
 
 Possible options:
 
 - **nlu**: The output of Botpress NLU
 - **state**: The state object of the user conversation
+- **suggestions**: The reply suggestions made by the modules
+- **decision**: The final decision made by the Decision Engine
 
 ##### API Response
 

@@ -30,6 +30,8 @@ class Bench {
   isVerbose: boolean
   interval: NodeJS.Timeout | undefined
 
+  maxMpsReached: number = 0
+
   constructor(args) {
     this.url = args.url
     this.botId = args.botId
@@ -61,7 +63,7 @@ class Bench {
       }
 
       if (this.stats.isSlaBreached()) {
-        this.log('SLA breached. Stopping tests')
+        this.log(`SLA breached. Stopping tests. Max MPS reached: ${this.maxMpsReached}`)
         break
       }
 
@@ -140,10 +142,15 @@ class Bench {
   displaySummary = () => {
     const { overSlaCount, minLatency, maxLatency } = this.stats
     const slaDetails = `${overSlaCount} messages were over configured SLA (${this.stats.getPctOverSla()}%)`
+    const avgMps = this.stats.calculateMps()
+
+    if (avgMps > this.maxMpsReached) {
+      this.maxMpsReached = avgMps
+    }
 
     const summary = `
   Messages Sent: ${this.stats.messagesCount} in ${this.stats.getElapsedSeconds()}s
-  Average MPS: ${this.stats.calculateMps()}
+  Average MPS: ${avgMps}
   SLA Breached: ${this.stats.isSlaBreached()}. ${overSlaCount > 0 ? slaDetails : ''}
 
   Request Latency:

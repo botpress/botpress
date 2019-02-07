@@ -47,6 +47,8 @@ process.on('uncaughtException', err => {
 })
 
 try {
+  require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
+
   const argv = require('yargs')
     .command(
       ['serve', '$0'],
@@ -75,10 +77,17 @@ try {
         const isProBuild = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
-        if (isProBuild && fs.existsSync(configPath)) {
-          const config = require(configPath)
-          process.IS_PRO_ENABLED = config.pro && config.pro.enabled
-          process.CLUSTER_ENABLED = config.pro && config.pro.redis && config.pro.redis.enabled
+        if (isProBuild) {
+          process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
+
+          if (process.env.PRO_ENABLED === undefined) {
+            if (fs.existsSync(configPath)) {
+              const config = require(configPath)
+              process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+            }
+          } else {
+            process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+          }
         }
 
         require('./bootstrap')

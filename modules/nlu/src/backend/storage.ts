@@ -14,16 +14,13 @@ export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
 
   private readonly ghost: ScopedGhostService
-  private readonly intentsDir: string
-  private readonly entitiesDir: string
-  private readonly modelsDir: string
+  private readonly intentsDir: string = './intents'
+  private readonly entitiesDir: string = './entities'
+  private readonly modelsDir: string = './models'
   private readonly config: Config
 
   constructor(config: Config, private readonly botId: string) {
     this.config = config
-    this.intentsDir = config.intentsDir
-    this.entitiesDir = config.entitiesDir
-    this.modelsDir = config.modelsDir
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
@@ -85,7 +82,9 @@ export default class Storage {
     try {
       properties = JSON.parse(propertiesContent)
     } catch (err) {
-      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}"`)
+      throw new Error(
+        `Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}" in file "${filename}"`
+      )
     }
 
     const obj = {
@@ -217,7 +216,7 @@ export default class Storage {
           type: parts[3]
         }
       })
-      .filter(x => typeof x !== 'undefined')
+      .filter(x => !!x)
   }
 
   async modelExists(modelHash: string): Promise<boolean> {

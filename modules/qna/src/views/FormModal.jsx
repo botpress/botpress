@@ -21,7 +21,7 @@ export default class FormModal extends Component {
       redirectFlow: '',
       redirectNode: '',
       action: ACTIONS.TEXT,
-      category: '',
+      category: 'global',
       enabled: true
     },
     invalidFields: {
@@ -210,7 +210,7 @@ export default class FormModal extends Component {
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
                   })}
-                  value={this.state.item.category || categories[0].value}
+                  value={this.state.item.category}
                   options={categories}
                   onChange={this.handleSelect('category')}
                   placeholder="Search or choose category"

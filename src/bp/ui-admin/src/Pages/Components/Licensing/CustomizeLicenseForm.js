@@ -101,8 +101,8 @@ class CustomizeLicenseForm extends Component {
           </thead>
           <tbody>
             <PriceItem
-              title="Pro License"
-              description="This is the basic license, it allows you unlimited admins, unlimited bots, but only on one node."
+              title="Botpress License"
+              description="This is the basic license, it allows you to add unlimited collaborators, unlimited bots and run botpress on a single node."
               price={this.getPrice('pro') + '$'}
               total={this.getPrice('pro')}
             >
@@ -117,7 +117,7 @@ class CustomizeLicenseForm extends Component {
               title="Additional Nodes"
               description="Scale your Botpress installation by adding multiple nodes in the same cluster"
               price={this.getPrice('full-time-node') + '$ each'}
-              total={this.state.totalNodes}
+              total={this.state.totalNodes || 0}
             >
               <Input
                 type="number"
@@ -133,7 +133,7 @@ class CustomizeLicenseForm extends Component {
             </PriceItem>
             <PriceItem
               title="Gold Support"
-              description="Technical questions by email, support center or phone. Priority bug fixes. Same-day reply (10AM - 4PM EST)."
+              description="Technical questions by email. Engineer to engineer. Priority bug fixes. Same-day reply (9AM - 4PM EST). Maximum of 8 tickets per month."
               price={this.getPrice('gold-support') + '$'}
               total={this.state.totalGoldSupport}
             >
@@ -146,13 +146,14 @@ class CustomizeLicenseForm extends Component {
             </PriceItem>
             <PriceItem
               type="checkbox"
-              title="Part-Time Nodes"
+              title="Part-Time Nodes (available soon)"
               description="Allows you to enable on-demand additional nodes, billed by the hour"
               price={this.getPrice('part-time-node') + '$ per hour'}
             >
               <Input
                 type="checkbox"
                 name="isPartTimeEnabled"
+                disabled={true}
                 checked={this.state.isPartTimeEnabled}
                 onChange={this.handleCheckboxChanged}
               />
@@ -162,7 +163,7 @@ class CustomizeLicenseForm extends Component {
               <td align="right">
                 <b>Total: </b>
               </td>
-              <td>{this.state.totalPrice}$</td>
+              <td>{this.state.totalPrice || 0}$ / month</td>
             </tr>
           </tbody>
         </table>

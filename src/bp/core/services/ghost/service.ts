@@ -158,9 +158,14 @@ export class ScopedGhostService {
   objectCacheKey = str => `string::${str}`
   bufferCacheKey = str => `buffer::${str}`
 
-  private async invalidateFile(fileName: string) {
+  private async _invalidateFile(fileName: string) {
     await this.cache.invalidate(this.objectCacheKey(fileName))
     await this.cache.invalidate(this.bufferCacheKey(fileName))
+  }
+
+  async invalidateFile(rootFolder: string, fileName: string): Promise<void> {
+    const filePath = this.normalizeFileName(rootFolder, fileName)
+    await this._invalidateFile(filePath)
   }
 
   async ensureDirs(rootFolder: string, directories: string[]): Promise<void> {
@@ -177,7 +182,7 @@ export class ScopedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
 
     await this.primaryDriver.upsertFile(fileName, content, true)
-    this.invalidateFile(fileName)
+    await this._invalidateFile(fileName)
   }
 
   async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
@@ -204,9 +209,7 @@ export class ScopedGhostService {
     if (!(await this.isFullySynced())) {
       const scUrl = `/admin/settings/version`
       this.logger.warn(
-        `Found unsynced file changes in "${
-          this.baseDir
-        }". Visit '${scUrl}' to save changes back to your Source Control.`
+        `You have changes on your production environment that aren't synced on your local file system. Visit '${scUrl}' to save changes back to your Source Control.`
       )
       return
     }
@@ -302,6 +305,16 @@ export class ScopedGhostService {
     return this.cache.get<T>(cacheKey)
   }
 
+  async fileExists(rootFolder: string, file: string): Promise<boolean> {
+    const fileName = this.normalizeFileName(rootFolder, file)
+    try {
+      await this.primaryDriver.readFile(fileName)
+      return true
+    } catch (err) {
+      return false
+    }
+  }
+
   async deleteFile(rootFolder: string, file: string): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
@@ -309,7 +322,7 @@ export class ScopedGhostService {
 
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
-    await this.invalidateFile(fileName)
+    await this._invalidateFile(fileName)
   }
 
   async deleteFolder(folder: string): Promise<void> {

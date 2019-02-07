@@ -178,7 +178,6 @@ describe('Ghost Service', () => {
 
         // We make sure the user is warned of the dirty state
         expect(logger.warn).toHaveBeenCalled()
-        expect(logger.warn.mock.calls[0][0]).toContain('global')
 
         // Make sure we haven't synced anything
         expect(diskDriver.readFile).not.toHaveBeenCalled()

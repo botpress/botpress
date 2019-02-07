@@ -1,6 +1,5 @@
 import { AuthUser } from 'core/misc/interfaces'
 
-export type DatabaseType = 'postgres' | 'sqlite'
 export type AuthStrategy = 'basic' | 'saml' | 'ldap'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
@@ -8,40 +7,6 @@ export type BotpressCondition = '$isProduction' | '$isDevelopment'
 export type ModuleConfigEntry = {
   location: string
   enabled: boolean
-}
-
-export interface DatabaseConfig {
-  migrations?: string
-  /**
-   * @default sqlite
-   */
-  type: DatabaseType
-  url?: string
-  /**
-   * @default %BOTPRESS_DIR%/data/storage/core.sqlite
-   */
-  location?: string
-  /**
-   * @default localhost
-   */
-  host?: string
-  /**
-   * @default 5432
-   */
-  port?: number
-  /**
-   * @default postgres
-   */
-  user?: string
-  /**
-   * @default
-   */
-  password?: string
-  ssl?: boolean
-  /**
-   * @default botpress
-   */
-  database?: string
 }
 
 export interface DialogConfig {
@@ -109,7 +74,6 @@ export type BotpressConfig = {
      */
     externalUrl?: string
   }
-  database: DatabaseConfig
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
@@ -126,21 +90,6 @@ export type BotpressConfig = {
      * @default paste your license key here
      */
     licenseKey: string
-
-    redis: {
-      /**
-       * Whether or not Redis is enabled.  You must enable Redis in order to use the Botpress in cluster mode.
-       * @default false
-       */
-      enabled: boolean
-      /**
-       * The full URL of the Redis server.  Each node in the Botpress cluster must be able to connect to this Redis server.
-       * Format = [redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
-       * See http://www.iana.org/assignments/uri-schemes/prov/redis for more information
-       * @default redis://127.0.0.1:6379
-       */
-      url: string
-    }
     auth: {
       /**
        * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
