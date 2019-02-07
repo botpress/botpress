@@ -83,7 +83,7 @@ export default class IntentsEditor extends React.Component {
     this.props.reloadIntents && (await this.props.reloadIntents())
   }
 
-  componentDidUpdate() {
+  async componentDidUpdate() {
     if (this.isDirty()) {
       await this.saveIntent()
       this.props.onUtterancesChange && this.props.onUtterancesChange()

@@ -15,7 +15,6 @@ export default class IntentsComponent extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
-    this.syncModel()
     this.checkForIntentSearch()
   }
 
@@ -35,14 +34,6 @@ export default class IntentsComponent extends React.Component {
       this.setState({ filterValue: intent, currentIntent: intent })
     }
   }
-
-  syncModel = _.debounce(
-    () => {
-      this.props.bp.axios.post('/mod/nlu/sync')
-    },
-    1000,
-    { leading: true }
-  )
 
   fetchIntents = () => {
     return this.props.bp.axios.get('/mod/nlu/intents').then(res => {
@@ -113,7 +104,6 @@ export default class IntentsComponent extends React.Component {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
       return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(() => {
-        this.syncModel()
         this.fetchIntents()
       })
     }
@@ -180,7 +170,6 @@ export default class IntentsComponent extends React.Component {
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}
-                onUtterancesChange={this.syncModel}
               />
             </div>
           </div>
