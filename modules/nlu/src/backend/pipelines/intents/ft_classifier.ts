@@ -33,6 +33,12 @@ export default class FastTextClassifier implements IntentClassifier {
     return Promise.fromCallback(cb => fileStream.end(cb))
   }
 
+  private teardownModels() {
+    if (this._modelsByContext) {
+      _.values(this._modelsByContext).forEach(x => x.cleanup())
+    }
+  }
+
   private _hasSufficientData(intents: sdk.NLU.IntentDefinition[]) {
     const datasetSize = _.flatMap(intents, intent => intent.utterances).length
     return intents.length > 0 && datasetSize > 0
@@ -86,6 +92,7 @@ export default class FastTextClassifier implements IntentClassifier {
       }
     }
 
+    this.teardownModels()
     this._modelsByContext = modelsByContext
 
     return models
@@ -111,6 +118,7 @@ export default class FastTextClassifier implements IntentClassifier {
       m[model.name] = ft
     }
 
+    this.teardownModels()
     this._modelsByContext = m
   }
 
