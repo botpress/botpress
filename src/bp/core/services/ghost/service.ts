@@ -307,6 +307,16 @@ export class ScopedGhostService {
     return this.cache.get<T>(cacheKey)
   }
 
+  async fileExists(rootFolder: string, file: string): Promise<boolean> {
+    const fileName = this.normalizeFileName(rootFolder, file)
+    try {
+      await this.primaryDriver.readFile(fileName)
+      return true
+    } catch (err) {
+      return false
+    }
+  }
+
   async deleteFile(rootFolder: string, file: string): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
