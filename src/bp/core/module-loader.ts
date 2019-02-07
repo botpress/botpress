@@ -108,7 +108,7 @@ export class ModuleLoader {
         initedModules[name] = true
         this.entryPoints.set(name, module)
 
-        const resourceLoader = new ModuleResourceLoader(this.logger, name)
+        const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
         await resourceLoader.importResources()
       } catch (err) {
         this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
