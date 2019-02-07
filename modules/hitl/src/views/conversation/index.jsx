@@ -13,10 +13,10 @@ export default class Conversation extends React.Component {
     super()
 
     this.state = { loading: true, messages: null }
-    this.appendMessage = ::this.appendMessage
+    this.appendMessage = this.appendMessage
   }
 
-  scrollToBottom() {
+  scrollToBottom = () => {
     const messageScrollDiv = this.refs.innerMessages
     if (messageScrollDiv) {
       messageScrollDiv.scrollTop = messageScrollDiv.scrollHeight
@@ -24,21 +24,21 @@ export default class Conversation extends React.Component {
   }
 
   componentDidMount() {
-    this.props.bp.events.on('hitl.message', this.appendMessage)
+    this.props.bp.events.on('guest.hitl.message', this.appendMessage)
   }
 
   componentWillUnmount() {
-    this.props.bp.events.off('hitl.message', this.appendMessage)
+    this.props.bp.events.off('guest.hitl.message', this.appendMessage)
   }
 
-  appendMessage(message) {
+  appendMessage = (message) => {
     if (this.state.messages && this.props.data && this.props.data.id === message.session_id) {
       this.setState({ messages: [...this.state.messages, message] })
-      setTimeout(::this.scrollToBottom, 50)
+      setTimeout(this.scrollToBottom, 50)
     }
   }
 
-  togglePaused() {
+  togglePaused = () => {
     this.props.data.props = !this.props.data.props
     const sessionId = this.props.data.id
     const action = !!this.props.data.paused ? 'unpause' : 'pause'
@@ -71,7 +71,7 @@ export default class Conversation extends React.Component {
           messages: data
         })
 
-        setTimeout(::this.scrollToBottom, 50)
+        setTimeout(this.scrollToBottom, 50)
       })
   }
 
@@ -89,7 +89,7 @@ export default class Conversation extends React.Component {
             <Toggle
               className={classnames(style.toggle, style.enabled)}
               checked={this.props.data && !this.props.data.paused}
-              onChange={::this.togglePaused}
+              onChange={this.togglePaused}
             />
           </div>
         </OverlayTrigger>
@@ -124,9 +124,9 @@ export default class Conversation extends React.Component {
 
     return (
       <div className={style.conversation}>
-        <div className={style.header}>{this.props.data ? ::this.renderHeader() : null}</div>
+        <div className={style.header}>{this.props.data ? this.renderHeader() : null}</div>
         <div className={style.messages} style={dynamicHeightStyleMessageDiv}>
-          {this.props.data ? ::this.renderMessages() : null}
+          {this.props.data ? this.renderMessages() : null}
         </div>
       </div>
     )

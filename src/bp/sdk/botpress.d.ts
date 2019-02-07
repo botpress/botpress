@@ -199,7 +199,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
+        new(): Model
       }
 
       export const Model: ModelConstructor
@@ -389,6 +389,8 @@ declare module 'botpress/sdk' {
       readonly nlu?: EventUnderstanding
       /** The final decision that the Decision Engine took */
       readonly decision?: Suggestion
+      /* HITL module has possibility to pause conversation */
+      readonly isPause?: boolean
     }
 
     export interface Suggestion {

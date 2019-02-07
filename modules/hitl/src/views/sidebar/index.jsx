@@ -26,11 +26,11 @@ export default class Sidebar extends React.Component {
     console.log('ACTION, Pause all:', this.state.allPaused)
   }
 
-  toggleFilter() {
+  toggleFilter = () => {
     this.props.toggleOnlyPaused()
   }
 
-  renderUser(value) {
+  renderUser = (value) => {
     const isCurrent = value.id === this.props.currentSession
 
     if (isCurrent || !this.props.filter || (this.props.filter && !!value.paused)) {
@@ -53,7 +53,8 @@ export default class Sidebar extends React.Component {
     if (sessions.length === 0) {
       return <p className={style.empty}>There's no conversation...</p>
     }
-    return sessions.map(::this.renderUser)
+
+    return sessions.map(this.renderUser)
   }
 
   render() {
@@ -71,16 +72,16 @@ export default class Sidebar extends React.Component {
         <div className={style.header}>
           <div className={style.filter}>
             <OverlayTrigger placement="top" overlay={filterTooltip}>
-              <i className="material-icons" style={filterStyle} onClick={::this.toggleFilter}>
+              <i className="material-icons" style={filterStyle} onClick={this.toggleFilter}>
                 bookmark
               </i>
             </OverlayTrigger>
           </div>
         </div>
         <div className={style.users} style={dynamicHeightUsersDiv}>
-          {::this.renderUsers()}
+          {this.renderUsers()}
         </div>
-      </div>
+      </div >
     )
   }
 }

@@ -47,8 +47,12 @@ export default async (bp: SDK, db: Database) => {
     if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
       bp.logger.debug('Session paused, message swallowed:', event.preview)
       // the session or bot is paused, swallow the message
+      // @ts-ignore
+      Object.assign(event, { isPause: true })
+
       return
     }
+
     next()
   }
 
@@ -58,6 +62,7 @@ export default async (bp: SDK, db: Database) => {
     }
 
     const session = await db.getUserSession(event)
+
     if (!session) {
       return next()
     }
@@ -66,7 +71,8 @@ export default async (bp: SDK, db: Database) => {
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.session', session))
     }
 
-    const message = db.appendMessageToSession(event, session.id, 'out')
+    const message = await db.appendMessageToSession(event, session.id, 'out')
+
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
     next()
   }
