@@ -149,7 +149,9 @@ export class BotService {
       BotService._mountedBots.set(botId, true)
       this._invalidateBotIds()
     } catch (err) {
-      this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
+      this.logger
+        .attachError(err)
+        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
     }
   }
 
