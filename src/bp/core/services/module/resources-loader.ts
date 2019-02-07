@@ -129,10 +129,10 @@ export class ModuleResourceLoader {
 
     if (firstLine.indexOf(CHECKSUM) === 0) {
       const fileContent = lines.splice(1, lines.length).join(os.EOL)
-      return this._calculateHash(fileContent) === firstLine.substring(CHECKSUM.length)
+      return this._calculateHash(fileContent) !== firstLine.substring(CHECKSUM.length)
     }
 
-    return false
+    return true
   }
 
   /**
