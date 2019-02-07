@@ -22,7 +22,7 @@ type ResponseMap = Partial<{
 
 @injectable()
 export class ConverseService {
-  private readonly timeoutInMs = 2000
+  private readonly timeoutInMs = 5000
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
 
   constructor(
