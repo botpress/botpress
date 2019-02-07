@@ -190,6 +190,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface Model {
+        cleanup: () => void
         trainToFile: (method: TrainCommand, modelPath: string, args: Partial<TrainArgs>) => Promise<void>
         loadFromFile: (modelPath: string) => Promise<void>
         predict: (str: string, nbLabels: number) => Promise<PredictResult[]>

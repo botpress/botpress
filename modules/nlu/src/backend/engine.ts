@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { flatMap } from 'lodash'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { Config } from '../config'
 
@@ -34,7 +35,11 @@ export default class ScopedEngine {
     timeout: 5000,
     max_tries: 3
   }
+
   private _isSyncing: boolean
+  private _isSyncingTwice: boolean
+  private _autoTrainInterval: number = 0
+  private _autoTrainTimer: NodeJS.Timer
 
   constructor(
     private logger: sdk.Logger,
@@ -47,6 +52,7 @@ export default class ScopedEngine {
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
+    this._autoTrainInterval = ms(config.autoTrainInterval || 0)
   }
 
   async init(): Promise<void> {
@@ -55,9 +61,26 @@ export default class ScopedEngine {
     if (isNaN(this.confidenceTreshold) || this.confidenceTreshold < 0 || this.confidenceTreshold > 1) {
       this.confidenceTreshold = 0.7
     }
+
+    if (!isNaN(this._autoTrainInterval) && this._autoTrainInterval >= 5000) {
+      if (this._autoTrainTimer) {
+        clearInterval(this._autoTrainTimer)
+      }
+      this._autoTrainTimer = setInterval(async () => {
+        if (this._preloaded && (await this.checkSyncNeeded())) {
+          // Sync only if the model has been already loaded
+          this.sync()
+        }
+      }, this._autoTrainInterval)
+    }
   }
 
   async sync(): Promise<void> {
+    if (this._isSyncing) {
+      this._isSyncingTwice = true
+      return
+    }
+
     try {
       this._isSyncing = true
       const intents = await this.storage.getIntents()
@@ -79,6 +102,10 @@ export default class ScopedEngine {
       this._preloaded = true
     } finally {
       this._isSyncing = false
+      if (this._isSyncingTwice) {
+        this._isSyncingTwice = false
+        this.sync() // This floating promise is voluntary
+      }
     }
   }
 

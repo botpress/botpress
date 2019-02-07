@@ -14,8 +14,6 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  model: sdk.MLToolkit.FastText.Model
-
   constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
   private sanitizeText(text: string): string {
@@ -33,6 +31,12 @@ export default class FastTextClassifier implements IntentClassifier {
     }
 
     return Promise.fromCallback(cb => fileStream.end(cb))
+  }
+
+  private teardownModels() {
+    if (this._modelsByContext) {
+      _.values(this._modelsByContext).forEach(x => x.cleanup())
+    }
   }
 
   private _hasSufficientData(intents: sdk.NLU.IntentDefinition[]) {
@@ -64,8 +68,6 @@ export default class FastTextClassifier implements IntentClassifier {
       lr: 0.8
     })
 
-    this.model = ft
-
     return { ft, data: readFileSync(modelFn) }
   }
 
@@ -90,6 +92,7 @@ export default class FastTextClassifier implements IntentClassifier {
       }
     }
 
+    this.teardownModels()
     this._modelsByContext = modelsByContext
 
     return models
@@ -115,6 +118,7 @@ export default class FastTextClassifier implements IntentClassifier {
       m[model.name] = ft
     }
 
+    this.teardownModels()
     this._modelsByContext = m
   }
 

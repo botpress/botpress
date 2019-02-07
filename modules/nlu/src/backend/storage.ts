@@ -14,16 +14,13 @@ export default class Storage {
   static ghostProvider: (botId: string) => sdk.ScopedGhostService
 
   private readonly ghost: ScopedGhostService
-  private readonly intentsDir: string
-  private readonly entitiesDir: string
-  private readonly modelsDir: string
+  private readonly intentsDir: string = './intents'
+  private readonly entitiesDir: string = './entities'
+  private readonly modelsDir: string = './models'
   private readonly config: Config
 
   constructor(config: Config, private readonly botId: string) {
     this.config = config
-    this.intentsDir = config.intentsDir
-    this.entitiesDir = config.entitiesDir
-    this.modelsDir = config.modelsDir
     this.ghost = Storage.ghostProvider(this.botId)
   }
 
