@@ -404,4 +404,4 @@ temp.quote = quote
 
 And then use the temp memory in another node:
 
-![Get Quote Flow](../assets/get-quote.png)
+![Get Quote Flow](assets/get-quote.png)
