@@ -349,7 +349,7 @@ module.exports = {
 
 Notice in the above example that via the `web-style` key we are changing the direction in which the text is written, making it right-to-left for Arabic
 
-### Calling an API in a Custom Action
+## Calling an API in a Custom Action
 
 One of the most popular use-case for Actions is to call an API, get some data and use it in your flow. That's what we're going to demonstrate here.
 
@@ -374,7 +374,7 @@ const getQuote = async () => {
 return getQuote()
 ```
 
-#### Bot Reply
+### Bot Reply
 
 Let's make the bot reply with the quote:
 
@@ -391,7 +391,7 @@ const payloads = await bp.cms.renderElement('builtin_text', { text: quote, typin
 await bp.events.replyToEvent(event, payloads)
 ```
 
-#### Memory
+### Memory
 
 In the end, calling an API in an Action works as it would in any other javascript project. The real difference is how you want to handle the data afterwards. So we just made the bot reply, but what if we wanted to return that data and use it later on in the flow?
 
