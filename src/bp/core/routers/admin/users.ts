@@ -52,20 +52,21 @@ export class UsersRouter extends CustomRouter {
             email: Joi.string()
               .email()
               .trim()
-              .required()
+              .required(),
+            role: Joi.string().required()
           })
         )
-        const email = req.body.email
-        const alreadyExists = await this.authService.findUserByEmail(email, ['email'])
+        const user = req.body
+        const alreadyExists = await this.authService.findUserByEmail(user.email, ['email'])
 
         if (alreadyExists) {
-          throw new ConflictError(`User "${email}" is already taken`)
+          throw new ConflictError(`User "${user.email}" is already taken`)
         }
 
-        const createdUser: CreatedUser = await this.authService.createUser({ email })
+        const createdUser: CreatedUser = await this.authService.createUser(user)
 
         return sendSuccess(res, 'User created successfully', {
-          email,
+          email: user.email,
           tempPassword: createdUser.password
         })
       })
