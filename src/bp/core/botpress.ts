@@ -284,7 +284,7 @@ Node: ${err.nodeName}`
     this.stats.track(
       'server',
       'start',
-      `isProEnabled: ${process.IS_PRO_ENABLED}; version: ${process.BOTPRESS_VERSION}; licensed: ${process.IS_LICENSED}`
+      `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}`
     )
   }
 }
