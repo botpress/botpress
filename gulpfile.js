@@ -34,6 +34,8 @@ gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))
 gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
 
+gulp.task('dev:module', modules.createModuleAssetsSymlink)
+
 gulp.task('changelog', () => {
   // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages
   const changelogOts = {

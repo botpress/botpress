@@ -52,9 +52,14 @@ export class ModuleResourceLoader {
     await this._loadModuleResources()
   }
 
+  private async isSymbolicLink(filePath) {
+    const fullPath = path.resolve(`${process.PROJECT_LOCATION}/${filePath}`)
+    return fse.pathExistsSync(fullPath) && (await fse.lstatSync(fullPath).isSymbolicLink())
+  }
+
   private async _loadModuleResources(): Promise<void> {
     for (const resource of this.exportPaths) {
-      if (fse.pathExistsSync(resource.src)) {
+      if (fse.pathExistsSync(resource.src) && !(await this.isSymbolicLink(resource.dest))) {
         await this._upsertModuleResources(resource)
       }
     }

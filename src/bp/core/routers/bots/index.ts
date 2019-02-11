@@ -3,7 +3,7 @@
 *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
 *--------------------------------------------------------------------------------------------*/
 
-import { Logger } from 'botpress/sdk'
+import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -24,7 +24,6 @@ import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
 import path from 'path'
-import { RouterOptions } from 'request'
 
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -79,8 +78,12 @@ export class BotsRouter extends CustomRouter {
     this.setupRoutes()
   }
 
-  getNewRouter(path: string, options: RouterOptions) {
+  getNewRouter(path: string, options?: RouterOptions) {
     const router = Router({ mergeParams: true })
+    if (_.get(options, 'checkAuthentication', true)) {
+      router.use(this.checkTokenHeader)
+    }
+
     this.router.use('/mod/' + path, router)
     return router
   }

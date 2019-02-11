@@ -22,22 +22,20 @@ Options:
 
 The admin dashboard is the place where you'll be able to manage and configure everything related to your Botpress Server installation, including:
 
-- Create bots and assign them to a team
-- Create new teams and invite other administrators
-- Create and manage user roles
-- Configure your Botpress Pro license
+- Create new bots
+- Manage your Botpress Pro license and sync with version control
+- Update your profile and your Botpress Account
+- Create new users and assign roles to them
 
-To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:3000) in your favorite web browser. When you open the portal for the first time, you will be asked to set the administrator password.
+To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:3000) in your favorite web browser. When you open the portal for the first time, you will be asked to register the main admin account
 
 ### Creating a new bot
 
-In Botpress, bots are always assigned to a team. When you start Botpress for the first time, you'll have a new team created automatically for you with an example bot inside it.
+In Botpress, bots are assigned to a workspace. When you start Botpress for the first time, you'll have a default workspace created automatically for you.
 
-Let's create a new bot by first navigating to your team, then clicking the "Create new bot" button.
+Let's create a new bot by first navigating to your workspace, then clicking the "Create Bot" button.
 
-![Select Team](assets/admin-teams.jpg)
-
-![Create Bot](assets/admin-create-bot.jpg)
+![Create Bot](assets/workspace_bot.png)
 
 All you have to do is pick a name for your bot and a unique `Bot ID` will be generated for you.
 
@@ -57,13 +55,17 @@ You will notice on the left there are a couple of sections available. Some of th
 
 ### Test your bot
 
-To test your bot, you can use the built-in chat emulator located in the top right corner. You can start over a new conversation with your bot by clicking the reset button.
+To test your bot, there are two different kind of emulators. You can use the built-in chat emulator located in the top right corner, which is exactly what your visitors will face when they speak with your bot. You can also start a new conversation with your bot by clicking the reset button.
 
 ![Toolbar Chat](assets/studio-toolbar.jpg)
 
 Open the chat window and say "_Hello_". The bot should greet you with something like "_May I know your name?_".
 
-![Hello from the bot](assets/studio-hello.jpg)
+![Hello from the bot](assets/flow_page.png)
+
+There is another emulator, which is specifically designed for you (the bot owner) to understand quickly why the bot gives you a specific answer. That emulator is only available for authenticated users. It includes all sort of useful informations: list of suggested answers by module, nlu intents, and the elected suggestion.
+
+![Emulator Hello](assets/emulator_ng.png)
 
 ### Question and Answer
 
@@ -81,11 +83,7 @@ The QnA module will automatically retrain the NLU model in the background and te
 
 ##### QnA Example
 
-![A new QnA](assets/studio-qna.jpg)
-
-##### Bot updated live
-
-![A new QnA Result](assets/studio-qna-chat.jpg)
+![A new QnA](assets/newqna.png)
 
 ## Share your bot
 

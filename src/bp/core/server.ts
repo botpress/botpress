@@ -22,7 +22,8 @@ import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AuthStrategies } from './services/auth-strategies'
-import AuthService from './services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from './services/auth/auth-service'
+import { generateUserToken } from './services/auth/util'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
@@ -35,6 +36,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
+const SERVER_USER = 'server::modules'
 const isProd = process.env.NODE_ENV === 'production'
 
 @injectable()
@@ -127,18 +129,9 @@ export default class HTTPServer {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
 
-    this.app.use(
-      // TODO FIXME Conditionally enable this
-      bodyParser.json({
-        limit: config.bodyLimit
-      })
-    )
-
-    this.app.use(
-      bodyParser.urlencoded({
-        extended: true
-      })
-    )
+    // TODO FIXME Conditionally enable this
+    this.app.use(bodyParser.json({ limit: config.bodyLimit }))
+    this.app.use(bodyParser.urlencoded({ extended: true }))
 
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
@@ -234,8 +227,12 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
+    const serverToken = generateUserToken(SERVER_USER, false, TOKEN_AUDIENCE)
     return {
-      baseURL: `${basePath}/api/v1/bots/${botId}`
+      baseURL: `${basePath}/api/v1/bots/${botId}`,
+      headers: {
+        Authorization: `Bearer ${serverToken}`
+      }
     }
   }
 }
