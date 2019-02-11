@@ -2,10 +2,6 @@
 
 ## Get started
 
-```
-npm install @botpress/broadcast
-```
-
 The broadcast module should now be available in your bot UI, and the APIs exposed.
 
 ## Features
@@ -64,11 +60,11 @@ bp.isUserSubscribed(userId)
 
 ## API
 
-### `GET /api/botpress-broadcast/broadcasts`
+### `GET /mod/broadcast/broadcasts`
 
 Returns a list of the scheduled broadcasts.
 
-### `PUT /api/botpress-broadcast/broadcasts`
+### `PUT /mod/broadcast/broadcasts`
 
 Schedules a new broadcast.
 
@@ -76,6 +72,7 @@ Schedules a new broadcast.
 
 ```js
 {
+  botId: string, // *required* 
   date: string, // *required*, 'YYYY-MM-DD'
   time: string, // *required*, 'HH:mm'
   timezone: null|int, // null (users timezone), or integer (absolute timezone)
@@ -91,20 +88,20 @@ Schedules a new broadcast.
 "Hello, Human!"
 ```
 
-### `POST /api/botpress-broadcast/broadcasts`
+### `POST /mod/broadcast/broadcasts`
 
 Update an existing broadcast. Same as PUT except that `id` is also necessary. You can't modify a processing broadcast.
 
-### `DELETE /api/botpress-broadcast/broadcasts/:id`
+### `DELETE /mod/broadcast/broadcasts/:id`
 
 Delete an existing broadcast. You can't delete a processing broadcast.
 
 ## Community
 
 Pull requests are welcomed! We believe that it takes all of us to create something big and impactful.
-There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
+There's a [Botpress Help Forum](https://help.botpress.io/) where you are welcome to join us, ask any question and even help others.
 
-Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
+Get an invite and join us now! 👉[https://help.botpress.io/](https://help.botpress.io/)
 
 ## License
 

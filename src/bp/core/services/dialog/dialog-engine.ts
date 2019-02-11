@@ -22,7 +22,7 @@ export class DialogEngine {
     @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
-  ) {}
+  ) { }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
