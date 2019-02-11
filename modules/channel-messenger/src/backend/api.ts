@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 export default async (bp: typeof sdk) => {
+  const channel = 'messenger'
   const messengerRouter = bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
   const http = axios.create({ baseURL: 'https://graph.facebook.com/v2.6/me' })
   const moduleConfigCache: { [key: string]: Object } = {}
@@ -24,16 +25,14 @@ export default async (bp: typeof sdk) => {
         console.log('PSID: ' + senderPSID)
 
         if (webhookEvent.message) {
-          await handleMessage(senderPSID, webhookEvent.message, verifyToken)
+          await handleMessage(senderPSID, botId, webhookEvent.message, verifyToken)
         } else if (webhookEvent.postback) {
           // handlePostback(senderPSID, webhookEvent.postback)
         }
       }
 
-      // Returns a '200 OK' response to all requests
       res.status(200).send('EVENT_RECEIVED')
     } else {
-      // Returns a '404 Not Found' if event is not from a page subscription
       res.sendStatus(404)
     }
   })
@@ -61,24 +60,23 @@ export default async (bp: typeof sdk) => {
     }
   })
 
-  const handleMessage = async (psid, message, token) => {
-    let response
+  const handleMessage = async (psid, botId, message, token) => {
+    const content = await bp.converse.sendMessage(botId, psid, message)
+    console.log('content', content)
 
     if (message.text) {
-      response = {
-        text: `You sent the message: "${message.text}". Now send me an image!`
-      }
+      return Promise.map(content.reponses, response => callSendApi(psid, response, token))
     }
 
-    await sendResponse(psid, response, token)
+    return Promise.reject('No message type identified.')
   }
 
-  const sendResponse = async (psid, response, token) => {
+  const callSendApi = async (psid, message, token) => {
     const body = {
       recipient: {
         id: psid
       },
-      message: response
+      message
     }
     console.log('TOKEN', token)
 
@@ -90,6 +88,7 @@ export default async (bp: typeof sdk) => {
       console.log('CACHED')
       return moduleConfigCache[botId]
     }
+
     const config = await bp.config.getModuleConfigForBot('channel-messenger', botId)
     moduleConfigCache[botId] = config
 
