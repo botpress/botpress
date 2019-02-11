@@ -99,7 +99,6 @@ export class WorkspaceService {
     const workspace = await this.getWorkspace()
     const newUser = {
       ...authUser,
-      role: workspace.defaultRole,
       created_on: new Date()
     } as AuthUser
 
