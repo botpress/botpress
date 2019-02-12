@@ -68,7 +68,8 @@ export default class IntentsEditor extends React.Component {
   }
 
   saveIntent = async () => {
-    await this.props.axios.post(`/mod/nlu/intents/${this.props.intent.name}`, {
+    await this.props.axios.post(`/mod/nlu/intents`, {
+      name: this.props.intent.name,
       utterances: this.getCanonicalUtterances(this.state.utterances),
       slots: this.state.slots,
       contexts: this.state.contexts
