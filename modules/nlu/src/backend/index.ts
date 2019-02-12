@@ -14,7 +14,7 @@ import { EngineByBot } from './typings'
 const nluByBot: EngineByBot = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
-  Storage.ghostProvider = botId => bp.ghost.forBot(botId)
+  Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
   DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL)

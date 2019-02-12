@@ -25,4 +25,11 @@ export interface Config {
    * @default 30s
    */
   autoTrainInterval: string
+
+  /** The name of the language model to use.
+   *  Language models are located in your bot's "global/models" folder and they end with `intent-lm.vec`
+   *  The name of the model to use is the prefix of the file (before the first occurence of `__`)
+   *  @default en
+   */
+  languageModel: string
 }

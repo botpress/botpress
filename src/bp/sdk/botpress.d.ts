@@ -257,6 +257,7 @@ declare module 'botpress/sdk' {
       utterances: string[]
       filename: string
       slots: SlotDefinition[]
+      contexts: string[]
     }
 
     export interface Intent {
@@ -1003,6 +1004,11 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
+
+    /**
+     * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     */
+    export function forGlobal(): ScopedGhostService
   }
 
   export namespace cms {

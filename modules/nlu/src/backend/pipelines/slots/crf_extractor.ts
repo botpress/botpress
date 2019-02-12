@@ -224,14 +224,9 @@ export default class CRFExtractor implements SlotExtractor {
     await ft.trainToFile('skipgram', this._ftModelFn, {
       input: ftTrainFn,
       minCount: 2,
-      bucket: 25000,
       dim: 15,
       lr: 0.5,
-      wordNgrams: 3,
-      maxn: 6,
-      minn: 2,
-      epoch: 50,
-      loss: 'hs'
+      epoch: 50
     })
 
     this._ft = ft

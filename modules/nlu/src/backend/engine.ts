@@ -1,9 +1,11 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
+import fs from 'fs'
 import { flatMap } from 'lodash'
 import _ from 'lodash'
 import ms from 'ms'
+import { tmpNameSync } from 'tmp'
 
 import { Config } from '../config'
 
@@ -23,6 +25,7 @@ export default class ScopedEngine {
 
   private _preloaded: boolean = false
   private _currentModelHash: string
+  private _loadedLanguageModel: boolean = false
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -124,6 +127,32 @@ export default class ScopedEngine {
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
+  private async _setLanguageModel() {
+    if (this._loadedLanguageModel) {
+      return
+    }
+
+    const models = await this.storage.getModelsFromHash('N/A')
+
+    const intentLangModel = _.chain(models)
+      .filter(model => model.meta.type === MODEL_TYPES.INTENT_LM)
+      .orderBy(model => model.meta.created_on, 'desc')
+      .filter(model => model.meta.context === this.config.languageModel)
+      .first()
+      .value()
+
+    if (intentLangModel) {
+      const fn = tmpNameSync({ postfix: '.vec' })
+      fs.writeFileSync(fn, intentLangModel.model)
+      FastTextClassifier.PrebuiltWordvec = fn
+      this.logger.info(`Loaded language model "${intentLangModel.meta.fileName}"`)
+    } else {
+      this.logger.warn(`Language model not found for "${this.config.languageModel}"`)
+    }
+
+    this._loadedLanguageModel = true
+  }
+
   private async _loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
@@ -160,7 +189,8 @@ export default class ScopedEngine {
         context,
         created_on: Date.now(),
         hash,
-        type
+        type,
+        scope: 'bot'
       },
       model
     }
@@ -203,6 +233,8 @@ export default class ScopedEngine {
 
   private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
+      await this._setLanguageModel()
+
       const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
       const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
 

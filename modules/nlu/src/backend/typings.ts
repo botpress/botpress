@@ -54,12 +54,11 @@ export interface LanguageIdentifier {
 }
 
 export const MODEL_TYPES = {
-  INTENT: <ModelType>'intent',
-  SLOT_LANG: <ModelType>'slot-language-model',
-  SLOT_CRF: <ModelType>'slot-crf'
+  INTENT: 'intent',
+  SLOT_LANG: 'slot-language-model',
+  SLOT_CRF: 'slot-crf',
+  INTENT_LM: 'intent-lm'
 }
-
-export type ModelType = 'intent' | 'slot-language-model' | 'slot-crf'
 
 export interface ModelMeta {
   fileName?: string
@@ -67,6 +66,7 @@ export interface ModelMeta {
   hash: string
   context: string
   type: string
+  scope: string
 }
 
 export interface Model {
