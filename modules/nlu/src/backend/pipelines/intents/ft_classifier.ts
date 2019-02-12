@@ -19,7 +19,10 @@ export default class FastTextClassifier implements IntentClassifier {
   constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
   private sanitizeText(text: string): string {
-    return text.toLowerCase().replace(/[^\w\s]|\r|\f/gi, '')
+    return text
+      .toLowerCase()
+      .replace(/\t|\r|\f/gi, ' ')
+      .replace(/\s\s+/gi, ' ')
   }
 
   private _writeTrainingSet(intents: TrainSet[], trainingFilePath: string) {
