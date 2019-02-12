@@ -16,7 +16,11 @@ import {
   UnauthorizedError
 } from './errors'
 
-export type BPRequest = Request & { authUser: AuthUser | undefined; tokenUser: TokenUser | undefined }
+export type BPRequest = Request & {
+  authUser: AuthUser | undefined
+  tokenUser: TokenUser | undefined
+  credentials: any | undefined
+}
 
 export type AsyncMiddleware = (
   fn: (req: BPRequest, res: Response, next?: NextFunction | undefined) => Promise<any>

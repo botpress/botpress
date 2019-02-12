@@ -112,6 +112,11 @@ export type BotpressConfig = {
        */
       allowSelfSignup: boolean
     }
+    /**
+     * External Authentication allows your backend to issue a JWT token to securely pass data to Botpress through the user
+     * The token is validated each time a message is sent and the content is available on `event.credentials`
+     */
+    externalAuth: ExternalAuthConfig
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
@@ -128,6 +133,16 @@ export type BotpressConfig = {
    * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
    */
   dataRetention?: DataRetentionConfig
+}
+
+export interface ExternalAuthConfig {
+  enabled: boolean
+  audience: string
+  algorithm: string
+  /**
+   * When this key is undefined, BP will try to load the public key from `data/global/pub.key`
+   */
+  publicKey?: string
 }
 
 export interface DataRetentionConfig {

@@ -28,7 +28,8 @@ const eventSchema = {
   threadId: joi.string().optional(),
   flags: joi.any().required(),
   suggestions: joi.array().optional(),
-  state: joi.any().optional()
+  state: joi.any().optional(),
+  credentials: joi.any().optional()
 }
 
 const mwSchema = {

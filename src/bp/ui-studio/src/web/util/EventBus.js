@@ -1,7 +1,7 @@
 import EventEmitter2 from 'eventemitter2'
 import io from 'socket.io-client'
 
-import { getToken, authEvents, getUniqueVisitorId } from '~/util/Auth'
+import { getToken, authEvents, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
   constructor() {
@@ -27,6 +27,11 @@ class EventBus extends EventEmitter2 {
 
     const socket = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
     socket && socket.emit('event', { name, data })
+  }
+
+  updateVisitorId = newId => {
+    setVisitorId(newId)
+    this.setup()
   }
 
   setup = () => {

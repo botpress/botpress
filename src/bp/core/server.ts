@@ -8,9 +8,13 @@ import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
+import jsonwebtoken from 'jsonwebtoken'
+import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import portFinder from 'portfinder'
 
+import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
@@ -118,7 +122,7 @@ export default class HTTPServer {
   async initialize() {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
@@ -234,5 +238,52 @@ export default class HTTPServer {
         Authorization: `Bearer ${serverToken}`
       }
     }
+  }
+
+  extractExternalToken = async (req, res, next) => {
+    if (req.headers.externalauth) {
+      try {
+        req.credentials = await this.decodeExternalToken(req.headers.externalauth)
+      } catch (error) {
+        this.logger.attachError(error).warn(`Error while decoding the token, it may be invalid.`)
+      }
+    }
+
+    next()
+  }
+
+  async decodeExternalToken(externalToken): Promise<any | undefined> {
+    const { enabled, publicKey, audience, algorithm } = await this._getExternalAuthConfig()
+
+    if (!enabled) {
+      return undefined
+    }
+
+    const [scheme, token] = externalToken.split(' ')
+    if (scheme.toLowerCase() !== 'bearer') {
+      return new Error(`Unknown scheme "${scheme}"`)
+    }
+
+    return Promise.fromCallback(cb => {
+      jsonwebtoken.verify(token, publicKey, { audience, algorithm }, (err, user) => {
+        cb(err, !err ? user : undefined)
+      })
+    })
+  }
+
+  @Memoize
+  private async _getExternalAuthConfig(): Promise<ExternalAuthConfig> {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const config = botpressConfig.pro.externalAuth
+
+    if (!config.publicKey && config.enabled) {
+      try {
+        config.publicKey = await this.ghostService.global().readFileAsString('/', 'key.pub')
+      } catch (error) {
+        this.logger.attachError(error).error(`Couldn't open public key file /data/global/key.pub`)
+      }
+    }
+
+    return config
   }
 }

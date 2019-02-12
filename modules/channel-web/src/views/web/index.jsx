@@ -59,10 +59,6 @@ export default class Web extends React.Component {
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
-    this.axiosConfig = config.botId
-      ? { baseURL: `${window.location.origin}/api/v1/bots/${config.botId}` }
-      : { baseURL: `${window.BOT_API_PATH}` }
-
     this.state = {
       view: null,
       textToSend: '',
@@ -79,6 +75,8 @@ export default class Web extends React.Component {
       messageHistory: [],
       historyPosition: HISTORY_STARTING_POINT
     }
+
+    this.updateAxiosConfig()
   }
 
   componentWillMount() {
@@ -86,6 +84,10 @@ export default class Web extends React.Component {
   }
 
   componentDidMount() {
+    if (this.state.config.userId) {
+      this.props.bp.events.updateVisitorId(this.state.config.userId)
+    }
+
     this.setUserId()
       .then(this.fetchData)
       .then(() => {
@@ -118,9 +120,35 @@ export default class Web extends React.Component {
     this.isUnmounted = true
   }
 
+  updateAxiosConfig() {
+    const { botId, externalAuthToken } = this.state.config
+
+    this.axiosConfig = botId
+      ? { baseURL: `${window.location.origin}/api/v1/bots/${botId}` }
+      : { baseURL: `${window.BOT_API_PATH}` }
+
+    if (externalAuthToken) {
+      this.axiosConfig = {
+        ...this.axiosConfig,
+        headers: {
+          ExternalAuth: `Bearer ${externalAuthToken}`
+        }
+      }
+    }
+  }
+
+  changeUserId = newId => {
+    this.props.bp.events.updateVisitorId(newId)
+    this.setState({ currentConversationId: null })
+    this.setUserId().then(this.fetchData)
+  }
+
   handleIframeApi = ({ data: { action, payload } }) => {
     if (action === 'configure') {
-      this.setState({ config: Object.assign({}, defaultOptions, payload) })
+      if (payload.userId) {
+        this.changeUserId(payload.userId)
+      }
+      this.setState({ config: Object.assign({}, defaultOptions, payload) }, this.updateAxiosConfig)
     } else if (action === 'event') {
       const { type, text } = payload
       if (type === 'show') {
@@ -144,6 +172,7 @@ export default class Web extends React.Component {
         if (window.__BP_VISITOR_ID) {
           clearInterval(interval)
           this.userId = window.__BP_VISITOR_ID
+          window.parent.postMessage({ userId: this.userId }, '*')
           resolve()
         }
       }, 250)

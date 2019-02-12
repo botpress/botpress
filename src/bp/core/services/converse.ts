@@ -55,7 +55,7 @@ export class ConverseService {
     })
   }
 
-  public async sendMessage(botId: string, userId: string, payload): Promise<any> {
+  public async sendMessage(botId: string, userId: string, payload, credentials: any): Promise<any> {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
     }
@@ -68,7 +68,8 @@ export class ConverseService {
       direction: 'incoming',
       payload,
       target: userId,
-      botId
+      botId,
+      credentials
     })
 
     const timeoutPromise = this._createTimeoutPromise(userId)
@@ -147,7 +148,8 @@ export class ConverseService {
 
     Object.assign(this._responseMap[event.target], <ResponseMap>{
       nlu: event.nlu || {},
-      suggestions: event.suggestions || []
+      suggestions: event.suggestions || [],
+      credentials: event.credentials
     })
   }
 }
