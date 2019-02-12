@@ -64,7 +64,7 @@ export class ScopedActionService {
     })
   }
 
-  async listActions({ includeMetadata = false } = {}): Promise<ActionDefinition[]> {
+  async listActions(): Promise<ActionDefinition[]> {
     if (this._actionsCache) {
       return this._actionsCache
     }
@@ -79,10 +79,8 @@ export class ScopedActionService {
     )
 
     const actions: ActionDefinition[] = (await Promise.map(globalActionsFiles, async file =>
-      this.getActionDefinition(file, 'global', includeMetadata)
-    )).concat(
-      await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', includeMetadata))
-    )
+      this.getActionDefinition(file, 'global', true)
+    )).concat(await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', true)))
 
     this._actionsCache = actions
     return actions
