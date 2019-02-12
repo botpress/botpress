@@ -19,7 +19,7 @@ export const NoneIntent: sdk.NLU.Intent = {
 export function findMostConfidentIntentMeanStd(
   intents: sdk.NLU.Intent[],
   fixedThreshold: number,
-  zThresh: number = 1.25
+  zThresh: number = 1.15
 ): sdk.NLU.Intent {
   if (!intents.length) {
     return NoneIntent
@@ -40,10 +40,10 @@ export function findMostConfidentIntentMeanStd(
     intents.reduce((a, c) => a + Math.pow(c.confidence - mean, 2), 0) / (intents.length - 1)
   )
   const zintents = intents
-    .map(intent => ({ intent, z: (intent.confidence - mean) / stdDeviation }))
+    .map(intent => ({ intent, z: _.round((intent.confidence - mean) / stdDeviation, 2) }))
     .sort((a, b) => (a.z > b.z ? -1 : 1))
 
-  return zintents[0].z - zintents[1].z > zThresh ? zintents[0].intent : NoneIntent
+  return zintents[0].z - zintents[1].z >= zThresh ? zintents[0].intent : NoneIntent
 }
 
 export const createIntentMatcher = (intentName: string): ((pattern: string) => boolean) => {
