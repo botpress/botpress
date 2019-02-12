@@ -8,6 +8,7 @@ export default class Settings extends React.Component {
     userId: '',
     externalToken: ''
   }
+
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
       this.setState({ userId: this.props.userId, externalToken: this.props.externalToken })
@@ -23,7 +24,7 @@ export default class Settings extends React.Component {
 
   render() {
     return (
-      <Modal show={this.props.show} onHide={this.props.hideSettings}>
+      <Modal show={this.props.show} onHide={this.props.onHideSettings}>
         <Modal.Header>
           <strong>Configure Emulator Settings</strong>
         </Modal.Header>
@@ -51,7 +52,12 @@ export default class Settings extends React.Component {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={this.handleSave}>Save</Button>
+          <Button bsStyle="secondary" onClick={this.props.onHideSettings}>
+            Cancel
+          </Button>
+          <Button bsStyle="primary" onClick={this.handleSave}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
     )
