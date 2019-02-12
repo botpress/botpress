@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 import jdenticon from 'jdenticon'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import Joi from 'joi'
-import Select from 'react-select'
 import {
   Jumbotron,
   Row,
@@ -24,7 +23,7 @@ import {
 
 import _ from 'lodash'
 
-import { fetchBotTemplates, fetchBots } from '../../reducers/bots'
+import { fetchBots } from '../../reducers/bots'
 import { fetchPermissions } from '../../reducers/user'
 
 import SectionLayout from '../Layouts/Section'
@@ -32,6 +31,7 @@ import LoadingSection from '../Components/LoadingSection'
 
 import api from '../../api'
 import { AccessControl } from '../../App/AccessControl'
+import CreateBotModal from './CreateBotModal'
 
 class Bots extends Component {
   state = {
@@ -39,7 +39,6 @@ class Bots extends Component {
     isCreateBotModalOpen: false,
     errorCreateBot: undefined,
     errorEditBot: undefined,
-    botTemplate: undefined,
     id: '',
     name: '',
     description: ''
@@ -50,45 +49,8 @@ class Bots extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchBotTemplates()
     this.props.fetchBots()
     this.props.fetchPermissions()
-  }
-
-  onInputKeyPress = e => e.key === 'Enter' && this.createBot()
-
-  onBotNameChange = e => {
-    const name = e.target.value
-    const id = name
-      .toLowerCase()
-      .replace(/\s/g, '-')
-      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
-
-    this.setState({ name, id })
-  }
-
-  createBot = async () => {
-    const name = this.state.name
-    let id = this.state.id
-
-    if (id[id.length - 1] === '-') {
-      id = id.slice(0, id.length - 1)
-    }
-
-    const { error } = Joi.validate({ id, name }, BotCreationSchema)
-    if (error) {
-      this.setState({ errorCreateBot: error })
-      return
-    }
-
-    const template = _.pick(this.state.botTemplate, ['id', 'moduleId'])
-    await api
-      .getSecured()
-      .post(`/admin/bots`, { id, name, template: template.id !== undefined ? template : undefined })
-      .catch(err => this.setState({ errorCreateBot: err }))
-    await this.props.fetchBots()
-
-    this.toggleCreateBotModal()
   }
 
   editBot = async () => {
@@ -114,7 +76,7 @@ class Bots extends Component {
   }
 
   toggleCreateBotModal = () => {
-    this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen, id: '', name: '' })
+    this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
   }
 
   toggleEditBotModal = async bot => {
@@ -133,72 +95,6 @@ class Bots extends Component {
         description: bot.description
       })
     }
-  }
-
-  handleChangeTemplate = template => {
-    this.setState({ botTemplate: template })
-  }
-
-  renderCreateBot() {
-    let templates = []
-    if (this.props.botTemplates) {
-      const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
-      templates = templateModules.map(module => ({
-        label: module,
-        options: _.filter(this.props.botTemplates, x => x.moduleName === module)
-      }))
-
-      if (!this.state.botTemplate) {
-        const first = _.head(templates)
-        this.setState({ botTemplate: first.options ? first.options[0] : first })
-      }
-    }
-
-    return (
-      <Modal isOpen={this.state.isCreateBotModalOpen} toggle={this.toggleCreateBotModal}>
-        <ModalHeader toggle={this.toggleCreateBotModal}>Create a new bot</ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label for="id">
-              <strong>Identifier</strong>
-            </Label>
-            <Input placeholder="Auto-generated" disabled={true} type="text" id="id" value={this.state.id} />
-          </FormGroup>
-          <FormGroup>
-            <Label for="name">
-              <strong>Bot Template</strong>
-            </Label>
-            <Select
-              getOptionLabel={o => o.name}
-              getOptionValue={o => o.id}
-              options={templates}
-              value={this.state.botTemplate}
-              onChange={this.handleChangeTemplate}
-            />
-            <div className="bot-template-desc"> {this.state.botTemplate && this.state.botTemplate.desc}</div>
-          </FormGroup>
-          <FormGroup>
-            <Label for="name">
-              <strong>Name</strong>
-            </Label>
-            <Input
-              type="text"
-              id="name"
-              value={this.state.name}
-              invalid={this.state.errorCreateBot || false}
-              onKeyPress={this.onInputKeyPress}
-              onChange={this.onBotNameChange}
-            />
-            <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={this.createBot}>
-            Create
-          </Button>
-        </ModalFooter>
-      </Modal>
-    )
   }
 
   renderEditBot() {
@@ -293,9 +189,6 @@ class Bots extends Component {
 
     return (
       <div className="bp_table">
-        {this.renderCreateBot()}
-        {this.renderEditBot()}
-
         {bots.map(bot => {
           return (
             <div className="bp_table-row" key={bot.id}>
@@ -317,6 +210,12 @@ class Bots extends Component {
             </div>
           )
         })}
+        {this.renderEditBot()}
+        <CreateBotModal
+          isOpen={this.state.isCreateBotModalOpen}
+          toggle={this.toggleCreateBotModal}
+          onCreateBotSuccess={this.props.fetchBots}
+        />
       </div>
     )
   }
@@ -351,12 +250,10 @@ const mapStateToProps = state => ({
   bots: state.bots.bots,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  botTemplates: state.bots.botTemplates,
   permissions: state.user.permissions
 })
 
 const mapDispatchToProps = {
-  fetchBotTemplates,
   fetchBots,
   fetchPermissions
 }
