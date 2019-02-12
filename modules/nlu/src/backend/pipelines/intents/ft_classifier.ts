@@ -14,12 +14,13 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  public static PrebuiltWordvec: string | undefined
-
   constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
   private sanitizeText(text: string): string {
-    return text.toLowerCase().replace(/[^\w\s]|\r|\f/gi, '')
+    return text
+      .toLowerCase()
+      .replace(/\t|\r|\f/gi, ' ')
+      .replace(/\s\s+/gi, ' ')
   }
 
   private _writeTrainingSet(intents: TrainSet[], trainingFilePath: string) {
@@ -57,14 +58,15 @@ export default class FastTextClassifier implements IntentClassifier {
 
     // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
-
-    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = FastTextClassifier.PrebuiltWordvec
-      ? { pretrainedVectors: FastTextClassifier.PrebuiltWordvec }
-      : {}
-
     await ft.trainToFile('supervised', modelFn, {
-      ...extraArgs,
       input: dataFn,
+      loss: 'hs',
+      dim: 15,
+      wordNgrams: 3,
+      minCount: 1,
+      minn: 3,
+      maxn: 6,
+      bucket: 25000,
       epoch: 50,
       lr: 0.8
     })
