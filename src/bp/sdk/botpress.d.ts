@@ -902,6 +902,10 @@ declare module 'botpress/sdk' {
 
   export namespace users {
     /**
+     * Verify if a user exists based on its channel and userId
+     */
+    export function exists(channel: string, userId: string): Promise<boolean>
+    /**
      * Returns an existing user or create a new one with the specified keys
      */
     export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>

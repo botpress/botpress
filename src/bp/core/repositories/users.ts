@@ -6,6 +6,7 @@ import Knex from 'knex'
 import Database from '../database'
 import { TYPES } from '../types'
 export interface UserRepository {
+  exists(channel: string, id: string): Promise<boolean>
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
@@ -20,6 +21,23 @@ export class KnexUserRepository implements UserRepository {
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {}
+
+  async exists(channel: string, id: string): Promise<boolean> {
+    channel = channel.toLowerCase()
+
+    return await this.database
+      .knex(this.tableName)
+      .where({
+        channel,
+        user_id: id
+      })
+      .limit(1)
+      .select('attributes', 'created_at', 'updated_at')
+      .first()
+      .then(result => {
+        return result ? true : false
+      })
+  }
 
   async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()

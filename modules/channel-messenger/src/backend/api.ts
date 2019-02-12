@@ -15,17 +15,22 @@ export default async (bp: typeof sdk) => {
     const config = await getModuleConfig(bp, botId)
     const verifyToken = getTokenFromConfig(config)
 
+    // FIXME: should be called once and not every time the route is called
+    // FIXME: Only callable by bot admin
+    await setGetStarted(verifyToken, config.getStarted)
+    await setGreeting(verifyToken, config.greeting)
+
     if (body.object === 'page') {
       for (const entry of body.entry) {
         // will only ever contain one message, so we get index 0
         const webhookEvent = entry.messaging[0]
         console.log(webhookEvent)
-
-        const senderPSID = webhookEvent.sender.id
+        const psid = webhookEvent.sender.id
 
         if (webhookEvent.message) {
-          await handleMessage(senderPSID, botId, webhookEvent.message, verifyToken)
+          await handleMessage(psid, botId, webhookEvent.message, verifyToken)
         } else if (webhookEvent.postback) {
+          await handleMessage(psid, botId, { text: webhookEvent.postback.payload }, verifyToken)
         }
       }
 
@@ -50,7 +55,7 @@ export default async (bp: typeof sdk) => {
     if (mode && token) {
       // Checks the mode and token sent is correct
       if (mode === 'subscribe' && token === verifyToken) {
-        console.log('WEBHOOK_VERIFIED')
+        bp.logger.debug('Webhook Verified.')
         res.status(200).send(challenge)
       } else {
         res.sendStatus(403)
@@ -76,9 +81,42 @@ export default async (bp: typeof sdk) => {
       },
       message
     }
-    console.log('TOKEN', token)
 
     await http.post(`/messages`, body, { params: { access_token: token } })
+  }
+
+  const callProfileApi = async (message, token) => {
+    await http.post(`messenger_profile?access_token=${token}`, message)
+  }
+
+  const setGetStarted = async (token, message) => {
+    if (!message) {
+      return
+    }
+
+    const body = {
+      get_started: {
+        payload: message
+      }
+    }
+
+    await callProfileApi(body, token)
+  }
+
+  const setGreeting = async (token, message) => {
+    if (!message) {
+      return
+    }
+
+    const payload = {
+      greeting: [
+        {
+          locale: 'default',
+          text: message
+        }
+      ]
+    }
+    await callProfileApi(payload, token)
   }
 
   const getModuleConfig = async (bp, botId): Promise<any> => {
