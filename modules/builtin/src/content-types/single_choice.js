@@ -24,9 +24,22 @@ function render(data) {
   ]
 }
 
+function renderMessenger(data) {
+  return {
+    text: data.text,
+    quick_replies: data.choices.map(c => ({
+      content_type: 'text',
+      title: c.title,
+      payload: c.value.toUpperCase()
+    }))
+  }
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
+  } else if (channel === 'messenger') {
+    return renderMessenger(data)
   }
 
   return [] // TODO Handle channel not supported
