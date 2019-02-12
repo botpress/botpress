@@ -21,9 +21,15 @@ function render(data) {
 }
 
 function renderMessenger(data) {
-  return {
-    text: data.text
-  }
+  return [
+    {
+      type: 'typing',
+      value: data.typing
+    },
+    {
+      text: data.text
+    }
+  ]
 }
 
 function renderElement(data, channel) {

@@ -25,14 +25,20 @@ function render(data) {
 }
 
 function renderMessenger(data) {
-  return {
-    text: data.text,
-    quick_replies: data.choices.map(c => ({
-      content_type: 'text',
-      title: c.title,
-      payload: c.value.toUpperCase()
-    }))
-  }
+  return [
+    {
+      type: 'typing',
+      value: data.typing
+    },
+    {
+      text: data.text,
+      quick_replies: data.choices.map(c => ({
+        content_type: 'text',
+        title: c.title,
+        payload: c.value.toUpperCase()
+      }))
+    }
+  ]
 }
 
 function renderElement(data, channel) {

@@ -67,14 +67,32 @@ export default async (bp: typeof sdk) => {
 
   const handleMessage = async (psid, botId, message, token): Promise<void> => {
     const content = await bp.converse.sendMessage(botId, psid, message, channel)
+
     if (message.text) {
-      for (const response of content.responses) {
-        await callSendApi(psid, response, token)
+      // Responses are split into typing / content pairs
+      for (let i = 0; i < content.responses.length; i += 2) {
+        const isTyping = content.responses[i].value
+        const message = content.responses[i + 1]
+
+        isTyping && (await sendAction(psid, 'typing_on', token))
+        await sendMessage(psid, message, token)
+        isTyping && (await sendAction(psid, 'typing_off', token))
       }
     }
   }
 
-  const callSendApi = async (psid, message, token) => {
+  const sendAction = async (psid, action, token) => {
+    const body = {
+      recipient: {
+        id: psid
+      },
+      sender_action: action
+    }
+
+    await http.post(`/messages`, body, { params: { access_token: token } })
+  }
+
+  const sendMessage = async (psid, message, token) => {
     const body = {
       recipient: {
         id: psid
@@ -121,7 +139,6 @@ export default async (bp: typeof sdk) => {
 
   const getModuleConfig = async (bp, botId): Promise<any> => {
     if (moduleConfigCache[botId]) {
-      console.log('CACHED')
       return moduleConfigCache[botId]
     }
 
