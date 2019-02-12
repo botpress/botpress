@@ -55,7 +55,7 @@ export class ConverseService {
     })
   }
 
-  public async sendMessage(botId: string, userId: string, payload): Promise<any> {
+  public async sendMessage(botId: string, userId: string, payload, channel = 'api'): Promise<any> {
     if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
       throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
     }
@@ -64,7 +64,7 @@ export class ConverseService {
 
     const incomingEvent = Event({
       type: 'text',
-      channel: 'api',
+      channel,
       direction: 'incoming',
       payload,
       target: userId,
@@ -125,7 +125,8 @@ export class ConverseService {
   }
 
   private _handleCapturePayload(event: IO.Event) {
-    if (event.channel !== 'api') {
+    // FIXME: Eventually channel-web will use converse api as well so we'll remove this check
+    if (event.channel !== 'api' && event.channel !== 'messenger') {
       return
     }
 
@@ -137,7 +138,8 @@ export class ConverseService {
   }
 
   private _handleCaptureContext(event: IO.IncomingEvent) {
-    if (event.channel !== 'api') {
+    // FIXME: Eventually channel-web will use converse api as well so we'll remove this check
+    if (event.channel !== 'api' && event.channel !== 'messenger') {
       return
     }
 

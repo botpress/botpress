@@ -926,9 +926,10 @@ declare module 'botpress/sdk' {
      * @param botId The bot Id
      * @param userId The user Id
      * @param payload The channel-specific raw payload
+     * @param channel Optionnal channel name. If none is provided it defaults to 'api'
      * @returns The raw content element
      */
-    export function sendMessage(botId: string, userId: string, payload): Promise<any>
+    export function sendMessage(botId: string, userId: string, payload, channel?: string): Promise<any>
   }
 
   /**

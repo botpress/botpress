@@ -22,12 +22,10 @@ export default async (bp: typeof sdk) => {
         console.log(webhookEvent)
 
         const senderPSID = webhookEvent.sender.id
-        console.log('PSID: ' + senderPSID)
 
         if (webhookEvent.message) {
           await handleMessage(senderPSID, botId, webhookEvent.message, verifyToken)
         } else if (webhookEvent.postback) {
-          // handlePostback(senderPSID, webhookEvent.postback)
         }
       }
 
@@ -57,18 +55,18 @@ export default async (bp: typeof sdk) => {
       } else {
         res.sendStatus(403)
       }
+    } else {
+      res.sendStatus(404)
     }
   })
 
-  const handleMessage = async (psid, botId, message, token) => {
-    const content = await bp.converse.sendMessage(botId, psid, message)
-    console.log('content', content)
-
+  const handleMessage = async (psid, botId, message, token): Promise<void> => {
+    const content = await bp.converse.sendMessage(botId, psid, message, channel)
     if (message.text) {
-      return Promise.map(content.reponses, response => callSendApi(psid, response, token))
+      for (const response of content.responses) {
+        await callSendApi(psid, response, token)
+      }
     }
-
-    return Promise.reject('No message type identified.')
   }
 
   const callSendApi = async (psid, message, token) => {

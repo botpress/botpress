@@ -92,7 +92,9 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
 
 const converse = (converseService: ConverseService): typeof sdk.converse => {
   return {
-    sendMessage: converseService.sendMessage.bind(converseService)
+    sendMessage(botId: string, userId: string, payload, channel?: string): Promise<any> {
+      return converseService.sendMessage(botId, userId, payload, channel)
+    }
   }
 }
 
