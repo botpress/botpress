@@ -21,7 +21,7 @@ import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
-import { PaymentRequiredError } from './routers/errors'
+import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
@@ -245,7 +245,7 @@ export default class HTTPServer {
       try {
         req.credentials = await this.decodeExternalToken(req.headers.externalauth)
       } catch (error) {
-        this.logger.attachError(error).warn(`Error while decoding the token, it may be invalid.`)
+        return next(new InvalidExternalToken(error.message))
       }
     }
 

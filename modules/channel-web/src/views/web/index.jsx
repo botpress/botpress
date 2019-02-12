@@ -279,6 +279,13 @@ export default class Web extends React.Component {
     this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
   }
 
+  checkForExpiredExternalToken = error => {
+    if (_.get(error, 'response.data.errorCode') === 'BP_0401') {
+      this.setState({ config: { ...this.state.config, externalAuthToken: undefined } }, this.updateAxiosConfig)
+      console.log(`External token expired or invalid. Removed from future requests`)
+    }
+  }
+
   fetchData = () => {
     return this.fetchConversations()
       .then(this.fetchCurrentConversation)
@@ -286,7 +293,7 @@ export default class Web extends React.Component {
         this.handleSendData({
           type: 'visit',
           text: 'User visit'
-        })
+        }).catch(this.checkForExpiredExternalToken)
       })
   }
 
@@ -494,7 +501,10 @@ export default class Web extends React.Component {
     const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
-    return this.props.bp.axios.post(url, data, config).then()
+    return this.props.bp.axios
+      .post(url, data, config)
+      .then()
+      .catch(this.checkForExpiredExternalToken)
   }
 
   handleSwitchConvo = convoId => {
