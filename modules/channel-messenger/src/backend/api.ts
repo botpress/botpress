@@ -4,21 +4,21 @@ import _ from 'lodash'
 
 export default async (bp: typeof sdk) => {
   const channel = 'messenger'
-  const messengerRouter = bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
+  const channelRouter = bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
   const http = axios.create({ baseURL: 'https://graph.facebook.com/v2.6/me' })
   const moduleConfigCache: { [key: string]: Object } = {}
 
+  // const messenger = new Messenger()
   // Messenger will use this endpoint to send webhooks events
-  messengerRouter.post('/webhook', async (req, res) => {
+  channelRouter.post('/webhook', async (req, res) => {
     const body = req.body
     const botId = req.params.botId
     const config = await getModuleConfig(bp, botId)
     const verifyToken = getTokenFromConfig(config)
 
-    // FIXME: should be called once and not every time the route is called
-    // FIXME: Only callable by bot admin
-    await setGetStarted(verifyToken, config.getStarted)
-    await setGreeting(verifyToken, config.greeting)
+    // FIXME Only called by the page admin and should only be called once
+    !moduleConfigCache[botId] && (await setGetStarted(verifyToken, config.getStarted))
+    !moduleConfigCache[botId] && (await setGreeting(verifyToken, config.greeting))
 
     if (body.object === 'page') {
       for (const entry of body.entry) {
@@ -41,7 +41,7 @@ export default async (bp: typeof sdk) => {
   })
 
   // Messenger will use this endpoint to verify the webhook authenticity
-  messengerRouter.get('/webhook', async (req, res) => {
+  channelRouter.get('/webhook', async (req, res) => {
     const botId = req.params.botId
     const config = await getModuleConfig(bp, botId)
     const verifyToken = getTokenFromConfig(config)
@@ -103,7 +103,7 @@ export default async (bp: typeof sdk) => {
     await http.post(`/messages`, body, { params: { access_token: token } })
   }
 
-  const callProfileApi = async (message, token) => {
+  const sendProfile = async (message, token) => {
     await http.post(`messenger_profile?access_token=${token}`, message)
   }
 
@@ -117,8 +117,7 @@ export default async (bp: typeof sdk) => {
         payload: message
       }
     }
-
-    await callProfileApi(body, token)
+    await sendProfile(body, token)
   }
 
   const setGreeting = async (token, message) => {
@@ -134,7 +133,7 @@ export default async (bp: typeof sdk) => {
         }
       ]
     }
-    await callProfileApi(payload, token)
+    await sendProfile(payload, token)
   }
 
   const getModuleConfig = async (bp, botId): Promise<any> => {
