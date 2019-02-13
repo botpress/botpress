@@ -96,7 +96,7 @@ export class ScopedMessengerService {
     }
   }
 
-  async getConfig(): Promise<any> {
+  async getConfig(): Promise<Config> {
     if (this.config) {
       return this.config
     }

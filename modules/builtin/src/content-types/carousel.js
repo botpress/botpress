@@ -38,9 +38,46 @@ function render(data) {
   ]
 }
 
+function renderMessenger(data) {
+  const renderElements = data => {
+    return data.items.map(card => ({
+      title: card.title,
+      image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
+      subtitle: card.subtitle,
+      buttons: (card.actions || []).map(a => {
+        if (a.action === 'Open URL') {
+          return {
+            type: 'web_url',
+            url: a.url,
+            title: a.title
+          }
+        }
+      })
+    }))
+  }
+
+  return [
+    {
+      type: 'typing',
+      value: data.typing
+    },
+    {
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: renderElements(data)
+        }
+      }
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
+  } else if (channel === 'messenger') {
+    return renderMessenger(data)
   }
 
   return [] // TODO Handle channel not supported
