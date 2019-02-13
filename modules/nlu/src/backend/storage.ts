@@ -175,7 +175,7 @@ export default class Storage {
   }
 
   private async _cleanupModels(): Promise<void> {
-    const models = await this.getAvailableModels(false)
+    const models = await this._getAvailableModels(false)
     const uniqModelMeta = _.chain(models)
       .orderBy('created_on', 'desc')
       .uniqBy('hash')
@@ -196,7 +196,7 @@ export default class Storage {
     return this._cleanupModels()
   }
 
-  async getAvailableModels(includeGlobalModels: boolean = false): Promise<ModelMeta[]> {
+  private async _getAvailableModels(includeGlobalModels: boolean = false): Promise<ModelMeta[]> {
     const botModels = await this.botGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
     const globalModels = includeGlobalModels
       ? await this.globalGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
@@ -227,12 +227,12 @@ export default class Storage {
   }
 
   async modelExists(modelHash: string): Promise<boolean> {
-    const models = await this.getAvailableModels(false)
+    const models = await this._getAvailableModels(false)
     return !!_.find(models, m => m.hash === modelHash)
   }
 
   async getModelsFromHash(modelHash: string): Promise<Model[]> {
-    const modelsMeta = await this.getAvailableModels(true)
+    const modelsMeta = await this._getAvailableModels(true)
     return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
       const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
       return {

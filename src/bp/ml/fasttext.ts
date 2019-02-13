@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import os from 'os'
 import { VError } from 'verror'
 
 const customFastTextPath = process.env.FAST_TEXT_PATH ? '!' + process.env.FAST_TEXT_PATH : undefined
@@ -7,8 +6,6 @@ const binding = require(customFastTextPath || './fasttext.node')
 
 const FAST_TEXT_VERBOSITY = parseInt(process.env.FAST_TEXT_VERBOSITY || '0')
 const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
-
-const numberOfCPUs = os.cpus.length - 1
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = {
   bucket: 25000,

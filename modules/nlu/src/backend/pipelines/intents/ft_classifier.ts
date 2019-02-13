@@ -14,7 +14,7 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  public static PrebuiltWordvec: string | undefined
+  public static PrebuiltWordVecPath: string | undefined
 
   constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
 
@@ -61,8 +61,8 @@ export default class FastTextClassifier implements IntentClassifier {
     // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
 
-    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = FastTextClassifier.PrebuiltWordvec
-      ? { pretrainedVectors: FastTextClassifier.PrebuiltWordvec }
+    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = FastTextClassifier.PrebuiltWordVecPath
+      ? { pretrainedVectors: FastTextClassifier.PrebuiltWordVecPath }
       : {}
 
     await ft.trainToFile('supervised', modelFn, {

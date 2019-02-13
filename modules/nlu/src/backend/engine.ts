@@ -24,8 +24,8 @@ export default class ScopedEngine {
   public confidenceTreshold: number = 0.7
 
   private _preloaded: boolean = false
+  private _lmLoaded: boolean = false
   private _currentModelHash: string
-  private _loadedLanguageModel: boolean = false
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -127,11 +127,12 @@ export default class ScopedEngine {
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
-  private async _setLanguageModel() {
-    if (this._loadedLanguageModel) {
+  private async _loadLanguageModel() {
+    if (this._lmLoaded) {
       return
     }
 
+    // N/A: we don't care about the hash, we just want the language models which are always returned whatever the hash
     const models = await this.storage.getModelsFromHash('N/A')
 
     const intentLangModel = _.chain(models)
@@ -144,13 +145,13 @@ export default class ScopedEngine {
     if (intentLangModel) {
       const fn = tmpNameSync({ postfix: '.vec' })
       fs.writeFileSync(fn, intentLangModel.model)
-      FastTextClassifier.PrebuiltWordvec = fn
-      this.logger.info(`Loaded language model "${intentLangModel.meta.fileName}"`)
+      FastTextClassifier.PrebuiltWordVecPath = fn
+      this.logger.debug(`Using Language Model "${intentLangModel.meta.fileName}"`)
     } else {
       this.logger.warn(`Language model not found for "${this.config.languageModel}"`)
     }
 
-    this._loadedLanguageModel = true
+    this._lmLoaded = true
   }
 
   private async _loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
@@ -233,7 +234,7 @@ export default class ScopedEngine {
 
   private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
-      await this._setLanguageModel()
+      await this._loadLanguageModel()
 
       const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
       const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
