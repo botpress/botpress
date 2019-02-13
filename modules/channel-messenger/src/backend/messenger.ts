@@ -101,7 +101,7 @@ export class ScopedMessengerService {
       return this.config
     }
 
-    return await this.bp.config.getModuleConfigForBot('channel-messenger', this.botId)
+    return this.bp.config.getModuleConfigForBot('channel-messenger', this.botId)
   }
 
   async setupGetStarted(): Promise<void> {

@@ -108,7 +108,6 @@ const bots = (botService: BotService): typeof sdk.bots => {
 
 const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
-    exists: userRepo.exists.bind(userRepo),
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
