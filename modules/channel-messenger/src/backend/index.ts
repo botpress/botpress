@@ -1,13 +1,11 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
-import { Messenger } from './messenger'
+import { MessengerService } from './messenger'
 
 const onServerStarted = async (bp: typeof sdk) => {
-  bp.logger.warn('Started!')
-
-  const messenger = new Messenger(bp)
-  messenger.initialize()
+  const messengerService = new MessengerService(bp)
+  messengerService.initialize()
 }
 
 const onServerReady = (bp: typeof sdk) => {}
