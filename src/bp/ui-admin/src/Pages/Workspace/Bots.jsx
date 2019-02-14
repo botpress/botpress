@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
 import { connect } from 'react-redux'
 import jdenticon from 'jdenticon'
-import { BotCreationSchema, BotEditSchema } from 'common/validation'
+import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import {
   Jumbotron,
@@ -160,7 +160,6 @@ class Bots extends Component {
             </Col>
           </Row>
         </Jumbotron>
-        {this.renderCreateBot()}
       </div>
     )
   }
@@ -181,41 +180,28 @@ class Bots extends Component {
   }
 
   renderBots() {
-    const bots = this.props.bots && _.orderBy(this.props.bots, ['id'], ['desc'])
-
-    if (!bots.length) {
-      return this.renderEmptyBots()
-    }
-
     return (
       <div className="bp_table">
-        {bots.map(bot => {
-          return (
-            <div className="bp_table-row" key={bot.id}>
-              <div className="actions">
-                <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
-                  <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
-                    Edit
-                  </Button>
-                  |
-                  <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
-                    Delete
-                  </Button>
-                </AccessControl>
-              </div>
-              <div className="title">
-                <a href={`/studio/${bot.id}`}>{bot.name}</a>
-              </div>
-              <p>{bot.description}</p>
+        {_.orderBy(this.props.bots, ['id'], ['desc']).map(bot => (
+          <div className="bp_table-row" key={bot.id}>
+            <div className="actions">
+              <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
+                <Button size="sm" color="link" onClick={() => this.toggleEditBotModal(bot)}>
+                  Edit
+                </Button>
+                |
+                <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
+                  Delete
+                </Button>
+              </AccessControl>
             </div>
-          )
-        })}
+            <div className="title">
+              <a href={`/studio/${bot.id}`}>{bot.name}</a>
+            </div>
+            <p>{bot.description}</p>
+          </div>
+        ))}
         {this.renderEditBot()}
-        <CreateBotModal
-          isOpen={this.state.isCreateBotModalOpen}
-          toggle={this.toggleCreateBotModal}
-          onCreateBotSuccess={this.props.fetchBots}
-        />
       </div>
     )
   }
@@ -234,14 +220,21 @@ class Bots extends Component {
     }, 10)
 
     return (
-      <SectionLayout
-        title={`Your bots`}
-        helpText="This page lists all the bots created under the default workspace."
-        activePage="bots"
-        currentTeam={this.props.team}
-        mainContent={this.renderBots()}
-        sideMenu={this.renderCreateNewBotButton()}
-      />
+      <Fragment>
+        <SectionLayout
+          title={`Your bots`}
+          helpText="This page lists all the bots created under the default workspace."
+          activePage="bots"
+          currentTeam={this.props.team}
+          mainContent={this.props.bots.length > 0 ? this.renderBots() : this.renderEmptyBots()}
+          sideMenu={this.renderCreateNewBotButton()}
+        />
+        <CreateBotModal
+          isOpen={this.state.isCreateBotModalOpen}
+          toggle={this.toggleCreateBotModal}
+          onCreateBotSuccess={this.props.fetchBots}
+        />
+      </Fragment>
     )
   }
 }
