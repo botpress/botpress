@@ -84,9 +84,9 @@ export class ActionStrategy implements InstructionStrategy {
     args = {
       ...args,
       event,
-      user: _.get(event, 'state.user') || {},
-      session: _.get(event, 'state.session') || {},
-      temp: _.get(event, 'state.temp') || {}
+      user: _.get(event, 'state.user', {}),
+      session: _.get(event, 'state.session', {}),
+      temp: _.get(event, 'state.temp', {})
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
@@ -112,9 +112,9 @@ export class ActionStrategy implements InstructionStrategy {
 
     const actionArgs = {
       event,
-      user: _.get(event, 'state.user') || {},
-      session: _.get(event, 'state.session') || {},
-      temp: _.get(event, 'state.temp') || {}
+      user: _.get(event, 'state.user', {}),
+      session: _.get(event, 'state.session', {}),
+      temp: _.get(event, 'state.temp', {})
     }
 
     args = _.mapValues(args, value => renderRecursive(value, actionArgs))
