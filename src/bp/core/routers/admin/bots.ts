@@ -63,7 +63,7 @@ export class BotsRouter extends CustomRouter {
       '/',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const bot = <Bot>_.pick(req.body, ['id', 'name'])
+        const bot = <Bot>_.pick(req.body, ['id', 'name', 'category'])
 
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 

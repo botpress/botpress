@@ -27,16 +27,8 @@ class CreateBotModal extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.botCategoriesFetched && this.props.botCategoriesFetched && this.props.botCategories.length) {
-      this.setState({
-        category: this.props.botCategories[0]
-      })
-    }
-  }
-
   isFormValid = () => {
-    return this.formEl && this.formEl.checkValidity() && this.state.template && this.state.category
+    return this.formEl && this.formEl.checkValidity() && this.state.template
   }
 
   handleNameChanged = e => {
