@@ -136,7 +136,7 @@ Then send a custom event : `window.botpressWebChat.sendEvent({ type: 'update_pro
 
 ### Using a Custom User ID
 
-Users get a new unique User ID each time they use a different device, since it is stored in the local storage. To offer a consistent user experience across different devices, you may want to provide your customer with the same Botpress User ID to make available past conversations, user data, etc.
+Users get a new unique User ID each time they use a different device. To offer a consistent user experience across different devices, you may want to provide your customer with the same Botpress User ID to make available past conversations, user data, etc.
 
 The `window.botpressWebChat` methods `init` and `configure` both accepts the `userId` parameter. It will override the randomly generated one.
 Since the User ID allows BP to recognize the user and to continue a conversation, these should not be guessable and needs to be unique.
