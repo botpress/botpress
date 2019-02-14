@@ -8,16 +8,14 @@ import Select from 'react-select'
 import api from '../../api'
 import { fetchBotTemplates, fetchBotCategories } from '../../reducers/bots'
 
-// TODO add form validation
-// TODO add error message when create bot fails
 // TODO add category in post
 // TODO move create bot in reducer action
 
 class CreateBotModal extends Component {
   state = {
     name: '',
-    template: '',
-    category: '',
+    template: null,
+    category: null,
     error: null
   }
 
@@ -36,16 +34,10 @@ class CreateBotModal extends Component {
         category: this.props.botCategories[0]
       })
     }
-    if (!prevProps.templateFetched && this.props.templateFetched && this.props.botCategories.length) {
-      this.setState({
-        template: this.props.templates[0]
-      })
-    }
   }
 
   isFormValid = () => {
-    // TODO implement this properly
-    return true
+    return this.formEl && this.formEl.checkValidity() && this.state.template && this.state.category
   }
 
   handleNameChanged = e => {
@@ -76,16 +68,12 @@ class CreateBotModal extends Component {
       return
     }
 
-    const name = this.state.name
     const id = this.stanitizeName()
-
+    const name = this.state.name
     const template = _.pick(this.state.template, ['id', 'moduleId'])
 
-    //TODO extrat this in reducer
     try {
-      await api
-        .getSecured()
-        .post(`/admin/bots`, { id, name, template: template.id !== undefined ? template : undefined })
+      await api.getSecured().post(`/admin/bots`, { id, name, template })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
       this.props.toggle()
     } catch (error) {
@@ -93,13 +81,25 @@ class CreateBotModal extends Component {
     }
   }
 
-  render() {
-    const templateModules = _.uniq(this.props.botTemplates.map(m => m.moduleName))
-    const templates = templateModules.map(mod => ({
-      label: mod,
-      options: _.filter(this.props.botTemplates, x => x.moduleName === mod)
+  renderTemplateGroupSelect = () => {
+    const templatesByModule = _.groupBy(this.props.botTemplates, 'moduleName')
+    const groupedOptions = _.toPairs(templatesByModule).map(g => ({
+      label: g[0],
+      options: g[1]
     }))
 
+    return (
+      <Select
+        getOptionLabel={o => o.name}
+        getOptionValue={o => o.id}
+        options={groupedOptions}
+        value={this.state.template}
+        onChange={this.handleTemplateChanged}
+      />
+    )
+  }
+
+  render() {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader toggle={this.props.toggle}>Create a new bot</ModalHeader>
@@ -114,7 +114,7 @@ class CreateBotModal extends Component {
               <Label for="name">
                 <strong>Name</strong>
               </Label>
-              <Input type="text" id="name" value={this.state.name} onChange={this.handleNameChanged} />
+              <Input required type="text" id="name" value={this.state.name} onChange={this.handleNameChanged} />
               <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
             </FormGroup>
             {this.props.botTemplates.length > 0 && (
@@ -122,13 +122,7 @@ class CreateBotModal extends Component {
                 <Label for="template">
                   <strong>Bot Template</strong>
                 </Label>
-                <Select
-                  getOptionLabel={o => o.name}
-                  getOptionValue={o => o.id}
-                  options={templates}
-                  value={this.state.template}
-                  onChange={this.handleTemplateChanged}
-                />
+                {this.renderTemplateGroupSelect()}
               </FormGroup>
             )}
             {this.props.botCategories.length > 0 && (
