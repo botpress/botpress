@@ -50,7 +50,6 @@ export default (state = initialState, action) => {
 export const fetchBotTemplates = () => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/modules/botTemplates')
-    console.log('bottemplates payload', data)
     dispatch({
       type: RECEIVED_BOT_TEMPLATES,
       templates: data
