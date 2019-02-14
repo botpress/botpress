@@ -12,6 +12,7 @@ export const BotCreationSchema = Joi.object().keys({
     .min(3)
     .max(50)
     .required(),
+  category: Joi.string(),
   description: Joi.string()
     .min(3)
     .max(50)
@@ -22,6 +23,7 @@ export const BotEditSchema = Joi.object().keys({
     .min(3)
     .max(50)
     .required(),
+  category: Joi.string(),
   description: Joi.string()
     .min(3)
     .max(50)
