@@ -7,6 +7,7 @@ import api from './api'
 import { registerMiddleware } from './middleware'
 
 import ScopedEngine from './engine'
+import models from './models'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
 import { EngineByBot } from './typings'
@@ -24,6 +25,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, nluByBot)
+  await models(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
