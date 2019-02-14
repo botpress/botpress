@@ -8,16 +8,15 @@ import Select from 'react-select'
 import api from '../../api'
 import { fetchBotTemplates, fetchBotCategories } from '../../reducers/bots'
 
-// TODO add category in post
-// TODO move create bot in reducer action
+const defaultState = {
+  name: '',
+  template: null,
+  category: null,
+  error: null
+}
 
 class CreateBotModal extends Component {
-  state = {
-    name: '',
-    template: null,
-    category: null,
-    error: null
-  }
+  state = { ...defaultState }
 
   componentDidMount() {
     if (!this.props.botCategoriesFetched) {
@@ -48,10 +47,8 @@ class CreateBotModal extends Component {
     this.setState({ template })
   }
 
-  handleCategoryChanged = e => {
-    this.setState({
-      category: e.target.value
-    })
+  handleCategoryChanged = category => {
+    this.setState({ category })
   }
 
   stanitizeName = () => {
@@ -75,6 +72,7 @@ class CreateBotModal extends Component {
 
     try {
       await api.getSecured().post(`/admin/bots`, { id, name, template, category })
+      this.setState({ ...defaultState })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
       this.props.toggle()
     } catch (error) {
@@ -131,13 +129,11 @@ class CreateBotModal extends Component {
                 <Label for="category">
                   <strong>Bot Category</strong>
                 </Label>
-                <Input required type="select" value={this.state.category} onChange={this.handleCategoryChanged}>
-                  {this.props.botCategories.map(cat => (
-                    <option value={cat} key={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </Input>
+                <Select
+                  options={this.props.botCategories.map(cat => ({ label: cat, value: cat }))}
+                  value={this.state.category}
+                  onChange={this.handleCategoryChanged}
+                />
               </FormGroup>
             )}
             <Button className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>

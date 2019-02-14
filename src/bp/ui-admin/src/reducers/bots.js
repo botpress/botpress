@@ -83,5 +83,3 @@ export const fetchBots = () => {
     })
   }
 }
-
-// TODO implement create bot
