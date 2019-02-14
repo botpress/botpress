@@ -60,7 +60,7 @@ class CreateBotModal extends Component {
     const id = this.stanitizeName()
     const name = this.state.name
     const template = _.pick(this.state.template, ['id', 'moduleId'])
-    const category = this.state.category.value
+    const category = this.state.category ? this.state.category.value : null
 
     try {
       await api.getSecured().post(`/admin/bots`, { id, name, template, category })
