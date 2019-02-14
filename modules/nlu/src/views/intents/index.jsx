@@ -81,11 +81,7 @@ export default class IntentsComponent extends React.Component {
       return this.createNewIntent()
     }
 
-    await this.props.bp.axios.post(`/mod/nlu/intents/${name}`, {
-      utterances: [],
-      slots: [],
-      contexts: ['global']
-    })
+    await this.props.bp.axios.post(`/mod/nlu/intents`, { name })
     await this.fetchIntents()
     await this.setCurrentIntent(name)
   }

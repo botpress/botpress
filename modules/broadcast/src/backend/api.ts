@@ -5,7 +5,9 @@ export default async (bp: SDK, db: Database) => {
   const router = bp.http.createRouterForBot('broadcast')
 
   router.get('/broadcasts', (req, res, next) => {
-    db.listSchedules().then(rows => {
+    const { botId } = req.params
+
+    db.listSchedules(botId).then(rows => {
       const broadcasts = rows.map(row => {
         const [date, time] = row.date_time.split(' ')
 
@@ -31,11 +33,14 @@ export default async (bp: SDK, db: Database) => {
 
   router.put('/broadcasts', (req, res, next) => {
     const { date, time, timezone, content, type, filters } = req.body
-    db.addSchedule({ date, time, timezone, content, type, filters }).then(id => res.send({ id: id }))
+    const { botId } = req.params
+
+    db.addSchedule({ botId, date, time, timezone, content, type, filters }).then(id => res.send({ id: id }))
   })
 
   router.post('/broadcasts', (req, res, next) => {
     const { id, date, time, timezone, content, type, filters } = req.body
+
     db.updateSchedule({ id, date, time, timezone, content, type, filters })
       .then(() => res.sendStatus(200))
       .catch(err => {

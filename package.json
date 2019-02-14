@@ -41,7 +41,7 @@
     "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",
     "jsonwebtoken": "^8.3.0",
-    "knex": "^0.15.2",
+    "knex": "^0.16.4-next1",
     "ldapauth-fork": "^4.2.0",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.0",

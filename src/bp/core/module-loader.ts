@@ -55,7 +55,7 @@ export class ModuleLoader {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
-  ) {}
+  ) { }
 
   public get configReader() {
     if (this._configReader) {

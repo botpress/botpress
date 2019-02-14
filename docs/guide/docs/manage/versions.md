@@ -13,10 +13,9 @@ For your convenience Botpress provides the GUI tools to edit these files while i
 
 To address this issue, we give you the Ghost Content feature. In production, your changes are saved to the database which is persisted between deployments. But how do you get these changes back to your bot's codebase? Simple, the botpress cli gives you a special command to pull pending changes on your server for all your bots and server wide files. `./bp pull --url {SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}`
 
-You can also head to the versioning tab of your botpress admin panel at https://your.bp.ai/admin/versioning, the command will be properly formatted for you (including your token) any changes have been made. Just paste it to your shell and the changes will be extracted in the provided target directory. A successful output should look like the following: 
+You can also head to the versioning tab of your botpress admin panel at https://your.bp.ai/admin/settings/version, the command will be properly formatted for you (including your token) any changes have been made. Just paste it to your shell and the changes will be extracted in the provided target directory. A successful output should look like the following:
 
 ![versioning pull](assets/versioning-pull.png)
-
 
 Notice that without any changes, you will see a **You're all set!** message.
 
@@ -30,9 +29,9 @@ Fine, now what if you have a more complex deployment pipeine with a(or multiple)
 
 In this section, we will again use the power of your preferred Source Control Tool (we'll use git in this tutorial) to sync changes between 2 enviroment & promote an enviroment (i.e. promote staging to production).
 
-Given a pipeline with 3 enviroments, **development**, **staging** and **production**. Let's say there are some changes both on production and staging & you want to promote staging to production. What we want to do is the following : 
+Given a pipeline with 3 enviroments, **development**, **staging** and **production**. Let's say there are some changes both on production and staging & you want to promote staging to production. What we want to do is the following :
 
-1- to create merge conflict so we can choose what we want in a merge conflict tool. 
+1- to create merge conflict so we can choose what we want in a merge conflict tool.
 2- resolve conflicts (i.e merge staging into production)
 3- push the results to master so it can be deployed to your production environment.
 

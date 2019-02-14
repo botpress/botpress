@@ -96,7 +96,7 @@ export class BotService {
   }
 
   async addBot(bot: Bot, botTemplate: BotTemplate): Promise<void> {
-    this.stats.track('ce', 'addBot')
+    this.stats.track('bot', 'create')
 
     const { error } = Joi.validate(bot, BotCreationSchema)
     if (error) {
@@ -109,7 +109,7 @@ export class BotService {
   }
 
   async updateBot(botId: string, bot: Bot): Promise<void> {
-    this.stats.track('ce', 'updateBot')
+    this.stats.track('bot', 'update')
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
@@ -124,6 +124,8 @@ export class BotService {
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
   async deleteBot(botId: string) {
+    this.stats.track('bot', 'delete')
+
     await this.unmountBot(botId)
     await this.ghostService.forBot(botId).deleteFolder('/')
     this._invalidateBotIds()

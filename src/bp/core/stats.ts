@@ -5,8 +5,6 @@ import ua, { Visitor } from 'universal-analytics'
 import { ConfigProvider } from './config/config-loader'
 import { TYPES } from './types'
 
-export type StatsCategory = 'server' | 'bot' | 'auth' | 'license' | 'ce' | 'pro'
-
 @injectable()
 export class Statistics {
   private _visitor: Visitor | undefined
@@ -26,7 +24,14 @@ export class Statistics {
     this._queued = []
   }
 
-  public track(category: StatsCategory, action: string, label: string = '', value: string | number = '') {
+  /**
+   * Send an event to Google Analytics
+   * @param category Typically the object that was interacted with (e.g. 'Video')
+   * @param action The type of interaction (e.g. 'play')
+   * @param label Useful for categorizing events (e.g. 'Fall Campaign')
+   * @param value A numeric value associated with the event (e.g. 42)
+   */
+  public track(category: string, action: string, label: string = '', value: string | number = '') {
     if (!this._sendUsageStats) {
       return
     }

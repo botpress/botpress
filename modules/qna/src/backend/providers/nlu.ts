@@ -63,12 +63,13 @@ export default class Storage implements QnaStorage {
 
       if (question.data.enabled && !matchedIntent) {
         const intent = {
+          name: getIntentId(question.id),
           entities: [],
           contexts: [question.data.category || 'global'],
           utterances: normalizeQuestions(question.data.questions)
         }
 
-        await axios.post(`/mod/nlu/intents/${getIntentId(question.id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents`, intent, this.axiosConfig)
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
@@ -78,14 +79,14 @@ export default class Storage implements QnaStorage {
     id = id || getQuestionId(data)
     if (data.enabled) {
       const intent = {
+        name: getIntentId(id),
         entities: [],
         contexts: [data.category || 'global'],
         utterances: normalizeQuestions(data.questions)
       }
 
       await this.checkForDuplicatedQuestions(intent.utterances, id)
-
-      await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      await axios.post(`/mod/nlu/intents`, intent, this.axiosConfig)
     } else {
       await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
     }
@@ -103,13 +104,14 @@ export default class Storage implements QnaStorage {
 
       if (data.enabled) {
         const intent = {
+          name: getIntentId(id),
           entities: [],
           contexts: [data.category || 'global'],
           utterances: normalizeQuestions(data.questions)
         }
 
         await this.checkForDuplicatedQuestions(intent.utterances)
-        await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents`, intent, this.axiosConfig)
       }
 
       await this.bp.ghost

@@ -72,13 +72,6 @@ export class KeyValueStore {
       })
 
   set = (botId: string, key: string, value, path?: string) => {
-    if (!value) {
-      // We might want to throw an error here.
-      // But we might actually want to insert an undefined value on a key.
-      // Or should we just delete the key?
-      this.logger.forBot(botId).warn(`An undefined value has been set for key "${key}"`)
-    }
-
     if (!path) {
       return this.upsert(botId, key, value)
     }

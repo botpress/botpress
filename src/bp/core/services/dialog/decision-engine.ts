@@ -98,7 +98,7 @@ export class DecisionEngine {
   protected _amendSuggestionsWithDecision(suggestions: IO.Suggestion[], turnsHistory: IO.DialogTurnHistory[]) {
     // TODO Write unit tests
     // TODO The ML-based decision unit will be inserted here
-    const replies = _.sortBy(suggestions, ['confidence'], ['DESC'])
+    const replies = _.orderBy(suggestions, ['confidence'], ['desc'])
     const lastMsg = _.last(turnsHistory)
     const lastMessageSource = lastMsg && lastMsg.replySource
 

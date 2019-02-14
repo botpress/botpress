@@ -95,7 +95,7 @@ export namespace Hooks {
 
     constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
       this.timeout = 1000
-      this.args = { bp, event, suggestions }
+      this.args = { bp, sessionId, event, suggestions }
       this.folder = 'before_suggestions_election'
     }
   }
