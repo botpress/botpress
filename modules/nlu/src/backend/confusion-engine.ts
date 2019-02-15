@@ -42,10 +42,10 @@ export default class ConfusionEngine extends ScopedEngine {
     this.originalModelHash = modelHash
 
     await folder.fold('intents', this._trainIntents.bind(this), this._evaluateIntents.bind(this))
-    await this.processResults(folder.getResults())
+    await this._processResults(folder.getResults())
   }
 
-  private async processResults(results: Result) {
+  private async _processResults(results: Result) {
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
     this.storage.saveConfusionMatrix(this.originalModelHash, results)
 
