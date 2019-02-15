@@ -6,7 +6,8 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
-import { Model, MODEL_TYPES, ModelMeta } from './typings'
+import { Result } from './tools/five-fold'
+import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 10
 
@@ -47,6 +48,18 @@ export default class Storage {
     }
 
     await this.botGhost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
+  }
+
+  async saveConfusionMatrix(modelHash: string, results: Result) {
+    await this.botGhost.upsertFile(
+      this.modelsDir,
+      `confusion__${modelHash}.json`,
+      JSON.stringify(results, undefined, 2)
+    )
+  }
+
+  async getConfusionMatrix(modelHash: string): Promise<Result> {
+    return this.botGhost.readFileAsObject<Result>(this.modelsDir, `confusion__${modelHash}.json`)
   }
 
   async deleteIntent(intent) {

@@ -26,9 +26,9 @@ export interface Sequence {
 export type EngineByBot = { [botId: string]: Engine }
 
 export interface Engine {
-  sync(): Promise<void>
+  sync(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
-  extract(event): Promise<sdk.IO.EventUnderstanding>
+  extract(text: string): Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface EntityExtractor {

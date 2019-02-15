@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 
+import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
@@ -8,11 +9,16 @@ import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
 
-  const syncNLU = async (botEngine: ScopedEngine): Promise<void> => {
+  const syncNLU = async (botEngine: ScopedEngine, confusionMode: boolean = false): Promise<string> => {
     const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
+
+    if (confusionMode && botEngine instanceof ConfusionEngine) {
+      botEngine.computeConfusionOnTrain = true
+    }
+
     try {
-      await botEngine.sync()
+      return await botEngine.sync(confusionMode)
     } catch (e) {
       bp.realtime.sendPayload(
         bp.RealTimePayload.forAdmins('toast.nlu-sync', {
@@ -20,11 +26,33 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
           type: 'error'
         })
       )
+    } finally {
+      if (confusionMode && botEngine instanceof ConfusionEngine) {
+        botEngine.computeConfusionOnTrain = false
+      }
+      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
     }
-
-    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
   }
+
+  router.get('/confusion/:modelHash', async (req, res) => {
+    try {
+      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)
+      res.send(matrix)
+    } catch (err) {
+      res.sendStatus(401)
+    }
+  })
+
+  router.post('/confusion', async (req, res) => {
+    try {
+      const botEngine = nlus[req.params.botId] as ScopedEngine
+      const modelHash = await syncNLU(botEngine, true)
+      res.send({ modelHash })
+    } catch (err) {
+      res.status(400).send('Could not train confusion matrix')
+    }
+  })
 
   router.get('/intents', async (req, res) => {
     res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntents())

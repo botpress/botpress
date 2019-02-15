@@ -45,9 +45,9 @@ export default class ScopedEngine {
   private _autoTrainTimer: NodeJS.Timer
 
   constructor(
-    private logger: sdk.Logger,
-    private botId: string,
-    private readonly config: Config,
+    protected logger: sdk.Logger,
+    protected botId: string,
+    protected readonly config: Config,
     readonly toolkit: typeof sdk.MLToolkit
   ) {
     this.storage = new Storage(config, this.botId)
@@ -78,7 +78,14 @@ export default class ScopedEngine {
     }
   }
 
-  async sync(): Promise<void> {
+  protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
+    return this.storage.getIntents()
+  }
+
+  /**
+   * @return The trained model hash
+   */
+  async sync(forceRetrain: boolean = false): Promise<string> {
     if (this._isSyncing) {
       this._isSyncingTwice = true
       return
@@ -86,38 +93,46 @@ export default class ScopedEngine {
 
     try {
       this._isSyncing = true
-      const intents = await this.storage.getIntents()
+      const intents = await this.getIntents()
       const modelHash = this._getModelHash(intents)
+      let loaded = false
 
-      if (await this.storage.modelExists(modelHash)) {
+      if (!forceRetrain && (await this.storage.modelExists(modelHash))) {
         try {
-          await this._loadModels(intents, modelHash)
+          await this.loadModels(intents, modelHash)
+          loaded = true
         } catch (e) {
-          this.logger.attachError(e).warn('Cannot load models from storage')
-          await this._trainModels(intents, modelHash)
+          this.logger.attachError(e).warn('Could not load models from storage')
         }
-      } else {
-        this.logger.debug('Models need to be retrained')
-        await this._trainModels(intents, modelHash)
+      }
+
+      if (!loaded) {
+        this.logger.debug('Retraining model')
+        await this.trainModels(intents, modelHash)
+        await this.loadModels(intents, modelHash)
       }
 
       this._currentModelHash = modelHash
       this._preloaded = true
+    } catch (e) {
+      this.logger.attachError(e).error('Could not sync model')
     } finally {
       this._isSyncing = false
       if (this._isSyncingTwice) {
         this._isSyncingTwice = false
-        this.sync() // This floating promise is voluntary
+        return this.sync() // This floating promise is voluntary
       }
     }
+
+    return this._currentModelHash
   }
 
-  async extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.sync()
     }
 
-    return retry(() => this._extract(incomingEvent), this.retryPolicy)
+    return retry(() => this._extract(text), this.retryPolicy)
   }
 
   async checkSyncNeeded(): Promise<boolean> {
@@ -154,7 +169,7 @@ export default class ScopedEngine {
     this._lmLoaded = true
   }
 
-  private async _loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
+  protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     const models = await this.storage.getModelsFromHash(modelHash)
@@ -232,7 +247,7 @@ export default class ScopedEngine {
     }
   }
 
-  private async _trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+  protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
       await this._loadLanguageModel()
 
@@ -281,11 +296,10 @@ export default class ScopedEngine {
     return await this.slotExtractor.extract(text, intentDef, entities)
   }
 
-  private async _extract(incomingEvent: sdk.IO.Event): Promise<sdk.IO.EventUnderstanding> {
+  private async _extract(text: string): Promise<sdk.IO.EventUnderstanding> {
     let ret: any = { errored: true }
     const t1 = Date.now()
     try {
-      const text = incomingEvent.preview
       ret.language = await this.langDetector.identify(text)
       ret = { ...ret, ...(await this._extractIntents(text)) }
       ret.entities = await this._extractEntities(text, ret.language)

@@ -6,7 +6,7 @@ import { Config } from '../config'
 import api from './api'
 import { registerMiddleware } from './middleware'
 
-import ScopedEngine from './engine'
+import ConfusionEngine from './confusion-engine'
 import models from './models'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
@@ -30,7 +30,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
-  const scoped = new ScopedEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
+  const scoped = new ConfusionEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
   await scoped.init()
   nluByBot[botId] = scoped
 }
