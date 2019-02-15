@@ -318,7 +318,14 @@ export default class Database {
 
 ### Migration
 
-Database migration isn't available at the moment, it should be added in a future iteration
+The method `bp.database.runMigrations` method can be used to run module-specific migrations.
+
+**Example**
+
+```js
+// NOTE: The path to module migration must be absolute path (to prevent errors)
+bp.database.runMigrations('moduleName', '/path/to/mod/migrations')
+```
 
 ### Knex extension
 

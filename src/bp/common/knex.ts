@@ -14,4 +14,5 @@ export interface KnexExtension {
     returnColumns?: string | string[],
     idColumnName?: string
   ): Promise<T>
+  runMigrations(moduleName: string, directory: string): Promise<any>
 }

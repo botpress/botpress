@@ -143,6 +143,13 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     get: obj => (isLite ? obj && JSON.parse(obj) : obj)
   }
 
+  const runMigrations = (moduleName, directory) => knex.migrate.latest({
+    directory,
+    tableName: `knex_${moduleName}_migrations`,
+    //@ts-ignore
+    loadExtensions: ['.js']
+  })
+
   const extensions: KnexExtension = {
     isLite,
     location,
@@ -151,7 +158,8 @@ export const patchKnex = (knex: Knex): Knex & KnexExtension => {
     json,
     bool,
     createTableIfNotExists,
-    insertAndRetrieve
+    insertAndRetrieve,
+    runMigrations
   }
 
   return Object.assign(knex, extensions)
