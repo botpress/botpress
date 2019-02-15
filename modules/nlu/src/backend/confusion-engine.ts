@@ -47,7 +47,7 @@ export default class ConfusionEngine extends ScopedEngine {
 
   private async _processResults(results: Result) {
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
-    this.storage.saveConfusionMatrix(this.originalModelHash, results)
+    await this.storage.saveConfusionMatrix(this.originalModelHash, results)
 
     const intents = results['intents']
     this.logger.debug('=== Confusion Matrix ===')
