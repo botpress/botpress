@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { TYPES } from 'core/types'
+import fs from 'fs'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -83,9 +84,15 @@ export default class Database {
     await this.bootstrap()
   }
 
-  runMigrations() {
-    return this.knex.migrate.latest({
-      directory: path.resolve(__dirname, './migrations'),
+  async runMigrations(): Promise<void> {
+    const dir = path.resolve(__dirname, './migrations')
+
+    if (!fs.existsSync(dir)) {
+      return
+    }
+
+    await this.knex.migrate.latest({
+      directory: dir,
       tableName: 'knex_core_migrations',
       // @ts-ignore
       loadExtensions: ['.js']
