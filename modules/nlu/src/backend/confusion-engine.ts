@@ -12,12 +12,14 @@ type TrainingEntry = {
 /**
  * A specialized version of the NLU Engine that has added support for Confusion Matrix
  * This engine is much slower because it trains multiple models instead of only one
+ * For practical reasons, set `computeConfusionOnTrain` to true to enable Confusion Matrix computations.
  */
 export default class ConfusionEngine extends ScopedEngine {
   private modelName: string = ''
   private modelIdx: number = 0
   private originalModelHash: string = ''
 
+  /** Toggles computing Confusion Matrices on training */
   public computeConfusionOnTrain: boolean = false
 
   async init(): Promise<void> {
