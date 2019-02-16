@@ -148,7 +148,8 @@ export default class ConfigReader {
     return this.getMerged(moduleId)
   }
 
-  @Memoize()
+  // Don't @Memoize() this fn. It only memoizes on the first argument
+  // https://github.com/steelsojka/lodash-decorators/blob/master/src/memoize.ts#L15
   public getForBot(moduleId: string, botId: string): Promise<Config> {
     return this.getMerged(moduleId, botId)
   }
