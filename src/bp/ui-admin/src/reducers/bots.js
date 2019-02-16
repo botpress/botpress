@@ -19,13 +19,13 @@ export default (state = initialState, action) => {
     case RECEIVED_BOT_CATEGORIES:
       return {
         ...state,
-        botCategories: action.categories,
+        botCategories: action.categories || [],
         botCategoriesFetched: true
       }
     case RECEIVED_BOT_TEMPLATES:
       return {
         ...state,
-        botTemplates: action.templates,
+        botTemplates: action.templates || [],
         botTemplatesFetched: true
       }
     case FETCH_BOTS_REQUESTED:
