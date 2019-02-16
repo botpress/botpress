@@ -2,13 +2,27 @@ import _ from 'lodash'
 
 export type RecordCallback = (expected: string, actual: string) => void
 
+export interface ConfusionMap {
+  [cls: string]: Map<string, number>
+}
+
 export interface F1 {
   tp: { [cls: string]: number }
   fp: { [cls: string]: number }
   fn: { [cls: string]: number }
+  confusions: ConfusionMap
 }
 
-const NeverNaNProxy = {
+const MapProxy = {
+  get: function(target, prop) {
+    if (typeof target[prop] === 'undefined') {
+      target[prop] = new Map<string, number>()
+    }
+    return target[prop]
+  }
+}
+
+const ZeroProxy = {
   get: function(target, prop) {
     return target[prop] || 0
   }
@@ -36,9 +50,10 @@ export class FiveFolder<T> {
     evaluateFn: ((testSet: T[], record: RecordCallback) => Promise<void>)
   ) {
     this.results[suiteName] = {
-      fp: new Proxy({}, NeverNaNProxy),
-      tp: new Proxy({}, NeverNaNProxy),
-      fn: new Proxy({}, NeverNaNProxy)
+      fp: new Proxy({}, ZeroProxy),
+      tp: new Proxy({}, ZeroProxy),
+      fn: new Proxy({}, ZeroProxy),
+      confusions: new Proxy({}, MapProxy)
     }
 
     const shuffled = _.shuffle(this.dataset)
@@ -52,12 +67,13 @@ export class FiveFolder<T> {
   }
 
   _record = suiteName => (expected: string, actual: string) => {
-    const { tp, fp, fn } = this.results[suiteName]
+    const { tp, fp, fn, confusions } = this.results[suiteName]
     if (expected === actual) {
       tp[expected] = tp[expected] + 1
     } else {
       fp[actual] = fp[actual] + 1
       fn[expected] = fn[expected] + 1
+      confusions[expected].set(actual, (confusions[expected].get(actual) || 0) + 1)
     }
   }
 
@@ -73,6 +89,7 @@ export class FiveFolder<T> {
       const result: { [cls: string]: SuiteResult } = {}
 
       for (const cls of classes) {
+        const confusions = serializeMap(this.results[suite].confusions[cls])
         const precision = this.results[suite].tp[cls] / (this.results[suite].tp[cls] + this.results[suite].fp[cls])
         const recall = this.results[suite].tp[cls] / (this.results[suite].tp[cls] + this.results[suite].fn[cls])
         const f1 = 2 * ((precision * recall) / (precision + recall))
@@ -81,11 +98,13 @@ export class FiveFolder<T> {
             tp: this.results[suite].tp[cls],
             fp: this.results[suite].fp[cls],
             fn: this.results[suite].fn[cls],
+            samples: this.results[suite].tp[cls] + this.results[suite].fn[cls],
+            confusions: confusions,
             precision: isNaN(precision) ? 0 : precision,
             recall: isNaN(recall) ? 0 : recall,
             f1: isNaN(f1) ? 0 : f1
           },
-          NeverNaNProxy
+          ZeroProxy
         )
       }
 
@@ -103,4 +122,11 @@ export class FiveFolder<T> {
 
     return ret
   }
+}
+
+function serializeMap(map: Map<string, number>): any {
+  return Array.from(map.entries()).reduce((acc, curr) => {
+    acc[curr[0]] = curr[1]
+    return acc
+  }, {})
 }
