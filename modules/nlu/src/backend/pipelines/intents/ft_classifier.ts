@@ -4,6 +4,7 @@ import _ from 'lodash'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
+import { FastTextOverrides } from '../../../config'
 import { IntentClassifier, IntentModel } from '../../typings'
 
 interface TrainSet {
@@ -14,9 +15,26 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  public static PrebuiltWordVecPath: string | undefined
+  public prebuiltWordVecPath: string | undefined
 
-  constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
+  constructor(
+    private toolkit: typeof sdk.MLToolkit,
+    private readonly logger: sdk.Logger,
+    private readonly ftOverrides: FastTextOverrides
+  ) {}
+
+  private getFastTextParams(): Partial<sdk.MLToolkit.FastText.TrainArgs> {
+    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = this.prebuiltWordVecPath
+      ? { pretrainedVectors: this.prebuiltWordVecPath }
+      : {}
+
+    return {
+      ...extraArgs,
+      lr: _.get(this.ftOverrides, 'learningRate', 0.8),
+      epoch: _.get(this.ftOverrides, 'epoch', 5),
+      wordNgrams: _.get(this.ftOverrides, 'wordNgrams', 3)
+    }
+  }
 
   private sanitizeText(text: string): string {
     return text
@@ -61,15 +79,9 @@ export default class FastTextClassifier implements IntentClassifier {
     // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
 
-    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = FastTextClassifier.PrebuiltWordVecPath
-      ? { pretrainedVectors: FastTextClassifier.PrebuiltWordVecPath }
-      : {}
-
     await ft.trainToFile('supervised', modelFn, {
-      ...extraArgs,
-      input: dataFn,
-      epoch: 50,
-      lr: 0.8
+      ...this.getFastTextParams(),
+      input: dataFn
     })
 
     return { ft, data: readFileSync(modelFn) }

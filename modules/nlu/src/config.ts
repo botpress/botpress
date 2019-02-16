@@ -32,4 +32,17 @@ export interface Config {
    *  @default en
    */
   languageModel: string
+
+  /**
+   * Fine-tuning of the fastText classifier parameters
+   * WARNING: For advanced users only
+   * @default {}
+   */
+  fastTextOverrides?: FastTextOverrides
+}
+
+export interface FastTextOverrides {
+  learningRate?: number
+  epoch?: number
+  wordNgrams?: number
 }

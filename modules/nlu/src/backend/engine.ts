@@ -51,7 +51,7 @@ export default class ScopedEngine {
     readonly toolkit: typeof sdk.MLToolkit
   ) {
     this.storage = new Storage(config, this.botId)
-    this.intentClassifier = new FastTextClassifier(toolkit, this.logger)
+    this.intentClassifier = new FastTextClassifier(toolkit, this.logger, this.config.fastTextOverrides || {})
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
@@ -157,10 +157,10 @@ export default class ScopedEngine {
       .first()
       .value()
 
-    if (intentLangModel) {
+    if (intentLangModel && this.intentClassifier instanceof FastTextClassifier) {
       const fn = tmpNameSync({ postfix: '.vec' })
       fs.writeFileSync(fn, intentLangModel.model)
-      FastTextClassifier.PrebuiltWordVecPath = fn
+      this.intentClassifier.prebuiltWordVecPath = fn
       this.logger.debug(`Using Language Model "${intentLangModel.meta.fileName}"`)
     } else {
       this.logger.warn(`Language model not found for "${this.config.languageModel}"`)
