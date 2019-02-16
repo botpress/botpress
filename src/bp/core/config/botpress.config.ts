@@ -128,6 +128,12 @@ export type BotpressConfig = {
    * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
    */
   dataRetention?: DataRetentionConfig
+  /**
+   * An array of categories in which a bot can be created in your botpress installation. Good for platform use-cases.
+   * @example: ['customer service', 'e-commerce', 'etc']
+   * @default []
+   */
+  botCategories: string[]
 }
 
 export interface DataRetentionConfig {
