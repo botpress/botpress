@@ -182,7 +182,11 @@ export class Botpress {
       )
     }
 
-    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
+    const bots = await this.botService.getBots()
+    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+    const botsToMount = _.without(botsRef, ...disabledBots)
+
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')

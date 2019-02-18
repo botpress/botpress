@@ -108,18 +108,34 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  async updateBot(botId: string, bot: Bot): Promise<void> {
+  async updateBot(botId: string, updatedBot: Bot): Promise<void> {
     this.stats.track('bot', 'update')
 
-    const { error } = Joi.validate(bot, BotEditSchema)
+    const { error } = Joi.validate(updatedBot, BotEditSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
 
     const actualBot = await this.configProvider.getBotConfig(botId)
-    actualBot.name = bot.name
-    actualBot.description = bot.description
-    await this.configProvider.setBotConfig(botId, actualBot)
+    const updatedFields = _.pick(updatedBot, [
+      'name',
+      'description',
+      'category',
+      'details',
+      'disabled',
+      'private'
+    ]) as Partial<BotConfig>
+
+    await this.configProvider.setBotConfig(botId, {
+      ...actualBot,
+      ...updatedFields
+    })
+
+    if (actualBot.disabled && !updatedBot.disabled) {
+      await this.mountBot(botId)
+    } else if (!actualBot.disabled && updatedBot.disabled) {
+      await this.unmountBot(botId)
+    }
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })

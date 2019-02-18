@@ -5,7 +5,7 @@ import { MdHome, MdKeyboardArrowLeft } from 'react-icons/lib/md'
 import { AccessControl } from '../../App/AccessControl'
 import { fetchPermissions } from '../../reducers/user'
 import { fetchLicensing } from '../../reducers/license'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, matchPath } from 'react-router-dom'
 
 class TabLayout extends Component {
   state = {
@@ -38,7 +38,7 @@ class TabLayout extends Component {
       <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
           <NavLink
-            className={this.props.location.pathname === tab.route ? 'active' : ''}
+            className={matchPath(this.props.location.pathname, { path: tab.route }) ? 'active' : ''}
             onClick={() => this.updateRoute(tab.route)}
           >
             {tab.icon}
