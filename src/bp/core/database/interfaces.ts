@@ -7,7 +7,7 @@ export abstract class Table {
   abstract get name(): string
 }
 
-export abstract class DatabaseMigration {
-  abstract up(knex: Knex): Promise<void>
-  abstract down(knex: Knex): Promise<void>
+export interface DatabaseMigration {
+  up(knex: Knex): Promise<void>
+  down(knex: Knex): Promise<void>
 }
