@@ -134,13 +134,11 @@ export default class BroadcastDb {
   }
 
   async getUsersTimezone() {
-    // TODO: need add "timezone" to users
     const attrs = await this.knex('srv_channel_users')
       .select('attributes')
     const timezones = attrs.map(({ attributes: { timezone } }) => timezone)
-    const timezonesMap = [...new Set(timezones)]
 
-    return timezonesMap
+    return [...new Set(timezones)]
   }
 
   setBroadcastOutbox(botId, schedule, tz) {
