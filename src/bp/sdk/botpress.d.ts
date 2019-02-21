@@ -559,7 +559,11 @@ declare module 'botpress/sdk' {
     id: string
     name: string
     description?: string
+    category?: string
+    details: BotDetails
     author?: string
+    disabled?: boolean
+    private?: boolean
     version: string
     imports: {
       /** Defines the list of content types supported by the bot */
@@ -567,6 +571,13 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+  }
+
+  export interface BotDetails {
+    website?: string
+    phoneNumber?: string
+    termsConditions?: string
+    emailAddress?: string
   }
 
   export interface LogsConfig {

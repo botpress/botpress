@@ -34,7 +34,11 @@ export type BotConfig = {
   /** The name of the bot, used for display purpose only */
   name: string
   description?: string
+  category?: string
+  details: BotDetails
   author?: string
+  disabled?: boolean
+  private?: boolean
   /**
    * @default 1.0.0
    */
@@ -45,6 +49,13 @@ export type BotConfig = {
   }
   dialog?: DialogConfig
   logs?: LogsConfig
+}
+
+export interface BotDetails {
+  website?: string
+  phoneNumber?: string
+  termsConditions?: string
+  emailAddress?: string
 }
 
 export const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']

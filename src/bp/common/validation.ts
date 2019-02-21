@@ -28,5 +28,25 @@ export const BotEditSchema = Joi.object().keys({
   description: Joi.string()
     .min(3)
     .max(50)
-    .required()
+    .required(),
+  disabled: Joi.bool(),
+  private: Joi.bool(),
+  details: {
+    website: Joi.string()
+      .uri()
+      .optional()
+      .allow(''),
+    termsConditions: Joi.string()
+      .uri()
+      .optional()
+      .allow(''),
+    phoneNumber: Joi.string()
+      .max(20)
+      .optional()
+      .allow(''),
+    emailAddress: Joi.string()
+      .email()
+      .optional()
+      .allow('')
+  }
 })
