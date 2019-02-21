@@ -6,8 +6,3 @@ export abstract class Table {
   abstract bootstrap(): Promise<boolean>
   abstract get name(): string
 }
-
-export interface DatabaseMigration {
-  up(knex: Knex): Promise<void>
-  down(knex: Knex): Promise<void>
-}
