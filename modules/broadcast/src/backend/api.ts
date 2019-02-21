@@ -4,7 +4,7 @@ import Database from './db'
 export default async (bp: SDK, db: Database) => {
   const router = bp.http.createRouterForBot('broadcast')
 
-  router.get('/broadcasts', (req, res, next) => {
+  router.get('/', (req, res, next) => {
     const { botId } = req.params
 
     db.listSchedules(botId).then(rows => {
@@ -31,14 +31,14 @@ export default async (bp: SDK, db: Database) => {
     })
   })
 
-  router.put('/broadcasts', (req, res, next) => {
+  router.put('/', (req, res, next) => {
     const { date, time, timezone, content, type, filters } = req.body
     const { botId } = req.params
 
     db.addSchedule({ botId, date, time, timezone, content, type, filters }).then(id => res.send({ id: id }))
   })
 
-  router.post('/broadcasts', (req, res, next) => {
+  router.post('/', (req, res, next) => {
     const { id, date, time, timezone, content, type, filters } = req.body
 
     db.updateSchedule({ id, date, time, timezone, content, type, filters })
@@ -48,7 +48,7 @@ export default async (bp: SDK, db: Database) => {
       })
   })
 
-  router.delete('/broadcasts/:id', (req, res, next) => {
+  router.delete('/:id', (req, res, next) => {
     db.deleteSchedule(req.params.id)
       .then(() => {
         res.sendStatus(200)

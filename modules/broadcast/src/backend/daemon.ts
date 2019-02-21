@@ -12,11 +12,6 @@ const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
 export default async (botId: string, bp: SDK, db: Database) => {
-  let { schedulingLock } = await bp.kvs.get(botId, 'broadcast/lock/scheduling')
-  let { sendingLock } = await bp.kvs.get(botId, 'broadcast/lock/sending')
-
-  // const emitChanged = () => ({})
-  // NOTE: look as bp.events make other job
   const emitChanged = _.throttle(() => {
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('broadcast.changed', {}))
   }, 1000)
@@ -90,6 +85,8 @@ export default async (botId: string, bp: SDK, db: Database) => {
   }
 
   async function scheduleToOutbox(botId) {
+    const { schedulingLock } = await bp.kvs.get(botId, 'broadcast/lock/scheduling')
+
     if (!db.knex || schedulingLock) {
       return
     }
@@ -104,7 +101,6 @@ export default async (botId: string, bp: SDK, db: Database) => {
     const upcomingFixedTime = db.knex.date.isAfter(inFiveMinutes, 'ts')
     const upcomingVariableTime = db.knex.date.isAfter(endOfDay, 'date_time')
 
-    schedulingLock = true
     await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: true })
 
     const schedules = await db.getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime)
@@ -131,17 +127,17 @@ export default async (botId: string, bp: SDK, db: Database) => {
       })
     })
 
-    schedulingLock = false
     await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: false })
   }
 
   async function sendBroadcasts(botId) {
     try {
+      const { sendingLock } = await bp.kvs.get(botId, 'broadcast/lock/sending')
+
       if (!db.knex || sendingLock) {
         return
       }
 
-      sendingLock = true
       await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: true })
 
       const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
@@ -169,7 +165,6 @@ export default async (botId: string, bp: SDK, db: Database) => {
     } catch (error) {
       bp.logger.error('Broadcast sending error: ', error.message)
     } finally {
-      sendingLock = false
       await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: false })
     }
   }
