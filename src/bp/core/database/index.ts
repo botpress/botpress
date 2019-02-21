@@ -4,6 +4,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
+import path from 'path'
 
 import { patchKnex } from './helpers'
 import { Table } from './interfaces'
@@ -32,6 +33,9 @@ export default class Database {
       }
       this.tables.push(table)
     })
+
+    // FIXME: Get migrations status and notify when DB is outdated instead of running migrations on startup.
+    await this.runMigrations()
   }
 
   async seedForTests() {
@@ -80,7 +84,14 @@ export default class Database {
     await this.bootstrap()
   }
 
-  runMigrations() {
-    // TODO
+  runMigrations(): Promise<void> {
+    return this.knex.migrate
+      .latest({
+        directory: path.resolve(__dirname, './migrations'),
+        tableName: 'knex_core_migrations',
+        // @ts-ignore
+        loadExtensions: ['.js']
+      })
+      .then(() => this.logger.debug('Migrations done'))
   }
 }

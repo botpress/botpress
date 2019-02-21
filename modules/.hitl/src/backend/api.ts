@@ -20,7 +20,10 @@ export default async (bp: SDK, db: Database) => {
         type: 'text',
         channel: session.channel,
         direction: 'outgoing',
-        payload: { text: message },
+        payload: {
+          text: message,
+          preview: message
+        },
         target: session.userId,
         botId: req.params.botId
       })

@@ -42,6 +42,7 @@
   a {
     text-decoration: none;
     padding: 0 15px;
+    white-space: nowrap;
 
     :global(.icon) {
       display: inline;

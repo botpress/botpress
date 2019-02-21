@@ -26,6 +26,7 @@
     "bluebird": "^3.5.1",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
+    "joi": "^13.6.0",
     "lodash": "^4.17.4",
     "ml-kmeans": "^4.2.1",
     "ms": "^2.1.1",

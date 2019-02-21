@@ -96,6 +96,7 @@ export class DialogEngine {
 
     event.state.context.currentFlow = targetFlow.name
     event.state.context.currentNode = targetNode.name
+    event.state.context.queue = undefined
     event.state.context.hasJumped = true
   }
 

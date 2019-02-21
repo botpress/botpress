@@ -83,9 +83,10 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = {
       ...args,
-      user: _.get(event, 'state.user') || {},
-      session: _.get(event, 'state.session') || {},
-      temp: _.get(event, 'state.temp') || {}
+      event,
+      user: _.get(event, 'state.user', {}),
+      session: _.get(event, 'state.session', {}),
+      temp: _.get(event, 'state.temp', {})
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
@@ -109,7 +110,14 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    args = _.mapValues(args, value => renderRecursive(value, { event }))
+    const actionArgs = {
+      event,
+      user: _.get(event, 'state.user', {}),
+      session: _.get(event, 'state.session', {}),
+      temp: _.get(event, 'state.temp', {})
+    }
+
+    args = _.mapValues(args, value => renderRecursive(value, actionArgs))
 
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {

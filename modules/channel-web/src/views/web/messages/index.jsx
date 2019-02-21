@@ -95,9 +95,9 @@ export default class MessageList extends Component {
 
     const filteredQuickReplies = quick_replies
       ? quick_replies.filter(quick_reply => {
-          const regExp = new RegExp(currentText, 'i')
-          return regExp.test(quick_reply.title)
-        })
+        const regExp = new RegExp(currentText, 'i')
+        return regExp.test(quick_reply.title)
+      })
       : quick_replies
 
     return (
@@ -234,8 +234,8 @@ class Message extends Component {
       this.props.data.message_raw && this.props.data.message_raw.markdown ? (
         this.getMarkdownElement()
       ) : (
-        <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
-      )
+          <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
+        )
     return (
       <Linkify properties={{ target: '_blank' }}>
         <div>{element}</div>

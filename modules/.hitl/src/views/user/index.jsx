@@ -14,7 +14,7 @@ export default class User extends React.Component {
     }
   }
 
-  onErrorLoadingImage() {
+  onErrorLoadingImage = () => {
     this.setState({
       displayImg: 'none'
     })
@@ -34,7 +34,7 @@ export default class User extends React.Component {
       <div className={classnames(style.user, this.props.className)} onClick={this.props.setSession}>
         {this.props.session.paused == 1 ? <i className="material-icons">pause_circle_filled</i> : null}
         <div className={style.imgContainer}>
-          <img src={this.props.session.user_image_url} onError={::this.onErrorLoadingImage} style={imgStyle} />
+          <img src={this.props.session.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
         </div>
         <div className={style.content}>
           <h3>{this.props.session.full_name}</h3>

@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Button, Modal, FormGroup, Input, Label, FormFeedback, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, Modal, Input, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { MdGroupAdd } from 'react-icons/lib/md'
 import Joi from 'joi-browser'
 import UserList from '../Components/UserList'
@@ -10,6 +9,7 @@ import SectionLayout from '../Layouts/Section'
 import api from '../../api'
 import { fetchUsers } from '../../reducers/user'
 import { fetchRoles } from '../../reducers/roles'
+import CreateUserModal from './CreateUserModal'
 
 const UserEmailValidationSchema = Joi.string()
   .email()
@@ -65,28 +65,21 @@ class List extends Component {
     })
   }
 
-  async createUser() {
-    const {
-      data: { payload }
-    } = await api.getSecured().post('/admin/users', {
-      email: this.state.email
-    })
-
+  onUserCreated = createdUser => {
     const message = `Your botpress account is ready! 
 
-Sign-in here: ${window.location.origin}/admin/login
-Email: ${this.state.email}
-Password: ${payload.tempPassword}`
+      Sign-in here: ${window.location.origin}/admin/login
+      Email: ${this.state.email}
+      Password: ${createdUser.tempPassword}`
 
     this.setState({
-      email: '',
       isCreateUserModalOpen: false,
       isRenderEmailModalOpen: true,
       emailSubject: 'Account creation successful',
-      emailMessage: message,
-      createUserError: null
+      emailMessage: message
     })
 
+    // TODO replace this fetch by adding an action & add the created user in the store
     this.props.fetchUsers()
   }
 
@@ -174,32 +167,6 @@ Password: ${payload.tempPassword}`
     )
   }
 
-  renderCreateUserModal() {
-    return (
-      <Modal isOpen={this.state.isCreateUserModalOpen} toggle={this.toggleCreateUserModalOpen}>
-        <ModalHeader toggle={this.toggleCreateUserModalOpen}>Add Collaborator</ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label for="email">E-mail</Label>
-            <Input
-              id="email"
-              onChange={this.onNewUserEmailChange}
-              onKeyPress={this.onInputKeyPress}
-              invalid={!!this.state.createUserError}
-              value={this.state.email}
-            />
-            {!!this.state.createUserError && <FormFeedback>{this.state.createUserError.message}</FormFeedback>}
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" disabled={!this.state.canCreateUser} onClick={() => this.createUser()}>
-            <MdGroupAdd /> Create
-          </Button>
-        </ModalFooter>
-      </Modal>
-    )
-  }
-
   renderAllUsers() {
     const resetPassword = {
       label: 'Reset Password',
@@ -235,9 +202,13 @@ Password: ${payload.tempPassword}`
     return (
       <div>
         <Button className="float-right" color="primary" size="sm" onClick={this.toggleCreateUserModalOpen}>
-          <MdGroupAdd /> Create user
+          <MdGroupAdd /> Add Collaborator
         </Button>
-        {this.renderCreateUserModal()}
+        <CreateUserModal
+          isOpen={this.state.isCreateUserModalOpen}
+          toggleOpen={this.toggleCreateUserModalOpen}
+          onUserCreated={this.onUserCreated}
+        />
         {this.renderEmailModal()}
         {this.renderUpdateUserModal()}
       </div>
@@ -262,7 +233,7 @@ const mapStateToProps = state => ({
   roles: state.roles.roles
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchUsers, fetchRoles }, dispatch)
+const mapDispatchToProps = { fetchUsers, fetchRoles }
 
 export default connect(
   mapStateToProps,

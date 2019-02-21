@@ -29,7 +29,7 @@ export default class CarouselMessage extends Component {
               {el.buttons.map(btn => {
                 if (btn.url) {
                   return (
-                    <a href={btn.url} target="_blank" className={style.action}>
+                    <a href={btn.url} key={`1-${btn.title}`} target="_blank" className={style.action}>
                       <i className={style.external} />
                       {btn.title || btn}
                     </a>
@@ -39,6 +39,7 @@ export default class CarouselMessage extends Component {
                     <a
                       href
                       onClick={() => this.handleSendPostBack(btn.text || btn.title, btn.payload)}
+                      key={`2-${btn.title}`}
                       className={style.action}
                     >
                       {btn.title || btn}
@@ -46,7 +47,7 @@ export default class CarouselMessage extends Component {
                   )
                 } else {
                   return (
-                    <a href="#" target="_blank" className={style.action}>
+                    <a href="#" key={`3-${btn.title}`} target="_blank" className={style.action}>
                       <i className={style.external} />
                       [NO LINK] {btn.title || btn}
                     </a>
