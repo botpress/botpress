@@ -20,7 +20,7 @@ export default class BroadcastDb {
     }
 
     return this.knex
-      .createTableIfNotExists('broadcast_schedules', function (table) {
+      .createTableIfNotExists('broadcast_schedules', function(table) {
         table.increments('id').primary()
         table.string('botId')
         table.string('date_time')
@@ -35,7 +35,7 @@ export default class BroadcastDb {
         table.string('filters')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('broadcast_outbox', function (table) {
+        return this.knex.createTableIfNotExists('broadcast_outbox', function(table) {
           table
             .integer('scheduleId')
             .references('broadcast_schedules.id')
@@ -124,18 +124,17 @@ export default class BroadcastDb {
         botId,
         outboxed: this.knex.bool.false()
       })
-      .andWhere(function () {
-        this.where(function () {
+      .andWhere(function() {
+        this.where(function() {
           this.whereNotNull('ts').andWhere(upcomingFixedTime)
-        }).orWhere(function () {
+        }).orWhere(function() {
           this.whereNull('ts').andWhere(upcomingVariableTime)
         })
       })
   }
 
   async getUsersTimezone() {
-    const attrs = await this.knex('srv_channel_users')
-      .select('attributes')
+    const attrs = await this.knex('srv_channel_users').select('attributes')
     const timezones = attrs.map(({ attributes: { timezone } }) => timezone)
 
     return [...new Set(timezones)]
@@ -147,7 +146,9 @@ export default class BroadcastDb {
     tz = padDigits(Math.abs(Number(tz)), 2)
     const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
-    const whereClause = _.isNil(initialTz) ? "where attributes -> 'timezone' IS NULL" : "where attributes -> 'timezone' = :initialTz"
+    const whereClause = _.isNil(initialTz)
+      ? "where attributes -> 'timezone' IS NULL"
+      : "where attributes -> 'timezone' = :initialTz"
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
       select userId, :scheduleId, :botId, :adjustedTime
@@ -187,7 +188,7 @@ export default class BroadcastDb {
 
   getBroadcastOutbox(botId, isPast) {
     return this.knex('broadcast_outbox')
-      .where(function () {
+      .where(function() {
         this.where(isPast).andWhere('broadcast_outbox.botId', botId)
       })
       .join('srv_channel_users', 'srv_channel_users.user_id', 'broadcast_outbox.userId')

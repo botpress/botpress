@@ -157,7 +157,7 @@ export default class BroadcastModule extends React.Component {
       .catch(this.handleRequestError)
   }
 
-  handleRemoveBroadcast = (id) => {
+  handleRemoveBroadcast = id => {
     this.getAxios()
       .delete('/mod/broadcast/' + id)
       .then(this.fetchAllBroadcasts)
@@ -444,7 +444,7 @@ export default class BroadcastModule extends React.Component {
     )
   }
 
-  renderFilteringConditionElement = (filter) => {
+  renderFilteringConditionElement = filter => {
     const removeHandler = () => this.handleRemoveFromFilteringConditions(filter)
 
     return (
@@ -559,12 +559,12 @@ export default class BroadcastModule extends React.Component {
     const allBroadcasts = _.assign([], this.state.broadcasts)
     const hasSomeError = _.some(allBroadcasts, ['errored', true])
 
-    const upcomingBroadcasts = _.remove(allBroadcasts, function (value) {
+    const upcomingBroadcasts = _.remove(allBroadcasts, function(value) {
       const datetime = moment(value.date + ' ' + value.time, 'YYYY-MM-DD HH:mm')
       return datetime.isBefore(moment().add(3, 'days')) && datetime.isAfter(moment())
     })
 
-    const pastBroadcasts = _.remove(allBroadcasts, function (value) {
+    const pastBroadcasts = _.remove(allBroadcasts, function(value) {
       const datetime = moment(value.date + ' ' + value.time, 'YYYY-MM-DD HH:mm')
       return datetime.isBefore(moment()) && datetime.isAfter(moment().subtract(3, 'days'))
     })

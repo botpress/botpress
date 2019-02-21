@@ -47,14 +47,16 @@ export default async (botId: string, bp: SDK, db: Database) => {
 
       const content = await bp.cms.getContentElement(botId, row.text)
 
-      return bp.events.sendEvent(bp.IO.Event({
-        botId,
-        channel: row.platform,
-        target: row.userId,
-        type: 'text',
-        direction: 'outgoing',
-        payload: content.formData
-      }))
+      return bp.events.sendEvent(
+        bp.IO.Event({
+          botId,
+          channel: row.platform,
+          target: row.userId,
+          type: 'text',
+          direction: 'outgoing',
+          payload: content.formData
+        })
+      )
     })
   })
 
@@ -109,7 +111,6 @@ export default async (botId: string, bp: SDK, db: Database) => {
       const timezones = await db.getUsersTimezone()
 
       await Promise.mapSeries(timezones, async tz => {
-
         await db.setBroadcastOutbox(botId, schedule, tz)
         const { count } = await db.getOutboxCount(botId, schedule)
 
@@ -118,9 +119,7 @@ export default async (botId: string, bp: SDK, db: Database) => {
         bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
 
         if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
-          bp.logger.info(
-            `Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`
-          )
+          bp.logger.info(`Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`)
         }
 
         emitChanged()
