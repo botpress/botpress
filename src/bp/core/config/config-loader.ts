@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { BotConfig, Logger } from 'botpress/sdk'
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -10,7 +10,6 @@ import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
 
-import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {

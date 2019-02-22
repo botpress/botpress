@@ -1,4 +1,4 @@
-import { BotTemplate, Logger } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { Bot } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { FileContent, GhostService } from 'core/services'
@@ -10,7 +10,7 @@ import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BOT_DIRECTORIES, BotConfig } from './bot.config'
+const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 
 @injectable()
 export class BotConfigWriter {
