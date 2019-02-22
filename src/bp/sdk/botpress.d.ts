@@ -915,6 +915,11 @@ declare module 'botpress/sdk' {
   }>
 
   export namespace users {
+    export interface UserInfo {
+      fullName: string
+      avatarUrl: string
+    }
+
     /**
      * Returns an existing user or create a new one with the specified keys
      */
@@ -926,6 +931,7 @@ declare module 'botpress/sdk' {
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
+    export function getUserInfo(channel: string, userId: string): Promise<UserInfo>
   }
 
   /**
@@ -1031,14 +1037,40 @@ declare module 'botpress/sdk' {
     }
 
     /**
-     * Get or create a new conversation
+     * Create a new conversation
      * @param botId The Id of the bot
      * @param userId The Id the the user
-     * @param lifetime (optionnal) Conversations that are older than the lifetime argument will not be returned.
-     * The conversation lifetime found in a module config is often used here.
+     * @param isUserInitiated Whether or not the conversation has been initiated by a user of a bot
      */
-    export function getOrCreate(botId: string, userId: string, lifetime: string): Promise<any>
-    export function create(botId: string, userId: string, { originatesFromUserMessage: boolean }): Promise<any>
+
+    export function createConversation(botId: string, userId: string, isUserInitiated?: boolean): Promise<any>
+    /**
+     * Creates a new conversation
+     * @param botId The Id of the bot
+     * @param userId The Id of the user
+     * @param lifetime Conversations that are older than the lifetime argument will not be returned.
+     * The conversation lifetime found in a module config is often used here.
+     * @param isUserInitiated Whether or not the conversation has been initiated by a user of a bot
+     */
+
+    export function getOrCreateConversation(
+      botId: string,
+      userId: string,
+      opt?: {
+        lifetime?: string
+        isUserCreated?: boolean
+      }
+    ): Promise<any>
+
+    /**
+     * Persists a user message
+     * @param botId The Id of the bot
+     * @param userId The Id of the user
+     * @param conversationId The Id of the conversation
+     * @param fullName The user's full name
+     * @param avatarUrl The user's avatar url
+     * @param payload The payload to be persisted
+     */
     export function appendUserMessage(
       botId: string,
       userId: string,
@@ -1047,12 +1079,31 @@ declare module 'botpress/sdk' {
       avatarUrl: string,
       payload: MessagePayload
     ): Promise<any>
+
+    /**
+     * Persist a bot message
+     * @param botName The name of the bot
+     * @param botAvatar The bot avatar url
+     * @param conversationId The conversation Id
+     * @param payload The message payload to be persisted
+     */
     export function appendBotMessage(
       botName: string,
       botAvatar: string,
       conversationId: string,
       payload: MessagePayload
     ): Promise<any>
+
+    /**
+     * List all conversations from a specific user
+     * @param userId The user Id
+     * @param botId The bot Id
+     */
+    export function listConversations(userId: string, botId: string): Promise<any>
+
+    export function getConversation(userId: string, conversationId: string, botId: string): Promise<any>
+
+    export function getConversationMessages(conversationId: string, fromId?: string): PromiseLike<any>
   }
 
   export namespace cms {

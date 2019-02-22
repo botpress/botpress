@@ -66,7 +66,9 @@ export class ConverseService {
     await this.userRepository.getOrCreate('api', userId)
 
     if (!conversationId) {
-      conversationId = await this.convoRepository.getOrCreate(botId, userId, this.conversationLifetime)
+      conversationId = await this.convoRepository.getOrCreateConversation(botId, userId, {
+        lifetime: this.conversationLifetime
+      })
     }
 
     const incomingEvent = Event({

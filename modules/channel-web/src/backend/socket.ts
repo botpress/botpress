@@ -4,11 +4,9 @@ import _ from 'lodash'
 import mime from 'mime'
 import path from 'path'
 
-import Database from './db'
-
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
 
-export default async (bp: typeof sdk, db: Database) => {
+export default async (bp: typeof sdk) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 
@@ -29,7 +27,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
+    const conversationId = event.threadId || (await bp.conversations.getOrCreateConversation(event.botId, userId))
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error('Unsupported event type: ' + event.type))
@@ -42,7 +40,7 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
     } else if (messageType === 'text' || messageType === 'carousel') {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
+      const message = await bp.conversations.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: event.payload,
         raw: event.payload,
         text: event.preview,
@@ -55,7 +53,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const mimeType = mime.getType(extension)
       const basename = path.basename(event.payload.url, extension)
 
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
+      const message = await bp.conversations.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: { storage: 'storage', mime: mimeType, name: basename, ...event.payload },
         raw: event.payload,
         text: event.preview,

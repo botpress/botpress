@@ -11,7 +11,7 @@ export interface UserRepository {
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
-  getUserInfo(channel: string, userId: string): Promise<{ fullName: string; avatarUrl: string }>
+  getUserInfo(channel: string, userId: string): Promise<any>
 }
 
 @injectable()

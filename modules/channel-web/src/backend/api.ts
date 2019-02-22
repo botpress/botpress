@@ -1,25 +1,35 @@
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
 
-import Database from './db'
+import { Config } from '../config'
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 
-export default async (bp: typeof sdk, db: Database) => {
+export default async (bp: typeof sdk) => {
+  const configMap: { [key: string]: Config } = {}
+
+  const getConfig = async (botId: string) => {
+    if (configMap[botId]) {
+      return configMap[botId]
+    }
+
+    configMap[botId] = await bp.config.getModuleConfigForBot('channel-web', botId)
+    return configMap[botId]
+  }
+
   const diskStorage = multer.diskStorage({
     limits: {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function (req, file, cb) {
+    filename: function(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -59,7 +69,7 @@ export default async (bp: typeof sdk, db: Database) => {
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function (req, file, cb) {
+      key: function(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -103,7 +113,11 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        const config = await getConfig(botId)
+        conversationId = await bp.conversations.getOrCreateConversation(botId, userId, {
+          lifetime: config.recentConversationLifetime,
+          isUserCreated: true
+        })
       }
 
       await sendNewMessage(botId, userId, conversationId, payload)
@@ -157,7 +171,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId, botId)
+    const conversation = await bp.conversations.getConversation(userId, conversationId, botId)
 
     return res.send(conversation)
   })
@@ -171,7 +185,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     await bp.users.getOrCreateUser('web', userId)
 
-    const conversations = await db.listConversations(userId, botId)
+    const conversations = await bp.conversations.listConversations(userId, botId)
 
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
@@ -223,7 +237,15 @@ export default async (bp: typeof sdk, db: Database) => {
       type: payload.type
     })
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
+    const { fullName, avatarUrl } = await bp.users.getUserInfo('web', userId)
+    const message = await bp.conversations.appendUserMessage(
+      botId,
+      userId,
+      conversationId,
+      fullName,
+      avatarUrl,
+      persistedPayload
+    )
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
@@ -236,7 +258,11 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId = undefined, userId = undefined } = req.params || {}
 
       await bp.users.getOrCreateUser('web', userId)
-      const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+      const config = await getConfig(botId)
+      const conversationId = await bp.conversations.getOrCreateConversation(botId, userId, {
+        lifetime: config.recentConversationLifetime,
+        isUserCreated: true
+      })
 
       const event = bp.IO.Event({
         botId,
@@ -272,7 +298,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post('/conversations/:userId/new', async (req, res) => {
     const { userId, botId } = req.params
-    await db.createConversation(botId, userId)
+    await bp.conversations.createConversation(botId, userId)
     res.sendStatus(200)
   })
 
@@ -334,7 +360,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId, botId)
+    const conversation = await bp.conversations.getConversation(userId, conversationId, botId)
     const txt = await convertToTxtFile(conversation)
 
     res.send({ txt, name: `${conversation.title}.txt` })

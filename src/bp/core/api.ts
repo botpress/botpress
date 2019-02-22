@@ -99,6 +99,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
 
 const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
+    getUserInfo: userRepo.getUserInfo.bind(userRepo),
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
@@ -181,10 +182,13 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
 
 const conversations = (conversationRepository: ConversationsRepository): typeof sdk.conversations => {
   return {
-    getOrCreate: conversationRepository.getOrCreate.bind(conversationRepository),
-    create: conversationRepository.create.bind(conversationRepository),
+    getOrCreateConversation: conversationRepository.getOrCreateConversation.bind(conversationRepository),
+    createConversation: conversationRepository.createConversation.bind(conversationRepository),
     appendBotMessage: conversationRepository.appendBotMessage.bind(conversationRepository),
-    appendUserMessage: conversationRepository.appendUserMessage.bind(conversationRepository)
+    appendUserMessage: conversationRepository.appendUserMessage.bind(conversationRepository),
+    listConversations: conversationRepository.listConversations.bind(conversationRepository),
+    getConversation: conversationRepository.getConversation.bind(conversationRepository),
+    getConversationMessages: conversationRepository.getConversationMessages.bind(conversationRepository)
   }
 }
 
