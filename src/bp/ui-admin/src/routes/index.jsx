@@ -35,19 +35,14 @@ export const makeMainRoutes = () => {
               return <Redirect to="/" />
             }}
           />
-          <Route
-            path="/changePassword"
-            render={props => {
-              return <ChangePassword auth={auth} {...props} />
-            }}
-          />
+          <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/profile" component={MyAccount} />
               <Route path="/workspace" component={Workspace} />
               <Route path="/settings" component={ServerSettings} />
               <Route path="/bot" component={Bot} />
-              <Redirect from="/" to="/workspace" />
+              <Redirect from="/" to="/workspace/bots" />
             </Switch>
           </PrivateRoute>
         </Switch>
