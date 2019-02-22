@@ -112,6 +112,7 @@ export type BotpressConfig = {
        */
       allowSelfSignup: boolean
     }
+    monitoring: MonitoringConfig
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
@@ -198,3 +199,27 @@ export interface AuthStrategyLdap {
 }
 
 export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }
+
+export interface MonitoringConfig {
+  /**
+   * To enable server monitoring, you need to enable the Pro version and configure your Redis server.
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * The interval between data collection of metrics and usage. The lower the value brings more details,
+   * but comes at the cost of more storage required & processing time when viewing data.
+   * @default 10s
+   */
+  collectionInterval: string
+  /**
+   * Data older than this will be cleared periodically.
+   * @default 10d
+   */
+  retentionPeriod: string
+  /**
+   * The delay between execution of the janitor which removes statistics outside of the previously defined period
+   * @default 15m
+   */
+  janitorInterval: string
+}

@@ -1,6 +1,7 @@
 import { AxiosError, AxiosRequestConfig } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { incrementMetric } from 'core/services/monitoring'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
@@ -157,6 +158,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
+    incrementMetric('warnings')
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -165,6 +167,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
+    incrementMetric('errors')
     this.print(LoggerLevel.Error, message, metadata)
   }
 }

@@ -6,6 +6,7 @@ import Joi from 'joi'
 
 import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
+import { incrementMetric } from '../services/monitoring'
 
 import {
   BadRequestError,
@@ -31,6 +32,11 @@ export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddle
 
     next(err)
   })
+}
+
+export const monitoringMiddleware = (req, res, next) => {
+  incrementMetric('requests')
+  next()
 }
 
 export const validateRequestSchema = (property: string, req: Request, schema: Joi.AnySchema) => {

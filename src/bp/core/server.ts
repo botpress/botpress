@@ -19,6 +19,7 @@ import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { monitoringMiddleware } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -31,6 +32,7 @@ import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
@@ -72,7 +74,8 @@ export default class HTTPServer {
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
   ) {
     this.app = express()
 
@@ -97,7 +100,8 @@ export default class HTTPServer {
       this.botService,
       licenseService,
       this.ghostService,
-      this.configProvider
+      this.configProvider,
+      this.monitoringService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -129,6 +133,8 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    this.app.use(monitoringMiddleware)
 
     // TODO FIXME Conditionally enable this
     this.app.use(bodyParser.json({ limit: config.bodyLimit }))

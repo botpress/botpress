@@ -31,6 +31,7 @@ import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
@@ -78,7 +79,8 @@ export class Botpress {
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -244,6 +246,7 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+    await this.monitoringService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

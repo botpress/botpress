@@ -1,21 +1,31 @@
 import React from 'react'
+import { MdCompareArrows, MdCopyright, MdMultilineChart } from 'react-icons/lib/md'
+
 import Versioning from './Versioning'
 import LicenseStatus from './LicenseStatus'
 import TabLayout from '../Layouts/Tabs'
-import { MdCompareArrows, MdCopyright } from 'react-icons/lib/md'
+import Monitoring from './Monitoring'
 
-const ServerSettings = props => {
-  const title = 'Server Settings'
+const Server = props => {
+  const title = 'Server'
   const tabs = [
     {
+      name: 'Monitoring',
+      route: '/server/monitoring',
+      icon: <MdMultilineChart />,
+      useFullWidth: true,
+      proOnly: true,
+      component: Monitoring
+    },
+    {
       name: 'Server License',
-      route: '/settings/license',
+      route: '/server/license',
       icon: <MdCopyright />,
       component: LicenseStatus
     },
     {
       name: 'Version control',
-      route: '/settings/version',
+      route: '/server/version',
       icon: <MdCompareArrows />,
       component: Versioning
     }
@@ -24,4 +34,4 @@ const ServerSettings = props => {
   return <TabLayout {...{ title, tabs, ...props, showHome: true }} />
 }
 
-export default ServerSettings
+export default Server

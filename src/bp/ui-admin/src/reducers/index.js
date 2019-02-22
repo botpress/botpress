@@ -5,6 +5,7 @@ import license from './license'
 import versioning from './versioning'
 import bots from './bots'
 import roles from './roles'
+import monitoring from './monitoring'
 
 export default combineReducers({
   routing: routerReducer,
@@ -12,5 +13,6 @@ export default combineReducers({
   license,
   bots,
   user,
-  roles
+  roles,
+  monitoring
 })
