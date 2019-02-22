@@ -1,4 +1,5 @@
 import { Paging, User } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
@@ -11,7 +12,7 @@ export interface UserRepository {
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
-  getUserInfo(channel: string, userId: string): Promise<any>
+  getUserInfo(channel: string, userId: string): Promise<sdk.users.UserInfo>
 }
 
 @injectable()

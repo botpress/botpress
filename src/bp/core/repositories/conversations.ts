@@ -19,7 +19,7 @@ export class ConversationsRepository {
     userId: string,
     opt: { lifetime?: string; isUserCreated?: boolean } = { lifetime: '6 hours', isUserCreated: false }
   ): Promise<any> {
-    const recentCondition = this.database.knex.date.isAfter(
+    const lessThanLifetime = this.database.knex.date.isAfter(
       'last_heard_on',
       moment()
         .subtract(ms(opt.lifetime), 'ms')
@@ -31,7 +31,7 @@ export class ConversationsRepository {
       .select('id')
       .whereNotNull('last_heard_on')
       .andWhere({ userId, botId })
-      .andWhere(recentCondition)
+      .andWhere(lessThanLifetime)
       .orderBy('last_heard_on', 'desc')
       .limit(1)
       .get(0)
