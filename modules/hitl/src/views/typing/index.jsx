@@ -17,8 +17,8 @@ export default class Typing extends React.Component {
     })
   }
 
-  handleKeyPress(event) {
-    if (event.key === 'Enter') {
+  handleKeyPress = (event) => {
+    if (event.key === 'Enter' && this.state.message) {
       this.props.sendMessage(this.state.message)
       event.preventDefault()
       this.setState({
