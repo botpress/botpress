@@ -5,11 +5,13 @@ import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
+
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
+  getUserInfo(channel: string, userId: string): Promise<{ fullName: string; avatarUrl: string }>
 }
 
 @injectable()
@@ -114,5 +116,16 @@ export class KnexUserRepository implements UserRepository {
       .count('user_id as qty')
       .first()
       .then(result => result.qty)
+  }
+
+  async getUserInfo(channel: string, userId: string): Promise<{ fullName: string; avatarUrl: string }> {
+    const { result: user } = await this.getOrCreate(channel, userId)
+    const fullName = `${user.attributes['first_name']} ${user.attributes['last_name']}`
+    const avatar = (user && user.attributes['picture_url']) || undefined
+
+    return {
+      fullName,
+      avatarUrl: avatar
+    }
   }
 }

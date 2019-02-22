@@ -1,5 +1,6 @@
 import { IO } from 'botpress/sdk'
 import { UserRepository } from 'core/repositories'
+import { ConversationsRepository } from 'core/repositories/conversations'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
@@ -24,10 +25,12 @@ type ResponseMap = Partial<{
 export class ConverseService {
   private readonly timeoutInMs = 5000
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
+  private readonly conversationLifetime = '6 hours'
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.ConversationsRepository) private convoRepository: ConversationsRepository
   ) {}
 
   @postConstruct()
@@ -55,12 +58,16 @@ export class ConverseService {
     })
   }
 
-  public async sendMessage(botId: string, userId: string, payload): Promise<any> {
-    if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
-      throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
+  public async sendMessage(botId: string, userId: string, conversationId: string, payload): Promise<any> {
+    if (!payload.text || !_.isString(payload.text)) {
+      throw new InvalidParameterError('Text must be a valid string')
     }
 
     await this.userRepository.getOrCreate('api', userId)
+
+    if (!conversationId) {
+      conversationId = await this.convoRepository.getOrCreate(botId, userId, this.conversationLifetime)
+    }
 
     const incomingEvent = Event({
       type: 'text',
@@ -68,11 +75,22 @@ export class ConverseService {
       direction: 'incoming',
       payload,
       target: userId,
+      threadId: conversationId,
       botId
     })
 
     const timeoutPromise = this._createTimeoutPromise(userId)
     const donePromise = this._createDonePromise(userId)
+
+    const userInfo = await this.userRepository.getUserInfo('api', userId)
+    await this.convoRepository.appendUserMessage(
+      botId,
+      userId,
+      conversationId,
+      userInfo.fullName,
+      userInfo.avatarUrl,
+      _.pick(payload, ['text', 'type', 'data', 'raw'])
+    )
 
     await this.eventEngine.sendEvent(incomingEvent)
 

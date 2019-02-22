@@ -199,7 +199,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
+        new (): Model
       }
 
       export const Model: ModelConstructor
@@ -1017,6 +1017,42 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
+  }
+
+  /**
+   * bp.conversations is used to persist or retrieve user conversations and messages independently of the channel of communication.
+   */
+  export namespace conversations {
+    export interface MessagePayload {
+      type: string
+      text: string
+      raw: string
+      data: string
+    }
+
+    /**
+     * Get or create a new conversation
+     * @param botId The Id of the bot
+     * @param userId The Id the the user
+     * @param lifetime (optionnal) Conversations that are older than the lifetime argument will not be returned.
+     * The conversation lifetime found in a module config is often used here.
+     */
+    export function getOrCreate(botId: string, userId: string, lifetime: string): Promise<any>
+    export function create(botId: string, userId: string, { originatesFromUserMessage: boolean }): Promise<any>
+    export function appendUserMessage(
+      botId: string,
+      userId: string,
+      conversationId: string,
+      fullName: string,
+      avatarUrl: string,
+      payload: MessagePayload
+    ): Promise<any>
+    export function appendBotMessage(
+      botName: string,
+      botAvatar: string,
+      conversationId: string,
+      payload: MessagePayload
+    ): Promise<any>
   }
 
   export namespace cms {

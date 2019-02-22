@@ -22,12 +22,13 @@ export class ConverseRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { userId, botId } = req.params
         const params = req.query.include
+        const { conversationId = undefined } = req.query || {}
 
         if (params && params.toLowerCase() !== 'responses') {
           return res.status(401).send("Unauthenticated converse API can only return 'responses'")
         }
 
-        const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
+        const rawOutput = await this.converseService.sendMessage(botId, userId, conversationId, req.body)
         const formatedOutput = this.prepareResponse(rawOutput, params)
 
         return res.json(formatedOutput)
@@ -39,7 +40,8 @@ export class ConverseRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { userId, botId } = req.params
-        const rawOutput = await this.converseService.sendMessage(botId, userId, req.body)
+        const { conversationId = undefined } = req.query || {}
+        const rawOutput = await this.converseService.sendMessage(botId, userId, conversationId, req.body)
         const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
 
         return res.json(formatedOutput)

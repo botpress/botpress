@@ -12,6 +12,7 @@ import {
   SessionRepository,
   UserRepository
 } from '.'
+import { ConversationsRepository } from './conversations'
 import { KnexLogsRepository, LogsRepository } from './logs'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -33,6 +34,10 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
     .to(KnexNotificationsRepository)
+    .inSingletonScope()
+
+  bind<ConversationsRepository>(TYPES.ConversationsRepository)
+    .to(ConversationsRepository)
     .inSingletonScope()
 })
 

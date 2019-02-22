@@ -11,6 +11,7 @@ import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
+import { ConversationsRepository } from './repositories/conversations'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -178,6 +179,15 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
   }
 }
 
+const conversations = (conversationRepository: ConversationsRepository): typeof sdk.conversations => {
+  return {
+    getOrCreate: conversationRepository.getOrCreate.bind(conversationRepository),
+    create: conversationRepository.create.bind(conversationRepository),
+    appendBotMessage: conversationRepository.appendBotMessage.bind(conversationRepository),
+    appendUserMessage: conversationRepository.appendUserMessage.bind(conversationRepository)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -203,6 +213,7 @@ export class BotpressAPIProvider {
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
+  conversations: typeof sdk.conversations
   mlToolkit: typeof sdk.MLToolkit
 
   constructor(
@@ -220,7 +231,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.ConversationsRepository) conversationsRepo: ConversationsRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -235,6 +247,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
     this.mlToolkit = MLToolkit
+    this.conversations = conversations(conversationsRepo)
   }
 
   @Memoize()
@@ -262,7 +275,8 @@ export class BotpressAPIProvider {
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
-      cms: this.cms
+      cms: this.cms,
+      conversations: this.conversations
     }
   }
 }
