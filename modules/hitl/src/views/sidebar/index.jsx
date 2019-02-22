@@ -1,8 +1,5 @@
 import React from 'react'
-import { Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
-
-import Toggle from 'react-toggle'
-import classnames from 'classnames'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 import 'react-toggle/style.css'
 import style from './style.scss'
@@ -23,7 +20,6 @@ export default class Sidebar extends React.Component {
     this.setState({
       allPaused: !this.state.allPaused
     })
-    console.log('ACTION, Pause all:', this.state.allPaused)
   }
 
   toggleFilter = () => {

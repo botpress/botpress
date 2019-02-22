@@ -36,10 +36,10 @@ export default async (bp: SDK, db: Database) => {
     }
 
     if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.session', session))
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins(event.target, 'hitl.session', session))
     }
 
-    const message = db.appendMessageToSession(event, session.id, 'in')
+    const message = await db.appendMessageToSession(event, session.id, 'in')
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
 
     const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
@@ -68,7 +68,7 @@ export default async (bp: SDK, db: Database) => {
     }
 
     if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.session', session))
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins(event.target, 'hitl.session', session))
     }
 
     const message = await db.appendMessageToSession(event, session.id, 'out')
