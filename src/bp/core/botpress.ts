@@ -15,7 +15,7 @@ import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'
-import { LoggerPersister, LoggerProvider } from './logger'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -71,7 +71,8 @@ export class Botpress {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
-    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
+    @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
+    @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
@@ -196,8 +197,10 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.loggerPersister.initialize(this.database, await this.loggerProvider('LogPersister'))
-    this.loggerPersister.start()
+    await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
+    this.loggerDbPersister.start()
+
+    await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
     await this.workspaceService.initialize()
     await this.cmsService.initialize()

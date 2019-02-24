@@ -7,7 +7,7 @@ import ms from 'ms'
 import Database from '../database'
 
 @injectable()
-export class LoggerPersister {
+export class LoggerDbPersister {
   private readonly BATCH_SIZE = 100
   private readonly TABLE_NAME = 'srv_logs'
   private readonly INTERVAL = ms('2s')
