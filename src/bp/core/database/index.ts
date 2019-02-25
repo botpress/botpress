@@ -85,14 +85,18 @@ export default class Database {
     await this.bootstrap()
   }
 
-  runMigrations(): Promise<void> {
-    return this.knex.migrate
-      .latest({
-        directory: path.resolve(__dirname, './migrations'),
-        tableName: 'knex_core_migrations',
-        // @ts-ignore
-        loadExtensions: ['.js']
-      })
-      .then(() => this.logger.debug('Migrations done'))
+  async runMigrations(): Promise<void> {
+    const dir = path.resolve(__dirname, './migrations')
+
+    if (!fs.existsSync(dir)) {
+      return
+    }
+
+    await this.knex.migrate.latest({
+      directory: dir,
+      tableName: 'knex_core_migrations',
+      // @ts-ignore
+      loadExtensions: ['.js']
+    })
   }
 }
