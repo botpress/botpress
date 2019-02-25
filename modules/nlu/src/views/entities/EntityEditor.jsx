@@ -1,6 +1,6 @@
 import React from 'react'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon, Label, FormControl } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon, Label, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
@@ -25,7 +25,7 @@ export default class EntityEditor extends React.Component {
       return {
         currentEntity: props.entity,
         currentOccurence: props.entity.occurences && props.entity.occurences[0],
-        pattern: props.entity.pattern,
+        pattern: props.entity.pattern
       }
     } else if (props.entity === undefined) {
       return DEFAULT_STATE
@@ -162,32 +162,57 @@ export default class EntityEditor extends React.Component {
     }
   }
 
+  handleSensitiveChanged = event => {
+    const sensitive = event.target.checked
+
+    this.setState({ sensitive }, () => {
+      this.props.onUpdate({ ...this.state.currentEntity, sensitive })
+    })
+  }
+
   render() {
     const { currentEntity } = this.state
     return (
       <div className={style.container}>
         <div className={style.header}>
           <div>
-            {!currentEntity && <h1>No entities have been created yet</h1>}
+            <div style={{ display: 'inline-block' }}>
+              {!currentEntity && <h1>No entities have been created yet</h1>}
+              {currentEntity && (
+                <h1>
+                  entities /<span className={style.entity}>{this.state.currentEntity.name}</span>
+                </h1>
+              )}
+            </div>
             {currentEntity && (
-              <h1>
-                entities /
-                <span className={style.entity}>{this.state.currentEntity.name}</span>
-              </h1>
+              <div style={{ display: 'inline-block', float: 'right' }}>
+                <input type="checkbox" value={currentEntity.sensitive} onChange={this.handleSensitiveChanged} />{' '}
+                Sensitive
+                <OverlayTrigger
+                  placement="left"
+                  overlay={<Tooltip> Sensitive informations are replaced by * before saving in the database</Tooltip>}
+                >
+                  <Glyphicon glyph="question-sign" style={{ marginLeft: 10 }} />
+                </OverlayTrigger>
+              </div>
             )}
           </div>
         </div>
-        {
-          currentEntity && currentEntity.type === 'list' && this.renderOccurences()
-        }
-        {
-          currentEntity && currentEntity.type === 'pattern' && (
+        {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}
+        {currentEntity &&
+          currentEntity.type === 'pattern' && (
             <div>
-              <FormControl tabIndex="1" autoFocus type="text" placeholder="Enter a valid pattern. Try: howdy[0-9]+" value={this.state.pattern} onChange={this.handlePatternChange} />
+              <FormControl
+                tabIndex="1"
+                autoFocus
+                type="text"
+                placeholder="Enter a valid pattern. Try: howdy[0-9]+"
+                value={this.state.pattern}
+                onChange={this.handlePatternChange}
+              />
               {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
             </div>
-          )
-        }
+          )}
       </div>
     )
   }

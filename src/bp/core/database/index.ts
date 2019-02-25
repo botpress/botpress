@@ -35,6 +35,7 @@ export default class Database {
       this.tables.push(table)
     })
 
+    // FIXME: Get migrations status and notify when DB is outdated instead of running migrations on startup.
     await this.runMigrations()
   }
 
@@ -84,18 +85,14 @@ export default class Database {
     await this.bootstrap()
   }
 
-  async runMigrations(): Promise<void> {
-    const dir = path.resolve(__dirname, './migrations')
-
-    if (!fs.existsSync(dir)) {
-      return
-    }
-
-    await this.knex.migrate.latest({
-      directory: dir,
-      tableName: 'knex_core_migrations',
-      // @ts-ignore
-      loadExtensions: ['.js']
-    })
+  runMigrations(): Promise<void> {
+    return this.knex.migrate
+      .latest({
+        directory: path.resolve(__dirname, './migrations'),
+        tableName: 'knex_core_migrations',
+        // @ts-ignore
+        loadExtensions: ['.js']
+      })
+      .then(() => this.logger.debug('Migrations done'))
   }
 }

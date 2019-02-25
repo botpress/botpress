@@ -75,7 +75,17 @@ export class BotsRouter extends CustomRouter {
   async initialize() {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
     this.machineId = await machineUUID()
+    this.router.use(this.checkBotVisibility)
     this.setupRoutes()
+  }
+
+  checkBotVisibility = async (req, res, next) => {
+    const config = await this.configProvider.getBotConfig(req.params.botId)
+    if (config.private && !req.originalUrl.endsWith('env.js')) {
+      return this.checkTokenHeader(req, res, next)
+    }
+
+    next()
   }
 
   getNewRouter(path: string, options?: RouterOptions) {

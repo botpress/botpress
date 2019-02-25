@@ -11,7 +11,7 @@ const Workspace = props => {
   const tabs = [
     {
       name: 'Bots',
-      route: '/workspace',
+      route: '/workspace/bots',
       icon: <MdAndroid />,
       component: Bots,
       res: 'admin.bots.*',

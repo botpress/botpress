@@ -182,7 +182,11 @@ export class Botpress {
       )
     }
 
-    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
+    const bots = await this.botService.getBots()
+    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+    const botsToMount = _.without(botsRef, ...disabledBots)
+
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')
@@ -203,6 +207,10 @@ export class Botpress {
     }
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      if (event.isPause) {
+        return
+      }
+
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)

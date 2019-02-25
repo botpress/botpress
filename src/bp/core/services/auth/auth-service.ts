@@ -44,11 +44,12 @@ export default class AuthService {
     return await this.findUser({ email }, selectFields)
   }
 
-  async checkUserAuth(email: string, password: string, newPassword?: string) {
+  async checkUserAuth(email: string, password: string, newPassword?: string, ipAddress: string = '') {
     const user = await this.findUserByEmail(email || '', ['password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
+      this.logger.info(`Login failed. User "${email}" from IP "${ipAddress}"`)
       throw new InvalidCredentialsError()
     }
 
@@ -132,13 +133,14 @@ export default class AuthService {
       last_ip: ipAddress,
       last_logon: new Date()
     })
+    this.logger.info(`Register successful. User "${email}" from IP "${ipAddress}"`)
 
     const config = await this.configProvider.getBotpressConfig()
     return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
-    await this.checkUserAuth(email, password, newPassword)
+    await this.checkUserAuth(email, password, newPassword, ipAddress)
     this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {
@@ -149,6 +151,7 @@ export default class AuthService {
         password_expired: false
       })
     }
+    this.logger.info(`Login successful. User "${email}" from IP "${ipAddress}"`)
 
     await this.updateUser(email, { last_ip: ipAddress }, true)
     const config = await this.configProvider.getBotpressConfig()

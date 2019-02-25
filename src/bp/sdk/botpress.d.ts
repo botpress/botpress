@@ -199,7 +199,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
+        new(): Model
       }
 
       export const Model: ModelConstructor
@@ -243,6 +243,7 @@ declare module 'botpress/sdk' {
       id: string
       name: string
       type: EntityType
+      sensitive?: boolean
       occurences?: EntityDefOccurence[]
       pattern?: string
     }
@@ -392,6 +393,8 @@ declare module 'botpress/sdk' {
       readonly nlu?: EventUnderstanding
       /** The final decision that the Decision Engine took */
       readonly decision?: Suggestion
+      /* HITL module has possibility to pause conversation */
+      readonly isPause?: boolean
     }
 
     export interface Suggestion {
@@ -557,7 +560,11 @@ declare module 'botpress/sdk' {
     id: string
     name: string
     description?: string
+    category?: string
+    details: BotDetails
     author?: string
+    disabled?: boolean
+    private?: boolean
     version: string
     imports: {
       /** Defines the list of content types supported by the bot */
@@ -565,6 +572,13 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+  }
+
+  export interface BotDetails {
+    website?: string
+    phoneNumber?: string
+    termsConditions?: string
+    emailAddress?: string
   }
 
   export interface LogsConfig {

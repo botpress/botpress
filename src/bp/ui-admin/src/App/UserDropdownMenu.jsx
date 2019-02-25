@@ -30,12 +30,12 @@ class UserDropdownMenu extends Component {
           </span>
         </DropdownToggle>
         <DropdownMenu right>
-          <DropdownItem onClick={() => this.props.push('/profile')}>
+          <DropdownItem onClick={() => this.props.push('/profile/me')}>
             Signed in as&nbsp;
             <strong>{fullName || email}</strong>
           </DropdownItem>
           <DropdownItem divider />
-          <DropdownItem onClick={() => this.props.push('/profile')}>My account</DropdownItem>
+          <DropdownItem onClick={() => this.props.push('/profile/me')}>My account</DropdownItem>
           {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Server settings</DropdownItem>}
           <DropdownItem onClick={() => this.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
