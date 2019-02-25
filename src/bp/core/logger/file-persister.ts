@@ -35,7 +35,7 @@ export class LoggerFilePersister {
       this.logger.debug(`Saving logs to ${this.outputFolder}, keeping file size under ${logsConfig.maxFileSize} kb`)
     }
 
-    if (await this._isOutputWritable()) {
+    if (this._isOutputWritable()) {
       this.start()
     }
   }
@@ -57,13 +57,15 @@ export class LoggerFilePersister {
     this.intervalRef = undefined
   }
 
-  private async _isOutputWritable() {
+  private _isOutputWritable() {
     const fullPath = path.resolve(this.outputFolder)
 
     try {
-      await fs.existsSync(fullPath)
-      await fs.accessSync(fullPath, fs.constants.W_OK)
-      return true
+      if (fs.existsSync(fullPath)) {
+        fs.accessSync(fullPath, fs.constants.W_OK)
+        return true
+      }
+      throw new Error(`Specified folder doesn't exists ("${fullPath}").`)
     } catch (err) {
       throw new Error(
         `Unable to write in the specified folder ("${fullPath}"). Please check configuration or disable log file output`
@@ -71,33 +73,33 @@ export class LoggerFilePersister {
     }
   }
 
-  private _getLogFileName(includeTimestamp = false) {
+  private _getLogFilePath(includeTimestamp = false) {
     const format = includeTimestamp ? 'YYYYMMDD_HHmmss' : 'YYYYMMDD'
-    return `logs_${moment().format(format)}.log`
+    return path.resolve(this.outputFolder, `logs_${moment().format(format)}.log`)
   }
 
-  private async _rotateFile() {
-    const original = path.resolve(this.outputFolder, this._getLogFileName())
-    const newName = path.resolve(this.outputFolder, this._getLogFileName(true))
+  private _rotateFile() {
+    const original = this._getLogFilePath()
+    const newName = this._getLogFilePath(true)
 
-    if (await fs.existsSync(original)) {
-      await fs.renameSync(original, newName)
+    if (fs.existsSync(original)) {
+      fs.renameSync(original, newName)
       if (process.env.DEBUG_LOGGER) {
         this.logger.debug(`Log file rotated: ${original} -> ${newName}`)
       }
     }
   }
 
-  private async _fileNeedsRotation(textLength) {
+  private _fileNeedsRotation(textLength) {
     try {
-      const { size } = await fs.statSync(this._getLogFileName())
+      const { size } = fs.statSync(this._getLogFilePath())
       return size + textLength > this.maxFileSize
     } catch (error) {
       return false
     }
   }
 
-  private _runTask = async () => {
+  private _runTask = () => {
     if (this.currentPromise || this.batch.length === 0) {
       return
     }
@@ -109,11 +111,11 @@ export class LoggerFilePersister {
     const content = this.batch.join('')
     this.batch = []
 
-    if (await this._fileNeedsRotation(content.length)) {
-      await this._rotateFile()
+    if (this._fileNeedsRotation(content.length)) {
+      this._rotateFile()
     }
 
-    const logStream = await fs.createWriteStream(this._getLogFileName(), { flags: 'a' })
+    const logStream = fs.createWriteStream(this._getLogFilePath(), { flags: 'a' })
     this.currentPromise = Promise.fromCallback(cb =>
       logStream.write(content, err => {
         logStream.end(cb)
