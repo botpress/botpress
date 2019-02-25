@@ -6,14 +6,16 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util.js'
 
+import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 10
 
 export default class Storage {
-  static ghostProvider: (botId: string) => sdk.ScopedGhostService
+  static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 
-  private readonly ghost: ScopedGhostService
+  private readonly botGhost: ScopedGhostService
+  private readonly globalGhost: ScopedGhostService
   private readonly intentsDir: string = './intents'
   private readonly entitiesDir: string = './entities'
   private readonly modelsDir: string = './models'
@@ -21,7 +23,8 @@ export default class Storage {
 
   constructor(config: Config, private readonly botId: string) {
     this.config = config
-    this.ghost = Storage.ghostProvider(this.botId)
+    this.botGhost = Storage.ghostProvider(this.botId)
+    this.globalGhost = Storage.ghostProvider()
   }
 
   async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
@@ -44,7 +47,19 @@ export default class Storage {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
-    await this.ghost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
+    await this.botGhost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
+  }
+
+  async saveConfusionMatrix(modelHash: string, results: Result) {
+    await this.botGhost.upsertFile(
+      this.modelsDir,
+      `confusion__${modelHash}.json`,
+      JSON.stringify(results, undefined, 2)
+    )
+  }
+
+  async getConfusionMatrix(modelHash: string): Promise<Result> {
+    return this.botGhost.readFileAsObject<Result>(this.modelsDir, `confusion__${modelHash}.json`)
   }
 
   async deleteIntent(intent) {
@@ -55,7 +70,7 @@ export default class Storage {
     }
 
     try {
-      await this.ghost.deleteFile(this.intentsDir, `${intent}.json`)
+      await this.botGhost.deleteFile(this.intentsDir, `${intent}.json`)
     } catch (e) {
       if (e.code !== 'ENOENT' && !e.message.includes("couldn't find")) {
         throw e
@@ -64,7 +79,7 @@ export default class Storage {
   }
 
   async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
-    const intents = await this.ghost.directoryListing(this.intentsDir, '*.json')
+    const intents = await this.botGhost.directoryListing(this.intentsDir, '*.json')
     return Promise.mapSeries(intents, intent => this.getIntent(intent))
   }
 
@@ -76,7 +91,7 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const propertiesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
+    const propertiesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
     let properties: any = {}
 
     try {
@@ -111,9 +126,9 @@ export default class Storage {
   private async _legacyAppendIntentUtterances(intent: any, intentName: string) {
     const filename = `${intentName}.utterances.txt`
 
-    const utterancesContent = await this.ghost.readFileAsString(this.intentsDir, filename)
+    const utterancesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
     intent.utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
-    await this.ghost.deleteFile(this.intentsDir, filename)
+    await this.botGhost.deleteFile(this.intentsDir, filename)
   }
 
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
@@ -150,30 +165,30 @@ export default class Storage {
   }
 
   async getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]> {
-    const files = await this.ghost.directoryListing(this.entitiesDir, '*.json')
+    const files = await this.botGhost.directoryListing(this.entitiesDir, '*.json')
     return Promise.mapSeries(files, async fileName => {
-      const body = await this.ghost.readFileAsObject<sdk.NLU.EntityDefinition>(this.entitiesDir, fileName)
+      const body = await this.botGhost.readFileAsObject<sdk.NLU.EntityDefinition>(this.entitiesDir, fileName)
       return { ...body, id: sanitizeFilenameNoExt(fileName) }
     })
   }
 
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
     const obj = _.omit(entity, ['id'])
-    return this.ghost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
+    return this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
   }
 
   async deleteEntity(entityId: string): Promise<void> {
-    return this.ghost.deleteFile(this.entitiesDir, `${entityId}.json`)
+    return this.botGhost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
   private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
     const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
-    return this.ghost.upsertFile(this.modelsDir, modelName, model.model)
+    return this.botGhost.upsertFile(this.modelsDir, modelName, model.model)
   }
 
   private async _cleanupModels(): Promise<void> {
-    const models = await this.getAvailableModels()
+    const models = await this._getAvailableModels(false)
     const uniqModelMeta = _.chain(models)
       .orderBy('created_on', 'desc')
       .uniqBy('hash')
@@ -184,7 +199,7 @@ export default class Storage {
       await Promise.all(
         models
           .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
-          .map(model => this.ghost.deleteFile(this.modelsDir, model.fileName))
+          .map(model => this.botGhost.deleteFile(this.modelsDir, model.fileName))
       )
     }
   }
@@ -194,12 +209,16 @@ export default class Storage {
     return this._cleanupModels()
   }
 
-  async getAvailableModels(): Promise<ModelMeta[]> {
-    const models = await this.ghost.directoryListing(this.modelsDir, '*.bin')
-    return models
+  private async _getAvailableModels(includeGlobalModels: boolean = false): Promise<ModelMeta[]> {
+    const botModels = await this.botGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
+    const globalModels = includeGlobalModels
+      ? await this.globalGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
+      : []
+
+    return [...botModels, ...globalModels]
       .map(x => {
         const fileName = path.basename(x)
-        const parts = fileName.replace(/\.bin$/i, '').split('__')
+        const parts = fileName.replace(/\.(bin|vec)$/i, '').split('__')
 
         if (parts.length !== 4) {
           // we don't support legacy format (old models)
@@ -213,22 +232,26 @@ export default class Storage {
           context: parts[0],
           created_on: parseInt(parts[1]) || 0,
           hash: parts[2],
-          type: parts[3]
+          type: parts[3],
+          scope: globalModels.includes(x) ? 'global' : 'bot'
         }
       })
       .filter(x => !!x)
   }
 
   async modelExists(modelHash: string): Promise<boolean> {
-    const models = await this.getAvailableModels()
+    const models = await this._getAvailableModels(false)
     return !!_.find(models, m => m.hash === modelHash)
   }
 
   async getModelsFromHash(modelHash: string): Promise<Model[]> {
-    const modelsMeta = await this.getAvailableModels()
-    return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash), async meta => ({
-      meta,
-      model: await this.ghost.readFileAsBuffer(this.modelsDir, meta.fileName!)
-    }))
+    const modelsMeta = await this._getAvailableModels(true)
+    return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
+      const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
+      return {
+        meta,
+        model: await ghostDriver.readFileAsBuffer(this.modelsDir, meta.fileName!)
+      }
+    })
   }
 }

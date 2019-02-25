@@ -146,6 +146,10 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
       return ghostService.forBot(botId)
+    },
+
+    forGlobal(): ScopedGhostService {
+      return ghostService.global()
     }
   }
 }

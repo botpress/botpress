@@ -25,4 +25,24 @@ export interface Config {
    * @default 30s
    */
   autoTrainInterval: string
+
+  /** The name of the language model to use.
+   *  Language models are located in your bot's "global/models" folder and they end with `intent-lm.vec`
+   *  The name of the model to use is the prefix of the file (before the first occurence of `__`)
+   *  @default en
+   */
+  languageModel: string
+
+  /**
+   * Fine-tuning of the fastText classifier parameters
+   * WARNING: For advanced users only
+   * @default {}
+   */
+  fastTextOverrides?: FastTextOverrides
+}
+
+export interface FastTextOverrides {
+  learningRate?: number
+  epoch?: number
+  wordNgrams?: number
 }
