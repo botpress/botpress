@@ -43,7 +43,7 @@ class SelectContentManager extends Component {
   render() {
     const { selects } = this.state
     return (
-      <div>
+      <div onClick={event => event.preventDefault()}>
         {selects.map(({ contentType, callback, id, rootEl }, i) => (
           <Select key={id} contentType={contentType} onSelect={callback} onClose={this.onClose(i)} container={rootEl} />
         ))}

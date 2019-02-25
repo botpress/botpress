@@ -256,7 +256,8 @@ export default class Web extends React.Component {
       .then(() => {
         this.handleSendData({
           type: 'visit',
-          text: 'User visit'
+          text: 'User visit',
+          timezone: moment().utcOffset() / 60
         })
       })
   }
