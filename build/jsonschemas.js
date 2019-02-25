@@ -26,5 +26,5 @@ module.exports = () => {
   }
 
   writeSchema('BotpressConfig', 'botpress.config.schema.json')
-  writeSchema('BotConfig', 'bot.config.schema.json')
+  writeSchema('BotConfigWriter', 'bot.config.schema.json')
 }
