@@ -94,12 +94,18 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId) // Create the user if it doesn't exist
 
       const payload = req.body || {}
+      const { timezone } = payload
+      const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
       if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
+      }
+
+      if (timezone && isValidTimezone) {
+        await bp.users.updateAttributes('web', userId, { timezone })
       }
 
       if (!conversationId) {
