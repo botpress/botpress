@@ -3,6 +3,7 @@ import { checkRule } from 'common/auth'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
+import onHeaders from 'on-headers'
 
 import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
@@ -35,7 +36,15 @@ export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddle
 }
 
 export const monitoringMiddleware = (req, res, next) => {
-  incrementMetric('requests')
+  const startAt = Date.now()
+
+  onHeaders(res, () => {
+    const timeInMs = Date.now() - startAt
+    incrementMetric('requests.count')
+    incrementMetric('requests.latency_sum', timeInMs)
+    res.setHeader('X-Response-Time', `${timeInMs}ms`)
+  })
+
   next()
 }
 

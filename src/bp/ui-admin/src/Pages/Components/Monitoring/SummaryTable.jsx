@@ -23,44 +23,44 @@ const SummaryTable = ({ data }) => {
       Header: 'Peak CPU Usage',
       Cell: x => x.value + '%',
       width: 120,
-      accessor: 'cpuUsage'
+      accessor: 'cpu.usage'
     },
     {
       Header: 'Peak Mem Usage',
       Cell: x => x.value + '%',
       width: 120,
-      accessor: 'memUsage'
+      accessor: 'mem.usage'
     },
     {
       Header: 'Requests',
       width: 120,
       className: 'center',
-      accessor: 'metrics.requests'
+      accessor: 'requests.count'
     },
     {
       Header: 'Events In',
       width: 120,
       className: 'center',
-      accessor: 'metrics.eventsIn',
+      accessor: 'eventsIn.count',
       align: 'right'
     },
     {
       Header: 'Events Out',
       width: 120,
       className: 'center',
-      accessor: 'metrics.eventsOut'
+      accessor: 'eventsOut.count'
     },
     {
       Header: 'Warnings',
       width: 120,
       className: 'center',
-      accessor: 'metrics.warnings'
+      accessor: 'warnings.count'
     },
     {
       Header: 'Errors',
       width: 120,
       className: 'center',
-      accessor: 'metrics.errors'
+      accessor: 'errors.count'
     }
   ]
 

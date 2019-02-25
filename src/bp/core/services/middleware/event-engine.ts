@@ -117,10 +117,10 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
-      incrementMetric('eventsIn')
+      incrementMetric('eventsIn.count')
       this.incomingQueue.enqueue(event, 1, false)
     } else {
-      incrementMetric('eventsOut')
+      incrementMetric('eventsOut.count')
       this.outgoingQueue.enqueue(event, 1, false)
     }
   }

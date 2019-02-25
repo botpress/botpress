@@ -159,7 +159,7 @@ class Monitoring extends Component {
 
           <Line
             name="Memory Usage"
-            dataKey="summary.memUsage"
+            dataKey="summary.mem.usage"
             unit="%"
             stroke="#1C4E80"
             strokeWidth={2}
@@ -168,7 +168,7 @@ class Monitoring extends Component {
           />
           <Line
             name="CPU Usage"
-            dataKey="summary.cpuUsage"
+            dataKey="summary.cpu.usage"
             unit="%"
             stroke="#0091D5"
             strokeWidth={2}
@@ -190,25 +190,18 @@ class Monitoring extends Component {
           <YAxis yAxisId="r" domain={[0, 'dataMax']} tick={tickSize} width={0} orientation="right" />
           <Tooltip content={this.renderTooltip} />
           <Legend />
-          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.metrics.requests" fill="#1C4E80" />
-          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey="summary.metrics.eventsIn" fill="#7E909A" />
-          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey="summary.metrics.eventsOut" fill="#6AB187" />
+          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.requests.count" fill="#1C4E80" />
+          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey="summary.eventsIn.count" fill="#7E909A" />
+          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey="summary.eventsOut.count" fill="#6AB187" />
           <Line
             yAxisId="r"
             name="Warnings"
-            dataKey="summary.metrics.warnings"
+            dataKey="summary.warnings.count"
             stroke="#DBAE58"
             strokeWidth={2}
             dot={false}
           />
-          <Line
-            yAxisId="r"
-            name="Errors"
-            dataKey="summary.metrics.errors"
-            stroke="#AC3E31"
-            strokeWidth={2}
-            dot={false}
-          />
+          <Line yAxisId="r" name="Errors" dataKey="summary.errors.count" stroke="#AC3E31" strokeWidth={2} dot={false} />
         </ComposedChart>
       </ResponsiveContainer>
     )

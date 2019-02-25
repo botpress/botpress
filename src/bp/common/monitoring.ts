@@ -2,8 +2,8 @@ import { MonitoringStats } from 'core/services/monitoring'
 import _ from 'lodash'
 import ms from 'ms'
 
-const keysToAverage = ['cpuUsage', 'memUsage']
-const keyToSum = ['metrics.requests', 'metrics.errors', 'metrics.warnings', 'metrics.eventsIn', 'metrics.eventsOut']
+const keysToAverage = ['cpu.usage', 'mem.usage']
+const keyToSum = ['requests.count', 'errors.count', 'warnings.count', 'eventsIn.count', 'eventsOut.count']
 
 /**
  * This object groups all statistics entries by their 'resolution group'. For example, if the resolution is 30 seconds,

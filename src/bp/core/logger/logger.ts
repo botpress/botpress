@@ -158,7 +158,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
-    incrementMetric('warnings')
+    incrementMetric('warnings.count')
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -167,7 +167,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
-    incrementMetric('errors')
+    incrementMetric('errors.count')
     this.print(LoggerLevel.Error, message, metadata)
   }
 }
