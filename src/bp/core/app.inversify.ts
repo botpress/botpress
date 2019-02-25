@@ -110,11 +110,6 @@ container
   .to(WorkspaceService)
   .inSingletonScope()
 
-container
-  .bind<MonitoringService>(TYPES.MonitoringService)
-  .to(MonitoringService)
-  .inSingletonScope()
-
 const isPackaged = !!eval('process.pkg')
 const isProduction = process.IS_PRODUCTION
 

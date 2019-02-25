@@ -20,6 +20,7 @@ import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
+import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
@@ -47,6 +48,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.IS_PRODUCTION || !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
+
+  bind<MonitoringService>(TYPES.MonitoringService)
+    .to(CEMonitoringService)
+    .inSingletonScope()
+    .when(() => !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
 
   bind<AuthStrategies>(TYPES.AuthStrategies)
     .to(CEAuthStrategies)
