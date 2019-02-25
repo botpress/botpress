@@ -21,6 +21,7 @@ import moment from 'moment'
 import ms from 'ms'
 import SummaryTable from '../Components/Monitoring/SummaryTable'
 import ChartTooltip from '../Components/Monitoring/ChartTooltip'
+import LoadingSection from '../Components/LoadingSection'
 
 import { groupEntriesByTime, mergeEntriesByTime, calculateOverviewForHost } from 'common/monitoring'
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
@@ -310,6 +311,10 @@ class Monitoring extends Component {
   }
 
   render() {
+    if (this.props.loading) {
+      return <LoadingSection />
+    }
+
     if (!this.props.rawStats) {
       return this.renderNoStats()
     }
@@ -325,7 +330,8 @@ class Monitoring extends Component {
 
 const mapStateToProps = state => ({
   rawStats: state.monitoring.stats,
-  lastDate: state.monitoring.lastDate
+  lastDate: state.monitoring.lastDate,
+  loading: state.monitoring.loading
 })
 
 const mapDispatchToProps = { fetchStats, refreshStats }
