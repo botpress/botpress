@@ -40,7 +40,7 @@ export default class BroadcastDb {
             .integer('scheduleId')
             .references('broadcast_schedules.id')
             .onDelete('CASCADE')
-          table.string('userId').references('srv_channel_users.user_id')
+          table.string('userId')
           table.primary(['scheduleId', 'userId'])
           table.string('botId')
           table.timestamp('ts')
@@ -135,7 +135,20 @@ export default class BroadcastDb {
 
   async getUsersTimezone() {
     const attrs = await this.knex('srv_channel_users').select('attributes')
-    const timezones = attrs.map(({ attributes: { timezone } }) => timezone)
+
+    const timezones = attrs.map(({ attributes }) => {
+      if (this.knex.isLite) {
+        try {
+          return JSON.parse(attributes).timezone
+        } catch (err) {
+          this.bp.logger.error(err.message)
+
+          return
+        }
+      }
+
+      return attributes.timezone
+    })
 
     return [...new Set(timezones)]
   }
@@ -146,14 +159,20 @@ export default class BroadcastDb {
     tz = padDigits(Math.abs(Number(tz)), 2)
     const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
-    const whereClause = _.isNil(initialTz)
+    let whereClause = _.isNil(initialTz)
       ? "where attributes -> 'timezone' IS NULL"
       : "where attributes ->> 'timezone' = :initialTz"
+    let sqliteTimezone = ''
+
+    if (this.knex.isLite) {
+      whereClause = _.isNil(initialTz) ? 'where timezone IS NULL' : 'where timezone = :initialTz'
+      sqliteTimezone = ", json_extract(attributes, '$.timezone') as timezone"
+    }
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
       select userId, :scheduleId, :botId, :adjustedTime
       from (
-        select user_id as userId
+        select user_id as userId${sqliteTimezone}
         from srv_channel_users
         ${whereClause}
       ) as q1`
