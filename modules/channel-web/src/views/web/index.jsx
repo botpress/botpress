@@ -87,6 +87,7 @@ export default class Web extends React.Component {
 
   componentDidMount() {
     this.setUserId()
+      .then(this.fetchBot)
       .then(this.fetchData)
       .then(() => {
         this.handleSwitchView('widget')
@@ -250,6 +251,12 @@ export default class Web extends React.Component {
     this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
   }
 
+  fetchBot = () => {
+    const axios = this.props.bp.axios
+    const url = '/'
+    return axios.get(url, this.axiosConfig).then(({ data }) => this.setState({ bot: data }))
+  }
+
   fetchData = () => {
     return this.fetchConversations()
       .then(this.fetchCurrentConversation)
@@ -278,6 +285,8 @@ export default class Web extends React.Component {
     const { conversations, currentConversationId } = this.state
 
     let conversationIdToFetch = convoId || currentConversationId
+
+    // Select the first conversation if none is active in the chat
     if (conversations.length > 0 && !conversationIdToFetch) {
       const lifeTimeMargin = moment().subtract(ms(this.state.recentConversationLifetime), 'ms')
       if (moment(conversations[0].last_heard_on).isBefore(lifeTimeMargin) && this.state.startNewConvoOnTimeout) {
@@ -288,7 +297,6 @@ export default class Web extends React.Component {
     }
 
     const url = `/mod/channel-web/conversations/${userId}/${conversationIdToFetch}`
-
     return axios.get(url, this.axiosConfig).then(({ data }) => {
       // Possible race condition if the current conversation changed while fetching
       if (this.state.currentConversationId !== conversationIdToFetch) {
@@ -587,6 +595,7 @@ export default class Web extends React.Component {
   renderSide() {
     return (
       <Side
+        bot={this.state.bot}
         config={this.state.config}
         text={this.state.textToSend}
         fullscreen={this.props.fullscreen}

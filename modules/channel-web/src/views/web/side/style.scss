@@ -1,3 +1,29 @@
+.welcomeImage {
+  margin: auto;
+  text-align: center;
+}
+
+.welcomeTitle {
+  font-size: 24px;
+  margin: auto;
+  text-align: center;
+}
+
+.welcomeDetails {
+  height: 100%;
+  list-style-type: none;
+}
+
+.welcomeDescription {
+  margin: 14px;
+  text-align: left;
+}
+
+.welcomeGetStarted {
+  width: 100% !important;
+  font-size: 14px !important;
+}
+
 .external {
   * {
     box-sizing: border-box;
