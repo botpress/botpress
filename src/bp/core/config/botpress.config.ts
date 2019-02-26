@@ -40,6 +40,11 @@ export interface LogsConfig {
   janitorInterval: string
 }
 
+/**
+ * Many configuration options allows you to specify textually the duration, interval, etc.
+ * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
+ */
+
 export type BotpressConfig = {
   jwtSecret: string
   httpServer: {

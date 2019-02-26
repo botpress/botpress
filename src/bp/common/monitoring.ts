@@ -2,8 +2,8 @@ import { MonitoringStats } from 'core/services/monitoring'
 import _ from 'lodash'
 import ms from 'ms'
 
-const keysToAverage = ['cpu.usage', 'mem.usage']
-const keyToSum = ['requests.count', 'errors.count', 'warnings.count', 'eventsIn.count', 'eventsOut.count']
+const AVG_KEYS = ['cpu.usage', 'mem.usage']
+const SUM_KEYS = ['requests.count', 'errors.count', 'warnings.count', 'eventsIn.count', 'eventsOut.count']
 
 /**
  * This object groups all statistics entries by their 'resolution group'. For example, if the resolution is 30 seconds,
@@ -46,32 +46,42 @@ export const mergeEntriesByTime = (groupedEntries: MonitoringGroupInterval, uniq
   )
 }
 
-const calculateAverageAndSum = (allEntries: MonitoringStats[], ts: string, uniqueHosts: string[]) => {
-  const result: IntervalSummary = {
-    ts: +ts,
-    hosts: {},
-    summary: {}
-  }
+const calculateAverageAndSum = (allEntries: MonitoringStats[], ts: string, uniqueHosts: string[]): IntervalSummary => {
+  const hosts = {}
+  const summary = {}
 
   for (const host of uniqueHosts) {
-    const currentHost = (result.hosts[host] = {})
+    hosts[host] = hosts[host] || {}
     const hostEntries = _.filter(allEntries, entry => entry.host === host)
+    AVG_KEYS.forEach(key => {
+      const sum = _.sumBy(hostEntries, key)
 
-    keysToAverage.forEach(key => _.set(currentHost, key, _.round(_.sumBy(hostEntries, key) / hostEntries.length, 2)))
-    keyToSum.forEach(key => _.set(currentHost, key, _.sumBy(hostEntries, key)))
+      _.set(hosts[host], key, _.round(sum / hostEntries.length, 2))
+      _.set(summary, key, _.get(summary, key, 0) + sum)
+    })
+
+    SUM_KEYS.forEach(key => {
+      const sum = _.sumBy(hostEntries, key)
+
+      _.set(hosts[host], key, sum)
+      _.set(summary, key, _.get(summary, key, 0) + sum)
+    })
   }
 
-  keysToAverage.forEach(key => _.set(result.summary, key, _.round(_.sumBy(allEntries, key) / allEntries.length, 2)))
-  keyToSum.forEach(key => _.set(result.summary, key, _.sumBy(allEntries, key)))
+  AVG_KEYS.forEach(key => _.set(summary, key, _.round(_.get(summary, key) / allEntries.length, 2)))
 
-  return result
+  return {
+    ts: +ts,
+    hosts,
+    summary
+  }
 }
 
 export const calculateOverviewForHost = (hostStats: MonitoringStats[]) => {
   const overview: Partial<MonitoringStats> = {}
 
-  keysToAverage.forEach(key => _.set(overview, key, _.get(_.maxBy(hostStats, key), key)))
-  keyToSum.forEach(key => _.set(overview, key, _.sumBy(hostStats, key)))
+  AVG_KEYS.forEach(key => _.set(overview, key, _.get(_.maxBy(hostStats, key), key)))
+  SUM_KEYS.forEach(key => _.set(overview, key, _.sumBy(hostStats, key)))
 
   return overview
 }
