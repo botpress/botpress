@@ -7,6 +7,7 @@ import { VError } from 'verror'
 
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
+import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
 import { MiddlewareChain } from './middleware'
@@ -117,8 +118,10 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
+      incrementMetric('eventsIn.count')
       this.incomingQueue.enqueue(event, 1, false)
     } else {
+      incrementMetric('eventsOut.count')
       this.outgoingQueue.enqueue(event, 1, false)
     }
   }

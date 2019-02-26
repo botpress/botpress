@@ -65,6 +65,11 @@ export interface LogsConfig {
   }
 }
 
+/**
+ * Many configuration options allows you to specify textually the duration, interval, etc.
+ * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
+ */
+
 export type BotpressConfig = {
   jwtSecret: string
   httpServer: {
@@ -137,6 +142,7 @@ export type BotpressConfig = {
        */
       allowSelfSignup: boolean
     }
+    monitoring: MonitoringConfig
     /**
      * External Authentication allows your backend to issue a JWT token to securely pass data to Botpress through the user
      * The token is validated each time a message is sent and the content is available on `event.credentials`
@@ -238,3 +244,27 @@ export interface AuthStrategyLdap {
 }
 
 export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }
+
+export interface MonitoringConfig {
+  /**
+   * To enable server monitoring, you need to enable the Pro version and configure your Redis server.
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * The interval between data collection of metrics and usage. The lower the value brings more details,
+   * but comes at the cost of more storage required & processing time when viewing data.
+   * @default 10s
+   */
+  collectionInterval: string
+  /**
+   * Data older than this will be cleared periodically.
+   * @default 10d
+   */
+  retentionPeriod: string
+  /**
+   * The delay between execution of the janitor which removes statistics outside of the previously defined period
+   * @default 15m
+   */
+  janitorInterval: string
+}
