@@ -43,6 +43,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly preview: string
   public readonly suggestions?: sdk.IO.Suggestion[]
   public readonly state: any
+  public readonly credentials?: any
   private readonly flags: any
 
   constructor(args: sdk.IO.EventCtorArgs) {
@@ -61,6 +62,7 @@ export class IOEvent implements sdk.IO.Event {
 
     if (this.direction === 'incoming') {
       this.suggestions = []
+      this.credentials = args.credentials
     }
   }
 

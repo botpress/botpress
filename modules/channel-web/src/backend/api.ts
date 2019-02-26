@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function (req, file, cb) {
+    filename: function(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -59,7 +59,7 @@ export default async (bp: typeof sdk, db: Database) => {
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function (req, file, cb) {
+      key: function(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -84,6 +84,7 @@ export default async (bp: typeof sdk, db: Database) => {
   // ?conversationId=xxx (optional)
   router.post(
     '/messages/:userId',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId = undefined } = req.params
 
@@ -112,7 +113,7 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -122,6 +123,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/messages/:userId/files',
     upload.single('file'),
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId = undefined, userId = undefined } = req.params || {}
 
@@ -150,7 +152,7 @@ export default async (bp: typeof sdk, db: Database) => {
         }
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -192,7 +194,7 @@ export default async (bp: typeof sdk, db: Database) => {
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId: string, userId: string, conversationId, payload) {
+  async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) {
@@ -226,7 +228,8 @@ export default async (bp: typeof sdk, db: Database) => {
       payload,
       target: userId,
       threadId: conversationId,
-      type: payload.type
+      type: payload.type,
+      credentials
     })
 
     const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
@@ -237,6 +240,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post(
     '/events/:userId',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { payload = undefined } = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
@@ -251,7 +255,8 @@ export default async (bp: typeof sdk, db: Database) => {
         target: userId,
         threadId: conversationId,
         type: payload.type,
-        payload
+        payload,
+        credentials: req.credentials
       })
 
       bp.events.sendEvent(event)
@@ -261,6 +266,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post(
     '/conversations/:userId/:conversationId/reset',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
       await bp.users.getOrCreateUser('web', userId)
@@ -270,7 +276,7 @@ export default async (bp: typeof sdk, db: Database) => {
         type: 'session_reset'
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
       await bp.dialog.deleteSession(userId)
       res.status(200).send({})
     })
