@@ -2,9 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 // import { Picker } from 'emoji-mart'
-import { Card, CardBody, CardTitle, CardText, ListGroup, ListGroupItem, Button } from 'reactstrap'
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
-import Avatar from 'react-avatar'
 import Send from '../send'
 import MessageList from '../messages'
 import Input from '../input'
@@ -12,6 +10,7 @@ import Input from '../input'
 import BotAvatar from '../bot_avatar'
 
 import style from './style.scss'
+import { WelcomePage } from './welcome'
 // require('emoji-mart/css/emoji-mart.css')
 
 export default class Side extends React.Component {
@@ -310,12 +309,12 @@ export default class Side extends React.Component {
     }
 
     // Display the bot welcome page when the conversation has no messages
-    if (
-      this.props.currentConversation &&
-      !this.state.chatStarted[this.props.currentConversation.id] &&
-      !_.get(this.props, 'currentConversation.messages.length')
-    ) {
-      return this.renderStartPage()
+    const convoId = this.props.currentConversation && this.props.currentConversation.id
+    const chatStarted = this.state.chatStarted[convoId]
+    const hasMessages = _.get(this.props, 'currentConversation.messages.length')
+
+    if (!chatStarted && !hasMessages) {
+      return <WelcomePage bot={this.props.bot} onGetStarted={() => this.handleGetStarted(convoId)} />
     }
 
     return (
@@ -368,63 +367,6 @@ export default class Side extends React.Component {
           +
         </button>
       </div>
-    )
-  }
-
-  renderStartPage() {
-    const emailAddress = _.get(this.props, 'bot.details.emailAddress')
-    const phoneNumber = _.get(this.props, 'bot.details.phoneNumber')
-    const termsConditions = _.get(this.props, 'bot.details.termsConditions')
-    const website = _.get(this.props, 'bot.details.website')
-
-    return (
-      <Card>
-        <CardBody>
-          <div className={style.welcomeImage}>
-            {this.props.config.botAvatarUrl ? (
-              <Img src={this.props.config.botAvatarUrl} />
-            ) : (
-              <Avatar name={this.props.bot.name} />
-            )}
-          </div>
-          <CardTitle className={style.welcomeTitle}>{this.props.bot.name}</CardTitle>
-          <CardText className={style.welcomeDescription}>{this.props.bot.description}</CardText>
-        </CardBody>
-        <ListGroup className={style.welcomeDetails}>
-          {emailAddress && (
-            <ListGroupItem>
-              <i className="material-icons">email</i>
-              {emailAddress}
-            </ListGroupItem>
-          )}
-          {phoneNumber && (
-            <ListGroupItem>
-              <i className="material-icons">phone</i>
-              {phoneNumber}
-            </ListGroupItem>
-          )}
-          {website && (
-            <ListGroupItem>
-              <i className="material-icons">language</i>
-              {website}
-            </ListGroupItem>
-          )}
-          {termsConditions && (
-            <ListGroupItem>
-              <a href={termsConditions}>View Terms of Service</a>
-            </ListGroupItem>
-          )}
-          {this.props.config.botWelcomeMsg && <ListGroupItem>{this.props.config.botWelcomeMsg}</ListGroupItem>}
-        </ListGroup>
-        <CardBody>
-          <Button
-            className={style.welcomeGetStarted}
-            onClick={this.handleGetStarted.bind(this, this.props.currentConversation.id)}
-          >
-            Get Started
-          </Button>
-        </CardBody>
-      </Card>
     )
   }
 

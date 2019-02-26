@@ -9,9 +9,17 @@
   text-align: center;
 }
 
+.welcomeIcon {
+  padding: 0 14px 0 0;
+}
+
 .welcomeDetails {
   height: 100%;
   list-style-type: none;
+
+  li {
+    padding: 14px 0 0 0;
+  }
 }
 
 .welcomeDescription {
