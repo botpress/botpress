@@ -7,7 +7,7 @@ import { Botpress } from './botpress'
 import { BotConfigWriter } from './config'
 import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
-import { LoggerPersister, LoggerProvider, PersistedConsoleLogger } from './logger'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
@@ -55,8 +55,13 @@ container
   .inSingletonScope()
 
 container
-  .bind<LoggerPersister>(TYPES.LoggerPersister)
-  .to(LoggerPersister)
+  .bind<LoggerDbPersister>(TYPES.LoggerDbPersister)
+  .to(LoggerDbPersister)
+  .inSingletonScope()
+
+container
+  .bind<LoggerFilePersister>(TYPES.LoggerFilePersister)
+  .to(LoggerFilePersister)
   .inSingletonScope()
 
 container // TODO Implement this
