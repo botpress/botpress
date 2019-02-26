@@ -24,6 +24,9 @@ export interface BotDetails {
   phoneNumber?: string
   termsConditions?: string
   emailAddress?: string
+  avatarUrl?: string
+  coverPictureUrl?: string
+  welcomeMessage?: string
 }
 
 export interface LogsConfig {

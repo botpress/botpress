@@ -32,6 +32,9 @@ export const BotEditSchema = Joi.object().keys({
   disabled: Joi.bool(),
   private: Joi.bool(),
   details: {
+    avatarUrl: Joi.string().optional(),
+    welcomeMessage: Joi.string().optional(),
+    coverPictureUrl: Joi.string().optional(),
     website: Joi.string()
       .uri()
       .optional()

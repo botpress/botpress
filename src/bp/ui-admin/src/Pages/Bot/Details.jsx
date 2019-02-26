@@ -7,6 +7,7 @@ import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
 import { Row, Col, Button, FormGroup, Label, Input, Form, UncontrolledTooltip, Alert } from 'reactstrap'
+import Avatar from 'react-avatar'
 
 import _ from 'lodash'
 
@@ -26,6 +27,8 @@ class Bots extends Component {
   state = {
     id: '',
     name: '',
+    avatarUrl: '',
+    welcomeMessage: '',
     category: undefined,
     description: '',
     website: '',
@@ -74,6 +77,8 @@ class Bots extends Component {
       phoneNumber: details.phoneNumber,
       termsConditions: details.termsConditions,
       emailAddress: details.emailAddress,
+      avatarUrl: details.avatarUrl,
+      welcomeMessage: details.welcomeMessage,
       status: statusList.find(x => x.value === status),
       category: this.state.categories.find(x => x.value === bot.category)
     })
@@ -87,6 +92,8 @@ class Bots extends Component {
       description: this.state.description,
       category: this.state.category && this.state.category.value,
       details: {
+        avatarUrl: this.state.avatarUrl,
+        welcomeMessage: this.state.welcomeMessage,
         website: this.state.website,
         phoneNumber: this.state.phoneNumber,
         termsConditions: this.state.termsConditions,
@@ -137,6 +144,27 @@ class Bots extends Component {
   handleChangedLanguage = status => this.setState({ status })
   handleCategoryChanged = category => this.setState({ category })
 
+  handleFileChange = event => {
+    const data = new FormData()
+    data.append('file', event.target.files[0])
+
+    this.setState({ error: null, uploading: true }, async () => {
+      await api
+        .getSecured()
+        .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+        .then(response => {
+          const { url } = response.data
+          this.setState({ avatarUrl: window.location.origin + url })
+        })
+        .catch(e => {
+          this.setState({ error: e.message })
+        })
+        .then(() => {
+          this.setState({ uploading: false })
+        })
+    })
+  }
+
   renderDetails() {
     return (
       <div>
@@ -153,7 +181,7 @@ class Bots extends Component {
               </FormGroup>
             </Col>
             <Col md={4}>
-              {this.state.categories.length && (
+              {this.state.categories.length > 0 && (
                 <FormGroup>
                   <Label>
                     <strong>Category</strong>
@@ -247,6 +275,34 @@ class Bots extends Component {
                   onChange={this.handleInputChanged}
                 />
               </FormGroup>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Label>
+                <strong>Cover Picture</strong>
+              </Label>
+              <Input type="file" name="coverPicture" />
+            </Col>
+            <Col md={6}>
+              <Label>
+                <strong>Bot Avatar</strong>
+              </Label>
+              <Input type="file" name="botAvatar" onChange={this.handleFileChange} />
+              <Avatar name={this.state.name} src={this.state.avatarUrl} />
+            </Col>
+            <Col md={12}>
+              <Label>
+                <strong>Welcome Message</strong>
+              </Label>
+              <Input
+                type="textarea"
+                name="welcomeMessage"
+                placeholder="Enter a welcome message for the users that join your bot. Explain what the bot is all about."
+                value={this.state.welcomeMessage}
+                onChange={this.handleInputChanged}
+              />
             </Col>
           </Row>
 
