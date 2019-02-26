@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -16,7 +17,12 @@ export class BotsRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private logger!: Logger
 
-  constructor(logger: Logger, private workspaceService: WorkspaceService, private botService: BotService) {
+  constructor(
+    logger: Logger,
+    private workspaceService: WorkspaceService,
+    private botService: BotService,
+    private configProvider: ConfigProvider
+  ) {
     super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
     this.needPermissions = needPermissions(this.workspaceService)
@@ -44,11 +50,20 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    router.get(
+      '/categories',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const categories = (await this.configProvider.getBotpressConfig()).botCategories
+        return sendSuccess(res, 'Retreived bot categories', { categories })
+      })
+    )
+
     router.post(
       '/',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const bot = <Bot>_.pick(req.body, ['id', 'name'])
+        const bot = <Bot>_.pick(req.body, ['id', 'name', 'category'])
 
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 

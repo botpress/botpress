@@ -1,27 +1,32 @@
 import api from '../api'
 
-export const FETCH_BOTS_REQUESTED = 'teams/FETCH_BOTS_REQUESTED'
-export const FETCH_BOTS_RECEIVED = 'teams/FETCH_BOTS_RECEIVED'
-
-export const FETCH_BOT_TEMPLATES_REQUESTED = 'teams/FETCH_BOT_TEMPLATES_REQUESTED'
-export const FETCH_BOT_TEMPLATES_RECEIVED = 'teams/FETCH_BOT_TEMPLATES_RECEIVED'
+export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
+export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
+export const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
+export const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 
 const initialState = {
   bots: null,
   loadingBots: false,
-  botTemplates: null
+  botTemplates: [],
+  botTemplatesFetched: false,
+  botCategories: [],
+  botCategoriesFetched: false
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_BOT_TEMPLATES_REQUESTED:
-      return {
-        ...state
-      }
-    case FETCH_BOT_TEMPLATES_RECEIVED:
+    case RECEIVED_BOT_CATEGORIES:
       return {
         ...state,
-        botTemplates: action.botTemplates
+        botCategories: action.categories || [],
+        botCategoriesFetched: true
+      }
+    case RECEIVED_BOT_TEMPLATES:
+      return {
+        ...state,
+        botTemplates: action.templates || [],
+        botTemplatesFetched: true
       }
     case FETCH_BOTS_REQUESTED:
       return {
@@ -43,22 +48,28 @@ export default (state = initialState, action) => {
 }
 
 export const fetchBotTemplates = () => {
-  return async (dispatch, getState) => {
-    dispatch({
-      type: FETCH_BOT_TEMPLATES_REQUESTED
-    })
-
+  return async dispatch => {
     const { data } = await api.getSecured().get('/modules/botTemplates')
+    dispatch({
+      type: RECEIVED_BOT_TEMPLATES,
+      templates: data
+    })
+  }
+}
+
+export const fetchBotCategories = () => {
+  return async dispatch => {
+    const { data } = await api.getSecured().get('/admin/bots/categories')
 
     dispatch({
-      type: FETCH_BOT_TEMPLATES_RECEIVED,
-      botTemplates: data
+      type: RECEIVED_BOT_CATEGORIES,
+      categories: data.payload.categories
     })
   }
 }
 
 export const fetchBots = () => {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     dispatch({
       type: FETCH_BOTS_REQUESTED
     })

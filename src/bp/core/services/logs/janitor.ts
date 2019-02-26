@@ -33,7 +33,7 @@ export class LogsJanitor extends Janitor {
 
   protected async getInterval(): Promise<string> {
     const config = await this.getBotpresConfig()
-    return config.logs.janitorInterval
+    return _.get(config, 'logs.dbOutput.janitorInterval', '30s')
   }
 
   protected async runTask(): Promise<void> {
@@ -44,7 +44,7 @@ export class LogsJanitor extends Janitor {
     const botpressConfig = await this.getBotpresConfig()
     const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
-    const globalLogsExpiryTime = ms(botpressConfig.logs.expiration)
+    const globalLogsExpiryTime = ms(_.get(botpressConfig, 'logs.dbOutput.expiration', '2 weeks'))
 
     Promise.mapSeries(botsIds, botId => {
       const botConfig = botsConfigs.get(botId)!

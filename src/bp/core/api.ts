@@ -7,7 +7,6 @@ import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
 import { container } from './app.inversify'
-import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
@@ -98,7 +97,7 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
 
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
-    getAllBots(): Promise<Map<string, BotConfig>> {
+    getAllBots(): Promise<Map<string, sdk.BotConfig>> {
       return botService.getBots()
     }
   }
@@ -154,6 +153,10 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
       return ghostService.forBot(botId)
+    },
+
+    forGlobal(): ScopedGhostService {
+      return ghostService.global()
     }
   }
 }

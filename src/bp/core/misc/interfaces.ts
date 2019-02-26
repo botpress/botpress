@@ -1,3 +1,4 @@
+import { BotDetails } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../config/botpress.config'
@@ -85,9 +86,13 @@ export interface Bot {
   id: string
   name: string
   description: string
-  created_at: string
-  updated_at: string
+  category?: string
+  disabled?: boolean
+  private?: boolean
+  details?: BotDetails
   version?: string
   author?: string
   license?: string
+  created_at: string
+  updated_at: string
 }

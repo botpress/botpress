@@ -100,7 +100,8 @@ export default class HTTPServer {
       this.workspaceService,
       this.botService,
       licenseService,
-      this.ghostService
+      this.ghostService,
+      this.configProvider
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({

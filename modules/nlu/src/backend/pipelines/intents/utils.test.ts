@@ -17,6 +17,7 @@ describe('NLU intent utils', () => {
     const set9 = mapSet([0.6])
     const set10 = mapSet([0.2, 0.1])
     const set11 = mapSet([0.45, 0.1, 0.05, 0.05, 0.0002, 0.0002, 0.0002, 0.0002, 0.0002, 0.0002, 0.0002])
+    const set12 = mapSet([0.65, 0.32, 0.01, 0.0059, 0.0007])
 
     const res1 = findMostConfidentIntentMeanStd(set1, 0.8)
     const res2 = findMostConfidentIntentMeanStd(set2, 0.8)
@@ -29,6 +30,7 @@ describe('NLU intent utils', () => {
     const res9 = findMostConfidentIntentMeanStd(set9, 0.8)
     const res10 = findMostConfidentIntentMeanStd(set10, 0.8)
     const res11 = findMostConfidentIntentMeanStd(set11, 0.8)
+    const res12 = findMostConfidentIntentMeanStd(set12, 0.8)
 
     expect(res1.name).toBe('0')
     expect(res2.name).toBe('0')
@@ -41,6 +43,7 @@ describe('NLU intent utils', () => {
     expect(res9.name).toBe('none')
     expect(res10.name).toBe('none')
     expect(res11.name).toBe('0')
+    expect(res12.name).toBe('0')
   })
 
   describe('matches', () => {

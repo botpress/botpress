@@ -54,7 +54,7 @@ export default class TemplateModule extends React.Component {
         keywords: this.state.keywords,
         config: this.state.config
       })
-    if (this.choices && this.choices.length > 1) {
+    if (this.choices && this.choices.length > 0) {
       this.props.onValidChanged && this.props.onValidChanged(true)
     }
   }

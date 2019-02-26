@@ -34,7 +34,6 @@ export default class Storage implements QnaStorage {
   private bp: typeof sdk
   private config
   private botId: string
-  private axiosConfig
   private categories: string[]
 
   constructor(bp: typeof sdk, config, botId) {
@@ -47,47 +46,53 @@ export default class Storage implements QnaStorage {
     }
   }
 
+  private async getAxiosConfig() {
+    return this.bp.http.getAxiosConfigForBot(this.botId, { localUrl: true })
+  }
+
   async initialize() {
-    this.axiosConfig = await this.bp.http.getAxiosConfigForBot(this.botId, { localUrl: true })
     await this.syncQnaToNlu()
   }
 
   // TODO Find better way to implement. When manually copying QNA, intents are not created.
   // Manual edit & save of each one is required for the intent to be created.
   async syncQnaToNlu() {
+    const axiosConfig = await this.getAxiosConfig()
     const allQuestions = await this.fetchAllQuestions()
-    const { data: allIntents } = await axios.get(`/mod/nlu/intents`, this.axiosConfig)
+    const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
     for (const question of allQuestions) {
       const matchedIntent = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
 
       if (question.data.enabled && !matchedIntent) {
         const intent = {
+          name: getIntentId(question.id),
           entities: [],
           contexts: [question.data.category || 'global'],
           utterances: normalizeQuestions(question.data.questions)
         }
 
-        await axios.post(`/mod/nlu/intents/${getIntentId(question.id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents`, intent, axiosConfig)
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
       }
     }
   }
 
   async update(data, id) {
+    const axiosConfig = await this.getAxiosConfig()
     id = id || getQuestionId(data)
     if (data.enabled) {
       const intent = {
+        name: getIntentId(id),
         entities: [],
         contexts: [data.category || 'global'],
         utterances: normalizeQuestions(data.questions)
       }
 
       await this.checkForDuplicatedQuestions(intent.utterances, id)
-
-      await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+      await axios.post(`/mod/nlu/intents`, intent, axiosConfig)
     } else {
-      await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+      await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, axiosConfig)
     }
 
     await this.bp.ghost
@@ -103,13 +108,14 @@ export default class Storage implements QnaStorage {
 
       if (data.enabled) {
         const intent = {
+          name: getIntentId(id),
           entities: [],
           contexts: [data.category || 'global'],
           utterances: normalizeQuestions(data.questions)
         }
 
         await this.checkForDuplicatedQuestions(intent.utterances)
-        await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, intent, this.axiosConfig)
+        await axios.post(`/mod/nlu/intents`, intent, await this.getAxiosConfig())
       }
 
       await this.bp.ghost
@@ -232,7 +238,7 @@ export default class Storage implements QnaStorage {
     const deletePromise = async (id): Promise<void> => {
       const data = await this.getQuestion(id)
       if (data.data.enabled) {
-        await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, this.axiosConfig)
+        await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, await this.getAxiosConfig())
       }
       return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
     }
@@ -241,7 +247,7 @@ export default class Storage implements QnaStorage {
   }
 
   async answersOn(text) {
-    const extract = await axios.post('/mod/nlu/extract', { text }, this.axiosConfig)
+    const extract = await axios.post('/mod/nlu/extract', { text }, await this.getAxiosConfig())
     const intents = _.chain([extract.data['intent'], ...extract.data['intents']])
       .uniqBy('name')
       .filter(({ name }) => name.startsWith('__qna__'))

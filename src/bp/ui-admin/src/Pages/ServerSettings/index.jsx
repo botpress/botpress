@@ -9,7 +9,7 @@ const ServerSettings = props => {
   const tabs = [
     {
       name: 'Server License',
-      route: '/settings',
+      route: '/settings/license',
       icon: <MdCopyright />,
       component: LicenseStatus
     },
