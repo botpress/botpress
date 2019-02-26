@@ -1,5 +1,4 @@
 import { injectable } from 'inversify'
-import { RedisClient } from 'redis'
 
 export interface JobService {
   /**
@@ -12,16 +11,11 @@ export interface JobService {
    * @param T The return type of the returned function
    */
   broadcast<T>(fn: Function): Promise<Function>
-  getRedisClient(): RedisClient | undefined
 }
 
 @injectable()
 export class CEJobService implements JobService {
   async broadcast<T>(fn: Function): Promise<Function> {
     return fn
-  }
-
-  getRedisClient(): undefined {
-    return undefined
   }
 }
