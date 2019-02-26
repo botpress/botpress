@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
@@ -39,6 +40,12 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     },
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
+    },
+    extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+      return httpServer.extractExternalToken(req, res, next)
+    },
+    decodeExternalToken(token: string): Promise<any> {
+      return httpServer.decodeExternalToken(token)
     }
   }
 }
@@ -146,6 +153,10 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
       return ghostService.forBot(botId)
+    },
+
+    forGlobal(): ScopedGhostService {
+      return ghostService.global()
     }
   }
 }

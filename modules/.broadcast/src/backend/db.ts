@@ -148,7 +148,7 @@ export default class BroadcastDb {
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
     const whereClause = _.isNil(initialTz)
       ? "where attributes -> 'timezone' IS NULL"
-      : "where attributes -> 'timezone' = :initialTz"
+      : "where attributes ->> 'timezone' = :initialTz"
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
       select userId, :scheduleId, :botId, :adjustedTime

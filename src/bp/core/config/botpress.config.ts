@@ -30,14 +30,39 @@ export interface DialogConfig {
 
 export interface LogsConfig {
   /**
-   * Logs will be kept for this amount of time in the database
-   * @default 2 weeks
+   * The database output will not record Debug logs.
    */
-  expiration: string
+  dbOutput: {
+    /**
+     * Logs will be kept for this amount of time in the database
+     * @default 2 weeks
+     */
+    expiration: string
+    /**
+     * @default 30s
+     */
+    janitorInterval: string
+  }
   /**
-   * @default 30s
+   * The file output records everything that is displayed in the console logs.
    */
-  janitorInterval: string
+  fileOutput: {
+    /**
+     * Enable or disable the output of logs to the file system. A new file is created each day
+     * @default false
+     */
+    enabled: boolean
+    /**
+     * The path (relative or absolute) to the logs folder.
+     * @default ./
+     */
+    folder: string
+    /**
+     * The maximum file size that the log can reach before a new one is started (size in kb)
+     * @default 10000
+     */
+    maxFileSize: number
+  }
 }
 
 /**
@@ -118,6 +143,11 @@ export type BotpressConfig = {
       allowSelfSignup: boolean
     }
     monitoring: MonitoringConfig
+    /**
+     * External Authentication allows your backend to issue a JWT token to securely pass data to Botpress through the user
+     * The token is validated each time a message is sent and the content is available on `event.credentials`
+     */
+    externalAuth: ExternalAuthConfig
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
@@ -140,6 +170,16 @@ export type BotpressConfig = {
    * @default []
    */
   botCategories: string[]
+}
+
+export interface ExternalAuthConfig {
+  enabled: boolean
+  audience: string
+  algorithm: string
+  /**
+   * When this key is undefined, BP will try to load the public key from `data/global/pub.key`
+   */
+  publicKey?: string
 }
 
 export interface DataRetentionConfig {

@@ -258,6 +258,7 @@ declare module 'botpress/sdk' {
       utterances: string[]
       filename: string
       slots: SlotDefinition[]
+      contexts: string[]
     }
 
     export interface Intent {
@@ -326,6 +327,7 @@ declare module 'botpress/sdk' {
       threadId?: string
       botId: string
       suggestions?: Suggestion[]
+      credentials?: any
     }
 
     /**
@@ -344,6 +346,7 @@ declare module 'botpress/sdk' {
       readonly payload: any
       /** A textual representation of the event */
       readonly preview: string
+      readonly credentials?: any
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -878,6 +881,18 @@ declare module 'botpress/sdk' {
      * @returns The configuration to use
      */
     export function getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig>
+
+    /**
+     * Decodes and validates an external authorization token with the public key defined in config file
+     * @param token - The encoded JWT token
+     * @returns The decoded payload
+     */
+    export function decodeExternalToken(token: string): Promise<any>
+
+    /**
+     * This Express middleware tries to decode the ExternalAuth header and adds a credentials header in the request if it's valid.
+     */
+    export function extractExternalToken(req: any, res: any, next: any): Promise<void>
   }
 
   /**
@@ -1017,6 +1032,11 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
+
+    /**
+     * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     */
+    export function forGlobal(): ScopedGhostService
   }
 
   export namespace cms {

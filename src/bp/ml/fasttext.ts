@@ -7,6 +7,18 @@ const binding = require(customFastTextPath || './fasttext.node')
 const FAST_TEXT_VERBOSITY = parseInt(process.env.FAST_TEXT_VERBOSITY || '0')
 const FAST_TEXT_CLEANUP_MS = parseInt(process.env.FAST_TEXT_CLEANUP_MS || '60000') // 60s caching by default
 
+export const DefaultTrainArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = {
+  bucket: 25000,
+  dim: 15,
+  epoch: 5,
+  loss: 'hs',
+  lr: 0.05,
+  minn: 3,
+  maxn: 6,
+  minCount: 1,
+  wordNgrams: 3
+}
+
 /** A wrapper class around the fasttext node bindings.
  * This wrapper adds support for lazy loading of the models, which
  * allows to delay the loading of the model only when actually needed for prediction or query.
@@ -46,6 +58,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
     const outPath = this._cleanPath(modelPath)
     const model = new binding.Classifier()
     await model.train(method, {
+      ...DefaultTrainArgs,
       ...args,
       output: outPath,
       verbose: FAST_TEXT_VERBOSITY
