@@ -61,7 +61,7 @@ export const fetchStats = (fromTime, toTime) => {
       type: FETCH_STATS_FULL_REQUESTED
     })
 
-    const { data } = await api.getSecured().post(`/admin/monitoring`, {
+    const { data } = await api.getSecured().post(`/admin/server/monitoring`, {
       fromTime,
       toTime
     })
@@ -80,7 +80,7 @@ export const fetchIncidents = (fromTime, toTime) => {
       type: FETCH_INCIDENTS_REQUESTED
     })
 
-    const { data } = await api.getSecured().post(`/admin/incidents`, {
+    const { data } = await api.getSecured().post(`/admin/server/incidents`, {
       fromTime,
       toTime
     })
@@ -100,7 +100,7 @@ export const refreshStats = () => {
       .toDate()
       .getTime()
 
-    const { data } = await api.getSecured().post(`/admin/monitoring`, {
+    const { data } = await api.getSecured().post(`/admin/server/monitoring`, {
       fromTime: state.lastDate,
       toTime
     })
