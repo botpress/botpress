@@ -295,12 +295,19 @@ export default class Web extends React.Component {
   }
 
   sendUserVisit = () => {
-    console.log('Send user visit')
     this.handleSendData({
       type: 'visit',
       text: 'User visit',
       timezone: moment().utcOffset() / 60
-    }).catch(this.checkForExpiredExternalToken)
+    })
+      .then(res => {
+        if (res.data.conversationId !== null) {
+          this.setState({ currentConversationId: res.data.conversationId }, async () => {
+            await this.fetchCurrentConversation(res.data.conversationId)
+          })
+        }
+      })
+      .catch(this.checkForExpiredExternalToken)
   }
 
   sendGetStarted = () => {
@@ -526,10 +533,7 @@ export default class Web extends React.Component {
     const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
-    return this.props.bp.axios
-      .post(url, data, config)
-      .then()
-      .catch(this.checkForExpiredExternalToken)
+    return this.props.bp.axios.post(url, data, config).catch(this.checkForExpiredExternalToken)
   }
 
   handleSwitchConvo = convoId => {

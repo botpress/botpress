@@ -129,7 +129,7 @@ export default async (bp: typeof sdk) => {
 
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
-      return res.sendStatus(200)
+      return res.send({ conversationId })
     })
   )
 
