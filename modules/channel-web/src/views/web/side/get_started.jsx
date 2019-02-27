@@ -3,7 +3,7 @@ import { Card, CardBody, CardTitle, CardText, ListGroup, ListGroupItem, Button }
 import Avatar from 'react-avatar'
 import style from './style.scss'
 
-export class WelcomePage extends React.Component {
+export class GetStarted extends React.Component {
   render() {
     const details = this.props.bot.details
     const bot = this.props.bot

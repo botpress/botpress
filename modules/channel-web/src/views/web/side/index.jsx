@@ -10,7 +10,7 @@ import Input from '../input'
 import BotAvatar from '../bot_avatar'
 
 import style from './style.scss'
-import { WelcomePage } from './welcome'
+import { GetStarted } from './get_started'
 // require('emoji-mart/css/emoji-mart.css')
 
 export default class Side extends React.Component {
@@ -317,7 +317,7 @@ export default class Side extends React.Component {
     const hasMessages = _.get(this.props, 'currentConversation.messages.length')
 
     if (!chatStarted && !hasMessages && this.props.bot.showGetStarted) {
-      return <WelcomePage bot={this.props.bot} onGetStarted={() => this.handleGetStarted(convoId)} />
+      return <GetStarted bot={this.props.bot} onGetStarted={() => this.handleGetStarted(convoId)} />
     }
 
     return (
