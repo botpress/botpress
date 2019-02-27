@@ -8,6 +8,7 @@ import Joi from 'joi'
 import Select from 'react-select'
 import { Row, Col, Button, FormGroup, Label, Input, Form, UncontrolledTooltip, Alert } from 'reactstrap'
 import Avatar from 'react-avatar'
+import Switch from 'react-switch'
 
 import _ from 'lodash'
 
@@ -29,6 +30,7 @@ class Bots extends Component {
     name: '',
     avatarUrl: '',
     welcomeMessage: '',
+    showGetStarted: false,
     category: undefined,
     description: '',
     website: '',
@@ -73,6 +75,7 @@ class Bots extends Component {
       botId,
       name: bot.name,
       description: bot.description,
+      showGetStarted: bot.showGetStarted,
       website: details.website,
       phoneNumber: details.phoneNumber,
       termsConditions: details.termsConditions,
@@ -90,6 +93,7 @@ class Bots extends Component {
     const bot = {
       name: this.state.name,
       description: this.state.description,
+      showGetStarted: this.state.showGetStarted,
       category: this.state.category && this.state.category.value,
       details: {
         avatarUrl: this.state.avatarUrl,
@@ -163,6 +167,10 @@ class Bots extends Component {
           this.setState({ uploading: false })
         })
     })
+  }
+
+  handleGetStartedSwitch = event => {
+    this.setState({ showGetStarted: !this.state.showGetStarted })
   }
 
   renderDetails() {
@@ -279,6 +287,13 @@ class Bots extends Component {
           </Row>
 
           <Row>
+            <Col md={12}>
+              <Label>
+                <strong>Show Get Started Page</strong>
+              </Label>
+              <br />
+              <Switch onChange={this.handleGetStartedSwitch} checked={this.state.showGetStarted} />
+            </Col>
             <Col md={6}>
               <Label>
                 <strong>Cover Picture</strong>

@@ -30,6 +30,7 @@ export const BotEditSchema = Joi.object().keys({
     .max(50)
     .required(),
   disabled: Joi.bool(),
+  showGetStarted: Joi.bool(),
   private: Joi.bool(),
   details: {
     avatarUrl: Joi.string().optional(),

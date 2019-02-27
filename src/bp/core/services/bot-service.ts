@@ -119,6 +119,7 @@ export class BotService {
     const actualBot = await this.configProvider.getBotConfig(botId)
     const updatedFields = _.pick(updatedBot, [
       'name',
+      'showGetStarted',
       'description',
       'category',
       'details',
