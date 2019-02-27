@@ -31,9 +31,11 @@
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.9",
     "react-scripts": "^2.0.4",
+    "react-table": "^6.8.6",
     "react-select": "^2.1.2",
     "react-toastify": "^4.0.0-rc.4",
     "reactstrap": "^5.0.0",
+    "recharts": "^1.5.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"
   },
@@ -50,7 +52,7 @@
   },
   "devDependencies": {
     "cross-env": "^5.2.0",
-    "react-app-rewired": "^1.6.2"
+    "react-app-rewired": "^2.1.0"
   },
   "browserslist": [
     ">0.2%",

@@ -15,7 +15,7 @@ import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'
-import { LoggerPersister, LoggerProvider } from './logger'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -31,6 +31,7 @@ import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
@@ -71,14 +72,16 @@ export class Botpress {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
-    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
+    @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
+    @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -196,8 +199,10 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.loggerPersister.initialize(this.database, await this.loggerProvider('LogPersister'))
-    this.loggerPersister.start()
+    await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
+    this.loggerDbPersister.start()
+
+    await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
@@ -244,6 +249,7 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+    await this.monitoringService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

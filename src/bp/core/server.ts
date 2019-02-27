@@ -8,17 +8,22 @@ import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
+import jsonwebtoken from 'jsonwebtoken'
+import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import portFinder from 'portfinder'
 
+import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
-import { PaymentRequiredError } from './routers/errors'
+import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { monitoringMiddleware } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -31,6 +36,7 @@ import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
@@ -72,7 +78,8 @@ export default class HTTPServer {
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
   ) {
     this.app = express()
 
@@ -97,7 +104,8 @@ export default class HTTPServer {
       this.botService,
       licenseService,
       this.ghostService,
-      this.configProvider
+      this.configProvider,
+      this.monitoringService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -119,7 +127,7 @@ export default class HTTPServer {
   async initialize() {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
@@ -129,6 +137,8 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    this.app.use(monitoringMiddleware)
 
     // TODO FIXME Conditionally enable this
     this.app.use(bodyParser.json({ limit: config.bodyLimit }))
@@ -235,5 +245,52 @@ export default class HTTPServer {
         Authorization: `Bearer ${serverToken}`
       }
     }
+  }
+
+  extractExternalToken = async (req, res, next) => {
+    if (req.headers.externalauth) {
+      try {
+        req.credentials = await this.decodeExternalToken(req.headers.externalauth)
+      } catch (error) {
+        return next(new InvalidExternalToken(error.message))
+      }
+    }
+
+    next()
+  }
+
+  async decodeExternalToken(externalToken): Promise<any | undefined> {
+    const { enabled, publicKey, audience, algorithm } = await this._getExternalAuthConfig()
+
+    if (!enabled) {
+      return undefined
+    }
+
+    const [scheme, token] = externalToken.split(' ')
+    if (scheme.toLowerCase() !== 'bearer') {
+      return new Error(`Unknown scheme "${scheme}"`)
+    }
+
+    return Promise.fromCallback(cb => {
+      jsonwebtoken.verify(token, publicKey, { audience, algorithm }, (err, user) => {
+        cb(err, !err ? user : undefined)
+      })
+    })
+  }
+
+  @Memoize
+  private async _getExternalAuthConfig(): Promise<ExternalAuthConfig> {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const config = botpressConfig.pro.externalAuth
+
+    if (!config.publicKey && config.enabled) {
+      try {
+        config.publicKey = await this.ghostService.global().readFileAsString('/', 'key.pub')
+      } catch (error) {
+        this.logger.attachError(error).error(`Couldn't open public key file /data/global/key.pub`)
+      }
+    }
+
+    return config
   }
 }

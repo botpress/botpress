@@ -78,3 +78,12 @@ export class InternalServerError extends ResponseError {
     super(message || '', 500, 'BP_0050')
   }
 }
+
+export class InvalidExternalToken extends ResponseError {
+  type = 'InvalidExternalToken'
+
+  constructor(message: string) {
+    super(`Unauthorized: ${message}`, 401, 'BP_0401')
+    this.skipLogging = true
+  }
+}

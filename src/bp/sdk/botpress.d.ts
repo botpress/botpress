@@ -258,6 +258,7 @@ declare module 'botpress/sdk' {
       utterances: string[]
       filename: string
       slots: SlotDefinition[]
+      contexts: string[]
     }
 
     export interface Intent {
@@ -326,6 +327,7 @@ declare module 'botpress/sdk' {
       threadId?: string
       botId: string
       suggestions?: Suggestion[]
+      credentials?: any
     }
 
     /**
@@ -344,6 +346,7 @@ declare module 'botpress/sdk' {
       readonly payload: any
       /** A textual representation of the event */
       readonly preview: string
+      readonly credentials?: any
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -881,6 +884,18 @@ declare module 'botpress/sdk' {
      * @returns The configuration to use
      */
     export function getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig>
+
+    /**
+     * Decodes and validates an external authorization token with the public key defined in config file
+     * @param token - The encoded JWT token
+     * @returns The decoded payload
+     */
+    export function decodeExternalToken(token: string): Promise<any>
+
+    /**
+     * This Express middleware tries to decode the ExternalAuth header and adds a credentials header in the request if it's valid.
+     */
+    export function extractExternalToken(req: any, res: any, next: any): Promise<void>
   }
 
   /**
@@ -918,6 +933,11 @@ declare module 'botpress/sdk' {
   }>
 
   export namespace users {
+    export interface UserInfo {
+      fullName: string
+      avatarUrl: string
+    }
+
     /**
      * Returns an existing user or create a new one with the specified keys
      */
@@ -929,6 +949,7 @@ declare module 'botpress/sdk' {
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
+    export function getUserInfo(channel: string, userId: string): Promise<UserInfo>
   }
 
   /**
@@ -1026,6 +1047,92 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
+
+    /**
+     * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     */
+    export function forGlobal(): ScopedGhostService
+  }
+
+  /**
+   * bp.conversations is used to persist or retrieve user conversations and messages independently of the channel of communication.
+   */
+  export namespace conversations {
+    export interface MessagePayload {
+      type: string
+      text: string
+      raw: string
+      data: string
+    }
+
+    /**
+     * Create a new conversation
+     * @param botId The Id of the bot
+     * @param userId The Id the the user
+     * @param isUserInitiated Whether or not the conversation has been initiated by a user of a bot
+     */
+
+    export function createConversation(botId: string, userId: string, isUserInitiated?: boolean): Promise<any>
+    /**
+     * Creates a new conversation
+     * @param botId The Id of the bot
+     * @param userId The Id of the user
+     * @param lifetime Conversations that are older than the lifetime argument will not be returned.
+     * The conversation lifetime found in a module config is often used here.
+     * @param isUserInitiated Whether or not the conversation has been initiated by a user of a bot
+     */
+
+    export function getOrCreateConversation(
+      botId: string,
+      userId: string,
+      opt?: {
+        lifetime?: string
+        isUserCreated?: boolean
+      }
+    ): Promise<any>
+
+    /**
+     * Persists a user message
+     * @param botId The Id of the bot
+     * @param userId The Id of the user
+     * @param conversationId The Id of the conversation
+     * @param fullName The user's full name
+     * @param avatarUrl The user's avatar url
+     * @param payload The payload to be persisted
+     */
+    export function appendUserMessage(
+      botId: string,
+      userId: string,
+      conversationId: string,
+      fullName: string,
+      avatarUrl: string,
+      payload: MessagePayload
+    ): Promise<any>
+
+    /**
+     * Persist a bot message
+     * @param botName The name of the bot
+     * @param botAvatar The bot avatar url
+     * @param conversationId The conversation Id
+     * @param payload The message payload to be persisted
+     */
+    export function appendBotMessage(
+      botName: string,
+      botAvatar: string,
+      conversationId: string,
+      payload: MessagePayload
+    ): Promise<any>
+
+    /**
+     * List all conversations from a specific user
+     * @param userId The user Id
+     * @param botId The bot Id
+     */
+    export function listConversations(userId: string, botId: string): Promise<any>
+
+    export function getConversation(userId: string, conversationId: string, botId: string): Promise<any>
+
+    export function getConversationMessages(conversationId: string, fromId?: string): PromiseLike<any>
   }
 
   export namespace conversations {

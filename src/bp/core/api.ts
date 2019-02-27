@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
@@ -13,6 +14,7 @@ import Database from './database'
 import { LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
+import { ConversationsRepository } from './repositories/conversations'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -41,6 +43,12 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     },
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
+    },
+    extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+      return httpServer.extractExternalToken(req, res, next)
+    },
+    decodeExternalToken(token: string): Promise<any> {
+      return httpServer.decodeExternalToken(token)
     }
   }
 }
@@ -103,6 +111,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
 
 const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
+    getUserInfo: userRepo.getUserInfo.bind(userRepo),
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
@@ -151,6 +160,10 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
       return ghostService.forBot(botId)
+    },
+
+    forGlobal(): ScopedGhostService {
+      return ghostService.global()
     }
   }
 }
@@ -183,6 +196,18 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
   }
 }
 
+const conversations = (conversationRepository: ConversationsRepository): typeof sdk.conversations => {
+  return {
+    getOrCreateConversation: conversationRepository.getOrCreateConversation.bind(conversationRepository),
+    createConversation: conversationRepository.createConversation.bind(conversationRepository),
+    appendBotMessage: conversationRepository.appendBotMessage.bind(conversationRepository),
+    appendUserMessage: conversationRepository.appendUserMessage.bind(conversationRepository),
+    listConversations: conversationRepository.listConversations.bind(conversationRepository),
+    getConversation: conversationRepository.getConversation.bind(conversationRepository),
+    getConversationMessages: conversationRepository.getConversationMessages.bind(conversationRepository)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -208,6 +233,7 @@ export class BotpressAPIProvider {
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
+  conversations: typeof sdk.conversations
   mlToolkit: typeof sdk.MLToolkit
 
   constructor(
@@ -225,7 +251,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.ConversationsRepository) conversationsRepo: ConversationsRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -240,6 +267,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
     this.mlToolkit = MLToolkit
+    this.conversations = conversations(conversationsRepo)
   }
 
   @Memoize()
@@ -267,7 +295,8 @@ export class BotpressAPIProvider {
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
-      cms: this.cms
+      cms: this.cms,
+      conversations: this.conversations
     }
   }
 }

@@ -47,6 +47,11 @@ export const login = (email, password) => {
   })
 }
 
+export const setVisitorId = userId => {
+  localStorage.setItem('bp/socket/user', userId)
+  window.__BP_VISITOR_ID = userId
+}
+
 export const getUniqueVisitorId = () => {
   let userId = localStorage.getItem('bp/socket/user')
 

@@ -2,15 +2,11 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
 import api from './api'
-import WebchatDatabase from './db'
 import socket from './socket'
 
 const onServerStarted = async (bp: typeof sdk) => {
-  const db = new WebchatDatabase(bp)
-  await db.initialize()
-
-  await api(bp, db)
-  await socket(bp, db)
+  await api(bp)
+  await socket(bp)
 }
 
 const onServerReady = async (bp: typeof sdk) => {}

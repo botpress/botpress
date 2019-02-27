@@ -5,6 +5,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { GhostService } from 'core/services'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
+import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
@@ -34,11 +35,12 @@ export class AdminRouter extends CustomRouter {
     private botService: BotService,
     private licenseService: LicensingService,
     private ghostService: GhostService,
-    configProider: ConfigProvider
+    configProvider: ConfigProvider,
+    private monitoringService: MonitoringService
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
-    this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProider)
+    this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
@@ -73,6 +75,14 @@ export class AdminRouter extends CustomRouter {
       }
       res.send(license)
     })
+
+    this.router.post(
+      '/monitoring',
+      this.asyncMiddleware(async (req, res) => {
+        const { fromTime, toTime } = req.body
+        res.send(await this.monitoringService.getStats(fromTime, toTime))
+      })
+    )
 
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)

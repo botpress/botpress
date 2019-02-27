@@ -1,5 +1,6 @@
 import { IO } from 'botpress/sdk'
 import { UserRepository } from 'core/repositories'
+import { ConversationsRepository } from 'core/repositories/conversations'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
@@ -24,10 +25,12 @@ type ResponseMap = Partial<{
 export class ConverseService {
   private readonly timeoutInMs = 5000
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
+  private readonly conversationLifetime = '6 hours'
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.ConversationsRepository) private convoRepository: ConversationsRepository
   ) {}
 
   @postConstruct()
@@ -55,24 +58,44 @@ export class ConverseService {
     })
   }
 
-  public async sendMessage(botId: string, userId: string, payload): Promise<any> {
-    if (!payload.text || !_.isString(payload.text) || payload.text.length > 360) {
+  public async sendMessage(botId: string, userId: string, payload: any, credentials: any): Promise<any> {
+    if (!payload.type) {
+      payload.type = 'text'
+    }
+
+    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > 360)) {
       throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
     }
 
     await this.userRepository.getOrCreate('api', userId)
 
+    const conversationId = await this.convoRepository.getOrCreateConversation(botId, userId, {
+      lifetime: this.conversationLifetime
+    })
+
     const incomingEvent = Event({
-      type: 'text',
+      type: payload.type,
       channel: 'api',
       direction: 'incoming',
       payload,
       target: userId,
-      botId
+      threadId: conversationId,
+      botId,
+      credentials
     })
 
     const timeoutPromise = this._createTimeoutPromise(userId)
     const donePromise = this._createDonePromise(userId)
+
+    const userInfo = await this.userRepository.getUserInfo('api', userId)
+    await this.convoRepository.appendUserMessage(
+      botId,
+      userId,
+      conversationId,
+      userInfo.fullName,
+      userInfo.avatarUrl,
+      _.pick(payload, ['text', 'type', 'data', 'raw'])
+    )
 
     await this.eventEngine.sendEvent(incomingEvent)
 
@@ -147,7 +170,8 @@ export class ConverseService {
 
     Object.assign(this._responseMap[event.target], <ResponseMap>{
       nlu: event.nlu || {},
-      suggestions: event.suggestions || []
+      suggestions: event.suggestions || [],
+      credentials: event.credentials
     })
   }
 }

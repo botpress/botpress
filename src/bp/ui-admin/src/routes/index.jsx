@@ -14,7 +14,7 @@ import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
 
-import ServerSettings from '../Pages/ServerSettings'
+import Server from '../Pages/Server'
 import Workspace from '../Pages/Workspace'
 import MyAccount from '../Pages/MyAccount'
 import Bot from '../Pages/Bot'
@@ -40,7 +40,7 @@ export const makeMainRoutes = () => {
             <Switch>
               <Route path="/profile" component={MyAccount} />
               <Route path="/workspace" component={Workspace} />
-              <Route path="/settings" component={ServerSettings} />
+              <Route path="/server" component={Server} />
               <Route path="/bot" component={Bot} />
               <Redirect from="/" to="/workspace/bots" />
             </Switch>
