@@ -6,6 +6,7 @@ const showWelcomeMessage = async () => {
   }
 
   const eventDestination = {
+    type: 'text',
     channel: event.channel,
     target: event.target,
     botId: event.botId,

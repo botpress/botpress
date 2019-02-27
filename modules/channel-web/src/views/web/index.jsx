@@ -522,7 +522,6 @@ export default class Web extends React.Component {
   }
 
   handleSendData = data => {
-    console.log('state', this.state)
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }

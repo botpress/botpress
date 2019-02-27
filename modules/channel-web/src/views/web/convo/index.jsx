@@ -5,14 +5,11 @@ import classnames from 'classnames'
 import Send from '../send'
 import Input from '../input'
 import BotAvatar from '../bot_avatar'
+import Avatar from 'react-avatar'
 
 import style from './style.scss'
 
 const DEFAULT_NAME = 'Bot'
-const DEFAULT_WELCOME_MESSAGE = `Hello!
-  Curious about our offer?
-  It will be a pleasure to help you getting started.
-`
 
 export default class Convo extends React.Component {
   constructor(props) {
@@ -49,38 +46,6 @@ export default class Convo extends React.Component {
     )
   }
 
-  renderPromoElement() {
-    const platform = 'Botpress'
-    const link = 'https://botpress.io'
-
-    return (
-      <span>
-        <div className={style['flex-minimal']}>
-          <div className={style.element}>
-            <span>
-              {"We're "}
-              <i>
-                <svg width="7" height="13" viewBox="0 0 7 13" xmlns="http://www.w3.org/2000/svg">
-                  <g fill="none" fillRule="evenodd">
-                    <path
-                      d="M4.127.496C4.51-.12 5.37.356 5.16 1.07L3.89 5.14H6.22c.483 0 .757.616.464 1.044l-4.338 6.34c-.407.595-1.244.082-1.01-.618L2.72 7.656H.778c-.47 0-.748-.59-.48-1.02L4.13.495z"
-                      fill="#F6A623"
-                    />
-                    <path fill="#FEF79E" d="M4.606.867L.778 7.007h2.807l-1.7 5.126 4.337-6.34H3.16" />
-                  </g>
-                </svg>
-              </i>
-              {' by '}
-              <a href={link} target="_blank">
-                {platform}
-              </a>
-            </span>
-          </div>
-        </div>
-      </span>
-    )
-  }
-
   renderName() {
     const name = this.props.config.botName || DEFAULT_NAME
 
@@ -99,6 +64,7 @@ export default class Convo extends React.Component {
   }
 
   renderAvatar() {
+    const newAvatar = <Avatar name={this.props.botName} src={this.props.bot} />
     let content = <BotAvatar foregroundColor={this.props.config.foregroundColor} />
 
     if (this.props.config.botAvatarUrl) {
@@ -170,6 +136,7 @@ export default class Convo extends React.Component {
   }
 
   render() {
+    console.log('proposss', this.props)
     const classNames = classnames(style.internal, style[this.props.transition])
     return (
       <div className={style.external}>

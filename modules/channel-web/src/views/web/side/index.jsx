@@ -8,6 +8,7 @@ import MessageList from '../messages'
 import Input from '../input'
 
 import BotAvatar from '../bot_avatar'
+import Avatar from 'react-avatar'
 
 import style from './style.scss'
 import { WelcomePage } from './welcome'
@@ -59,12 +60,14 @@ export default class Side extends React.Component {
 
     if (this.props.config && this.props.config.botAvatarUrl) {
       content = (
-        <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }} />
+        // <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }} />
+        <Avatar name={this.props.bot.name} src={this.props.bot.details.avatarUrl} />
       )
     }
 
     return (
-      <div className={style.avatar} style={{ color: this.props.config.foregroundColor }}>
+      <div>
+        {/* <div className={style.avatar} style={{ color: this.props.config.foregroundColor }}> */}
         {content}
       </div>
     )
@@ -300,7 +303,7 @@ export default class Side extends React.Component {
       messages: this.props.currentConversation && this.props.currentConversation.messages,
       fgColor: this.props.config && this.props.config.foregroundColor,
       textColor: this.props.config && this.props.config.textColorOnForeground,
-      botAvatarUrl: this.props.config && this.props.config.botAvatarUrl,
+      botAvatarUrl: this.props.bot && this.props.bot.details.avatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,
       onQuickReplySend: this.props.onQuickReplySend,
