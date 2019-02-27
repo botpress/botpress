@@ -199,7 +199,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
+        new (): Model
       }
 
       export const Model: ModelConstructor
@@ -574,6 +574,9 @@ declare module 'botpress/sdk' {
   }
 
   export interface BotDetails {
+    welcomeMessage?: string
+    avatarUrl?: string
+    coverPictureUrl?: string
     website?: string
     phoneNumber?: string
     termsConditions?: string
@@ -979,6 +982,12 @@ declare module 'botpress/sdk' {
      * Returns the configuration options of Botpress
      */
     export function getBotpressConfig(): Promise<any>
+
+    /**
+     * Returns the bot configuration
+     * @param botId The bot Id
+     */
+    export function getBotConfig(botId: string): Promise<BotConfig>
   }
 
   /**
@@ -1017,6 +1026,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
+  }
+
+  export namespace conversations {
+    export function hasMessages()
   }
 
   export namespace cms {

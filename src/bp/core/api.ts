@@ -6,6 +6,8 @@ import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
 import { container } from './app.inversify'
+import { BotConfig } from './config/bot.config'
+import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
@@ -82,8 +84,11 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
     },
-    getBotpressConfig(): Promise<any> {
+    getBotpressConfig(): Promise<BotpressConfig> {
       return configProfider.getBotpressConfig()
+    },
+    getBotConfig(botId: string): Promise<BotConfig> {
+      return configProfider.getBotConfig(botId)
     }
   }
 }

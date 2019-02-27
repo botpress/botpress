@@ -1,3 +1,4 @@
+import { config } from 'bluebird'
 import { IO, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
