@@ -1,7 +1,7 @@
 const showWelcomeMessage = async () => {
   const botConfig = await bp.config.getBotConfig(event.botId)
 
-  if (event.type !== 'visit' || !botConfig.details.welcomeMessage) {
+  if (event.type !== 'get_started' || !botConfig.showWelcomeMessage) {
     return
   }
 

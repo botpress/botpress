@@ -17,6 +17,7 @@ export type BotConfig = {
   }
   dialog?: DialogConfig
   logs?: LogsConfig
+  showGetStarted?: boolean
 }
 
 export interface BotDetails {

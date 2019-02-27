@@ -1135,10 +1135,6 @@ declare module 'botpress/sdk' {
     export function getConversationMessages(conversationId: string, fromId?: string): PromiseLike<any>
   }
 
-  export namespace conversations {
-    export function hasMessages()
-  }
-
   export namespace cms {
     /**
      * Returns a single Content Element

@@ -73,7 +73,8 @@ export default class Web extends React.Component {
       isButtonHidden: config.hideWidget,
       isTransitioning: false,
       messageHistory: [],
-      historyPosition: HISTORY_STARTING_POINT
+      historyPosition: HISTORY_STARTING_POINT,
+      chatStarted: {}
     }
 
     this.updateAxiosConfig()
@@ -293,16 +294,31 @@ export default class Web extends React.Component {
     }
   }
 
+  sendUserVisit = () => {
+    console.log('Send user visit')
+    this.handleSendData({
+      type: 'visit',
+      text: 'User visit',
+      timezone: moment().utcOffset() / 60
+    }).catch(this.checkForExpiredExternalToken)
+  }
+
+  sendGetStarted = () => {
+    // TODO: Add && showGetStarted is true
+    console.log('Get Started', this.state)
+    if (this.state.chatStarted[this.state.currentConversationId]) {
+      this.handleSendData({
+        type: 'get_started',
+        text: 'Get Started',
+        timezone: moment().utcOffset() / 60
+      }).catch(this.checkForExpiredExternalToken)
+    }
+  }
+
   fetchData = () => {
     return this.fetchConversations()
       .then(this.fetchCurrentConversation)
-      .then(() => {
-        this.handleSendData({
-          type: 'visit',
-          text: 'User visit',
-          timezone: moment().utcOffset() / 60
-        }).catch(this.checkForExpiredExternalToken)
-      })
+      .then(this.sendUserVisit)
   }
 
   fetchConversations = () => {
@@ -506,6 +522,7 @@ export default class Web extends React.Component {
   }
 
   handleSendData = data => {
+    console.log('state', this.state)
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
@@ -533,6 +550,10 @@ export default class Web extends React.Component {
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then()
+  }
+
+  handleGetStarted = convoId => {
+    this.setState({ chatStarted: { ...this.state.chatStarted, [convoId]: true } }, this.sendGetStarted)
   }
 
   renderOpenIcon() {
@@ -656,6 +677,7 @@ export default class Web extends React.Component {
         onSendData={this.handleSendData}
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
+        onGetStarted={this.handleGetStarted}
       />
     )
   }

@@ -49,8 +49,9 @@ export default class Side extends React.Component {
   }
 
   handleGetStarted(convoId) {
-    this.setState({ chatStarted: { ...this.state.chatStarted, [convoId]: true } })
-    // Send welcome message on "visit" message type
+    this.setState({ chatStarted: { ...this.state.chatStarted, [convoId]: true } }, () =>
+      this.props.onGetStarted(convoId)
+    )
   }
 
   renderAvatar() {

@@ -110,7 +110,7 @@ export default async (bp: typeof sdk) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
+      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'get_started'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
