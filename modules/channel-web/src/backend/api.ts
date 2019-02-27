@@ -94,6 +94,7 @@ export default async (bp: typeof sdk) => {
   // ?conversationId=xxx (optional)
   router.post(
     '/messages/:userId',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId = undefined } = req.params
 
@@ -104,12 +105,18 @@ export default async (bp: typeof sdk) => {
       await bp.users.getOrCreateUser('web', userId) // Create the user if it doesn't exist
 
       const payload = req.body || {}
+      const { timezone } = payload
+      const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
       if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
+      }
+
+      if (timezone && isValidTimezone) {
+        await bp.users.updateAttributes('web', userId, { timezone })
       }
 
       if (!conversationId) {
@@ -120,7 +127,7 @@ export default async (bp: typeof sdk) => {
         })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -130,6 +137,7 @@ export default async (bp: typeof sdk) => {
   router.post(
     '/messages/:userId/files',
     upload.single('file'),
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId = undefined, userId = undefined } = req.params || {}
 
@@ -158,7 +166,7 @@ export default async (bp: typeof sdk) => {
         }
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -200,7 +208,7 @@ export default async (bp: typeof sdk) => {
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId: string, userId: string, conversationId, payload) {
+  async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) {
@@ -234,7 +242,8 @@ export default async (bp: typeof sdk) => {
       payload,
       target: userId,
       threadId: conversationId,
-      type: payload.type
+      type: payload.type,
+      credentials
     })
 
     const { fullName, avatarUrl } = await bp.users.getUserInfo('web', userId)
@@ -253,6 +262,7 @@ export default async (bp: typeof sdk) => {
 
   router.post(
     '/events/:userId',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { payload = undefined } = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
@@ -271,7 +281,8 @@ export default async (bp: typeof sdk) => {
         target: userId,
         threadId: conversationId,
         type: payload.type,
-        payload
+        payload,
+        credentials: req.credentials
       })
 
       bp.events.sendEvent(event)
@@ -281,6 +292,7 @@ export default async (bp: typeof sdk) => {
 
   router.post(
     '/conversations/:userId/:conversationId/reset',
+    bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
       await bp.users.getOrCreateUser('web', userId)
@@ -290,7 +302,7 @@ export default async (bp: typeof sdk) => {
         type: 'session_reset'
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
       await bp.dialog.deleteSession(userId)
       res.status(200).send({})
     })

@@ -4,6 +4,7 @@ import _ from 'lodash'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
+import { FastTextOverrides } from '../../../config'
 import { IntentClassifier, IntentModel } from '../../typings'
 
 interface TrainSet {
@@ -14,10 +15,32 @@ interface TrainSet {
 export default class FastTextClassifier implements IntentClassifier {
   private _modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
-  constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {}
+  public prebuiltWordVecPath: string | undefined
+
+  constructor(
+    private toolkit: typeof sdk.MLToolkit,
+    private readonly logger: sdk.Logger,
+    private readonly ftOverrides: FastTextOverrides
+  ) {}
+
+  private getFastTextParams(): Partial<sdk.MLToolkit.FastText.TrainArgs> {
+    const extraArgs: Partial<sdk.MLToolkit.FastText.TrainArgs> = this.prebuiltWordVecPath
+      ? { pretrainedVectors: this.prebuiltWordVecPath }
+      : {}
+
+    return {
+      ...extraArgs,
+      lr: _.get(this.ftOverrides, 'learningRate', 0.8),
+      epoch: _.get(this.ftOverrides, 'epoch', 5),
+      wordNgrams: _.get(this.ftOverrides, 'wordNgrams', 3)
+    }
+  }
 
   private sanitizeText(text: string): string {
-    return text.toLowerCase().replace(/[^\w\s]|\r|\f/gi, '')
+    return text
+      .toLowerCase()
+      .replace(/\t|\r|\f/gi, ' ')
+      .replace(/\s\s+/gi, ' ')
   }
 
   private _writeTrainingSet(intents: TrainSet[], trainingFilePath: string) {
@@ -55,17 +78,10 @@ export default class FastTextClassifier implements IntentClassifier {
 
     // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
+
     await ft.trainToFile('supervised', modelFn, {
-      input: dataFn,
-      loss: 'hs',
-      dim: 15,
-      wordNgrams: 3,
-      minCount: 1,
-      minn: 3,
-      maxn: 6,
-      bucket: 25000,
-      epoch: 50,
-      lr: 0.8
+      ...this.getFastTextParams(),
+      input: dataFn
     })
 
     return { ft, data: readFileSync(modelFn) }

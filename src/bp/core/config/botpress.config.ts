@@ -30,15 +30,45 @@ export interface DialogConfig {
 
 export interface LogsConfig {
   /**
-   * Logs will be kept for this amount of time in the database
-   * @default 2 weeks
+   * The database output will not record Debug logs.
    */
-  expiration: string
+  dbOutput: {
+    /**
+     * Logs will be kept for this amount of time in the database
+     * @default 2 weeks
+     */
+    expiration: string
+    /**
+     * @default 30s
+     */
+    janitorInterval: string
+  }
   /**
-   * @default 30s
+   * The file output records everything that is displayed in the console logs.
    */
-  janitorInterval: string
+  fileOutput: {
+    /**
+     * Enable or disable the output of logs to the file system. A new file is created each day
+     * @default false
+     */
+    enabled: boolean
+    /**
+     * The path (relative or absolute) to the logs folder.
+     * @default ./
+     */
+    folder: string
+    /**
+     * The maximum file size that the log can reach before a new one is started (size in kb)
+     * @default 10000
+     */
+    maxFileSize: number
+  }
 }
+
+/**
+ * Many configuration options allows you to specify textually the duration, interval, etc.
+ * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
+ */
 
 export type BotpressConfig = {
   jwtSecret: string
@@ -112,6 +142,12 @@ export type BotpressConfig = {
        */
       allowSelfSignup: boolean
     }
+    monitoring: MonitoringConfig
+    /**
+     * External Authentication allows your backend to issue a JWT token to securely pass data to Botpress through the user
+     * The token is validated each time a message is sent and the content is available on `event.credentials`
+     */
+    externalAuth: ExternalAuthConfig
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
@@ -134,6 +170,16 @@ export type BotpressConfig = {
    * @default []
    */
   botCategories: string[]
+}
+
+export interface ExternalAuthConfig {
+  enabled: boolean
+  audience: string
+  algorithm: string
+  /**
+   * When this key is undefined, BP will try to load the public key from `data/global/pub.key`
+   */
+  publicKey?: string
 }
 
 export interface DataRetentionConfig {
@@ -198,3 +244,27 @@ export interface AuthStrategyLdap {
 }
 
 export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }
+
+export interface MonitoringConfig {
+  /**
+   * To enable server monitoring, you need to enable the Pro version and configure your Redis server.
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * The interval between data collection of metrics and usage. The lower the value brings more details,
+   * but comes at the cost of more storage required & processing time when viewing data.
+   * @default 10s
+   */
+  collectionInterval: string
+  /**
+   * Data older than this will be cleared periodically.
+   * @default 10d
+   */
+  retentionPeriod: string
+  /**
+   * The delay between execution of the janitor which removes statistics outside of the previously defined period
+   * @default 15m
+   */
+  janitorInterval: string
+}

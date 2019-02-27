@@ -3,9 +3,11 @@ import { checkRule } from 'common/auth'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
+import onHeaders from 'on-headers'
 
 import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
 import AuthService from '../services/auth/auth-service'
+import { incrementMetric } from '../services/monitoring'
 
 import {
   BadRequestError,
@@ -16,7 +18,11 @@ import {
   UnauthorizedError
 } from './errors'
 
-export type BPRequest = Request & { authUser: AuthUser | undefined; tokenUser: TokenUser | undefined }
+export type BPRequest = Request & {
+  authUser: AuthUser | undefined
+  tokenUser: TokenUser | undefined
+  credentials: any | undefined
+}
 
 export type AsyncMiddleware = (
   fn: (req: BPRequest, res: Response, next?: NextFunction | undefined) => Promise<any>
@@ -31,6 +37,19 @@ export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddle
 
     next(err)
   })
+}
+
+export const monitoringMiddleware = (req, res, next) => {
+  const startAt = Date.now()
+
+  onHeaders(res, () => {
+    const timeInMs = Date.now() - startAt
+    incrementMetric('requests.count')
+    incrementMetric('requests.latency_sum', timeInMs)
+    res.setHeader('X-Response-Time', `${timeInMs}ms`)
+  })
+
+  next()
 }
 
 export const validateRequestSchema = (property: string, req: Request, schema: Joi.AnySchema) => {

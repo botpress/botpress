@@ -43,7 +43,8 @@ const TYPES = {
   MediaService: Symbol.for('MediaService'),
   JanitorRunner: Symbol.for('JanitorRunner'),
   DialogJanitorRunner: Symbol.for('DialogJanitorRunner'),
-  LoggerPersister: Symbol.for('LoggerPersister'),
+  LoggerDbPersister: Symbol.for('LoggerDbPersister'),
+  LoggerFilePersister: Symbol.for('LoggerFilePersister'),
   LogsService: Symbol.for('LogsService'),
   LogsRepository: Symbol.for('LogsRepository'),
   LogJanitorRunner: Symbol.for('LogJanitorRunner'),
@@ -67,7 +68,8 @@ const TYPES = {
   WorkspaceService: Symbol.for('WorkspaceService'),
   BotService: Symbol.for('BotService'),
   AuthStrategies: Symbol.for('AuthStrategies'),
-  ConversationsRepository: Symbol.for('ConversationsRepository')
+  ConversationsRepository: Symbol.for('ConversationsRepository'),
+  MonitoringService: Symbol.for('MonitoringService')
 }
 
 export { TYPES }

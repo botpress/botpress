@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import HTTPServer from 'core/server'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { ConverseService } from 'core/services/converse'
 import { RequestHandler, Router } from 'express'
@@ -10,7 +11,12 @@ import { checkTokenHeader } from '../util'
 export class ConverseRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
-  constructor(logger: Logger, private converseService: ConverseService, private authService: AuthService) {
+  constructor(
+    logger: Logger,
+    private converseService: ConverseService,
+    private authService: AuthService,
+    private httpServer: HTTPServer
+  ) {
     super('Converse', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.setupRoutes()
@@ -19,16 +25,16 @@ export class ConverseRouter extends CustomRouter {
   setupRoutes() {
     this.router.post(
       '/:userId',
+      this.httpServer.extractExternalToken,
       this.asyncMiddleware(async (req, res) => {
         const { userId, botId } = req.params
         const params = req.query.include
-        const { conversationId = undefined } = req.query || {}
 
         if (params && params.toLowerCase() !== 'responses') {
           return res.status(401).send("Unauthenticated converse API can only return 'responses'")
         }
 
-        const rawOutput = await this.converseService.sendMessage(botId, userId, conversationId, req.body)
+        const rawOutput = await this.converseService.sendMessage(botId, userId, req.body, req.credentials)
         const formatedOutput = this.prepareResponse(rawOutput, params)
 
         return res.json(formatedOutput)
@@ -38,10 +44,10 @@ export class ConverseRouter extends CustomRouter {
     this.router.post(
       '/:userId/secured',
       this.checkTokenHeader,
+      this.httpServer.extractExternalToken,
       this.asyncMiddleware(async (req, res) => {
         const { userId, botId } = req.params
-        const { conversationId = undefined } = req.query || {}
-        const rawOutput = await this.converseService.sendMessage(botId, userId, conversationId, req.body)
+        const rawOutput = await this.converseService.sendMessage(botId, userId, req.body, req.credentials)
         const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
 
         return res.json(formatedOutput)
@@ -66,6 +72,10 @@ export class ConverseRouter extends CustomRouter {
 
     if (!parts.includes('decision')) {
       delete output.decision
+    }
+
+    if (!parts.includes('credentials')) {
+      delete output.credentials
     }
 
     return output
