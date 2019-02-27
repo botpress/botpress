@@ -136,7 +136,6 @@ export default class Convo extends React.Component {
   }
 
   render() {
-    console.log('proposss', this.props)
     const classNames = classnames(style.internal, style[this.props.transition])
     return (
       <div className={style.external}>

@@ -316,7 +316,7 @@ export default class Side extends React.Component {
     const chatStarted = this.state.chatStarted[convoId]
     const hasMessages = _.get(this.props, 'currentConversation.messages.length')
 
-    if (!chatStarted && !hasMessages) {
+    if (!chatStarted && !hasMessages && this.props.bot.showGetStarted) {
       return <WelcomePage bot={this.props.bot} onGetStarted={() => this.handleGetStarted(convoId)} />
     }
 
