@@ -3,6 +3,7 @@ import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
 import { ConfigProvider } from 'core/config/config-loader'
 import { GhostService } from 'core/services'
+import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { MonitoringService } from 'core/services/monitoring'
@@ -36,7 +37,8 @@ export class AdminRouter extends CustomRouter {
     private licenseService: LicensingService,
     private ghostService: GhostService,
     configProvider: ConfigProvider,
-    private monitoringService: MonitoringService
+    private monitoringService: MonitoringService,
+    private alertingService: AlertingService
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -81,6 +83,14 @@ export class AdminRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { fromTime, toTime } = req.body
         res.send(await this.monitoringService.getStats(fromTime, toTime))
+      })
+    )
+
+    this.router.post(
+      '/incidents',
+      this.asyncMiddleware(async (req, res) => {
+        const { fromTime, toTime } = req.body
+        res.send(await this.alertingService.getIncidents(fromTime, toTime))
       })
     )
 

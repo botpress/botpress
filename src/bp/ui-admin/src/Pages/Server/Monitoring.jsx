@@ -63,6 +63,12 @@ class Monitoring extends Component {
     this.setState({ timeFrame: timeFrameOptions[3], resolution: _.head(resolutionOptions) }, this.queryData)
   }
 
+  componentWillUnmount() {
+    if (this.state.intervalId) {
+      clearInterval(this.state.intervalId)
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.rawStats !== this.props.rawStats) {
       this.prepareForDisplay()
@@ -111,19 +117,14 @@ class Monitoring extends Component {
 
   handleAutoRefreshChanged = event => {
     const autoRefresh = event.target.checked
+    let intervalId = undefined
 
-    this.setState({ autoRefresh }, () => {
-      if (autoRefresh) {
-        const intervalId = setInterval(() => {
-          this.props.refreshStats()
-        }, 5000)
-
-        this.setState({ intervalId })
-      } else {
-        clearInterval(this.state.intervalId)
-        this.setState({ intervalId: undefined })
-      }
-    })
+    if (autoRefresh && !this.state.intervalId) {
+      intervalId = setInterval(() => this.props.refreshStats(), 10000)
+    } else if (!autoRefresh && this.state.intervalId) {
+      clearInterval(this.state.intervalId)
+    }
+    this.setState({ autoRefresh, intervalId })
   }
 
   renderTooltip = ({ active, payload, label }) => {
@@ -187,7 +188,7 @@ class Monitoring extends Component {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="ts" tickFormatter={val => moment(val).format('HH:mm')} tick={tickSize} />
           <YAxis yAxisId="l" domain={[0, 'dataMax']} tick={tickSize} width={50} />
-          <YAxis yAxisId="r" domain={[0, 'dataMax']} tick={tickSize} width={0} orientation="right" />
+          <YAxis yAxisId="r" domain={[0, 'dataMax']} tick={tickSize} width={30} orientation="right" />
           <Tooltip content={this.renderTooltip} />
           <Legend />
           <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.requests.count" fill="#1C4E80" />

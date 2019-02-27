@@ -26,6 +26,7 @@ import { ShortLinksRouter } from './routers/shortlinks'
 import { monitoringMiddleware } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
+import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
@@ -79,7 +80,8 @@ export default class HTTPServer {
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
-    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
+    @inject(TYPES.AlertingService) private alertingService: AlertingService
   ) {
     this.app = express()
 
@@ -105,7 +107,8 @@ export default class HTTPServer {
       licenseService,
       this.ghostService,
       this.configProvider,
-      this.monitoringService
+      this.monitoringService,
+      this.alertingService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({

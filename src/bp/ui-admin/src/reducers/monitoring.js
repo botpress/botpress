@@ -4,11 +4,14 @@ import moment from 'moment'
 export const FETCH_STATS_FULL_REQUESTED = 'monitoring/FETCH_STATS_FULL_REQUESTED'
 export const FETCH_STATS_FULL_RECEIVED = 'monitoring/FETCH_STATS_FULL_RECEIVED'
 export const FETCH_STATS_PARTIAL_RECEIVED = 'bots/FETCH_STATS_PARTIAL_RECEIVED'
+export const FETCH_INCIDENTS_REQUESTED = 'bots/FETCH_INCIDENTS_REQUESTED'
+export const FETCH_INCIDENTS_RECEIVED = 'bots/FETCH_INCIDENTS_RECEIVED'
 
 const initialState = {
   stats: null,
   lastDate: null,
-  loading: true
+  loading: true,
+  loadingIncidents: true
 }
 
 export default (state = initialState, action) => {
@@ -34,6 +37,19 @@ export default (state = initialState, action) => {
         loading: true
       }
 
+    case FETCH_INCIDENTS_RECEIVED:
+      return {
+        ...state,
+        incidents: action.data,
+        loadingIncidents: false
+      }
+
+    case FETCH_INCIDENTS_REQUESTED:
+      return {
+        ...state,
+        loadingIncidents: true
+      }
+
     default:
       return state
   }
@@ -54,6 +70,24 @@ export const fetchStats = (fromTime, toTime) => {
       type: FETCH_STATS_FULL_RECEIVED,
       stats: data && data.map(JSON.parse),
       toTime
+    })
+  }
+}
+
+export const fetchIncidents = (fromTime, toTime) => {
+  return async dispatch => {
+    dispatch({
+      type: FETCH_INCIDENTS_REQUESTED
+    })
+
+    const { data } = await api.getSecured().post(`/admin/incidents`, {
+      fromTime,
+      toTime
+    })
+
+    dispatch({
+      type: FETCH_INCIDENTS_RECEIVED,
+      data
     })
   }
 }
