@@ -50,6 +50,7 @@ class MessageGroup extends Component {
             {this.props.messages.map((data, i) => {
               return (
                 <Message
+                  bp={this.props.bp}
                   onLoginPromptSend={this.props.onLoginPromptSend}
                   textColor={textColor}
                   bubbleColor={bubbleColor}
@@ -95,9 +96,9 @@ export default class MessageList extends Component {
 
     const filteredQuickReplies = quick_replies
       ? quick_replies.filter(quick_reply => {
-        const regExp = new RegExp(currentText, 'i')
-        return regExp.test(quick_reply.title)
-      })
+          const regExp = new RegExp(currentText, 'i')
+          return regExp.test(quick_reply.title)
+        })
       : quick_replies
 
     return (
@@ -181,6 +182,7 @@ export default class MessageList extends Component {
             <div key={i}>
               {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
               <MessageGroup
+                bp={this.props.bp}
                 isBot={!userId}
                 avatarUrl={userId ? this.props.showUserAvatar && avatarUrl : this.props.botAvatarUrl}
                 userName={userName}
@@ -234,8 +236,8 @@ class Message extends Component {
       this.props.data.message_raw && this.props.data.message_raw.markdown ? (
         this.getMarkdownElement()
       ) : (
-          <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
-        )
+        <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
+      )
     return (
       <Linkify properties={{ target: '_blank' }}>
         <div>{element}</div>
@@ -302,14 +304,23 @@ class Message extends Component {
   }
 
   render_custom() {
-    const type = this.props.data.message_raw.custom_type || ''
-    const Plugin = ((window.botpress || {})[type] || {})['Plugin']
-    const data = this.props.data.message_raw.custom_data
+    const { module, view } = this.props.data.message_data || {}
+    if (!module || !view) {
+      return this.render_unsupported()
+    }
+
+    const InjectedModuleView = this.props.bp.getModuleInjector()
+
+    const props = {
+      onSendData: this.props.onSendData,
+      ...this.props.data.message_data
+    }
+
     return (
       <Linkify>
         <div>
           <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
-          {Plugin ? <Plugin onSendData={this.props.onSendData} {...data} /> : this.render_unsupported()}
+          <InjectedModuleView moduleName={module} viewName={view} lite={true} extraProps={props} />
         </div>
       </Linkify>
     )

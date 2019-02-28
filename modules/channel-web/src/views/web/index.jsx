@@ -626,6 +626,7 @@ export default class Web extends React.Component {
   renderSide() {
     return (
       <Side
+        bp={this.props.bp}
         config={this.state.config}
         text={this.state.textToSend}
         fullscreen={this.props.fullscreen}

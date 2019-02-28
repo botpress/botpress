@@ -290,6 +290,7 @@ export default class Side extends React.Component {
 
   renderConversation() {
     const messagesProps = {
+      bp: this.props.bp,
       typingUntil: this.props.currentConversation && this.props.currentConversation.typingUntil,
       messages: this.props.currentConversation && this.props.currentConversation.messages,
       fgColor: this.props.config && this.props.config.foregroundColor,

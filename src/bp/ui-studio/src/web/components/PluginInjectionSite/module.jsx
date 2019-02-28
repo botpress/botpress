@@ -33,7 +33,7 @@ export default class InjectedModuleView extends React.Component {
       script.onload = () => {
         script.onload = null
         setImmediate(() => {
-          this.setViewInState(moduleName, subView, isLite)
+          this.setViewInState(moduleName, subView)
         })
       }
 
@@ -49,16 +49,15 @@ export default class InjectedModuleView extends React.Component {
     } else {
       this.setState({ moduleComponent: null })
       setImmediate(() => {
-        this.setViewInState(moduleName, subView, isLite)
+        this.setViewInState(moduleName, subView)
       })
     }
   }
 
-  setViewInState(moduleName, viewName, isLite) {
+  setViewInState(moduleName, viewName) {
     const viewResolve = (name, viewName) => {
-      const prop = isLite ? 'default' : viewName
       const module = window.botpress && window.botpress[name]
-      return module && (window.botpress[name][prop] || window.botpress[name]['default'])
+      return module && (window.botpress[name][viewName] || window.botpress[name]['default'])
     }
 
     const module = viewResolve(moduleName, viewName)
@@ -99,7 +98,8 @@ export default class InjectedModuleView extends React.Component {
     const bp = {
       events: EventBus.default,
       axios: axios.create({ baseURL: window.BOT_API_PATH }),
-      toast
+      toast,
+      getModuleInjector: () => InjectedModuleView
     }
 
     const extraProps = this.props.extraProps || {}
