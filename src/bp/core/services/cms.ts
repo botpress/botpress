@@ -1,7 +1,7 @@
 import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
-import { renderRecursive } from 'core/misc/templating'
+import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -426,19 +426,20 @@ export class CMSService implements IDisposeOnExit {
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
+      _.set(content, 'formData', renderRecursive(content.formData, args))
 
       if (!content) {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      _.set(content, 'previewPath', renderRecursive(content.previewText, args))
+      _.set(content, 'previewPath', renderTemplate(content.previewText, args))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')
 
       const message = _.sample([text, ...(variations || [])])
       if (message) {
-        _.set(content, 'formData.text', renderRecursive(message, args))
+        _.set(content, 'formData.text', renderTemplate(message, args))
       }
 
       contentType = content.contentType
@@ -449,7 +450,7 @@ export class CMSService implements IDisposeOnExit {
     } else if (args.text) {
       args = {
         ...args,
-        text: renderRecursive(args.text, args)
+        text: renderTemplate(args.text, args)
       }
     }
 

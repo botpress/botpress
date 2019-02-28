@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
 import { container } from '../../../app.inversify'
-import { renderRecursive } from '../../../misc/templating'
+import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
@@ -117,7 +117,7 @@ export class ActionStrategy implements InstructionStrategy {
       temp: _.get(event, 'state.temp', {})
     }
 
-    args = _.mapValues(args, value => renderRecursive(value, actionArgs))
+    args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {
