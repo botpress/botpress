@@ -235,32 +235,39 @@ Settings to pass the [`react-slick`](https://github.com/akiran/react-slick) comp
 
 ## Using it as Standalone (full-screen)
 
-In your `index.js` file, add this:
+In your `global/hooks/after_bot_mount/builtin/00_create_shortlink` file, add this:
 
 ```js
-const config = {
-  botName: '<<REPLACE>>',
-  botAvatarUrl: '<<REPLACE BY URL>>',
-  botConvoTitle: '<<REPLACE>>',
-  botConvoDescription: '<<REPLACE>>',
-  backgroundColor: '#ffffff',
-  textColorOnBackground: '#666666',
-  foregroundColor: '#000000',
-  textColorOnForeground: '#ffffff',
-  showConversationsButton: true,
-  showUserName: false,
-  showUserAvatar: false,
-  enableTranscriptDownload: false
-}
+const chatOptions = {
+  hideWidget: true,
+  config: {
+    botConvoTitle: 'Bot Emulator',
+    enableReset: true,
+    enableTranscriptDownload: true,
+    botName: '<<REPLACE>>',
+    botAvatarUrl: '<<REPLACE BY URL>>',
+    botConvoDescription: '<<REPLACE>>',
+    backgroundColor: '#ffffff',
+    textColorOnBackground: '#666666',
+    foregroundColor: '#000000',
+    textColorOnForeground: '#ffffff',
+    showConversationsButton: true,
+    showUserName: false,
+    showUserAvatar: false
+  }
+};
 
-bp.createShortlink('chat', '/lite', {
+const params = {
   m: 'channel-web',
   v: 'fullscreen',
-  options: JSON.stringify({ config: config })
-})
+  options: JSON.stringify(chatOptions) // Bot will be available at $EXTERNAL_URL/lite/$BOT_NAME
+
+};
+
+bp.http.createShortLink(botId, `${process.EXTERNAL_URL}/lite/${botId}/`, params);
 ```
 
-**Now your bot is available at the following url: `<BOT_URL>/s/chat`, e.g. `http://localhost:3000/s/chat`.**
+**Now your bot is available at the following url: `<BOT_URL>/lite/<BOT_NAME>`, e.g. `http://localhost:3000/lite/mybot`.**
 
 This **URL is public** (no authentication required) so you can share it we other people.
 
@@ -269,7 +276,7 @@ This **URL is public** (no authentication required) so you can share it we other
 To embedded the web interface to a website, you simply need to add this script at the end of the `<body>` tag. Don't forget to set the `host` correctly to match the public hostname of your bot.
 
 ```html
-<script src="<host>/mod/channel-web/inject.js"></script>
+<script src="<host>/assets/modules/channel-web/inject.js"></script>
 <script>window.botpressWebChat.init({ host: '<host>' })</script>
 ```
 
