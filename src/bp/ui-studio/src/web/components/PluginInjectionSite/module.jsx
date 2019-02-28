@@ -57,7 +57,8 @@ export default class InjectedModuleView extends React.Component {
   setViewInState(moduleName, viewName) {
     const viewResolve = (name, viewName) => {
       const module = window.botpress && window.botpress[name]
-      return module && (window.botpress[name][viewName] || window.botpress[name]['default'])
+      const component = this.props.componentName
+      return module && (module[viewName] || module[component] || module['default'])
     }
 
     const module = viewResolve(moduleName, viewName)
