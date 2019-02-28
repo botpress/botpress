@@ -561,7 +561,7 @@ export default class Web extends React.Component {
     }
     return (
       <button
-        className={style[this.state.widgetTransition]}
+        className={classnames(style[this.state.widgetTransition], style.floatingButton)}
         onClick={this.handleButtonClicked}
         style={{ backgroundColor: this.state.config.foregroundColor }}
       >
