@@ -38,7 +38,7 @@ function hasAttachment(url) {
     .where('url', url)
     .count('url as count')
     .then(ret => {
-      return ret && ret[0] && ret[0].count === 1
+      return ret && ret[0] && (ret[0].count === "1" || ret[0].count === 1)
     })
 }
 
