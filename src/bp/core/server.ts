@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
@@ -139,6 +140,18 @@ export default class HTTPServer {
     const config = botpressConfig.httpServer
 
     this.app.use(monitoringMiddleware)
+
+    if (config.cookieSession.enabled) {
+      this.app.use(
+        session({
+          secret: botpressConfig.appSecret,
+          secure: true,
+          httpOnly: true,
+          domain: config.externalUrl,
+          maxAge: config.cookieSession.maxAge
+        })
+      )
+    }
 
     // TODO FIXME Conditionally enable this
     this.app.use(bodyParser.json({ limit: config.bodyLimit }))

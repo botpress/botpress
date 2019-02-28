@@ -121,14 +121,16 @@ export class Botpress {
   }
 
   async checkJwtSecret() {
-    let jwtSecret = this.config!.jwtSecret
-    if (!jwtSecret) {
-      jwtSecret = nanoid(40)
-      this.configProvider.mergeBotpressConfig({ jwtSecret })
+    // @deprecated : botpress > 11 remove jwtSecret
+    // @ts-ignore
+    let appSecret = this.config.appSecret || this.config.jwtSecret
+    if (!appSecret) {
+      appSecret = nanoid(40)
+      this.configProvider.mergeBotpressConfig({ appSecret })
       this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
     }
 
-    process.JWT_SECRET = jwtSecret
+    process.JWT_SECRET = appSecret
   }
 
   async checkEditionRequirements() {
