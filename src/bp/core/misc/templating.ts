@@ -25,13 +25,3 @@ export function renderTemplate(template: string, context: any): string {
 function containsTemplate(value: string) {
   return _.isString(value) && value.indexOf('{{') < value.indexOf('}}')
 }
-
-// function copyTemplateItem(item: TemplateItem): TemplateItem {
-//   if (_.isArray(item)) {
-//     return [...item]
-//   } else if (typeof item === 'object') {
-//     return { ...item }
-//   } else {
-//     return item
-//   }
-// }
