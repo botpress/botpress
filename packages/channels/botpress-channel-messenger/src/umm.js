@@ -85,7 +85,7 @@ function processOutgoing({ event, blocName, instruction }) {
   // PRE-PROCESSING
   ////////
 
-  const optionsList = ['quick_replies', 'waitRead', 'waitDelivery', 'typing', 'tag', '__platformSpecific', 'on']
+  const optionsList = ['quick_replies', 'waitRead', 'waitDelivery', 'typing', 'tag', '__platformSpecific', 'on', 'isReusable', 'attachmentId']
 
   const options = _.pick(instruction, optionsList)
 
