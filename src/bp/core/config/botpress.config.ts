@@ -109,7 +109,7 @@ export type BotpressConfig = {
        */
       enabled: boolean
       /**
-       * Number of milliseconds from Date.now() for expiry
+       * Time from Date.now() for expiry
        * Defaults to one hour
        * @default 1h
        */
