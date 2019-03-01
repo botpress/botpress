@@ -50,8 +50,11 @@ export class UpperCasedText extends React.Component {
 // This component is an example on how to replace the composer input of the web chat (text input)
 export class Composer extends React.Component {
   render() {
-    // We are re-using styling and the original input component. They can be rewritten from scratch also.
-    // Check out the code of 'channel-web' to see how the this.props methogs are handled.
+    /**
+     * We are re-using styling and the original input component. You can use part of existing props or replace all of them.
+     * Check out the code of 'channel-web' on the link below to see how the this.props methods are handled.
+     * https://github.com/botpress/botpress/blob/master/modules/channel-web/src/views/web/side/index.jsx
+     */
     const { style, Input } = this.props.original
 
     return (

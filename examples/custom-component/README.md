@@ -1,15 +1,23 @@
 ## Inject Custom Components on the Web Chat
 
-This module will show you how to easily create new components and how to display them on the webchat.
-Example components includes a login form, and another one to send all text in upper case
+This module includes 2 different examples on how to customize the web chat with your own components:
 
-There are two provided examples on how to use the components: via Content Elements and Hooks (actions would be very similar)
+- How to display a custom component in the chat (replacing the chat bubble, like a login form)
+- How to replace the composer (the text zone where the user is typing)
 
-## How to use
+Basic components includes a login form, and another one to make the bot yell.
 
-1. Build the component: `yarn && yarn build`
+### What you will learn:
 
-2. Edit your botpress.config.json to load your module:
+- How to create multiple components and make them available to bots
+- How to send your components via Content Elements
+- How to send your component using Hooks (actions are very similar)
+
+### How to use
+
+1. Copy this example folder to the `modules` folder
+2. Build the component: `yarn && yarn build`
+3. Edit your `data/global/botpress.config.json` and add the module location, like below:
 
 ```js
 "modules": [
@@ -21,5 +29,6 @@ There are two provided examples on how to use the components: via Content Elemen
 ]
 ```
 
-3. Create a test bot with the custom bot template, which will automatically include the custom components.
-   You can also add the new types in an existing bot (custom_loginform and custom_uppercase)
+You can then create a test bot directly from the included Bot Template.
+
+If you would like to add these custom elements to an existing bot, please edit `data/bots/your_bot_name/bot.config.json` and add these 2 elements in the `contentTypes` section: `custom_loginform` and `custom_uppercase`
