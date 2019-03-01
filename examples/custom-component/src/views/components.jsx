@@ -46,3 +46,27 @@ export class UpperCasedText extends React.Component {
     return <div>{this.props.text && this.props.text.toUpperCase()}</div>
   }
 }
+
+// This component is an example on how to replace the composer input of the web chat (text input)
+export class Composer extends React.Component {
+  render() {
+    // We are re-using styling and the original input component. They can be rewritten from scratch also.
+    // Check out the code of 'channel-web' to see how the this.props methogs are handled.
+    const { style, Input } = this.props.original
+
+    return (
+      <div className={style.composer}>
+        <div className={style['flex-column']}>
+          <Input
+            placeholder={'Reply to some bot name (or this.props.name)'}
+            send={this.props.onTextSend}
+            change={this.props.onTextChanged}
+            text={this.props.text}
+            recallHistory={this.props.recallHistory}
+            config={this.props.config}
+          />
+        </div>
+      </div>
+    )
+  }
+}
