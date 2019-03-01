@@ -15,12 +15,18 @@
     ],
     "Deploy": ["deploy/hosting"],
     "Manage": ["manage/versions"],
-    "Developers": [
-      "developers/release-notes",
-      "developers/migrate",
-      "developers/create-module",
-      "developers/cluster",
-      "developers/tutorials"
+    "Developers": ["developers/release-notes", "developers/migrate", "developers/create-module", "developers/cluster"],
+    "Tutorials": [
+      "tutorials/webchat-embedding",
+      "tutorials/existing-backend",
+      "tutorials/database",
+      "tutorials/hitl",
+      "tutorials/jump-to",
+      "tutorials/proactive",
+      "tutorials/shortlinks",
+      "tutorials/timeouts",
+      "tutorials/i18n",
+      "tutorials/external-api"
     ]
   }
 }
