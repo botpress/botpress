@@ -111,9 +111,9 @@ export type BotpressConfig = {
       /**
        * Number of milliseconds from Date.now() for expiry
        * Defaults to one hour
-       * @default 3600000
+       * @default 1h
        */
-      maxAge: number
+      maxAge: string
     }
   }
   dialog: DialogConfig

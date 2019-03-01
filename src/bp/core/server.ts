@@ -12,6 +12,7 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 
@@ -148,7 +149,7 @@ export default class HTTPServer {
           secure: true,
           httpOnly: true,
           domain: config.externalUrl,
-          maxAge: config.session.maxAge
+          maxAge: ms(config.session.maxAge)
         })
       )
     }
