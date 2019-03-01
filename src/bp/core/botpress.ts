@@ -121,7 +121,7 @@ export class Botpress {
   }
 
   async checkJwtSecret() {
-    // @deprecated : botpress > 11 remove jwtSecret
+    // @deprecated : .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
     // @ts-ignore
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
