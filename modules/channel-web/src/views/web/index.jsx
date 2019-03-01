@@ -15,6 +15,7 @@ import Convo from './convo'
 import Side from './side'
 
 import style from './style.scss'
+import _ from 'lodash'
 
 if (!window.location.origin) {
   window.location.origin =
@@ -58,6 +59,12 @@ export default class Web extends React.Component {
 
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
+
+    if (config.overrides) {
+      for (const override of _.values(config.overrides)) {
+        this.props.bp.loadModuleView(override.module, override.view)
+      }
+    }
 
     this.state = {
       view: null,
