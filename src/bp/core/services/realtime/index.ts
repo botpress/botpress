@@ -57,7 +57,7 @@ export default class RealtimeService {
     // Only admin UI users requests are authenticated
     admin.use(
       socketioJwt.authorize({
-        secret: process.JWT_SECRET,
+        secret: process.APP_SECRET,
         handshake: true
       })
     )

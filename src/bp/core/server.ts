@@ -145,7 +145,7 @@ export default class HTTPServer {
     if (config.session.enabled) {
       this.app.use(
         session({
-          secret: botpressConfig.appSecret,
+          secret: process.APP_SECRET,
           secure: true,
           httpOnly: true,
           domain: config.externalUrl,

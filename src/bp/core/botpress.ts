@@ -130,7 +130,7 @@ export class Botpress {
       this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
     }
 
-    process.JWT_SECRET = appSecret
+    process.APP_SECRET = appSecret
   }
 
   async checkEditionRequirements() {
