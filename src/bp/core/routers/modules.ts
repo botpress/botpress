@@ -41,7 +41,7 @@ export class ModulesRouter extends CustomRouter {
         }
 
         try {
-          res.send(await this.skillService.finalizeFlow(await flowGenerator(req.body)))
+          res.send(await this.skillService.finalizeFlow(await flowGenerator(req.body, { botId: req.params.botid })))
         } catch (err) {
           res.status(400).send(`Error while trying to generate the flow: ${err}`)
         }
