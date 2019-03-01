@@ -116,7 +116,7 @@ export default class AuthService {
 
   async checkToken(token: string, audience?: string) {
     return Promise.fromCallback<TokenUser>(cb => {
-      jsonwebtoken.verify(token, process.JWT_SECRET, { audience }, (err, user) => {
+      jsonwebtoken.verify(token, process.APP_SECRET, { audience }, (err, user) => {
         cb(err, !err ? (user as TokenUser) : undefined)
       })
     })

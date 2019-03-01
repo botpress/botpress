@@ -71,7 +71,7 @@ export interface LogsConfig {
  */
 
 export type BotpressConfig = {
-  jwtSecret: string
+  appSecret: string
   httpServer: {
     /**
      * @default localhost
@@ -103,6 +103,18 @@ export type BotpressConfig = {
      * @example https://botpress.io
      */
     externalUrl?: string
+    session: {
+      /**
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * Time from Date.now() for expiry
+       * Defaults to one hour
+       * @default 1h
+       */
+      maxAge: string
+    }
   }
   dialog: DialogConfig
   logs: LogsConfig
