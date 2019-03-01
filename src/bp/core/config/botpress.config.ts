@@ -103,7 +103,7 @@ export type BotpressConfig = {
      * @example https://botpress.io
      */
     externalUrl?: string
-    cookieSession: {
+    session: {
       /**
        * @default false
        */

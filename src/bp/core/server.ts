@@ -141,14 +141,14 @@ export default class HTTPServer {
 
     this.app.use(monitoringMiddleware)
 
-    if (config.cookieSession.enabled) {
+    if (config.session.enabled) {
       this.app.use(
         session({
           secret: botpressConfig.appSecret,
           secure: true,
           httpOnly: true,
           domain: config.externalUrl,
-          maxAge: config.cookieSession.maxAge
+          maxAge: config.session.maxAge
         })
       )
     }
