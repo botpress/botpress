@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "jwtSecret": {
+    "appSecret": {
       "type": "string"
     },
     "httpServer": {
@@ -80,7 +80,7 @@
     "dialog",
     "ghost",
     "httpServer",
-    "jwtSecret",
+    "appSecret",
     "licenseKey",
     "logs",
     "modules"

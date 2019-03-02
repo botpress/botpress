@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { FlowGeneratorMetadata, Logger } from 'botpress/sdk'
 import { Router } from 'express'
 
 import { ModuleLoader } from '../module-loader'
@@ -34,14 +34,14 @@ export class ModulesRouter extends CustomRouter {
     this.router.post(
       '/:moduleName/skill/:skillId/generateFlow',
       this.asyncMiddleware(async (req, res) => {
-        const flowGenerator = await this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.skillId)
-
+        const flowGenerator = this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.skillId)
         if (!flowGenerator) {
           return res.status(404).send('Invalid module name or flow name')
         }
 
         try {
-          res.send(await this.skillService.finalizeFlow(await flowGenerator(req.body)))
+          const metadata: FlowGeneratorMetadata = { botId: req.query.botId }
+          res.send(this.skillService.finalizeFlow(await flowGenerator(req.body, metadata)))
         } catch (err) {
           res.status(400).send(`Error while trying to generate the flow: ${err}`)
         }

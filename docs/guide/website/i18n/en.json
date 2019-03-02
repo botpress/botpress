@@ -44,9 +44,6 @@
       "developers/release-notes": {
         "title": "Release Notes"
       },
-      "developers/tutorials": {
-        "title": "Tutorials"
-      },
       "installation": {
         "title": "Installation"
       },
@@ -76,6 +73,36 @@
       },
       "troubleshoot": {
         "title": "Troubleshoot"
+      },
+      "tutorials/database": {
+        "title": "Supported databases"
+      },
+      "tutorials/existing-backend": {
+        "title": "Connecting your bot with your existing backend"
+      },
+      "tutorials/external-api": {
+        "title": "Calling an API in a Custom Action"
+      },
+      "tutorials/hitl": {
+        "title": "Human in the loop"
+      },
+      "tutorials/i18n": {
+        "title": "Internationalization (i18n)"
+      },
+      "tutorials/jump-to": {
+        "title": "Jump To"
+      },
+      "tutorials/proactive": {
+        "title": "Acting Proactively"
+      },
+      "tutorials/shortlinks": {
+        "title": "Shortlinks"
+      },
+      "tutorials/timeouts": {
+        "title": "Timeouts"
+      },
+      "tutorials/webchat-embedding": {
+        "title": "Embedding your bot on your website"
       },
       "version-11.0.1-channels": {
         "title": "Messaging Channels"
@@ -205,6 +232,30 @@
       },
       "version-11.5.0-licensing": {
         "title": "Licensing"
+      },
+      "version-11.5.1-dialogs": {
+        "title": "Flows & Dialogs"
+      },
+      "version-11.5.1-cluster": {
+        "title": "Server Cluster"
+      },
+      "version-11.5.1-create-module": {
+        "title": "Creating Modules"
+      },
+      "version-11.5.1-migrate": {
+        "title": "Migration"
+      },
+      "version-11.5.1-tutorials": {
+        "title": "Tutorials"
+      },
+      "version-11.5.1-installation": {
+        "title": "Installation"
+      },
+      "version-11.5.1-versions": {
+        "title": "Version control"
+      },
+      "version-11.5.1-quickstart": {
+        "title": "Quick Start"
       }
     },
     "links": {
@@ -218,7 +269,8 @@
       "Build": "Build",
       "Deploy": "Deploy",
       "Manage": "Manage",
-      "Developers": "Developers"
+      "Developers": "Developers",
+      "Tutorials": "Tutorials"
     }
   },
   "pages-strings": {
