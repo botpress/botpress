@@ -252,9 +252,9 @@ export default class HTTPServer {
   }
 
   extractExternalToken = async (req, res, next) => {
-    if (req.headers.externalauth) {
+    if (req.headers['x-bp-externalauth']) {
       try {
-        req.credentials = await this.decodeExternalToken(req.headers.externalauth)
+        req.credentials = await this.decodeExternalToken(req.headers['x-bp-externalauth'])
       } catch (error) {
         return next(new InvalidExternalToken(error.message))
       }

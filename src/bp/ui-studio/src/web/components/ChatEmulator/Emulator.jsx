@@ -87,7 +87,7 @@ export default class EmulatorChat extends React.Component {
       axiosConfig = {
         ...axiosConfig,
         headers: {
-          ExternalAuth: `Bearer ${this.state.externalToken}`
+          'X-BP-ExternalAuth': `Bearer ${this.state.externalToken}`
         }
       }
     }
