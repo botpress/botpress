@@ -66,6 +66,10 @@ export default class Login extends Component {
   handleInputKeyPress = e => e.key === 'Enter' && this.login()
 
   redirectToExternalAuthProvider = () => {
+    if (this.state.authStrategy === 'saml') {
+      return (window.location = `${api.getApiPath()}/auth/saml-redirect`)
+    }
+
     window.location = this.state.authEndpoint
   }
 
