@@ -5,7 +5,6 @@ import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -125,7 +124,7 @@ export class Botpress {
     if (!jwtSecret) {
       jwtSecret = nanoid(40)
       this.configProvider.mergeBotpressConfig({ jwtSecret })
-      this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
+      this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
     process.JWT_SECRET = jwtSecret
