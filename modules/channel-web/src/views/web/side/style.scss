@@ -177,6 +177,10 @@
       margin-left: 15px;
       margin-top: 15px;
       margin-bottom: 15px;
+      width: 52px;
+      height: 52px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
 
       &:hover {
         background-color: rgba(0, 0, 0, 0.03);

@@ -130,9 +130,19 @@ declare module 'botpress/sdk' {
     /** The name that will be displayed in the toolbar for the skill */
     name: string
     /** Name of the parent module. This field is filled automatically when they are loaded */
-    moduleName?: string
-    /** Function that receives data from the UI and provides a partial flow */
-    flowGenerator?: any
+    readonly moduleName?: string
+    /**
+     * When adding a new skill on the Flow Editor, the flow is constructed dynamically by this method
+     *
+     * @param skillData Provided by the skill view, those are fields edited by the user on the Flow Editor
+     * @param metadata Some metadata automatically provided, like the bot id
+     * @return The method should return
+     * */
+    flowGenerator: (skillData: any, metadata: FlowGeneratorMetadata) => Promise<FlowGenerationResult>
+  }
+
+  export interface FlowGeneratorMetadata {
+    botId: string
   }
 
   export interface ModulePluginEntry {

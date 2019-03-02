@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
 
-const generateFlow = (data): sdk.FlowGenerationResult => {
+const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   let onInvalidText = undefined
   if (data.config.invalidText && data.config.invalidText.length) {
     onInvalidText = data.config.invalidText

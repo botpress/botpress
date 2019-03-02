@@ -49,3 +49,25 @@ Users get a new unique User ID each time they use a different device. To offer a
 
 The `window.botpressWebChat` methods `init` and `configure` both accepts the `userId` parameter. It will override the randomly generated one.
 Since the User ID allows BP to recognize the user and to continue a conversation, these should not be guessable and needs to be unique.
+
+## Using Custom Components to render special content
+
+Botpress already supports multiple different type of contents, but it is also possible to add new ones. The only way to add custom components is to create a new module. There is more details about that process on the [Creating Modules](https://botpress.io/docs/developers/create-module/#views) page.
+
+Once your component is created, you need to send a custom event to the web channel for it to render. There are two different ways to do that:
+
+1. Create a content type
+2. Use the Botpress SDK to send an event
+
+The event needs to be of type `custom` and it requires the name of your module and the name of the views. Any additional parameters will be passed on to your component
+
+Here's an example of custom event:
+
+```js
+{
+  type: 'custom',
+  module: 'myModuleName',
+  view: 'MyViewName',
+  someotherdata: ....
+}
+```

@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, db: Database) => {
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
-    } else if (messageType === 'text' || messageType === 'carousel') {
+    } else if (messageType === 'text' || messageType === 'carousel' || messageType === 'custom') {
       const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
         data: event.payload,
         raw: event.payload,
