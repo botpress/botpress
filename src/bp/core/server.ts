@@ -146,7 +146,7 @@ export default class HTTPServer {
 
     this.app.use(monitoringMiddleware)
 
-    if (config.session.enabled) {
+    if (config.session && config.session.enabled) {
       this.app.use(
         session({
           secret: process.APP_SECRET,
