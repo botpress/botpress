@@ -21,12 +21,12 @@ const validateChoice = async data => {
     choice = _.get(element, `formData.choices.${index}.value`)
   }
 
-  if (!choice && config.matchNLU && typeof _.get(event.nlu, 'intent.is') === 'function') {
+  if (!choice && config.matchNLU) {
     choice = _.findKey(data.keywords, keywords => {
       const intents = keywords
         .filter(x => x.toLowerCase().startsWith(INTENT_PREFIX))
         .map(x => x.substr(INTENT_PREFIX.length))
-      return _.some(intents, k => event.nlu.intent.is(k))
+      return _.some(intents, k => event.nlu.intent.name === k)
     })
   }
 
