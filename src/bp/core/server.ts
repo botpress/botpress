@@ -87,6 +87,10 @@ export default class HTTPServer {
       this.app.use(errorHandler())
     }
 
+    if (process.core_env.REVERSE_PROXY) {
+      this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
+    }
+
     this.httpServer = createServer(this.app)
 
     this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
@@ -260,11 +264,13 @@ export default class HTTPServer {
   }
 
   async decodeExternalToken(externalToken): Promise<any | undefined> {
-    const { enabled, publicKey, audience, algorithm } = await this._getExternalAuthConfig()
+    const externalAuth = await this._getExternalAuthConfig()
 
-    if (!enabled) {
+    if (!externalAuth || !externalAuth.enabled) {
       return undefined
     }
+
+    const { publicKey, audience, algorithm, issuer } = externalAuth
 
     const [scheme, token] = externalToken.split(' ')
     if (scheme.toLowerCase() !== 'bearer') {
@@ -272,22 +278,34 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { audience, algorithm }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithm }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })
   }
 
   @Memoize
-  private async _getExternalAuthConfig(): Promise<ExternalAuthConfig> {
+  private async _getExternalAuthConfig(): Promise<ExternalAuthConfig | undefined> {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.pro.externalAuth
 
-    if (!config.publicKey && config.enabled) {
-      try {
-        config.publicKey = await this.ghostService.global().readFileAsString('/', 'key.pub')
-      } catch (error) {
-        this.logger.attachError(error).error(`Couldn't open public key file /data/global/key.pub`)
+    if (!config) {
+      return
+    }
+
+    if (config.enabled) {
+      if (!config.publicKey) {
+        try {
+          config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
+        } catch (error) {
+          this.logger
+            .attachError(error)
+            .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
+          return undefined
+        }
+      } else if (config.publicKey.length < 256) {
+        this.logger.error(`External User Auth: The provided publicKey is invalid (too short)`)
+        return undefined
       }
     }
 
