@@ -13,7 +13,7 @@ declare namespace NodeJS {
   export interface Process {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
-    JWT_SECRET: string
+    APP_SECRET: string
     HOST: string
     PORT: number
     EXTERNAL_URL: string
