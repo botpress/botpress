@@ -1,0 +1,26 @@
+{
+  "name": "channel-telegram",
+  "version": "11.5.0",
+  "description": "A Botpress connector for Telegram",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/bluebird-global": "^3.5.7",
+    "@types/lodash": "^4.14.116",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "axios": "^0.16.2",
+    "bluebird": "^3.5.1",
+    "bluebird-global": "^1.0.1",
+    "lodash": "^4.17.4",
+    "telegraf": "^3.27.1"
+  }
+}
