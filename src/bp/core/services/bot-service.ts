@@ -91,7 +91,7 @@ export class BotService {
       return this._botIds
     }
 
-    const bots = await this.ghostService.bots().directoryListing('/', '*bot.config.json')
+    const bots = await this.ghostService.bots().directoryListing('/', 'bot.config.json')
     return (this._botIds = _.map(bots, x => path.dirname(x)))
   }
 
