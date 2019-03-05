@@ -1095,5 +1095,9 @@ declare module 'botpress/sdk' {
       formData: string,
       contentElementId?: string
     ): Promise<string>
+
+    export function saveFile(botId: string, fileName: string, content: Buffer): Promise<string>
+    export function readFile(botId, fileName): Promise<Buffer>
+    export function getFilePath(botId: string, fileName: string): string
   }
 }
