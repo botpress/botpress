@@ -338,6 +338,7 @@ declare module 'botpress/sdk' {
       botId: string
       suggestions?: Suggestion[]
       credentials?: any
+      withNlu?: boolean
     }
 
     /**

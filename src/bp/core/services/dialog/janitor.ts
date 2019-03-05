@@ -1,6 +1,6 @@
-import { Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { SessionRepository } from 'core/repositories'
-import { IOEvent } from 'core/sdk/impl'
+import { Event, IOEvent } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -56,14 +56,15 @@ export class DialogJanitor extends Janitor {
           const target = SessionIdFactory.createTargetFromId(id)
 
           // This event only exists so that processTimeout can call processEvent
-          const fakeEvent = new IOEvent({
+          const fakeEvent = Event({
             type: 'timeout',
             channel: 'web',
             target: target,
             direction: 'incoming',
             payload: '',
-            botId: botId
-          })
+            botId: botId,
+            withNlu: true
+          }) as IO.IncomingEvent
 
           await this.dialogEngine.processTimeout(botId, id, fakeEvent)
         } catch (err) {
