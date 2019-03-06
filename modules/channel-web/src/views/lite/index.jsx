@@ -1,25 +1,8 @@
 import React from 'react'
 import Chat from './main.jsx'
 
-export class Fullscreen extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return <Chat fullscreen={true} {...this.props} />
-  }
-}
-
-export class Embedded extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return <Chat fullscreen={false} {...this.props} />
-  }
-}
+export const Fullscreen = props => <Chat {...props} fullscreen={true} />
+export const Embedded = props => <Chat {...props} fullscreen={false} />
 
 /**
  * @deprecated Since the way views are handled has changed, we're also exporting views in lowercase.
