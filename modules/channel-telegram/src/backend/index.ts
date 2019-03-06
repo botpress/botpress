@@ -42,7 +42,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   definition: {
     name: 'channel-telegram',
-    menuIcon: 'chrome_reader_mode',
+    menuIcon: 'none', // no interface = true
     fullName: 'Telegram',
     homepage: 'https://botpress.io',
     noInterface: true,
