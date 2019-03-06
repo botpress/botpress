@@ -18,6 +18,7 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { AlertingService } from './services/alerting-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
@@ -80,7 +81,8 @@ export class Botpress {
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
+    @inject(TYPES.AlertingService) private alertingService: AlertingService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -251,6 +253,7 @@ export class Botpress {
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()
+    await this.alertingService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

@@ -3,6 +3,7 @@ import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
 import { ConfigProvider } from 'core/config/config-loader'
 import { GhostService } from 'core/services'
+import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { MonitoringService } from 'core/services/monitoring'
@@ -16,6 +17,7 @@ import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
 import { BotsRouter } from './bots'
 import { LicenseRouter } from './license'
 import { RolesRouter } from './roles'
+import { ServerRouter } from './server'
 import { UsersRouter } from './users'
 import { VersioningRouter } from './versioning'
 
@@ -26,6 +28,7 @@ export class AdminRouter extends CustomRouter {
   private licenseRouter!: LicenseRouter
   private versioningRouter!: VersioningRouter
   private rolesRouter!: RolesRouter
+  private serverRouter!: ServerRouter
   private loadUser!: RequestHandler
 
   constructor(
@@ -36,7 +39,8 @@ export class AdminRouter extends CustomRouter {
     private licenseService: LicensingService,
     private ghostService: GhostService,
     configProvider: ConfigProvider,
-    private monitoringService: MonitoringService
+    monitoringService: MonitoringService,
+    alertingService: AlertingService
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -45,6 +49,7 @@ export class AdminRouter extends CustomRouter {
     this.licenseRouter = new LicenseRouter(logger, this.licenseService)
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
+    this.serverRouter = new ServerRouter(logger, monitoringService, alertingService)
     this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
@@ -76,18 +81,11 @@ export class AdminRouter extends CustomRouter {
       res.send(license)
     })
 
-    this.router.post(
-      '/monitoring',
-      this.asyncMiddleware(async (req, res) => {
-        const { fromTime, toTime } = req.body
-        res.send(await this.monitoringService.getStats(fromTime, toTime))
-      })
-    )
-
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
+    router.use('/server', this.checkTokenHeader, this.serverRouter.router)
   }
 }

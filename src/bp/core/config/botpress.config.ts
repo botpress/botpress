@@ -1,4 +1,5 @@
 import { AuthUser } from 'core/misc/interfaces'
+import { IncidentRule } from 'core/services/alerting-service'
 
 export type AuthStrategy = 'basic' | 'saml' | 'ldap'
 
@@ -155,6 +156,11 @@ export type BotpressConfig = {
       allowSelfSignup: boolean
     }
     monitoring: MonitoringConfig
+    /**
+     * The alert service is an extension of the monitoring service. The monitoring collects data, while the alert service
+     * analyzes them and opens an incident when configured threshold are met.
+     */
+    alerting: AlertingConfig
     /**
      * External Authentication makes it possible to authenticate end-users (chat users) from an other system
      * by using JWT tokens.
@@ -317,4 +323,32 @@ export interface MonitoringConfig {
    * @default 15m
    */
   janitorInterval: string
+}
+
+export interface AlertingConfig {
+  /**
+   * To enable the alerting service, you need to enable the monitoring first.
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * Interval between each executions of the rule checker
+   * @default 10s
+   */
+  watcherInterval: string
+  /**
+   * The duration for which resolved incidents will be kept
+   * @default 10d
+   */
+  retentionPeriod: string
+  /**
+   * Delay between the execution of the janitor which removes resolved incidents.
+   * @default 15m
+   */
+  janitorInterval: string
+  /**
+   * The list of rules which triggers an incident. When triggered, the OnIncidentChangedStatus hook
+   * is called with the incident.
+   */
+  rules: IncidentRule[]
 }

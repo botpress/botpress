@@ -6,6 +6,7 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import ActionService from './action/action-service'
+import { AlertingService, CEAlertingService } from './alerting-service'
 import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
 import { BotService } from './bot-service'
@@ -51,6 +52,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<MonitoringService>(TYPES.MonitoringService)
     .to(CEMonitoringService)
+    .inSingletonScope()
+    .when(() => !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
+
+  bind<AlertingService>(TYPES.AlertingService)
+    .to(CEAlertingService)
     .inSingletonScope()
     .when(() => !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
 

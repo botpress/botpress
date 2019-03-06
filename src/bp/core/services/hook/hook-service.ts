@@ -11,6 +11,7 @@ import { GhostService } from '..'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
+import { Incident } from '../alerting-service'
 
 export namespace Hooks {
   export interface BaseHook {
@@ -97,6 +98,18 @@ export namespace Hooks {
       this.timeout = 1000
       this.args = { bp, sessionId, event, suggestions }
       this.folder = 'before_suggestions_election'
+    }
+  }
+
+  export class OnIncidentStatusChanged implements BaseHook {
+    folder: string
+    args: any
+    timeout: number
+
+    constructor(bp: typeof sdk, incident: Incident) {
+      this.timeout = 1000
+      this.args = { bp, incident }
+      this.folder = 'on_incident_status_changed'
     }
   }
 }

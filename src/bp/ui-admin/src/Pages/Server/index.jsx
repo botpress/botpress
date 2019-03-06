@@ -1,10 +1,11 @@
 import React from 'react'
-import { MdCompareArrows, MdCopyright, MdMultilineChart } from 'react-icons/lib/md'
+import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications } from 'react-icons/lib/md'
 
 import Versioning from './Versioning'
 import LicenseStatus from './LicenseStatus'
 import TabLayout from '../Layouts/Tabs'
 import Monitoring from './Monitoring'
+import Alerting from './Alerting'
 
 const Server = props => {
   const title = 'Server'
@@ -16,6 +17,14 @@ const Server = props => {
       useFullWidth: true,
       proOnly: true,
       component: Monitoring
+    },
+    {
+      name: 'Alerts & Incidents',
+      route: '/server/alerting',
+      icon: <MdNotifications />,
+      useFullWidth: false,
+      proOnly: true,
+      component: Alerting
     },
     {
       name: 'Server License',
