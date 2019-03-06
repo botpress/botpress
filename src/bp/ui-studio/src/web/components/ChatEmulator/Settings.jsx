@@ -52,7 +52,7 @@ export default class Settings extends React.Component {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="secondary" onClick={this.props.onHideSettings}>
+          <Button bsStyle="default" onClick={this.props.onHideSettings}>
             Cancel
           </Button>
           <Button bsStyle="primary" onClick={this.handleSave}>

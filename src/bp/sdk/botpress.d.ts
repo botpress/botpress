@@ -137,7 +137,7 @@ declare module 'botpress/sdk' {
      * @param skillData Provided by the skill view, those are fields edited by the user on the Flow Editor
      * @param metadata Some metadata automatically provided, like the bot id
      * @return The method should return
-     * */
+     */
     flowGenerator: (skillData: any, metadata: FlowGeneratorMetadata) => Promise<FlowGenerationResult>
   }
 
@@ -338,6 +338,7 @@ declare module 'botpress/sdk' {
       botId: string
       suggestions?: Suggestion[]
       credentials?: any
+      withNlu?: boolean
     }
 
     /**
@@ -972,7 +973,7 @@ declare module 'botpress/sdk' {
      * Calls the dialog engine to start processing an event.
      * @param event The event to be processed by the dialog engine
      */
-    export function processEvent(sessionId: string, event: IO.IncomingEvent): Promise<void>
+    export function processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent>
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
@@ -1094,5 +1095,9 @@ declare module 'botpress/sdk' {
       formData: string,
       contentElementId?: string
     ): Promise<string>
+
+    export function saveFile(botId: string, fileName: string, content: Buffer): Promise<string>
+    export function readFile(botId, fileName): Promise<Buffer>
+    export function getFilePath(botId: string, fileName: string): string
   }
 }

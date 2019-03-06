@@ -36,7 +36,7 @@ const validateChoice = async data => {
         keywords || [],
         k =>
           _.includes(event.preview.toLowerCase(), k.toLowerCase()) ||
-          (event.payload && _.includes(event.payload.text.toLowerCase(), k.toLowerCase()))
+          (event.payload && _.includes(_.get(event, 'payload.text', '').toLowerCase(), k.toLowerCase()))
       )
     )
   }
