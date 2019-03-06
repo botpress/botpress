@@ -3,6 +3,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 import webpack from 'webpack'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 import { debug, error, normal } from './log'
 
@@ -80,6 +81,10 @@ export function config(projectPath) {
         }
       ]
     }
+  }
+
+  if (process.argv.find(x => x.toLowerCase() === '--analyze')) {
+    full.plugins.push(new BundleAnalyzerPlugin())
   }
 
   if (packageJson.webpack) {
