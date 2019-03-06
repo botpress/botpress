@@ -1,0 +1,18 @@
+.bp-chat-container .bp-chat-header {
+  background: black;
+  color: white;
+}
+
+.bp-chat-container .bp-messages {
+  background: black;
+}
+
+.bp-messages .bp-msg-group .bp-msg {
+  background: black;
+  color: white;
+}
+
+.bp-chat-composer-container .bp-chat-composer {
+  background: black !important;
+  color: white;
+}

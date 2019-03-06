@@ -39,6 +39,7 @@ const defaultOptions = {
   foregroundColor: '#000000',
   textColorOnForeground: '#ffffff',
   enableReset: false,
+  extraStylesheet: '',
   showConversationsButton: true,
   showUserName: false,
   showUserAvatar: false,
@@ -557,7 +558,7 @@ export default class Web extends React.Component {
   }
 
   renderUncountMessages() {
-    return <span className={style.unread}>{this.state.unreadCount}</span>
+    return <span className={classnames('bp-unread-count', style.unread)}>{this.state.unreadCount}</span>
   }
 
   renderButton() {
@@ -566,7 +567,7 @@ export default class Web extends React.Component {
     }
     return (
       <button
-        className={classnames(style[this.state.widgetTransition], style.floatingButton)}
+        className={classnames('bp-widget-btn', style[this.state.widgetTransition], style.floatingButton)}
         onClick={this.handleButtonClicked}
         style={{ backgroundColor: this.state.config.foregroundColor }}
       >
@@ -665,10 +666,12 @@ export default class Web extends React.Component {
     window.parent &&
       window.parent.postMessage({ type: 'setClass', value: 'bp-widget-web bp-widget-' + this.state.view }, '*')
 
+    const stylesheet = this.state.config.extraStylesheet
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
     return (
-      <div className={style.web} onFocus={this.handleResetUnreadCount}>
+      <div className={classnames('bp-chat', style.web)} onFocus={this.handleResetUnreadCount}>
+        {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {view}
       </div>
     )

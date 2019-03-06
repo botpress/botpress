@@ -1,7 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import classnames from 'classnames'
-// import { Picker } from 'emoji-mart'
 
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
 
@@ -12,7 +10,6 @@ import Input from '../input'
 import BotAvatar from '../bot_avatar'
 
 import style from './style.scss'
-// require('emoji-mart/css/emoji-mart.css')
 import { getOverridedComponent } from '../messages/misc'
 
 export default class Side extends React.Component {
@@ -20,7 +17,6 @@ export default class Side extends React.Component {
     super(props)
     this.state = {
       focused: false,
-      showEmoji: false,
       showConvos: false
     }
   }
@@ -34,12 +30,6 @@ export default class Side extends React.Component {
   handleFocus(value) {
     this.setState({
       focused: value
-    })
-  }
-
-  handleEmojiClicked() {
-    this.setState({
-      showEmoji: !this.state.showEmoji
     })
   }
 
@@ -93,7 +83,7 @@ export default class Side extends React.Component {
     }
 
     return (
-      <span className={style.icon}>
+      <span className={'bp-convos-btn ' + style.icon}>
         <i onClick={::this.handleToggleShowConvos}>
           <svg width="24" height="17" viewBox="0 0 489 489" xmlns="http://www.w3.org/2000/svg">
             <g xmlns="http://www.w3.org/2000/svg">
@@ -116,7 +106,7 @@ export default class Side extends React.Component {
     }
 
     return (
-      <span className={style.icon}>
+      <span className={'bp-close-btn ' + style.icon}>
         <i onClick={this.props.onClose}>
           <svg width="17" height="17" viewBox="0 0 95 95" xmlns="http://www.w3.org/2000/svg">
             <g>
@@ -137,7 +127,7 @@ export default class Side extends React.Component {
     }
 
     return (
-      <span className={style.icon}>
+      <span className={'bp-reset-btn ' + style.icon}>
         <i onClick={this.props.onResetSession}>
           <svg width="17" height="17" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
             <g>
@@ -158,7 +148,7 @@ export default class Side extends React.Component {
     }
 
     return (
-      <span className={style.downloadIcon}>
+      <span className={'bp-transcript-btn ' + style.downloadIcon}>
         <i onClick={this.props.downloadConversation}>
           <svg
             version="1.1"
@@ -177,17 +167,8 @@ export default class Side extends React.Component {
   }
 
   renderHeader() {
-    const status = (
-      <div className={style.status}>
-        <svg viewBox="0 0 10 10">
-          <ellipse cx="50%" cy="50%" rx="50%" ry="50%" />
-        </svg>
-        <span>always online</span>
-      </div>
-    )
-
     return (
-      <div className={style.header}>
+      <div className={'bp-chat-header ' + style.header}>
         <div className={style.left}>
           <div className={style.line}>
             {this.renderAvatar()}
@@ -202,41 +183,6 @@ export default class Side extends React.Component {
     )
   }
 
-  renderAttachmentButton() {
-    return null // Temporary removed this feature (not implemented yet)
-
-    return (
-      <li>
-        <a>
-          <i>
-            <svg width="18" height="17" viewBox="0 0 18 17" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M8.455 16.5c-.19 0-.378-.076-.522-.226-.29-.303-.29-.792 0-1.093l7.66-8.013c.57-.597.885-1.392.885-2.236 0-.844-.315-1.638-.886-2.235-1.18-1.233-3.097-1.232-4.275 0L2.433 11.99c-.5.525-.742 1.03-.715 1.502.026.46.303.815.467.985.275.29.573.41.908.364.42-.054.903-.356 1.398-.874l6.973-7.295c.288-.3.755-.3 1.043 0 .29.303.29.793 0 1.093l-6.97 7.296c-.74.773-1.5 1.215-2.26 1.314-.797.104-1.535-.175-2.135-.804-.537-.562-.856-1.267-.896-1.985-.054-.933.332-1.836 1.144-2.686l8.885-9.297c1.754-1.836 4.61-1.836 6.363 0 .85.888 1.318 2.07 1.318 3.328s-.468 2.44-1.318 3.33l-7.66 8.014c-.143.15-.332.226-.52.226z"
-                fillRule="evenodd"
-              />
-            </svg>
-          </i>
-        </a>
-      </li>
-    )
-  }
-
-  renderEmojiButton() {
-    return null // Temporary removed this feature (emoji-mart lib is too big)
-
-    return (
-      <li>
-        <a>
-          <i onClick={::this.handleEmojiClicked}>
-            <svg preserveAspectRatio="xMidYMid" width="18" height="18" viewBox="0 0 24 24">
-              <path d="M12 24C5.38 24 0 18.62 0 12S5.38 0 12 0s12 5.38 12 12-5.38 12-12 12zm0-22C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-2.9 0-5.56-1.75-6.9-4.57-.24-.5-.03-1.1.47-1.33.5-.24 1.1-.03 1.33.47C7.9 16.67 9.86 18 12 18c2.15 0 4.1-1.3 5.1-3.43.23-.5.83-.7 1.33-.47.5.23.7.83.47 1.33C17.58 18.25 14.93 20 12 20zm4-8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-8 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-            </svg>
-          </i>
-        </a>
-      </li>
-    )
-  }
-
   renderComposer() {
     const name = this.props.config.botName || 'Bot'
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
@@ -247,7 +193,7 @@ export default class Side extends React.Component {
 
     return (
       <div
-        className={style.composer}
+        className={'bp-chat-composer ' + style.composer}
         style={{
           borderColor: this.state.focused ? this.props.config.foregroundColor : null
         }}
@@ -263,35 +209,11 @@ export default class Side extends React.Component {
             config={this.props.config}
           />
           <div className={style.line}>
-            <ul className={style.elements}>
-              {this.renderAttachmentButton()}
-              {this.renderEmojiButton()}
-            </ul>
             <Send send={this.props.onTextSend} text={this.props.text} config={this.props.config} />
           </div>
-          {this.renderEmojiPicker()}
         </div>
       </div>
     )
-  }
-
-  renderEmojiPicker() {
-    if (!this.state.showEmoji) {
-      return null
-    }
-
-    return null // Temporary removed this feature (emoji-mart is too big)
-
-    // return <div className={style.emoji}>
-    //     <div className={style.inside}>
-    //       <Picker
-    //         onClick={this.props.addEmojiToText}
-    //         set='emojione'
-    //         emojiSize={18}
-    //         perLine={10}
-    //         color={this.props.config.foregroundColor}/>
-    //     </div>
-    //   </div>
   }
 
   renderConversation() {
@@ -312,9 +234,9 @@ export default class Side extends React.Component {
     }
 
     return (
-      <div className={style.conversation}>
+      <div className={'bp-chat-conversation ' + style.conversation}>
         <MessageList {...messagesProps} />
-        <div className={style.bottom}>{this.renderComposer()}</div>
+        <div className={'bp-chat-composer-container ' + style.bottom}>{this.renderComposer()}</div>
       </div>
     )
   }
@@ -333,16 +255,16 @@ export default class Side extends React.Component {
     }
 
     return (
-      <div className={style.item} key={key} onClick={onClick}>
+      <div className={'bp-item ' + style.item} key={key} onClick={onClick}>
         <div className={style.left}>{this.renderAvatar()}</div>
         <div className={style.right}>
-          <div className={style.title}>
+          <div className={'bp-title ' + style.title}>
             <div className={style.name}>{title}</div>
             <div className={style.date}>
               <span>{date}</span>
             </div>
           </div>
-          <div className={style.text}>{message}</div>
+          <div className={'bp-preview ' + style.text}>{message}</div>
         </div>
       </div>
     )
@@ -351,10 +273,10 @@ export default class Side extends React.Component {
   renderListOfConvos() {
     const btnColor = this.props.config && this.props.config.textColorOnBackground
     return (
-      <div className={style.list}>
+      <div className={'bp-list-convo ' + style.list}>
         {this.props.conversations.map(::this.renderItemConvos)}
         <button
-          className={style.addConvoBtn}
+          className={'bp-new-convo-btn ' + style.addConvoBtn}
           style={{ color: btnColor, borderColor: btnColor }}
           onClick={this.props.createConversation}
         >
@@ -366,12 +288,12 @@ export default class Side extends React.Component {
 
   render() {
     const fullscreen = this.props.fullscreen ? 'fullscreen' : null
-    const classNames = classnames(style.internal, style[fullscreen], style[this.props.transition])
+    const classNames = classnames('bp-chat-inner', style.internal, style[fullscreen], style[this.props.transition])
 
     const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
 
     return (
-      <span className={style.external}>
+      <span className={'bp-chat-container ' + style.external}>
         <div
           className={classNames}
           style={{

@@ -30,23 +30,29 @@ class MessageGroup extends Component {
     }
 
     return (
-      <div className={style.avatar} style={{ color: this.props.fgColor }}>
+      <div className={'bp-avatar ' + style.avatar} style={{ color: this.props.fgColor }}>
         {content}
       </div>
     )
   }
 
   render() {
-    const className = classnames(style.message, { [style.user]: !this.props.isBot })
+    const className = classnames('bp-msg-group', style.message, {
+      [style.user]: !this.props.isBot,
+      'bp-from-user': !this.props.isBot,
+      'bp-from-bot': this.props.isBot
+    })
     const bubbleColor = this.props.fgColor
     const textColor = this.props.textColor
 
     return (
       <div className={className}>
         {this.renderAvatar()}
-        <div className={style['message-container']}>
-          {this.props.showUserName && <div className={style['info-line']}>{this.props.userName}</div>}
-          <div className={style.group}>
+        <div className={'bp-msg-container ' + style['message-container']}>
+          {this.props.showUserName && (
+            <div className={'bp-msg-username ' + style['info-line']}>{this.props.userName}</div>
+          )}
+          <div className={'bp-msg-group ' + style.group}>
             {this.props.messages.map((data, i) => {
               return (
                 <Message
@@ -122,7 +128,7 @@ export default class MessageList extends Component {
 
   renderDate(date) {
     return (
-      <div className={style.date}>
+      <div className={'bp-date ' + style.date}>
         {format(new Date(date), 'MMMM Do YYYY, h:mm a')}
         <div className={style.smallLine} />
       </div>
@@ -206,7 +212,7 @@ export default class MessageList extends Component {
   render() {
     return (
       <div
-        className={style.messages}
+        className={'bp-messages ' + style.messages}
         ref={m => {
           this.messagesDiv = m
         }}
@@ -291,7 +297,7 @@ class Message extends Component {
     )
 
     return (
-      <div className={style.typingGroup}>
+      <div className={'bp-typing-indicator ' + style.typingGroup}>
         {bubble()}
         {bubble()}
         {bubble()}
@@ -322,8 +328,8 @@ class Message extends Component {
 
     return (
       <Linkify>
-        <div>
-          <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
+        <div className="bp-msg-custom">
+          {this.props.data.message_text.length && <p style={this.getAddStyle()}>{this.props.data.message_text}</p>}
           <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
         </div>
       </Linkify>
@@ -340,7 +346,7 @@ class Message extends Component {
 
   render_unsupported() {
     return (
-      <div style={this.getAddStyle()}>
+      <div className="bp-msg-unsupported" style={this.getAddStyle()}>
         <p>*Unsupported message type*</p>
       </div>
     )
@@ -359,7 +365,15 @@ class Message extends Component {
     }
 
     return (
-      <div className={classnames(style.bubble, style[this.props.data.message_type])} style={bubbleStyle}>
+      <div
+        className={classnames(
+          'bp-msg',
+          'bp-msg-type-' + this.props.data.message_type,
+          style.bubble,
+          style[this.props.data.message_type]
+        )}
+        style={bubbleStyle}
+      >
         {rendered}
       </div>
     )

@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 
 import Send from '../send'
@@ -56,7 +55,7 @@ export default class Convo extends React.Component {
     return (
       <span>
         <div className={style['flex-minimal']}>
-          <div className={style.element}>
+          <div className={classnames('bp-promo-element', style.element)}>
             <span>
               {"We're "}
               <i>
@@ -86,7 +85,7 @@ export default class Convo extends React.Component {
 
     return (
       <div
-        className={style.name}
+        className={classnames('bp-bot-name', style.name)}
         style={{
           color: this.props.config.textColorOnForeground
         }}
@@ -108,7 +107,7 @@ export default class Convo extends React.Component {
     }
 
     return (
-      <div className={style.avatar}>
+      <div className={classnames('bp-avatar', style.avatar)}>
         <div className={style.square}>
           <div
             className={style.circle}
@@ -170,9 +169,9 @@ export default class Convo extends React.Component {
   }
 
   render() {
-    const classNames = classnames(style.internal, style[this.props.transition])
+    const classNames = classnames('bp-convo-inner', style.internal, style[this.props.transition])
     return (
-      <div className={style.external}>
+      <div className={'bp-convo-container ' + style.external}>
         <div
           className={classNames}
           style={{
