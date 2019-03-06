@@ -14,7 +14,6 @@ import CarouselMessage from './carousel'
 
 import style from './style.scss'
 import Form from './form'
-import _ from 'lodash'
 
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
@@ -312,9 +311,13 @@ class Message extends Component {
 
     const InjectedModuleView = this.props.bp.getModuleInjector()
 
+    const messageDataProps = { ...this.props.data.message_data }
+    delete messageDataProps.module
+    delete messageDataProps.component
+
     const props = {
       onSendData: this.props.onSendData,
-      ..._.omit(this.props.data.message_data, 'module', 'component')
+      ...messageDataProps
     }
 
     return (

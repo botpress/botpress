@@ -3,19 +3,17 @@
 import React from 'react'
 import classnames from 'classnames'
 
-// import { Emoji } from 'emoji-mart'
-
 import addMilliseconds from 'date-fns/add_milliseconds'
 import isBefore from 'date-fns/is_before'
 import queryString from 'query-string'
-import moment from 'moment'
 import ms from 'ms'
 
 import Convo from './convo'
 import Side from './side'
 
 import style from './style.scss'
-import _ from 'lodash'
+
+const _values = obj => Object.keys(obj).map(x => obj[x])
 
 if (!window.location.origin) {
   window.location.origin =
@@ -61,7 +59,7 @@ export default class Web extends React.Component {
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
     if (config.overrides) {
-      for (const override of _.values(config.overrides)) {
+      for (const override of _values(config.overrides)) {
         this.props.bp.loadModuleView(override.module, true)
       }
     }
@@ -300,7 +298,7 @@ export default class Web extends React.Component {
         this.handleSendData({
           type: 'visit',
           text: 'User visit',
-          timezone: moment().utcOffset() / 60
+          timezone: new Date().getTimezoneOffset() / 60
         }).catch(this.checkForExpiredExternalToken)
       })
   }
@@ -322,8 +320,8 @@ export default class Web extends React.Component {
 
     let conversationIdToFetch = convoId || currentConversationId
     if (conversations.length > 0 && !conversationIdToFetch) {
-      const lifeTimeMargin = moment().subtract(ms(this.state.recentConversationLifetime), 'ms')
-      if (moment(conversations[0].last_heard_on).isBefore(lifeTimeMargin) && this.state.startNewConvoOnTimeout) {
+      const lifeTimeMargin = Date.now() - ms(this.state.recentConversationLifetime)
+      if (new Date(conversations[0].last_heard_on).getTime() < lifeTimeMargin && this.state.startNewConvoOnTimeout) {
         return
       }
       conversationIdToFetch = conversations[0].id
