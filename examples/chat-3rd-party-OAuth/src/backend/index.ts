@@ -51,8 +51,12 @@ const onBotMount = async (bp: typeof sdk, botId) => {
     return
   }
 
-  const bpConfig = await bp.config.getBotpressConfig()
-  const baseCallbackUrl = bpConfig.externalUrl || `http://${bpConfig.host}:${bpConfig.port}`
+  // We use process variables that are set on server start from botpress config file, we could use the configs
+  // const bpConfig = await bp.config.getBotpressConfig()
+  // const baseCallbackUrl = bpConfig.externalUrl || `http://${bpConfig.host}:${bpConfig.port}`
+  // @ts-ignore
+  const baseCallbackUrl = process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
+
   passport.use(
     new TwitterStrategy(
       {
