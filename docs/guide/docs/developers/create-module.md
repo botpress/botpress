@@ -184,8 +184,8 @@ When you create new skills, they need a way to generate the custom flow that wil
 ```js
 const skillsToRegister: sdk.Skill[] = [
   {
-    id: 'choice',
-    name: 'Choice',
+    id: 'Choice', // This must be the name of the component exported in your module full view
+    name: 'Choice', // This is the value displayed to the user
     flowGenerator: choice.generateFlow
   }
 ]
@@ -240,7 +240,7 @@ extractNluContent: async () => {
 When a user is using your module's interface, a bot is already selected so you just need to call `bp.axios`. It is always passed down to your react components as a property.
 
 ```JS
-const result = await this.props.bp.axios.get('/mod/my-modyle/query')
+const result = await this.props.bp.axios.get('/mod/my-module/query')
 ```
 
 ### Creating an API endpoint
@@ -371,84 +371,49 @@ const someObject = (await bp.database.insertAndRetrieve)(
 
 ## Views
 
-The main view of the module is found in the `src/views/index.jsx` file by default.
+There are two different type of views (or bundles) that your module can offer. A view can consist of multiple components. These components can be used by other modules, and your own module can also consume components of other modules.
 
-By modifying this view, you can fetch the data from your new endpoint and present it to the user:
+Check out the [Complete Module Example on GitHub](https://github.com/botpress/botpress/tree/master/examples) for more details on how you can implement views.
 
-```jsx
-export default class TemplateModule extends React.Component {
-  state = { dialogSessions: 0 }
+### Full View
 
-  componentDidMount() {
-    fetch('/mod/dialog-sessions/count')
-      .then(res => res.json())
-      .then(({ dialogSessions }) => this.setState({ dialogSessions }))
-  }
+This view includes heavy dependencies, like react-bootstrap. When you want to add an interface for your module, your full view need to export a `default` component.
+The main view of the module is found in the `src/views/full/index.jsx` file by default.
 
-  render() {
-    const { dialogSessions } = this.state
-    return <h4>{`Currently there are ${dialogSessions} dialog sessions in DB`}</h4>
-  }
-}
-```
+Skill components must be exported by this view (more on this below)
 
-It is also possible to expose multiple views. Those new variations needs to be specified in your `package.json` file under the object `botpress.liteViews`. They will be available at `/assets/modules/$YOUR_MODULE/web/$VIEW_NAME.bundle.js`
+### Lite View
 
-Let's say you want to provide a fullscreen version of your module:
-
-package.json
-
-```js
-"botpress": {
-  "liteViews": {
-    "fullscreen": "./src/views/web/fullscreen.jsx"
-  }
-}
-```
+The Light view doesn't include any heavy dependency. Common use case is to add a custom, lightweight component on the web chat. This type of view was added to keep the size of the webchat bundle small so it loads faster, especially on mobile phones.
 
 ## Skill Creation
 
 There are a couple of steps required to create a new skill. Basically, a skill consist of a GUI to input values and a flow generator to create the interactions.
 
-### Creating the GUI
+### 1. Create your visual component
 
-The first step is to create the GUI that will be displayed to the user. Create a `.jsx` file with the name
+The first step is to create the GUI that will be displayed to the user. You can create your component in the file `views/full/index.jsx`, or you can create it in a separate file, just make sure to export your skill component.
+
+The name of your component (in the below example, MyCustomSkill) needs to be the same used in step 3 below.
 
 ```jsx
 import React from 'react'
 
-export default class TemplateModule extends React.Component {
+export class MyCustomSkill extends React.Component {
   render() {
     return null
   }
 }
 ```
 
-### Preparing the GUI bundle
-
-Once your `.jsx` file is ready, we need to tell Botpress what bundle it should create, and how to serve it.
-
-Open the file `package.json` of your module, and add this snippet of code. Change the variables with the values from your particular case. You can add any number of skills.
-
-```js
-"botpress": {
-    "liteViews": {
-      "$ID_OF_SKILL": "./src/views/$ID_OF_SKILL.jsx",
-      "$ID_OF_SKILL2": "./src/views/$ID_OF_SKILL2.jsx"
-    }
-  },
-```
-
-This tells the `module-builder` to create a bundle with your interface. The bundles will be available at `/assets/modules/$YOUR_MODULE/web/$ID_OF_SKILL.bundle.js`
-
-### Creating the flow generator
+### 2. Creating the flow generator
 
 The flow generator will create all the transitions and conditions based on the data that was feeded by the GUI. That method will be called by the Studio when the user has finished inputting all his data. Your method will receive a `data` object. and must return a partial flow.
 
 Example:
 
 ```js
-const generateFlow = (data): sdk.FlowGenerationResult => {
+const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   const nodes: sdk.SkillFlowNode[] = [
     {
       name: 'entry',
@@ -476,17 +441,17 @@ const createTransitions = data => {
 export default { generateFlow }
 ```
 
-### Connecting all those
+### 3. Connecting those components
 
-All the required parts are done, the only thing left is to register the skills. Provide an array of your skills in the same variable in the module entry point.
-
-Example:
+Once your view and the flow generator is ready, you need to inform Botpress about your skill.
+This is how you would register it.
 
 ```js
+// Note the array, you can register multiple skills that way
 const skillsToRegister: sdk.Skill[] = [
   {
-    id: '$ID_OF_SKILL',
-    name: '$DISPLAYED_NAME',
+    id: 'MyCustomSkill', // Name of your exported component
+    name: 'My Magic Custom Skill', // Only used to display the skill in the list
     flowGenerator: generateFlow
   }
 ]

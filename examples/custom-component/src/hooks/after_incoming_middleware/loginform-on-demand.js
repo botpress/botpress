@@ -8,7 +8,6 @@ if (intent === 'login') {
   const payload = {
     type: 'custom',
     module: 'custom-component',
-    view: 'components',
     component: 'default',
     endpoint: 'http://google.com',
 

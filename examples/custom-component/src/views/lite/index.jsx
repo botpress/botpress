@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class LoginForm extends React.Component {
+export class LoginForm extends React.Component {
   state = {
     username: null,
     password: null
@@ -36,6 +36,20 @@ export default class LoginForm extends React.Component {
         <br />
         <br />
         <button onClick={this.sendCustomEvent}>Send Custom Event</button>
+      </div>
+    )
+  }
+}
+
+export class InjectedBelow extends React.Component {
+  render() {
+    // Return null if you just want to interact with the chat.
+    return null
+
+    // Or you can add special content
+    return (
+      <div style={{ align: 'center' }}>
+        <small>Injected below chat</small>
       </div>
     )
   }

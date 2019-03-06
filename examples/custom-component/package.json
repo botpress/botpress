@@ -1,17 +1,12 @@
 {
   "name": "custom-component",
-  "version": "1",
+  "version": "1.0.0",
   "description": "Custom Component",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch"
-  },
-  "botpress": {
-    "liteViews": {
-      "components": "./src/views/components.jsx"
-    }
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",

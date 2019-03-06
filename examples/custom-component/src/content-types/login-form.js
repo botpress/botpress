@@ -7,12 +7,9 @@ function render(data) {
       // The name of your module
       module: 'custom-component',
 
-      // The name of the liteView, configured in package.json
-      view: 'components',
-
       // The name of the component to load. In this example, the name of the component is "LoginForm",
-      // but since it's exported with "export default", the name here must be default.
-      component: 'default',
+      // Components created for the web chat must be in the `lite` views
+      component: 'LoginForm',
 
       // Add anything else that you would want your module to process
       // ... data from the content manager forms:
