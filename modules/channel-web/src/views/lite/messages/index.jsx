@@ -305,8 +305,8 @@ class Message extends Component {
   }
 
   render_custom() {
-    const { module, view, component } = this.props.data.message_data || {}
-    if (!module || !view) {
+    const { module, component } = this.props.data.message_data || {}
+    if (!module || !component) {
       return this.render_unsupported()
     }
 
@@ -314,20 +314,14 @@ class Message extends Component {
 
     const props = {
       onSendData: this.props.onSendData,
-      ..._.omit(this.props.data.message_data, 'module', 'view', 'component')
+      ..._.omit(this.props.data.message_data, 'module', 'component')
     }
 
     return (
       <Linkify>
         <div>
           <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
-          <InjectedModuleView
-            moduleName={module}
-            viewName={view}
-            componentName={component}
-            lite={true}
-            extraProps={props}
-          />
+          <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
         </div>
       </Linkify>
     )
