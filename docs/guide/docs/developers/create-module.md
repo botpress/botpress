@@ -384,7 +384,33 @@ Skill components must be exported by this view (more on this below)
 
 ### Lite View
 
-The Light view doesn't include any heavy dependency. Common use case is to add a custom, lightweight component on the web chat. This type of view was added to keep the size of the webchat bundle small so it loads faster, especially on mobile phones.
+The lite view doesn't include any heavy dependency. Common use case is to add a custom, lightweight component on the web chat. This type of view was added to keep the size of the webchat bundle small so it loads faster, especially on mobile phones.
+
+### Sharing components between modules
+
+It is now a lot easier to expose components for other modules or to use other module's components. Here is a quick example on how the webchat is able to display a component from a specific module:
+
+#### Display a custom component dynamically
+
+When components are loaded this way, they are loaded and displayed immediately where the tag is placed.
+
+```js
+// Fetch the module injector. It is available on any of your module's view.
+const InjectedModuleView = this.props.bp.getModuleInjector()
+
+// Use is very straightforward: specify the module name, the name of the component, and if it is available on the lite or full view.
+<InjectedModuleView moduleName={moduleName} componentName={componentName} lite={true} extraProps={props} />
+```
+
+#### Load a module's components in memory
+
+By loading components this way, they aren't displayed immediately on the page.
+They are accessible by using `window.botpress['moduleName']['componentName']`
+
+```js
+// The first parameter is the module name, the second specifies if it should load the lite or full view
+this.props.bp.loadModuleView(moduleName, true)
+```
 
 ## Skill Creation
 
