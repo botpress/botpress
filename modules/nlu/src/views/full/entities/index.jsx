@@ -5,7 +5,7 @@ import EntityEditor from './EntityEditor'
 import SidePanel from './SidePanel'
 import CreateEntityModal from './CreateEntityModal'
 
-export default class EntitiesComponent extends React.Component {
+export class EntitiesComponent extends React.Component {
   state = {
     entities: [],
     selectedEntity: undefined
@@ -30,13 +30,12 @@ export default class EntitiesComponent extends React.Component {
   }
 
   onEntityUpdate = entity => {
-    return this.props.bp.axios.put(`/mod/nlu/entities/${entity.id}`, entity)
-      .then(() => {
-        const i = this.state.entities.findIndex(ent => ent.id == entity.id)
-        this.setState({
-          entities: [...this.state.entities.slice(0, i), entity, ...this.state.entities.slice(i + 1)]
-        })
+    return this.props.bp.axios.put(`/mod/nlu/entities/${entity.id}`, entity).then(() => {
+      const i = this.state.entities.findIndex(ent => ent.id == entity.id)
+      this.setState({
+        entities: [...this.state.entities.slice(0, i), entity, ...this.state.entities.slice(i + 1)]
       })
+    })
   }
 
   toggleCreateModal = () => {

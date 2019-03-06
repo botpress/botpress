@@ -1,5 +1,5 @@
 import React from 'react'
-import WebComponent from './web'
+import WebComponent from '../lite'
 
 export const Web = WebComponent
 

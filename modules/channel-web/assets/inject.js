@@ -18,7 +18,7 @@ const init = config => {
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
 
   const options = encodeURIComponent(JSON.stringify({ config }))
-  const iframeSrc = `${host}/lite/${botId}/?m=channel-web&v=embedded&options=${options}`
+  const iframeSrc = `${host}/lite/${botId}/?m=channel-web&v=Embedded&options=${options}`
   const iframeHTML = `<iframe id='bp-widget' frameborder='0' src='${iframeSrc}' class="bp-widget-web"/>`
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 

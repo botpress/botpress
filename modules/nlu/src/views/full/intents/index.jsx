@@ -5,7 +5,7 @@ import _ from 'lodash'
 import IntentEditor from './editor'
 import style from '../style.scss'
 
-export default class IntentsComponent extends React.Component {
+export class IntentsComponent extends React.Component {
   state = {
     showNavIntents: true,
     intents: [],

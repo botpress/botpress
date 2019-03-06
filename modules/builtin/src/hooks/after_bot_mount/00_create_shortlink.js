@@ -9,7 +9,7 @@ const chatOptions = {
 
 const params = {
   m: 'channel-web',
-  v: 'fullscreen',
+  v: 'Fullscreen',
   options: JSON.stringify(chatOptions)
 }
 

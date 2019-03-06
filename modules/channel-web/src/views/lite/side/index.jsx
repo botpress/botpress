@@ -368,6 +368,8 @@ export default class Side extends React.Component {
     const fullscreen = this.props.fullscreen ? 'fullscreen' : null
     const classNames = classnames(style.internal, style[fullscreen], style[this.props.transition])
 
+    const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
+
     return (
       <span className={style.external}>
         <div
@@ -379,6 +381,7 @@ export default class Side extends React.Component {
         >
           {this.renderHeader()}
           {this.state.showConvos ? this.renderListOfConvos() : this.renderConversation()}
+          {CustomComponent && <CustomComponent {...this.props} />}
         </div>
       </span>
     )
