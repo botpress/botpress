@@ -52,3 +52,4 @@ edition.json
 
 # for python savvy users
 .python-version
+/private-modules

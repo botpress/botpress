@@ -156,10 +156,16 @@ export type BotpressConfig = {
     }
     monitoring: MonitoringConfig
     /**
-     * External Authentication allows your backend to issue a JWT token to securely pass data to Botpress through the user
-     * The token is validated each time a message is sent and the content is available on `event.credentials`
+     * External Authentication makes it possible to authenticate end-users (chat users) from an other system
+     * by using JWT tokens.
+     *
+     * In addition to authenticate the users, the JWT token can also contain arbitrary additional
+     * data about the user that you would like to make Botpress aware of.
+     *
+     * The identity of the user will be checked for every incoming message and the additional data in the JWT token
+     * will be available in `event.credentials`.
      */
-    externalAuth: ExternalAuthConfig
+    externalAuth?: ExternalAuthConfig
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
@@ -185,11 +191,29 @@ export type BotpressConfig = {
 }
 
 export interface ExternalAuthConfig {
+  /** Set to true to enable external authentification
+   * @default false
+   */
   enabled: boolean
-  audience: string
+  /**
+   * If provided, the audience of the token will be checked against the provided value(s).
+   * [Click here](https://www.npmjs.com/package/jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) to learn more.
+   */
+  audience?: string | string[]
+  /**
+   * If provided, the issuer of the token will be checked against the provided value(s).
+   * [Click here](https://www.npmjs.com/package/jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) to learn more.
+   */
+  issuer?: string | string[]
+  /**
+   * The algorithm used to sign and validate the JWT tokens.
+   * @default HS256
+   */
   algorithm: string
   /**
-   * When this key is undefined, BP will try to load the public key from `data/global/pub.key`
+   * You need to provide the public key used to verify the JWT token authenticity.
+   * If not provided, the public key will be read from `data/global/end_users_auth.key`
+   * @default insert key here
    */
   publicKey?: string
 }
@@ -213,16 +237,30 @@ export type RetentionPolicy = {
 
 export interface AuthStrategySaml {
   /**
-   * This is the page of the external saml provider where users will input their username / password
+   * This is the page of the external SAML IdP where users will login
    */
   authEndpoint: string
+  /**
+   * The callback url is called by the SAML provider with the payload. The path provided here is absolute.
+   * @default http://localhost:3000/admin/login-callback
+   */
+  callbackUrl: string
   /**
    * The callback url is called by the SAML provider with the payload. The path provided here is relative to ${externalUrl}/admin
    * For example, if you use the default callback, it will be available at http://localhost:3000/admin/login-callback
    * @default /login-callback
    */
-  callbackUrl: string
+  path?: string
+  /**
+   * The `entityID` you provided the IdP
+   * @default botpress-server-saml
+   */
   issuer: string
+  /**
+   * The public PEM certificate provided by the SAML IdP, starting with "-----BEGIN CERTIFICATE-----"
+   * The string should be provided as one line (use \n for new lines)
+   * @default <paste PEM certificate>
+   */
   certificate: string
   /**
    * Change if there is a significant time difference between this server and your identity provider

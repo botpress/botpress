@@ -138,7 +138,7 @@ export default class Web extends React.Component {
       this.axiosConfig = {
         ...this.axiosConfig,
         headers: {
-          ExternalAuth: `Bearer ${externalAuthToken}`
+          'X-BP-ExternalAuth': `Bearer ${externalAuthToken}`
         }
       }
     }

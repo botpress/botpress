@@ -70,6 +70,10 @@ const overrideStripePath = process.env.REACT_APP_STRIPE_PATH
   : `https://botpress.io/stripe`
 
 export default {
+  getApiPath() {
+    return overrideApiUrl.baseURL
+  },
+
   getSecured({ token, toastErrors = true } = {}) {
     if (!token) {
       const ls = pullToken()

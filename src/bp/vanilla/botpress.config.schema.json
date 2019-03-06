@@ -29,6 +29,17 @@
               "type": "string"
             }
           }
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "maxAge": {
+              "type": "string"
+            }
+          }
         }
       },
       "required": ["backlog", "bodyLimit", "cors", "host", "port"]
