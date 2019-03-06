@@ -15,6 +15,7 @@ import Convo from './convo'
 import Side from './side'
 
 import style from './style.scss'
+import _ from 'lodash'
 
 if (!window.location.origin) {
   window.location.origin =
@@ -58,6 +59,12 @@ export default class Web extends React.Component {
 
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
+
+    if (config.overrides) {
+      for (const override of _.values(config.overrides)) {
+        this.props.bp.loadModuleView(override.module, override.view)
+      }
+    }
 
     this.state = {
       view: null,
@@ -131,7 +138,7 @@ export default class Web extends React.Component {
       this.axiosConfig = {
         ...this.axiosConfig,
         headers: {
-          ExternalAuth: `Bearer ${externalAuthToken}`
+          'X-BP-ExternalAuth': `Bearer ${externalAuthToken}`
         }
       }
     }
@@ -561,7 +568,7 @@ export default class Web extends React.Component {
     }
     return (
       <button
-        className={style[this.state.widgetTransition]}
+        className={classnames(style[this.state.widgetTransition], style.floatingButton)}
         onClick={this.handleButtonClicked}
         style={{ backgroundColor: this.state.config.foregroundColor }}
       >
@@ -626,6 +633,7 @@ export default class Web extends React.Component {
   renderSide() {
     return (
       <Side
+        bp={this.props.bp}
         config={this.state.config}
         text={this.state.textToSend}
         fullscreen={this.props.fullscreen}

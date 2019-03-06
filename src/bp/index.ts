@@ -48,6 +48,7 @@ process.on('uncaughtException', err => {
 
 try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
+  process.core_env = process.env
 
   const argv = require('yargs')
     .command(

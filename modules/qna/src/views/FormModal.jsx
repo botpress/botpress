@@ -88,21 +88,13 @@ export default class FormModal extends Component {
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
     }
-    const hasDuplicates = this.isQuestionDuplicated()
 
-    this.setState({ invalidFields, hasDuplicates, errorMessage: undefined })
-    return some(invalidFields) || hasDuplicates
-  }
-
-  isQuestionDuplicated() {
-    const item = this.state.item
-    const questions = this.trimItemQuestions(item.questions)
-
-    return _.some(questions, (value, index) => _.includes(questions, value, Number(index) + 1))
+    this.setState({ invalidFields, errorMessage: undefined })
+    return some(invalidFields)
   }
 
   trimItemQuestions = questions => {
-    return questions.map(q => q.trim()).filter(q => q !== '')
+    return _.uniq(questions.map(q => q.trim()).filter(q => q !== ''))
   }
 
   onCreate = async questions => {
@@ -145,7 +137,6 @@ export default class FormModal extends Component {
       <div>
         {this.state.invalidFields.checkbox && <Alert bsStyle="danger">Action checkbox is required</Alert>}
         {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
-        {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
         {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
       </div>
     )
@@ -224,7 +215,7 @@ export default class FormModal extends Component {
               <FormControl
                 autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
-                  qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
+                  qnaCategoryError: invalidFields.questions
                 })}
                 value={(this.state.item.questions || []).join('\n')}
                 onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}

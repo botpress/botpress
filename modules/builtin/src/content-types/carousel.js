@@ -23,11 +23,14 @@ function render(data) {
         subtitle: card.subtitle,
         buttons: (card.actions || []).map(a => {
           if (a.action === 'Say something') {
-            throw new Error('Webchat carousel does not support "Say something" action-buttons at the moment')
+            return {
+              title: a.title,
+              payload: a.title
+            }
           } else if (a.action === 'Open URL') {
             return {
               title: a.title,
-              url: a.url
+              url: a.url.replace('BOT_URL', data.BOT_URL)
             }
           } else {
             throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
@@ -39,7 +42,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api') {
+  if (channel === 'web' || channel === 'api' || channel === 'telegram') {
     return render(data)
   }
 

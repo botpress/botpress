@@ -21,7 +21,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api') {
+  if (channel === 'web' || channel === 'api' || channel === 'telegram') {
     return render(data)
   }
 

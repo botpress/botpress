@@ -105,7 +105,12 @@ export class KnexUserRepository implements UserRepository {
       query = query.offset(paging.start).limit(paging.count)
     }
 
-    return await query
+    const users = await query
+
+    return users.map(user => ({
+      ...user,
+      attributes: this.database.knex.json.get(user.attributes)
+    }))
   }
 
   async getUserCount() {

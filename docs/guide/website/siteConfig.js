@@ -23,6 +23,7 @@ const siteConfig = {
     facetFilters: ['version:VERSION']
   },
 
+  docsSideNavCollapsible: true,
   headerLinks: [
     { doc: 'introduction', label: 'Docs' },
     { href: 'https://botpress.io/reference/', label: 'SDK' },

@@ -13,6 +13,7 @@ import BotAvatar from '../bot_avatar'
 
 import style from './style.scss'
 // require('emoji-mart/css/emoji-mart.css')
+import { getOverridedComponent } from '../messages/misc'
 
 export default class Side extends React.Component {
   constructor(props) {
@@ -238,6 +239,11 @@ export default class Side extends React.Component {
 
   renderComposer() {
     const name = this.props.config.botName || 'Bot'
+    const Component = getOverridedComponent(this.props.config.overrides, 'composer')
+
+    if (Component) {
+      return <Component original={{ Input, style }} name={name} {...this.props} />
+    }
 
     return (
       <div
@@ -290,6 +296,7 @@ export default class Side extends React.Component {
 
   renderConversation() {
     const messagesProps = {
+      bp: this.props.bp,
       typingUntil: this.props.currentConversation && this.props.currentConversation.typingUntil,
       messages: this.props.currentConversation && this.props.currentConversation.messages,
       fgColor: this.props.config && this.props.config.foregroundColor,

@@ -21,6 +21,7 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs'
+import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
@@ -69,8 +70,8 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
     createId(eventDestination: sdk.IO.EventDestination) {
       return SessionIdFactory.createIdFromEvent(eventDestination)
     },
-    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
-      await dialogEngine.processEvent(sessionId, event)
+    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<sdk.IO.IncomingEvent> {
+      return dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionRepo.delete(userId)
@@ -161,7 +162,7 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   }
 }
 
-const cms = (cmsService: CMSService): typeof sdk.cms => {
+const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms => {
   return {
     getContentElement(botId: string, id: string): Promise<any> {
       return cmsService.getContentElement(botId, id)
@@ -185,6 +186,15 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
       contentElementId?: string
     ): Promise<string> {
       return cmsService.createOrUpdateContentElement(botId, contentTypeId, formData, contentElementId)
+    },
+    async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
+      return mediaService.saveFile(botId, fileName, content)
+    },
+    async readFile(botId, fileName): Promise<Buffer> {
+      return mediaService.readFile(botId, fileName)
+    },
+    getFilePath(botId: string, fileName: string): string {
+      return mediaService.getFilePath(botId, fileName)
     }
   }
 }
@@ -231,7 +241,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.MediaService) mediaService: MediaService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -244,7 +255,7 @@ export class BotpressAPIProvider {
     this.notifications = notifications(notificationService)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
-    this.cms = cms(cmsService)
+    this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
   }
 

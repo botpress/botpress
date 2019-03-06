@@ -4,3 +4,12 @@ export function hexToRGBA(hex, alpha = 1) {
   const b = parseInt(hex.slice(5, 7), 16)
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
+
+export const getOverridedComponent = (overrides, componentName) => {
+  if (overrides && overrides[componentName]) {
+    const { module, component } = overrides[componentName]
+    if (module && component) {
+      return window.botpress[module][component]
+    }
+  }
+}

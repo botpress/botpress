@@ -19,7 +19,11 @@ class FileMessage extends Component {
   }
 
   renderRemoteFile() {
-    if (this.props.file && this.props.file.mime) {
+    if (!this.props.file) {
+      return null
+    }
+
+    if (this.props.file.mime) {
       if (this.props.file.mime.includes('image/')) {
         return this.renderRemoteImage()
       } else if (this.props.file.mime.includes('audio/')) {
@@ -29,13 +33,15 @@ class FileMessage extends Component {
       } else if (this.props.file.mime.includes('audio/')) {
         return this.renderAudio()
       }
-    } else {
-      return (
-        <div className={style.otherFile}>
-          <a href={this.props.file.url}>{this.props.file.name}</a>
-        </div>
-      )
     }
+
+    return (
+      <div className={style.otherFile}>
+        <a href={this.props.file.url} target="_blank">
+          {this.props.file.name}
+        </a>
+      </div>
+    )
   }
 
   renderRemoteImage() {
