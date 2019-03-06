@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class TemplateModule extends React.Component {
+export default class FullView extends React.Component {
   render() {
     return null
   }
