@@ -157,8 +157,7 @@ export default class SkillsBuilder extends React.Component {
           {!this.state.loading && (
             <WrappedInjectedModule
               moduleName={skill && skill.moduleName}
-              viewName={skill && skill.id}
-              lite={true}
+              componentName={skill && skill.id}
               onNotFound={this.renderModuleNotFound}
               extraProps={this.state.moduleProps}
             />

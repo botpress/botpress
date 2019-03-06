@@ -20,8 +20,13 @@ class InjectionSite extends React.Component {
 
     return (
       <div className="bp-plugins bp-injection-site">
-        {plugins.map(({ moduleName, viewName }, i) => (
-          <InjectedModuleView key={i} moduleName={moduleName} viewName={viewName} onNotFound={this.renderNotFound} />
+        {plugins.map(({ moduleName, componentName }, i) => (
+          <InjectedModuleView
+            key={i}
+            moduleName={moduleName}
+            componentName={componentName}
+            onNotFound={this.renderNotFound}
+          />
         ))}
       </div>
     )

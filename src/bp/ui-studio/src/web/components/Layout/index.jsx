@@ -92,7 +92,7 @@ class Layout extends React.Component {
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
               <Route exact path="/content" component={Content} />
               <Route exact path="/flows/:flow*" component={FlowBuilder} />
-              <Route exact path="/modules/:moduleName/:subView?" render={props => <Module {...props} />} />
+              <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
               <Route exact path="/notifications" component={Notifications} />
               <Route exact path="/logs" component={Logs} />
             </Switch>

@@ -11,14 +11,14 @@ const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
 
-  const web: webpack.Configuration = {
+  const full: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
-    entry: ['./src/views/index.jsx'],
+    entry: ['./src/views/full/index.jsx'],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/modules/',
-      filename: 'web.bundle.js',
+      filename: 'full.bundle.js',
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
     },
@@ -83,16 +83,15 @@ export function config(projectPath) {
   }
 
   if (packageJson.webpack) {
-    _.merge(web, packageJson.webpack)
+    _.merge(full, packageJson.webpack)
   }
 
-  const liteViews = (packageJson.botpress && packageJson.botpress.liteViews) || {}
-  const lite: webpack.Configuration = Object.assign({}, web, {
-    entry: liteViews,
+  const lite: webpack.Configuration = Object.assign({}, full, {
+    entry: ['./src/views/lite/index.jsx'],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/lite-modules/',
-      filename: '[name].bundle.js',
+      filename: 'lite.bundle.js',
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
     }
@@ -101,19 +100,24 @@ export function config(projectPath) {
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
     debug('Webpack override found for frontend')
-    return require(webpackFile)({ web, lite })
+    return require(webpackFile)({ full, lite })
   }
 
-  const configs = [web]
-  if (Object.keys(liteViews).length) {
-    configs.push(lite)
-  }
-  return configs
+  return [full, lite]
 }
 
 function writeStats(err, stats, exitOnError = true) {
   if (err || stats.hasErrors()) {
     error(stats.toString('minimal'))
+
+    // @deprecated : This warning should be removed next major version
+    console.error(`
+There was a breaking change in how module views are handled in Botpress 11.6
+Web bundles and liteViews were replaced by a more standardized method.
+
+Please check our migration guide here: https://botpress.io/docs/developers/migrate/
+`)
+
     if (exitOnError) {
       return process.exit(1)
     }

@@ -25,7 +25,7 @@ export default class Message extends React.Component {
     const QNA_PREFIX = '__qna__'
     const link = intent.includes(QNA_PREFIX)
       ? `/modules/qna#search:${intent.replace(QNA_PREFIX, '')}`
-      : `/modules/nlu/intents#search:${intent}`
+      : `/modules/nlu/Intents#search:${intent}`
 
     return <NavLink to={link}>{intent}</NavLink>
   }
