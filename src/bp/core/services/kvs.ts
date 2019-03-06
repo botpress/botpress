@@ -19,7 +19,7 @@ export class KeyValueStore {
     private logger: Logger
   ) {}
 
-  upsert = (botId: string, key: string, value) => {
+  upsert = (botId: string | undefined, key: string, value) => {
     let sql
 
     const params = {
@@ -29,7 +29,7 @@ export class KeyValueStore {
       valueCol: 'value',
       modifiedOnCol: 'modified_on',
       botId,
-      key,
+      key: botId ? `${botId}:${key}` : key,
       value: safeStringify(value),
       now: this.database.knex.date.now()
     }
@@ -51,11 +51,11 @@ export class KeyValueStore {
     return this.database.knex.raw(sql, params)
   }
 
-  get = async (botId: string, key: string, path?: string) =>
+  get = async (botId: string | undefined, key: string, path?: string) =>
     this.database
       .knex(this.tableName)
       .where({ botId })
-      .andWhere({ key })
+      .andWhere({ key: botId ? `${botId}:${key}` : key })
       .limit(1)
       .get(0)
       .then(row => {
@@ -71,7 +71,7 @@ export class KeyValueStore {
         return _.get(obj, path)
       })
 
-  set = (botId: string, key: string, value, path?: string) => {
+  set = (botId: string | undefined, key: string, value, path?: string) => {
     if (!path) {
       return this.upsert(botId, key, value)
     }
@@ -102,12 +102,12 @@ export class KeyValueStore {
     return undefined
   }
 
-  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs?: string) => {
+  setStorageWithExpiry = async (botId: string | undefined, key: string, value, expiryInMs?: string) => {
     const box = this.boxWithExpiry(value, expiryInMs)
     await this.set(botId, key, box)
   }
 
-  getStorageWithExpiry = async (botId: string, key: string) => {
+  getStorageWithExpiry = async (botId: string | undefined, key: string) => {
     const box = await this.get(botId, key)
     return this.unboxWithExpiry(box)
   }
