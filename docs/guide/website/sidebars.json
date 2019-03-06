@@ -26,7 +26,8 @@
       "tutorials/shortlinks",
       "tutorials/timeouts",
       "tutorials/i18n",
-      "tutorials/external-api"
+      "tutorials/external-api",
+      "tutorials/chat-3rd-party-OAuth"
     ]
   }
 }

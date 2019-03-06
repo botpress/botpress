@@ -1,0 +1,19 @@
+{
+  "name": "twitter-auth",
+  "version": "1.0.0",
+  "description": "Example on how one could implement a 3rd party oauth on botpress webchat",
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "devDependencies": {
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "passport": "^0.4.0",
+    "passport-twitter": "^1.0.4"
+  }
+}

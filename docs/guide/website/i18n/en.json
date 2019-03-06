@@ -74,6 +74,9 @@
       "troubleshoot": {
         "title": "Troubleshoot"
       },
+      "tutorials/chat-3rd-party-OAuth": {
+        "title": "Authenticate a user against a 3rd Party OAuth"
+      },
       "tutorials/database": {
         "title": "Supported databases"
       },
