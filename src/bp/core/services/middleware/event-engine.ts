@@ -119,10 +119,10 @@ export class EventEngine {
 
     if (event.direction === 'incoming') {
       incrementMetric('eventsIn.count')
-      this.incomingQueue.enqueue(event, 1, false)
+      await this.incomingQueue.enqueue(event, 1, false)
     } else {
       incrementMetric('eventsOut.count')
-      this.outgoingQueue.enqueue(event, 1, false)
+      await this.outgoingQueue.enqueue(event, 1, false)
     }
   }
 

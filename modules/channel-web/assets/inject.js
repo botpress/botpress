@@ -19,7 +19,7 @@ const init = config => {
 
   const options = encodeURIComponent(JSON.stringify({ config }))
   const iframeSrc = `${host}/lite/${botId}/?m=channel-web&v=embedded&options=${options}`
-  const iframeHTML = `<iframe id='bp-widget' frameborder='0' src='${iframeSrc}' />`
+  const iframeHTML = `<iframe id='bp-widget' frameborder='0' src='${iframeSrc}' class="bp-widget-web"/>`
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 
   const iframeWindow = document.querySelector('#bp-web-widget > #bp-widget').contentWindow

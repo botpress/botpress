@@ -440,9 +440,9 @@ declare module 'botpress/sdk' {
        * Variables in the bot object are shared to all users for a specific bot. It is read only,
        * meaning that changes are not automatically persisted. You need to use the setVariable option to change it.
        * There is a possible race condition since it is loaded each time a messages comes in. Update it wisely
-       * */
+       */
       bot: any
-      /** Used internally by Botpress to keep the user's current location and upcoming instructions*/
+      /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
     }
 
@@ -612,7 +612,7 @@ declare module 'botpress/sdk' {
     contentType: string
     /** The raw form data that contains templating that needs to be interpreted. */
     formData: object
-    /** The computed form data that contains the interpreted data.*/
+    /** The computed form data that contains the interpreted data. */
     computedData: object
     /** The textual representation of the Content Element.  */
     previewText: string
@@ -660,7 +660,7 @@ declare module 'botpress/sdk' {
 
   /**
    * The flow is used by the dialog engine to answer the user and send him to the correct destination
-   * */
+   */
   export interface Flow {
     name: string
     location?: string
@@ -689,7 +689,7 @@ declare module 'botpress/sdk' {
     /**
      * A partial flow originating from a skill flow generator. Missing pieces will be automatically added
      * once the flow is sent to Botpress, the final product will be a Flow.
-     * */
+     */
     flow: SkillFlow
     /** An array of possible transitions for the parent node */
     transitions: NodeTransition[]
@@ -766,7 +766,7 @@ declare module 'botpress/sdk' {
   export interface AxiosBotConfig {
     /** The base url of the bot.
      * @example http://localhost:3000/
-     * */
+     */
     baseURL: string
     headers: {
       Authorization: string
@@ -900,7 +900,7 @@ declare module 'botpress/sdk' {
     export function decodeExternalToken(token: string): Promise<any>
 
     /**
-     * This Express middleware tries to decode the ExternalAuth header and adds a credentials header in the request if it's valid.
+     * This Express middleware tries to decode the X-BP-ExternalAuth header and adds a credentials header in the request if it's valid.
      */
     export function extractExternalToken(req: any, res: any, next: any): Promise<void>
   }

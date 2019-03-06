@@ -77,7 +77,7 @@ export class WorkspaceService {
 
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
     const workspace = await this.getWorkspace()
-    const user = _.head(_.filter(workspace.users, where))
+    const user = _.head(_.filter<AuthUser>(workspace.users, where))
     return user
   }
 
