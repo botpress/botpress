@@ -1130,7 +1130,7 @@ bluebird-global@^1.0.1:
   resolved "https://registry.yarnpkg.com/bluebird-global/-/bluebird-global-1.0.1.tgz#147c174f4e3a19740e80d992ea70ec3dc51d0d95"
   integrity sha512-llTREi0V3EUM150DKdMLlXN/X2QsQ/hWJDiaGnivqeDwE32I0dmivYLU9/VvhotTzvvbv7OiM6zjVXYJ2dCmKQ==
 
-bluebird@^3.5.3:
+bluebird@^3.3.3, bluebird@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
   integrity sha512-/qKPUQlaW1OyR51WeCPBvRnAlnZFUJkCSG5HzGnuIqhgyJtF+T94lFnn33eiazjRm2LAHVy2guNnaq48X9SJuw==
@@ -7171,6 +7171,13 @@ redis@^2.8.0, redis@~2.8.0:
     double-ended-queue "^2.1.0-0"
     redis-commands "^1.2.0"
     redis-parser "^2.6.0"
+
+redlock@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/redlock/-/redlock-3.1.2.tgz#27c82534da8548027aa8d61084a08078ae74ed36"
+  integrity sha512-CKXhOvLd4In5QOfbcF0GIcSsa+pL9JPZd+eKeMk/Sydxh93NUNtwQMTIKFqwPu3PjEgDStwYFJTurVzNA33pZw==
+  dependencies:
+    bluebird "^3.3.3"
 
 reflect-metadata@^0.1.12:
   version "0.1.12"

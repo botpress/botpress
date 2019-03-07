@@ -3,7 +3,6 @@ function render(data) {
     {
       type: 'custom',
       module: 'custom-component',
-      view: 'components',
       component: 'UpperCasedText',
       text: data.text
     }
