@@ -5,7 +5,6 @@ import style from './style.scss'
 import PhoneIcon from './PhoneIcon'
 import WebsiteIcon from './WebsiteIcon'
 import EmailIcon from './EmailIcon'
-import ConvoIcon from './ConvoIcon'
 
 const CoverPicture = ({ botInfo }) => (
   <img
