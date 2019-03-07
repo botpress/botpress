@@ -578,10 +578,10 @@ export default class Web extends React.Component {
   }
 
   createConversation = () => {
-    this.setState({ currentConversation: null })
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/conversations/${userId}/new`
 
+    // TODO here we might we might want switch convo with the newly created conversation
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
 
