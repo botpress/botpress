@@ -66,6 +66,7 @@ export default class Web extends React.Component {
     }
 
     this.state = {
+      botInfo: null,
       view: null,
       textToSend: '',
       loading: true,
@@ -141,6 +142,10 @@ export default class Web extends React.Component {
         }
       }
     }
+  }
+
+  fetchBotInfo = () => {
+    return this.props.bp.axios.get('/', this.axiosConfig).then(({ data }) => this.setState({ botInfo: data }))
   }
 
   changeUserId = newId => {
@@ -293,7 +298,8 @@ export default class Web extends React.Component {
   }
 
   fetchData = () => {
-    return this.fetchConversations()
+    return this.fetchBotInfo()
+      .then(this.fetchConversations)
       .then(this.fetchCurrentConversation)
       .then(() => {
         this.handleSendData({
@@ -654,6 +660,7 @@ export default class Web extends React.Component {
         onSendData={this.handleSendData}
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
+        botInfo={this.state.botInfo}
       />
     )
   }
