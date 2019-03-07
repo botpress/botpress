@@ -94,3 +94,23 @@ If you enable additionnal modules that adds other
 When you enable a module on Botpress, they are available globally, which means that you can't disable or enable them for specific bots. You can, however, use a different configuration for every bots.
 
 Each module has a different set of possible configuration, so we won't go through them here. What you need to know is that when you run a module for the first time, the default configuration will be created in `data/global/config/MODULE_NAME.json`. If you need a special configuration for your bot, create a `config` folder in the bot folder, and copy the file in your bot folder: `data/bots/BOT_NAME/config/MODULE_NAME.json`. You will probably need to create the folder the first time.
+
+# Environment Variables
+
+There are some variables that **cannot be set** in the `botpress.config.json` file. These must be either defined as environment variables, or defined in a `.env` file in the same folder as the Botpress executable.
+
+Here there are:
+
+| Environment Variable | Description                                                                                               | Default |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | ------- |
+| DATABASE             | The database type to use. `postgres` or `sqlite`                                                          | sqlite  |
+| DATABASE_URL         | Full connection string to connect to the DB                                                               |         |
+| BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false   |
+| CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false   |
+| REDIS_URL            | The connection string to connect to your Redis instance                                                   |         |
+
+## More Informations
+
+- Check out the [database](../tutorials/database) page for details about `DATABASE` and `DATABASE_URL`
+- Check out the [version](./versions) page for more infromations about `BP_PRODUCTION`
+- Check out the [cluster](../developers/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
