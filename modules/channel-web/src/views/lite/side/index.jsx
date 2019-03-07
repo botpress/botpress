@@ -326,7 +326,14 @@ export default class Side extends React.Component {
     if (this.state.showConvos) {
       return this.renderListOfConvos()
     } else if (this.state.showBotInfo) {
-      return <BotInfo onDismiss={this.toggleBotInfo} botInfo={this.props.botInfo} webchatConfig={this.props.config} />
+      return (
+        <BotInfo
+          botInfo={this.props.botInfo}
+          webchatConfig={this.props.config}
+          dismissLabel={this.props.currentConversation.messages.length ? 'Back to Conversation' : null}
+          onDismiss={this.toggleBotInfo}
+        />
+      )
     } else {
       return this.renderConversation()
     }
