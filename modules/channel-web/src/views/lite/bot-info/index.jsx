@@ -15,22 +15,25 @@ const CoverPicture = ({ botInfo }) => (
   />
 )
 
-const Avatar = ({ botInfo, webchatConfig }) => (
-  <img
-    src={
-      (botInfo.details && botInfo.details.avatarUrl) ||
-      (webchatConfig && webchatConfig.botAvatarUrl) ||
-      `https://via.placeholder.com/64x64?text=${botInfo.name[0]}`
-    }
-  />
-)
+const Avatar = ({ botInfo, webchatConfig }) => {
+  const botName = botInfo.name || webchatConfig.botName
+  return (
+    <img
+      src={
+        (botInfo.details && botInfo.details.avatarUrl) ||
+        (webchatConfig && webchatConfig.botAvatarUrl) ||
+        `https://via.placeholder.com/64x64?text=${botName[0]}`
+      }
+    />
+  )
+}
 
 export default ({ botInfo, onDismiss, dismissLabel, webchatConfig }) => (
   <div className={'bp-bot-info-container ' + style['bot-info-container']}>
     <CoverPicture botInfo={botInfo} />
     <div className={'bp-bot-info-summmary ' + style.summary}>
-      <Avatar botInfo={botInfo} />
-      <h3>{botInfo.name}</h3>
+      <Avatar botInfo={botInfo} webchatConfig={webchatConfig} />
+      <h3>{botInfo.name || webchatConfig.botName}</h3>
 
       {/* truncate after x number of lines ? */}
       <p>{botInfo.description}</p>
