@@ -310,7 +310,7 @@ export default class Side extends React.Component {
 
   renderBody() {
     if (this.state.showBotInfo) {
-      return <BotInfo onDismis={this.toggleBotInfo} bot={{ some: 'data' }} />
+      return <BotInfo onDismiss={this.toggleBotInfo} bot={{ some: 'data' }} />
     } else if (this.state.showConvos) {
       return this.renderListOfConvos()
     } else {
