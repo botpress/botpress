@@ -6,7 +6,7 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 import Linkify from 'react-linkify'
 import snarkdown from 'snarkdown'
 
-import BotAvatar from '../bot_avatar'
+import Avatar from '../avatar'
 import QuickReplies from './quick_replies'
 import LoginPrompt from './login_prompt'
 import FileMessage from './file'
@@ -18,24 +18,6 @@ import Form from './form'
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
 class MessageGroup extends Component {
-  renderAvatar() {
-    if (!this.props.isBot && !this.props.avatarUrl) {
-      return
-    }
-
-    let content = <BotAvatar foregroundColor={this.props.fgColor} />
-
-    if (this.props.avatarUrl) {
-      content = <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.avatarUrl + ')' }} />
-    }
-
-    return (
-      <div className={'bp-avatar ' + style.avatar} style={{ color: this.props.fgColor }}>
-        {content}
-      </div>
-    )
-  }
-
   render() {
     const className = classnames('bp-msg-group', style.message, {
       [style.user]: !this.props.isBot,
@@ -47,7 +29,7 @@ class MessageGroup extends Component {
 
     return (
       <div className={className}>
-        {this.renderAvatar()}
+        {this.props.avatar}
         <div className={'bp-msg-container ' + style['message-container']}>
           {this.props.showUserName && (
             <div className={'bp-msg-username ' + style['info-line']}>{this.props.userName}</div>
@@ -135,6 +117,10 @@ export default class MessageList extends Component {
     )
   }
 
+  renderAvatar(name, url) {
+    return <Avatar name={name} avatarUrl={url} height={32} width={32} />
+  }
+
   renderMessageGroups() {
     const messages = this.props.messages || []
     const groups = []
@@ -171,7 +157,6 @@ export default class MessageList extends Component {
         message_type: 'typing'
       })
     }
-
     return (
       <div>
         {groups.map((group, i) => {
@@ -184,13 +169,18 @@ export default class MessageList extends Component {
 
           const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
 
+          const avatar =
+            userId && this.props.showUserAvatar
+              ? this.renderAvatar(userName, avatarUrl)
+              : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
+
           return (
             <div key={i}>
               {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
               <MessageGroup
                 bp={this.props.bp}
                 isBot={!userId}
-                avatarUrl={userId ? this.props.showUserAvatar && avatarUrl : this.props.botAvatarUrl}
+                avatar={avatar}
                 userName={userName}
                 fgColor={this.props.fgColor}
                 textColor={this.props.textColor}

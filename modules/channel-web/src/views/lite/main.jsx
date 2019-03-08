@@ -598,6 +598,7 @@ export default class Web extends React.Component {
           <span>
             {this.state.view === 'convo' ? (
               <Convo
+                botInfo={this.state.botInfo}
                 transition={this.state.convoTransition}
                 change={this.handleTextChanged}
                 send={this.handleSendMessage}

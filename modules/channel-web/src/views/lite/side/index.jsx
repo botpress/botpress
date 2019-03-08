@@ -7,7 +7,7 @@ import Send from '../send'
 import MessageList from '../messages'
 import Input from '../input'
 
-import BotAvatar from '../bot_avatar'
+import Avatar from '../avatar'
 import BotInfo from '../bot-info'
 
 import style from './style.scss'
@@ -57,19 +57,10 @@ export default class Side extends React.Component {
   }
 
   renderAvatar() {
-    let content = <BotAvatar foregroundColor={this.props.config.foregroundColor} />
-
-    if (this.props.config && this.props.config.botAvatarUrl) {
-      content = (
-        <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }} />
-      )
-    }
-
-    return (
-      <div className={style.avatar} style={{ color: this.props.config.foregroundColor }}>
-        {content}
-      </div>
-    )
+    const name = this.props.botInfo.name || this.props.config.botName
+    const avatarUrl =
+      (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
+    return <Avatar name={name} avatarUrl={avatarUrl} height={32} width={32} />
   }
 
   renderUnreadCount() {
@@ -259,7 +250,8 @@ export default class Side extends React.Component {
       messages: this.props.currentConversation && this.props.currentConversation.messages,
       fgColor: this.props.config && this.props.config.foregroundColor,
       textColor: this.props.config && this.props.config.textColorOnForeground,
-      botAvatarUrl: this.props.config && this.props.config.botAvatarUrl,
+      botName: this.props.botInfo.name || this.props.config.botName,
+      botAvatarUrl: (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,
       onQuickReplySend: this.props.onQuickReplySend,
