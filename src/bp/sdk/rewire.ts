@@ -28,7 +28,7 @@ if (process.distro.os === 'linux') {
       .reverse()
 
     const nearestDistro = _.first(folders.filter(f => f <= fullDist))
-    nearestDistro && platformFolders.push(nearestDistro)
+    nearestDistro && platformFolders.unshift(nearestDistro)
   } finally {
   }
 } else if (os.platform() === 'win32') {
