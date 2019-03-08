@@ -40,12 +40,24 @@ export const BotEditSchema = Joi.object().keys({
       .uri()
       .optional()
       .allow(''),
+    privacyPolicy: Joi.string()
+      .uri()
+      .optional()
+      .allow(''),
     phoneNumber: Joi.string()
       .max(20)
       .optional()
       .allow(''),
     emailAddress: Joi.string()
       .email()
+      .optional()
+      .allow(''),
+    avatarUrl: Joi.string()
+      .uri()
+      .optional()
+      .allow(''),
+    coverPictureUrl: Joi.string()
+      .uri()
       .optional()
       .allow('')
   }
