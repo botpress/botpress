@@ -48,10 +48,10 @@ export class BotConfigWriter {
     }
   }
 
-  private async _writeTemplateConfig(configFile: string, bot: Bot) {
+  private async _writeTemplateConfig(configFile: string, bot: Partial<Bot>) {
     try {
       const templateConfig = JSON.parse(await fse.readFileSync(configFile, 'utf-8'))
-      this._writeConfig(bot.id, { ...templateConfig, ...bot })
+      this._writeConfig(bot.id!, { ...templateConfig, ...bot, disabled: false, private: false, details: {} })
     } catch (e) {
       throw new VError(e, `Error writing configuration file from "${configFile}"`)
     }
