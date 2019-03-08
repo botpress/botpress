@@ -43,6 +43,7 @@ export class BotsRouter extends CustomRouter {
   private machineId: string | undefined
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
+  private mediaPathRegex: RegExp
 
   constructor(args: {
     actionService: ActionService
@@ -70,6 +71,7 @@ export class BotsRouter extends CustomRouter {
     this.workspaceService = args.workspaceService
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+    this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
   }
 
   async initialize() {
@@ -88,7 +90,7 @@ export class BotsRouter extends CustomRouter {
     }
 
     const config = await this.configProvider.getBotConfig(req.params.botId)
-    if (config.private && !req.originalUrl.endsWith('env.js')) {
+    if (config.private && !req.originalUrl.endsWith('env.js') && !this.mediaPathRegex.test(req.originalUrl)) {
       return this.checkTokenHeader(req, res, next)
     }
 
