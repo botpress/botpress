@@ -26,18 +26,23 @@ export default class Side extends React.Component {
       showConvos = false
     }
 
+    const convosDiffers =
+      !this.props.currentConversation ||
+      (nextProps.currentConversation && this.props.currentConversation.id !== nextProps.currentConversation.id)
+
     const showBotInfo =
       (!showConvos && this.state.showBotInfo) ||
-      (this.props.moduleConfig.showBotInfoPage &&
-        nextProps.currentConversation &&
-        nextProps.currentConversation.messages.length === 0 &&
-        (!this.props.currentConversation || this.props.currentConversation.id != this.props.currentConversation.id))
+      (this.props.moduleConfig.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
 
     if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
       this.setState({
         showConvos,
         showBotInfo
       })
+  }
+
+  isConvoStarted = conversation => {
+    return conversation && !!conversation.messages.length
   }
 
   handleFocus = value => {
