@@ -13,6 +13,9 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 class LicenseStatus extends React.Component {
+  state = {
+    waitingForReboot: false
+  }
   componentDidMount() {
     this.props.fetchLicensing()
   }
@@ -48,6 +51,46 @@ class LicenseStatus extends React.Component {
   refreshKey = async () => {
     await api.getSecured().post('/admin/license/refresh')
     await this.props.fetchLicensing()
+  }
+
+  rebootServer = async () => {
+    try {
+      await api.getSecured().post('/admin/server/rebootServer')
+      this.setState({ waitingForReboot: true })
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 10000)
+    } catch (error) {
+      this.setState({ error })
+    }
+  }
+
+  enableProEdition = async () => {
+    if (!window.confirm('Are you sure?')) {
+      return
+    }
+
+    try {
+      const result = await api.getSecured().post('/admin/server/config/enablePro')
+      if (result.status === 200) {
+        await this.rebootServer()
+      }
+    } catch (error) {
+      this.setState({ error })
+    }
+  }
+
+  renderReboot() {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
+            <p>Please wait while the server reboots, this may take a couple of seconds.</p>
+          </Col>
+        </Row>
+      </Jumbotron>
+    )
   }
 
   renderLicenseStatus() {
@@ -105,10 +148,28 @@ class LicenseStatus extends React.Component {
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
             <p>
-              To manage your server license, please enable the Professionnal Edition of Botpress by editing the file{' '}
-              <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
-              true. If you don't have any license keys yet, go to your{' '}
-              <Link to="/profile/account">Botpress account</Link>
+              To manage your server license, please enable the Professionnal Edition of Botpress. <br />
+              If you don't have any license keys yet, go to your <Link to="/profile/account">Botpress account</Link>
+            </p>
+            <p>
+              <h4>How to enable Botpress Professionnal?</h4>
+            </p>
+            <p>
+              <u>Method 1</u>
+              <br />
+              You can enable Botpress Pro by manually editing the file <strong>
+                data/global/botpress.config.json
+              </strong>{' '}
+              and setting the value <strong>pro.enabled</strong> to true.
+            </p>
+            <p>
+              <u>Method 2</u>
+              <br /> Click on the button below. This will enable the required configuration and will automatically
+              reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on
+              screen (except if you output logs to the file system).
+              <br />
+              <br />
+              <Button onClick={this.enableProEdition}>Enable Pro & Reboot Server</Button>
             </p>
           </Col>
         </Row>
@@ -117,6 +178,10 @@ class LicenseStatus extends React.Component {
   }
 
   renderBody() {
+    if (this.state.waitingForReboot) {
+      return this.renderReboot()
+    }
+
     if (this.props.licensing && !this.props.licensing.isPro) {
       return this.renderProDisabled()
     }

@@ -72,6 +72,7 @@ export interface LogsConfig {
  */
 
 export type BotpressConfig = {
+  version: string
   appSecret: string
   httpServer: {
     /**
@@ -194,6 +195,13 @@ export type BotpressConfig = {
    * @default []
    */
   botCategories: string[]
+  /**
+   * When this option is enabled, Super Admins are able to reboot the Botpress Server via the Admin UI
+   * We recommend disabling this in a production environment, and if you use a process management tool like PM2
+   *
+   * @default true
+   */
+  allowServerReboot: boolean
 }
 
 export interface ExternalAuthConfig {

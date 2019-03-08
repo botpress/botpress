@@ -190,7 +190,11 @@ export default class EntityEditor extends React.Component {
                 Sensitive
                 <OverlayTrigger
                   placement="left"
-                  overlay={<Tooltip> Sensitive informations are replaced by * before saving in the database</Tooltip>}
+                  overlay={
+                    <Tooltip id="sensitive">
+                      Sensitive informations are replaced by * before saving in the database
+                    </Tooltip>
+                  }
                 >
                   <Glyphicon glyph="question-sign" style={{ marginLeft: 10 }} />
                 </OverlayTrigger>
