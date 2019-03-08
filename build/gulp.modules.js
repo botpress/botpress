@@ -34,7 +34,7 @@ const readModuleConfig = modulePath => {
  * modules individually.
  */
 const copySdkDefinitions = () => {
-  let stream = gulp.src('src/bp/sdk/botpress.d.ts')
+  let stream = gulp.src(['src/bp/sdk/botpress.d.ts', 'src/typings/global.d.ts'])
   const modules = getAllModulesRoot()
   for (let m of modules) {
     const src = _.get(readModuleConfig(m), 'botpress.src', 'src')
