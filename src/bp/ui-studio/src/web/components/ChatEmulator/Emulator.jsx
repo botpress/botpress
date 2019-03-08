@@ -6,8 +6,6 @@ import JSONTree from 'react-json-tree'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import { Button, Tooltip, OverlayTrigger, Glyphicon } from 'react-bootstrap'
-import { HotKeys } from 'react-hotkeys'
-import { keyMap } from '~/keyboardShortcuts'
 import classnames from 'classnames'
 import inspectorTheme from './inspectorTheme'
 import Message from './Message'
@@ -155,7 +153,11 @@ export default class EmulatorChat extends React.Component {
 
   handleKeyPress = e => {
     if (!e.shiftKey && e.key === 'Enter') {
-      this.sendText()
+      if (e.ctrlKey) {
+        this.handleChangeUserId(() => this.sendText())
+      } else {
+        this.sendText()
+      }
       e.preventDefault()
     }
   }
@@ -178,14 +180,19 @@ export default class EmulatorChat extends React.Component {
     return level <= 1
   }
 
-  handleChangeUserId = () => {
+  handleChangeUserId = callback => {
     this.setState(
       {
         messages: [],
         selectedIndex: -1,
         userId: this.getOrCreateUserId(true)
       },
-      () => this.textInputRef.current.focus()
+      () => {
+        this.textInputRef.current.focus()
+        if (callback) {
+          callback()
+        }
+      }
     )
   }
 
@@ -269,19 +276,15 @@ export default class EmulatorChat extends React.Component {
   toggleRawPayload = () => this.setState({ isSendingRawPayload: !this.state.isSendingRawPayload })
 
   render() {
-    const keyHandlers = {
-      'emulator-reset': this.handleChangeUserId
-    }
-
     const togglePayload = <Tooltip id="togglePayload">Toggle between sending text or a raw payload</Tooltip>
     const toggleSettings = <Tooltip id="editSettings">Configure Emulator Settings</Tooltip>
     const toggleTyping = <Tooltip id="toggleTyping">Toggle Display of 'Typing' indicator</Tooltip>
     const toggleTooltip = <Tooltip id="toggleTooltip">Toggle View</Tooltip>
     const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
-    const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session ({keyMap['emulator-reset']})</Tooltip>
+    const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session (ctrl+enter on send)</Tooltip>
 
     return (
-      <HotKeys handlers={keyHandlers} className={style.container}>
+      <div className={style.container}>
         <div className={style.toolbar}>
           <OverlayTrigger placement="bottom" overlay={newSessionTooltip}>
             <Button onClick={this.handleChangeUserId}>
@@ -336,7 +339,7 @@ export default class EmulatorChat extends React.Component {
           </SplitPane>
         </div>
         {this.renderMessageInput()}
-      </HotKeys>
+      </div>
     )
   }
 }
