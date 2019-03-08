@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
-import { Row, Col, Button, FormGroup, Label, Input, Form, UncontrolledTooltip, Alert } from 'reactstrap'
+import { Row, Col, Button, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
 
 import _ from 'lodash'
 
@@ -26,6 +26,8 @@ class Bots extends Component {
   state = {
     id: '',
     name: '',
+    avatarUrl: '',
+    coverPictureUrl: '',
     category: undefined,
     description: '',
     website: '',
@@ -33,7 +35,8 @@ class Bots extends Component {
     termsConditions: '',
     emailAddress: '',
     error: undefined,
-    categories: []
+    categories: [],
+    moreOpen: false
   }
 
   componentDidMount() {
@@ -73,9 +76,12 @@ class Bots extends Component {
       website: details.website,
       phoneNumber: details.phoneNumber,
       termsConditions: details.termsConditions,
+      privacyPolicy: details.privacyPolicy,
       emailAddress: details.emailAddress,
       status: statusList.find(x => x.value === status),
-      category: this.state.categories.find(x => x.value === bot.category)
+      category: this.state.categories.find(x => x.value === bot.category),
+      avatarUrl: details.avatarUrl || '',
+      coverPictureUrl: details.coverPictureUrl || ''
     })
   }
 
@@ -90,7 +96,10 @@ class Bots extends Component {
         website: this.state.website,
         phoneNumber: this.state.phoneNumber,
         termsConditions: this.state.termsConditions,
-        emailAddress: this.state.emailAddress
+        emailAddress: this.state.emailAddress,
+        avatarUrl: this.state.avatarUrl,
+        coverPictureUrl: this.state.coverPictureUrl,
+        privacyPolicy: this.state.privacyPolicy
       }
     }
 
@@ -111,7 +120,7 @@ class Bots extends Component {
     await api
       .getSecured()
       .put(`/admin/bots/${this.state.botId}`, bot)
-      .catch(err => this.setState({ errorMessage: err }))
+      .catch(err => this.setState({ error: err }))
 
     await this.props.fetchBots()
 
@@ -120,6 +129,12 @@ class Bots extends Component {
     window.setTimeout(() => {
       this.setState({ successMsg: undefined })
     }, 2000)
+  }
+
+  toggleMoreOpen = () => {
+    this.setState({
+      moreOpen: !this.state.moreOpen
+    })
   }
 
   renderHelp(text, id) {
@@ -134,8 +149,39 @@ class Bots extends Component {
   }
 
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
-  handleChangedLanguage = status => this.setState({ status })
+  handleStatusChanged = status => this.setState({ status })
   handleCategoryChanged = category => this.setState({ category })
+
+  handleImageFileChanged = async event => {
+    const targetProp = event.target.name
+    if (!event.target.files) {
+      return
+    }
+
+    if (!event.target.files[0].type.includes('image/')) {
+      this.setState({
+        error: `${targetProp} requires an image file`
+      })
+      return
+    }
+
+    const data = new FormData()
+    data.append('file', event.target.files[0])
+
+    if (this.state.error) {
+      this.setState({ error: null })
+    }
+
+    await api
+      .getSecured()
+      .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .then(response => {
+        this.setState({ [targetProp]: response.data.url }, this.saveChanges)
+      })
+      .catch(err => {
+        this.setState({ error: err })
+      })
+  }
 
   renderDetails() {
     return (
@@ -153,7 +199,7 @@ class Bots extends Component {
               </FormGroup>
             </Col>
             <Col md={4}>
-              {this.state.categories.length && (
+              {!!this.state.categories.length && (
                 <FormGroup>
                   <Label>
                     <strong>Category</strong>
@@ -177,7 +223,7 @@ class Bots extends Component {
                 <Select
                   options={statusList}
                   value={this.state.status}
-                  onChange={this.handleChangedLanguage}
+                  onChange={this.handleStatusChanged}
                   isSearchable={false}
                 />
               </FormGroup>
@@ -194,65 +240,94 @@ class Bots extends Component {
               onChange={this.handleInputChanged}
             />
           </FormGroup>
-
-          <Row form>
-            <Col md={7}>
-              <FormGroup>
-                <Label for="website">
-                  <strong>Website</strong>
-                </Label>
-                <Input type="text" name="website" value={this.state.website} onChange={this.handleInputChanged} />
-              </FormGroup>
-            </Col>
-            <Col md={1} />
-            <Col md={4}>
-              <FormGroup>
-                <Label for="phoneNumber">
-                  <strong>Phone Number</strong>
-                </Label>
-                <Input
-                  type="text"
-                  name="phoneNumber"
-                  value={this.state.phoneNumber}
-                  onChange={this.handleInputChanged}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-
-          <Row form>
-            <Col md={7}>
-              <FormGroup>
-                <Label for="termsConditions">
-                  <strong>Link to Terms & Conditions</strong>
-                </Label>
-                <Input
-                  type="text"
-                  name="termsConditions"
-                  value={this.state.termsConditions}
-                  onChange={this.handleInputChanged}
-                />
-              </FormGroup>
-            </Col>
-            <Col md={1} />
-            <Col md={4}>
-              <FormGroup>
-                <Label for="emailAddress">
-                  <strong>Contact E-mail</strong>
-                </Label>
-                <Input
-                  type="text"
-                  name="emailAddress"
-                  value={this.state.emailAddress}
-                  onChange={this.handleInputChanged}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-
-          <Button color="primary" onClick={this.saveChanges}>
-            Save
+          <Button color="link" onClick={this.toggleMoreOpen} style={{ marginBottom: '20px' }}>
+            More
           </Button>
+          <Collapse isOpen={this.state.moreOpen}>
+            <Row form>
+              <Col md={4}>
+                <FormGroup>
+                  <Label for="website">
+                    <strong>Website</strong>
+                  </Label>
+                  <Input type="text" name="website" value={this.state.website} onChange={this.handleInputChanged} />
+                </FormGroup>
+              </Col>
+              <Col md={4}>
+                <FormGroup>
+                  <Label for="phoneNumber">
+                    <strong>Phone Number</strong>
+                  </Label>
+                  <Input
+                    type="text"
+                    name="phoneNumber"
+                    value={this.state.phoneNumber}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+              </Col>
+              <Col md={4}>
+                <FormGroup>
+                  <Label for="emailAddress">
+                    <strong>Contact E-mail</strong>
+                  </Label>
+                  <Input
+                    type="text"
+                    name="emailAddress"
+                    value={this.state.emailAddress}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row form>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="termsConditions">
+                    <strong>Link to Terms & Conditions</strong>
+                  </Label>
+                  <Input
+                    type="text"
+                    name="termsConditions"
+                    value={this.state.termsConditions}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="termsConditions">
+                    <strong>Link to Privacy Policy</strong>
+                  </Label>
+                  <Input
+                    type="text"
+                    name="privacyPolicy"
+                    value={this.state.privacyPolicy}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={7}>
+                <Label>
+                  <strong>Bot Avatar</strong>
+                </Label>
+                <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
+              </Col>
+              <Col md={4}>{this.state.avatarUrl && <img height={75} src={this.state.avatarUrl} />}</Col>
+            </Row>
+
+            <Row>
+              <Col md={4}>
+                <Label>
+                  <strong>Cover Picture</strong>
+                </Label>
+                <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
+              </Col>
+              <Col md={8}>{this.state.coverPictureUrl && <img width="100%" src={this.state.coverPictureUrl} />}</Col>
+            </Row>
+          </Collapse>
         </Form>
       </div>
     )
@@ -262,11 +337,15 @@ class Bots extends Component {
     return (
       <SectionLayout
         title={this.state.name}
-        helpText="This page lists all the bots created under the default workspace."
+        helpText="This page shows the details you can configure for a desired bot."
         activePage="bots"
         currentTeam={this.props.team}
         mainContent={this.renderDetails()}
-        sideMenu={null}
+        sideMenu={
+          <Button color="primary" onClick={this.saveChanges}>
+            Save Details
+          </Button>
+        }
       />
     )
   }

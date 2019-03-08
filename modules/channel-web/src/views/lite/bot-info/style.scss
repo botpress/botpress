@@ -5,6 +5,8 @@
 $charcoal: #1e1e1e;
 
 .bot-info-container {
+  margin: 0 auto;
+  max-width: 800px;
   text-align: center;
   color: $charcoal;
   svg {
@@ -25,7 +27,7 @@ $charcoal: #1e1e1e;
 .summary {
   margin-top: -32px;
   @include bottomBorder();
-  box-shadow: 0px -5px 10px 1px #ccc;
+  box-shadow: 0px 4px 5px -5px #ccc;
   h3 {
     margin: 0;
   }

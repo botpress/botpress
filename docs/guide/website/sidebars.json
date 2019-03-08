@@ -14,7 +14,7 @@
       "build/debugging"
     ],
     "Deploy": ["deploy/hosting"],
-    "Manage": ["manage/configuration", "manage/versions", "manage/monitoring"],
+    "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
     "Developers": ["developers/release-notes", "developers/migrate", "developers/create-module", "developers/cluster"],
     "Tutorials": [
       "tutorials/webchat-embedding",
