@@ -66,8 +66,9 @@ export default class Web extends React.Component {
     }
 
     this.state = {
-      botInfo: null,
       view: null,
+      botInfo: null,
+      moduleConfig: null,
       textToSend: '',
       loading: true,
       played: false,
@@ -146,6 +147,12 @@ export default class Web extends React.Component {
 
   fetchBotInfo = () => {
     return this.props.bp.axios.get('/', this.axiosConfig).then(({ data }) => this.setState({ botInfo: data }))
+  }
+
+  fetchModuleConfig = () => {
+    return this.props.bp.axios
+      .get('/mod/channel-web/config', this.axiosConfig)
+      .then(({ data }) => this.setState({ moduleConfig: data }))
   }
 
   changeUserId = newId => {
@@ -299,9 +306,11 @@ export default class Web extends React.Component {
 
   fetchData = () => {
     return this.fetchBotInfo()
+      .then(this.fetchModuleConfig)
       .then(this.fetchConversations)
       .then(this.fetchCurrentConversation)
       .then(() => {
+        debugger
         this.handleSendData({
           type: 'visit',
           text: 'User visit',
@@ -662,6 +671,7 @@ export default class Web extends React.Component {
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
         botInfo={this.state.botInfo}
+        moduleConfig={this.state.moduleConfig}
       />
     )
   }

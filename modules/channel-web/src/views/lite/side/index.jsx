@@ -29,7 +29,8 @@ export default class Side extends React.Component {
     const showBotInfo =
       this.props.currentConversation != nextProps.currentConversation &&
       nextProps.currentConversation &&
-      nextProps.currentConversation.messages.length === 0
+      nextProps.currentConversation.messages.length === 0 &&
+      this.props.moduleConfig.showBotInfoPage
 
     if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
       this.setState({
@@ -174,8 +175,7 @@ export default class Side extends React.Component {
   }
 
   renderBotInfoButton() {
-    if (!this.state.showConvos) {
-      // TODO display only if the props.showBotInfoPage is set to true
+    if (!this.state.showConvos && this.props.moduleConfig.showBotInfoPage) {
       return (
         <span className={style.icon}>
           <i onClick={this.toggleBotInfo}>

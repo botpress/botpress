@@ -7,6 +7,8 @@ import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
 
+import { Config } from '../config'
+
 import Database from './db'
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
@@ -80,6 +82,20 @@ export default async (bp: typeof sdk, db: Database) => {
       res.status(500).send(err && err.message)
     }
   }
+
+  router.get(
+    '/config',
+    asyncApi(async (req, res) => {
+      const { botId } = req.params
+      const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
+      // prevent sending sensitive data
+      res.send({
+        recentConversationLifetime: config.recentConversationLifetime,
+        maxMessageLength: config.maxMessageLength,
+        showBotInfoPage: config.showBotInfoPage
+      })
+    })
+  )
 
   // ?conversationId=xxx (optional)
   router.post(
