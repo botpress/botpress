@@ -42,6 +42,7 @@ export class GhostConfigProvider implements ConfigProvider {
 
     config.httpServer.port = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.port
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
+    process.PROXY = process.core_env.BP_PROXY || config.httpServer.proxy
 
     if (config.pro) {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
