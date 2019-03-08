@@ -9,9 +9,10 @@ const platformFolders: string[] = []
 const nativeBindingsPaths: string[] = []
 
 const nativeExBaseFolder =
-  process.core_env.NATIVE_EXTENSIONS_DIR || process.pkg
+  process.core_env.NATIVE_EXTENSIONS_DIR ||
+  (process.pkg
     ? syspath.resolve(syspath.dirname(process.execPath), 'bindings')
-    : syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions')
+    : syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions'))
 
 if (process.distro.os === 'linux') {
   platformFolders.push('linux/default')
@@ -22,12 +23,11 @@ if (process.distro.os === 'linux') {
 
     const folders = sysfs
       .readdirSync(syspath.resolve(nativeExBaseFolder, './linux/'))
-      .filter(x => x !== 'default')
       .filter(x => x.startsWith(smallDist))
       .sort()
       .reverse()
 
-    const nearestDistro = _.first(folders.filter(f => f <= fullDist))
+    const nearestDistro = _.find(folders, f => f <= fullDist) || _.first(folders)
     nearestDistro && platformFolders.unshift(nearestDistro)
   } finally {
   }
@@ -35,6 +35,8 @@ if (process.distro.os === 'linux') {
   platformFolders.push('windows/all')
 } else if (os.platform() === 'darwin') {
   platformFolders.push('darwin/all')
+} else {
+  throw new Error(`Unsupported OS "${process.distro}"`)
 }
 
 for (const folder of platformFolders) {
