@@ -72,6 +72,7 @@ export interface LogsConfig {
  */
 
 export type BotpressConfig = {
+  version: string
   appSecret: string
   httpServer: {
     /**

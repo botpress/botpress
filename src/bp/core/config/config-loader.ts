@@ -83,7 +83,8 @@ export class GhostConfigProvider implements ConfigProvider {
       const config = {
         $schema: `../botpress.config.schema.json`,
         ...defaultConfig,
-        modules: await this.getModulesListConfig()
+        modules: await this.getModulesListConfig(),
+        version: process.BOTPRESS_VERSION
       }
 
       await fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
@@ -106,11 +107,16 @@ export class GhostConfigProvider implements ConfigProvider {
   }
 
   public async getModulesListConfig() {
+    const disabledByDefault = ['hitl', 'broadcast']
+
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
-    return await resolver.getModulesList().map(module => {
-      return { location: `MODULES_ROOT/${module}`, enabled: true }
-    })
+    return await resolver
+      .getModulesList()
+      .filter(module => !disabledByDefault.includes(module))
+      .map(module => {
+        return { location: `MODULES_ROOT/${module}`, enabled: true }
+      })
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {
