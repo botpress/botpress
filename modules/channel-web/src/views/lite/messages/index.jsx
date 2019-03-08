@@ -118,7 +118,7 @@ export default class MessageList extends Component {
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={32} width={32} />
+    return <Avatar name={name} avatarUrl={url} height={40} width={40} />
   }
 
   renderMessageGroups() {

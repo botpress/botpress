@@ -161,6 +161,12 @@ export default class Web extends React.Component {
     this.setUserId().then(this.fetchData)
   }
 
+  sendUserEvent = data => {
+    const userId = window.__BP_VISITOR_ID
+    const url = `/mod/channel-web/events/${userId}`
+    return this.props.bp.axios.post(url, data, this.axiosConfig)
+  }
+
   handleIframeApi = ({ data: { action, payload } }) => {
     if (action === 'configure') {
       if (payload.userId) {
@@ -177,9 +183,7 @@ export default class Web extends React.Component {
         this.setState({ textToSend: text })
         this.handleSendMessage()
       } else {
-        const userId = window.__BP_VISITOR_ID
-        const url = `/mod/channel-web/events/${userId}`
-        return this.props.bp.axios.post(url, { type, payload }, this.axiosConfig)
+        return this.sendUserEvent({ type, payload })
       }
     }
   }
@@ -310,7 +314,6 @@ export default class Web extends React.Component {
       .then(this.fetchConversations)
       .then(this.fetchCurrentConversation)
       .then(() => {
-        debugger
         this.handleSendData({
           type: 'visit',
           text: 'User visit',
@@ -596,7 +599,7 @@ export default class Web extends React.Component {
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/conversations/${userId}/new`
 
-    // TODO here we might we might want switch convo with the newly created conversation
+    // TODO here we might we might want switch convo with the newly created conversation (need to return the convo ID in BE)
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
 
@@ -645,6 +648,10 @@ export default class Web extends React.Component {
     this.downaloadFile(file.name, blobFile)
   }
 
+  startConversation = cb => {
+    return this.sendUserEvent({ payload: { type: 'request_start_conversation' } }).then(cb)
+  }
+
   renderSide() {
     return (
       <Side
@@ -670,6 +677,7 @@ export default class Web extends React.Component {
         onSendData={this.handleSendData}
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
+        startConversation={this.startConversation}
         botInfo={this.state.botInfo}
         moduleConfig={this.state.moduleConfig}
       />
