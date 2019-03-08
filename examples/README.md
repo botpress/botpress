@@ -1,6 +1,13 @@
-### Integration Examples
+## Examples for Common Use Case
 
-#### [Custom Components](./custom-component)
+### [Module Templates](./module-templates)
+
+Here you will find two different type of templates to start developing modules:
+
+- [Complete](./module-templates/complete-module): Includes almost all available features, with comments on almost all of them
+- [Basic](./module-templates/basic-module): Includes the basic structure, without any comments
+
+### [Custom Components](./custom-component)
 
 This example will show you how to create custom components on the Web Chat and how to display them to users.
 

@@ -3,6 +3,19 @@ id: memory
 title: Bot Memory and Data Retention
 ---
 
+## Introduction
+
+In the course of a conversation, you may want to ask questions to the user, and remember his answer to use it later. There are four different kind of memories in Botpress; the difference between each of them is the duration and the scope.
+
+- `user` memory is kept forever for the user it is associated with.
+- `session` memory is kept for the duration of the configured session (more on that below).
+- `temp` memory is only kept for the duration of the flow.
+- `bot` memory is the same value for all users of a same bot.
+
+## Common Use Case
+
+Most of the time, you will rely on the `user` and `temp` type of memory. The temp memory is only alive for the duration of a flow,
+
 ## Dialog Memory
 
 The Dialog Memory is how your bot will remember things in the context of a conversation. The way you can store and retrieve data is by using Actions inside the flows. There are four types of memory available: **user**, **session**, **temp** and **bot**
@@ -15,13 +28,15 @@ You can consume a memory action just like any other action from the Botpress Flo
 
 ### User Memory
 
-Variables stored inside this memory are persisted and remain available for the same user. They survive the different conversations. When a message is received from the user, his informations are automatically loaded and are available to actions and nodes without calling anything,.
+Variables set using the `user` namespace will be saved as attributes for the user. This means that those attributes will always follow the user, not notwithstanding conversations or time period.
 
-They never expires unless there is a data retention policy for some variables.
+When a user sends a message to the bot, the first middleware is tasked with loading that user's informations. After everything is processed, any changes to the `user` object will be persisted to the database.
 
-#### User Memory Data Retention
+This means that you can alter the `user` object using middlwares and actions, and it will be saved at the end.
 
-The botpress global configuration file allows to specify the Time To Live of different user variables. There can be, for example, a policy that says `email expires after 2 months` or `remember user's mood for 1 day`. Expiry is updated whenever data is changed
+#### User Memory - Data Retention
+
+Since privacy is an important matter, there is a built-in system that makes it dead-easy to set retention periods for different type of informations. You could have, for example a policy that says `email expires after 2 months` or `remember user's mood for 1 day`. Whenever the user's attribute is changed, the expiration policy is updated.
 
 Here's how it could be configured:
 
@@ -40,26 +55,53 @@ dataRetention: {
 
 ### Session Memory
 
-Variables stored inside this memory are persisted across the conversation and discarded when the session ends; that is defined by the configuration parameter `sessionIntervalTimeout` (defined by bot in bot.config.json or globally in botpress.config.json)
+The `session` store is alive for the duration of the user's session. How long is that? Well, it depends on the setting of `sessionIntervalTimeout` in `botpress.config.json`.
 
-Botpress also stores the last 5 messages of the user in this variable, which could be useful depending on your use case.
+This is also where we keep the last messages sent by the user. This information is used by the Decision Engine to better understand the user's will and to avoid repeating meaningless stuff.
 
 ### Temporary Memory
 
-Variables stored inside this memory are alive until the end of the flow or when the dialog engine times out (Configuration: `dialog.intervalTimeout`). This variable replaces the `state` that was previously used before Botpress 11.2
+The `temp` memory is the most heavily type of memory used on Botpress. To keep it simple, this memory is kept since the beginning of flow until the end. As long as nodes are linked together, it will be available. If you were a user of Botpress 10.x, this was better known as the `state` of the dialog.
+
+Common use case implies calling an action, saving the result in the `temp` memory, then send a content element including the answer to the user.
+
+For example, you want to list the name of your servers, which should be fetched from an API.
+
+This would be your action, fetch_servers.js:
+
+```js
+const listServers = async () => {
+  try {
+    const { data } = await axios.get(`https://mysite.com/servers`)
+    temp.servers = data.servers.join(', ')
+  } catch (error) {}
+}
+
+return listServers()
+```
+
+That action would fetch the name of your the servers, then you could send a content element similar to this:
+
+`Here's the list of our servers: {{temp.servers}}`
+
+As you can see, it's very easy to use !
 
 ### Bot Memory
 
-Variables stored inside this memory are shared between all users and conversations inside the same bot.
+The `bot` memory is the same value for all users of the bot. Think of it like a global variable, but scoped to this bot only.
 
-#### Changing the value in memory
+## How to change what's in the memory?
 
-Use the action `base.setVariable` to update the value of any scope. There is also the possibility to change directly variables inside actions, check out the [Custom Code](/docs/build/code#actions) section.
+There are two different ways to edit these 4 different types of data. The most simple way is to use the action `base.setVariable`. You only have to specify the type of memory, the name of the variable, and what value it should be set to.
+
+Another common use is using actions. Actions allows you to edit these variables directly. For example, you could write `user.firstname = 'potato'` in your code file to update the user's name.
+
+Please check out the [Custom Code](/docs/build/code#actions) section for more details about this.
 
 ## General Storage
 
-If you want to store information differently, or when outside of a flow (e.g. from a [Hook](/docs/build/code#hooks)), you can use the lower-level storage API, the Key-Value-Store (KVS).
+What if the four previous types of storage doesn't fulfill my requirements? Don't worry, we still have other options!
 
-The KVS works very similarly to the get/set actions except you have to decide on the storage key yourself. Think of the KVS as an oversimplified NoSQL store where all you need to know to store something is a unique key.
+The Key-Value Store is a general-purpose store which allows you to store any type of data. You will need to manage expirations and data update yourself, sice Botpress will not update these values on its own.
 
-The KVS is available from the [Botpress SDK (**`bp.sdk`**)](https://botpress.io/reference/modules/_botpress_sdk_.kvs.html) and supports expiry as well. In fact, the storage actions are simply wrappers for the KVS.
+The KVS is available from the [Botpress SDK](https://botpress.io/reference/modules/_botpress_sdk_.kvs.html)
