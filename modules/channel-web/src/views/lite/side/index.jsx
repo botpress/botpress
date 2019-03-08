@@ -27,10 +27,11 @@ export default class Side extends React.Component {
     }
 
     const showBotInfo =
-      this.props.currentConversation != nextProps.currentConversation &&
-      nextProps.currentConversation &&
-      nextProps.currentConversation.messages.length === 0 &&
-      this.props.moduleConfig.showBotInfoPage
+      (!showConvos && this.state.showBotInfo) ||
+      (this.props.moduleConfig.showBotInfoPage &&
+        nextProps.currentConversation &&
+        nextProps.currentConversation.messages.length === 0 &&
+        (!this.props.currentConversation || this.props.currentConversation.id != this.props.currentConversation.id))
 
     if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
       this.setState({
@@ -318,12 +319,16 @@ export default class Side extends React.Component {
     if (this.state.showConvos) {
       return this.renderListOfConvos()
     } else if (this.state.showBotInfo) {
+      const isConvoStarted = this.props.currentConversation && !!this.props.currentConversation.messages.length
+      const onDismiss = isConvoStarted
+        ? this.toggleBotInfo
+        : this.props.startConversation.bind(this, this.toggleBotInfo)
       return (
         <BotInfo
           botInfo={this.props.botInfo}
           webchatConfig={this.props.config}
-          dismissLabel={this.props.currentConversation.messages.length ? 'Back to Conversation' : null}
-          onDismiss={this.toggleBotInfo}
+          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Converastion'}
+          onDismiss={onDismiss}
         />
       )
     } else {
