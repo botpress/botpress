@@ -176,8 +176,7 @@ class Bots extends Component {
       .getSecured()
       .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        const url = `${window.location.origin}${response.data.url}`
-        this.setState({ [targetProp]: url }, this.saveChanges)
+        this.setState({ [targetProp]: response.data.url }, this.saveChanges)
       })
       .catch(err => {
         this.setState({ error: err })
