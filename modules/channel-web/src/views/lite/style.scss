@@ -6,12 +6,11 @@ body {
   overflow: hidden;
 }
 
-.defaultAvatar {
-  background-image: url('/assets/modules/channel-web/images/avatar_default.png');
-  background-size: 80%;
-  background-repeat: no-repeat;
-  width: 30px;
-  height: 30px;
+.botAvatar {
+  img {
+    border: solid 3px white;
+    border-radius: 50%;
+  }
 }
 
 .web {

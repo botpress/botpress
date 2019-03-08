@@ -3,7 +3,7 @@ import classnames from 'classnames'
 
 import Send from '../send'
 import Input from '../input'
-import BotAvatar from '../bot_avatar'
+import Avatar from '../avatar'
 
 import style from './style.scss'
 
@@ -98,29 +98,10 @@ export default class Convo extends React.Component {
   }
 
   renderAvatar() {
-    let content = <BotAvatar foregroundColor={this.props.config.foregroundColor} />
-
-    if (this.props.config.botAvatarUrl) {
-      content = (
-        <div className={style.picture} style={{ backgroundImage: 'url(' + this.props.config.botAvatarUrl + ')' }} />
-      )
-    }
-
-    return (
-      <div className={classnames('bp-avatar', style.avatar)}>
-        <div className={style.square}>
-          <div
-            className={style.circle}
-            style={{
-              borderColor: this.props.config.foregroundColor,
-              color: this.props.config.foregroundColor
-            }}
-          >
-            {content}
-          </div>
-        </div>
-      </div>
-    )
+    const name = this.props.botInfo.name || this.props.config.botName
+    const avatarUrl =
+      (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
+    return <Avatar name={name} avatarUrl={avatarUrl} height={32} width={32} />
   }
 
   renderWelcomeMessage() {

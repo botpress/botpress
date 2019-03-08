@@ -31,4 +31,8 @@ export interface Config {
    * @default 360
    */
   maxMessageLength?: number
+  /**
+   * @default false
+   */
+  showBotInfoPage: boolean
 }
