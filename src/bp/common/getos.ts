@@ -13,13 +13,13 @@ class Distro implements OSDistribution {
   }
 
   sanitize(str = ''): string {
-    str = str.replace(/ /gi, '-')
+    str = str.toLowerCase().replace(/ /gi, '-')
     str = str.replace(/[^A-Z0-9\._-]/gi, '') // remove all chars that are not A-Z, 0-9 - _ and .
     return str.replace(/\./gi, '_') // replace dots with _ for versions
   }
 
   toString(): string {
-    const sDist = this.sanitize(this.dist)
+    const sDist = this.sanitize(this.dist).replace('-linux', '')
     const sRelease = this.sanitize(this.release)
     return this.dist ? (this.release ? `${this.os} ${sDist}_${sRelease}` : `${this.os} ${sDist}`) : this.os
   }
