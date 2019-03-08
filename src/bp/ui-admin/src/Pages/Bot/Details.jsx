@@ -153,7 +153,7 @@ class Bots extends Component {
               </FormGroup>
             </Col>
             <Col md={4}>
-              {this.state.categories.length && (
+              {!!this.state.categories.length && (
                 <FormGroup>
                   <Label>
                     <strong>Category</strong>
@@ -262,7 +262,7 @@ class Bots extends Component {
     return (
       <SectionLayout
         title={this.state.name}
-        helpText="This page lists all the bots created under the default workspace."
+        helpText="This page shows the details you can configure for a desired bot."
         activePage="bots"
         currentTeam={this.props.team}
         mainContent={this.renderDetails()}
