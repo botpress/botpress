@@ -79,7 +79,7 @@ heroku addons:create heroku-postgresql --app $APP_NAME
 heroku config:set DATABASE=postgres --app $APP_NAME
 ```
 
-Edit your `botpress.config` and update your database credentials. You can find your Postgres credentials on the Heroku dashboard: Overview > Heroku Postgres > Settings > View Credentials.
+You don't have to change anything else, since Heroku will define the DATABASE_URL environment variable with the required parameters. It is also possible to find your Postgres credentials on the Heroku dashboard: Overview > Heroku Postgres > Settings > View Credentials.
 
 ## Deploying on AWS using Dokku
 
@@ -154,7 +154,12 @@ sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
 # Creates a new database and link it to your application
 dokku postgres:create botpress-db
 dokku postgres:link botpress-server botpress-db
+
+# Tell Botpress what kind of database to use
+dokku config:set DATABASE=postgres --app botpress-server
 ```
+
+As with Heroku, the `DATABASE_URL` environment variable will already be set.
 
 ## Deploying on AWS manually
 
@@ -165,10 +170,10 @@ sudo apt update
 sudo apt install unzip
 
 # Download the latest Linux binary
-wget https://s3.amazonaws.com/botpress-binaries/botpress-ce-$VERSION-linux-x64.zip
+wget https://s3.amazonaws.com/botpress-binaries/botpress-$VERSION-linux-x64.zip
 
 # Unzip the content in the current directory
-unzip botpress-ce-$VERSION-linux-x64.zip
+unzip botpress-$VERSION-linux-x64.zip
 
 # Launch the app
 ./bp
