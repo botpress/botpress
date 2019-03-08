@@ -7,9 +7,12 @@ body {
 }
 
 .botAvatar {
-  img {
+  margin-right: 10px;
+  img,
+  svg {
     border: solid 3px white;
     border-radius: 50%;
+    background: #ccc;
   }
 }
 

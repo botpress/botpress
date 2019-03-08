@@ -62,7 +62,7 @@ export default class Side extends React.Component {
     const name = this.props.botInfo.name || this.props.config.botName
     const avatarUrl =
       (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
-    return <Avatar name={name} avatarUrl={avatarUrl} height={32} width={32} />
+    return <Avatar name={name} avatarUrl={avatarUrl} height={40} width={40} />
   }
 
   renderUnreadCount() {
