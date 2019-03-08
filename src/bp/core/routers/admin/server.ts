@@ -79,6 +79,8 @@ export class ServerRouter extends CustomRouter {
 
         this.logger.info(`User ${user} requested a server reboot`)
 
+        res.sendStatus(200)
+
         // Timeout is only to allow the response to reach the asking user
         setTimeout(() => {
           spawn(process.argv[0], process.argv.slice(1), {
@@ -88,8 +90,6 @@ export class ServerRouter extends CustomRouter {
 
           process.exit()
         }, 100)
-
-        res.sendStatus(200)
       })
     )
   }
