@@ -116,7 +116,12 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (!_.includes(['text', 'quick_reply', 'form', 'login_prompt', 'visit'], payload.type)) {
+      if (
+        !_.includes(
+          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation'],
+          payload.type
+        )
+      ) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -260,7 +265,6 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncApi(async (req, res) => {
       const { payload = undefined } = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
-
       await bp.users.getOrCreateUser('web', userId)
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 

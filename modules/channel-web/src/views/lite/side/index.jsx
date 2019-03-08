@@ -26,17 +26,23 @@ export default class Side extends React.Component {
       showConvos = false
     }
 
+    const convosDiffers =
+      !this.props.currentConversation ||
+      (nextProps.currentConversation && this.props.currentConversation.id !== nextProps.currentConversation.id)
+
     const showBotInfo =
-      this.props.currentConversation != nextProps.currentConversation &&
-      nextProps.currentConversation &&
-      nextProps.currentConversation.messages.length === 0 &&
-      this.props.moduleConfig.showBotInfoPage
+      (!showConvos && this.state.showBotInfo) ||
+      (this.props.moduleConfig.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
 
     if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
       this.setState({
         showConvos,
         showBotInfo
       })
+  }
+
+  isConvoStarted = conversation => {
+    return conversation && !!conversation.messages.length
   }
 
   handleFocus = value => {
@@ -61,7 +67,7 @@ export default class Side extends React.Component {
     const name = this.props.botInfo.name || this.props.config.botName
     const avatarUrl =
       (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
-    return <Avatar name={name} avatarUrl={avatarUrl} height={32} width={32} />
+    return <Avatar name={name} avatarUrl={avatarUrl} height={40} width={40} />
   }
 
   renderUnreadCount() {
@@ -318,12 +324,16 @@ export default class Side extends React.Component {
     if (this.state.showConvos) {
       return this.renderListOfConvos()
     } else if (this.state.showBotInfo) {
+      const isConvoStarted = this.props.currentConversation && !!this.props.currentConversation.messages.length
+      const onDismiss = isConvoStarted
+        ? this.toggleBotInfo
+        : this.props.startConversation.bind(this, this.toggleBotInfo)
       return (
         <BotInfo
           botInfo={this.props.botInfo}
           webchatConfig={this.props.config}
-          dismissLabel={this.props.currentConversation.messages.length ? 'Back to Conversation' : null}
-          onDismiss={this.toggleBotInfo}
+          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Converastion'}
+          onDismiss={onDismiss}
         />
       )
     } else {
