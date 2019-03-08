@@ -86,7 +86,8 @@ export class ActionStrategy implements InstructionStrategy {
       event,
       user: _.get(event, 'state.user', {}),
       session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {})
+      temp: _.get(event, 'state.temp', {}),
+      bot: _.get(event, 'state.bot', {})
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
@@ -114,7 +115,8 @@ export class ActionStrategy implements InstructionStrategy {
       event,
       user: _.get(event, 'state.user', {}),
       session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {})
+      temp: _.get(event, 'state.temp', {}),
+      bot: _.get(event, 'state.bot', {})
     }
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
