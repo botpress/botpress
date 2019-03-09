@@ -363,7 +363,7 @@ You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_inc
 
 |  Provider  | Intent | Entity | Slot tagging | Lang | Context | Sentiment |
 | :--------: | :----: | :----: | :----------: | :--: | :-----: | :-------: |
-|   Native   |   X    |   X    |      X       |  X   |         |           |
+|   Native   |   X    |   X    |      X       |  X   |    X    |           |
 | DialogFlow |   X    |   X    |      X       |      |    X    |           |
 |    Luis    |   X    |   X    |              |      |         |     X     |
 |   Recast   |   X    |   X    |              |  X   |         |     X     |
