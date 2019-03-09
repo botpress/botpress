@@ -4,7 +4,7 @@ module.exports = {
       tsConfig: '<rootDir>/src/tsconfig.test.json'
     }
   },
-  setupFiles: ['<rootDir>/src/bp/import-rewire.ts'],
+  setupFiles: ['<rootDir>/src/bp/tests-env.ts', '<rootDir>/src/bp/import-rewire.ts'],
   collectCoverage: false,
   verbose: true,
   modulePaths: ['<rootDir>/src/bp/'],

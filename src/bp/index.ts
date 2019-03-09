@@ -2,6 +2,7 @@ const yn = require('yn')
 const path = require('path')
 const fs = require('fs')
 const metadataContent = require('../../metadata.json')
+const getos = require('./common/getos')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -91,7 +92,10 @@ try {
           }
         }
 
-        require('./bootstrap')
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./bootstrap')
+        })
       }
     )
     .command(

@@ -28,6 +28,7 @@ declare namespace NodeJS {
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
     core_env: BotpressEnvironementVariables
+    distro: OSDistribution
   }
 }
 
@@ -39,13 +40,25 @@ declare type PRO_FEATURES = 'seats'
  * This is a copy of process.env to add typing and documentation to variables
  */
 declare type BotpressEnvironementVariables = {
+  /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
+  readonly NATIVE_EXTENSIONS_DIR?: string
+
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
   readonly REVERSE_PROXY?: string
-  /**
-   * Use this proxy connexion string to access external services, like Duckling and Licensing
-   */
+
+  /** Use this proxy connexion string to access external services, like Duckling and Licensing */
   readonly BP_PROXY?: string
+}
+
+declare interface OSDistribution {
+  os: NodeJS.Platform
+  /** The distribution, e.g. "centos", "ubuntu" */
+  dist: string
+  /** If a codename is available, for example "final" or "alpine" */
+  codename: string
+  /** The release number, for example 18.04 */
+  release: string
 }

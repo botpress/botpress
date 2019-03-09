@@ -2,6 +2,6 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["es7"],
-    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types", "./src/backend/typings.d.ts"]
+    "typeRoots": ["./src/botpress.d.ts", "./src/global.d.ts", "./node_modules/@types", "./src/backend/typings.d.ts"]
   }
 }
