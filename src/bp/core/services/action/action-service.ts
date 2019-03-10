@@ -169,7 +169,7 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env')
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY')
       },
       require: {
         external: true,

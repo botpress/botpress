@@ -201,7 +201,7 @@ export class HookService {
       console: 'inherit',
       sandbox: {
         ...hook.args,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'env'),
+        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
         printObject
       },
       timeout: hook.timeout,
