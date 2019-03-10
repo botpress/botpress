@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import { MdInfoOutline } from 'react-icons/lib/md'
 import { connect } from 'react-redux'
@@ -7,7 +7,7 @@ import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
 import { Row, Col, Button, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
-
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
 import _ from 'lodash'
 
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
@@ -240,95 +240,144 @@ class Bots extends Component {
               onChange={this.handleInputChanged}
             />
           </FormGroup>
-          <Button color="link" onClick={this.toggleMoreOpen} style={{ marginBottom: '20px' }}>
-            More
-          </Button>
-          <Collapse isOpen={this.state.moreOpen}>
-            <Row form>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="website">
-                    <strong>Website</strong>
-                  </Label>
-                  <Input type="text" name="website" value={this.state.website} onChange={this.handleInputChanged} />
-                </FormGroup>
-              </Col>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="phoneNumber">
-                    <strong>Phone Number</strong>
-                  </Label>
-                  <Input
-                    type="text"
-                    name="phoneNumber"
-                    value={this.state.phoneNumber}
-                    onChange={this.handleInputChanged}
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="emailAddress">
-                    <strong>Contact E-mail</strong>
-                  </Label>
-                  <Input
-                    type="text"
-                    name="emailAddress"
-                    value={this.state.emailAddress}
-                    onChange={this.handleInputChanged}
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row form>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="termsConditions">
-                    <strong>Link to Terms & Conditions</strong>
-                  </Label>
-                  <Input
-                    type="text"
-                    name="termsConditions"
-                    value={this.state.termsConditions}
-                    onChange={this.handleInputChanged}
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="termsConditions">
-                    <strong>Link to Privacy Policy</strong>
-                  </Label>
-                  <Input
-                    type="text"
-                    name="privacyPolicy"
-                    value={this.state.privacyPolicy}
-                    onChange={this.handleInputChanged}
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={7}>
-                <Label>
-                  <strong>Bot Avatar</strong>
-                </Label>
-                <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
-              </Col>
-              <Col md={4}>{this.state.avatarUrl && <img height={75} src={this.state.avatarUrl} />}</Col>
-            </Row>
-
-            <Row>
-              <Col md={4}>
-                <Label>
-                  <strong>Cover Picture</strong>
-                </Label>
-                <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
-              </Col>
-              <Col md={8}>{this.state.coverPictureUrl && <img width="100%" src={this.state.coverPictureUrl} />}</Col>
-            </Row>
-          </Collapse>
         </Form>
+
+        {this.renderCollapsible()}
+      </div>
+    )
+  }
+
+  renderMoreDetails() {
+    return (
+      <Fragment>
+        <Row form>
+          <Col md={4}>
+            <FormGroup>
+              <Label for="website">
+                <strong>Website</strong>
+              </Label>
+              <Input type="text" name="website" value={this.state.website} onChange={this.handleInputChanged} />
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label for="phoneNumber">
+                <strong>Phone Number</strong>
+              </Label>
+              <Input type="text" name="phoneNumber" value={this.state.phoneNumber} onChange={this.handleInputChanged} />
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label for="emailAddress">
+                <strong>Contact E-mail</strong>
+              </Label>
+              <Input
+                type="text"
+                name="emailAddress"
+                value={this.state.emailAddress}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+        <Row form>
+          <Col md={6}>
+            <FormGroup>
+              <Label for="termsConditions">
+                <strong>Link to Terms & Conditions</strong>
+              </Label>
+              <Input
+                type="text"
+                name="termsConditions"
+                value={this.state.termsConditions}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={6}>
+            <FormGroup>
+              <Label for="termsConditions">
+                <strong>Link to Privacy Policy</strong>
+              </Label>
+              <Input
+                type="text"
+                name="privacyPolicy"
+                value={this.state.privacyPolicy}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+        <small>
+          These informations are displayed on the Bot Information page,{' '}
+          <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank">
+            check the documentation for more details
+          </a>
+        </small>
+      </Fragment>
+    )
+  }
+
+  renderPictures() {
+    return (
+      <Fragment>
+        <Row>
+          <Col md={7}>
+            <Label>
+              <strong>Bot Avatar</strong>
+            </Label>
+            <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
+          </Col>
+          <Col md={4}>{this.state.avatarUrl && <img height={75} src={this.state.avatarUrl} />}</Col>
+        </Row>
+        <Row>
+          <Col md={4}>
+            <Label>
+              <strong>Cover Picture</strong>
+            </Label>
+            <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
+          </Col>
+          <Col md={8}>{this.state.coverPictureUrl && <img width="100%" src={this.state.coverPictureUrl} />}</Col>
+        </Row>
+      </Fragment>
+    )
+  }
+
+  renderCollapsible() {
+    return (
+      <div className="bp_users-container">
+        <div>
+          <div
+            onClick={() => this.setState({ moreCollapsed: !this.state.moreCollapsed })}
+            className="bp_users-role_header"
+          >
+            <div className="role float-left">
+              <span className="title">More details</span>
+            </div>
+            {this.state.moreCollapsed ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+          </div>
+        </div>
+
+        <Collapse isOpen={this.state.moreCollapsed}>
+          <div style={{ padding: 15 }}>{this.renderMoreDetails()}</div>
+        </Collapse>
+
+        <div>
+          <div
+            onClick={() => this.setState({ avatarCollapsed: !this.state.avatarCollapsed })}
+            className="bp_users-role_header"
+          >
+            <div className="role float-left">
+              <span className="title">Pictures</span>
+            </div>
+            {this.state.avatarCollapsed ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+          </div>
+        </div>
+
+        <Collapse isOpen={this.state.avatarCollapsed}>
+          <div style={{ padding: 15 }}>{this.renderPictures()}</div>
+        </Collapse>
       </div>
     )
   }

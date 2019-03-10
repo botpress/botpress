@@ -99,7 +99,11 @@ const GuideCards = () => (
       },
       {
         content: 'Guides and examples solving typical issues you may run into.',
-        title: '<a href="/docs/tutorials">💡 Tutorials</a>'
+        title: '<a href="/docs/tutorials/webchat-embedding">💡 Tutorials</a>'
+      },
+      {
+        content: 'Advanced examples for developers on how you can use Botpress.',
+        title: '<a href="https://github.com/botpress/botpress/tree/master/examples">🧰 Examples</a>'
       }
     ]}
   </Block>
