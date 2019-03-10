@@ -1,13 +1,31 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
+import ms from 'ms'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
+const SYNC_INTERVAL_MS = ms('15s')
+
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
+
+  const syncByBots: { [key: string]: NodeJS.Timer } = {}
+
+  const scheduleSyncNLU = (botId: string) => {
+    if (syncByBots[botId]) {
+      clearTimeout(syncByBots[botId])
+      delete syncByBots[botId]
+    }
+
+    syncByBots[botId] = setTimeout(() => {
+      delete syncByBots[botId]
+      const botEngine = nlus[botId] as ScopedEngine
+      syncNLU(botEngine, false)
+    }, SYNC_INTERVAL_MS)
+  }
 
   const syncNLU = async (botEngine: ScopedEngine, confusionMode: boolean = false): Promise<string> => {
     const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
@@ -66,7 +84,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const botEngine = nlus[req.params.botId] as ScopedEngine
 
     await botEngine.storage.deleteIntent(req.params.intent)
-    await syncNLU(botEngine)
+    scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(204)
   })
@@ -79,7 +97,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
       const botEngine = nlus[req.params.botId] as ScopedEngine
       await botEngine.storage.saveIntent(intentDef.name, intentDef)
-      await syncNLU(botEngine)
+      scheduleSyncNLU(req.params.botId)
 
       res.sendStatus(201)
     } catch (err) {
@@ -102,7 +120,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
       const botEngine = nlus[botId] as ScopedEngine
       await botEngine.storage.saveEntity(entityDef)
-      await syncNLU(botEngine)
+      scheduleSyncNLU(req.params.botId)
 
       res.sendStatus(201)
     } catch (err) {
@@ -118,7 +136,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
     const botEngine = nlus[botId] as ScopedEngine
     await botEngine.storage.saveEntity({ ...updatedEntity, id })
-    await syncNLU(botEngine)
+    scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(201)
   })
@@ -127,7 +145,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const { botId, id } = req.params
     const botEngine = nlus[botId] as ScopedEngine
     await botEngine.storage.deleteEntity(id)
-    await syncNLU(botEngine)
+    scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(204)
   })

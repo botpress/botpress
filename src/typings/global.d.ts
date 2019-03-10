@@ -49,7 +49,10 @@ declare type BotpressEnvironementVariables = {
    */
   readonly REVERSE_PROXY?: string
 
-  /** Use this proxy connexion string to access external services, like Duckling and Licensing */
+  /** Use this proxy connexion string to access external services, like Duckling and Licensing
+   *  This values overwrites the value defined in the global Botpress configuration
+   * @example http://username:password@hostname:port
+   */
   readonly BP_PROXY?: string
 }
 
