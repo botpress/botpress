@@ -169,10 +169,9 @@ export default class MessageList extends Component {
 
           const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
 
-          const avatar =
-            userId && this.props.showUserAvatar
-              ? this.renderAvatar(userName, avatarUrl)
-              : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
+          const avatar = userId
+            ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
+            : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
 
           return (
             <div key={i}>
