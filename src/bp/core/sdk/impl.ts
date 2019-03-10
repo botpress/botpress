@@ -43,7 +43,9 @@ export class IOEvent implements sdk.IO.Event {
   public readonly preview: string
   public readonly suggestions?: sdk.IO.Suggestion[]
   public readonly state: any
+  public readonly credentials?: any
   private readonly flags: any
+  private readonly nlu?: sdk.IO.EventUnderstanding
 
   constructor(args: sdk.IO.EventCtorArgs) {
     this.type = args.type
@@ -60,7 +62,19 @@ export class IOEvent implements sdk.IO.Event {
     this.state = {}
 
     if (this.direction === 'incoming') {
-      this.suggestions = []
+      this.suggestions = args.suggestions || []
+      this.credentials = args.credentials
+    }
+
+    if (args.withNlu) {
+      this.nlu = {
+        entities: [],
+        language: 'n/a',
+        slots: {},
+        intent: { name: 'none', confidence: 1, context: 'global' },
+        intents: [],
+        errored: false
+      }
     }
   }
 

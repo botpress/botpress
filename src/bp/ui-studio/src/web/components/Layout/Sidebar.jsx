@@ -65,8 +65,8 @@ class Sidebar extends React.Component {
         </i>
       )
 
-    const entitiesPath = path + '/entities'
-    const intentsPath = path + '/intents'
+    const entitiesPath = path + '/Entities'
+    const intentsPath = path + '/Intents'
 
     const isNluActive = _.get(this.context.router, 'route.location.pathname', '')
       .toLowerCase()

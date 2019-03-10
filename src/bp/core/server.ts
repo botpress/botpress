@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
@@ -8,19 +9,26 @@ import express from 'express'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
+import jsonwebtoken from 'jsonwebtoken'
+import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
+import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 
+import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
-import { PaymentRequiredError } from './routers/errors'
+import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { monitoringMiddleware } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
+import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
@@ -31,6 +39,7 @@ import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
@@ -72,12 +81,18 @@ export default class HTTPServer {
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies
+    @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
+    @inject(TYPES.AlertingService) private alertingService: AlertingService
   ) {
     this.app = express()
 
     if (!process.IS_PRODUCTION) {
       this.app.use(errorHandler())
+    }
+
+    if (process.core_env.REVERSE_PROXY) {
+      this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
     }
 
     this.httpServer = createServer(this.app)
@@ -97,7 +112,9 @@ export default class HTTPServer {
       this.botService,
       licenseService,
       this.ghostService,
-      this.configProvider
+      this.configProvider,
+      this.monitoringService,
+      this.alertingService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -119,7 +136,7 @@ export default class HTTPServer {
   async initialize() {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService)
+    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
@@ -129,6 +146,20 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    this.app.use(monitoringMiddleware)
+
+    if (config.session && config.session.enabled) {
+      this.app.use(
+        session({
+          secret: process.APP_SECRET,
+          secure: true,
+          httpOnly: true,
+          domain: config.externalUrl,
+          maxAge: ms(config.session.maxAge)
+        })
+      )
+    }
 
     // TODO FIXME Conditionally enable this
     this.app.use(bodyParser.json({ limit: config.bodyLimit }))
@@ -235,5 +266,66 @@ export default class HTTPServer {
         Authorization: `Bearer ${serverToken}`
       }
     }
+  }
+
+  extractExternalToken = async (req, res, next) => {
+    if (req.headers['x-bp-externalauth']) {
+      try {
+        req.credentials = await this.decodeExternalToken(req.headers['x-bp-externalauth'])
+      } catch (error) {
+        return next(new InvalidExternalToken(error.message))
+      }
+    }
+
+    next()
+  }
+
+  async decodeExternalToken(externalToken): Promise<any | undefined> {
+    const externalAuth = await this._getExternalAuthConfig()
+
+    if (!externalAuth || !externalAuth.enabled) {
+      return undefined
+    }
+
+    const { publicKey, audience, algorithm, issuer } = externalAuth
+
+    const [scheme, token] = externalToken.split(' ')
+    if (scheme.toLowerCase() !== 'bearer') {
+      return new Error(`Unknown scheme "${scheme}"`)
+    }
+
+    return Promise.fromCallback(cb => {
+      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithm }, (err, user) => {
+        cb(err, !err ? user : undefined)
+      })
+    })
+  }
+
+  @Memoize
+  private async _getExternalAuthConfig(): Promise<ExternalAuthConfig | undefined> {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const config = botpressConfig.pro.externalAuth
+
+    if (!config) {
+      return
+    }
+
+    if (config.enabled) {
+      if (!config.publicKey) {
+        try {
+          config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
+        } catch (error) {
+          this.logger
+            .attachError(error)
+            .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
+          return undefined
+        }
+      } else if (config.publicKey.length < 256) {
+        this.logger.error(`External User Auth: The provided publicKey is invalid (too short)`)
+        return undefined
+      }
+    }
+
+    return config
   }
 }

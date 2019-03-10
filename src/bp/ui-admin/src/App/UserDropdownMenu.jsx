@@ -19,6 +19,14 @@ class UserDropdownMenu extends Component {
     !this.props.profile && this.props.fetchProfile()
   }
 
+  gotoServer = () => {
+    if (this.props.licensing && this.props.licensing.isPro) {
+      this.props.push('/server/monitoring')
+    } else {
+      this.props.push('/server/license')
+    }
+  }
+
   renderDropdown = () => {
     const { email, fullName, isSuperAdmin } = this.props.profile
 
@@ -30,13 +38,13 @@ class UserDropdownMenu extends Component {
           </span>
         </DropdownToggle>
         <DropdownMenu right>
-          <DropdownItem onClick={() => this.props.push('/profile')}>
+          <DropdownItem onClick={() => this.props.push('/profile/me')}>
             Signed in as&nbsp;
             <strong>{fullName || email}</strong>
           </DropdownItem>
           <DropdownItem divider />
-          <DropdownItem onClick={() => this.props.push('/profile')}>My account</DropdownItem>
-          {isSuperAdmin && <DropdownItem onClick={() => this.props.push('/settings')}>Server settings</DropdownItem>}
+          <DropdownItem onClick={() => this.props.push('/profile/me')}>My account</DropdownItem>
+          {isSuperAdmin && <DropdownItem onClick={this.gotoServer}>Server</DropdownItem>}
           <DropdownItem onClick={() => this.auth.logout()}>Logout</DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
@@ -49,7 +57,8 @@ class UserDropdownMenu extends Component {
 }
 
 const mapStateToProps = state => ({
-  profile: state.user.profile
+  profile: state.user.profile,
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {

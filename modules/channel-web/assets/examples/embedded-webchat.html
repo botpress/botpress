@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>Embedded Webchat</title>
-    <script src="http://localhost:3000/assets/modules/channel-web/inject.js"></script>
+    <script src="/assets/modules/channel-web/inject.js"></script>
   </head>
 
   <body>
@@ -9,6 +9,9 @@
   </body>
 
   <script>
-    window.botpressWebChat.init({ host: 'http://localhost:3000', botId: 'welcome-bot' })
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'welcome-bot'
+    })
   </script>
 </html>

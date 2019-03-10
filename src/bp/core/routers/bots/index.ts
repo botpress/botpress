@@ -43,6 +43,7 @@ export class BotsRouter extends CustomRouter {
   private machineId: string | undefined
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
+  private mediaPathRegex: RegExp
 
   constructor(args: {
     actionService: ActionService
@@ -70,12 +71,30 @@ export class BotsRouter extends CustomRouter {
     this.workspaceService = args.workspaceService
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+    this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
   }
 
   async initialize() {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
     this.machineId = await machineUUID()
+    this.router.use(this.checkBotVisibility)
     this.setupRoutes()
+  }
+
+  checkBotVisibility = async (req, res, next) => {
+    // '___' is a non-valid botId, but here acts as for "all bots"
+    // This is used in modules when they setup routes that work on a global level (they are not tied to a specific bot)
+    // Check the 'sso-login' module for an example
+    if (req.params.botId === '___') {
+      return next()
+    }
+
+    const config = await this.configProvider.getBotConfig(req.params.botId)
+    if (config.private && !req.originalUrl.endsWith('env.js') && !this.mediaPathRegex.test(req.originalUrl)) {
+      return this.checkTokenHeader(req, res, next)
+    }
+
+    next()
   }
 
   getNewRouter(path: string, options?: RouterOptions) {

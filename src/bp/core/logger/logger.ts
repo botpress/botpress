@@ -1,15 +1,17 @@
 import { AxiosError, AxiosRequestConfig } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { incrementMetric } from 'core/services/monitoring'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import os from 'os'
+import stripAnsi from 'strip-ansi'
 import util from 'util'
 
 import { TYPES } from '../types'
 
-import { LoggerPersister } from '.'
+import { LoggerDbPersister, LoggerFilePersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
@@ -24,7 +26,8 @@ export class PersistedConsoleLogger implements Logger {
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
-    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister
+    @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
+    @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister
   ) {
     this.displayLevel = process.VERBOSITY_LEVEL
   }
@@ -57,22 +60,6 @@ export class PersistedConsoleLogger implements Logger {
   }
 
   private print(level: LoggerLevel, message: string, metadata: any) {
-    const entry: LoggerEntry = {
-      botId: this.botId,
-      level: level.toString(),
-      scope: this.name,
-      message: message,
-      metadata: metadata,
-      timestamp: moment().toISOString()
-    }
-
-    if (this.willPersistMessage && level !== LoggerLevel.Debug) {
-      this.loggerPersister.appendLog(entry)
-    } else {
-      // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
-      this.willPersistMessage = true
-    }
-
     if (this.attachedError) {
       try {
         const asAxios = this.attachedError as AxiosError
@@ -125,10 +112,28 @@ export class PersistedConsoleLogger implements Logger {
       indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
     }
 
+    const entry: LoggerEntry = {
+      botId: this.botId,
+      level: level.toString(),
+      scope: displayName,
+      message: stripAnsi(indentedMessage),
+      metadata: stripAnsi(serializedMetadata),
+      timestamp: moment().toISOString()
+    }
+
+    if (this.willPersistMessage && level !== LoggerLevel.Debug) {
+      this.loggerDbPersister.appendLog(entry)
+    } else {
+      // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
+      this.willPersistMessage = true
+    }
+
     if (this.displayLevel >= this.currentMessageLevel!) {
       console.log(
         chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
       )
+
+      this.loggerFilePersister.appendLog(entry)
     }
 
     this.currentMessageLevel = undefined
@@ -157,6 +162,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
+    incrementMetric('warnings.count')
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -165,6 +171,7 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
+    incrementMetric('errors.count')
     this.print(LoggerLevel.Error, message, metadata)
   }
 }

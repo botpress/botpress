@@ -3,6 +3,28 @@ id: migrate
 title: Migration
 ---
 
+## Migration from 11.5 to 11.6
+
+### Custom Modules (target: developers)
+
+There was a breaking change in how the views are handles by modules. Previously, the main view was `web.bundle.js` and you could define more views in the `liteViews` of the `package.json` file. This caused confusion, because only one of those views can be loaded at a time on the user's browser.
+
+We've decided to remove the configurable `liteViews`. From now on, every module must include a `full` and a `lite` view, even if only one of those (or none) is used. This means that the structure must change, here's a sample of before/after:
+
+```
+// This is how the structure used to be:
+my-module/views/index.jsx
+my-module/views/custom-skill.jsx
+
+// This is the structure you should use:
+my-module/views/full/index.jsx
+my-module/views/lite/index.jsx
+```
+
+This change implied modifications on how modules are packaged. Please clear the `node_modules` folder of every module, then run `yarn build`
+
+More informations: http://localhost:3001/docs/next/developers/create-module#views
+
 ## Migration from 11.3 to 11.4
 
 ### Teams removed

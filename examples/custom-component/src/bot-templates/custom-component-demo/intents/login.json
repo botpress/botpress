@@ -1,0 +1,6 @@
+{
+  "name": "login",
+  "utterances": ["I'd like to login", "I want to login"],
+  "slots": [],
+  "contexts": ["global"]
+}

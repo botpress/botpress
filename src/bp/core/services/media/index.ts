@@ -24,7 +24,11 @@ export default class MediaService {
     return fileName
   }
 
-  readFile(botId, fileName): Promise<Buffer> {
+  async readFile(botId, fileName): Promise<Buffer> {
     return this.ghost.forBot(botId).readFileAsBuffer('media', fileName)
+  }
+
+  getFilePath(botId: string, fileName: string): string {
+    return `${process.EXTERNAL_URL}/api/v1/bots/${botId}/media/${fileName}`
   }
 }

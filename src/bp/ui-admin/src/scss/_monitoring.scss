@@ -1,0 +1,41 @@
+.graphToolTip {
+  font-size: 80%;
+  border: 2px solid #e1e4e8;
+  box-shadow: 3px 3px #e1e4e8;
+  border-radius: 3px 3px 3px 3px;
+  padding: 10px;
+  background: #ffffff;
+
+  td {
+    padding-left: 10px;
+  }
+
+  th {
+    padding-left: 10px;
+  }
+}
+
+.monitoringOverview {
+  font-size: 70%;
+  margin-bottom: 25px;
+  .right {
+    text-align: right;
+  }
+
+  .center {
+    text-align: center;
+  }
+}
+
+.graph {
+  float: left;
+  text-align: center;
+}
+
+.monitoring {
+  margin-top: 20px;
+
+  h5 {
+    text-align: center;
+  }
+}

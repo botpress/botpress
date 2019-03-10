@@ -1,7 +1,6 @@
 {
   "docs": {
     "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
-    "Botpress Pro": ["pro/about-pro", "pro/licensing"],
     "Build": [
       "build/overview",
       "build/debug",
@@ -13,14 +12,22 @@
       "build/channels",
       "build/debugging"
     ],
-    "Deploy": ["deploy/hosting"],
-    "Manage": ["manage/versions"],
-    "Developers": [
-      "developers/release-notes",
-      "developers/migrate",
-      "developers/create-module",
-      "developers/cluster",
-      "developers/tutorials"
-    ]
+    "Deploy": ["deploy/architecture", "deploy/hosting"],
+    "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
+    "Developers": ["developers/release-notes", "developers/migrate", "developers/create-module", "developers/cluster"],
+    "Tutorials": [
+      "tutorials/webchat-embedding",
+      "tutorials/existing-backend",
+      "tutorials/database",
+      "tutorials/hitl",
+      "tutorials/jump-to",
+      "tutorials/proactive",
+      "tutorials/shortlinks",
+      "tutorials/timeouts",
+      "tutorials/i18n",
+      "tutorials/external-api",
+      "tutorials/chat-3rd-party-OAuth"
+    ],
+    "Botpress Pro": ["pro/about-pro", "pro/licensing"]
   }
 }

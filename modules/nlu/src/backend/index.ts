@@ -6,7 +6,8 @@ import { Config } from '../config'
 import api from './api'
 import { registerMiddleware } from './middleware'
 
-import ScopedEngine from './engine'
+import ConfusionEngine from './confusion-engine'
+import models from './models'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
 import { EngineByBot } from './typings'
@@ -14,7 +15,7 @@ import { EngineByBot } from './typings'
 const nluByBot: EngineByBot = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
-  Storage.ghostProvider = botId => bp.ghost.forBot(botId)
+  Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
   DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL)
@@ -24,11 +25,12 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, nluByBot)
+  await models(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
-  const scoped = new ScopedEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
+  const scoped = new ConfusionEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
   await scoped.init()
   nluByBot[botId] = scoped
 }

@@ -5,7 +5,6 @@ import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
-import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -15,10 +14,11 @@ import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'
-import { LoggerPersister, LoggerProvider } from './logger'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { AlertingService } from './services/alerting-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
@@ -31,6 +31,7 @@ import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
+import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
@@ -71,14 +72,17 @@ export class Botpress {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
-    @inject(TYPES.LoggerPersister) private loggerPersister: LoggerPersister,
+    @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
+    @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
+    @inject(TYPES.AlertingService) private alertingService: AlertingService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -118,14 +122,16 @@ export class Botpress {
   }
 
   async checkJwtSecret() {
-    let jwtSecret = this.config!.jwtSecret
-    if (!jwtSecret) {
-      jwtSecret = nanoid(40)
-      this.configProvider.mergeBotpressConfig({ jwtSecret })
-      this.logger.warn(`JWT Secret isn't defined. Generating a random key...`)
+    // @deprecated : .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
+    // @ts-ignore
+    let appSecret = this.config.appSecret || this.config.jwtSecret
+    if (!appSecret) {
+      appSecret = nanoid(40)
+      this.configProvider.mergeBotpressConfig({ appSecret })
+      this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
-    process.JWT_SECRET = jwtSecret
+    process.APP_SECRET = appSecret
   }
 
   async checkEditionRequirements() {
@@ -182,7 +188,11 @@ export class Botpress {
       )
     }
 
-    await Promise.map(botsRef, botId => this.botService.mountBot(botId))
+    const bots = await this.botService.getBots()
+    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+    const botsToMount = _.without(botsRef, ...disabledBots)
+
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
 
   @WrapErrorsWith('Error initializing Ghost Service')
@@ -192,8 +202,10 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.loggerPersister.initialize(this.database, await this.loggerProvider('LogPersister'))
-    this.loggerPersister.start()
+    await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
+    this.loggerDbPersister.start()
+
+    await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
@@ -240,6 +252,8 @@ export class Botpress {
 
     await this.logJanitor.start()
     await this.dialogJanitor.start()
+    await this.monitoringService.start()
+    await this.alertingService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

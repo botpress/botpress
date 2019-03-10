@@ -1,50 +1,36 @@
-export interface LogsConfig {
-  /**
-   * Logs will be kept in the database for this period of time
-   * @default 1 week
-   */
-  expiration: string
-}
-
-export interface DialogConfig {
-  /**
-   * @default 5m
-   */
-  timeoutInterval: string
-  /**
-   * @default 30m
-   */
-  sessionTimeoutInterval: string
-  /** The content element to send to the end-user when an unexpected error occur in a flow */
-  error?: {
-    /** The content type of the element */
-    contentType: string
-    /**
-     * The form data of the element
-     * @example {"text": "Whoops! An error occurred. Please try something else.", "typing": true},
-     */
-    args
-  }
-}
+/** ONLY FOR SCHEMA BUILDING - ALSO EDIT IN BOTPRESS.D.TS */
 
 export type BotConfig = {
   $schema?: string
-  /** An identifier for the bot, represents the folder name on the file system. It is also used in the URL */
   id: string
-  /** The name of the bot, used for display purpose only */
   name: string
   description?: string
+  category?: string
+  details: BotDetails
   author?: string
-  /**
-   * @default 1.0.0
-   */
+  disabled?: boolean
+  private?: boolean
   version: string
   imports: {
-    /** An array of content types that will be available using this bot */
+    /** Defines the list of content types supported by the bot */
     contentTypes: string[]
   }
   dialog?: DialogConfig
   logs?: LogsConfig
 }
 
-export const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
+export interface BotDetails {
+  website?: string
+  phoneNumber?: string
+  termsConditions?: string
+  emailAddress?: string
+}
+
+export interface LogsConfig {
+  expiration: string
+}
+
+export interface DialogConfig {
+  timeoutInterval: string
+  sessionTimeoutInterval: string
+}

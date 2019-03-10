@@ -1,4 +1,4 @@
-import { BotTemplate, Logger } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { Bot } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { FileContent, GhostService } from 'core/services'
@@ -10,7 +10,7 @@ import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BOT_DIRECTORIES, BotConfig } from './bot.config'
+const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 
 @injectable()
 export class BotConfigWriter {
@@ -48,10 +48,10 @@ export class BotConfigWriter {
     }
   }
 
-  private async _writeTemplateConfig(configFile: string, bot: Bot) {
+  private async _writeTemplateConfig(configFile: string, bot: Partial<Bot>) {
     try {
       const templateConfig = JSON.parse(await fse.readFileSync(configFile, 'utf-8'))
-      this._writeConfig(bot.id, { ...templateConfig, ...bot })
+      this._writeConfig(bot.id!, { ...templateConfig, ...bot, disabled: false, private: false, details: {} })
     } catch (e) {
       throw new VError(e, `Error writing configuration file from "${configFile}"`)
     }

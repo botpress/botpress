@@ -55,7 +55,7 @@ export class ModuleLoader {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
-  ) { }
+  ) {}
 
   public get configReader() {
     if (this._configReader) {
@@ -183,12 +183,13 @@ export class ModuleLoader {
     return Array.from(this.entryPoints.values()).map(x => x.definition)
   }
 
-  public async getFlowGenerator(moduleName, skillId): Promise<any> {
+  public getFlowGenerator(moduleName: string, skillId: string): Function | undefined {
     const module = this.getModule(moduleName)
-    return _.get(_.find(module.skills, x => x.id === skillId), 'flowGenerator')
+    const skill = _.find(module.skills, x => x.id === skillId)
+    return skill && skill.flowGenerator
   }
 
-  public async getAllSkills(): Promise<Skill[]> {
+  public async getAllSkills(): Promise<Partial<Skill>[]> {
     const skills = Array.from(this.entryPoints.values())
       .filter(module => module.skills)
       .map(module => {
@@ -200,7 +201,7 @@ export class ModuleLoader {
     return _.flatten(skills)
   }
 
-  private getModule(module: string) {
+  private getModule(module: string): ModuleEntryPoint {
     module = module.toLowerCase()
     if (!this.entryPoints.has(module)) {
       throw new Error(`Module '${module}' not registered`)

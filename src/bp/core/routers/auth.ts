@@ -11,11 +11,6 @@ import { CustomRouter } from './customRouter'
 import { NotFoundError } from './errors'
 import { checkTokenHeader, success as sendSuccess } from './util'
 
-const REVERSE_PROXY = !!process.env.REVERSE_PROXY
-
-const getIp = (req: Request) =>
-  (REVERSE_PROXY ? <string | undefined>req.headers['x-forwarded-for'] : undefined) || req.connection.remoteAddress
-
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
@@ -32,8 +27,8 @@ export class AuthRouter extends CustomRouter {
     this.setupRoutes()
   }
 
-  login = async (req, res) => {
-    const token = await this.authService.login(req.body.email, req.body.password, req.body.newPassword, getIp(req))
+  login = async (req: Request, res) => {
+    const token = await this.authService.login(req.body.email, req.body.password, req.body.newPassword, req.ip)
 
     return sendSuccess(res, 'Login successful', { token })
   }
@@ -53,13 +48,13 @@ export class AuthRouter extends CustomRouter {
     return { isFirstTimeUse, ...(await this.getAuthStrategy()) } as AuthConfig
   }
 
-  register = async (req, res) => {
+  register = async (req: RequestWithUser, res) => {
     const config = await this.getAuthConfig()
     if (!config.isFirstTimeUse) {
       res.status(403).send(`Registration is disabled`)
     } else {
       const { email, password } = req.body
-      const token = await this.authService.register(email, password)
+      const token = await this.authService.register(email, password, req.ip)
       return sendSuccess(res, 'Registration successful', { token })
     }
   }
@@ -68,8 +63,8 @@ export class AuthRouter extends CustomRouter {
     return sendSuccess(res, 'Auth Config', await this.getAuthConfig())
   }
 
-  getProfile = async (req, res) => {
-    const { tokenUser } = <RequestWithUser>req
+  getProfile = async (req: RequestWithUser, res) => {
+    const { tokenUser } = req
     const user = await this.authService.findUserByEmail(tokenUser!.email, [
       'company',
       'email',

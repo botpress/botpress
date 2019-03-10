@@ -9,7 +9,7 @@ const MyAccount = props => {
   const tabs = [
     {
       name: 'My Profile',
-      route: '/profile',
+      route: '/profile/me',
       icon: <MdPerson />,
       component: Profile
     },

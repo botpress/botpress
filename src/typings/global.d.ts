@@ -13,9 +13,10 @@ declare namespace NodeJS {
   export interface Process {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
-    JWT_SECRET: string
+    APP_SECRET: string
     HOST: string
     PORT: number
+    PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string
     PROJECT_LOCATION: string
@@ -26,9 +27,38 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
+    core_env: BotpressEnvironementVariables
+    distro: OSDistribution
   }
 }
 
 declare var process: NodeJS.Process
 declare var global: NodeJS.Global
 declare type PRO_FEATURES = 'seats'
+
+/**
+ * This is a copy of process.env to add typing and documentation to variables
+ */
+declare type BotpressEnvironementVariables = {
+  /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
+  readonly NATIVE_EXTENSIONS_DIR?: string
+
+  /**
+   * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
+   * Read more: https://expressjs.com/en/guide/behind-proxies.html
+   */
+  readonly REVERSE_PROXY?: string
+
+  /** Use this proxy connexion string to access external services, like Duckling and Licensing */
+  readonly BP_PROXY?: string
+}
+
+declare interface OSDistribution {
+  os: NodeJS.Platform
+  /** The distribution, e.g. "centos", "ubuntu" */
+  dist: string
+  /** If a codename is available, for example "final" or "alpine" */
+  codename: string
+  /** The release number, for example 18.04 */
+  release: string
+}

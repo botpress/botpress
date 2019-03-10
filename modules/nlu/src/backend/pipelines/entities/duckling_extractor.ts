@@ -1,5 +1,6 @@
 import Axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
 import { EntityExtractor } from '../../typings'
@@ -13,9 +14,12 @@ export class DucklingEntityExtractor implements EntityExtractor {
   static configure(enabled: boolean, url: string) {
     this.enabled = enabled
     if (enabled) {
+      const proxyConfig = process['PROXY'] ? { httpsAgent: new httpsProxyAgent(process['PROXY']) } : {}
+
       this.client = Axios.create({
         baseURL: url,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        ...proxyConfig
       })
     }
   }

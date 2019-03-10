@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { BotConfig, Logger } from 'botpress/sdk'
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -10,7 +10,6 @@ import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
 
-import { BotConfig } from './bot.config'
 import { BotpressConfig } from './botpress.config'
 
 export interface ConfigProvider {
@@ -43,6 +42,7 @@ export class GhostConfigProvider implements ConfigProvider {
 
     config.httpServer.port = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.port
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
+    process.PROXY = process.core_env.BP_PROXY || config.httpServer.proxy
 
     if (config.pro) {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
@@ -84,7 +84,8 @@ export class GhostConfigProvider implements ConfigProvider {
       const config = {
         $schema: `../botpress.config.schema.json`,
         ...defaultConfig,
-        modules: await this.getModulesListConfig()
+        modules: await this.getModulesListConfig(),
+        version: process.BOTPRESS_VERSION
       }
 
       await fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
@@ -107,10 +108,16 @@ export class GhostConfigProvider implements ConfigProvider {
   }
 
   public async getModulesListConfig() {
+    const disabledByDefault = ['hitl', 'broadcast']
+
+    // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
-    return await resolver.getModulesList().map(module => {
-      return { location: `MODULES_ROOT/${module}`, enabled: true }
-    })
+    return await resolver
+      .getModulesList()
+      .filter(module => !disabledByDefault.includes(module))
+      .map(module => {
+        return { location: `MODULES_ROOT/${module}`, enabled: true }
+      })
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {

@@ -5,7 +5,7 @@ export const moduleViewNames = (modules = [], position = 'overlay') =>
     (modules || []).filter(Boolean).map(module =>
       _.filter(module.plugins || [], { position }).map(plugin => ({
         moduleName: module.name,
-        viewName: plugin.entry
+        componentName: plugin.entry
       }))
     )
   )

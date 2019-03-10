@@ -19,6 +19,7 @@ async function start() {
   logger.info(chalk`========================================
 {bold ${center(`Botpress Server`, 40)}}
 {dim ${center(`Version ${sdk.version}`, 40)}}
+{dim ${center(`OS ${process.distro.toString()}`, 40)}}
 ========================================`)
 
   global.printErrorDefault = err => {

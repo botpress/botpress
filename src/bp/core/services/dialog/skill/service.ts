@@ -1,4 +1,4 @@
-import { Flow, FlowGenerationResult, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
+import { ActionBuilderProps, Flow, FlowGenerationResult, FlowNode, NodeActionType, SkillFlow } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
@@ -24,7 +24,7 @@ export class SkillService {
     return { flow: completeFlow, transitions: partialFlow.transitions }
   }
 
-  private parseActionQuery(nodes) {
+  private parseActionQuery(nodes): string[] | undefined {
     if (typeof nodes === 'undefined') {
       return undefined
     }
@@ -32,7 +32,7 @@ export class SkillService {
     return (nodes && nodes.length && nodes.map(this.actionToString)) || []
   }
 
-  private actionToString(action): string {
+  private actionToString(action: ActionBuilderProps): string {
     let finalNode: string = ''
     if (action.type === NodeActionType.RunAction) {
       finalNode = action.args ? `${action.name} ${JSON.stringify(action.args)}` : action.name
@@ -46,7 +46,7 @@ export class SkillService {
     return finalNode
   }
 
-  private setDefaultsForMissingValues(partialFlow: SkillFlow) {
+  private setDefaultsForMissingValues(partialFlow: SkillFlow): Flow {
     const defaultNode: FlowNode = {
       name: '',
       onEnter: [],

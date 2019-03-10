@@ -1,14 +1,9 @@
 {
   "name": "basic-skills",
-  "version": "10.45.0",
+  "version": "11.5.0",
   "description": "Botpress Skill that allows users to pick an option",
   "private": true,
   "main": "dist/backend/index.js",
-  "botpress": {
-    "liteViews": {
-      "choice": "./src/views/choice.jsx"
-    }
-  },
   "webpack": {
     "externals": {
       "react": "React",

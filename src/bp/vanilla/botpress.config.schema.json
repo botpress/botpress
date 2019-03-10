@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "jwtSecret": {
+    "appSecret": {
       "type": "string"
     },
     "httpServer": {
@@ -26,6 +26,17 @@
               "type": "boolean"
             },
             "origin": {
+              "type": "string"
+            }
+          }
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "maxAge": {
               "type": "string"
             }
           }
@@ -80,7 +91,7 @@
     "dialog",
     "ghost",
     "httpServer",
-    "jwtSecret",
+    "appSecret",
     "licenseKey",
     "logs",
     "modules"

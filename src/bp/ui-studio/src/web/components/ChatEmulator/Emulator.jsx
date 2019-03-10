@@ -6,13 +6,12 @@ import JSONTree from 'react-json-tree'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import { Button, Tooltip, OverlayTrigger, Glyphicon } from 'react-bootstrap'
-import { HotKeys } from 'react-hotkeys'
-import { keyMap } from '~/keyboardShortcuts'
 import classnames from 'classnames'
 import inspectorTheme from './inspectorTheme'
 import Message from './Message'
 
 import style from './Emulator.styl'
+import Settings from './Settings'
 
 const USER_ID_KEY = `bp::${window.BOT_ID}::emulator::userId`
 const SENT_HISTORY_KEY = `bp::${window.BOT_ID}::emulator::sentHistory`
@@ -34,7 +33,10 @@ export default class EmulatorChat extends React.Component {
     sentHistoryIndex: 0,
     isInspectorVisible: true,
     isVerticalView: true,
-    isTypingHidden: true
+    isTypingHidden: true,
+    isSettingsOpen: false,
+    isSendingRawPayload: false,
+    invalidMessage: false
   }
 
   getOrCreateUserId(forceNew = false) {
@@ -76,23 +78,49 @@ export default class EmulatorChat extends React.Component {
     })
   }
 
+  getAxiosConfig() {
+    let axiosConfig = { params: { include: 'nlu,state,suggestions,decision,credentials' } }
+
+    if (this.state.externalToken) {
+      axiosConfig = {
+        ...axiosConfig,
+        headers: {
+          'X-BP-ExternalAuth': `Bearer ${this.state.externalToken}`
+        }
+      }
+    }
+
+    return axiosConfig
+  }
+
   sendText = async () => {
     if (!this.state.textInputValue.length) {
       return
     }
 
     const text = this.state.textInputValue
+    let messagePayload = { text }
+
+    if (this.state.isSendingRawPayload) {
+      try {
+        messagePayload = JSON.parse(text)
+      } catch (error) {
+        console.log('Error while parsing the JSON payload: ', error)
+        this.setState({ invalidMessage: true })
+        return
+      }
+    }
 
     // Wait for state to be set fully to prevent race conditions
-    await Promise.fromCallback(cb => this.setState({ textInputValue: '', sending: true }, cb))
+    await Promise.fromCallback(cb => this.setState({ textInputValue: '', sending: true, invalidMessage: false }, cb))
 
     const sentAt = Date.now()
     let msg
     try {
       const res = await axios.post(
         `${window.BOT_API_PATH}/converse/${this.state.userId}/secured`,
-        { text },
-        { params: { include: 'nlu,state,suggestions,decision' } }
+        messagePayload,
+        this.getAxiosConfig()
       )
 
       const duration = Date.now() - sentAt
@@ -125,7 +153,11 @@ export default class EmulatorChat extends React.Component {
 
   handleKeyPress = e => {
     if (!e.shiftKey && e.key === 'Enter') {
-      this.sendText()
+      if (e.ctrlKey) {
+        this.handleChangeUserId(() => this.sendText())
+      } else {
+        this.sendText()
+      }
       e.preventDefault()
     }
   }
@@ -148,14 +180,19 @@ export default class EmulatorChat extends React.Component {
     return level <= 1
   }
 
-  handleChangeUserId = () => {
+  handleChangeUserId = callback => {
     this.setState(
       {
         messages: [],
         selectedIndex: -1,
         userId: this.getOrCreateUserId(true)
       },
-      () => this.textInputRef.current.focus()
+      () => {
+        this.textInputRef.current.focus()
+        if (callback) {
+          callback()
+        }
+      }
     )
   }
 
@@ -202,12 +239,19 @@ export default class EmulatorChat extends React.Component {
       <textarea
         tabIndex={1}
         ref={this.textInputRef}
-        className={classnames(style.msgInput, { [style.disabled]: this.state.sending })}
+        className={classnames(style.msgInput, {
+          [style.disabled]: this.state.sending,
+          [style.error]: this.state.invalidMessage
+        })}
         type="text"
         onKeyPress={this.handleKeyPress}
         onKeyDown={this.handleKeyDown}
         value={this.state.textInputValue}
-        placeholder="Type a message here"
+        placeholder={
+          this.state.isSendingRawPayload
+            ? 'Type your raw payload here. It must be valid JSON. Ex: {"text": "bla"}'
+            : 'Type a message here'
+        }
         onChange={this.handleMsgChange}
       />
     )
@@ -225,18 +269,22 @@ export default class EmulatorChat extends React.Component {
     this.setState({ isTypingHidden: !this.state.isTypingHidden })
   }
 
-  render() {
-    const keyHandlers = {
-      'emulator-reset': this.handleChangeUserId
-    }
+  hideSettings = () => this.setState({ isSettingsOpen: false })
+  displaySettings = () => this.setState({ isSettingsOpen: true })
+  updateSettings = newSettings => this.setState({ ...newSettings })
 
+  toggleRawPayload = () => this.setState({ isSendingRawPayload: !this.state.isSendingRawPayload })
+
+  render() {
+    const togglePayload = <Tooltip id="togglePayload">Toggle between sending text or a raw payload</Tooltip>
+    const toggleSettings = <Tooltip id="editSettings">Configure Emulator Settings</Tooltip>
     const toggleTyping = <Tooltip id="toggleTyping">Toggle Display of 'Typing' indicator</Tooltip>
     const toggleTooltip = <Tooltip id="toggleTooltip">Toggle View</Tooltip>
     const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
-    const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session ({keyMap['emulator-reset']})</Tooltip>
+    const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session (ctrl+enter on send)</Tooltip>
 
     return (
-      <HotKeys handlers={keyHandlers} className={style.container}>
+      <div className={style.container}>
         <div className={style.toolbar}>
           <OverlayTrigger placement="bottom" overlay={newSessionTooltip}>
             <Button onClick={this.handleChangeUserId}>
@@ -244,6 +292,16 @@ export default class EmulatorChat extends React.Component {
             </Button>
           </OverlayTrigger>
           <div style={{ float: 'right' }}>
+            <OverlayTrigger placement="bottom" overlay={togglePayload}>
+              <Button onClick={this.toggleRawPayload}>
+                <Glyphicon glyph="comment" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger placement="bottom" overlay={toggleSettings}>
+              <Button onClick={this.displaySettings}>
+                <Glyphicon glyph="cog" />
+              </Button>
+            </OverlayTrigger>
             <OverlayTrigger placement="bottom" overlay={toggleTyping}>
               <Button onClick={this.toggleTyping}>
                 <Glyphicon glyph="pencil" />
@@ -260,6 +318,13 @@ export default class EmulatorChat extends React.Component {
               </Button>
             </OverlayTrigger>
           </div>
+          <Settings
+            userId={this.state.userId}
+            externalToken={this.state.externalToken}
+            show={this.state.isSettingsOpen}
+            onHideSettings={this.hideSettings}
+            onUpdateSettings={this.updateSettings}
+          />
         </div>
         <div className={style.panes}>
           <SplitPane
@@ -274,7 +339,7 @@ export default class EmulatorChat extends React.Component {
           </SplitPane>
         </div>
         {this.renderMessageInput()}
-      </HotKeys>
+      </div>
     )
   }
 }

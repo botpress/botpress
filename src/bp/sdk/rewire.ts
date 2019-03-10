@@ -1,15 +1,46 @@
+import sysfs from 'fs'
 import _ from 'lodash'
 import Module from 'module'
+import os from 'os'
 import syspath from 'path'
 
 const originalRequire = Module.prototype.require
-let nativeBindingsPath = syspath.resolve(syspath.dirname(process.execPath), 'bindings')
+const platformFolders: string[] = []
+const nativeBindingsPaths: string[] = []
 
-if (!process.pkg) {
-  const platformFolder = { win32: 'windows' }[process.platform] || process.platform
-  const nativeExFolder =
-    process.env.NATIVE_EXTENSIONS_DIR || syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions')
-  nativeBindingsPath = syspath.resolve(nativeExFolder, platformFolder)
+const nativeExBaseFolder =
+  (process.core_env.NATIVE_EXTENSIONS_DIR && syspath.resolve(process.core_env.NATIVE_EXTENSIONS_DIR)) ||
+  (process.pkg
+    ? syspath.resolve(syspath.dirname(process.execPath), 'bindings')
+    : syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions'))
+
+if (process.distro.os === 'linux') {
+  platformFolders.push('linux/default')
+
+  try {
+    const fullDist = _.last(process.distro.toString().split(' '))!
+    const smallDist = fullDist.split('_')[0]
+
+    const folders = sysfs
+      .readdirSync(syspath.resolve(nativeExBaseFolder, './linux/'))
+      .filter(x => x.startsWith(smallDist))
+      .sort()
+      .reverse()
+
+    const nearestDistro = _.find(folders, f => f <= fullDist) || _.first(folders)
+    nearestDistro && platformFolders.unshift('linux/' + nearestDistro)
+  } finally {
+  }
+} else if (os.platform() === 'win32') {
+  platformFolders.push('windows/all')
+} else if (os.platform() === 'darwin') {
+  platformFolders.push('darwin/all')
+} else {
+  throw new Error(`Unsupported OS "${process.distro}"`)
+}
+
+for (const folder of platformFolders) {
+  nativeBindingsPaths.push(syspath.resolve(nativeExBaseFolder, folder))
 }
 
 const nativeExtensions = ['node_sqlite3.node', 'fse.node', 'crfsuite.node', 'fasttext.node']
@@ -53,9 +84,20 @@ Module.prototype.require = function(mod) {
       return originalRequire.apply(this, [mod.substr(1)])
     }
     const ext = syspath.basename(mod)
-    const newPath = syspath.join(nativeBindingsPath, ext)
     if (nativeExtensions.includes(ext)) {
-      return originalRequire.apply(this, [newPath])
+      const newPaths = nativeBindingsPaths.map(x => syspath.join(x, ext))
+      for (const newPath of newPaths) {
+        try {
+          return originalRequire.apply(this, [newPath])
+        } catch (err) {
+          /* Swallow error, try next one */
+        }
+      }
+      throw new Error(
+        `Could not require NativeExtension "${ext}" for OS "${
+          process.distro
+        }". Tried the following paths: [ ${newPaths.join(', ')} ]`
+      )
     }
   }
 

@@ -43,7 +43,7 @@ class LiteView extends React.Component {
   }
 
   render() {
-    const modules = moduleViewNames(this.props.modules.filter(module => module.isPlugin))
+    const modules = moduleViewNames(this.props.modules, 'plugin')
     const onNotFound = () => (
       <h1>
         Module ${moduleName} with view ${v} not found
@@ -52,9 +52,15 @@ class LiteView extends React.Component {
 
     return (
       <div>
-        <InjectedModuleView moduleName={moduleName} viewName={v} lite={true} onNotFound={onNotFound} />
-        {modules.map(({ moduleName, viewName }, i) => (
-          <InjectedModuleView key={i} moduleName={moduleName} viewName={viewName} onNotFound={onNotFound} />
+        <InjectedModuleView moduleName={moduleName} lite={true} componentName={v} onNotFound={onNotFound} />
+        {modules.map(({ moduleName, componentName }, i) => (
+          <InjectedModuleView
+            key={i}
+            moduleName={moduleName}
+            lite={true}
+            componentName={componentName}
+            onNotFound={onNotFound}
+          />
         ))}
       </div>
     )

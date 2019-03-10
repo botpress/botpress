@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Container, Nav, NavItem, NavLink, Row, Col } from 'reactstrap'
+import classnames from 'classnames'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/lib/md'
 import { AccessControl } from '../../App/AccessControl'
 import { fetchPermissions } from '../../reducers/user'
 import { fetchLicensing } from '../../reducers/license'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, matchPath } from 'react-router-dom'
 
 class TabLayout extends Component {
   state = {
@@ -19,6 +20,8 @@ class TabLayout extends Component {
   }
 
   updateRoute = route => this.props.history.push(route)
+  matchCurrentPath = path => matchPath(this.props.location.pathname, { path })
+  getCurrentTab = () => this.props.tabs.find(tab => this.matchCurrentPath(tab.route))
 
   renderHomeTab() {
     return (
@@ -37,10 +40,7 @@ class TabLayout extends Component {
     return (
       <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
-          <NavLink
-            className={this.props.location.pathname === tab.route ? 'active' : ''}
-            onClick={() => this.updateRoute(tab.route)}
-          >
+          <NavLink className={this.matchCurrentPath(tab.route) && 'active'} onClick={() => this.updateRoute(tab.route)}>
             {tab.icon}
             {tab.name}
           </NavLink>
@@ -50,6 +50,9 @@ class TabLayout extends Component {
   }
 
   render() {
+    const currentTab = this.getCurrentTab()
+    const useFullWidth = currentTab && currentTab.useFullWidth
+
     return (
       <Fragment>
         <div className="bp_container-header">
@@ -69,18 +72,19 @@ class TabLayout extends Component {
             </Row>
           </Container>
         </div>
-
-        <Container>
-          <Row>
-            <Col xs={12} md={{ size: 10, offset: 1 }}>
-              <Switch>
-                {this.props.tabs.map(tab => (
-                  <Route path={tab.route} exact component={tab.component} key={tab.name} />
-                ))}
-              </Switch>
-            </Col>
-          </Row>
-        </Container>
+        <div className={classnames({ 'bp_container-fullwidth': useFullWidth })}>
+          <Container>
+            <Row>
+              <Col xs={12} md={{ size: 10, offset: 1 }}>
+                <Switch>
+                  {this.props.tabs.map(tab => (
+                    <Route path={tab.route} exact component={tab.component} key={tab.name} />
+                  ))}
+                </Switch>
+              </Col>
+            </Row>
+          </Container>
+        </div>
       </Fragment>
     )
   }

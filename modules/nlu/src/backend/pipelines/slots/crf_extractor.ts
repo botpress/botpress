@@ -11,7 +11,9 @@ import { generatePredictionSequence } from './pre-processor'
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
-  iterations: 250
+  iterations: 250,
+  initialization: 'random',
+  seed: 666 // so training is consistent
 }
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
@@ -42,7 +44,7 @@ export default class CRFExtractor implements SlotExtractor {
     this._ftModelFn = ftModelFn
 
     // load kmeans (retrain because there is no simple way to store it)
-    this._trainKmeans(traingingSet)
+    await this._trainKmeans(traingingSet)
 
     // load crf model
     this._crfModelFn = tmp.tmpNameSync()
@@ -58,7 +60,6 @@ export default class CRFExtractor implements SlotExtractor {
       await this._trainLanguageModel(trainingSet)
       await this._trainKmeans(trainingSet)
       await this._trainCrf(trainingSet)
-
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
@@ -95,7 +96,6 @@ export default class CRFExtractor implements SlotExtractor {
   ): Promise<sdk.NLU.SlotsCollection> {
     const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
-
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tag]) => {
@@ -224,14 +224,9 @@ export default class CRFExtractor implements SlotExtractor {
     await ft.trainToFile('skipgram', this._ftModelFn, {
       input: ftTrainFn,
       minCount: 2,
-      bucket: 25000,
       dim: 15,
       lr: 0.5,
-      wordNgrams: 3,
-      maxn: 6,
-      minn: 2,
-      epoch: 50,
-      loss: 'hs'
+      epoch: 50
     })
 
     this._ft = ft
@@ -259,7 +254,7 @@ export default class CRFExtractor implements SlotExtractor {
     }
 
     const entititesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
-      ent => `${featPrefix}entity=${ent}`
+      ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
     )
 
     return [...vector, ...entititesFeatures]

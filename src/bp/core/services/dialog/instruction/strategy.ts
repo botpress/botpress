@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
 import { container } from '../../../app.inversify'
-import { renderRecursive } from '../../../misc/templating'
+import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
@@ -86,7 +86,8 @@ export class ActionStrategy implements InstructionStrategy {
       event,
       user: _.get(event, 'state.user', {}),
       session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {})
+      temp: _.get(event, 'state.temp', {}),
+      bot: _.get(event, 'state.bot', {})
     }
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
@@ -114,10 +115,11 @@ export class ActionStrategy implements InstructionStrategy {
       event,
       user: _.get(event, 'state.user', {}),
       session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {})
+      temp: _.get(event, 'state.temp', {}),
+      bot: _.get(event, 'state.bot', {})
     }
 
-    args = _.mapValues(args, value => renderRecursive(value, actionArgs))
+    args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {

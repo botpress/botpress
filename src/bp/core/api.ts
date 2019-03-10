@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
 import { container } from './app.inversify'
-import { BotConfig } from './config/bot.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
@@ -21,6 +21,7 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
 import { KeyValueStore } from './services/kvs'
+import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
@@ -40,6 +41,12 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     },
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
+    },
+    extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+      return httpServer.extractExternalToken(req, res, next)
+    },
+    decodeExternalToken(token: string): Promise<any> {
+      return httpServer.decodeExternalToken(token)
     }
   }
 }
@@ -63,8 +70,8 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
     createId(eventDestination: sdk.IO.EventDestination) {
       return SessionIdFactory.createIdFromEvent(eventDestination)
     },
-    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<void> {
-      await dialogEngine.processEvent(sessionId, event)
+    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<sdk.IO.IncomingEvent> {
+      return dialogEngine.processEvent(sessionId, event)
     },
     async deleteSession(userId: string): Promise<void> {
       await sessionRepo.delete(userId)
@@ -91,7 +98,7 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
 
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
-    getAllBots(): Promise<Map<string, BotConfig>> {
+    getAllBots(): Promise<Map<string, sdk.BotConfig>> {
       return botService.getBots()
     }
   }
@@ -147,11 +154,15 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
       return ghostService.forBot(botId)
+    },
+
+    forGlobal(): ScopedGhostService {
+      return ghostService.global()
     }
   }
 }
 
-const cms = (cmsService: CMSService): typeof sdk.cms => {
+const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms => {
   return {
     getContentElement(botId: string, id: string): Promise<any> {
       return cmsService.getContentElement(botId, id)
@@ -175,6 +186,15 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
       contentElementId?: string
     ): Promise<string> {
       return cmsService.createOrUpdateContentElement(botId, contentTypeId, formData, contentElementId)
+    },
+    async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
+      return mediaService.saveFile(botId, fileName, content)
+    },
+    async readFile(botId, fileName): Promise<Buffer> {
+      return mediaService.readFile(botId, fileName)
+    },
+    getFilePath(botId: string, fileName: string): string {
+      return mediaService.getFilePath(botId, fileName)
     }
   }
 }
@@ -221,7 +241,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider
+    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.MediaService) mediaService: MediaService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -234,7 +255,7 @@ export class BotpressAPIProvider {
     this.notifications = notifications(notificationService)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
-    this.cms = cms(cmsService)
+    this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
   }
 

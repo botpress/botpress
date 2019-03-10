@@ -15,7 +15,7 @@ if (process.pkg) {
 }
 
 if (process.env.BP_MODULES_PATH) {
-  lookupPaths.push(process.env.BP_MODULES_PATH)
+  lookupPaths.push(...process.env.BP_MODULES_PATH.split(':'))
 }
 
 if (process.env.BP_PATH) {

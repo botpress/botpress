@@ -4,7 +4,7 @@ import { injectable } from 'inversify'
 
 export interface AuthStrategies {
   setup(router: Router)
-  getOrCreateUser(authUser: Partial<AuthUser>): Promise<AuthUser>
+  getAndUpsertUser(authUser: Partial<AuthUser>): Promise<AuthUser>
   mapFields(userProfile: any)
   createTokenForUser(email: string): Promise<string>
 }
@@ -15,7 +15,7 @@ export class CEAuthStrategies implements AuthStrategies {
     throw new Error('Not implemented')
   }
 
-  getOrCreateUser(authUser: Partial<AuthUser>): Promise<AuthUser> {
+  getAndUpsertUser(authUser: Partial<AuthUser>): Promise<AuthUser> {
     throw new Error('Not implemented')
   }
 

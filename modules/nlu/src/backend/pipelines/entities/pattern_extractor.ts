@@ -10,6 +10,7 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
       return extractPattern(input, regex).map(res => ({
         name: entityDef.name,
         type: entityDef.type, // pattern
+        sensitive: entityDef.sensitive,
         meta: {
           confidence: 1, // pattern always has 1 confidence
           provider: 'native',
@@ -21,7 +22,7 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
         data: {
           extras: {},
           value: res.value,
-          unit: 'string',
+          unit: 'string'
         }
       }))
     } catch (error) {
@@ -30,32 +31,32 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
   })
 }
 
-const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityDefOccurence, entityDef: sdk.NLU.EntityDefinition): sdk.NLU.Entity[] => {
-  const pattern = [
-    occurence.name,
-    ...occurence.synonyms
-  ].map(escapeRegex).join('|')
+const _extractEntitiesFromOccurence = (
+  input: string,
+  occurence: sdk.NLU.EntityDefOccurence,
+  entityDef: sdk.NLU.EntityDefinition
+): sdk.NLU.Entity[] => {
+  const pattern = [occurence.name, ...occurence.synonyms].map(escapeRegex).join('|')
 
   try {
     const regex = new RegExp(pattern, 'i')
-    return extractPattern(input, regex)
-      .map(extracted => ({
-        name: entityDef.name,
-        type: 'list',
-        meta: {
-          confidence: 1, // extrated with synonyme as patterns
-          provider: 'native',
-          source: extracted.value,
-          start: extracted.sourceIndex,
-          end: extracted.sourceIndex + extracted.value.length,
-          raw: {}
-        },
-        data: {
-          extras: {},
-          value: occurence.name, // cannonical value,
-          unit: 'string'
-        }
-      }))
+    return extractPattern(input, regex).map(extracted => ({
+      name: entityDef.name,
+      type: 'list',
+      meta: {
+        confidence: 1, // extrated with synonyme as patterns
+        provider: 'native',
+        source: extracted.value,
+        start: extracted.sourceIndex,
+        end: extracted.sourceIndex + extracted.value.length,
+        raw: {}
+      },
+      data: {
+        extras: {},
+        value: occurence.name, // cannonical value,
+        unit: 'string'
+      }
+    }))
   } catch (error) {
     throw Error(`Something is wrong with one of ${entityDef.name}'s occurence`)
   }
@@ -63,7 +64,7 @@ const _extractEntitiesFromOccurence = (input: string, occurence: sdk.NLU.EntityD
 
 export const extractListEntities = (input: string, entityDefs: sdk.NLU.EntityDefinition[]): sdk.NLU.Entity[] => {
   return flatMap(entityDefs, entityDef => {
-    return flatMap((entityDef.occurences || []), occurence => {
+    return flatMap(entityDef.occurences || [], occurence => {
       return _extractEntitiesFromOccurence(input, occurence, entityDef)
     })
   })

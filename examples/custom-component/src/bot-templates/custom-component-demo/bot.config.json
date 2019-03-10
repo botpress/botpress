@@ -1,0 +1,28 @@
+{
+  "$schema": "../../bot.config.schema.json",
+  "description": "This module shows how to implement custom components on channel web",
+  "active": true,
+  "version": "1.0.0",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "imports": {
+    "modules": [],
+    "incomingMiddleware": [],
+    "outgoingMiddleware": [],
+    "contentTypes": [
+      "builtin_text",
+      "builtin_single-choice",
+      "builtin_image",
+      "builtin_carousel",
+      "builtin_card",
+      "custom_loginform",
+      "custom_uppercase"
+    ]
+  },
+  "dialog": {
+    "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
+  }
+}
