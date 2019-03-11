@@ -225,7 +225,7 @@ export class MessengerClient {
       return
     }
 
-    await this.sendProfile(config.persistentMenu)
+    await this.sendProfile({ persistent_menu: config.persistentMenu })
   }
 
   async sendAction(senderId: string, action: MessengerAction) {
