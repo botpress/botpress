@@ -152,7 +152,7 @@ export default class EmulatorChat extends React.Component {
   }
 
   handleKeyPress = e => {
-    if (!e.shiftKey && e.key === 'Enter') {
+    if (!e.shiftKey && (e.keyCode === 13 || e.which === 13)) {
       if (e.ctrlKey) {
         this.handleChangeUserId(() => this.sendText())
       } else {
@@ -189,7 +189,7 @@ export default class EmulatorChat extends React.Component {
       },
       () => {
         this.textInputRef.current.focus()
-        if (callback) {
+        if (_.isFunction(callback)) {
           callback()
         }
       }
