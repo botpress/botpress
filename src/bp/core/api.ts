@@ -17,6 +17,7 @@ import HTTPServer from './server'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
+import { ConverseService } from './services/converse'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
@@ -92,6 +93,14 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
     },
     getBotpressConfig(): Promise<any> {
       return configProfider.getBotpressConfig()
+    }
+  }
+}
+
+const converse = (converseService: ConverseService): typeof sdk.converse => {
+  return {
+    sendMessage(botId: string, userId: string, payload, channel?: string): Promise<any> {
+      return converseService.sendMessage(botId, userId, payload, channel)
     }
   }
 }
@@ -216,6 +225,7 @@ export class BotpressAPIProvider {
   events: typeof sdk.events
   dialog: typeof sdk.dialog
   config: typeof sdk.config
+  converse: typeof sdk.converse
   realtime: RealTimeAPI
   database: Knex
   users: typeof sdk.users
@@ -242,8 +252,10 @@ export class BotpressAPIProvider {
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
-    @inject(TYPES.MediaService) mediaService: MediaService
+    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.ConverseService) converseService: ConverseService
   ) {
+    this.converse = converse(converseService)
     this.http = http(httpServer)
     this.events = event(eventEngine)
     this.dialog = dialog(dialogEngine, sessionRepo)
@@ -273,6 +285,7 @@ export class BotpressAPIProvider {
       },
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
+      converse: this.converse,
       events: this.events,
       http: this.http,
       logger: await this.loggerProvider(loggerName),
