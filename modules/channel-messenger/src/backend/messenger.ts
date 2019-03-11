@@ -13,44 +13,44 @@ type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 export class MessengerService {
   private readonly http = axios.create({ baseURL: 'https://graph.facebook.com/v2.6/me' })
 
-  private _messengerClients: { [key: string]: MessengerClient } = {}
-  private _router: Router
+  private messengerClients: { [key: string]: MessengerClient } = {}
+  private router: Router
 
   constructor(private bp: typeof sdk) {}
 
   initialize() {
-    this._router = this.bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
-    this._router.use(
+    this.router = this.bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
+    this.router.use(
       bodyParser.json({
         verify: this._verifySignature.bind(this)
       })
     )
 
-    this._router.get('/webhook', this._setupWebhook.bind(this))
-    this._router.post('/webhook', this.handleMessages.bind(this))
+    this.router.get('/webhook', this._setupWebhook.bind(this))
+    this.router.post('/webhook', this._handleIncomingMessage.bind(this))
 
     this.bp.events.registerMiddleware({
       description: 'Sends outgoing messages for the messenger channel',
       direction: 'outgoing',
-      handler: this._outgoingHandler.bind(this),
+      handler: this._handleOutgoingEvent.bind(this),
       name: 'messenger.sendMessages',
       order: 200
     })
   }
 
-  forBot(botId: string): MessengerClient {
-    if (this._messengerClients[botId]) {
-      return this._messengerClients[botId]
+  getMessengerClient(botId: string): MessengerClient {
+    if (this.messengerClients[botId]) {
+      return this.messengerClients[botId]
     }
 
-    this._messengerClients[botId] = new MessengerClient(botId, this.bp, this.http)
-    return this._messengerClients[botId]
+    this.messengerClients[botId] = new MessengerClient(botId, this.bp, this.http)
+    return this.messengerClients[botId]
   }
 
   // See: https://developers.facebook.com/docs/messenger-platform/webhook#security
   private async _verifySignature(req, res, buffer) {
-    const messenger = this.forBot(req.params.botId)
-    const config = await messenger.getConfig()
+    const client = this.getMessengerClient(req.params.botId)
+    const config = await client.getConfig()
     const signatureError = new Error("Couldn't validate the request signature.")
 
     if (!/^\/webhook/i.test(req.path)) {
@@ -73,10 +73,10 @@ export class MessengerService {
     }
   }
 
-  async handleMessages(req, res) {
+  private async _handleIncomingMessage(req, res) {
     const body = req.body
     const botId = req.params.botId
-    const messenger = this.forBot(botId)
+    const client = this.getMessengerClient(botId)
 
     if (body.object !== 'page') {
       res.sendStatus(404)
@@ -88,40 +88,19 @@ export class MessengerService {
       const webhookEvent = entry.messaging[0]
       const senderId = webhookEvent.sender.id
 
-      await messenger.sendAction(senderId, 'mark_seen')
+      await client.sendAction(senderId, 'mark_seen')
 
       if (webhookEvent.message) {
-        await this.sendEvent(botId, senderId, webhookEvent.message, { type: 'message' })
+        await this._sendEvent(botId, senderId, webhookEvent.message, { type: 'message' })
       } else if (webhookEvent.postback) {
-        await this.sendEvent(botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
+        await this._sendEvent(botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
       }
     }
 
     res.status(200).send('EVENT_RECEIVED')
   }
 
-  async _setupWebhook(req, res) {
-    const mode = req.query['hub.mode']
-    const token = req.query['hub.verify_token']
-    const challenge = req.query['hub.challenge']
-    const botId = req.params.botId
-
-    const messenger = this.forBot(botId)
-    const config = await messenger.getConfig()
-
-    if (mode && token && mode === 'subscribe' && token === config.verifyToken) {
-      this.bp.logger.forBot(botId).debug('Webhook Verified.')
-      res.status(200).send(challenge)
-    } else {
-      res.sendStatus(403)
-    }
-
-    await messenger.setupGreeting()
-    await messenger.setupGetStarted()
-    await messenger.setupPersistentMenu()
-  }
-
-  async sendEvent(botId: string, senderId: string, message, args: { type: string }) {
+  private async _sendEvent(botId: string, senderId: string, message, args: { type: string }) {
     this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
@@ -135,30 +114,43 @@ export class MessengerService {
     )
   }
 
-  private async _outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  private async _setupWebhook(req, res) {
+    const mode = req.query['hub.mode']
+    const token = req.query['hub.verify_token']
+    const challenge = req.query['hub.challenge']
+    const botId = req.params.botId
+
+    const client = this.getMessengerClient(botId)
+    const config = await client.getConfig()
+
+    if (mode && token && mode === 'subscribe' && token === config.verifyToken) {
+      this.bp.logger.forBot(botId).debug('Webhook Verified.')
+      res.status(200).send(challenge)
+    } else {
+      res.sendStatus(403)
+    }
+
+    await client.setupGreeting()
+    await client.setupGetStarted()
+    await client.setupPersistentMenu()
+  }
+
+  private async _handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'messenger') {
       return next()
     }
 
-    const messenger = this.forBot(event.botId)
-
     const messageType = event.type === 'default' ? 'text' : event.type
-    const chatId = event.threadId || event.target
+    const messenger = this.getMessengerClient(event.botId)
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
-    if (messageType !== 'typing') {
-      await messenger.sendAction(chatId, 'typing_off')
-    }
-
     if (messageType === 'typing') {
-      await messenger.sendAction(chatId, 'typing_on')
-    } else if (messageType === 'text') {
-      await messenger.sendTextMessage(chatId, event.payload)
-    } else if (messageType === 'carousel') {
-      await messenger.sendTextMessage(chatId, event.payload)
+      await messenger.sendAction(event.target, 'typing_on')
+    } else if (messageType === 'text' || messageType === 'carousel') {
+      await messenger.sendTextMessage(event.target, event.payload)
     } else {
       // TODO We don't support sending files, location requests (and probably more) yet
       throw new Error(`Message type "${messageType}" not implemented yet`)
