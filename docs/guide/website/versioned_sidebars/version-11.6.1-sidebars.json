@@ -1,0 +1,54 @@
+{
+  "version-11.6.1-docs": {
+    "Getting Started": [
+      "version-11.6.1-introduction",
+      "version-11.6.1-installation",
+      "version-11.6.1-troubleshoot",
+      "version-11.6.1-quickstart"
+    ],
+    "Build": [
+      "version-11.6.1-build/overview",
+      "version-11.6.1-build/debug",
+      "version-11.6.1-build/nlu",
+      "version-11.6.1-build/dialogs",
+      "version-11.6.1-build/code",
+      "version-11.6.1-build/memory",
+      "version-11.6.1-build/content",
+      "version-11.6.1-build/channels",
+      "version-11.6.1-build/debugging"
+    ],
+    "Deploy": [
+      "version-11.6.1-deploy/architecture",
+      "version-11.6.1-deploy/hosting"
+    ],
+    "Manage": [
+      "version-11.6.1-manage/configuration",
+      "version-11.6.1-manage/versions",
+      "version-11.6.1-manage/monitoring",
+      "version-11.6.1-manage/authentication"
+    ],
+    "Developers": [
+      "version-11.6.1-developers/release-notes",
+      "version-11.6.1-developers/migrate",
+      "version-11.6.1-developers/create-module",
+      "version-11.6.1-developers/cluster"
+    ],
+    "Tutorials": [
+      "version-11.6.1-tutorials/webchat-embedding",
+      "version-11.6.1-tutorials/existing-backend",
+      "version-11.6.1-tutorials/database",
+      "version-11.6.1-tutorials/hitl",
+      "version-11.6.1-tutorials/jump-to",
+      "version-11.6.1-tutorials/proactive",
+      "version-11.6.1-tutorials/shortlinks",
+      "version-11.6.1-tutorials/timeouts",
+      "version-11.6.1-tutorials/i18n",
+      "version-11.6.1-tutorials/external-api",
+      "version-11.6.1-tutorials/chat-3rd-party-OAuth"
+    ],
+    "Botpress Pro": [
+      "version-11.6.1-pro/about-pro",
+      "version-11.6.1-pro/licensing"
+    ]
+  }
+}
