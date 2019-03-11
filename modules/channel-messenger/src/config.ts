@@ -11,4 +11,9 @@ export interface Config {
    * The message of the welcome screen "Get Started" button
    */
   getStarted?: string
+  /**
+   * The raw persistent menu object
+   * @see https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu/
+   */
+  persistentMenu?
 }

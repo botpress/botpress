@@ -27,7 +27,7 @@ export class MessengerService {
     )
 
     this._router.get('/webhook', this._setupWebhook.bind(this))
-    this._router.post('/webhook', this._handleIncoming.bind(this))
+    this._router.post('/webhook', this.handleMessages.bind(this))
 
     this.bp.events.registerMiddleware({
       description: 'Sends outgoing messages for the messenger channel',
@@ -49,8 +49,8 @@ export class MessengerService {
 
   // See: https://developers.facebook.com/docs/messenger-platform/webhook#security
   private async _verifySignature(req, res, buffer) {
-    const client = this.forBot(req.params.botId)
-    const config = await client.getConfig()
+    const messenger = this.forBot(req.params.botId)
+    const config = await messenger.getConfig()
     const signatureError = new Error("Couldn't validate the request signature.")
 
     if (!/^\/webhook/i.test(req.path)) {
@@ -73,10 +73,10 @@ export class MessengerService {
     }
   }
 
-  async _handleIncoming(req, res) {
+  async handleMessages(req, res) {
     const body = req.body
     const botId = req.params.botId
-    const client = this.forBot(botId)
+    const messenger = this.forBot(botId)
 
     if (body.object !== 'page') {
       res.sendStatus(404)
@@ -87,7 +87,8 @@ export class MessengerService {
       // Will only ever contain one message, so we get index 0
       const webhookEvent = entry.messaging[0]
       const senderId = webhookEvent.sender.id
-      await client.sendAction(senderId, 'mark_seen')
+
+      await messenger.sendAction(senderId, 'mark_seen')
 
       if (webhookEvent.message) {
         await this.sendEvent(botId, senderId, webhookEvent.message, { type: 'message' })
@@ -117,11 +118,10 @@ export class MessengerService {
 
     await messenger.setupGreeting()
     await messenger.setupGetStarted()
+    await messenger.setupPersistentMenu()
   }
 
   async sendEvent(botId: string, senderId: string, message, args: { type: string }) {
-    console.log('incoming', message)
-
     this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
@@ -140,7 +140,7 @@ export class MessengerService {
       return next()
     }
 
-    const client = this.forBot(event.botId)
+    const messenger = this.forBot(event.botId)
 
     const messageType = event.type === 'default' ? 'text' : event.type
     const chatId = event.threadId || event.target
@@ -149,18 +149,16 @@ export class MessengerService {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
-    console.log('outgoing', event)
-
     if (messageType !== 'typing') {
-      await client.sendAction(chatId, 'typing_off')
+      await messenger.sendAction(chatId, 'typing_off')
     }
 
     if (messageType === 'typing') {
-      await client.sendAction(chatId, 'typing_on')
+      await messenger.sendAction(chatId, 'typing_on')
     } else if (messageType === 'text') {
-      await client.sendTextMessage(chatId, event.payload)
+      await messenger.sendTextMessage(chatId, event.payload)
     } else if (messageType === 'carousel') {
-      await client.sendTextMessage(chatId, event.payload)
+      await messenger.sendTextMessage(chatId, event.payload)
     } else {
       // TODO We don't support sending files, location requests (and probably more) yet
       throw new Error(`Message type "${messageType}" not implemented yet`)
@@ -189,14 +187,14 @@ export class MessengerClient {
   }
 
   async setupGetStarted(): Promise<void> {
-    const message = this.config.getStarted
-    if (!message) {
+    const config = await this.getConfig()
+    if (!config.getStarted) {
       return
     }
 
     const body = {
       get_started: {
-        payload: message
+        payload: config.getStarted
       }
     }
 
@@ -204,8 +202,8 @@ export class MessengerClient {
   }
 
   async setupGreeting(): Promise<void> {
-    const message = this.config.greeting
-    if (!message) {
+    const config = await this.getConfig()
+    if (!config.greeting) {
       return
     }
 
@@ -213,12 +211,21 @@ export class MessengerClient {
       greeting: [
         {
           locale: 'default',
-          text: message
+          text: config.greeting
         }
       ]
     }
 
     await this.sendProfile(payload)
+  }
+
+  async setupPersistentMenu(): Promise<void> {
+    const config = await this.getConfig()
+    if (!config.persistentMenu) {
+      return
+    }
+
+    await this.sendProfile(config.persistentMenu)
   }
 
   async sendAction(senderId: string, action: MessengerAction) {
