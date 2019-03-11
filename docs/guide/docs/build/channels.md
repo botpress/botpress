@@ -166,6 +166,11 @@ The config file for channel-messenger can be found at `data/bots/<your_bot>/conf
 
 If you need more details on how to setup a bot on Messenger, please refer to Facebook's [documentation](https://developers.facebook.com/docs/messenger-platform/getting-started/app-setup) to setup your Facebook App and register your webhook.
 
+## Troubleshooting
+
+- When testing on localhost, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
+- Make sure the `EXTERNAL_URL` environment variable is set so that your assets are accessible from the outside.
+
 # Other Channels
 
 We are in the progress of adding many more channels to Botpress Server. If you would like to help us with that, [pull requests](https://github.com/botpress/botpress#contributing) are welcomed!
