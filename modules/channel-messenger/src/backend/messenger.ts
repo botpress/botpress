@@ -3,42 +3,54 @@ import bodyParser from 'body-parser'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { Router } from 'express'
+import _ from 'lodash'
 
 import { Config } from '../config'
+
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
+type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
 export class MessengerService {
   private readonly http = axios.create({ baseURL: 'https://graph.facebook.com/v2.6/me' })
 
-  private botsMessengers: { [key: string]: ScopedMessengerService } = {}
-  private router: Router
+  private _messengerClients: { [key: string]: MessengerClient } = {}
+  private _router: Router
 
   constructor(private bp: typeof sdk) {}
 
   initialize() {
-    this.router = this.bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
-    this.router.use(
+    this._router = this.bp.http.createRouterForBot('channel-messenger', { checkAuthentication: false })
+    this._router.use(
       bodyParser.json({
         verify: this._verifySignature.bind(this)
       })
     )
 
-    this.router.get('/webhook', this._setupWebhook.bind(this))
-    this.router.post('/webhook', this._handleMessage.bind(this))
+    this._router.get('/webhook', this._setupWebhook.bind(this))
+    this._router.post('/webhook', this._handleIncoming.bind(this))
+
+    this.bp.events.registerMiddleware({
+      description: 'Sends outgoing messages for the messenger channel',
+      direction: 'outgoing',
+      handler: this._outgoingHandler.bind(this),
+      name: 'messenger.sendMessages',
+      order: 200
+    })
   }
 
-  forBot(botId: string): ScopedMessengerService {
-    if (this.botsMessengers[botId]) {
-      return this.botsMessengers[botId]
+  forBot(botId: string): MessengerClient {
+    if (this._messengerClients[botId]) {
+      return this._messengerClients[botId]
     }
 
-    this.botsMessengers[botId] = new ScopedMessengerService(botId, this.bp, this.http)
-    return this.botsMessengers[botId]
+    this._messengerClients[botId] = new MessengerClient(botId, this.bp, this.http)
+    return this._messengerClients[botId]
   }
 
   // See: https://developers.facebook.com/docs/messenger-platform/webhook#security
   private async _verifySignature(req, res, buffer) {
-    const messenger = await this.forBot(req.params.botId)
-    const config = await messenger.getConfig()
+    const client = this.forBot(req.params.botId)
+    const config = await client.getConfig()
     const signatureError = new Error("Couldn't validate the request signature.")
 
     if (!/^\/webhook/i.test(req.path)) {
@@ -61,10 +73,10 @@ export class MessengerService {
     }
   }
 
-  async _handleMessage(req, res) {
+  async _handleIncoming(req, res) {
     const body = req.body
     const botId = req.params.botId
-    const messenger = await this.forBot(botId)
+    const client = this.forBot(botId)
 
     if (body.object !== 'page') {
       res.sendStatus(404)
@@ -75,11 +87,12 @@ export class MessengerService {
       // Will only ever contain one message, so we get index 0
       const webhookEvent = entry.messaging[0]
       const senderId = webhookEvent.sender.id
+      await client.sendAction(senderId, 'mark_seen')
 
       if (webhookEvent.message) {
-        await messenger.handleMessage(senderId, webhookEvent.message)
+        await this.sendEvent(botId, senderId, webhookEvent.message, { type: 'message' })
       } else if (webhookEvent.postback) {
-        await messenger.handleMessage(senderId, { text: webhookEvent.postback.payload })
+        await this.sendEvent(botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
       }
     }
 
@@ -92,7 +105,7 @@ export class MessengerService {
     const challenge = req.query['hub.challenge']
     const botId = req.params.botId
 
-    const messenger = await this.forBot(botId)
+    const messenger = this.forBot(botId)
     const config = await messenger.getConfig()
 
     if (mode && token && mode === 'subscribe' && token === config.verifyToken) {
@@ -105,39 +118,74 @@ export class MessengerService {
     await messenger.setupGreeting()
     await messenger.setupGetStarted()
   }
+
+  async sendEvent(botId: string, senderId: string, message, args: { type: string }) {
+    console.log('incoming', message)
+
+    this.bp.events.sendEvent(
+      this.bp.IO.Event({
+        botId,
+        channel: 'messenger',
+        direction: 'incoming',
+        payload: message,
+        preview: message.text,
+        target: senderId,
+        ...args
+      })
+    )
+  }
+
+  private async _outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+    if (event.channel !== 'messenger') {
+      return next()
+    }
+
+    const client = this.forBot(event.botId)
+
+    const messageType = event.type === 'default' ? 'text' : event.type
+    const chatId = event.threadId || event.target
+
+    if (!_.includes(outgoingTypes, messageType)) {
+      return next(new Error('Unsupported event type: ' + event.type))
+    }
+
+    console.log('outgoing', event)
+
+    if (messageType !== 'typing') {
+      await client.sendAction(chatId, 'typing_off')
+    }
+
+    if (messageType === 'typing') {
+      await client.sendAction(chatId, 'typing_on')
+    } else if (messageType === 'text') {
+      await client.sendTextMessage(chatId, event.payload)
+    } else if (messageType === 'carousel') {
+      await client.sendTextMessage(chatId, event.payload)
+    } else {
+      // TODO We don't support sending files, location requests (and probably more) yet
+      throw new Error(`Message type "${messageType}" not implemented yet`)
+    }
+
+    next(undefined, false)
+  }
 }
 
-export class ScopedMessengerService {
+export class MessengerClient {
   private config: Config
 
   constructor(private botId: string, private bp: typeof sdk, private http: AxiosInstance) {}
-
-  async handleMessage(senderId: string, message) {
-    this.config = await this.getConfig()
-
-    await this.sendAction(senderId, 'mark_seen')
-
-    if (message.text) {
-      const content = await this.bp.converse.sendMessage(this.botId, senderId, message, 'messenger')
-
-      // Responses are split into pairs {typing, message}
-      for (let i = 0; i < content.responses.length; i += 2) {
-        const isTyping = content.responses[i].value
-        const message = content.responses[i + 1]
-
-        isTyping && (await this.sendAction(senderId, 'typing_on'))
-        await this.sendTextMessage(senderId, message)
-        isTyping && (await this.sendAction(senderId, 'typing_off'))
-      }
-    }
-  }
 
   async getConfig(): Promise<Config> {
     if (this.config) {
       return this.config
     }
 
-    return this.bp.config.getModuleConfigForBot('channel-messenger', this.botId)
+    const config = (await this.bp.config.getModuleConfigForBot('channel-messenger', this.botId)) as Config
+    if (!config) {
+      throw new Error(`Could not find channel-messenger.json config file for ${this.botId}.`)
+    }
+
+    return config
   }
 
   async setupGetStarted(): Promise<void> {
@@ -173,7 +221,7 @@ export class ScopedMessengerService {
     await this.sendProfile(payload)
   }
 
-  async sendAction(senderId, action) {
+  async sendAction(senderId: string, action: MessengerAction) {
     const body = {
       recipient: {
         id: senderId
@@ -184,7 +232,7 @@ export class ScopedMessengerService {
     await this._callEndpoint('/messages', body)
   }
 
-  async sendTextMessage(senderId, message) {
+  async sendTextMessage(senderId: string, message: string) {
     const body = {
       recipient: {
         id: senderId
@@ -200,6 +248,7 @@ export class ScopedMessengerService {
   }
 
   private async _callEndpoint(endpoint: string, body) {
-    await this.http.post(endpoint, body, { params: { access_token: this.config.verifyToken } })
+    const config = await this.getConfig()
+    await this.http.post(endpoint, body, { params: { access_token: config.verifyToken } })
   }
 }
