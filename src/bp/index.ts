@@ -16,8 +16,19 @@ const printPlainError = err => {
 const available = {}
 
 global.DEBUG = mod => {
-  available[mod] = true
+  available['bp:' + mod] = true
   return debug('bp:' + mod)
+}
+
+export const getDebugScopes = () => {
+  const status = {}
+  Object.keys(available).forEach(key => (status[key] = debug.enabled(key)))
+  return status
+}
+
+export const setDebugScopes = scopes => {
+  debug.disable()
+  debug.enable(scopes)
 }
 
 global.printErrorDefault = printPlainError
