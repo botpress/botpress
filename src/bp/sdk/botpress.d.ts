@@ -960,18 +960,6 @@ declare module 'botpress/sdk' {
    */
   export type State = any
 
-  export namespace converse {
-    /**
-     * Send a message and return the response.
-     * @param botId The bot Id
-     * @param userId The user Id
-     * @param payload The channel-specific raw payload
-     * @param channel Optionnal channel name. If none is provided it defaults to 'api'
-     * @returns The raw content element
-     */
-    export function sendMessage(botId: string, userId: string, payload, channel?: string): Promise<any>
-  }
-
   /**
    * The dialog engine is what processes conversations. It orchestrates the conversationnal flow logic.
    */
