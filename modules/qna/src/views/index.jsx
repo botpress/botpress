@@ -387,7 +387,7 @@ export default class QnaAdmin extends Component {
           {item.answers[0] && (
             <div className={style.itemAnswerContainer}>
               <span className={style.itemAnswerTitle}>A:</span>
-              <div className={style.itemAnswerText}>{item.answers[0]}</div>
+              <div className={style.itemAnswerText}>{typeof item.answers[0] == 'string' ? item.answers[0] : item.answers[0].preview}</div>
               {this.renderVariationsOverlayTrigger(item.answers)}
             </div>
           )}

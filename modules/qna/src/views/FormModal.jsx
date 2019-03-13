@@ -83,7 +83,7 @@ export default class FormModal extends Component {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
       questions: !item.questions.length || !item.questions[0].length,
-      answer: isText && (!item.answers.length || !item.answers[0].length),
+      answer: isText && (!item.answers.length || !(typeof item.answers[0].length == 'string' ? item.answers[0].length : true)),
       checkbox: !(isText || isRedirect),
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
@@ -253,6 +253,7 @@ export default class FormModal extends Component {
                   onCreate={this.createAnswer}
                   onUpdate={this.updateAnswer}
                   onDelete={this.deleteAnswer}
+                  bp={this.props.bp}
                 />
               </div>
 

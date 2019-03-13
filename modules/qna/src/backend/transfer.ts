@@ -24,7 +24,7 @@ export const importQuestions = async (questions, params) => {
 
   let questionsSavedCount = 0
   return Promise.each(questionsToSave, async question => {
-    const answers = question['answer'].split(ANSWERS_SPLIT_CHAR)
+    const answers = question['answer'].split(ANSWERS_SPLIT_CHAR).map(answer => !answer.startsWith('{') ? answer : JSON.parse(answer))
     await storage.insert({ ...question, answers, enabled: true })
     questionsSavedCount += 1
     statusCallback(uploadStatusId, `Saved ${questionsSavedCount}/${questionsToSave.length} questions`)
@@ -39,7 +39,9 @@ export const prepareExport = async (storage, { flat = false } = {}) => {
     const { questions, action, redirectNode, redirectFlow, category, answers, answer: textAnswer } = data
 
     // FIXME: Remove v11.2 answer support
-    let answer = answers.join(ANSWERS_SPLIT_CHAR) || textAnswer // textAnswer allow to support v11.2 answer format
+    let answer = answers
+      .map(answer => typeof answer == 'string' ? answer : JSON.stringify(answer)) // stringfy contents
+      .join(ANSWERS_SPLIT_CHAR) || textAnswer // textAnswer allow to support v11.2 answer format
     let answer2 = undefined
 
     // FIXME: Refactor these answer, answer2 fieds for something more meaningful like a 'redirect' field.

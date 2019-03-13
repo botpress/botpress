@@ -53,6 +53,17 @@ export class ContentRouter extends CustomRouter {
       })
     )
 
+    this.router.post('/preview', async (req, res, next) => {
+      const { contentType, formData } = req.body
+      try {
+        const contentTypeObj: any = (await this.cms.getAllContentTypes()).find((value) => { return value.id == contentType })
+        res.send(contentTypeObj.computePreviewText(JSON.parse(formData)))
+      } catch (e) {
+        next(new Error(e.message))
+        res.send('Failed to load preview')
+      }
+    })
+
     this.router.get(
       '/elements/count',
       this._checkTokenHeader,
