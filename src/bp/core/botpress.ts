@@ -75,7 +75,6 @@ export class Botpress {
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
@@ -106,7 +105,7 @@ export class Botpress {
     // Invalidating the configuration to force it to load it from the ghost if enabled
     this.config = await this.loadConfiguration(true)
 
-    await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
+    await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
     await this.checkEditionRequirements()
@@ -259,7 +258,7 @@ export class Botpress {
       await this.dataRetentionJanitor.start()
     }
 
-    await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
+    await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
   private async loadConfiguration(forceInvalidate?): Promise<BotpressConfig> {
@@ -284,7 +283,7 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
-    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
+    AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private startRealtime() {

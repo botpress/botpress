@@ -45,7 +45,8 @@ Head over to `data/bots/<your_bot>/config/channel-messenger.json` and edit your 
 ```json
 {
   "$schema": "../../../assets/modules/channel-messenger/config.schema.json",
-  "verifyToken": "<your_token>",
+  "accessToken": "<your_token>",
+  "verifyToken": "<generate a random string>",
   "greeting": "This is a greeting message!!! Hello Human!",
   "getStarted": "You got started!",
   "persistentMenu": [
@@ -76,7 +77,8 @@ The config file for channel-messenger can be found at `data/bots/<your_bot>/conf
 
 | Property       | Description                                                                                                                                                                                                                                                               |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| verifyToken    | The Facebook Page Access Token                                                                                                                                                                                                                                            |
+| accessToken    | The Facebook Page Access Token                                                                                                                                                                                                                                            |
+| verifyToken    | A random hard-to-guess string of your choosing                                                                                                                                                                                                                            |
 | greeting       | The optional greeting message people will see on the welcome screen. Greeting will not appear if left blank.                                                                                                                                                              |
 | getStarted     | The optional message of the welcome screen "Get Started" button. Get Started wont appear if this is left blank.                                                                                                                                                           |
 | persistentMenu | The optional raw persistent menu object. The menu won't appear if this is left blank. Please refer to Facebook's [Persistent Menu Documentation](https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu/) to know more about menu options. |

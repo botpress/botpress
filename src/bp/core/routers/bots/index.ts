@@ -19,11 +19,15 @@ import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+
+import bodyParser from 'body-parser'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
 import path from 'path'
+import { URL } from 'url'
 
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -103,7 +107,18 @@ export class BotsRouter extends CustomRouter {
       router.use(this.checkTokenHeader)
     }
 
-    this.router.use('/mod/' + path, router)
+    if ((_.get(options, 'enableJsonBodyParser'), true)) {
+      router.use(bodyParser.json({ limit: this.botpressConfig!.httpServer.bodyLimit }))
+    }
+
+    const relPath = '/mod/' + path
+    this.router.use(relPath, router)
+
+    router['getPublicPath'] = async () => {
+      await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
+      return new URL('/api/v1/bots/BOT_ID' + relPath, process.EXTERNAL_URL).href
+    }
+
     return router
   }
 
