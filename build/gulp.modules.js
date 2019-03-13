@@ -148,9 +148,10 @@ const cleanModuleAssets = () => {
 }
 
 const createModuleSymlink = () => {
+  const moduleFolder = process.argv.includes('--private') ? 'private-modules' : 'modules'
   const moduleName = _.last(process.argv)
   return gulp
-    .src(`./modules/${moduleName}/assets/`)
+    .src(`./${moduleFolder}/${moduleName}/assets/`)
     .pipe(symlink(`./out/bp/assets/modules/${moduleName}/`, { type: 'dir' }))
 }
 

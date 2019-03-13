@@ -23,6 +23,7 @@ export interface BotDetails {
   website?: string
   phoneNumber?: string
   termsConditions?: string
+  privacyPolicy?: string
   emailAddress?: string
 }
 

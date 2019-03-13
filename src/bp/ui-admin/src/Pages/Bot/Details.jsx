@@ -217,7 +217,9 @@ class Bots extends Component {
                 <Label for="status">
                   <strong>Status</strong>
                   {this.renderHelp(
-                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users`
+                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users. 
+                    Please note that private bots cannot be embedded on a website. 
+                    This should only be used for testing purposes while developing or if you access it directly using shortlinks`
                   )}
                 </Label>
                 <Select

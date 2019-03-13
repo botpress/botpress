@@ -591,6 +591,7 @@ declare module 'botpress/sdk' {
     website?: string
     phoneNumber?: string
     termsConditions?: string
+    privacyPolicy?: string
     emailAddress?: string
   }
 
@@ -1032,6 +1033,7 @@ declare module 'botpress/sdk' {
 
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
+    export function getBotById(botId: string): Promise<BotConfig | undefined>
   }
 
   export namespace notifications {
