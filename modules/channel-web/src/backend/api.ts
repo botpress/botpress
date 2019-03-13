@@ -84,15 +84,21 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   router.get(
-    '/config',
+    '/botInfo',
     asyncApi(async (req, res) => {
       const { botId } = req.params
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      // prevent sending sensitive data
+      const botInfo = await bp.bots.getBotById(botId)
+
+      if (!botInfo) {
+        return res.sendStatus(404)
+      }
+
       res.send({
-        recentConversationLifetime: config.recentConversationLifetime,
-        maxMessageLength: config.maxMessageLength,
-        showBotInfoPage: config.showBotInfoPage
+        showBotInfoPage: config.showBotInfoPage,
+        name: botInfo.name,
+        description: botInfo.description,
+        details: botInfo.details
       })
     })
   )
@@ -280,7 +286,7 @@ export default async (bp: typeof sdk, db: Database) => {
       })
 
       bp.events.sendEvent(event)
-      res.status(200).send({})
+      res.sendStatus(200)
     })
   )
 
@@ -300,7 +306,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const sessionId = await bp.dialog.createId({ botId, target: userId, threadId: conversationId, channel: 'web' })
       await bp.dialog.deleteSession(sessionId)
-      res.send({})
+      res.sendStatus(200)
     })
   )
 
