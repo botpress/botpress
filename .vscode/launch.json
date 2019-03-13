@@ -7,12 +7,17 @@
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
-      "protocol": "inspector",
+      "protocol": "auto",
       "env": {
-        "BP_MODULES_PATH": "${workspaceFolder}/modules",
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/private-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp"
       },
-      "outFiles": ["${workspaceFolder}/out/"],
+      "outFiles": [
+        "${workspaceFolder}/out/",
+        "${workspaceFolder}/modules/*/dist",
+        "${workspaceFolder}/private-modules/*/dist",
+        "!${workspaceFolder}/**/node_modules"
+      ],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
