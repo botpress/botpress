@@ -16,6 +16,7 @@ import Settings from './Settings'
 const USER_ID_KEY = `bp::${window.BOT_ID}::emulator::userId`
 const SENT_HISTORY_KEY = `bp::${window.BOT_ID}::emulator::sentHistory`
 const SENT_HISTORY_SIZE = 20
+const ENTER_KEY_CODE = 13
 
 export default class EmulatorChat extends React.Component {
   constructor(props) {
@@ -152,7 +153,7 @@ export default class EmulatorChat extends React.Component {
   }
 
   handleKeyPress = e => {
-    if (!e.shiftKey && e.key === 'Enter') {
+    if (!e.shiftKey && (e.keyCode === ENTER_KEY_CODE || e.which === ENTER_KEY_CODE)) {
       if (e.ctrlKey) {
         this.handleChangeUserId(() => this.sendText())
       } else {
@@ -189,7 +190,7 @@ export default class EmulatorChat extends React.Component {
       },
       () => {
         this.textInputRef.current.focus()
-        if (callback) {
+        if (_.isFunction(callback)) {
           callback()
         }
       }

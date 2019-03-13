@@ -2,7 +2,7 @@ import React from 'react'
 import classnames from 'classnames'
 import style from './Message.styl'
 import { NavLink } from 'react-router-dom'
-import { Glyphicon } from 'react-bootstrap'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 export default class Message extends React.Component {
   renderBotMessage(message, index) {
@@ -17,24 +17,29 @@ export default class Message extends React.Component {
     return <span className={classnames(style.message, style.other)}>{message.type} (can't render)</span>
   }
 
-  renderIntentLink(intent) {
-    if (intent === 'N/A') {
-      return intent
+  renderFinalDecision(finalDecision) {
+    if (!finalDecision) {
+      return 'N/A'
     }
+    const { source, sourceDetails, decision } = finalDecision
 
     const QNA_PREFIX = '__qna__'
-    const link = intent.includes(QNA_PREFIX)
-      ? `/modules/qna#search:${intent.replace(QNA_PREFIX, '')}`
-      : `/modules/nlu/Intents#search:${intent}`
+    const link =
+      source === 'qna'
+        ? `/modules/qna#search:${sourceDetails.replace(QNA_PREFIX, '')}`
+        : `/modules/nlu/Intents#search:${sourceDetails}`
 
-    return <NavLink to={link}>{intent}</NavLink>
+    return (
+      <OverlayTrigger placement="top" overlay={<Tooltip id="none">{decision && decision.reason}</Tooltip>}>
+        {source === 'decisionEngine' ? <span>{sourceDetails}</span> : <NavLink to={link}>{sourceDetails}</NavLink>}
+      </OverlayTrigger>
+    )
   }
 
   render() {
     const { duration, sent, result } = this.props.message
 
-    const intent = _.get(result, 'nlu.intent.name', 'N/A')
-    const confidence = Number(_.get(result, 'nlu.intent.confidence', 0))
+    const confidence = Number(_.get(result, 'decision.confidence', 0))
     const confidenceFormatted = (confidence * 100).toFixed(1)
 
     let responses = result.responses
@@ -51,8 +56,8 @@ export default class Message extends React.Component {
         <div className={style.message}>
           <div className={style.header}>
             <div className={style.intent}>
-              <span className={style.title}>intent</span>
-              <span className={style.value}>{this.renderIntentLink(intent)}</span>
+              <span className={style.title}>decision</span>
+              <span className={style.value}>{this.renderFinalDecision(result.decision)}</span>
               <span className={style.confidence}>{confidenceFormatted}%</span>
             </div>
             <div className={style.duration}>
