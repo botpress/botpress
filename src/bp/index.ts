@@ -3,6 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
+const debug = require('debug')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -10,6 +11,24 @@ const printPlainError = err => {
   console.log(err.message)
   console.log('---STACK---')
   console.log(err.stack)
+}
+
+const available = {}
+
+global.DEBUG = mod => {
+  available['bp:' + mod] = true
+  return debug('bp:' + mod)
+}
+
+export const getDebugScopes = () => {
+  const status = {}
+  Object.keys(available).forEach(key => (status[key] = debug.enabled(key)))
+  return status
+}
+
+export const setDebugScopes = scopes => {
+  debug.disable()
+  debug.enable(scopes)
 }
 
 global.printErrorDefault = printPlainError

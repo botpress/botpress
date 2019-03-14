@@ -35,6 +35,8 @@ export async function buildBackend(modulePath: string) {
       '@babel/preset-typescript',
       '@babel/preset-react'
     ],
+    sourceMaps: 'both',
+    sourceRoot: path.join(modulePath, 'src/backend'),
     parserOpts: {
       allowReturnOutsideFunction: true
     },

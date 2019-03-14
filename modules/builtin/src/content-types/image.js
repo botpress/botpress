@@ -22,9 +22,34 @@ function render(data) {
   ]
 }
 
+function renderMessenger(data) {
+  return [
+    {
+      type: 'typing',
+      value: data.typing
+    },
+    {
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: [
+            {
+              title: data.title,
+              image_url: url.resolve(data.BOT_URL, data.image)
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
+  } else if (channel === 'messenger') {
+    return renderMessenger(data)
   }
 
   return [] // TODO Handle channel not supported
