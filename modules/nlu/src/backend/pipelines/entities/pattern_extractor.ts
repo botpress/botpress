@@ -33,10 +33,13 @@ export const extractPatternEntities = (input: string, entityDefs: sdk.NLU.Entity
 
 const _extractEntitiesFromOccurence = (
   input: string,
+  lang: string,
   occurence: sdk.NLU.EntityDefOccurence,
   entityDef: sdk.NLU.EntityDefinition
 ): sdk.NLU.Entity[] => {
   const pattern = [occurence.name, ...occurence.synonyms].map(escapeRegex).join('|')
+
+  const matches = []
 
   try {
     const regex = new RegExp(pattern, 'i')
@@ -62,10 +65,14 @@ const _extractEntitiesFromOccurence = (
   }
 }
 
-export const extractListEntities = (input: string, entityDefs: sdk.NLU.EntityDefinition[]): sdk.NLU.Entity[] => {
+export const extractListEntities = (
+  input: string,
+  lang: string,
+  entityDefs: sdk.NLU.EntityDefinition[]
+): sdk.NLU.Entity[] => {
   return flatMap(entityDefs, entityDef => {
     return flatMap(entityDef.occurences || [], occurence => {
-      return _extractEntitiesFromOccurence(input, occurence, entityDef)
+      return _extractEntitiesFromOccurence(input, lang, occurence, entityDef)
     })
   })
 }

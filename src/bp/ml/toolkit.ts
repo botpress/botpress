@@ -2,13 +2,15 @@ import * as sdk from 'botpress/sdk'
 
 const { Tagger, Trainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
+import computeLevenshteinDistance from './homebrew/levenshtein'
 
 const MLToolkit: typeof sdk.MLToolkit = {
   CRF: {
     createTagger: Tagger,
     createTrainer: Trainer
   },
-  FastText: { Model: FastTextModel }
+  FastText: { Model: FastTextModel },
+  Strings: { computeLevenshteinDistance }
 }
 
 export default MLToolkit

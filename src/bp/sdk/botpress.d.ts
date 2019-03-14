@@ -215,6 +215,14 @@ declare module 'botpress/sdk' {
       export const Model: ModelConstructor
     }
 
+    export namespace Strings {
+      /**
+       * Returns the levenshtein distance between two strings
+       * @returns the proximity between 0 and 1, where 1 is very close
+       */
+      export const computeLevenshteinDistance: (a: string, b: string) => number
+    }
+
     export namespace CRF {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
@@ -254,6 +262,7 @@ declare module 'botpress/sdk' {
       name: string
       type: EntityType
       sensitive?: boolean
+      fuzzy?: boolean
       occurences?: EntityDefOccurence[]
       pattern?: string
     }

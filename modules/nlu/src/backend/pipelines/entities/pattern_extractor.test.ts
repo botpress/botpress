@@ -9,7 +9,7 @@ describe('Custom entity extraction', () => {
       id: '_',
       name: 'Fun',
       type: 'pattern',
-      pattern,
+      pattern
     } as sdk.NLU.EntityDefinition
     const userInput = 'lollolppplol hello haha'
 
@@ -44,7 +44,7 @@ describe('Custom entity extraction', () => {
     } as sdk.NLU.EntityDefinition
     const userInput = 'loLpppHahA so funny lmao!!!'
 
-    const entities = extractListEntities(userInput, [entityDef])
+    const entities = extractListEntities(userInput, 'en', [entityDef])
 
     expect(entities.length).toEqual(3)
 
