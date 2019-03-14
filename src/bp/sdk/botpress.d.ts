@@ -338,7 +338,7 @@ declare module 'botpress/sdk' {
       botId: string
       suggestions?: Suggestion[]
       credentials?: any
-      withNlu?: boolean
+      nlu?: Partial<EventUnderstanding>
     }
 
     /**
@@ -395,6 +395,7 @@ declare module 'botpress/sdk' {
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotsCollection
       readonly errored: boolean
+      readonly includedContexts: string[]
     }
 
     export interface IncomingEvent extends Event {
