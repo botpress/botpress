@@ -100,6 +100,9 @@ const bots = (botService: BotService): typeof sdk.bots => {
   return {
     getAllBots(): Promise<Map<string, sdk.BotConfig>> {
       return botService.getBots()
+    },
+    getBotById(botId: string): Promise<sdk.BotConfig | undefined> {
+      return botService.findBotById(botId)
     }
   }
 }

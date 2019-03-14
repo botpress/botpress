@@ -32,7 +32,7 @@ export default class Side extends React.Component {
 
     const showBotInfo =
       (!showConvos && this.state.showBotInfo) ||
-      (this.props.moduleConfig.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
+      (this.props.botInfo.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
 
     if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
       this.setState({
@@ -181,7 +181,7 @@ export default class Side extends React.Component {
   }
 
   renderBotInfoButton() {
-    if (!this.state.showConvos && this.props.moduleConfig.showBotInfoPage) {
+    if (!this.state.showConvos && this.props.botInfo.showBotInfoPage) {
       return (
         <span className={style.icon}>
           <i onClick={this.toggleBotInfo}>
