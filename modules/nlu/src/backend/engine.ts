@@ -279,12 +279,19 @@ export default class ScopedEngine {
   private async _extractIntents(
     text: string,
     includedContexts: string[]
-  ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent }> {
+  ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
     const intents = await this.intentClassifier.predict(text, includedContexts)
     const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
     intent.matches = createIntentMatcher(intent.name)
 
+    // alter ctx with the given predictions in case where no ctx were provided
+    includedContexts = _.chain(intents)
+      .map(p => p.context)
+      .uniq()
+      .value()
+
     return {
+      includedContexts,
       intents,
       intent
     }
