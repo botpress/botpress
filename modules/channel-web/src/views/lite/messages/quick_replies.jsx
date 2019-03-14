@@ -78,7 +78,7 @@ const QuickReplies = props => {
 
   const quick_replies = props.quick_replies.map((qr, idx) => <QuickReply key={idx} {...props} {...qr} />)
 
-  return <div className={style.quickReplyContainer}>{quick_replies}</div>
+  return <div className={'bp-quick-reply ' + style.quickReplyContainer}>{quick_replies}</div>
 }
 
 export default QuickReplies

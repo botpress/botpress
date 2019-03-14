@@ -71,7 +71,7 @@ export default class Side extends React.Component {
   }
 
   renderUnreadCount() {
-    return <span className={style.unread}>{this.props.unreadCount}</span>
+    return <span className={'bp-unread-count ' + style.unread}>{this.props.unreadCount}</span>
   }
 
   renderTitle() {
@@ -83,11 +83,11 @@ export default class Side extends React.Component {
 
     return (
       <div className={style.title}>
-        <div className={style.name}>
+        <div className={'bp-bot-title ' + style.name}>
           {title}
           {this.props.unreadCount > 0 ? this.renderUnreadCount() : null}
         </div>
-        {hasDescription && <div className={style.status}>{description}</div>}
+        {hasDescription && <div className={'bp-bot-description ' + style.status}>{description}</div>}
       </div>
     )
   }
