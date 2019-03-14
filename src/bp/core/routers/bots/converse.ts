@@ -74,7 +74,6 @@ export class ConverseRouter extends CustomRouter {
       '/:userId/secured',
       this.checkTokenHeader,
       this.httpServer.extractExternalToken,
-      this.validatePayload,
       this.asyncMiddleware(async (req, res) => {
         const { userId, botId } = req.params
 
@@ -83,7 +82,7 @@ export class ConverseRouter extends CustomRouter {
           userId,
           _.omit(req.body, ['includedContexts']),
           req.credentials,
-          req.body.includedContexts
+          req.body.includedContexts || []
         )
         const formatedOutput = this.prepareResponse(rawOutput, req.query.include)
 
