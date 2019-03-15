@@ -29,6 +29,7 @@ import multer from 'multer'
 import path from 'path'
 import { URL } from 'url'
 
+import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
@@ -107,8 +108,8 @@ export class BotsRouter extends CustomRouter {
       router.use(this.checkTokenHeader)
     }
 
-    if ((_.get(options, 'enableJsonBodyParser'), true)) {
-      router.use(bodyParser.json({ limit: this.botpressConfig!.httpServer.bodyLimit }))
+    if (!_.get(options, 'enableJsonBodyParser', true)) {
+      disableForModule('bodyParser', path)
     }
 
     const relPath = '/mod/' + path

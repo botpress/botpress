@@ -108,14 +108,12 @@ export class MessengerService {
   }
 
   // See: https://developers.facebook.com/docs/messenger-platform/webhook#security
-  private async _verifySignature(req, res, buffer) {
+  private _verifySignature(req, res, buffer) {
     const signatureError = new Error("Couldn't validate the request signature.")
 
     if (!/^\/webhook/i.test(req.path)) {
       return
     }
-
-    console.log(req.path, req.headers, req.body)
 
     const signature = req.headers['x-hub-signature']
     if (!signature || !this.appSecret) {
@@ -158,9 +156,9 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(req.BOT_ID, senderId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'message' })
         } else if (webhookEvent.postback) {
-          await this._sendEvent(req.BOT_ID, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
+          await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
         }
       }
     }
@@ -181,7 +179,6 @@ export class MessengerService {
   }
 
   private async _setupWebhook(req, res) {
-    console.log('setup', req)
     const mode = req.query['hub.mode']
     const token = req.query['hub.verify_token']
     const challenge = req.query['hub.challenge']
@@ -209,7 +206,10 @@ export class MessengerService {
     }
 
     if (messageType === 'typing') {
+      const typing = parseTyping(event.payload.value)
       await messenger.sendAction(event.target, 'typing_on')
+      await Promise.delay(typing)
+      await messenger.sendAction(event.target, 'typing_off')
     } else if (messageType === 'text' || messageType === 'carousel') {
       await messenger.sendTextMessage(event.target, event.payload)
     } else {
@@ -311,4 +311,12 @@ export class MessengerClient {
     const config = await this.getConfig()
     await this.http.post(endpoint, body, { params: { access_token: config.accessToken } })
   }
+}
+
+function parseTyping(typing) {
+  if (isNaN(typing)) {
+    return 1000
+  }
+
+  return Math.max(typing, 500)
 }

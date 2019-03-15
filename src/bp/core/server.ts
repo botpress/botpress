@@ -23,6 +23,7 @@ import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { monitoringMiddleware } from './routers/util'
@@ -161,14 +162,12 @@ export default class HTTPServer {
       )
     }
 
-    // TODO FIXME Conditionally enable this
-
     this.app.use((req, res, next) => {
-      if (req.path.indexOf('channel-messenger') === -1) {
-        // TODO fix condition
-        return bodyParser.json({ limit: config.bodyLimit })(req, res, next)
+      if (!isDisabled('bodyParser', req)) {
+        bodyParser.json({ limit: config.bodyLimit })(req, res, next)
+      } else {
+        next()
       }
-      next()
     })
 
     // this.app.use(bodyParser.json({ limit: config.bodyLimit }))
