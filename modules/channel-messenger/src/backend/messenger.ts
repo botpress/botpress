@@ -81,7 +81,7 @@ export class MessengerService {
 
       const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
 
-      if (!data && !data.id) {
+      if (!data || !data.id) {
         return this.bp.logger
           .forBot(botId)
           .error(
