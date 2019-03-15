@@ -15,10 +15,15 @@ const printPlainError = err => {
 
 const available = {}
 
-global.DEBUG = mod => {
-  available['bp:' + mod] = true
-  return debug('bp:' + mod)
+const DEBUG = (mod, base = 'bp') => {
+  const namespace = base + ':' + mod
+  available[namespace] = true
+  const instance = debug(base).extend(mod)
+  instance.sub = mod => DEBUG(mod, namespace)
+  return instance
 }
+
+global.DEBUG = DEBUG
 
 export const getDebugScopes = () => {
   const status = {}

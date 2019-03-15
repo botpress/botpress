@@ -7,6 +7,12 @@ import _ from 'lodash'
 
 import { Config } from '../config'
 
+const debug = DEBUG('channel-messenger')
+const debugMessages = debug.sub('messages')
+const debugHttp = debug.sub('http')
+const debugWebhook = debugHttp.sub('webhook')
+const debugHttpOut = debugHttp.sub('out')
+
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
@@ -127,7 +133,10 @@ export class MessengerService {
         .digest('hex')
 
       if (hash !== expectedHash) {
+        debugWebhook('invalid signature', req.path)
         throw signatureError
+      } else {
+        debugWebhook('signed', req.path)
       }
     }
   }
@@ -147,10 +156,12 @@ export class MessengerService {
 
       const bot = _.find<MountedBot>(this.mountedBots, { pageId })
       if (!bot) {
+        debugMessages('could not find a bot for page id =', pageId)
         continue
       }
 
       for (const webhookEvent of messages) {
+        debugMessages('incoming', webhookEvent)
         const senderId = webhookEvent.sender.id
 
         await bot.client.sendAction(senderId, 'mark_seen')
@@ -288,7 +299,7 @@ export class MessengerClient {
       },
       sender_action: action
     }
-
+    debugMessages('outgoing action', { senderId, action, body })
     await this._callEndpoint('/messages', body)
   }
 
@@ -300,6 +311,7 @@ export class MessengerClient {
       message
     }
 
+    debugMessages('outgoing text message', { senderId, message, body })
     await this._callEndpoint('/messages', body)
   }
 
@@ -309,6 +321,7 @@ export class MessengerClient {
 
   private async _callEndpoint(endpoint: string, body) {
     const config = await this.getConfig()
+    debugHttpOut(endpoint, body)
     await this.http.post(endpoint, body, { params: { access_token: config.accessToken } })
   }
 }
