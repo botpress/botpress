@@ -7,7 +7,7 @@
   "license": "AGPL-3.0-only",
   "main": "dist/backend/index.js",
   "devDependencies": {
-    "module-builder": "file:../../build/module-builder"
+    "module-builder": "../../build/module-builder"
   },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
