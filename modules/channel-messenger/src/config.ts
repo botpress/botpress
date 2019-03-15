@@ -38,13 +38,13 @@ export interface Config {
    * Docs: https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu
    * @default []
    */
-  persistentMenu?: PersistentMenuItem[]
+  persistentMenu?: PersistentMenuItem[] | null
 }
 
 export interface PersistentMenuItem {
   locale: string
   composer_input_disabled?: boolean
-  call_to_actions?: CallToAction[]
+  call_to_actions?: CallToAction[] | null
 }
 
 export type CallToAction = WebUrlButton | PostbackButton | NestedButton
