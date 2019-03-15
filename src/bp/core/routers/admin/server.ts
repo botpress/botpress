@@ -6,9 +6,9 @@ import { MonitoringService } from 'core/services/monitoring'
 import { Router } from 'express'
 import _ from 'lodash'
 
+import { getDebugScopes, setDebugScopes } from '../../../index'
 import { CustomRouter } from '../customRouter'
 import { assertSuperAdmin } from '../util'
-
 export class ServerRouter extends CustomRouter {
   constructor(
     private logger: Logger,
@@ -90,6 +90,23 @@ export class ServerRouter extends CustomRouter {
 
           process.exit()
         }, 100)
+      })
+    )
+
+    router.get(
+      '/debug',
+      assertSuperAdmin,
+      this.asyncMiddleware(async (req, res) => {
+        res.send(getDebugScopes())
+      })
+    )
+
+    router.post(
+      '/debug',
+      assertSuperAdmin,
+      this.asyncMiddleware(async (req, res) => {
+        setDebugScopes(req.body.debugScope)
+        res.sendStatus(200)
       })
     )
   }

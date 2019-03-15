@@ -20,9 +20,23 @@ function render(data) {
   ]
 }
 
+function renderMessenger(data) {
+  return [
+    {
+      type: 'typing',
+      value: data.typing
+    },
+    {
+      text: data.text
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api' || channel === 'telegram') {
     return render(data)
+  } else if (channel === 'messenger') {
+    return renderMessenger(data)
   }
 
   return [] // TODO

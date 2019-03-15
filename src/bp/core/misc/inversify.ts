@@ -55,8 +55,7 @@ export const applyDisposeOnExit = (container: Container) => {
 export const applyInitializeFromConfig = (container: Container) => {
   const provider = getBoundInstancesFn(container, 'initializeFromConfig')
 
-  const appLifecycle = container.get<AppLifecycle>(TYPES.AppLifecycle)
-  appLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED).then(async () => {
+  AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED).then(async () => {
     const configProvider = container.get<ConfigProvider>(TYPES.ConfigProvider)
     const botpressConfig = await configProvider.getBotpressConfig()
     provider().forEach(m => m(botpressConfig))
