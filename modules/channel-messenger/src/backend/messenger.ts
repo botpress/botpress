@@ -145,7 +145,7 @@ export class MessengerService {
     const body = req.body
 
     if (body.object !== 'page') {
-      //
+      // TODO: Handle other cases here
     } else {
       res.status(200).send('EVENT_RECEIVED')
     }
