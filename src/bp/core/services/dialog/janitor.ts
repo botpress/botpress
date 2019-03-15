@@ -62,8 +62,7 @@ export class DialogJanitor extends Janitor {
             target: target,
             direction: 'incoming',
             payload: '',
-            botId: botId,
-            withNlu: true
+            botId: botId
           }) as IO.IncomingEvent
 
           await this.dialogEngine.processTimeout(botId, id, fakeEvent)
