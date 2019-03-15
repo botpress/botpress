@@ -1,3 +1,4 @@
+/** #TopLevel */
 export interface Config {
   /**
    * This this in the LOCAL config (unique to every bot/page)
@@ -19,50 +20,48 @@ export interface Config {
   /**
    * Set this in the GLOBAL config (same for all the bots)
    * The verify token, should be a random string unique to your server. This is a random (hard to guess) string of your choosing.
-   * @see https://developers.facebook.com/docs/messenger-platform/getting-started/webhook-setup/#verify_webhook
+   * Docs: https://developers.facebook.com/docs/messenger-platform/getting-started/webhook-setup/#verify_webhook
    */
   verifyToken: string
   /**
    * The greeting message people will see on the welcome screen
-   * @see https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting
+   * Docs: https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting
    */
   greeting?: string
   /**
    * The message of the welcome screen "Get Started" button
-   * @see https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/get-started-button
+   * Docs: https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/get-started-button
    */
   getStarted?: string
   /**
    * The raw persistent menu object
-   * @see https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu/
-   * @example
-   * {
-   *   "persistent_menu":[
-   *     {
-   *       "locale":"default",
-   *       "composer_input_disabled": true,
-   *       "call_to_actions":[
-   *         {
-   *           "title":"My Account",
-   *           "type":"nested",
-   *           "call_to_actions":[
-   *             {
-   *               "title":"Pay Bill",
-   *               "type":"postback",
-   *               "payload":"PAYBILL_PAYLOAD"
-   *             },
-   *             {
-   *               "type":"web_url",
-   *               "title":"Latest News",
-   *               "url":"https://www.messenger.com/",
-   *               "webview_height_ratio":"full"
-   *             }
-   *           ]
-   *         }
-   *       ]
-   *     }
-   *   ]
-   * }
+   * Docs: https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu
    */
-  persistentMenu?: any // TODO Type me
+  persistentMenu?: PersistentMenuItem[]
+}
+
+export interface PersistentMenuItem {
+  locale: string
+  composer_input_disabled?: boolean
+  call_to_actions?: CallToAction[]
+}
+
+export type CallToAction = WebUrlButton | PostbackButton | NestedButton
+
+export interface WebUrlButton {
+  type: 'web_url'
+  url: string
+  title: string
+}
+
+export interface PostbackButton {
+  type: 'postback'
+  title: string
+  payload: string
+}
+
+export interface NestedButton {
+  type: 'nested'
+  title: string
+  call_to_actions: CallToAction[]
 }
