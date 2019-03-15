@@ -38,5 +38,6 @@ export default (a: string, b: string): number => {
     }
   }
 
-  return res
+  const bigger = Math.max(a.length, b.length)
+  return (bigger - res) / bigger
 }

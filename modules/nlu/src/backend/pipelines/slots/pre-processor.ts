@@ -14,7 +14,7 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
     value,
     matchedEntities,
     start,
-    end: start + value.length,
+    end: start + value.length
   } as Token
 
   if (tag) {
@@ -27,7 +27,12 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
 }
 
 // TODO use the same algorithm as in the prediction sequence
-const _generateTrainingTokens = (input: string, start: number, slot: string = '', slotDefinitions: sdk.NLU.SlotDefinition[] = []): Token[] => {
+const _generateTrainingTokens = (
+  input: string,
+  start: number,
+  slot: string = '',
+  slotDefinitions: sdk.NLU.SlotDefinition[] = []
+): Token[] => {
   const matchedEntities = slotDefinitions
     .filter(slotDef => slot && slotDef.name === slot)
     .map(slotDef => slotDef.entity)
@@ -39,7 +44,7 @@ const _generateTrainingTokens = (input: string, start: number, slot: string = ''
     }
 
     const token = _makeToken(t, matchedEntities, start, tag, slot)
-    start += t.length + 1// 1 is the space char, replace this by what was done in the prediction sequence
+    start += t.length + 1 // 1 is the space char, replace this by what was done in the prediction sequence
 
     return token
   })
@@ -58,7 +63,11 @@ export const generateTrainingSequence = (
     matches = SLOTS_REGEX.exec(input)
     if (matches) {
       const sub = input.substr(start, matches.index - start - 1)
-      tokens = [...tokens, ..._generateTrainingTokens(sub, start), ..._generateTrainingTokens(matches[1], start + matches.index, matches[2], slotDefinitions)]
+      tokens = [
+        ...tokens,
+        ..._generateTrainingTokens(sub, start),
+        ..._generateTrainingTokens(matches[1], start + matches.index, matches[2], slotDefinitions)
+      ]
       start = matches.index + matches[0].length
     }
   } while (matches)

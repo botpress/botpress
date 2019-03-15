@@ -221,6 +221,12 @@ declare module 'botpress/sdk' {
        * @returns the proximity between 0 and 1, where 1 is very close
        */
       export const computeLevenshteinDistance: (a: string, b: string) => number
+
+      /**
+       * Returns the jaro-winkler distance between two strings
+       * @returns the proximity between 0 and 1, where 1 is very close
+       */
+      export const computeJaroWinklerDistance: (a: string, b: string, options: { caseSensitive: boolean }) => number
     }
 
     export namespace CRF {
