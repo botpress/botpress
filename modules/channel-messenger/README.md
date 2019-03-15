@@ -30,9 +30,8 @@ Messenger requires you to have a Facebook App and a Facebook Page to setup your 
 Messenger will use a webhook that you'll need register in order to communicate with your bot.
 
 1. In Products > Messenger > Settings > Webhooks > Setup Webhooks
-
 1. In Callback URL, enter your secured public url and make sure to point to the `/webhook` endpoint.
-1. Paste your Page Access Token in the Verify Token field.
+1. Paste your verifyToken (the random string that you generated) in the Verify Token field.
 1. Make sure `messages` and `messaging_postbacks` are checked in Subscription Fields.
 
 > **⭐ Note**: When you setup your webhook, Messenger requires a **secured public** address. To test on localhost, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
