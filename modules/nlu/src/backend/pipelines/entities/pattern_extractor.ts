@@ -52,6 +52,10 @@ export default class PatternExtractor {
         let distance = Math.min(d1, d2)
         const diffLen = Math.abs(partOfPhrase.length - occ.length)
 
+        if (!entityDef.fuzzy && distance <= 0.99) {
+          distance = 0
+        }
+
         if (diffLen <= 3) {
           distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
         }
