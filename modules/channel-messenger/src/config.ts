@@ -36,6 +36,7 @@ export interface Config {
   /**
    * The raw persistent menu object
    * Docs: https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu
+   * @default []
    */
   persistentMenu?: PersistentMenuItem[]
 }

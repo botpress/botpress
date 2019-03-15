@@ -285,7 +285,7 @@ export class MessengerClient {
 
   async setupPersistentMenu(): Promise<void> {
     const config = await this.getConfig()
-    if (!config.persistentMenu) {
+    if (!config.persistentMenu || !config.persistentMenu.length) {
       return
     }
 
