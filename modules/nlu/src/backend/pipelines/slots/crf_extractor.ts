@@ -8,7 +8,10 @@ import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
 
-const debug = DEBUG('nlu')
+const debug = DEBUG('nlu').sub('slots')
+const debugTrain = debug.sub('train')
+const debugExtract = debug.sub('extract')
+const debugVectorize = debug.sub('vectorize')
 
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
@@ -59,18 +62,20 @@ export default class CRFExtractor implements SlotExtractor {
   async train(trainingSet: Sequence[]): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
+      debugTrain('start training')
       await this._trainLanguageModel(trainingSet)
       await this._trainKmeans(trainingSet)
       await this._trainCrf(trainingSet)
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
-
+      debugTrain('done training')
       return {
         language: readFileSync(this._ftModelFn),
         crf: readFileSync(this._crfModelFn)
       }
     } else {
+      debugTrain('training set too small, skipping training')
       return {
         language: undefined,
         crf: undefined
@@ -96,6 +101,7 @@ export default class CRFExtractor implements SlotExtractor {
     intentDef: sdk.NLU.IntentDefinition,
     entitites: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotsCollection> {
+    debugExtract(text, { entitites })
     const seq = generatePredictionSequence(text, intentDef.name, entitites)
     const tags = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
@@ -268,6 +274,8 @@ export default class CRFExtractor implements SlotExtractor {
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
     const next =
       idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
+
+    debugVectorize(`"${tokens[idx]}" (${idx})`, { prev, current, next })
 
     return [...prev, ...current, ...next]
   }

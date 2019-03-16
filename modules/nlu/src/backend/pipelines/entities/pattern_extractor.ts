@@ -3,8 +3,11 @@ import * as sdk from 'botpress/sdk'
 
 import { flatMap, flatten } from 'lodash'
 
-import { escapeRegex, extractPattern } from '../../tools/patterns-utils'
+import { extractPattern } from '../../tools/patterns-utils'
 import { tokenize } from '../language/tokenizers'
+
+const debug = DEBUG('nlu').sub('entities')
+const debugLists = debug.sub('lists')
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) {}
@@ -69,6 +72,15 @@ export default class PatternExtractor {
       }
 
       if (highest >= 0.65) {
+        debugLists('found list entity', {
+          lang,
+          occurence: occurence.name,
+          input,
+          extracted,
+          confidence: highest,
+          source
+        })
+
         findings.push({
           name: entityDef.name,
           type: 'list',
