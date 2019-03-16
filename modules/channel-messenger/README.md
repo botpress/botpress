@@ -4,83 +4,51 @@
 
 Messenger requires you to have a Facebook App and a Facebook Page to setup your bot.
 
-### Create your Facebook App
+- [Create a Facebook App](https://developers.facebook.com/docs/apps/)
+- [Create a Facebook Page](https://www.facebook.com/pages/creation/)
+- An HTTPS Endpoint to your bot
+  - Create an HTTPS tunnel to your marchine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+  - Using Nginx and Let's Encrypt. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 
-Go to your [Facebook Apps](https://developers.facebook.com/apps/) and create a new App.
+## Setup
 
-![Create App](assets/messenger-app.png)
+### Global Configuration
 
-### Enable Messenger on your App
+#### Enable the Messenger Channel
 
-Go to Products > Messenger > Setup
+- Run Botpress Server a first time to auto-generate the global configuration file
+- Head over to `data/global/config/channel-messenger.json`. If it doesn't exist, restart Botpress Server.
+- Set the following properties:
+  - `appSecret`. You will find this value in your Facebook App page.
+  - `verifyToken`. This is a random string you need to generate and keep secret. You'll need to copy/paste this token in the Facebook App portal when setting up your webhook.
+- Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](https://botpress.io/docs/manage/configuration/#exposing-your-bot-on-the-internet) environment variable
+- Restart Botpress Server to reload the configuration
+- Setup your webhook (see below)
 
-![Setup Messenger](assets/messenger-setup.png)
-
-### Create a Facebook Page
-
-1. In Products > Messenger > Settings > Create a new page.
-1. Then select the newly created page in the `Page` dropdown menu.
-1. Copy your Page Access Token, you'll need it to setup your webhook.
-
-![Create Facebook Page](assets/messenger-page.png)
-
-### Setup your webhook
+#### Setup your webhook
 
 Messenger will use a webhook that you'll need register in order to communicate with your bot.
 
 1. In Products > Messenger > Settings > Webhooks > Setup Webhooks
-
 1. In Callback URL, enter your secured public url and make sure to point to the `/webhook` endpoint.
-1. Paste your Page Access Token in the Verify Token field.
+1. Paste your verifyToken (the random string that you generated) in the Verify Token field.
 1. Make sure `messages` and `messaging_postbacks` are checked in Subscription Fields.
 
 > **⭐ Note**: When you setup your webhook, Messenger requires a **secured public** address. To test on localhost, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
 
-![Setup Webhook](assets/messenger-webhook.png)
+### Bot-level Configuration
 
-### Add your token to your module config file
+Head over to `data/bots/<your_bot>/config/channel-messenger.json` and create the file if it doesn't exist. If it doesn't exist, copy & paste the content of the **global** `channel-messenger.json` file and prefix the `$schema` property with an additional `../` to point to the correct schema.
 
-Head over to `data/bots/<your_bot>/config/channel-messenger.json` and edit your info or create the file if it doesn't exists.
+> **Important:** One bot is connected to **one** facebook page.
 
-```json
-{
-  "$schema": "../../../assets/modules/channel-messenger/config.schema.json",
-  "verifyToken": "<your_token>",
-  "greeting": "This is a greeting message!!! Hello Human!",
-  "getStarted": "You got started!",
-  "persistentMenu": [
-    {
-      "locale": "default",
-      "call_to_actions": [
-        {
-          "title": "Bot's Menu",
-          "type": "nested",
-          "call_to_actions": [
-            {
-              "type": "web_url",
-              "title": "Latest News",
-              "url": "https://news.google.com",
-              "webview_height_ratio": "full"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
+You will need to setup the following properties:
 
-## Configuration
+- `accessToken` has to be set to your [Page Access Token](https://developers.facebook.com/docs/messenger-platform/getting-started/app-setup). [Official Reference](https://developers.facebook.com/docs/facebook-login/access-tokens/#pagetokens)
+- `enabled` has to be set to `true`
 
-The config file for channel-messenger can be found at `data/bots/<your_bot>/config/channel-messenger.json`.
+Restart Botpress Server to reload the configuration.
 
-| Property       | Description                                                                                                                                                                                                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| verifyToken    | The Facebook Page Access Token                                                                                                                                                                                                                                            |
-| greeting       | The optional greeting message people will see on the welcome screen. Greeting will not appear if left blank.                                                                                                                                                              |
-| getStarted     | The optional message of the welcome screen "Get Started" button. Get Started wont appear if this is left blank.                                                                                                                                                           |
-| persistentMenu | The optional raw persistent menu object. The menu won't appear if this is left blank. Please refer to Facebook's [Persistent Menu Documentation](https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu/) to know more about menu options. |
+## Advanced Configuration
 
-## More details
-
-If you need more details on how to setup a bot on Messenger, please refer to Facebook's [documentation](https://developers.facebook.com/docs/messenger-platform/getting-started/app-setup) to setup your Facebook App and register your webhook.
+Read the `http://localhost:3000/assets/modules/channel-messenger/config.schema.json` file to read more about the more advanced configuration.

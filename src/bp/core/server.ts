@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser'
-import { AxiosBotConfig, AxiosOptions, Logger, RouterOptions } from 'botpress/sdk'
+import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import session from 'cookie-session'
 import cors from 'cors'
@@ -23,6 +23,7 @@ import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { monitoringMiddleware } from './routers/util'
@@ -161,8 +162,15 @@ export default class HTTPServer {
       )
     }
 
-    // TODO FIXME Conditionally enable this
-    this.app.use(bodyParser.json({ limit: config.bodyLimit }))
+    this.app.use((req, res, next) => {
+      if (!isDisabled('bodyParser', req)) {
+        bodyParser.json({ limit: config.bodyLimit })(req, res, next)
+      } else {
+        next()
+      }
+    })
+
+    // this.app.use(bodyParser.json({ limit: config.bodyLimit }))
     this.app.use(bodyParser.urlencoded({ extended: true }))
 
     if (config.cors && config.cors.enabled) {
@@ -245,7 +253,7 @@ export default class HTTPServer {
     app.get('/', (req, res) => res.redirect('/admin'))
   }
 
-  createRouterForBot(router: string, options: RouterOptions) {
+  createRouterForBot(router: string, options: RouterOptions): any & http.RouterExtension {
     return this.botsRouter.getNewRouter(router, options)
   }
 

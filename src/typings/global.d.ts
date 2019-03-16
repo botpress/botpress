@@ -58,7 +58,12 @@ declare type BotpressEnvironementVariables = {
 }
 
 interface IDebug {
-  (module: string): (msg: string) => void
+  (module: string): IDebugInstance
+}
+
+interface IDebugInstance {
+  (msg: string, extra?: any): void
+  sub(namespace: string): IDebugInstance
 }
 
 declare var DEBUG: IDebug

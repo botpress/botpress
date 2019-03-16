@@ -113,11 +113,15 @@ export async function buildConfigSchema(modulePath: string) {
 
   const settings = {
     required: true,
-    ignoreErrors: true
+    ignoreErrors: true,
+    noExtraProps: true,
+    validationKeywords: ['see', 'example', 'pattern']
   }
 
   const program = getProgramFromFiles([config])
   const definition = generateSchema(program, 'Config', settings)
+  definition.properties.$schema = { type: 'string' }
+
   const schema = JSON.stringify(definition, undefined, 2) + os.EOL + os.EOL
 
   mkdirp.sync(path.resolve(modulePath, 'assets'))
