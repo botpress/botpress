@@ -332,7 +332,7 @@ export default class Side extends React.Component {
         <BotInfo
           botInfo={this.props.botInfo}
           webchatConfig={this.props.config}
-          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Converastion'}
+          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
           onDismiss={onDismiss}
         />
       )
