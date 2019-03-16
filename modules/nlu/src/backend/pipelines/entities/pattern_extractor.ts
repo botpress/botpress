@@ -50,17 +50,18 @@ export default class PatternExtractor {
           partOfPhrase = (await tokenize(input.substr(cur, occ.length), lang)).join('+')
         }
 
-        const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
-        const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
-        let distance = Math.min(d1, d2)
-        const diffLen = Math.abs(partOfPhrase.length - occ.length)
+        let distance = 0.0
 
-        if (!entityDef.fuzzy && distance <= 0.99) {
-          distance = 0
-        }
-
-        if (diffLen <= 3) {
-          distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
+        if (entityDef.fuzzy) {
+          const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
+          const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
+          distance = Math.min(d1, d2)
+          const diffLen = Math.abs(partOfPhrase.length - occ.length)
+          if (diffLen <= 3) {
+            distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
+          }
+        } else {
+          distance = partOfPhrase.toLowerCase() === occ.toLowerCase() ? 1 : 0
         }
 
         // if is closer OR if the match found is longer

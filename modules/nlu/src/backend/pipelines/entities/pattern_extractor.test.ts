@@ -4,7 +4,6 @@ import * as sdk from 'botpress/sdk'
 import PatternExtractor from './pattern_extractor'
 
 describe('Custom entity extraction', () => {
-  require('../../../../../../src/bp/tests-env')
   require('../../../../../../src/bp/import-rewire')
 
   const { default: computeLevenshteinDistance } = require('../../../../../../src/bp/ml/homebrew/levenshtein')
@@ -40,11 +39,12 @@ describe('Custom entity extraction', () => {
     expect(entities[2].data.value).toEqual(pattern)
   })
 
-  test('Extract list entitites', async () => {
+  test('Extract fuzzy list entitites', async () => {
     const entityDef = {
       id: '_',
       name: 'Cars',
       type: 'list',
+      fuzzy: true,
       occurences: [
         {
           name: 'Mercedes-Benz',
@@ -84,5 +84,36 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     expect(entities[2].meta.end).toEqual(140)
     expect(entities[2].meta.source).toEqual('BMW!')
     expect(entities[2].data.value).toEqual('BMW')
+  })
+
+  test('Extract exact list entitites', async () => {
+    const entityDef = {
+      id: '_',
+      name: 'Artists',
+      type: 'list',
+      fuzzy: false,
+      occurences: [
+        {
+          name: 'Kanye West',
+          synonyms: ['Ye']
+        }
+      ]
+    } as sdk.NLU.EntityDefinition
+
+    const userInput = `
+My name is kanye West and I rap like kanye wsest` /*
+           [========]                [xxxxxxxxxx]
+*/
+
+    const extractor = new PatternExtractor(Toolkit)
+    const entities = await extractor.extractLists(userInput, 'en', [entityDef])
+
+    expect(entities.length).toEqual(1)
+
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(12)
+    expect(entities[0].meta.end).toEqual(22)
+    expect(entities[0].meta.source).toEqual('kanye West')
+    expect(entities[0].data.value).toEqual('Kanye West')
   })
 })
