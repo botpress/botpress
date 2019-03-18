@@ -113,7 +113,7 @@ export class IntentsComponent extends React.Component {
         <ListGroup>
           {intents.map((el, i) => (
             <ListGroupItem key={`nlu_entity_${el.name}`} className={style.entity}>
-              <div onClick={() => this.setCurrentIntent(el.name)}>
+              <div onClick={() => this.setCurrentIntent(el.name)} className={style.entityText}>
                 {el.name}
                 &nbsp;(
                 {_.get(el, 'utterances.length', 0)})

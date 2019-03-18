@@ -178,6 +178,14 @@ $status-bar-height: 24px;
   display: none;
 }
 
+.entityText {
+  width: calc(100% - 14px);
+}
+
+.entity {
+  display: flex;
+}
+
 .entity:hover {
   background-color: #ececec;
 
