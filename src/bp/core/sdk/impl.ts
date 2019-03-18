@@ -73,7 +73,7 @@ export class IOEvent implements sdk.IO.Event {
       intent: { name: 'none', confidence: 1, context: 'global' },
       intents: [],
       errored: false,
-      includedContexts: ['gobal'],
+      includedContexts: ['global'],
       ...args.nlu
     }
   }

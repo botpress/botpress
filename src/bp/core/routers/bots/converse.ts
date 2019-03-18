@@ -18,7 +18,7 @@ const conversePayloadSchema = {
     .array()
     .items(joi.string())
     .optional()
-    .default([])
+    .default(['global'])
 }
 
 export class ConverseRouter extends CustomRouter {
