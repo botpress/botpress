@@ -3289,7 +3289,7 @@ mixin-object@^2.0.1:
   dependencies:
     minimist "0.0.8"
 
-"module-builder@file:../../build/module-builder":
+module-builder@../../build/module-builder:
   version "1.0.0"
   dependencies:
     "@babel/cli" "^7.1.0"

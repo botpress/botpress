@@ -11,14 +11,14 @@ type CacheEntry = { promise: Promise<void>; resolve: Function; reject: Function 
 
 @injectable()
 export class AppLifecycle {
-  private _cache: Dictionary<CacheEntry> = {}
+  private static _cache: Dictionary<CacheEntry> = {}
 
-  waitFor(event: AppLifecycleEvents): Promise<void> {
+  static waitFor(event: AppLifecycleEvents): Promise<void> {
     return this.getOrCreate(event).promise
   }
 
-  private getOrCreate(event: AppLifecycleEvents): CacheEntry {
-    if (!(event in this._cache)) {
+  private static getOrCreate(event: AppLifecycleEvents): CacheEntry {
+    if (!(event in AppLifecycle._cache)) {
       let _res, _rej
       const p = new Promise<void>((resolve, reject) => {
         _res = resolve
@@ -35,11 +35,11 @@ export class AppLifecycle {
     return this._cache[event]
   }
 
-  setDone(event: AppLifecycleEvents) {
+  static setDone(event: AppLifecycleEvents) {
     this.getOrCreate(event).resolve()
   }
 
-  setError(event: AppLifecycleEvents, error: Error) {
+  static setError(event: AppLifecycleEvents, error: Error) {
     this.getOrCreate(event).reject(error)
   }
 }
