@@ -51,7 +51,10 @@ export default class PatternExtractor {
         let partOfPhrase = tok
         const occ = val.join('+')
         if (val.length > 1) {
-          partOfPhrase = (await tokenize(input.substr(cur, occ.length), lang)).join('+')
+          const _tokens = await tokenize(input.substr(cur + partOfPhrase.length), lang)
+          while (_tokens.length && partOfPhrase.length < occ.length) {
+            partOfPhrase += '+' + _tokens.shift()
+          }
         }
 
         let distance = 0.0
