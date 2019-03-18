@@ -7,7 +7,11 @@ let service: MessengerService
 
 const onServerStarted = async (bp: typeof sdk) => {
   service = new MessengerService(bp)
-  await service.initialize()
+  try {
+    await service.initialize()
+  } catch (err) {
+    bp.logger.attachError(err).warn('Channel misconfigured')
+  }
 }
 
 const onServerReady = (bp: typeof sdk) => {}
