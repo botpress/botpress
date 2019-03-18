@@ -124,7 +124,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       if (
         !_.includes(
-          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation'],
+          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'],
           payload.type
         )
       ) {
@@ -224,7 +224,10 @@ export default async (bp: typeof sdk, db: Database) => {
   async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
-    if (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) {
+    if (
+      (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
+      payload.type != 'postback'
+    ) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
