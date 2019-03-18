@@ -46,7 +46,7 @@ export type IntentModel = { name: string; model: Buffer }
 export interface IntentClassifier {
   load(models: IntentModel[]): Promise<void>
   train(intents: sdk.NLU.IntentDefinition[]): Promise<IntentModel[]>
-  predict(input: string): Promise<sdk.NLU.Intent[]>
+  predict(input: string, includedContexts: string[]): Promise<sdk.NLU.Intent[]>
 }
 
 export interface LanguageIdentifier {

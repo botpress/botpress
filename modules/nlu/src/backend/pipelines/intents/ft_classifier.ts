@@ -154,15 +154,20 @@ export default class FastTextClassifier implements IntentClassifier {
     }
   }
 
-  public async predict(input: string): Promise<sdk.NLU.Intent[]> {
+  public async predict(input: string, includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
     if (!Object.keys(this._modelsByContext).length) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
     }
 
     const sanitized = this.sanitizeText(input)
-    const modelNames = Object.keys(this._modelsByContext)
+
+    // TODO change this context discriminatin by a weighted scoring instead
+    // Add weights and affect the confidence results accordingly
+    // ** no scoring algorithm has been choosen, impl is yet to be done
+    const modelNames = Object.keys(this._modelsByContext).filter(
+      ctx => !includedContexts.length || includedContexts.includes(ctx)
+    )
     try {
-      // TODO Add model discrimination logic here
       const predictions = await Promise.map(modelNames, modelName => this._predictForOneModel(sanitized, modelName))
 
       return _.chain(predictions)

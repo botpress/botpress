@@ -30,7 +30,28 @@ const eventSchema = {
   flags: joi.any().required(),
   suggestions: joi.array().optional(),
   state: joi.any().optional(),
-  credentials: joi.any().optional()
+  credentials: joi.any().optional(),
+  nlu: joi
+    .object({
+      intent: joi.object().optional(),
+      intents: joi
+        .array()
+        .items(joi.object())
+        .optional(),
+      language: joi.string().optional(),
+      entities: joi
+        .array()
+        .items(joi.object())
+        .optional(),
+      slots: joi.any(),
+      errored: joi.bool().optional(),
+      includedContexts: joi
+        .array()
+        .items(joi.string())
+        .optional()
+    })
+    .optional()
+    .default({})
 }
 
 const mwSchema = {
