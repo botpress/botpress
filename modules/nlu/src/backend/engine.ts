@@ -308,6 +308,7 @@ export default class ScopedEngine {
       .value()
 
     debugIntents(text, { intents })
+
     return {
       includedContexts,
       intents,
