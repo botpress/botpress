@@ -38,6 +38,6 @@ export default (a: string, b: string): number => {
     }
   }
 
-  const bigger = Math.max(a.length, b.length)
-  return (bigger - res) / bigger
+  const smallest = Math.min(a.length, b.length)
+  return (smallest - res) / smallest
 }

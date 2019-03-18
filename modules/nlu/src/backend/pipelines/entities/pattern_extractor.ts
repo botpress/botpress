@@ -1,19 +1,20 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-
 import { flatMap, flatten } from 'lodash'
+import _ from 'lodash'
 
 import { extractPattern } from '../../tools/patterns-utils'
 import { tokenize } from '../language/tokenizers'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
+const MIN_LENGTH_FUZZY_MATCH = 4
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) {}
 
   async extractLists(input: string, lang: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
-    return flatten(
+    const entities = flatten(
       flatten(
         await Promise.map(entityDefs, async entityDef => {
           return await Promise.map(entityDef.occurences || [], occurence =>
@@ -22,6 +23,7 @@ export default class PatternExtractor {
         })
       )
     )
+    return _.orderBy(entities, ['meta.confidence'], ['desc'])
   }
 
   protected async _extractEntitiesFromOccurence(
@@ -52,7 +54,7 @@ export default class PatternExtractor {
 
         let distance = 0.0
 
-        if (entityDef.fuzzy) {
+        if (entityDef.fuzzy && partOfPhrase.length > MIN_LENGTH_FUZZY_MATCH) {
           const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
           const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
           distance = Math.min(d1, d2)
