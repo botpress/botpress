@@ -7,13 +7,12 @@ import style from './style.scss'
 require('slick-carousel/slick/slick.css')
 require('slick-carousel/slick/slick-theme.css')
 
+// TODO refac this as a pure component, state is not useful
 export default class CarouselMessage extends Component {
   constructor(props) {
     super(props)
     this.state = { hover: false }
   }
-
-  handleSendPostBack = (text, payload) => this.props.onSendData({ type: 'quick_reply', text, data: { payload } })
 
   render() {
     const CarouselElement = el => {
@@ -34,11 +33,11 @@ export default class CarouselMessage extends Component {
                       {btn.title || btn}
                     </a>
                   )
-                } else if (btn.payload) {
+                } else if (btn.action == 'Postback') {
                   return (
                     <a
                       href
-                      onClick={() => this.handleSendPostBack(btn.text || btn.title, btn.payload)}
+                      onClick={this.props.onSendData.bind(this, { type: 'postback', data: { paylaod: btn.payload } })}
                       key={`2-${btn.title}`}
                       className={style.action}
                     >

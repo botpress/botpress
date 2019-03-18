@@ -21,7 +21,7 @@ module.exports = {
       },
       action: {
         type: 'string',
-        enum: ['Say something', 'Open URL'],
+        enum: ['Say something', 'Open URL', 'Postback'],
         default: 'Say something'
       }
     },
@@ -46,6 +46,17 @@ module.exports = {
               }
             },
             required: ['url']
+          },
+          {
+            properties: {
+              action: {
+                enum: ['Postback']
+              },
+              payload: {
+                type: 'string'
+              }
+            },
+            required: ['payload']
           }
         ]
       }
