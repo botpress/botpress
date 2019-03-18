@@ -1,3 +1,31 @@
+## [11.6.2](https://github.com/botpress/botpress/compare/v11.6.1...v11.6.2) (2019-03-18)
+
+
+### Bug Fixes
+
+* **channel-web:** fix 401 issue when embedding webchat ([843cd73](https://github.com/botpress/botpress/commit/843cd73))
+* **channel-web:** fixed reset conversation not working ([20cda68](https://github.com/botpress/botpress/commit/20cda68))
+* **core:** fix undefined value in carousel name ([6f68875](https://github.com/botpress/botpress/commit/6f68875))
+* **emulator:** displays the final decision instead of the intent ([4096a10](https://github.com/botpress/botpress/commit/4096a10))
+* **emulator:** fixed issue with new session button ([885d460](https://github.com/botpress/botpress/commit/885d460))
+* **messenger:** default persistent menu to [] ([f02552e](https://github.com/botpress/botpress/commit/f02552e))
+* **messenger:** fixed webhook ([8555d42](https://github.com/botpress/botpress/commit/8555d42))
+* **messenger:** fixes webhooks ([c7d8349](https://github.com/botpress/botpress/commit/c7d8349))
+* **messenger:** pro ref ([923fca8](https://github.com/botpress/botpress/commit/923fca8))
+* **messenger:** typings of config ([7fa5353](https://github.com/botpress/botpress/commit/7fa5353))
+* **nlu:** fixed viewport issue with multiple entity utterance ([011aa92](https://github.com/botpress/botpress/commit/011aa92))
+* **nlu:** only copy vector files ([4f31fbc](https://github.com/botpress/botpress/commit/4f31fbc))
+
+
+### Features
+
+* **channel-messenger:** add messenger support ([966480d](https://github.com/botpress/botpress/commit/966480d))
+* **core:** debug supports sub-namespaces ([ce53321](https://github.com/botpress/botpress/commit/ce53321))
+* **messenger:** Added support for Messenger Channel ([25bcd7a](https://github.com/botpress/botpress/commit/25bcd7a))
+* **nlu:** added ctx filtering ([c1921f2](https://github.com/botpress/botpress/commit/c1921f2))
+
+
+
 ## [11.6.1](https://github.com/botpress/botpress/compare/v11.6.0...v11.6.1) (2019-03-11)
 
 
