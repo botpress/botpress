@@ -18,8 +18,8 @@ export default class PatternExtractor {
   async extractLists(input: string, lang: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     const entities = flatten(
       flatten(
-        await Promise.map(entityDefs, async entityDef => {
-          return await Promise.map(entityDef.occurences || [], occurence =>
+        await Promise.mapSeries(entityDefs, async entityDef => {
+          return await Promise.mapSeries(entityDef.occurences || [], occurence =>
             this._extractEntitiesFromOccurence(input, lang, occurence, entityDef)
           )
         })
@@ -35,7 +35,7 @@ export default class PatternExtractor {
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
     const tokens = await tokenize(input, lang)
-    const values = await Promise.map([occurence.name, ...occurence.synonyms], v => tokenize(v, lang))
+    const values = await Promise.mapSeries([occurence.name, ...occurence.synonyms], v => tokenize(v, lang))
 
     const findings: sdk.NLU.Entity[] = []
 
