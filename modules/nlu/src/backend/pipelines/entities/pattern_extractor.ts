@@ -10,6 +10,8 @@ const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 const MIN_LENGTH_FUZZY_MATCH = 4
 
+const stripSpecialChars = str => str.replace(/!|@|#|$|%|\^|&|\*|(|)|_|-|\+|`|~|<|>|\?|\/|\.|,|;|:|"|'|[|]|{|}/gi, '')
+
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) {}
 
@@ -63,7 +65,7 @@ export default class PatternExtractor {
             distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
           }
         } else {
-          distance = partOfPhrase.toLowerCase() === occ.toLowerCase() ? 1 : 0
+          distance = stripSpecialChars(partOfPhrase.toLowerCase()) === stripSpecialChars(occ.toLowerCase()) ? 1 : 0
         }
 
         // if is closer OR if the match found is longer

@@ -59,13 +59,13 @@ describe('Custom entity extraction', () => {
 
     const userInput = `
 I'm riding my mercedes-benz to the dealership then I will take my BM to buy an other mercedes because we need merchandise for the shop BMW!` /*
-              [============]                                                         [======]                                          [=]
+              [============]                                      ==                 [======]                                          [=]
 */
 
     const extractor = new PatternExtractor(Toolkit)
     const entities = await extractor.extractLists(userInput, 'en', [entityDef])
 
-    expect(entities.length).toEqual(3)
+    expect(entities.length).toEqual(4)
 
     expect(entities[0].name).toEqual(entityDef.name)
     expect(entities[0].meta.start).toEqual(15)
@@ -80,10 +80,16 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     expect(entities[1].data.value).toEqual('Mercedes-Benz')
 
     expect(entities[2].name).toEqual(entityDef.name)
-    expect(entities[2].meta.start).toEqual(136)
-    expect(entities[2].meta.end).toEqual(140)
-    expect(entities[2].meta.source).toEqual('BMW!')
+    expect(entities[2].meta.start).toEqual(67)
+    expect(entities[2].meta.end).toEqual(69)
+    expect(entities[2].meta.source).toEqual('BM')
     expect(entities[2].data.value).toEqual('BMW')
+
+    expect(entities[3].name).toEqual(entityDef.name)
+    expect(entities[3].meta.start).toEqual(136)
+    expect(entities[3].meta.end).toEqual(140)
+    expect(entities[3].meta.source).toEqual('BMW!')
+    expect(entities[3].data.value).toEqual('BMW')
   })
 
   test('Extract exact list entitites', async () => {
