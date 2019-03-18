@@ -63,9 +63,13 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = false
     if (trainingSet.length >= 2) {
       debugTrain('start training')
+      debugTrain('training language model')
       await this._trainLanguageModel(trainingSet)
+      debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
+      debugTrain('training CRF')
       await this._trainCrf(trainingSet)
+      debugTrain('reading tagger')
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
@@ -229,13 +233,17 @@ export default class CRFExtractor implements SlotExtractor {
 
     fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
 
-    await ft.trainToFile('skipgram', this._ftModelFn, {
+    const skipgramParams = {
       input: ftTrainFn,
       minCount: 2,
       dim: 15,
-      lr: 0.5,
-      epoch: 50
-    })
+      lr: 0.05,
+      epoch: 50,
+      wordNgrams: 3
+    }
+
+    debugTrain('training skipgram', skipgramParams)
+    await ft.trainToFile('skipgram', this._ftModelFn, skipgramParams)
 
     this._ft = ft
   }
@@ -275,7 +283,7 @@ export default class CRFExtractor implements SlotExtractor {
     const next =
       idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
 
-    debugVectorize(`"${tokens[idx]}" (${idx})`, { prev, current, next })
+    debugVectorize(`"${tokens[idx].value}" (${idx})`, { prev, current, next })
 
     return [...prev, ...current, ...next]
   }
