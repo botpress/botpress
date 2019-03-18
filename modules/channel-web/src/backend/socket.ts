@@ -12,6 +12,29 @@ export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
 
+  async function incomingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+    if (event.channel !== 'web') {
+      return next()
+    }
+
+    if (event.type === 'postback' && event.target) {
+      const userId = event.target
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postpack', event.payload) // event payload straight ?
+      bp.realtime.sendPayload(payload)
+      // Do we want to persist the message ?
+    }
+
+    next()
+  }
+
+  bp.events.registerMiddleware({
+    name: 'web.sendPostback',
+    description: 'Sends postback message to webchat parent',
+    direction: 'incoming',
+    handler: incomingHandler,
+    order: 100
+  })
+
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = webchat.' +
