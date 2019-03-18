@@ -123,7 +123,7 @@ export default class CRFExtractor implements SlotExtractor {
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
-            slotName[slotName].push(slot)
+            slotCollection[slotName].push(slot)
           } else {
             // if no slots exist we assign a slot to the slot key
             slotCollection[slotName] = [slotCollection[slotName], slot]
