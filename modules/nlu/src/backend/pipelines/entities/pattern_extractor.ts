@@ -8,9 +8,11 @@ import { tokenize } from '../language/tokenizers'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
-const MIN_LENGTH_FUZZY_MATCH = 4
 
-const stripSpecialChars = str => str.replace(/!|@|#|$|%|\^|&|\*|(|)|_|-|\+|`|~|<|>|\?|\/|\.|,|;|:|"|'|[|]|{|}/gi, '')
+const MIN_LENGTH_FUZZY_MATCH = 4
+const MIN_CONFIDENCE = 0.65
+
+const stripSpecialChars = str => str.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) {}
@@ -52,7 +54,7 @@ export default class PatternExtractor {
         const occ = val.join('+')
         if (val.length > 1) {
           const _tokens = await tokenize(input.substr(cur + partOfPhrase.length), lang)
-          while (_tokens.length && partOfPhrase.length < occ.length) {
+          while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
             partOfPhrase += '+' + _tokens.shift()
           }
         }
@@ -68,7 +70,11 @@ export default class PatternExtractor {
             distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
           }
         } else {
-          distance = stripSpecialChars(partOfPhrase.toLowerCase()) === stripSpecialChars(occ.toLowerCase()) ? 1 : 0
+          const strippedPop = stripSpecialChars(partOfPhrase.toLowerCase())
+          const strippedOcc = stripSpecialChars(occ.toLowerCase())
+          if (strippedPop.length && strippedOcc.length) {
+            distance = strippedPop === strippedOcc ? 1 : 0
+          }
         }
 
         // if is closer OR if the match found is longer
@@ -85,7 +91,7 @@ export default class PatternExtractor {
       // prevent adding substrings of an already matched, longer entity
       const hasBiggerMatch = findings.find(x => start >= x.meta.start && end <= x.meta.end)
 
-      if (highest >= 0.65 && !hasBiggerMatch) {
+      if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
         debugLists('found list entity', {
           lang,
           occurence: occurence.name,
