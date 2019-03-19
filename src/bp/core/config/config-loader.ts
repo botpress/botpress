@@ -108,7 +108,7 @@ export class GhostConfigProvider implements ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault = ['analytics', 'builtin', 'channel-web', 'nlu', 'qna']
+    const enabledByDefault = ['analytics', 'basic-skills', 'builtin', 'channel-web', 'nlu', 'qna']
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
