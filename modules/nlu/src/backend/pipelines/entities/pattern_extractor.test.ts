@@ -10,7 +10,7 @@ describe('Custom entity extraction', () => {
   const { default: computeJaroWinklerDistance } = require('../../../../../../src/bp/ml/homebrew/jaro-winkler')
   const Toolkit = { Strings: { computeLevenshteinDistance, computeJaroWinklerDistance } } as any
 
-  test('Extract pattern entitites', async () => {
+  test('Extract pattern entities', async () => {
     const pattern = 'lol'
     const entityDef = {
       id: '_',
@@ -39,7 +39,7 @@ describe('Custom entity extraction', () => {
     expect(entities[2].data.value).toEqual(pattern)
   })
 
-  test('Extract fuzzy list entitites', async () => {
+  test('Extract fuzzy list entities', async () => {
     const entityDef = {
       id: '_',
       name: 'Cars',
@@ -92,7 +92,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     expect(entities[3].data.value).toEqual('BMW')
   })
 
-  test('Extract exact list entitites', async () => {
+  test('Extract exact list entities', async () => {
     const entityDef = {
       id: '_',
       name: 'Artists',
@@ -121,5 +121,42 @@ My name is kanye West and I rap like kanye wsest` /*
     expect(entities[0].meta.end).toEqual(22)
     expect(entities[0].meta.source).toEqual('kanye West')
     expect(entities[0].data.value).toEqual('Kanye West')
+  })
+
+  test('Extract fuzzy entities with synonyms not treated as fuzzy', async () => {
+    const entityDef = {
+      id: '_',
+      name: 'People',
+      type: 'list',
+      fuzzy: true,
+      occurences: [
+        {
+          name: 'Jon Gore',
+          synonyms: ['Jon', 'Gore']
+        }
+      ]
+    } as sdk.NLU.EntityDefinition
+
+    const userInput = `
+    I can't hear about Jone Goree anymore. Jone is a clown, so is gore` /*
+                       [========]          [xx]                   [==]
+*/
+
+    const extractor = new PatternExtractor(Toolkit)
+    const entities = await extractor.extractLists(userInput, 'en', [entityDef])
+
+    expect(entities.length).toEqual(2)
+
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(67)
+    expect(entities[0].meta.end).toEqual(71)
+    expect(entities[0].meta.source).toEqual('gore')
+    expect(entities[0].data.value).toEqual('Jon Gore')
+
+    expect(entities[1].name).toEqual(entityDef.name)
+    expect(entities[1].meta.start).toEqual(24)
+    expect(entities[1].meta.end).toEqual(34)
+    expect(entities[1].meta.source).toEqual('Jone Goree')
+    expect(entities[1].data.value).toEqual('Jon Gore')
   })
 })

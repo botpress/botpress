@@ -79,7 +79,13 @@ export default class PatternExtractor {
         }
       }
 
-      if (highest >= 0.65) {
+      const start = cur
+      const end = cur + source.length
+
+      // prevent adding substrings of an already matched, longer entity
+      const hasBiggerMatch = findings.find(x => start >= x.meta.start && end <= x.meta.end)
+
+      if (highest >= 0.65 && !hasBiggerMatch) {
         debugLists('found list entity', {
           lang,
           occurence: occurence.name,
@@ -96,8 +102,8 @@ export default class PatternExtractor {
             confidence: highest, // extrated with synonyme as patterns
             provider: 'native',
             source: source,
-            start: cur,
-            end: cur + source.length,
+            start,
+            end,
             raw: {}
           },
           data: {
