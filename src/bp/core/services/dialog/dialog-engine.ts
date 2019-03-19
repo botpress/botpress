@@ -210,7 +210,7 @@ export class DialogEngine {
       }
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
-      const queue = builder.onlyTransitions().build()
+      const queue = builder.build()
 
       context = {
         ...context,
