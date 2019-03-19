@@ -29,6 +29,10 @@ export class MessengerService {
   async initialize() {
     const config = (await this.bp.config.getModuleConfig('channel-messenger')) as Config
 
+    if (!config.enabled) {
+      return
+    }
+
     if (!config.verifyToken || config.verifyToken.length < 1) {
       throw new Error('You need to set a non-empty value for "verifyToken" in the *global* messenger config')
     }
