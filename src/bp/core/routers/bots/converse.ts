@@ -62,7 +62,7 @@ export class ConverseRouter extends CustomRouter {
           userId,
           _.omit(req.body, ['includedContexts']),
           req.credentials,
-          req.body.includedContexts
+          req.body.includedContexts || ['global']
         )
         const formatedOutput = this.prepareResponse(rawOutput, params)
 
