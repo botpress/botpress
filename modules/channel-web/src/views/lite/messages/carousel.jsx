@@ -37,7 +37,7 @@ export default class CarouselMessage extends Component {
                   return (
                     <a
                       href
-                      onClick={this.props.onSendData.bind(this, { type: 'postback', data: { paylaod: btn.payload } })}
+                      onClick={this.props.onSendData.bind(this, { type: 'postback', data: { payload: btn.payload } })}
                       key={`2-${btn.title}`}
                       className={style.action}
                     >
