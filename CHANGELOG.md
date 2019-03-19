@@ -1,3 +1,14 @@
+## [11.6.3](https://github.com/botpress/botpress/compare/v11.6.2...v11.6.3) (2019-03-18)
+
+
+### Bug Fixes
+
+* **messenger:** disable channel when not configured ([480ba6f](https://github.com/botpress/botpress/commit/480ba6f))
+* **messenger:** missing packages ([01f605b](https://github.com/botpress/botpress/commit/01f605b))
+* **nlu:** fix delete intents / entities on firefox ([c5ad50d](https://github.com/botpress/botpress/commit/c5ad50d))
+
+
+
 ## [11.6.2](https://github.com/botpress/botpress/compare/v11.6.1...v11.6.2) (2019-03-18)
 
 
