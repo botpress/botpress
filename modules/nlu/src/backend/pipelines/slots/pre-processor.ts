@@ -84,11 +84,7 @@ export const generateTrainingSequence = (
   }
 }
 
-export const generatePredictionSequence = (
-  input: string,
-  intentName: string,
-  entitites: sdk.NLU.Entity[]
-): Sequence => {
+export const generatePredictionSequence = (input: string, intentName: string, entities: sdk.NLU.Entity[]): Sequence => {
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
   const tokens = _tokenize(input).map(value => {
@@ -96,7 +92,7 @@ export const generatePredictionSequence = (
     currentIdx += inputIdx // in case of tokenization uses more than one char i.e words separated with multiple spaces
     input = input.slice(inputIdx + value.length)
 
-    const matchedEntities = entitites
+    const matchedEntities = entities
       .filter(e => e.meta.start <= currentIdx && e.meta.end >= currentIdx + value.length)
       .map(e => e.name)
 

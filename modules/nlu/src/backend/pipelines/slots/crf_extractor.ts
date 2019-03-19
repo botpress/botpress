@@ -103,10 +103,10 @@ export default class CRFExtractor implements SlotExtractor {
   async extract(
     text: string,
     intentDef: sdk.NLU.IntentDefinition,
-    entitites: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotsCollection> {
-    debugExtract(text, { entitites })
-    const seq = generatePredictionSequence(text, intentDef.name, entitites)
+    debugExtract(text, { entities })
+    const seq = generatePredictionSequence(text, intentDef.name, entities)
     const tags = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
@@ -120,7 +120,7 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entitites)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           // simply append the source if the tag is inside a slot
           slotCollection[slotName].source += ` ${token.value}`
@@ -158,12 +158,11 @@ export default class CRFExtractor implements SlotExtractor {
     slotName: string,
     token: Token,
     slotDefinitions: sdk.NLU.SlotDefinition[],
-    entitites: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[]
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
-      slotDef &&
-      entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
+      slotDef && entities.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
 
     const value = _.get(entity, 'data.value', token.value)
 
@@ -269,11 +268,11 @@ export default class CRFExtractor implements SlotExtractor {
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
     }
 
-    const entititesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
+    const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
       ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
     )
 
-    return [...vector, ...entititesFeatures]
+    return [...vector, ...entitiesFeatures]
   }
 
   // TODO maybe use a slice instead of the whole token seq ?
