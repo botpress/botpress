@@ -19,9 +19,8 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (event.type === 'postback' && event.target) {
       const userId = event.target
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postpack', event.payload) // event payload straight ?
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postpack', event.payload)
       bp.realtime.sendPayload(payload)
-      // Do we want to persist the message ?
     }
 
     next()
