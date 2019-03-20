@@ -6,6 +6,10 @@
  * @param {string} data - Serialized payload you want to send
  */
 const sendPostbackToParent = data => {
+  if (event.channel != 'web') {
+    return
+  }
+
   const postbackEvent = bp.IO.Event({
     type: 'postback',
     channel: 'web',
@@ -21,6 +25,4 @@ const sendPostbackToParent = data => {
   bp.events.sendEvent(postbackEvent)
 }
 
-if (event.channel === 'web') {
-  sendPostbackToParent(args.data)
-}
+return sendPostbackToParent(args.data)
