@@ -18,7 +18,7 @@ import api from '../../api'
 import _ from 'lodash'
 
 export default class Debug extends React.Component {
-  state = { nodes: undefined, checked: [], expanded: [] }
+  state = { nodes: undefined, checked: [], expanded: ['bp'] }
 
   componentDidMount() {
     this.loadConfiguration()
@@ -26,7 +26,7 @@ export default class Debug extends React.Component {
 
   loadConfiguration = async () => {
     const { data } = await api.getSecured().get(`/admin/server/debug`)
-    const rootNode = { label: 'bp', children: [] }
+    const rootNode = { label: 'bp', children: [], expandDisabled: true }
 
     for (const element of Object.keys(data).sort()) {
       this.buildNodeRecursive(rootNode, element.split(':'), 0)
@@ -69,7 +69,7 @@ export default class Debug extends React.Component {
         checked={this.state.checked}
         expanded={this.state.expanded}
         onCheck={checked => this.setState({ checked })}
-        onExpand={expanded => this.setState({ expanded })}
+        onExpand={expanded => this.setState({ expanded: ['bp', ...expanded] })}
         showExpandAll={true}
         icons={{
           check: <FaCheckSquare />,

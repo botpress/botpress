@@ -8,6 +8,11 @@ import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
 
+const debug = DEBUG('nlu').sub('slots')
+const debugTrain = debug.sub('train')
+const debugExtract = debug.sub('extract')
+const debugVectorize = debug.sub('vectorize')
+
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -57,18 +62,24 @@ export default class CRFExtractor implements SlotExtractor {
   async train(trainingSet: Sequence[]): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
+      debugTrain('start training')
+      debugTrain('training language model')
       await this._trainLanguageModel(trainingSet)
+      debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
+      debugTrain('training CRF')
       await this._trainCrf(trainingSet)
+      debugTrain('reading tagger')
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
-
+      debugTrain('done training')
       return {
         language: readFileSync(this._ftModelFn),
         crf: readFileSync(this._crfModelFn)
       }
     } else {
+      debugTrain('training set too small, skipping training')
       return {
         language: undefined,
         crf: undefined
@@ -92,9 +103,10 @@ export default class CRFExtractor implements SlotExtractor {
   async extract(
     text: string,
     intentDef: sdk.NLU.IntentDefinition,
-    entitites: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotsCollection> {
-    const seq = generatePredictionSequence(text, intentDef.name, entitites)
+    debugExtract(text, { entities })
+    const seq = generatePredictionSequence(text, intentDef.name, entities)
     const tags = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
@@ -108,14 +120,14 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entitites)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           // simply append the source if the tag is inside a slot
           slotCollection[slotName].source += ` ${token.value}`
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
-            slotName[slotName].push(slot)
+            slotCollection[slotName].push(slot)
           } else {
             // if no slots exist we assign a slot to the slot key
             slotCollection[slotName] = [slotCollection[slotName], slot]
@@ -146,12 +158,11 @@ export default class CRFExtractor implements SlotExtractor {
     slotName: string,
     token: Token,
     slotDefinitions: sdk.NLU.SlotDefinition[],
-    entitites: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[]
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
-      slotDef &&
-      entitites.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
+      slotDef && entities.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
 
     const value = _.get(entity, 'data.value', token.value)
 
@@ -221,13 +232,17 @@ export default class CRFExtractor implements SlotExtractor {
 
     fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
 
-    await ft.trainToFile('skipgram', this._ftModelFn, {
+    const skipgramParams = {
       input: ftTrainFn,
       minCount: 2,
       dim: 15,
-      lr: 0.5,
-      epoch: 50
-    })
+      lr: 0.05,
+      epoch: 50,
+      wordNgrams: 3
+    }
+
+    debugTrain('training skipgram', skipgramParams)
+    await ft.trainToFile('skipgram', this._ftModelFn, skipgramParams)
 
     this._ft = ft
   }
@@ -253,11 +268,11 @@ export default class CRFExtractor implements SlotExtractor {
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
     }
 
-    const entititesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
+    const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
       ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
     )
 
-    return [...vector, ...entititesFeatures]
+    return [...vector, ...entitiesFeatures]
   }
 
   // TODO maybe use a slice instead of the whole token seq ?
@@ -266,6 +281,8 @@ export default class CRFExtractor implements SlotExtractor {
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
     const next =
       idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
+
+    debugVectorize(`"${tokens[idx].value}" (${idx})`, { prev, current, next })
 
     return [...prev, ...current, ...next]
   }

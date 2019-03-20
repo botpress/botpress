@@ -2,11 +2,12 @@
   padding-left: 10px;
   overflow-y: auto;
   height: 100%;
+  width: 100%;
 }
 
 .badge {
   float: right;
-  margin-right: 10px;
+  margin: 3px 10px 0 5px;
 }
 
 .header {
@@ -51,7 +52,7 @@
   display: none;
   position: absolute;
   right: 5px;
-  top: 10px;
+  top: 6px;
 }
 
 .removeSynonym:hover {
@@ -59,7 +60,7 @@
 }
 
 .entity {
-  display: inline-block;
+  display: flex;
 }
 
 .selectedentity {
@@ -80,10 +81,11 @@
 .occurenceInput {
   margin: 10px;
   margin-bottom: 10px;
+  width: 98%;
 }
 
 .occurence {
-  width: 100%;
+  width: 98%;
   margin: 10px;
 
   &:hover {
