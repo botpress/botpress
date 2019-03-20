@@ -13,7 +13,7 @@ const sendPostbackToParent = data => {
   const postbackEvent = bp.IO.Event({
     type: 'postback',
     channel: 'web',
-    direction: 'incoming',
+    direction: 'outgoing',
     target: event.target,
     botId: event.botId,
     payload: {
@@ -21,7 +21,6 @@ const sendPostbackToParent = data => {
     }
   })
 
-  postbackEvent.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
   bp.events.sendEvent(postbackEvent)
 }
 

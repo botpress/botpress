@@ -6,33 +6,11 @@ import path from 'path'
 
 import Database from './db'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'postback']
 
 export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
-
-  async function incomingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'web') {
-      return next()
-    }
-
-    if (event.type === 'postback' && event.target) {
-      const userId = event.target
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postback', event.payload)
-      bp.realtime.sendPayload(payload)
-    }
-
-    next()
-  }
-
-  bp.events.registerMiddleware({
-    name: 'web.sendPostback',
-    description: 'Sends postback message to webchat parent',
-    direction: 'incoming',
-    handler: incomingHandler,
-    order: 100
-  })
 
   bp.events.registerMiddleware({
     description:
@@ -85,6 +63,10 @@ export default async (bp: typeof sdk, db: Database) => {
       })
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    } else if (messageType === 'postback') {
+      const userId = event.target
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postback', event.payload)
+      bp.realtime.sendPayload(payload)
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
