@@ -236,6 +236,31 @@ sudo npm install -g pm2
 sudo pm2 startup
 ```
 
+## Using your own instance of Duckling
+
+We use Duckling to extract system entities (for example: time, email, sum of money, etc.). If your Botpress server can't access the internet or if you want to own your own server, there is a couple of steps that you need to follow. Those steps are different depending on your OS and are described below.
+
+When you have the duckling binary, simply edit the file `data/global/config/nlu.json` and set the parameter `ducklingURL` to where you run Duckling, for example, if it's on the same server as Botpress (and if you use the default port of 8000), you would set:
+
+```js
+{
+  ...
+  "ducklingURL": "http://localhost:8000"
+}
+```
+
+#### Linux and Mac users
+
+Duckling must be compiled to run correctly on your specific system. Therefore, you will need to install the software development tools and build it from source.
+Please follow the instructions on the [GitHub page of Duckling[(https://github.com/facebook/duckling)
+
+We may provide some binaries in the future for common OS
+
+#### Windows users
+
+If you run Botpress on windows, there is a zip file available [here](https://s3.amazonaws.com/botpress-binaries/tools/duckling/duckling-windows.zip).
+Simply double-click on run-duckling.bat (the bat file simply sets the code page of the console to UTF-8, then runs the executable). The folder `zoneinfo` includes the Olson timezones which are already available by default on other OS.
+
 ## Environment Variables
 
 Most of these variables can be set in the configuration file `data/global/botpress.config.json`. Infrastructure configuration (like the database, cluster mode, etc) aren't available in the configuration file, since they are required before the config is loaded.
