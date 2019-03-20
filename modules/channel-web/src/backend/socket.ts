@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (event.type === 'postback' && event.target) {
       const userId = event.target
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postpack', event.payload)
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.postback', event.payload)
       bp.realtime.sendPayload(payload)
     }
 
