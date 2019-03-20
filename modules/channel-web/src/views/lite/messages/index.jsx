@@ -333,6 +333,10 @@ class Message extends Component {
     return null
   }
 
+  render_postback() {
+    return this.props.data.message_data.text || null
+  }
+
   render_unsupported() {
     return (
       <div className="bp-msg-unsupported" style={this.getAddStyle()}>

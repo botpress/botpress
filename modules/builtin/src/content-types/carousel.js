@@ -32,6 +32,11 @@ function render(data) {
               title: a.title,
               url: a.url.replace('BOT_URL', data.BOT_URL)
             }
+          } else if (a.action === 'Postback') {
+            return {
+              title: a.title,
+              payload: a.payload
+            }
           } else {
             throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
           }
