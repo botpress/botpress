@@ -6,7 +6,7 @@ import { MonitoringService } from 'core/services/monitoring'
 import { Router } from 'express'
 import _ from 'lodash'
 
-import { getDebugScopes, setDebugScopes } from '../../../index'
+import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
 import { assertSuperAdmin } from '../util'
 export class ServerRouter extends CustomRouter {
