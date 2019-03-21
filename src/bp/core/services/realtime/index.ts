@@ -9,6 +9,8 @@ import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../types'
 
+const debug = DEBUG('realtime')
+
 @injectable()
 export default class RealtimeService {
   private readonly ee: EventEmitter2
@@ -36,6 +38,7 @@ export default class RealtimeService {
   }
 
   sendToSocket(payload: RealTimePayload) {
+    debug('Send to socket', payload)
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 
