@@ -39,6 +39,7 @@ import { DataRetentionService } from './services/retention/service'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
+import { setDebugScopes } from '../debug'
 
 export type StartOptions = {
   modules: sdk.ModuleEntryPoint[]
@@ -107,6 +108,7 @@ export class Botpress {
 
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
+    this.setDebugScopes()
     await this.checkJwtSecret()
     await this.checkEditionRequirements()
     await this.loadModules(options.modules)
@@ -198,6 +200,16 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
+  }
+
+  private setDebugScopes() {
+    if (!this.config) {
+      return
+    }
+
+    const debugConfig = this.config.logs.debugScope
+    const debugScopes = process.env.IS_PRODUCTION ? debugConfig.prod : debugConfig.dev
+    setDebugScopes(debugScopes.join(','))
   }
 
   private async initializeServices() {
