@@ -173,11 +173,11 @@ export class HookService {
     const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
+    hook.debug('before execute', { path: hookScript.path, botId, args: hook.args })
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-
-    hook.debug(`Exec "${hookScript.path}"`)
+    hook.debug('after execute')
   }
 
   private logScriptError(err, botId, path, folder) {

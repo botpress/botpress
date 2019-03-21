@@ -174,6 +174,8 @@ export class DialogEngine {
       currentFlow: defaultFlow.name
     }
 
+    debug('new context', { defaultFlow, startNode, event })
+
     return event.state.context
   }
 

@@ -76,7 +76,7 @@ interface IDebugInstance {
    * @param botId The bot Id
    * @param message The debug message
    */
-  forBot(botId: string, message: string): void
+  forBot(botId: string, message: string, extra?: any): void
   sub(namespace: string): IDebugInstance
 }
 
