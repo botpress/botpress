@@ -21,7 +21,6 @@ import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { RequestWithUser } from './misc/interfaces'
 import { ModuleLoader } from './module-loader'
-import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
@@ -82,7 +81,6 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
@@ -115,7 +113,7 @@ export default class HTTPServer {
 
     this.app.use(debugRequestMw)
 
-    this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
+    this.modulesRouter = new ModulesRouter(this.logger, this.authService, moduleLoader, skillService)
     this.authRouter = new AuthRouter(
       this.logger,
       this.authService,
@@ -137,7 +135,7 @@ export default class HTTPServer {
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
-      botRepository,
+      botService,
       configProvider,
       flowService,
       mediaService,

@@ -8,8 +8,8 @@ export class NotificationsService {
 
   constructor(@inject(TYPES.NotificationsRepository) private notificationsRepository: NotificationsRepository) {}
 
-  async archive(notificationId: string): Promise<void> {
-    const notification = await this.notificationsRepository.getBydId(notificationId)
+  async archive(botId: string, notificationId: string): Promise<void> {
+    const notification = await this.notificationsRepository.get(botId, notificationId)
     notification.archived = true
     await this.notificationsRepository.update(notification)
   }
@@ -31,8 +31,8 @@ export class NotificationsService {
     return await this.notificationsRepository.getAll(botId, { archived: false, read: false })
   }
 
-  async markAsRead(notificationId: string): Promise<void> {
-    const notification = await this.notificationsRepository.getBydId(notificationId)
+  async markAsRead(botId: string, notificationId: string): Promise<void> {
+    const notification = await this.notificationsRepository.get(botId, notificationId)
     notification.read = true
     await this.notificationsRepository.update(notification)
   }

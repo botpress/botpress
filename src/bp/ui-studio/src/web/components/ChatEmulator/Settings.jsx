@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Button, FormControl } from 'react-bootstrap'
+import { Modal, Button, Form, FormControl } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -11,15 +11,24 @@ export default class Settings extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
-      this.setState({ userId: this.props.userId, externalToken: this.props.externalToken })
+      this.setState({
+        userId: this.props.userId,
+        externalToken: this.props.externalToken,
+        isSendingRawPayload: this.props.isSendingRawPayload
+      })
     }
   }
 
   handleSave = () => {
-    this.props.onUpdateSettings({ userId: this.state.userId, externalToken: this.state.externalToken })
+    this.props.onUpdateSettings({
+      userId: this.state.userId,
+      externalToken: this.state.externalToken,
+      isSendingRawPayload: this.state.isSendingRawPayload
+    })
     this.props.onHideSettings()
   }
 
+  handleToggle = event => this.setState({ [event.target.name]: event.target.checked })
   handleOnChange = event => this.setState({ [event.target.name]: event.target.value })
 
   render() {
@@ -30,6 +39,13 @@ export default class Settings extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <div>
+            <h5>Send Raw Payloads (JSON mode)</h5>
+            <FormControl
+              type="checkbox"
+              checked={this.state.isSendingRawPayload}
+              onChange={this.handleToggle}
+              name="isSendingRawPayload"
+            />
             <h5>User ID</h5>
             <FormControl
               type="text"
