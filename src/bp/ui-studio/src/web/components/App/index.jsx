@@ -7,7 +7,6 @@ import EventBus from '~/util/EventBus'
 import routes from '../Routes'
 
 import {
-  fetchLicense,
   fetchUser,
   fetchBotInformation,
   fetchModules,
@@ -31,7 +30,6 @@ class App extends Component {
     this.props.fetchSkills()
     this.props.fetchNotifications()
     this.props.fetchBotInformation()
-    this.props.fetchLicense()
 
     this.props.fetchUser()
   }
@@ -59,7 +57,6 @@ class App extends Component {
 }
 
 const mapDispatchToProps = {
-  fetchLicense,
   fetchUser,
   fetchBotInformation,
   fetchModules,
