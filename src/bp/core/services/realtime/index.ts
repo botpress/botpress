@@ -38,7 +38,7 @@ export default class RealtimeService {
   }
 
   sendToSocket(payload: RealTimePayload) {
-    debug('Send to socket', payload)
+    debug('Send payload', payload)
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 
