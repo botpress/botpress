@@ -12,6 +12,8 @@ import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
 
+const debug = DEBUG('dialog')
+
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError) => void) | undefined
@@ -172,6 +174,8 @@ export class DialogEngine {
       currentFlow: defaultFlow.name
     }
 
+    debug('new context', { defaultFlow, startNode, event })
+
     return event.state.context
   }
 
@@ -299,30 +303,30 @@ export class DialogEngine {
   }
 
   private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
+    debug.forBot(botId, `Transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
   }
 
   private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`TRANSIT (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
+    debug.forBot(botId, `Transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
   }
 
   private _logTransition(botId, currentFlow, currentNode, transitionTo) {
-    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
+    debug.forBot(botId, `Transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
   }
 
   private _logEnd(botId) {
-    this.logger.forBot(botId).debug('END FLOW')
+    debug.forBot(botId, 'End')
   }
 
   private _logStart(botId) {
-    this.logger.forBot(botId).debug('EVENT RECV')
+    debug.forBot(botId, 'Start')
   }
 
   private _logTimeout(botId) {
-    this.logger.forBot(botId).debug('TIMEOUT')
+    debug.forBot(botId, 'Timeout')
   }
 
   private _logWait(botId) {
-    this.logger.forBot(botId).debug('WAIT')
+    debug.forBot(botId, 'Wait')
   }
 }

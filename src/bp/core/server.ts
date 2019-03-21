@@ -6,6 +6,7 @@ import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
 import express from 'express'
+import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
@@ -18,6 +19,7 @@ import portFinder from 'portfinder'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
+import { RequestWithUser } from './misc/interfaces'
 import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
@@ -47,6 +49,19 @@ import { TYPES } from './types'
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER = 'server::modules'
 const isProd = process.env.NODE_ENV === 'production'
+
+const debug = DEBUG('api')
+const debugRequest = debug.sub('request')
+
+const debugRequestMw = (req: Request, _res, next) => {
+  debugRequest(req.path, {
+    method: req.method,
+    ip: req.ip,
+    originalUrl: req.originalUrl
+  })
+
+  next()
+}
 
 @injectable()
 export default class HTTPServer {
@@ -95,6 +110,8 @@ export default class HTTPServer {
     }
 
     this.httpServer = createServer(this.app)
+
+    this.app.use(debugRequestMw)
 
     this.modulesRouter = new ModulesRouter(this.logger, this.authService, moduleLoader, skillService)
     this.authRouter = new AuthRouter(

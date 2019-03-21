@@ -66,6 +66,10 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
+const debug = DEBUG('middleware')
+const debugIncoming = debug.sub('incoming')
+const debugOutgoing = debug.sub('outgoing')
+
 @injectable()
 export class EventEngine {
   public onBeforeIncomingMiddleware: ((event) => Promise<void>) | undefined
@@ -127,9 +131,11 @@ export class EventEngine {
   register(middleware: sdk.IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
+      debugIncoming('register', middleware)
       this.incomingMiddleware.push(middleware)
       this.incomingMiddleware = _.sortBy(this.incomingMiddleware, mw => mw.order)
     } else {
+      debugOutgoing('register', middleware)
       this.outgoingMiddleware.push(middleware)
       this.outgoingMiddleware = _.sortBy(this.outgoingMiddleware, mw => mw.order)
     }
@@ -139,9 +145,11 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
+      debugIncoming('send', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
+      debugOutgoing('send', event)
       incrementMetric('eventsOut.count')
       await this.outgoingQueue.enqueue(event, 1, false)
     }

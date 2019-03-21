@@ -10,6 +10,8 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
+import { setDebugScopes } from '../debug'
+
 import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -97,6 +99,8 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+
+    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog*,bp:nlu:intents:*'))
 
     this.config = await this.loadConfiguration()
     await this.createDatabase()
