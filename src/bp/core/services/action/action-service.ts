@@ -145,7 +145,7 @@ export class ScopedActionService {
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
-    debug('run action', { actionName, incomingEvent, actionArgs })
+    debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
     const action = await this.findAction(actionName)
     const code = await this.getActionScript(action)
@@ -188,7 +188,7 @@ export class ScopedActionService {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
     })
 
-    debug('done running', { result, actionName, actionArgs })
+    debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
 
     return result
   }
