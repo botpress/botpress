@@ -64,19 +64,6 @@ export interface LogsConfig {
      */
     maxFileSize: number
   }
-
-  /**
-   * The default debug scope per environment.
-   * @example ["bp:dialog*", "bp:nlu:intents*"]
-   */
-  debugScope: {
-    /**
-     * The default debug scopes for the development environment
-     * @default ["bp:dialog*", "bp:nlu:intents*"]
-     */
-    dev: string[]
-    prod: string[]
-  }
 }
 
 /**

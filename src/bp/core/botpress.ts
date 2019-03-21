@@ -98,6 +98,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+    this.setDebugScopes()
 
     this.config = await this.loadConfiguration()
     await this.createDatabase()
@@ -108,7 +109,6 @@ export class Botpress {
 
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
-    this.setDebugScopes()
     await this.checkJwtSecret()
     await this.checkEditionRequirements()
     await this.loadModules(options.modules)
@@ -203,13 +203,14 @@ export class Botpress {
   }
 
   private setDebugScopes() {
-    if (!this.config) {
+    const debugScopes = process.env.IS_PRODUCTION
+      ? process.env.DEBUG_PROD
+      : process.env.DEBUG_DEV || 'bp:dialog*,bp:nlu:intents:*'
+    if (!debugScopes) {
       return
     }
 
-    const debugConfig = this.config.logs.debugScope
-    const debugScopes = process.env.IS_PRODUCTION ? debugConfig.prod : debugConfig.dev
-    setDebugScopes(debugScopes.join(','))
+    setDebugScopes(debugScopes)
   }
 
   private async initializeServices() {
