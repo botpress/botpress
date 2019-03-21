@@ -30,8 +30,6 @@ declare namespace NodeJS {
     BOTPRESS_VERSION: string
     core_env: BotpressEnvironementVariables
     distro: OSDistribution
-    DEBUG_DEV: string
-    DEBUG_PROD: string
   }
 }
 
@@ -57,6 +55,12 @@ declare type BotpressEnvironementVariables = {
    * @example http://username:password@hostname:port
    */
   readonly BP_PROXY?: string
+
+  /**
+   * Use to set default debug namespaces
+   * @example bp:dialog:*,bp:nlu:intents:*
+   */
+  readonly DEBUG?: string
 }
 
 interface IDebug {

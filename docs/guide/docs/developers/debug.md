@@ -19,13 +19,10 @@ DEBUG=bp:nlu:*,bp:dialog:* yarn start
 
 ### Setting Default Namespaces
 
-You can use the `DEBUG_DEV` and `DEBUG_PROD` environment variables to set default namespaces.
-
-Add them to your `.env` file located in your root folder:
+You can add `DEBUG` to your `.env` file located in your root folder to set default namespaces.
 
 ```shell
-DEBUG_DEV=bp:dialog:*,bp:nlu:intents:*
-DEBUG_PROD=bp:dialog:*
+DEBUG=bp:dialog:*,bp:nlu:intents:*
 ```
 
 ### Available namespaces 🔬

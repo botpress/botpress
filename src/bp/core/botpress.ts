@@ -98,7 +98,8 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
-    this.setDebugScopes()
+
+    setDebugScopes(process.core_env.DEBUG || 'bp:dialog*,bp:nlu:intents:*')
 
     this.config = await this.loadConfiguration()
     await this.createDatabase()
@@ -200,17 +201,6 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
-  }
-
-  private setDebugScopes() {
-    const debugScopes = process.env.IS_PRODUCTION
-      ? process.env.DEBUG_PROD
-      : process.env.DEBUG_DEV || 'bp:dialog*,bp:nlu:intents:*'
-    if (!debugScopes) {
-      return
-    }
-
-    setDebugScopes(debugScopes)
   }
 
   private async initializeServices() {
