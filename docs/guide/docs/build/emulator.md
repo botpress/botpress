@@ -1,6 +1,6 @@
 ---
-id: debug
-title: Debugging
+id: emulator
+title: Emulator
 ---
 
 ## Emulator Window
