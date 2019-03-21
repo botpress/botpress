@@ -13,7 +13,7 @@ import { VmRunner } from '../../action/vm'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
-const debug = DEBUG('flows')
+const debug = DEBUG('dialog')
 
 @injectable()
 export class StrategyFactory {

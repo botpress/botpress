@@ -12,7 +12,7 @@ import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
 
-const debug = DEBUG('flows')
+const debug = DEBUG('dialog')
 
 @injectable()
 export class DialogEngine {
