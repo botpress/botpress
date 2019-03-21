@@ -55,7 +55,7 @@ export class DialogEngine {
     const instruction = queue.dequeue()
     // End session if there are no more instructions in the queue
     if (!instruction) {
-      this._logEnd()
+      debug('end', { sessionId })
       event.state.context = {}
       event.state.temp = {}
       return event
@@ -70,7 +70,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
-        this._logWait()
+        debug('wait', { botId, queue, sessionId })
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
@@ -103,7 +103,7 @@ export class DialogEngine {
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
-    this._logTimeout()
+    debug('timeout', { botId, sessionId })
     await this._loadFlows(botId)
 
     // This is the only place we dont want to catch node or flow not found errors
@@ -165,14 +165,14 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    this._logStart()
-
     const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.context = {
       currentNode: startNode.name,
       currentFlow: defaultFlow.name
     }
+
+    debug('new context', { defaultFlow, startNode, event })
 
     return event.state.context
   }
@@ -223,7 +223,7 @@ export class DialogEngine {
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
       delete event.state.context
-      this._logEnd()
+      debug('explicit end', { context, sessionId, botId: event.botId })
       return event
     } else {
       // Transition to the target node in the current flow
@@ -300,30 +300,14 @@ export class DialogEngine {
   }
 
   private _logExitFlow(currentFlow, currentNode, previousFlow, previousNode) {
-    debug(`Transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
+    debug('Exit Flow', { currentFlow, currentNode, previousFlow, previousNode })
   }
 
   private _logEnterFlow(currentFlow, currentNode, previousFlow, previousNode) {
-    debug(`Transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
+    debug('Enter Flow', { previousFlow, previousNode, currentFlow, currentNode })
   }
 
   private _logTransition(currentFlow, currentNode, transitionTo) {
-    debug(`Transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
-  }
-
-  private _logEnd() {
-    debug('End')
-  }
-
-  private _logStart() {
-    debug('Start')
-  }
-
-  private _logTimeout() {
-    debug('Timeout')
-  }
-
-  private _logWait() {
-    debug('Wait')
+    debug('Transition', { currentFlow, currentNode, transitionTo })
   }
 }

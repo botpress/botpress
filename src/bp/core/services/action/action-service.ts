@@ -15,6 +15,8 @@ import { TYPES } from '../../types'
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
+const debug = DEBUG('actions')
+
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
@@ -143,6 +145,8 @@ export class ScopedActionService {
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
+    debug('run action', { actionName, incomingEvent, actionArgs })
+
     const action = await this.findAction(actionName)
     const code = await this.getActionScript(action)
     const api = await createForAction()
@@ -180,9 +184,13 @@ export class ScopedActionService {
 
     const runner = new VmRunner()
 
-    return runner.runInVm(vm, code, dirPath).catch(err => {
+    const result = runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
     })
+
+    debug('done running', { result, actionName, actionArgs })
+
+    return result
   }
 
   private async findAction(actionName: string): Promise<ActionDefinition> {

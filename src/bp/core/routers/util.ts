@@ -18,6 +18,11 @@ import {
   UnauthorizedError
 } from './errors'
 
+const debugFailure = DEBUG('audit:collab:fail')
+const debugSuccess = DEBUG('audit:collab:success')
+const debugSuperSuccess = DEBUG('audit:admin:success')
+const debugSuperFailure = DEBUG('audit:admin:fail')
+
 export type BPRequest = Request & {
   authUser: AuthUser | undefined
   tokenUser: TokenUser | undefined
@@ -124,19 +129,35 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
   const { tokenUser } = <RequestWithUser>req
   if (!tokenUser) {
+    debugSuperFailure(req.originalUrl, {
+      method: req.method,
+      ip: req.ip
+    })
     return next(new InternalServerError('No tokenUser in request'))
   }
 
   if (!tokenUser.isSuperAdmin) {
+    debugSuperFailure(req.originalUrl, {
+      method: req.method,
+      ip: req.ip,
+      user: tokenUser
+    })
     return next(new ForbiddenError('User needs to be super admin to perform this action'))
   }
+
+  debugSuperSuccess(req.originalUrl, {
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    user: tokenUser
+  })
 
   next()
 }
 
 export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
-  req: RequestWithUser,
-  res: Response,
+  _req: RequestWithUser,
+  _res: Response,
   next: NextFunction
 ) => {
   if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
@@ -152,22 +173,49 @@ export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
 
 export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
   req: RequestWithUser,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   const email = req.tokenUser && req.tokenUser!.email
-  const user = workspaceService.findUser({ email })
+  const user = await workspaceService.findUser({ email })
+
   if (!user) {
+    debugFailure(req.originalUrl, {
+      method: req.method,
+      email,
+      operation,
+      resource,
+      ip: req.ip
+    })
     return next(new NotFoundError(`User "${email}" does not exists`))
   }
 
   const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
+    debugFailure(req.originalUrl, {
+      method: req.method,
+      email,
+      operation,
+      resource,
+      userRole: role,
+      user,
+      ip: req.ip
+    })
     return next(
       new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
     )
   }
+
+  debugSuccess(req.originalUrl, {
+    method: req.method,
+    email,
+    operation,
+    resource,
+    userRole: role,
+    user,
+    ip: req.ip
+  })
 
   next()
 }
