@@ -14,7 +14,11 @@ To see all the logs, set `DEBUG=bp:* yarn start` if you're in development or `DE
 You can set multiple namespaces by separating them by a comma:
 
 ```shell
+# On Linux / Mac
 DEBUG=bp:nlu:*,bp:dialog:* yarn start
+
+# On Windows
+set DEBUG=bp:nlu*,bp:dialog:* yarn start
 ```
 
 ### Setting Default Namespaces
