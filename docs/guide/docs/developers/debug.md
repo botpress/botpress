@@ -18,7 +18,7 @@ You can set multiple namespaces by separating them by a comma:
 DEBUG=bp:nlu:*,bp:dialog:* yarn start
 
 # On Windows
-set DEBUG=bp:nlu*,bp:dialog:* yarn start
+set DEBUG=bp:nlu*,bp:dialog:*&& yarn start
 ```
 
 ### Setting Default Namespaces
