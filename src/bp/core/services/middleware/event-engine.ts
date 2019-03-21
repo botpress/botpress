@@ -69,7 +69,6 @@ const mwSchema = {
 const debug = DEBUG('middleware')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
-const debugPerformance = debug.sub('performance')
 
 @injectable()
 export class EventEngine {
@@ -108,10 +107,10 @@ export class EventEngine {
 
   /**
    * Outputs to the console the event I/O in real-time
-   * Usage: `DEBUG=bp:middleware:performance*`
+   * Usage: set `BP_DEBUG_IO` to `true`
    */
   private setupPerformanceHooks() {
-    if (!debugPerformance.enabled) {
+    if (!process.env.BP_DEBUG_IO) {
       return
     }
 
@@ -120,12 +119,12 @@ export class EventEngine {
 
     this._incomingPerf.subscribe(metric => {
       totalIn += metric
-      debugPerformance(`IN <- ${metric}/s | total = ${totalIn}`)
+      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) IN <- ${metric}/s | total = ${totalIn}`)
     })
 
     this._outgoingPerf.subscribe(metric => {
       totalOut += metric
-      debugPerformance(`OUT -> ${metric}/s | total = ${totalOut}`)
+      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) OUT -> ${metric}/s | total = ${totalOut}`)
     })
   }
 
