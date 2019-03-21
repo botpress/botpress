@@ -1,8 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
-
 import Send from '../send'
 import MessageList from '../messages'
 import Input from '../input'
@@ -12,6 +10,7 @@ import BotInfo from '../bot-info'
 
 import style from './style.scss'
 import { getOverridedComponent } from '../messages/misc'
+import ConversationList from './ConversationList'
 
 export default class Side extends React.Component {
   state = {
@@ -61,6 +60,11 @@ export default class Side extends React.Component {
     this.setState({
       showBotInfo: !this.state.showBotInfo
     })
+  }
+
+  handleConvoClicked = convoId => {
+    this.props.onSwitchConvo && this.props.onSwitchConvo(convoId)
+    this.handleToggleShowConvos()
   }
 
   renderAvatar() {
@@ -275,67 +279,31 @@ export default class Side extends React.Component {
     )
   }
 
-  renderItemConvos = (convo, key) => {
-    const title = convo.title || convo.message_author || 'Untitled Conversation'
-    const date = distanceInWordsToNow(new Date(convo.message_sent_on || convo.created_on))
-    const message = convo.message_text || '...'
-
-    const onClick = () => {
-      this.props.onSwitchConvo && this.props.onSwitchConvo(convo.id)
-
-      this.setState({
-        showConvos: false
-      })
-    }
-
+  renderBotInfoPage = () => {
+    // TODO move this logic in botInfo component
+    const isConvoStarted = this.props.currentConversation && !!this.props.currentConversation.messages.length
+    const onDismiss = isConvoStarted ? this.toggleBotInfo : this.props.startConversation.bind(this, this.toggleBotInfo)
     return (
-      <div className={'bp-item ' + style.item} key={key} onClick={onClick}>
-        <div className={style.left}>{this.renderAvatar()}</div>
-        <div className={style.right}>
-          <div className={'bp-title ' + style.title}>
-            <div className={style.name}>{title}</div>
-            <div className={style.date}>
-              <span>{date}</span>
-            </div>
-          </div>
-          <div className={'bp-preview ' + style.text}>{message}</div>
-        </div>
-      </div>
-    )
-  }
-
-  renderListOfConvos() {
-    const btnColor = this.props.config && this.props.config.textColorOnBackground
-    return (
-      <div className={'bp-list-convo ' + style.list}>
-        {this.props.conversations.map(this.renderItemConvos)}
-        <button
-          className={'bp-new-convo-btn ' + style.addConvoBtn}
-          style={{ color: btnColor, borderColor: btnColor }}
-          onClick={this.props.createConversation}
-        >
-          +
-        </button>
-      </div>
+      <BotInfo
+        botInfo={this.props.botInfo}
+        webchatConfig={this.props.config}
+        dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
+        onDismiss={onDismiss}
+      />
     )
   }
 
   renderBody() {
     if (this.state.showConvos) {
-      return this.renderListOfConvos()
-    } else if (this.state.showBotInfo) {
-      const isConvoStarted = this.props.currentConversation && !!this.props.currentConversation.messages.length
-      const onDismiss = isConvoStarted
-        ? this.toggleBotInfo
-        : this.props.startConversation.bind(this, this.toggleBotInfo)
       return (
-        <BotInfo
-          botInfo={this.props.botInfo}
-          webchatConfig={this.props.config}
-          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
-          onDismiss={onDismiss}
+        <ConversationList
+          conversations={this.props.conversations}
+          createConversation={this.props.createConversation}
+          onConversationClicked={this.handleConvoClicked}
         />
       )
+    } else if (this.state.showBotInfo) {
+      return this.renderBotInfoPage()
     } else {
       return this.renderConversation()
     }
