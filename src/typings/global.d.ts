@@ -62,6 +62,8 @@ interface IDebug {
 }
 
 interface IDebugInstance {
+  readonly enabled: boolean
+
   (msg: string, extra?: any): void
   sub(namespace: string): IDebugInstance
 }
