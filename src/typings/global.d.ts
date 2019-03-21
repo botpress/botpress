@@ -64,13 +64,19 @@ declare type BotpressEnvironementVariables = {
 }
 
 interface IDebug {
-  (module: string): IDebugInstance
+  (module: string, botId?: string): IDebugInstance
 }
 
 interface IDebugInstance {
   readonly enabled: boolean
 
   (msg: string, extra?: any): void
+  /**
+   * Use to print a debug message prefixed with the botId
+   * @param botId The bot Id
+   * @param message The debug message
+   */
+  forBot(botId: string, message: string): void
   sub(namespace: string): IDebugInstance
 }
 
