@@ -17,14 +17,14 @@ import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
+import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 
-export default class ScopedEngine {
+export default class ScopedEngine implements Engine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
 
