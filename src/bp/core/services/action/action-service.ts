@@ -184,7 +184,7 @@ export class ScopedActionService {
 
     const runner = new VmRunner()
 
-    const result = runner.runInVm(vm, code, dirPath).catch(err => {
+    const result = await runner.runInVm(vm, code, dirPath).catch(err => {
       throw new VError(err, `An error occurred while executing the action "${actionName}"`)
     })
 
