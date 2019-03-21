@@ -9,6 +9,7 @@ declare namespace NodeJS {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
     require: ExtraRequire
+    rewire: (name: string) => string
   }
 
   export interface Process {

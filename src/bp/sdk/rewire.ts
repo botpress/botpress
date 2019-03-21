@@ -74,7 +74,7 @@ global.require = {
 
 addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
 
-Module.prototype.require = function(mod) {
+const rewire = function(this: NodeRequireFunction, mod: string) {
   if (mod === 'botpress/sdk') {
     return originalRequire.apply(this, ['core/sdk_impl'])
   }
@@ -103,6 +103,32 @@ Module.prototype.require = function(mod) {
 
   return originalRequire.apply(this, arguments)
 }
+
+Module.prototype.require = rewire as any
+
+const rewirePath = (mod: string) => {
+  if (mod.endsWith('.node')) {
+    if (mod.startsWith('!')) {
+      return mod.substr(1)
+    }
+    const ext = syspath.basename(mod)
+    if (nativeExtensions.includes(ext)) {
+      const newPaths = nativeBindingsPaths.map(x => syspath.join(x, ext))
+      for (const newPath of newPaths) {
+        try {
+          originalRequire(newPath)
+          return newPath
+        } catch (err) {
+          /* Swallow error, try next one */
+        }
+      }
+    }
+  }
+
+  return mod
+}
+
+export default rewirePath
 
 /*
 ----------------------

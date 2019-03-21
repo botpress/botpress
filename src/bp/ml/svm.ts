@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 const binding = require('./svm-js/index.js')
 
@@ -22,7 +23,8 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       kernelType: args.kernel,
       c: args.c,
       gamma: args.gamma,
-      probability: true
+      probability: true,
+      kFold: 1
     })
   }
 
@@ -72,11 +74,12 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
 
   constructor(model: string) {
     const options = JSON.parse(model)
-    this.clf = binding.restore(options)
+    this.clf = binding.restore({ ...options, kFold: 1 })
   }
 
-  predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    return this.clf.predictProbabilities(coordinates)
+  async predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
+    const results = await this.clf.predictProbabilities(coordinates)
+    return _.orderBy(Object.keys(results).map(x => ({ label: x, confidence: results[x] })), 'confidence', 'desc')
   }
 
   isLoaded(): boolean {

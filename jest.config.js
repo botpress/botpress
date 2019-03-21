@@ -4,14 +4,17 @@ module.exports = {
       tsConfig: '<rootDir>/src/tsconfig.test.json'
     }
   },
-  setupFiles: ['<rootDir>/src/bp/tests-env.ts', '<rootDir>/src/bp/import-rewire.ts'],
+  globalSetup: '<rootDir>/src/bp/jest-rewire.ts',
+  setupFilesAfterEnv: [],
   collectCoverage: false,
+  resetModules: true,
   verbose: true,
   modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   transform: {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
+  resolver: '<rootDir>/src/bp/jest-resolver.js',
   moduleNameMapper: {
     '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'
   },

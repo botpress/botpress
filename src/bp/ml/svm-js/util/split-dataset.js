@@ -27,8 +27,8 @@ module.exports = function(dataset, kFold) {
   var sets = _.map(nIndexes, function(i) {
     var delta = i < rest ? 1 : 0
     var subset = _.chain(shuffled)
-      .rest(i * nbExPerGroup + gDelta)
-      .first(nbExPerGroup + delta)
+      .drop(i * nbExPerGroup + gDelta)
+      .take(nbExPerGroup + delta)
       .value()
     gDelta += delta
     return subset
@@ -42,7 +42,7 @@ module.exports = function(dataset, kFold) {
         .map(function(iii) {
           return sets[iii]
         })
-        .flatten(1)
+        .flatten()
         .value()
     }
   })
