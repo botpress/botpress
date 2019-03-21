@@ -1,12 +1,17 @@
 import * as sdk from 'botpress/sdk'
 
-const { Tagger, Trainer } = require('./crfsuite')
+const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
+import { Predictor, Trainer as SVMTrainer } from './svm'
 
 const MLToolkit: typeof sdk.MLToolkit = {
   CRF: {
     createTagger: Tagger,
-    createTrainer: Trainer
+    createTrainer: CRFTrainer
+  },
+  SVM: {
+    Predictor,
+    Trainer: SVMTrainer
   },
   FastText: { Model: FastTextModel }
 }

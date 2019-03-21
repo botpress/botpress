@@ -215,6 +215,43 @@ declare module 'botpress/sdk' {
       export const Model: ModelConstructor
     }
 
+    export namespace SVM {
+      export interface SVMOptions {
+        classifier: 'C_SVC'
+        kernel: 'rbf'
+        c: number | number[]
+        gamma: number | number[]
+      }
+
+      export type DataPoint = {
+        label: string
+        coordinates: number[]
+      }
+
+      export type Prediction = {
+        label: string
+        confidence: number
+      }
+
+      export interface TrainProgressCallback {
+        (progress: number): void
+      }
+
+      export class Trainer {
+        constructor(options?: Partial<SVMOptions>)
+        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        isTrained(): boolean
+        serialize(): string
+      }
+
+      export class Predictor {
+        constructor(model: string)
+        predict(coordinates: number[]): Promise<Prediction[]>
+        isLoaded(): boolean
+        getLabels(): string[]
+      }
+    }
+
     export namespace CRF {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
