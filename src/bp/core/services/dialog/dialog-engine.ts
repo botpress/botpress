@@ -12,8 +12,7 @@ import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
 
-const debug = DEBUG('dialog-engine')
-const debugFlows = debug.sub('flows')
+const debug = DEBUG('flows')
 
 @injectable()
 export class DialogEngine {
@@ -301,30 +300,30 @@ export class DialogEngine {
   }
 
   private _logExitFlow(currentFlow, currentNode, previousFlow, previousNode) {
-    debugFlows(`Transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
+    debug(`Transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
   }
 
   private _logEnterFlow(currentFlow, currentNode, previousFlow, previousNode) {
-    debugFlows(`Transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
+    debug(`Transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
   }
 
   private _logTransition(currentFlow, currentNode, transitionTo) {
-    debugFlows(`Transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
+    debug(`Transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
   }
 
   private _logEnd() {
-    debugFlows('End')
+    debug('End')
   }
 
   private _logStart() {
-    debugFlows('Start')
+    debug('Start')
   }
 
   private _logTimeout() {
-    debugFlows('Timeout')
+    debug('Timeout')
   }
 
   private _logWait() {
-    debugFlows('Wait')
+    debug('Wait')
   }
 }
