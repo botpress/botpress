@@ -13,6 +13,9 @@ import { VmRunner } from '../../action/vm'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
+const debug = DEBUG('dialog-engine')
+const debugFlows = debug.sub('flows')
+
 @injectable()
 export class StrategyFactory {
   create(type: InstructionType): InstructionStrategy {
@@ -69,7 +72,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
     }
 
-    this.logger.debug(`SEND "${outputType}"`)
+    debugFlows(`Render "${outputType}"`)
 
     const message: IO.DialogTurnHistory = {
       incomingPreview: event.preview,
@@ -121,6 +124,7 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
+    debugFlows(`Exec "${actionName}"`)
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {
       throw new Error(`Action "${actionName}" not found, `)
@@ -148,7 +152,7 @@ export class TransitionStrategy implements InstructionStrategy {
     })
 
     if (conditionSuccessful) {
-      this.logger.forBot(botId).debug(`EVAL "${instruction.fn}" ON [${instruction.node}]`)
+      debugFlows(`Eval "${instruction.fn === 'true' ? 'always' : instruction.fn}" on [${instruction.node}]`)
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()
