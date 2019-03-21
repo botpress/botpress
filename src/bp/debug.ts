@@ -2,11 +2,12 @@ const debug = require('debug')
 
 const available = {}
 
-export const Debug = (mod, base = 'bp') => {
+export const Debug = (mod: string, base = 'bp') => {
   const namespace = base + ':' + mod
   available[namespace] = true
   const instance = debug(base).extend(mod)
   instance.sub = mod => Debug(mod, namespace)
+  instance.forBot = (botId, message, extra) => instance(`(${botId}) ${message}`, extra)
   return instance
 }
 
