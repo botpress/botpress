@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import moment from 'moment'
+import { Graph } from 'analytics'
 
 export default ({ bp, botId }) => {
   const graphs = []
@@ -57,7 +58,7 @@ export default ({ bp, botId }) => {
   }
 
   // { name, type, description, variables }
-  function addGraph(graph) {
+  function addGraph(graph: Graph) {
     if (!_.includes(['count', 'countUniq', 'percent', 'piechart'], graph.type)) {
       throw new Error('Unknown graph of type ' + graph.type)
     }
@@ -94,6 +95,7 @@ export default ({ bp, botId }) => {
         .andWhere('botId', botId)
         .andWhere('date', '<=', to)
         .andWhere('name', 'LIKE', variable + '~%')
+        .orWhere('name', 'LIKE', variable)
         .groupBy('date')
         .then(rows => rows.map(row => ({ ...row, count: parseInt(row.count) })))
 
@@ -138,7 +140,6 @@ export default ({ bp, botId }) => {
     },
 
     piechart: async function(graph, from, to) {
-
       const variable = _.first(graph.variables)
 
       const rows = await knex('analytics_custom')
