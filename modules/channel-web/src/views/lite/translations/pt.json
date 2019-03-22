@@ -1,0 +1,9 @@
+{
+  "chatInput.placeholder": "Fale com",
+  "chatMessages.unsupportedMessageType": "*Tipo de mensagem não suportado*",
+  "chatSide.conversations": "Conversas",
+  "chatSide.backToConversations": "Voltar para a Conversa",
+  "chatSide.startConversation": "Começar Conversa",
+  "chatSide.download": "Baixar",
+  "chatSide.untitledConversation": "Conversa sem título"
+}

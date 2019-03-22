@@ -12,8 +12,9 @@ import BotInfo from '../bot-info'
 
 import style from './style.scss'
 import { getOverridedComponent } from '../messages/misc'
+import { injectIntl } from 'react-intl'
 
-export default class Side extends React.Component {
+class Side extends React.Component {
   state = {
     focused: false,
     showConvos: false,
@@ -76,7 +77,8 @@ export default class Side extends React.Component {
 
   renderTitle() {
     const title =
-      this.props.currentConversation && !this.state.showConvos ? this.props.config.botConvoTitle : 'Conversations'
+      this.props.currentConversation && !this.state.showConvos ? this.props.config.botConvoTitle
+        : this.props.intl.formatMessage({ id: 'chatSide.conversations', defaultMessage: 'Conversations' })
 
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
@@ -172,7 +174,7 @@ export default class Side extends React.Component {
             className={style.downloadSVG}
             viewBox="0 0 32 32"
           >
-            <title>Download</title>
+            <title>{this.props.intl.formatMessage({ id: 'chatSide.download', defaultMessage: 'Download' })}</title>
             <path d="M27.414 19.414l-10 10c-0.781 0.781-2.047 0.781-2.828 0l-10-10c-0.781-0.781-0.781-2.047 0-2.828s2.047-0.781 2.828 0l6.586 6.586v-19.172c0-1.105 0.895-2 2-2s2 0.895 2 2v19.172l6.586-6.586c0.39-0.39 0.902-0.586 1.414-0.586s1.024 0.195 1.414 0.586c0.781 0.781 0.781 2.047 0 2.828z" />
           </svg>
         </i>
@@ -233,7 +235,7 @@ export default class Side extends React.Component {
       >
         <div className={style['flex-column']}>
           <Input
-            placeholder={'Reply to ' + name}
+            placeholder={`${this.props.intl.formatMessage({ id: 'chatInput.placeholder', defaultMessage: 'Reply to' })} ${name}`}
             send={this.props.onTextSend}
             change={this.props.onTextChanged}
             text={this.props.text}
@@ -276,8 +278,8 @@ export default class Side extends React.Component {
   }
 
   renderItemConvos = (convo, key) => {
-    const title = convo.title || convo.message_author || 'Untitled Conversation'
-    const date = distanceInWordsToNow(new Date(convo.message_sent_on || convo.created_on))
+    const title = convo.title || convo.message_author || this.props.intl.formatMessage({ id: 'chatSide.untitledConversation', defaultMessage: 'Untitled Conversation' })
+    const date = this.props.intl.formatRelative(convo.message_sent_on || convo.created_on)
     const message = convo.message_text || '...'
 
     const onClick = () => {
@@ -332,7 +334,10 @@ export default class Side extends React.Component {
         <BotInfo
           botInfo={this.props.botInfo}
           webchatConfig={this.props.config}
-          dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Converastion'}
+          dismissLabel={isConvoStarted ?
+            this.props.intl.formatMessage({ id: 'chatSide.backToConversations', defaultMessage: 'Back to Conversation' })
+            : this.props.intl.formatMessage({ id: 'chatSide.startConversation', defaultMessage: 'Start Conversation' })
+          }
           onDismiss={onDismiss}
         />
       )
@@ -364,3 +369,5 @@ export default class Side extends React.Component {
     )
   }
 }
+
+export default injectIntl(Side)

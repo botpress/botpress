@@ -11,6 +11,7 @@ import QuickReplies from './quick_replies'
 import LoginPrompt from './login_prompt'
 import FileMessage from './file'
 import CarouselMessage from './carousel'
+import { injectIntl } from 'react-intl'
 
 import style from './style.scss'
 import Form from './form'
@@ -57,7 +58,7 @@ class MessageGroup extends Component {
   }
 }
 
-export default class MessageList extends Component {
+class MessageList extends Component {
   constructor(props) {
     super(props)
     this.messagesDiv = null
@@ -84,9 +85,9 @@ export default class MessageList extends Component {
 
     const filteredQuickReplies = quick_replies
       ? quick_replies.filter(quick_reply => {
-          const regExp = new RegExp(currentText, 'i')
-          return regExp.test(quick_reply.title)
-        })
+        const regExp = new RegExp(currentText, 'i')
+        return regExp.test(quick_reply.title)
+      })
       : quick_replies
 
     return (
@@ -111,7 +112,14 @@ export default class MessageList extends Component {
   renderDate(date) {
     return (
       <div className={'bp-date ' + style.date}>
-        {format(new Date(date), 'MMMM Do YYYY, h:mm a')}
+        {this.props.intl.formatTime(new Date(date), {
+          hour12: false,
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        })}
         <div className={style.smallLine} />
       </div>
     )
@@ -231,8 +239,8 @@ class Message extends Component {
       this.props.data.message_raw && this.props.data.message_raw.markdown ? (
         this.getMarkdownElement()
       ) : (
-        <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
-      )
+          <p style={this.getAddStyle()}>{this.props.data.message_text}</p>
+        )
     return (
       <Linkify properties={{ target: '_blank' }}>
         <div>{element}</div>
@@ -336,7 +344,7 @@ class Message extends Component {
   render_unsupported() {
     return (
       <div className="bp-msg-unsupported" style={this.getAddStyle()}>
-        <p>*Unsupported message type*</p>
+        <p>{this.props.intl.formatMessage({ id: 'chatMessages.unsupportedMessageType', defaultMessage: '*Unsupported message type*' })}</p>
       </div>
     )
   }
@@ -368,3 +376,5 @@ class Message extends Component {
     )
   }
 }
+
+export default injectIntl(MessageList)

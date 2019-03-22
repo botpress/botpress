@@ -1,0 +1,9 @@
+{
+  "chatInput.placeholder": "Reply to",
+  "chatMessages.unsupportedMessageType": "*Unsupported message type*",
+  "chatSide.conversations": "Conversations",
+  "chatSide.backToConversations": "Back to Conversation",
+  "chatSide.startConversation": "Start Conversation",
+  "chatSide.download": "Download",
+  "chatSide.untitledConversation": "Untitled Conversation"
+}

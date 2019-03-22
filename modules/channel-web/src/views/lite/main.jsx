@@ -13,6 +13,12 @@ import Side from './side'
 
 import style from './style.scss'
 
+import { IntlProvider, addLocaleData } from "react-intl"
+import pt from 'react-intl/locale-data/pt'
+import en from 'react-intl/locale-data/en'
+import Translations from './translations'
+addLocaleData([...pt, ...en])
+
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
 if (!window.location.origin) {
@@ -648,32 +654,34 @@ export default class Web extends React.Component {
 
   renderSide() {
     return (
-      <Side
-        bp={this.props.bp}
-        config={this.state.config}
-        text={this.state.textToSend}
-        fullscreen={this.props.fullscreen}
-        transition={!this.props.fullscreen ? this.state.sideTransition : null}
-        unreadCount={this.state.unreadCount}
-        currentConversation={this.state.currentConversation}
-        conversations={this.state.conversations}
-        addEmojiToText={this.handleAddEmoji}
-        onClose={!this.props.fullscreen ? this.handleClosePanel : null}
-        onResetSession={this.handleSessionReset}
-        onSwitchConvo={this.handleSwitchConvo}
-        onTextSend={this.handleSendMessage}
-        recallHistory={this.handleRecallHistory}
-        onTextChanged={this.handleTextChanged}
-        onQuickReplySend={this.handleSendQuickReply}
-        onFormSend={this.handleSendForm}
-        onFileUploadSend={this.handleFileUploadSend}
-        onLoginPromptSend={this.handleLoginPrompt}
-        onSendData={this.handleSendData}
-        downloadConversation={this.downloadConversation}
-        createConversation={this.createConversation}
-        startConversation={this.startConversation}
-        botInfo={this.state.botInfo}
-      />
+      <IntlProvider locale={this.state.config.locale} messages={Translations[this.state.config.locale]}>
+        <Side
+          bp={this.props.bp}
+          config={this.state.config}
+          text={this.state.textToSend}
+          fullscreen={this.props.fullscreen}
+          transition={!this.props.fullscreen ? this.state.sideTransition : null}
+          unreadCount={this.state.unreadCount}
+          currentConversation={this.state.currentConversation}
+          conversations={this.state.conversations}
+          addEmojiToText={this.handleAddEmoji}
+          onClose={!this.props.fullscreen ? this.handleClosePanel : null}
+          onResetSession={this.handleSessionReset}
+          onSwitchConvo={this.handleSwitchConvo}
+          onTextSend={this.handleSendMessage}
+          recallHistory={this.handleRecallHistory}
+          onTextChanged={this.handleTextChanged}
+          onQuickReplySend={this.handleSendQuickReply}
+          onFormSend={this.handleSendForm}
+          onFileUploadSend={this.handleFileUploadSend}
+          onLoginPromptSend={this.handleLoginPrompt}
+          onSendData={this.handleSendData}
+          downloadConversation={this.downloadConversation}
+          createConversation={this.createConversation}
+          startConversation={this.startConversation}
+          botInfo={this.state.botInfo}
+        />
+      </IntlProvider>
     )
   }
 
