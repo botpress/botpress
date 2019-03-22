@@ -14,7 +14,8 @@ import ConversationList from './ConversationList'
 
 export default class Side extends React.Component {
   state = {
-    focused: false,
+    inputFocused: false,
+    convoFocused: false,
     showConvos: false,
     showBotInfo: false
   }
@@ -44,9 +45,15 @@ export default class Side extends React.Component {
     return conversation && !!conversation.messages.length
   }
 
-  handleFocus = value => {
+  handleInputFocus = value => {
     this.setState({
-      focused: value
+      inputFocused: value
+    })
+  }
+
+  handleConvoFocus = value => {
+    this.setState({
+      convoFocused: value
     })
   }
 
@@ -232,7 +239,7 @@ export default class Side extends React.Component {
       <div
         className={'bp-chat-composer ' + style.composer}
         style={{
-          borderColor: this.state.focused ? this.props.config.foregroundColor : null
+          borderColor: this.state.inputFocused ? this.props.config.foregroundColor : null
         }}
       >
         <div className={style['flex-column']}>
@@ -242,7 +249,10 @@ export default class Side extends React.Component {
             change={this.props.onTextChanged}
             text={this.props.text}
             recallHistory={this.props.recallHistory}
-            focused={this.handleFocus}
+            focused={this.state.inputFocused}
+            onFocus={this.handleInputFocus.bind(this, true)}
+            onBlur={this.handleInputFocus.bind(this, false)}
+            onBlurByKeys={this.handleConvoFocus.bind(this, true)}
             config={this.props.config}
           />
           <div className={style.line}>
@@ -268,7 +278,10 @@ export default class Side extends React.Component {
       onFormSend: this.props.onFormSend,
       onFileUploadSend: this.props.onFileUploadSend,
       onLoginPromptSend: this.props.onLoginPromptSend,
-      onSendData: this.props.onSendData
+      onSendData: this.props.onSendData,
+      focused: this.state.convoFocused,
+      onBlur: this.handleConvoFocus.bind(this, false),
+      onBlurByKeys: this.handleInputFocus.bind(this, true)
     }
 
     return (

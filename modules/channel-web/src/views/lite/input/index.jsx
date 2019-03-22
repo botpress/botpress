@@ -3,17 +3,13 @@ import React, { Component } from 'react'
 import style from './style.scss'
 
 export default class Send extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   componentDidMount() {
     this.textInput.focus()
   }
 
-  handleFocus(value) {
-    if (this.props.focused) {
-      this.props.focused(value)
+  componentDidUpdate(prevProps) {
+    if (!prevProps.focused && this.props.focused) {
+      this.textInput.focus()
     }
   }
 
@@ -25,21 +21,26 @@ export default class Send extends Component {
   }
 
   handleKeyDown = e => {
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      this.props.recallHistory(e.key)
+    const shouldBlurPrevious = e.target.selectionStart === 0 && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')
+    const shouldBurNext = e.target.selectionStart === 0 && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
+
+    // We might want to act differently if we blur prev or blur next
+    if (shouldBlurPrevious || shouldBurNext) {
+      this.textInput.blur()
+      this.props.onBlurByKeys()
     }
   }
 
   render() {
     return (
-      <div tabIndex="-1" className={style.input}>
+      <div className={style.input}>
         <textarea
-          tabIndex="1"
+          tabindex="1"
           ref={input => {
             this.textInput = input
           }}
-          onBlur={() => this.handleFocus(false)}
-          onFocus={() => this.handleFocus(true)}
+          onBlur={this.props.onBlur}
+          onFocus={this.props.onFocus}
           placeholder={this.props.placeholder}
           onChange={this.props.change}
           value={this.props.text}

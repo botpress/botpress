@@ -58,13 +58,12 @@ class MessageGroup extends Component {
 }
 
 export default class MessageList extends Component {
-  constructor(props) {
-    super(props)
-    this.messagesDiv = null
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    this.tryScrollToBottom()
+  componentDidUpdate(prevProps) {
+    if (!prevProps.focused && this.props.focused) {
+      this.messagesDiv.focus()
+    } else {
+      this.tryScrollToBottom()
+    }
   }
 
   tryScrollToBottom() {
@@ -72,6 +71,18 @@ export default class MessageList extends Component {
       this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
     } catch (err) {
       // Discard the error
+    }
+  }
+
+  handleKeyDown = e => {
+    const maxScroll = this.messagesDiv.scrollHeight - this.messagesDiv.clientHeight
+    const shouldBlurNext = e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll
+    const shouldBlurPrevious = e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0
+
+    // we might want to act differently
+    if (shouldBlurPrevious || shouldBlurNext) {
+      this.messagesDiv.blur()
+      this.props.onBlurByKeys()
     }
   }
 
@@ -201,6 +212,9 @@ export default class MessageList extends Component {
   render() {
     return (
       <div
+        tabindex="-1"
+        onBlur={this.props.onBlur}
+        onKeyDown={this.handleKeyDown}
         className={'bp-messages ' + style.messages}
         ref={m => {
           this.messagesDiv = m
