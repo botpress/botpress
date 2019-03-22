@@ -58,10 +58,17 @@ class MessageGroup extends Component {
 }
 
 export default class MessageList extends Component {
+  componentDidMount() {
+    this.tryScrollToBottom()
+  }
+
   componentDidUpdate(prevProps) {
     if (!prevProps.focused && this.props.focused) {
       this.messagesDiv.focus()
-    } else {
+    }
+
+    //new message to display
+    if (prevProps.messages !== this.props.messages || this.props.typingUntil) {
       this.tryScrollToBottom()
     }
   }
@@ -76,13 +83,17 @@ export default class MessageList extends Component {
 
   handleKeyDown = e => {
     const maxScroll = this.messagesDiv.scrollHeight - this.messagesDiv.clientHeight
-    const shouldBlurNext = e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll
-    const shouldBlurPrevious = e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0
+    const shouldFocusNext = e.key == 'ArrowRight' || (e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll)
+    const shouldFocusPrevious = e.key == 'ArrowLeft' || (e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0)
 
-    // we might want to act differently
-    if (shouldBlurPrevious || shouldBlurNext) {
+    if (shouldFocusNext) {
       this.messagesDiv.blur()
-      this.props.onBlurByKeys()
+      this.props.focusNext()
+    }
+
+    if (shouldFocusPrevious) {
+      this.messagesDiv.blur()
+      this.props.focusPrevious()
     }
   }
 

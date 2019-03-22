@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 import style from './style.scss'
 
+// TODO add dpad nav
 export default class Send extends Component {
   componentDidMount() {
     this.textInput.focus()
@@ -21,13 +22,15 @@ export default class Send extends Component {
   }
 
   handleKeyDown = e => {
-    const shouldBlurPrevious = e.target.selectionStart === 0 && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')
-    const shouldBurNext = e.target.selectionStart === 0 && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
+    const shouldFocusPrevious = e.target.selectionStart === 0 && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')
+    if (shouldFocusPrevious) {
+      this.props.focusPrevious()
+    }
 
-    // We might want to act differently if we blur prev or blur next
-    if (shouldBlurPrevious || shouldBurNext) {
-      this.textInput.blur()
-      this.props.onBlurByKeys()
+    const shouldFocusNext =
+      e.target.selectionStart === this.textInput.value.length && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
+    if (shouldFocusNext) {
+      this.props.focusNext()
     }
   }
 

@@ -14,6 +14,11 @@ class Header extends React.Component {
     currentFocusIdx: null
   }
 
+  blur = () => {
+    this.setCurrentFocusIdx(null)
+    this.props.onBlur()
+  }
+
   componentDidUpdate(prevProps) {
     if (!prevProps.focused && this.props.focused) {
       this.changeButtonFocus(1)
@@ -28,7 +33,7 @@ class Header extends React.Component {
     let idx = this.state.currentFocusIdx !== null ? this.state.currentFocusIdx + step : 0
 
     if (idx < 0) {
-      this.setCurrentFocusIdx(null) //blur
+      this.blur()
       this.props.focusPrevious()
     }
 
@@ -41,7 +46,7 @@ class Header extends React.Component {
     }
 
     if (idx == Object.keys(this.btnEls).length) {
-      this.setCurrentFocusIdx(null) //blur
+      this.blur()
       this.props.focusNext()
     }
   }
@@ -54,7 +59,7 @@ class Header extends React.Component {
   }
 
   renderTitle = () => {
-    const title = this.props.showConvos ? 'Conversations' : this.props.config.botConvoTitle
+    const title = this.props.showConvos ? 'Conversations' : this.props.botInfo.name || this.props.config.botName
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
 
@@ -79,7 +84,7 @@ class Header extends React.Component {
           className={'bp-reset-btn ' + style.icon}
           onClick={this.props.onResetClicked}
           onKeyDown={this.handleKeyDown.bind(this, this.props.onResetClicked)}
-          onBlur={this.props.onBlur}
+          onBlur={this.blur}
         >
           <Reload />
         </span>
@@ -97,7 +102,7 @@ class Header extends React.Component {
           className={'bp-transcript-btn ' + style.icon}
           onClick={this.props.onDownloadClicked}
           onKeyDown={this.handleKeyDown.bind(this, this.props.onDownloadClicked)}
-          onBlur={this.props.onBlur}
+          onBlur={this.blur}
         >
           <Download />
         </span>
@@ -113,7 +118,7 @@ class Header extends React.Component {
           className={'bp-convos-btn ' + style.icon}
           onClick={this.props.onListClicked}
           onKeyDown={this.handleKeyDown.bind(this, this.props.onListClicked)}
-          onBlur={this.props.onBlur}
+          onBlur={this.blur}
         >
           <List />
         </span>
@@ -131,7 +136,7 @@ class Header extends React.Component {
           className={'bp-bot-info-btn ' + style.icon}
           onClick={this.props.onInfoClicked}
           onKeyDown={this.handleKeyDown.bind(this, this.props.onInfoClicked)}
-          onBlur={this.props.onBlur}
+          onBlur={this.blur}
         >
           <Information />
         </span>
@@ -148,7 +153,7 @@ class Header extends React.Component {
           className={'bp-close-btn ' + style.icon}
           onClick={this.props.onCloseClicked}
           onKeyDown={this.handleKeyDown.bind(this, this.props.onCloseClicked)}
-          onBlur={this.props.onBlur}
+          onBlur={this.blur}
         >
           <Close />
         </span>

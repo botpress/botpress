@@ -12,6 +12,7 @@ import { getOverridedComponent } from '../messages/misc'
 
 export default class Side extends React.Component {
   state = {
+    headerFocused: false,
     inputFocused: false,
     convoFocused: false,
     showConvos: false,
@@ -56,6 +57,12 @@ export default class Side extends React.Component {
     })
   }
 
+  handleHeaderFocus = value => {
+    this.setState({
+      headerFocused: value
+    })
+  }
+
   handleToggleShowConvos = () => {
     this.setState({
       showConvos: !this.state.showConvos
@@ -74,8 +81,29 @@ export default class Side extends React.Component {
   }
 
   renderHeader() {
+    const focusPrevious = () => {
+      if (this.state.showBotInfo) {
+        console.log('focus on convos')
+      } else if (this.state.showConvos) {
+        console.log('focus on convos')
+      } else {
+        this.handleInputFocus(true)
+      }
+    }
+
+    const focusNext = () => {
+      if (this.state.showBotInfo) {
+        console.log('focus on convos')
+      } else if (this.state.showConvos) {
+        console.log('focus on convos')
+      } else {
+        this.handleConvoFocus(true)
+      }
+    }
+
     return (
       <Header
+        focused={this.state.headerFocused}
         showConvos={this.state.showConvos}
         botInfo={this.props.botInfo}
         config={this.props.config}
@@ -87,6 +115,9 @@ export default class Side extends React.Component {
         onCloseClicked={this.props.onClose}
         onListClicked={this.handleToggleShowConvos}
         onInfoClicked={this.toggleBotInfo}
+        focusNext={focusNext}
+        focusPrevious={focusPrevious}
+        onBlur={this.handleHeaderFocus.bind(this, false)}
       />
     )
   }
@@ -116,7 +147,8 @@ export default class Side extends React.Component {
             focused={this.state.inputFocused}
             onFocus={this.handleInputFocus.bind(this, true)}
             onBlur={this.handleInputFocus.bind(this, false)}
-            onBlurByKeys={this.handleConvoFocus.bind(this, true)}
+            focusNext={this.handleHeaderFocus.bind(this, true)}
+            focusPrevious={this.handleConvoFocus.bind(this, true)}
             config={this.props.config}
           />
           <div className={style.line}>
@@ -145,7 +177,8 @@ export default class Side extends React.Component {
       onSendData: this.props.onSendData,
       focused: this.state.convoFocused,
       onBlur: this.handleConvoFocus.bind(this, false),
-      onBlurByKeys: this.handleInputFocus.bind(this, true)
+      focusNext: this.handleInputFocus.bind(this, true),
+      focusPrevious: this.handleHeaderFocus.bind(this, true)
     }
 
     return (
