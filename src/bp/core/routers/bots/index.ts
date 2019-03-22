@@ -31,6 +31,7 @@ import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
+const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = 10 // mb
 
 export class BotsRouter extends CustomRouter {
@@ -281,27 +282,37 @@ export class BotsRouter extends CustomRouter {
           return cb(undefined, true)
         }
 
-        cb(undefined, false)
+        cb(new Error(`Invalid mime type (${file.mimetype})`), false)
       },
       limits: {
         fileSize: _.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE) * 1000 * 1024
       }
-    })
+    }).single('file')
 
     this.router.post(
       '/media',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.media'),
-      mediaUploadMulter.single('file'),
       this.asyncMiddleware(async (req, res) => {
-        if (!req['file']) {
-          return res.sendStatus(400)
-        }
+        mediaUploadMulter(req, res, async err => {
+          const email = req.tokenUser!.email
+          if (err) {
+            debugMedia(`failed (${email} from ${req.ip})`, err.message)
+            return res.sendStatus(400)
+          }
 
-        const botId = req.params.botId
-        const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
-        const url = `/api/v1/bots/${botId}/media/${fileName}`
-        res.json({ url })
+          const file = req['file']
+          const botId = req.params.botId
+          const fileName = await this.mediaService.saveFile(botId, file.originalname, file.buffer)
+
+          debugMedia(
+            `success (${email} from ${req.ip}). file: ${fileName} %o`,
+            _.pick(file, 'originalname', 'mimetype', 'size')
+          )
+
+          const url = `/api/v1/bots/${botId}/media/${fileName}`
+          res.json({ url })
+        })
       })
     )
 
