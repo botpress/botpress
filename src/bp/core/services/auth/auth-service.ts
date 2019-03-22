@@ -134,6 +134,12 @@ export default class AuthService {
     })
   }
 
+  async refreshToken(tokenUser: TokenUser): Promise<string> {
+    const config = await this.configProvider.getBotpressConfig()
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(tokenUser.email, tokenUser.isSuperAdmin, duration, TOKEN_AUDIENCE)
+  }
+
   async register(email: string, password: string, ipAddress: string = ''): Promise<string> {
     this.stats.track('auth', 'register', 'success')
 
@@ -149,7 +155,8 @@ export default class AuthService {
     debug('self register', { email, ipAddress })
 
     const config = await this.configProvider.getBotpressConfig()
-    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
@@ -169,6 +176,7 @@ export default class AuthService {
 
     await this.updateUser(email, { last_ip: ipAddress }, true)
     const config = await this.configProvider.getBotpressConfig()
-    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
   }
 }

@@ -27,6 +27,11 @@ export const isSuperAdmin = (email: string, config: BotpressConfig): boolean => 
   return config.superAdmins.includes(email)
 }
 
-export const generateUserToken = (email: string, isSuperAdmin: boolean, audience?: string): string => {
-  return jsonwebtoken.sign({ email, isSuperAdmin }, process.APP_SECRET, { expiresIn: '6h', audience })
+export const generateUserToken = (
+  email: string,
+  isSuperAdmin: boolean,
+  expiresIn: string,
+  audience?: string
+): string => {
+  return jsonwebtoken.sign({ email, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
 }

@@ -145,5 +145,21 @@ export class AuthRouter extends CustomRouter {
     router.post('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.updateProfile))
 
     router.get('/me/permissions', this.checkTokenHeader, this.asyncMiddleware(this.getPermissions))
+
+    router.get(
+      '/refresh',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const config = await this.configProvider.getBotpressConfig()
+
+        if (config.jwtToken && config.jwtToken.allowRefresh) {
+          const newToken = await this.authService.refreshToken(req.tokenUser!)
+          sendSuccess(res, 'Token refreshed successfully', { newToken })
+        } else {
+          const [, token] = req.headers.authorization!.split(' ')
+          sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
+        }
+      })
+    )
   }
 }

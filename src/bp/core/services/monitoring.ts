@@ -87,6 +87,8 @@ export interface MonitoringService {
   start(): Promise<void>
   stop(): void
   getStats(dateFrom, dateTo): any
+  getStatus(): any
+  getRedisFactory(): any
 }
 
 @injectable()
@@ -94,6 +96,12 @@ export class CEMonitoringService implements MonitoringService {
   async start(): Promise<void> {}
   stop(): void {}
   getStats(dateFrom, dateTo): any {
+    return undefined
+  }
+  getStatus(): any {
+    return { botpress: 'up' }
+  }
+  getRedisFactory() {
     return undefined
   }
 }

@@ -210,6 +210,18 @@ export type BotpressConfig = {
    * @default true
    */
   allowServerReboot: boolean
+  jwtToken: {
+    /**
+     * The duration for which the token granting access to manage Botpress will be active.
+     * @default 6h
+     */
+    duration: string
+    /**
+     * When enabled, the token is refreshed every 5 minutes while the user is connected
+     * @default true
+     */
+    allowRefresh: boolean
+  }
 }
 
 export interface ExternalAuthConfig {
