@@ -129,7 +129,7 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
   const { tokenUser } = <RequestWithUser>req
   if (!tokenUser) {
-    debugSuperFailure(req.originalUrl, {
+    debugSuperFailure(`${req.originalUrl} %o`, {
       method: req.method,
       ip: req.ip
     })
@@ -137,7 +137,7 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
   }
 
   if (!tokenUser.isSuperAdmin) {
-    debugSuperFailure(req.originalUrl, {
+    debugSuperFailure(`${req.originalUrl} %o`, {
       method: req.method,
       ip: req.ip,
       user: tokenUser
@@ -145,7 +145,7 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
     return next(new ForbiddenError('User needs to be super admin to perform this action'))
   }
 
-  debugSuperSuccess(req.originalUrl, {
+  debugSuperSuccess(`${req.originalUrl} %o`, {
     url: req.originalUrl,
     method: req.method,
     ip: req.ip,
@@ -180,7 +180,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   const user = await workspaceService.findUser({ email })
 
   if (!user) {
-    debugFailure(req.originalUrl, {
+    debugFailure(`${req.originalUrl} %o`, {
       method: req.method,
       email,
       operation,
@@ -198,8 +198,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       email,
       operation,
       resource,
-      userRole: role,
-      user,
+      userRole: role && role.id,
       ip: req.ip
     })
     return next(
@@ -207,13 +206,12 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
     )
   }
 
-  debugSuccess(req.originalUrl, {
+  debugSuccess(`${req.originalUrl} %o`, {
     method: req.method,
     email,
     operation,
     resource,
-    userRole: role,
-    user,
+    userRole: role && role.id,
     ip: req.ip
   })
 
