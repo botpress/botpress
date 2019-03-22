@@ -134,7 +134,7 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string, includedContexts: string[] = []): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.sync()
     }

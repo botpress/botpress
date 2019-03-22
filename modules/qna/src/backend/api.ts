@@ -155,6 +155,65 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     res.end(csvUploadStatuses[req.params.uploadStatusId])
   })
 
+  router.get('/count', async (req, res) => {
+    try {
+      const storage = botScopedStorage.get(req.params.botId)
+      const count = await storage.count()
+
+      res.json({ count })
+    } catch (err) {
+      bp.logger.error(err.message)
+
+      res.sendStatus(500)
+    }
+  })
+
+  // NOTE: we use 'post' method here, because with 'get' method we can't send Japan
+  router.post('/answer/on', async (req, res) => {
+    try {
+      const { question, category } = req.body
+
+      if (!question || !_.isString(question)) {
+        return res.status(400).send('"question" must be not empty string')
+      }
+
+      const storage = botScopedStorage.get(req.params.botId)
+      const answers = await storage.answersOn(question, category)
+
+      res.json({ answers })
+    } catch (err) {
+      bp.logger.error(err.message)
+
+      res.sendStatus(500)
+    }
+  })
+
+  router.get('/categories', async (req, res) => {
+    try {
+      const storage = botScopedStorage.get(req.params.botId)
+      const categories = await storage.getCategories()
+
+      res.json({ categories })
+    } catch (err) {
+      bp.logger.error(err.message)
+
+      res.sendStatus(500)
+    }
+  })
+
+  router.get('/categories/is', async (req, res) => {
+    try {
+      const storage = botScopedStorage.get(req.params.botId)
+      const hasCategories = await storage.hasCategories()
+
+      res.json({ hasCategories })
+    } catch (err) {
+      bp.logger.error(err.message)
+
+      res.sendStatus(500)
+    }
+  })
+
   const sendToastError = (action, error) => {
     bp.realtime.sendPayload(
       bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Error: ${error}`, type: 'error' })

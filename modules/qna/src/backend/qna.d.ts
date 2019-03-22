@@ -8,7 +8,7 @@ export interface QnaStorage {
   update(data: QnaEntry, id: string): Promise<string>
   delete(id: string, statusCallback?: any): void
   count(): Promise<number>
-  answersOn(question)
+  answersOn(question, category?: string[])
   getQuestion(opts: any)
   getCategories(): string[]
   hasCategories(): boolean

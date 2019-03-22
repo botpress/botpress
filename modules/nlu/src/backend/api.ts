@@ -151,10 +151,11 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.post('/extract', async (req, res) => {
+    const { text } = req.body
     const eventText = {
-      preview: req.body.text,
+      preview: text,
       payload: {
-        text: req.body.text
+        text
       }
     }
 
