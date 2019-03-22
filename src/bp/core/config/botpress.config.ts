@@ -210,6 +210,18 @@ export type BotpressConfig = {
    * @default true
    */
   allowServerReboot: boolean
+  fileUpload: {
+    /**
+     * Maximum file size for media files upload (in mb)
+     * @default 10
+     */
+    maxFileSize: number
+    /**
+     * The list of allowed extensions for media file uploads
+     * @default ["image/jpeg","image/png","image/gif"]
+     */
+    allowedMimeTypes: string[]
+  }
   jwtToken: {
     /**
      * The duration for which the token granting access to manage Botpress will be active.

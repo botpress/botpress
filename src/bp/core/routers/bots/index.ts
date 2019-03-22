@@ -31,6 +31,8 @@ import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
+const DEFAULT_MAX_SIZE = 10 // mb
+
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
   private botService: BotService
@@ -267,8 +269,22 @@ export class BotsRouter extends CustomRouter {
     )
 
     const mediaUploadMulter = multer({
+      fileFilter: (req, file, cb) => {
+        let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
+
+        const uploadConfig = this.botpressConfig!.fileUpload
+        if (uploadConfig && uploadConfig.allowedMimeTypes) {
+          allowedMimeTypes = uploadConfig.allowedMimeTypes
+        }
+
+        if (allowedMimeTypes.includes(file.mimetype)) {
+          return cb(undefined, true)
+        }
+
+        cb(undefined, false)
+      },
       limits: {
-        fileSize: 1024 * 1000 * 10 // 10mb
+        fileSize: _.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE) * 1000 * 1024
       }
     })
 
@@ -278,6 +294,10 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', 'bot.media'),
       mediaUploadMulter.single('file'),
       this.asyncMiddleware(async (req, res) => {
+        if (!req['file']) {
+          return res.sendStatus(400)
+        }
+
         const botId = req.params.botId
         const fileName = await this.mediaService.saveFile(botId, req['file'].originalname, req['file'].buffer)
         const url = `/api/v1/bots/${botId}/media/${fileName}`
