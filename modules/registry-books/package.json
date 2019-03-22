@@ -1,0 +1,21 @@
+{
+  "name": "registry-books",
+  "version": "1.0.0",
+  "description": "Botpress Registry Books module, used to store any data from chatbot interactions.",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "react-datepicker": "^2.2.0",
+    "react-spring": "^8.0.15"
+  }
+}
