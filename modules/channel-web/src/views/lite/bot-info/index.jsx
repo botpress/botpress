@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react'
 
 import style from './style.scss'
-import PhoneIcon from './PhoneIcon'
-import WebsiteIcon from './WebsiteIcon'
-import EmailIcon from './EmailIcon'
+import PhoneIcon from '../icons/Phone'
+import WebsiteIcon from '../icons/Website'
+import EmailIcon from '../icons/Email'
 import Avatar from '../avatar'
 
 const CoverPicture = ({ botInfo }) => (
@@ -78,7 +78,7 @@ export default ({ botInfo, onDismiss, dismissLabel, webchatConfig }) => (
         )}
       </Fragment>
     )}
-    <button className={'bp-bot-info-start-convo-button ' + style.startBtn} onClick={onDismiss}>
+    <button tabindex="1" className={'bp-bot-info-start-convo-button ' + style.startBtn} onClick={onDismiss}>
       {dismissLabel || 'Start Conversation'}
     </button>
   </div>

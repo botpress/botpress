@@ -8,6 +8,8 @@ import Download from '../icons/Download'
 import Information from '../icons/Information'
 import Avatar from '../avatar'
 
+// TODO handle dpad navigation
+
 class Header extends React.Component {
   renderAvatar() {
     const name = this.props.botInfo.name || this.props.config.botName
