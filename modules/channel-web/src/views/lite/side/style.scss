@@ -39,6 +39,7 @@
       flex-shrink: 0;
       height: 52px;
       font-weight: 500;
+      border-top: solid 1px #ccc;
       border-bottom: 1px solid #ccc;
       padding: 0 1rem;
       overflow: hidden;
@@ -144,8 +145,11 @@
         vertical-align: middle;
         cursor: pointer;
 
-        &:hover {
-          color: #aaa;
+        &:hover,
+        &:focus {
+          svg {
+            fill: black;
+          }
         }
 
         svg {

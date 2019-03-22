@@ -8,17 +8,52 @@ import Download from '../icons/Download'
 import Information from '../icons/Information'
 import Avatar from '../avatar'
 
-// TODO handle dpad navigation
-
 class Header extends React.Component {
-  renderAvatar() {
+  btnEls = {}
+  state = {
+    currentFocusIdx: null
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.focused && this.props.focused) {
+      this.changeButtonFocus(1)
+    }
+  }
+
+  setCurrentFocusIdx = currentFocusIdx => {
+    this.setState({ currentFocusIdx })
+  }
+
+  changeButtonFocus = step => {
+    let idx = this.state.currentFocusIdx !== null ? this.state.currentFocusIdx + step : 0
+
+    if (idx < 0) {
+      this.setCurrentFocusIdx(null) //blur
+      this.props.focusPrevious()
+    }
+
+    for (idx; idx < Object.keys(this.btnEls).length; idx++) {
+      if (this.btnEls[idx]) {
+        this.btnEls[idx].focus()
+        this.setCurrentFocusIdx(idx)
+        break
+      }
+    }
+
+    if (idx == Object.keys(this.btnEls).length) {
+      this.setCurrentFocusIdx(null) //blur
+      this.props.focusNext()
+    }
+  }
+
+  renderAvatar = () => {
     const name = this.props.botInfo.name || this.props.config.botName
     const avatarUrl =
       (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
     return <Avatar name={name} avatarUrl={avatarUrl} height={40} width={40} />
   }
 
-  renderTitle() {
+  renderTitle = () => {
     const title = this.props.showConvos ? 'Conversations' : this.props.config.botConvoTitle
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
@@ -34,31 +69,17 @@ class Header extends React.Component {
     )
   }
 
-  renderConvoButton() {
-    return (
-      this.props.config.showConversationsButton && (
-        <span className={'bp-convos-btn ' + style.icon} onClick={this.props.onListClicked}>
-          <List />
-        </span>
-      )
-    )
-  }
-
-  renderCloseButton() {
-    return (
-      this.props.onClose && (
-        <span className={'bp-close-btn ' + style.icon} onClick={this.props.onCloseClicked}>
-          <Close />
-        </span>
-      )
-    )
-  }
-
   renderResetButton() {
     return (
       !this.props.showConvos &&
       this.props.config && (
-        <span className={'bp-reset-btn ' + style.icon} onClick={this.props.onResetClicked}>
+        <span
+          tabindex="-1"
+          ref={el => (this.btnEls[0] = el)}
+          className={'bp-reset-btn ' + style.icon}
+          onClick={this.props.onResetClicked}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.onResetClicked)}
+        >
           <Reload />
         </span>
       )
@@ -69,8 +90,29 @@ class Header extends React.Component {
     return (
       !this.props.showConvos &&
       this.props.config.enableTranscriptDownload && (
-        <span className={'bp-transcript-btn ' + style.icon} onClick={this.props.onDownloadClicked}>
+        <span
+          tabindex="-1"
+          ref={el => (this.btnEls[1] = el)}
+          className={'bp-transcript-btn ' + style.icon}
+          onClick={this.props.onDownloadClicked}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.onDownloadClicked)}
+        >
           <Download />
+        </span>
+      )
+    )
+  }
+  renderConvoButton() {
+    return (
+      this.props.config.showConversationsButton && (
+        <span
+          tabindex="-1"
+          ref={el => (this.btnEls[2] = el)}
+          className={'bp-convos-btn ' + style.icon}
+          onClick={this.props.onListClicked}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.onListClicked)}
+        >
+          <List />
         </span>
       )
     )
@@ -80,16 +122,56 @@ class Header extends React.Component {
     return (
       !this.props.showConvos &&
       this.props.botInfo.showBotInfoPage && (
-        <span className={'bp-bot-info-btn ' + style.icon} onClick={this.props.onInfoClicked}>
+        <span
+          tabindex="-1"
+          ref={el => (this.btnEls[3] = el)}
+          className={'bp-bot-info-btn ' + style.icon}
+          onClick={this.props.onInfoClicked}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.onInfoClicked)}
+        >
           <Information />
         </span>
       )
     )
   }
 
+  renderCloseButton() {
+    return (
+      this.props.onClose && (
+        <span
+          tabindex="-1"
+          ref={el => (this.btnEls[4] = el)}
+          className={'bp-close-btn ' + style.icon}
+          onClick={this.props.onCloseClicked}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.onCloseClicked)}
+        >
+          <Close />
+        </span>
+      )
+    )
+  }
+
+  handleKeyDown = (action, e) => {
+    if (!e) {
+      e = action
+    }
+
+    if (e.key == 'ArrowUp') {
+      this.props.focusPrevious()
+    } else if (e.key == 'ArrowDown') {
+      this.props.focusNext()
+    } else if (e.key == 'ArrowLeft') {
+      this.changeButtonFocus(-1)
+    } else if (e.key == 'ArrowRight') {
+      this.changeButtonFocus(1)
+    } else if (e.key == 'Enter') {
+      action()
+    }
+  }
+
   render() {
     return (
-      <div tabindex="-1" className={'bp-chat-header ' + style.header}>
+      <div className={'bp-chat-header ' + style.header}>
         <div className={style.left}>
           <div className={style.line}>
             {this.renderAvatar()}
