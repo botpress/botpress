@@ -55,9 +55,9 @@ class ConversationList extends React.Component {
   }
 
   handleKeyDown = e => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       this.changeFocus(1)
-    } else if (e.key == 'ArrowUp' || e.key == 'ArrowRight') {
+    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
       this.changeFocus(-1)
     } else if (e.key == 'Enter' && this.state.focusIdx && this.state.focusIdx < this.props.conversations.length) {
       const convoId = this.props.conversations[this.state.focusIdx].id
