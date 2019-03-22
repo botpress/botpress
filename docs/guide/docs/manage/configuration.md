@@ -63,6 +63,18 @@ Edit your `botpress.config.json` file and change your file to match the followin
 }
 ```
 
+## Advanced Logging
+
+In a production environment, you may want to persist additional logs such as full audit trail. You can enable more granular logs by using the [DEBUG environment variable](../developers/debug) and saving those extra logs to a separate file:
+
+```sh
+# Linux & OSX
+# Append audit trail to log file
+DEBUG=bp:audit:* ./bp -p 2>> ./botpress.log
+```
+
+> **Tip**: You can combine this with a log rotation tool such as [newsyslog](https://www.real-world-systems.com/docs/newsyslog.1.html) or [logrotate](https://linux.die.net/man/8/logrotate).
+
 ## Enable or disable modules
 
 When you start Botpress for the first time, the most popular modules included with the binary will be added to your `botpress.config.json` file. If you want to disable or enable modules, you need to edit the `modules` option.
