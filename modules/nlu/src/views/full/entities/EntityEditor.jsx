@@ -178,11 +178,7 @@ export default class EntityEditor extends React.Component {
           <div>
             <div style={{ display: 'inline-block' }}>
               {!currentEntity && <h1>No entities have been created yet</h1>}
-              {currentEntity && (
-                <h1>
-                  entities /<span className={style.entity}>{this.state.currentEntity.name}</span>
-                </h1>
-              )}
+              {currentEntity && <h1>entities / {this.state.currentEntity.name}</h1>}
             </div>
             {currentEntity && (
               <div style={{ display: 'inline-block', float: 'right' }}>

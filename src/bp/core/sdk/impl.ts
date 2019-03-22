@@ -54,27 +54,27 @@ export class IOEvent implements sdk.IO.Event {
     this.payload = args.payload
     this.target = args.target
     this.botId = args.botId
-
     this.threadId = args.threadId ? args.threadId.toString() : undefined
     this.id = args.id || (Date.now() * 100000 + ((Math.random() * 100000) | 0)).toString()
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = {}
+    args.nlu = args.nlu || {}
 
     if (this.direction === 'incoming') {
       this.suggestions = args.suggestions || []
       this.credentials = args.credentials
     }
 
-    if (args.withNlu) {
-      this.nlu = {
-        entities: [],
-        language: 'n/a',
-        slots: {},
-        intent: { name: 'none', confidence: 1, context: 'global' },
-        intents: [],
-        errored: false
-      }
+    this.nlu = {
+      entities: [],
+      language: 'n/a',
+      slots: {},
+      intent: { name: 'none', confidence: 1, context: 'global' },
+      intents: [],
+      errored: false,
+      includedContexts: ['global'],
+      ...args.nlu
     }
   }
 

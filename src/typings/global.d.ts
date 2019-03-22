@@ -7,6 +7,7 @@ declare namespace NodeJS {
 
   export interface Global {
     printErrorDefault(err: Error): void
+    DEBUG: IDebug
     require: ExtraRequire
   }
 
@@ -55,6 +56,17 @@ declare type BotpressEnvironementVariables = {
    */
   readonly BP_PROXY?: string
 }
+
+interface IDebug {
+  (module: string): IDebugInstance
+}
+
+interface IDebugInstance {
+  (msg: string, extra?: any): void
+  sub(namespace: string): IDebugInstance
+}
+
+declare var DEBUG: IDebug
 
 declare interface OSDistribution {
   os: NodeJS.Platform

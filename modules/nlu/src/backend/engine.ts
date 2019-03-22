@@ -19,6 +19,11 @@ import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
+const debug = DEBUG('nlu')
+const debugExtract = debug.sub('extract')
+const debugIntents = debugExtract.sub('intents')
+const debugEntities = debugExtract.sub('entities')
+
 export default class ScopedEngine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
@@ -127,12 +132,12 @@ export default class ScopedEngine {
     return this._currentModelHash
   }
 
-  async extract(text: string): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.sync()
     }
 
-    return retry(() => this._extract(text), this.retryPolicy)
+    return retry(() => this._extract(text, includedContexts), this.retryPolicy)
   }
 
   async checkSyncNeeded(): Promise<boolean> {
@@ -272,16 +277,28 @@ export default class ScopedEngine {
     const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
     const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
     const systemEntities = await this.systemEntityExtractor.extract(text, lang)
-
+    debugEntities(text, { systemEntities, patternEntities, listEntities })
     return [...systemEntities, ...patternEntities, ...listEntities]
   }
 
-  private async _extractIntents(text: string): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent }> {
-    const intents = await this.intentClassifier.predict(text)
+  private async _extractIntents(
+    text: string,
+    includedContexts: string[]
+  ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
+    const intents = await this.intentClassifier.predict(text, includedContexts)
     const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
     intent.matches = createIntentMatcher(intent.name)
 
+    // alter ctx with the given predictions in case where no ctx were provided
+    includedContexts = _.chain(intents)
+      .map(p => p.context)
+      .uniq()
+      .value()
+
+    debugIntents(text, { intents })
+
     return {
+      includedContexts,
       intents,
       intent
     }
@@ -296,14 +313,15 @@ export default class ScopedEngine {
     return await this.slotExtractor.extract(text, intentDef, entities)
   }
 
-  private async _extract(text: string): Promise<sdk.IO.EventUnderstanding> {
+  private async _extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     let ret: any = { errored: true }
     const t1 = Date.now()
     try {
       ret.language = await this.langDetector.identify(text)
-      ret = { ...ret, ...(await this._extractIntents(text)) }
+      ret = { ...ret, ...(await this._extractIntents(text, includedContexts)) }
       ret.entities = await this._extractEntities(text, ret.language)
       ret.slots = await this._extractSlots(text, ret.intent, ret.entities)
+      debugEntities('slots', { text, slots: ret.slots })
       ret.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)

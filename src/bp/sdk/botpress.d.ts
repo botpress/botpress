@@ -338,7 +338,7 @@ declare module 'botpress/sdk' {
       botId: string
       suggestions?: Suggestion[]
       credentials?: any
-      withNlu?: boolean
+      nlu?: Partial<EventUnderstanding>
     }
 
     /**
@@ -395,6 +395,7 @@ declare module 'botpress/sdk' {
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotsCollection
       readonly errored: boolean
+      readonly includedContexts: string[]
     }
 
     export interface IncomingEvent extends Event {
@@ -885,7 +886,7 @@ declare module 'botpress/sdk' {
      * @param options - Additional options to apply to the router
      * @param router - The router
      */
-    export function createRouterForBot(routerName: string, options?: RouterOptions): any // TODO Better interface for the router
+    export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
 
     /**
      * Returns the required configuration to make an API call to another module by specifying only the relative path.
@@ -905,6 +906,10 @@ declare module 'botpress/sdk' {
      * This Express middleware tries to decode the X-BP-ExternalAuth header and adds a credentials header in the request if it's valid.
      */
     export function extractExternalToken(req: any, res: any, next: any): Promise<void>
+
+    export interface RouterExtension {
+      getPublicPath(): Promise<string>
+    }
   }
 
   /**

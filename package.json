@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "11.6.1",
+  "version": "11.6.3",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -29,6 +29,7 @@
     "chokidar": "^2.0.4",
     "cookie-session": "^1.3.3",
     "cors": "^2.8.4",
+    "debug": "^4.1.1",
     "deep-diff": "^1.0.2",
     "doctrine": "^2.1.0",
     "dotenv": "^6.2.0",
