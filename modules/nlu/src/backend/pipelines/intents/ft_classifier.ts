@@ -181,9 +181,9 @@ export default class FastTextClassifier implements IntentClassifier {
       ctx => !includedContexts.length || includedContexts.includes(ctx)
     )
     try {
-      debugPredict('prediction request', { includedContexts, input, sanitized })
+      debugPredict('prediction request %o', { includedContexts, input, sanitized })
       const predictions = await Promise.map(modelNames, modelName => this._predictForOneModel(sanitized, modelName))
-      debugPredict('predictions done', { includedContexts, input, sanitized, predictions })
+      debugPredict('predictions done %o', { includedContexts, input, sanitized, predictions })
 
       return _.chain(predictions)
         .flatten()
