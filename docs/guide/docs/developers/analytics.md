@@ -110,8 +110,8 @@ You can use `set` action to set a count for a specific metric.
 
 ### Increment
 
-You can use `increment` to increment a specific metric by 1. You can set a bigger increment with the `count` param.
+You can use `increment` to increment a specific metric by 1. You can set a bigger increment with the `increment` param.
 
 ### Decrement
 
-You can use `decrement` to decrement a specific metric by 1. You can set a bigger increment with the `count` param.
+You can use `decrement` to decrement a specific metric by 1. You can set a bigger increment with the `increment` param.
