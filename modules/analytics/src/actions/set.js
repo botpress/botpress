@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 /**
- * Set a custom metric value
+ * Set a custom metric
  * @title Set Custom Metric
  * @category Analytics
  * @param metric The name of the metric
