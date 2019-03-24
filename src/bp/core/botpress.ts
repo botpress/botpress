@@ -214,6 +214,7 @@ export class Botpress {
     await this.cmsService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      await this.stateManager.restore(event)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -237,7 +238,6 @@ export class Botpress {
     }
 
     this.dataRetentionService.initialize()
-    this.stateManager.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
