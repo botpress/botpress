@@ -11,7 +11,7 @@ const sendPostbackToParent = data => {
   }
 
   const postbackEvent = bp.IO.Event({
-    type: 'postback',
+    type: 'data',
     channel: 'web',
     direction: 'outgoing',
     target: event.target,
