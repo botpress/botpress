@@ -54,7 +54,7 @@ const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
 
 const debugRequestMw = (req: Request, _res, next) => {
-  debugRequest(req.path, {
+  debugRequest(`${req.path} %o`, {
     method: req.method,
     ip: req.ip,
     originalUrl: req.originalUrl
@@ -192,6 +192,10 @@ export default class HTTPServer {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
     }
 
+    this.app.get('/status', async (req, res, next) => {
+      res.send(await this.monitoringService.getStatus())
+    })
+
     this.app.use('/assets', express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
@@ -282,7 +286,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, false, TOKEN_AUDIENCE)
+    const serverToken = generateUserToken(SERVER_USER, false, '5m', TOKEN_AUDIENCE)
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {

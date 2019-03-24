@@ -274,8 +274,8 @@ export class Botpress {
 
   @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
   private async createDatabase(): Promise<void> {
-    const databaseType = process.env.DATABASE || 'sqlite'
     const databaseUrl = process.env.DATABASE_URL
+    const databaseType = databaseUrl && databaseUrl.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
 
     await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), databaseUrl)
   }

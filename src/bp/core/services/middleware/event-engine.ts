@@ -131,11 +131,11 @@ export class EventEngine {
   register(middleware: sdk.IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
-      debugIncoming('register', middleware)
+      debugIncoming('register %o', middleware)
       this.incomingMiddleware.push(middleware)
       this.incomingMiddleware = _.sortBy(this.incomingMiddleware, mw => mw.order)
     } else {
-      debugOutgoing('register', middleware)
+      debugOutgoing('register %o', middleware)
       this.outgoingMiddleware.push(middleware)
       this.outgoingMiddleware = _.sortBy(this.outgoingMiddleware, mw => mw.order)
     }
