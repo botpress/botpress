@@ -77,6 +77,7 @@ class Header extends React.Component {
   renderResetButton() {
     return (
       !this.props.showConvos &&
+      !this.props.showBotInfo &&
       this.props.config && (
         <span
           tabindex="-1"
@@ -95,6 +96,7 @@ class Header extends React.Component {
   renderDownloadButton() {
     return (
       !this.props.showConvos &&
+      !this.props.showBotInfo &&
       this.props.config.enableTranscriptDownload && (
         <span
           tabindex="-1"
@@ -109,6 +111,7 @@ class Header extends React.Component {
       )
     )
   }
+
   renderConvoButton() {
     return (
       this.props.config.showConversationsButton && (
@@ -162,8 +165,8 @@ class Header extends React.Component {
   }
 
   handleKeyDown = (action, e) => {
-    if (!e) {
-      e = action
+    if (!this.props.config || (this.props.config && !this.props.config.enableArrowNavigation)) {
+      return
     }
 
     if (e.key == 'ArrowUp') {

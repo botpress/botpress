@@ -22,15 +22,19 @@ export default class Send extends Component {
   }
 
   handleKeyDown = e => {
-    const shouldFocusPrevious = e.target.selectionStart === 0 && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')
-    if (shouldFocusPrevious) {
-      this.props.focusPrevious()
-    }
+    if (this.props.config && this.props.config.enableArrowNavigation) {
+      const shouldFocusPrevious = e.target.selectionStart === 0 && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')
+      if (shouldFocusPrevious) {
+        this.props.focusPrevious()
+      }
 
-    const shouldFocusNext =
-      e.target.selectionStart === this.textInput.value.length && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
-    if (shouldFocusNext) {
-      this.props.focusNext()
+      const shouldFocusNext =
+        e.target.selectionStart === this.textInput.value.length && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
+      if (shouldFocusNext) {
+        this.props.focusNext()
+      }
+    } else if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
+      this.props.recallHistory(e.key)
     }
   }
 

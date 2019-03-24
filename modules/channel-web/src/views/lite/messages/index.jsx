@@ -82,6 +82,10 @@ export default class MessageList extends Component {
   }
 
   handleKeyDown = e => {
+    if (!this.props.enableArrowNavigation) {
+      return
+    }
+
     const maxScroll = this.messagesDiv.scrollHeight - this.messagesDiv.clientHeight
     const shouldFocusNext = e.key == 'ArrowRight' || (e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll)
     const shouldFocusPrevious = e.key == 'ArrowLeft' || (e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0)

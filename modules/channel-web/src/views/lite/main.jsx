@@ -43,8 +43,8 @@ const defaultOptions = {
   showConversationsButton: true,
   showUserName: false,
   showUserAvatar: false,
-  botConvoTitle: 'Botpress Webchat',
-  enableTranscriptDownload: false
+  enableTranscriptDownload: false,
+  enableArrowNavigation: false
 }
 
 export default class Web extends React.Component {

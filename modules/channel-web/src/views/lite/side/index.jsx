@@ -81,30 +81,11 @@ export default class Side extends React.Component {
   }
 
   renderHeader() {
-    const focusPrevious = () => {
-      if (this.state.showBotInfo) {
-        console.log('focus on convos')
-      } else if (this.state.showConvos) {
-        console.log('focus on convos')
-      } else {
-        this.handleInputFocus(true)
-      }
-    }
-
-    const focusNext = () => {
-      if (this.state.showBotInfo) {
-        console.log('focus on convos')
-      } else if (this.state.showConvos) {
-        console.log('focus on convos')
-      } else {
-        this.handleConvoFocus(true)
-      }
-    }
-
     return (
       <Header
         focused={this.state.headerFocused}
         showConvos={this.state.showConvos}
+        showBotInfo={this.state.showBotInfo}
         botInfo={this.props.botInfo}
         config={this.props.config}
         currentConversation={this.props.currentConversation}
@@ -115,8 +96,8 @@ export default class Side extends React.Component {
         onCloseClicked={this.props.onClose}
         onListClicked={this.handleToggleShowConvos}
         onInfoClicked={this.toggleBotInfo}
-        focusNext={focusNext}
-        focusPrevious={focusPrevious}
+        focusNext={this.handleConvoFocus.bind(this, true)}
+        focusPrevious={this.handleInputFocus.bind(this, true)}
         onBlur={this.handleHeaderFocus.bind(this, false)}
       />
     )
@@ -178,7 +159,8 @@ export default class Side extends React.Component {
       focused: this.state.convoFocused,
       onBlur: this.handleConvoFocus.bind(this, false),
       focusNext: this.handleInputFocus.bind(this, true),
-      focusPrevious: this.handleHeaderFocus.bind(this, true)
+      focusPrevious: this.handleHeaderFocus.bind(this, true),
+      enableArrowNavigation: this.props.config && this.props.config.enableArrowNavigation
     }
 
     return (
@@ -196,7 +178,7 @@ export default class Side extends React.Component {
     return (
       <BotInfo
         botInfo={this.props.botInfo}
-        webchatConfig={this.props.config}
+        config={this.props.config}
         dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
         onDismiss={onDismiss}
       />
@@ -207,6 +189,7 @@ export default class Side extends React.Component {
     if (this.state.showConvos) {
       return (
         <ConversationList
+          enableArrowNavigation={this.props.config && this.props.config.enableArrowNavigation}
           conversations={this.props.conversations}
           createConversation={this.props.createConversation}
           onConversationClicked={this.handleConvoClicked}

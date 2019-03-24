@@ -55,6 +55,10 @@ class ConversationList extends React.Component {
   }
 
   handleKeyDown = e => {
+    if (!this.props.enableArrowNavigation) {
+      return
+    }
+
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       this.changeFocus(1)
     } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
