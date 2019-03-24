@@ -18,7 +18,8 @@
       "developers/migrate",
       "developers/debug",
       "developers/create-module",
-      "developers/cluster"
+      "developers/cluster",
+      "developers/analytics"
     ],
     "Tutorials": [
       "tutorials/webchat-embedding",

@@ -7,7 +7,9 @@ export const Debug = (mod: string, base = 'bp') => {
   available[namespace] = true
   const instance = debug(base).extend(mod)
   instance.sub = mod => Debug(mod, namespace)
-  instance.forBot = (botId, message, extra) => instance(`(${botId}) ${message}`, extra)
+  instance.forBot = (botId, message, extra?) => {
+    return extra ? instance(`(${botId}) ${message}`, extra) : instance(`(${botId}) ${message}`)
+  }
   return instance
 }
 
