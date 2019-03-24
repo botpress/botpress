@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Button, Form, FormControl } from 'react-bootstrap'
+import { Modal, Button, FormControl } from 'react-bootstrap'
 
 import _ from 'lodash'
 
@@ -14,7 +14,8 @@ export default class Settings extends React.Component {
       this.setState({
         userId: this.props.userId,
         externalToken: this.props.externalToken,
-        isSendingRawPayload: this.props.isSendingRawPayload
+        isSendingRawPayload: this.props.isSendingRawPayload,
+        isVerticalView: this.props.isVerticalView
       })
     }
   }
@@ -23,7 +24,8 @@ export default class Settings extends React.Component {
     this.props.onUpdateSettings({
       userId: this.state.userId,
       externalToken: this.state.externalToken,
-      isSendingRawPayload: this.state.isSendingRawPayload
+      isSendingRawPayload: this.state.isSendingRawPayload,
+      isVerticalView: this.state.isVerticalView
     })
     this.props.onHideSettings()
   }
@@ -39,13 +41,23 @@ export default class Settings extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <div>
-            <h5>Send Raw Payloads (JSON mode)</h5>
-            <FormControl
+            <input
+              id="rawPayload"
               type="checkbox"
               checked={this.state.isSendingRawPayload}
               onChange={this.handleToggle}
               name="isSendingRawPayload"
             />
+            <label htmlFor="rawPayload"> Send Raw Payloads (JSON mode)</label>
+            <br />
+            <input
+              id="vertical"
+              type="checkbox"
+              checked={this.state.isVerticalView}
+              onChange={this.handleToggle}
+              name="isVerticalView"
+            />
+            <label htmlFor="vertical"> Split view vertically</label>
             <h5>User ID</h5>
             <FormControl
               type="text"
