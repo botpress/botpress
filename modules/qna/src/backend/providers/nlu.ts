@@ -42,7 +42,10 @@ export default class Storage implements QnaStorage {
     this.botId = botId
 
     if (config.qnaCategories && config.qnaCategories.length > 0) {
-      this.categories = config.qnaCategories.split(',')
+      this.categories = config.qnaCategories
+        .split(',')
+        .map(x => x.trim())
+        .filter(x => x.length)
     }
   }
 
