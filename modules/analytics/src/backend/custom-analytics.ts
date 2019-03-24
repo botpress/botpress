@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import moment from 'moment'
-import { Graph } from 'analytics'
 
 export default ({ bp, botId }) => {
   const graphs = []
@@ -58,7 +57,7 @@ export default ({ bp, botId }) => {
   }
 
   // { name, type, description, variables }
-  function addGraph(graph: Graph) {
+  function addGraph(graph) {
     if (!_.includes(['count', 'countUniq', 'percent', 'piechart'], graph.type)) {
       throw new Error('Unknown graph of type ' + graph.type)
     }
