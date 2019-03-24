@@ -294,10 +294,8 @@ export default class Web extends React.Component {
 
     this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
     this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
-    this.props.bp.events.on('guest.webchat.postback', this.handlePostback)
-  }
 
-  handlePostback = payload => {
+    //firehose events to parent page
     window.parent && window.parent.postMessage(payload)
   }
 
