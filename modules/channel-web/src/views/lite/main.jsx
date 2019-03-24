@@ -43,8 +43,8 @@ const defaultOptions = {
   showConversationsButton: true,
   showUserName: false,
   showUserAvatar: false,
-  botConvoTitle: 'Botpress Webchat',
-  enableTranscriptDownload: false
+  enableTranscriptDownload: false,
+  enableArrowNavigation: false
 }
 
 export default class Web extends React.Component {
@@ -294,10 +294,12 @@ export default class Web extends React.Component {
 
     this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
     this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
-    this.props.bp.events.on('guest.webchat.postback', this.handlePostback)
+    //firehose events to parent page
+    this.props.bp.events.onAny(this.postToParent)
   }
 
-  handlePostback = payload => {
+  postToParent = (t, payload) => {
+    // we could filter on event type if necessary
     window.parent && window.parent.postMessage(payload)
   }
 

@@ -1,7 +1,6 @@
 const chatOptions = {
   hideWidget: true,
   config: {
-    botConvoTitle: 'Bot Emulator',
     enableReset: true,
     enableTranscriptDownload: true
   }

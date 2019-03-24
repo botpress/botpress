@@ -39,6 +39,7 @@
       flex-shrink: 0;
       height: 52px;
       font-weight: 500;
+      border-top: solid 1px #ccc;
       border-bottom: 1px solid #ccc;
       padding: 0 1rem;
       overflow: hidden;
@@ -144,8 +145,11 @@
         vertical-align: middle;
         cursor: pointer;
 
-        &:hover {
-          color: #aaa;
+        &:hover,
+        &:focus {
+          svg {
+            fill: black;
+          }
         }
 
         svg {
@@ -171,18 +175,18 @@
     .addConvoBtn {
       background: transparent;
       border: 2px solid;
-      font-size: 36px;
       border-radius: 50%;
-      float: left;
-      margin-left: 15px;
+      float: right;
+      margin-right: 15px;
       margin-top: 15px;
       margin-bottom: 15px;
-      width: 52px;
-      height: 52px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
       cursor: pointer;
-      box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
 
-      &:hover {
+      &:hover,
+      &:focus {
         background-color: rgba(0, 0, 0, 0.03);
       }
     }
@@ -304,6 +308,7 @@
       overflow-x: hidden;
 
       .item {
+        margin-left: 15px;
         height: 4.7rem;
         border-bottom: 1px solid #eee;
         cursor: pointer;
@@ -314,7 +319,8 @@
         display: -ms-flexbox;
         display: flex;
 
-        &:hover {
+        &:hover,
+        &.focus {
           background-color: #fafafa;
         }
 
