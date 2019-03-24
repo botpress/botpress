@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 import style from './style.scss'
 
-// TODO add dpad nav
 export default class Send extends Component {
   componentDidMount() {
     this.textInput.focus()
@@ -42,7 +41,7 @@ export default class Send extends Component {
     return (
       <div className={style.input}>
         <textarea
-          tabindex="1"
+          tabIndex="1"
           ref={input => {
             this.textInput = input
           }}
