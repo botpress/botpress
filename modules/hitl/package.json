@@ -21,14 +21,14 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/node": "^10.11.0",
-    "classnames": "^2.2.5",
-    "module-builder": "../../build/module-builder",
-    "react-audio-player": "^0.9.0",
-    "react-toggle": "^4.0.2"
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "bluebird": "^3.4.7",
-    "lodash": "^4.17.4",
-    "moment": "^2.17.1"
+    "bluebird": "^3.5.3",
+    "classnames": "^2.2.6",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "react-audio-player": "^0.11.0",
+    "react-toggle": "^4.0.2"
   }
 }
