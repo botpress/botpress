@@ -86,15 +86,20 @@ export default ({ bp, botId }) => {
 
   const getters = {
     count: async function(graph, from, to) {
-      const variable = _.first(graph.variables)
+      const variable = _.first(graph.variables) as string
 
       const rows = await knex('analytics_custom')
         .select(['date', knex.raw('sum(count) as count')])
         .where('date', '>=', from)
         .andWhere('botId', botId)
         .andWhere('date', '<=', to)
-        .andWhere('name', 'LIKE', variable + '~%')
-        .orWhere('name', 'LIKE', variable)
+        .andWhere(function() {
+          if (variable.indexOf('~') > -1) {
+            return this.where('name', 'LIKE', variable)
+          } else {
+            return this.where('name', 'LIKE', variable + '~%')
+          }
+        })
         .groupBy('date')
         .then(rows => rows.map(row => ({ ...row, count: parseInt(row.count) })))
 
