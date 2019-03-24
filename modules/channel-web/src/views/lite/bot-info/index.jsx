@@ -91,7 +91,7 @@ class BotInfo extends React.Component {
           className={'bp-bot-info-start-convo-button ' + style.startBtn}
           onClick={onDismiss}
         >
-          {dismissLabel || 'Start Conversation'}
+          {dismissLabel}
         </button>
       </div>
     )

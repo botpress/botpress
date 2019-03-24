@@ -16,7 +16,6 @@ class Header extends React.Component {
 
   onBlur = () => {
     this.setCurrentFocusIdx(null)
-    this.props.onBlur()
   }
 
   componentDidUpdate(prevProps) {
@@ -178,6 +177,7 @@ class Header extends React.Component {
     } else if (e.key == 'ArrowRight') {
       this.changeButtonFocus(1)
     } else if (e.key == 'Enter') {
+      e.preventDefault()
       action()
     }
   }

@@ -45,7 +45,6 @@ export default class Send extends Component {
           ref={input => {
             this.textInput = input
           }}
-          onBlur={this.props.onBlur}
           onFocus={this.props.onFocus}
           placeholder={this.props.placeholder}
           onChange={this.props.change}

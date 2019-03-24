@@ -12,9 +12,7 @@ import { getOverridedComponent } from '../messages/misc'
 
 export default class Side extends React.Component {
   state = {
-    headerFocused: false,
-    inputFocused: false,
-    convoFocused: false,
+    currentFocus: 'input',
     showConvos: false,
     showBotInfo: false
   }
@@ -34,33 +32,20 @@ export default class Side extends React.Component {
       (!showConvos && this.state.showBotInfo) ||
       (this.props.botInfo.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
 
-    if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo)
+    if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo) {
       this.setState({
         showConvos,
         showBotInfo
       })
+    }
   }
 
   isConvoStarted = conversation => {
     return conversation && !!conversation.messages.length
   }
 
-  handleInputFocus = value => {
-    this.setState({
-      inputFocused: value
-    })
-  }
-
-  handleConvoFocus = value => {
-    this.setState({
-      convoFocused: value
-    })
-  }
-
-  handleHeaderFocus = value => {
-    this.setState({
-      headerFocused: value
-    })
+  handleFocusChanged = nextFocus => {
+    this.setState({ currentFocus: nextFocus })
   }
 
   handleToggleShowConvos = () => {
@@ -83,27 +68,26 @@ export default class Side extends React.Component {
   renderHeader() {
     return (
       <Header
-        focused={this.state.headerFocused}
+        focused={this.state.currentFocus === 'header'}
         showConvos={this.state.showConvos}
         showBotInfo={this.state.showBotInfo}
         botInfo={this.props.botInfo}
         config={this.props.config}
         currentConversation={this.props.currentConversation}
         unreadCount={this.props.unreadCount}
-        currentView={this.state.currentView}
         onResetClicked={this.props.onResetSession}
         onDownloadClicked={this.props.downloadConversation}
         onCloseClicked={this.props.onClose}
         onListClicked={this.handleToggleShowConvos}
         onInfoClicked={this.toggleBotInfo}
-        focusNext={this.handleConvoFocus.bind(this, true)}
-        focusPrevious={this.handleInputFocus.bind(this, true)}
-        onBlur={this.handleHeaderFocus.bind(this, false)}
+        focusNext={this.handleFocusChanged.bind(this, 'convo')}
+        focusPrevious={this.handleFocusChanged.bind(this, 'input')}
       />
     )
   }
 
   renderComposer() {
+    const focused = this.state.currentFocus === 'input' && !this.state.showConvos && !this.state.showBotInfo
     const name = this.props.config.botName || 'Bot'
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
 
@@ -115,7 +99,7 @@ export default class Side extends React.Component {
       <div
         className={'bp-chat-composer ' + style.composer}
         style={{
-          borderColor: this.state.inputFocused ? this.props.config.foregroundColor : null
+          borderColor: focused ? this.props.config.foregroundColor : null
         }}
       >
         <div className={style['flex-column']}>
@@ -125,11 +109,10 @@ export default class Side extends React.Component {
             change={this.props.onTextChanged}
             text={this.props.text}
             recallHistory={this.props.recallHistory}
-            focused={this.state.inputFocused}
-            onFocus={this.handleInputFocus.bind(this, true)}
-            onBlur={this.handleInputFocus.bind(this, false)}
-            focusNext={this.handleHeaderFocus.bind(this, true)}
-            focusPrevious={this.handleConvoFocus.bind(this, true)}
+            focused={focused}
+            onFocus={this.handleFocusChanged.bind(this, 'input')}
+            focusNext={this.handleFocusChanged.bind(this, 'header')}
+            focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
             config={this.props.config}
           />
           <div className={style.line}>
@@ -156,10 +139,9 @@ export default class Side extends React.Component {
       onFileUploadSend: this.props.onFileUploadSend,
       onLoginPromptSend: this.props.onLoginPromptSend,
       onSendData: this.props.onSendData,
-      focused: this.state.convoFocused,
-      onBlur: this.handleConvoFocus.bind(this, false),
-      focusNext: this.handleInputFocus.bind(this, true),
-      focusPrevious: this.handleHeaderFocus.bind(this, true),
+      focused: this.state.currentFocus === 'convo',
+      focusNext: this.handleFocusChanged.bind(this, 'input'),
+      focusPrevious: this.handleFocusChanged.bind(this, 'header'),
       enableArrowNavigation: this.props.config && this.props.config.enableArrowNavigation
     }
 

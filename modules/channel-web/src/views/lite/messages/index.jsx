@@ -228,7 +228,6 @@ export default class MessageList extends Component {
     return (
       <div
         tabindex="-1"
-        onBlur={this.props.onBlur}
         onKeyDown={this.handleKeyDown}
         className={'bp-messages ' + style.messages}
         ref={m => {
