@@ -285,6 +285,7 @@ export default class EmulatorChat extends React.Component {
             userId={this.state.userId}
             externalToken={this.state.externalToken}
             isSendingRawPayload={this.state.isSendingRawPayload}
+            isVerticalView={this.state.isVerticalView}
             show={this.state.isSettingsOpen}
             onHideSettings={this.hideSettings}
             onUpdateSettings={this.updateSettings}
