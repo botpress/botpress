@@ -17,10 +17,10 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "axios": "^0.16.2",
-    "bluebird": "^3.5.1",
+    "axios": "^0.18.0",
+    "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.11",
     "telegraf": "^3.27.1"
   }
 }
