@@ -1702,10 +1702,10 @@ copy-webpack-plugin@^4.5.2:
     p-limit "^1.0.0"
     serialize-javascript "^1.4.0"
 
-core-js@2.5.5:
-  version "2.5.5"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.5.tgz#b14dde936c640c0579a6b50cabcc132dd6127e3b"
-  integrity sha1-sU3ek2xkDAV5prUMq8wTLdYSfjs=
+core-js@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.0.tgz#1e30793e9ee5782b307e37ffa22da0eacddd84d4"
+  integrity sha512-kLRC6ncVpuEW/1kwrOXYX6KQASCVtrh1gQr/UiaVgFlf9WE5Vp+lNe5+h3LuMr5PAucWnnEXwH0nQHRH/gpGtw==
 
 core-js@^1.0.0:
   version "1.2.7"
@@ -3398,6 +3398,11 @@ mem@^4.0.0:
     mimic-fn "^1.0.0"
     p-is-promise "^1.1.0"
 
+memoize-one@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-5.0.0.tgz#d55007dffefb8de7546659a1722a5d42e128286e"
+  integrity sha512-7g0+ejkOaI9w5x6LvQwmj68kUj6rxROywPSCqmclG/HBacmFnZqhVscQ8kovkn9FBCNJmOz6SY42+jnvZzDWdw==
+
 memory-fs@^0.4.0, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
@@ -4472,14 +4477,15 @@ react-splitter-layout@^3.0.0:
   resolved "https://registry.yarnpkg.com/react-splitter-layout/-/react-splitter-layout-3.0.0.tgz#a0cba494ffb4e0af56b3a80679e865fc4a6dc71b"
   integrity sha512-1IxTpElZYakKOORpv1Oi65G5B8PIQfLKMy1DxzX0Q4gW4/mppefdPs3uIcj3NxdKoD8GvDA7Hc4b7oCNzK3aFQ==
 
-react-tag-input@6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/react-tag-input/-/react-tag-input-6.1.0.tgz#16ee6918068392f65d8c4b17d41c33b6426b1fbd"
-  integrity sha512-18yjJXEzc49xeAFxQjG3+x7Kn/3fHxtWZUcqTRNGsR5FEnjSRe/zJbmx7OIEmCkJzetZ8dClLCc9uV2tIzIo4g==
+react-tag-input@6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/react-tag-input/-/react-tag-input-6.2.0.tgz#557e4a5ef884a2bfe317ac71a7b70c9e6d010080"
+  integrity sha512-r6JTPmcnJhKAcexZ97kwHnDfQa4zb2Km6QdxF/3bg8HDFR2BAZKhFD30WErS7VLQta4m+tVvjyPXsmpRcxbdMQ==
   dependencies:
     classnames "^2.2.6"
-    core-js "2.5.5"
+    core-js "2.6.0"
     lodash "4.17.11"
+    memoize-one "^5.0.0"
     prop-types "15.6.1"
     react "16.4.2"
     react-dnd "5.0.0"
