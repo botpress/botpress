@@ -4,7 +4,7 @@ const _ = require('lodash')
  * Appends the provided context(s) to the list of contexts that will be used by the NLU Engine
  * for the next messages for that chat session.
  *
- * The TTL (Time-To-Live) represents how long the contexts will be valid for before they are automatically removed.
+ * The TTL (Time-To-Live) represents how long the contexts will be valid before they are automatically removed.
  * For example, the default value of `1` will listen for that context only once (the next time the user speaks).
  *
  * If a context was already present in the list, the higher TTL will win.
