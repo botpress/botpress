@@ -269,14 +269,14 @@ Botpress supports `.env` files, so you don't have to set them everytime you star
 
 ### Common
 
-| Environment Variable | Description                                                                                               | Default          |
-| -------------------- | --------------------------------------------------------------------------------------------------------- | ---------------- |
-| PORT                 | Sets the port that Botpress will listen to                                                                | 3000             |
-| BP_HOST              | The host to check for incoming connections                                                                | localhost        |
-| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.                         | http://HOST:PORT |
-| DATABASE             | The database type to use. `postgres` or `sqlite`                                                          | sqlite           |
-| DATABASE_URL         | Full connection string to connect to the DB                                                               |                  |
-| BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false            |
+| Environment Variable | Description                                                                                                                   | Default          |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| PORT                 | Sets the port that Botpress will listen to                                                                                    | 3000             |
+| BP_HOST              | The host to check for incoming connections                                                                                    | localhost        |
+| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.                                             | http://HOST:PORT |
+| DATABASE             | The database type to use. `postgres` or `sqlite`                                                                              | sqlite           |
+| DATABASE_URL         | Full connection string to connect to the DB                                                                                   |                  |
+| BP_PRODUCTION        | Sets Botpress in production mode (thus making BPFS to run on the database). This has the same effect as starting it with `-p` | false            |
 
 ### Botpress Pro
 
