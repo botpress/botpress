@@ -16,7 +16,7 @@ export default class HitlDb {
     }
 
     return this.knex
-      .createTableIfNotExists('hitl_sessions', function (table) {
+      .createTableIfNotExists('hitl_sessions', function(table) {
         table.increments('id').primary()
         table.string('botId').notNullable()
         table.string('channel')
@@ -29,14 +29,14 @@ export default class HitlDb {
         table.string('paused_trigger')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('hitl_messages', function (table) {
+        return this.knex.createTableIfNotExists('hitl_messages', function(table) {
           table.increments('id').primary()
           table
             .integer('session_id')
             .references('hitl_sessions.id')
             .onDelete('CASCADE')
           table.string('type')
-          table.string('text', 640)
+          table.string('text')
           table.jsonb('raw_message')
           table.enu('direction', ['in', 'out'])
           table.timestamp('ts')
@@ -118,9 +118,9 @@ export default class HitlDb {
     return direction === 'in'
       ? { last_event_on: now }
       : {
-        last_event_on: now,
-        last_heard_on: now
-      }
+          last_event_on: now,
+          last_heard_on: now
+        }
   }
 
   appendMessageToSession(event, sessionId, direction) {
@@ -193,7 +193,7 @@ export default class HitlDb {
 
     return this.knex
       .select('*')
-      .from(function () {
+      .from(function() {
         this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
           .from('hitl_messages')
           .groupBy('session_id')
