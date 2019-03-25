@@ -1,0 +1,18 @@
+{
+  "id": "0ab47mj3e3_i_have_a_question_about_my_pay_check",
+  "data": {
+    "answers": [
+      "I can help you answer payroll questions"
+    ],
+    "questions": [
+      "I have a question about my pay check",
+      "Payroll question",
+      "I have a pay related question"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "global",
+    "enabled": true
+  }
+}

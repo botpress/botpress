@@ -1,0 +1,13 @@
+//CHECKSUM:802f2133e795ce5f628cdbedbf2d9f2ba63063c0462657b4300e166ce52a17fa
+"use strict";
+
+module.exports = {
+  typingIndicators: {
+    typing: {
+      type: 'boolean',
+      title: 'Show typing indicators',
+      default: true
+    }
+  }
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIl9iYXNlLmpzIl0sIm5hbWVzIjpbIm1vZHVsZSIsImV4cG9ydHMiLCJ0eXBpbmdJbmRpY2F0b3JzIiwidHlwaW5nIiwidHlwZSIsInRpdGxlIiwiZGVmYXVsdCJdLCJtYXBwaW5ncyI6Ijs7QUFBQUEsTUFBTSxDQUFDQyxPQUFQLEdBQWlCO0FBQ2ZDLEVBQUFBLGdCQUFnQixFQUFFO0FBQ2hCQyxJQUFBQSxNQUFNLEVBQUU7QUFDTkMsTUFBQUEsSUFBSSxFQUFFLFNBREE7QUFFTkMsTUFBQUEsS0FBSyxFQUFFLHdCQUZEO0FBR05DLE1BQUFBLE9BQU8sRUFBRTtBQUhIO0FBRFE7QUFESCxDQUFqQiIsInNvdXJjZVJvb3QiOiIvVm9sdW1lcy9icC9ib3RwcmVzcy9tb2R1bGVzL2J1aWx0aW4vc3JjL2JhY2tlbmQiLCJzb3VyY2VzQ29udGVudCI6WyJtb2R1bGUuZXhwb3J0cyA9IHtcbiAgdHlwaW5nSW5kaWNhdG9yczoge1xuICAgIHR5cGluZzoge1xuICAgICAgdHlwZTogJ2Jvb2xlYW4nLFxuICAgICAgdGl0bGU6ICdTaG93IHR5cGluZyBpbmRpY2F0b3JzJyxcbiAgICAgIGRlZmF1bHQ6IHRydWVcbiAgICB9XG4gIH1cbn1cbiJdfQ==

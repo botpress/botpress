@@ -1,0 +1,46 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "next": [],
+    "onReceive": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "entry",
+      "next": [
+        {
+          "condition": "temp.delegation && temp.delegation.length",
+          "node": "node-a65a"
+        },
+        {
+          "condition": "true",
+          "node": "node-351e"
+        }
+      ],
+      "onEnter": [
+        "delegate_to_bots {\"bots\":\"sub1,sub2\",\"minConfidence\":\"0.5\"}"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "507d56a572",
+      "name": "node-a65a",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-8mwYrq"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "3653b1f697",
+      "name": "node-351e",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-JqYzWM"
+      ],
+      "onReceive": null
+    }
+  ]
+}

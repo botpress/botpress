@@ -1,0 +1,32 @@
+//CHECKSUM:3c746a2da307857f47693d78b09bd0c965482b5707f94c74387e765b951a9b4f
+"use strict";
+
+const axios = require('axios');
+/**
+ * Decrements the value of a specific metric group.
+ *
+ * The group (optional) is useful when you need to compute a graph taking into account multiple variables.
+ * For example, you could count the gender ratio by incrementing:
+ *
+ * Male -> `metric = gender` and `group = male`
+ *
+ * Female -> `metric = gender` and `group = female`
+ *
+ * @title Decrement Metric
+ * @category Analytics
+ * @param {string} metric The name of the metric
+ * @param {string} [group=all] Optional group inside the metrics
+ * @param {Number} [increment=1] The optional increment of the metric
+ */
+
+
+const decrement = async (metric, group, increment = 1) => {
+  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId);
+  await axios.post('/mod/analytics/custom_metrics/decrement', {
+    name: `${metric}~${group}`,
+    count: increment
+  }, axiosConfig);
+};
+
+return decrement(args.metric, args.group, args.count);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRlY3JlbWVudC5qcyJdLCJuYW1lcyI6WyJheGlvcyIsInJlcXVpcmUiLCJkZWNyZW1lbnQiLCJtZXRyaWMiLCJncm91cCIsImluY3JlbWVudCIsImF4aW9zQ29uZmlnIiwiYnAiLCJodHRwIiwiZ2V0QXhpb3NDb25maWdGb3JCb3QiLCJldmVudCIsImJvdElkIiwicG9zdCIsIm5hbWUiLCJjb3VudCIsImFyZ3MiXSwibWFwcGluZ3MiOiI7O0FBQUEsTUFBTUEsS0FBSyxHQUFHQyxPQUFPLENBQUMsT0FBRCxDQUFyQjtBQUVBOzs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFnQkEsTUFBTUMsU0FBUyxHQUFHLE9BQU9DLE1BQVAsRUFBZUMsS0FBZixFQUFzQkMsU0FBUyxHQUFHLENBQWxDLEtBQXdDO0FBQ3hELFFBQU1DLFdBQVcsR0FBRyxNQUFNQyxFQUFFLENBQUNDLElBQUgsQ0FBUUMsb0JBQVIsQ0FBNkJDLEtBQUssQ0FBQ0MsS0FBbkMsQ0FBMUI7QUFDQSxRQUFNWCxLQUFLLENBQUNZLElBQU4sQ0FDSix5Q0FESSxFQUVKO0FBQUVDLElBQUFBLElBQUksRUFBRyxHQUFFVixNQUFPLElBQUdDLEtBQU0sRUFBM0I7QUFBOEJVLElBQUFBLEtBQUssRUFBRVQ7QUFBckMsR0FGSSxFQUdKQyxXQUhJLENBQU47QUFLRCxDQVBEOztBQVNBLE9BQU9KLFNBQVMsQ0FBQ2EsSUFBSSxDQUFDWixNQUFOLEVBQWNZLElBQUksQ0FBQ1gsS0FBbkIsRUFBMEJXLElBQUksQ0FBQ0QsS0FBL0IsQ0FBaEIiLCJzb3VyY2VSb290IjoiL1ZvbHVtZXMvYnAvYm90cHJlc3MvbW9kdWxlcy9hbmFseXRpY3Mvc3JjL2JhY2tlbmQiLCJzb3VyY2VzQ29udGVudCI6WyJjb25zdCBheGlvcyA9IHJlcXVpcmUoJ2F4aW9zJylcblxuLyoqXG4gKiBEZWNyZW1lbnRzIHRoZSB2YWx1ZSBvZiBhIHNwZWNpZmljIG1ldHJpYyBncm91cC5cbiAqXG4gKiBUaGUgZ3JvdXAgKG9wdGlvbmFsKSBpcyB1c2VmdWwgd2hlbiB5b3UgbmVlZCB0byBjb21wdXRlIGEgZ3JhcGggdGFraW5nIGludG8gYWNjb3VudCBtdWx0aXBsZSB2YXJpYWJsZXMuXG4gKiBGb3IgZXhhbXBsZSwgeW91IGNvdWxkIGNvdW50IHRoZSBnZW5kZXIgcmF0aW8gYnkgaW5jcmVtZW50aW5nOlxuICpcbiAqIE1hbGUgLT4gYG1ldHJpYyA9IGdlbmRlcmAgYW5kIGBncm91cCA9IG1hbGVgXG4gKlxuICogRmVtYWxlIC0+IGBtZXRyaWMgPSBnZW5kZXJgIGFuZCBgZ3JvdXAgPSBmZW1hbGVgXG4gKlxuICogQHRpdGxlIERlY3JlbWVudCBNZXRyaWNcbiAqIEBjYXRlZ29yeSBBbmFseXRpY3NcbiAqIEBwYXJhbSB7c3RyaW5nfSBtZXRyaWMgVGhlIG5hbWUgb2YgdGhlIG1ldHJpY1xuICogQHBhcmFtIHtzdHJpbmd9IFtncm91cD1hbGxdIE9wdGlvbmFsIGdyb3VwIGluc2lkZSB0aGUgbWV0cmljc1xuICogQHBhcmFtIHtOdW1iZXJ9IFtpbmNyZW1lbnQ9MV0gVGhlIG9wdGlvbmFsIGluY3JlbWVudCBvZiB0aGUgbWV0cmljXG4gKi9cbmNvbnN0IGRlY3JlbWVudCA9IGFzeW5jIChtZXRyaWMsIGdyb3VwLCBpbmNyZW1lbnQgPSAxKSA9PiB7XG4gIGNvbnN0IGF4aW9zQ29uZmlnID0gYXdhaXQgYnAuaHR0cC5nZXRBeGlvc0NvbmZpZ0ZvckJvdChldmVudC5ib3RJZClcbiAgYXdhaXQgYXhpb3MucG9zdChcbiAgICAnL21vZC9hbmFseXRpY3MvY3VzdG9tX21ldHJpY3MvZGVjcmVtZW50JyxcbiAgICB7IG5hbWU6IGAke21ldHJpY31+JHtncm91cH1gLCBjb3VudDogaW5jcmVtZW50IH0sXG4gICAgYXhpb3NDb25maWdcbiAgKVxufVxuXG5yZXR1cm4gZGVjcmVtZW50KGFyZ3MubWV0cmljLCBhcmdzLmdyb3VwLCBhcmdzLmNvdW50KVxuIl19

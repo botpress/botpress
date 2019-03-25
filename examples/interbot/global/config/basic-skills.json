@@ -1,0 +1,9 @@
+{
+  "$schema": "../../../assets/modules/basic-skills/config.schema.json",
+  "defaultContentElement": "builtin_single-choice",
+  "defaultContentRenderer": "#builtin_single-choice",
+  "defaultMaxAttempts": 3,
+  "disableIntegrityCheck": true,
+  "matchNumbers": true,
+  "matchNLU": true
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "../../bot.config.schema.json",
+  "description": "Empty bot",
+  "active": true,
+  "version": "1.0.0",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "imports": {
+    "modules": [],
+    "incomingMiddleware": [],
+    "outgoingMiddleware": [],
+    "contentTypes": [
+      "builtin_text",
+      "builtin_single-choice",
+      "builtin_image",
+      "builtin_carousel",
+      "builtin_card"
+    ]
+  },
+  "dialog": {
+    "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
+  },
+  "id": "sub2",
+  "name": "sub2",
+  "category": null,
+  "disabled": false,
+  "private": false,
+  "details": {}
+}

@@ -1,0 +1,18 @@
+{
+  "id": "7ngev07hx1_i_want_to_post_a_new_blog_article",
+  "data": {
+    "answers": [
+      "I can help you submit a new blog article"
+    ],
+    "questions": [
+      "I want to post a new blog article",
+      "Update blog",
+      "Submit an article to our blog"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "global",
+    "enabled": true
+  }
+}

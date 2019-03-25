@@ -1,0 +1,75 @@
+[
+  {
+    "name": "Default",
+    "userSeq": 0,
+    "users": [
+      {
+        "email": "admin",
+        "password": "0b50a835eb313a3487b7c523945e527020be7f99998a3c609f7cf4a9c7aa71a8b11bb8a53cf9feaa2db0b34ddbcf2fd71747cb136db68248ff48965ecdaf142e",
+        "salt": "814b4ff933f2fc96",
+        "last_ip": "::1",
+        "last_logon": "2019-03-25T19:29:07.514Z",
+        "created_on": "2019-03-24T18:06:48.863Z",
+        "role": "admin"
+      }
+    ],
+    "bots": [
+      "hello",
+      "heyy",
+      "analytics",
+      "fsfsdfsfdsf",
+      "master",
+      "sub1",
+      "sub2"
+    ],
+    "roles": [
+      {
+        "id": "admin",
+        "name": "Administrator",
+        "description": "Administrators have full access to the workspace including adding members, creating bots and synchronizing changes.",
+        "rules": [
+          {
+            "res": "*",
+            "op": "+r+w"
+          }
+        ]
+      },
+      {
+        "id": "dev",
+        "name": "Developer",
+        "description": "Developers have full read/write access to bots, including flows, content, NLU and actions",
+        "rules": [
+          {
+            "res": "*",
+            "op": "+r+w"
+          },
+          {
+            "res": "admin.*",
+            "op": "+r-w"
+          },
+          {
+            "res": "admin.collaborators.*",
+            "op": "-r"
+          }
+        ]
+      },
+      {
+        "id": "editor",
+        "name": "Content Editor",
+        "description": "Content Editors have read/write access to content and NLU, and read-only access to flows and actions.",
+        "rules": [
+          {
+            "res": "*",
+            "op": "+r"
+          },
+          {
+            "res": "admin.collaborators.*",
+            "op": "-r"
+          }
+        ]
+      }
+    ],
+    "defaultRole": "dev",
+    "adminRole": "admin"
+  }
+]

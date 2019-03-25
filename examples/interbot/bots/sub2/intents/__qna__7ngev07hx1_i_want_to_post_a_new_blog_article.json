@@ -1,0 +1,12 @@
+{
+  "name": "__qna__7ngev07hx1_i_want_to_post_a_new_blog_article",
+  "contexts": [
+    "global"
+  ],
+  "utterances": [
+    "I want to post a new blog article",
+    "Update blog",
+    "Submit an article to our blog"
+  ],
+  "slots": []
+}
