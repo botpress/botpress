@@ -314,7 +314,7 @@ export default class HTTPServer {
       return undefined
     }
 
-    const { publicKey, audience, algorithm, issuer } = externalAuth
+    const { publicKey, audience, algorithms, issuer } = externalAuth
 
     const [scheme, token] = externalToken.split(' ')
     if (scheme.toLowerCase() !== 'bearer') {
@@ -322,7 +322,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithm }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })
