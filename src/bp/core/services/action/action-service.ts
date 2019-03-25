@@ -173,7 +173,10 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY')
+        process: {
+          ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
+          env: _.pickBy(process.env, (value, name) => name.startsWith('EXPOSED_'))
+        }
       },
       require: {
         external: true,
