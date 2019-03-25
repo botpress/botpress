@@ -28,6 +28,7 @@
     "bluebird": "^3.5.3",
     "csv-parse": "^2.5.0",
     "iconv-lite": "^0.4.23",
+    "joi": "^13.6.0",
     "json2csv": "^4.3.5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
