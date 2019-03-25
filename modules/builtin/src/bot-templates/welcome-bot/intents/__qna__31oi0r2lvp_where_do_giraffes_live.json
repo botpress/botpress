@@ -1,0 +1,12 @@
+{
+  "name": "__qna__31oi0r2lvp_where_do_giraffes_live",
+  "contexts": [
+    "giraffes"
+  ],
+  "utterances": [
+    "Where do they live?",
+    "Where can I find giraffes?",
+    "Whats their natural habitat?"
+  ],
+  "slots": []
+}

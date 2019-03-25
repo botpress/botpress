@@ -1,0 +1,18 @@
+{
+  "id": "31oi0r2lvp_where_do_giraffes_live",
+  "data": {
+    "answers": [
+      "Most giraffes live either in East Africa or in Angola and Zambia in southwestern Africa."
+    ],
+    "questions": [
+      "Where do they live?",
+      "Where can I find giraffes?",
+      "Whats their natural habitat?"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "giraffes",
+    "enabled": true
+  }
+}
