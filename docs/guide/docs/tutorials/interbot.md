@@ -1,5 +1,5 @@
 ---
-id: inter-bot
+id: interbot
 title: Inter-bot Communication / Delegation
 ---
 
