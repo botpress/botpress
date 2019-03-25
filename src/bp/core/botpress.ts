@@ -138,7 +138,7 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
-    const postgres = process.env.DATABASE && process.env.DATABASE.toLowerCase() === 'postgres'
+    const databaseType = this.getDatabaseType()
 
     if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
       this.logger.warn(
@@ -150,7 +150,7 @@ export class Botpress {
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
       )
     }
-    if (process.IS_PRO_ENABLED && !postgres && process.CLUSTER_ENABLED) {
+    if (process.IS_PRO_ENABLED && databaseType !== 'postgres' && process.CLUSTER_ENABLED) {
       throw new Error(
         'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
       )
@@ -272,12 +272,17 @@ export class Botpress {
     return this.configProvider.getBotpressConfig()
   }
 
-  @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
-  private async createDatabase(): Promise<void> {
+  private getDatabaseType(): DatabaseType {
     const databaseUrl = process.env.DATABASE_URL
     const databaseType = databaseUrl && databaseUrl.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
 
-    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), databaseUrl)
+    return databaseType
+  }
+
+  @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
+  private async createDatabase(): Promise<void> {
+    const databaseType = this.getDatabaseType()
+    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), process.env.DATABASE_URL)
   }
 
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
