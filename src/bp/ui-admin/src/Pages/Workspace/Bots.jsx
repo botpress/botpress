@@ -88,6 +88,10 @@ class Bots extends Component {
         {_.orderBy(this.props.bots, ['id'], ['desc']).map(bot => (
           <div className="bp_table-row" key={bot.id}>
             <div className="actions">
+              <Button tag="a" size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+                Open chat
+              </Button>
+              |
               <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
                 <Button size="sm" color="link" onClick={() => this.props.history.push(`/bot/${bot.id}/details`)}>
                   Config

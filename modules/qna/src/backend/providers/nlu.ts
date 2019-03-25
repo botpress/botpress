@@ -4,7 +4,7 @@ import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { QnaStorage } from '../qna'
+import { QnaEntry, QnaStorage } from '../qna'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -81,7 +81,7 @@ export default class Storage implements QnaStorage {
     }
   }
 
-  async update(data, id) {
+  async update(data: QnaEntry, id: string): Promise<string> {
     const axiosConfig = await this.getAxiosConfig()
     id = id || getQuestionId(data)
     if (data.enabled) {
@@ -105,7 +105,7 @@ export default class Storage implements QnaStorage {
     return id
   }
 
-  async insert(qna, statusCb) {
+  async insert(qna: QnaEntry | QnaEntry[], statusCb): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = getQuestionId(data)
 
