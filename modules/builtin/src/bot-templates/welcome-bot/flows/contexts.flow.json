@@ -37,6 +37,7 @@
         }
       ],
       "onEnter": [
+        "builtin/resetContext {}",
         "builtin/appendContext {\"contexts\":\"monkeys,global,contexts\",\"ttl\":\"10\"}"
       ],
       "onReceive": null
@@ -51,6 +52,7 @@
         }
       ],
       "onEnter": [
+        "builtin/resetContext {}",
         "builtin/appendContext {\"contexts\":\"giraffes,global,contexts\",\"ttl\":\"10\"}"
       ],
       "onReceive": null
