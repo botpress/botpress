@@ -22,7 +22,7 @@ const _ = require('lodash')
  */
 const appendContext = (contexts, ttl) => {
   const existing = event.state.session.nluContexts || []
-  const add = contexts.split(',')
+  const add = contexts.trim().split(',')
   const merged = [
     ...existing,
     ...add.map(x => ({
