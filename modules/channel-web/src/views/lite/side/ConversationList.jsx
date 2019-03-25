@@ -73,7 +73,7 @@ class ConversationList extends React.Component {
     const { conversations, createConversation, onConversationClicked } = this.props
     return (
       <div
-        tabindex="0"
+        tabIndex="0"
         ref={el => (this.main = el)}
         className={`bp-list-convo ${style.list}`}
         onKeyDown={this.handleKeyDown}

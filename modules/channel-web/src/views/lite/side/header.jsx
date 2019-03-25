@@ -79,7 +79,7 @@ class Header extends React.Component {
       !this.props.showBotInfo &&
       this.props.config && (
         <span
-          tabindex="-1"
+          tabIndex="-1"
           ref={el => (this.btnEls[0] = el)}
           className={'bp-reset-btn ' + style.icon}
           onClick={this.props.onResetClicked}
@@ -98,7 +98,7 @@ class Header extends React.Component {
       !this.props.showBotInfo &&
       this.props.config.enableTranscriptDownload && (
         <span
-          tabindex="-1"
+          tabIndex="-1"
           ref={el => (this.btnEls[1] = el)}
           className={'bp-transcript-btn ' + style.icon}
           onClick={this.props.onDownloadClicked}
@@ -115,7 +115,7 @@ class Header extends React.Component {
     return (
       this.props.config.showConversationsButton && (
         <span
-          tabindex="-1"
+          tabIndex="-1"
           ref={el => (this.btnEls[2] = el)}
           className={'bp-convos-btn ' + style.icon}
           onClick={this.props.onListClicked}
@@ -133,7 +133,7 @@ class Header extends React.Component {
       !this.props.showConvos &&
       this.props.botInfo.showBotInfoPage && (
         <span
-          tabindex="-1"
+          tabIndex="-1"
           ref={el => (this.btnEls[3] = el)}
           className={'bp-bot-info-btn ' + style.icon}
           onClick={this.props.onInfoClicked}
@@ -148,9 +148,9 @@ class Header extends React.Component {
 
   renderCloseButton() {
     return (
-      this.props.onClose && (
+      this.props.onCloseClicked && (
         <span
-          tabindex="-1"
+          tabIndex="-1"
           ref={el => (this.btnEls[4] = el)}
           className={'bp-close-btn ' + style.icon}
           onClick={this.props.onCloseClicked}
