@@ -32,7 +32,8 @@
       "tutorials/timeouts",
       "tutorials/i18n",
       "tutorials/external-api",
-      "tutorials/chat-3rd-party-OAuth"
+      "tutorials/chat-3rd-party-OAuth",
+      "tutorials/contextual-faq"
     ],
     "Botpress Pro": ["pro/about-pro", "pro/licensing"]
   }
