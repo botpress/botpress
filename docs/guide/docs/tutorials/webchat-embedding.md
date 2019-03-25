@@ -58,6 +58,7 @@ window.botpressWebChat.init({
   showUserName: false, // Whether or not to show the user's name
   showUserAvatar: false, // Whether or not to show the user's avatar
   enableTranscriptDownload: false, // Whether or not to show the transcript download button
+  enableArrowNavigation: false, //Whether or to to support arrow navigation (e.g scroll conversation, focus on buttons)
   externalAuthToken: 'my jwt token', // Defines a token that is sent with each messages to Botpress
   userId: null, // Allows you to override the default user id. Make sure it is not possible to guess it!
   extraStylesheet: '/assets/modules/channel-web/examples/my-theme.css' // Define a custom style sheet to override Botpress styling
