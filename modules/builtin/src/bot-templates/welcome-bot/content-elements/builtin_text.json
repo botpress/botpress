@@ -116,12 +116,12 @@
   {
     "id": "builtin_text-lALv5x",
     "formData": {
-      "text": "Please ask me some questions about that animal, like its life span or what its habitat.",
+      "text": "Please ask questions about that animal, like its life span or its habitat.",
       "typing": true
     },
     "createdBy": "admin",
     "createdOn": "2019-03-25T18:14:48.625Z",
-    "modifiedOn": "2019-03-25T18:24:52.842Z"
+    "modifiedOn": "2019-03-25T19:55:40.615Z"
   },
   {
     "id": "builtin_text-bOU5xw",
@@ -142,5 +142,25 @@
     "createdBy": "admin",
     "createdOn": "2019-03-25T18:40:32.874Z",
     "modifiedOn": "2019-03-25T18:42:08.006Z"
+  },
+  {
+    "id": "builtin_text-T8Oa8M",
+    "formData": {
+      "text": "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.io/docs/tutorials/contextual-faq)",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T19:53:14.411Z",
+    "modifiedOn": "2019-03-25T19:54:48.635Z"
+  },
+  {
+    "id": "builtin_text-yFOIFD",
+    "formData": {
+      "text": "Tell me if you need help!",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T22:02:33.058Z",
+    "modifiedOn": "2019-03-25T22:03:12.958Z"
   }
 ]

@@ -1,13 +1,23 @@
 {
   "version": "0.0.1",
-  "catchAll": {},
+  "catchAll": {
+    "next": [
+      {
+        "condition": "event.nlu.intent.name === 'switch-context'",
+        "node": "animal-choices"
+      }
+    ],
+    "onReceive": []
+  },
   "startNode": "entry",
   "nodes": [
     {
       "id": "a41782695e",
       "name": "entry",
       "onEnter": [
-        "say #!builtin_text-6RY1f5"
+        "say #!builtin_text-6RY1f5",
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"contexts\",\"ttl\":\"1\"}"
       ],
       "onReceive": null,
       "next": [
@@ -27,7 +37,7 @@
         }
       ],
       "onEnter": [
-        "builtin/appendContext {\"contexts\":\"monkeys\",\"ttl\":\"10\"}"
+        "builtin/appendContext {\"contexts\":\"monkeys,global,contexts\",\"ttl\":\"10\"}"
       ],
       "onReceive": null
     },
@@ -41,7 +51,7 @@
         }
       ],
       "onEnter": [
-        "builtin/appendContext {\"contexts\":\"giraffes\",\"ttl\":\"10\"}"
+        "builtin/appendContext {\"contexts\":\"giraffes,global,contexts\",\"ttl\":\"10\"}"
       ],
       "onReceive": null
     },
@@ -90,7 +100,8 @@
       "name": "ask-questions",
       "next": [],
       "onEnter": [
-        "say #!builtin_text-lALv5x"
+        "say #!builtin_text-lALv5x",
+        "say #!builtin_text-yFOIFD"
       ],
       "onReceive": null
     }

@@ -14,7 +14,7 @@
       ],
       "onEnter": [
         "say #!builtin_text-lbs0Re",
-        "builtin/resetContext {}"
+        "builtin/removeContext {\"contexts\":\"monkeys,giraffes\"}"
       ],
       "onReceive": null
     },

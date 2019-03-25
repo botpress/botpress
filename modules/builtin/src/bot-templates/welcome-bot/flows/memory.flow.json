@@ -52,7 +52,7 @@
       "next": [
         {
           "condition": "true",
-          "node": "learn-more"
+          "node": "END"
         }
       ],
       "onEnter": [
@@ -67,7 +67,7 @@
       "next": [
         {
           "condition": "true",
-          "node": "learn-more"
+          "node": "END"
         }
       ],
       "onEnter": [
@@ -87,15 +87,6 @@
       "onReceive": null
     },
     {
-      "id": "b60c4f957e",
-      "name": "learn-more",
-      "next": [],
-      "onEnter": [
-        "say #!builtin_text-bOU5xw"
-      ],
-      "onReceive": null
-    },
-    {
       "id": "4ffd049e83",
       "name": "entry",
       "next": [
@@ -109,7 +100,9 @@
         }
       ],
       "onEnter": [
-        "say #!builtin_text-sRxAPP"
+        "say #!builtin_text-sRxAPP",
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"memory,global\",\"ttl\":\"1\"}"
       ],
       "onReceive": null
     }
