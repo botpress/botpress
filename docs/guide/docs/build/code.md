@@ -162,6 +162,16 @@ if (messageTypesToDiscard.includes(event.type)) {
 }
 ```
 
+### Before Outgoing Middleware
+
+This hook is called before the bot replies are sent to the user
+
+Location: `data/global/hooks/before_outgoing_middleware`
+
+Parameters: `bp`, `event`
+
+Here you can save the bot's complete response
+
 ### Before Session Timeout
 
 This hook is called right before a user timeouts on a node.

@@ -229,6 +229,10 @@ export class Botpress {
       await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
 
+    this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
+    }
+
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,
       event: sdk.IO.IncomingEvent,
