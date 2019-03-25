@@ -250,7 +250,10 @@ export class Botpress {
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
       const message = this.formatProcessingError(err)
-      dialogEngineLogger.forBot(err.botId).warn(message)
+      dialogEngineLogger
+        .forBot(err.botId)
+        .attachError(err)
+        .warn(message)
     }
 
     this.notificationService.onNotification = notification => {
