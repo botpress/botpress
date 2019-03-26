@@ -184,6 +184,7 @@ export class Botpress {
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
+    const deleted = _.difference(botsRef, botsIds)
 
     if (unlinked.length) {
       this.logger.warn(
@@ -191,9 +192,16 @@ export class Botpress {
       )
     }
 
+    if (deleted.length) {
+      this.logger.warn(
+        `Some bots have been deleted from the disk but are still referenced in your workspaces.json file.
+ Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
+      )
+    }
+
     const bots = await this.botService.getBots()
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
-    const botsToMount = _.without(botsRef, ...disabledBots)
+    const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
@@ -246,7 +254,10 @@ export class Botpress {
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
       const message = this.formatProcessingError(err)
-      dialogEngineLogger.forBot(err.botId).warn(message)
+      dialogEngineLogger
+        .forBot(err.botId)
+        .attachError(err)
+        .warn(message)
     }
 
     this.notificationService.onNotification = notification => {

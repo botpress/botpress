@@ -1,0 +1,12 @@
+{
+  "name": "__qna__0ab47mj3e3_i_have_a_question_about_my_pay_check",
+  "contexts": [
+    "global"
+  ],
+  "utterances": [
+    "I have a question about my pay check",
+    "Payroll question",
+    "I have a pay related question"
+  ],
+  "slots": []
+}

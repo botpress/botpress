@@ -1,0 +1,22 @@
+[
+  {
+    "id": "builtin_text-8mwYrq",
+    "formData": {
+      "text": "The bot {{temp.delegation.0.botId}} can help you with that question.\n\n[Talk to {{temp.delegation.0.botId}}]({{{temp.delegation.0.botUrl}}})\n\nBy the way, {{temp.delegation.0.botId}} is telling you:\n> {{{temp.delegation.0.answer}}}",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T21:49:17.498Z",
+    "modifiedOn": "2019-03-25T21:54:30.808Z"
+  },
+  {
+    "id": "builtin_text-JqYzWM",
+    "formData": {
+      "text": "I'm sorry, I don't know any bot that can help you with that question.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T21:49:49.933Z",
+    "modifiedOn": "2019-03-25T21:49:49.933Z"
+  }
+]
