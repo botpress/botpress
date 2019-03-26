@@ -1,3 +1,28 @@
+## [11.7.1](https://github.com/botpress/botpress/compare/v11.7.0...v11.7.1) (2019-03-26)
+
+
+### Bug Fixes
+
+* **core:** attach action errors to logger ([baa4cd5](https://github.com/botpress/botpress/commit/baa4cd5))
+* **core:** better action errors ([6d4b54a](https://github.com/botpress/botpress/commit/6d4b54a))
+* **core:** external auth wasn't using the specified algorithm ([fb1896e](https://github.com/botpress/botpress/commit/fb1896e))
+* **core:** loading of deleted bots warn ([7b312bb](https://github.com/botpress/botpress/commit/7b312bb))
+* **core:** updated default debug output ([58503b1](https://github.com/botpress/botpress/commit/58503b1))
+* **core:** updated default debug output ([d123557](https://github.com/botpress/botpress/commit/d123557))
+* **examples:** added a catch on axios api call ([9ab43ea](https://github.com/botpress/botpress/commit/9ab43ea))
+* **ghost:** added file size limit for individual files ([5596e91](https://github.com/botpress/botpress/commit/5596e91))
+* **hitl:** removing limit for text saved (issue with long response) ([3393e44](https://github.com/botpress/botpress/commit/3393e44))
+* **qna:** added input validation & schema ([f90c1fb](https://github.com/botpress/botpress/commit/f90c1fb))
+
+
+### Features
+
+* **core:** expose env-variables to actions ([d1ab27b](https://github.com/botpress/botpress/commit/d1ab27b))
+* **core:** expose env-variables to actions ([9ccce87](https://github.com/botpress/botpress/commit/9ccce87))
+* **hooks:** added before outgoing hook ([a9341b0](https://github.com/botpress/botpress/commit/a9341b0))
+
+
+
 # [11.7.0](https://github.com/botpress/botpress/compare/v11.6.3...v11.7.0) (2019-03-25)
 
 
