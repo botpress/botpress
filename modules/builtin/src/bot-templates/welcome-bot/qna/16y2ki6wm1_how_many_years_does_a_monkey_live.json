@@ -1,0 +1,18 @@
+{
+  "id": "16y2ki6wm1_how_many_years_does_a_monkey_live",
+  "data": {
+    "answers": [
+      "The lifespan of a monkey is 10 to 50 years, depending on the species."
+    ],
+    "questions": [
+      "How many years does a monkey live?",
+      "How long can monkeys live?",
+      "What is the life span of a monkey?"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "monkeys",
+    "enabled": true
+  }
+}

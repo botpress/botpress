@@ -1,0 +1,17 @@
+{
+  "id": "77cp93c72f_lets_talk_about_something_else",
+  "data": {
+    "answers": [],
+    "questions": [
+      "Lets talk about something else",
+      "Lets talk about another animal",
+      "I want to ask about another animal",
+      "I want to switch animal"
+    ],
+    "redirectFlow": "contexts.flow.json",
+    "redirectNode": "animal-choices",
+    "action": "redirect",
+    "category": "contexts",
+    "enabled": true
+  }
+}
