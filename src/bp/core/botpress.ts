@@ -100,7 +100,7 @@ export class Botpress {
   private async initialize(options: StartOptions) {
     this.trackStart()
 
-    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog*,bp:nlu:intents:*'))
+    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
     this.config = await this.loadConfiguration()
     await this.createDatabase()
