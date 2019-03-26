@@ -339,18 +339,11 @@ class Message extends Component {
     delete messageDataProps.component
 
     const props = {
-      onSendData: this.props.onSendData,
+      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData']),
       ...messageDataProps
     }
 
-    return (
-      <Linkify>
-        <div className="bp-msg-custom">
-          {this.props.data.message_text.length && <p style={this.getAddStyle()}>{this.props.data.message_text}</p>}
-          <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
-        </div>
-      </Linkify>
-    )
+    return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
   }
 
   render_session_reset() {
