@@ -1,0 +1,111 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "next": [
+      {
+        "condition": "event.nlu.intent.name === 'switch-context'",
+        "node": "animal-choices"
+      }
+    ],
+    "onReceive": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "a41782695e",
+      "name": "entry",
+      "onEnter": [
+        "say #!builtin_text-6RY1f5",
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"contexts\",\"ttl\":\"1\"}"
+      ],
+      "onReceive": null,
+      "next": [
+        {
+          "condition": "true",
+          "node": "animal-choices"
+        }
+      ]
+    },
+    {
+      "id": "95f4dc87f3",
+      "name": "monkey-context",
+      "next": [
+        {
+          "condition": "true",
+          "node": "ask-questions"
+        }
+      ],
+      "onEnter": [
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"monkeys,global,contexts\",\"ttl\":\"10\"}"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "1eb55573da",
+      "name": "giraffe-context",
+      "next": [
+        {
+          "condition": "true",
+          "node": "ask-questions"
+        }
+      ],
+      "onEnter": [
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"giraffes,global,contexts\",\"ttl\":\"10\"}"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "4916a117f1",
+      "name": "catch",
+      "next": [
+        {
+          "condition": "true",
+          "node": "animal-choices"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-UP2ozm"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "skill-1b8623",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "animal-choices",
+      "flow": "skills/choice-1b8623.flow.json",
+      "next": [
+        {
+          "caption": "User picked [monkey]",
+          "condition": "temp['skill-choice-ret'] == \"monkey\"",
+          "node": "monkey-context"
+        },
+        {
+          "caption": "User picked [giraffe]",
+          "condition": "temp['skill-choice-ret'] == \"giraffe\"",
+          "node": "giraffe-context"
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": "catch"
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
+    },
+    {
+      "id": "d1dc5d050c",
+      "name": "ask-questions",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-lALv5x",
+        "say #!builtin_text-yFOIFD"
+      ],
+      "onReceive": null
+    }
+  ]
+}

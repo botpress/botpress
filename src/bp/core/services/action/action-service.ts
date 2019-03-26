@@ -173,7 +173,10 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY')
+        process: { // TODO: Memoize this to prevent computing every time
+          ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
+          env: _.pickBy(process.env, (value, name) => name.startsWith('EXPOSED_'))
+        }
       },
       require: {
         external: true,
@@ -185,7 +188,7 @@ export class ScopedActionService {
     const runner = new VmRunner()
 
     const result = await runner.runInVm(vm, code, dirPath).catch(err => {
-      throw new VError(err, `An error occurred while executing the action "${actionName}"`)
+      throw new VError(new Error(err.message), `An error occurred while executing the action "${actionName}"`)
     })
 
     debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })

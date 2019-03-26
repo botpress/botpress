@@ -227,7 +227,7 @@ export default class MessageList extends Component {
   render() {
     return (
       <div
-        tabindex="-1"
+        tabIndex="-1"
         onKeyDown={this.handleKeyDown}
         className={'bp-messages ' + style.messages}
         ref={m => {

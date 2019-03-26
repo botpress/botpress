@@ -252,10 +252,10 @@ export interface ExternalAuthConfig {
    */
   issuer?: string | string[]
   /**
-   * The algorithm used to sign and validate the JWT tokens.
-   * @default HS256
+   * The algorithms allowed to validate the JWT tokens.
+   * @default ["HS256"]
    */
-  algorithm: string
+  algorithms: string[]
   /**
    * You need to provide the public key used to verify the JWT token authenticity.
    * If not provided, the public key will be read from `data/global/end_users_auth.key`

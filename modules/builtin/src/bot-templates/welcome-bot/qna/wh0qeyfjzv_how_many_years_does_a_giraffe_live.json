@@ -1,0 +1,18 @@
+{
+  "id": "wh0qeyfjzv_how_many_years_does_a_giraffe_live",
+  "data": {
+    "answers": [
+      "Healthy giraffes live about 25 years in the wild."
+    ],
+    "questions": [
+      "How many years does a giraffe live?",
+      "How long can giraffes live?",
+      "What is the life span of a giraffe?"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "giraffes",
+    "enabled": true
+  }
+}

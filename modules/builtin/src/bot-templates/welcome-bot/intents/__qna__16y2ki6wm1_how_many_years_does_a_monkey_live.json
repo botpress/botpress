@@ -1,0 +1,12 @@
+{
+  "name": "__qna__16y2ki6wm1_how_many_years_does_a_monkey_live",
+  "contexts": [
+    "monkeys"
+  ],
+  "utterances": [
+    "How many years does a monkey live?",
+    "How long can monkeys live?",
+    "What is the life span of a monkey?"
+  ],
+  "slots": []
+}

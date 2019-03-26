@@ -16,6 +16,47 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-17T14:29:04.897Z"
+    "createdOn": "2018-05-17T14:29:04.897Z",
+    "modifiedOn": null
+  },
+  {
+    "id": "builtin_single-choice-mrFFU_",
+    "formData": {
+      "text": "What would you like to know?",
+      "choices": [
+        {
+          "title": "What is a Context?",
+          "value": "context"
+        },
+        {
+          "title": "What is Bot Memory?",
+          "value": "memory"
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T16:42:46.073Z",
+    "modifiedOn": "2019-03-25T16:42:46.073Z"
+  },
+  {
+    "id": "builtin_single-choice-yOBfeA",
+    "formData": {
+      "text": "Okay, let's use a simple example. Let's talk about animals. Pick one.",
+      "choices": [
+        {
+          "title": "Monkey",
+          "value": "monkey"
+        },
+        {
+          "title": "Giraffe",
+          "value": "giraffe"
+        }
+      ],
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T18:12:55.197Z",
+    "modifiedOn": "2019-03-25T18:12:55.197Z"
   }
 ]

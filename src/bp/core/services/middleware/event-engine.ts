@@ -74,6 +74,7 @@ const debugOutgoing = debug.sub('outgoing')
 export class EventEngine {
   public onBeforeIncomingMiddleware: ((event) => Promise<void>) | undefined
   public onAfterIncomingMiddleware: ((event) => Promise<void>) | undefined
+  public onBeforeOutgoingMiddleware: ((event) => Promise<void>) | undefined
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -97,6 +98,7 @@ export class EventEngine {
     })
 
     this.outgoingQueue.subscribe(async event => {
+      this.onBeforeOutgoingMiddleware && (await this.onBeforeOutgoingMiddleware(event))
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
       this._outgoingPerf.record()

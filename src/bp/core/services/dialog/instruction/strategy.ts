@@ -71,7 +71,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
     }
 
-    debug.forBot(botId, `Render "${outputType}"`)
+    debug.forBot(botId, `[${event.target}] render element "${outputType}"`)
 
     const message: IO.DialogTurnHistory = {
       incomingPreview: event.preview,
@@ -123,7 +123,7 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
-    debug.forBot(botId, `Exec "${actionName}"`)
+    debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
     if (!hasAction) {
       throw new Error(`Action "${actionName}" not found, `)
@@ -151,7 +151,12 @@ export class TransitionStrategy implements InstructionStrategy {
     })
 
     if (conditionSuccessful) {
-      debug.forBot(botId, `Eval "${instruction.fn === 'true' ? 'always' : instruction.fn}" on [${instruction.node}]`)
+      debug.forBot(
+        botId,
+        `[${event.target}] eval transition "${instruction.fn === 'true' ? 'always' : instruction.fn}" to [${
+          instruction.node
+        }]`
+      )
       return ProcessingResult.transition(instruction.node)
     } else {
       return ProcessingResult.none()

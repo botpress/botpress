@@ -1,0 +1,19 @@
+{
+  "id": "xr9uskkhv0_forget_my_name",
+  "data": {
+    "answers": [],
+    "questions": [
+      "forget my name",
+      "dont remember me",
+      "erase my name",
+      "erase me",
+      "stop remembering me",
+      "forget me"
+    ],
+    "redirectFlow": "memory.flow.json",
+    "redirectNode": "forget-my-name",
+    "action": "redirect",
+    "category": "memory",
+    "enabled": true
+  }
+}

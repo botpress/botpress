@@ -113,16 +113,17 @@ There are some variables that **cannot be set** in the `botpress.config.json` fi
 
 Here there are:
 
-| Environment Variable | Description                                                                                               | Default |
-| -------------------- | --------------------------------------------------------------------------------------------------------- | ------- |
-| DATABASE             | The database type to use. `postgres` or `sqlite`                                                          | sqlite  |
-| DATABASE_URL         | Full connection string to connect to the DB                                                               |         |
-| BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false   |
-| CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false   |
-| REDIS_URL            | The connection string to connect to your Redis instance                                                   |         |
+| Environment Variable | Description                                                                                               | Default       |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | ------------- |
+| DATABASE_URL         | Full connection string to connect to the DB                                                               | **see below** |
+| BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false         |
+| CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false         |
+| REDIS_URL            | The connection string to connect to your Redis instance                                                   |               |
+
+About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgress url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.
 
 ## More Informations
 
-- Check out the [database](../tutorials/database) page for details about `DATABASE` and `DATABASE_URL`
+- Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
 - Check out the [version](./versions) page for more infromations about `BP_PRODUCTION`
 - Check out the [cluster](../developers/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`

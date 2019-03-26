@@ -3,11 +3,15 @@
     "id": "builtin_text-pSsHWg",
     "formData": {
       "text": "👋, {{user.nickname}}!",
-      "variations": ["Hello, {{user.nickname}}!", "Welcome to Botpress, {{user.nickname}}!"],
+      "variations": [
+        "Hello, {{user.nickname}}!",
+        "Welcome to Botpress, {{user.nickname}}!"
+      ],
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T00:57:36.026Z"
+    "createdOn": "2018-05-14T00:57:36.026Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-AY5SSW",
@@ -16,7 +20,8 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T00:59:51.118Z"
+    "createdOn": "2018-05-14T00:59:51.118Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-bFsOmf",
@@ -25,7 +30,8 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T01:00:37.593Z"
+    "createdOn": "2018-05-14T01:00:37.593Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-TtzrCV",
@@ -34,7 +40,8 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T01:06:41.963Z"
+    "createdOn": "2018-05-14T01:06:41.963Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-z0J9qh",
@@ -43,7 +50,8 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T01:08:41.241Z"
+    "createdOn": "2018-05-14T01:08:41.241Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-X069Le",
@@ -52,7 +60,8 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T01:16:53.227Z"
+    "createdOn": "2018-05-14T01:16:53.227Z",
+    "modifiedOn": null
   },
   {
     "id": "builtin_text-kKQ8C3",
@@ -61,6 +70,97 @@
       "typing": true
     },
     "createdBy": "admin",
-    "createdOn": "2018-05-14T01:17:55.317Z"
+    "createdOn": "2018-05-14T01:17:55.317Z",
+    "modifiedOn": null
+  },
+  {
+    "id": "builtin_text-lbs0Re",
+    "formData": {
+      "text": "Hi, I'm Welcome Bot! My task is to help you understand how Botpress works.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T16:41:48.068Z",
+    "modifiedOn": "2019-03-25T16:41:48.068Z"
+  },
+  {
+    "id": "builtin_text-sRxAPP",
+    "formData": {
+      "text": "Bot Memory is used by the bot to store information about a conversation. Here's an example.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T16:55:01.413Z",
+    "modifiedOn": "2019-03-25T16:55:01.413Z"
+  },
+  {
+    "id": "builtin_text-6RY1f5",
+    "formData": {
+      "text": "A bot could ask questions that are similar but have different meanings. To differentiate between the meanings of these questions, we use Contexts.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T17:02:32.795Z",
+    "modifiedOn": "2019-03-25T18:25:26.826Z"
+  },
+  {
+    "id": "builtin_text-UP2ozm",
+    "formData": {
+      "text": "Please pick an animal from the choices, I'm not a Zoologists.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T18:05:07.711Z",
+    "modifiedOn": "2019-03-25T18:08:37.019Z"
+  },
+  {
+    "id": "builtin_text-lALv5x",
+    "formData": {
+      "text": "Please ask questions about that animal, like its life span or its habitat.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T18:14:48.625Z",
+    "modifiedOn": "2019-03-25T19:55:40.615Z"
+  },
+  {
+    "id": "builtin_text-bOU5xw",
+    "formData": {
+      "text": "Please refer to our [documentation](https://botpress.io/docs/build/memory) to learn more about Bot Memory.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T18:29:05.998Z",
+    "modifiedOn": "2019-03-25T18:31:16.530Z"
+  },
+  {
+    "id": "builtin_text-SKQxXN",
+    "formData": {
+      "text": "Ask me something thats included in the choices. Let's try again.",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T18:40:32.874Z",
+    "modifiedOn": "2019-03-25T18:42:08.006Z"
+  },
+  {
+    "id": "builtin_text-T8Oa8M",
+    "formData": {
+      "text": "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.io/docs/tutorials/contextual-faq)",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T19:53:14.411Z",
+    "modifiedOn": "2019-03-25T19:54:48.635Z"
+  },
+  {
+    "id": "builtin_text-yFOIFD",
+    "formData": {
+      "text": "Tell me if you need help!",
+      "typing": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-03-25T22:02:33.058Z",
+    "modifiedOn": "2019-03-25T22:03:12.958Z"
   }
 ]
