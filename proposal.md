@@ -1,3 +1,5 @@
+**Remove this file after implementation**
+
 # Pipelines
 
 The idea is simple, we keep things prety much as they are, we add a couple of admin routes and a simple pipeline.json config file in which one could define its desired pipeline. Here are the proposed changes.
