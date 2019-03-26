@@ -1,0 +1,20 @@
+{
+  "id": "hxwve8olkg_help_me",
+  "data": {
+    "answers": [
+      "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.io/docs/tutorials/contextual-faq)"
+    ],
+    "questions": [
+      "help me",
+      "I need help",
+      "I don't know what to do",
+      "I'm stuck",
+      "What do I do"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "contexts",
+    "enabled": true
+  }
+}

@@ -15,7 +15,7 @@ const docs = {
   memory: require('DOCS/build/memory.md'),
   content: require('DOCS/build/content.md'),
   nlu: require('DOCS/build/nlu.md'),
-  debug: require('DOCS/build/debug.md')
+  debug: require('DOCS/build/emulator.md')
 }
 
 class DocumentationModal extends React.Component {

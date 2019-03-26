@@ -116,7 +116,6 @@ class Layout extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  license: state.license,
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints
 })

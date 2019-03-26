@@ -8,6 +8,9 @@ import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
 
 import { TYPES } from '../../types'
+import { MonitoringService } from '../monitoring'
+
+const debug = DEBUG('realtime')
 
 @injectable()
 export default class RealtimeService {
@@ -17,7 +20,8 @@ export default class RealtimeService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Realtime')
-    private logger: Logger /* TODO Add security / auth service here */
+    private logger: Logger /* TODO Add security / auth service here */,
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
   ) {
     this.ee = new EventEmitter2({
       wildcard: true,
@@ -36,6 +40,7 @@ export default class RealtimeService {
   }
 
   sendToSocket(payload: RealTimePayload) {
+    debug('Send payload', payload)
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 
@@ -47,7 +52,11 @@ export default class RealtimeService {
     })
 
     if (this.useRedis) {
-      io.adapter(redisAdapter({ url: process.env.REDIS_URL }))
+      const redisFactory = this.monitoringService.getRedisFactory()
+
+      if (redisFactory) {
+        io.adapter(redisAdapter({ pubClient: redisFactory('commands'), subClient: redisFactory('socket') }))
+      }
     }
 
     const admin = io.of('/admin')

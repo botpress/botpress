@@ -33,7 +33,7 @@ export default class EmulatorChat extends React.Component {
     sentHistory: JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]'),
     sentHistoryIndex: 0,
     isInspectorVisible: true,
-    isVerticalView: true,
+    isVerticalView: false,
     isTypingHidden: true,
     isSettingsOpen: false,
     isSendingRawPayload: false,
@@ -258,30 +258,12 @@ export default class EmulatorChat extends React.Component {
     )
   }
 
-  toggleInspector = () => {
-    this.setState({ isInspectorVisible: !this.state.isInspectorVisible })
-  }
-
-  toggleView = () => {
-    this.setState({ isVerticalView: !this.state.isVerticalView })
-  }
-
-  toggleTyping = () => {
-    this.setState({ isTypingHidden: !this.state.isTypingHidden })
-  }
-
   hideSettings = () => this.setState({ isSettingsOpen: false })
   displaySettings = () => this.setState({ isSettingsOpen: true })
   updateSettings = newSettings => this.setState({ ...newSettings })
 
-  toggleRawPayload = () => this.setState({ isSendingRawPayload: !this.state.isSendingRawPayload })
-
   render() {
-    const togglePayload = <Tooltip id="togglePayload">Toggle between sending text or a raw payload</Tooltip>
-    const toggleSettings = <Tooltip id="editSettings">Configure Emulator Settings</Tooltip>
-    const toggleTyping = <Tooltip id="toggleTyping">Toggle Display of 'Typing' indicator</Tooltip>
-    const toggleTooltip = <Tooltip id="toggleTooltip">Toggle View</Tooltip>
-    const toggleInspector = <Tooltip id="toggleInspector">Toggle Inspector</Tooltip>
+    const toggleSettings = <Tooltip id="editSettings">Emulator Settings</Tooltip>
     const newSessionTooltip = <Tooltip id="toggleInspector">Start a new session (ctrl+enter on send)</Tooltip>
 
     return (
@@ -293,35 +275,17 @@ export default class EmulatorChat extends React.Component {
             </Button>
           </OverlayTrigger>
           <div style={{ float: 'right' }}>
-            <OverlayTrigger placement="bottom" overlay={togglePayload}>
-              <Button onClick={this.toggleRawPayload}>
-                <Glyphicon glyph="comment" />
-              </Button>
-            </OverlayTrigger>
             <OverlayTrigger placement="bottom" overlay={toggleSettings}>
               <Button onClick={this.displaySettings}>
                 <Glyphicon glyph="cog" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="bottom" overlay={toggleTyping}>
-              <Button onClick={this.toggleTyping}>
-                <Glyphicon glyph="pencil" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="bottom" overlay={toggleInspector}>
-              <Button onClick={this.toggleInspector}>
-                <Glyphicon glyph="search" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="bottom" overlay={toggleTooltip}>
-              <Button onClick={this.toggleView}>
-                <Glyphicon glyph="expand" />
               </Button>
             </OverlayTrigger>
           </div>
           <Settings
             userId={this.state.userId}
             externalToken={this.state.externalToken}
+            isSendingRawPayload={this.state.isSendingRawPayload}
+            isVerticalView={this.state.isVerticalView}
             show={this.state.isSettingsOpen}
             onHideSettings={this.hideSettings}
             onUpdateSettings={this.updateSettings}
@@ -331,9 +295,8 @@ export default class EmulatorChat extends React.Component {
           <SplitPane
             split={this.state.isVerticalView ? 'vertical' : 'horizontal'}
             minSize={150}
-            defaultSize={'70%'}
+            defaultSize={'50%'}
             pane2Style={{ overflowY: 'auto', backgroundColor: 'var(--c-background--dark-1)' }}
-            pane1ClassName={classnames({ [style.historyFullWidth]: !this.state.isInspectorVisible })}
           >
             {this.renderHistory()}
             {this.renderInspector()}

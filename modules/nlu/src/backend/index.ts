@@ -18,7 +18,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL)
+  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 
   await registerMiddleware(bp, nluByBot)
 }

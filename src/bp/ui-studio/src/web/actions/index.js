@@ -126,14 +126,6 @@ export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
 
 export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
 
-// License
-export const licenseChanged = createAction('LICENSE/CHANGED')
-export const fetchLicense = () => dispatch => {
-  axios.get(`${window.API_PATH}/admin/license`).then(({ data }) => {
-    dispatch(licenseChanged(data))
-  })
-}
-
 // UI
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
 export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')

@@ -86,6 +86,6 @@ export class AdminRouter extends CustomRouter {
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
-    router.use('/server', this.checkTokenHeader, this.serverRouter.router)
+    router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
   }
 }

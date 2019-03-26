@@ -3,8 +3,6 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import {
-  BotRepository,
-  GhostBotRepository,
   KnexNotificationsRepository,
   KnexSessionRepository,
   KnexUserRepository,
@@ -15,10 +13,6 @@ import {
 import { KnexLogsRepository, LogsRepository } from './logs'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<BotRepository>(TYPES.BotRepository)
-    .to(GhostBotRepository)
-    .inSingletonScope()
-
   bind<SessionRepository>(TYPES.SessionRepository)
     .to(KnexSessionRepository)
     .inSingletonScope()

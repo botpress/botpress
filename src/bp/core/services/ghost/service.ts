@@ -18,6 +18,7 @@ import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
 const tar = require('tar')
+const MAX_GHOST_FILE_SIZE = 10 * 1024 * 1024 // 10 Mb
 
 @injectable()
 export class GhostService {
@@ -180,6 +181,10 @@ export class ScopedGhostService {
     }
 
     const fileName = this.normalizeFileName(rootFolder, file)
+
+    if (content.length > MAX_GHOST_FILE_SIZE) {
+      throw new Error(`The size of the file ${fileName} is over the 10mb limit`)
+    }
 
     await this.primaryDriver.upsertFile(fileName, content, true)
     await this._invalidateFile(fileName)

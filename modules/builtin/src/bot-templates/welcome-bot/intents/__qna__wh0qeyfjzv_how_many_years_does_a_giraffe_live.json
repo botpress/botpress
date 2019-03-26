@@ -1,0 +1,12 @@
+{
+  "name": "__qna__wh0qeyfjzv_how_many_years_does_a_giraffe_live",
+  "contexts": [
+    "giraffes"
+  ],
+  "utterances": [
+    "How many years does a giraffe live?",
+    "How long can giraffes live?",
+    "What is the life span of a giraffe?"
+  ],
+  "slots": []
+}
