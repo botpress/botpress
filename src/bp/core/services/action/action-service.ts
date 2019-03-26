@@ -173,7 +173,7 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: {
+        process: { // TODO: Memoize this to prevent computing every time
           ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
           env: _.pickBy(process.env, (value, name) => name.startsWith('EXPOSED_'))
         }
