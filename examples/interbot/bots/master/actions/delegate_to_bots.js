@@ -37,15 +37,17 @@ const exec = async (bots = '', minConfidence = '0.5') => {
 
   for (let botId of botIds) {
     const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
-    const { data } = await axios.post(
-      `/converse/${uniqueUserId}/secured`,
-      {
-        type: 'text',
-        text: event.preview,
-        includedContexts: ['global']
-      },
-      { ...axiosConfig, params: { include: 'decision' } }
-    )
+    const { data } = await axios
+      .post(
+        `/converse/${uniqueUserId}/secured`,
+        {
+          type: 'text',
+          text: event.preview,
+          includedContexts: ['global']
+        },
+        { ...axiosConfig, params: { include: 'decision' } }
+      )
+      .catch(() => ({ data: {} /* We don't want the error to crash the master bot */ }))
     const confidence = _.get(data, 'decision.confidence', 0)
     if (confidence >= minConfidence) {
       matches.push({
