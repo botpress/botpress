@@ -1,11 +1,10 @@
-import { Logger } from 'botpress/sdk'
+import { BotConfig, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { Bot } from '../../misc/interfaces'
 import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
 import { needPermissions, success as sendSuccess } from '../util'
@@ -63,7 +62,7 @@ export class BotsRouter extends CustomRouter {
       '/',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const bot = <Bot>_.pick(req.body, ['id', 'name', 'category'])
+        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category'])
 
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 
@@ -97,7 +96,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        const bot = <Bot>req.body
+        const bot = <BotConfig>req.body
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.updateBot(botId, bot)

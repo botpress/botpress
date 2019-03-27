@@ -1,3 +1,4 @@
+import { join } from 'bluebird'
 import Joi from 'joi'
 
 export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{2,}[A-Z0-9]+$/i
@@ -24,7 +25,8 @@ export const BotEditSchema = Joi.object().keys({
     .min(3)
     .max(50)
     .required(),
-  category: Joi.string(),
+  // tslint:disable-next-line:no-null-keyword
+  category: Joi.string().allow(null),
   description: Joi.string()
     .min(3)
     .max(50)
@@ -58,5 +60,21 @@ export const BotEditSchema = Joi.object().keys({
     coverPictureUrl: Joi.string()
       .optional()
       .allow('')
+  },
+  pipeline_status: {
+    current_stage: {
+      // tslint:disable-next-line:no-null-keyword
+      promoted_by: Joi.string().allow(null),
+      promoted_at: Joi.string(),
+      id: Joi.string()
+    },
+    stage_request: Joi.object({
+      requested_on: Joi.string(),
+      // tslint:disable-next-line:no-null-keyword
+      promoted_by: Joi.string().allow(null),
+      requested_by: Joi.string(),
+      id: Joi.string()
+      // tslint:disable-next-line:no-null-keyword
+    }).allow(null)
   }
 })
