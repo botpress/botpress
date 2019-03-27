@@ -4,8 +4,6 @@ import glob from 'glob'
 import { injectable } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
-import stream from 'stream'
-import tar from 'tar'
 import { VError } from 'verror'
 
 import { FileRevision, StorageDriver } from '.'
@@ -112,40 +110,13 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async createArchive(fileName: string, folder: string, files: string[]): Promise<string> {
+  async absoluteDirectoryListing(destination: string) {
     try {
-      await tar.create(
-        {
-          cwd: folder,
-          file: fileName,
-          portable: true,
-          gzip: true
-        },
-        files
-      )
-      return fileName
-    } catch (err) {
-      throw new VError(err, `[Disk Storage] Error creating archive "${fileName}"`)
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: destination }, cb))
+      return files.map(filePath => forceForwardSlashes(filePath))
+    } catch (e) {
+      return []
     }
-  }
-
-  async extractArchive(archive: Buffer, destination: string): Promise<string[]> {
-    if (!fse.existsSync(destination)) {
-      fse.mkdirSync(destination)
-    }
-    const buffStream = new stream.PassThrough()
-    const tarWriteStream = tar.x({ sync: true, strict: true, cwd: destination })
-
-    buffStream.end(archive)
-    buffStream.pipe(tarWriteStream)
-
-    await new Promise((resolve, reject) => {
-      tarWriteStream.on('end', resolve)
-      tarWriteStream.on('error', reject)
-    })
-
-    const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: destination }, cb))
-    return files.map(filePath => forceForwardSlashes(filePath))
   }
 
   private _getBaseDirectories(files: string[]): string[] {

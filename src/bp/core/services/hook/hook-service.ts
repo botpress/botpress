@@ -77,6 +77,12 @@ export namespace Hooks {
       super(1000, { bp, incident }, 'on_incident_status_changed')
     }
   }
+
+  export class BeforeBotImport extends BaseHook {
+    constructor(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object) {
+      super(1000, { bp, botId, tmpFolder, hookResult }, 'before_bot_import')
+    }
+  }
 }
 
 class HookScript {

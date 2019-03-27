@@ -18,6 +18,7 @@ export interface ConfigProvider {
   mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
   getBotConfig(botId: string): Promise<BotConfig>
   setBotConfig(botId: string, config: BotConfig): Promise<void>
+  mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<void>
   getModulesListConfig(): Promise<any>
   invalidateBotpressConfig(): Promise<void>
 }
@@ -70,6 +71,12 @@ export class GhostConfigProvider implements ConfigProvider {
 
   async setBotConfig(botId: string, config: BotConfig) {
     await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
+  }
+
+  async mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<void> {
+    const originalConfig = await this.getBotConfig(botId)
+    const config = _.merge(originalConfig, partialConfig)
+    await this.setBotConfig(botId, config)
   }
 
   public async createDefaultConfigIfMissing() {

@@ -12,6 +12,9 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
 import path from 'path'
+import tmp from 'tmp'
+
+import { extractArchive } from '../misc/archive'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
@@ -151,13 +154,29 @@ export class BotService {
         this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
       }
     }
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const tmpFolder = tmpDir.name
 
-    await this.ghostService.forBot(botId).importFromArchiveBuffer(archive)
+    try {
+      await extractArchive(archive, tmpFolder)
+      const api = await createForGlobalHooks()
 
-    const config = await this.configProvider.getBotConfig(botId)
-    config.id = botId
-    await this.configProvider.setBotConfig(botId, config)
-    await this.mountBot(botId)
+      const hookResult = {
+        allowImport: true
+      }
+
+      await this.hookService.executeHook(new Hooks.BeforeBotImport(api, botId, tmpFolder, hookResult))
+
+      if (hookResult.allowImport) {
+        await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
+        await this.configProvider.mergeBotConfig(botId, { id: botId })
+        this.logger.info(`Import of bot ${botId} successful`)
+      } else {
+        this.logger.info(`Import of bot ${botId} was denied by hook validation`)
+      }
+    } finally {
+      tmpDir.removeCallback()
+    }
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
