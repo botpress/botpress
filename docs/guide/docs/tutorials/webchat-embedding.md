@@ -48,7 +48,6 @@ window.botpressWebChat.init({
   botId: '<botId>', //The ID for your bot
   botName: 'Bot', // Name of your bot
   botAvatarUrl: null, // Default avatar URL of the image (e.g., 'https://avatars3.githubusercontent.com/u/1315508?v=4&s=400' )
-  botConvoTitle: 'Technical Support', // Title of the first conversation with the bot
   botConvoDescription: '',
   backgroundColor: '#ffffff', // Color of the background
   textColorOnBackground: '#666666', // Color of the text on the background
@@ -61,11 +60,12 @@ window.botpressWebChat.init({
   enableArrowNavigation: false, //Whether or to to support arrow navigation (e.g scroll conversation, focus on buttons)
   externalAuthToken: 'my jwt token', // Defines a token that is sent with each messages to Botpress
   userId: null, // Allows you to override the default user id. Make sure it is not possible to guess it!
+  enableReset: false, // Whether or not reset button will be shown to the user
   extraStylesheet: '/assets/modules/channel-web/examples/my-theme.css' // Define a custom style sheet to override Botpress styling
 })
 ```
 
-There is an example on how to customize the web chat with your custom CSS bundled with your default Botpress installation. Start the server, then head over to `http://localhost:3000/assets/modules/channel-web/examples/styled-webchat.html` for an example.
+There is an example on how to customize the web chat with your custom CSS bundled with your default Botpress installation. Start the server, then head over to `http://localhost:3000/assets/modules/channel-web/examples/styled-webchat.html` for an example. You can also check example [sources at the github](https://github.com/botpress/botpress/tree/master/modules/channel-web/assets/examples).
 
 ## Advanced
 

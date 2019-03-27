@@ -38,7 +38,7 @@ const defaultOptions = {
   textColorOnBackground: '#666666',
   foregroundColor: '#000000',
   textColorOnForeground: '#ffffff',
-  enableReset: false,
+  enableReset: true,
   extraStylesheet: '',
   showConversationsButton: true,
   showUserName: false,
