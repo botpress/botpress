@@ -223,12 +223,9 @@ export class Botpress {
         bot.pipeline_status = {
           current_stage: {
             id: pipeline[0].id,
-            // tslint:disable-next-line:no-null-keyword
-            promoted_by: null,
-            promoted_at: new Date().toISOString()
-          },
-          // tslint:disable-next-line:no-null-keyword
-          stage_request: null
+            promoted_by: 'system',
+            promoted_at: new Date()
+          }
         }
 
         this.botService.updateBot(

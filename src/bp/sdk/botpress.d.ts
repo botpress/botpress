@@ -606,16 +606,16 @@ declare module 'botpress/sdk' {
 
   export interface BotPipelineStatus {
     current_stage: {
-      promoted_by: string | null
-      promoted_at: string
+      promoted_by: string
+      promoted_at: Date
       id: string
     }
-    stage_request: {
-      requested_on: string
-      expires_on: string | null
+    stage_request?: {
+      requested_on: Date
+      expires_on?: Date
       requested_by: string
       id: string
-    } | null
+    }
   }
 
   export interface BotDetails {

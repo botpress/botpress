@@ -63,18 +63,15 @@ export const BotEditSchema = Joi.object().keys({
   },
   pipeline_status: {
     current_stage: {
-      // tslint:disable-next-line:no-null-keyword
-      promoted_by: Joi.string().allow(null),
-      promoted_at: Joi.string(),
+      promoted_by: Joi.string(),
+      promoted_at: Joi.date(),
       id: Joi.string()
     },
     stage_request: Joi.object({
-      requested_on: Joi.string(),
-      // tslint:disable-next-line:no-null-keyword
-      promoted_by: Joi.string().allow(null),
+      requested_on: Joi.date(),
       requested_by: Joi.string(),
-      id: Joi.string()
-      // tslint:disable-next-line:no-null-keyword
-    }).allow(null)
+      id: Joi.string(),
+      expires_on: Joi.date().optional()
+    }).optional()
   }
 })
