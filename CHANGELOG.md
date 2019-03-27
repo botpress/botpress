@@ -4,11 +4,8 @@
 ### Bug Fixes
 
 * **channel-web:** minor changes for custom components ([beaac3f](https://github.com/botpress/botpress/commit/beaac3f))
-* **channel-web:** prevent quick replies click spam ([d034b4e](https://github.com/botpress/botpress/commit/d034b4e))
 * **channel-web:** prevent quick replies click spam ([fb79775](https://github.com/botpress/botpress/commit/fb79775))
-* **diagram:** fix link recreating itself when moving after deletion ([0da99fa](https://github.com/botpress/botpress/commit/0da99fa))
 * **diagram:** fix link recreating itself when moving after deletion ([df0d2fd](https://github.com/botpress/botpress/commit/df0d2fd))
-* **docs:** wrong url in version docs ([ea7b256](https://github.com/botpress/botpress/commit/ea7b256))
 * **docs:** wrong url in version docs ([ef03259](https://github.com/botpress/botpress/commit/ef03259))
 * **studio:** submit on alt + enter as stated in UI ([464ca5d](https://github.com/botpress/botpress/commit/464ca5d))
 
