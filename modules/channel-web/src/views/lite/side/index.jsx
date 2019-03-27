@@ -2,13 +2,13 @@ import React from 'react'
 import classnames from 'classnames'
 
 import Send from '../send'
-import MessageList from '../messages'
+import { MessageList } from '../../components/messages/MessageList'
 import Input from '../input'
-import BotInfo from '../bot-info'
+import BotInfo from '../../components/BotInfo'
 import Header from './header'
 import ConversationList from './ConversationList'
 import style from './style.scss'
-import { getOverridedComponent } from '../messages/misc'
+import { getOverridedComponent } from '../tools'
 
 export default class Side extends React.Component {
   state = {
@@ -128,16 +128,11 @@ export default class Side extends React.Component {
       bp: this.props.bp,
       typingUntil: this.props.currentConversation && this.props.currentConversation.typingUntil,
       messages: this.props.currentConversation && this.props.currentConversation.messages,
-      fgColor: this.props.config && this.props.config.foregroundColor,
-      textColor: this.props.config && this.props.config.textColorOnForeground,
       botName: this.props.botInfo.name || this.props.config.botName,
       botAvatarUrl: (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,
-      onQuickReplySend: this.props.onQuickReplySend,
-      onFormSend: this.props.onFormSend,
-      onFileUploadSend: this.props.onFileUploadSend,
-      onLoginPromptSend: this.props.onLoginPromptSend,
+      onFileUpload: this.props.onFileUpload,
       onSendData: this.props.onSendData,
       focused: this.state.currentFocus === 'convo',
       focusNext: this.handleFocusChanged.bind(this, 'input'),
@@ -153,20 +148,6 @@ export default class Side extends React.Component {
     )
   }
 
-  renderBotInfoPage = () => {
-    // TODO move this logic in botInfo component
-    const isConvoStarted = this.props.currentConversation && !!this.props.currentConversation.messages.length
-    const onDismiss = isConvoStarted ? this.toggleBotInfo : this.props.startConversation.bind(this, this.toggleBotInfo)
-    return (
-      <BotInfo
-        botInfo={this.props.botInfo}
-        config={this.props.config}
-        dismissLabel={isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
-        onDismiss={onDismiss}
-      />
-    )
-  }
-
   renderBody() {
     if (this.state.showConvos) {
       return (
@@ -178,7 +159,15 @@ export default class Side extends React.Component {
         />
       )
     } else if (this.state.showBotInfo) {
-      return this.renderBotInfoPage()
+      return (
+        <BotInfo
+          botInfo={this.props.botInfo}
+          config={this.props.config}
+          currentConversation={this.props.currentConversation}
+          toggleBotInfo={this.toggleBotInfo}
+          onSendData={this.props.onSendData}
+        />
+      )
     } else {
       return this.renderConversation()
     }
@@ -186,19 +175,19 @@ export default class Side extends React.Component {
 
   render() {
     const fullscreen = this.props.fullscreen ? 'fullscreen' : null
-    const classNames = classnames('bp-chat-inner', style.internal, style[fullscreen], style[this.props.transition])
+    const classNames = classnames(
+      'bp-chat-inner',
+      style.internal,
+      style[fullscreen],
+      style[this.props.transition],
+      'bpw-chat-container'
+    )
 
     const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
 
     return (
       <span className={'bp-chat-container ' + style.external}>
-        <div
-          className={classNames}
-          style={{
-            backgroundColor: this.props.config.backgroundColor,
-            color: this.props.config.textColorOnBackgound
-          }}
-        >
+        <div className={classNames}>
           {this.renderHeader()}
           {this.renderBody()}
           {CustomComponent && <CustomComponent {...this.props} />}

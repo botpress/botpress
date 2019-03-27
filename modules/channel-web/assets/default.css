@@ -1,0 +1,384 @@
+:root {
+  --main-bg-color: #ffffff;
+  --main-bg-color-hover: rgba(255, 255, 255, 0.9);
+  --main-fg-color: #000000;
+  --main-fg-color-hover: rgba(0, 0, 0, 0.07);
+}
+
+.bpw-from-user .bpw-chat-bubble {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.bpw-from-bot .bpw-chat-bubble {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.bpw-widget-btn {
+  background-color: #000000;
+}
+
+.bpw-chat-container {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.bpw-button {
+  background-color: var(--main-bg-color);
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  min-width: 5rem;
+  height: 40px;
+  text-align: center;
+  border: 1px solid currentColor;
+  border-radius: 0px;
+  cursor: pointer;
+  margin: 3px 2px;
+  text-transform: none;
+  overflow: visible;
+  align-items: flex-start;
+}
+
+.bpw-button-alt {
+  background-color: var(--main-bg-color);
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  min-width: 5rem;
+  height: 40px;
+}
+
+.bpw-button:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+.bpw-input {
+  height: 30px;
+  border: none;
+  outline: none;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #bbb;
+  width: 200px;
+  text-align: center;
+  margin: 10px;
+  font-size: 14px;
+}
+
+.bpw-file-message {
+  padding: 0.5rem 0.75rem;
+}
+
+.bpw-message-big-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 1rem 0;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+  padding-right: 18px;
+  padding-left: 0;
+}
+
+.bpw-message-container {
+  width: 100%;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-message-username {
+  margin: 0 12px;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  padding: 0.3125rem 0;
+  font-size: 12px;
+  color: #9a9a9a;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-message-group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.bpw-message-group > :not(:last-child) {
+  margin-bottom: 2px;
+}
+
+.bpw-from-user {
+  padding-right: 0;
+}
+
+.bpw-from-user .bpw-message-container {
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+}
+
+.bpw-from-user .bpw-message-group {
+  padding-left: 60px;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+}
+
+/* */
+
+.bpw-msg-list {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow-y: auto;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  padding: 1rem 15px;
+}
+
+.bpw-date-container {
+  color: #666;
+  text-align: center;
+  font-size: 12px;
+  margin: 40px 0 20px;
+}
+
+.bpw-date-container .bpw-small-line {
+  border-bottom: solid 1px #555;
+  margin: auto;
+  width: 80px;
+  margin-top: 5px;
+}
+
+/**
+* Chat Bubble configuration. You can add other classes to match different renderers,
+*  for example .bpw-bubble-text or .bpw-bubble-carousel
+*/
+.bpw-chat-bubble {
+  color: rgb(255, 255, 255);
+
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  max-width: 80%;
+  border: 1px solid #f1f1f1;
+  background-color: rgba(255, 255, 255, 0.9);
+
+  padding: 0.5rem 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bpw-bubble-quick_reply {
+  text-align: right;
+}
+
+.bpw-bubble-file {
+  padding: 0;
+}
+
+.bpw-bubble-file a {
+  display: block;
+  cursor: pointer;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+.bpw-bubble-file a img {
+  max-height: 240px;
+  max-width: 100%;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+.bpw-chat-bubble p {
+  margin: 0;
+}
+
+.bpw-chat-bubble:first-of-type {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+/*
+* CAROUSEL 
+*/
+.slick-arrow {
+  background-color: #fff;
+  border: 1px solid #dddfe2;
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  box-shadow: none;
+  color: #444;
+  z-index: 1;
+}
+.slick-arrow:before {
+  color: #444;
+}
+
+.bpw-carousel-container {
+  margin-right: 0px !important;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 1);
+  line-height: 1.28em;
+
+  margin-right: 10px;
+  min-height: 150px;
+  max-height: 410px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bpw-carousel-header {
+  padding: 6px 12px 12px 12px;
+}
+
+.bpw-carousel-title {
+  text-overflow: ellipsis;
+  white-space: normal;
+  font-weight: bold;
+  line-height: 1.28em;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.bpw-carousel-subtitle {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.bpw-carousel-buttons {
+  /** The container of buttons*/
+}
+
+.bpw-carousel-action {
+  font-weight: 500;
+  padding: 0 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 32px;
+  text-align: center;
+}
+
+.bpw-carousel-external-icon {
+  background: url(/assets/modules/channel-web/images/external_icon.png) no-repeat;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-size: 100% 100%;
+}
+
+.bpw-carousel-picture {
+  background-position: 50% 50%;
+  background-size: cover;
+  height: 150px;
+  width: 100%;
+}
+
+.bpw-bubble-carousel {
+  background: none;
+  padding: 0 !important;
+  margin: 10px 0;
+}
+
+/* Custom styling for the login form*/
+.bpw-form-container {
+}
+.bpw-form-container label {
+  display: block;
+}
+
+/* Highlight special actions, for example displaying the status after using a custom component */
+.bpw-special-action {
+  opacity: 0.6;
+}
+
+/* Conversation List */
+.bpw-convo-item {
+  padding-left: 15px;
+  height: 4.7rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-convo-item .bpw-title {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+}
+
+.bpw-convo-item .bpw-date {
+  text-align: right;
+  font-size: 0.875rem;
+  color: #9a9a9a;
+  position: absolute;
+  right: 0;
+}
+
+/*RANDOM STUFF**/
+.bp-chat-container .bp-chat-header {
+  background: var(--main-bg-color);
+  color: var(--main-fg-color);
+}
+
+.bp-chat-container .bp-messages {
+  background: var(--main-bg-color);
+}
+
+.bp-messages .bp-msg-group .bp-msg {
+  background: var(--main-bg-color);
+  color: var(--main-fg-color);
+}
+
+.bp-chat-composer-container .bp-chat-composer {
+  background: var(--main-bg-color) !important;
+  color: var(--main-fg-color);
+}

@@ -58,7 +58,7 @@ class Header extends React.Component {
   }
 
   renderTitle = () => {
-    const title = this.props.showConvos ? 'Conversations' : this.props.botInfo.name || this.props.config.botName
+    const title = this.props.showConvos ? 'Conversations' : this.props.config.botName || this.props.botInfo.name
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
 

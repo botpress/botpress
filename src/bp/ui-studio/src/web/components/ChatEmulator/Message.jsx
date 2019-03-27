@@ -14,6 +14,17 @@ export default class Message extends React.Component {
       return <span className={classnames(style.message, style.text)}>{message.text}</span>
     }
 
+    // TODO implement correctly
+    if (message.quick_replies) {
+      const QuickReply = window.botpress['channel-web'] && window.botpress['channel-web']['QuickReplies']
+      return (
+        <div>
+          {message.text}
+          <QuickReply buttons={message.quick_replies} />
+        </div>
+      )
+    }
+
     return <span className={classnames(style.message, style.other)}>{message.type} (can't render)</span>
   }
 

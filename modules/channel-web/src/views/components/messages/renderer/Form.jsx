@@ -1,10 +1,20 @@
 import React, { Component } from 'react'
-import style from './style.scss'
+import style from '../../style.scss'
 
+//TODO
 class FormElement extends Component {
   constructor(props) {
     super(props)
     this.state = { hide: false }
+  }
+
+  handleSendForm = (fields, formId, repr) => {
+    return this.handleSendData({
+      type: 'form',
+      formId: formId,
+      text: repr,
+      data: fields
+    })
   }
 
   changeState(field) {
@@ -24,7 +34,7 @@ class FormElement extends Component {
               type={this.props.subtype}
               placeholder={this.props.placeholder}
               name={this.props.name}
-              onChange={::this.changeState(this.props.name)}
+              onChange={this.changeState(this.props.name)}
               maxLength={this.props.maxlength}
               minLength={this.props.minlength}
               required={this.props.required}
@@ -41,7 +51,7 @@ class FormElement extends Component {
               className={style.formTextarea}
               placeholder={this.props.placeholder}
               name={this.props.name}
-              onChange={::this.changeState(this.props.name)}
+              onChange={this.changeState(this.props.name)}
               maxLength={this.props.maxlength}
               minLength={this.props.minlength}
               required={this.props.required}
@@ -61,7 +71,7 @@ class FormElement extends Component {
             <select
               className={style.formInput}
               value={this.state.value}
-              onChange={::this.changeState(this.props.name)}
+              onChange={this.changeState(this.props.name)}
               name={this.props.name}
               required={this.props.required}
             >

@@ -49,3 +49,5 @@ export class WebBotpressUIInjection extends React.Component {
     return null
   }
 }
+
+export { Carousel, QuickReplies, LoginPrompt, Text } from '../components'
