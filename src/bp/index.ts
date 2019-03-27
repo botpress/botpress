@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events'
+
 const yn = require('yn')
 const path = require('path')
 const fs = require('fs')
@@ -33,6 +35,7 @@ function stripDeprecationWrite(this: Function): boolean {
   return originalWrite.apply(this, arguments)
 }
 
+process.BOTPRESS_EVENTS = new EventEmitter()
 process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
   ? path.dirname(process.execPath) // We point at the binary path
