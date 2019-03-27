@@ -91,19 +91,10 @@ export class GhostService {
         const outFiles = (await this.forBot(bid).exportToDirectory(p)).map(f => path.join(`bots/${bid}`, f))
         files.push(...outFiles)
       })
-      const outFile = path.join(tmpDir.name, 'archive.tgz')
 
-      await tar.create(
-        {
-          cwd: tmpDir.name,
-          file: outFile,
-          portable: true,
-          gzip: true
-        },
-        files
-      )
-
-      return await fse.readFile(outFile)
+      const filename = path.join(tmpDir.name, 'archive.tgz')
+      const archive = await this.diskDriver.createArchive(filename, tmpDir.name, files)
+      return await fse.readFile(archive)
     } finally {
       tmpDir.removeCallback()
     }
@@ -264,6 +255,38 @@ export class ScopedGhostService {
     }
 
     return allFiles
+  }
+
+  public async exportToArchiveBuffer(): Promise<Buffer> {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+    try {
+      const outFiles = await this.exportToDirectory(tmpDir.name)
+      const filename = path.join(tmpDir.name, 'archive.tgz')
+
+      const archive = await this.diskDriver.createArchive(filename, tmpDir.name, outFiles)
+      return await fse.readFile(archive)
+    } finally {
+      tmpDir.removeCallback()
+    }
+  }
+
+  public async importFromArchiveBuffer(archive: Buffer): Promise<void> {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+    try {
+      const extractedFilenames = await this.diskDriver.extractArchive(archive, tmpDir.name)
+      const files = extractedFilenames.map(file => {
+        return {
+          name: file,
+          content: fse.readFileSync(path.join(tmpDir.name, file))
+        } as FileContent
+      })
+
+      return await this.upsertFiles('/', files)
+    } finally {
+      tmpDir.removeCallback()
+    }
   }
 
   public async isFullySynced(): Promise<boolean> {

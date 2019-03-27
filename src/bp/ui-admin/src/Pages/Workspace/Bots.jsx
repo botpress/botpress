@@ -33,12 +33,29 @@ class Bots extends Component {
   }
 
   componentDidMount() {
+    this.downloadLink = React.createRef()
     this.props.fetchBots()
     this.props.fetchPermissions()
   }
 
   toggleCreateBotModal = () => {
     this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+  }
+
+  async exportBot(botId) {
+    const { data } = await api.getSecured({ timeout: 10000 })({
+      method: 'get',
+      url: `/admin/bots/${botId}/export`,
+      responseType: 'blob'
+    })
+
+    this.setState(
+      {
+        downloadLinkHref: window.URL.createObjectURL(new Blob([data])),
+        downloadLinkFileName: `bot_${botId}_${Date.now()}.tgz`
+      },
+      () => this.downloadLink.current.click()
+    )
   }
 
   async deleteBot(botId) {
@@ -93,6 +110,10 @@ class Bots extends Component {
               </Button>
               |
               <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
+                <Button size="sm" color="link" onClick={() => this.exportBot(bot.id)}>
+                  Export
+                </Button>
+                |
                 <Button size="sm" color="link" onClick={() => this.props.history.push(`/bot/${bot.id}/details`)}>
                   Config
                 </Button>
@@ -139,6 +160,7 @@ class Bots extends Component {
 
     return (
       <Fragment>
+        <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName} />
         <SectionLayout
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."

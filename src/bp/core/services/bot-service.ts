@@ -138,6 +138,28 @@ export class BotService {
     }
   }
 
+  async exportBot(botId: string): Promise<Buffer> {
+    return this.ghostService.forBot(botId).exportToArchiveBuffer()
+  }
+
+  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+    const alreadyExists = (await this.getBotsIds()).includes(botId)
+    if (alreadyExists) {
+      if (!allowOverwrite) {
+        return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
+      } else {
+        this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
+      }
+    }
+
+    await this.ghostService.forBot(botId).importFromArchiveBuffer(archive)
+
+    const config = await this.configProvider.getBotConfig(botId)
+    config.id = botId
+    await this.configProvider.setBotConfig(botId, config)
+    await this.mountBot(botId)
+  }
+
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
   async deleteBot(botId: string) {
     this.stats.track('bot', 'delete')

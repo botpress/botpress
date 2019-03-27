@@ -121,5 +121,20 @@ export class BotsRouter extends CustomRouter {
         return sendSuccess(res, 'Removed bot from team', { botId })
       })
     )
+
+    this.router.get(
+      '/:botId/export',
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const tarball = await this.botService.exportBot(botId)
+
+        res.writeHead(200, {
+          'Content-Type': 'application/tar+gzip',
+          'Content-Disposition': `attachment; filename=bot_${botId}_${Date.now()}.tgz`,
+          'Content-Length': tarball.length
+        })
+        res.end(tarball)
+      })
+    )
   }
 }
