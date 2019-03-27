@@ -13,7 +13,7 @@ For your convenience Botpress provides the GUI tools to edit these files while i
 
 To address this issue, we give you the Ghost Content feature. In production, your changes are saved to the database which is persisted between deployments. But how do you get these changes back to your bot's codebase? Simple, the botpress cli gives you a special command to pull pending changes on your server for all your bots and server wide files. `./bp pull --url {SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}`
 
-You can also head to the versioning tab of your botpress admin panel at https://your.bp.ai/admin/settings/version, the command will be properly formatted for you (including your token) any changes have been made. Just paste it to your shell and the changes will be extracted in the provided target directory. A successful output should look like the following:
+You can also head to the versioning tab of your botpress admin panel at https://your.bp.ai/admin/server/version, the command will be properly formatted for you (including your token) any changes have been made. Just paste it to your shell and the changes will be extracted in the provided target directory. A successful output should look like the following:
 
 ![versioning pull](assets/versioning-pull.png)
 
