@@ -99,12 +99,24 @@ class Bots extends Component {
     )
   }
 
+  // TODO implement this properly
+  async requestPromotion(botId) {
+    const { data } = await api.getSecured({ timeout: 10000 })({
+      method: 'post',
+      url: `/admin/bots/${botId}/promote`
+    })
+
+    console.log(data)
+  }
+
   renderBots() {
     return (
       <div className="bp_table">
         {_.orderBy(this.props.bots, ['id'], ['desc']).map(bot => (
           <div className="bp_table-row" key={bot.id}>
             <div className="actions">
+              {/* TODO change this  */}
+              <Button onClick={this.requestPromotion.bind(this, bot.id)}> promote </Button>
               <Button tag="a" size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
                 Open chat
               </Button>

@@ -1,4 +1,4 @@
-import { BotConfig, Logger } from 'botpress/sdk'
+import { BotConfig, BotPipelineStatus, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -25,8 +25,19 @@ export class BotsRouter extends CustomRouter {
     super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
     this.needPermissions = needPermissions(this.workspaceService)
+    this.botExistInWorkspace = this.botExistInWorkspace.bind(this)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
+  }
+
+  private async botExistInWorkspace(req, res, next) {
+    const botId = req.params.botId
+    const botRefs = await this.workspaceService.getBotRefs()
+    if (!botRefs.find(b => b === botId)) {
+      return res.status(404).send("Bot doesn't exist")
+    }
+
+    next()
   }
 
   setupRoutes() {
@@ -98,6 +109,24 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    router.post(
+      '/:botId/promote',
+      this.needPermissions('write', this.resource),
+      this.botExistInWorkspace,
+      this.asyncMiddleware(async (req, res) => {
+        const pipeline = await this.workspaceService.getPipeline()
+
+        try {
+          await this.botService.requestBotPromotion(req.params.botId, pipeline, req.tokenUser!.email)
+
+          return res.sendStatus(200)
+        } catch (err) {
+          this.logger.attachError(err).error('cannot promote bot')
+          res.status(400)
+        }
+      })
+    )
+
     router.put(
       '/:botId',
       this.needPermissions('write', this.resource),
@@ -128,8 +157,9 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.get(
+    router.get(
       '/:botId/export',
+      this.botExistInWorkspace,
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const tarball = await this.botService.exportBot(botId)

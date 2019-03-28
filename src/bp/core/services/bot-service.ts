@@ -2,6 +2,7 @@ import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
+import { Pipeline } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
@@ -187,6 +188,26 @@ export class BotService {
     } finally {
       tmpDir.removeCallback()
     }
+  }
+
+  async requestBotPromotion(botId: string, pipeline: Pipeline, requested_by: string) {
+    const currentBotConfig = (await this.findBotById(botId)) as BotConfig
+    const nextStageIdx = pipeline.findIndex(s => s.id === currentBotConfig.pipeline_status.current_stage.id) + 1
+    if (nextStageIdx >= pipeline.length) {
+      // end of pipeline, what's up here ?
+      console.log('end of pipeline, promotion locked')
+      return
+    }
+
+    const stage_request = {
+      id: pipeline[nextStageIdx].id,
+      requested_on: new Date(),
+      requested_by
+    }
+
+    await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    // TODO call hook promotion request here
+    // keep reference to old config, if config has changed then call the onPromotionHook
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })

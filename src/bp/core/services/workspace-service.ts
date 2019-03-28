@@ -39,7 +39,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   roles: defaultRoles,
   defaultRole: defaultUserRole,
   adminRole: defaultAdminRole,
-  pipeline: { ...DEFAULT_PIPELINE }
+  pipeline: [...DEFAULT_PIPELINE]
 }
 
 @injectable()
@@ -183,7 +183,7 @@ export class WorkspaceService {
     }
   }
 
-  async getPipeline() {
+  async getPipeline(): Promise<Pipeline> {
     const workspace = await this.getWorkspace()
     // @deprecated > 11: this ensures that the workspace includes a pipeline which are now created by default
     if (!workspace.pipeline) {
