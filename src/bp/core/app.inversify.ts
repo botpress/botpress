@@ -3,7 +3,7 @@ import { Container } from 'inversify'
 
 import { BotpressAPIProvider } from './api'
 import { Botpress } from './botpress'
-import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
+import { ConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
@@ -79,7 +79,7 @@ container
 
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
-  .to(GhostConfigProvider)
+  .to(ConfigProvider)
   .inSingletonScope()
 
 container

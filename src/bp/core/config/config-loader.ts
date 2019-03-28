@@ -12,19 +12,8 @@ import path from 'path'
 
 import { BotpressConfig } from './botpress.config'
 
-export interface ConfigProvider {
-  createDefaultConfigIfMissing(): Promise<void>
-  getBotpressConfig(): Promise<BotpressConfig>
-  mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
-  getBotConfig(botId: string): Promise<BotConfig>
-  setBotConfig(botId: string, config: BotConfig): Promise<void>
-  mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<void>
-  getModulesListConfig(): Promise<any>
-  invalidateBotpressConfig(): Promise<void>
-}
-
 @injectable()
-export class GhostConfigProvider implements ConfigProvider {
+export class ConfigProvider {
   private _botpressConfigCache: BotpressConfig | undefined
 
   constructor(
