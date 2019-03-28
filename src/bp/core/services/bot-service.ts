@@ -23,6 +23,7 @@ import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
 import { ModuleResourceLoader } from './module/resources-loader'
+import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -51,7 +52,8 @@ export class BotService {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     this._botIds = undefined
   }
@@ -190,12 +192,15 @@ export class BotService {
     }
   }
 
-  async requestBotPromotion(botId: string, pipeline: Pipeline, requested_by: string) {
+  async requestBotPromotion(botId: string, requested_by: string) {
     const currentBotConfig = (await this.findBotById(botId)) as BotConfig
+    if (!currentBotConfig) {
+      throw Error('bot does not exist')
+    }
+    const pipeline = await this.workspaceService.getPipeline()
     const nextStageIdx = pipeline.findIndex(s => s.id === currentBotConfig.pipeline_status.current_stage.id) + 1
     if (nextStageIdx >= pipeline.length) {
-      // end of pipeline, what's up here ?
-      console.log('end of pipeline, promotion locked')
+      this.logger.debug('end of pipeline')
       return
     }
 
