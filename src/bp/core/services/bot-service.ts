@@ -136,7 +136,6 @@ export class BotService {
       'details',
       'disabled',
       'private',
-      'pipeline_status',
       'locked'
     ]) as Partial<BotConfig>
 
