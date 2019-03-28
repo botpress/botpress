@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import choice from './choice'
 import setup from './setup'
+import slot from './slot'
 
 export type Extension = {}
 
@@ -20,6 +21,11 @@ const skillsToRegister: sdk.Skill[] = [
     id: 'choice',
     name: 'Choice',
     flowGenerator: choice.generateFlow
+  },
+  {
+    id: 'slot',
+    name: 'Slot', // TODO: Find high-level name
+    flowGenerator: slot.generateFlow
   }
 ]
 

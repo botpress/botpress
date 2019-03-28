@@ -9,6 +9,8 @@
       "react": "React",
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
+      "reactstrap": "Reactstrap",
+      "react-select": "ReactSelect",
       "botpress/content-picker": "BotpressContentPicker"
     }
   },
