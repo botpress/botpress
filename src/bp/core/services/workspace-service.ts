@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { GhostConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config/config-loader'
 import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Pipeline, Workspace } from 'core/misc/interfaces'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
@@ -39,7 +39,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   roles: defaultRoles,
   defaultRole: defaultUserRole,
   adminRole: defaultAdminRole,
-  pipeline: { ...DEFAULT_PIPELINE }
+  pipeline: [...DEFAULT_PIPELINE]
 }
 
 @injectable()
@@ -49,7 +49,7 @@ export class WorkspaceService {
     @tagged('name', 'WorkspaceService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ConfigProvider) private configProvider: GhostConfigProvider,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Statistics) private stats: Statistics
   ) {}
 
@@ -183,7 +183,7 @@ export class WorkspaceService {
     }
   }
 
-  async getPipeline() {
+  async getPipeline(): Promise<Pipeline> {
     const workspace = await this.getWorkspace()
     // @deprecated > 11: this ensures that the workspace includes a pipeline which are now created by default
     if (!workspace.pipeline) {

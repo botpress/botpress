@@ -2,6 +2,7 @@ import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
+import { Pipeline } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
@@ -22,6 +23,7 @@ import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
 import { ModuleResourceLoader } from './module/resources-loader'
+import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -50,7 +52,8 @@ export class BotService {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.Statistics) private stats: Statistics
+    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     this._botIds = undefined
   }
@@ -136,7 +139,6 @@ export class BotService {
       'details',
       'disabled',
       'private',
-      'pipeline_status',
       'locked'
     ]) as Partial<BotConfig>
 
@@ -188,6 +190,29 @@ export class BotService {
     } finally {
       tmpDir.removeCallback()
     }
+  }
+
+  async requestBotPromotion(botId: string, requested_by: string) {
+    const currentBotConfig = (await this.findBotById(botId)) as BotConfig
+    if (!currentBotConfig) {
+      throw Error('bot does not exist')
+    }
+    const pipeline = await this.workspaceService.getPipeline()
+    const nextStageIdx = pipeline.findIndex(s => s.id === currentBotConfig.pipeline_status.current_stage.id) + 1
+    if (nextStageIdx >= pipeline.length) {
+      this.logger.debug('end of pipeline')
+      return
+    }
+
+    const stage_request = {
+      id: pipeline[nextStageIdx].id,
+      requested_on: new Date(),
+      requested_by
+    }
+
+    await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    // TODO call hook promotion request here
+    // keep reference to old config, if config has changed then call the onPromotionHook
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })

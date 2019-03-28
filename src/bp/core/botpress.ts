@@ -220,19 +220,18 @@ export class Botpress {
     const pipeline = await this.workspaceService.getPipeline()
     await Promise.mapSeries(bots.values(), bot => {
       if (!bot.pipeline_status) {
-        bot.pipeline_status = {
-          current_stage: {
-            id: pipeline[0].id,
-            promoted_by: 'system',
-            promoted_at: new Date()
-          }
+        const pipeline_migration_configs = {
+          pipeline_status: {
+            current_stage: {
+              id: pipeline[0].id,
+              promoted_by: 'system',
+              promoted_at: new Date()
+            }
+          },
+          locked: false
         }
-        bot.locked = false
 
-        this.botService.updateBot(
-          bot.id,
-          _.pick(bot, 'name', 'category', 'description', 'disabled', 'private', 'details', 'pipeline_status', 'locked')
-        )
+        this.configProvider.mergeBotConfig(bot.id, pipeline_migration_configs)
       }
     })
   }
