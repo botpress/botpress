@@ -94,8 +94,8 @@ export default class EmulatorChat extends React.Component {
     return axiosConfig
   }
 
-  sendText = async () => {
-    if (!this.state.textInputValue.length) {
+  sendText = async payload => {
+    if (!this.state.textInputValue.length && !payload) {
       return
     }
 
@@ -110,6 +110,8 @@ export default class EmulatorChat extends React.Component {
         this.setState({ invalidMessage: true })
         return
       }
+    } else if (payload) {
+      messagePayload = payload
     }
 
     // Wait for state to be set fully to prevent race conditions
@@ -207,6 +209,7 @@ export default class EmulatorChat extends React.Component {
             onFocus={() => this.setState({ selectedIndex: idx })}
             selected={this.state.selectedIndex === idx}
             hideTyping={this.state.isTypingHidden}
+            onSendEvent={payload => this.sendText(payload)}
             message={msg}
           />
         ))}

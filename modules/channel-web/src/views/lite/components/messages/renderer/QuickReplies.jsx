@@ -19,13 +19,11 @@ export class QuickReplies extends Component {
 
   handleSendQuickReply = (title, payload) => {
     if (this.props.onSendData) {
-      const promise = this.props.onSendData({
+      this.props.onSendData({
         type: 'quick_reply',
         text: title,
         data: { payload }
       })
-
-      return this.quickReplyDebounce.debounce(promise)
     }
   }
 

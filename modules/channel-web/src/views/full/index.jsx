@@ -50,4 +50,4 @@ export class WebBotpressUIInjection extends React.Component {
   }
 }
 
-export { Carousel, QuickReplies, LoginPrompt, Text } from '../lite/components/messages/renderer'
+export { Carousel, QuickReplies, LoginPrompt, Text, FileMessage } from '../lite/components/messages/renderer'

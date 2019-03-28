@@ -20,7 +20,22 @@ export default class Message extends React.Component {
       return (
         <div>
           {message.text}
-          <QuickReply buttons={message.quick_replies} />
+          <QuickReply buttons={message.quick_replies} onSendData={this.props.onSendEvent} />
+        </div>
+      )
+    }
+
+    if (message.type === 'file') {
+      const FileMessage = window.botpress['channel-web'] && window.botpress['channel-web']['FileMessage']
+      return <FileMessage file={{ url: message.url, mime: 'image/' }} />
+    }
+
+    if (message.type === 'carousel') {
+      const Carousel = window.botpress['channel-web'] && window.botpress['channel-web']['Carousel']
+      return (
+        <div>
+          {message.text}
+          <Carousel carousel={message} />
         </div>
       )
     }
