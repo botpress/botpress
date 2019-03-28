@@ -58,7 +58,7 @@ class Header extends React.Component {
   }
 
   renderTitle = () => {
-    const title = this.props.showConvos ? 'Conversations' : this.props.botInfo.name || this.props.config.botName
+    const title = this.props.showConvos ? 'Conversations' : this.props.config.botName || this.props.botInfo.name
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
 
@@ -77,7 +77,7 @@ class Header extends React.Component {
     return (
       !this.props.showConvos &&
       !this.props.showBotInfo &&
-      this.props.config && (
+      this.props.config.enableReset && (
         <span
           tabIndex="-1"
           ref={el => (this.btnEls[0] = el)}
