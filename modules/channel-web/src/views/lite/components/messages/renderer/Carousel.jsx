@@ -28,10 +28,6 @@ export const Carousel = props => {
   return <Slider {...settings}>{elements.map(el => Card(el))}</Slider>
 }
 
-export const Test = () => {
-  return <div className={'bpw-carousel-container'}>lo</div>
-}
-
 export const Card = element => {
   const { picture, title, subtitle, buttons } = element
 

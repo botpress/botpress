@@ -1,9 +1,9 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import { Message } from './Message'
+import Message from './Message'
 
-export const MessageGroup = props => {
+const MessageGroup = props => {
   return (
     <div
       className={classnames('bpw-message-big-container', {
@@ -32,3 +32,5 @@ export const MessageGroup = props => {
     </div>
   )
 }
+
+export default MessageGroup

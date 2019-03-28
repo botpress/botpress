@@ -1,8 +1,6 @@
-import style from './style.scss'
-
 const Avatar = ({ name, avatarUrl, height, width }) => {
   return (
-    <div className={'bp-avatar ' + style.botAvatar}>
+    <div className={'bpw-bot-avatar'}>
       {avatarUrl && <img height={height} width={width} src={avatarUrl} />}
       {!avatarUrl && (
         <svg width={width} height={width}>

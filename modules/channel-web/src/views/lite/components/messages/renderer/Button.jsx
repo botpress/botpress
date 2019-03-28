@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import FileInput from './FileInput'
+import FileInput from './'
 
 /**
  * A simple button, with a possibility to be used as a file upload button

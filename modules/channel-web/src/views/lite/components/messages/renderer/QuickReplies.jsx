@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button } from './Button'
-import { asyncDebounce } from '../../../lite/tools'
+import { asyncDebounce } from '../../../utils'
 
 /**
  * Displays an array of button, and handle when they are clicked

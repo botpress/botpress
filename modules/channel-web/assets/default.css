@@ -5,6 +5,19 @@
   --main-fg-color-hover: rgba(0, 0, 0, 0.07);
 }
 
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body {
+  margin: 0 !important;
+  font-family: 'Lato', sans-serif;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
 .bpw-from-user .bpw-chat-bubble {
   background-color: #000000;
   color: #ffffff;
@@ -22,6 +35,39 @@
 .bpw-chat-container {
   background-color: #ffffff;
   color: #000000;
+}
+
+.bpw-layout {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  border-left: 1px solid #ccc;
+  visibility: hidden;
+
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-layout-fullscreen {
+  visibility: visible !important;
+}
+
+.bpw-bot-avatar {
+  margin-right: 10px;
+}
+
+.bpw-bot-avatar img,
+.bpw-bot-avatar svg {
+  border: solid 3px white;
+  border-radius: 50%;
+  background: #ccc;
 }
 
 .bpw-button {
@@ -149,6 +195,19 @@
 }
 
 /* */
+.bpw-msg-list-container {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-height: 1px;
+}
 
 .bpw-msg-list {
   -webkit-box-flex: 1;
@@ -332,6 +391,30 @@
 }
 
 /* Conversation List */
+.bpw-convo-list {
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.bpw-convo-add-btn {
+  background: transparent;
+  border: 2px solid;
+  border-radius: 50%;
+  float: right;
+  margin-right: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+.bpw-convo-add-btn:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
 .bpw-convo-item {
   padding-left: 15px;
   height: 4.7rem;
@@ -345,6 +428,10 @@
   display: flex;
 }
 
+.bpw-convo-item:hover {
+  background-color: #fafafa;
+}
+
 .bpw-convo-item .bpw-title {
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -355,6 +442,29 @@
   position: relative;
 }
 
+.bpw-convo-item .bpw-align-right {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  padding-right: 1rem;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-convo-item .bpw-convo-preview {
+  font-size: 0.875rem;
+  color: #9a9a9a;
+  max-width: 15rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .bpw-convo-item .bpw-date {
   text-align: right;
   font-size: 0.875rem;
@@ -363,22 +473,275 @@
   right: 0;
 }
 
-/*RANDOM STUFF**/
-.bp-chat-container .bp-chat-header {
-  background: var(--main-bg-color);
-  color: var(--main-fg-color);
+.bpw-composer {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: #000000;
+  position: relative;
+  padding: 0.5rem 0 0;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border 0.3s ease;
+  outline: none;
+  padding-bottom: 0.75rem;
 }
 
-.bp-chat-container .bp-messages {
-  background: var(--main-bg-color);
+.bpw-composer textarea {
+  font: inherit;
+  background-color: transparent;
+  width: 100%;
+  resize: none;
+  line-height: 1.2;
+  height: 43px;
+  border: none;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.bp-messages .bp-msg-group .bp-msg {
-  background: var(--main-bg-color);
-  color: var(--main-fg-color);
+/** HEADER STUFF */
+
+.bpw-header-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  height: 52px;
+  font-weight: 500;
+  border-top: solid 1px #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 0 1rem;
+  overflow: hidden;
 }
 
-.bp-chat-composer-container .bp-chat-composer {
-  background: var(--main-bg-color) !important;
-  color: var(--main-fg-color);
+.bpw-header-title-flexbox {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.bpw-header-title-container {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-header-title {
+  padding-left: 10px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-header-subtitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9a9a9a;
+  vertical-align: middle;
+  margin-top: 0px;
+}
+
+.bpw-header-unread {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
+
+  text-align: center;
+  vertical-align: top;
+
+  border-radius: 50%;
+  line-height: 20px;
+
+  font-size: 12px;
+  color: #fff;
+  background-color: #ff5d5d;
+}
+
+.bpw-header-icon {
+  color: #bbb;
+  margin-left: 17px;
+  text-align: right;
+  vertical-align: middle;
+  cursor: pointer;
+  fill: #bbb;
+}
+
+.bpw-header-icon :hover {
+  fill: black;
+}
+
+.bpw-floating-button {
+  float: right;
+  fill: rgb(255, 255, 255);
+  cursor: pointer;
+  outline: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1;
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+  border-radius: 0px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+
+  padding: 0;
+  border: none;
+  background-clip: padding-box;
+
+  transition: width 1s, height 1s;
+}
+
+.bpw-floating-button i {
+  transition: opacity 0.3s ease;
+  opacity: 1;
+  fill: inherit;
+  stroke: inherit;
+  width: 100%;
+  padding: 0;
+  line-height: 0;
+}
+
+.bpw-floating-button .bpw-floating-button-unread {
+  display: block;
+  position: absolute;
+  right: 2px;
+  bottom: 54px;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50%;
+  line-height: 20px;
+
+  color: #fff;
+  background-color: #ff5d5d;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/** TYPING ANIMATIIONS */
+@keyframes typingAnimation {
+  0% {
+    transform: translateY(0px);
+  }
+  28% {
+    transform: translateY(-6px);
+  }
+  44% {
+    transform: translateY(0px);
+  }
+}
+
+.bpw-typing-group {
+  align-items: center;
+  display: flex;
+  height: 17px;
+}
+
+.bpw-typing-bubble {
+  animation: typingAnimation 1s infinite ease-in-out;
+  border-radius: 50%;
+  height: 6px;
+  margin-right: 4px;
+  vertical-align: middle;
+  width: 6px;
+  white-space: pre-wrap;
+  font-size: 16px;
+  direction: ltr;
+  background-color: #000000;
+}
+
+.bpw-typing-bubble:nth-child(1) {
+  animation-delay: 200ms;
+}
+.bpw-typing-bubble:nth-child(2) {
+  animation-delay: 300ms;
+}
+.bpw-typing-bubble:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+/* IE10+ CSS styles go here */
+/*@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .typingGroup {
+    .typingBubble {
+      animation: initial;
+    }
+  }
+}*/
+
+/**ANIMATIONS */
+
+.bpw-anim-fadeIn {
+  animation-name: slideInRight;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@keyframes slideInRight {
+  0% {
+    visibility: visible;
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+}
+
+.bpw-anim-fadeOut {
+  animation-name: slideOutRight;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@-webkit-keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateX(100%);
+  }
 }

@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import format from 'date-fns/format'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 
-import { MessageGroup } from './MessageGroup'
-import Avatar from '../../lite/avatar'
-import { QuickReplies, Form } from '../'
+import MessageGroup from './MessageGroup'
+import Avatar from '../common/Avatar'
+import { QuickReplies, Form } from './renderer'
 
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
-export class MessageList extends Component {
+export default class MessageList extends Component {
   componentDidMount() {
     this.tryScrollToBottom()
   }

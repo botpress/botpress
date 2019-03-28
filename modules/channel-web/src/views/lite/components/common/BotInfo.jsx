@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
 
 import style from './BotInfo.scss'
-import PhoneIcon from '../lite/icons/Phone'
-import WebsiteIcon from '../lite/icons/Website'
-import EmailIcon from '../lite/icons/Email'
-import Avatar from '../lite/avatar'
+import PhoneIcon from '../../icons/Phone'
+import WebsiteIcon from '../../icons/Website'
+import EmailIcon from '../../icons/Email'
+import Avatar from './Avatar'
 
 const CoverPicture = ({ botInfo }) => (
   <img

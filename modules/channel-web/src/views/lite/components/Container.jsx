@@ -1,16 +1,15 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import Send from '../send'
-import { MessageList } from '../../components/messages/MessageList'
-import Input from '../input'
-import BotInfo from '../../components/BotInfo'
-import Header from './header'
 import ConversationList from './ConversationList'
-import style from './style.scss'
-import { getOverridedComponent } from '../tools'
+import Composer from './Composer'
+import Header from './Header'
+import BotInfo from './common/BotInfo'
+import MessageList from './messages/MessageList'
 
-export default class Side extends React.Component {
+import { getOverridedComponent } from '../utils'
+
+export default class Container extends React.Component {
   state = {
     currentFocus: 'input',
     showConvos: false,
@@ -40,25 +39,10 @@ export default class Side extends React.Component {
     }
   }
 
-  isConvoStarted = conversation => {
-    return conversation && !!conversation.messages.length
-  }
-
-  handleFocusChanged = nextFocus => {
-    this.setState({ currentFocus: nextFocus })
-  }
-
-  handleToggleShowConvos = () => {
-    this.setState({
-      showConvos: !this.state.showConvos
-    })
-  }
-
-  toggleBotInfo = () => {
-    this.setState({
-      showBotInfo: !this.state.showBotInfo
-    })
-  }
+  isConvoStarted = conversation => conversation && !!conversation.messages.length
+  handleFocusChanged = nextFocus => this.setState({ currentFocus: nextFocus })
+  handleToggleShowConvos = () => this.setState({ showConvos: !this.state.showConvos })
+  toggleBotInfo = () => this.setState({ showBotInfo: !this.state.showBotInfo })
 
   handleConvoClicked = convoId => {
     this.props.onSwitchConvo && this.props.onSwitchConvo(convoId)
@@ -92,34 +76,22 @@ export default class Side extends React.Component {
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
 
     if (Component) {
-      return <Component original={{ Input, style }} name={name} {...this.props} />
+      return <Component original={{ Composer }} name={name} {...this.props} />
     }
 
     return (
-      <div
-        className={'bp-chat-composer ' + style.composer}
-        style={{
-          borderColor: focused ? this.props.config.foregroundColor : null
-        }}
-      >
-        <div className={style['flex-column']}>
-          <Input
-            placeholder={'Reply to ' + name}
-            send={this.props.onTextSend}
-            change={this.props.onTextChanged}
-            text={this.props.text}
-            recallHistory={this.props.recallHistory}
-            focused={focused}
-            onFocus={this.handleFocusChanged.bind(this, 'input')}
-            focusNext={this.handleFocusChanged.bind(this, 'header')}
-            focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
-            config={this.props.config}
-          />
-          <div className={style.line}>
-            <Send send={this.props.onTextSend} text={this.props.text} config={this.props.config} />
-          </div>
-        </div>
-      </div>
+      <Composer
+        placeholder={'Reply to ' + name}
+        send={this.props.onTextSend}
+        change={this.props.onTextChanged}
+        text={this.props.text}
+        recallHistory={this.props.recallHistory}
+        focused={focused}
+        onFocus={this.handleFocusChanged.bind(this, 'input')}
+        focusNext={this.handleFocusChanged.bind(this, 'header')}
+        focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
+        config={this.props.config}
+      />
     )
   }
 
@@ -141,9 +113,9 @@ export default class Side extends React.Component {
     }
 
     return (
-      <div className={'bp-chat-conversation ' + style.conversation}>
+      <div className={'bpw-msg-list-container'}>
         <MessageList {...messagesProps} />
-        <div className={'bp-chat-composer-container ' + style.bottom}>{this.renderComposer()}</div>
+        {this.renderComposer()}
       </div>
     )
   }
@@ -175,18 +147,15 @@ export default class Side extends React.Component {
 
   render() {
     const fullscreen = this.props.fullscreen ? 'fullscreen' : null
-    const classNames = classnames(
-      'bp-chat-inner',
-      style.internal,
-      style[fullscreen],
-      style[this.props.transition],
-      'bpw-chat-container'
-    )
+    const classNames = classnames('bpw-layout', 'bpw-chat-container', {
+      'bpw-layout-fullscreen': fullscreen,
+      ['bpw-anim-' + this.props.transition]: true
+    })
 
     const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
 
     return (
-      <span className={'bp-chat-container ' + style.external}>
+      <span>
         <div className={classNames}>
           {this.renderHeader()}
           {this.renderBody()}

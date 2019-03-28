@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import style from '../../style.scss'
+import style from './Form.scss'
 
 //TODO
 class FormElement extends Component {

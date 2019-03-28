@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { FileMessage, Carousel, LoginPrompt, Text } from '../../components'
+import { FileMessage, Carousel, LoginPrompt, Text } from './renderer'
 import classnames from 'classnames'
-import style from '../style.scss'
 
-export class Message extends Component {
+class Message extends Component {
   render_text() {
     const { text, markdown, message_raw, message_text } = this.props.data
 
@@ -30,13 +29,11 @@ export class Message extends Component {
   }
 
   render_typing() {
-    const bubble = () => <div className={style.typingBubble} style={{ backgroundColor: '#000000' }} />
-
     return (
-      <div className={'bp-typing-indicator ' + style.typingGroup}>
-        {bubble()}
-        {bubble()}
-        {bubble()}
+      <div className={'bpw-typing-group'}>
+        <div className={'bpw-typing-bubble'} />
+        <div className={'bpw-typing-bubble'} />
+        <div className={'bpw-typing-bubble'} />
       </div>
     )
   }
@@ -100,3 +97,5 @@ export class Message extends Component {
     )
   }
 }
+
+export default Message

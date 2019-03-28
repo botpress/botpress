@@ -1,5 +1,3 @@
-/* global: window */
-
 import React from 'react'
 import classnames from 'classnames'
 
@@ -8,10 +6,7 @@ import isBefore from 'date-fns/is_before'
 import queryString from 'query-string'
 import ms from 'ms'
 
-import Convo from './convo'
-import Side from './side'
-
-import style from './style.scss'
+import Container from './components/Container'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -99,10 +94,6 @@ export default class Web extends React.Component {
       .then(this.fetchData)
       .then(() => {
         this.handleSwitchView('widget')
-        if (!this.state.isButtonHidden) {
-          this.showConvoPopUp()
-        }
-
         this.setState({ loading: false })
       })
 
@@ -195,16 +186,6 @@ export default class Web extends React.Component {
     })
   }
 
-  showConvoPopUp() {
-    if (this.state.config.welcomeMsgEnable) {
-      setTimeout(() => {
-        if (!this.state.opened) {
-          this.handleSwitchView('convo')
-        }
-      }, this.state.config.welcomeMsgDelay || 5000)
-    }
-  }
-
   handleSwitchView(view) {
     if (this.state.isTransitioning) {
       return
@@ -226,16 +207,6 @@ export default class Web extends React.Component {
           isTransitioning: false
         })
       }, ANIM_DURATION + 10)
-    }
-
-    if (view === 'convo') {
-      setTimeout(() => {
-        this.setState({
-          convoTransition: 'fadeIn',
-          view: view,
-          isTransitioning: false
-        })
-      }, ANIM_DURATION)
     }
 
     if (view === 'widget') {
@@ -547,16 +518,18 @@ export default class Web extends React.Component {
   }
 
   renderUncountMessages() {
-    return <span className={classnames('bp-unread-count', style.unread)}>{this.state.unreadCount}</span>
+    return <span className={'bpw-floating-button-unread'}>{this.state.unreadCount}</span>
   }
 
-  renderButton() {
+  renderWidget() {
     if (this.state.isButtonHidden) {
       return null
     }
     return (
       <button
-        className={classnames('bpw-widget-btn', style[this.state.widgetTransition], style.floatingButton)}
+        className={classnames('bpw-widget-btn', 'bpw-floating-button', {
+          ['bpw-anim-' + this.state.widgetTransition]: true
+        })}
         onClick={this.handleButtonClicked}
       >
         <i>{this.state.view === 'convo' ? this.renderCloseIcon() : this.renderOpenIcon()}</i>
@@ -571,28 +544,6 @@ export default class Web extends React.Component {
 
     // TODO here we might we might want switch convo with the newly created conversation (need to return the convo ID in BE)
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
-  }
-
-  renderWidget() {
-    return (
-      <div className={classnames(style['container'])}>
-        <div className={classnames(style['widget-container'])}>
-          <span>
-            {this.state.view === 'convo' ? (
-              <Convo
-                botInfo={this.state.botInfo}
-                transition={this.state.convoTransition}
-                change={this.handleTextChanged}
-                send={this.handleSendMessage}
-                config={this.state.config}
-                text={this.state.textToSend}
-              />
-            ) : null}
-            {this.renderButton()}
-          </span>
-        </div>
-      </div>
-    )
   }
 
   downaloadFile(name, blob) {
@@ -620,7 +571,7 @@ export default class Web extends React.Component {
 
   renderSide() {
     return (
-      <Side
+      <Container
         bp={this.props.bp}
         config={this.state.config}
         text={this.state.textToSend}
@@ -656,7 +607,7 @@ export default class Web extends React.Component {
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
     return (
-      <div className={classnames('bp-chat', style.web)} onFocus={this.handleResetUnreadCount}>
+      <div onFocus={this.handleResetUnreadCount}>
         <link rel="stylesheet" type="text/css" href={'/assets/modules/channel-web/default.css'} />
         {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {view}
