@@ -34,7 +34,8 @@
       "tutorials/i18n",
       "tutorials/external-api",
       "tutorials/chat-3rd-party-OAuth",
-      "tutorials/contextual-faq"
+      "tutorials/contextual-faq",
+      "tutorials/listen-file-changes"
     ],
     "Botpress Pro": ["pro/about-pro", "pro/licensing"]
   }
