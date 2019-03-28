@@ -66,6 +66,5 @@ export const BotEditSchema = Joi.object().keys({
     coverPictureUrl: Joi.string()
       .optional()
       .allow('')
-  },
-  locked: Joi.bool().optional()
+  }
 })
