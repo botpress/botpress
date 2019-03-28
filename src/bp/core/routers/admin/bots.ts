@@ -76,6 +76,13 @@ export class BotsRouter extends CustomRouter {
         if (botExists) {
           this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
         } else {
+          bot.pipeline_status = {
+            current_stage: {
+              id: (await this.workspaceService.getPipeline())[0].id,
+              promoted_at: new Date(),
+              promoted_by: req.tokenUser!.email
+            }
+          }
           await this.botService.addBot(bot, req.body.template)
         }
 
