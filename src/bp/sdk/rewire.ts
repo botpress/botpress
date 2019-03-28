@@ -50,7 +50,7 @@ function addToNodePath(path) {
 }
 
 function reloadPaths() {
-  (Module as any)._initPaths()
+  ;(Module as any)._initPaths() // tslint:disable-line
 }
 
 function getPaths(): string[] {
@@ -101,7 +101,7 @@ const rewire = function(this: NodeRequireFunction, mod: string) {
     }
   }
 
-  return originalRequire.apply(this, arguments)
+  return originalRequire.apply(this, (arguments as never) as [string])
 }
 
 Module.prototype.require = rewire as any

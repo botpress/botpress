@@ -30,7 +30,7 @@ function stripDeprecationWrite(this: Function): boolean {
     return (arguments[2] || arguments[1])()
   }
 
-  return originalWrite.apply(this, arguments)
+  return originalWrite.apply(this, (arguments as never) as [string])
 }
 
 process.LOADED_MODULES = {}

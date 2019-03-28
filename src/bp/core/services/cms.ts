@@ -375,7 +375,7 @@ export class CMSService implements IDisposeOnExit {
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
         .andWhere({ botId })
-        .then()
+        .then<Iterable<any>>()
         .each(async (element: any) => {
           const computedProps = await this.fillComputedProps(contentType, JSON.parse(element.formData))
           element = { ...element, ...computedProps }
