@@ -1069,6 +1069,18 @@ declare module 'botpress/sdk' {
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
     export function getBotById(botId: string): Promise<BotConfig | undefined>
+    /**
+     * It will extract the bot's folder to an archive (tar.gz).
+     * @param botId The ID of the bot to extract
+     */
+    export function exportBot(botId: string): Promise<Buffer>
+    /**
+     * Allows to import directly an archive (tar.gz) in a new bot.
+     * @param botId The ID of the new bot (or an existing one)
+     * @param archive The buffer of the archive file
+     * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
+     */
+    export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
   }
 
   export namespace notifications {

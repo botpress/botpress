@@ -11,6 +11,9 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
 import path from 'path'
+import tmp from 'tmp'
+
+import { extractArchive } from '../misc/archive'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
@@ -135,6 +138,44 @@ export class BotService {
       await this.mountBot(botId)
     } else if (!actualBot.disabled && updatedBot.disabled) {
       await this.unmountBot(botId)
+    }
+  }
+
+  async exportBot(botId: string): Promise<Buffer> {
+    return this.ghostService.forBot(botId).exportToArchiveBuffer()
+  }
+
+  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+    const alreadyExists = (await this.getBotsIds()).includes(botId)
+    if (alreadyExists) {
+      if (!allowOverwrite) {
+        return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
+      } else {
+        this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
+      }
+    }
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const tmpFolder = tmpDir.name
+
+    try {
+      await extractArchive(archive, tmpFolder)
+      const api = await createForGlobalHooks()
+
+      const hookResult = {
+        allowImport: true
+      }
+
+      await this.hookService.executeHook(new Hooks.BeforeBotImport(api, botId, tmpFolder, hookResult))
+
+      if (hookResult.allowImport) {
+        await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
+        await this.configProvider.mergeBotConfig(botId, { id: botId })
+        this.logger.info(`Import of bot ${botId} successful`)
+      } else {
+        this.logger.info(`Import of bot ${botId} was denied by hook validation`)
+      }
+    } finally {
+      tmpDir.removeCallback()
     }
   }
 
