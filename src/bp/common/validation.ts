@@ -67,6 +67,7 @@ export const BotEditSchema = Joi.object().keys({
       .optional()
       .allow('')
   },
+  locked: Joi.bool().optional(),
   pipeline_status: {
     current_stage: {
       promoted_by: Joi.string(),

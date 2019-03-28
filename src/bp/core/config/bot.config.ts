@@ -17,6 +17,7 @@ export type BotConfig = {
   }
   dialog?: DialogConfig
   logs?: LogsConfig
+  locked: boolean
   pipeline_status: BotPipelineStatus
 }
 

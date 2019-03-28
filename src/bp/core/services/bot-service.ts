@@ -23,6 +23,7 @@ import { ModuleResourceLoader } from './module/resources-loader'
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const DEFAULT_BOT_CONFIGS = {
+  locked: false,
   disabled: false,
   private: false,
   details: {}
@@ -134,7 +135,8 @@ export class BotService {
       'details',
       'disabled',
       'private',
-      'pipeline_status'
+      'pipeline_status',
+      'locked'
     ]) as Partial<BotConfig>
 
     await this.configProvider.setBotConfig(botId, {
