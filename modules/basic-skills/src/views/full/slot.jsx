@@ -2,13 +2,25 @@ import React from 'react'
 import { Input, Row, Col, Label, Container, Button } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
 import Select from 'react-select'
+import style from './style.scss'
 
 export class Slot extends React.Component {
   state = {
     slotName: undefined,
     contentElement: undefined,
     contentType: undefined,
-    selectedContexts: []
+    selectedContexts: [],
+    contextsOptions: []
+  }
+
+  componentDidMount() {
+    this.props.bp.axios.get(`/contexts`).then(response => {
+      // react-select expect options to have a value AND a label
+      const contextsOptions = response.data.map(context => {
+        return { value: context, label: context }
+      })
+      this.setState({ contextsOptions })
+    })
   }
 
   componentDidUpdate() {
@@ -42,9 +54,6 @@ export class Slot extends React.Component {
   }
 
   render() {
-    // TODO: Build options from contexts
-    const options = [{ value: 'global', label: 'Global' }, { value: 'user-info', label: 'User Info' }]
-
     return (
       <React.Fragment>
         <Row>
@@ -52,9 +61,10 @@ export class Slot extends React.Component {
             <Label for="selectContext">Context:</Label>
             <Select
               multi
+              className={style.multiSelect}
               id="selectContext"
               name="selectContext"
-              options={options}
+              options={this.state.contextsOptions}
               value={this.state.selectedContexts}
               onChange={this.handleContextsChange}
             />
