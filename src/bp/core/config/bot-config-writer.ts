@@ -1,5 +1,4 @@
 import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
-import { Bot } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { FileContent, GhostService } from 'core/services'
 import { ModuleResourceLoader } from 'core/services/module/resources-loader'
@@ -18,7 +17,7 @@ export class BotConfigWriter {
 
   constructor(@inject(TYPES.Logger) private logger: Logger, @inject(TYPES.GhostService) private ghost: GhostService) {}
 
-  async createFromTemplate(bot: Bot, template: BotTemplate) {
+  async createFromTemplate(bot: BotConfig, template: BotTemplate) {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghost)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfig = path.resolve(templatePath, this.BOT_CONFIG_FILENAME)
@@ -48,7 +47,7 @@ export class BotConfigWriter {
     }
   }
 
-  private async _writeTemplateConfig(configFile: string, bot: Partial<Bot>) {
+  private async _writeTemplateConfig(configFile: string, bot: Partial<BotConfig>) {
     try {
       const templateConfig = JSON.parse(await fse.readFileSync(configFile, 'utf-8'))
       this._writeConfig(bot.id!, { ...templateConfig, ...bot, disabled: false, private: false, details: {} })

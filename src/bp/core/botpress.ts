@@ -13,6 +13,7 @@ import plur from 'plur'
 import { setDebugScopes } from '../debug'
 
 import { createForGlobalHooks } from './api'
+import { BotConfig } from './config/bot.config'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'
@@ -125,7 +126,7 @@ export class Botpress {
   }
 
   async checkJwtSecret() {
-    // @deprecated : .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
+    // @deprecated > 11: .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
     // @ts-ignore
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
@@ -195,11 +196,13 @@ export class Botpress {
     if (deleted.length) {
       this.logger.warn(
         `Some bots have been deleted from the disk but are still referenced in your workspaces.json file.
- Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
+          Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
       )
     }
 
     const bots = await this.botService.getBots()
+    // @deprecated > 11: bot will always include default pipeline stage
+    await this._ensureBotsDefineStage(bots)
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
@@ -210,6 +213,27 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
+  }
+
+  // @deprecated > 11: bot will always include default pipeline stage
+  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>): Promise<void> {
+    const pipeline = await this.workspaceService.getPipeline()
+    await Promise.mapSeries(bots.values(), bot => {
+      if (!bot.pipeline_status) {
+        bot.pipeline_status = {
+          current_stage: {
+            id: pipeline[0].id,
+            promoted_by: 'system',
+            promoted_at: new Date()
+          }
+        }
+
+        this.botService.updateBot(
+          bot.id,
+          _.pick(bot, 'name', 'category', 'description', 'disabled', 'private', 'details', 'pipeline_status')
+        )
+      }
+    })
   }
 
   private async initializeServices() {

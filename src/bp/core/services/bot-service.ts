@@ -3,7 +3,6 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { BotConfigWriter } from 'core/config'
 import { ConfigProvider } from 'core/config/config-loader'
-import { Bot } from 'core/misc/interfaces'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -95,7 +94,7 @@ export class BotService {
     return (this._botIds = _.map(bots, x => path.dirname(x)))
   }
 
-  async addBot(bot: Bot, botTemplate: BotTemplate): Promise<void> {
+  async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
     this.stats.track('bot', 'create')
 
     const { error } = Joi.validate(bot, BotCreationSchema)
@@ -108,7 +107,7 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  async updateBot(botId: string, updatedBot: Bot): Promise<void> {
+  async updateBot(botId: string, updatedBot: Partial<BotConfig>): Promise<void> {
     this.stats.track('bot', 'update')
 
     const { error } = Joi.validate(updatedBot, BotEditSchema)
@@ -123,7 +122,8 @@ export class BotService {
       'category',
       'details',
       'disabled',
-      'private'
+      'private',
+      'pipeline_status'
     ]) as Partial<BotConfig>
 
     await this.configProvider.setBotConfig(botId, {

@@ -17,6 +17,21 @@ export type BotConfig = {
   }
   dialog?: DialogConfig
   logs?: LogsConfig
+  pipeline_status: BotPipelineStatus
+}
+
+export interface BotPipelineStatus {
+  current_stage: {
+    promoted_by: string
+    promoted_at: Date
+    id: string
+  }
+  stage_request?: {
+    requested_on: Date
+    expires_on?: Date
+    requested_by: string
+    id: string
+  }
 }
 
 export interface BotDetails {

@@ -24,7 +24,8 @@ export const BotEditSchema = Joi.object().keys({
     .min(3)
     .max(50)
     .required(),
-  category: Joi.string(),
+  // tslint:disable-next-line:no-null-keyword
+  category: Joi.string().allow(null),
   description: Joi.string()
     .min(3)
     .max(50)
@@ -58,5 +59,18 @@ export const BotEditSchema = Joi.object().keys({
     coverPictureUrl: Joi.string()
       .optional()
       .allow('')
+  },
+  pipeline_status: {
+    current_stage: {
+      promoted_by: Joi.string(),
+      promoted_at: Joi.date(),
+      id: Joi.string()
+    },
+    stage_request: Joi.object({
+      requested_on: Joi.date(),
+      requested_by: Joi.string(),
+      id: Joi.string(),
+      expires_on: Joi.date().optional()
+    }).optional()
   }
 })
