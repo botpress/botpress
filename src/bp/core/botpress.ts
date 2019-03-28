@@ -227,10 +227,11 @@ export class Botpress {
             promoted_at: new Date()
           }
         }
+        bot.locked = false
 
         this.botService.updateBot(
           bot.id,
-          _.pick(bot, 'name', 'category', 'description', 'disabled', 'private', 'details', 'pipeline_status')
+          _.pick(bot, 'name', 'category', 'description', 'disabled', 'private', 'details', 'pipeline_status', 'locked')
         )
       }
     })

@@ -1,12 +1,13 @@
 import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
-import { BotConfigWriter } from 'core/config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { listDir } from 'core/misc/list-dir'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { WrapErrorsWith } from 'errors'
+import fse from 'fs-extra'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -17,9 +18,19 @@ import { extractArchive } from '../misc/archive'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
-import { GhostService } from './ghost/service'
+import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
+import { ModuleResourceLoader } from './module/resources-loader'
+
+const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
+const BOT_CONFIG_FILENAME = 'bot.config.json'
+const DEFAULT_BOT_CONFIGS = {
+  locked: false,
+  disabled: false,
+  private: false,
+  details: {}
+}
 
 @injectable()
 export class BotService {
@@ -33,7 +44,6 @@ export class BotService {
     @inject(TYPES.Logger)
     @tagged('name', 'BotService')
     private logger: Logger,
-    @inject(TYPES.BotConfigWriter) private configWriter: BotConfigWriter,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
@@ -93,7 +103,7 @@ export class BotService {
       return this._botIds
     }
 
-    const bots = await this.ghostService.bots().directoryListing('/', 'bot.config.json')
+    const bots = await this.ghostService.bots().directoryListing('/', BOT_CONFIG_FILENAME)
     return (this._botIds = _.map(bots, x => path.dirname(x)))
   }
 
@@ -105,7 +115,7 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    await this.configWriter.createFromTemplate(bot, botTemplate)
+    await this._createBotFromTemplate(bot, botTemplate)
     await this.mountBot(bot.id)
     this._invalidateBotIds()
   }
@@ -126,7 +136,8 @@ export class BotService {
       'details',
       'disabled',
       'private',
-      'pipeline_status'
+      'pipeline_status',
+      'locked'
     ]) as Partial<BotConfig>
 
     await this.configProvider.setBotConfig(botId, {
@@ -188,12 +199,50 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  private isBotMounted(botId: string): boolean {
+  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate) {
+    const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghostService)
+    const templatePath = await resourceLoader.getBotTemplatePath(template.id)
+    const templateConfigPath = path.resolve(templatePath, BOT_CONFIG_FILENAME)
+
+    try {
+      const scopedGhost = this.ghostService.forBot(botConfig.id)
+      const files = this._loadBotTemplateFiles(templatePath)
+      if (fse.existsSync(templateConfigPath)) {
+        const templateConfig = JSON.parse(await fse.readFileSync(templateConfigPath, 'utf-8'))
+        const mergedConfigs = {
+          ...DEFAULT_BOT_CONFIGS,
+          ...templateConfig,
+          ...botConfig
+        }
+        await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
+        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
+        await scopedGhost.upsertFiles('/', files)
+      } else {
+        throw new Error("Bot template doesn't exist")
+      }
+    } catch (err) {
+      this.logger.attachError(err).error(`Error creating bot ${botConfig.id} from template "${template.name}"`)
+    }
+  }
+
+  private _loadBotTemplateFiles(templatePath: string): FileContent[] {
+    const startsWithADot = /^\./gm
+    const templateFiles = listDir(templatePath, [startsWithADot, new RegExp(BOT_CONFIG_FILENAME)])
+    return templateFiles.map(
+      f =>
+        <FileContent>{
+          name: f.relativePath,
+          content: fse.readFileSync(f.absolutePath)
+        }
+    )
+  }
+
+  private _isBotMounted(botId: string): boolean {
     return BotService._mountedBots.get(botId) || false
   }
 
   private async _mountBot(botId: string) {
-    if (this.isBotMounted(botId)) {
+    if (this._isBotMounted(botId)) {
       return
     }
 
@@ -215,7 +264,7 @@ export class BotService {
   }
 
   private async _unmountBot(botId: string) {
-    if (!this.isBotMounted(botId)) {
+    if (!this._isBotMounted(botId)) {
       return
     }
 

@@ -16,7 +16,14 @@ export const BotCreationSchema = Joi.object().keys({
   category: Joi.string().allow(null),
   description: Joi.string()
     .min(3)
-    .max(50)
+    .max(50),
+  pipeline_status: {
+    current_stage: {
+      promoted_by: Joi.string(),
+      promoted_at: Joi.date(),
+      id: Joi.string()
+    }
+  }
 })
 
 export const BotEditSchema = Joi.object().keys({
@@ -60,6 +67,7 @@ export const BotEditSchema = Joi.object().keys({
       .optional()
       .allow('')
   },
+  locked: Joi.bool().optional(),
   pipeline_status: {
     current_stage: {
       promoted_by: Joi.string(),
