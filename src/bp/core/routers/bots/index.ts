@@ -30,6 +30,7 @@ import { URL } from 'url'
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
+import { fileSync } from 'tmp'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = 10 // mb
@@ -266,6 +267,23 @@ export class BotsRouter extends CustomRouter {
         const botId = req.params.botId
         const actions = await this.actionService.forBot(botId).listActions()
         res.send(Serialize(actions))
+      })
+    )
+
+    this.router.get(
+      '/contexts',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.*'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const filepaths = await this.ghostService.forBot(botId).directoryListing('/intents', '*.json')
+        const contextsArray = await Promise.map(filepaths, async filepath => {
+          const file = await this.ghostService.forBot(botId).readFileAsObject('/intents', filepath)
+          return file['contexts']
+        })
+
+        // Contexts is an array of arrays that can contain duplicate values
+        res.send(_.uniq(_.flatten(contextsArray)))
       })
     )
 
