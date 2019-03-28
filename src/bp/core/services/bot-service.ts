@@ -107,7 +107,6 @@ export class BotService {
   async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
     this.stats.track('bot', 'create')
 
-    // TODO move schema validation in router
     const { error } = Joi.validate(bot, BotCreationSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
@@ -121,7 +120,6 @@ export class BotService {
   async updateBot(botId: string, updatedBot: Partial<BotConfig>): Promise<void> {
     this.stats.track('bot', 'update')
 
-    // TODO move schema validation in router
     const { error } = Joi.validate(updatedBot, BotEditSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
@@ -171,9 +169,9 @@ export class BotService {
       if (fse.existsSync(templateConfigPath)) {
         const templateConfig = JSON.parse(await fse.readFileSync(templateConfigPath, 'utf-8'))
         const mergedConfigs = {
+          ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,
-          ...botConfig,
-          ...DEFAULT_BOT_CONFIGS
+          ...botConfig
         }
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
         await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
