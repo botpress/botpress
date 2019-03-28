@@ -17,6 +17,8 @@ import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from 
 
 export const TOKEN_AUDIENCE = 'web-login'
 
+const debug = DEBUG('audit:users')
+
 @injectable()
 export default class AuthService {
   constructor(
@@ -37,15 +39,15 @@ export default class AuthService {
   }
 
   async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.workspace.findUser(where, selectFields)
+    return this.workspace.findUser(where, selectFields) as Promise<AuthUser>
   }
 
   async findUserByEmail(email: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return await this.findUser({ email }, selectFields)
+    return (await this.findUser({ email }, selectFields)) as AuthUser
   }
 
   async checkUserAuth(email: string, password: string, newPassword?: string, ipAddress: string = '') {
-    const user = await this.findUserByEmail(email || '', ['password', 'salt', 'password_expired'])
+    const user = await this.findUserByEmail(email || '', ['email', 'password', 'salt', 'password_expired'])
 
     if (!user || !validateHash(password || '', user.password!, user.salt!)) {
       this.stats.track('auth', 'login', 'fail')
@@ -66,6 +68,8 @@ export default class AuthService {
     } as BasicAuthUser
 
     const createdUser = await this.workspace.createUser(newUser)
+    debug('created basic user', { user: createdUser })
+
     return {
       password: user.password ? user.password : await this.resetPassword(user.email!),
       user: createdUser
@@ -78,9 +82,13 @@ export default class AuthService {
       provider
     } as ExternalAuthUser
 
-    return {
+    const result = {
       user: await this.workspace.createUser(newUser)
     }
+
+    debug('created external user', { user, provider })
+
+    return result
   }
 
   async createUser(user: Partial<BasicAuthUser> | Partial<ExternalAuthUser>): Promise<CreatedUser> {
@@ -98,7 +106,9 @@ export default class AuthService {
 
   async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
     const more = updateLastLogon ? { last_logon: new Date() } : {}
-    return await this.workspace.updateUser(email, { ...userData, ...more })
+    const result = await this.workspace.updateUser(email, { ...userData, ...more })
+    debug('updated user', { email, attributes: userData })
+    return result
   }
 
   async resetPassword(email: string) {
@@ -111,6 +121,8 @@ export default class AuthService {
       password_expired: true
     })
 
+    debug('password reset', { email })
+
     return password
   }
 
@@ -120,6 +132,12 @@ export default class AuthService {
         cb(err, !err ? (user as TokenUser) : undefined)
       })
     })
+  }
+
+  async refreshToken(tokenUser: TokenUser): Promise<string> {
+    const config = await this.configProvider.getBotpressConfig()
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(tokenUser.email, tokenUser.isSuperAdmin, duration, TOKEN_AUDIENCE)
   }
 
   async register(email: string, password: string, ipAddress: string = ''): Promise<string> {
@@ -133,10 +151,12 @@ export default class AuthService {
       last_ip: ipAddress,
       last_logon: new Date()
     })
-    this.logger.info(`Register successful. User "${email}" from IP "${ipAddress}"`)
+
+    debug('self register', { email, ipAddress })
 
     const config = await this.configProvider.getBotpressConfig()
-    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
   }
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
@@ -151,10 +171,12 @@ export default class AuthService {
         password_expired: false
       })
     }
-    this.logger.info(`Login successful. User "${email}" from IP "${ipAddress}"`)
+
+    debug('login', { email, ipAddress })
 
     await this.updateUser(email, { last_ip: ipAddress }, true)
     const config = await this.configProvider.getBotpressConfig()
-    return generateUserToken(email, isSuperAdmin(email, config), TOKEN_AUDIENCE)
+    const duration = config.jwtToken && config.jwtToken.duration
+    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
   }
 }

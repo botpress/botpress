@@ -9,7 +9,7 @@ const print = require('gulp-print').default
 const mkdirp = require('mkdirp')
 const { symlink } = require('gulp')
 const rimraf = require('gulp-rimraf')
-const cwd = path.join(__dirname, '../modules')
+const cwd = path.join(__dirname, '../', process.argv.includes('--private') ? 'private-modules' : 'modules')
 
 const getAllModulesRoot = () => {
   return glob

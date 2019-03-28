@@ -24,7 +24,6 @@ export default class ConfusionEngine extends ScopedEngine {
 
   async init(): Promise<void> {
     await super.init()
-    this.logger.debug(`Using confusion engine for "${this.botId}"`)
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {

@@ -6,6 +6,7 @@ import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
 import express from 'express'
+import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
@@ -18,8 +19,8 @@ import portFinder from 'portfinder'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
+import { RequestWithUser } from './misc/interfaces'
 import { ModuleLoader } from './module-loader'
-import { BotRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
@@ -49,6 +50,19 @@ const BASE_API_PATH = '/api/v1'
 const SERVER_USER = 'server::modules'
 const isProd = process.env.NODE_ENV === 'production'
 
+const debug = DEBUG('api')
+const debugRequest = debug.sub('request')
+
+const debugRequestMw = (req: Request, _res, next) => {
+  debugRequest(`${req.path} %o`, {
+    method: req.method,
+    ip: req.ip,
+    originalUrl: req.originalUrl
+  })
+
+  next()
+}
+
 @injectable()
 export default class HTTPServer {
   public readonly httpServer: Server
@@ -67,7 +81,6 @@ export default class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.BotRepository) botRepository: BotRepository,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
@@ -98,7 +111,9 @@ export default class HTTPServer {
 
     this.httpServer = createServer(this.app)
 
-    this.modulesRouter = new ModulesRouter(this.logger, moduleLoader, skillService)
+    this.app.use(debugRequestMw)
+
+    this.modulesRouter = new ModulesRouter(this.logger, this.authService, moduleLoader, skillService)
     this.authRouter = new AuthRouter(
       this.logger,
       this.authService,
@@ -120,7 +135,7 @@ export default class HTTPServer {
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
-      botRepository,
+      botService,
       configProvider,
       flowService,
       mediaService,
@@ -176,6 +191,10 @@ export default class HTTPServer {
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
     }
+
+    this.app.get('/status', async (req, res, next) => {
+      res.send(await this.monitoringService.getStatus())
+    })
 
     this.app.use('/assets', express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
@@ -267,7 +286,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, false, TOKEN_AUDIENCE)
+    const serverToken = generateUserToken(SERVER_USER, false, '5m', TOKEN_AUDIENCE)
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
@@ -295,7 +314,7 @@ export default class HTTPServer {
       return undefined
     }
 
-    const { publicKey, audience, algorithm, issuer } = externalAuth
+    const { publicKey, audience, algorithms, issuer } = externalAuth
 
     const [scheme, token] = externalToken.split(' ')
     if (scheme.toLowerCase() !== 'bearer') {
@@ -303,7 +322,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithm }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })

@@ -10,21 +10,21 @@ import { tmpNameSync } from 'tmp'
 import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import { extractListEntities, extractPatternEntities } from './pipelines/entities/pattern_extractor'
+import PatternExtractor from './pipelines/entities/pattern_extractor'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
+import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 
-export default class ScopedEngine {
+export default class ScopedEngine implements Engine {
   public readonly storage: Storage
   public confidenceTreshold: number = 0.7
 
@@ -36,6 +36,7 @@ export default class ScopedEngine {
   private readonly langDetector: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractor: SlotExtractor
+  private readonly entityExtractor: PatternExtractor
 
   private retryPolicy = {
     interval: 100,
@@ -60,6 +61,7 @@ export default class ScopedEngine {
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
+    this.entityExtractor = new PatternExtractor(toolkit)
     this._autoTrainInterval = ms(config.autoTrainInterval || 0)
   }
 
@@ -274,8 +276,18 @@ export default class ScopedEngine {
 
   private async _extractEntities(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
     const customEntityDefs = await this.storage.getCustomEntities()
-    const patternEntities = extractPatternEntities(text, customEntityDefs.filter(ent => ent.type === 'pattern'))
-    const listEntities = extractListEntities(text, customEntityDefs.filter(ent => ent.type === 'list'))
+
+    const patternEntities = await this.entityExtractor.extractPatterns(
+      text,
+      customEntityDefs.filter(ent => ent.type === 'pattern')
+    )
+
+    const listEntities = await this.entityExtractor.extractLists(
+      text,
+      lang,
+      customEntityDefs.filter(ent => ent.type === 'list')
+    )
+
     const systemEntities = await this.systemEntityExtractor.extract(text, lang)
     debugEntities(text, { systemEntities, patternEntities, listEntities })
     return [...systemEntities, ...patternEntities, ...listEntities]

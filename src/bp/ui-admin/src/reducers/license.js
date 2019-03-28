@@ -1,7 +1,6 @@
 import api from '../api'
 import { logout } from '../Auth/licensing'
 
-export const FETCH_LICENSE_RECEIVED = 'license/FETCH_LICENSE_RECEIVED'
 export const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 export const FETCH_KEYS_REQUESTED = 'license/FETCH_KEYS_REQUESTED'
 export const FETCH_KEYS_RECEIVED = 'license/FETCH_KEYS_RECEIVED'
@@ -12,7 +11,6 @@ export const LOGOUT_USER_FROM_LICENSE_SERVER = 'license/LOGOUT_USER_FROM_LICENSE
 export const LICENSE_KEY_UPDATED = 'license/LICENSE_KEY_UPDATED'
 
 const initialState = {
-  license: null,
   licensing: null,
   keys: null,
   products: null,
@@ -32,11 +30,6 @@ export default (state = initialState, action) => {
     case LOGOUT_USER_FROM_LICENSE_SERVER:
       return {
         ...initialState
-      }
-    case FETCH_LICENSE_RECEIVED:
-      return {
-        ...state,
-        license: action.license
       }
 
     case FETCH_LICENSING_RECEIVED:
@@ -91,17 +84,6 @@ export const logoutUser = () => {
   logout()
   return {
     type: LOGOUT_USER_FROM_LICENSE_SERVER
-  }
-}
-
-export const fetchLicense = () => {
-  return async dispatch => {
-    const license = await api
-      .getAnonymous()
-      .get('/admin/license')
-      .then(({ data }) => data)
-
-    dispatch({ type: FETCH_LICENSE_RECEIVED, license })
   }
 }
 
