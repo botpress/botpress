@@ -3,18 +3,21 @@ import { FileMessage, Carousel, LoginPrompt, Text } from './renderer'
 import classnames from 'classnames'
 
 class Message extends Component {
-  render_text() {
-    const { text, markdown, message_raw, message_text } = this.props.data
+  render_text(textMessage) {
+    const { text, markdown } = this.props.payload
 
-    return <Text markdown={markdown || (message_raw && message_raw.markdown)} text={text || message_text} />
+    if (!textMessage && !text) {
+      return null
+    }
+    return <Text markdown={markdown} text={textMessage || text} />
   }
 
   render_form() {
-    return <p>{this.props.data.message_text}</p>
+    return this.render_text()
   }
 
   render_quick_reply() {
-    return <p>{this.props.data.message_text}</p>
+    return this.render_text()
   }
 
   render_login_prompt() {
@@ -43,27 +46,28 @@ class Message extends Component {
   }
 
   render_custom() {
-    const { module, component } = this.props.data.message_data || {}
+    const { module, component, renderer, data } = this.props.payload || {}
     if (!module || !component) {
       return this.render_unsupported()
     }
 
     const InjectedModuleView = this.props.bp.getModuleInjector()
 
-    const messageDataProps = { ...this.props.data.message_data }
+    const messageDataProps = { ...this.props.payload }
     delete messageDataProps.module
     delete messageDataProps.component
 
     const props = {
       ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData']),
-      ...messageDataProps
+      ...messageDataProps,
+      children: renderer && <Message noBubble={true} type={renderer} payload={data} />
     }
 
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
   }
 
   render_session_reset() {
-    return <p>{this.props.data.message_text}</p>
+    return this.render_text()
   }
 
   render_visit() {
@@ -71,27 +75,28 @@ class Message extends Component {
   }
 
   render_postback() {
-    return this.props.data.message_data.text || null
+    return this.render_text()
   }
 
   render_unsupported() {
-    return <p>*Unsupported message type*</p>
+    return this.render_text('*Unsupported message type*')
   }
 
   render() {
-    const renderer = (this['render_' + this.props.data.message_type] || this.render_unsupported).bind(this)
+    const renderer = (this['render_' + this.props.type] || this.render_unsupported).bind(this)
     const rendered = renderer()
     if (rendered === null) {
       return null
     }
 
-    const additionalStyle = (this.props.data.message_raw && this.props.data.message_raw['web-style']) || {}
+    const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
+
+    if (this.props.noBubble) {
+      return rendered
+    }
 
     return (
-      <div
-        className={classnames('bpw-chat-bubble', 'bpw-bubble-' + this.props.data.message_type)}
-        style={additionalStyle}
-      >
+      <div className={classnames('bpw-chat-bubble', 'bpw-bubble-' + this.props.type)} style={additionalStyle}>
         {rendered}
       </div>
     )

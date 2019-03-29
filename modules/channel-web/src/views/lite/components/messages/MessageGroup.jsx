@@ -15,14 +15,23 @@ const MessageGroup = props => {
       <div className={'bpw-message-container'}>
         {props.showUserName && <div className={'bpw-message-username'}>{props.userName}</div>}
         <div className={'bpw-message-group'}>
-          {props.messages.map((data, i) => {
+          {props.messages.map((old_data, i) => {
+            /**
+             * Here, we convert old format to the new format Botpress uses internally.
+             * - payload: all the data (raw, whatever) that is necessary to display the element
+             * - type: extracted from payload for easy sorting
+             */
+            const payload = old_data.message_data || old_data.message_raw || { text: old_data.message_text }
+            const type = old_data.message_type || old_data.message_data.type
+
             return (
               <Message
                 bp={props.bp}
                 key={`msg-${i}`}
                 isLastOfGroup={i >= props.messages.length - 1}
                 isLastGroup={props.isLastGroup}
-                data={data}
+                payload={payload}
+                type={type}
                 onSendData={props.onSendData}
               />
             )

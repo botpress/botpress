@@ -546,7 +546,7 @@ export default class Web extends React.Component {
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
 
-  downaloadFile(name, blob) {
+  downloadFile(name, blob) {
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
 
@@ -566,7 +566,7 @@ export default class Web extends React.Component {
     const file = (await this.props.bp.axios.get(url, this.axiosConfig)).data
     const blobFile = new Blob([file.txt])
 
-    this.downaloadFile(file.name, blobFile)
+    this.downloadFile(file.name, blobFile)
   }
 
   renderSide() {
