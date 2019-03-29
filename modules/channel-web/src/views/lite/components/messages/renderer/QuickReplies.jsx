@@ -31,7 +31,7 @@ export class QuickReplies extends Component {
     this.props.onFileUpload && this.props.onFileUpload(file)
   }
 
-  render() {
+  renderButtons() {
     if (!this.props.buttons) {
       return null
     }
@@ -47,6 +47,15 @@ export class QuickReplies extends Component {
             onFileUpload={this.handleFileUpload}
           />
         ))}
+      </div>
+    )
+  }
+
+  render() {
+    return (
+      <div>
+        {this.props.children}
+        {this.props.isLastGroup && this.renderButtons()}
       </div>
     )
   }

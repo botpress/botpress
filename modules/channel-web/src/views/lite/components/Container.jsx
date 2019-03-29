@@ -91,6 +91,8 @@ export default class Container extends React.Component {
         focusNext={this.handleFocusChanged.bind(this, 'header')}
         focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
         config={this.props.config}
+        onFileUpload={this.props.onFileUpload}
+        onSendData={this.props.onSendData}
       />
     )
   }

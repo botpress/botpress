@@ -4,8 +4,7 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 
 import MessageGroup from './MessageGroup'
 import Avatar from '../common/Avatar'
-import { QuickReplies, Form } from './renderer'
-
+import { QuickReplies } from './renderer'
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
 export default class MessageList extends Component {
@@ -73,15 +72,6 @@ export default class MessageList extends Component {
         onFileUpload={this.props.onFileUpload}
       />
     )
-  }
-
-  renderForm() {
-    const messages = this.props.messages || []
-    const message = messages[messages.length - 1]
-    if (message && message['message_raw'] && message['message_raw']['form']) {
-      const form = message['message_raw']['form']
-      return <Form elements={form.elements} formId={form.id} title={form.title} onSendData={this.props.onSendData} />
-    }
   }
 
   renderDate(date) {
@@ -182,8 +172,6 @@ export default class MessageList extends Component {
         }}
       >
         {this.renderMessageGroups()}
-        {this.renderForm()}
-        {this.renderQuickReplies()}
       </div>
     )
   }

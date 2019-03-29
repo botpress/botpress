@@ -46,7 +46,7 @@ class Message extends Component {
   }
 
   render_custom() {
-    const { module, component, renderer, data } = this.props.payload || {}
+    const { module, component, wrapped } = this.props.payload || {}
     if (!module || !component) {
       return this.render_unsupported()
     }
@@ -60,7 +60,7 @@ class Message extends Component {
     const props = {
       ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData']),
       ...messageDataProps,
-      children: renderer && <Message noBubble={true} type={renderer} payload={data} />
+      children: wrapped && <Message bp={this.props.bp} noBubble={true} payload={wrapped} />
     }
 
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
@@ -83,7 +83,8 @@ class Message extends Component {
   }
 
   render() {
-    const renderer = (this['render_' + this.props.type] || this.render_unsupported).bind(this)
+    const type = this.props.type || (this.props.payload && this.props.payload.type)
+    const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
     const rendered = renderer()
     if (rendered === null) {
       return null
