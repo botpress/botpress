@@ -19,12 +19,27 @@ export class Slot extends React.Component {
       const contextsOptions = response.data.map(context => {
         return { value: context, label: context }
       })
-      this.setState({ contextsOptions })
+      this.setState({ contextsOptions }, () => this.refreshContent())
+    })
+
+    this.fetchDefaultConfig()
+  }
+
+  refreshContent() {
+    // GET element skill id here
+    const elementId = 'lol'
+    this.props.bp.axios.get(`/content/element/${elementId}`).then(response => {
+      console.log('element', response.data)
     })
   }
 
   componentDidUpdate() {
     this.handleDataChange()
+  }
+
+  fetchDefaultConfig = async () => {
+    const res = await this.props.bp.axios.get('/mod/basic-skills/slot/config')
+    this.setState({ defaultConfig: res.data })
   }
 
   handleDataChange() {

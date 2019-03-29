@@ -5,12 +5,20 @@ import { SDK } from '.'
 export default async (bp: SDK) => {
   const router = bp.http.createRouterForBot('basic-skills')
 
+  // FIXME: Remove duplicate
   router.get('/choice/config', async (req, res) => {
     const config = await bp.config.getModuleConfigForBot('basic-skills', req.params.botId)
     res.send(_.pick(config, ['defaultContentElement', 'defaultContentRenderer', 'defaultMaxAttempts', 'matchNumbers']))
   })
 
+  router.get('/slot/config', async (req, res) => {
+    const config = await bp.config.getModuleConfigForBot('basic-skills', req.params.botId)
+    console.log('slot config', config)
+    res.send(_.pick(config, ['defaultContentElement', 'defaultContentRenderer', 'defaultMaxAttempts', 'matchNumbers']))
+  })
+
   const config = await bp.config.getModuleConfig('basic-skills')
+
   const checkCategoryAvailable = async () => {
     const categories = await bp.cms.getAllContentTypes().map(c => c.id)
 
