@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Button } from './Button'
 import { asyncDebounce } from '../../../utils'
+import * as Keyboard from '../../Keyboard'
 
 /**
  * Displays an array of button, and handle when they are clicked
@@ -32,13 +33,13 @@ export class QuickReplies extends Component {
   }
 
   renderButtons() {
-    if (!this.props.buttons) {
+    if (!this.props.quick_replies) {
       return null
     }
 
     return (
       <div className={'bpw-bubble-quick_reply'}>
-        {this.props.buttons.map((btn, idx) => (
+        {this.props.quick_replies.map((btn, idx) => (
           <Button
             key={idx}
             label={btn.label || btn.title}
@@ -53,10 +54,9 @@ export class QuickReplies extends Component {
 
   render() {
     return (
-      <div>
+      <Keyboard.Prepend keyboard={this.renderButtons()} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
         {this.props.children}
-        {this.props.isLastGroup && this.renderButtons()}
-      </div>
+      </Keyboard.Prepend>
     )
   }
 }

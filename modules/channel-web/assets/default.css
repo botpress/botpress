@@ -255,7 +255,10 @@ body {
 }
 
 .bpw-bubble-quick_reply {
-  text-align: right;
+  background-color: #fbfbfb;
+  padding: 15px 20px;
+  text-align: left;
+  border-top: 1px solid #dcdcdc;
 }
 
 .bpw-bubble-file {
