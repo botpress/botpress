@@ -18,6 +18,8 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
+import { tokenize } from './pipelines/language/tokenizers'
+import FastTextFeaturizer from './pipelines/intents/ft_featurizer'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
@@ -33,6 +35,7 @@ export default class ScopedEngine implements Engine {
   private _currentModelHash: string
 
   private readonly intentClassifier: FastTextClassifier
+  private readonly intentFeaturizer: FastTextFeaturizer
   private readonly langDetector: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractor: SlotExtractor
@@ -58,6 +61,7 @@ export default class ScopedEngine implements Engine {
   ) {
     this.storage = new Storage(config, this.botId)
     this.intentClassifier = new FastTextClassifier(toolkit, this.logger, this.config.fastTextOverrides || {})
+    this.intentFeaturizer = new FastTextFeaturizer(toolkit, this.config.fastTextOverrides || {})
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.slotExtractor = new CRFExtractor(toolkit)
@@ -164,10 +168,10 @@ export default class ScopedEngine implements Engine {
       .first()
       .value()
 
-    if (intentLangModel && this.intentClassifier instanceof FastTextClassifier) {
+    if (intentLangModel && this.intentFeaturizer) {
       const fn = tmpNameSync({ postfix: '.vec' })
       fs.writeFileSync(fn, intentLangModel.model)
-      this.intentClassifier.prebuiltWordVecPath = fn
+      this.intentFeaturizer.prebuiltWordVecPath = fn
       this.logger.debug(`Using Language Model "${intentLangModel.meta.fileName}"`)
     } else {
       this.logger.warn(`Language model not found for "${this.config.languageModel}"`)
@@ -257,6 +261,19 @@ export default class ScopedEngine implements Engine {
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
     try {
       await this._loadLanguageModel()
+
+      const lang = 'en' // TODO Detect language of intents and use LID on its
+      const vocabDocs = await Promise.map(_.flatMap(intentDefs, x => x.utterances), u => tokenize(u, lang))
+      const vocabModel = await this.intentFeaturizer.trainVocab(modelHash, vocabDocs)
+
+      const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
+        .flatMap(x => x.contexts)
+        .uniq()
+        .value()
+
+      for (const context of allContexts) {
+        const allUtterances = _.flatMap(intentDefs.filter(x => x.contexts.includes(context)), x => x.utterances)
+      }
 
       const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
       const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
