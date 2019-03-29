@@ -2,7 +2,6 @@ import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
-import { Pipeline } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
@@ -211,8 +210,21 @@ export class BotService {
     }
 
     await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
-    // TODO call hook promotion request here
-    // keep reference to old config, if config has changed then call the onPromotionHook
+    await this._executeStageChangeHooks(currentBotConfig)
+  }
+
+  private async _executeStageChangeHooks(bot: BotConfig) {
+    const nextBotConfig = { ...bot }
+    const users = await this.workspaceService.listUsers(['email', 'role'])
+    const stages = await this.workspaceService.getPipeline()
+    const api = await createForGlobalHooks()
+
+    await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, bot, users, stages))
+    if (bot.pipeline_status.current_stage !== nextBotConfig.pipeline_status.current_stage) {
+      // Move or copy the bot to the new destination, with the edited config. Then call hook
+
+      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, bot, users, stages))
+    }
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })

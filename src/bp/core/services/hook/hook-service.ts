@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { AuthUser, Stage } from 'core/misc/interfaces'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -85,6 +86,18 @@ export namespace Hooks {
   export class BeforeBotImport extends BaseHook {
     constructor(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object) {
       super('before_bot_import', { bp, botId, tmpFolder, hookResult })
+    }
+  }
+
+  export class OnStageChangeRequest extends BaseHook {
+    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, stages: Stage[]) {
+      super('on_stage_change_request', { bp, bot, users, stages })
+    }
+  }
+
+  export class AfterStageChanged extends BaseHook {
+    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, stages: Stage[]) {
+      super('after_stage_changed', { bp, bot, users, stages })
     }
   }
 }
