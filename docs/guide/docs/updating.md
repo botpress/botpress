@@ -3,8 +3,6 @@ id: updating
 title: Updating to New Releases
 ---
 
-<!-- https://botpress.io/docs/learn/changes/#maintenance -->
-
 Download the new version of Botpress [here](https://botpress.io/download).
 
 Even though Botpress Server has become much more stable, breaking changes still might occur. When they do, resolving them is often as simple as editing config files in the `/data` folder.
