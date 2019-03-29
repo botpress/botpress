@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart", "updating"],
     "Build": [
       "build/overview",
       "build/nlu",
