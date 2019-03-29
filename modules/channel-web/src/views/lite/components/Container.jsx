@@ -1,6 +1,7 @@
 import React from 'react'
 import classnames from 'classnames'
 
+import * as Keyboard from './Keyboard'
 import ConversationList from './ConversationList'
 import Composer from './Composer'
 import Header from './Header'
@@ -80,20 +81,22 @@ export default class Container extends React.Component {
     }
 
     return (
-      <Composer
-        placeholder={'Reply to ' + name}
-        send={this.props.onTextSend}
-        change={this.props.onTextChanged}
-        text={this.props.text}
-        recallHistory={this.props.recallHistory}
-        focused={focused}
-        onFocus={this.handleFocusChanged.bind(this, 'input')}
-        focusNext={this.handleFocusChanged.bind(this, 'header')}
-        focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
-        config={this.props.config}
-        onFileUpload={this.props.onFileUpload}
-        onSendData={this.props.onSendData}
-      />
+      <Keyboard.Default>
+        <Composer
+          placeholder={'Reply to ' + name}
+          send={this.props.onTextSend}
+          change={this.props.onTextChanged}
+          text={this.props.text}
+          recallHistory={this.props.recallHistory}
+          focused={focused}
+          onFocus={this.handleFocusChanged.bind(this, 'input')}
+          focusNext={this.handleFocusChanged.bind(this, 'header')}
+          focusPrevious={this.handleFocusChanged.bind(this, 'convo')}
+          config={this.props.config}
+          onFileUpload={this.props.onFileUpload}
+          onSendData={this.props.onSendData}
+        />
+      </Keyboard.Default>
     )
   }
 
