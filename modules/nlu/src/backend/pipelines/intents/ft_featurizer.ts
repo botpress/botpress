@@ -28,7 +28,7 @@ export default class FastTextFeaturizer {
 
     return {
       ...extraArgs,
-      lr: _.get(this.ftOverrides, 'learningRate', 0.8),
+      lr: _.get(this.ftOverrides, 'learningRate', 0.05),
       epoch: _.get(this.ftOverrides, 'epoch', 5),
       wordNgrams: _.get(this.ftOverrides, 'wordNgrams', 3),
       dim: 15
@@ -59,7 +59,15 @@ export default class FastTextFeaturizer {
       throw new Error(`Vocab: Model '${modelId}' is not loaded in memory`)
     }
 
-    return this._modelsCache[modelId].queryWordVectors(doc.join(''))
+    const vecs = await Promise.mapSeries(doc, token => this._modelsCache[modelId].queryWordVectors(token))
+
+    // Non-weighted Average
+    const result = vecs.reduce((acc, c) => {
+      c.forEach((v, i) => (acc[i] += v / vecs.length))
+      return acc
+    }, new Array(15).fill(0))
+
+    return result
   }
 
   public async trainVocab(modelId: string, documents: Document[]): Promise<Buffer> {

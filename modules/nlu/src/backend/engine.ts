@@ -266,18 +266,57 @@ export default class ScopedEngine implements Engine {
       const vocabDocs = await Promise.map(_.flatMap(intentDefs, x => x.utterances), u => tokenize(u, lang))
       const vocabModel = await this.intentFeaturizer.trainVocab(modelHash, vocabDocs)
 
+      await this.intentFeaturizer.loadModel(modelHash, vocabModel) // TODO: Move this
+
       const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
         .flatMap(x => x.contexts)
         .uniq()
         .value()
 
+      type Point = { context: string; intent: string; features: number[] }
+      const allPoints: Point[] = []
+
       for (const context of allContexts) {
-        const allUtterances = _.flatMap(intentDefs.filter(x => x.contexts.includes(context)), x => x.utterances)
+        const intents = intentDefs.filter(x => x.contexts.includes(context))
+        const intentsWTokens = await Promise.map(intents, async i => ({
+          ...i,
+          tokens: await Promise.map(i.utterances, u => tokenize(u, lang))
+        }))
+
+        for (const { name, tokens } of intentsWTokens) {
+          for (const utteranceTokens of tokens) {
+            const vector = await this.intentFeaturizer.getFeatures(modelHash, utteranceTokens)
+            allPoints.push({ context, intent: name, features: [...vector, utteranceTokens.length] })
+          }
+        }
       }
+
+      const ctxPoints = allPoints.map<sdk.MLToolkit.SVM.DataPoint>(x => ({ coordinates: x.features, label: x.context }))
+
+      const svm = new this.toolkit.SVM.Trainer()
+      await svm.train(ctxPoints, progress => debug('SVM => progress for CTX %d', progress))
+      const ctxModelStr = svm.serialize()
+
+      const perIntentModelStr: { [intent: string]: string } = {}
+      const groupedByCtx = _.groupBy<Point>(allPoints, x => x.context)
+      for (const ctx in groupedByCtx) {
+        const points = allPoints
+          .filter(x => x.context === ctx)
+          .map<sdk.MLToolkit.SVM.DataPoint>(x => ({ label: x.intent, coordinates: x.features }))
+        const svm = new this.toolkit.SVM.Trainer()
+        await svm.train(points, progress => debug('SVM => progress for INT', { ctx, progress }))
+        perIntentModelStr[ctx] = svm.serialize()
+      }
+
+      // Persist all the models
+      // Put all those in a new INTENT CLASSIFIER class
+      // Restore models
+      // Ctx-based Classify function with probabilities
 
       const intentModels = await this._trainIntentClassifier(intentDefs, modelHash)
       const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
 
+      // TODO: Add the VOCAB model here
       await this.storage.persistModels([...slotTaggerModels, ...intentModels])
     } catch (err) {
       this.logger.attachError(err)
