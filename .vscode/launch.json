@@ -10,10 +10,12 @@
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/private-modules",
-        "NODE_PATH": "${workspaceFolder}/out/bp"
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:*"
       },
+      "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out/",
+        "${workspaceFolder}/out",
         "${workspaceFolder}/modules/*/dist",
         "${workspaceFolder}/private-modules/*/dist",
         "!${workspaceFolder}/**/node_modules"
