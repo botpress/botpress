@@ -70,7 +70,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
-        this._logDebug(event.botId, event.target, 'waiting until next event')
+        this._logDebug(event.botId, event.target, 'waiting until next event', { ...event.state.context })
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
