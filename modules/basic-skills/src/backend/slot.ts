@@ -2,8 +2,6 @@ import * as sdk from 'botpress/sdk'
 import { Transition } from '..'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  console.log('data', data, metadata)
-
   return {
     transitions: createTransitions(),
     flow: {
@@ -75,7 +73,7 @@ const createNodes = data => {
           name: 'builtin/setVariable {"type":"temp","name":"extracted","value":"true"}'
         }
       ],
-      onReceive: []
+      onReceive: undefined
     },
     {
       name: 'not-extracted',
@@ -91,7 +89,7 @@ const createNodes = data => {
           name: 'builtin/setVariable {"type":"temp","name":"notExtracted","value":"true"}'
         }
       ],
-      onReceive: []
+      onReceive: undefined
     },
     {
       name: 'check-if-extracted',
@@ -106,7 +104,7 @@ const createNodes = data => {
         }
       ],
       onEnter: [],
-      onReceive: []
+      onReceive: undefined
     },
     {
       name: 'already-extracted',
@@ -122,7 +120,7 @@ const createNodes = data => {
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
         }
       ],
-      onReceive: []
+      onReceive: undefined
     }
   ]
 }
