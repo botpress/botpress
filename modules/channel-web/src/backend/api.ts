@@ -321,14 +321,15 @@ export default async (bp: typeof sdk, db: Database) => {
     }
   })
 
-  const getMessageContent = message => {
-    switch (message.message_type) {
-      case 'file':
-        return message.message_data.url
-      case 'text':
-        return message.message_text
-      default:
-        return `Event (${message.message_type})`
+  const getMessageContent = (message, type) => {
+    const { payload } = message
+
+    if (type === 'file') {
+      return (payload && payload.url) || message.message_data.url
+    } else if (type === 'text' || type === 'quick_reply') {
+      return (payload && payload.text) || message.message_text
+    } else {
+      return `Event (${type})`
     }
   }
 
@@ -342,11 +343,12 @@ export default async (bp: typeof sdk, db: Database) => {
     )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
     const messagesAsTxt = messages.map(message => {
-      if (message.message_type === 'session_reset') {
+      const type = (message.payload && message.payload.type) || message.message_type
+      if (type === 'session_reset') {
         return ''
       }
       const userName = message.full_name.indexOf('undefined') > -1 ? 'User' : message.full_name
-      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message)}\r\n`
+      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message, type)}\r\n`
     })
 
     return [metadata, ...messagesAsTxt].join('')

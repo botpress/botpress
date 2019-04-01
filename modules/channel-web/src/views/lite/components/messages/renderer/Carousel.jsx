@@ -25,26 +25,26 @@ export const Carousel = props => {
 
   const settings = Object.assign({}, defaultSettings, props.carousel.settings)
 
-  return <Slider {...settings}>{elements.map(el => Card(el))}</Slider>
+  return <Slider {...settings}>{elements.map((el, idx) => Card(el, idx))}</Slider>
 }
 
-export const Card = element => {
+export const Card = (element, index) => {
   const { picture, title, subtitle, buttons } = element
 
   return (
-    <div className={'bpw-carousel-container'}>
-      {picture && <div className={'bpw-carousel-picture'} style={{ backgroundImage: `url("${picture}")` }} />}
+    <div className={'bpw-card-container'} key={index}>
+      {picture && <div className={'bpw-card-picture'} style={{ backgroundImage: `url("${picture}")` }} />}
       <div>
-        <div className={'bpw-carousel-header'}>
-          <div className={'bpw-carousel-title'}>{title}</div>
-          {subtitle && <div className={'bpw-carousel-subtitle'}>{subtitle}</div>}
+        <div className={'bpw-card-header'}>
+          <div className={'bpw-card-title'}>{title}</div>
+          {subtitle && <div className={'bpw-card-subtitle'}>{subtitle}</div>}
         </div>
-        <div className={'bpw-carousel-buttons'}>
+        <div className={'bpw-card-buttons'}>
           {buttons.map(btn => {
             if (btn.url) {
               return (
-                <a href={btn.url} key={`1-${btn.title}`} target="_blank" className={'bpw-carousel-action'}>
-                  <i className={'bpw-carousel-external-icon'} />
+                <a href={btn.url} key={`1-${btn.title}`} target="_blank" className={'bpw-card-action'}>
+                  <i className={'bpw-card-external-icon'} />
                   {btn.title || btn}
                 </a>
               )
@@ -54,15 +54,15 @@ export const Card = element => {
                   href
                   onClick={this.props.onSendData.bind(this, { type: 'postback', data: { payload: btn.payload } })}
                   key={`2-${btn.title}`}
-                  className={'bpw-carousel-action'}
+                  className={'bpw-card-action'}
                 >
                   {btn.title || btn}
                 </a>
               )
             } else {
               return (
-                <a href="#" key={`3-${btn.title}`} target="_blank" className={'bpw-carousel-action'}>
-                  <i className={'bpw-carousel-external-icon'} />
+                <a href="#" key={`3-${btn.title}`} target="_blank" className={'bpw-card-action'}>
+                  <i className={'bpw-card-external-icon'} />
                   [NO LINK] {btn.title || btn}
                 </a>
               )

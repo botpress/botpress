@@ -254,7 +254,13 @@ body {
   word-break: break-word;
 }
 
-.bpw-bubble-quick_reply {
+.bpw-bubble-session_reset {
+  color: red !important;
+  background: none !important;
+  border: none;
+  border-top: 1px solid red;
+  border-bottom: 1px solid red;
+  margin: 10px 0;
 }
 
 .bpw-bubble-carousel {
@@ -267,6 +273,9 @@ body {
 
 .bpw-bubble-file {
   padding: 0;
+}
+.bpw-bubble-file p {
+  padding: 0.5rem 0.75rem;
 }
 
 .bpw-bubble-file a {
@@ -308,9 +317,7 @@ body {
   border-top: 1px solid #dcdcdc;
 }
 
-/*
-* CAROUSEL 
-*/
+/* CAROUSEL  */
 .slick-arrow {
   background-color: #fff;
   border: 1px solid #dddfe2;
@@ -329,7 +336,7 @@ body {
   margin: 0px;
 }
 
-.bpw-carousel-container {
+.bpw-card-container {
   margin-right: 0px !important;
   box-sizing: border-box;
   color: rgba(0, 0, 0, 1);
@@ -343,11 +350,11 @@ body {
   overflow: hidden;
 }
 
-.bpw-carousel-header {
+.bpw-card-header {
   padding: 6px 12px 12px 12px;
 }
 
-.bpw-carousel-title {
+.bpw-card-title {
   text-overflow: ellipsis;
   white-space: normal;
   font-weight: bold;
@@ -356,15 +363,15 @@ body {
   overflow: hidden;
 }
 
-.bpw-carousel-subtitle {
+.bpw-card-subtitle {
   color: rgba(0, 0, 0, 0.4);
 }
 
-.bpw-carousel-buttons {
+.bpw-card-buttons {
   /** The container of buttons*/
 }
 
-.bpw-carousel-action {
+.bpw-card-action {
   font-weight: 500;
   padding: 0 10px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -375,7 +382,7 @@ body {
   text-align: center;
 }
 
-.bpw-carousel-external-icon {
+.bpw-card-external-icon {
   background: url(/assets/modules/channel-web/images/external_icon.png) no-repeat;
   width: 16px;
   height: 16px;
@@ -383,7 +390,7 @@ body {
   background-size: 100% 100%;
 }
 
-.bpw-carousel-picture {
+.bpw-card-picture {
   background-position: 50% 50%;
   background-size: cover;
   height: 150px;

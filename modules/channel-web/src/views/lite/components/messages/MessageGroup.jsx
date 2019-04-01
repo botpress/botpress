@@ -28,7 +28,7 @@ const MessageGroup = props => {
 
             // Keeping compatibility with old schema for the quick reply
             if (data.message_type === 'quick_reply' && !payload.text) {
-              payload.text = this.props.oldData && this.props.oldData.message_text
+              payload.text = data.message_text
             }
 
             if (data.message_type === 'file' && !payload.url) {
