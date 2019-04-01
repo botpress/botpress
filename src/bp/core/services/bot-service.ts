@@ -265,8 +265,6 @@ export class BotService {
       promoted_on: new Date()
     }
     delete newBot.pipeline_status.stage_request
-    console.log('initial', initialBot.pipeline_status)
-    console.log('next', newBot.pipeline_status)
     await this.addBot(
       <BotConfig>_.pick(newBot, ['id', 'name', 'category', 'description', 'pipeline_status', 'locked']),
       <BotTemplate>{ id: 'empty-bot', moduleId: 'builtin' }

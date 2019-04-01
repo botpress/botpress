@@ -16,7 +16,7 @@ const stagePromotionRequest = async () => {
   if (stageRoles.includes(requesterRole)) {
     bot.pipeline_status.current_stage = {
       promoted_by: requesterEmail,
-      promoted_at: new Date(),
+      promoted_on: new Date(),
       id: requestedStageId
     }
   } else {
