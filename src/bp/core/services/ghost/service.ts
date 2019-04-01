@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, ListenHandle } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { forceForwardSlashes } from 'core/misc/utils'
@@ -17,6 +17,7 @@ import { TYPES } from '../../types'
 import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
+import { EventEmitter2 } from 'eventemitter2'
 
 const MAX_GHOST_FILE_SIZE = 10 * 1024 * 1024 // 10 Mb
 
@@ -71,6 +72,12 @@ export class GhostService {
       this.logger
     )
 
+    process.BOTPRESS_EVENTS.on('after_bot_unmount', args => {
+      if (args.botId === botId) {
+        scopedGhost.events.removeAllListeners()
+      }
+    })
+
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
   }
@@ -122,6 +129,7 @@ export interface FileContent {
 export class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
+  events: EventEmitter2 = new EventEmitter2()
 
   constructor(
     private baseDir: string,
@@ -178,6 +186,7 @@ export class ScopedGhostService {
     }
 
     await this.primaryDriver.upsertFile(fileName, content, true)
+    this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }
 
@@ -345,6 +354,7 @@ export class ScopedGhostService {
 
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
+    this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }
 
@@ -395,5 +405,11 @@ export class ScopedGhostService {
     }
 
     return result
+  }
+
+  onFileChanged(callback: (filePath: string) => void): ListenHandle {
+    const cb = file => callback && callback(file)
+    this.events.on('changed', cb)
+    return { remove: () => this.events.off('changed', cb) }
   }
 }
