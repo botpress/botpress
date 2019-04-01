@@ -79,7 +79,7 @@ export class BotsRouter extends CustomRouter {
           bot.pipeline_status = {
             current_stage: {
               id: (await this.workspaceService.getPipeline())[0].id,
-              promoted_at: new Date(),
+              promoted_on: new Date(),
               promoted_by: req.tokenUser!.email
             }
           }
