@@ -605,6 +605,16 @@ declare module 'botpress/sdk' {
     pipeline_status: BotPipelineStatus
   }
 
+  export type Pipeline = Stage[]
+
+  export type StageAction = 'promote_copy' | 'promote_move'
+
+  export interface Stage {
+    id: string
+    label: string
+    action: StageAction
+  }
+
   export interface BotPipelineStatus {
     current_stage: {
       promoted_by: string
