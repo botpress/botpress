@@ -99,11 +99,11 @@ export class BotsRouter extends CustomRouter {
     )
 
     router.post(
-      '/:botId/promote',
+      '/:botId/stage',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          await this.botService.requestBotPromotion(req.params.botId, req.tokenUser!.email)
+          await this.botService.requestStageChange(req.params.botId, req.tokenUser!.email)
 
           return res.sendStatus(200)
         } catch (err) {

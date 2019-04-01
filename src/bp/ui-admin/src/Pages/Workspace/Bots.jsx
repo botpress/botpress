@@ -103,7 +103,7 @@ class Bots extends Component {
   async requestPromotion(botId) {
     const { data } = await api.getSecured({ timeout: 10000 })({
       method: 'post',
-      url: `/admin/bots/${botId}/promote`
+      url: `/admin/bots/${botId}/stage`
     })
 
     console.log(data)
