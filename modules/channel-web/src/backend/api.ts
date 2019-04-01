@@ -171,14 +171,12 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = {
         text: `Uploaded a file [${req.file.originalname}]`,
         type: 'file',
-        data: {
-          storage: req.file.location ? 's3' : 'local',
-          url: req.file.location || req.file.path || undefined,
-          name: req.file.filename,
-          originalName: req.file.originalname,
-          mime: req.file.contentType || req.file.mimetype,
-          size: req.file.size
-        }
+        storage: req.file.location ? 's3' : 'local',
+        url: req.file.location || req.file.path || undefined,
+        name: req.file.filename,
+        originalName: req.file.originalname,
+        mime: req.file.contentType || req.file.mimetype,
+        size: req.file.size
       }
 
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
@@ -233,25 +231,7 @@ export default async (bp: typeof sdk, db: Database) => {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
-    const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
-
-    // let the bot programmer make extra cleanup
-    // if (bp.webchat.sanitizeIncomingMessage) {
-    // FIXME
-    // sanitizedPayload = bp.webchat.sanitizeIncomingMessage(sanitizedPayload) || sanitizedPayload
-    // }
-
-    // Because we don't necessarily persist what we emit/received
-    const persistedPayload = { ...sanitizedPayload }
-
-    // We remove the password from the persisted messages for security reasons
-    if (payload.type === 'login_prompt') {
-      persistedPayload.data = _.omit(persistedPayload.data, ['password'])
-    }
-
-    if (payload.type === 'form') {
-      persistedPayload.data.formId = payload.formId
-    }
+    const sanitizedPayload = _.omit(payload, ['password'])
 
     const event = bp.IO.Event({
       botId,
@@ -264,7 +244,7 @@ export default async (bp: typeof sdk, db: Database) => {
       credentials
     })
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
+    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload)
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)

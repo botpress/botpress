@@ -9,6 +9,7 @@ $charcoal: #1e1e1e;
   max-width: 800px;
   text-align: center;
   color: $charcoal;
+  overflow-y: auto;
   svg {
     fill: $charcoal;
   }

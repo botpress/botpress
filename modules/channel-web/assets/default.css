@@ -60,7 +60,7 @@ body {
 }
 
 .bpw-bot-avatar {
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .bpw-bot-avatar img,
@@ -216,7 +216,7 @@ body {
   overflow-y: auto;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  padding: 1rem 15px;
+  padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
 .bpw-date-container {
@@ -255,10 +255,14 @@ body {
 }
 
 .bpw-bubble-quick_reply {
-  background-color: #fbfbfb;
-  padding: 15px 20px;
+}
+
+.bpw-bubble-carousel {
+  background: none;
+  border: 0px;
+  padding: 0 !important;
+  margin: 10px 0;
   text-align: left;
-  border-top: 1px solid #dcdcdc;
 }
 
 .bpw-bubble-file {
@@ -297,6 +301,13 @@ body {
   border-bottom-left-radius: 0px;
 }
 
+.bpw-keyboard-quick_reply {
+  background-color: #fbfbfb;
+  padding: 15px 20px;
+  text-align: left;
+  border-top: 1px solid #dcdcdc;
+}
+
 /*
 * CAROUSEL 
 */
@@ -312,6 +323,10 @@ body {
 }
 .slick-arrow:before {
   color: #444;
+}
+
+.slick-track {
+  margin: 0px;
 }
 
 .bpw-carousel-container {
@@ -373,12 +388,6 @@ body {
   background-size: cover;
   height: 150px;
   width: 100%;
-}
-
-.bpw-bubble-carousel {
-  background: none;
-  padding: 0 !important;
-  margin: 10px 0;
 }
 
 /* Custom styling for the login form*/

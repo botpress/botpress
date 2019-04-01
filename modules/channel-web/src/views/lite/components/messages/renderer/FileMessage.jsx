@@ -1,11 +1,16 @@
 import React from 'react'
+import { Text } from './Text'
 
 export const FileMessage = props => {
   if (!props.file) {
     return null
   }
 
-  const { url, mime, name, storage } = props.file
+  const { url, mime, name, storage, text } = props.file
+
+  if (text) {
+    return <Text text={text} />
+  }
 
   if (storage === 'local') {
     return (

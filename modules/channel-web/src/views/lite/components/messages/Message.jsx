@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { FileMessage, Carousel, LoginPrompt, Text } from './renderer'
 import classnames from 'classnames'
+import * as Keyboard from '../Keyboard'
 
 class Message extends Component {
   render_text(textMessage) {
@@ -12,23 +13,22 @@ class Message extends Component {
     return <Text markdown={markdown} text={textMessage || text} />
   }
 
-  render_form() {
-    return this.render_text()
-  }
-
   render_quick_reply() {
     return this.render_text()
   }
 
   render_login_prompt() {
-    const isLastMessage = this.props.isLastOfGroup && this.props.isLastGroup
-    const isBotMessage = !this.props.data.userId
-
-    return <LoginPrompt isLastMessage={isLastMessage} isBotMessage={isBotMessage} onSendData={this.props.onSendData} />
+    return (
+      <LoginPrompt
+        isLastMessage={this.props.isLastGroup && this.props.isLastOfGroup}
+        isBotMessage={this.props.isBotMessage}
+        onSendData={this.props.onSendData}
+      />
+    )
   }
 
   render_carousel() {
-    return <Carousel onSendData={this.props.onSendData} carousel={this.props.data.message_raw} />
+    return <Carousel onSendData={this.props.onSendData} carousel={this.props.payload} />
   }
 
   render_typing() {
@@ -42,7 +42,7 @@ class Message extends Component {
   }
 
   render_file() {
-    return <FileMessage file={this.props.data.message_data} />
+    return <FileMessage file={this.props.payload} />
   }
 
   render_custom() {
@@ -58,9 +58,10 @@ class Message extends Component {
     delete messageDataProps.component
 
     const props = {
-      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData']),
+      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload']),
       ...messageDataProps,
-      children: wrapped && <Message bp={this.props.bp} noBubble={true} payload={wrapped} />
+      keyboard: Keyboard,
+      children: wrapped && <Message bp={this.props.bp} keyboard={Keyboard} noBubble={true} payload={wrapped} />
     }
 
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
@@ -97,7 +98,7 @@ class Message extends Component {
     }
 
     return (
-      <div className={classnames('bpw-chat-bubble', 'bpw-bubble-' + this.props.type)} style={additionalStyle}>
+      <div className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type)} style={additionalStyle}>
         {rendered}
       </div>
     )

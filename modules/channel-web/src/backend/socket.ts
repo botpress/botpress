@@ -42,12 +42,7 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
     } else if (messageType === 'text' || messageType === 'carousel' || messageType === 'custom') {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        data: event.payload,
-        raw: event.payload,
-        text: event.preview,
-        type: messageType
-      })
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, event.payload)
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'file') {
@@ -56,10 +51,10 @@ export default async (bp: typeof sdk, db: Database) => {
       const basename = path.basename(event.payload.url, extension)
 
       const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        data: { storage: 'storage', mime: mimeType, name: basename, ...event.payload },
-        raw: event.payload,
-        text: event.preview,
-        type: messageType
+        ...event.payload,
+        mime: mimeType,
+        extension,
+        basename
       })
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))

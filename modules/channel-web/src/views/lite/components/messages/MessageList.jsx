@@ -4,7 +4,7 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 
 import MessageGroup from './MessageGroup'
 import Avatar from '../common/Avatar'
-import { QuickReplies } from './renderer'
+
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
 export default class MessageList extends Component {
@@ -24,11 +24,13 @@ export default class MessageList extends Component {
   }
 
   tryScrollToBottom() {
-    try {
-      this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
-    } catch (err) {
-      // Discard the error
-    }
+    setTimeout(() => {
+      try {
+        this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
+      } catch (err) {
+        // Discard the error
+      }
+    }, 0)
   }
 
   handleKeyDown = e => {
@@ -49,29 +51,6 @@ export default class MessageList extends Component {
       this.messagesDiv.blur()
       this.props.focusPrevious()
     }
-  }
-
-  renderQuickReplies() {
-    const messages = this.props.messages || []
-    const message = messages[messages.length - 1]
-    const quick_replies = message && message['message_raw'] && message['message_raw']['quick_replies']
-    const currentText = this.props.currentText
-    const filterQuickReplies = this.props.filterQuickReplies
-
-    const filteredQuickReplies = quick_replies
-      ? quick_replies.filter(quick_reply => {
-          const regExp = new RegExp(currentText, 'i')
-          return regExp.test(quick_reply.title)
-        })
-      : quick_replies
-
-    return (
-      <QuickReplies
-        buttons={filterQuickReplies ? filteredQuickReplies : quick_replies}
-        onSendData={this.props.onSendData}
-        onFileUpload={this.props.onFileUpload}
-      />
-    )
   }
 
   renderDate(date) {
@@ -153,6 +132,7 @@ export default class MessageList extends Component {
                 isLastGroup={i >= groups.length - 1}
                 messages={group}
                 onSendData={this.props.onSendData}
+                onFileUpload={this.props.onFileUpload}
               />
             </div>
           )

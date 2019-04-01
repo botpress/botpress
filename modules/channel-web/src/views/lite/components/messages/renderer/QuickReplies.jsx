@@ -18,43 +18,40 @@ export class QuickReplies extends Component {
     this.quickReplyDebounce = asyncDebounce(1000)
   }
 
-  handleSendQuickReply = (title, payload) => {
+  handleButtonClicked = (title, payload) => {
     if (this.props.onSendData) {
       this.props.onSendData({
         type: 'quick_reply',
         text: title,
-        data: { payload }
+        payload
       })
     }
   }
 
-  handleFileUpload = file => {
-    this.props.onFileUpload && this.props.onFileUpload(file)
-  }
-
-  renderButtons() {
-    if (!this.props.quick_replies) {
-      return null
-    }
-
-    return (
-      <div className={'bpw-bubble-quick_reply'}>
-        {this.props.quick_replies.map((btn, idx) => (
+  renderKeyboard(buttons) {
+    return buttons.map((btn, idx) => {
+      if (Array.isArray(btn)) {
+        return <div>{this.renderKeyboard(btn)}</div>
+      } else {
+        return (
           <Button
             key={idx}
             label={btn.label || btn.title}
             payload={btn.payload}
-            onButtonClick={this.handleSendQuickReply}
-            onFileUpload={this.handleFileUpload}
+            onButtonClick={this.handleButtonClicked}
+            onFileUpload={this.props.onFileUpload}
           />
-        ))}
-      </div>
-    )
+        )
+      }
+    })
   }
 
   render() {
+    const buttons = this.props.buttons || this.props.quick_replies
+    const kbd = <div className={'bpw-keyboard-quick_reply'}>{buttons && this.renderKeyboard(buttons)}</div>
+
     return (
-      <Keyboard.Prepend keyboard={this.renderButtons()} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
+      <Keyboard.Prepend keyboard={kbd} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
         {this.props.children}
       </Keyboard.Prepend>
     )

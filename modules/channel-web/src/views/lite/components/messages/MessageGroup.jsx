@@ -15,14 +15,25 @@ const MessageGroup = props => {
       <div className={'bpw-message-container'}>
         {props.showUserName && <div className={'bpw-message-username'}>{props.userName}</div>}
         <div className={'bpw-message-group'}>
-          {props.messages.map((old_data, i) => {
+          {props.messages.map((data, i) => {
             /**
              * Here, we convert old format to the new format Botpress uses internally.
              * - payload: all the data (raw, whatever) that is necessary to display the element
              * - type: extracted from payload for easy sorting
              */
-            const payload = old_data.message_data || old_data.message_raw || { text: old_data.message_text }
-            const type = old_data.message_type || old_data.message_data.type
+            const payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
+            if (!payload.type) {
+              payload.type = data.message_type || data.message_data.type || 'text'
+            }
+
+            // Keeping compatibility with old schema for the quick reply
+            if (data.message_type === 'quick_reply' && !payload.text) {
+              payload.text = this.props.oldData && this.props.oldData.message_text
+            }
+
+            if (data.message_type === 'file' && !payload.url) {
+              payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
+            }
 
             return (
               <Message
@@ -31,8 +42,10 @@ const MessageGroup = props => {
                 isLastOfGroup={i >= props.messages.length - 1}
                 isLastGroup={props.isLastGroup}
                 payload={payload}
-                type={type}
+                sentOn={data.sent_on}
                 onSendData={props.onSendData}
+                onFileUpload={props.onFileUpload}
+                isBotMessage={!data.userId}
               />
             )
           })}
