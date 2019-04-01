@@ -629,7 +629,7 @@ declare module 'botpress/sdk' {
   export interface BotPipelineStatus {
     current_stage: {
       promoted_by: string
-      promoted_at: Date
+      promoted_on: Date
       id: string
     }
     stage_request?: {

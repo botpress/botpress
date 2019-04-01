@@ -221,11 +221,11 @@ export class Botpress {
     await Promise.mapSeries(bots.values(), bot => {
       if (!bot.pipeline_status) {
         const pipeline_migration_configs = {
-          pipeline_status: {
+          pipeline_status: <sdk.BotPipelineStatus>{
             current_stage: {
               id: pipeline[0].id,
               promoted_by: 'system',
-              promoted_at: new Date()
+              promoted_on: new Date()
             }
           },
           locked: false
