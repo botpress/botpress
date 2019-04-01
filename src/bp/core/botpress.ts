@@ -201,8 +201,12 @@ export class Botpress {
     }
 
     const bots = await this.botService.getBots()
+    const pipeline = await this.workspaceService.getPipeline()
+    if (pipeline.length > 4) {
+      this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
+    }
     // @deprecated > 11: bot will always include default pipeline stage
-    await this._ensureBotsDefineStage(bots)
+    await this._ensureBotsDefineStage(bots, pipeline)
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
@@ -216,8 +220,7 @@ export class Botpress {
   }
 
   // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>): Promise<void> {
-    const pipeline = await this.workspaceService.getPipeline()
+  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, pipeline: sdk.Pipeline): Promise<void> {
     await Promise.mapSeries(bots.values(), bot => {
       if (!bot.pipeline_status) {
         const pipeline_migration_configs = {
