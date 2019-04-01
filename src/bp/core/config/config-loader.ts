@@ -62,10 +62,11 @@ export class ConfigProvider {
     await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
   }
 
-  async mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<void> {
+  async mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
     const originalConfig = await this.getBotConfig(botId)
     const config = _.merge(originalConfig, partialConfig)
     await this.setBotConfig(botId, config)
+    return config
   }
 
   public async createDefaultConfigIfMissing() {

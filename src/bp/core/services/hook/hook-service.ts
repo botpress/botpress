@@ -90,14 +90,20 @@ export namespace Hooks {
   }
 
   export class OnStageChangeRequest extends BaseHook {
-    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, stages: Stage[]) {
-      super('on_stage_change_request', { bp, bot, users, stages })
+    constructor(
+      bp: typeof sdk,
+      bot: sdk.BotConfig,
+      users: Partial<AuthUser[]>,
+      pipeline: sdk.Pipeline,
+      hookResult: any
+    ) {
+      super('on_stage_change_request', { bp, bot, users, pipeline, hookResult })
     }
   }
 
   export class AfterStageChanged extends BaseHook {
-    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, stages: Stage[]) {
-      super('after_stage_changed', { bp, bot, users, stages })
+    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, pipeline: sdk.Pipeline) {
+      super('after_stage_changed', { bp, bot, users, pipeline })
     }
   }
 }

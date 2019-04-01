@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage, StageAction } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -191,13 +191,13 @@ export class BotService {
     }
   }
 
-  async requestBotPromotion(botId: string, requested_by: string) {
-    const currentBotConfig = (await this.findBotById(botId)) as BotConfig
-    if (!currentBotConfig) {
+  async requestStageChange(botId: string, requested_by: string) {
+    const botConfig = (await this.findBotById(botId)) as BotConfig
+    if (!botConfig) {
       throw Error('bot does not exist')
     }
     const pipeline = await this.workspaceService.getPipeline()
-    const nextStageIdx = pipeline.findIndex(s => s.id === currentBotConfig.pipeline_status.current_stage.id) + 1
+    const nextStageIdx = pipeline.findIndex(s => s.id === botConfig.pipeline_status.current_stage.id) + 1
     if (nextStageIdx >= pipeline.length) {
       this.logger.debug('end of pipeline')
       return
@@ -209,22 +209,47 @@ export class BotService {
       requested_by
     }
 
-    await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
-    await this._executeStageChangeHooks(currentBotConfig)
+    const currentBot = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    await this._executeStageChangeHooks(currentBot)
   }
 
-  private async _executeStageChangeHooks(bot: BotConfig) {
-    const nextBotConfig = { ...bot }
+  private async _executeStageChangeHooks(initialBot: BotConfig) {
+    const alteredBot = { ...initialBot }
     const users = await this.workspaceService.listUsers(['email', 'role'])
-    const stages = await this.workspaceService.getPipeline()
+    const pipeline = await this.workspaceService.getPipeline()
     const api = await createForGlobalHooks()
-
-    await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, bot, users, stages))
-    if (bot.pipeline_status.current_stage !== nextBotConfig.pipeline_status.current_stage) {
-      // Move or copy the bot to the new destination, with the edited config. Then call hook
-
-      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, bot, users, stages))
+    const currentStage = <Stage>pipeline.find(s => s.id === initialBot.pipeline_status.current_stage.id)
+    const hookResult = {
+      actions: [currentStage.action]
     }
+
+    await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
+    // stage has changed
+    if (initialBot.pipeline_status.current_stage.id !== alteredBot.pipeline_status.current_stage.id) {
+      await this._executeStageChangeActions(alteredBot, hookResult)
+      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, alteredBot, users, pipeline))
+    }
+  }
+
+  private async _executeStageChangeActions(
+    bot: BotConfig,
+    hookResult: { actions: StageAction[] | undefined }
+  ): Promise<void> {
+    if (!hookResult.actions || !_.isArray(hookResult.actions)) {
+      return
+    }
+
+    await Promise.mapSeries(hookResult.actions, async action => {
+      if (action === 'promote_copy') {
+        if ((await this.workspaceService.getBotRefs()).find(bId => bId == bot.id)) {
+          bot.id = `${bot.id}_copy_${new Date()}`
+        }
+        await this.addBot(bot, <BotTemplate>{ id: 'empty-bot', moduleId: 'builtin' })
+        return this.workspaceService.addBotRef(bot.id)
+      } else if (action === 'promote_move') {
+        return this.configProvider.setBotConfig(bot.id, bot)
+      }
+    })
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
