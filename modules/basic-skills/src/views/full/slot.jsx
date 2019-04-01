@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, Row, Col, Label, Container, Button } from 'reactstrap'
+import { Input, Row, Col, Label } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
 import Select from 'react-select'
 import style from './style.scss'
@@ -8,7 +8,6 @@ export class Slot extends React.Component {
   state = {
     slotName: undefined,
     contentElement: undefined,
-    contentType: undefined,
     selectedContexts: [],
     contextsOptions: []
   }
@@ -19,34 +18,28 @@ export class Slot extends React.Component {
       const contextsOptions = response.data.map(context => {
         return { value: context, label: context }
       })
-      this.setState({ contextsOptions }, () => this.refreshContent())
+      this.setState({ contextsOptions })
     })
 
-    this.fetchDefaultConfig()
-  }
-
-  refreshContent() {
-    // GET element skill id here
-    const elementId = 'lol'
-    this.props.bp.axios.get(`/content/element/${elementId}`).then(response => {
-      console.log('element', response.data)
-    })
+    const data = this.props.initialData
+    if (data) {
+      this.setState({
+        slotName: data.slotName,
+        selectedContexts: data.contexts,
+        contentElement: data.contentElement
+      })
+    }
   }
 
   componentDidUpdate() {
     this.handleDataChange()
   }
 
-  fetchDefaultConfig = async () => {
-    const res = await this.props.bp.axios.get('/mod/basic-skills/slot/config')
-    this.setState({ defaultConfig: res.data })
-  }
-
   handleDataChange() {
     const data = {
       contentElement: this.state.contentElement,
       slotName: this.state.slotName,
-      contexts: this.state.selectedContexts.map(c => c.value)
+      contexts: this.state.selectedContexts.length && this.state.selectedContexts.map(c => c.value)
     }
 
     this.props.onDataChanged && this.props.onDataChanged(data)
@@ -71,38 +64,46 @@ export class Slot extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <Row>
-          <Col>
-            <Label for="selectContext">Context:</Label>
-            <Select
-              multi
-              className={style.multiSelect}
-              id="selectContext"
-              name="selectContext"
-              options={this.state.contextsOptions}
-              value={this.state.selectedContexts}
-              onChange={this.handleContextsChange}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Label for="contentPicker">Bot will say:</Label>
-            <ContentPickerWidget
-              name="contentPicker"
-              id="contentPicker"
-              itemId={this.state.contentElement}
-              onChange={this.handleContentChange}
-              placeholder="Pick content"
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Label for="slotName">Slot Name:</Label>
-            <Input type="text" name="slotName" id="slotName" onChange={this.handleSlotNameChange} />
-          </Col>
-        </Row>
+        <div className={style.modalContent}>
+          <Row>
+            <Col>
+              <Label for="selectContext">Context:</Label>
+              <Select
+                multi
+                className={style.multiSelect}
+                id="selectContext"
+                name="selectContext"
+                options={this.state.contextsOptions}
+                value={this.state.selectedContexts}
+                onChange={this.handleContextsChange}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Label for="contentPicker">Bot will say:</Label>
+              <ContentPickerWidget
+                name="contentPicker"
+                id="contentPicker"
+                itemId={this.state.contentElement}
+                onChange={this.handleContentChange}
+                placeholder="Pick content"
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Label for="slotName">Slot Name:</Label>
+              <Input
+                type="text"
+                name="slotName"
+                id="slotName"
+                value={this.state.slotName || ''}
+                onChange={this.handleSlotNameChange}
+              />
+            </Col>
+          </Row>
+        </div>
       </React.Fragment>
     )
   }
