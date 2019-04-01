@@ -579,6 +579,17 @@ declare module 'botpress/sdk' {
      * @param exclude - The pattern to match excluded files.
      */
     directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
+    /**
+     * Starts listening on all file changes (deletion, inserts and updates)
+     * `callback` will be called for every change
+     * To stop listening, call the `remove()` method of the returned ListenHandle
+     */
+    onFileChanged(callback: (filePath: string) => void): ListenHandle
+  }
+
+  export interface ListenHandle {
+    /** Stops listening from the event */
+    remove(): void
   }
 
   /**
