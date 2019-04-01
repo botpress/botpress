@@ -102,8 +102,14 @@ export namespace Hooks {
   }
 
   export class AfterStageChanged extends BaseHook {
-    constructor(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<AuthUser[]>, pipeline: sdk.Pipeline) {
-      super('after_stage_changed', { bp, bot, users, pipeline })
+    constructor(
+      bp: typeof sdk,
+      previousBotConfig: sdk.BotConfig,
+      bot: sdk.BotConfig,
+      users: Partial<AuthUser[]>,
+      pipeline: sdk.Pipeline
+    ) {
+      super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })
     }
   }
 }

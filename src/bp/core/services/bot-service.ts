@@ -214,7 +214,7 @@ export class BotService {
   }
 
   private async _executeStageChangeHooks(initialBot: BotConfig) {
-    const alteredBot = { ...initialBot }
+    const alteredBot = _.cloneDeep(initialBot)
     const users = await this.workspaceService.listUsers(['email', 'role'])
     const pipeline = await this.workspaceService.getPipeline()
     const api = await createForGlobalHooks()
@@ -224,32 +224,57 @@ export class BotService {
     }
 
     await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
+    if (_.isArray(hookResult.actions)) {
+      await Promise.map(hookResult.actions, action => {
+        if (action === 'promote_copy') {
+          this._promoteCopy(initialBot, alteredBot)
+        } else if (action === 'promote_move') {
+          this._promoteMove(alteredBot)
+        }
+      })
+    }
     // stage has changed
     if (initialBot.pipeline_status.current_stage.id !== alteredBot.pipeline_status.current_stage.id) {
-      await this._executeStageChangeActions(alteredBot, hookResult)
-      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, alteredBot, users, pipeline))
+      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, initialBot, alteredBot, users, pipeline))
     }
   }
 
-  private async _executeStageChangeActions(
-    bot: BotConfig,
-    hookResult: { actions: StageAction[] | undefined }
-  ): Promise<void> {
-    if (!hookResult.actions || !_.isArray(hookResult.actions)) {
-      return
+  private async _promoteMove(bot: BotConfig) {
+    bot.pipeline_status.current_stage = {
+      id: bot.pipeline_status.stage_request!.id,
+      promoted_by: bot.pipeline_status.stage_request!.requested_by,
+      promoted_on: new Date()
+    }
+    delete bot.pipeline_status.stage_request
+    return this.configProvider.setBotConfig(bot.id, bot)
+  }
+
+  private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
+    if ((await this.workspaceService.getBotRefs()).find(bId => bId == newBot.id)) {
+      const d = new Date()
+        .toDateString()
+        .split(' ')
+        .join('-')
+        .toLowerCase()
+      newBot.id = `${newBot.id}-copy-${d}-${Date.now()}`
     }
 
-    await Promise.mapSeries(hookResult.actions, async action => {
-      if (action === 'promote_copy') {
-        if ((await this.workspaceService.getBotRefs()).find(bId => bId == bot.id)) {
-          bot.id = `${bot.id}_copy_${new Date()}`
-        }
-        await this.addBot(bot, <BotTemplate>{ id: 'empty-bot', moduleId: 'builtin' })
-        return this.workspaceService.addBotRef(bot.id)
-      } else if (action === 'promote_move') {
-        return this.configProvider.setBotConfig(bot.id, bot)
-      }
-    })
+    newBot.pipeline_status.current_stage = {
+      id: newBot.pipeline_status.stage_request!.id,
+      promoted_by: newBot.pipeline_status.stage_request!.requested_by,
+      promoted_on: new Date()
+    }
+    delete newBot.pipeline_status.stage_request
+    console.log('initial', initialBot.pipeline_status)
+    console.log('next', newBot.pipeline_status)
+    await this.addBot(
+      <BotConfig>_.pick(newBot, ['id', 'name', 'category', 'description', 'pipeline_status', 'locked']),
+      <BotTemplate>{ id: 'empty-bot', moduleId: 'builtin' }
+    )
+    await this.workspaceService.addBotRef(newBot.id)
+
+    delete initialBot.pipeline_status.stage_request
+    return this.configProvider.setBotConfig(initialBot.id, initialBot)
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
