@@ -103,14 +103,12 @@ class Bots extends Component {
     )
   }
 
-  // TODO implement this properly
   async requestPromotion(botId) {
-    const { data } = await api.getSecured({ timeout: 10000 })({
+    // TODO implement this properly
+    await api.getSecured({ timeout: 10000 })({
       method: 'post',
-      url: `/admin/bots/${botId}/promote`
+      url: `/admin/bots/${botId}/stage`
     })
-
-    console.log(data)
   }
 
   renderPipeline() {

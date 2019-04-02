@@ -7,13 +7,14 @@ import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import { needPermissions, success as sendSuccess } from '../util'
+import { assertBotpressPro, needPermissions, success as sendSuccess } from '../util'
 
 export class BotsRouter extends CustomRouter {
   public readonly router: Router
 
   private readonly resource = 'admin.bots'
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private assertBotpressPro: RequestHandler
   private logger!: Logger
 
   constructor(
@@ -25,6 +26,7 @@ export class BotsRouter extends CustomRouter {
     super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
     this.needPermissions = needPermissions(this.workspaceService)
+    this.assertBotpressPro = assertBotpressPro(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -82,7 +84,7 @@ export class BotsRouter extends CustomRouter {
           bot.pipeline_status = {
             current_stage: {
               id: (await this.workspaceService.getPipeline())[0].id,
-              promoted_at: new Date(),
+              promoted_on: new Date(),
               promoted_by: req.tokenUser!.email
             }
           }
@@ -102,15 +104,16 @@ export class BotsRouter extends CustomRouter {
     )
 
     router.post(
-      '/:botId/promote',
+      '/:botId/stage',
+      this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          await this.botService.requestBotPromotion(req.params.botId, req.tokenUser!.email)
+          await this.botService.requestStageChange(req.params.botId, req.tokenUser!.email)
 
           return res.sendStatus(200)
         } catch (err) {
-          this.logger.attachError(err).error('cannot promote bot')
+          this.logger.attachError(err).error(`Cannot request bot: ${req.params.botId} for stage change`)
           res.status(400)
         }
       })

@@ -113,9 +113,9 @@ export class Botpress {
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
-    await this.checkEditionRequirements()
     await this.loadModules(options.modules)
     await this.initializeServices()
+    await this.checkEditionRequirements()
     await this.deployAssets()
     await this.startRealtime()
     await this.startServer()
@@ -144,6 +144,12 @@ export class Botpress {
     if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
+      )
+    }
+    const nStage = (await this.workspaceService.getPipeline()).length
+    if (!process.IS_PRO_ENABLED && nStage > 1) {
+      throw new Error(
+        'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
       )
     }
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
@@ -201,8 +207,12 @@ export class Botpress {
     }
 
     const bots = await this.botService.getBots()
+    const pipeline = await this.workspaceService.getPipeline()
+    if (pipeline.length > 4) {
+      this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
+    }
     // @deprecated > 11: bot will always include default pipeline stage
-    await this._ensureBotsDefineStage(bots)
+    await this._ensureBotsDefineStage(bots, pipeline[0])
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
@@ -216,16 +226,15 @@ export class Botpress {
   }
 
   // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>): Promise<void> {
-    const pipeline = await this.workspaceService.getPipeline()
+  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<void> {
     await Promise.mapSeries(bots.values(), bot => {
       if (!bot.pipeline_status) {
         const pipeline_migration_configs = {
-          pipeline_status: {
+          pipeline_status: <sdk.BotPipelineStatus>{
             current_stage: {
-              id: pipeline[0].id,
+              id: stage.id,
               promoted_by: 'system',
-              promoted_at: new Date()
+              promoted_on: new Date()
             }
           },
           locked: false

@@ -1,8 +1,7 @@
-import { BotConfig, BotTemplate, Logger } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage, StageAction } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
-import { Pipeline } from 'core/misc/interfaces'
 import { listDir } from 'core/misc/list-dir'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
@@ -159,8 +158,7 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
-    const alreadyExists = (await this.getBotsIds()).includes(botId)
-    if (alreadyExists) {
+    if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
       } else {
@@ -182,7 +180,18 @@ export class BotService {
 
       if (hookResult.allowImport) {
         await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
-        await this.configProvider.mergeBotConfig(botId, { id: botId })
+        const newConfigs = <Partial<BotConfig>>{
+          id: botId,
+          pipeline_status: {
+            current_stage: {
+              id: (await this.workspaceService.getPipeline())[0].id,
+              promoted_by: 'system',
+              promoted_on: new Date()
+            }
+          }
+        }
+        await this.configProvider.mergeBotConfig(botId, newConfigs)
+        await this._mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
         this.logger.info(`Import of bot ${botId} was denied by hook validation`)
@@ -192,13 +201,13 @@ export class BotService {
     }
   }
 
-  async requestBotPromotion(botId: string, requested_by: string) {
-    const currentBotConfig = (await this.findBotById(botId)) as BotConfig
-    if (!currentBotConfig) {
+  async requestStageChange(botId: string, requested_by: string) {
+    const botConfig = (await this.findBotById(botId)) as BotConfig
+    if (!botConfig) {
       throw Error('bot does not exist')
     }
     const pipeline = await this.workspaceService.getPipeline()
-    const nextStageIdx = pipeline.findIndex(s => s.id === currentBotConfig.pipeline_status.current_stage.id) + 1
+    const nextStageIdx = pipeline.findIndex(s => s.id === botConfig.pipeline_status.current_stage.id) + 1
     if (nextStageIdx >= pipeline.length) {
       this.logger.debug('end of pipeline')
       return
@@ -210,9 +219,99 @@ export class BotService {
       requested_by
     }
 
-    await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
-    // TODO call hook promotion request here
-    // keep reference to old config, if config has changed then call the onPromotionHook
+    const currentBot = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    await this._executeStageChangeHooks(currentBot)
+  }
+
+  async duplicateBot(sourceBotId: string, destBotId: string, overwriteDest: boolean = false) {
+    if (!(await this.botExists(sourceBotId))) {
+      throw new Error('Source bot does not exist')
+    }
+    if (sourceBotId === destBotId) {
+      throw new Error('New bot id needs to differ from original bot')
+    }
+    if (!overwriteDest && (await this.botExists(destBotId))) {
+      this.logger.warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
+      return
+    }
+
+    const sourceGhost = this.ghostService.forBot(sourceBotId)
+    const destGhost = this.ghostService.forBot(destBotId)
+    const botContent = await sourceGhost.directoryListing('/')
+    await Promise.all(
+      botContent.map(async file => destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file)))
+    )
+
+    await this.workspaceService.addBotRef(destBotId)
+    await this._mountBot(destBotId)
+  }
+
+  private async botExists(botId: string): Promise<boolean> {
+    return (await this.getBotsIds()).includes(botId)
+  }
+
+  private async _executeStageChangeHooks(initialBot: BotConfig) {
+    const alteredBot = _.cloneDeep(initialBot)
+    const users = await this.workspaceService.listUsers(['email', 'role'])
+    const pipeline = await this.workspaceService.getPipeline()
+    const api = await createForGlobalHooks()
+    const currentStage = <Stage>pipeline.find(s => s.id === initialBot.pipeline_status.current_stage.id)
+    const hookResult = {
+      actions: [currentStage.action]
+    }
+
+    await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
+    if (_.isArray(hookResult.actions)) {
+      await Promise.map(hookResult.actions, action => {
+        if (action === 'promote_copy') {
+          this._promoteCopy(initialBot, alteredBot)
+        } else if (action === 'promote_move') {
+          this._promoteMove(alteredBot)
+        }
+      })
+    }
+    // stage has changed
+    if (initialBot.pipeline_status.current_stage.id !== alteredBot.pipeline_status.current_stage.id) {
+      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, initialBot, alteredBot, users, pipeline))
+    }
+  }
+
+  private async _promoteMove(bot: BotConfig) {
+    bot.pipeline_status.current_stage = {
+      id: bot.pipeline_status.stage_request!.id,
+      promoted_by: bot.pipeline_status.stage_request!.requested_by,
+      promoted_on: new Date()
+    }
+    delete bot.pipeline_status.stage_request
+    return this.configProvider.setBotConfig(bot.id, bot)
+  }
+
+  private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
+    if (initialBot.id == newBot.id) {
+      const d = new Date()
+        .toDateString()
+        .split(' ')
+        .join('-')
+        .toLowerCase()
+      newBot.id = `${newBot.id}-copy-${d}-${Date.now()}`
+    }
+
+    newBot.pipeline_status.current_stage = {
+      id: newBot.pipeline_status.stage_request!.id,
+      promoted_by: newBot.pipeline_status.stage_request!.requested_by,
+      promoted_on: new Date()
+    }
+    delete newBot.pipeline_status.stage_request
+
+    try {
+      await this.duplicateBot(initialBot.id, newBot.id)
+      await this.configProvider.setBotConfig(newBot.id, newBot)
+
+      delete initialBot.pipeline_status.stage_request
+      return this.configProvider.setBotConfig(initialBot.id, initialBot)
+    } catch (err) {
+      this.logger.attachError(err).error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
+    }
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
