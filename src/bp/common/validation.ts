@@ -20,10 +20,11 @@ export const BotCreationSchema = Joi.object().keys({
   pipeline_status: {
     current_stage: {
       promoted_by: Joi.string(),
-      promoted_at: Joi.date(),
+      promoted_on: Joi.date(),
       id: Joi.string()
     }
-  }
+  },
+  locked: Joi.bool()
 })
 
 export const BotEditSchema = Joi.object().keys({
