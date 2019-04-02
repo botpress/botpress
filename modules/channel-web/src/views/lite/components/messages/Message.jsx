@@ -58,7 +58,7 @@ class Message extends Component {
     delete messageDataProps.component
 
     const props = {
-      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload']),
+      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload', 'sentOn']),
       ...messageDataProps,
       keyboard: Keyboard,
       children: wrapped && <Message bp={this.props.bp} keyboard={Keyboard} noBubble={true} payload={wrapped} />

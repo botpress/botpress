@@ -9,6 +9,8 @@ export { LoginForm } from './components/LoginForm'
 // This is an example on how to replace the webchat composer (the typing zone)
 export { Composer } from './components/Composer'
 
+export { DisappearingText, FeedbackButtons, UpperCase, ColorText } from './components/Advanced'
+
 export class InjectedBelow extends React.Component {
   render() {
     // Return null if you just want to interact with the chat.
