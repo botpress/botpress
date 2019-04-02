@@ -158,8 +158,7 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
-    const alreadyExists = (await this.getBotsIds()).includes(botId)
-    if (alreadyExists) {
+    if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
       } else {
@@ -224,6 +223,33 @@ export class BotService {
     await this._executeStageChangeHooks(currentBot)
   }
 
+  async duplicateBot(sourceBotId: string, destBotId: string, overwriteDest: boolean = false) {
+    if (!(await this.botExists(sourceBotId))) {
+      throw new Error('Source bot does not exist')
+    }
+    if (sourceBotId === destBotId) {
+      throw new Error('New bot id needs to differ from original bot')
+    }
+    if (!overwriteDest && (await this.botExists(destBotId))) {
+      this.logger.warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
+      return
+    }
+
+    const sourceGhost = this.ghostService.forBot(sourceBotId)
+    const destGhost = this.ghostService.forBot(destBotId)
+    const botContent = await sourceGhost.directoryListing('/')
+    botContent.forEach(async file => {
+      destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file))
+    })
+
+    await this.workspaceService.addBotRef(destBotId)
+    await this._mountBot(destBotId)
+  }
+
+  private async botExists(botId: string): Promise<boolean> {
+    return (await this.getBotsIds()).includes(botId)
+  }
+
   private async _executeStageChangeHooks(initialBot: BotConfig) {
     const alteredBot = _.cloneDeep(initialBot)
     const users = await this.workspaceService.listUsers(['email', 'role'])
@@ -261,7 +287,7 @@ export class BotService {
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
-    if ((await this.workspaceService.getBotRefs()).find(bId => bId == newBot.id)) {
+    if (initialBot.id == newBot.id) {
       const d = new Date()
         .toDateString()
         .split(' ')
@@ -276,14 +302,16 @@ export class BotService {
       promoted_on: new Date()
     }
     delete newBot.pipeline_status.stage_request
-    await this.addBot(
-      <BotConfig>_.pick(newBot, ['id', 'name', 'category', 'description', 'pipeline_status', 'locked']),
-      <BotTemplate>{ id: 'empty-bot', moduleId: 'builtin' }
-    )
-    await this.workspaceService.addBotRef(newBot.id)
 
-    delete initialBot.pipeline_status.stage_request
-    return this.configProvider.setBotConfig(initialBot.id, initialBot)
+    try {
+      await this.duplicateBot(initialBot.id, newBot.id)
+      await this.configProvider.setBotConfig(newBot.id, newBot)
+
+      delete initialBot.pipeline_status.stage_request
+      return this.configProvider.setBotConfig(initialBot.id, initialBot)
+    } catch (err) {
+      this.logger.attachError(err).error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
+    }
   }
 
   @WrapErrorsWith(args => `Could not delete bot '${args[0]}'`, { hideStackTrace: true })
