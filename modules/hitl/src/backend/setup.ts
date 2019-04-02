@@ -41,6 +41,7 @@ export default async (bp: SDK, db: Database) => {
 
     const message = await db.appendMessageToSession(event, session.id, 'in')
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
 
     const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
 
@@ -74,6 +75,8 @@ export default async (bp: SDK, db: Database) => {
     const message = await db.appendMessageToSession(event, session.id, 'out')
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
+
     next()
   }
 }
