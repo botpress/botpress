@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { Transition } from '..'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
+  console.log('data from flow', data)
   return {
     transitions: createTransitions(),
     flow: {
@@ -34,7 +35,7 @@ const createNodes = data => {
       name: 'slot-extract',
       next: [
         {
-          condition: `event.nlu.slots.${data.slotName}`,
+          condition: `session.${data.slotName}`,
           node: 'extracted'
         },
         {
@@ -55,7 +56,7 @@ const createNodes = data => {
       onReceive: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `builtin/setVariable ${JSON.stringify(sessionSlotVariable)}`
+          name: `basic-skills/entityExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
         }
       ]
     },
@@ -103,7 +104,12 @@ const createNodes = data => {
           node: 'slot-extract'
         }
       ],
-      onEnter: [],
+      onEnter: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `basic-skills/slotExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+        }
+      ],
       onReceive: undefined
     },
     {

@@ -1,50 +1,52 @@
 import React from 'react'
-import { Input, Row, Col, Label } from 'reactstrap'
+import { Row, Col, Label } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
 import Select from 'react-select'
 import style from './style.scss'
 
 export class Slot extends React.Component {
   state = {
-    slotName: undefined,
+    selectedIntentOption: undefined,
+    selectedSlotOption: undefined,
     contentElement: undefined,
-    selectedContexts: [],
-    contextsOptions: []
+    intents: []
   }
 
   componentDidMount() {
-    this.props.bp.axios.get(`/contexts`).then(response => {
-      // react-select expect options to have a value AND a label
-      const contextsOptions = response.data.map(context => {
-        return { value: context, label: context }
+    this.props.bp.axios.get('/mod/nlu/intents').then(response => {
+      console.log('intents', response.data)
+      this.setState({
+        intents: response.data
       })
-      this.setState({ contextsOptions })
     })
 
     const data = this.props.initialData
     if (data) {
       this.setState({
-        slotName: data.slotName,
-        selectedContexts: data.contexts,
+        selectedSlotOption: { value: data.slotName, label: data.slotName },
+        selectedIntentOption: { value: data.intent, label: data.intent },
         contentElement: data.contentElement
       })
     }
   }
 
   componentDidUpdate() {
-    this.handleDataChange()
-  }
+    const intentName = this.state.selectedIntentOption && this.state.selectedIntentOption.value
+    const intent = intentName && this.state.intents.find(x => x.name === intentName)
+    const slotName = this.state.selectedSlotOption && this.state.selectedSlotOption.value
+    const slot = intent && intent.slots.find(x => x.name === slotName)
+    const entity = slot && slot.entity
 
-  handleDataChange() {
     const data = {
       contentElement: this.state.contentElement,
-      slotName: this.state.slotName,
-      contexts: this.state.selectedContexts.length && this.state.selectedContexts.map(c => c.value)
+      slotName,
+      intent: intentName,
+      entity,
+      contexts: intent && intent.contexts
     }
 
-    this.props.onDataChanged && this.props.onDataChanged(data)
-
-    if (this.state.selectedContexts.length && this.state.slotName && this.state.contentElement) {
+    if (this.state.selectedIntentOption && this.state.selectedSlotOption && this.state.contentElement) {
+      this.props.onDataChanged && this.props.onDataChanged(data)
       this.props.onValidChanged && this.props.onValidChanged(true)
     }
   }
@@ -53,53 +55,67 @@ export class Slot extends React.Component {
     this.setState({ contentElement: item.id })
   }
 
-  handleSlotNameChange = event => {
-    this.setState({ slotName: event.target.value })
+  handleSlotChange = selectedSlotOption => {
+    this.setState({ selectedSlotOption })
   }
 
-  handleContextsChange = selectedContexts => {
-    this.setState({ selectedContexts })
+  handleIntentChange = selectedIntentOption => {
+    this.setState({ selectedIntentOption, selectedSlotOption: undefined })
   }
 
   render() {
+    console.log('state', this.state)
+    const intentName = this.state.selectedIntentOption && this.state.selectedIntentOption.value
+    const intent = this.state.intents.find(x => x.name === intentName)
+    const slotOptions =
+      intent &&
+      intent.slots.map(slot => {
+        return { value: slot.name, label: slot.name }
+      })
+
     return (
       <React.Fragment>
         <div className={style.modalContent}>
           <Row>
             <Col>
-              <Label for="selectContext">Context:</Label>
+              <Label>Choose an intent</Label>
               <Select
-                multi
-                className={style.multiSelect}
-                id="selectContext"
-                name="selectContext"
-                options={this.state.contextsOptions}
-                value={this.state.selectedContexts}
-                onChange={this.handleContextsChange}
+                id="intent"
+                name="intent"
+                style={{ 'z-index': 2000 }}
+                isSearchable={true}
+                onChange={this.handleIntentChange}
+                value={this.state.selectedIntentOption}
+                options={this.state.intents.map(intent => {
+                  return { value: intent.name, label: intent.name }
+                })}
               />
             </Col>
           </Row>
           <Row>
             <Col>
-              <Label for="contentPicker">Bot will say:</Label>
+              <Label for="slotName">Choose a slot to fill</Label>
+              <Select
+                id="slot"
+                name="slot"
+                style={{ 'z-index': 1500 }}
+                isSearchable={true}
+                onChange={this.handleSlotChange}
+                value={this.state.selectedSlotOption}
+                options={slotOptions}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Label for="contentPicker">Bot will say</Label>
               <ContentPickerWidget
                 name="contentPicker"
                 id="contentPicker"
+                style={{ 'z-index': 1000 }}
                 itemId={this.state.contentElement}
                 onChange={this.handleContentChange}
                 placeholder="Pick content"
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Label for="slotName">Slot Name:</Label>
-              <Input
-                type="text"
-                name="slotName"
-                id="slotName"
-                value={this.state.slotName || ''}
-                onChange={this.handleSlotNameChange}
               />
             </Col>
           </Row>

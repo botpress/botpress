@@ -1,7 +1,6 @@
 import 'babel-polyfill'
 import React from 'expose-loader?React!react'
 import ReactDOM from 'expose-loader?ReactDOM!react-dom'
-
 import axios from 'axios'
 import { HotKeys } from 'react-hotkeys'
 import { getToken } from '~/util/Auth'
