@@ -238,9 +238,9 @@ export class BotService {
     const sourceGhost = this.ghostService.forBot(sourceBotId)
     const destGhost = this.ghostService.forBot(destBotId)
     const botContent = await sourceGhost.directoryListing('/')
-    botContent.forEach(async file => {
-      destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file))
-    })
+    await Promise.all(
+      botContent.map(async file => destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file)))
+    )
 
     await this.workspaceService.addBotRef(destBotId)
     await this._mountBot(destBotId)
