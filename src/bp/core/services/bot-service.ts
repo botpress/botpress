@@ -181,7 +181,18 @@ export class BotService {
 
       if (hookResult.allowImport) {
         await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
-        await this.configProvider.mergeBotConfig(botId, { id: botId })
+        const newConfigs = <Partial<BotConfig>>{
+          id: botId,
+          pipeline_status: {
+            current_stage: {
+              id: (await this.workspaceService.getPipeline())[0].id,
+              promoted_by: 'system',
+              promoted_on: new Date()
+            }
+          }
+        }
+        await this.configProvider.mergeBotConfig(botId, newConfigs)
+        await this._mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
         this.logger.info(`Import of bot ${botId} was denied by hook validation`)
