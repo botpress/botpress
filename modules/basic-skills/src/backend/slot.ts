@@ -104,12 +104,7 @@ const createNodes = data => {
           node: 'slot-extract'
         }
       ],
-      onEnter: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
-        }
-      ],
+      onEnter: undefined,
       onReceive: undefined
     },
     {
