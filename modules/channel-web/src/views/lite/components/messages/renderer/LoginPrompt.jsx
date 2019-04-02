@@ -13,7 +13,8 @@ export class LoginPrompt extends Component {
       this.props.onSendData({
         type: 'login_prompt',
         text: 'Provided login information',
-        data: { username: this.state.username, password: this.state.password }
+        username: this.state.username,
+        password: this.state.password
       })
 
     event.preventDefault()

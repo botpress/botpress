@@ -281,6 +281,7 @@ body {
   padding: 0 !important;
   margin: 10px 0;
   text-align: left;
+  width: 100%;
 }
 
 .bpw-bubble-file {
@@ -394,6 +395,7 @@ body {
   text-align: center;
 }
 
+/* Comment this element to hide the icon indicating an external website */
 .bpw-card-external-icon {
   background: url(/assets/modules/channel-web/images/external_icon.png) no-repeat;
   width: 16px;

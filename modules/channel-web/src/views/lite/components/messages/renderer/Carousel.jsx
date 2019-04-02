@@ -2,8 +2,9 @@ import React from 'react'
 
 import Slider from 'react-slick'
 
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+// Added those manually to remove the font dependencies which keeps showing 404 not found
+import '../../../../../../assets/slick/slick.css'
+import '../../../../../../assets/slick/slick-theme.css'
 
 export const Carousel = props => {
   const elements = props.carousel.elements || []
@@ -25,14 +26,20 @@ export const Carousel = props => {
 
   const settings = Object.assign({}, defaultSettings, props.carousel.settings)
 
-  return <Slider {...settings}>{elements.map((el, idx) => Card(el, idx))}</Slider>
+  return (
+    <Slider {...settings}>
+      {elements.map((el, idx) => (
+        <Card element={el} key={idx} onSendData={props.onSendData} />
+      ))}
+    </Slider>
+  )
 }
 
-export const Card = (element, index) => {
-  const { picture, title, subtitle, buttons } = element
+export const Card = props => {
+  const { picture, title, subtitle, buttons } = props.element
 
   return (
-    <div className={'bpw-card-container'} key={index}>
+    <div className={'bpw-card-container'}>
       {picture && <div className={'bpw-card-picture'} style={{ backgroundImage: `url("${picture}")` }} />}
       <div>
         <div className={'bpw-card-header'}>
@@ -44,15 +51,26 @@ export const Card = (element, index) => {
             if (btn.url) {
               return (
                 <a href={btn.url} key={`1-${btn.title}`} target="_blank" className={'bpw-card-action'}>
-                  <i className={'bpw-card-external-icon'} />
                   {btn.title || btn}
+                  <i className={'bpw-card-external-icon'} />
                 </a>
               )
-            } else if (btn.action == 'Postback') {
+            } else if (btn.type == 'postback' || btn.payload) {
               return (
                 <a
                   href
-                  onClick={this.props.onSendData.bind(this, { type: 'postback', data: { payload: btn.payload } })}
+                  onClick={props.onSendData.bind(this, { type: 'postback', payload: btn.payload })}
+                  key={`2-${btn.title}`}
+                  className={'bpw-card-action'}
+                >
+                  {btn.title || btn}
+                </a>
+              )
+            } else if (btn.type == 'say_something' || btn.text) {
+              return (
+                <a
+                  href
+                  onClick={props.onSendData.bind(this, { type: 'say_something', text: btn.text })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
                 >
@@ -62,8 +80,8 @@ export const Card = (element, index) => {
             } else {
               return (
                 <a href="#" key={`3-${btn.title}`} target="_blank" className={'bpw-card-action'}>
+                  {btn.title || btn}
                   <i className={'bpw-card-external-icon'} />
-                  [NO LINK] {btn.title || btn}
                 </a>
               )
             }

@@ -27,7 +27,7 @@ class BotInfo extends React.Component {
 
   startConversation = () => {
     this.props.onSendData &&
-      this.props.onSendData({ payload: { type: 'request_start_conversation' } }).then(this.props.toggleBotInfo)
+      this.props.onSendData({ type: 'request_start_conversation' }).then(this.props.toggleBotInfo)
   }
 
   render() {

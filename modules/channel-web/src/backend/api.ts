@@ -254,7 +254,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/events/:userId',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
-      const { payload = undefined } = req.body || {}
+      const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
       await bp.users.getOrCreateUser('web', userId)
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
