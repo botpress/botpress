@@ -38,7 +38,7 @@ Don't worry, you don't have to plan everything in advance, you can always change
 
 ![BP license keys not active](assets/bp-keys-not-active.jpg)
 
-## Active a license
+## Activate your license
 
 To activate your license on your current Botpress installation, simply click on **Use on this Server** in the Actions dropdown of your new license. This will add the license key in your Botpress.config.json file and assign your current cluster fingerprint to the license on our license server. Botpress pro features should now be unlocked, your key should be marked as assigned and there should be an **active** label on your license list.
 
