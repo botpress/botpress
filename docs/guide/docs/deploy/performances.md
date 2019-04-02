@@ -5,10 +5,8 @@ title: Hardware & Performances
 
 ## Hardware Requirements
 
-- Processor: Minimum 1 GHz; Recommended 2GHz or more.
-- Ethernet connection (LAN) OR a wireless adapter (Wi-Fi)
-- Hard Drive: Minimum 32 GB; Recommended 64 GB or more.
-- Memory (RAM): Minimum 1 GB; Recommended 4 GB or above.
+- Hard Drive: Recommended 64 GB of free space or above.
+- Memory (RAM): Recommended 4 GB or above.
 
 ## Benchmark Tool
 
