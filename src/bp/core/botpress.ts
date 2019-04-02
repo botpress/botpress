@@ -113,9 +113,9 @@ export class Botpress {
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
-    await this.checkEditionRequirements()
     await this.loadModules(options.modules)
     await this.initializeServices()
+    await this.checkEditionRequirements()
     await this.deployAssets()
     await this.startRealtime()
     await this.startServer()
@@ -144,6 +144,12 @@ export class Botpress {
     if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
+      )
+    }
+    const nStage = (await this.workspaceService.getPipeline()).length
+    if (!process.IS_PRO_ENABLED && nStage > 1) {
+      throw new Error(
+        'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
       )
     }
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
