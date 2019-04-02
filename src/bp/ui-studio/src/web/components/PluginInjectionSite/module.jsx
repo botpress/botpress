@@ -107,6 +107,7 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
       getModuleInjector: () => InjectedModuleView,
       loadModuleView: this.loadModuleView
     }
+    window.botpress.injector = bp
 
     const extraProps = this.props.extraProps || {}
 

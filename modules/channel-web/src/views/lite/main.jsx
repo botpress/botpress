@@ -327,7 +327,7 @@ export default class Web extends React.Component {
   }
 
   handleNewMessage = event => {
-    if (event.message_type === 'visit') {
+    if ((event.payload && event.payload.type === 'visit') || event.message_type === 'visit') {
       // don't do anything, it's the system message
       return
     }

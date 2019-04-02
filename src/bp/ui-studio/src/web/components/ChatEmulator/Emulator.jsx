@@ -201,7 +201,7 @@ export default class EmulatorChat extends React.Component {
 
   renderHistory() {
     return (
-      <div className={style.history}>
+      <div className={classnames(style.history, 'bp-emulator-history')}>
         {this.state.messages.map((msg, idx) => (
           <Message
             tabIndex={this.state.messages.length - idx + 1}
@@ -211,6 +211,7 @@ export default class EmulatorChat extends React.Component {
             hideTyping={this.state.isTypingHidden}
             onSendEvent={payload => this.sendText(payload)}
             message={msg}
+            isLastOfGroup={idx >= this.state.messages.length - 1}
           />
         ))}
         {/* This is used to loop using Tab, we're going back to text input */}
@@ -239,26 +240,31 @@ export default class EmulatorChat extends React.Component {
   }
 
   renderMessageInput() {
-    return (
-      <textarea
-        tabIndex={1}
-        ref={this.textInputRef}
-        className={classnames(style.msgInput, {
-          [style.disabled]: this.state.sending,
-          [style.error]: this.state.invalidMessage
-        })}
-        type="text"
-        onKeyPress={this.handleKeyPress}
-        onKeyDown={this.handleKeyDown}
-        value={this.state.textInputValue}
-        placeholder={
-          this.state.isSendingRawPayload
-            ? 'Type your raw payload here. It must be valid JSON. Ex: {"text": "bla"}'
-            : 'Type a message here'
-        }
-        onChange={this.handleMsgChange}
-      />
-    )
+    const Keyboard = window.botpress['channel-web'] && window.botpress['channel-web']['Keyboard']
+    if (Keyboard) {
+      return (
+        <Keyboard.Default>
+          <textarea
+            tabIndex={1}
+            ref={this.textInputRef}
+            className={classnames(style.msgInput, {
+              [style.disabled]: this.state.sending,
+              [style.error]: this.state.invalidMessage
+            })}
+            type="text"
+            onKeyPress={this.handleKeyPress}
+            onKeyDown={this.handleKeyDown}
+            value={this.state.textInputValue}
+            placeholder={
+              this.state.isSendingRawPayload
+                ? 'Type your raw payload here. It must be valid JSON. Ex: {"text": "bla"}'
+                : 'Type a message here'
+            }
+            onChange={this.handleMsgChange}
+          />
+        </Keyboard.Default>
+      )
+    }
   }
 
   hideSettings = () => this.setState({ isSettingsOpen: false })
