@@ -30,6 +30,14 @@ body {
 
 .bp-emulator-history .bpw-chat-bubble {
   color: #000000;
+  background: none;
+  border: 0px;
+  display: inline-block;
+}
+
+.bp-emulator-history .bpw-bubble-carousel {
+  display: block;
+  margin-left: 30px;
 }
 
 .bpw-widget-btn {
@@ -337,7 +345,7 @@ body {
 }
 
 .slick-track {
-  margin: 0px;
+  margin: 0px !important;
 }
 
 .bpw-card-container {
