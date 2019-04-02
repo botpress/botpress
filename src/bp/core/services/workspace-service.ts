@@ -92,6 +92,10 @@ export class WorkspaceService {
     const workspace = await this.getWorkspace()
     const user = _.head(_.filter<AuthUser>(workspace.users, where))
 
+    if (!user) {
+      return undefined
+    }
+
     if (selectFields === '*') {
       return user
     }
