@@ -3,7 +3,7 @@ import { Badge, UncontrolledButtonDropdown, DropdownToggle, DropdownItem, Dropdo
 import { AccessControl } from '../../../App/AccessControl'
 import { Link } from 'react-router-dom'
 
-export default ({ bot, requestStageChange, deleteBot, exportBot, permissions }) => (
+export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowPromotion }) => (
   <div className="bp_table-row" key={bot.id}>
     <div className="actions">
       <UncontrolledButtonDropdown>
@@ -19,7 +19,7 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions }) 
           </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>Export</DropdownItem>
-            <DropdownItem onClick={requestStageChange}>Promote to next stage</DropdownItem>
+            {allowPromotion && <DropdownItem onClick={requestStageChange}>Promote to next stage</DropdownItem>}
             <DropdownItem onClick={deleteBot}>Delete</DropdownItem>
           </AccessControl>
         </DropdownMenu>

@@ -3,13 +3,13 @@ import React, { Component, Fragment } from 'react'
 import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { MdCreate } from 'react-icons/lib/md'
 import { connect } from 'react-redux'
-import jdenticon from 'jdenticon'
-import { Jumbotron, Row, Col, Badge, Button } from 'reactstrap'
+import { Jumbotron, Row, Col, Button } from 'reactstrap'
 
 import _ from 'lodash'
 
 import { fetchBots } from '../../../reducers/bots'
 import { fetchPermissions } from '../../../reducers/user'
+import { fetchLicensing } from '../../../reducers/license'
 
 import SectionLayout from '../../Layouts/Section'
 import LoadingSection from '../../Components/LoadingSection'
@@ -37,6 +37,9 @@ class Bots extends Component {
     this.downloadLink = React.createRef()
     this.props.fetchBots()
     this.props.fetchPermissions()
+    if (!this.props.licensing) {
+      this.props.fetchLicensing()
+    }
   }
 
   toggleCreateBotModal = () => {
@@ -91,7 +94,7 @@ class Bots extends Component {
         <Button
           className={isCentered ? '' : 'float-right'}
           onClick={() => this.setState({ isCreateBotModalOpen: true })}
-          // color="primary"
+          color="primary"
           size="sm"
         >
           <MdCreate /> Create Bot
@@ -110,20 +113,26 @@ class Bots extends Component {
     console.log(data)
   }
 
-  renderBots() {
+  renderPipeline() {
     return (
       <div className="bp_table">
         {/* TODO change for promoted_on when  https://github.com/botpress/botpress/pull/1633 is merged */}
-        {_.orderBy(this.props.bots, 'pipeline_status.current_stage.promoted_at', ['desc']).map(bot => (
-          <Bot
-            key={bot.id}
-            bot={bot}
-            requestStageChange={this.requestPromotion.bind(this, bot.id)}
-            deleteBot={this.deleteBot.bind(this, bot.id)}
-            exportBot={this.exportBot.bind(this, bot.id)}
-            permissions={this.props.permissions}
-          />
-        ))}
+        {_.orderBy(this.props.bots, 'pipeline_status.current_stage.promoted_at', ['desc']).map(bot => {
+          const stageIdx = this.props.workspace.pipeline.findIndex(s => s.id == bot.pipeline_status.current_stage.id)
+          const allowPromotion =
+            _.get(this.props.licensing, 'status') === 'licensed' && stageIdx != this.props.workspace.pipeline.length - 1
+          return (
+            <Bot
+              key={bot.id}
+              bot={bot}
+              allowPromotion={allowPromotion}
+              requestStageChange={this.requestPromotion.bind(this, bot.id)}
+              deleteBot={this.deleteBot.bind(this, bot.id)}
+              exportBot={this.exportBot.bind(this, bot.id)}
+              permissions={this.props.permissions}
+            />
+          )
+        })}
       </div>
     )
   }
@@ -133,10 +142,6 @@ class Bots extends Component {
       return <LoadingSection />
     }
 
-    setTimeout(() => {
-      jdenticon()
-    }, 10)
-
     return (
       <Fragment>
         <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName} />
@@ -144,8 +149,7 @@ class Bots extends Component {
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
-          currentTeam={this.props.team}
-          mainContent={this.props.bots.length > 0 ? this.renderBots() : this.renderEmptyBots()}
+          mainContent={this.props.bots.length > 0 ? this.renderPipeline() : this.renderEmptyBots()}
           sideMenu={this.renderCreateNewBotButton()}
         />
         <CreateBotModal
@@ -162,11 +166,13 @@ const mapStateToProps = state => ({
   bots: state.bots.bots,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  permissions: state.user.permissions
+  permissions: state.user.permissions,
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchBots,
+  fetchLicensing,
   fetchPermissions
 }
 
