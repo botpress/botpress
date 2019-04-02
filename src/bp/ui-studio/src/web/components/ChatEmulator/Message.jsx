@@ -10,37 +10,16 @@ export default class Message extends React.Component {
       return <span className={classnames(style.message, style.typing)}>...typing...</span>
     }
 
-    if (message.type === 'text') {
-      return <span className={classnames(style.message, style.text)}>{message.text}</span>
-    }
-
-    // TODO implement correctly
-    if (message.quick_replies) {
-      const QuickReply = window.botpress['channel-web'] && window.botpress['channel-web']['QuickReplies']
-      return (
-        <div>
-          {message.text}
-          <QuickReply buttons={message.quick_replies} onSendData={this.props.onSendEvent} />
-        </div>
-      )
-    }
-
-    if (message.type === 'file') {
-      const FileMessage = window.botpress['channel-web'] && window.botpress['channel-web']['FileMessage']
-      return <FileMessage file={{ url: message.url, mime: 'image/' }} />
-    }
-
-    if (message.type === 'carousel') {
-      const Carousel = window.botpress['channel-web'] && window.botpress['channel-web']['Carousel']
-      return (
-        <div>
-          {message.text}
-          <Carousel carousel={message} />
-        </div>
-      )
-    }
-
-    return <span className={classnames(style.message, style.other)}>{message.type} (can't render)</span>
+    const Message = window.botpress['channel-web'] && window.botpress['channel-web']['Message']
+    return (
+      <Message
+        bp={window.botpress.injector}
+        payload={message}
+        isLastGroup={true}
+        isLastOfGroup={this.props.isLastOfGroup}
+        onSendData={this.props.onSendEvent}
+      />
+    )
   }
 
   renderFinalDecision(finalDecision) {

@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import mime from 'mime'
 import path from 'path'
 
 import Database from './db'
@@ -46,16 +45,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'file') {
-      const extension = path.extname(event.payload.url)
-      const mimeType = mime.getType(extension)
-      const basename = path.basename(event.payload.url, extension)
-
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        ...event.payload,
-        mime: mimeType,
-        extension,
-        basename
-      })
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, { ...event.payload })
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'data') {

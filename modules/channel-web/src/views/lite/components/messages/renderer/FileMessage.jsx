@@ -1,4 +1,6 @@
 import React from 'react'
+import path from 'path'
+import mimeTypes from 'mime-types'
 import { Text } from './Text'
 
 export const FileMessage = props => {
@@ -6,7 +8,11 @@ export const FileMessage = props => {
     return null
   }
 
-  const { url, mime, name, storage, text } = props.file
+  const { url, name, storage, text } = props.file
+
+  const extension = path.extname(url)
+  const mime = mimeTypes.lookup(extension)
+  const basename = path.basename(url, extension)
 
   if (text) {
     return <Text text={text} />
