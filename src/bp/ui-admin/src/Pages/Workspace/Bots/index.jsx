@@ -8,15 +8,16 @@ import { Jumbotron, Row, Col, Badge, Button } from 'reactstrap'
 
 import _ from 'lodash'
 
-import { fetchBots } from '../../reducers/bots'
-import { fetchPermissions } from '../../reducers/user'
+import { fetchBots } from '../../../reducers/bots'
+import { fetchPermissions } from '../../../reducers/user'
 
-import SectionLayout from '../Layouts/Section'
-import LoadingSection from '../Components/LoadingSection'
+import SectionLayout from '../../Layouts/Section'
+import LoadingSection from '../../Components/LoadingSection'
 
-import api from '../../api'
-import { AccessControl } from '../../App/AccessControl'
-import CreateBotModal from './CreateBotModal'
+import api from '../../../api'
+import { AccessControl } from '../../../App/AccessControl'
+import CreateBotModal from '../CreateBotModal'
+import Bot from './Bot'
 
 class Bots extends Component {
   state = {
@@ -90,7 +91,7 @@ class Bots extends Component {
         <Button
           className={isCentered ? '' : 'float-right'}
           onClick={() => this.setState({ isCreateBotModalOpen: true })}
-          color="primary"
+          // color="primary"
           size="sm"
         >
           <MdCreate /> Create Bot
@@ -112,50 +113,16 @@ class Bots extends Component {
   renderBots() {
     return (
       <div className="bp_table">
-        {_.orderBy(this.props.bots, ['id'], ['desc']).map(bot => (
-          <div className="bp_table-row" key={bot.id}>
-            <div className="actions">
-              {/* TODO change this  */}
-              <Button onClick={this.requestPromotion.bind(this, bot.id)}> promote </Button>
-              <Button tag="a" size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-                Open chat
-              </Button>
-              |
-              <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
-                <Button size="sm" color="link" onClick={() => this.exportBot(bot.id)}>
-                  Export
-                </Button>
-                |
-                <Button size="sm" color="link" onClick={() => this.props.history.push(`/bot/${bot.id}/details`)}>
-                  Config
-                </Button>
-                |
-                <Button size="sm" color="link" onClick={() => this.deleteBot(bot.id)}>
-                  Delete
-                </Button>
-              </AccessControl>
-            </div>
-            <div className="title">
-              {bot.disabled ? (
-                <Fragment>
-                  <span>{bot.name}</span>
-                  <Badge color="danger" style={{ marginLeft: 10, fontSize: '60%' }}>
-                    disabled
-                  </Badge>
-                </Fragment>
-              ) : (
-                <Fragment>
-                  <a href={`/studio/${bot.id}`}>{bot.name}</a>
-                  {bot.private && (
-                    <Badge color="primary" style={{ marginLeft: 10, fontSize: '60%' }}>
-                      private
-                    </Badge>
-                  )}
-                </Fragment>
-              )}
-            </div>
-            <p>{bot.description}</p>
-          </div>
+        {/* TODO change for promoted_on when  https://github.com/botpress/botpress/pull/1633 is merged */}
+        {_.orderBy(this.props.bots, 'pipeline_status.current_stage.promoted_at', ['desc']).map(bot => (
+          <Bot
+            key={bot.id}
+            bot={bot}
+            requestStageChange={this.requestPromotion.bind(this, bot.id)}
+            deleteBot={this.deleteBot.bind(this, bot.id)}
+            exportBot={this.exportBot.bind(this, bot.id)}
+            permissions={this.props.permissions}
+          />
         ))}
       </div>
     )
