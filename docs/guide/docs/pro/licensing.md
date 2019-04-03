@@ -44,10 +44,35 @@ To activate your license on your current Botpress installation, simply click on 
 
 ![BP license keys active](assets/bp-keys-active.jpg)
 
-**Note**: If you happen to breach your license (e.g you try to add more nodes than allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state. If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
+### How to activate without Internet
+
+1. On a computer with internet access, purchase the right Botpress license
+2. On the server with no internet, locate your Fingerprint:
+
+![BP license fingerprint](assets/licensing-fingerprint.png)
+
+3. On the computer with internet, assign the copied fingerprint to the license you purchased:
+
+![BP assign fingerprint](assets/licensing-assign.png)
+
+4. Click "Reveal license key" and copy the license
+
+![BP reveal license](assets/licensing-reveal.png)
+
+5. On the server with no internet access, paste the license key to active it
+
+![BP license enter key](assets/licensing-enter-key.png)
+
+## Changing computer
+
+If you want to use your Botpress license on another computer, use **Assign fingerprint** in the Actions dropdown of your license and enter the target botpress installation fingerprint.
+
+Once it's done, you can copy the license key visible in **Reveal License key** and paste it in your target installation `botpress.config.json` under the `botpress.lincenseKey` property.
+
+> **Note**: This won't allow you to use mutliple computers with the same Botpress license. If you want to run a cluster you have to add nodes to your license. See how to [customize your license](#customize-your-license).
+
+## License breach
+
+If you happen to breach your license (e.g you try to add more nodes than allowed on your license), your bots wont work anymore until you either update your license or get back to an unbreached license state. If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
 
 ![BP license keys active](assets/bp-server-settings.jpg)
-
-## Advanced users
-
-If for some reason you want to activate a license for another botpress installation, use **Assign fingerprint** in the Actions dropdown of your license and enter the target botpress installation fingerprint. Once that done you can copy the license key visible in **Reveal License key** and paste it in your target installation botpress.config.json under the `botpress.lincenseKey` property.
