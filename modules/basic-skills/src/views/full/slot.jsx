@@ -14,7 +14,6 @@ export class Slot extends React.Component {
 
   componentDidMount() {
     this.props.bp.axios.get('/mod/nlu/intents').then(response => {
-      console.log('intents', response.data)
       this.setState({
         intents: response.data
       })
@@ -64,7 +63,6 @@ export class Slot extends React.Component {
   }
 
   render() {
-    console.log('state', this.state)
     const intentName = this.state.selectedIntentOption && this.state.selectedIntentOption.value
     const intent = this.state.intents.find(x => x.name === intentName)
     const slotOptions =
@@ -82,7 +80,7 @@ export class Slot extends React.Component {
               <Select
                 id="intent"
                 name="intent"
-                style={{ 'z-index': 2000 }}
+                style={{ zIndex: 2000 }}
                 isSearchable={true}
                 onChange={this.handleIntentChange}
                 value={this.state.selectedIntentOption}
@@ -98,7 +96,7 @@ export class Slot extends React.Component {
               <Select
                 id="slot"
                 name="slot"
-                style={{ 'z-index': 1500 }}
+                style={{ zIndex: 1500 }}
                 isSearchable={true}
                 onChange={this.handleSlotChange}
                 value={this.state.selectedSlotOption}
@@ -112,7 +110,7 @@ export class Slot extends React.Component {
               <ContentPickerWidget
                 name="contentPicker"
                 id="contentPicker"
-                style={{ 'z-index': 1000 }}
+                style={{ zIndex: 1000 }}
                 itemId={this.state.contentElement}
                 onChange={this.handleContentChange}
                 placeholder="Pick content"

@@ -17,19 +17,13 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
 
 const createTransitions = (): Transition[] => {
   return [
-    { caption: 'Extracted', condition: 'temp.extracted == "true"', node: '' },
-    { caption: 'Slot not found', condition: 'temp.notExtracted == "true"', node: '' },
-    { caption: 'Already exists', condition: 'temp.alreadyExtracted == "true"', node: '' }
+    { caption: 'On extracted', condition: 'temp.extracted == "true"', node: '' },
+    { caption: 'On not found', condition: 'temp.notExtracted == "true"', node: '' },
+    { caption: 'On already extracted', condition: 'temp.alreadyExtracted == "true"', node: '' }
   ]
 }
 
 const createNodes = data => {
-  const sessionSlotVariable = {
-    type: 'session',
-    name: data.slotName,
-    value: `{{event.nlu.slots.${data.slotName}.value}}`
-  }
-
   return [
     {
       name: 'slot-extract',
@@ -104,7 +98,12 @@ const createNodes = data => {
           node: 'slot-extract'
         }
       ],
-      onEnter: undefined,
+      onEnter: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `basic-skills/slotExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+        }
+      ],
       onReceive: undefined
     },
     {

@@ -4,8 +4,6 @@ const entityExtract = async (slotName, entity) => {
     for (const e of event.nlu.entities) {
       console.log(e.name, e.data.value)
       if (e.name === entity) {
-        // Slot filled!!!
-        console.log('******** entity extracted')
         if (!session[slotName]) {
           session[slotName] = e.data.value
         }
