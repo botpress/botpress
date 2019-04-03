@@ -11,6 +11,7 @@ import fse from 'fs-extra'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
+import moment = require('moment')
 import path from 'path'
 import tmp from 'tmp'
 
@@ -264,9 +265,9 @@ export class BotService {
     if (_.isArray(hookResult.actions)) {
       await Promise.map(hookResult.actions, action => {
         if (action === 'promote_copy') {
-          this._promoteCopy(initialBot, alteredBot)
+          return this._promoteCopy(initialBot, alteredBot)
         } else if (action === 'promote_move') {
-          this._promoteMove(alteredBot)
+          return this._promoteMove(alteredBot)
         }
       })
     }
@@ -288,12 +289,7 @@ export class BotService {
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
     if (initialBot.id == newBot.id) {
-      const d = new Date()
-        .toDateString()
-        .split(' ')
-        .join('-')
-        .toLowerCase()
-      newBot.id = `${newBot.id}-copy-${d}-${Date.now()}`
+      newBot.id = `${newBot.id}__${moment().format('YY-MM-DD')}__${Math.round(Math.random() * 100)}`
     }
 
     newBot.pipeline_status.current_stage = {
