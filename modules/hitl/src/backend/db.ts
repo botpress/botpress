@@ -3,7 +3,6 @@ import _ from 'lodash'
 import * as sdk from 'botpress/sdk'
 
 import { SDK } from '.'
-import { EOVERFLOW } from 'constants'
 
 export default class HitlDb {
   knex: any
