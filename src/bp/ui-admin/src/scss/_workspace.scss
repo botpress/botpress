@@ -1,0 +1,28 @@
+.pipeline {
+  .pipeline_title {
+    text-align: center;
+    background-color: #f7f7f7;
+    line-height: 2.5;
+  }
+  .pipeline_bot {
+    border: solid 1px #e1e4e8;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    &:hover {
+      border-color: #ced2d6;
+    }
+    &.create {
+      text-align: center;
+      border-style: dashed;
+      padding: 20px;
+    }
+    .actions {
+      float: right;
+    }
+    .botbadge {
+      margin-left: 10px;
+      font-size: 0.6;
+    }
+  }
+}

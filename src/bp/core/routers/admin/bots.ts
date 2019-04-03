@@ -46,7 +46,10 @@ export class BotsRouter extends CustomRouter {
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
           bots: bots && bots.filter(Boolean),
-          workspace: workpace.name
+          workspace: {
+            name: workpace.name,
+            pipeline: workpace.pipeline
+          }
         })
       })
     )
