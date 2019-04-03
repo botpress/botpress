@@ -6,13 +6,19 @@ const ui = require('./build/gulp.ui')
 const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
+const yn = require('yn')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
   process.exit(1)
 })
 
-gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
+if (yn(process.env.GULP_PARALLEL)) {
+  gulp.task('build', gulp.series([core.build(), gulp.parallel(modules.build(), ui.build())]))
+} else {
+  gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
+}
+
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:modules', gulp.series([modules.build()]))

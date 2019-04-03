@@ -167,7 +167,7 @@ export default class FastTextClassifier implements IntentClassifier {
     }
   }
 
-  public async predict(input: string, includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
+  public async predict(input: string, includedContexts: string[] = []): Promise<sdk.NLU.Intent[]> {
     if (!Object.keys(this._modelsByContext).length) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
     }
