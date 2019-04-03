@@ -11,7 +11,7 @@ import fse from 'fs-extra'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import moment = require('moment')
+import moment from 'moment'
 import path from 'path'
 import tmp from 'tmp'
 
