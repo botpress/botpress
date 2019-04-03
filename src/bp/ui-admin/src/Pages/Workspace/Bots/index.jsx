@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 
 import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { MdCreate } from 'react-icons/lib/md'
+import { FaPlusCircle } from 'react-icons/lib/fa'
 import { connect } from 'react-redux'
 import { Jumbotron, Row, Col, Button } from 'reactstrap'
 
@@ -88,50 +88,53 @@ class Bots extends Component {
     )
   }
 
-  renderCreateNewBotButton(isCentered) {
+  renderCreateNewBotButton() {
     return (
       <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
-        <Button
-          className={isCentered ? '' : 'float-right'}
-          onClick={() => this.setState({ isCreateBotModalOpen: true })}
-          color="primary"
-          size="sm"
-        >
-          <MdCreate /> Create Bot
+        <Button onClick={() => this.setState({ isCreateBotModalOpen: true })} color="primary" size="sm">
+          <FaPlusCircle /> Create Bot
         </Button>
       </AccessControl>
     )
   }
 
-  async requestPromotion(botId) {
-    // TODO implement this properly
-    await api.getSecured({ timeout: 10000 })({
-      method: 'post',
-      url: `/admin/bots/${botId}/stage`
-    })
+  async requestStageChange(botId) {
+    await api.getSecured().post(`/admin/bots/${botId}/stage`)
+    await this.props.fetchBots()
+  }
+
+  isLicensed = () => {
+    return _.get(this.props.licensing, 'status') === 'licensed'
   }
 
   renderPipeline() {
+    const pipeline = this.props.workspace.pipeline
+    const botsByStage = _.groupBy(this.props.bots, 'pipeline_status.current_stage.id')
+    const colSize = Math.floor(12 / pipeline.length)
+
     return (
-      <div className="bp_table">
-        {/* TODO change for promoted_on when  https://github.com/botpress/botpress/pull/1633 is merged */}
-        {_.orderBy(this.props.bots, 'pipeline_status.current_stage.promoted_at', ['desc']).map(bot => {
-          const stageIdx = this.props.workspace.pipeline.findIndex(s => s.id == bot.pipeline_status.current_stage.id)
-          const allowPromotion =
-            _.get(this.props.licensing, 'status') === 'licensed' && stageIdx != this.props.workspace.pipeline.length - 1
+      <Row className="pipeline">
+        {pipeline.map((stage, idx) => {
+          const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
           return (
-            <Bot
-              key={bot.id}
-              bot={bot}
-              allowPromotion={allowPromotion}
-              requestStageChange={this.requestPromotion.bind(this, bot.id)}
-              deleteBot={this.deleteBot.bind(this, bot.id)}
-              exportBot={this.exportBot.bind(this, bot.id)}
-              permissions={this.props.permissions}
-            />
+            <Col key={stage.id} md={colSize}>
+              {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
+              {idx == 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
+              {(botsByStage[stage.id] || []).map(bot => (
+                <Bot
+                  key={bot.id}
+                  bot={bot}
+                  allowStageChange={allowStageChange}
+                  requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                  deleteBot={this.deleteBot.bind(this, bot.id)}
+                  exportBot={this.exportBot.bind(this, bot.id)}
+                  permissions={this.props.permissions}
+                />
+              ))}
+            </Col>
           )
         })}
-      </div>
+      </Row>
     )
   }
 
@@ -148,7 +151,6 @@ class Bots extends Component {
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
           mainContent={this.props.bots.length > 0 ? this.renderPipeline() : this.renderEmptyBots()}
-          sideMenu={this.renderCreateNewBotButton()}
         />
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}
