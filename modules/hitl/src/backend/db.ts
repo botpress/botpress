@@ -1,7 +1,9 @@
 import Bluebird from 'bluebird'
 import _ from 'lodash'
+import * as sdk from 'botpress/sdk'
 
 import { SDK } from '.'
+import { EOVERFLOW } from 'constants'
 
 export default class HitlDb {
   knex: any
@@ -16,7 +18,7 @@ export default class HitlDb {
     }
 
     return this.knex
-      .createTableIfNotExists('hitl_sessions', function (table) {
+      .createTableIfNotExists('hitl_sessions', function(table) {
         table.increments('id').primary()
         table.string('botId').notNullable()
         table.string('channel')
@@ -29,7 +31,7 @@ export default class HitlDb {
         table.string('paused_trigger')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('hitl_messages', function (table) {
+        return this.knex.createTableIfNotExists('hitl_messages', function(table) {
           table.increments('id').primary()
           table
             .integer('session_id')
@@ -44,7 +46,7 @@ export default class HitlDb {
       })
   }
 
-  createUserSession = async event => {
+  createUserSession = async (event: sdk.IO.IncomingEvent) => {
     let profileUrl = undefined
     let full_name =
       '#' +
@@ -52,9 +54,11 @@ export default class HitlDb {
         .toString()
         .substr(2)
 
-    if (event.user && event.user.first_name && event.user.last_name) {
-      profileUrl = event.user.profile_pic || event.user.picture_url
-      full_name = event.user.first_name + ' ' + event.user.last_name
+    const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target)).result
+
+    if (user && user.attributes && user.attributes.first_name && user.attributes.last_name) {
+      profileUrl = user.attributes.profile_pic || user.attributes.picture_url
+      full_name = user.attributes.first_name + ' ' + user.attributes.last_name
     }
 
     const session = {
@@ -74,7 +78,7 @@ export default class HitlDb {
     return { is_new_session: true, ...dbSession }
   }
 
-  async getUserSession(event) {
+  async getOrCreateUserSession(event) {
     if (!event.target) {
       return undefined
     }
@@ -92,7 +96,7 @@ export default class HitlDb {
       })
   }
 
-  getSession(sessionId) {
+  getSessionById(sessionId) {
     return this.knex('hitl_sessions')
       .where({ id: sessionId })
       .select('*')
@@ -118,9 +122,9 @@ export default class HitlDb {
     return direction === 'in'
       ? { last_event_on: now }
       : {
-        last_event_on: now,
-        last_heard_on: now
-      }
+          last_event_on: now,
+          last_heard_on: now
+        }
   }
 
   appendMessageToSession(event, sessionId, direction) {
@@ -193,7 +197,7 @@ export default class HitlDb {
 
     return this.knex
       .select('*')
-      .from(function () {
+      .from(function() {
         this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
           .from('hitl_messages')
           .groupBy('session_id')
