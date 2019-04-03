@@ -81,7 +81,11 @@ export class ActionStrategy implements InstructionStrategy {
       replyPreview: outputType
     }
 
-    event.state.session.lastMessages.push(message)
+    if (!event.state.session.lastMessages) {
+      event.state.session.lastMessages = [message]
+    } else {
+      event.state.session.lastMessages.push(message)
+    }
 
     args = {
       ...args,
