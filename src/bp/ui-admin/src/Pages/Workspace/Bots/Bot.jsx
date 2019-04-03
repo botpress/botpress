@@ -3,7 +3,7 @@ import { Badge, UncontrolledButtonDropdown, DropdownToggle, DropdownItem, Dropdo
 import { AccessControl } from '../../../App/AccessControl'
 import { Link } from 'react-router-dom'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdSkipNext } from 'react-icons/lib/md'
+import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
 export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange }) => (
@@ -17,11 +17,11 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
           <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
             <IoIosChatbubble /> &nbsp;Open chat
           </DropdownItem>
-          <DropdownItem tag={Link} to={`/studio/${bot.id}`}>
+          <DropdownItem disabled={bot.locked} tag={Link} to={`/studio/${bot.id}`}>
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
-          <DropdownItem tag="a" href={`/admin/bot/${bot.id}/details`}>
+          <DropdownItem disabled={bot.locked} tag="a" href={`/admin/bot/${bot.id}/details`}>
             <FaCog />
             &nbsp;Configs
           </DropdownItem>
@@ -48,15 +48,19 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
       {bot.disabled ? (
         <Fragment>
           <span>{bot.name}</span>
-          <Badge color="danger" style={{ marginLeft: 10, fontSize: '60%' }}>
-            disabled
-          </Badge>
+          <Badge color="danger" className="botbage" Disabled />
         </Fragment>
       ) : (
         <Fragment>
+          {bot.locked && (
+            <span>
+              <MdLock className="text-primary" />
+              &nbsp;
+            </span>
+          )}
           <Link to={`/studio/${bot.id}`}>{bot.name}</Link>
           {bot.private && (
-            <Badge color="primary" style={{ marginLeft: 10, fontSize: '60%' }}>
+            <Badge color="primary" className="botbage">
               private
             </Badge>
           )}
