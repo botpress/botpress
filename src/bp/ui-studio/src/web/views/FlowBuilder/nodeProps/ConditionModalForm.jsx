@@ -26,6 +26,21 @@ export default class ConditionModalForm extends Component {
 
   componentDidMount() {
     this.fetchIntents()
+
+    const subflowOptions = this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
+      label: flow,
+      value: flow
+    }))
+
+    const { currentFlow: flow, currentNodeName } = this.props
+    const nodes = (flow && flow.nodes) || []
+    const options = nodes
+      .filter(({ name }) => name !== currentNodeName)
+      .map(({ name }) => ({ label: name, value: name }))
+
+    const nodeOptions = [{ label: 'No specific node', value: null }, ...options]
+
+    this.setState({ subflowOptions, nodeOptions })
   }
 
   componentDidUpdate(prevProps) {
@@ -38,7 +53,6 @@ export default class ConditionModalForm extends Component {
     const conditionType = this.getConditionType(condition)
 
     if (item && item.node) {
-      const nodeOptions = this.getNodeOptions()
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
       typeOfTransition = /^#/.test(item.node) ? 'return' : typeOfTransition
@@ -47,8 +61,12 @@ export default class ConditionModalForm extends Component {
         typeOfTransition,
         conditionType,
         condition,
-        flowToSubflow: typeOfTransition === 'subflow' ? item.node : null,
-        flowToNode: typeOfTransition === 'node' ? item.node : _.get(nodeOptions, '[0]'),
+        flowToSubflow:
+          typeOfTransition === 'subflow' ? this.state.subflowOptions.find(x => x.value === item.node) : null,
+        flowToNode:
+          typeOfTransition === 'node'
+            ? this.state.nodeOptions.find(x => x.value === item.node)
+            : _.get(this.state.nodeOptions, '[0]'),
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
@@ -103,12 +121,10 @@ export default class ConditionModalForm extends Component {
   }
 
   changeTransitionType(type) {
-    const subflowOptions = this.getSubflowOptions()
-    const nodeOptions = this.getNodeOptions()
     this.setState({
       typeOfTransition: type,
-      flowToSubflow: this.state.flowToSubflow || _.get(subflowOptions, '[0]'),
-      flowToNode: this.state.flowToNode || _.get(nodeOptions, '[0]'),
+      flowToSubflow: this.state.flowToSubflow || _.get(this.state.subflowOptions, '[0]'),
+      flowToNode: this.state.flowToNode || _.get(this.state.nodeOptions, '[0]'),
       transitionError: null
     })
   }
@@ -139,12 +155,10 @@ export default class ConditionModalForm extends Component {
   }
 
   resetForm(props) {
-    const nodeOptions = this.getNodeOptions()
-
     this.setState({
       typeOfTransition: 'node',
       flowToSubflow: null,
-      flowToNode: _.get(nodeOptions, '[0]'),
+      flowToNode: _.get(this.state.nodeOptions, '[0]'),
       returnToNode: '',
       conditionError: null,
       transitionError: null,
@@ -184,22 +198,13 @@ export default class ConditionModalForm extends Component {
     this.resetForm()
   }
 
-  getSubflowOptions() {
-    return this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
-      label: flow,
-      value: flow
-    }))
-  }
-
   renderSubflowChoice() {
     return (
       <Select
         name="flowToSubflow"
         value={this.state.flowToSubflow}
-        options={this.getSubflowOptions()}
-        onChange={val => {
-          this.setState({ flowToSubflow: val && val.value })
-        }}
+        options={this.state.subflowOptions}
+        onChange={flowToSubflow => this.setState({ flowToSubflow })}
       />
     )
   }
@@ -227,27 +232,16 @@ export default class ConditionModalForm extends Component {
     )
   }
 
-  getNodeOptions() {
-    const { currentFlow: flow, currentNodeName } = this.props
-    const nodes = (flow && flow.nodes) || []
-    const options = nodes
-      .filter(({ name }) => name !== currentNodeName)
-      .map(({ name }) => ({ label: name, value: name }))
-
-    return [{ label: 'No specific node', value: null }, ...options]
-  }
-
   renderNodesChoice() {
     if (!this.props.currentFlow) {
       return null
     }
 
-    const nodeOptions = this.getNodeOptions()
     return (
       <Select
         name="flowToNode"
         value={this.state.flowToNode}
-        options={nodeOptions}
+        options={this.state.nodeOptions}
         onChange={flowToNode => this.setState({ flowToNode })}
       />
     )

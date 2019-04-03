@@ -28,9 +28,11 @@ export default class FlowPickWidget extends Component {
     })
   }
 
-  onSelectChange = prop => ({ value }) => {
-    this.setState({ [prop]: value }, () => {
-      this.props.onChange(`${this.state.redirectFlow}#${this.state.redirectNode}`)
+  onSelectChange = prop => option => {
+    this.setState({ [prop]: option }, () => {
+      const flow = this.state.redirectFlow && this.state.redirectFlow.value
+      const node = this.state.redirectNode && this.state.redirectNode.value
+      this.props.onChange(`${flow}#${node}`)
     })
   }
 
