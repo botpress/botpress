@@ -46,10 +46,10 @@ export default class WebchatDb {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('userId')
-          table.string('message_type') // @ deprecated Remove in a future release
-          table.text('message_text') // @ deprecated Remove in a future release
-          table.jsonb('message_raw') // @ deprecated Remove in a future release
-          table.jsonb('message_data') // @ deprecated Remove in a future release
+          table.string('message_type') // @ deprecated Remove in a future release (11.9)
+          table.text('message_text') // @ deprecated Remove in a future release (11.9)
+          table.jsonb('message_raw') // @ deprecated Remove in a future release (11.9)
+          table.jsonb('message_data') // @ deprecated Remove in a future release (11.9)
           table.jsonb('payload')
           table.string('full_name')
           table.string('avatar_url')

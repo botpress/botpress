@@ -239,32 +239,32 @@ export default class EmulatorChat extends React.Component {
     )
   }
 
-  renderMessageInput() {
+  renderComposer() {
     const Keyboard = window.botpress['channel-web'] && window.botpress['channel-web']['Keyboard']
-    if (Keyboard) {
-      return (
-        <Keyboard.Default>
-          <textarea
-            tabIndex={1}
-            ref={this.textInputRef}
-            className={classnames(style.msgInput, {
-              [style.disabled]: this.state.sending,
-              [style.error]: this.state.invalidMessage
-            })}
-            type="text"
-            onKeyPress={this.handleKeyPress}
-            onKeyDown={this.handleKeyDown}
-            value={this.state.textInputValue}
-            placeholder={
-              this.state.isSendingRawPayload
-                ? 'Type your raw payload here. It must be valid JSON. Ex: {"text": "bla"}'
-                : 'Type a message here'
-            }
-            onChange={this.handleMsgChange}
-          />
-        </Keyboard.Default>
-      )
-    }
+    return Keyboard ? <Keyboard.Default>{this.renderMessageInput()}</Keyboard.Default> : this.renderMessageInput()
+  }
+
+  renderMessageInput() {
+    return (
+      <textarea
+        tabIndex={1}
+        ref={this.textInputRef}
+        className={classnames(style.msgInput, {
+          [style.disabled]: this.state.sending,
+          [style.error]: this.state.invalidMessage
+        })}
+        type="text"
+        onKeyPress={this.handleKeyPress}
+        onKeyDown={this.handleKeyDown}
+        value={this.state.textInputValue}
+        placeholder={
+          this.state.isSendingRawPayload
+            ? 'Type your raw payload here. It must be valid JSON. Ex: {"text": "bla"}'
+            : 'Type a message here'
+        }
+        onChange={this.handleMsgChange}
+      />
+    )
   }
 
   hideSettings = () => this.setState({ isSettingsOpen: false })
@@ -311,7 +311,7 @@ export default class EmulatorChat extends React.Component {
             {this.renderInspector()}
           </SplitPane>
         </div>
-        {this.renderMessageInput()}
+        {this.renderComposer()}
       </div>
     )
   }
