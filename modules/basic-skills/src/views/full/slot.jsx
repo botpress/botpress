@@ -80,7 +80,7 @@ export class Slot extends React.Component {
               <Select
                 id="intent"
                 name="intent"
-                style={{ zIndex: 2000 }}
+                className={style.intentSelect}
                 isSearchable={true}
                 onChange={this.handleIntentChange}
                 value={this.state.selectedIntentOption}
@@ -96,7 +96,7 @@ export class Slot extends React.Component {
               <Select
                 id="slot"
                 name="slot"
-                style={{ zIndex: 1500 }}
+                className={style.slotSelect}
                 isSearchable={true}
                 onChange={this.handleSlotChange}
                 value={this.state.selectedSlotOption}
@@ -110,7 +110,7 @@ export class Slot extends React.Component {
               <ContentPickerWidget
                 name="contentPicker"
                 id="contentPicker"
-                style={{ zIndex: 1000 }}
+                className={style.contentPicker}
                 itemId={this.state.contentElement}
                 onChange={this.handleContentChange}
                 placeholder="Pick content"

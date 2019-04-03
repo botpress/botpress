@@ -39,8 +39,16 @@
   }
 }
 
-.select {
+.intentSelect {
   z-index: 1000;
+}
+
+.slotSelect {
+  z-index: 900;
+}
+
+.contentPicker {
+  z-index: 800;
 }
 
 .modalContent {
