@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart"],
+    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart", "updating"],
     "Build": [
       "build/overview",
       "build/nlu",
@@ -11,7 +11,7 @@
       "build/channels",
       "build/emulator"
     ],
-    "Deploy": ["deploy/architecture", "deploy/hosting"],
+    "Deploy": ["deploy/architecture", "deploy/hosting", "deploy/performances"],
     "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
     "Developers": [
       "developers/release-notes",
@@ -34,7 +34,8 @@
       "tutorials/i18n",
       "tutorials/external-api",
       "tutorials/chat-3rd-party-OAuth",
-      "tutorials/contextual-faq"
+      "tutorials/contextual-faq",
+      "tutorials/listen-file-changes"
     ],
     "Botpress Pro": ["pro/about-pro", "pro/licensing"]
   }
