@@ -13,7 +13,6 @@ function render(data) {
   return [
     ...events,
     {
-      on: 'webchat',
       text: data.text,
       quick_replies: data.choices.map(c => ({
         title: c.title,

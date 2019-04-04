@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
 
-import style from './style.scss'
-import PhoneIcon from '../icons/Phone'
-import WebsiteIcon from '../icons/Website'
-import EmailIcon from '../icons/Email'
-import Avatar from '../avatar'
+import style from './BotInfo.scss'
+import PhoneIcon from '../../icons/Phone'
+import WebsiteIcon from '../../icons/Website'
+import EmailIcon from '../../icons/Email'
+import Avatar from './Avatar'
 
 const CoverPicture = ({ botInfo }) => (
   <img
@@ -25,8 +25,17 @@ class BotInfo extends React.Component {
     this.btnEl && this.btnEl.focus()
   }
 
+  startConversation = () => {
+    this.props.onSendData &&
+      this.props.onSendData({ type: 'request_start_conversation' }).then(this.props.toggleBotInfo)
+  }
+
   render() {
-    const { botInfo, onDismiss, dismissLabel, config } = this.props
+    const { botInfo, config, currentConversation } = this.props
+
+    const isConvoStarted = currentConversation && !!currentConversation.messages.length
+    const onDismiss = isConvoStarted ? this.props.toggleBotInfo : this.startConversation
+
     return (
       <div className={'bp-bot-info-container ' + style['bot-info-container']}>
         <CoverPicture botInfo={botInfo} />
@@ -91,7 +100,7 @@ class BotInfo extends React.Component {
           className={'bp-bot-info-start-convo-button ' + style.startBtn}
           onClick={onDismiss}
         >
-          {dismissLabel}
+          {isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
         </button>
       </div>
     )
