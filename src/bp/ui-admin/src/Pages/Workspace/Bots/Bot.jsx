@@ -45,28 +45,31 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
       </UncontrolledButtonDropdown>
     </div>
     <div className="title">
-      {bot.disabled ? (
-        <Fragment>
-          <span>{bot.name}</span>
-          <Badge color="danger" className="botbage" Disabled />
-        </Fragment>
-      ) : (
-        <Fragment>
-          {bot.locked && (
-            <span>
-              <MdLock className="text-primary" />
-              &nbsp;
-            </span>
-          )}
-          <Link to={`/studio/${bot.id}`}>{bot.name}</Link>
-          {bot.private && (
-            <Badge color="primary" className="botbage">
-              private
-            </Badge>
-          )}
-        </Fragment>
+      {bot.locked && (
+        <span>
+          <MdLock className="text-primary" />
+          &nbsp;
+        </span>
       )}
+      {bot.disabled ? <span>{bot.name}</span> : <Link to={`/studio/${bot.id}`}>{bot.name}</Link>}
     </div>
     <p>{bot.description}</p>
+    <div>
+      {bot.disabled && (
+        <Badge color="warning" className="botbadge">
+          disabled
+        </Badge>
+      )}
+      {bot.private && (
+        <Badge color="primary" className="botbadge">
+          private
+        </Badge>
+      )}
+      {bot.pipeline_status.stage_request && (
+        <Badge color="secondary" className="botbadge">
+          pending
+        </Badge>
+      )}
+    </div>
   </div>
 )
