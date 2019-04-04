@@ -27,16 +27,6 @@ const createNodes = data => {
   return [
     {
       name: 'slot-extract',
-      next: [
-        {
-          condition: `session.${data.slotName}`,
-          node: 'extracted'
-        },
-        {
-          condition: 'true',
-          node: 'not-extracted'
-        }
-      ],
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
@@ -50,44 +40,82 @@ const createNodes = data => {
       onReceive: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/entityExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+          name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+        }
+      ],
+      next: [
+        {
+          condition: `session.${data.slotName}`,
+          node: 'extracted'
+        },
+        {
+          condition: 'true',
+          node: 'not-extracted'
         }
       ]
     },
     {
       name: 'extracted',
-      next: [
-        {
-          condition: 'true',
-          node: '#'
-        }
-      ],
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
           name: 'builtin/setVariable {"type":"temp","name":"extracted","value":"true"}'
         }
       ],
-      onReceive: undefined
-    },
-    {
-      name: 'not-extracted',
+      onReceive: undefined,
       next: [
         {
           condition: 'true',
           node: '#'
         }
-      ],
+      ]
+    },
+    {
+      name: 'not-extracted',
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'builtin/setVariable {"type":"temp","name":"notExtracted","value":"true"}'
+          name: `basic-skills/slotNotFound {"retryAttempts":"${data.retryAttempts}"}`
+        },
+        {
+          type: sdk.NodeActionType.RenderElement,
+          name: `#!${data.notFoundElement}`
         }
       ],
-      onReceive: undefined
+      onReceive: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+        }
+      ],
+      next: [
+        {
+          condition: `session.${data.slotName}`,
+          node: 'extracted'
+        },
+        {
+          condition: `temp.notExtracted == "true"`,
+          node: '#'
+        },
+        {
+          condition: 'session.notFound > 0',
+          node: 'not-extracted'
+        },
+        {
+          condition: 'true',
+          node: '#'
+        }
+      ]
     },
     {
       name: 'check-if-extracted',
+      onEnter: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `basic-skills/slotExtract {"entity":"${data.entity}"}`
+        }
+      ],
+      onReceive: undefined,
       next: [
         {
           condition: `session.${data.slotName} !== undefined`,
@@ -97,30 +125,23 @@ const createNodes = data => {
           condition: 'true',
           node: 'slot-extract'
         }
-      ],
-      onEnter: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotExtract {"slotName":"${data.slotName}","entity":"${data.entity}"}`
-        }
-      ],
-      onReceive: undefined
+      ]
     },
     {
       name: 'already-extracted',
-      next: [
-        {
-          condition: 'true',
-          node: '#'
-        }
-      ],
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
         }
       ],
-      onReceive: undefined
+      onReceive: undefined,
+      next: [
+        {
+          condition: 'true',
+          node: '#'
+        }
+      ]
     }
   ]
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Label } from 'reactstrap'
+import { Row, Col, Label, Input } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
 import Select from 'react-select'
 import style from './style.scss'
@@ -8,8 +8,12 @@ export class Slot extends React.Component {
   state = {
     selectedIntentOption: undefined,
     selectedSlotOption: undefined,
+    selectedValidationOption: undefined,
     contentElement: undefined,
-    intents: []
+    notFoundElement: undefined,
+    intents: [],
+    addValidation: false,
+    maxRetryAttempts: 3
   }
 
   componentDidMount() {
@@ -24,7 +28,8 @@ export class Slot extends React.Component {
       this.setState({
         selectedSlotOption: { value: data.slotName, label: data.slotName },
         selectedIntentOption: { value: data.intent, label: data.intent },
-        contentElement: data.contentElement
+        contentElement: data.contentElement,
+        notFoundElement: data.notFoundElement
       })
     }
   }
@@ -37,7 +42,10 @@ export class Slot extends React.Component {
     const entity = slot && slot.entity
 
     const data = {
+      validationRegex: this.state.validationRegex,
+      retryAttempts: this.state.maxRetryAttempts,
       contentElement: this.state.contentElement,
+      notFoundElement: this.state.notFoundElement,
       slotName,
       intent: intentName,
       entity,
@@ -60,6 +68,23 @@ export class Slot extends React.Component {
 
   handleIntentChange = selectedIntentOption => {
     this.setState({ selectedIntentOption, selectedSlotOption: undefined })
+  }
+
+  handleNotFoundChange = item => {
+    this.setState({ notFoundElement: item.id })
+  }
+
+  handleMaxRetryAttemptsChange = event => {
+    const value = Number(event.target.value)
+    if (isNaN(value)) {
+      return
+    }
+
+    this.setState({ maxRetryAttempts: value })
+  }
+
+  toggleAddValidation = () => {
+    this.setState({ addValidation: !this.state.addValidation })
   }
 
   render() {
@@ -106,7 +131,7 @@ export class Slot extends React.Component {
           </Row>
           <Row>
             <Col>
-              <Label for="contentPicker">Bot will say</Label>
+              <Label for="contentPicker">Bot will ask</Label>
               <ContentPickerWidget
                 name="contentPicker"
                 id="contentPicker"
@@ -114,6 +139,49 @@ export class Slot extends React.Component {
                 itemId={this.state.contentElement}
                 onChange={this.handleContentChange}
                 placeholder="Pick content"
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Input type="checkbox" id="validationCheck" name="validationCheck" onChange={this.toggleAddValidation} />
+              &nbsp;
+              <Label for="validationCheck">Input validation action</Label>
+              {this.state.addValidation && (
+                <Select
+                  id="validation"
+                  name="validation"
+                  className={style.slotSelect}
+                  isSearchable={true}
+                  value={this.state.selectedValidationOption}
+                  options={[
+                    { value: 'email', label: 'Email' },
+                    { value: 'phone', label: 'Phone' },
+                    { value: 'custom', label: 'Custom' }
+                  ]}
+                />
+              )}
+            </Col>
+          </Row>
+          <Row>
+            <Col md="9">
+              <Label>Not Found Message</Label>
+              <ContentPickerWidget
+                name="notFoundElement"
+                id="notFoundElement"
+                itemId={this.state.notFoundElement}
+                onChange={this.handleNotFoundChange}
+                placeholder="Pick content to display when the slot is not found"
+              />
+            </Col>
+            <Col md="3">
+              <Label for="retryAttempts">Max retry attempts</Label>
+              <Input
+                id="retryAttempts"
+                name="retryAttempts"
+                type="numeric"
+                value={this.state.maxRetryAttempts}
+                onChange={this.handleMaxRetryAttemptsChange}
               />
             </Col>
           </Row>

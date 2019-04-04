@@ -1,16 +1,19 @@
-const extractSlots = async (slotName, entity) => {
-  // extract slots of current entity if available
-  // we should fill the slots relative to the intent whenever we can
+/**
+ * Extract the slots of a intent that matched
+ * @private
+ * @param entity The entity to extract slots from
+ */
+const slotExtract = async entity => {
   for (const key of Array.from(Object.keys(event.nlu.slots))) {
-    // Make sure we extract slots relative to the intent and we do not extract
     const slot = event.nlu.slots[key]
     if (slot.entity.name === entity) {
+      // Make sure we don't override the value
       if (!session[slot.name]) {
-        // Make sure we don't override the value
         session[slot.name] = slot.value
+        session.notFound = 0
       }
     }
   }
 }
 
-return extractSlots(args.slotName, args.entity)
+return slotExtract(args.entity)
