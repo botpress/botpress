@@ -40,23 +40,23 @@
 }
 
 .intentSelect {
-  z-index: 1000;
+  z-index: 1000 !important;
 }
 
 .slotSelect {
-  z-index: 900;
+  z-index: 900 !important;
 }
 
 .contentPicker {
-  z-index: 800;
+  z-index: 800 !important;
 }
 
 .actionSelect {
-  z-index: 700;
+  z-index: 700 !important;
 }
 
 .notFoundSelect {
-  z-index: 600;
+  z-index: 600 !important;
 }
 
 .modalContent {

@@ -4,6 +4,7 @@ import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
+import { SelectIntent } from './shared/intentSelect'
 
 export class Slot extends React.Component {
   state = {
@@ -126,16 +127,11 @@ export class Slot extends React.Component {
           <Row>
             <Col>
               <Label>Choose an intent</Label>
-              <Select
-                id="intent"
-                name="intent"
+              <SelectIntent
                 className={style.intentSelect}
-                isSearchable={true}
-                onChange={this.handleIntentChange}
                 value={this.state.selectedIntentOption}
-                options={this.state.intents.map(intent => {
-                  return { value: intent.name, label: intent.name }
-                })}
+                intents={this.state.intents}
+                onChange={this.handleIntentChange}
               />
             </Col>
           </Row>

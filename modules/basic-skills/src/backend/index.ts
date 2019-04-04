@@ -4,7 +4,8 @@ import _ from 'lodash'
 
 import choice from './choice'
 import setup from './setup'
-import slot from './slot'
+import slotExtraction from './slot'
+import intentMatching from './intentMatching'
 
 export type Extension = {}
 
@@ -24,8 +25,13 @@ const skillsToRegister: sdk.Skill[] = [
   },
   {
     id: 'slot',
-    name: 'Slot', // TODO: Find high-level name
-    flowGenerator: slot.generateFlow
+    name: 'Slot Extraction',
+    flowGenerator: slotExtraction.generateFlow
+  },
+  {
+    id: 'intentMatching',
+    name: 'Intent Matching',
+    flowGenerator: intentMatching.generateFlow
   }
 ]
 
