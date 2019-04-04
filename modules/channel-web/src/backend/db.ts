@@ -62,7 +62,7 @@ export default class WebchatDb {
           .then(info => {
             if (info.payload === undefined) {
               return this.knex.schema.alterTable('web_messages', table => {
-                table.jsonb('payload').nullable()
+                table.jsonb('payload')
               })
             }
           })
