@@ -50,7 +50,7 @@ export default class Header extends React.Component {
   }
 
   renderAvatar = () => {
-    const name = this.props.botInfo.name || this.props.config.botName
+    const name = this.props.config.botName || this.props.botInfo.name
     const avatarUrl =
       (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
     return <Avatar name={name} avatarUrl={avatarUrl} height={40} width={40} />
@@ -76,7 +76,7 @@ export default class Header extends React.Component {
     return (
       !this.props.showConvos &&
       !this.props.showBotInfo &&
-      this.props.config && (
+      this.props.config.enableReset && (
         <span
           tabIndex="-1"
           ref={el => (this.btnEls[0] = el)}
