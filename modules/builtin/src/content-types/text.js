@@ -70,9 +70,10 @@ module.exports = {
 
   uiSchema: {
     text: {
-      'ui:widget': 'textarea'
+      'ui:field': 'i18n_field'
     },
     variations: {
+      'ui:field': 'i18n_array',
       'ui:options': {
         orderable: false
       }
