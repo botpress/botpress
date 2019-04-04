@@ -1,6 +1,6 @@
 /**
  * Extract entities that match a slot
- * @private
+ * @hidden true
  * @param slotName The name of the slot to extract. (e.g. destination_from)
  * @param entity The entity of the slot. (e.g. City)
  */

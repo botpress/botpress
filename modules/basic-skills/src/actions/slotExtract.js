@@ -1,6 +1,6 @@
 /**
  * Extract the slots of a intent that matched
- * @private
+ * @hidden true
  * @param entity The entity to extract slots from
  */
 const slotExtract = async entity => {
