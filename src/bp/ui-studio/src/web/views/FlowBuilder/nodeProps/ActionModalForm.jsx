@@ -114,7 +114,7 @@ export default class ActionModalForm extends Component {
               const fn = avActions.find(fn => fn.name === (val && val.value))
               const paramsDefinition = _.get(fn, 'metadata.params') || []
               this.setState({
-                functionInputValue: val,
+                functionInputValue: val && val.value,
                 paramsDef: paramsDefinition,
                 actionMetadata: fn.metadata || {}
               })
