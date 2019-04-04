@@ -1,6 +1,7 @@
 import React from 'react'
 import { Row, Col, Label, Input } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
+import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
 
@@ -13,15 +14,14 @@ export class Slot extends React.Component {
     notFoundElement: undefined,
     intents: [],
     addValidation: false,
-    maxRetryAttempts: 3
+    maxRetryAttempts: 3,
+    actions: [],
+    validationAction: undefined
   }
 
   componentDidMount() {
-    this.props.bp.axios.get('/mod/nlu/intents').then(response => {
-      this.setState({
-        intents: response.data
-      })
-    })
+    this.fetchIntents()
+    this.fetchActions()
 
     const data = this.props.initialData
     if (data) {
@@ -29,7 +29,9 @@ export class Slot extends React.Component {
         selectedSlotOption: { value: data.slotName, label: data.slotName },
         selectedIntentOption: { value: data.intent, label: data.intent },
         contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement
+        notFoundElement: data.notFoundElement,
+        validationAction: data.validationAction && data.validationAction.value,
+        addValidation: !!data.validationAction
       })
     }
   }
@@ -49,13 +51,30 @@ export class Slot extends React.Component {
       slotName,
       intent: intentName,
       entity,
-      contexts: intent && intent.contexts
+      contexts: intent && intent.contexts,
+      validationAction: this.state.validationAction
     }
 
     if (this.state.selectedIntentOption && this.state.selectedSlotOption && this.state.contentElement) {
       this.props.onDataChanged && this.props.onDataChanged(data)
       this.props.onValidChanged && this.props.onValidChanged(true)
     }
+  }
+
+  fetchIntents = () => {
+    this.props.bp.axios.get('/mod/nlu/intents').then(response => {
+      this.setState({
+        intents: response.data
+      })
+    })
+  }
+
+  fetchActions = () => {
+    this.props.bp.axios.get(`/actions`).then(({ data }) => {
+      this.setState({
+        actions: data.filter(action => !action.metadata.hidden)
+      })
+    })
   }
 
   handleContentChange = item => {
@@ -81,6 +100,11 @@ export class Slot extends React.Component {
     }
 
     this.setState({ maxRetryAttempts: value })
+  }
+
+  handleActionChange = value => {
+    console.log('action value', value)
+    this.setState({ validationAction: value })
   }
 
   toggleAddValidation = () => {
@@ -144,21 +168,21 @@ export class Slot extends React.Component {
           </Row>
           <Row>
             <Col>
-              <Input type="checkbox" id="validationCheck" name="validationCheck" onChange={this.toggleAddValidation} />
+              <Input
+                type="checkbox"
+                id="validationCheck"
+                name="validationCheck"
+                onChange={this.toggleAddValidation}
+                checked={this.addValidation}
+              />
               &nbsp;
               <Label for="validationCheck">Input validation action</Label>
               {this.state.addValidation && (
-                <Select
-                  id="validation"
-                  name="validation"
-                  className={style.slotSelect}
-                  isSearchable={true}
-                  value={this.state.selectedValidationOption}
-                  options={[
-                    { value: 'email', label: 'Email' },
-                    { value: 'phone', label: 'Phone' },
-                    { value: 'custom', label: 'Custom' }
-                  ]}
+                <SelectActionDropdown
+                  className={style.actionSelect}
+                  value={this.state.validationAction && this.state.validationAction.value}
+                  options={this.state.actions}
+                  onChange={this.handleActionChange}
                 />
               )}
             </Col>
@@ -167,8 +191,9 @@ export class Slot extends React.Component {
             <Col md="9">
               <Label>Not Found Message</Label>
               <ContentPickerWidget
-                name="notFoundElement"
                 id="notFoundElement"
+                name="notFoundElement"
+                className={style.notFoundSelect}
                 itemId={this.state.notFoundElement}
                 onChange={this.handleNotFoundChange}
                 placeholder="Pick content to display when the slot is not found"

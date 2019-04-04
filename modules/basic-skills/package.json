@@ -11,7 +11,8 @@
       "react-bootstrap": "ReactBootstrap",
       "reactstrap": "Reactstrap",
       "react-select": "ReactSelect",
-      "botpress/content-picker": "BotpressContentPicker"
+      "botpress/content-picker": "BotpressContentPicker",
+      "botpress/select-action-dropdown": "SelectActionDropdown"
     }
   },
   "scripts": {
