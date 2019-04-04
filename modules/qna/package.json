@@ -19,6 +19,7 @@
     }
   },
   "devDependencies": {
+    "@babel/helpers": "^7.4.3",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
