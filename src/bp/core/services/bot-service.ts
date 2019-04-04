@@ -123,7 +123,9 @@ export class BotService {
       'category',
       'details',
       'disabled',
-      'private'
+      'private',
+      'defaultLanguage',
+      'languages'
     ]) as Partial<BotConfig>
 
     await this.configProvider.setBotConfig(botId, {

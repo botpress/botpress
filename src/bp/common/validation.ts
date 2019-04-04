@@ -31,6 +31,14 @@ export const BotEditSchema = Joi.object().keys({
     .required(),
   disabled: Joi.bool(),
   private: Joi.bool(),
+  defaultLanguage: Joi.string()
+    .min(2)
+    .max(3),
+  languages: Joi.array().items(
+    Joi.string()
+      .min(2)
+      .max(3)
+  ),
   details: {
     website: Joi.string()
       .uri()
