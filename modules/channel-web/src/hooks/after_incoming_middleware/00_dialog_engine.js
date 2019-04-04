@@ -3,10 +3,6 @@ const messageTypesToDiscard = ['request_start_conversation', 'say_something', 'p
 if (messageTypesToDiscard.includes(event.type)) {
   event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
-  if (event.type === 'say_something' && event.payload.text) {
-    saySomething()
-  }
-
   if (event.type === 'postback') {
     bp.logger.warn(`Just received a postback event: ${event.payload}. 
     To handle these kind of events. you need to create a hook that will process them.
@@ -14,19 +10,23 @@ if (messageTypesToDiscard.includes(event.type)) {
   }
 }
 
-async function saySomething() {
+const saySomethingHook = async () => {
   const text = event.payload.text
 
-  if (text.startsWith('#!')) {
-    /**
-     * Sends an existing content element. Event is specified twice, since the first parameters are the
-     * element arguments, and the second one is the event destination (required fields: botId, target, threadId, channel)
-     */
-    const content = await bp.cms.renderElement(text, event, event)
-    await bp.events.replyToEvent(event, content)
-  } else {
-    // Sends a basic text message
-    const payloads = await bp.cms.renderElement('builtin_text', { text, typing: true }, event.channel)
-    await bp.events.replyToEvent(event, payloads)
+  if (event.type === 'say_something' && text && text.length) {
+    if (text.startsWith('#!')) {
+      /**
+       * Sends an existing content element. Event is specified twice, since the first parameters are the
+       * element arguments, and the second one is the event destination (required fields: botId, target, threadId, channel)
+       */
+      const content = await bp.cms.renderElement(text, event, event)
+      await bp.events.replyToEvent(event, content)
+    } else {
+      // Sends a basic text message
+      const payloads = await bp.cms.renderElement('builtin_text', { text, typing: true }, event.channel)
+      await bp.events.replyToEvent(event, payloads)
+    }
   }
 }
+
+return saySomethingHook()
