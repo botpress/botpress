@@ -34,24 +34,20 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
+    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
+
     if (messageType === 'typing') {
       const typing = parseTyping(event.payload.value)
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
-    } else if (messageType === 'text' || messageType === 'carousel' || messageType === 'custom') {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, event.payload)
-
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-    } else if (messageType === 'file') {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, { ...event.payload })
-
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'data') {
-      const userId = event.target
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
+    } else if (standardTypes.includes(messageType)) {
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, event.payload)
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }

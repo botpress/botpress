@@ -231,7 +231,11 @@ export default async (bp: typeof sdk, db: Database) => {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
-    const sanitizedPayload = _.omit(payload, ['password'])
+    let sanitizedPayload = payload
+    if (payload.sensitive) {
+      const sensitive = Array.isArray(payload.sensitive) ? payload.sensitive : [payload.sensitive]
+      sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
+    }
 
     const event = bp.IO.Event({
       botId,
