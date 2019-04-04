@@ -14,7 +14,8 @@ export class IntentMatching extends React.Component {
     const data = this.props.initialData
     if (data) {
       this.setState({
-        intentName: data.intentName
+        intentName: data.intentName,
+        selectedIntentOption: { value: data.intentName, label: data.intentName }
       })
     }
   }
