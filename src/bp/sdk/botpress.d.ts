@@ -621,6 +621,8 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+    defaultLanguage: string
+    languages: string[]
   }
 
   export interface BotDetails {

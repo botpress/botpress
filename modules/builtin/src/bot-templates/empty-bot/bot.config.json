@@ -16,5 +16,7 @@
   },
   "logs": {
     "expiration": "1 week"
-  }
+  },
+  "langauges": ["en"],
+  "defaultLanguage": "en"
 }
