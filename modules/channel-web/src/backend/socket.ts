@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import mime from 'mime'
 import path from 'path'
 
 import Database from './db'
@@ -35,38 +34,20 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
+    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
+
     if (messageType === 'typing') {
       const typing = parseTyping(event.payload.value)
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       await Promise.delay(typing)
-    } else if (messageType === 'text' || messageType === 'carousel' || messageType === 'custom') {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        data: event.payload,
-        raw: event.payload,
-        text: event.preview,
-        type: messageType
-      })
-
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-    } else if (messageType === 'file') {
-      const extension = path.extname(event.payload.url)
-      const mimeType = mime.getType(extension)
-      const basename = path.basename(event.payload.url, extension)
-
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, {
-        data: { storage: 'storage', mime: mimeType, name: basename, ...event.payload },
-        raw: event.payload,
-        text: event.preview,
-        type: messageType
-      })
-
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else if (messageType === 'data') {
-      const userId = event.target
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
+    } else if (standardTypes.includes(messageType)) {
+      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, event.payload)
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }

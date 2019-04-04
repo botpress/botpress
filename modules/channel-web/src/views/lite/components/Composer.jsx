@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 
-import style from './style.scss'
-
-export default class Send extends Component {
+export default class Composer extends Component {
   componentDidMount() {
     this.textInput.focus()
   }
@@ -39,7 +37,7 @@ export default class Send extends Component {
 
   render() {
     return (
-      <div className={style.input}>
+      <div className={'bpw-composer'}>
         <textarea
           tabIndex="1"
           ref={input => {
@@ -51,9 +49,6 @@ export default class Send extends Component {
           value={this.props.text}
           onKeyPress={this.handleKeyPress}
           onKeyDown={this.handleKeyDown}
-          style={{
-            color: this.props.config.textColorOnBackground
-          }}
         />
       </div>
     )

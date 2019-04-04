@@ -7,7 +7,7 @@ import random from 'lodash/random'
 import style from './style.scss'
 import 'react-select/dist/react-select.css'
 
-const N_COLORS = 8
+const N_COLORS = 12
 const INITIAL_STATE = {
   id: null,
   name: '',
@@ -84,12 +84,8 @@ export default class SlotModal extends React.Component {
     return (
       <Modal show={this.props.show} bsSize="small" onHide={this.props.onHide} animation={false}>
         <Modal.Header closeButton>
-          {
-            this.state.editing && <Modal.Title>Edit slot</Modal.Title>
-          }
-          {
-            !this.state.editing && <Modal.Title>Create Slot for your intent</Modal.Title>
-          }
+          {this.state.editing && <Modal.Title>Edit slot</Modal.Title>}
+          {!this.state.editing && <Modal.Title>Create Slot for your intent</Modal.Title>}
         </Modal.Header>
         <Modal.Body>
           <h4>Slot Name</h4>
@@ -113,12 +109,8 @@ export default class SlotModal extends React.Component {
         </Modal.Body>
         <Modal.Footer>
           <Button tabIndex="3" bsStyle="primary" disabled={!isValid} onClick={this.onSave}>
-            {
-              this.state.editing && "Save slot"
-            }
-            {
-              !this.state.editing && "Create slot"
-            }
+            {this.state.editing && 'Save slot'}
+            {!this.state.editing && 'Create slot'}
           </Button>
         </Modal.Footer>
       </Modal>
