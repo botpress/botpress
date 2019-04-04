@@ -8,7 +8,9 @@ if (messageTypesToDiscard.includes(event.type)) {
   }
 
   if (event.type === 'postback') {
-    console.log('received postback event: ', event.payload)
+    bp.logger.warn(`Just received a postback event: ${event.payload}. 
+    To handle these kind of events. you need to create a hook that will process them.
+    Please refer to the documentation here: https://botpress.io/docs/build/code/#hooks`)
   }
 }
 

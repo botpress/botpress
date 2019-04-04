@@ -17,6 +17,7 @@ const MessageGroup = props => {
         <div className={'bpw-message-group'}>
           {props.messages.map((data, i) => {
             /**
+             * @deprecated 12.0
              * Here, we convert old format to the new format Botpress uses internally.
              * - payload: all the data (raw, whatever) that is necessary to display the element
              * - type: extracted from payload for easy sorting
