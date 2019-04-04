@@ -49,7 +49,6 @@ export default class NodePropsModal extends Component {
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
           requestEditSkill={this.props.requestEditSkill}
-          goToFlow={this.goToFlow}
           copyFlowNodeElement={this.props.copyFlowNodeElement}
           pasteFlowNodeElement={this.props.pasteFlowNodeElement}
           buffer={this.props.buffer}

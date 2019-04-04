@@ -30,7 +30,6 @@ export default class SkillCallNodePropertiesPanel extends Component {
     }
 
     const editSkill = () => this.props.requestEditSkill(node.id)
-    const seeFlow = () => this.props.goToFlow(node.flow)
 
     return (
       <div className={style.node}>
@@ -47,7 +46,6 @@ export default class SkillCallNodePropertiesPanel extends Component {
             <PermissionsChecker user={this.props.user} op="write" res="bot.skills">
               <Button onClick={editSkill}>Edit skill</Button>
             </PermissionsChecker>
-            <Button onClick={seeFlow}>See flow</Button>
           </div>
         </Panel>
         <Tabs animation={false} id="node-props-modal-skill-node-tabs">
