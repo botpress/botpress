@@ -220,8 +220,8 @@ export class BotService {
       requested_by
     }
 
-    const currentBot = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
-    await this._executeStageChangeHooks(currentBot)
+    const newConfig = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    await this._executeStageChangeHooks(botConfig, newConfig)
   }
 
   async duplicateBot(sourceBotId: string, destBotId: string, overwriteDest: boolean = false) {
@@ -251,12 +251,12 @@ export class BotService {
     return (await this.getBotsIds()).includes(botId)
   }
 
-  private async _executeStageChangeHooks(initialBot: BotConfig) {
-    const alteredBot = _.cloneDeep(initialBot)
+  private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {
+    const alteredBot = _.cloneDeep(currentConfig)
     const users = await this.workspaceService.listUsers(['email', 'role'])
     const pipeline = await this.workspaceService.getPipeline()
     const api = await createForGlobalHooks()
-    const currentStage = <Stage>pipeline.find(s => s.id === initialBot.pipeline_status.current_stage.id)
+    const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
     const hookResult = {
       actions: [currentStage.action]
     }
@@ -265,15 +265,17 @@ export class BotService {
     if (_.isArray(hookResult.actions)) {
       await Promise.map(hookResult.actions, action => {
         if (action === 'promote_copy') {
-          return this._promoteCopy(initialBot, alteredBot)
+          return this._promoteCopy(currentConfig, alteredBot)
         } else if (action === 'promote_move') {
           return this._promoteMove(alteredBot)
         }
       })
     }
     // stage has changed
-    if (initialBot.pipeline_status.current_stage.id !== alteredBot.pipeline_status.current_stage.id) {
-      await this.hookService.executeHook(new Hooks.AfterStageChanged(api, initialBot, alteredBot, users, pipeline))
+    if (currentConfig.pipeline_status.current_stage.id !== alteredBot.pipeline_status.current_stage.id) {
+      await this.hookService.executeHook(
+        new Hooks.AfterStageChanged(api, beforeRequestConfig, alteredBot, users, pipeline)
+      )
     }
   }
 

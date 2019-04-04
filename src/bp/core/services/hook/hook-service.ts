@@ -97,7 +97,7 @@ export namespace Hooks {
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
-      super('on_stage_change_request', { bp, bot, users, pipeline, hookResult })
+      super('on_stage_request', { bp, bot, users, pipeline, hookResult })
     }
   }
 
