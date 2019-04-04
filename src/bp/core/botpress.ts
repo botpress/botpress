@@ -213,7 +213,14 @@ export class Botpress {
     }
     // @deprecated > 11: bot will always include default pipeline stage
     await this._ensureBotsDefineStage(bots, pipeline[0])
-    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+
+    const disabledBots = [...bots.values()]
+      .filter(b => {
+        const isStage0 = b.pipeline_status.current_stage.id === pipeline[0].id
+        const stageExist = pipeline.findIndex(s => s.id === b.pipeline_status.current_stage.id) !== -1
+        return b.disabled || ((!process.IS_PRO_ENABLED && !isStage0) || !stageExist)
+      })
+      .map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
