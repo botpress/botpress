@@ -463,6 +463,13 @@ declare module 'botpress/sdk' {
       context: DialogContext
     }
 
+    export interface JumpPoint {
+      /** The name of the previous flow to return to when we exit a subflow */
+      flow: string
+      /** The name of the previous node to return to when we exit a subflow */
+      node: string
+    }
+
     export interface DialogContext {
       /** The name of the previous flow to return to when we exit a subflow */
       previousFlow?: string
@@ -472,6 +479,8 @@ declare module 'botpress/sdk' {
       currentNode?: string
       /** The name of the current active flow */
       currentFlow?: string
+      /** An array of jump-points to return when we exit subflow */
+      jumpPoints?: JumpPoint[]
       /** The instructions queue to be processed by the dialog engine */
       queue?: any
       /**

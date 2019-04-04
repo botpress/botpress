@@ -1,5 +1,3 @@
-/* global: window */
-
 import React from 'react'
 import classnames from 'classnames'
 
@@ -8,11 +6,7 @@ import isBefore from 'date-fns/is_before'
 import queryString from 'query-string'
 import ms from 'ms'
 
-import Convo from './convo'
-import Side from './side'
-
-import style from './style.scss'
-import asyncDebounce from './async-debounce'
+import Container from './components/Container'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -57,8 +51,6 @@ export default class Web extends React.Component {
       ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
     }
 
-    this.quickReplyDebounce = asyncDebounce(1000)
-
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
@@ -102,10 +94,6 @@ export default class Web extends React.Component {
       .then(this.fetchData)
       .then(() => {
         this.handleSwitchView('widget')
-        if (!this.state.isButtonHidden) {
-          this.showConvoPopUp()
-        }
-
         this.setState({ loading: false })
       })
 
@@ -159,12 +147,6 @@ export default class Web extends React.Component {
     this.setUserId().then(this.fetchData)
   }
 
-  sendUserEvent = data => {
-    const userId = window.__BP_VISITOR_ID
-    const url = `/mod/channel-web/events/${userId}`
-    return this.props.bp.axios.post(url, data, this.axiosConfig)
-  }
-
   handleIframeApi = ({ data: { action, payload } }) => {
     if (action === 'configure') {
       if (payload.userId) {
@@ -181,7 +163,7 @@ export default class Web extends React.Component {
         this.setState({ textToSend: text })
         this.handleSendMessage()
       } else {
-        return this.sendUserEvent({ type, payload })
+        return this.handleSendData({ type, payload })
       }
     }
   }
@@ -202,16 +184,6 @@ export default class Web extends React.Component {
         reject()
       }, 300000)
     })
-  }
-
-  showConvoPopUp() {
-    if (this.state.config.welcomeMsgEnable) {
-      setTimeout(() => {
-        if (!this.state.opened) {
-          this.handleSwitchView('convo')
-        }
-      }, this.state.config.welcomeMsgDelay || 5000)
-    }
   }
 
   handleSwitchView(view) {
@@ -235,16 +207,6 @@ export default class Web extends React.Component {
           isTransitioning: false
         })
       }, ANIM_DURATION + 10)
-    }
-
-    if (view === 'convo') {
-      setTimeout(() => {
-        this.setState({
-          convoTransition: 'fadeIn',
-          view: view,
-          isTransitioning: false
-        })
-      }, ANIM_DURATION)
     }
 
     if (view === 'widget') {
@@ -365,7 +327,7 @@ export default class Web extends React.Component {
   }
 
   handleNewMessage = event => {
-    if (event.message_type === 'visit') {
+    if ((event.payload && event.payload.type === 'visit') || event.message_type === 'visit') {
       // don't do anything, it's the system message
       return
     }
@@ -483,40 +445,7 @@ export default class Web extends React.Component {
     })
   }
 
-  handleAddEmoji = emoji => {
-    this.setState({
-      textToSend: this.state.textToSend + emoji.native + ' '
-    })
-  }
-
-  handleSendQuickReply = (title, payload) => {
-    const promise = this.handleSendData({
-      type: 'quick_reply',
-      text: title,
-      data: { payload }
-    })
-
-    return this.quickReplyDebounce.debounce(promise)
-  }
-
-  handleSendForm = (fields, formId, repr) => {
-    return this.handleSendData({
-      type: 'form',
-      formId: formId,
-      text: repr,
-      data: fields
-    })
-  }
-
-  handleLoginPrompt = (username, password) => {
-    return this.handleSendData({
-      type: 'login_prompt',
-      text: 'Provided login information',
-      data: { username, password }
-    })
-  }
-
-  handleFileUploadSend = (title, payload, file) => {
+  handleFileUpload = (title, payload, file) => {
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/messages/${userId}/files`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
@@ -529,6 +458,13 @@ export default class Web extends React.Component {
 
   handleSendData = data => {
     const userId = window.__BP_VISITOR_ID
+    const msgTypes = ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'postback']
+
+    if (!msgTypes.includes(data.type)) {
+      const url = `/mod/channel-web/events/${userId}`
+      return this.props.bp.axios.post(url, data, this.axiosConfig)
+    }
+
     const url = `/mod/channel-web/messages/${userId}`
     const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
 
@@ -582,18 +518,19 @@ export default class Web extends React.Component {
   }
 
   renderUncountMessages() {
-    return <span className={classnames('bp-unread-count', style.unread)}>{this.state.unreadCount}</span>
+    return <span className={'bpw-floating-button-unread'}>{this.state.unreadCount}</span>
   }
 
-  renderButton() {
+  renderWidget() {
     if (this.state.isButtonHidden) {
       return null
     }
     return (
       <button
-        className={classnames('bp-widget-btn', style[this.state.widgetTransition], style.floatingButton)}
+        className={classnames('bpw-widget-btn', 'bpw-floating-button', {
+          ['bpw-anim-' + this.state.widgetTransition]: true
+        })}
         onClick={this.handleButtonClicked}
-        style={{ backgroundColor: this.state.config.foregroundColor }}
       >
         <i>{this.state.view === 'convo' ? this.renderCloseIcon() : this.renderOpenIcon()}</i>
         {this.state.unreadCount > 0 ? this.renderUncountMessages() : null}
@@ -609,29 +546,7 @@ export default class Web extends React.Component {
     return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
   }
 
-  renderWidget() {
-    return (
-      <div className={classnames(style['container'])}>
-        <div className={classnames(style['widget-container'])}>
-          <span>
-            {this.state.view === 'convo' ? (
-              <Convo
-                botInfo={this.state.botInfo}
-                transition={this.state.convoTransition}
-                change={this.handleTextChanged}
-                send={this.handleSendMessage}
-                config={this.state.config}
-                text={this.state.textToSend}
-              />
-            ) : null}
-            {this.renderButton()}
-          </span>
-        </div>
-      </div>
-    )
-  }
-
-  downaloadFile(name, blob) {
+  downloadFile(name, blob) {
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
 
@@ -651,16 +566,12 @@ export default class Web extends React.Component {
     const file = (await this.props.bp.axios.get(url, this.axiosConfig)).data
     const blobFile = new Blob([file.txt])
 
-    this.downaloadFile(file.name, blobFile)
-  }
-
-  startConversation = cb => {
-    return this.sendUserEvent({ payload: { type: 'request_start_conversation' } }).then(cb)
+    this.downloadFile(file.name, blobFile)
   }
 
   renderSide() {
     return (
-      <Side
+      <Container
         bp={this.props.bp}
         config={this.state.config}
         text={this.state.textToSend}
@@ -669,21 +580,16 @@ export default class Web extends React.Component {
         unreadCount={this.state.unreadCount}
         currentConversation={this.state.currentConversation}
         conversations={this.state.conversations}
-        addEmojiToText={this.handleAddEmoji}
         onClose={!this.props.fullscreen ? this.handleClosePanel : null}
         onResetSession={this.handleSessionReset}
         onSwitchConvo={this.handleSwitchConvo}
         onTextSend={this.handleSendMessage}
         recallHistory={this.handleRecallHistory}
         onTextChanged={this.handleTextChanged}
-        onQuickReplySend={this.handleSendQuickReply}
-        onFormSend={this.handleSendForm}
-        onFileUploadSend={this.handleFileUploadSend}
-        onLoginPromptSend={this.handleLoginPrompt}
+        onFileUpload={this.handleFileUpload}
         onSendData={this.handleSendData}
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
-        startConversation={this.startConversation}
         botInfo={this.state.botInfo}
       />
     )
@@ -701,7 +607,8 @@ export default class Web extends React.Component {
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
     return (
-      <div className={classnames('bp-chat', style.web)} onFocus={this.handleResetUnreadCount}>
+      <div onFocus={this.handleResetUnreadCount}>
+        <link rel="stylesheet" type="text/css" href={'/assets/modules/channel-web/default.css'} />
         {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {view}
       </div>

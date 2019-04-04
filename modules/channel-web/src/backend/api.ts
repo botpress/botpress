@@ -171,14 +171,12 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = {
         text: `Uploaded a file [${req.file.originalname}]`,
         type: 'file',
-        data: {
-          storage: req.file.location ? 's3' : 'local',
-          url: req.file.location || req.file.path || undefined,
-          name: req.file.filename,
-          originalName: req.file.originalname,
-          mime: req.file.contentType || req.file.mimetype,
-          size: req.file.size
-        }
+        storage: req.file.location ? 's3' : 'local',
+        url: req.file.location || req.file.path || undefined,
+        name: req.file.filename,
+        originalName: req.file.originalname,
+        mime: req.file.contentType || req.file.mimetype,
+        size: req.file.size
       }
 
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
@@ -233,24 +231,10 @@ export default async (bp: typeof sdk, db: Database) => {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 
-    const sanitizedPayload = _.pick(payload, ['text', 'type', 'data', 'raw'])
-
-    // let the bot programmer make extra cleanup
-    // if (bp.webchat.sanitizeIncomingMessage) {
-    // FIXME
-    // sanitizedPayload = bp.webchat.sanitizeIncomingMessage(sanitizedPayload) || sanitizedPayload
-    // }
-
-    // Because we don't necessarily persist what we emit/received
-    const persistedPayload = { ...sanitizedPayload }
-
-    // We remove the password from the persisted messages for security reasons
-    if (payload.type === 'login_prompt') {
-      persistedPayload.data = _.omit(persistedPayload.data, ['password'])
-    }
-
-    if (payload.type === 'form') {
-      persistedPayload.data.formId = payload.formId
+    let sanitizedPayload = payload
+    if (payload.sensitive) {
+      const sensitive = Array.isArray(payload.sensitive) ? payload.sensitive : [payload.sensitive]
+      sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
     const event = bp.IO.Event({
@@ -264,7 +248,7 @@ export default async (bp: typeof sdk, db: Database) => {
       credentials
     })
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, persistedPayload)
+    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload)
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)
@@ -274,7 +258,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/events/:userId',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
-      const { payload = undefined } = req.body || {}
+      const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
       await bp.users.getOrCreateUser('web', userId)
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
@@ -341,14 +325,15 @@ export default async (bp: typeof sdk, db: Database) => {
     }
   })
 
-  const getMessageContent = message => {
-    switch (message.message_type) {
-      case 'file':
-        return message.message_data.url
-      case 'text':
-        return message.message_text
-      default:
-        return `Event (${message.message_type})`
+  const getMessageContent = (message, type) => {
+    const { payload } = message
+
+    if (type === 'file') {
+      return (payload && payload.url) || message.message_data.url
+    } else if (type === 'text' || type === 'quick_reply') {
+      return (payload && payload.text) || message.message_text
+    } else {
+      return `Event (${type})`
     }
   }
 
@@ -362,11 +347,12 @@ export default async (bp: typeof sdk, db: Database) => {
     )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
     const messagesAsTxt = messages.map(message => {
-      if (message.message_type === 'session_reset') {
+      const type = (message.payload && message.payload.type) || message.message_type
+      if (type === 'session_reset') {
         return ''
       }
       const userName = message.full_name.indexOf('undefined') > -1 ? 'User' : message.full_name
-      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message)}\r\n`
+      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message, type)}\r\n`
     })
 
     return [metadata, ...messagesAsTxt].join('')

@@ -24,16 +24,19 @@ function render(data) {
         buttons: (card.actions || []).map(a => {
           if (a.action === 'Say something') {
             return {
+              type: 'say_something',
               title: a.title,
-              payload: a.title
+              text: a.text
             }
           } else if (a.action === 'Open URL') {
             return {
+              type: 'open_url',
               title: a.title,
-              url: a.url.replace('BOT_URL', data.BOT_URL)
+              url: a.url && a.url.replace('BOT_URL', data.BOT_URL)
             }
           } else if (a.action === 'Postback') {
             return {
+              type: 'postback',
               title: a.title,
               payload: a.payload
             }
