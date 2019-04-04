@@ -1,0 +1,110 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "next": [
+      {
+        "condition": "event.nlu.intent.name === 'forget'",
+        "node": "forget-my-name"
+      }
+    ],
+    "onReceive": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "3fc7086c87",
+      "name": "ask-name",
+      "next": [
+        {
+          "condition": "true",
+          "node": "welcome"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-z0J9qh"
+      ],
+      "onReceive": [
+        "builtin/setVariable {\"type\":\"user\",\"name\":\"nickname\",\"value\":\"{{event.payload.text}}\"}"
+      ]
+    },
+    {
+      "id": "aa3bcb1ad3",
+      "name": "welcome",
+      "next": [
+        {
+          "condition": "temp.$r === 0",
+          "node": "first-time"
+        },
+        {
+          "condition": "temp.$r > 0",
+          "node": "many-times"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-pSsHWg",
+        "builtin/incrementNumberOfConversations {\"output\":\"$r\"}"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "a8dd265d97",
+      "name": "first-time",
+      "next": [
+        {
+          "condition": "true",
+          "node": "END"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-AY5SSW",
+        "say #!builtin_text-X069Le"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "55e5e14c60",
+      "name": "many-times",
+      "next": [
+        {
+          "condition": "true",
+          "node": "END"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-bFsOmf"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "f665775ece",
+      "name": "forget-my-name",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-TtzrCV",
+        "builtin/setVariable {\"type\":\"user\",\"name\":\"nickname\",\"value\":\"null\"}",
+        "say #!builtin_text-kKQ8C3"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "4ffd049e83",
+      "name": "entry",
+      "next": [
+        {
+          "condition": "user.nickname !== undefined",
+          "node": "welcome"
+        },
+        {
+          "condition": "true",
+          "node": "ask-name"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-sRxAPP",
+        "builtin/resetContext {}",
+        "builtin/appendContext {\"contexts\":\"memory,global\",\"ttl\":\"1\"}"
+      ],
+      "onReceive": null
+    }
+  ]
+}

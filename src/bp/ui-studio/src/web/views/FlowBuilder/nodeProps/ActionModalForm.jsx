@@ -177,24 +177,37 @@ export default class ActionModalForm extends Component {
     )
   }
 
-  render() {
-    const props = this.props
-    const noop = () => {}
+  handleKeyDown = e => {
+    if (e.altKey && e.key == 'Enter') {
+      e.preventDefault()
+      this.onSubmit()
+    }
+  }
 
-    const onClose = props.onClose || noop
-    const onSubmit = () => {
-      const handler = props.onSubmit || noop
-      this.resetForm()
-      handler({
+  onSubmit = () => {
+    this.resetForm()
+    this.props.onSubmit &&
+      this.props.onSubmit({
         type: this.state.actionType,
         functionName: this.state.functionInputValue,
         message: this.state.messageValue,
         parameters: this.state.functionParams
       })
-    }
+  }
 
+  onClose = () => {
+    this.props.onClose && this.props.onClose()
+  }
+
+  render() {
     return (
-      <Modal animation={false} show={props.show} onHide={onClose} container={document.getElementById('app')}>
+      <Modal
+        animation={false}
+        show={this.props.show}
+        onHide={this.onClose}
+        container={document.getElementById('app')}
+        onKeyDown={this.handleKeyDown}
+      >
         <Modal.Header closeButton>
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>
         </Modal.Header>
@@ -212,8 +225,8 @@ export default class ActionModalForm extends Component {
           {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit} bsStyle="primary">
+          <Button onClick={this.onClose}>Cancel</Button>
+          <Button onClick={this.onSubmit} bsStyle="primary">
             {this.state.isEdit ? 'Update' : 'Add'} Action (Alt+Enter)
           </Button>
         </Modal.Footer>

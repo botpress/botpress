@@ -76,13 +76,14 @@ export default class SidePanel extends React.Component {
                 <ListGroupItem
                   key={ent.id}
                   className={classnames(entityStyles.entity, { [entityStyles.selectedentity]: selected })}
-                  onClick={this.handleEntityClick.bind(null, ent)}
                 >
-                  {ent.name}
-                  &nbsp;
-                  <Label bsStyle={selected ? 'primary' : 'default'} className={entityStyles.badge}>
-                    {ent.type}
-                  </Label>
+                  <div onClick={this.handleEntityClick.bind(null, ent)}>
+                    {ent.name}
+                    &nbsp;
+                    <Label bsStyle={selected ? 'primary' : 'default'} className={entityStyles.badge}>
+                      {ent.type}
+                    </Label>
+                  </div>
                   <Glyphicon
                     glyph="trash"
                     className={entityStyles.deleteEntity}

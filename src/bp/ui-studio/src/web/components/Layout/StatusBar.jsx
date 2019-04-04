@@ -101,14 +101,14 @@ class StatusBar extends React.Component {
       duration: 300,
       color: 'var(--c-brand)',
       trailColor: 'var(--c-background--dark-1)',
-      trailWidth: 24,
+      trailWidth: 30,
       svgStyle: {
         display: 'inline',
         position: 'absolute',
         left: 0,
         top: 0,
         width: '100%',
-        height: '24px',
+        height: '30px',
         'z-index': 10
       }
     })

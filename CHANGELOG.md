@@ -1,3 +1,124 @@
+## [11.7.2](https://github.com/botpress/botpress/compare/v11.7.1...v11.7.2) (2019-03-27)
+
+
+### Bug Fixes
+
+* **channel-web:** minor changes for custom components ([beaac3f](https://github.com/botpress/botpress/commit/beaac3f))
+* **channel-web:** prevent quick replies click spam ([fb79775](https://github.com/botpress/botpress/commit/fb79775))
+* **diagram:** fix link recreating itself when moving after deletion ([df0d2fd](https://github.com/botpress/botpress/commit/df0d2fd))
+* **docs:** wrong url in version docs ([ef03259](https://github.com/botpress/botpress/commit/ef03259))
+* **studio:** submit on alt + enter as stated in UI ([464ca5d](https://github.com/botpress/botpress/commit/464ca5d))
+
+
+
+## [11.7.1](https://github.com/botpress/botpress/compare/v11.7.0...v11.7.1) (2019-03-26)
+
+
+### Bug Fixes
+
+* **core:** attach action errors to logger ([baa4cd5](https://github.com/botpress/botpress/commit/baa4cd5))
+* **core:** better action errors ([6d4b54a](https://github.com/botpress/botpress/commit/6d4b54a))
+* **core:** external auth wasn't using the specified algorithm ([fb1896e](https://github.com/botpress/botpress/commit/fb1896e))
+* **core:** loading of deleted bots warn ([7b312bb](https://github.com/botpress/botpress/commit/7b312bb))
+* **core:** updated default debug output ([58503b1](https://github.com/botpress/botpress/commit/58503b1))
+* **examples:** added a catch on axios api call ([9ab43ea](https://github.com/botpress/botpress/commit/9ab43ea))
+* **ghost:** added file size limit for individual files ([5596e91](https://github.com/botpress/botpress/commit/5596e91))
+* **hitl:** removing limit for text saved (issue with long response) ([3393e44](https://github.com/botpress/botpress/commit/3393e44))
+* **qna:** added input validation & schema ([f90c1fb](https://github.com/botpress/botpress/commit/f90c1fb))
+
+
+### Features
+
+* **core:** expose env-variables to actions ([d1ab27b](https://github.com/botpress/botpress/commit/d1ab27b))
+* **hooks:** added before outgoing hook ([a9341b0](https://github.com/botpress/botpress/commit/a9341b0))
+
+
+
+# [11.7.0](https://github.com/botpress/botpress/compare/v11.6.3...v11.7.0) (2019-03-25)
+
+
+### Bug Fixes
+
+* **admin:** added schema for profile update ([b45eb54](https://github.com/botpress/botpress/commit/b45eb54))
+* **admin:** debug UI auto-expand top-level bp node ([634d989](https://github.com/botpress/botpress/commit/634d989))
+* **analytics:** piechart "toFixed of undefined" ([b3ff979](https://github.com/botpress/botpress/commit/b3ff979))
+* **channel-web:** fixed file upload not sending uploaded file namme ([afb5f1f](https://github.com/botpress/botpress/commit/afb5f1f))
+* **config:** added configuration for media uploads ([a426d0b](https://github.com/botpress/botpress/commit/a426d0b))
+* **config:** added jwt settings, allow token refresh, added status route ([5f93b0d](https://github.com/botpress/botpress/commit/5f93b0d))
+* **core:** added list of modules enabled by default ([9261b06](https://github.com/botpress/botpress/commit/9261b06))
+* **core:** converse default global contexts ([5199ad9](https://github.com/botpress/botpress/commit/5199ad9))
+* **core:** state is loaded before all hooks ([a0aefff](https://github.com/botpress/botpress/commit/a0aefff))
+* **db:** detecting database type from provided url ([fdefe24](https://github.com/botpress/botpress/commit/fdefe24))
+* **dialog:** fix infinite loop when going back to a skill node ([ece1c3e](https://github.com/botpress/botpress/commit/ece1c3e))
+* **dialog:** fix infinite loop when going back to a skill node ([1a7dc5b](https://github.com/botpress/botpress/commit/1a7dc5b))
+* **module-builder:** undefined assigment ([8257084](https://github.com/botpress/botpress/commit/8257084))
+* **nlu:** avoid extracting substring of longer entities ([e08ed56](https://github.com/botpress/botpress/commit/e08ed56))
+* **nlu:** disabling duckling when unreachable on server start ([7b15cfe](https://github.com/botpress/botpress/commit/7b15cfe))
+* **nlu:** disabling duckling when unreachable on server start ([3c24868](https://github.com/botpress/botpress/commit/3c24868))
+* **nlu:** entities extraction fix (whole entities) ([3259547](https://github.com/botpress/botpress/commit/3259547))
+* **nlu:** fix issue in certain conditions with multiple slots ([78f6bf5](https://github.com/botpress/botpress/commit/78f6bf5))
+* **nlu:** map series ([c88c175](https://github.com/botpress/botpress/commit/c88c175))
+* **nlu:** null pointer and avoid comparing empty strings ([6489afe](https://github.com/botpress/botpress/commit/6489afe))
+* **nlu:** patterns tests ([927a9fa](https://github.com/botpress/botpress/commit/927a9fa))
+* **nlu:** slot tagger fastText args ([2e1c64f](https://github.com/botpress/botpress/commit/2e1c64f))
+* **qna:** categories are trimmed ([a977c9e](https://github.com/botpress/botpress/commit/a977c9e))
+* **studio:** removed useless emulator settings ([3c03162](https://github.com/botpress/botpress/commit/3c03162))
+* **studio:** statusBar styling ([4e5718d](https://github.com/botpress/botpress/commit/4e5718d))
+* **ux:** minor ui ajustments ([c72d96a](https://github.com/botpress/botpress/commit/c72d96a))
+
+
+### Features
+
+* **builtin:** added utilities for easier context management ([96a69b9](https://github.com/botpress/botpress/commit/96a69b9))
+* **channel-web:** arrow navigation ([dc31baf](https://github.com/botpress/botpress/commit/dc31baf))
+* **channel-web:** convos view arrow navigation ([b6b9a4b](https://github.com/botpress/botpress/commit/b6b9a4b))
+* **channel-web:** send postback data to parent page ([80994c2](https://github.com/botpress/botpress/commit/80994c2))
+* **core:** add config to set default debug scopes ([cecd983](https://github.com/botpress/botpress/commit/cecd983))
+* **core:** make use of the debug package  ([1672e76](https://github.com/botpress/botpress/commit/1672e76))
+* **debug:** added audit logging ([71b1d62](https://github.com/botpress/botpress/commit/71b1d62))
+* **nlu:** fuzzy matching of list entities ([0d0292a](https://github.com/botpress/botpress/commit/0d0292a))
+
+
+
+## [11.6.3](https://github.com/botpress/botpress/compare/v11.6.2...v11.6.3) (2019-03-18)
+
+
+### Bug Fixes
+
+* **messenger:** disable channel when not configured ([480ba6f](https://github.com/botpress/botpress/commit/480ba6f))
+* **messenger:** missing packages ([01f605b](https://github.com/botpress/botpress/commit/01f605b))
+* **nlu:** fix delete intents / entities on firefox ([c5ad50d](https://github.com/botpress/botpress/commit/c5ad50d))
+
+
+
+## [11.6.2](https://github.com/botpress/botpress/compare/v11.6.1...v11.6.2) (2019-03-18)
+
+
+### Bug Fixes
+
+* **channel-web:** fix 401 issue when embedding webchat ([843cd73](https://github.com/botpress/botpress/commit/843cd73))
+* **channel-web:** fixed reset conversation not working ([20cda68](https://github.com/botpress/botpress/commit/20cda68))
+* **core:** fix undefined value in carousel name ([6f68875](https://github.com/botpress/botpress/commit/6f68875))
+* **emulator:** displays the final decision instead of the intent ([4096a10](https://github.com/botpress/botpress/commit/4096a10))
+* **emulator:** fixed issue with new session button ([885d460](https://github.com/botpress/botpress/commit/885d460))
+* **messenger:** default persistent menu to [] ([f02552e](https://github.com/botpress/botpress/commit/f02552e))
+* **messenger:** fixed webhook ([8555d42](https://github.com/botpress/botpress/commit/8555d42))
+* **messenger:** fixes webhooks ([c7d8349](https://github.com/botpress/botpress/commit/c7d8349))
+* **messenger:** pro ref ([923fca8](https://github.com/botpress/botpress/commit/923fca8))
+* **messenger:** typings of config ([7fa5353](https://github.com/botpress/botpress/commit/7fa5353))
+* **nlu:** fixed viewport issue with multiple entity utterance ([011aa92](https://github.com/botpress/botpress/commit/011aa92))
+* **nlu:** only copy vector files ([4f31fbc](https://github.com/botpress/botpress/commit/4f31fbc))
+
+
+### Features
+
+* **channel-messenger:** add messenger support ([966480d](https://github.com/botpress/botpress/commit/966480d))
+* **core:** debug supports sub-namespaces ([ce53321](https://github.com/botpress/botpress/commit/ce53321))
+* **messenger:** Added support for Messenger Channel ([25bcd7a](https://github.com/botpress/botpress/commit/25bcd7a))
+* **nlu:** added ctx filtering ([c1921f2](https://github.com/botpress/botpress/commit/c1921f2))
+
+
+
 ## [11.6.1](https://github.com/botpress/botpress/compare/v11.6.0...v11.6.1) (2019-03-11)
 
 

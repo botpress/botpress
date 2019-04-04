@@ -35,7 +35,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     deleteShortLink(name: string): void {
       httpServer.deleteShortLink(name)
     },
-    createRouterForBot(routerName: string, options?: sdk.RouterOptions): any {
+    createRouterForBot(routerName: string, options?: sdk.RouterOptions): any & sdk.http.RouterExtension {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
     },

@@ -1,6 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "description": "Welcome bot",
+  "description": "A bot to help you get started",
   "active": true,
   "version": "1.0.0",
   "author": "Botpress, Inc.",
@@ -16,5 +16,11 @@
   },
   "logs": {
     "expiration": "1 week"
-  }
+  },
+  "id": "welcome-bot",
+  "name": "Welcome Bot",
+  "category": null,
+  "disabled": false,
+  "private": false,
+  "details": {}
 }

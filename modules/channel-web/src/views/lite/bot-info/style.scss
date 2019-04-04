@@ -70,5 +70,9 @@ $charcoal: #1e1e1e;
   line-height: 24px;
   padding: 5px 10px;
   margin-top: 25px;
-  border: 1px solid rgb(102, 102, 102);
+  border: 1px solid rgb(100, 100, 100);
+  &:focus {
+    border: 1px solid black;
+    color: black;
+  }
 }

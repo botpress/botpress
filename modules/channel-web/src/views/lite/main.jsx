@@ -12,6 +12,7 @@ import Convo from './convo'
 import Side from './side'
 
 import style from './style.scss'
+import asyncDebounce from './async-debounce'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -43,8 +44,8 @@ const defaultOptions = {
   showConversationsButton: true,
   showUserName: false,
   showUserAvatar: false,
-  botConvoTitle: 'Botpress Webchat',
-  enableTranscriptDownload: false
+  enableTranscriptDownload: false,
+  enableArrowNavigation: false
 }
 
 export default class Web extends React.Component {
@@ -55,6 +56,8 @@ export default class Web extends React.Component {
       ReactGA.initialize('UA-90044826-2')
       ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
     }
+
+    this.quickReplyDebounce = asyncDebounce(1000)
 
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
@@ -294,6 +297,13 @@ export default class Web extends React.Component {
 
     this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
     this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
+    //firehose events to parent page
+    this.props.bp.events.onAny(this.postToParent)
+  }
+
+  postToParent = (t, payload) => {
+    // we could filter on event type if necessary
+    window.parent && window.parent.postMessage(payload)
   }
 
   checkForExpiredExternalToken = error => {
@@ -480,11 +490,13 @@ export default class Web extends React.Component {
   }
 
   handleSendQuickReply = (title, payload) => {
-    return this.handleSendData({
+    const promise = this.handleSendData({
       type: 'quick_reply',
       text: title,
       data: { payload }
     })
+
+    return this.quickReplyDebounce.debounce(promise)
   }
 
   handleSendForm = (fields, formId, repr) => {

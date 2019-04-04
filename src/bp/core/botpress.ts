@@ -10,6 +10,8 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
+import { setDebugScopes } from '../debug'
+
 import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -75,7 +77,6 @@ export class Botpress {
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
     @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
@@ -99,6 +100,8 @@ export class Botpress {
   private async initialize(options: StartOptions) {
     this.trackStart()
 
+    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+
     this.config = await this.loadConfiguration()
     await this.createDatabase()
     await this.initializeGhost()
@@ -106,7 +109,7 @@ export class Botpress {
     // Invalidating the configuration to force it to load it from the ghost if enabled
     this.config = await this.loadConfiguration(true)
 
-    await this.lifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
+    await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
     await this.checkEditionRequirements()
@@ -135,7 +138,7 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
-    const postgres = process.env.DATABASE && process.env.DATABASE.toLowerCase() === 'postgres'
+    const databaseType = this.getDatabaseType()
 
     if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
       this.logger.warn(
@@ -147,7 +150,7 @@ export class Botpress {
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
       )
     }
-    if (process.IS_PRO_ENABLED && !postgres && process.CLUSTER_ENABLED) {
+    if (process.IS_PRO_ENABLED && databaseType !== 'postgres' && process.CLUSTER_ENABLED) {
       throw new Error(
         'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
       )
@@ -181,6 +184,7 @@ export class Botpress {
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
+    const deleted = _.difference(botsRef, botsIds)
 
     if (unlinked.length) {
       this.logger.warn(
@@ -188,9 +192,16 @@ export class Botpress {
       )
     }
 
+    if (deleted.length) {
+      this.logger.warn(
+        `Some bots have been deleted from the disk but are still referenced in your workspaces.json file.
+ Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
+      )
+    }
+
     const bots = await this.botService.getBots()
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
-    const botsToMount = _.without(botsRef, ...disabledBots)
+    const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
@@ -211,6 +222,7 @@ export class Botpress {
     await this.cmsService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      await this.stateManager.restore(event)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -225,6 +237,10 @@ export class Botpress {
       await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
 
+    this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
+    }
+
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,
       event: sdk.IO.IncomingEvent,
@@ -234,12 +250,14 @@ export class Botpress {
     }
 
     this.dataRetentionService.initialize()
-    this.stateManager.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = err => {
       const message = this.formatProcessingError(err)
-      dialogEngineLogger.forBot(err.botId).warn(message)
+      dialogEngineLogger
+        .forBot(err.botId)
+        .attachError(err)
+        .warn(message)
     }
 
     this.notificationService.onNotification = notification => {
@@ -259,7 +277,7 @@ export class Botpress {
       await this.dataRetentionJanitor.start()
     }
 
-    await this.lifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
+    await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
   private async loadConfiguration(forceInvalidate?): Promise<BotpressConfig> {
@@ -269,12 +287,17 @@ export class Botpress {
     return this.configProvider.getBotpressConfig()
   }
 
+  private getDatabaseType(): DatabaseType {
+    const databaseUrl = process.env.DATABASE_URL
+    const databaseType = databaseUrl && databaseUrl.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
+
+    return databaseType
+  }
+
   @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
   private async createDatabase(): Promise<void> {
-    const databaseType = process.env.DATABASE || 'sqlite'
-    const databaseUrl = process.env.DATABASE_URL
-
-    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), databaseUrl)
+    const databaseType = this.getDatabaseType()
+    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), process.env.DATABASE_URL)
   }
 
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
@@ -284,7 +307,7 @@ export class Botpress {
 
   private async startServer() {
     await this.httpServer.start()
-    this.lifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
+    AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   private startRealtime() {

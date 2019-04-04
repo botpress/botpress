@@ -21,12 +21,23 @@ export const saltHashPassword = password => {
   return { salt, hash }
 }
 
-export const validateHash = (password: string, hash: string, salt: string) => calculateHash(password, salt) === hash
+export const validateHash = (password: string, hash: string, salt: string) => {
+  try {
+    return calculateHash(password, salt) === hash
+  } catch (err) {
+    return false
+  }
+}
 
 export const isSuperAdmin = (email: string, config: BotpressConfig): boolean => {
   return config.superAdmins.includes(email)
 }
 
-export const generateUserToken = (email: string, isSuperAdmin: boolean, audience?: string): string => {
-  return jsonwebtoken.sign({ email, isSuperAdmin }, process.APP_SECRET, { expiresIn: '6h', audience })
+export const generateUserToken = (
+  email: string,
+  isSuperAdmin: boolean,
+  expiresIn: string = '6h',
+  audience?: string
+): string => {
+  return jsonwebtoken.sign({ email, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
 }

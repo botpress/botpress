@@ -53,8 +53,7 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.AppLifecycle) private lifecycle: AppLifecycle
+    @inject(TYPES.GhostService) private ghost: GhostService
   ) {}
 
   public get configReader() {
@@ -138,7 +137,7 @@ export class ModuleLoader {
   }
 
   private async callModulesOnReady(modules: ModuleEntryPoint[], initedModules: {}): Promise<void> {
-    await this.lifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
+    await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
 
     // Once all the modules have been loaded, we tell them it's ready
     // TODO We probably want to wait until Botpress is done loading the other services etc

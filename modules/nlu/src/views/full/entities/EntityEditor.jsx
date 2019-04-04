@@ -12,18 +12,19 @@ const DEFAULT_STATE = {
   pattern: ''
 }
 
-export default class EntityEditor extends React.Component {
-  constructor(props) {
-    super(props)
-    this.occurenceInputRef = React.createRef()
-  }
+const DEFAULT_ENTITY = {
+  sensitive: false,
+  fuzzy: true
+}
 
+export default class EntityEditor extends React.Component {
+  occurenceInputRef = React.createRef()
   state = { ...DEFAULT_STATE }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.entity && props.entity !== state.currentEntity) {
+    if (_.get(props, 'entity.name') !== _.get(state, 'currentEntity.name')) {
       return {
-        currentEntity: props.entity,
+        currentEntity: { ...DEFAULT_ENTITY, ...props.entity },
         currentOccurence: props.entity.occurences && props.entity.occurences[0],
         pattern: props.entity.pattern
       }
@@ -162,31 +163,38 @@ export default class EntityEditor extends React.Component {
     }
   }
 
-  handleSensitiveChanged = event => {
-    const sensitive = event.target.checked
+  handleSensitiveChanged = () => {
+    const sensitive = !this.state.currentEntity.sensitive
 
-    this.setState({ sensitive }, () => {
+    this.setState({ currentEntity: { ...this.state.currentEntity, sensitive } }, () => {
       this.props.onUpdate({ ...this.state.currentEntity, sensitive })
+    })
+  }
+
+  handleFuzzyChanged = () => {
+    const fuzzy = !this.state.currentEntity.fuzzy
+    const newEntity = { ...this.state.currentEntity, fuzzy }
+
+    this.setState({ currentEntity: newEntity }, () => {
+      this.props.onUpdate(newEntity)
     })
   }
 
   render() {
     const { currentEntity } = this.state
+
     return (
       <div className={style.container}>
         <div className={style.header}>
           <div>
             <div style={{ display: 'inline-block' }}>
               {!currentEntity && <h1>No entities have been created yet</h1>}
-              {currentEntity && (
-                <h1>
-                  entities /<span className={style.entity}>{this.state.currentEntity.name}</span>
-                </h1>
-              )}
+              {currentEntity && <h1>entities / {this.state.currentEntity.name}</h1>}
             </div>
+
             {currentEntity && (
               <div style={{ display: 'inline-block', float: 'right' }}>
-                <input type="checkbox" value={currentEntity.sensitive} onChange={this.handleSensitiveChanged} />{' '}
+                <input type="checkbox" checked={currentEntity.sensitive} onChange={this.handleSensitiveChanged} />{' '}
                 Sensitive
                 <OverlayTrigger
                   placement="left"
@@ -196,10 +204,29 @@ export default class EntityEditor extends React.Component {
                     </Tooltip>
                   }
                 >
-                  <Glyphicon glyph="question-sign" style={{ marginLeft: 10 }} />
+                  <Glyphicon glyph="question-sign" style={{ marginLeft: 5 }} />
                 </OverlayTrigger>
               </div>
             )}
+
+            {currentEntity &&
+              currentEntity.type === 'list' && (
+                <div style={{ display: 'inline-block', float: 'right' }}>
+                  <input type="checkbox" checked={currentEntity.fuzzy} onChange={this.handleFuzzyChanged} /> Fuzzy
+                  Matching
+                  <OverlayTrigger
+                    placement="left"
+                    overlay={
+                      <Tooltip id="fuzzy">
+                        Fuzzy matching will find entities even if they don't match exactly. Only the closest entities
+                        will be extracted.
+                      </Tooltip>
+                    }
+                  >
+                    <Glyphicon glyph="question-sign" style={{ marginLeft: 5, marginRight: 10 }} />
+                  </OverlayTrigger>
+                </div>
+              )}
           </div>
         </div>
         {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}

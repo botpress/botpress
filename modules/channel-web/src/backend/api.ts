@@ -16,7 +16,10 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 
 export default async (bp: typeof sdk, db: Database) => {
+  const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
+
   const diskStorage = multer.diskStorage({
+    destination: globalConfig.fileUploadPath,
     limits: {
       files: 1,
       fileSize: 5242880 // 5MB
@@ -28,8 +31,6 @@ export default async (bp: typeof sdk, db: Database) => {
       cb(undefined, `${userId}_${new Date().getTime()}${ext}`)
     }
   })
-
-  const globalConfig = await bp.config.getModuleConfig('channel-web')
 
   let upload = multer({ storage: diskStorage })
 
@@ -124,7 +125,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       if (
         !_.includes(
-          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation'],
+          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'],
           payload.type
         )
       ) {
@@ -172,8 +173,9 @@ export default async (bp: typeof sdk, db: Database) => {
         type: 'file',
         data: {
           storage: req.file.location ? 's3' : 'local',
-          url: req.file.location || undefined,
-          name: req.file.originalname,
+          url: req.file.location || req.file.path || undefined,
+          name: req.file.filename,
+          originalName: req.file.originalname,
           mime: req.file.contentType || req.file.mimetype,
           size: req.file.size
         }
@@ -224,7 +226,10 @@ export default async (bp: typeof sdk, db: Database) => {
   async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
-    if (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) {
+    if (
+      (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
+      payload.type != 'postback'
+    ) {
       throw new Error('Text must be a valid string of less than 360 chars')
     }
 

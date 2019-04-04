@@ -35,6 +35,8 @@ export async function buildBackend(modulePath: string) {
       '@babel/preset-typescript',
       '@babel/preset-react'
     ],
+    sourceMaps: 'both',
+    sourceRoot: path.join(modulePath, 'src/backend'),
     parserOpts: {
       allowReturnOutsideFunction: true
     },
@@ -111,11 +113,18 @@ export async function buildConfigSchema(modulePath: string) {
 
   const settings = {
     required: true,
-    ignoreErrors: true
+    ignoreErrors: true,
+    noExtraProps: true,
+    validationKeywords: ['see', 'example', 'pattern']
   }
 
   const program = getProgramFromFiles([config])
   const definition = generateSchema(program, 'Config', settings)
+
+  if (definition && definition.properties) {
+    definition.properties.$schema = { type: 'string' }
+  }
+
   const schema = JSON.stringify(definition, undefined, 2) + os.EOL + os.EOL
 
   mkdirp.sync(path.resolve(modulePath, 'assets'))

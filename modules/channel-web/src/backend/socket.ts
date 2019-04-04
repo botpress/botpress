@@ -6,7 +6,7 @@ import path from 'path'
 
 import Database from './db'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom']
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
 
 export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
@@ -63,6 +63,10 @@ export default async (bp: typeof sdk, db: Database) => {
       })
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    } else if (messageType === 'data') {
+      const userId = event.target
+      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
+      bp.realtime.sendPayload(payload)
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }

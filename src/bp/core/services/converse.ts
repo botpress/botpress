@@ -55,7 +55,13 @@ export class ConverseService {
     })
   }
 
-  public async sendMessage(botId: string, userId: string, payload: any, credentials: any): Promise<any> {
+  public async sendMessage(
+    botId: string,
+    userId: string,
+    payload: any,
+    credentials: any,
+    includedContexts: string[]
+  ): Promise<any> {
     if (!payload.type) {
       payload.type = 'text'
     }
@@ -73,7 +79,10 @@ export class ConverseService {
       payload,
       target: userId,
       botId,
-      credentials
+      credentials,
+      nlu: {
+        includedContexts
+      }
     })
 
     const timeoutPromise = this._createTimeoutPromise(userId)

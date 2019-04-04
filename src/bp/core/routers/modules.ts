@@ -1,14 +1,24 @@
 import { FlowGeneratorMetadata, Logger } from 'botpress/sdk'
-import { Router } from 'express'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { RequestHandler, Router } from 'express'
 
 import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
 import { CustomRouter } from './customRouter'
+import { checkTokenHeader } from './util'
 
 export class ModulesRouter extends CustomRouter {
-  constructor(logger: Logger, private moduleLoader: ModuleLoader, private skillService: SkillService) {
+  private checkTokenHeader!: RequestHandler
+
+  constructor(
+    logger: Logger,
+    private authService: AuthService,
+    private moduleLoader: ModuleLoader,
+    private skillService: SkillService
+  ) {
     super('Modules', logger, Router({ mergeParams: true }))
+    this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.setupRoutes()
   }
 
@@ -19,6 +29,7 @@ export class ModulesRouter extends CustomRouter {
 
     this.router.get(
       '/botTemplates',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req, res, next) => {
         res.send(await this.moduleLoader.getBotTemplates())
       })
@@ -26,6 +37,7 @@ export class ModulesRouter extends CustomRouter {
 
     this.router.get(
       '/skills',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req, res, next) => {
         res.send(await this.moduleLoader.getAllSkills())
       })
@@ -33,6 +45,7 @@ export class ModulesRouter extends CustomRouter {
 
     this.router.post(
       '/:moduleName/skill/:skillId/generateFlow',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const flowGenerator = this.moduleLoader.getFlowGenerator(req.params.moduleName, req.params.skillId)
         if (!flowGenerator) {

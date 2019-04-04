@@ -23,7 +23,7 @@ export class Notification {
 type DefaultGetOptions = { archived?: boolean; read?: boolean }
 
 export interface NotificationsRepository {
-  getBydId(id: string): Promise<Notification>
+  get(botId: string, id: string): Promise<Notification>
   getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
   insert(botId: string, notification: Notification): Promise<Notification>
   update(notification: Notification): Promise<void>
@@ -36,11 +36,11 @@ export class KnexNotificationsRepository implements NotificationsRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getBydId(id: string): Promise<Notification> {
+  async get(botId: string, id: string): Promise<Notification> {
     return (await this.database
       .knex(this.TABLE_NAME)
       .select('*')
-      .where({ id })
+      .where({ botId, id })
       .limit(1)
       .then(res => {
         if (!res || !res.length) {

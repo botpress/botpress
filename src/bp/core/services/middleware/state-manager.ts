@@ -27,34 +27,19 @@ export class StateManager {
   private LAST_MESSAGES_HISTORY_COUNT = 5
   private BOT_GLOBAL_KEY = 'global'
 
-  public initialize() {
-    const stateLoader = async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) => {
-      const incomingEvent = <sdk.IO.IncomingEvent>event
-      const state = incomingEvent.state
+  public async restore(event: sdk.IO.IncomingEvent) {
+    const state = event.state
 
-      const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
-      state.user = user.attributes
+    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
+    state.user = user.attributes
 
-      const sessionId = SessionIdFactory.createIdFromEvent(event)
-      const session = await this.sessionRepo.get(sessionId)
+    const sessionId = SessionIdFactory.createIdFromEvent(event)
+    const session = await this.sessionRepo.get(sessionId)
 
-      state.context = (session && session.context) || {}
-      state.session = (session && session.session_data) || { lastMessages: [] }
-      state.temp = (session && session.temp_data) || {}
-      state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
-
-      next()
-    }
-
-    const sessionLoader: sdk.IO.MiddlewareDefinition = {
-      order: 0,
-      name: 'Session Loader',
-      description: 'Loads user data and session',
-      direction: 'incoming',
-      handler: stateLoader
-    }
-
-    this.eventEngine.register(sessionLoader)
+    state.context = (session && session.context) || {}
+    state.session = (session && session.session_data) || { lastMessages: [] }
+    state.temp = (session && session.temp_data) || {}
+    state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {

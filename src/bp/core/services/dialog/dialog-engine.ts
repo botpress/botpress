@@ -12,6 +12,8 @@ import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { InstructionsQueueBuilder } from './queue-builder'
 
+const debug = DEBUG('dialog')
+
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError) => void) | undefined
@@ -53,7 +55,7 @@ export class DialogEngine {
     const instruction = queue.dequeue()
     // End session if there are no more instructions in the queue
     if (!instruction) {
-      this._logEnd(botId)
+      this._logDebug(event.botId, event.target, 'ending flow')
       event.state.context = {}
       event.state.temp = {}
       return event
@@ -68,7 +70,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
-        this._logWait(botId)
+        this._logDebug(event.botId, event.target, 'waiting until next event')
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
@@ -101,7 +103,7 @@ export class DialogEngine {
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
-    this._logTimeout(botId)
+    this._logDebug(event.botId, event.target, 'processing timeout')
     await this._loadFlows(botId)
 
     // This is the only place we dont want to catch node or flow not found errors
@@ -163,8 +165,6 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    this._logStart(event.botId)
-
     const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.context = {
@@ -172,6 +172,7 @@ export class DialogEngine {
       currentFlow: defaultFlow.name
     }
 
+    this._logDebug(event.botId, event.target, 'init new context', { ...event.state.context })
     return event.state.context
   }
 
@@ -190,8 +191,10 @@ export class DialogEngine {
         previousFlow: event.state.context.currentFlow,
         previousNode: event.state.context.currentNode
       }
+
       this._logEnterFlow(
         event.botId,
+        event.target,
         context.currentFlow,
         context.currentNode,
         event.state.context.currentFlow,
@@ -218,16 +221,31 @@ export class DialogEngine {
         currentFlow: parentFlow.name,
         queue
       }
-      this._logExitFlow(event.botId, context.currentFlow, context.currentFlow, parentFlow.name, parentNode.name)
+
+      this._logExitFlow(
+        event.botId,
+        event.target,
+        context.currentFlow,
+        context.currentFlow,
+        parentFlow.name,
+        parentNode.name
+      )
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
       delete event.state.context
-      this._logEnd(event.botId)
+      this._logDebug(event.botId, event.target, 'ending flow')
       return event
     } else {
       // Transition to the target node in the current flow
-      this._logTransition(event.botId, context.currentFlow, context.currentNode, transitionTo)
-      context = { ...context, currentNode: transitionTo }
+      this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
+
+      // When we're in a skill, we must remember the location of the main node for when we will exit
+      const isInSkill = context.currentFlow && context.currentFlow.startsWith('skills/')
+      if (isInSkill) {
+        context = { ...context, currentNode: transitionTo }
+      } else {
+        context = { ...context, previousNode: context.currentNode, currentNode: transitionTo }
+      }
     }
 
     event.state.context = context
@@ -286,36 +304,28 @@ export class DialogEngine {
       this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
   }
 
+  private _logDebug(botId: string, target: string, action: string, args?: any) {
+    if (args) {
+      debug.forBot(botId, `[${target}] ${action} %o`, args)
+    } else {
+      debug.forBot(botId, `[${target}] ${action}`)
+    }
+  }
+
   private _exitingSubflow(event) {
     const { currentFlow, currentNode, previousFlow, previousNode } = event.state.context
     return previousFlow === currentFlow && previousNode === currentNode
   }
 
-  private _logExitFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
+  private _logExitFlow(botId, target, currentFlow, currentNode, previousFlow, previousNode) {
+    this._logDebug(botId, target, `transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
   }
 
-  private _logEnterFlow(botId, currentFlow, currentNode, previousFlow, previousNode) {
-    this.logger.forBot(botId).debug(`TRANSIT (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
+  private _logEnterFlow(botId, target, currentFlow, currentNode, previousFlow, previousNode) {
+    this._logDebug(botId, target, `transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
   }
 
-  private _logTransition(botId, currentFlow, currentNode, transitionTo) {
-    this.logger.forBot(botId).debug(`TRANSIT (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
-  }
-
-  private _logEnd(botId) {
-    this.logger.forBot(botId).debug('END FLOW')
-  }
-
-  private _logStart(botId) {
-    this.logger.forBot(botId).debug('EVENT RECV')
-  }
-
-  private _logTimeout(botId) {
-    this.logger.forBot(botId).debug('TIMEOUT')
-  }
-
-  private _logWait(botId) {
-    this.logger.forBot(botId).debug('WAIT')
+  private _logTransition(botId, target, currentFlow, currentNode, transitionTo) {
+    this._logDebug(botId, target, `transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
   }
 }

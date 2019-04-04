@@ -1,7 +1,7 @@
 /**
- * This is just an example of how tu create custom actions.
+ * This is just an example of how to create custom actions.
  * If you're reading this from the Flow Editor and wonder how you can create an new action,
- * See the `{botpressDir}/data/global/actions/README.js` file.
+ * See the `{botpressDir}/data/global/actions/builtin/README.js` file.
  *
  * @title Custom Action Example
  * @category tutorial

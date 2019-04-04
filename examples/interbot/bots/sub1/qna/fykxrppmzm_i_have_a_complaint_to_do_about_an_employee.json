@@ -1,0 +1,18 @@
+{
+  "id": "fykxrppmzm_i_have_a_complaint_to_do_about_an_employee",
+  "data": {
+    "answers": [
+      "I can help you with filling a formal complaint"
+    ],
+    "questions": [
+      "I have a complaint to do about an employee",
+      "submit complaint about an other employee",
+      "submit abuse report"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "global",
+    "enabled": true
+  }
+}

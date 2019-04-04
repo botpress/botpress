@@ -6,8 +6,8 @@ import { MonitoringService } from 'core/services/monitoring'
 import { Router } from 'express'
 import _ from 'lodash'
 
+import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
-import { assertSuperAdmin } from '../util'
 
 export class ServerRouter extends CustomRouter {
   constructor(
@@ -27,8 +27,11 @@ export class ServerRouter extends CustomRouter {
       '/monitoring',
       this.asyncMiddleware(async (req, res) => {
         const { fromTime, toTime } = req.body
-        const config = await this.configProvider.getBotpressConfig()
+        if (!_.isNumber(fromTime) || !_.isNumber(toTime)) {
+          return res.sendStatus(400)
+        }
 
+        const config = await this.configProvider.getBotpressConfig()
         if (!_.get(config, 'pro.monitoring.enabled', false)) {
           return res.send(undefined)
         }
@@ -39,22 +42,23 @@ export class ServerRouter extends CustomRouter {
 
     router.post(
       '/incidents',
-      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
-        const config = await this.configProvider.getBotpressConfig()
+        const { fromTime, toTime } = req.body
+        if (!_.isNumber(fromTime) || !_.isNumber(toTime)) {
+          return res.sendStatus(400)
+        }
 
+        const config = await this.configProvider.getBotpressConfig()
         if (!_.get(config, 'pro.alerting.enabled', false)) {
           return res.send(undefined)
         }
 
-        const { fromTime, toTime } = req.body
         res.send(await this.alertingService.getIncidents(fromTime, toTime))
       })
     )
 
     router.post(
       '/config/enablePro',
-      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         if (process.IS_PRO_ENABLED) {
           return res.send('Botpress Pro is already enabled.')
@@ -67,7 +71,6 @@ export class ServerRouter extends CustomRouter {
 
     router.post(
       '/rebootServer',
-      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const user = req.tokenUser!.email
         const config = await this.configProvider.getBotpressConfig()
@@ -90,6 +93,21 @@ export class ServerRouter extends CustomRouter {
 
           process.exit()
         }, 100)
+      })
+    )
+
+    router.get(
+      '/debug',
+      this.asyncMiddleware(async (req, res) => {
+        res.send(getDebugScopes())
+      })
+    )
+
+    router.post(
+      '/debug',
+      this.asyncMiddleware(async (req, res) => {
+        setDebugScopes(req.body.debugScope)
+        res.sendStatus(200)
       })
     )
   }

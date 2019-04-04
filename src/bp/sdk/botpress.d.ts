@@ -215,6 +215,20 @@ declare module 'botpress/sdk' {
       export const Model: ModelConstructor
     }
 
+    export namespace Strings {
+      /**
+       * Returns the levenshtein distance between two strings
+       * @returns the proximity between 0 and 1, where 1 is very close
+       */
+      export const computeLevenshteinDistance: (a: string, b: string) => number
+
+      /**
+       * Returns the jaro-winkler distance between two strings
+       * @returns the proximity between 0 and 1, where 1 is very close
+       */
+      export const computeJaroWinklerDistance: (a: string, b: string, options: { caseSensitive: boolean }) => number
+    }
+
     export namespace CRF {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
@@ -254,6 +268,7 @@ declare module 'botpress/sdk' {
       name: string
       type: EntityType
       sensitive?: boolean
+      fuzzy?: boolean
       occurences?: EntityDefOccurence[]
       pattern?: string
     }
@@ -338,7 +353,7 @@ declare module 'botpress/sdk' {
       botId: string
       suggestions?: Suggestion[]
       credentials?: any
-      withNlu?: boolean
+      nlu?: Partial<EventUnderstanding>
     }
 
     /**
@@ -395,6 +410,7 @@ declare module 'botpress/sdk' {
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotsCollection
       readonly errored: boolean
+      readonly includedContexts: string[]
     }
 
     export interface IncomingEvent extends Event {
@@ -563,6 +579,17 @@ declare module 'botpress/sdk' {
      * @param exclude - The pattern to match excluded files.
      */
     directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
+    /**
+     * Starts listening on all file changes (deletion, inserts and updates)
+     * `callback` will be called for every change
+     * To stop listening, call the `remove()` method of the returned ListenHandle
+     */
+    onFileChanged(callback: (filePath: string) => void): ListenHandle
+  }
+
+  export interface ListenHandle {
+    /** Stops listening from the event */
+    remove(): void
   }
 
   /**
@@ -885,7 +912,7 @@ declare module 'botpress/sdk' {
      * @param options - Additional options to apply to the router
      * @param router - The router
      */
-    export function createRouterForBot(routerName: string, options?: RouterOptions): any // TODO Better interface for the router
+    export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
 
     /**
      * Returns the required configuration to make an API call to another module by specifying only the relative path.
@@ -905,6 +932,10 @@ declare module 'botpress/sdk' {
      * This Express middleware tries to decode the X-BP-ExternalAuth header and adds a credentials header in the request if it's valid.
      */
     export function extractExternalToken(req: any, res: any, next: any): Promise<void>
+
+    export interface RouterExtension {
+      getPublicPath(): Promise<string>
+    }
   }
 
   /**

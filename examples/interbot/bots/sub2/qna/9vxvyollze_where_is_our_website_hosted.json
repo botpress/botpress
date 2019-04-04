@@ -1,0 +1,18 @@
+{
+  "id": "9vxvyollze_where_is_our_website_hosted",
+  "data": {
+    "answers": [
+      "I can help you update our website"
+    ],
+    "questions": [
+      "Where is our website hosted",
+      "I need to make changes to our website",
+      "Update website procedure"
+    ],
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "global",
+    "enabled": true
+  }
+}

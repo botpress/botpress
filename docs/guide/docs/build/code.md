@@ -67,6 +67,7 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 - `bot`: Object containing global variables for this bot (same for all users)
 - `event`: The original (latest) event received from the user in the conversation.
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
+- `process`: sandboxed vm containing some of the env-variables (starting with `EXPOSED_`)
 
 Check out the page [Bot Memory and Data Retention](/docs/build/memory) for more details about the lifetime of these objects.
 
@@ -161,6 +162,16 @@ if (messageTypesToDiscard.includes(event.type)) {
   event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 }
 ```
+
+### Before Outgoing Middleware
+
+This hook is called before the bot replies are sent to the user
+
+Location: `data/global/hooks/before_outgoing_middleware`
+
+Parameters: `bp`, `event`
+
+Here you can save the bot's complete response
 
 ### Before Session Timeout
 

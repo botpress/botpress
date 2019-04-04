@@ -2,10 +2,16 @@ const gulp = require('gulp')
 const exec = require('child_process').exec
 const rimraf = require('gulp-rimraf')
 const { symlink } = require('gulp')
+const yn = require('yn')
 
 const build = () => {
   gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
   gulp.task('build:admin', gulp.series([buildAdmin, copyAdmin]))
+
+  if (yn(process.env.GULP_PARALLEL)) {
+    return gulp.parallel(['build:studio', 'build:admin'])
+  }
+
   return gulp.series(['build:studio', 'build:admin'])
 }
 

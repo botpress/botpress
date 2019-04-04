@@ -16,13 +16,14 @@ To address these kind of issues and make your bot production-ready, we also supp
 
 ## How to switch from SQLite to Postgres
 
-The database configuration is considered as Infrastructure, which means that it needs to be setup before the softare is executed.
-In this case, that means that you need to configure some of your Botpress configurations using environment variables.
+The database configuration is considered as Infrastructure, which means that it needs to be setup before the software is executed.
+In this case, that means that you need to configure `DATABASE_URL` environment variables.
 
-Here are the two variables you need to change:
-
-- `DATABASE=postgres`
 - `DATABASE_URL=postgres://login:password@your-db-host.com:5432/your-db-name`.
+
+If you want to use default postgres connection string simply set it as follow
+
+- `DATABASE_URL=postgres`.
 
 Please make sure you are using Postgres 9.5 or higher.
 
