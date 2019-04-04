@@ -14,6 +14,10 @@ export class Button extends Component {
   }
 
   handleButtonClick = e => {
+    if (this.props.preventDoubleClick) {
+      e.target.disabled = true
+    }
+
     this.props.onButtonClick && this.props.onButtonClick(this.props.label, this.props.payload)
   }
 

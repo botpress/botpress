@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Button } from './Button'
-import { asyncDebounce } from '../../../utils'
 import * as Keyboard from '../../Keyboard'
 
 /**
@@ -15,7 +14,6 @@ import * as Keyboard from '../../Keyboard'
 export class QuickReplies extends Component {
   constructor(props) {
     super(props)
-    this.quickReplyDebounce = asyncDebounce(1000)
   }
 
   handleButtonClicked = (title, payload) => {
@@ -33,11 +31,15 @@ export class QuickReplies extends Component {
       if (Array.isArray(btn)) {
         return <div>{this.renderKeyboard(btn)}</div>
       } else {
+        // By default, we prevent double clicks on buttons
+        const preventDoubleClick = btn.allowMultipleClick === true ? false : true
+
         return (
           <Button
             key={idx}
             label={btn.label || btn.title}
             payload={btn.payload}
+            preventDoubleClick={preventDoubleClick}
             onButtonClick={this.handleButtonClicked}
             onFileUpload={this.props.onFileUpload}
           />
