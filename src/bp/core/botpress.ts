@@ -200,6 +200,8 @@ export class Botpress {
     }
 
     const bots = await this.botService.getBots()
+    // @deprecated > 11: bots will define a default language by default
+    await this._ensureBotsDefineLanguage(bots)
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
@@ -210,6 +212,16 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
+  }
+
+  private async _ensureBotsDefineLanguage(bots: Map<string, sdk.BotConfig>) {
+    for (const [id, bot] of bots) {
+      if (!bot.languages || !bot.defaultLanguage) {
+        bot.defaultLanguage = 'en'
+        bot.languages = ['en']
+        await this.configProvider.setBotConfig(id, bot)
+      }
+    }
   }
 
   private async initializeServices() {
