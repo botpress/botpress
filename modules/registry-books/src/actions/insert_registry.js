@@ -22,7 +22,8 @@ class StringMinifier {
   //Will remove possible noise from the string
   minifyString(string, opt = {}) {
     string = string.toLowerCase();
-    if (opt.pt) {
+
+    if (opt.language == 'pt') {
       return this.minifyStringPt(string, opt)
     }
 
@@ -59,7 +60,8 @@ async function insertRegistry() {
   //If no data key is proveded, a minified version of the data will be used
   const {
     registryData,
-    registryDataKey = minifier.minifyString(registryData, { pt: true, fullMinify: true }),
+    registryLanguage,
+    registryDataKey = minifier.minifyString(registryData, { language: registryLanguage, fullMinify: true }),
     registryCategory
   } = args
   const result = await bp.database('registry_books')
