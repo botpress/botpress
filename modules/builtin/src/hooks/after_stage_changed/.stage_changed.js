@@ -1,4 +1,3 @@
-//CHECKSUM:6a2f7e7db31a2bb0ff2c3a0462360ddabe646bfb0f0f8c4557055a97d9f7ad13
 'use strict'
 
 /**
