@@ -15,6 +15,7 @@ import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import SectionLayout from '../Layouts/Section'
 
 import api from '../../api'
+import langOptions from './languages'
 
 const statusList = [
   { label: 'Public', value: 'public' },
@@ -36,7 +37,9 @@ class Bots extends Component {
     emailAddress: '',
     error: undefined,
     categories: [],
-    moreOpen: false
+    moreOpen: false,
+    languages: [],
+    defaultLanguage: undefined
   }
 
   componentDidMount() {
@@ -73,6 +76,8 @@ class Bots extends Component {
       botId,
       name: bot.name,
       description: bot.description,
+      languages: bot.languages,
+      defaultLanguage: bot.defaultLanguage,
       website: details.website,
       phoneNumber: details.phoneNumber,
       termsConditions: details.termsConditions,
@@ -92,6 +97,8 @@ class Bots extends Component {
       name: this.state.name,
       description: this.state.description,
       category: this.state.category && this.state.category.value,
+      defaultLanguage: this.state.defaultLanguage,
+      languages: this.state.languages,
       details: {
         website: this.state.website,
         phoneNumber: this.state.phoneNumber,
@@ -151,6 +158,10 @@ class Bots extends Component {
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
   handleStatusChanged = status => this.setState({ status })
   handleCategoryChanged = category => this.setState({ category })
+  handleDefaultLangChanged = lang => this.setState({ defaultLanguage: lang.value })
+  handleLanguagesChanged = langs => {
+    this.setState({ languages: langs.map(l => l.value) })
+  }
 
   handleImageFileChanged = async event => {
     const targetProp = event.target.name
@@ -242,6 +253,41 @@ class Bots extends Component {
               onChange={this.handleInputChanged}
             />
           </FormGroup>
+          <Row>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="sup-lang">
+                  <strong>Supported Languages</strong>
+                  {this.renderHelp(
+                    'Your bot can support different languages. Enter a valid 2 letter langyage code (e.g: "en" and "es" for english and spanish)',
+                    'sup-lang'
+                  )}
+                </Label>
+                <Select
+                  options={langOptions}
+                  isMulti
+                  value={this.state.languages.map(l => ({ label: l, value: l }))}
+                  onChange={this.handleLanguagesChanged}
+                />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label>
+                  <strong>Default language</strong>
+                  {this.renderHelp(
+                    'Choose the default language for your bot. First of supported language is picked by default.',
+                    'def-lang'
+                  )}
+                </Label>
+                <Select
+                  options={this.state.languages.map(l => ({ value: l, label: l }))}
+                  value={{ value: this.state.defaultLanguage, label: this.state.defaultLanguage }}
+                  onChange={this.handleDefaultLangChanged}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
         </Form>
 
         {this.renderCollapsible()}
