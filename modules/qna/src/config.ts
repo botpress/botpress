@@ -21,4 +21,9 @@ export interface Config {
    * @default global
    */
   qnaCategories?: string
+  /**
+   * Save question and answer in the kvs
+   * @default global
+   */
+  saveQuestionData?: boolean
 }
