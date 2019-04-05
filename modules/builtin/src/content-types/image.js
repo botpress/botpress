@@ -80,7 +80,11 @@ module.exports = {
     }
   },
 
-  uiSchema: {},
+  uiSchema: {
+    title: {
+      'ui:field': 'i18n_field'
+    }
+  },
 
   computePreviewText: formData => {
     let fileName = path.basename(formData.image)

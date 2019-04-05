@@ -7,7 +7,7 @@ import UploadWidget from './UploadWidget'
 import FlowPickWidget from './FlowPickWidget'
 
 import TextMl from './i18n/Text'
-import VariationsMl from './i18n/Variations'
+import ArrayMl from './i18n/Array'
 
 const CustomBaseInput = props => {
   const { type, $subtype } = props.schema
@@ -27,7 +27,7 @@ const widgets = {
   BaseInput: CustomBaseInput
 }
 
-const fields = { i18n_field: TextMl, i18n_array: VariationsMl }
+const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
 
 export default class ContentForm extends React.Component {
   state = {}

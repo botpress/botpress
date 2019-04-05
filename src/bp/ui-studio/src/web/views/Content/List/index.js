@@ -174,7 +174,7 @@ export default class ListView extends Component {
   onRowClick = (state, rowInfo, column, instance) => {
     return {
       onClick: (e, handleOriginal) => {
-        if (column.id !== 'checkbox' && !this.props.readOnly) {
+        if (column.id !== 'checkbox' && !this.props.readOnly && rowInfo) {
           const { id, contentType } = rowInfo.original
           this.props.handleEdit(id, contentType)
         }
