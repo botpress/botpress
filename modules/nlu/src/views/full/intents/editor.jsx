@@ -7,6 +7,9 @@ import Editor from './draft/editor'
 
 import style from './style.scss'
 import Slots from './slots/Slots'
+import { Creatable } from 'react-select'
+import classnames from 'classnames'
+import { Label, Button } from 'reactstrap'
 
 const NLU_TABIDX = 3745
 
@@ -15,7 +18,8 @@ export default class IntentsEditor extends React.Component {
     initialUtterances: '',
     slotsEditor: null,
     slots: [],
-    utterances: []
+    utterances: [],
+    selectedContext: []
   }
 
   editorRef = null
@@ -44,7 +48,7 @@ export default class IntentsEditor extends React.Component {
     const { utterances, slots, contexts } = (props && props.intent) || {
       utterances: [],
       slots: [],
-      contexts: ['global']
+      contexts
     }
     const expanded = this.expandCanonicalUtterances(utterances)
 
@@ -53,8 +57,14 @@ export default class IntentsEditor extends React.Component {
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
+    const selectedContext =
+      contexts &&
+      contexts.map(x => {
+        return { value: x, label: x }
+      })
+
     this.initialHash = this.computeHash({ slots, utterances: expanded, contexts })
-    this.setState({ utterances: expanded, slots: slots, contexts })
+    this.setState({ utterances: expanded, slots: slots, contexts, selectedContext })
   }
 
   deleteIntent = () => {
@@ -225,6 +235,10 @@ export default class IntentsEditor extends React.Component {
     return utterances
   }
 
+  handleChangeContext = selectedContext => {
+    this.setState({ selectedContext: selectedContext, contexts: selectedContext.map(x => x.value) })
+  }
+
   render() {
     if (!this.props.intent) {
       return this.renderNone()
@@ -242,17 +256,31 @@ export default class IntentsEditor extends React.Component {
             </h1>
           </div>
         </div>
-        <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
-          {this.renderEditor()}
-          <div className={style.entitiesPanel}>
-            <Slots
-              ref={el => (this.slotsEditor = el)}
-              axios={this.props.axios}
-              slots={this.state.slots}
-              onSlotsChanged={this.handleSlotsChanged}
-            />
-          </div>
-        </SplitterLayout>
+        <div className={classnames('pull-left', style.selectContext)}>
+          <Label for="selectContext">Current contexts</Label>
+          <Creatable
+            id="selectContext"
+            multi
+            onChange={this.handleChangeContext}
+            value={this.state.selectedContext}
+            options={this.state.contexts.map(x => {
+              return { value: x, label: x }
+            })}
+          />
+        </div>
+        <div>
+          <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
+            {this.renderEditor()}
+            <div className={style.entitiesPanel}>
+              <Slots
+                ref={el => (this.slotsEditor = el)}
+                axios={this.props.axios}
+                slots={this.state.slots}
+                onSlotsChanged={this.handleSlotsChanged}
+              />
+            </div>
+          </SplitterLayout>
+        </div>
       </div>
     )
   }
