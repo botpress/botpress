@@ -6,6 +6,8 @@ import Select from 'react-select'
 import style from './style.scss'
 import { SelectIntent } from './shared/intentSelect'
 
+const MAX_RETRIES = 10
+
 export class Slot extends React.Component {
   state = {
     selectedIntentOption: undefined,
@@ -17,7 +19,8 @@ export class Slot extends React.Component {
     addValidation: false,
     maxRetryAttempts: 3,
     actions: [],
-    validationAction: undefined
+    validationAction: undefined,
+    retryAttemptsTooHigh: false
   }
 
   componentDidMount() {
@@ -32,7 +35,7 @@ export class Slot extends React.Component {
         contentElement: data.contentElement,
         notFoundElement: data.notFoundElement,
         validationAction: data.validationAction && data.validationAction.value,
-        addValidation: !!data.validationAction
+        addValidation: data.validationAction !== undefined
       })
     }
   }
@@ -96,16 +99,15 @@ export class Slot extends React.Component {
 
   handleMaxRetryAttemptsChange = event => {
     const value = Number(event.target.value)
-    if (isNaN(value)) {
-      return
+    if (value > MAX_RETRIES) {
+      this.setState({ retryAttemptsTooHigh: true })
+    } else {
+      this.setState({ maxRetryAttempts: value, retryAttemptsTooHigh: false })
     }
-
-    this.setState({ maxRetryAttempts: value })
   }
 
   handleActionChange = value => {
-    console.log('action value', value)
-    this.setState({ validationAction: value })
+    this.setState({ validationAction: { value, label: value } })
   }
 
   toggleAddValidation = () => {
@@ -125,18 +127,16 @@ export class Slot extends React.Component {
       <React.Fragment>
         <div className={style.modalContent}>
           <Row>
-            <Col>
+            <Col md={6}>
               <Label>Choose an intent</Label>
               <SelectIntent
-                className={style.intentSelect}
+                style={{ zIndex: 1000 }}
                 value={this.state.selectedIntentOption}
                 intents={this.state.intents}
                 onChange={this.handleIntentChange}
               />
             </Col>
-          </Row>
-          <Row>
-            <Col>
+            <Col md={6}>
               <Label for="slotName">Choose a slot to fill</Label>
               <Select
                 id="slot"
@@ -150,7 +150,7 @@ export class Slot extends React.Component {
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col md={12}>
               <Label for="contentPicker">Bot will ask</Label>
               <ContentPickerWidget
                 name="contentPicker"
@@ -163,32 +163,10 @@ export class Slot extends React.Component {
             </Col>
           </Row>
           <Row>
-            <Col>
-              <Input
-                type="checkbox"
-                id="validationCheck"
-                name="validationCheck"
-                onChange={this.toggleAddValidation}
-                checked={this.addValidation}
-              />
-              &nbsp;
-              <Label for="validationCheck">Input validation action</Label>
-              {this.state.addValidation && (
-                <SelectActionDropdown
-                  className={style.actionSelect}
-                  value={this.state.validationAction && this.state.validationAction.value}
-                  options={this.state.actions}
-                  onChange={this.handleActionChange}
-                />
-              )}
-            </Col>
-          </Row>
-          <Row>
             <Col md="9">
               <Label>Not Found Message</Label>
               <ContentPickerWidget
                 id="notFoundElement"
-                name="notFoundElement"
                 className={style.notFoundSelect}
                 itemId={this.state.notFoundElement}
                 onChange={this.handleNotFoundChange}
@@ -197,13 +175,39 @@ export class Slot extends React.Component {
             </Col>
             <Col md="3">
               <Label for="retryAttempts">Max retry attempts</Label>
+              {this.state.retryAttemptsTooHigh && (
+                <div className={style.warning}>Choose a number less than or equal to {MAX_RETRIES}</div>
+              )}
               <Input
                 id="retryAttempts"
                 name="retryAttempts"
-                type="numeric"
+                type="number"
+                min="0"
+                max={MAX_RETRIES}
                 value={this.state.maxRetryAttempts}
                 onChange={this.handleMaxRetryAttemptsChange}
               />
+            </Col>
+          </Row>
+          <Row>
+            <Col md={12}>
+              <Input
+                type="checkbox"
+                id="validationCheck"
+                name="validationCheck"
+                onChange={this.toggleAddValidation}
+                checked={this.state.addValidation}
+              />
+              &nbsp;
+              <Label for="validationCheck">Custom Input Validation</Label>
+              {this.state.addValidation && (
+                <SelectActionDropdown
+                  className={style.actionSelect}
+                  value={this.state.validationAction && this.state.validationAction.value}
+                  options={this.state.actions}
+                  onChange={this.handleActionChange}
+                />
+              )}
             </Col>
           </Row>
         </div>

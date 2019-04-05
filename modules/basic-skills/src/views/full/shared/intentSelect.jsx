@@ -11,6 +11,7 @@ export class SelectIntent extends React.Component {
       <Select
         id="intent"
         name="intent"
+        style={{ zIndex: 1000 }}
         isSearchable={true}
         onChange={this.props.onChange}
         value={this.props.value}

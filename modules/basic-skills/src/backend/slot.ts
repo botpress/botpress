@@ -41,11 +41,15 @@ const createNodes = data => {
         {
           type: sdk.NodeActionType.RunAction,
           name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+        },
+        data.validationAction && {
+          type: sdk.NodeActionType.RunAction,
+          name: `${data.validationAction.value.label} {}`
         }
       ],
       next: [
         {
-          condition: `session.${data.slotName}`,
+          condition: `session.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
           node: 'extracted'
         },
         {
