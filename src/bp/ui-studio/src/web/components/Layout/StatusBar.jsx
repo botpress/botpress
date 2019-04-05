@@ -1,14 +1,16 @@
 import style from './StatusBar.styl'
-import React from 'react'
+import React, { Fragment } from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
-import { Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Dropdown, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 
-import { updateDocumentationModal } from '~/actions'
+import { updateDocumentationModal, changeContentLanguage } from '~/actions'
+
+//  implement a current lang provider ?
 
 const COMPLETED_DURATION = 2000
 
@@ -36,6 +38,44 @@ const ActionItem = props => (
     </div>
   </OverlayTrigger>
 )
+
+class LangSwitcher extends React.Component {
+  elems = {}
+
+  componentDidUpdate() {
+    const lastIdx = this.props.languages.length - 1
+    this.elems[lastIdx].focus()
+  }
+
+  componentWillUnmount() {
+    this.elems = null
+  }
+
+  handleKeyDown = (l, e) => {
+    if (e.key == 'Enter') {
+      this.props.switchLang(l)
+    }
+  }
+
+  render() {
+    return (
+      <Dropdown.Menu pullRight onClose={this.props.onClose} className={style.langSwitherMenu}>
+        {this.props.languages.map((l, idx) => (
+          <li
+            tabIndex="-1"
+            ref={el => (this.elems[idx] = el)}
+            key={l}
+            className={style.langItem}
+            onClick={this.props.switchLang.bind(this, l)}
+            onKeyDown={this.handleKeyDown.bind(this, l)}
+          >
+            {l.toUpperCase()}
+          </li>
+        ))}
+      </Dropdown.Menu>
+    )
+  }
+}
 
 class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
@@ -127,6 +167,47 @@ class StatusBar extends React.Component {
     ))
   }
 
+  switchLang = l => {
+    this.props.changeContentLanguage(l)
+    this.props.toggleLangSwitcher()
+  }
+
+  renderContentLangSwitcher() {
+    const languages = _.get(this.props.botInfo, 'languages', [])
+    if (languages.length > 1) {
+      return (
+        <Fragment>
+          <ActionItem
+            className={style.right}
+            title="Content Language"
+            description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
+            onClick={this.props.toggleLangSwitcher}
+          >
+            <span>
+              <Glyphicon glyph="globe" />
+              &nbsp;
+              {this.props.contentLang.toUpperCase()}
+            </span>
+          </ActionItem>
+          <Dropdown
+            className={style.right}
+            pullRight
+            dropup={true}
+            open={this.props.langSwitcherOpen}
+            id="lang-switcher"
+          >
+            <LangSwitcher
+              bsRole="menu"
+              languages={languages.filter(l => l != this.props.contentLang)}
+              switchLang={this.switchLang}
+              onClose={this.props.toggleLangSwitcher}
+            />
+          </Dropdown>
+        </Fragment>
+      )
+    }
+  }
+
   renderDocHints() {
     if (!this.props.docHints.length) {
       return null
@@ -172,6 +253,7 @@ class StatusBar extends React.Component {
           </ActionItem>
           {this.renderDocHints()}
           {this.renderTaskProgress()}
+          {this.renderContentLangSwitcher()}
         </div>
       </footer>
     )
@@ -179,10 +261,12 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  docHints: state.ui.docHints
+  botInfo: state.bot,
+  docHints: state.ui.docHints,
+  contentLang: state.language.contentLang
 })
 
 export default connect(
   mapStateToProps,
-  { updateDocumentationModal }
+  { updateDocumentationModal, changeContentLanguage }
 )(StatusBar)

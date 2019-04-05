@@ -31,7 +31,8 @@ import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
   state = {
-    emulatorOpen: false
+    emulatorOpen: false,
+    langSwitcherOpen: false
   }
 
   componentDidMount() {
@@ -65,6 +66,12 @@ class Layout extends React.Component {
     }
   }
 
+  toggleLangSwitcher = () => {
+    this.setState({
+      langSwitcherOpen: !this.state.langSwitcherOpen
+    })
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -78,7 +85,8 @@ class Layout extends React.Component {
 
     const keyHandlers = {
       'emulator-focus': this.focusEmulator,
-      'docs-toggle': this.toggleDocs
+      'docs-toggle': this.toggleDocs,
+      'lang-switcher': this.toggleLangSwitcher
     }
 
     return (
@@ -108,6 +116,8 @@ class Layout extends React.Component {
             isEmulatorOpen={this.state.emulatorOpen}
             botpressVersion={this.botpressVersion}
             emitter={this.statusBarEmitter}
+            langSwitcherOpen={this.state.langSwitcherOpen}
+            toggleLangSwitcher={this.toggleLangSwitcher}
           />
         </div>
       </HotKeys>
