@@ -1,3 +1,17 @@
 .missingLang {
   //border: 1px solid red;
 }
+.flexContainer {
+  display: flex;
+}
+
+.flexContainer div:last-child {
+  margin-left: auto;
+}
+
+.missingIcon {
+  padding: 5px 0 0 5px;
+  color: #ff0000;
+  vertical-align: middle;
+  font-size: 2rem;
+}

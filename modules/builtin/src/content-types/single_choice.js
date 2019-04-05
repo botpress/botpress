@@ -92,10 +92,11 @@ module.exports = {
   },
 
   uiSchema: {
-    variations: {
-      'ui:options': {
-        orderable: false
-      }
+    text: {
+      'ui:field': 'i18n_field'
+    },
+    choices: {
+      'ui:field': 'i18n_array'
     }
   },
 
