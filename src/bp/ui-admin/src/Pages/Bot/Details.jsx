@@ -27,6 +27,7 @@ class Bots extends Component {
     id: '',
     name: '',
     avatarUrl: '',
+    avatarChatUrl: '',
     coverPictureUrl: '',
     category: undefined,
     description: '',
@@ -98,6 +99,7 @@ class Bots extends Component {
         termsConditions: this.state.termsConditions,
         emailAddress: this.state.emailAddress,
         avatarUrl: this.state.avatarUrl,
+        avatarChatUrl: this.state.avatarChatUrl,
         coverPictureUrl: this.state.coverPictureUrl,
         privacyPolicy: this.state.privacyPolicy
       }
@@ -332,6 +334,15 @@ class Bots extends Component {
             <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
           </Col>
           <Col md={4}>{this.state.avatarUrl && <img height={75} src={this.state.avatarUrl} />}</Col>
+        </Row>
+        <Row>
+          <Col md={7}>
+            <Label>
+              <strong>Bot Chat Avatar</strong>
+            </Label>
+            <Input type="file" accept="image/*" name="avatarChatUrl" onChange={this.handleImageFileChanged} />
+          </Col>
+          <Col md={4}>{this.state.avatarChatUrl && <img height={75} src={this.state.avatarChatUrl} />}</Col>
         </Row>
         <Row>
           <Col md={4}>

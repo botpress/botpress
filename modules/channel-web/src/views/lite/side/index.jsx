@@ -132,7 +132,7 @@ class Side extends React.Component {
       fgColor: this.props.config && this.props.config.foregroundColor,
       textColor: this.props.config && this.props.config.textColorOnForeground,
       botName: this.props.botInfo.name || this.props.config.botName,
-      botAvatarUrl: this.props.config.chatAvatarUrl || (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl,
+      botAvatarUrl: (this.props.botInfo.details && this.props.botInfo.details.avatarChatUrl) || this.props.config.chatAvatarUrl || (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,
       onQuickReplySend: this.props.onQuickReplySend,
