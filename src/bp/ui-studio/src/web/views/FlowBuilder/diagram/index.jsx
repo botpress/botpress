@@ -450,7 +450,7 @@ export default class FlowBuilder extends Component {
           _.includes(['standard', 'skill-call'], element.type)
         ) {
           this.props.removeFlowNode(element.id)
-        } else if (element.linkType === 'default') {
+        } else if (element.type === 'default') {
           element.remove()
           this.checkForLinksUpdate()
         } else {

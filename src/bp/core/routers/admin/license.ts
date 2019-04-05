@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo } from 'common/licensing-service'
+import { RequestWithUser } from 'core/misc/interfaces'
 import { Router } from 'express'
 import _ from 'lodash'
 
@@ -20,11 +21,17 @@ export class LicenseRouter extends CustomRouter {
     router.get(
       '/status',
       this.asyncMiddleware(async (req, res) => {
+        const { tokenUser } = <RequestWithUser>req
         if (!process.IS_PRO_ENABLED) {
           return sendSuccess(res, 'License status', { isPro: false })
         }
 
         const status = await svc.getLicenseStatus()
+        if (!tokenUser || !tokenUser.isSuperAdmin) {
+          return sendSuccess(res, 'License status', { isPro: true, status: status.status })
+        }
+
+        // Only SuperAdmins can see the details of the server's license
         const clusterFingerprint = await svc.getFingerprint('cluster_url')
         const machineFingerprint = await svc.getFingerprint('machine_v1')
         let info: LicenseInfo | undefined

@@ -41,7 +41,7 @@ Behind the scenes, Botpress implements a queuing mechanism that processes ingoin
 
 - **Intent Recognition**: recognizing what the user wants
 - **Entity Extraction**: extracting structured information from messages like dates, time, cities, names and more
-- **Slot tagging**: identify necessary __parameters__ to fulfill given task
+- **Slot tagging**: identify necessary **parameters** to fulfill given task
 - **Language Identification**: knowing in which language the user is writing
 
 All of the above will really help you create more natural and pleasurable conversations.
@@ -104,3 +104,9 @@ botpress-server
 ### Modules
 
 A module is an extra component outside of the Botpress Core itself that you can install in your bot to add new features to Botpress. Every bot uses modules in a way since almost everything in Botpress is a module. This architecture allows for maximum flexibility and freedom for developers.
+
+## Complete overview of the Event Engine
+
+This is a complete overview of the components implied in processing an event (ex: a message sent by a user). It is mostly informational, you won't use directly most of these components; it's only to get a bigger picture of what is involved and how you can interact
+
+[![Event engine](assets/eventflow.png)](assets/eventflow.png)

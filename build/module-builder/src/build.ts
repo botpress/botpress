@@ -120,7 +120,10 @@ export async function buildConfigSchema(modulePath: string) {
 
   const program = getProgramFromFiles([config])
   const definition = generateSchema(program, 'Config', settings)
-  definition.properties.$schema = { type: 'string' }
+
+  if (definition && definition.properties) {
+    definition.properties.$schema = { type: 'string' }
+  }
 
   const schema = JSON.stringify(definition, undefined, 2) + os.EOL + os.EOL
 

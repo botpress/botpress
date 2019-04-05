@@ -1,9 +1,11 @@
+import { EventEmitter } from 'events'
+
 const yn = require('yn')
 const path = require('path')
 const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
-const debug = require('debug')
+const { Debug } = require('./debug')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -13,29 +15,7 @@ const printPlainError = err => {
   console.log(err.stack)
 }
 
-const available = {}
-
-const DEBUG = (mod, base = 'bp') => {
-  const namespace = base + ':' + mod
-  available[namespace] = true
-  const instance = debug(base).extend(mod)
-  instance.sub = mod => DEBUG(mod, namespace)
-  return instance
-}
-
-global.DEBUG = DEBUG
-
-export const getDebugScopes = () => {
-  const status = {}
-  Object.keys(available).forEach(key => (status[key] = debug.enabled(key)))
-  return status
-}
-
-export const setDebugScopes = scopes => {
-  debug.disable()
-  debug.enable(scopes)
-}
-
+global.DEBUG = Debug
 global.printErrorDefault = printPlainError
 
 const originalWrite = process.stdout.write
@@ -55,6 +35,7 @@ function stripDeprecationWrite(this: Function): boolean {
   return originalWrite.apply(this, arguments)
 }
 
+process.BOTPRESS_EVENTS = new EventEmitter()
 process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
   ? path.dirname(process.execPath) // We point at the binary path

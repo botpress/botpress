@@ -1,0 +1,15 @@
+{
+  "name": "__qna__xr9uskkhv0_forget_my_name",
+  "contexts": [
+    "memory"
+  ],
+  "utterances": [
+    "forget my name",
+    "dont remember me",
+    "erase my name",
+    "erase me",
+    "stop remembering me",
+    "forget me"
+  ],
+  "slots": []
+}

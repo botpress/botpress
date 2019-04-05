@@ -11,15 +11,26 @@ export default class Settings extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props !== prevProps) {
-      this.setState({ userId: this.props.userId, externalToken: this.props.externalToken })
+      this.setState({
+        userId: this.props.userId,
+        externalToken: this.props.externalToken,
+        isSendingRawPayload: this.props.isSendingRawPayload,
+        isVerticalView: this.props.isVerticalView
+      })
     }
   }
 
   handleSave = () => {
-    this.props.onUpdateSettings({ userId: this.state.userId, externalToken: this.state.externalToken })
+    this.props.onUpdateSettings({
+      userId: this.state.userId,
+      externalToken: this.state.externalToken,
+      isSendingRawPayload: this.state.isSendingRawPayload,
+      isVerticalView: this.state.isVerticalView
+    })
     this.props.onHideSettings()
   }
 
+  handleToggle = event => this.setState({ [event.target.name]: event.target.checked })
   handleOnChange = event => this.setState({ [event.target.name]: event.target.value })
 
   render() {
@@ -30,6 +41,23 @@ export default class Settings extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <div>
+            <input
+              id="rawPayload"
+              type="checkbox"
+              checked={this.state.isSendingRawPayload}
+              onChange={this.handleToggle}
+              name="isSendingRawPayload"
+            />
+            <label htmlFor="rawPayload"> Send Raw Payloads (JSON mode)</label>
+            <br />
+            <input
+              id="vertical"
+              type="checkbox"
+              checked={this.state.isVerticalView}
+              onChange={this.handleToggle}
+              name="isVerticalView"
+            />
+            <label htmlFor="vertical"> Split view vertically</label>
             <h5>User ID</h5>
             <FormControl
               type="text"

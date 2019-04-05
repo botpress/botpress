@@ -1,0 +1,12 @@
+{
+  "name": "__qna__fykxrppmzm_i_have_a_complaint_to_do_about_an_employee",
+  "contexts": [
+    "global"
+  ],
+  "utterances": [
+    "I have a complaint to do about an employee",
+    "submit complaint about an other employee",
+    "submit abuse report"
+  ],
+  "slots": []
+}

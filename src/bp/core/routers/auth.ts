@@ -5,11 +5,12 @@ import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Request, RequestHandler, Router } from 'express'
+import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
 import { NotFoundError } from './errors'
-import { checkTokenHeader, success as sendSuccess } from './util'
+import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -87,6 +88,22 @@ export class AuthRouter extends CustomRouter {
   }
 
   updateProfile = async (req, res) => {
+    validateBodySchema(
+      req,
+      Joi.object().keys({
+        firstname: Joi.string()
+          .min(0)
+          .max(35)
+          .trim()
+          .required(),
+        lastname: Joi.string()
+          .min(0)
+          .max(35)
+          .trim()
+          .required()
+      })
+    )
+
     await this.workspaceService.updateUser(req.tokenUser.email, {
       firstname: req.body.firstname,
       lastname: req.body.lastname
@@ -128,5 +145,21 @@ export class AuthRouter extends CustomRouter {
     router.post('/me/profile', this.checkTokenHeader, this.asyncMiddleware(this.updateProfile))
 
     router.get('/me/permissions', this.checkTokenHeader, this.asyncMiddleware(this.getPermissions))
+
+    router.get(
+      '/refresh',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const config = await this.configProvider.getBotpressConfig()
+
+        if (config.jwtToken && config.jwtToken.allowRefresh) {
+          const newToken = await this.authService.refreshToken(req.tokenUser!)
+          sendSuccess(res, 'Token refreshed successfully', { newToken })
+        } else {
+          const [, token] = req.headers.authorization!.split(' ')
+          sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
+        }
+      })
+    )
   }
 }

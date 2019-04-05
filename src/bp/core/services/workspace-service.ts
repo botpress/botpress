@@ -10,6 +10,19 @@ import { TYPES } from '../types'
 
 import { GhostService } from './ghost/service'
 
+const DEFAULT_USER_ATTRIBUTES = [
+  'email',
+  'company',
+  'created_on',
+  'firstname',
+  'fullName',
+  'last_ip',
+  'last_logon',
+  'lastname',
+  'location',
+  'role'
+]
+
 @injectable()
 export class WorkspaceService {
   constructor(
@@ -75,10 +88,19 @@ export class WorkspaceService {
     }
   }
 
-  async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
+  async findUser(where: {}, selectFields?: Array<keyof AuthUser> | '*'): Promise<Partial<AuthUser> | undefined> {
     const workspace = await this.getWorkspace()
     const user = _.head(_.filter<AuthUser>(workspace.users, where))
-    return user
+
+    if (!user) {
+      return undefined
+    }
+
+    if (selectFields === '*') {
+      return user
+    }
+
+    return _.pick<AuthUser>(user, ...(selectFields || DEFAULT_USER_ATTRIBUTES)) as Partial<AuthUser>
   }
 
   async findRole(roleId: string): Promise<AuthRole> {
@@ -118,7 +140,7 @@ export class WorkspaceService {
     this.stats.track('user', 'update')
 
     const workspace = await this.getWorkspace()
-    const original = await this.findUser({ email })
+    const original = (await this.findUser({ email }, '*')) as AuthUser
     if (!original) {
       throw Error('Cannot find user')
     }

@@ -66,10 +66,15 @@ const mwSchema = {
   enabled: joi.boolean().default(true)
 }
 
+const debug = DEBUG('middleware')
+const debugIncoming = debug.sub('incoming')
+const debugOutgoing = debug.sub('outgoing')
+
 @injectable()
 export class EventEngine {
   public onBeforeIncomingMiddleware: ((event) => Promise<void>) | undefined
   public onAfterIncomingMiddleware: ((event) => Promise<void>) | undefined
+  public onBeforeOutgoingMiddleware: ((event) => Promise<void>) | undefined
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -93,6 +98,7 @@ export class EventEngine {
     })
 
     this.outgoingQueue.subscribe(async event => {
+      this.onBeforeOutgoingMiddleware && (await this.onBeforeOutgoingMiddleware(event))
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
       this._outgoingPerf.record()
@@ -127,9 +133,11 @@ export class EventEngine {
   register(middleware: sdk.IO.MiddlewareDefinition) {
     this.validateMiddleware(middleware)
     if (middleware.direction === 'incoming') {
+      debugIncoming('register %o', middleware)
       this.incomingMiddleware.push(middleware)
       this.incomingMiddleware = _.sortBy(this.incomingMiddleware, mw => mw.order)
     } else {
+      debugOutgoing('register %o', middleware)
       this.outgoingMiddleware.push(middleware)
       this.outgoingMiddleware = _.sortBy(this.outgoingMiddleware, mw => mw.order)
     }
@@ -139,9 +147,11 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
+      debugIncoming('send', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
+      debugOutgoing('send', event)
       incrementMetric('eventsOut.count')
       await this.outgoingQueue.enqueue(event, 1, false)
     }

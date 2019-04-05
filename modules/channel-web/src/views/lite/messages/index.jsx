@@ -59,13 +59,19 @@ class MessageGroup extends Component {
 }
 
 class MessageList extends Component {
-  constructor(props) {
-    super(props)
-    this.messagesDiv = null
+  componentDidMount() {
+    this.tryScrollToBottom()
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    this.tryScrollToBottom()
+  componentDidUpdate(prevProps) {
+    if (!prevProps.focused && this.props.focused) {
+      this.messagesDiv.focus()
+    }
+
+    //new message to display
+    if (prevProps.messages !== this.props.messages || this.props.typingUntil) {
+      this.tryScrollToBottom()
+    }
   }
 
   tryScrollToBottom() {
@@ -73,6 +79,26 @@ class MessageList extends Component {
       this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
     } catch (err) {
       // Discard the error
+    }
+  }
+
+  handleKeyDown = e => {
+    if (!this.props.enableArrowNavigation) {
+      return
+    }
+
+    const maxScroll = this.messagesDiv.scrollHeight - this.messagesDiv.clientHeight
+    const shouldFocusNext = e.key == 'ArrowRight' || (e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll)
+    const shouldFocusPrevious = e.key == 'ArrowLeft' || (e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0)
+
+    if (shouldFocusNext) {
+      this.messagesDiv.blur()
+      this.props.focusNext()
+    }
+
+    if (shouldFocusPrevious) {
+      this.messagesDiv.blur()
+      this.props.focusPrevious()
     }
   }
 
@@ -209,6 +235,8 @@ class MessageList extends Component {
   render() {
     return (
       <div
+        tabIndex="-1"
+        onKeyDown={this.handleKeyDown}
         className={'bp-messages ' + style.messages}
         ref={m => {
           this.messagesDiv = m
@@ -319,18 +347,11 @@ class Message extends Component {
     delete messageDataProps.component
 
     const props = {
-      onSendData: this.props.onSendData,
+      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData']),
       ...messageDataProps
     }
 
-    return (
-      <Linkify>
-        <div className="bp-msg-custom">
-          {this.props.data.message_text.length && <p style={this.getAddStyle()}>{this.props.data.message_text}</p>}
-          <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
-        </div>
-      </Linkify>
-    )
+    return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
   }
 
   render_session_reset() {
@@ -339,6 +360,10 @@ class Message extends Component {
 
   render_visit() {
     return null
+  }
+
+  render_postback() {
+    return this.props.data.message_data.text || null
   }
 
   render_unsupported() {

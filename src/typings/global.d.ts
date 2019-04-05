@@ -30,6 +30,7 @@ declare namespace NodeJS {
     BOTPRESS_VERSION: string
     core_env: BotpressEnvironementVariables
     distro: OSDistribution
+    BOTPRESS_EVENTS: EventEmitter
   }
 }
 
@@ -55,14 +56,28 @@ declare type BotpressEnvironementVariables = {
    * @example http://username:password@hostname:port
    */
   readonly BP_PROXY?: string
+
+  /**
+   * Use to set default debug namespaces
+   * @example bp:dialog:*,bp:nlu:intents:*
+   */
+  readonly DEBUG?: string
 }
 
 interface IDebug {
-  (module: string): IDebugInstance
+  (module: string, botId?: string): IDebugInstance
 }
 
 interface IDebugInstance {
+  readonly enabled: boolean
+
   (msg: string, extra?: any): void
+  /**
+   * Use to print a debug message prefixed with the botId
+   * @param botId The bot Id
+   * @param message The debug message
+   */
+  forBot(botId: string, message: string, extra?: any): void
   sub(namespace: string): IDebugInstance
 }
 

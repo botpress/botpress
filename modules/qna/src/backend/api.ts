@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import iconv from 'iconv-lite'
+import { validate } from 'joi'
 import { Parser as Json2csvParser } from 'json2csv'
 import _ from 'lodash'
 import moment from 'moment'
@@ -7,8 +8,9 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import { QnaStorage } from './qna'
+import { QnaEntry, QnaStorage } from './qna'
 import { importQuestions, prepareExport } from './transfer'
+import { QnaDefSchema } from './validation'
 
 export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>) => {
   const csvUploadStatuses = {}
@@ -31,8 +33,9 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
 
   router.post('/questions', async (req, res, next) => {
     try {
+      const qnaEntry = (await validate(req.body, QnaDefSchema)) as QnaEntry
       const storage = botScopedStorage.get(req.params.botId)
-      const id = await storage.insert(req.body)
+      const id = await storage.insert(qnaEntry)
       res.send(id)
     } catch (e) {
       next(new Error(e.message))
@@ -55,8 +58,10 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     } = req
 
     try {
+      const qnaEntry = (await validate(req.body, QnaDefSchema)) as QnaEntry
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.update(req.body, req.params.id)
+      await storage.update(qnaEntry, req.params.id)
+
       const questions = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questions)
     } catch (e) {

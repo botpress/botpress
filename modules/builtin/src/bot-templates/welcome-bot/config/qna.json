@@ -1,0 +1,4 @@
+{
+  "$schema": "../../../assets/modules/qna/config.schema.json",
+  "qnaCategories": "global,monkeys,giraffes,memory,contexts"
+}

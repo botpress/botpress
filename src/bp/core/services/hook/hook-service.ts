@@ -13,103 +13,68 @@ import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
 
+const debug = DEBUG('hooks')
+
 export namespace Hooks {
-  export interface BaseHook {
-    readonly folder: string
-    readonly args: any
-    readonly timeout: number
+  export class BaseHook {
+    debug: IDebugInstance
+
+    constructor(public timeout: number, public args: any, public folder: string) {
+      this.debug = debug.sub(folder)
+    }
   }
 
-  export class AfterServerStart implements BaseHook {
-    timeout: number
-    args: any
-    folder: string = 'after_server_start'
-
+  export class AfterServerStart extends BaseHook {
     constructor(private bp: typeof sdk) {
-      this.timeout = 1000
-      this.args = { bp }
+      super(1000, { bp }, 'after_server_start')
     }
   }
 
-  export class AfterBotMount implements BaseHook {
-    timeout: number
-    args: any
-    folder: string = 'after_bot_mount'
-
+  export class AfterBotMount extends BaseHook {
     constructor(private bp: typeof sdk, botId: string) {
-      this.timeout = 1000
-      this.args = { bp, botId }
+      super(1000, { bp, botId }, 'after_bot_mount')
     }
   }
 
-  export class AfterBotUnmount implements BaseHook {
-    timeout: number
-    args: any
-    folder: string = 'after_bot_unmount'
-
+  export class AfterBotUnmount extends BaseHook {
     constructor(private bp: typeof sdk, botId) {
-      this.timeout = 1000
-      this.args = { bp, botId }
+      super(1000, { bp, botId }, 'after_bot_unmount')
     }
   }
 
-  export class BeforeIncomingMiddleware implements BaseHook {
-    folder: string
-    args: any
-    timeout: number
-
+  export class BeforeIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      this.timeout = 1000
-      this.args = { bp, event }
-      this.folder = 'before_incoming_middleware'
+      super(1000, { bp, event }, 'before_incoming_middleware')
     }
   }
 
-  export class AfterIncomingMiddleware implements BaseHook {
-    folder: string
-    args: any
-    timeout: number
-
+  export class AfterIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      this.timeout = 1000
-      this.args = { bp, event }
-      this.folder = 'after_incoming_middleware'
+      super(1000, { bp, event }, 'after_incoming_middleware')
     }
   }
 
-  export class BeforeSessionTimeout implements BaseHook {
-    folder: string
-    args: any
-    timeout: number
-
+  export class BeforeOutgoingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      this.timeout = 1000
-      this.args = { bp, event }
-      this.folder = 'before_session_timeout'
+      super(1000, { bp, event }, 'before_outgoing_middleware')
     }
   }
 
-  export class BeforeSuggestionsElection implements BaseHook {
-    folder: string
-    args: any
-    timeout: number
+  export class BeforeSessionTimeout extends BaseHook {
+    constructor(bp: typeof sdk, event: IO.Event) {
+      super(1000, { bp, event }, 'before_session_timeout')
+    }
+  }
 
+  export class BeforeSuggestionsElection extends BaseHook {
     constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
-      this.timeout = 1000
-      this.args = { bp, sessionId, event, suggestions }
-      this.folder = 'before_suggestions_election'
+      super(1000, { bp, sessionId, event, suggestions }, 'before_suggestions_election')
     }
   }
 
-  export class OnIncidentStatusChanged implements BaseHook {
-    folder: string
-    args: any
-    timeout: number
-
+  export class OnIncidentStatusChanged extends BaseHook {
     constructor(bp: typeof sdk, incident: Incident) {
-      this.timeout = 1000
-      this.args = { bp, incident }
-      this.folder = 'on_incident_status_changed'
+      super(1000, { bp, incident }, 'on_incident_status_changed')
     }
   }
 }
@@ -214,10 +179,12 @@ export class HookService {
     const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
+    hook.debug('before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
+    process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    this.logScriptRun(botId, hookScript.path, hook.folder)
+    hook.debug('after execute')
   }
 
   private logScriptError(err, botId, path, folder) {
@@ -230,10 +197,5 @@ export class HookService {
     } else {
       this.logger.attachError(err).error(message)
     }
-  }
-
-  private logScriptRun(botId, path, folder) {
-    const message = `Executed "${path}" on "${folder}"`
-    botId ? this.logger.forBot(botId).debug(message) : this.logger.debug(message)
   }
 }

@@ -7,6 +7,10 @@ import { VError } from 'verror'
 import { FastTextOverrides } from '../../../config'
 import { IntentClassifier, IntentModel } from '../../typings'
 
+const debug = DEBUG('nlu').sub('intents')
+const debugTrain = debug.sub('train')
+const debugPredict = debug.sub('predict')
+
 interface TrainSet {
   name: string
   utterances: Array<string>
@@ -79,10 +83,14 @@ export default class FastTextClassifier implements IntentClassifier {
     // TODO Apply parameters from Grid-search here
     const ft = new this.toolkit.FastText.Model()
 
-    await ft.trainToFile('supervised', modelFn, {
+    const params = {
       ...this.getFastTextParams(),
       input: dataFn
-    })
+    }
+
+    debugTrain('training fastText model', { modelName, fastTextParams: params })
+    await ft.trainToFile('supervised', modelFn, params)
+    debugTrain('done with fastText model')
 
     return { ft, data: readFileSync(modelFn) }
   }
@@ -93,11 +101,14 @@ export default class FastTextClassifier implements IntentClassifier {
     const models: IntentModel[] = []
     const modelsByContext: { [key: string]: sdk.MLToolkit.FastText.Model } = {}
 
+    debugTrain('contexts', contextNames)
+
     for (const context of contextNames) {
       // TODO Make the `none` intent undeletable, mandatory and pre-filled with random data
       const intentSet = intents.filter(x => x.contexts.includes(context) || x.name === 'none')
 
       if (this._hasSufficientData(intentSet)) {
+        debugTrain('training context', context)
         try {
           const { ft, data } = await this._trainForOneModel(intentSet, context)
           modelsByContext[context] = ft
@@ -105,6 +116,8 @@ export default class FastTextClassifier implements IntentClassifier {
         } catch (err) {
           throw new VError(err, `Error training set of intents for context "${context}"`)
         }
+      } else {
+        debugTrain('insufficent data, skip training context', context)
       }
     }
 
@@ -154,7 +167,7 @@ export default class FastTextClassifier implements IntentClassifier {
     }
   }
 
-  public async predict(input: string, includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
+  public async predict(input: string, includedContexts: string[] = []): Promise<sdk.NLU.Intent[]> {
     if (!Object.keys(this._modelsByContext).length) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
     }
@@ -168,7 +181,9 @@ export default class FastTextClassifier implements IntentClassifier {
       ctx => !includedContexts.length || includedContexts.includes(ctx)
     )
     try {
+      debugPredict('prediction request %o', { includedContexts, input, sanitized })
       const predictions = await Promise.map(modelNames, modelName => this._predictForOneModel(sanitized, modelName))
+      debugPredict('predictions done %o', { includedContexts, input, sanitized, predictions })
 
       return _.chain(predictions)
         .flatten()

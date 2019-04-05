@@ -2,7 +2,7 @@
 
 This module includes 2 different examples on how to customize the web chat with your own components:
 
-- How to display a custom component in the chat (replacing the chat bubble, like a login form)
+- How to display a custom component in the chat (replacing the chat bubble, like a login form or a dropdown menu)
 - How to replace the composer (the text zone where the user is typing)
 
 Basic components includes a login form, and another one to make the bot yell.
