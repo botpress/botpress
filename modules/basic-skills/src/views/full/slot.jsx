@@ -4,7 +4,7 @@ import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
-import { SelectIntent } from './shared/intentSelect'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 const MAX_RETRIES = 10
 
@@ -59,17 +59,21 @@ export class Slot extends React.Component {
       validationAction: this.state.validationAction
     }
 
-    if (this.state.selectedIntentOption && this.state.selectedSlotOption && this.state.contentElement) {
+    if (
+      this.state.selectedIntentOption &&
+      this.state.selectedSlotOption &&
+      this.state.contentElement &&
+      this.state.notFoundElement
+    ) {
       this.props.onDataChanged && this.props.onDataChanged(data)
       this.props.onValidChanged && this.props.onValidChanged(true)
     }
   }
 
   fetchIntents = () => {
-    this.props.bp.axios.get('/mod/nlu/intents').then(response => {
-      this.setState({
-        intents: response.data
-      })
+    this.props.bp.axios.get('/mod/nlu/intents').then(({ data }) => {
+      const intents = data.filter(x => !x.name.startsWith('__qna'))
+      this.setState({ intents })
     })
   }
 
@@ -129,15 +133,20 @@ export class Slot extends React.Component {
           <Row>
             <Col md={6}>
               <Label>Choose an intent</Label>
-              <SelectIntent
-                style={{ zIndex: 1000 }}
-                value={this.state.selectedIntentOption}
-                intents={this.state.intents}
+              <Select
+                id="intent"
+                name="intent"
+                isSearchable={true}
+                className={style.intentSelect}
                 onChange={this.handleIntentChange}
+                value={this.state.selectedIntentOption}
+                options={this.state.intents.map(intent => {
+                  return { value: intent.name, label: intent.name }
+                })}
               />
             </Col>
             <Col md={6}>
-              <Label for="slotName">Choose a slot to fill</Label>
+              <Label for="slot">Choose a slot to fill</Label>
               <Select
                 id="slot"
                 name="slot"
@@ -152,10 +161,20 @@ export class Slot extends React.Component {
           <Row>
             <Col md={12}>
               <Label for="contentPicker">Bot will ask</Label>
+              <OverlayTrigger
+                placement={'right'}
+                overlay={
+                  <Tooltip id={`tooltip-right`}>
+                    The bot should ask a question specific about the slot to fill. (e.g. What is your email?)
+                  </Tooltip>
+                }
+              >
+                <i className="material-icons md-14">info</i>
+              </OverlayTrigger>
               <ContentPickerWidget
+                style={{ zIndex: 0 }}
                 name="contentPicker"
                 id="contentPicker"
-                className={style.contentPicker}
                 itemId={this.state.contentElement}
                 onChange={this.handleContentChange}
                 placeholder="Pick content"
@@ -164,10 +183,21 @@ export class Slot extends React.Component {
           </Row>
           <Row>
             <Col md="9">
-              <Label>Not Found Message</Label>
+              <Label>Invalid Input Message</Label>
+              <OverlayTrigger
+                placement={'right'}
+                overlay={
+                  <Tooltip id={`tooltip-right`}>
+                    This message will appear to the user when the information he has given is invalid. (e.g. Your email
+                    is invalid)
+                  </Tooltip>
+                }
+              >
+                <i className="material-icons md-14">info</i>
+              </OverlayTrigger>
               <ContentPickerWidget
+                style={{ zIndex: 0 }}
                 id="notFoundElement"
-                className={style.notFoundSelect}
                 itemId={this.state.notFoundElement}
                 onChange={this.handleNotFoundChange}
                 placeholder="Pick content to display when the slot is not found"
@@ -175,6 +205,17 @@ export class Slot extends React.Component {
             </Col>
             <Col md="3">
               <Label for="retryAttempts">Max retry attempts</Label>
+              <OverlayTrigger
+                placement={'right'}
+                overlay={
+                  <Tooltip id={`tooltip-right`}>
+                    This is the maximum number of times the bot will try to extract the slot. When the limit is reached,
+                    the bot will execute the "On not found" transition.
+                  </Tooltip>
+                }
+              >
+                <i className="material-icons md-14">info</i>
+              </OverlayTrigger>
               {this.state.retryAttemptsTooHigh && (
                 <div className={style.warning}>Choose a number less than or equal to {MAX_RETRIES}</div>
               )}
@@ -200,6 +241,17 @@ export class Slot extends React.Component {
               />
               &nbsp;
               <Label for="validationCheck">Custom Input Validation</Label>
+              <OverlayTrigger
+                placement={'right'}
+                overlay={
+                  <Tooltip id={`tooltip-right`}>
+                    You can add custom validation for your slot with an action. It should assign a boolean value to the
+                    temp.valid variable.
+                  </Tooltip>
+                }
+              >
+                <i className="material-icons md-14">info</i>
+              </OverlayTrigger>
               {this.state.addValidation && (
                 <SelectActionDropdown
                   className={style.actionSelect}
