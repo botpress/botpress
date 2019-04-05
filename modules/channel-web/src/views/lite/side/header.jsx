@@ -64,11 +64,11 @@ class Header extends React.Component {
 
     return (
       <div className={style.title}>
-        <div className={style.name}>
+        <div className={'bp-bot-title ' + style.name}>
           {title}
           {this.props.unreadCount > 0 && <span className={style.unread}>{this.props.unreadCount}</span>}
         </div>
-        {hasDescription && <div className={style.status}>{description}</div>}
+        {hasDescription && <div className={style.status}>{'bp-bot-description ' + description}</div>}
       </div>
     )
   }
