@@ -216,6 +216,8 @@ export class BotService {
 
     const stage_request = {
       id: pipeline[nextStageIdx].id,
+      status: 'pending',
+      message: 'Bot will change stage',
       requested_on: new Date(),
       requested_by
     }
