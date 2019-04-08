@@ -19,7 +19,8 @@
       "developers/debug",
       "developers/create-module",
       "developers/cluster",
-      "developers/analytics"
+      "developers/analytics",
+      "developers/webchat-extending"
     ],
     "Tutorials": [
       "tutorials/webchat-embedding",
