@@ -1,12 +1,16 @@
 import React from 'react'
-import { Badge, UncontrolledButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap'
+import {
+  Badge,
+  UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownItem,
+  DropdownMenu,
+  UncontrolledTooltip
+} from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
 import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
-
-// TODOS here :
-//  * display stage request status with formatted message in tooltip
 
 export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange }) => (
   <div className="pipeline_bot" key={bot.id}>
@@ -68,9 +72,19 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
         </Badge>
       )}
       {bot.pipeline_status.stage_request && (
-        <Badge color="secondary" className="botbadge">
-          pending
-        </Badge>
+        <React.Fragment>
+          <Badge color="secondary" className="botbadge" id="status-badge">
+            {bot.pipeline_status.stage_request.status}
+          </Badge>
+          <UncontrolledTooltip placement="bottom" target="status-badge">
+            <p>
+              Requested by: {bot.pipeline_status.stage_request.requested_by} <br />
+              on&nbsp;
+              {new Date(bot.pipeline_status.stage_request.requested_on).toLocaleDateString()}
+            </p>
+            {bot.pipeline_status.stage_request.message && <p>{bot.pipeline_status.stage_request.message}</p>}
+          </UncontrolledTooltip>
+        </React.Fragment>
       )}
     </div>
   </div>

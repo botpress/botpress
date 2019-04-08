@@ -644,8 +644,8 @@ declare module 'botpress/sdk' {
     stage_request?: {
       requested_on: Date
       expires_on?: Date
+      message?: string
       status: string
-      message: string
       requested_by: string
       id: string
     }
