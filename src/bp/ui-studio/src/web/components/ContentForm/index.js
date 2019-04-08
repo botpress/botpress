@@ -1,4 +1,5 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import Form from 'react-jsonschema-form'
 import BaseInput from 'react-jsonschema-form/lib/components/widgets/BaseInput'
 
@@ -29,7 +30,7 @@ const widgets = {
 
 const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
 
-export default class ContentForm extends React.Component {
+class ContentForm extends React.Component {
   state = {}
 
   updateMultiLangProp = (field, value) => {
@@ -53,7 +54,7 @@ export default class ContentForm extends React.Component {
       ...this.props.formData,
       updateProp: this.updateMultiLangProp,
       languages: ['en', 'fr', 'es'],
-      activeLang: 'en',
+      activeLang: this.props.contentLang,
       defaultLang: 'en'
     }
 
@@ -70,3 +71,12 @@ export default class ContentForm extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  contentLang: state.language.contentLang
+})
+
+export default connect(
+  mapStateToProps,
+  {}
+)(ContentForm)
