@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react'
-import withLanguage from '../../Util/withLanguage'
 import { Dropdown, Glyphicon } from 'react-bootstrap'
+import _ from 'lodash'
+
+import withLanguage from '../../Util/withLanguage'
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
 
@@ -9,7 +11,7 @@ class LangSwitcher extends React.Component {
 
   componentDidUpdate() {
     let idx = this.props.languages.findIndex(l => l == this.props.contentLang)
-    if (idx != -1) {
+    if (idx != -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
     }
   }
@@ -33,6 +35,10 @@ class LangSwitcher extends React.Component {
   onToggle() {}
 
   render() {
+    if (this.props.languages.length <= 1) {
+      return null
+    }
+
     return (
       <Fragment>
         <ActionItem
