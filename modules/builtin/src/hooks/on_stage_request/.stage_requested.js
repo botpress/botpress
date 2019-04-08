@@ -5,7 +5,7 @@
  * @param bp The botpress SDK
  * @param bot The complete configuration of the bot
  * @param users The list of users of that workspace (email, role)
- * @param stages The list of configured stages
+ * @param pipeline The list of configured stages
  * @param hookResult The result of the hook which contains actions
  */
 const stageChangeRequest = async () => {
