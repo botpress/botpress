@@ -56,7 +56,7 @@ class ContentForm extends React.Component {
       updateProp: this.updateMultiLangProp,
       languages: this.props.languages,
       activeLang: this.props.contentLang,
-      defaultLang: this.props.defaultLang
+      defaultLang: this.props.defaultLanguage
     }
 
     return (
