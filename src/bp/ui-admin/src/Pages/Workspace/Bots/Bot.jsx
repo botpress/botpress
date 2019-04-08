@@ -2,15 +2,18 @@ import React from 'react'
 import { Badge, UncontrolledButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock } from 'react-icons/lib/md'
+import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
+
+// TODOS here :
+//  * display stage request status with formatted message in tooltip
 
 export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange }) => (
   <div className="pipeline_bot" key={bot.id}>
     <div className="actions">
       <UncontrolledButtonDropdown>
-        <DropdownToggle caret size="sm" outline color="primary">
-          Actions
+        <DropdownToggle tag="span" className="more">
+          <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
           <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>

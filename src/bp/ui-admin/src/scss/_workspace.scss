@@ -19,6 +19,13 @@
     }
     .actions {
       float: right;
+      .more {
+        cursor: pointer;
+        color: #555;
+        &:hover {
+          color: #000;
+        }
+      }
     }
     .botbadge {
       margin-right: 5px;
