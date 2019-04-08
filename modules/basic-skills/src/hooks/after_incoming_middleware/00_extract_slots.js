@@ -8,7 +8,12 @@ const slotExtract = async () => {
   }
 
   for (const key of Array.from(Object.keys(event.nlu.slots))) {
-    const slot = event.nlu.slots[key]
+    let slot = event.nlu.slots[key]
+    // Select the first slot when the NLU is confused about the result.
+    // The array is sorted by confidence so we take the first index.
+    if (Array.isArray(slot)) {
+      slot = slot[0]
+    }
 
     // Make sure we don't override the value
     if (!event.state.session.extractedSlots[slot.name]) {
