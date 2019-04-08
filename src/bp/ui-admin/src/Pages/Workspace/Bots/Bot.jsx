@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { Badge, UncontrolledButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
-import { Link } from 'react-router-dom'
 import { IoIosChatbubble } from 'react-icons/lib/io'
 import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
@@ -17,7 +16,7 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
           <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
             <IoIosChatbubble /> &nbsp;Open chat
           </DropdownItem>
-          <DropdownItem disabled={bot.locked} tag={Link} to={`/studio/${bot.id}`}>
+          <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
@@ -51,7 +50,7 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
           &nbsp;
         </span>
       )}
-      {bot.disabled ? <span>{bot.name}</span> : <Link to={`/studio/${bot.id}`}>{bot.name}</Link>}
+      {bot.disabled ? <span>{bot.name}</span> : <a href={`/studio/${bot.id}`}>{bot.name}</a>}
     </div>
     <p>{bot.description}</p>
     <div>
