@@ -8,18 +8,16 @@
  * @param stages The list of configured stages
  * @param hookResult The result of the hook which contains actions
  */
-const stagePromotionRequest = async () => {
-  const { requested_by: requesterEmail, id: requestedStageId } = bot.pipeline_status.stage_request
-  const requesterRole = users.find(user => user.email === requesterEmail)
-  const stageRoles = stages.find(stage => stage.id === requestedStageId)
-
-  // If the user is not allowed to promote the bot to the requested stage
-  if (!stageRoles.includes(requesterRole)) {
-    // do nothing
+const stageChangeRequest = async () => {
+  const request_user = users.find(u => u.email == bot.pipeline_status.stage_request.requested_by)
+  if (!request_user || request_user.role !== 'admin.*') {
+    /*
+    we want to keep the bot in the current stage and until another user with the right role promotes it
+    here would go an api call to your 3rd party notification service
+    */
     hookResult.actions = []
-    // Any custom logic would go here
-    // For example, send an email or a notice to someone on the team who has the correct role
+    return
   }
 }
 
-return stagePromotionRequest()
+return stageChangeRequest()
