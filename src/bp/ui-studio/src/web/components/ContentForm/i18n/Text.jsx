@@ -11,7 +11,12 @@ export default class Text extends I18nManager {
   render() {
     return this.renderWrapped(
       <div style={{ width: '100%' }}>
-        <FormControl type="text" value={this.state.value} onChange={this.handleTextChanged} />
+        <FormControl
+          type="text"
+          value={this.state.value}
+          onChange={this.handleTextChanged}
+          placeholder={this.state.placeholder || ''}
+        />
       </div>
     )
   }
