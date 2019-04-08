@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import { Transition } from '..'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  console.log('data from flow', data)
   return {
     transitions: createTransitions(),
     flow: {
@@ -24,6 +23,20 @@ const createTransitions = (): Transition[] => {
 }
 
 const createNodes = data => {
+  const slotExtractOnReceive = [
+    {
+      type: sdk.NodeActionType.RunAction,
+      name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+    }
+  ]
+
+  if (data.validationAction) {
+    slotExtractOnReceive.push({
+      type: sdk.NodeActionType.RunAction,
+      name: `${data.validationAction.value.label} {}`
+    })
+  }
+
   return [
     {
       name: 'slot-extract',
@@ -37,16 +50,7 @@ const createNodes = data => {
           name: `#!${data.contentElement}`
         }
       ],
-      onReceive: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
-        },
-        data.validationAction && {
-          type: sdk.NodeActionType.RunAction,
-          name: `${data.validationAction.value.label} {}`
-        }
-      ],
+      onReceive: slotExtractOnReceive,
       next: [
         {
           condition: `session.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
