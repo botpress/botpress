@@ -13,7 +13,11 @@ const slotExtract = async () => {
     // Make sure we don't override the value
     if (!event.state.session.extractedSlots[slot.name]) {
       event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
-      event.state.session.extractedSlots[slot.name] = slot.value
+      event.state.session.extractedSlots[slot.name] = {
+        value: slot.value,
+        timestamp: Date.now()
+      }
+
       event.state.session.extractedSlots['notFound'] = 0
     }
   }
