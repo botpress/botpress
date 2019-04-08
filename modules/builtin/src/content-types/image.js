@@ -86,15 +86,16 @@ module.exports = {
     }
   },
 
-  computePreviewText: formData => {
-    let fileName = path.basename(formData.image)
+  computePreviewText: (formData, lang, defaultLang) => {
+    const imagePath = formData['image$' + lang] || formData['image$' + defaultLang]
+    let fileName = path.basename(imagePath || '')
 
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
 
-    const title = formData.title ? ' | ' + formData.title : ''
-    return `Image (${fileName})${title}`
+    const title = formData['title$' + lang] ? ' | ' + formData['title$' + lang] : ''
+    return `Image (${fileName}) ${title}`
   },
 
   renderElement: renderElement

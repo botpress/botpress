@@ -70,7 +70,8 @@ module.exports = {
 
   uiSchema: {
     text: {
-      'ui:field': 'i18n_field'
+      'ui:field': 'i18n_field',
+      $subtype: 'textarea'
     },
     variations: {
       'ui:field': 'i18n_array',
@@ -80,6 +81,11 @@ module.exports = {
     }
   },
 
-  computePreviewText: formData => 'Text: ' + formData.text,
+  computePreviewText: (formData, lang, defaultLang) => {
+    return formData['text$' + lang] !== undefined
+      ? `Text: ${formData['text$' + lang]}`
+      : `Text: Translation missing for "${formData['text$' + defaultLang] || ''}"`
+  },
+
   renderElement: renderElement
 }

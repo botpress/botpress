@@ -654,8 +654,8 @@ declare module 'botpress/sdk' {
     formData: object
     /** The computed form data that contains the interpreted data. */
     computedData: object
-    /** The textual representation of the Content Element.  */
-    previewText: string
+    /** The textual representation of the Content Element, for each supported languages  */
+    previews: object
     createdOn: Date
     modifiedOn: Date
     createdBy: string
@@ -695,7 +695,7 @@ declare module 'botpress/sdk' {
      * Function that computes the visual representation of the text.
      * This function resides in the javascript definition of the Content Type.
      */
-    computePreviewText?: (formData: object) => string
+    computePreviewText?: (formData: object, lang: string, defaultLang: string) => string
   }
 
   /**

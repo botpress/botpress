@@ -3,37 +3,26 @@ import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { MdErrorOutline } from 'react-icons/md'
 import style from './style.scss'
 
-export default class Translate extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      fieldName: null,
-      value: undefined
-    }
+export default class I18nManager extends React.Component {
+  state = {
+    placeholder: '',
+    isMissing: false
   }
 
   componentDidMount() {
     const { defaultLang, activeLang } = this.props.formContext
-    if (defaultLang === activeLang) {
-      return this.setState({ fieldName: this.props.name, value: this.props.formContext[this.props.name] })
-    }
 
-    const fieldName = `${this.props.name}$${activeLang}`
-    const isMissing = this.props.formContext[fieldName] === undefined
+    const isDefaultLang = defaultLang === activeLang
+    const isMissing = this.props.formContext[this.props.name + '$' + activeLang] === undefined
 
     this.setState({
-      fieldName,
-      isMissing,
-      value: this.props.formContext[fieldName] || '',
-      placeholder: this.props.formContext[this.props.name] || ''
+      isMissing: !isDefaultLang && isMissing && this.props.required,
+      placeholder: this.props.formContext[this.props.name + '$' + defaultLang] || ''
     })
   }
 
   handleOnChange = value => {
-    this.setState({ value })
-
-    this.props.formContext.updateProp(this.state.fieldName, value)
-    this.props.onChange('update')
+    this.props.onChange(value)
   }
 
   renderWrapped(component) {

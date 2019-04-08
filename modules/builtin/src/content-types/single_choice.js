@@ -100,7 +100,14 @@ module.exports = {
     }
   },
 
-  computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
+  computePreviewText: (formData, lang, defaultLang) => {
+    if (formData['text$' + lang] === undefined) {
+      return `Choices: Translation missing for "${formData['text$' + defaultLang]}"`
+    }
+
+    const choices = formData['choices$' + lang] || []
+    return `Choices (${choices.length}): ` + formData['text$' + lang]
+  },
   renderElement: renderElement,
   hidden: true
 }

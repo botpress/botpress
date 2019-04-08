@@ -69,7 +69,7 @@ export class CMSService implements IDisposeOnExit {
       table.primary(['id', 'botId'])
       table.string('contentType')
       table.text('formData')
-      table.text('previewText')
+      table.jsonb('previews')
       table.string('createdBy')
       table.timestamp('createdOn')
       table.timestamp('modifiedOn')
@@ -351,7 +351,8 @@ export class CMSService implements IDisposeOnExit {
 
     return {
       ...item,
-      formData: JSON.parse(item.formData)
+      formData: JSON.parse(item.formData),
+      previews: item.previews && JSON.parse(item.previews)
     }
   }
 
@@ -364,6 +365,10 @@ export class CMSService implements IDisposeOnExit {
 
     if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
+    }
+
+    if (element.previews) {
+      result.previews = JSON.stringify(element.previews)
     }
 
     return result
@@ -397,26 +402,28 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const expandedFormData = await this.resolveRefs(formData)
-    const previewText = await this.computePreviewText(contentType.id, expandedFormData)
-
-    if (!_.isString(previewText)) {
-      throw new Error('computePreviewText must return a string')
-    }
+    const previews = this.computePreviews(contentType.id, expandedFormData, ['', 'fr', 'en', 'es', 'als'], 'en')
 
     return {
       formData,
-      previewText
+      previews
     }
   }
 
-  private computePreviewText(contentTypeId, formData) {
+  private computePreviews(contentTypeId, formData, languages, defaultLang) {
     const contentType = this.contentTypes.find(x => x.id === contentTypeId)
 
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
 
-    return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(formData)
+    const previews = languages.reduce((result, key) => {
+      result[key] =
+        (contentType.computePreviewText && contentType.computePreviewText(formData, key, defaultLang)) || 'No preview'
+      return result
+    }, {})
+
+    return previews
   }
 
   async renderElement(contentId, args, eventDestination: IO.EventDestination) {
@@ -431,8 +438,6 @@ export class CMSService implements IDisposeOnExit {
       if (!content) {
         throw new Error(`Content element "${contentId}" not found`)
       }
-
-      _.set(content, 'previewPath', renderTemplate(content.previewText, args))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')

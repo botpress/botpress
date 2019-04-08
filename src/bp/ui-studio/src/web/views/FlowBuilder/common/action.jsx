@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { Popover, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import Mustache from 'mustache'
-
+import withLanguage from '../../../components/Util/withLanguage'
 import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
 const style = require('./style.scss')
@@ -74,7 +74,9 @@ class ActionItem extends Component {
     }
 
     const item = this.props.items[this.state.itemId]
-    const textContent = (item && `${item.schema && item.schema.title} | ${item.previewText}`) || ''
+
+    const preview = item && item.previews && item.previews[this.props.contentLang]
+    const textContent = (item && `${item.schema && item.schema.title} | ${preview}`) || ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')
@@ -106,4 +108,4 @@ const mapDispatchToProps = { fetchContentItem, refreshFlowsLinks }
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ActionItem)
+)(withLanguage(ActionItem))
