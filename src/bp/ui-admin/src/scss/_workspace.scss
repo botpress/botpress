@@ -1,4 +1,9 @@
 .pipeline {
+  .createbot_btn {
+    display: flex;
+    margin: auto;
+    align-items: center;
+  }
   .pipeline_title {
     text-align: center;
     background-color: #f7f7f7;

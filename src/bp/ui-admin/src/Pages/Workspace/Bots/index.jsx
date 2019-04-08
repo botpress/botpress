@@ -91,8 +91,14 @@ class Bots extends Component {
   renderCreateNewBotButton() {
     return (
       <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
-        <Button onClick={() => this.setState({ isCreateBotModalOpen: true })} color="primary" size="sm">
-          <FaPlusCircle /> Create Bot
+        <Button
+          onClick={() => this.setState({ isCreateBotModalOpen: true })}
+          outline
+          color="primary"
+          className="createbot_btn"
+        >
+          <FaPlusCircle />
+          &nbsp;Create Bot
         </Button>
       </AccessControl>
     )
