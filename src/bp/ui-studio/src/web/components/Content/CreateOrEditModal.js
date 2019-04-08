@@ -24,6 +24,7 @@ export default class CreateOrEditModal extends React.Component {
         className={style.modal}
         show={this.props.show}
         onHide={this.props.handleClose}
+        backdrop={'static'}
         style={{ zIndex: 1051 }}
       >
         <Modal.Body>
