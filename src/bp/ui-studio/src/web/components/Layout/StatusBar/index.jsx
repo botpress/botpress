@@ -1,82 +1,18 @@
 import style from './StatusBar.styl'
-import React, { Fragment } from 'react'
+import React from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
-import { Dropdown, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Glyphicon } from 'react-bootstrap'
 import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 
 import { updateDocumentationModal } from '~/actions'
-import withLanguage from '../Util/withLanguage'
-
-//  implement a current lang provider ?
+import LangSwitcher from './LangSwitcher'
+import ActionItem from './ActionItem'
 
 const COMPLETED_DURATION = 2000
-
-const titleToId = txt => txt.replace(/[^\W]/gi, '_')
-
-const ActionItem = props => (
-  <OverlayTrigger
-    placement="top"
-    delayShow={500}
-    overlay={
-      <Tooltip id={titleToId(props.title)}>
-        <div>
-          <strong>{props.title}</strong>
-        </div>
-        {props.shortcut && <div className={style.shortcut}>{props.shortcut}</div>}
-        {props.description}
-      </Tooltip>
-    }
-  >
-    <div
-      className={classNames(style.clickable, style.item, props.className)}
-      {..._.omit(props, ['title', 'description', 'children', 'className'])}
-    >
-      {props.children}
-    </div>
-  </OverlayTrigger>
-)
-
-class LangSwitcher extends React.Component {
-  elems = {}
-
-  componentDidUpdate() {
-    const lastIdx = this.props.languages.length - 1
-    this.elems[lastIdx].focus()
-  }
-
-  componentWillUnmount() {
-    this.elems = null
-  }
-
-  handleKeyDown = (l, e) => {
-    if (e.key == 'Enter') {
-      this.props.switchLang(l)
-    }
-  }
-
-  render() {
-    return (
-      <Dropdown.Menu pullRight onClose={this.props.onClose} className={style.langSwitherMenu}>
-        {this.props.languages.map((l, idx) => (
-          <li
-            tabIndex="-1"
-            ref={el => (this.elems[idx] = el)}
-            key={l}
-            className={style.langItem}
-            onClick={this.props.switchLang.bind(this, l)}
-            onKeyDown={this.handleKeyDown.bind(this, l)}
-          >
-            {l.toUpperCase()}
-          </li>
-        ))}
-      </Dropdown.Menu>
-    )
-  }
-}
 
 class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
@@ -168,46 +104,6 @@ class StatusBar extends React.Component {
     ))
   }
 
-  switchLang = l => {
-    this.props.changeContentLanguage(l)
-    this.props.toggleLangSwitcher()
-  }
-
-  renderContentLangSwitcher() {
-    if (this.props.languages.length > 1) {
-      return (
-        <Fragment>
-          <ActionItem
-            className={style.right}
-            title="Content Language"
-            description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
-            onClick={this.props.toggleLangSwitcher}
-          >
-            <span>
-              <Glyphicon glyph="globe" />
-              &nbsp;
-              {this.props.contentLang.toUpperCase()}
-            </span>
-          </ActionItem>
-          <Dropdown
-            className={style.right}
-            pullRight
-            dropup={true}
-            open={this.props.langSwitcherOpen}
-            id="lang-switcher"
-          >
-            <LangSwitcher
-              bsRole="menu"
-              languages={this.props.languages}
-              switchLang={this.switchLang}
-              onClose={this.props.toggleLangSwitcher}
-            />
-          </Dropdown>
-        </Fragment>
-      )
-    }
-  }
-
   renderDocHints() {
     if (!this.props.docHints.length) {
       return null
@@ -253,7 +149,10 @@ class StatusBar extends React.Component {
           </ActionItem>
           {this.renderDocHints()}
           {this.renderTaskProgress()}
-          {this.renderContentLangSwitcher()}
+          <LangSwitcher
+            toggleLangSwitcher={this.props.toggleLangSwitcher}
+            langSwitcherOpen={this.props.langSwitcherOpen}
+          />
         </div>
       </footer>
     )
@@ -265,9 +164,7 @@ const mapStateToProps = state => ({
   docHints: state.ui.docHints
 })
 
-export default withLanguage(
-  connect(
-    mapStateToProps,
-    { updateDocumentationModal }
-  )(StatusBar)
-)
+export default connect(
+  mapStateToProps,
+  { updateDocumentationModal }
+)(StatusBar)

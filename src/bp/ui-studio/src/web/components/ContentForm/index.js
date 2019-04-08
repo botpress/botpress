@@ -1,5 +1,4 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import Form from 'react-jsonschema-form'
 import BaseInput from 'react-jsonschema-form/lib/components/widgets/BaseInput'
 

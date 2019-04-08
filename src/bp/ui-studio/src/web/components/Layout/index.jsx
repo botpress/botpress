@@ -3,7 +3,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { HotKeys } from 'react-hotkeys'
 
-import classnames from 'classnames'
 import { ToastContainer } from 'react-toastify'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
@@ -26,7 +25,6 @@ import { viewModeChanged, updateDocumentationModal } from '~/actions'
 import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
-import style from './style.scss'
 import StatusBar from './StatusBar'
 
 class Layout extends React.Component {
@@ -76,12 +74,6 @@ class Layout extends React.Component {
     if (this.props.viewMode < 0) {
       return null
     }
-
-    const hasHeader = this.props.viewMode <= 2
-    const classNames = classnames({
-      [style.container]: hasHeader,
-      'bp-container': hasHeader
-    })
 
     const keyHandlers = {
       'emulator-focus': this.focusEmulator,
