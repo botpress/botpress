@@ -8,7 +8,8 @@ import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 
-import { updateDocumentationModal, changeContentLanguage } from '~/actions'
+import { updateDocumentationModal } from '~/actions'
+import withLanguage from '../Util/withLanguage'
 
 //  implement a current lang provider ?
 
@@ -173,8 +174,7 @@ class StatusBar extends React.Component {
   }
 
   renderContentLangSwitcher() {
-    const languages = _.get(this.props.botInfo, 'languages', [])
-    if (languages.length > 1) {
+    if (this.props.languages.length > 1) {
       return (
         <Fragment>
           <ActionItem
@@ -198,7 +198,7 @@ class StatusBar extends React.Component {
           >
             <LangSwitcher
               bsRole="menu"
-              languages={languages.filter(l => l != this.props.contentLang)}
+              languages={this.props.languages}
               switchLang={this.switchLang}
               onClose={this.props.toggleLangSwitcher}
             />
@@ -262,11 +262,12 @@ class StatusBar extends React.Component {
 
 const mapStateToProps = state => ({
   botInfo: state.bot,
-  docHints: state.ui.docHints,
-  contentLang: state.language.contentLang
+  docHints: state.ui.docHints
 })
 
-export default connect(
-  mapStateToProps,
-  { updateDocumentationModal, changeContentLanguage }
-)(StatusBar)
+export default withLanguage(
+  connect(
+    mapStateToProps,
+    { updateDocumentationModal }
+  )(StatusBar)
+)

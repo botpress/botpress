@@ -9,6 +9,7 @@ import FlowPickWidget from './FlowPickWidget'
 
 import TextMl from './i18n/Text'
 import ArrayMl from './i18n/Array'
+import withLanguage from '../Util/withLanguage'
 
 const CustomBaseInput = props => {
   const { type, $subtype } = props.schema
@@ -53,9 +54,9 @@ class ContentForm extends React.Component {
     const context = {
       ...this.props.formData,
       updateProp: this.updateMultiLangProp,
-      languages: ['en', 'fr', 'es'],
+      languages: this.props.languages,
       activeLang: this.props.contentLang,
-      defaultLang: 'en'
+      defaultLang: this.props.defaultLang
     }
 
     return (
@@ -67,16 +68,10 @@ class ContentForm extends React.Component {
         widgets={widgets}
         fields={fields}
         onChange={this.handleOnChange}
+        changeContentLanguage={this.props.changeContentLanguage}
       />
     )
   }
 }
 
-const mapStateToProps = state => ({
-  contentLang: state.language.contentLang
-})
-
-export default connect(
-  mapStateToProps,
-  {}
-)(ContentForm)
+export default withLanguage(ContentForm)
