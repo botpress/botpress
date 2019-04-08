@@ -26,7 +26,7 @@ const createNodes = data => {
   const slotExtractOnReceive = [
     {
       type: sdk.NodeActionType.RunAction,
-      name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+      name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
     }
   ]
 
@@ -53,7 +53,7 @@ const createNodes = data => {
       onReceive: slotExtractOnReceive,
       next: [
         {
-          condition: `session.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
+          condition: `session.extractedSlots.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
           node: 'extracted'
         },
         {
@@ -83,7 +83,7 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotNotFound {"retryAttempts":"${data.retryAttempts}"}`
+          name: `basic-skills/slot_not_found {"retryAttempts":"${data.retryAttempts}"}`
         },
         {
           type: sdk.NodeActionType.RenderElement,
@@ -93,12 +93,12 @@ const createNodes = data => {
       onReceive: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotFill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
+          name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
         }
       ],
       next: [
         {
-          condition: `session.${data.slotName}`,
+          condition: `session.extractedSlots.${data.slotName}`,
           node: 'extracted'
         },
         {
@@ -106,7 +106,7 @@ const createNodes = data => {
           node: '#'
         },
         {
-          condition: 'session.notFound > 0',
+          condition: 'session.extractedSlots.notFound > 0',
           node: 'not-extracted'
         },
         {
@@ -117,16 +117,11 @@ const createNodes = data => {
     },
     {
       name: 'check-if-extracted',
-      onEnter: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slotExtract {"entity":"${data.entity}"}`
-        }
-      ],
+      onEnter: undefined,
       onReceive: undefined,
       next: [
         {
-          condition: `session.${data.slotName} !== undefined`,
+          condition: `session.extractedSlots.${data.slotName} !== undefined`,
           node: 'already-extracted'
         },
         {

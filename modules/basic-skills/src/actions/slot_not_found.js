@@ -12,12 +12,12 @@ const slotNotFound = async retryAttempts => {
     return
   }
 
-  if (!session.notFound) {
-    session.notFound = 1
+  if (!session.extractedSlots.notFound) {
+    session.extractedSlots.notFound = 1
   }
 
-  if (session.notFound < Number(retryAttempts)) {
-    session.notFound++
+  if (session.extractedSlots.notFound < Number(retryAttempts)) {
+    session.extractedSlots.notFound++
   } else {
     temp.notExtracted = 'true'
   }
