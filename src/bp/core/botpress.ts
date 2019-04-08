@@ -206,13 +206,16 @@ export class Botpress {
       )
     }
 
-    const bots = await this.botService.getBots()
+    let bots = await this.botService.getBots()
     const pipeline = await this.workspaceService.getPipeline()
     if (pipeline.length > 4) {
       this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
     }
     // @deprecated > 11: bot will always include default pipeline stage
-    await this._ensureBotsDefineStage(bots, pipeline[0])
+    const changes = await this._ensureBotsDefineStage(bots, pipeline[0])
+    if (changes) {
+      bots = await this.botService.getBots()
+    }
 
     const disabledBots = [...bots.values()]
       .filter(b => {
@@ -233,9 +236,11 @@ export class Botpress {
   }
 
   // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<void> {
-    await Promise.mapSeries(bots.values(), bot => {
+  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
+    let hasChanges = false
+    await Promise.mapSeries(bots.values(), async bot => {
       if (!bot.pipeline_status) {
+        hasChanges = true
         const pipeline_migration_configs = {
           pipeline_status: <sdk.BotPipelineStatus>{
             current_stage: {
@@ -247,9 +252,11 @@ export class Botpress {
           locked: false
         }
 
-        this.configProvider.mergeBotConfig(bot.id, pipeline_migration_configs)
+        await this.configProvider.mergeBotConfig(bot.id, pipeline_migration_configs)
       }
     })
+
+    return hasChanges
   }
 
   private async initializeServices() {
