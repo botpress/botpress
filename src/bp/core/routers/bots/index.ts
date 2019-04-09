@@ -270,24 +270,6 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    // NOTE: This would normally go in NLU, but we plan to merge core and NLU.
-    this.router.get(
-      '/contexts',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'bot.*'),
-      this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
-        const filepaths = await this.ghostService.forBot(botId).directoryListing('/intents', '*.json')
-        const contextsArray = await Promise.map(filepaths, async filepath => {
-          const file = await this.ghostService.forBot(botId).readFileAsObject('/intents', filepath)
-          return file['contexts']
-        })
-
-        // Contexts is an array of arrays that can contain duplicate values
-        res.send(_.uniq(_.flatten(contextsArray)))
-      })
-    )
-
     const mediaUploadMulter = multer({
       fileFilter: (req, file, cb) => {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']

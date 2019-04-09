@@ -49,7 +49,7 @@ export class IntentsComponent extends React.Component {
   }
 
   fetchContexts = () => {
-    this.props.bp.axios.get(`/contexts`).then(({ data }) => {
+    this.props.bp.axios.get(`/mod/nlu/contexts`).then(({ data }) => {
       this.setState({ contexts: data })
     })
   }

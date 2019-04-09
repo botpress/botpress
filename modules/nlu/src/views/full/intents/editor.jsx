@@ -280,9 +280,12 @@ export default class IntentsEditor extends React.Component {
             multi
             onChange={this.handleChangeContext}
             value={this.state.selectedContextOptions}
-            options={this.state.availableContexts.map(x => {
-              return { value: x, label: x }
-            })}
+            options={
+              this.state.availableContexts &&
+              this.state.availableContexts.map(x => {
+                return { value: x, label: x }
+              })
+            }
           />
         </div>
         <div>
