@@ -236,7 +236,7 @@ export class CMSService implements IDisposeOnExit {
     return this.contentTypes
   }
 
-  async getContentType(contentTypeId: string): Promise<ContentType> {
+  getContentType(contentTypeId: string): ContentType {
     const type = this.contentTypes.find(x => x.id === contentTypeId)
     if (!type) {
       throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
@@ -426,18 +426,39 @@ export class CMSService implements IDisposeOnExit {
     return previews
   }
 
+  getTranslatedElement(formData: object, contentType: ContentType, lang: string, defaultLang: string) {
+    const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
+
+    if (originalProps) {
+      return originalProps.reduce((result, key) => {
+        result[key] = formData[key + '$' + lang] || formData[key + '$' + defaultLang]
+        return result
+      }, {})
+    } else {
+      return formData
+    }
+  }
+
   async renderElement(contentId, args, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
-    let contentType = contentId
+    let contentTypeRenderer
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
-      _.set(content, 'formData', renderRecursive(content.formData, args))
-
       if (!content) {
         throw new Error(`Content element "${contentId}" not found`)
       }
+
+      contentTypeRenderer = this.getContentType(content.contentType)
+
+      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+      const lang = _.get(args, 'event.state.user.lang')
+
+      const translated = await this.getTranslatedElement(content.formData, contentTypeRenderer, lang, defaultLang)
+      content.formData = translated
+
+      _.set(content, 'formData', renderRecursive(content.formData, args))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')
@@ -447,19 +468,18 @@ export class CMSService implements IDisposeOnExit {
         _.set(content, 'formData.text', renderTemplate(message, args))
       }
 
-      contentType = content.contentType
       args = {
         ...args,
         ...content.formData
       }
     } else if (args.text) {
+      contentTypeRenderer = await this.getContentType(contentId)
       args = {
         ...args,
         text: renderTemplate(args.text, args)
       }
     }
 
-    const contentTypeRenderer = await this.getContentType(contentType)
     const additionnalData = { BOT_URL: process.EXTERNAL_URL }
 
     let payloads = await contentTypeRenderer.renderElement({ ...additionnalData, ...args }, channel)
