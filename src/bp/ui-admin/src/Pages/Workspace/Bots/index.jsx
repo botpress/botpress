@@ -17,7 +17,8 @@ import LoadingSection from '../../Components/LoadingSection'
 import api from '../../../api'
 import { AccessControl } from '../../../App/AccessControl'
 import CreateBotModal from '../CreateBotModal'
-import Bot from './Bot'
+import BotItemPipeline from './BotItemPipeline'
+import BotItemCompact from './BotItemCompact'
 
 class Bots extends Component {
   state = {
@@ -117,20 +118,31 @@ class Bots extends Component {
     return _.get(this.props.licensing, 'status') === 'licensed'
   }
 
-  renderPipeline() {
+  renderCompactView() {
+    return (
+      <div className="bp_table bot_views compact_view">
+        {this.props.bots.map(bot => (
+          <BotItemCompact
+            key={bot.id}
+            bot={bot}
+            history={this.props.history}
+            deleteBot={this.deleteBot.bind(this, bot.id)}
+            exportBot={this.exportBot.bind(this, bot.id)}
+            permissions={this.props.permissions}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  renderPipelineView() {
     const pipeline = this.props.workspace.pipeline
     const botsByStage = _.groupBy(this.props.bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
     return (
       <Fragment>
-        {this.hasUnlangedBots() && (
-          <Alert color="warning">
-            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please bot
-            language in the bot config page.
-          </Alert>
-        )}
-        <Row className="pipeline">
+        <Row className="pipeline_view bot_views">
           {pipeline.map((stage, idx) => {
             const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
             return (
@@ -138,9 +150,10 @@ class Bots extends Component {
                 {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
                 {idx == 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
-                  <Bot
+                  <BotItemPipeline
                     key={bot.id}
                     bot={bot}
+                    history={this.props.history}
                     allowStageChange={allowStageChange}
                     requestStageChange={this.requestStageChange.bind(this, bot.id)}
                     deleteBot={this.deleteBot.bind(this, bot.id)}
@@ -156,6 +169,25 @@ class Bots extends Component {
     )
   }
 
+  renderBots() {
+    const botsView = this.isPipelineView ? this.renderPipelineView() : this.renderCompactView()
+    return (
+      <div>
+        {this.hasUnlangedBots() && (
+          <Alert color="warning">
+            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please bot
+            language in the bot config page.
+          </Alert>
+        )}
+        {botsView}
+      </div>
+    )
+  }
+
+  get isPipelineView() {
+    return this.props.workspace.pipeline.length > 1
+  }
+
   render() {
     if (!this.props.bots) {
       return <LoadingSection />
@@ -168,7 +200,8 @@ class Bots extends Component {
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
-          mainContent={this.props.bots.length > 0 ? this.renderPipeline() : this.renderEmptyBots()}
+          mainContent={this.props.bots.length > 0 ? this.renderBots() : this.renderEmptyBots()}
+          sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}
