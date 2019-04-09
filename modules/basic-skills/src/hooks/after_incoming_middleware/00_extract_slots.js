@@ -9,13 +9,13 @@ const slotExtract = async () => {
 
   for (const key of Array.from(Object.keys(event.nlu.slots))) {
     let slot = event.nlu.slots[key]
-    // Select the first slot when the NLU is confused about the result.
+    // Slot is an array when the NLU is confused about the results.
     // The array is sorted by confidence so we take the first index.
     if (Array.isArray(slot)) {
       slot = slot[0]
     }
 
-    // Make sure we don't override the value
+    // Make sure we don't override a previous slot
     if (!event.state.session.extractedSlots[slot.name]) {
       event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
       event.state.session.extractedSlots[slot.name] = {

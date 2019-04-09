@@ -99,7 +99,6 @@ export class Slot extends React.Component {
 
   validateSlotExists = (intentName, slotName) => {
     const currentIntent = this.state.intents.find(x => x.name === intentName)
-
     if (!currentIntent || !currentIntent.slots.find(x => x.name === slotName)) {
       this.setState({ error: 'Missing slot: This slot does not exits anymore!' })
     }
