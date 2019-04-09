@@ -117,6 +117,7 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
+    setAttributes: userRepo.setAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
     getUserCount: userRepo.getUserCount.bind(userRepo)
   }
@@ -182,6 +183,7 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
       return cmsService.listContentElements(botId, contentTypeId, searchParams)
     },
+    deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
