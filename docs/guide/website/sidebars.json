@@ -20,7 +20,8 @@
       "developers/create-module",
       "developers/cluster",
       "developers/analytics",
-      "developers/pipelines"
+      "developers/pipelines",
+      "developers/webchat-extending"
     ],
     "Tutorials": [
       "tutorials/webchat-embedding",

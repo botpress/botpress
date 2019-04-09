@@ -31,19 +31,13 @@ export default class SelectActionDropdown extends Component {
   }
 
   render() {
-    const options = this.props.options.map(x => ({
-      label: x.name,
-      value: x.name,
-      metadata: x.metadata
-    }))
-
     return (
       <Select
         onInputChange={inputValue => (this._inputValue = inputValue)}
         onChange={this.props.onChange}
-        options={options}
+        options={this.props.options}
         value={this.props.value}
-        optionRenderer={this.renderOption}
+        formatOptionLabel={this.renderOption}
       />
     )
   }
