@@ -117,6 +117,7 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
+    setAttributes: userRepo.setAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
     getUserCount: userRepo.getUserCount.bind(userRepo)
   }
