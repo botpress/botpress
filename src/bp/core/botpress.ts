@@ -212,6 +212,12 @@ export class Botpress {
       this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
     }
 
+    // @deprecated > 11 : New bots all define default language
+    const botsMissingLanguage = [...bots.values()].filter(x => !x.defaultLanguage).map(x => x.id)
+    for (const bot of botsMissingLanguage) {
+      this.logger.warn(`Bot "${bot}" doesn't have a default language, which is now required`)
+    }
+
     // @deprecated > 11: bot will always include default pipeline stage
     const pipelineChanges = await this._ensureBotsDefineStage(bots, pipeline[0])
     if (pipelineChanges) {

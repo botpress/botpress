@@ -71,7 +71,6 @@ export class BotService {
     // @deprecated > 11 : New bots all define default language
     if (!bot.defaultLanguage) {
       bot.disabled = true
-      this.logger.warn(`Bot "${botId}" doensn't define any language, make sure to set it`)
     }
 
     return bot
@@ -130,6 +129,7 @@ export class BotService {
 
     await this._createBotFromTemplate(bot, botTemplate)
     await this.mountBot(bot.id)
+    await this.cms.translateContentProps(bot.id, undefined, bot.defaultLanguage)
     this._invalidateBotIds()
   }
 
@@ -158,6 +158,14 @@ export class BotService {
       ...actualBot,
       ...updatedFields
     })
+
+    if (actualBot.defaultLanguage !== updatedBot.defaultLanguage) {
+      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage)
+    }
+
+    if (actualBot.languages !== updatedBot.languages) {
+      this.cms.recomputeElementsForBot(botId)
+    }
 
     if (actualBot.disabled && !updatedBot.disabled) {
       await this.mountBot(botId)
