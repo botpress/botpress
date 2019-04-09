@@ -1149,6 +1149,8 @@ declare module 'botpress/sdk' {
       searchParams?: SearchParams
     ): Promise<ContentElement[]>
 
+    export function deleteContentElements(botId: string, contentElementIds: string[]): Promise<void>
+
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
     /**
      * Content Types can produce multiple payloads depending on the channel and the type of message. This method can generate
