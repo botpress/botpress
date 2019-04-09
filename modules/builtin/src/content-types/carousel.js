@@ -116,14 +116,6 @@ module.exports = {
       ...base.typingIndicators
     }
   },
-  computePreviewText: (formData, lang, defaultLang) => {
-    const items = formData['items$' + lang]
-    if (items !== undefined) {
-      return `Carousel: (${items.length}) ${items[0].title}`
-    }
-
-    const defaultItems = formData['items$' + defaultLang]
-    return `Carousel: Translation missing for "${(defaultItems && defaultItems[0].title) || ''}"`
-  },
+  computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
   renderElement: renderElement
 }

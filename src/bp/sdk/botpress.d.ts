@@ -695,7 +695,7 @@ declare module 'botpress/sdk' {
      * Function that computes the visual representation of the text.
      * This function resides in the javascript definition of the Content Type.
      */
-    computePreviewText?: (formData: object, lang: string, defaultLang: string) => string
+    computePreviewText?: (formData: object) => string
   }
 
   /**

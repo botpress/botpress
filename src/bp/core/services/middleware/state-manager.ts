@@ -32,6 +32,7 @@ export class StateManager {
 
     const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
     state.user = user.attributes
+    state.user['lang'] = 'fr'
 
     const sessionId = SessionIdFactory.createIdFromEvent(event)
     const session = await this.sessionRepo.get(sessionId)

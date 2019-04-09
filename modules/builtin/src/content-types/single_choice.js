@@ -99,15 +99,8 @@ module.exports = {
       'ui:field': 'i18n_array'
     }
   },
-
-  computePreviewText: (formData, lang, defaultLang) => {
-    if (formData['text$' + lang] === undefined) {
-      return `Choices: Translation missing for "${formData['text$' + defaultLang]}"`
-    }
-
-    const choices = formData['choices$' + lang] || []
-    return `Choices (${choices.length}): ` + formData['text$' + lang]
-  },
+  computePreviewText: formData =>
+    formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
   renderElement: renderElement,
   hidden: true
 }

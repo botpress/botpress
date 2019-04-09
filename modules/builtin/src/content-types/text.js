@@ -80,12 +80,7 @@ module.exports = {
       }
     }
   },
-
-  computePreviewText: (formData, lang, defaultLang) => {
-    return formData['text$' + lang] !== undefined
-      ? `Text: ${formData['text$' + lang]}`
-      : `Text: Translation missing for "${formData['text$' + defaultLang] || ''}"`
-  },
+  computePreviewText: formData => formData.text && 'Text: ' + formData.text,
 
   renderElement: renderElement
 }

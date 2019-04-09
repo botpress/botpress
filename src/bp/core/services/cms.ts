@@ -417,21 +417,31 @@ export class CMSService implements IDisposeOnExit {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
 
-    const previews = languages.reduce((result, key) => {
-      result[key] =
-        (contentType.computePreviewText && contentType.computePreviewText(formData, key, defaultLang)) || 'No preview'
+    return languages.reduce((result, lang) => {
+      if (!contentType.computePreviewText) {
+        result[lang] = 'No preview'
+      } else {
+        const translated = this.getTranslatedElement(formData, contentType, lang)
+        let preview = contentType.computePreviewText(translated)
+
+        if (!preview) {
+          const defaultTranslation = this.getTranslatedElement(formData, contentType, defaultLang)
+          preview = '(missing translation) ' + contentType.computePreviewText(defaultTranslation)
+        }
+
+        result[lang] = preview
+      }
+
       return result
     }, {})
-
-    return previews
   }
 
-  getTranslatedElement(formData: object, contentType: ContentType, lang: string, defaultLang: string) {
+  getTranslatedElement(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
     const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
 
     if (originalProps) {
       return originalProps.reduce((result, key) => {
-        result[key] = formData[key + '$' + lang] || formData[key + '$' + defaultLang]
+        result[key] = formData[key + '$' + lang] || (defaultLang && formData[key + '$' + defaultLang])
         return result
       }, {})
     } else {

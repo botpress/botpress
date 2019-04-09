@@ -42,10 +42,6 @@ module.exports = {
     }
   },
 
-  computePreviewText: (formData, lang, defaultLang) => {
-    return formData['title$' + lang] !== undefined
-      ? `Card: ${formData['title$' + lang]}`
-      : `Card: Translation missing for "${formData['title$' + defaultLang] || ''}"`
-  },
+  computePreviewText: formData => formData.title && `Card: ${formData.title}`,
   renderElement: (data, channel) => Carousel.renderElement({ items: [data], ...data }, channel)
 }
