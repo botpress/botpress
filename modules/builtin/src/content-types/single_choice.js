@@ -99,8 +99,8 @@ module.exports = {
       'ui:field': 'i18n_array'
     }
   },
-
-  computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
+  computePreviewText: formData =>
+    formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
   renderElement: renderElement,
   hidden: true
 }

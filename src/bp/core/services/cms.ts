@@ -69,7 +69,7 @@ export class CMSService implements IDisposeOnExit {
       table.primary(['id', 'botId'])
       table.string('contentType')
       table.text('formData')
-      table.text('previewText')
+      table.jsonb('previews')
       table.string('createdBy')
       table.timestamp('createdOn')
       table.timestamp('modifiedOn')
@@ -236,7 +236,7 @@ export class CMSService implements IDisposeOnExit {
     return this.contentTypes
   }
 
-  async getContentType(contentTypeId: string): Promise<ContentType> {
+  getContentType(contentTypeId: string): ContentType {
     const type = this.contentTypes.find(x => x.id === contentTypeId)
     if (!type) {
       throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
@@ -351,7 +351,8 @@ export class CMSService implements IDisposeOnExit {
 
     return {
       ...item,
-      formData: JSON.parse(item.formData)
+      formData: JSON.parse(item.formData),
+      previews: item.previews && JSON.parse(item.previews)
     }
   }
 
@@ -364,6 +365,10 @@ export class CMSService implements IDisposeOnExit {
 
     if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
+    }
+
+    if (element.previews) {
+      result.previews = JSON.stringify(element.previews)
     }
 
     return result
@@ -397,42 +402,73 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const expandedFormData = await this.resolveRefs(formData)
-    const previewText = await this.computePreviewText(contentType.id, expandedFormData)
-
-    if (!_.isString(previewText)) {
-      throw new Error('computePreviewText must return a string')
-    }
+    const previews = this.computePreviews(contentType.id, expandedFormData, ['', 'fr', 'en', 'es', 'als'], 'en')
 
     return {
       formData,
-      previewText
+      previews
     }
   }
 
-  private computePreviewText(contentTypeId, formData) {
+  private computePreviews(contentTypeId, formData, languages, defaultLang) {
     const contentType = this.contentTypes.find(x => x.id === contentTypeId)
 
     if (!contentType) {
       throw new Error(`Unknown content type ${contentTypeId}`)
     }
 
-    return !contentType.computePreviewText ? 'No preview' : contentType.computePreviewText(formData)
+    return languages.reduce((result, lang) => {
+      if (!contentType.computePreviewText) {
+        result[lang] = 'No preview'
+      } else {
+        const translated = this.getTranslatedElement(formData, contentType, lang)
+        let preview = contentType.computePreviewText(translated)
+
+        if (!preview) {
+          const defaultTranslation = this.getTranslatedElement(formData, contentType, defaultLang)
+          preview = '(missing translation) ' + contentType.computePreviewText(defaultTranslation)
+        }
+
+        result[lang] = preview
+      }
+
+      return result
+    }, {})
+  }
+
+  getTranslatedElement(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
+    const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
+
+    if (originalProps) {
+      return originalProps.reduce((result, key) => {
+        result[key] = formData[key + '$' + lang] || (defaultLang && formData[key + '$' + defaultLang])
+        return result
+      }, {})
+    } else {
+      return formData
+    }
   }
 
   async renderElement(contentId, args, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
-    let contentType = contentId
+    let contentTypeRenderer
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
-      _.set(content, 'formData', renderRecursive(content.formData, args))
-
       if (!content) {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      _.set(content, 'previewPath', renderTemplate(content.previewText, args))
+      contentTypeRenderer = this.getContentType(content.contentType)
+
+      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+      const lang = _.get(args, 'event.state.user.lang')
+
+      const translated = await this.getTranslatedElement(content.formData, contentTypeRenderer, lang, defaultLang)
+      content.formData = translated
+
+      _.set(content, 'formData', renderRecursive(content.formData, args))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')
@@ -442,19 +478,18 @@ export class CMSService implements IDisposeOnExit {
         _.set(content, 'formData.text', renderTemplate(message, args))
       }
 
-      contentType = content.contentType
       args = {
         ...args,
         ...content.formData
       }
     } else if (args.text) {
+      contentTypeRenderer = await this.getContentType(contentId)
       args = {
         ...args,
         text: renderTemplate(args.text, args)
       }
     }
 
-    const contentTypeRenderer = await this.getContentType(contentType)
     const additionnalData = { BOT_URL: process.EXTERNAL_URL }
 
     let payloads = await contentTypeRenderer.renderElement({ ...additionnalData, ...args }, channel)

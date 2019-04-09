@@ -33,16 +33,17 @@ const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
 class ContentForm extends React.Component {
   state = {}
 
-  updateMultiLangProp = (field, value) => {
-    this.setState({ [field]: value })
-  }
-
   handleOnChange = event => {
+    const newFields = {}
+    Object.keys(event.formData)
+      .filter(x => !x.includes('$'))
+      .forEach(key => (newFields[key + '$' + this.props.contentLang] = event.formData[key]))
+
     this.props.onChange({
       ...event,
       formData: {
-        ...event.formData,
-        ...this.state
+        ...this.props.formData,
+        ...newFields
       }
     })
   }
@@ -50,10 +51,18 @@ class ContentForm extends React.Component {
   render() {
     const defaultFormData = this.props.schema.type === 'array' ? [] : {}
 
+    let formData = this.props.formData
+    if (this.props.formData) {
+      const newFields = {}
+      Object.keys(this.props.formData)
+        .filter(x => x.includes('$' + this.props.contentLang))
+        .forEach(key => (newFields[key.replace('$' + this.props.contentLang, '')] = this.props.formData[key]))
+
+      formData = newFields
+    }
+
     const context = {
       ...this.props.formData,
-      updateProp: this.updateMultiLangProp,
-      languages: this.props.languages,
       activeLang: this.props.contentLang,
       defaultLang: this.props.defaultLanguage
     }
@@ -61,13 +70,12 @@ class ContentForm extends React.Component {
     return (
       <Form
         {...this.props}
-        formData={this.props.formData || defaultFormData}
+        formData={formData || defaultFormData}
         formContext={context}
         safeRenderCompletion={true}
         widgets={widgets}
         fields={fields}
         onChange={this.handleOnChange}
-        changeContentLanguage={this.props.changeContentLanguage}
       />
     )
   }

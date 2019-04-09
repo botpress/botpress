@@ -682,8 +682,8 @@ declare module 'botpress/sdk' {
     formData: object
     /** The computed form data that contains the interpreted data. */
     computedData: object
-    /** The textual representation of the Content Element.  */
-    previewText: string
+    /** The textual representation of the Content Element, for each supported languages  */
+    previews: object
     createdOn: Date
     modifiedOn: Date
     createdBy: string
