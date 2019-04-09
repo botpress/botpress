@@ -213,10 +213,8 @@ export class Botpress {
     }
 
     // @deprecated > 11: bot will always include default pipeline stage
-    // @deprecated > 11: bots will define a default language
-    const langChanges = await this._disableBotsForUnsetLang(bots)
     const pipelineChanges = await this._ensureBotsDefineStage(bots, pipeline[0])
-    if (langChanges || pipelineChanges) {
+    if (pipelineChanges) {
       bots = await this.botService.getBots()
     }
 
@@ -236,23 +234,6 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
-  }
-
-  // @deprecated > 11: bots will define a default language
-  private async _disableBotsForUnsetLang(bots: Map<string, sdk.BotConfig>): Promise<Boolean> {
-    let hasChanges = false
-    for (const [id, bot] of bots) {
-      if (!bot.languages || !bot.defaultLanguage) {
-        hasChanges = true
-        const disabledConfig = {
-          defaultLanguage: '',
-          languages: [],
-          disabled: true
-        }
-        await this.configProvider.mergeBotConfig(id, disabledConfig)
-      }
-    }
-    return hasChanges
   }
 
   // @deprecated > 11: bot will always include default pipeline stage

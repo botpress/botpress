@@ -68,6 +68,12 @@ export class BotService {
     const bot = await this.configProvider.getBotConfig(botId)
     !bot && this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
 
+    // @deprecated > 11 : New bots all define default language
+    if (!bot.defaultLanguage) {
+      bot.disabled = true
+      this.logger.warn(`Bot "${botId}" doensn't define any language, make sure to set it`)
+    }
+
     return bot
   }
 
