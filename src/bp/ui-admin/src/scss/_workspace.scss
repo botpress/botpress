@@ -22,6 +22,14 @@
       border-style: dashed;
       padding: 20px;
     }
+    .title {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      span {
+        margin-right: 5px;
+      }
+    }
     .actions {
       float: right;
       .more {
