@@ -7,7 +7,7 @@
 const slotFill = async (slotName, entity) => {
   if (Array.isArray(event.nlu.entities)) {
     for (const e of event.nlu.entities) {
-      if (e.name === entity) {
+      if (e.name === entity || entity === 'any') {
         if (!session.extractedSlots[slotName]) {
           session.extractedSlots[slotName] = {
             value: e.data.value,
