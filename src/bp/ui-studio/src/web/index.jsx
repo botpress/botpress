@@ -13,6 +13,7 @@ import ContentPickerWidget from 'expose-loader?BotpressContentPicker!~/component
 import ElementsList from 'expose-loader?ElementsList!~/components/Shared/ElementsList'
 import { Provider } from 'react-redux'
 import SelectActionDropdown from 'expose-loader?SelectActionDropdown!~/views/FlowBuilder/nodeProps/SelectActionDropdown'
+import { BotpressTooltip } from 'expose-loader?BotpressTooltip!~/components/Shared/Tooltip'
 /* eslint-enable */
 
 import store from './store'

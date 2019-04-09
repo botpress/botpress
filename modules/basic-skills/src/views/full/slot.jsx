@@ -4,7 +4,8 @@ import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
-import { OverlayTrigger, Tooltip, Alert } from 'react-bootstrap'
+import { Alert } from 'react-bootstrap'
+import { BotpressTooltip } from 'botpress/tooltip'
 
 const MAX_RETRIES = 10
 
@@ -183,16 +184,7 @@ export class Slot extends React.Component {
           <Row>
             <Col md={12}>
               <Label for="contentPicker">Bot will ask</Label>
-              <OverlayTrigger
-                placement={'right'}
-                overlay={
-                  <Tooltip id={`tooltip-right`}>
-                    The bot should ask a question specific about the slot to fill. (e.g. What is your email?)
-                  </Tooltip>
-                }
-              >
-                <i className="material-icons md-14">info</i>
-              </OverlayTrigger>
+              <BotpressTooltip message="The bot should ask a question specific about the slot to fill. (e.g. What is your email?)" />
               <ContentPickerWidget
                 style={{ zIndex: 0 }}
                 name="contentPicker"
@@ -206,17 +198,7 @@ export class Slot extends React.Component {
           <Row>
             <Col md="9">
               <Label>Invalid Input Message</Label>
-              <OverlayTrigger
-                placement={'right'}
-                overlay={
-                  <Tooltip id={`tooltip-right`}>
-                    This message will appear to the user when the information he has given is invalid. (e.g. Your email
-                    is invalid)
-                  </Tooltip>
-                }
-              >
-                <i className="material-icons md-14">info</i>
-              </OverlayTrigger>
+              <BotpressTooltip message="This message will appear to the user when the information he has given is invalid. (e.g. Your email is invalid)"/>
               <ContentPickerWidget
                 style={{ zIndex: 0 }}
                 id="notFoundElement"
@@ -227,17 +209,7 @@ export class Slot extends React.Component {
             </Col>
             <Col md="3">
               <Label for="retryAttempts">Max retry attempts</Label>
-              <OverlayTrigger
-                placement={'right'}
-                overlay={
-                  <Tooltip id={`tooltip-right`}>
-                    This is the maximum number of times the bot will try to extract the slot. When the limit is reached,
-                    the bot will execute the "On not found" transition.
-                  </Tooltip>
-                }
-              >
-                <i className="material-icons md-14">info</i>
-              </OverlayTrigger>
+              <BotpressTooltip message="This is the maximum number of times the bot will try to extract the slot. When the limit is reached, the bot will execute the 'On not found' transition."/>
               <Input
                 id="retryAttempts"
                 name="retryAttempts"
@@ -260,17 +232,7 @@ export class Slot extends React.Component {
               />
               &nbsp;
               <Label for="validationCheck">Custom Input Validation</Label>
-              <OverlayTrigger
-                placement={'right'}
-                overlay={
-                  <Tooltip id={`tooltip-right`}>
-                    You can add custom validation for your slot with an action. It should assign a boolean value to the
-                    temp.valid variable.
-                  </Tooltip>
-                }
-              >
-                <i className="material-icons md-14">info</i>
-              </OverlayTrigger>
+              <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable."/>
               {this.state.addValidation && (
                 <SelectActionDropdown
                   className={style.actionSelect}
