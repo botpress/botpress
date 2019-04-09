@@ -15,7 +15,7 @@ import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import SectionLayout from '../Layouts/Section'
 
 import api from '../../api'
-import langOptions from './languages'
+import supportedLanguages from 'common/supported-languages'
 
 const statusList = [
   { label: 'Public', value: 'public' },
@@ -258,13 +258,10 @@ class Bots extends Component {
               <FormGroup>
                 <Label for="sup-lang">
                   <strong>Supported Languages</strong>
-                  {this.renderHelp(
-                    'Your bot can support different languages. Enter a valid 2 letter langyage code (e.g: "en" and "es" for english and spanish)',
-                    'sup-lang'
-                  )}
+                  {this.renderHelp('Your bot can support different languages, select desired languages', 'sup-lang')}
                 </Label>
                 <Select
-                  options={langOptions}
+                  options={supportedLanguages.map(l => ({ label: l, value: l }))}
                   isMulti
                   value={this.state.languages.map(l => ({ label: l, value: l }))}
                   onChange={this.handleLanguagesChanged}
@@ -359,7 +356,7 @@ class Bots extends Component {
         </Row>
         <small>
           These informations are displayed on the Bot Information page,{' '}
-          <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank">
+          <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
           </a>
         </small>
