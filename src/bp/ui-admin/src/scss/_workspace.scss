@@ -1,0 +1,40 @@
+.pipeline {
+  .createbot_btn {
+    display: flex;
+    margin: auto;
+    align-items: center;
+  }
+  .pipeline_title {
+    text-align: center;
+    background-color: #f7f7f7;
+    line-height: 2.5;
+  }
+  .pipeline_bot {
+    border: solid 1px #e1e4e8;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    &:hover {
+      border-color: #ced2d6;
+    }
+    &.create {
+      text-align: center;
+      border-style: dashed;
+      padding: 20px;
+    }
+    .actions {
+      float: right;
+      .more {
+        cursor: pointer;
+        color: #555;
+        &:hover {
+          color: #000;
+        }
+      }
+    }
+    .botbadge {
+      margin-right: 5px;
+      font-size: 70%;
+    }
+  }
+}

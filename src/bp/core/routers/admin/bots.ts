@@ -1,20 +1,20 @@
-import { Logger } from 'botpress/sdk'
+import { BotConfig, BotPipelineStatus, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { Bot } from '../../misc/interfaces'
 import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import { needPermissions, success as sendSuccess } from '../util'
+import { assertBotpressPro, needPermissions, success as sendSuccess } from '../util'
 
 export class BotsRouter extends CustomRouter {
   public readonly router: Router
 
   private readonly resource = 'admin.bots'
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private assertBotpressPro: RequestHandler
   private logger!: Logger
 
   constructor(
@@ -26,6 +26,7 @@ export class BotsRouter extends CustomRouter {
     super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
     this.needPermissions = needPermissions(this.workspaceService)
+    this.assertBotpressPro = assertBotpressPro(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
   }
@@ -45,7 +46,10 @@ export class BotsRouter extends CustomRouter {
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
           bots: bots && bots.filter(Boolean),
-          workspace: workpace.name
+          workspace: {
+            name: workpace.name,
+            pipeline: workpace.pipeline
+          }
         })
       })
     )
@@ -63,7 +67,7 @@ export class BotsRouter extends CustomRouter {
       '/',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const bot = <Bot>_.pick(req.body, ['id', 'name', 'category'])
+        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category'])
 
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 
@@ -77,6 +81,13 @@ export class BotsRouter extends CustomRouter {
         if (botExists) {
           this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
         } else {
+          bot.pipeline_status = {
+            current_stage: {
+              id: (await this.workspaceService.getPipeline())[0].id,
+              promoted_on: new Date(),
+              promoted_by: req.tokenUser!.email
+            }
+          }
           await this.botService.addBot(bot, req.body.template)
         }
 
@@ -92,12 +103,28 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    router.post(
+      '/:botId/stage',
+      this.assertBotpressPro,
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        try {
+          await this.botService.requestStageChange(req.params.botId, req.tokenUser!.email)
+
+          return res.sendStatus(200)
+        } catch (err) {
+          this.logger.attachError(err).error(`Cannot request bot: ${req.params.botId} for stage change`)
+          res.status(400)
+        }
+      })
+    )
+
     router.put(
       '/:botId',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        const bot = <Bot>req.body
+        const bot = <BotConfig>req.body
         this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.updateBot(botId, bot)
@@ -119,6 +146,21 @@ export class BotsRouter extends CustomRouter {
         await this.workspaceService.deleteBotRef(botId)
 
         return sendSuccess(res, 'Removed bot from team', { botId })
+      })
+    )
+
+    router.get(
+      '/:botId/export',
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const tarball = await this.botService.exportBot(botId)
+
+        res.writeHead(200, {
+          'Content-Type': 'application/tar+gzip',
+          'Content-Disposition': `attachment; filename=bot_${botId}_${Date.now()}.tgz`,
+          'Content-Length': tarball.length
+        })
+        res.end(tarball)
       })
     )
   }

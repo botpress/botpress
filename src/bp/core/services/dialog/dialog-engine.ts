@@ -191,7 +191,7 @@ export class DialogEngine {
         // TODO: drop previousFlow/previousNode in favor of jumpPoints
         previousFlow: event.state.context.currentFlow,
         previousNode: event.state.context.currentNode,
-        jumpPoints: [...event.state.context.jumpPoints, {
+        jumpPoints: [...(event.state.context.jumpPoints || []), {
           flow: event.state.context.currentFlow,
           node: event.state.context.currentNode
         }]
@@ -208,7 +208,7 @@ export class DialogEngine {
     } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a flow)
       const jumpPoints = event.state.context.jumpPoints
-      const prevJumpPoint = jumpPoints.pop()
+      const prevJumpPoint = jumpPoints && jumpPoints.pop()
       const parentFlow = this._findFlow(event.botId, prevJumpPoint.flow)
       const specificNode = transitionTo.split('#')[1]
       let parentNode

@@ -52,6 +52,8 @@ class TabLayout extends Component {
   render() {
     const currentTab = this.getCurrentTab()
     const useFullWidth = currentTab && currentTab.useFullWidth
+    const size = (currentTab && currentTab.size) || 10
+    const offset = (currentTab && currentTab.offset) || 1
 
     return (
       <Fragment>
@@ -75,7 +77,7 @@ class TabLayout extends Component {
         <div className={classnames({ 'bp_container-fullwidth': useFullWidth })}>
           <Container>
             <Row>
-              <Col xs={12} md={{ size: 10, offset: 1 }}>
+              <Col xs={12} md={{ size, offset }}>
                 <Switch>
                   {this.props.tabs.map(tab => (
                     <Route path={tab.route} exact component={tab.component} key={tab.name} />

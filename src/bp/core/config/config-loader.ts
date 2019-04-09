@@ -12,18 +12,8 @@ import path from 'path'
 
 import { BotpressConfig } from './botpress.config'
 
-export interface ConfigProvider {
-  createDefaultConfigIfMissing(): Promise<void>
-  getBotpressConfig(): Promise<BotpressConfig>
-  mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void>
-  getBotConfig(botId: string): Promise<BotConfig>
-  setBotConfig(botId: string, config: BotConfig): Promise<void>
-  getModulesListConfig(): Promise<any>
-  invalidateBotpressConfig(): Promise<void>
-}
-
 @injectable()
-export class GhostConfigProvider implements ConfigProvider {
+export class ConfigProvider {
   private _botpressConfigCache: BotpressConfig | undefined
 
   constructor(
@@ -70,6 +60,13 @@ export class GhostConfigProvider implements ConfigProvider {
 
   async setBotConfig(botId: string, config: BotConfig) {
     await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
+  }
+
+  async mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
+    const originalConfig = await this.getBotConfig(botId)
+    const config = _.merge(originalConfig, partialConfig)
+    await this.setBotConfig(botId, config)
+    return config
   }
 
   public async createDefaultConfigIfMissing() {

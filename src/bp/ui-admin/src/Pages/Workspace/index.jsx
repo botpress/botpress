@@ -15,7 +15,8 @@ const Workspace = props => {
       icon: <MdAndroid />,
       component: Bots,
       res: 'admin.bots.*',
-      op: 'read'
+      op: 'read',
+      size: 11
     },
     {
       name: 'Collaborators',

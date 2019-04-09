@@ -103,6 +103,12 @@ const bots = (botService: BotService): typeof sdk.bots => {
     },
     getBotById(botId: string): Promise<sdk.BotConfig | undefined> {
       return botService.findBotById(botId)
+    },
+    exportBot(botId: string): Promise<Buffer> {
+      return botService.exportBot(botId)
+    },
+    importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+      return botService.importBot(botId, archive, allowOverwrite)
     }
   }
 }
