@@ -7,7 +7,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
-  updateAttributes(channel: string, id: string, attributes: any): Promise<void>
+  updateAttributes(channel: string, id: string, attributes: any, overwrite?: boolean): Promise<void>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
 }
@@ -81,12 +81,17 @@ export class KnexUserRepository implements UserRepository {
     return this.database.knex.json.get(user.attributes)
   }
 
-  async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
+  async updateAttributes(channel: string, user_id: string, attributes: any, overwrite?: boolean): Promise<void> {
     channel = channel.toLowerCase()
 
     if (this.dataRetentionService.hasPolicy()) {
       const originalAttributes = await this.getAttributes(channel, user_id)
       await this.dataRetentionService.updateExpirationForChangedFields(channel, user_id, originalAttributes, attributes)
+    }
+
+    if (!overwrite) {
+      const originalAttributes = await this.getAttributes(channel, user_id)
+      attributes = { ...originalAttributes, ...attributes }
     }
 
     await this.database

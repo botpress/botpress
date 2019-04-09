@@ -1016,9 +1016,15 @@ declare module 'botpress/sdk' {
     export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
 
     /**
-     * Update attributes of a specific user
+     * Update attributes of a specific user.
+     * If overwrite is set, the whole user's attributes will be overwritten with the given payload. Otherwise, it will only merge them
      */
-    export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
+    export function updateAttributes(
+      channel: string,
+      userId: string,
+      attributes: any,
+      overwrite?: boolean
+    ): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
