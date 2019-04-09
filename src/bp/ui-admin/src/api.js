@@ -74,7 +74,7 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token, toastErrors = true } = {}) {
+  getSecured({ token, toastErrors = true, timeout = 2000 } = {}) {
     if (!token) {
       const ls = pullToken()
       token = ls && ls.token
@@ -82,6 +82,7 @@ export default {
 
     return createClient(
       {
+        timeout,
         headers: {
           Authorization: `Bearer ${token}`
         },

@@ -20,6 +20,7 @@
       "developers/create-module",
       "developers/cluster",
       "developers/analytics",
+      "developers/pipelines",
       "developers/webchat-extending"
     ],
     "Tutorials": [

@@ -621,6 +621,34 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+    locked: boolean
+    pipeline_status: BotPipelineStatus
+  }
+
+  export type Pipeline = Stage[]
+
+  export type StageAction = 'promote_copy' | 'promote_move'
+
+  export interface Stage {
+    id: string
+    label: string
+    action: StageAction
+  }
+
+  export interface BotPipelineStatus {
+    current_stage: {
+      promoted_by: string
+      promoted_on: Date
+      id: string
+    }
+    stage_request?: {
+      requested_on: Date
+      expires_on?: Date
+      message?: string
+      status: string
+      requested_by: string
+      id: string
+    }
   }
 
   export interface BotDetails {
@@ -1074,6 +1102,18 @@ declare module 'botpress/sdk' {
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
     export function getBotById(botId: string): Promise<BotConfig | undefined>
+    /**
+     * It will extract the bot's folder to an archive (tar.gz).
+     * @param botId The ID of the bot to extract
+     */
+    export function exportBot(botId: string): Promise<Buffer>
+    /**
+     * Allows to import directly an archive (tar.gz) in a new bot.
+     * @param botId The ID of the new bot (or an existing one)
+     * @param archive The buffer of the archive file
+     * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
+     */
+    export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
   }
 
   export namespace notifications {
