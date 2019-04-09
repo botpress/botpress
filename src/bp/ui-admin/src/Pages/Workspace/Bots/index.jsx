@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { IoIosBoxOutline } from 'react-icons/lib/io'
 import { FaPlusCircle } from 'react-icons/lib/fa'
 import { connect } from 'react-redux'
-import { Jumbotron, Row, Col, Button } from 'reactstrap'
+import { Jumbotron, Row, Col, Button, Alert } from 'reactstrap'
 
 import _ from 'lodash'
 
@@ -104,6 +104,10 @@ class Bots extends Component {
     )
   }
 
+  hasUnlangedBots = () => {
+    return this.props.bots.reduce((hasUnlangedBots, bot) => hasUnlangedBots || !bot.defaultLanguage, false)
+  }
+
   async requestStageChange(botId) {
     await api.getSecured().post(`/admin/bots/${botId}/stage`)
     await this.props.fetchBots()
@@ -119,28 +123,36 @@ class Bots extends Component {
     const colSize = Math.floor(12 / pipeline.length)
 
     return (
-      <Row className="pipeline">
-        {pipeline.map((stage, idx) => {
-          const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
-          return (
-            <Col key={stage.id} md={colSize}>
-              {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
-              {idx == 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
-              {(botsByStage[stage.id] || []).map(bot => (
-                <Bot
-                  key={bot.id}
-                  bot={bot}
-                  allowStageChange={allowStageChange}
-                  requestStageChange={this.requestStageChange.bind(this, bot.id)}
-                  deleteBot={this.deleteBot.bind(this, bot.id)}
-                  exportBot={this.exportBot.bind(this, bot.id)}
-                  permissions={this.props.permissions}
-                />
-              ))}
-            </Col>
-          )
-        })}
-      </Row>
+      <Fragment>
+        {this.hasUnlangedBots() && (
+          <Alert color="warning">
+            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please bot
+            language in the bot config page.
+          </Alert>
+        )}
+        <Row className="pipeline">
+          {pipeline.map((stage, idx) => {
+            const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
+            return (
+              <Col key={stage.id} md={colSize}>
+                {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
+                {idx == 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
+                {(botsByStage[stage.id] || []).map(bot => (
+                  <Bot
+                    key={bot.id}
+                    bot={bot}
+                    allowStageChange={allowStageChange}
+                    requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                    deleteBot={this.deleteBot.bind(this, bot.id)}
+                    exportBot={this.exportBot.bind(this, bot.id)}
+                    permissions={this.props.permissions}
+                  />
+                ))}
+              </Col>
+            )
+          })}
+        </Row>
+      </Fragment>
     )
   }
 
