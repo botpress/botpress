@@ -4,7 +4,7 @@ import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { OverlayTrigger, Tooltip, Alert } from 'react-bootstrap'
 
 const MAX_RETRIES = 10
 
@@ -20,24 +20,12 @@ export class Slot extends React.Component {
     maxRetryAttempts: 3,
     actions: [],
     validationAction: undefined,
-    retryAttemptsTooHigh: false
+    error: undefined
   }
 
   componentDidMount() {
-    this.fetchIntents()
     this.fetchActions()
-
-    const data = this.props.initialData
-    if (data) {
-      this.setState({
-        selectedSlotOption: { value: data.slotName, label: data.slotName },
-        selectedIntentOption: { value: data.intent, label: data.intent },
-        contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement,
-        validationAction: data.validationAction && data.validationAction.value,
-        addValidation: data.validationAction !== undefined
-      })
-    }
+    this.fetchIntents().then(() => this.setStateFromProps())
   }
 
   componentDidUpdate() {
@@ -70,10 +58,28 @@ export class Slot extends React.Component {
   }
 
   fetchIntents = () => {
-    this.props.bp.axios.get('/mod/nlu/intents').then(({ data }) => {
+    return this.props.bp.axios.get('/mod/nlu/intents').then(({ data }) => {
       const intents = data.filter(x => !x.name.startsWith('__qna'))
       this.setState({ intents })
     })
+  }
+
+  setStateFromProps = () => {
+    const data = this.props.initialData
+
+    if (data) {
+      this.validateIntentExists(data.intent)
+      this.validateSlotExists(data.intent, data.slotName)
+
+      this.setState({
+        selectedSlotOption: { value: data.slotName, label: data.slotName },
+        selectedIntentOption: { value: data.intent, label: data.intent },
+        contentElement: data.contentElement,
+        notFoundElement: data.notFoundElement,
+        validationAction: data.validationAction && data.validationAction.value,
+        addValidation: data.validationAction !== undefined
+      })
+    }
   }
 
   fetchActions = () => {
@@ -84,15 +90,32 @@ export class Slot extends React.Component {
     })
   }
 
+  validateIntentExists = intentName => {
+    const exists = this.state.intents.find(x => x.name === intentName)
+    if (!exists) {
+      this.setState({ error: 'Missing intent: This intent does not exists anymore!' })
+    }
+  }
+
+  validateSlotExists = (intentName, slotName) => {
+    const currentIntent = this.state.intents.find(x => x.name === intentName)
+
+    if (!currentIntent || !currentIntent.slots.find(x => x.name === slotName)) {
+      this.setState({ error: 'Missing slot: This slot does not exits anymore!' })
+    }
+  }
+
   handleContentChange = item => {
     this.setState({ contentElement: item.id })
   }
 
   handleSlotChange = selectedSlotOption => {
+    this.validateSlotExists(this.state.selectedIntentOption.value, selectedSlotOption.value)
     this.setState({ selectedSlotOption })
   }
 
   handleIntentChange = selectedIntentOption => {
+    this.validateIntentExists(selectedIntentOption.value)
     this.setState({ selectedIntentOption, selectedSlotOption: undefined })
   }
 
@@ -103,9 +126,9 @@ export class Slot extends React.Component {
   handleMaxRetryAttemptsChange = event => {
     const value = Number(event.target.value)
     if (value > MAX_RETRIES) {
-      this.setState({ retryAttemptsTooHigh: true })
+      this.setState({ error: `Too many retry attempts: Choose a number less than or equal to ${MAX_RETRIES}` })
     } else {
-      this.setState({ maxRetryAttempts: value, retryAttemptsTooHigh: false })
+      this.setState({ maxRetryAttempts: value })
     }
   }
 
@@ -129,6 +152,7 @@ export class Slot extends React.Component {
     return (
       <React.Fragment>
         <div className={style.modalContent}>
+          {this.state.error && <Alert bsStyle="danger">{this.state.error}</Alert>}
           <Row>
             <Col md={6}>
               <Label>Choose an intent</Label>
@@ -215,9 +239,6 @@ export class Slot extends React.Component {
               >
                 <i className="material-icons md-14">info</i>
               </OverlayTrigger>
-              {this.state.retryAttemptsTooHigh && (
-                <div className={style.warning}>Choose a number less than or equal to {MAX_RETRIES}</div>
-              )}
               <Input
                 id="retryAttempts"
                 name="retryAttempts"
