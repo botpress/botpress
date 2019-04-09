@@ -13,7 +13,6 @@ const onServerStarted = async (bp: SDK) => {}
 
 const onServerReady = async (bp: SDK) => {
   await choice.setup(bp)
-  await slot.setup(bp)
 }
 
 const skillsToRegister: sdk.Skill[] = [

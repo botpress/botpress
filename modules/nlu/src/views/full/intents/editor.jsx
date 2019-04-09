@@ -85,17 +85,11 @@ export default class IntentsEditor extends React.Component {
   }
 
   saveIntent = async () => {
-    console.log('Saving intent')
     await this.props.axios.post(`/mod/nlu/intents`, {
       name: this.props.intent.name,
       utterances: this.getCanonicalUtterances(this.state.utterances),
       slots: this.state.slots,
       contexts: this.state.contexts
-    })
-
-    // Tell the backend to update the intents of the concerned slot skill
-    await this.props.axios.put(`/mod/basic-skills/skill/slot`, {
-      intent: this.props.intent.name
     })
 
     this.initialHash = this.computeHash({

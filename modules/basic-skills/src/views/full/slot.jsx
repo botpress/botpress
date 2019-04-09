@@ -55,7 +55,6 @@ export class Slot extends React.Component {
       slotName,
       intent: intentName,
       entity,
-      contexts: intent && intent.contexts,
       validationAction: this.state.validationAction
     }
 
