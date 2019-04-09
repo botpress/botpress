@@ -118,6 +118,10 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
+    if (!bot.languages) {
+      bot.languages = [bot.defaultLanguage]
+    }
+
     await this._createBotFromTemplate(bot, botTemplate)
     await this.mountBot(bot.id)
     this._invalidateBotIds()

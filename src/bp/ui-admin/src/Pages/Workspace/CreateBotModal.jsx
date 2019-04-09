@@ -1,18 +1,30 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, Input } from 'reactstrap'
-import { MdGroupAdd } from 'react-icons/lib/md'
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  FormGroup,
+  FormFeedback,
+  Label,
+  Input,
+  UncontrolledTooltip
+} from 'reactstrap'
+import { MdGroupAdd, MdInfoOutline } from 'react-icons/lib/md'
 import Select from 'react-select'
 
 import api from '../../api'
+import supportedLanguages from 'common/supported-languages'
 import { fetchBotTemplates, fetchBotCategories } from '../../reducers/bots'
 
 const defaultState = {
   name: '',
   template: null,
   category: null,
-  error: null
+  error: null,
+  defaultLanguage: 'en'
 }
 
 class CreateBotModal extends Component {
@@ -25,6 +37,10 @@ class CreateBotModal extends Component {
     if (!this.props.templateFetched) {
       this.props.fetchBotTemplates()
     }
+  }
+
+  focus = () => {
+    this.nameInput.focus()
   }
 
   isFormValid = () => {
@@ -41,6 +57,9 @@ class CreateBotModal extends Component {
 
   handleCategoryChanged = category => {
     this.setState({ category })
+  }
+  handleLangChanged = ({ value }) => {
+    this.setState({ defaultLanguage: value })
   }
 
   stanitizeName = () => {
@@ -63,7 +82,9 @@ class CreateBotModal extends Component {
     const category = this.state.category ? this.state.category.value : null
 
     try {
-      await api.getSecured().post(`/admin/bots`, { id, name, template, category })
+      await api
+        .getSecured()
+        .post(`/admin/bots`, { id, name, template, category, defaultLanguage: this.state.defaultLanguage })
       this.setState({ ...defaultState })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
       this.props.toggle()
@@ -81,6 +102,7 @@ class CreateBotModal extends Component {
 
     return (
       <Select
+        tabIndex="2"
         getOptionLabel={o => o.name}
         getOptionValue={o => o.id}
         options={groupedOptions}
@@ -92,20 +114,23 @@ class CreateBotModal extends Component {
 
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
+      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus}>
         <ModalHeader toggle={this.props.toggle}>Create a new bot</ModalHeader>
         <ModalBody>
-          <form
-            onSubmit={this.createBot}
-            ref={form => {
-              this.formEl = form
-            }}
-          >
+          <form onSubmit={this.createBot} ref={form => (this.formEl = form)}>
             <FormGroup>
               <Label for="name">
                 <strong>Name</strong>
               </Label>
-              <Input required type="text" id="name" value={this.state.name} onChange={this.handleNameChanged} />
+              <Input
+                tabIndex="1"
+                innerRef={el => (this.nameInput = el)}
+                required
+                type="text"
+                id="name"
+                value={this.state.name}
+                onChange={this.handleNameChanged}
+              />
               <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
             </FormGroup>
             {this.props.botTemplates.length > 0 && (
@@ -116,6 +141,23 @@ class CreateBotModal extends Component {
                 {this.renderTemplateGroupSelect()}
               </FormGroup>
             )}
+            <FormGroup>
+              <Label for="lang">
+                <strong>Bot Language</strong>
+                <span>
+                  <MdInfoOutline id="help-lang" className="section-title-help" />
+                  <UncontrolledTooltip tabIndex="0" placement="right" target="help-lang">
+                    Choose from supported languages, you can always change it or add new languages later
+                  </UncontrolledTooltip>
+                </span>
+              </Label>
+              <Select
+                tabIndex="3"
+                options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
+                value={{ label: this.state.defaultLanguage.toUpperCase(), value: this.state.defaultLanguage }}
+                onChange={this.handleLangChanged}
+              />
+            </FormGroup>
             {this.props.botCategories.length > 0 && (
               <FormGroup>
                 <Label for="category">
@@ -128,7 +170,7 @@ class CreateBotModal extends Component {
                 />
               </FormGroup>
             )}
-            <Button className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
+            <Button tabIndex="4" className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
               <MdGroupAdd /> Create bot
             </Button>
           </form>
