@@ -3,8 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import choice from './choice'
-import setup from './setup'
-import slotExtraction from './slot'
+import slot from './slot'
 
 export type Extension = {}
 
@@ -13,7 +12,8 @@ export type SDK = typeof sdk & Extension
 const onServerStarted = async (bp: SDK) => {}
 
 const onServerReady = async (bp: SDK) => {
-  await setup(bp)
+  await choice.setup(bp)
+  await slot.setup(bp)
 }
 
 const skillsToRegister: sdk.Skill[] = [
@@ -24,8 +24,8 @@ const skillsToRegister: sdk.Skill[] = [
   },
   {
     id: 'slot',
-    name: 'Slot Extraction',
-    flowGenerator: slotExtraction.generateFlow
+    name: 'Slot',
+    flowGenerator: slot.generateFlow
   }
 ]
 

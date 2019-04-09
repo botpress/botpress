@@ -19,7 +19,7 @@ export default class IntentsEditor extends React.Component {
     slotsEditor: null,
     slots: [],
     utterances: [],
-    selectedContext: []
+    selectedContextOptions: []
   }
 
   editorRef = null
@@ -50,6 +50,7 @@ export default class IntentsEditor extends React.Component {
       slots: [],
       contexts
     }
+    const availableContexts = props.contexts
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
@@ -57,14 +58,20 @@ export default class IntentsEditor extends React.Component {
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
-    const selectedContext =
+    const selectedContextOptions =
       contexts &&
       contexts.map(x => {
         return { value: x, label: x }
       })
 
     this.initialHash = this.computeHash({ slots, utterances: expanded, contexts })
-    this.setState({ utterances: expanded, slots: slots, contexts, selectedContext })
+    this.setState({
+      utterances: expanded,
+      slots: slots,
+      contexts,
+      selectedContextOptions,
+      availableContexts
+    })
   }
 
   deleteIntent = () => {
@@ -78,11 +85,17 @@ export default class IntentsEditor extends React.Component {
   }
 
   saveIntent = async () => {
+    console.log('Saving intent')
     await this.props.axios.post(`/mod/nlu/intents`, {
       name: this.props.intent.name,
       utterances: this.getCanonicalUtterances(this.state.utterances),
       slots: this.state.slots,
       contexts: this.state.contexts
+    })
+
+    // Tell the backend to update the intents of the concerned slot skill
+    await this.props.axios.put(`/mod/basic-skills/skill/slot`, {
+      intent: this.props.intent.name
     })
 
     this.initialHash = this.computeHash({
@@ -235,8 +248,8 @@ export default class IntentsEditor extends React.Component {
     return utterances
   }
 
-  handleChangeContext = selectedContext => {
-    this.setState({ selectedContext: selectedContext, contexts: selectedContext.map(x => x.value) })
+  handleChangeContext = selectedContextOptions => {
+    this.setState({ selectedContextOptions, contexts: selectedContextOptions.map(x => x.value) })
   }
 
   render() {
@@ -272,8 +285,8 @@ export default class IntentsEditor extends React.Component {
             id="selectContext"
             multi
             onChange={this.handleChangeContext}
-            value={this.state.selectedContext}
-            options={this.state.contexts.map(x => {
+            value={this.state.selectedContextOptions}
+            options={this.state.availableContexts.map(x => {
               return { value: x, label: x }
             })}
           />

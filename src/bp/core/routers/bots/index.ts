@@ -270,6 +270,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    // NOTE: This would normally go in NLU, but we plan to merge core and NLU.
     this.router.get(
       '/contexts',
       this.checkTokenHeader,
