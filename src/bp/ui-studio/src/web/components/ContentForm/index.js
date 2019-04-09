@@ -34,10 +34,10 @@ class ContentForm extends React.Component {
   state = {}
 
   handleOnChange = event => {
-    const newFields = {}
-    Object.keys(event.formData)
-      .filter(x => !x.includes('$'))
-      .forEach(key => (newFields[key + '$' + this.props.contentLang] = event.formData[key]))
+    const newFields = Object.keys(event.formData).reduce((obj, key) => {
+      obj[key + '$' + this.props.contentLang] = event.formData[key]
+      return obj
+    }, {})
 
     this.props.onChange({
       ...event,
@@ -49,16 +49,15 @@ class ContentForm extends React.Component {
   }
 
   render() {
-    const defaultFormData = this.props.schema.type === 'array' ? [] : {}
+    let formData = this.props.schema.type === 'array' ? [] : {}
 
-    let formData = this.props.formData
     if (this.props.formData) {
-      const newFields = {}
-      Object.keys(this.props.formData)
-        .filter(x => x.includes('$' + this.props.contentLang))
-        .forEach(key => (newFields[key.replace('$' + this.props.contentLang, '')] = this.props.formData[key]))
+      const languageKeys = Object.keys(this.props.formData).filter(x => x.includes('$' + this.props.contentLang))
 
-      formData = newFields
+      formData = languageKeys.reduce((obj, key) => {
+        obj[key.replace('$' + this.props.contentLang, '')] = this.props.formData[key]
+        return obj
+      }, {})
     }
 
     const context = {
@@ -70,7 +69,7 @@ class ContentForm extends React.Component {
     return (
       <Form
         {...this.props}
-        formData={formData || defaultFormData}
+        formData={formData}
         formContext={context}
         safeRenderCompletion={true}
         widgets={widgets}
