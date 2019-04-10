@@ -11,7 +11,9 @@ export default class Text extends I18nManager {
   render() {
     return this.renderWrapped(
       <div style={{ width: '100%' }}>
-        {this.props.required ? <strong>{this.props.schema.title} *</strong> : this.props.schema.title}
+        <strong>
+          {this.props.schema.title} {this.props.required && '*'}
+        </strong>
         <FormControl
           componentClass={this.props.uiSchema.$subtype === 'textarea' ? 'textarea' : 'input'}
           value={this.props.formData}

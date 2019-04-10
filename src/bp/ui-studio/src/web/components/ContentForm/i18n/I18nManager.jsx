@@ -5,39 +5,50 @@ import style from './style.scss'
 
 export default class I18nManager extends React.Component {
   state = {
-    placeholder: '',
-    isMissing: false
+    placeholder: ''
   }
 
   componentDidMount() {
-    const { defaultLang, activeLang } = this.props.formContext
+    this.setState({
+      placeholder: this.props.formContext[this.props.name + '$' + this.props.formContext.defaultLang] || ''
+    })
+  }
 
+  showMissingIcon = () => {
+    const { defaultLang, activeLang } = this.props.formContext
     const isDefaultLang = defaultLang === activeLang
     const isMissing = this.props.formContext[this.props.name + '$' + activeLang] === undefined
+    const isEmpty = !this.props.formData || !this.props.formData.length
 
-    this.setState({
-      isMissing: !isDefaultLang && isMissing && this.props.required,
-      placeholder: this.props.formContext[this.props.name + '$' + defaultLang] || ''
-    })
+    return !isDefaultLang && (isMissing || isEmpty)
   }
 
   handleOnChange = value => {
     this.props.onChange(value)
   }
 
+  useDefaultLangText = () => {
+    this.props.onChange(this.state.placeholder)
+  }
+
   renderWrapped(component) {
-    const { activeLang } = this.props.formContext
+    const isMissing = this.showMissingIcon()
 
     return (
       <div className={style.flexContainer}>
         <div style={{ width: '100%' }}>{component}</div>
         <div className={style.missingIcon}>
-          {this.state.isMissing && (
+          {isMissing && (
             <OverlayTrigger
               placement="bottom"
-              overlay={<Tooltip id="tooltip">Translation missing for current language ({activeLang})</Tooltip>}
+              overlay={
+                <Tooltip id="tooltip">
+                  Translation missing for current language ({this.props.formContext.activeLang}
+                  ). Click here to copy the default language text
+                </Tooltip>
+              }
             >
-              <MdErrorOutline />
+              <MdErrorOutline onClick={() => this.props.onChange(this.state.placeholder)} />
             </OverlayTrigger>
           )}
         </div>
