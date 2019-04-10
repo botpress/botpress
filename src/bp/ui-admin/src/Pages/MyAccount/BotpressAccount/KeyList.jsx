@@ -97,6 +97,7 @@ class KeyList extends Component {
                 onRevealActivate={this.toggleKeyModal}
                 onShowLicenseUpdateModal={this.toggleUpdateModal}
                 onUseOnServer={this.onUseOnServer}
+                onLicenseUpdated={this.onLicenseUpdated}
               />
             ))}
         </tbody>
