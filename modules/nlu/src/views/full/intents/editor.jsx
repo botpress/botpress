@@ -9,7 +9,7 @@ import style from './style.scss'
 import Slots from './slots/Slots'
 import { Creatable } from 'react-select'
 import classnames from 'classnames'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { BotpressTooltip } from 'botpress/tooltip'
 
 const NLU_TABIDX = 3745
 
@@ -264,16 +264,7 @@ export default class IntentsEditor extends React.Component {
           </div>
         </div>
         <div className={classnames('pull-left', style.selectContext)}>
-          <OverlayTrigger
-            placement={'right'}
-            overlay={
-              <Tooltip id={`tooltip-right`}>
-                You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot.
-              </Tooltip>
-            }
-          >
-            <i className="material-icons md-14">info</i>
-          </OverlayTrigger>
+          <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot."/>
           <label for="selectContext">Current contexts</label>
           <Creatable
             id="selectContext"
