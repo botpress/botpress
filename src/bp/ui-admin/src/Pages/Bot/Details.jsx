@@ -11,6 +11,7 @@ import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
 import _ from 'lodash'
 
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
+import { fetchLicensing } from '../../reducers/license'
 
 import SectionLayout from '../Layouts/Section'
 
@@ -49,6 +50,10 @@ class Bots extends Component {
       this.props.fetchBotCategories()
     }
 
+    if (!this.props.licensing) {
+      this.props.fetchLicensing()
+    }
+
     this.props.fetchBots()
     this.prepareCategories()
   }
@@ -79,7 +84,7 @@ class Bots extends Component {
       botId,
       name: this.bot.name,
       description: this.bot.description,
-      languages: this.bot.languages,
+      languages: this.bot.languages || [],
       defaultLanguage: this.bot.defaultLanguage,
       website: details.website,
       phoneNumber: details.phoneNumber,
@@ -181,6 +186,13 @@ class Bots extends Component {
     this.setState({ languages: langs.map(l => l.value) })
   }
 
+  handleCommunityLanguageChanged = lang => {
+    this.setState({
+      defaultLanguage: lang.value,
+      languages: [lang.value]
+    })
+  }
+
   handleImageFileChanged = async event => {
     const targetProp = event.target.name
     if (!event.target.files) {
@@ -210,6 +222,62 @@ class Bots extends Component {
       .catch(err => {
         this.setState({ error: err })
       })
+  }
+
+  renderLanguages = () => {
+    if (this.props.licensing && this.props.licensing.isPro) {
+      return (
+        <Row>
+          <Col md={6}>
+            <FormGroup>
+              <Label for="sup-lang">
+                <strong>Supported Languages</strong>
+                {this.renderHelp('Your bot can support different languages, select desired languages', 'sup-lang')}
+              </Label>
+              <Select
+                options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
+                isMulti
+                value={this.state.languages.map(l => ({ label: l.toUpperCase(), value: l }))}
+                onChange={this.handleLanguagesChanged}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={6}>
+            <FormGroup>
+              <Label>
+                <strong>Default language</strong>
+                {this.renderHelp(
+                  'Choose the default language for your bot. First of supported language is picked by default.',
+                  'def-lang'
+                )}
+              </Label>
+              <Select
+                options={this.state.languages.map(l => ({ value: l, label: l.toUpperCase() }))}
+                value={{
+                  value: this.state.defaultLanguage,
+                  label: this.state.defaultLanguage ? this.state.defaultLanguage.toUpperCase() : null
+                }}
+                onChange={this.handleDefaultLangChanged}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+      )
+    } else {
+      return (
+        <FormGroup>
+          <Label for="sup-lang">
+            <strong>Language</strong>
+            {this.renderHelp('Choose desired language among those', 'sup-lang')}
+          </Label>
+          <Select
+            options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
+            value={this.state.languages.map(l => ({ label: l.toUpperCase(), value: l }))}
+            onChange={this.handleCommunityLanguageChanged}
+          />
+        </FormGroup>
+      )
+    }
   }
 
   renderDetails() {
@@ -271,41 +339,7 @@ class Bots extends Component {
               onChange={this.handleInputChanged}
             />
           </FormGroup>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label for="sup-lang">
-                  <strong>Supported Languages</strong>
-                  {this.renderHelp('Your bot can support different languages, select desired languages', 'sup-lang')}
-                </Label>
-                <Select
-                  options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
-                  isMulti
-                  value={this.state.languages.map(l => ({ label: l.toUpperCase(), value: l }))}
-                  onChange={this.handleLanguagesChanged}
-                />
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label>
-                  <strong>Default language</strong>
-                  {this.renderHelp(
-                    'Choose the default language for your bot. First of supported language is picked by default.',
-                    'def-lang'
-                  )}
-                </Label>
-                <Select
-                  options={this.state.languages.map(l => ({ value: l, label: l.toUpperCase() }))}
-                  value={{
-                    value: this.state.defaultLanguage,
-                    label: this.state.defaultLanguage ? this.state.defaultLanguage.toUpperCase() : null
-                  }}
-                  onChange={this.handleDefaultLangChanged}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
+          {this.renderLanguages()}
         </Form>
 
         {this.renderCollapsible()}
@@ -469,12 +503,14 @@ class Bots extends Component {
 const mapStateToProps = state => ({
   bots: state.bots.bots,
   botCategories: state.bots.botCategories,
-  botCategoriesFetched: state.bots.botCategoriesFetched
+  botCategoriesFetched: state.bots.botCategoriesFetched,
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchBots,
-  fetchBotCategories
+  fetchBotCategories,
+  fetchLicensing
 }
 
 export default connect(
