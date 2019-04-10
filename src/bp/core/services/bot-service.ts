@@ -152,6 +152,9 @@ export class BotService {
       'locked'
     ]) as Partial<BotConfig>
 
+    // bot needs to be mounted to perform the language changes
+    updatedFields.disabled = updatedFields.disabled && actualBot.defaultLanguage == updatedFields.defaultLanguage
+
     await this.configProvider.setBotConfig(botId, {
       ...actualBot,
       ...updatedFields
