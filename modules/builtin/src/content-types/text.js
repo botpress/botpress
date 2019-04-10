@@ -74,7 +74,6 @@ module.exports = {
       $subtype: 'textarea'
     },
     variations: {
-      'ui:field': 'i18n_array',
       'ui:options': {
         orderable: false
       }
