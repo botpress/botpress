@@ -38,7 +38,7 @@ const packageApp = async () => {
     const packageJson = Object.assign(realPackageJson, additionalPackageJson)
     await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
     await execAsync(
-      `../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --output ../binaries/bp ./package.json`,
+      `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --output ../binaries/bp ./package.json`,
       {
         cwd
       }
@@ -60,7 +60,7 @@ const copyNativeExtensions = async () => {
   mkdirp.sync('./out/binaries/bindings/')
 
   for (const file of files) {
-    if (file.indexOf(path.join('native-extensions', getTargetOSName())) > 0) {
+    if (file.indexOf(path.join('native-extensions', getTargetOSName()).replace('\\', '/')) > 0) {
       const dist = path.basename(path.dirname(file))
       const targetDir = `./out/binaries/bindings/${getTargetOSName()}/${dist}`
       mkdirp.sync(path.resolve(targetDir))
