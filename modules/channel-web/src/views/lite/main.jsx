@@ -280,10 +280,12 @@ export default class Web extends React.Component {
       .then(this.fetchConversations)
       .then(this.fetchCurrentConversation)
       .then(() => {
+        const locale = navigator.language || navigator.userLanguage
         this.handleSendData({
           type: 'visit',
           text: 'User visit',
-          timezone: new Date().getTimezoneOffset() / 60
+          timezone: new Date().getTimezoneOffset() / 60,
+          language: locale && locale.substring(0, locale.indexOf('-'))
         }).catch(this.checkForExpiredExternalToken)
       })
   }

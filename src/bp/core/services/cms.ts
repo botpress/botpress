@@ -18,6 +18,7 @@ import { TYPES } from '../types'
 import { GhostService } from '.'
 import { JobService } from './job-service'
 
+const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
   from: 0,
@@ -184,8 +185,11 @@ export class CMSService implements IDisposeOnExit {
         query = query.orderBy(sort.column, sort.desc ? 'desc' : 'asc')
       })
 
-    const dbElements = await query.offset(from).limit(count)
+    if (count !== UNLIMITED_ELEMENTS) {
+      query = query.limit(count)
+    }
 
+    const dbElements = await query.offset(from)
     return Promise.map(dbElements, this.transformDbItemToApi)
   }
 
@@ -266,7 +270,11 @@ export class CMSService implements IDisposeOnExit {
       throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
     }
 
-    const contentElement = { formData, ...(await this.fillComputedProps(contentType, formData)) }
+    const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
+    const contentElement = {
+      formData,
+      ...(await this.fillComputedProps(contentType, formData, languages, defaultLanguage))
+    }
     const body = this.transformItemApiToDb(botId, contentElement)
 
     const isNewItemCreation = !contentElementId
@@ -374,7 +382,9 @@ export class CMSService implements IDisposeOnExit {
     return result
   }
 
-  private async recomputeElementsForBot(botId: string): Promise<void> {
+  async recomputeElementsForBot(botId: string): Promise<void> {
+    const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
+
     for (const contentType of this.contentTypes) {
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
@@ -382,7 +392,12 @@ export class CMSService implements IDisposeOnExit {
         .andWhere({ botId })
         .then()
         .each(async (element: any) => {
-          const computedProps = await this.fillComputedProps(contentType, JSON.parse(element.formData))
+          const computedProps = await this.fillComputedProps(
+            contentType,
+            JSON.parse(element.formData),
+            languages,
+            defaultLanguage
+          )
           element = { ...element, ...computedProps }
 
           return this.memDb(this.contentTable)
@@ -396,13 +411,13 @@ export class CMSService implements IDisposeOnExit {
     }
   }
 
-  private async fillComputedProps(contentType: ContentType, formData: string) {
+  private async fillComputedProps(contentType: ContentType, formData: string, languages: string[], defaultLanguage) {
     if (formData == undefined) {
       throw new Error('"formData" must be a valid object')
     }
 
     const expandedFormData = await this.resolveRefs(formData)
-    const previews = this.computePreviews(contentType.id, expandedFormData, ['', 'fr', 'en', 'es', 'als'], 'en')
+    const previews = this.computePreviews(contentType.id, expandedFormData, languages, defaultLanguage)
 
     return {
       formData,
@@ -421,11 +436,11 @@ export class CMSService implements IDisposeOnExit {
       if (!contentType.computePreviewText) {
         result[lang] = 'No preview'
       } else {
-        const translated = this.getTranslatedElement(formData, contentType, lang)
+        const translated = this.getOriginalProps(formData, contentType, lang)
         let preview = contentType.computePreviewText(translated)
 
         if (!preview) {
-          const defaultTranslation = this.getTranslatedElement(formData, contentType, defaultLang)
+          const defaultTranslation = this.getOriginalProps(formData, contentType, defaultLang)
           preview = '(missing translation) ' + contentType.computePreviewText(defaultTranslation)
         }
 
@@ -436,7 +451,32 @@ export class CMSService implements IDisposeOnExit {
     }, {})
   }
 
-  getTranslatedElement(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
+  async translateContentProps(botId, fromLang, toLang) {
+    const elements = await this.listContentElements(botId, undefined, { from: 0, count: UNLIMITED_ELEMENTS })
+    for (const el of elements) {
+      if (!fromLang) {
+        // Translating a bot content from the original props
+        const translatedProps = this.getTranslatedProps(el.formData, toLang)
+        await this.createOrUpdateContentElement(botId, el.contentType, translatedProps, el.id)
+      } else {
+        // When switching default language, we make sure that the default one has all content elements
+        if (!this._hasTranslation(el.formData, toLang)) {
+          const contentType = this.contentTypes.find(x => x.id === el.contentType)
+          const originalProps = this.getOriginalProps(el.formData, contentType!, fromLang)
+          const translatedProps = this.getTranslatedProps(originalProps, toLang)
+
+          await this.createOrUpdateContentElement(botId, el.contentType, { ...el.formData, ...translatedProps }, el.id)
+        }
+      }
+    }
+  }
+
+  private _hasTranslation(formData: object, lang: string) {
+    return Object.keys(formData).find(x => x.endsWith('$' + lang))
+  }
+
+  // This methods finds the translated property and returns the original properties
+  private getOriginalProps(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
     const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
 
     if (originalProps) {
@@ -447,6 +487,14 @@ export class CMSService implements IDisposeOnExit {
     } else {
       return formData
     }
+  }
+
+  // It takes the original properties, and returns an object with the translated properties (copied content)
+  private getTranslatedProps(formData: object, lang: string) {
+    return Object.keys(formData).reduce((result, key) => {
+      result[key + '$' + lang] = formData[key]
+      return result
+    }, {})
   }
 
   async renderElement(contentId, args, eventDestination: IO.EventDestination) {
@@ -463,9 +511,9 @@ export class CMSService implements IDisposeOnExit {
       contentTypeRenderer = this.getContentType(content.contentType)
 
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.lang')
+      const lang = _.get(args, 'event.state.user.language')
 
-      const translated = await this.getTranslatedElement(content.formData, contentTypeRenderer, lang, defaultLang)
+      const translated = await this.getOriginalProps(content.formData, contentTypeRenderer, lang, defaultLang)
       content.formData = translated
 
       _.set(content, 'formData', renderRecursive(content.formData, args))

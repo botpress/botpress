@@ -115,7 +115,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await bp.users.getOrCreateUser('web', userId) // Create the user if it doesn't exist
+      const user = await bp.users.getOrCreateUser('web', userId)
       const payload = req.body || {}
 
       let { conversationId = undefined } = req.query || {}
@@ -132,11 +132,13 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (payload.type === 'visit') {
-        const { timezone } = payload
+        const { timezone, language } = payload
         const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
+        const isValidLanguage = language.length < 4 && !_.get(user, 'result.attributes.language')
 
         const newAttributes = {
-          ...(isValidTimezone && { timezone })
+          ...(isValidTimezone && { timezone }),
+          ...(isValidLanguage && { language })
         }
 
         if (Object.getOwnPropertyNames(newAttributes).length) {
