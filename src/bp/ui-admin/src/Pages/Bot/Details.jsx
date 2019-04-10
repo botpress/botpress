@@ -158,7 +158,26 @@ class Bots extends Component {
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
   handleStatusChanged = status => this.setState({ status })
   handleCategoryChanged = category => this.setState({ category })
-  handleDefaultLangChanged = lang => this.setState({ defaultLanguage: lang.value })
+
+  handleDefaultLangChanged = lang => {
+    if (!this.state.defaultLanguage) {
+      this.setState({ defaultLanguage: lang.value })
+      return
+    }
+
+    if (this.state.defaultLanguage != lang.value) {
+      const conf = window.confirm(
+        `Are you sure you want to change the language of your bot from ${this.state.defaultLanguage.toUpperCase()} to ${
+          lang.label
+        }? All of your content elements will be copied, make sure you translate them.`
+      )
+
+      if (conf) {
+        this.setState({ defaultLanguage: lang.value })
+      }
+    }
+  }
+
   handleLanguagesChanged = langs => {
     this.setState({ languages: langs.map(l => l.value) })
   }
@@ -261,9 +280,9 @@ class Bots extends Component {
                   {this.renderHelp('Your bot can support different languages, select desired languages', 'sup-lang')}
                 </Label>
                 <Select
-                  options={supportedLanguages.map(l => ({ label: l, value: l }))}
+                  options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
                   isMulti
-                  value={this.state.languages.map(l => ({ label: l, value: l }))}
+                  value={this.state.languages.map(l => ({ label: l.toUpperCase(), value: l }))}
                   onChange={this.handleLanguagesChanged}
                 />
               </FormGroup>
@@ -278,8 +297,11 @@ class Bots extends Component {
                   )}
                 </Label>
                 <Select
-                  options={this.state.languages.map(l => ({ value: l, label: l }))}
-                  value={{ value: this.state.defaultLanguage, label: this.state.defaultLanguage }}
+                  options={this.state.languages.map(l => ({ value: l, label: l.toUpperCase() }))}
+                  value={{
+                    value: this.state.defaultLanguage,
+                    label: this.state.defaultLanguage ? this.state.defaultLanguage.toUpperCase() : null
+                  }}
                   onChange={this.handleDefaultLangChanged}
                 />
               </FormGroup>

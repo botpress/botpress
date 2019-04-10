@@ -1,30 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  FormGroup,
-  FormFeedback,
-  Label,
-  Input,
-  UncontrolledTooltip
-} from 'reactstrap'
-import { MdGroupAdd, MdInfoOutline } from 'react-icons/lib/md'
+import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, Input } from 'reactstrap'
+import { MdGroupAdd } from 'react-icons/lib/md'
 import Select from 'react-select'
 
 import api from '../../api'
-import supportedLanguages from 'common/supported-languages'
 import { fetchBotTemplates, fetchBotCategories } from '../../reducers/bots'
 
 const defaultState = {
   name: '',
   template: null,
   category: null,
-  error: null,
-  defaultLanguage: 'en'
+  error: null
 }
 
 class CreateBotModal extends Component {
@@ -141,29 +129,13 @@ class CreateBotModal extends Component {
                 {this.renderTemplateGroupSelect()}
               </FormGroup>
             )}
-            <FormGroup>
-              <Label for="lang">
-                <strong>Bot Language</strong>
-                <span>
-                  <MdInfoOutline id="help-lang" className="section-title-help" />
-                  <UncontrolledTooltip tabIndex="0" placement="right" target="help-lang">
-                    Choose from supported languages, you can always change it or add new languages later
-                  </UncontrolledTooltip>
-                </span>
-              </Label>
-              <Select
-                tabIndex="3"
-                options={supportedLanguages.map(l => ({ label: l.toUpperCase(), value: l }))}
-                value={{ label: this.state.defaultLanguage.toUpperCase(), value: this.state.defaultLanguage }}
-                onChange={this.handleLangChanged}
-              />
-            </FormGroup>
             {this.props.botCategories.length > 0 && (
               <FormGroup>
                 <Label for="category">
                   <strong>Bot Category</strong>
                 </Label>
                 <Select
+                  tabIndex="3"
                   options={this.props.botCategories.map(cat => ({ label: cat, value: cat }))}
                   value={this.state.category}
                   onChange={this.handleCategoryChanged}
