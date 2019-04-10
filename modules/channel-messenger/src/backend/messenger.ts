@@ -159,8 +159,8 @@ export class MessengerService {
         debugMessages('could not find a bot for page id =', pageId)
         continue
       }
-
-      for (const webhookEvent of messages) {
+      if(messages !=undefined){ //TODO If its not a message process accordingly
+        for (const webhookEvent of messages) {
         debugMessages('incoming', webhookEvent)
         const senderId = webhookEvent.sender.id
 
@@ -172,6 +172,8 @@ export class MessengerService {
           await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
         }
       }
+      }
+
     }
   }
 
