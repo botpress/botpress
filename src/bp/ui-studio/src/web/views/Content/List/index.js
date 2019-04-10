@@ -134,7 +134,8 @@ class ListView extends Component {
       count: this.state.pageSize,
       sortOrder: this.state.sortOrder,
       filters: this.state.filters,
-      searchTerm: this.state.searchTerm
+      searchTerm: this.state.searchTerm,
+      language: this.props.contentLang
     }
 
     this.props.handleSearch(searchQuery)
@@ -237,6 +238,7 @@ class ListView extends Component {
       },
       {
         Header: 'Preview',
+        accessor: 'previews',
         Filter: this.renderFilterPlaceholder('Filter'),
         Cell: x => x.original.previews && x.original.previews[this.props.contentLang]
       },

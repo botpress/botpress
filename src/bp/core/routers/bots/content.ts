@@ -70,17 +70,22 @@ export class ContentRouter extends CustomRouter {
       this._needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentType } = req.params
-        const { count, from, searchTerm, filters, sortOrder, ids } = req.body
+        const { count, from, searchTerm, filters, sortOrder, ids, language } = req.body
 
-        const elements = await this.cms.listContentElements(botId, contentType, {
-          ...DefaultSearchParams,
-          count: Number(count) || DefaultSearchParams.count,
-          from: Number(from) || DefaultSearchParams.from,
-          sortOrder: sortOrder || DefaultSearchParams.sortOrder,
-          searchTerm,
-          filters,
-          ids
-        })
+        const elements = await this.cms.listContentElements(
+          botId,
+          contentType,
+          {
+            ...DefaultSearchParams,
+            count: Number(count) || DefaultSearchParams.count,
+            from: Number(from) || DefaultSearchParams.from,
+            sortOrder: sortOrder || DefaultSearchParams.sortOrder,
+            searchTerm,
+            filters,
+            ids
+          },
+          language
+        )
 
         const augmentedElements = await Promise.map(elements, this._augmentElement)
         res.send(augmentedElements)
