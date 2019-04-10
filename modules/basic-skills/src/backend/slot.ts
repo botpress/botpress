@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Transition } from '..'
+import { Transition } from './typings'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   return {
@@ -113,7 +113,16 @@ const createNodes = data => {
     },
     {
       name: 'check-if-extracted',
-      onEnter: undefined,
+      onEnter: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `basic-skills/slot_update_contexts {"intentName":"${data.intent}"}`
+        },
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `builtin/appendContext {"contexts":"{{session.nlu.contexts}}"}`
+        }
+      ],
       onReceive: undefined,
       next: [
         {
