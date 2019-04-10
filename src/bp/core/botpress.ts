@@ -152,6 +152,14 @@ export class Botpress {
         'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
       )
     }
+    const bots = await this.botService.getBots()
+    bots.forEach(bot => {
+      if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
+        throw new Error(
+          'A bot has more than a single language. To enable the multilangual feature, please upgrade to Botpress Pro.'
+        )
+      }
+    })
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
