@@ -1150,10 +1150,18 @@ declare module 'botpress/sdk' {
 
     export function getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
 
+    /**
+     *
+     * @param botId The ID of the bot
+     * @param contentTypeId Filter entries on that specific content type
+     * @param searchParams Additional search parameters (by default, returns 50 elements)
+     * @param language When specified, only that language is returned with the original property (ex: text$en becomes text)
+     */
     export function listContentElements(
       botId: string,
       contentTypeId?: string,
-      searchParams?: SearchParams
+      searchParams?: SearchParams,
+      language?: string
     ): Promise<ContentElement[]>
 
     export function deleteContentElements(botId: string, contentElementIds: string[]): Promise<void>

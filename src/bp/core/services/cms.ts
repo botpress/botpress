@@ -154,7 +154,8 @@ export class CMSService implements IDisposeOnExit {
   async listContentElements(
     botId: string,
     contentTypeId?: string,
-    params: SearchParams = DefaultSearchParams
+    params: SearchParams = DefaultSearchParams,
+    language?: string
   ): Promise<ContentElement[]> {
     const { searchTerm, ids, filters, sortOrder, from, count } = params
 
@@ -190,7 +191,14 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const dbElements = await query.offset(from)
-    return Promise.map(dbElements, this.transformDbItemToApi)
+    const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
+
+    if (language) {
+      return elements.map(el => {
+        return { ...el, formData: this.getOriginalProps(el.formData, this.getContentType(el.contentType), language) }
+      })
+    }
+    return elements
   }
 
   async getContentElement(botId: string, id: string): Promise<ContentElement> {
@@ -352,7 +360,7 @@ export class CMSService implements IDisposeOnExit {
     await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
   }
 
-  private transformDbItemToApi(item: any) {
+  private transformDbItemToApi(item: any): ContentElement {
     if (!item) {
       return item
     }
