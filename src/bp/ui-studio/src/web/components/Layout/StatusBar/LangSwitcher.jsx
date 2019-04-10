@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import withLanguage from '../../Util/withLanguage'
 import ActionItem from './ActionItem'
+import { keyMap } from '~/keyboardShortcuts'
 import style from './StatusBar.styl'
 
 class LangSwitcher extends React.Component {
@@ -42,6 +43,7 @@ class LangSwitcher extends React.Component {
     return (
       <Fragment>
         <ActionItem
+          shortcut={keyMap['lang-switcher']}
           className={style.right}
           title="Content Language"
           description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}

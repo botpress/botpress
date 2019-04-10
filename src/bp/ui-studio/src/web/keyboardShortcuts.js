@@ -16,7 +16,7 @@ export const keyMap = {
   'flow-save': `${navigationKey}+s`,
   'emulator-focus': `e`,
   'docs-toggle': `${navigationKey}+h`,
-  'lang-switcher': `l`,
+  'lang-switcher': `${navigationKey}+l`,
   cancel: 'esc'
 }
 

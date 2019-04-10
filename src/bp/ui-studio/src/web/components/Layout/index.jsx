@@ -65,9 +65,11 @@ class Layout extends React.Component {
   }
 
   toggleLangSwitcher = () => {
-    this.setState({
-      langSwitcherOpen: !this.state.langSwitcherOpen
-    })
+    if (!isInputFocused()) {
+      this.setState({
+        langSwitcherOpen: !this.state.langSwitcherOpen
+      })
+    }
   }
 
   render() {
