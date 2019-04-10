@@ -264,8 +264,11 @@ export default class IntentsEditor extends React.Component {
           </div>
         </div>
         <div className={classnames('pull-left', style.selectContext)}>
-          <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot."/>
-          <label for="selectContext">Current contexts</label>
+          <div>
+            <label for="selectContext">Current contexts</label>
+            &nbsp;
+            <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot." />
+          </div>
           <Creatable
             id="selectContext"
             multi

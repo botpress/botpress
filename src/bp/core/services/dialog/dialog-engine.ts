@@ -70,7 +70,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
-        this._logDebug(event.botId, event.target, 'waiting until next event', { ...event.state.context })
+        this._logDebug(event.botId, event.target, 'waiting until next event')
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
@@ -191,10 +191,13 @@ export class DialogEngine {
         // TODO: drop previousFlow/previousNode in favor of jumpPoints
         previousFlow: event.state.context.currentFlow,
         previousNode: event.state.context.currentNode,
-        jumpPoints: [...(event.state.context.jumpPoints || []), {
-          flow: event.state.context.currentFlow,
-          node: event.state.context.currentNode
-        }]
+        jumpPoints: [
+          ...(event.state.context.jumpPoints || []),
+          {
+            flow: event.state.context.currentFlow,
+            node: event.state.context.currentNode
+          }
+        ]
       }
 
       this._logEnterFlow(
@@ -273,10 +276,13 @@ export class DialogEngine {
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
       previousNode: parentNode.name,
-      jumpPoints: [...(event.state.context.jumpPoints || []), {
-        flow: parentFlow.name,
-        node: parentNode.name
-      }]
+      jumpPoints: [
+        ...(event.state.context.jumpPoints || []),
+        {
+          flow: parentFlow.name,
+          node: parentNode.name
+        }
+      ]
     }
 
     return this.processEvent(sessionId, event)

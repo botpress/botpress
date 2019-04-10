@@ -208,6 +208,7 @@ export class Slot extends React.Component {
         <Row>
           <Col md={12}>
             <Label for="contentPicker">Bot will ask</Label>
+            &nbsp;
             <BotpressTooltip message="The bot should ask a question specific about the slot to fill. (e.g. What is your email?)" />
             <ContentPickerWidget
               style={{ zIndex: 0 }}
@@ -222,6 +223,7 @@ export class Slot extends React.Component {
         <Row>
           <Col md="9">
             <Label>Invalid Input Message</Label>
+            &nbsp;
             <BotpressTooltip message="This message will appear to the user when the information he has given is invalid. (e.g. Your email is invalid)" />
             <ContentPickerWidget
               style={{ zIndex: 0 }}
@@ -233,6 +235,7 @@ export class Slot extends React.Component {
           </Col>
           <Col md="3">
             <Label for="retryAttempts">Max retry attempts</Label>
+            &nbsp;
             <BotpressTooltip message="This is the maximum number of times the bot will try to extract the slot. When the limit is reached, the bot will execute the 'On not found' transition." />
             <Input
               id="retryAttempts"
@@ -256,6 +259,7 @@ export class Slot extends React.Component {
             />
             &nbsp;
             <Label for="validationCheck">Custom Input Validation</Label>
+            &nbsp;
             <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable." />
             {this.state.addValidation && (
               <SelectActionDropdown
