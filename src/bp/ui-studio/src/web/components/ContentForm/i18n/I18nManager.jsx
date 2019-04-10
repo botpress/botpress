@@ -16,11 +16,15 @@ export default class I18nManager extends React.Component {
 
   showMissingIcon = () => {
     const { defaultLang, activeLang } = this.props.formContext
-    const isDefaultLang = defaultLang === activeLang
-    const isMissing = this.props.formContext[this.props.name + '$' + activeLang] === undefined
+    if (defaultLang === activeLang) {
+      return false
+    }
+
+    const isDefaultLangSet = this.props.formContext[this.props.name + '$' + defaultLang] !== undefined
+    const isActiveLangSet = this.props.formContext[this.props.name + '$' + activeLang] !== undefined
     const isEmpty = !this.props.formData || !this.props.formData.length
 
-    return !isDefaultLang && (isMissing || isEmpty)
+    return isDefaultLangSet && (!isActiveLangSet || isEmpty)
   }
 
   handleOnChange = value => {
