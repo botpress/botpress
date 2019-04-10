@@ -18,8 +18,6 @@ import SectionLayout from '../Layouts/Section'
 import api from '../../api'
 import supportedLanguages from 'common/supported-languages'
 
-// TODO if community render a single dropdown for language
-
 const statusList = [
   { label: 'Public', value: 'public' },
   { label: 'Private', value: 'private' },
