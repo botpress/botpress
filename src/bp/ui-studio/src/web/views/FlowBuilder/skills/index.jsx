@@ -4,6 +4,7 @@ import axios from 'axios'
 import find from 'lodash/find'
 import includes from 'lodash/includes'
 import Loader from 'react-loaders'
+import withLanguage from '../../../components/Util/withLanguage'
 
 const style = require('./style.scss')
 
@@ -21,7 +22,7 @@ class WrappedInjectedModule extends React.Component {
   }
 }
 
-export default class SkillsBuilder extends React.Component {
+class SkillsBuilder extends React.Component {
   resetState = () => ({
     moduleProps: {},
     canSubmit: false,
@@ -122,7 +123,10 @@ export default class SkillsBuilder extends React.Component {
     initialData: data,
     onDataChanged: this.onDataChanged,
     onValidChanged: this.onValidChanged,
-    resizeBuilderWindow: this.onWindowResized
+    resizeBuilderWindow: this.onWindowResized,
+    contentLang: this.props.contentLang,
+    languages: this.props.languages,
+    defaultLanguage: this.props.defaultLanguage
   })
 
   generateFlow = () => {
@@ -173,3 +177,5 @@ export default class SkillsBuilder extends React.Component {
     )
   }
 }
+
+export default withLanguage(SkillsBuilder)
