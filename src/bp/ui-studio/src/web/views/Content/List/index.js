@@ -134,8 +134,7 @@ class ListView extends Component {
       count: this.state.pageSize,
       sortOrder: this.state.sortOrder,
       filters: this.state.filters,
-      searchTerm: this.state.searchTerm,
-      language: this.props.contentLang
+      searchTerm: this.state.searchTerm
     }
 
     this.props.handleSearch(searchQuery)
