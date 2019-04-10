@@ -500,7 +500,8 @@ export class CMSService implements IDisposeOnExit {
   // It takes the original properties, and returns an object with the translated properties (copied content)
   private getTranslatedProps(formData: object, lang: string) {
     return Object.keys(formData).reduce((result, key) => {
-      result[key + '$' + lang] = formData[key]
+      const theKey = key.split('$')[0]
+      result[`${theKey}$${lang}`] = formData[key]
       return result
     }, {})
   }
