@@ -11,6 +11,11 @@
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
+  "webpack": {
+    "externals": {
+      "botpress/tooltip": "BotpressTooltip"
+    }
+  },
   "devDependencies": {
     "@types/jest": "^23.3.9",
     "@types/node": "^10.11.3",

@@ -5,3 +5,4 @@ export { Choice as choice } from './choice'
 
 // Export other skills here
 export { CallAPI } from './callApi'
+export { Slot as slot } from './slot'
