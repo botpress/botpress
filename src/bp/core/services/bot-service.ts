@@ -123,14 +123,12 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    if (!bot.languages) {
-      bot.languages = [bot.defaultLanguage]
+    const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
+    if (mergedConfigs) {
+      await this.mountBot(bot.id)
+      await this.cms.translateContentProps(bot.id, undefined, mergedConfigs.defaultLanguage)
+      this._invalidateBotIds()
     }
-
-    await this._createBotFromTemplate(bot, botTemplate)
-    await this.mountBot(bot.id)
-    await this.cms.translateContentProps(bot.id, undefined, bot.defaultLanguage)
-    this._invalidateBotIds()
   }
 
   async updateBot(botId: string, updatedBot: Partial<BotConfig>): Promise<void> {
@@ -342,7 +340,7 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate) {
+  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate): Promise<BotConfig | undefined> {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghostService)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfigPath = path.resolve(templatePath, BOT_CONFIG_FILENAME)
@@ -360,6 +358,8 @@ export class BotService {
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
         await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
         await scopedGhost.upsertFiles('/', files)
+
+        return mergedConfigs
       } else {
         throw new Error("Bot template doesn't exist")
       }

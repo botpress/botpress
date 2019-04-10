@@ -25,12 +25,7 @@ export const BotCreationSchema = Joi.object().keys({
       id: Joi.string()
     }
   },
-  locked: Joi.bool(),
-  defaultLanguage: Joi.string()
-    .valid(supportedLangs)
-    .min(2)
-    .max(3)
-    .required()
+  locked: Joi.bool()
 })
 
 export const BotEditSchema = Joi.object().keys({
