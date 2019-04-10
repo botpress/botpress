@@ -29,6 +29,59 @@ export class Slot extends React.Component {
     this.fetchIntents().then(() => this.setStateFromProps())
   }
 
+  setStateFromProps = () => {
+    const data = this.props.initialData
+
+    if (data) {
+      this.validateIntentExists(data.intent)
+      this.validateSlotExists(data.intent, data.slotName)
+
+      this.setState({
+        selectedSlotOption: { value: data.slotName, label: data.slotName },
+        selectedIntentOption: { value: data.intent, label: data.intent },
+        contentElement: data.contentElement,
+        notFoundElement: data.notFoundElement,
+        validationAction: data.validationAction && data.validationAction.value,
+        addValidation: data.validationAction !== undefined
+      })
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.isFormValid()) {
+      const intent = this.getSelectedIntent()
+      const slot = this.getSelectedSlot(intent)
+
+      const data = {
+        retryAttempts: this.state.maxRetryAttempts,
+        contentElement: this.state.contentElement,
+        notFoundElement: this.state.notFoundElement,
+        validationAction: this.state.validationAction,
+        intent: intent && intent.name,
+        slotName: slot && slot.name,
+        entity: slot && slot.entity
+      }
+
+      this.props.onDataChanged && this.props.onDataChanged(data)
+      this.props.onValidChanged && this.props.onValidChanged(true)
+    }
+  }
+
+  fetchIntents = () => {
+    return this.props.bp.axios.get('/mod/nlu/intents').then(({ data }) => {
+      const intents = data.filter(x => !x.name.startsWith('__qna'))
+      this.setState({ intents })
+    })
+  }
+
+  fetchActions = () => {
+    this.props.bp.axios.get(`/actions`).then(({ data }) => {
+      this.setState({
+        actions: data.filter(action => !action.metadata.hidden)
+      })
+    })
+  }
+
   getSelectedIntent() {
     const intentName = this.state.selectedIntentOption && this.state.selectedIntentOption.value
     return intentName && this.state.intents.find(x => x.name === intentName)
@@ -48,60 +101,11 @@ export class Slot extends React.Component {
     )
   }
 
-  componentDidUpdate() {
-    if (this.isFormValid()) {
-      const intent = this.getSelectedIntent()
-      const slot = this.getSelectedSlot(intent)
-
-      const data = {
-        retryAttempts: this.state.maxRetryAttempts,
-        contentElement: this.state.contentElement,
-        notFoundElement: this.state.notFoundElement,
-        validationAction: this.state.validationAction,
-        intent: intent.name,
-        slotName: slot.name,
-        entity: slot.entity
-      }
-
-      this.props.onDataChanged && this.props.onDataChanged(data)
-      this.props.onValidChanged && this.props.onValidChanged(true)
-    }
-  }
-
-  fetchIntents = () => {
-    return this.props.bp.axios.get('/mod/nlu/intents').then(({ data }) => {
-      const intents = data.filter(x => !x.name.startsWith('__qna'))
-      this.setState({ intents })
-    })
-  }
-
-  setStateFromProps = () => {
-    const data = this.props.initialData
-
-    if (data) {
-      this.validateIntentExists(data.intent)
-      this.validateSlotExists(data.intent, data.slotName)
-
-      this.setState({
-        selectedSlotOption: { value: data.slotName, label: data.slotName },
-        selectedIntentOption: { value: data.intent, label: data.intent },
-        contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement,
-        validationAction: data.validationAction && data.validationAction.value,
-        addValidation: data.validationAction !== undefined
-      })
-    }
-  }
-
-  fetchActions = () => {
-    this.props.bp.axios.get(`/actions`).then(({ data }) => {
-      this.setState({
-        actions: data.filter(action => !action.metadata.hidden)
-      })
-    })
-  }
-
   validateIntentExists = intentName => {
+    if (!intentName) {
+      return
+    }
+
     const exists = this.state.intents.find(x => x.name === intentName)
     if (!exists) {
       this.setState({ error: 'Missing intent: This intent does not exists anymore!' })
@@ -109,6 +113,10 @@ export class Slot extends React.Component {
   }
 
   validateSlotExists = (intentName, slotName) => {
+    if (!intentName || !slotName) {
+      return
+    }
+
     const currentIntent = this.state.intents.find(x => x.name === intentName)
     if (!currentIntent || !currentIntent.slots.find(x => x.name === slotName)) {
       this.setState({ error: 'Missing slot: This slot does not exits anymore!' })
@@ -150,14 +158,21 @@ export class Slot extends React.Component {
     this.setState({ addValidation: !this.state.addValidation })
   }
 
-  render() {
-    const intentName = this.state.selectedIntentOption && this.state.selectedIntentOption.value
-    const intent = this.state.intents.find(x => x.name === intentName)
-    const slotOptions =
+  getSlotOptionsForIntent(intent) {
+    return (
       intent &&
       intent.slots.map(slot => {
         return { value: slot.name, label: slot.name }
       })
+    )
+  }
+
+  render() {
+    const intent = this.getSelectedIntent()
+    const intentsOptions = this.state.intents.map(intent => {
+      return { value: intent.name, label: intent.name }
+    })
+    const slotOptions = this.getSlotOptionsForIntent(intent)
 
     return (
       <div className={style.modalContent}>
@@ -168,13 +183,12 @@ export class Slot extends React.Component {
             <Select
               id="intent"
               name="intent"
-              isSearchable={true}
+              isSearchable
+              placeholder="Choose an intent or type to search"
               className={style.intentSelect}
               onChange={this.handleIntentChange}
               value={this.state.selectedIntentOption}
-              options={this.state.intents.map(intent => {
-                return { value: intent.name, label: intent.name }
-              })}
+              options={intentsOptions}
             />
           </Col>
           <Col md={6}>
@@ -182,8 +196,9 @@ export class Slot extends React.Component {
             <Select
               id="slot"
               name="slot"
+              isSearchable
+              placeholder="Choose a slot or type to search"
               className={style.slotSelect}
-              isSearchable={true}
               onChange={this.handleSlotChange}
               value={this.state.selectedSlotOption}
               options={slotOptions}
