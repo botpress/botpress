@@ -5,11 +5,13 @@ const updateContexts = async intentName => {
   const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
   const { data } = await axios.get(`/mod/nlu/intents/${intentName}`, axiosConfig)
 
-  if (!event.state.session.nlu) {
-    event.state.session.nlu = {
-      contexts: data.contexts.join(',')
+  const nluContexts = data.contexts.map(context => {
+    return {
+      context,
+      ttl: 1000
     }
-  }
+  })
+  event.state.session.nluContexts = nluContexts
 }
 
 return updateContexts(args.intentName)
