@@ -17,6 +17,8 @@ import SectionLayout from '../Layouts/Section'
 import api from '../../api'
 import supportedLanguages from 'common/supported-languages'
 
+// TODO if community render a single dropdown for language
+
 const statusList = [
   { label: 'Public', value: 'public' },
   { label: 'Private', value: 'private' },
@@ -68,23 +70,24 @@ class Bots extends Component {
 
   loadBot() {
     const botId = this.props.match.params.botId
-    const bot = this.props.bots.find(bot => bot.id === botId)
-    const status = bot.disabled ? 'disabled' : bot.private ? 'private' : 'public'
-    const details = _.get(bot, 'details', {})
+    this.bot = this.props.bots.find(bot => bot.id === botId)
+
+    const status = this.bot.disabled ? 'disabled' : this.bot.private ? 'private' : 'public'
+    const details = _.get(this.bot, 'details', {})
 
     this.setState({
       botId,
-      name: bot.name,
-      description: bot.description,
-      languages: bot.languages,
-      defaultLanguage: bot.defaultLanguage,
+      name: this.bot.name,
+      description: this.bot.description,
+      languages: this.bot.languages,
+      defaultLanguage: this.bot.defaultLanguage,
       website: details.website,
       phoneNumber: details.phoneNumber,
       termsConditions: details.termsConditions,
       privacyPolicy: details.privacyPolicy,
       emailAddress: details.emailAddress,
       status: statusList.find(x => x.value === status),
-      category: this.state.categories.find(x => x.value === bot.category),
+      category: this.state.categories.find(x => x.value === this.bot.category),
       avatarUrl: details.avatarUrl || '',
       coverPictureUrl: details.coverPictureUrl || ''
     })
@@ -111,12 +114,8 @@ class Bots extends Component {
     }
 
     const status = this.state.status && this.state.status.value
-    if (status === 'disabled') {
-      bot.disabled = true
-    } else {
-      bot.disabled = false
-      bot.private = status === 'private'
-    }
+    bot.disabled = status === 'disabled' && bot.defaultLanguage == this.bot.defaultLanguage //force enable if language changed
+    bot.private = status == 'private'
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
