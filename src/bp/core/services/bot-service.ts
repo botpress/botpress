@@ -141,6 +141,10 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
 
+    if (!process.IS_PRO_ENABLED && updatedBot.languages && updatedBot.languages.length > 1) {
+      throw new Error('A single language is allowed on community edition.')
+    }
+
     const actualBot = await this.configProvider.getBotConfig(botId)
     const updatedFields = _.pick(updatedBot, [
       'name',
