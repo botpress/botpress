@@ -125,8 +125,10 @@ export class BotService {
 
     const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
     if (mergedConfigs) {
-      await this.mountBot(bot.id)
-      await this.cms.translateContentProps(bot.id, undefined, mergedConfigs.defaultLanguage)
+      if (!mergedConfigs.disabled) {
+        await this.mountBot(bot.id)
+        await this.cms.translateContentProps(bot.id, undefined, mergedConfigs.defaultLanguage)
+      }
       this._invalidateBotIds()
     }
   }
@@ -361,6 +363,11 @@ export class BotService {
           ...templateConfig,
           ...botConfig
         }
+
+        if (!mergedConfigs.defaultLanguage) {
+          mergedConfigs.disabled = true
+        }
+
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
         await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
         await scopedGhost.upsertFiles('/', files)
