@@ -175,7 +175,7 @@ class Bots extends Component {
       <div>
         {this.hasUnlangedBots() && (
           <Alert color="warning">
-            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please bot
+            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please set bot
             language in the bot config page.
           </Alert>
         )}
