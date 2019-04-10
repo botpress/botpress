@@ -76,7 +76,7 @@ const buildModule = (modulePath, cb) => {
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.tgz`,
+    `cross-env ./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
