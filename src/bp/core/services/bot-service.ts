@@ -160,17 +160,20 @@ export class BotService {
       ...updatedFields
     })
 
+    if (actualBot.disabled && !updatedBot.disabled) {
+      await this.mountBot(botId)
+    }
+
     if (actualBot.defaultLanguage !== updatedBot.defaultLanguage) {
       await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage)
     }
 
+    // This will regenerate previews for all the bot's languages
     if (actualBot.languages !== updatedBot.languages) {
       this.cms.recomputeElementsForBot(botId)
     }
 
-    if (actualBot.disabled && !updatedBot.disabled) {
-      await this.mountBot(botId)
-    } else if (!actualBot.disabled && updatedBot.disabled) {
+    if (!actualBot.disabled && updatedBot.disabled) {
       await this.unmountBot(botId)
     }
   }

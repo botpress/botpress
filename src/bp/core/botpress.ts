@@ -212,15 +212,9 @@ export class Botpress {
       this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
     }
 
-    // @deprecated > 11 : New bots all define default language
-    const botsMissingLanguage = [...bots.values()].filter(x => !x.defaultLanguage).map(x => x.id)
-    for (const bot of botsMissingLanguage) {
-      this.logger.warn(`Bot "${bot}" doesn't have a default language, which is now required`)
-    }
-
-    // @deprecated > 11: bot will always include default pipeline stage
-    const pipelineChanges = await this._ensureBotsDefineStage(bots, pipeline[0])
-    if (pipelineChanges) {
+    // @deprecated > 11: bot will always include default pipeline stage & must have a default language
+    const botConfigChanged = await this._ensureBotConfigCorrect(bots, pipeline[0])
+    if (botConfigChanged) {
       bots = await this.botService.getBots()
     }
 
@@ -243,23 +237,30 @@ export class Botpress {
   }
 
   // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
+  private async _ensureBotConfigCorrect(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
     let hasChanges = false
     await Promise.mapSeries(bots.values(), async bot => {
-      if (!bot.pipeline_status) {
-        hasChanges = true
-        const pipeline_migration_configs = {
-          pipeline_status: <sdk.BotPipelineStatus>{
-            current_stage: {
-              id: stage.id,
-              promoted_by: 'system',
-              promoted_on: new Date()
-            }
-          },
-          locked: false
-        }
+      const updatedConfig: any = {}
 
-        await this.configProvider.mergeBotConfig(bot.id, pipeline_migration_configs)
+      if (!bot.defaultLanguage) {
+        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required`)
+        updatedConfig.disabled = true
+      }
+
+      if (!bot.pipeline_status) {
+        updatedConfig.locked = false
+        updatedConfig.pipeline_status = {
+          current_stage: {
+            id: stage.id,
+            promoted_by: 'system',
+            promoted_on: new Date()
+          }
+        }
+      }
+
+      if (Object.getOwnPropertyNames(updatedConfig).length) {
+        hasChanges = true
+        await this.configProvider.mergeBotConfig(bot.id, updatedConfig)
       }
     })
 
