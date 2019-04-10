@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import choice from './choice'
 import setup from './setup'
+import apiCall from './callApi'
 
 export type Extension = {}
 
@@ -20,6 +21,11 @@ const skillsToRegister: sdk.Skill[] = [
     id: 'choice',
     name: 'Choice',
     flowGenerator: choice.generateFlow
+  },
+  {
+    id: 'CallAPI',
+    name: 'Call API',
+    flowGenerator: apiCall.generateFlow
   }
 ]
 
