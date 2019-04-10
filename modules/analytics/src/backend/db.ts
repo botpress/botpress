@@ -59,7 +59,7 @@ export default class AnalyticsDb {
     const interactionRow = {
       ts: this.knex.date.now(),
       type: event.type,
-      text: event.text,
+      text: event.payload.text,
       channel: event.channel,
       user_id: event.target,
       direction: 'out'
