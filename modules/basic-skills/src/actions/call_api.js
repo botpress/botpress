@@ -1,6 +1,8 @@
 const axios = require('axios')
 
 const callApi = async (url, method, body) => {
+  console.log(url, method, body)
+
   const client = axios.create({
     baseURL: url
   })
@@ -21,7 +23,7 @@ const callApi = async (url, method, body) => {
     response = await client.delete('/').then(res => res.data)
   }
 
-  temp.apiResponse = response
+  temp.callApiResponse = response
 }
 
 return callApi(args.url, args.method, args.body)

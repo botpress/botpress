@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
-
 import _ from 'lodash'
+import { Transition } from './typings'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   return {
-    transitions: createTransitions(data),
+    transitions: createTransitions(),
     flow: {
       nodes: createNodes(data),
       catchAll: {
@@ -21,34 +21,19 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `#!${data.contentId}`,
-          args: { skill: 'choice' }
+          name: `basic-skills/call_api {"url":"${data.url}","method":"${data.method}","body":"${data.body}"}`
         }
-      ],
-      next: [{ condition: 'true', node: 'parse' }]
+      ]
     }
   ]
   return nodes
 }
 
-const createTransitions = data => {
-  const transitions: sdk.NodeTransition[] = Object.keys(data.keywords).map(choice => {
-    const choiceShort = choice.length > 8 ? choice.substr(0, 7) + '...' : choice
-
-    return {
-      caption: `User picked [${choiceShort}]`,
-      condition: `temp['skill-choice-ret'] == "${choice}"`,
-      node: ''
-    }
-  })
-
-  transitions.push({
-    caption: 'On failure',
-    condition: 'true',
-    node: ''
-  })
-
-  return transitions
+const createTransitions = (): Transition[] => {
+  return [
+    { caption: 'On success', condition: 'temp.apiCallResponse', node: '' },
+    { caption: 'On failure', condition: '!temp.apiCallResponse', node: '' }
+  ]
 }
 
 export default { generateFlow }

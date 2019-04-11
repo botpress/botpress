@@ -28,7 +28,7 @@ const skillsToRegister: sdk.Skill[] = [
     flowGenerator: apiCall.generateFlow
   },
   {
-    id: 'slot',
+    id: 'Slot',
     name: 'Slot',
     flowGenerator: slot.generateFlow
   }
