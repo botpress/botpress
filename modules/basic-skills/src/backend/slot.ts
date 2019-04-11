@@ -33,7 +33,7 @@ const createNodes = data => {
   if (data.validationAction) {
     slotExtractOnReceive.push({
       type: sdk.NodeActionType.RunAction,
-      name: `${data.validationAction.value.label} {}`
+      name: `${data.validationAction} {}`
     })
   }
 
@@ -86,15 +86,10 @@ const createNodes = data => {
           name: `#!${data.notFoundElement}`
         }
       ],
-      onReceive: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entity":"${data.entity}"}`
-        }
-      ],
+      onReceive: slotExtractOnReceive,
       next: [
         {
-          condition: `session.extractedSlots.${data.slotName}`,
+          condition: `session.extractedSlots.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
           node: 'extracted'
         },
         {

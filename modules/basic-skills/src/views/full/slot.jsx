@@ -18,7 +18,6 @@ export class Slot extends React.Component {
     notFoundElement: undefined,
     intents: [],
     actions: [],
-    addValidation: false,
     maxRetryAttempts: 3,
     error: undefined
   }
@@ -40,8 +39,7 @@ export class Slot extends React.Component {
         selectedIntentOption: { value: data.intent, label: data.intent },
         selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement,
-        addValidation: data.validationAction !== undefined
+        notFoundElement: data.notFoundElement
       })
     }
   }
@@ -155,10 +153,6 @@ export class Slot extends React.Component {
     this.setState({ selectedActionOption })
   }
 
-  toggleAddValidation = () => {
-    this.setState({ addValidation: !this.state.addValidation })
-  }
-
   getSlotOptionsForIntent(intent) {
     return (
       intent &&
@@ -251,25 +245,15 @@ export class Slot extends React.Component {
         </Row>
         <Row>
           <Col md={12}>
-            <Input
-              type="checkbox"
-              id="validationCheck"
-              name="validationCheck"
-              onChange={this.toggleAddValidation}
-              checked={this.state.addValidation}
-            />
-            &nbsp;
             <Label for="validationCheck">Custom Input Validation</Label>
             &nbsp;
             <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable." />
-            {this.state.addValidation && (
-              <SelectActionDropdown
-                className={style.actionSelect}
-                value={this.state.selectedActionOption}
-                options={this.state.actions}
-                onChange={this.handleActionChange}
-              />
-            )}
+            <SelectActionDropdown
+              className={style.actionSelect}
+              value={this.state.selectedActionOption}
+              options={this.state.actions}
+              onChange={this.handleActionChange}
+            />
           </Col>
         </Row>
       </div>
