@@ -1,3 +1,47 @@
+# [11.8.0](https://github.com/botpress/botpress/compare/v11.7.4...v11.8.0) (2019-04-11)
+
+
+### Bug Fixes
+
+* **build:** copy bindings to the correct folder ([c064c81](https://github.com/botpress/botpress/commit/c064c81))
+* **build:** fix packaging on windows ([a7fd609](https://github.com/botpress/botpress/commit/a7fd609))
+* **build:** missing dependency ([ced6d6c](https://github.com/botpress/botpress/commit/ced6d6c))
+* **build:** missing dependency ([39b6a35](https://github.com/botpress/botpress/commit/39b6a35))
+* **build:** use cross-env to execute pkg and module-builder ([5c0d30f](https://github.com/botpress/botpress/commit/5c0d30f))
+* **channel-web:** added payload field to hide some props in db ([f6cba23](https://github.com/botpress/botpress/commit/f6cba23))
+* **cms:** prevent closing of modal when clicking outside ([3b3bb59](https://github.com/botpress/botpress/commit/3b3bb59))
+* **core:** fix returning to previous flow ([b49729f](https://github.com/botpress/botpress/commit/b49729f))
+* **core:** fix returning to previous flow ([c5f89ce](https://github.com/botpress/botpress/commit/c5f89ce))
+* **core:** handle jumpPoints not being defined ([27e508d](https://github.com/botpress/botpress/commit/27e508d))
+* **core:** handle jumpPoints not being defined ([72275dc](https://github.com/botpress/botpress/commit/72275dc))
+* **core:** push of undefined lastMessages ([c2e2c07](https://github.com/botpress/botpress/commit/c2e2c07))
+* **core:** push of undefined lastMessages ([18faaf7](https://github.com/botpress/botpress/commit/18faaf7))
+* **core:** user creation fix ([6a6eeaa](https://github.com/botpress/botpress/commit/6a6eeaa))
+* **core:** user creation issue ([542e3b2](https://github.com/botpress/botpress/commit/542e3b2))
+* **hitl:** fixed user attributes and minor refactoring ([a0f40bd](https://github.com/botpress/botpress/commit/a0f40bd))
+* **hitl:** max length for message ([1d7e50d](https://github.com/botpress/botpress/commit/1d7e50d))
+* **hitl:** max length for message ([d9a06c0](https://github.com/botpress/botpress/commit/d9a06c0))
+* **hitl:** use user attributes ([6af745a](https://github.com/botpress/botpress/commit/6af745a))
+* **sdk:** added method to delete content elements ([9def4f5](https://github.com/botpress/botpress/commit/9def4f5))
+* **sdk:** added method to delete content elements ([320308d](https://github.com/botpress/botpress/commit/320308d))
+* **skill-choice:** handle undefined keys ([94b3a1c](https://github.com/botpress/botpress/commit/94b3a1c))
+* **skill-choice:** handle undefined keys ([5117a60](https://github.com/botpress/botpress/commit/5117a60))
+* **users:** attributes were overwritten when updating ([b6cbf75](https://github.com/botpress/botpress/commit/b6cbf75))
+* **webchat:** botName and enableReset options (resolve [#1572](https://github.com/botpress/botpress/issues/1572)) ([1670a96](https://github.com/botpress/botpress/commit/1670a96))
+* **webchat:** botName and enableReset options (resolve [#1572](https://github.com/botpress/botpress/issues/1572)) ([1e5e235](https://github.com/botpress/botpress/commit/1e5e235))
+* **webchat:** fix postMessage target and oversending setClass ([4bd2f38](https://github.com/botpress/botpress/commit/4bd2f38))
+* **webchat:** fix postMessage target and oversending setClass ([c744594](https://github.com/botpress/botpress/commit/c744594))
+
+
+### Features
+
+* create pipeline on server start ([76a4f15](https://github.com/botpress/botpress/commit/76a4f15))
+* **cms:** added multilanguage support  ([90c9b96](https://github.com/botpress/botpress/commit/90c9b96))
+* **NLU:** config to load models on bot mount ([565015e](https://github.com/botpress/botpress/commit/565015e))
+* **skill-slot:** add slot filling skill ([79c5251](https://github.com/botpress/botpress/commit/79c5251))
+
+
+
 ## [11.7.2](https://github.com/botpress/botpress/compare/v11.7.1...v11.7.2) (2019-03-27)
 
 
