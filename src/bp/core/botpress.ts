@@ -251,7 +251,7 @@ export class Botpress {
       const updatedConfig: any = {}
 
       if (!bot.defaultLanguage) {
-        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required`)
+        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`)
         updatedConfig.disabled = true
       }
 
