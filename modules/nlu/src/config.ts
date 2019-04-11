@@ -26,6 +26,12 @@ export interface Config {
    */
   autoTrainInterval: string
 
+  /**
+   * Wheather or not you want your models to be trained on bot mouns
+   * @default false
+   */
+  preloadModels: boolean
+
   /** The name of the language model to use.
    *  Language models are located in your bot's "global/models" folder and they end with `intent-lm.vec`
    *  The name of the model to use is the prefix of the file (before the first occurence of `__`)
