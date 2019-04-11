@@ -11,16 +11,15 @@ const MAX_RETRIES = 10
 
 export class Slot extends React.Component {
   state = {
+    selectedActionOption: undefined,
     selectedIntentOption: undefined,
     selectedSlotOption: undefined,
-    selectedValidationOption: undefined,
     contentElement: undefined,
     notFoundElement: undefined,
     intents: [],
+    actions: [],
     addValidation: false,
     maxRetryAttempts: 3,
-    actions: [],
-    validationAction: undefined,
     error: undefined
   }
 
@@ -39,9 +38,9 @@ export class Slot extends React.Component {
       this.setState({
         selectedSlotOption: { value: data.slotName, label: data.slotName },
         selectedIntentOption: { value: data.intent, label: data.intent },
+        selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
         notFoundElement: data.notFoundElement,
-        validationAction: data.validationAction && data.validationAction.value,
         addValidation: data.validationAction !== undefined
       })
     }
@@ -56,7 +55,7 @@ export class Slot extends React.Component {
         retryAttempts: this.state.maxRetryAttempts,
         contentElement: this.state.contentElement,
         notFoundElement: this.state.notFoundElement,
-        validationAction: this.state.validationAction,
+        validationAction: this.state.selectedActionOption && this.state.selectedActionOption.value,
         intent: intent && intent.name,
         slotName: slot && slot.name,
         entity: slot && slot.entity
@@ -77,7 +76,9 @@ export class Slot extends React.Component {
   fetchActions = () => {
     this.props.bp.axios.get(`/actions`).then(({ data }) => {
       this.setState({
-        actions: data.filter(action => !action.metadata.hidden)
+        actions: data.filter(action => !action.metadata.hidden).map(x => {
+          return { label: x.name, value: x.name, metadata: x.metadata }
+        })
       })
     })
   }
@@ -150,8 +151,8 @@ export class Slot extends React.Component {
     }
   }
 
-  handleActionChange = value => {
-    this.setState({ validationAction: { value, label: value } })
+  handleActionChange = selectedActionOption => {
+    this.setState({ selectedActionOption })
   }
 
   toggleAddValidation = () => {
@@ -264,7 +265,7 @@ export class Slot extends React.Component {
             {this.state.addValidation && (
               <SelectActionDropdown
                 className={style.actionSelect}
-                value={this.state.validationAction && this.state.validationAction.value}
+                value={this.state.selectedActionOption}
                 options={this.state.actions}
                 onChange={this.handleActionChange}
               />
