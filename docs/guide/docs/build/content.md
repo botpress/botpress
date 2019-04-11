@@ -103,3 +103,11 @@ function renderElement(data, channel) {
   return []
 }
 ```
+
+## Translation
+
+Your bots can support multiple languages. If a specific translation is not available for the current language, the bot will use the default language. The first time a user chats with your bot, we extract the browser's language and save it as a user attribute (available on the event as `user.language`).
+
+Once that property is set, it will never be overwritten. Therefore, it is possible for you to ask the user what is his preferred language, or to use the NLU engine to detect it.
+
+When rendering content elements, we will try to render the user's configured language, otherwise it will use the bot's default one.

@@ -1,4 +1,26 @@
-.pipeline {
+.bot_views {
+  .actions {
+    float: right;
+    .more {
+      cursor: pointer;
+      color: #555;
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    span {
+      margin-right: 5px;
+    }
+  }
+}
+
+.pipeline_view {
   .createbot_btn {
     display: flex;
     margin: auto;
@@ -22,19 +44,20 @@
       border-style: dashed;
       padding: 20px;
     }
-    .actions {
-      float: right;
-      .more {
-        cursor: pointer;
-        color: #555;
-        &:hover {
-          color: #000;
-        }
-      }
-    }
+
     .botbadge {
       margin-right: 5px;
       font-size: 70%;
     }
+  }
+}
+
+.compact_view {
+  .botbadge {
+    margin-left: 10px;
+    font-size: 60%;
+  }
+  .actions button {
+    margin-right: 10px;
   }
 }

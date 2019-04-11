@@ -4,7 +4,7 @@ import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import _ from 'lodash'
+import _, { Partial } from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -152,6 +152,14 @@ export class Botpress {
         'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
       )
     }
+    const bots = await this.botService.getBots()
+    bots.forEach(bot => {
+      if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
+        throw new Error(
+          'A bot has more than a single language. To enable the multilangual feature, please upgrade to Botpress Pro.'
+        )
+      }
+    })
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
@@ -211,9 +219,10 @@ export class Botpress {
     if (pipeline.length > 4) {
       this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
     }
-    // @deprecated > 11: bot will always include default pipeline stage
-    const changes = await this._ensureBotsDefineStage(bots, pipeline[0])
-    if (changes) {
+
+    // @deprecated > 11: bot will always include default pipeline stage & must have a default language
+    const botConfigChanged = await this._ensureBotConfigCorrect(bots, pipeline[0])
+    if (botConfigChanged) {
       bots = await this.botService.getBots()
     }
 
@@ -236,23 +245,30 @@ export class Botpress {
   }
 
   // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotsDefineStage(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
+  private async _ensureBotConfigCorrect(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
     let hasChanges = false
     await Promise.mapSeries(bots.values(), async bot => {
-      if (!bot.pipeline_status) {
-        hasChanges = true
-        const pipeline_migration_configs = {
-          pipeline_status: <sdk.BotPipelineStatus>{
-            current_stage: {
-              id: stage.id,
-              promoted_by: 'system',
-              promoted_on: new Date()
-            }
-          },
-          locked: false
-        }
+      const updatedConfig: any = {}
 
-        await this.configProvider.mergeBotConfig(bot.id, pipeline_migration_configs)
+      if (!bot.defaultLanguage) {
+        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`)
+        updatedConfig.disabled = true
+      }
+
+      if (!bot.pipeline_status) {
+        updatedConfig.locked = false
+        updatedConfig.pipeline_status = {
+          current_stage: {
+            id: stage.id,
+            promoted_by: 'system',
+            promoted_on: new Date()
+          }
+        }
+      }
+
+      if (Object.getOwnPropertyNames(updatedConfig).length) {
+        hasChanges = true
+        await this.configProvider.mergeBotConfig(bot.id, updatedConfig)
       }
     })
 
