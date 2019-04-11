@@ -1,5 +1,10 @@
 const axios = require('axios')
 
+/**
+ * Update the session nluContexts for a specific intent
+ * @hidden
+ * @param intentName The name of the intent to get contexts from
+ */
 const updateContexts = async intentName => {
   const botId = event.botId
   const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
