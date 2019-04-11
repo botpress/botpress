@@ -11,10 +11,10 @@ const slotExtract = async () => {
     return
   }
 
-  for (const key of Array.from(Object.keys(event.nlu.slots))) {
-    let slot = event.nlu.slots[key] // Slot is an array when the NLU is confused about the results.
+  for (const key of Object.keys(event.nlu.slots)) {
+    let slot = event.nlu.slots[key]
+    // Slot is an array when the NLU is confused about the results.
     // The array is sorted by confidence so we take the first index.
-
     if (Array.isArray(slot)) {
       slot = slot[0]
     } // Make sure we don't override a previous slot
