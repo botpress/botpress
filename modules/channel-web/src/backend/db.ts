@@ -46,19 +46,32 @@ export default class WebchatDb {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('userId')
-          table.string('message_type')
-          table.text('message_text')
-          table.jsonb('message_raw')
-          table.jsonb('message_data') // Only useful if type = file
+          table.string('message_type') // @ deprecated Remove in a future release (11.9)
+          table.text('message_text') // @ deprecated Remove in a future release (11.9)
+          table.jsonb('message_raw') // @ deprecated Remove in a future release (11.9)
+          table.jsonb('message_data') // @ deprecated Remove in a future release (11.9)
+          table.jsonb('payload')
           table.string('full_name')
           table.string('avatar_url')
           table.timestamp('sent_on')
         })
       })
+      .then(() =>
+        this.knex('web_messages')
+          .columnInfo()
+          .then(info => {
+            if (info.payload === undefined) {
+              return this.knex.schema.alterTable('web_messages', table => {
+                table.jsonb('payload')
+              })
+            }
+          })
+      )
   }
 
-  async appendUserMessage(botId, userId, conversationId, { type, text, raw, data }) {
+  async appendUserMessage(botId, userId, conversationId, payload) {
     const { fullName, avatar_url } = await this.getUserInfo(userId)
+    const { type, text, raw, data } = payload
 
     const convo = await this.knex('web_conversations')
       .where({ userId, id: conversationId, botId })
@@ -81,6 +94,7 @@ export default class WebchatDb {
       message_text: text,
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
+      payload: this.knex.json.set(payload),
       sent_on: this.knex.date.now()
     }
 
@@ -98,12 +112,14 @@ export default class WebchatDb {
         ...message,
         sent_on: new Date(),
         message_raw: raw,
-        message_data: data
+        message_data: data,
+        payload: payload
       })
     )
   }
 
-  async appendBotMessage(botName, botAvatar, conversationId, { type, text, raw, data }) {
+  async appendBotMessage(botName, botAvatar, conversationId, payload) {
+    const { type, text, raw, data } = payload
     const message = {
       id: uuid.v4(),
       conversationId: conversationId,
@@ -114,6 +130,7 @@ export default class WebchatDb {
       message_text: text,
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
+      payload: this.knex.json.set(payload),
       sent_on: this.knex.date.now()
     }
 
@@ -124,7 +141,8 @@ export default class WebchatDb {
     return Object.assign(message, {
       sent_on: new Date(),
       message_raw: this.knex.json.get(message.message_raw),
-      message_data: this.knex.json.get(message.message_data)
+      message_data: this.knex.json.get(message.message_data),
+      payload: this.knex.json.get(message.payload)
     })
   }
 
@@ -249,7 +267,8 @@ export default class WebchatDb {
     messages.forEach(m => {
       return Object.assign(m, {
         message_raw: this.knex.json.get(m.message_raw),
-        message_data: this.knex.json.get(m.message_data)
+        message_data: this.knex.json.get(m.message_data),
+        payload: this.knex.json.get(m.payload)
       })
     })
 

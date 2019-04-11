@@ -70,7 +70,8 @@ module.exports = {
 
   uiSchema: {
     text: {
-      'ui:widget': 'textarea'
+      'ui:field': 'i18n_field',
+      $subtype: 'textarea'
     },
     variations: {
       'ui:options': {
@@ -78,7 +79,7 @@ module.exports = {
       }
     }
   },
+  computePreviewText: formData => formData.text && 'Text: ' + formData.text,
 
-  computePreviewText: formData => 'Text: ' + formData.text,
   renderElement: renderElement
 }

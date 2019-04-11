@@ -463,6 +463,13 @@ declare module 'botpress/sdk' {
       context: DialogContext
     }
 
+    export interface JumpPoint {
+      /** The name of the previous flow to return to when we exit a subflow */
+      flow: string
+      /** The name of the previous node to return to when we exit a subflow */
+      node: string
+    }
+
     export interface DialogContext {
       /** The name of the previous flow to return to when we exit a subflow */
       previousFlow?: string
@@ -472,6 +479,8 @@ declare module 'botpress/sdk' {
       currentNode?: string
       /** The name of the current active flow */
       currentFlow?: string
+      /** An array of jump-points to return when we exit subflow */
+      jumpPoints?: JumpPoint[]
       /** The instructions queue to be processed by the dialog engine */
       queue?: any
       /**
@@ -612,6 +621,36 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+    defaultLanguage: string
+    languages: string[]
+    locked: boolean
+    pipeline_status: BotPipelineStatus
+  }
+
+  export type Pipeline = Stage[]
+
+  export type StageAction = 'promote_copy' | 'promote_move'
+
+  export interface Stage {
+    id: string
+    label: string
+    action: StageAction
+  }
+
+  export interface BotPipelineStatus {
+    current_stage: {
+      promoted_by: string
+      promoted_on: Date
+      id: string
+    }
+    stage_request?: {
+      requested_on: Date
+      expires_on?: Date
+      message?: string
+      status: string
+      requested_by: string
+      id: string
+    }
   }
 
   export interface BotDetails {
@@ -643,8 +682,8 @@ declare module 'botpress/sdk' {
     formData: object
     /** The computed form data that contains the interpreted data. */
     computedData: object
-    /** The textual representation of the Content Element.  */
-    previewText: string
+    /** The textual representation of the Content Element, for each supported languages  */
+    previews: object
     createdOn: Date
     modifiedOn: Date
     createdBy: string
@@ -979,9 +1018,14 @@ declare module 'botpress/sdk' {
     export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
 
     /**
-     * Update attributes of a specific user
+     * Merge the specified attributes to the existing attributes of the user
      */
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
+
+    /**
+     * Overwrite all the attributes of the user with the specified payload
+     */
+    export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
   }
@@ -1065,6 +1109,18 @@ declare module 'botpress/sdk' {
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
     export function getBotById(botId: string): Promise<BotConfig | undefined>
+    /**
+     * It will extract the bot's folder to an archive (tar.gz).
+     * @param botId The ID of the bot to extract
+     */
+    export function exportBot(botId: string): Promise<Buffer>
+    /**
+     * Allows to import directly an archive (tar.gz) in a new bot.
+     * @param botId The ID of the new bot (or an existing one)
+     * @param archive The buffer of the archive file
+     * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
+     */
+    export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
   }
 
   export namespace notifications {
@@ -1094,11 +1150,21 @@ declare module 'botpress/sdk' {
 
     export function getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
 
+    /**
+     *
+     * @param botId The ID of the bot
+     * @param contentTypeId Filter entries on that specific content type
+     * @param searchParams Additional search parameters (by default, returns 50 elements)
+     * @param language When specified, only that language is returned with the original property (ex: text$en becomes text)
+     */
     export function listContentElements(
       botId: string,
       contentTypeId?: string,
-      searchParams?: SearchParams
+      searchParams?: SearchParams,
+      language?: string
     ): Promise<ContentElement[]>
+
+    export function deleteContentElements(botId: string, contentElementIds: string[]): Promise<void>
 
     export function getAllContentTypes(botId?: string): Promise<ContentType[]>
     /**

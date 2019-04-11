@@ -27,6 +27,10 @@ class CreateBotModal extends Component {
     }
   }
 
+  focus = () => {
+    this.nameInput.focus()
+  }
+
   isFormValid = () => {
     return this.formEl && this.formEl.checkValidity() && this.state.template
   }
@@ -41,6 +45,9 @@ class CreateBotModal extends Component {
 
   handleCategoryChanged = category => {
     this.setState({ category })
+  }
+  handleLangChanged = ({ value }) => {
+    this.setState({ defaultLanguage: value })
   }
 
   stanitizeName = () => {
@@ -63,7 +70,9 @@ class CreateBotModal extends Component {
     const category = this.state.category ? this.state.category.value : null
 
     try {
-      await api.getSecured().post(`/admin/bots`, { id, name, template, category })
+      await api
+        .getSecured()
+        .post(`/admin/bots`, { id, name, template, category, defaultLanguage: this.state.defaultLanguage })
       this.setState({ ...defaultState })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
       this.props.toggle()
@@ -81,6 +90,7 @@ class CreateBotModal extends Component {
 
     return (
       <Select
+        tabIndex="2"
         getOptionLabel={o => o.name}
         getOptionValue={o => o.id}
         options={groupedOptions}
@@ -92,20 +102,23 @@ class CreateBotModal extends Component {
 
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
+      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus}>
         <ModalHeader toggle={this.props.toggle}>Create a new bot</ModalHeader>
         <ModalBody>
-          <form
-            onSubmit={this.createBot}
-            ref={form => {
-              this.formEl = form
-            }}
-          >
+          <form onSubmit={this.createBot} ref={form => (this.formEl = form)}>
             <FormGroup>
               <Label for="name">
                 <strong>Name</strong>
               </Label>
-              <Input required type="text" id="name" value={this.state.name} onChange={this.handleNameChanged} />
+              <Input
+                tabIndex="1"
+                innerRef={el => (this.nameInput = el)}
+                required
+                type="text"
+                id="name"
+                value={this.state.name}
+                onChange={this.handleNameChanged}
+              />
               <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
             </FormGroup>
             {this.props.botTemplates.length > 0 && (
@@ -122,13 +135,14 @@ class CreateBotModal extends Component {
                   <strong>Bot Category</strong>
                 </Label>
                 <Select
+                  tabIndex="3"
                   options={this.props.botCategories.map(cat => ({ label: cat, value: cat }))}
                   value={this.state.category}
                   onChange={this.handleCategoryChanged}
                 />
               </FormGroup>
             )}
-            <Button className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
+            <Button tabIndex="4" className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
               <MdGroupAdd /> Create bot
             </Button>
           </form>

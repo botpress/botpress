@@ -10,3 +10,5 @@ export const Embedded = props => <Chat {...props} fullscreen={false} />
  */
 export { Embedded as embedded } from '.'
 export { Fullscreen as fullscreen } from '.'
+
+export { Carousel, QuickReplies, LoginPrompt, Text, Form, FileMessage } from './components/messages/renderer'

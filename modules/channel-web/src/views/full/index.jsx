@@ -1,5 +1,7 @@
 import React from 'react'
 import WebComponent from '../lite'
+import Message from '../lite/components/messages/Message'
+import * as Keyboard from '../lite/components/Keyboard'
 
 export const Web = WebComponent
 
@@ -18,7 +20,7 @@ export class WebBotpressUIInjection extends React.Component {
     script.onload = () =>
       window.botpressWebChat.init({
         hideWidget: true,
-        botConvoTitle: 'Bot Emulator',
+        botName: 'Bot Emulator',
         botConvoDescription: 'Test your bot live',
         enableReset: true,
         enableTranscriptDownload: true,
@@ -49,3 +51,6 @@ export class WebBotpressUIInjection extends React.Component {
     return null
   }
 }
+
+export { Carousel, QuickReplies, LoginPrompt, Text, FileMessage } from '../lite/components/messages/renderer'
+export { Message, Keyboard }

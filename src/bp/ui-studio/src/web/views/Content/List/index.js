@@ -6,8 +6,9 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import { Button, Glyphicon, FormGroup, FormControl } from 'react-bootstrap'
 import style from './style.scss'
+import withLanguage from '../../../components/Util/withLanguage'
 
-export default class ListView extends Component {
+class ListView extends Component {
   state = {
     checkedIds: [],
     allChecked: false,
@@ -174,7 +175,7 @@ export default class ListView extends Component {
   onRowClick = (state, rowInfo, column, instance) => {
     return {
       onClick: (e, handleOriginal) => {
-        if (column.id !== 'checkbox' && !this.props.readOnly) {
+        if (column.id !== 'checkbox' && !this.props.readOnly && rowInfo) {
           const { id, contentType } = rowInfo.original
           this.props.handleEdit(id, contentType)
         }
@@ -236,8 +237,9 @@ export default class ListView extends Component {
       },
       {
         Header: 'Preview',
+        accessor: 'previews',
         Filter: this.renderFilterPlaceholder('Filter'),
-        accessor: 'previewText'
+        Cell: x => x.original.previews && x.original.previews[this.props.contentLang]
       },
       {
         Header: 'Modified On',
@@ -300,3 +302,4 @@ export default class ListView extends Component {
     )
   }
 }
+export default withLanguage(ListView)

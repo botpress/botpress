@@ -1,4 +1,6 @@
 .container {
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -92,10 +94,13 @@
   }
 }
 
-.entitiesPanel {
-}
-
 .utterances {
   list-style: none;
   padding: 0;
+}
+
+.selectContext {
+  max-width: 300px;
+  z-index: 1000;
+  margin: 10px 10px 0 10px;
 }

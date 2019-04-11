@@ -188,8 +188,16 @@ export class DialogEngine {
         currentFlow: flow.name,
         currentNode: startNode.name,
         // We keep a reference of the previous flow so we can return to it later on.
+        // TODO: drop previousFlow/previousNode in favor of jumpPoints
         previousFlow: event.state.context.currentFlow,
-        previousNode: event.state.context.currentNode
+        previousNode: event.state.context.currentNode,
+        jumpPoints: [
+          ...(event.state.context.jumpPoints || []),
+          {
+            flow: event.state.context.currentFlow,
+            node: event.state.context.currentNode
+          }
+        ]
       }
 
       this._logEnterFlow(
@@ -202,14 +210,16 @@ export class DialogEngine {
       )
     } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a flow)
-      const parentFlow = this._findFlow(event.botId, event.state.context.previousFlow!)
+      const jumpPoints = event.state.context.jumpPoints
+      const prevJumpPoint = jumpPoints && jumpPoints.pop()
+      const parentFlow = this._findFlow(event.botId, prevJumpPoint.flow)
       const specificNode = transitionTo.split('#')[1]
       let parentNode
 
       if (specificNode) {
         parentNode = this._findNode(event.botId, parentFlow, specificNode)
       } else {
-        parentNode = this._findNode(event.botId, parentFlow, event.state.context.previousNode!)
+        parentNode = this._findNode(event.botId, parentFlow, prevJumpPoint.node)
       }
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
@@ -219,6 +229,7 @@ export class DialogEngine {
         ...context,
         currentNode: parentNode.name,
         currentFlow: parentFlow.name,
+        jumpPoints,
         queue
       }
 
@@ -264,7 +275,14 @@ export class DialogEngine {
       currentFlow: subflow.name,
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
-      previousNode: parentNode.name
+      previousNode: parentNode.name,
+      jumpPoints: [
+        ...(event.state.context.jumpPoints || []),
+        {
+          flow: parentFlow.name,
+          node: parentNode.name
+        }
+      ]
     }
 
     return this.processEvent(sessionId, event)

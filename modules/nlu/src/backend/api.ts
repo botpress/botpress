@@ -6,6 +6,7 @@ import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
+import _ from 'lodash'
 
 const SYNC_INTERVAL_MS = ms('15s')
 
@@ -104,6 +105,18 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
       res.status(400).send('Invalid schema')
     }
+  })
+
+  router.get('/contexts', async (req, res) => {
+    const botId = req.params.botId
+    const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
+    const contextsArray = await Promise.map(filepaths, async filepath => {
+      const file = await bp.ghost.forBot(botId).readFileAsObject('/intents', filepath)
+      return file['contexts']
+    })
+
+    // Contexts is an array of arrays that can contain duplicate values
+    res.send(_.uniq(_.flatten(contextsArray)))
   })
 
   router.get('/entities', async (req, res) => {
