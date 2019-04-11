@@ -30,7 +30,6 @@ import { URL } from 'url'
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
-import { fileSync } from 'tmp'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = 10 // mb
