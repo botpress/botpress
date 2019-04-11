@@ -100,7 +100,8 @@ module.exports = {
   },
   uiSchema: {
     message: { 'ui:field': 'i18n_field' },
-    buttonText: { 'ui:field': 'i18n_field' }
+    buttonText: { 'ui:field': 'i18n_field' },
+    options: { 'ui:field': 'i18n_array' }
   },
   computePreviewText: formData => formData.message && 'Dropdown: ' + formData.message,
   renderElement
