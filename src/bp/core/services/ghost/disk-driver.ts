@@ -110,6 +110,15 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async absoluteDirectoryListing(destination: string) {
+    try {
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: destination }, cb))
+      return files.map(filePath => forceForwardSlashes(filePath))
+    } catch (e) {
+      return []
+    }
+  }
+
   private _getBaseDirectories(files: string[]): string[] {
     return _.chain(files)
       .map(f => path.relative(process.PROJECT_LOCATION, f))

@@ -116,6 +116,6 @@ module.exports = {
       ...base.typingIndicators
     }
   },
-  computePreviewText: formData => `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
+  computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
   renderElement: renderElement
 }

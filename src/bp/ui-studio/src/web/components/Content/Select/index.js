@@ -8,6 +8,7 @@ import Loading from '~/components/Util/Loading'
 import CreateOrEditModal from '../CreateOrEditModal'
 import { fetchContentItems, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import axios from 'axios'
+import withLanguage from '../../Util/withLanguage'
 
 const style = require('./style.scss')
 
@@ -263,7 +264,7 @@ class SelectContent extends Component {
               className={`list-group-item list-group-item-action ${i === this.state.activeItemIndex ? 'active' : ''}`}
               onClick={() => this.handlePick(contentItem)}
             >
-              {`[${contentItem.contentType}] ${contentItem.previewText}`}
+              {`[${contentItem.contentType}] ${contentItem.previews[this.props.contentLang]}`}
             </a>
           ))}
         </div>
@@ -324,4 +325,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SelectContent)
+)(withLanguage(SelectContent))

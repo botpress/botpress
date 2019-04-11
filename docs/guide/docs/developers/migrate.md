@@ -3,6 +3,42 @@ id: migrate
 title: Migration
 ---
 
+## Migration from 11.7 to 11.8
+
+### Channel-Web Refactor
+
+There was a big refactor of the module to make it easier to customize (custom components and CSS). Every styling classes were extracted in a single file, `default.css`. If you previously customized the webchat, some changes will be required.
+
+Please refer to [default.css](https://github.com/botpress/botpress/tree/master/modules/channel-web/assets/default.css) for the different classes
+
+### Multiple Languages
+
+This feature should have no impact on existing users. If you have created custom content types, however, slight modifications will be required.
+
+- The method `computePreviewText`, should return `undefined` if the required property is not set, instead of trying to display something
+
+```js
+// For example
+computePreviewText: formData => 'Text: ' + formData.text
+
+// Would become
+computePreviewText: formData => formData.text && 'Text: ' + formData.text
+```
+
+- When editing a language where a translation is missing, the type of the field must be `i18n_field` to display the original text of the default language.
+
+```js
+// Example in the text content type:
+ uiSchema: {
+  text: {
+    // This custom field includes a placeholder with the default language text
+    'ui:field': 'i18n_field',
+
+    // This isn't mandatory, but it will display a textarea instead of a simple input field.
+    $subtype: 'textarea'
+  },
+```
+
 ## Migration from 11.5 to 11.6
 
 ### Custom Modules (target: developers)

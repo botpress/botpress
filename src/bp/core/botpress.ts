@@ -4,7 +4,7 @@ import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import _ from 'lodash'
+import _, { Partial } from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -13,6 +13,7 @@ import plur from 'plur'
 import { setDebugScopes } from '../debug'
 
 import { createForGlobalHooks } from './api'
+import { BotConfig } from './config/bot.config'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'
@@ -112,9 +113,9 @@ export class Botpress {
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.checkJwtSecret()
-    await this.checkEditionRequirements()
     await this.loadModules(options.modules)
     await this.initializeServices()
+    await this.checkEditionRequirements()
     await this.deployAssets()
     await this.startRealtime()
     await this.startServer()
@@ -125,7 +126,7 @@ export class Botpress {
   }
 
   async checkJwtSecret() {
-    // @deprecated : .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
+    // @deprecated > 11: .jwtSecret has been renamed for appSecret. botpress > 11 jwtSecret will not be supported
     // @ts-ignore
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
@@ -145,6 +146,20 @@ export class Botpress {
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
+    const nStage = (await this.workspaceService.getPipeline()).length
+    if (!process.IS_PRO_ENABLED && nStage > 1) {
+      throw new Error(
+        'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
+      )
+    }
+    const bots = await this.botService.getBots()
+    bots.forEach(bot => {
+      if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
+        throw new Error(
+          'A bot has more than a single language. To enable the multilangual feature, please upgrade to Botpress Pro.'
+        )
+      }
+    })
     if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
       this.logger.warn(
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
@@ -195,12 +210,29 @@ export class Botpress {
     if (deleted.length) {
       this.logger.warn(
         `Some bots have been deleted from the disk but are still referenced in your workspaces.json file.
- Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
+          Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
       )
     }
 
-    const bots = await this.botService.getBots()
-    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+    let bots = await this.botService.getBots()
+    const pipeline = await this.workspaceService.getPipeline()
+    if (pipeline.length > 4) {
+      this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
+    }
+
+    // @deprecated > 11: bot will always include default pipeline stage & must have a default language
+    const botConfigChanged = await this._ensureBotConfigCorrect(bots, pipeline[0])
+    if (botConfigChanged) {
+      bots = await this.botService.getBots()
+    }
+
+    const disabledBots = [...bots.values()]
+      .filter(b => {
+        const isStage0 = b.pipeline_status.current_stage.id === pipeline[0].id
+        const stageExist = pipeline.findIndex(s => s.id === b.pipeline_status.current_stage.id) !== -1
+        return b.disabled || ((!process.IS_PRO_ENABLED && !isStage0) || !stageExist)
+      })
+      .map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
@@ -210,6 +242,37 @@ export class Botpress {
   async initializeGhost(): Promise<void> {
     this.ghostService.initialize(process.IS_PRODUCTION)
     await this.ghostService.global().sync()
+  }
+
+  // @deprecated > 11: bot will always include default pipeline stage
+  private async _ensureBotConfigCorrect(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
+    let hasChanges = false
+    await Promise.mapSeries(bots.values(), async bot => {
+      const updatedConfig: any = {}
+
+      if (!bot.defaultLanguage) {
+        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`)
+        updatedConfig.disabled = true
+      }
+
+      if (!bot.pipeline_status) {
+        updatedConfig.locked = false
+        updatedConfig.pipeline_status = {
+          current_stage: {
+            id: stage.id,
+            promoted_by: 'system',
+            promoted_on: new Date()
+          }
+        }
+      }
+
+      if (Object.getOwnPropertyNames(updatedConfig).length) {
+        hasChanges = true
+        await this.configProvider.mergeBotConfig(bot.id, updatedConfig)
+      }
+    })
+
+    return hasChanges
   }
 
   private async initializeServices() {

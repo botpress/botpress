@@ -265,7 +265,7 @@ export default class Web extends React.Component {
 
   postToParent = (t, payload) => {
     // we could filter on event type if necessary
-    window.parent && window.parent.postMessage(payload)
+    window.parent && window.parent.postMessage(payload, '*')
   }
 
   checkForExpiredExternalToken = error => {
@@ -280,10 +280,12 @@ export default class Web extends React.Component {
       .then(this.fetchConversations)
       .then(this.fetchCurrentConversation)
       .then(() => {
+        const locale = navigator.language || navigator.userLanguage
         this.handleSendData({
           type: 'visit',
           text: 'User visit',
-          timezone: new Date().getTimezoneOffset() / 60
+          timezone: new Date().getTimezoneOffset() / 60,
+          language: locale && locale.substring(0, locale.indexOf('-'))
         }).catch(this.checkForExpiredExternalToken)
       })
   }
@@ -600,8 +602,11 @@ export default class Web extends React.Component {
       return null
     }
 
-    window.parent &&
-      window.parent.postMessage({ type: 'setClass', value: 'bp-widget-web bp-widget-' + this.state.view }, '*')
+    const parentClass = `bp-widget-web bp-widget-${this.state.view}`
+    if (this.parentClass !== parentClass) {
+      window.parent && window.parent.postMessage({ type: 'setClass', value: parentClass }, '*')
+      this.parentClass = parentClass
+    }
 
     const stylesheet = this.state.config.extraStylesheet
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
