@@ -22,6 +22,7 @@
     "recharts": "1.5.0"
   },
   "devDependencies": {
+    "@babel/helpers": "^7.4.3",
     "@types/node": "^10.11.0",
     "module-builder": "../../build/module-builder"
   }

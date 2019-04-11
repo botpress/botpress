@@ -9,7 +9,11 @@
       "react": "React",
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
-      "botpress/content-picker": "BotpressContentPicker"
+      "reactstrap": "Reactstrap",
+      "react-select": "ReactSelect",
+      "botpress/content-picker": "BotpressContentPicker",
+      "botpress/select-action-dropdown": "SelectActionDropdown",
+      "botpress/tooltip": "BotpressTooltip"
     }
   },
   "scripts": {
@@ -19,6 +23,7 @@
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
   "devDependencies": {
+    "@babel/helpers": "^7.4.3",
     "@types/node": "^10.11.0",
     "module-builder": "../../build/module-builder"
   },

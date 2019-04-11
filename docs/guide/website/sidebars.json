@@ -11,7 +11,7 @@
       "build/channels",
       "build/emulator"
     ],
-    "Deploy": ["deploy/architecture", "deploy/hosting"],
+    "Deploy": ["deploy/architecture", "deploy/hosting", "deploy/performances"],
     "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
     "Developers": [
       "developers/release-notes",
