@@ -9,7 +9,14 @@
     "modules": [],
     "incomingMiddleware": [],
     "outgoingMiddleware": [],
-    "contentTypes": ["builtin_text", "builtin_single-choice", "builtin_image", "builtin_carousel", "builtin_card"]
+    "contentTypes": [
+      "builtin_text",
+      "builtin_single-choice",
+      "builtin_image",
+      "builtin_carousel",
+      "builtin_card",
+      "dropdown"
+    ]
   },
   "dialog": {
     "timeoutInterval": "5m"
