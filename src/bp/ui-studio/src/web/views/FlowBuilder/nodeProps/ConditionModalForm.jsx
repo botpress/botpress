@@ -391,7 +391,7 @@ export default class ConditionModalForm extends Component {
 
   render() {
     return (
-      <Modal animation={false} show={this.props.show} onHide={this.props.onClose}>
+      <Modal animation={false} show={this.props.show} onHide={this.props.onClose} backdrop={'static'}>
         <Modal.Header closeButton>
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'New'} condition to transition</Modal.Title>
         </Modal.Header>
