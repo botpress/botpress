@@ -10,3 +10,17 @@
   border-radius: 0;
   margin-left: -1px;
 }
+
+.actionBtn {
+  display: inline-block;
+  padding: 5px 5px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--c-neutral--light-1);
+  }
+
+  svg {
+    color: var(--c-brand);
+  }
+}
