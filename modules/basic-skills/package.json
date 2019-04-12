@@ -9,7 +9,11 @@
       "react": "React",
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
-      "botpress/content-picker": "BotpressContentPicker"
+      "reactstrap": "Reactstrap",
+      "react-select": "ReactSelect",
+      "botpress/content-picker": "BotpressContentPicker",
+      "botpress/select-action-dropdown": "SelectActionDropdown",
+      "botpress/tooltip": "BotpressTooltip"
     }
   },
   "scripts": {

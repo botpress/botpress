@@ -15,6 +15,7 @@ export class IntentsComponent extends React.Component {
 
   componentDidMount() {
     this.fetchIntents()
+    this.fetchContexts()
     this.checkForIntentSearch()
   }
 
@@ -44,6 +45,12 @@ export class IntentsComponent extends React.Component {
       }
 
       this.setState(dataToSet)
+    })
+  }
+
+  fetchContexts = () => {
+    this.props.bp.axios.get(`/mod/nlu/contexts`).then(({ data }) => {
+      this.setState({ contexts: data })
     })
   }
 
@@ -161,6 +168,7 @@ export class IntentsComponent extends React.Component {
               <IntentEditor
                 ref={el => (this.intentEditor = el)}
                 intent={this.getCurrentIntent()}
+                contexts={this.state.contexts}
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}

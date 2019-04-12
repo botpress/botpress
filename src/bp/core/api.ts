@@ -103,6 +103,12 @@ const bots = (botService: BotService): typeof sdk.bots => {
     },
     getBotById(botId: string): Promise<sdk.BotConfig | undefined> {
       return botService.findBotById(botId)
+    },
+    exportBot(botId: string): Promise<Buffer> {
+      return botService.exportBot(botId)
+    },
+    importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+      return botService.importBot(botId, archive, allowOverwrite)
     }
   }
 }
@@ -111,6 +117,7 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
+    setAttributes: userRepo.setAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
     getUserCount: userRepo.getUserCount.bind(userRepo)
   }
@@ -173,9 +180,8 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     getContentElements(botId: string, ids: string[]): Promise<any[]> {
       return cmsService.getContentElements(botId, ids)
     },
-    listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
-      return cmsService.listContentElements(botId, contentTypeId, searchParams)
-    },
+    listContentElements: cmsService.listContentElements.bind(cmsService),
+    deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },

@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { AuthUser, Stage } from 'core/misc/interfaces'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -15,66 +16,100 @@ import { Incident } from '../alerting-service'
 
 const debug = DEBUG('hooks')
 
+interface HookOptions {
+  timeout: number
+}
+
 export namespace Hooks {
   export class BaseHook {
     debug: IDebugInstance
 
-    constructor(public timeout: number, public args: any, public folder: string) {
+    constructor(public folder: string, public args: any, public options: HookOptions = { timeout: 1000 }) {
       this.debug = debug.sub(folder)
     }
   }
 
   export class AfterServerStart extends BaseHook {
     constructor(private bp: typeof sdk) {
-      super(1000, { bp }, 'after_server_start')
+      super('after_server_start', { bp })
     }
   }
 
   export class AfterBotMount extends BaseHook {
     constructor(private bp: typeof sdk, botId: string) {
-      super(1000, { bp, botId }, 'after_bot_mount')
+      super('after_bot_mount', { bp, botId })
     }
   }
 
   export class AfterBotUnmount extends BaseHook {
     constructor(private bp: typeof sdk, botId) {
-      super(1000, { bp, botId }, 'after_bot_unmount')
+      super('after_bot_unmount', { bp, botId })
     }
   }
 
   export class BeforeIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      super(1000, { bp, event }, 'before_incoming_middleware')
+      super('before_incoming_middleware', { bp, event })
     }
   }
 
   export class AfterIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      super(1000, { bp, event }, 'after_incoming_middleware')
+      super('after_incoming_middleware', { bp, event })
     }
   }
 
   export class BeforeOutgoingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      super(1000, { bp, event }, 'before_outgoing_middleware')
+      super('before_outgoing_middleware', { bp, event })
     }
   }
 
   export class BeforeSessionTimeout extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
-      super(1000, { bp, event }, 'before_session_timeout')
+      super('before_session_timeout', { bp, event })
     }
   }
 
   export class BeforeSuggestionsElection extends BaseHook {
     constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
-      super(1000, { bp, sessionId, event, suggestions }, 'before_suggestions_election')
+      super('before_suggestions_election', { bp, sessionId, event, suggestions })
     }
   }
 
   export class OnIncidentStatusChanged extends BaseHook {
     constructor(bp: typeof sdk, incident: Incident) {
-      super(1000, { bp, incident }, 'on_incident_status_changed')
+      super('on_incident_status_changed', { bp, incident })
+    }
+  }
+
+  export class BeforeBotImport extends BaseHook {
+    constructor(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object) {
+      super('before_bot_import', { bp, botId, tmpFolder, hookResult })
+    }
+  }
+
+  export class OnStageChangeRequest extends BaseHook {
+    constructor(
+      bp: typeof sdk,
+      bot: sdk.BotConfig,
+      users: Partial<AuthUser[]>,
+      pipeline: sdk.Pipeline,
+      hookResult: any
+    ) {
+      super('on_stage_request', { bp, bot, users, pipeline, hookResult })
+    }
+  }
+
+  export class AfterStageChanged extends BaseHook {
+    constructor(
+      bp: typeof sdk,
+      previousBotConfig: sdk.BotConfig,
+      bot: sdk.BotConfig,
+      users: Partial<AuthUser[]>,
+      pipeline: sdk.Pipeline
+    ) {
+      super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })
     }
   }
 }
@@ -169,7 +204,7 @@ export class HookService {
         process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
         printObject
       },
-      timeout: hook.timeout,
+      timeout: hook.options.timeout,
       require: {
         external: true,
         mock: modRequire

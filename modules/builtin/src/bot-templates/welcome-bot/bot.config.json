@@ -17,10 +17,6 @@
   "logs": {
     "expiration": "1 week"
   },
-  "id": "welcome-bot",
-  "name": "Welcome Bot",
-  "category": null,
-  "disabled": false,
-  "private": false,
-  "details": {}
+  "defaultLanguage": "en",
+  "languages": ["en"]
 }

@@ -32,6 +32,10 @@ module.exports = {
             properties: {
               action: {
                 enum: ['Say something']
+              },
+              text: {
+                type: 'string',
+                title: 'Enter text or the ID of a content element (ex: #!builtin_text-myid)'
               }
             }
           },

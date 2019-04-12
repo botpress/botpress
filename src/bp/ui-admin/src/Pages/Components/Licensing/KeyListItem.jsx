@@ -67,7 +67,7 @@ export default class KeyListItem extends Component {
       await this.updateServerKey(key)
       this.props.onLicenseUpdated({ ...this.props.license, fingerprint: this.props.clusterFingerprint, assigned: true })
     } catch (error) {
-      console.log('error while setting up license')
+      console.log('error while setting up license', error)
     }
     this.setState({ isLoading: false })
     this.props.onUseOnServer()

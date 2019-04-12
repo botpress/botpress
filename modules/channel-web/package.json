@@ -18,24 +18,24 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "classnames": "^2.2.6",
     "aws-sdk": "^2.108.0",
     "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
+    "classnames": "^2.2.6",
     "date-fns": "^1.28.5",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.1",
-    "mime": "^2.4.0",
+    "mime-types": "^2.1.22",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.0",
     "multer-s3": "^2.7.0",
     "query-string": "^5.0.1",
-    "uuid": "^3.1.0",
     "react-linkify": "^0.2.2",
-    "react-slick": "^0.23.2",
+    "react-slick": "^0.18.0",
     "slick-carousel": "^1.8.1",
-    "snarkdown": "^1.2.2"
+    "snarkdown": "^1.2.2",
+    "uuid": "^3.1.0"
   }
 }

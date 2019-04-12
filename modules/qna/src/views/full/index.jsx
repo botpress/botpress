@@ -24,6 +24,7 @@ import Promise from 'bluebird'
 
 import FormModal from './FormModal'
 import style from './style.scss'
+import 'react-select/dist/react-select.css'
 import './button.css'
 
 const ITEMS_PER_PAGE = 50

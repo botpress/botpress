@@ -42,6 +42,6 @@ module.exports = {
     }
   },
 
-  computePreviewText: formData => `Card: ${formData.title}`,
+  computePreviewText: formData => formData.title && `Card: ${formData.title}`,
   renderElement: (data, channel) => Carousel.renderElement({ items: [data], ...data }, channel)
 }

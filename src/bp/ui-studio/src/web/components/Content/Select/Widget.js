@@ -4,7 +4,7 @@ import { FormGroup, InputGroup, FormControl, Glyphicon } from 'react-bootstrap'
 
 import store from '~/store'
 import { upsertContentItem, fetchContentItem } from '~/actions'
-
+import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 const style = require('./style.scss')
 
@@ -46,7 +46,7 @@ class ContentPickerWidget extends Component {
     const { inputId, contentItem, placeholder } = this.props
     const contentType = (contentItem && contentItem.contentType) || this.props.contentType
     const schema = (contentItem && contentItem.schema) || { json: {}, ui: {} }
-    const textContent = (contentItem && `${schema.title} | ${contentItem.previewText}`) || ''
+    const textContent = (contentItem && `${schema.title} | ${contentItem.previews[this.props.contentLang]}`) || ''
 
     return (
       <FormGroup>
@@ -66,6 +66,7 @@ class ContentPickerWidget extends Component {
             show={this.state.showItemEdit}
             schema={schema.json}
             uiSchema={schema.ui}
+            isEditing={this.state.contentToEdit !== null}
             handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
             formData={this.state.contentToEdit}
             handleEdit={contentToEdit => this.setState({ contentToEdit })}
@@ -82,7 +83,7 @@ const mapStateToProps = ({ content: { itemsById } }, { itemId }) => ({ contentIt
 const ConnectedContentPicker = connect(
   mapStateToProps,
   mapDispatchToProps
-)(ContentPickerWidget)
+)(withLanguage(ContentPickerWidget))
 
 // Passing store explicitly since this component may be imported from another botpress-module
 export default props => <ConnectedContentPicker {...props} store={store} />

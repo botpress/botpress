@@ -46,7 +46,7 @@ export class StateManager {
     const { user, context, session, temp } = event.state
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    await this.userRepo.updateAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
+    await this.userRepo.setAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
 
     // Take last 5 messages only
     if (session && session.lastMessages) {
