@@ -153,6 +153,10 @@ export class Slot extends React.Component {
     this.setState({ selectedActionOption })
   }
 
+  handleClear = () => {
+    this.setState({ selectedActionOption: undefined })
+  }
+
   getSlotOptionsForIntent(intent) {
     return (
       intent &&
@@ -245,7 +249,7 @@ export class Slot extends React.Component {
         </Row>
         <Row>
           <Col md={12}>
-            <Label for="validationCheck">Custom Input Validation</Label>
+            <Label for="validationCheck">Custom Input Validation (optional)</Label>
             &nbsp;
             <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable." />
             <SelectActionDropdown
@@ -253,6 +257,7 @@ export class Slot extends React.Component {
               value={this.state.selectedActionOption}
               options={this.state.actions}
               onChange={this.handleActionChange}
+              onClear={this.handleClear}
             />
           </Col>
         </Row>
