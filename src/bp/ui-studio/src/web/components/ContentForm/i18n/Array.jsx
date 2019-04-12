@@ -14,7 +14,9 @@ export default class ArrayMl extends I18nManager {
     const propertyNames = Object.keys(schemaProps)
 
     const requiredFormat = propertyNames.map(p => schemaProps[p].title).join('|')
-    const text = this.props.formData.map(el => propertyNames.map(p => el[p]).join('|')).join('\n')
+
+    const text =
+      this.props.formData && this.props.formData.map(el => propertyNames.map(p => el[p]).join('|')).join('\n')
 
     this.setState({ text, requiredFormat, propertyNames })
   }
