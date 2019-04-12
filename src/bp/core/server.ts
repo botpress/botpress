@@ -113,7 +113,14 @@ export default class HTTPServer {
 
     this.app.use(debugRequestMw)
 
-    this.modulesRouter = new ModulesRouter(this.logger, this.authService, moduleLoader, skillService)
+    this.modulesRouter = new ModulesRouter(
+      this.logger,
+      this.authService,
+      moduleLoader,
+      skillService,
+      this.configProvider
+    )
+
     this.authRouter = new AuthRouter(
       this.logger,
       this.authService,

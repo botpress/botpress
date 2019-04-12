@@ -72,6 +72,11 @@ declare module 'botpress/sdk' {
    * of the module. The path to the module must also be specified in the global botpress config.
    */
   export interface ModuleEntryPoint {
+    /**
+     * Called when the module is unloaded, before being reloaded
+     * onBotUnmount is called for each bots before this one is called
+     * */
+    onModuleUnmount: ((bp: typeof import('botpress/sdk')) => void)
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted: ((bp: typeof import('botpress/sdk')) => void)
     /** This is called once all modules are initialized, usually for routing and logic */

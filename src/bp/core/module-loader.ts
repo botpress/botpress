@@ -12,12 +12,15 @@ import { GhostService } from './services'
 import ConfigReader from './services/module/config-reader'
 import { ModuleResourceLoader } from './services/module/resources-loader'
 import { TYPES } from './types'
+import ModuleResolver from './modules/resolver'
+import { BotService } from './services/bot-service'
 
 const MODULE_SCHEMA = joi.object().keys({
   onServerStarted: joi.func().required(),
   onServerReady: joi.func().required(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
+  onModuleUnmount: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
   skills: joi.array().optional(),
   botTemplates: joi.array().optional(),
@@ -100,22 +103,66 @@ export class ModuleLoader {
 
     for (const module of modules) {
       const name = _.get(module, 'definition.name', '').toLowerCase()
-      try {
-        ModuleLoader.processModuleEntryPoint(module, name)
-        const api = await createForModule(name)
-        await (module.onServerStarted && module.onServerStarted(api))
-        initedModules[name] = true
-        this.entryPoints.set(name, module)
-
-        const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
-        await resourceLoader.importResources()
-      } catch (err) {
-        this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
-      }
+      initedModules[name] = await this._loadModule(module, name)
     }
 
     this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
     return Object.keys(initedModules)
+  }
+
+  public async reloadModule(moduleLocation, moduleName) {
+    const resolver = new ModuleResolver(this.logger)
+    const absoluteLocation = await resolver.resolve(moduleLocation)
+
+    await this._unloadModule(absoluteLocation, moduleName)
+
+    const req = await resolver.requireModule(absoluteLocation)
+    const entryPoint = (req.default ? req.default : req) as ModuleEntryPoint
+    const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
+
+    // Module loaded successfully, we will process its regular lifecycle
+    if (isModuleLoaded) {
+      const api = await createForModule(moduleName)
+      await (entryPoint.onServerReady && entryPoint.onServerReady(api))
+
+      if (entryPoint.onBotMount) {
+        await Promise.mapSeries(BotService.getMountedBots(), x => entryPoint.onBotMount!(api, x))
+      }
+    }
+  }
+
+  private async _loadModule(module, name) {
+    try {
+      ModuleLoader.processModuleEntryPoint(module, name)
+      const api = await createForModule(name)
+      await (module.onServerStarted && module.onServerStarted(api))
+
+      this.entryPoints.set(name, module)
+
+      const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
+      await resourceLoader.importResources()
+    } catch (err) {
+      this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
+      return false
+    }
+
+    return true
+  }
+
+  private async _unloadModule(moduleLocation, moduleName) {
+    const loadedModule = this.entryPoints.get(moduleName)
+    if (loadedModule) {
+      const api = await createForModule(moduleName)
+
+      if (loadedModule.onBotUnmount) {
+        await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
+      }
+
+      await loadedModule.onModuleUnmount(api)
+
+      this.entryPoints.delete(moduleName)
+      delete require.cache[require.resolve(moduleLocation)]
+    }
   }
 
   public async unloadModulesForBot(botId: string) {

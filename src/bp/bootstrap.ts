@@ -35,8 +35,6 @@ async function start() {
   const resolver = new ModuleResolver(logger)
 
   for (const entry of globalConfig.modules) {
-    let originalRequirePaths: string[] = []
-
     try {
       if (!entry.enabled) {
         modulesLog += os.EOL + `${chalk.dim('⊝')} ${entry.location} ${chalk.gray('(disabled)')}`
@@ -44,18 +42,7 @@ async function start() {
       }
 
       const moduleLocation = await resolver.resolve(entry.location)
-
-      // We bump temporarily bump the module's node_modules in priority
-      // So that it loads the local versions of its own dependencies
-      originalRequirePaths = global.require.getPaths()
-      global.require.overwritePaths([
-        path.join(moduleLocation, 'node_production_modules'),
-        path.join(moduleLocation, 'node_modules'),
-        ...originalRequirePaths
-      ])
-      const req = require(moduleLocation)
-      global.require.overwritePaths(originalRequirePaths)
-      originalRequirePaths = []
+      const req = await resolver.requireModule(moduleLocation)
 
       const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
@@ -65,10 +52,6 @@ async function start() {
     } catch (err) {
       modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
       loadingErrors.push(new FatalError(err, `Fatal error loading module "${entry.location}"`))
-    } finally {
-      if (originalRequirePaths.length) {
-        global.require.overwritePaths(originalRequirePaths)
-      }
     }
   }
 
