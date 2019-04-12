@@ -221,7 +221,11 @@ export default class QnaAdmin extends Component {
     const { csvUploadStatus } = this.state
 
     return (
-      <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
+      <Modal
+        show={this.state.importCsvModalShow}
+        onHide={() => this.setState({ importCsvModalShow: false })}
+        backdrop={'static'}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Import CSV</Modal.Title>
         </Modal.Header>

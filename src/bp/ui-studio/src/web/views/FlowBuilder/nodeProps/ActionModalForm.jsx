@@ -212,6 +212,7 @@ export default class ActionModalForm extends Component {
         onHide={this.onClose}
         container={document.getElementById('app')}
         onKeyDown={this.handleKeyDown}
+        backdrop={'static'}
       >
         <Modal.Header closeButton>
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>

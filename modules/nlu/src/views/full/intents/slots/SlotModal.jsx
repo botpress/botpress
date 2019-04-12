@@ -82,7 +82,7 @@ export default class SlotModal extends React.Component {
     const isValid = this.state.name && this.state.name.length && this.state.entity && this.state.entity.length
 
     return (
-      <Modal show={this.props.show} bsSize="small" onHide={this.props.onHide} animation={false}>
+      <Modal show={this.props.show} bsSize="small" onHide={this.props.onHide} animation={false} backdrop={'static'}>
         <Modal.Header closeButton>
           {this.state.editing && <Modal.Title>Edit slot</Modal.Title>}
           {!this.state.editing && <Modal.Title>Create Slot for your intent</Modal.Title>}
