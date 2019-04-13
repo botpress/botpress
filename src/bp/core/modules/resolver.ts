@@ -101,7 +101,7 @@ export default class ModuleResolver {
     throw new ConfigurationError(`Could not find module at path "${modulePath}"`)
   }
 
-  async requireModule(moduleLocation) {
+  requireModule(moduleLocation: string): any {
     let originalRequirePaths = global.require.getPaths()
 
     try {

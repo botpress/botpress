@@ -116,7 +116,7 @@ export class ModuleLoader {
 
     await this._unloadModule(absoluteLocation, moduleName)
 
-    const req = await resolver.requireModule(absoluteLocation)
+    const req = resolver.requireModule(absoluteLocation)
     const entryPoint = (req.default ? req.default : req) as ModuleEntryPoint
     const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
 
