@@ -158,7 +158,7 @@ export class ModuleLoader {
         await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
       }
 
-      await loadedModule.onModuleUnmount(api)
+      await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
 
       this.entryPoints.delete(moduleName)
       delete require.cache[require.resolve(moduleLocation)]

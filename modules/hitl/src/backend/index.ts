@@ -23,9 +23,15 @@ const onServerReady = async (bp: SDK) => {
   await api(bp, db)
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.unregisterMiddleware('hitl.captureInMessages')
+  bp.events.unregisterMiddleware('hitl.captureOutMessages')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
+  onModuleUnmount,
   definition: {
     name: 'hitl',
     menuIcon: 'feedback',

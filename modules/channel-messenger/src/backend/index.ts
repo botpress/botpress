@@ -24,11 +24,16 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   await service.unmountBot(botId)
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.unregisterMiddleware('messenger.sendMessages')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onServerStarted,
-  onBotMount: onBotMount,
-  onBotUnmount: onBotUnmount,
+  onBotMount,
+  onBotUnmount,
+  onModuleUnmount,
   definition: {
     name: 'channel-messenger',
     noInterface: true,

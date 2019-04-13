@@ -143,6 +143,11 @@ export class EventEngine {
     }
   }
 
+  unregister(middlewareName: string): void {
+    this.incomingMiddleware = this.incomingMiddleware.filter(x => x.name !== middlewareName)
+    this.outgoingMiddleware = this.outgoingMiddleware.filter(x => x.name !== middlewareName)
+  }
+
   async sendEvent(event: sdk.IO.Event) {
     this.validateEvent(event)
 
