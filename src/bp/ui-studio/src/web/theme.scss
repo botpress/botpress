@@ -182,3 +182,7 @@ b {
 :global(.tooltip-inner) {
   border-radius: 0px;
 }
+
+:global(.rtl) {
+  direction: rtl;
+}
