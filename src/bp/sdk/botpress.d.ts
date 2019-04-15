@@ -219,7 +219,7 @@ declare module 'botpress/sdk' {
     export namespace SVM {
       export interface SVMOptions {
         classifier: 'C_SVC'
-        kernel: 'linear'
+        kernel: 'linear' | 'RBF' | 'POLY'
         c: number | number[]
         gamma: number | number[]
       }

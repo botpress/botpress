@@ -12,7 +12,7 @@ export default function tfidf(docs: TfidfInput): TfidfOutput {
   for (const docName in docs) {
     const tokens = docs[docName]
     const termsCount = _.countBy(tokens, term => term)
-    const maxTf = _.max(_.values(termsCount))
+    const maxTf = _.max(_.values(termsCount))!
     const tfidf: _.Dictionary<number> = _.mapValues(termsCount, (_v, key) => {
       const docFreq = _.values(docs).filter(x => x.includes(key)).length
       // Double-normalization TF with K=0.5
