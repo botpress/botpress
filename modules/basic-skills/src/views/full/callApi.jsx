@@ -3,7 +3,7 @@ import { Row, Col, Label, Input } from 'reactstrap'
 import Select from 'react-select'
 import style from './style.scss'
 import { BotpressTooltip } from 'botpress/tooltip'
-import AceEditor from 'react-ace'
+import { LinkDocumentationProvider } from 'botpress/documentation'
 
 const methodOptions = [
   { label: 'get', value: 'get' },
@@ -12,9 +12,18 @@ const methodOptions = [
   { label: 'delete', value: 'delete' }
 ]
 
+const memoryOptions = [
+  { label: 'Temp', value: 'temp' },
+  { label: 'Session', value: 'session' },
+  { label: 'Bot', value: 'bot' },
+  { label: 'User', value: 'user' }
+]
+
 export class CallAPI extends React.Component {
   state = {
-    selectedMethod: undefined,
+    selectedMethod: methodOptions[0],
+    selectedMemory: memoryOptions[0],
+    variable: 'response',
     body: undefined,
     url: undefined
   }
@@ -24,6 +33,8 @@ export class CallAPI extends React.Component {
     if (data) {
       this.setState({
         selectedMethod: { value: data.method, label: data.method },
+        selectedMemory: { value: data.memory, label: data.memory },
+        variable: data.variable,
         body: data.body,
         url: data.url
       })
@@ -32,11 +43,13 @@ export class CallAPI extends React.Component {
 
   componentDidUpdate() {
     if (this.state.url && this.state.selectedMethod) {
-      const { selectedMethod, body, url } = this.state
+      const { selectedMethod, selectedMemory, body, url, variable } = this.state
       const data = {
         method: selectedMethod.value,
-        body: body && body.trim(),
-        url: url
+        memory: selectedMemory.value,
+        body,
+        url,
+        variable
       }
 
       this.props.onDataChanged && this.props.onDataChanged(data)
@@ -48,49 +61,75 @@ export class CallAPI extends React.Component {
     this.setState({ selectedMethod: option })
   }
 
-  handleBodyChange = body => {
-    this.setState({ body })
+  handleBodyChange = event => {
+    this.setState({ body: event.target.value })
   }
 
   handleURLChange = event => {
     this.setState({ url: event.target.value })
   }
 
+  handleMemoryChange = option => {
+    this.setState({ selectedMemory: option })
+  }
+
+  handleVariableChange = event => {
+    this.setState({ variable: event.target.value })
+  }
+
   render() {
+    const paramsHelp = <LinkDocumentationProvider file="memory" />
+
     return (
       <div className={style.modalContent}>
         <Row>
-          <Col md={9}>
-            <Label for="url">URL</Label>
-            <BotpressTooltip message="The complete URL and endpoint of the resource" />
-            <Input id="url" type="text" onChange={this.handleURLChange} />
+          <Col md={12}>
+            <Label for="url">Enter the resource URL</Label>
+            <Input
+              id="url"
+              type="text"
+              placeholder="Resource URL"
+              value={this.state.url}
+              onChange={this.handleURLChange}
+            />
           </Col>
-          <Col md={3}>
-            <Label for="method">Method</Label>
-            <BotpressTooltip message="The http method to use" />
+        </Row>
+        <Row>
+          <Col md={4}>
+            <Label for="method">Choose an HTTP Method</Label>
             <Select
               id="method"
+              default
+              style={{ zIndex: 1000 }}
               options={methodOptions}
               value={this.state.selectedMethod}
               onChange={this.handleMethodChange}
             />
           </Col>
+          <Col md={4}>
+            <Label>Choose a memory type</Label>
+            {paramsHelp}
+            <Select
+              id="storageSelect"
+              options={memoryOptions}
+              value={this.state.selectedMemory}
+              onChange={this.handleMemoryChange}
+            />
+          </Col>
+          <Col md={4}>
+            <Label>Variable</Label>
+            <BotpressTooltip message="Enter a name for the variable that will hold the response" />
+            <Input type="text" value={this.state.variable} onChange={this.handleVariableChange} />
+          </Col>
         </Row>
         <Row>
           <Col md={12}>
-            <Label for="body">Body</Label>
-            <BotpressTooltip message="The optional raw request body" />
-            <AceEditor
-              id="body"
-              mode="json"
-              height={250}
-              width={700}
-              value={this.state.body}
-              onChange={this.handleBodyChange}
-              editorProps={{ $blockScrolling: true }}
-            />
+            <Label for="body">Body (optional)</Label>
+            <BotpressTooltip message="Enter the request body" />
+            <Input type="textarea" rows="4" id="body" value={this.state.body} onChange={this.handleBodyChange} />
           </Col>
         </Row>
+        <br />
       </div>
     )
   }
