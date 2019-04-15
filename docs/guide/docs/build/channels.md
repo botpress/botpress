@@ -97,7 +97,6 @@ Messenger requires you to have a Facebook App and a Facebook Page to setup your 
 
 ##### Enable the Messenger Channel
 
-- Run Botpress Server a first time to auto-generate the global configuration file
 - Head over to `data/global/config/channel-messenger.json`. If it doesn't exist, restart Botpress Server.
 - Set the following properties:
   - `appSecret`. You will find this value in your Facebook App page.
@@ -153,11 +152,26 @@ Read the `http://localhost:3000/assets/modules/channel-messenger/config.schema.j
 
 2. Restart Botpress and talk to your Telegram bot.
 
-## Troubleshooting
-
-- When testing on localhost, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
-- Make sure the `EXTERNAL_URL` environment variable is set so that your assets are accessible from the outside.
-
-# Other Channels
+## More Channels
 
 We are in the progress of adding many more channels to Botpress Server. If you would like to help us with that, [pull requests](https://github.com/botpress/botpress#contributing) are welcomed!
+
+## FAQ
+
+### How can I test a channel locally?
+
+Some channels (e.g. Messenger) require to have a public secure url. When testing on locally, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
+
+### Why are my images missing?
+
+Assets are exposed using a configurable base path. Make sure the `EXTERNAL_URL` environment variable is set so that your assets are accessible from the outside.
+
+You can set the environment variable in a `.env` file located under `/data`.
+
+If you don't know anything about `.env` files, just create a new file named `.env` in your `/data` folder. Then add the following line to it:
+
+```bash
+EXTERNAL_URL=<public_url>
+```
+
+Replace `<public_url>` by your actual Botpress Server url.
