@@ -134,6 +134,25 @@ Restart Botpress Server to reload the configuration.
 
 Read the `http://localhost:3000/assets/modules/channel-messenger/config.schema.json` file to read more about the more advanced configuration.
 
+## Telegram
+
+### Requirements
+
+- Use Telegram's BotFather to create a bot. Please refer to [How do I create a bot?](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
+- Have your Telegram bot token ready
+
+### Setup
+
+1. Create or edit this file `data/bots/<your_bot>/config/channel-telegram.json` and enter your Telegram bot token:
+
+```json
+{
+  "botToken": "<your_bot_token>"
+}
+```
+
+2. Restart Botpress and talk to your Telegram bot.
+
 ## Troubleshooting
 
 - When testing on localhost, we recommend using services like [pagekite](https://pagekite.net/), [ngrok](https://ngrok.com) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
