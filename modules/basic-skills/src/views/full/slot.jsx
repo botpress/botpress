@@ -11,16 +11,14 @@ const MAX_RETRIES = 10
 
 export class Slot extends React.Component {
   state = {
+    selectedActionOption: undefined,
     selectedIntentOption: undefined,
     selectedSlotOption: undefined,
-    selectedValidationOption: undefined,
     contentElement: undefined,
     notFoundElement: undefined,
     intents: [],
-    addValidation: false,
-    maxRetryAttempts: 3,
     actions: [],
-    validationAction: undefined,
+    maxRetryAttempts: 3,
     error: undefined
   }
 
@@ -39,10 +37,9 @@ export class Slot extends React.Component {
       this.setState({
         selectedSlotOption: { value: data.slotName, label: data.slotName },
         selectedIntentOption: { value: data.intent, label: data.intent },
+        selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement,
-        validationAction: data.validationAction && data.validationAction.value,
-        addValidation: data.validationAction !== undefined
+        notFoundElement: data.notFoundElement
       })
     }
   }
@@ -56,7 +53,7 @@ export class Slot extends React.Component {
         retryAttempts: this.state.maxRetryAttempts,
         contentElement: this.state.contentElement,
         notFoundElement: this.state.notFoundElement,
-        validationAction: this.state.validationAction,
+        validationAction: this.state.selectedActionOption && this.state.selectedActionOption.value,
         intent: intent && intent.name,
         slotName: slot && slot.name,
         entity: slot && slot.entity
@@ -77,7 +74,9 @@ export class Slot extends React.Component {
   fetchActions = () => {
     this.props.bp.axios.get(`/actions`).then(({ data }) => {
       this.setState({
-        actions: data.filter(action => !action.metadata.hidden)
+        actions: data.filter(action => !action.metadata.hidden).map(x => {
+          return { label: x.name, value: x.name, metadata: x.metadata }
+        })
       })
     })
   }
@@ -150,12 +149,8 @@ export class Slot extends React.Component {
     }
   }
 
-  handleActionChange = value => {
-    this.setState({ validationAction: { value, label: value } })
-  }
-
-  toggleAddValidation = () => {
-    this.setState({ addValidation: !this.state.addValidation })
+  handleActionChange = selectedActionOption => {
+    this.setState({ selectedActionOption })
   }
 
   getSlotOptionsForIntent(intent) {
@@ -250,25 +245,15 @@ export class Slot extends React.Component {
         </Row>
         <Row>
           <Col md={12}>
-            <Input
-              type="checkbox"
-              id="validationCheck"
-              name="validationCheck"
-              onChange={this.toggleAddValidation}
-              checked={this.state.addValidation}
-            />
-            &nbsp;
             <Label for="validationCheck">Custom Input Validation</Label>
             &nbsp;
             <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable." />
-            {this.state.addValidation && (
-              <SelectActionDropdown
-                className={style.actionSelect}
-                value={this.state.validationAction && this.state.validationAction.value}
-                options={this.state.actions}
-                onChange={this.handleActionChange}
-              />
-            )}
+            <SelectActionDropdown
+              className={style.actionSelect}
+              value={this.state.selectedActionOption}
+              options={this.state.actions}
+              onChange={this.handleActionChange}
+            />
           </Col>
         </Row>
       </div>

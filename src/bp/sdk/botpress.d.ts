@@ -621,6 +621,8 @@ declare module 'botpress/sdk' {
     }
     dialog?: DialogConfig
     logs?: LogsConfig
+    defaultLanguage: string
+    languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
   }
@@ -680,8 +682,8 @@ declare module 'botpress/sdk' {
     formData: object
     /** The computed form data that contains the interpreted data. */
     computedData: object
-    /** The textual representation of the Content Element.  */
-    previewText: string
+    /** The textual representation of the Content Element, for each supported languages  */
+    previews: object
     createdOn: Date
     modifiedOn: Date
     createdBy: string
@@ -1148,10 +1150,18 @@ declare module 'botpress/sdk' {
 
     export function getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
 
+    /**
+     *
+     * @param botId The ID of the bot
+     * @param contentTypeId Filter entries on that specific content type
+     * @param searchParams Additional search parameters (by default, returns 50 elements)
+     * @param language When specified, only that language is returned with the original property (ex: text$en becomes text)
+     */
     export function listContentElements(
       botId: string,
       contentTypeId?: string,
-      searchParams?: SearchParams
+      searchParams?: SearchParams,
+      language?: string
     ): Promise<ContentElement[]>
 
     export function deleteContentElements(botId: string, contentElementIds: string[]): Promise<void>

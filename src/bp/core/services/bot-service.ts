@@ -68,6 +68,11 @@ export class BotService {
     const bot = await this.configProvider.getBotConfig(botId)
     !bot && this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
 
+    // @deprecated > 11 : New bots all define default language
+    if (!bot.defaultLanguage) {
+      bot.disabled = true
+    }
+
     return bot
   }
 
@@ -118,9 +123,14 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    await this._createBotFromTemplate(bot, botTemplate)
-    await this.mountBot(bot.id)
-    this._invalidateBotIds()
+    const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
+    if (mergedConfigs) {
+      if (!mergedConfigs.disabled) {
+        await this.mountBot(bot.id)
+        await this.cms.translateContentProps(bot.id, undefined, mergedConfigs.defaultLanguage)
+      }
+      this._invalidateBotIds()
+    }
   }
 
   async updateBot(botId: string, updatedBot: Partial<BotConfig>): Promise<void> {
@@ -131,6 +141,10 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
 
+    if (!process.IS_PRO_ENABLED && updatedBot.languages && updatedBot.languages.length > 1) {
+      throw new Error('A single language is allowed on community edition.')
+    }
+
     const actualBot = await this.configProvider.getBotConfig(botId)
     const updatedFields = _.pick(updatedBot, [
       'name',
@@ -139,8 +153,13 @@ export class BotService {
       'details',
       'disabled',
       'private',
+      'defaultLanguage',
+      'languages',
       'locked'
     ]) as Partial<BotConfig>
+
+    // bot needs to be mounted to perform the language changes
+    updatedFields.disabled = updatedFields.disabled && actualBot.defaultLanguage == updatedFields.defaultLanguage
 
     await this.configProvider.setBotConfig(botId, {
       ...actualBot,
@@ -149,7 +168,18 @@ export class BotService {
 
     if (actualBot.disabled && !updatedBot.disabled) {
       await this.mountBot(botId)
-    } else if (!actualBot.disabled && updatedBot.disabled) {
+    }
+
+    if (actualBot.defaultLanguage !== updatedBot.defaultLanguage) {
+      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage)
+    }
+
+    // This will regenerate previews for all the bot's languages
+    if (actualBot.languages !== updatedBot.languages) {
+      this.cms.recomputeElementsForBot(botId)
+    }
+
+    if (!actualBot.disabled && updatedBot.disabled) {
       await this.unmountBot(botId)
     }
   }
@@ -322,7 +352,7 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate) {
+  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate): Promise<BotConfig | undefined> {
     const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghostService)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfigPath = path.resolve(templatePath, BOT_CONFIG_FILENAME)
@@ -337,9 +367,16 @@ export class BotService {
           ...templateConfig,
           ...botConfig
         }
+
+        if (!mergedConfigs.defaultLanguage) {
+          mergedConfigs.disabled = true
+        }
+
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
         await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
         await scopedGhost.upsertFiles('/', files)
+
+        return mergedConfigs
       } else {
         throw new Error("Bot template doesn't exist")
       }

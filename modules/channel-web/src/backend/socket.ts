@@ -36,6 +36,10 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
 
+    if (!event.payload.type) {
+      event.payload.type = messageType
+    }
+
     if (messageType === 'typing') {
       const typing = parseTyping(event.payload.value)
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })

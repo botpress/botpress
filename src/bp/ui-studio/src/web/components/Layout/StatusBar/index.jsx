@@ -2,40 +2,17 @@ import style from './StatusBar.styl'
 import React from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
-import { Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Glyphicon } from 'react-bootstrap'
 import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 
 import { updateDocumentationModal } from '~/actions'
+import LangSwitcher from './LangSwitcher'
+import ActionItem from './ActionItem'
 
 const COMPLETED_DURATION = 2000
-
-const titleToId = txt => txt.replace(/[^\W]/gi, '_')
-
-const ActionItem = props => (
-  <OverlayTrigger
-    placement="top"
-    delayShow={500}
-    overlay={
-      <Tooltip id={titleToId(props.title)}>
-        <div>
-          <strong>{props.title}</strong>
-        </div>
-        {props.shortcut && <div className={style.shortcut}>{props.shortcut}</div>}
-        {props.description}
-      </Tooltip>
-    }
-  >
-    <div
-      className={classNames(style.clickable, style.item, props.className)}
-      {..._.omit(props, ['title', 'description', 'children', 'className'])}
-    >
-      {props.children}
-    </div>
-  </OverlayTrigger>
-)
 
 class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
@@ -172,6 +149,10 @@ class StatusBar extends React.Component {
           </ActionItem>
           {this.renderDocHints()}
           {this.renderTaskProgress()}
+          <LangSwitcher
+            toggleLangSwitcher={this.props.toggleLangSwitcher}
+            langSwitcherOpen={this.props.langSwitcherOpen}
+          />
         </div>
       </footer>
     )
@@ -179,6 +160,7 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  botInfo: state.bot,
   docHints: state.ui.docHints
 })
 

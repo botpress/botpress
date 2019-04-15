@@ -9,10 +9,10 @@ import {
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert } from 'react-icons/lib/md'
+import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert, MdWarning } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
-export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange }) => (
+export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange, history }) => (
   <div className="pipeline_bot" key={bot.id}>
     <div className="actions">
       <UncontrolledButtonDropdown>
@@ -27,7 +27,7 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
-          <DropdownItem disabled={bot.locked} tag="a" href={`/admin/bot/${bot.id}/details`}>
+          <DropdownItem disabled={bot.locked} onClick={() => history.push(`/bot/${bot.id}/details`)}>
             <FaCog />
             &nbsp;Configs
           </DropdownItem>
@@ -58,6 +58,14 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
         </span>
       )}
       {bot.disabled ? <span>{bot.name}</span> : <a href={`/studio/${bot.id}`}>{bot.name}</a>}
+      {!bot.defaultLanguage && (
+        <React.Fragment>
+          <MdWarning id={`${bot.id}-warn`} className="text-danger" />
+          <UncontrolledTooltip placement="right" target={`${bot.id}-warn`}>
+            Bot language is missing. Please set it in bot config.
+          </UncontrolledTooltip>
+        </React.Fragment>
+      )}
     </div>
     <p>{bot.description}</p>
     <div>

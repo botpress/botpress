@@ -30,6 +30,7 @@
     "react-ga": "^2.1.2",
     "react-highlight-words": "^0.11.0",
     "react-hotkeys": "^1.1.4",
+    "react-icons": "^3.5.0",
     "react-json-tree": "^0.11.0",
     "react-jsonschema-form": "^1.0.3",
     "react-loaders": "^3.0.1",

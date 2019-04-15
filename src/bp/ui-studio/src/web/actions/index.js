@@ -210,3 +210,6 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
       })
     )
 }
+
+//Language
+export const changeContentLanguage = createAction('LANGUAGE/CONTENT_LANGUAGE', contentLang => ({ contentLang }))

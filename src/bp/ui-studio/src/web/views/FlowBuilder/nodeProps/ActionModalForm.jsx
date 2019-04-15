@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, OverlayTrigger, Tooltip, Glyphicon } from 'react-bootstrap'
+import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import axios from 'axios'
 import _ from 'lodash'
@@ -158,23 +158,11 @@ export default class ActionModalForm extends Component {
       this.setState({ messageValue: `say #!${item.id}` })
     }
 
-    const tooltip = (
-      <Tooltip id="howMessageWorks">
-        You can type a regular message here or you can also provide a valid UMM bloc, for example &quot;#help&quot;.
-      </Tooltip>
-    )
-
-    const help = (
-      <OverlayTrigger placement="bottom" overlay={tooltip}>
-        <i className="material-icons">help</i>
-      </OverlayTrigger>
-    )
-
     const itemId = this.textToItemId(this.state.messageValue)
 
     return (
       <div>
-        <h5>Message {help}:</h5>
+        <h5>Message:</h5>
         <div className={style.section}>
           <ContentPickerWidget itemId={itemId} onChange={handleChange} placeholder="Message to send" />
         </div>
@@ -212,6 +200,7 @@ export default class ActionModalForm extends Component {
         onHide={this.onClose}
         container={document.getElementById('app')}
         onKeyDown={this.handleKeyDown}
+        backdrop={'static'}
       >
         <Modal.Header closeButton>
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>

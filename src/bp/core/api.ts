@@ -180,9 +180,7 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     getContentElements(botId: string, ids: string[]): Promise<any[]> {
       return cmsService.getContentElements(botId, ids)
     },
-    listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
-      return cmsService.listContentElements(botId, contentTypeId, searchParams)
-    },
+    listContentElements: cmsService.listContentElements.bind(cmsService),
     deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)

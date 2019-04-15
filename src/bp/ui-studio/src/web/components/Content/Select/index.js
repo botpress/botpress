@@ -8,6 +8,7 @@ import Loading from '~/components/Util/Loading'
 import CreateOrEditModal from '../CreateOrEditModal'
 import { fetchContentItems, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import axios from 'axios'
+import withLanguage from '../../Util/withLanguage'
 
 const style = require('./style.scss')
 
@@ -263,7 +264,7 @@ class SelectContent extends Component {
               className={`list-group-item list-group-item-action ${i === this.state.activeItemIndex ? 'active' : ''}`}
               onClick={() => this.handlePick(contentItem)}
             >
-              {`[${contentItem.contentType}] ${contentItem.previewText}`}
+              {`[${contentItem.contentType}] ${contentItem.previews[this.props.contentLang]}`}
             </a>
           ))}
         </div>
@@ -288,7 +289,14 @@ class SelectContent extends Component {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal animation={false} show={show} onHide={this.onClose} container={container} style={{ zIndex: 1051 }}>
+      <Modal
+        animation={false}
+        show={show}
+        onHide={this.onClose}
+        container={container}
+        style={{ zIndex: 1051 }}
+        backdrop={'static'}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
@@ -324,4 +332,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SelectContent)
+)(withLanguage(SelectContent))

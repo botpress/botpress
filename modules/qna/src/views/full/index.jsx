@@ -24,6 +24,7 @@ import Promise from 'bluebird'
 
 import FormModal from './FormModal'
 import style from './style.scss'
+import 'react-select/dist/react-select.css'
 import './button.css'
 
 const ITEMS_PER_PAGE = 50
@@ -220,7 +221,11 @@ export default class QnaAdmin extends Component {
     const { csvUploadStatus } = this.state
 
     return (
-      <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
+      <Modal
+        show={this.state.importCsvModalShow}
+        onHide={() => this.setState({ importCsvModalShow: false })}
+        backdrop={'static'}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Import CSV</Modal.Title>
         </Modal.Header>
@@ -241,7 +246,7 @@ export default class QnaAdmin extends Component {
                 accept=".csv"
                 onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
               />
-              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
+              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
             </FormGroup>
             <FormGroup>
               <Checkbox
