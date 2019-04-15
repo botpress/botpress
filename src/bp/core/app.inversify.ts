@@ -3,15 +3,13 @@ import { Container } from 'inversify'
 
 import { BotpressAPIProvider } from './api'
 import { Botpress } from './botpress'
-import { BotConfigWriter } from './config'
-import { ConfigProvider, GhostConfigProvider } from './config/config-loader'
+import { ConfigProvider } from './config/config-loader'
 import { DatabaseContainerModules } from './database/database.inversify'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from './logger'
 import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
-import { MonitoringService } from './services/monitoring'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
@@ -81,12 +79,7 @@ container
 
 container
   .bind<ConfigProvider>(TYPES.ConfigProvider)
-  .to(GhostConfigProvider)
-  .inSingletonScope()
-
-container
-  .bind<BotConfigWriter>(TYPES.BotConfigWriter)
-  .to(BotConfigWriter)
+  .to(ConfigProvider)
   .inSingletonScope()
 
 container
@@ -110,7 +103,6 @@ container
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
-const isProduction = process.IS_PRODUCTION
 
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 

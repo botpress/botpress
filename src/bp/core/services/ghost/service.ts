@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, ListenHandle } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { forceForwardSlashes } from 'core/misc/utils'
@@ -11,13 +11,14 @@ import path from 'path'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
+import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
 
 import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
+import { EventEmitter2 } from 'eventemitter2'
 
-const tar = require('tar')
 const MAX_GHOST_FILE_SIZE = 10 * 1024 * 1024 // 10 Mb
 
 @injectable()
@@ -71,6 +72,12 @@ export class GhostService {
       this.logger
     )
 
+    process.BOTPRESS_EVENTS.on('after_bot_unmount', args => {
+      if (args.botId === botId) {
+        scopedGhost.events.removeAllListeners()
+      }
+    })
+
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
   }
@@ -91,19 +98,10 @@ export class GhostService {
         const outFiles = (await this.forBot(bid).exportToDirectory(p)).map(f => path.join(`bots/${bid}`, f))
         files.push(...outFiles)
       })
-      const outFile = path.join(tmpDir.name, 'archive.tgz')
 
-      await tar.create(
-        {
-          cwd: tmpDir.name,
-          file: outFile,
-          portable: true,
-          gzip: true
-        },
-        files
-      )
-
-      return await fse.readFile(outFile)
+      const filename = path.join(tmpDir.name, 'archive.tgz')
+      const archive = await createArchive(filename, tmpDir.name, files)
+      return await fse.readFile(archive)
     } finally {
       tmpDir.removeCallback()
     }
@@ -131,6 +129,7 @@ export interface FileContent {
 export class ScopedGhostService {
   isDirectoryGlob: boolean
   primaryDriver: StorageDriver
+  events: EventEmitter2 = new EventEmitter2()
 
   constructor(
     private baseDir: string,
@@ -187,6 +186,7 @@ export class ScopedGhostService {
     }
 
     await this.primaryDriver.upsertFile(fileName, content, true)
+    this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }
 
@@ -266,6 +266,33 @@ export class ScopedGhostService {
     return allFiles
   }
 
+  public async importFromDirectory(directory: string) {
+    const filenames = await this.diskDriver.absoluteDirectoryListing(directory)
+
+    const files = filenames.map(file => {
+      return {
+        name: file,
+        content: fse.readFileSync(path.join(directory, file))
+      } as FileContent
+    })
+
+    await this.upsertFiles('/', files)
+  }
+
+  public async exportToArchiveBuffer(): Promise<Buffer> {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+    try {
+      const outFiles = await this.exportToDirectory(tmpDir.name)
+      const filename = path.join(tmpDir.name, 'archive.tgz')
+
+      const archive = await createArchive(filename, tmpDir.name, outFiles)
+      return await fse.readFile(archive)
+    } finally {
+      tmpDir.removeCallback()
+    }
+  }
+
   public async isFullySynced(): Promise<boolean> {
     if (!this.useDbDriver) {
       return true
@@ -327,6 +354,7 @@ export class ScopedGhostService {
 
     const fileName = this.normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
+    this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }
 
@@ -377,5 +405,11 @@ export class ScopedGhostService {
     }
 
     return result
+  }
+
+  onFileChanged(callback: (filePath: string) => void): ListenHandle {
+    const cb = file => callback && callback(file)
+    this.events.on('changed', cb)
+    return { remove: () => this.events.off('changed', cb) }
   }
 }

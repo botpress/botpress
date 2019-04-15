@@ -24,7 +24,7 @@ const validateChoice = async data => {
   if (!choice && config.matchNLU) {
     choice = _.findKey(data.keywords, keywords => {
       const intents = keywords
-        .filter(x => x.toLowerCase().startsWith(INTENT_PREFIX))
+        .filter(x => (x || '').toLowerCase().startsWith(INTENT_PREFIX))
         .map(x => x.substr(INTENT_PREFIX.length))
       return _.some(intents, k => event.nlu.intent.name === k)
     })
@@ -35,8 +35,8 @@ const validateChoice = async data => {
       _.some(
         keywords || [],
         k =>
-          _.includes(event.preview.toLowerCase(), k.toLowerCase()) ||
-          (event.payload && _.includes(_.get(event, 'payload.text', '').toLowerCase(), k.toLowerCase()))
+          _.includes((event.preview || '').toLowerCase(), (k || '').toLowerCase()) ||
+          (event.payload && _.includes(_.get(event, 'payload.text', '').toLowerCase(), (k || '').toLowerCase()))
       )
     )
   }

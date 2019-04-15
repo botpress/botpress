@@ -72,6 +72,10 @@ export default class ScopedEngine implements Engine {
       this.confidenceTreshold = 0.7
     }
 
+    if (this.config.preloadModels) {
+      this.sync()
+    }
+
     if (!isNaN(this._autoTrainInterval) && this._autoTrainInterval >= 5000) {
       if (this._autoTrainTimer) {
         clearInterval(this._autoTrainTimer)

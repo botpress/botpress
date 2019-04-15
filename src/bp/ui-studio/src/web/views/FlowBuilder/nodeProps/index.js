@@ -16,6 +16,7 @@ export default class NodePropsModal extends Component {
         show={this.props.show}
         onHide={this.props.closeFlowNodeProps}
         container={document.getElementById('app')}
+        backdrop={'static'}
       >
         <Modal.Header closeButton>
           <Modal.Title>{node ? 'Node Properties' : 'Flow Properties'}</Modal.Title>
@@ -49,7 +50,6 @@ export default class NodePropsModal extends Component {
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
           requestEditSkill={this.props.requestEditSkill}
-          goToFlow={this.goToFlow}
           copyFlowNodeElement={this.props.copyFlowNodeElement}
           pasteFlowNodeElement={this.props.pasteFlowNodeElement}
           buffer={this.props.buffer}

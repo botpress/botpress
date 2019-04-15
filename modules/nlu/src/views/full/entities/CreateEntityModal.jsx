@@ -56,7 +56,7 @@ export default class CreateEntityModal extends React.Component {
 
   render() {
     return (
-      <Modal show={this.props.visible} bsSize="small" onHide={this.props.hide} animation={false}>
+      <Modal show={this.props.visible} bsSize="small" onHide={this.props.hide} animation={false} backdrop={'static'}>
         <Modal.Header closeButton>
           <Modal.Title>Create Entity</Modal.Title>
         </Modal.Header>

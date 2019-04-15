@@ -1,24 +1,7 @@
 import Axios from 'axios'
 import chalk from 'chalk'
-import fs from 'fs'
-import stream from 'stream'
-import tar from 'tar'
 
-const _extractToDir = async (archive, target) => {
-  if (!fs.existsSync(target)) {
-    fs.mkdirSync(target)
-  }
-  const buffStream = new stream.PassThrough()
-  const tarWriteStream = tar.x({ sync: true, strict: true, cwd: target })
-
-  buffStream.end(archive)
-  buffStream.pipe(tarWriteStream)
-
-  return new Promise((resolve, reject) => {
-    tarWriteStream.on('end', resolve)
-    tarWriteStream.on('error', reject)
-  })
-}
+import { extractArchive } from './core/misc/archive'
 
 export default ({ url, authToken, targetDir }) => {
   if (!url || !authToken || !targetDir) {
@@ -42,7 +25,7 @@ export default ({ url, authToken, targetDir }) => {
 
 async function _pull(host: string, auth: string, dir: string) {
   const archive = await _fetchFullExport(host, auth)
-  return _extractToDir(archive, dir)
+  return extractArchive(archive, dir)
 }
 
 async function _fetchFullExport(host: string, auth: string) {

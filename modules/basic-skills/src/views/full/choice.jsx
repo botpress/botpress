@@ -84,7 +84,7 @@ export class Choice extends React.Component {
 
   onContentChanged = (element, force = false) => {
     if (element && (force || element.id !== this.state.contentId)) {
-      this.choices = _.get(element, 'formData.choices') || [] //CHANGED
+      this.choices = _.get(element, 'formData.choices$' + this.props.contentLang) || []
       const initialKeywords = element.id === this.state.contentId ? this.state.keywords : {}
       const keywords = this.choices.reduce((acc, v) => {
         if (!acc[v.value]) {

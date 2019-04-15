@@ -4,6 +4,9 @@ import _ from 'lodash'
 import { SDK } from '.'
 import Database from './db'
 
+const debug = DEBUG('hitl')
+const debugSwallow = debug.sub('swallow')
+
 export default async (bp: SDK, db: Database) => {
   bp.events.registerMiddleware({
     name: 'hitl.captureInMessages',
@@ -30,22 +33,27 @@ export default async (bp: SDK, db: Database) => {
       return next()
     }
 
-    const session = await db.getUserSession(event)
+    const session = await db.getOrCreateUserSession(event)
     if (!session) {
       return next()
     }
 
     if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins(event.target, 'hitl.session', session))
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
     }
 
-    const message = await db.appendMessageToSession(event, session.id, 'in')
-    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
+    await db.appendMessageToSession(event, session.id, 'in')
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
 
     const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
 
     if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
-      bp.logger.debug('Session paused, message swallowed:', event.preview)
+      debugSwallow('message swallowed / session paused', {
+        target: event.target,
+        channel: event.channel,
+        preview: event.preview,
+        type: event.type
+      })
       // the session or bot is paused, swallow the message
       // @ts-ignore
       Object.assign(event, { isPause: true })
@@ -61,19 +69,19 @@ export default async (bp: SDK, db: Database) => {
       return next()
     }
 
-    const session = await db.getUserSession(event)
+    const session = await db.getOrCreateUserSession(event)
 
     if (!session) {
       return next()
     }
 
     if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins(event.target, 'hitl.session', session))
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
     }
 
-    const message = await db.appendMessageToSession(event, session.id, 'out')
+    await db.appendMessageToSession(event, session.id, 'out')
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
 
-    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'hitl.message', message))
     next()
   }
 }
