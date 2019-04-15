@@ -283,6 +283,10 @@ export default class HTTPServer {
     return this.botsRouter.getNewRouter(router, options)
   }
 
+  deleteRouterForBot(router: string): void {
+    return this.botsRouter.deleteRouter(router, this.app)
+  }
+
   createShortLink(name: string, destination: string, params: any) {
     this.shortlinksRouter.createShortLink(name, destination, params)
   }

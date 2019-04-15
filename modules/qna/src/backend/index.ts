@@ -25,6 +25,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.unregisterMiddleware('qna.incoming')
+  bp.http.deleteRouterForBot('qna')
 }
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {

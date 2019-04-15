@@ -15,6 +15,10 @@ const onServerReady = async (bp: SDK) => {
   await choice.setup(bp)
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.http.deleteRouterForBot('basic-skills')
+}
+
 const skillsToRegister: sdk.Skill[] = [
   {
     id: 'choice',
@@ -31,6 +35,7 @@ const skillsToRegister: sdk.Skill[] = [
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
+  onModuleUnmount,
   definition: {
     name: 'basic-skills',
     menuIcon: 'fiber_smart_record',

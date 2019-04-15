@@ -959,6 +959,13 @@ declare module 'botpress/sdk' {
     export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
 
     /**
+     * This method is meant to unregister a router before unloading a module. It is meant to be used in a development environment.
+     * It could cause unpredictable behaviour in production
+     * @param routerName The name of the router (must have been registered with createRouterForBot)
+     */
+    export function deleteRouterForBot(routerName: string)
+
+    /**
      * Returns the required configuration to make an API call to another module by specifying only the relative path.
      * @param botId - The ID of the bot for which to get the configuration
      * @returns The configuration to use

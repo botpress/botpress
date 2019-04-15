@@ -17,6 +17,7 @@ const onServerReady = async (bp: typeof sdk) => {}
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.unregisterMiddleware('web.sendMessages')
+  bp.http.deleteRouterForBot('channel-web')
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

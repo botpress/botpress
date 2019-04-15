@@ -33,6 +33,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.unregisterMiddleware('analytics.incoming')
   bp.events.unregisterMiddleware('analytics.outgoing')
+  bp.http.deleteRouterForBot('analytics')
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

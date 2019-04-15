@@ -39,6 +39,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
     },
+    deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
     },
