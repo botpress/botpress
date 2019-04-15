@@ -7,7 +7,6 @@
   "webpack": {
     "externals": {
       "react": "React",
-      "react-ace": "AceEditor",
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
       "reactstrap": "Reactstrap",

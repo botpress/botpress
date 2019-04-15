@@ -22,7 +22,6 @@
     "prop-types": "^15.6.0",
     "query-string": "^6.4.0",
     "react": "^16.4.0",
-    "react-ace": "^6.4.0",
     "react-bootstrap": "^0.32.1",
     "react-dock": "^0.2.4",
     "react-dom": "^16.4.0",
