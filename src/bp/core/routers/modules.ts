@@ -40,9 +40,10 @@ export class ModulesRouter extends CustomRouter {
 
         if (module) {
           await this.moduleLoader.reloadModule(module.location, moduleName)
+          return res.sendStatus(200)
         }
 
-        res.sendStatus(200)
+        res.sendStatus(404)
       })
     )
 
