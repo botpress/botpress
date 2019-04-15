@@ -153,10 +153,6 @@ export class Slot extends React.Component {
     this.setState({ selectedActionOption })
   }
 
-  handleClear = () => {
-    this.setState({ selectedActionOption: undefined })
-  }
-
   getSlotOptionsForIntent(intent) {
     return (
       intent &&
@@ -257,7 +253,7 @@ export class Slot extends React.Component {
               value={this.state.selectedActionOption}
               options={this.state.actions}
               onChange={this.handleActionChange}
-              onClear={this.handleClear}
+              isClearable={true}
             />
           </Col>
         </Row>

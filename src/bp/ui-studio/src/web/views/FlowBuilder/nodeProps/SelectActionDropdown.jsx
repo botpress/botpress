@@ -37,7 +37,7 @@ export default class SelectActionDropdown extends Component {
         onChange={this.props.onChange}
         options={this.props.options}
         value={this.props.value}
-        isClearable={this.props.onClear}
+        isClearable={this.props.isClearable}
         formatOptionLabel={this.renderOption}
       />
     )
