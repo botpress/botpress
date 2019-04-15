@@ -3,7 +3,33 @@ id: webchat-extending
 title: Extending the webchat
 ---
 
-## The Basics
+## CSS Customization
+
+You can customize the look and feel of the Botpress Webchat with a custom stylesheet. Armed with the [list of all overridable classes](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css) and your browser inspector, you can customize every element of the Webchat.
+
+1. Add the `extraStylesheet: "path/to/custom-style.css"` property to your `window.botpressWebChat.init()` script. See [embedding](https://botpress.io/docs/recipes/embedding) if you don't know about `.init()`.
+1. Create your `custom-style.css` file and override the classes of your choice:
+
+```css
+.bpw-chat-bubble {
+  border-radius: 14px;
+  border-color: #0069ff;
+  margin: 14px;
+}
+
+.bpw-from-bot .bpw-chat-bubble {
+  background-color: #0069ff;
+  color: white;
+}
+
+.bpw-message-big-container {
+  background-color: #010e28;
+}
+```
+
+![WebChat Customization](assets/webchat-customization.png)
+
+## Advanced Customization
 
 Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other informations included on that payload should be rendered on screen.
 
