@@ -21,6 +21,6 @@ test('Trainer XOR', async () => {
   const rA = await predictor.predict([0, 0])
   const rB = await predictor.predict([1, 1])
 
-  expect(rA[0].label).toBe('0')
-  expect(rB[0].label).toBe('1')
+  expect(rA[0].label).toBe('A')
+  expect(rB[0].label).toBe('B')
 })

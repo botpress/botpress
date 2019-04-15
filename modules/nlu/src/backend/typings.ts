@@ -54,7 +54,7 @@ export interface LanguageIdentifier {
 }
 
 export const MODEL_TYPES = {
-  INTENT: 'intent',
+  INTENT: ['intent-l0', 'intent-l1', 'intent-tfidf', 'vocab'],
   SLOT_LANG: 'slot-language-model',
   SLOT_CRF: 'slot-crf',
   INTENT_LM: 'intent-lm'

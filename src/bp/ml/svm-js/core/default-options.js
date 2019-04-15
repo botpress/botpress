@@ -23,7 +23,7 @@ module.exports = {
 
   normalize: true, // whether to use mean normalization during data pre-processing
 
-  reduce: true, // whether to use PCA to reduce dataset dimension during data pre-processing
+  reduce: false, // whether to use PCA to reduce dataset dimension during data pre-processing
   // (see http://en.wikipedia.org/wiki/Principal_component_analysis)
   'retained-variance': 0.99, // Define the acceptable impact on data integrity (if PCA activated)
 

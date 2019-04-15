@@ -11,6 +11,7 @@ import models from './models'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
 import { EngineByBot } from './typings'
+import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 
 const nluByBot: EngineByBot = {}
 
@@ -18,7 +19,11 @@ const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
+
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+
+  FTWordVecFeaturizer.setToolkit(bp.MLToolkit)
+  FTWordVecFeaturizer.provideLanguage('en', '/Users/sly/Downloads/cc.en.300.bin')
 
   await registerMiddleware(bp, nluByBot)
 }

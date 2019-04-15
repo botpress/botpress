@@ -11,6 +11,36 @@ import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 10
 
+// TODO: new files architecture for multi-lang training
+/* models/
+      en/
+        contexts/
+          000abc.svm.bin
+          000abc.svm.confusion.json
+        intents/
+          000abc.svm.bin
+          000abc.svm.confusion.json
+          000bcd.svm.bin
+          000ehg.svm.bin
+        slots/
+          000abc.crf.bin
+          000abc.crf.confusion.json
+        generic/
+          000abc.skipgram.bin
+*/
+
+/*
+  imported_models: {
+    contexts_svm: hash
+    intents_svm: [hashes]
+    slots_crf: hash
+    generic_skipgram: hash
+  },
+  models: {
+    hash: { language, trained_on, imported_on, train_elasped, confusion_available }
+  }
+*/
+
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 
@@ -203,6 +233,8 @@ export default class Storage {
       )
     }
   }
+
+  async persistModels2(models: Partial<FullModel>) {}
 
   async persistModels(models: Model[]) {
     await Promise.map(models, model => this._persistModel(model))
