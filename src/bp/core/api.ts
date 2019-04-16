@@ -57,7 +57,7 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
-    unregisterMiddleware: eventEngine.unregister.bind(eventEngine),
+    removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },

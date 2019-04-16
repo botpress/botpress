@@ -24,8 +24,8 @@ const onServerReady = async (bp: SDK) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.unregisterMiddleware('hitl.captureInMessages')
-  bp.events.unregisterMiddleware('hitl.captureOutMessages')
+  bp.events.removeMiddleware('hitl.captureInMessages')
+  bp.events.removeMiddleware('hitl.captureOutMessages')
   bp.http.deleteRouterForBot('hitl')
 }
 

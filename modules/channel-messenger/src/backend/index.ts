@@ -25,7 +25,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.unregisterMiddleware('messenger.sendMessages')
+  bp.events.removeMiddleware('messenger.sendMessages')
   bp.http.deleteRouterForBot('channel-messenger')
 }
 

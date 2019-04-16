@@ -1001,8 +1001,8 @@ declare module 'botpress/sdk' {
      */
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
 
-    /** Unregisters the specified middleware from the chain. This is mostly used in case of a module being reloaded */
-    export function unregisterMiddleware(middlewareName): void
+    /** Removes the specified middleware from the chain. This is mostly used in case of a module being reloaded */
+    export function removeMiddleware(middlewareName): void
 
     /**
      * Send an event through the incoming or outgoing middleware chain

@@ -143,9 +143,19 @@ export class EventEngine {
     }
   }
 
-  unregister(middlewareName: string): void {
-    this.incomingMiddleware = this.incomingMiddleware.filter(x => x.name !== middlewareName)
-    this.outgoingMiddleware = this.outgoingMiddleware.filter(x => x.name !== middlewareName)
+  removeMiddleware(middlewareName: string): void {
+    const mw = [...this.incomingMiddleware, ...this.outgoingMiddleware].find(x => x.name === middlewareName)
+    if (!mw) {
+      return
+    }
+
+    if (mw.direction === 'incoming') {
+      debugIncoming('unregister %o', middlewareName)
+      this.incomingMiddleware = this.incomingMiddleware.filter(x => x.name !== middlewareName)
+    } else {
+      debugOutgoing('unregister %o', middlewareName)
+      this.outgoingMiddleware = this.outgoingMiddleware.filter(x => x.name !== middlewareName)
+    }
   }
 
   async sendEvent(event: sdk.IO.Event) {

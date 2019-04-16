@@ -36,7 +36,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.unregisterMiddleware('telegram.sendMessages')
+  bp.events.removeMiddleware('telegram.sendMessages')
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

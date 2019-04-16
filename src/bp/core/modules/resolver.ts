@@ -105,7 +105,7 @@ export default class ModuleResolver {
     let originalRequirePaths = global.require.getPaths()
 
     try {
-      // We bump temporarily bump the module's node_modules in priority
+      // We temporarily bump the module's node_modules in priority
       // So that it loads the local versions of its own dependencies
       global.require.overwritePaths([
         path.join(moduleLocation, 'node_production_modules'),
