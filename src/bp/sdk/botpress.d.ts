@@ -67,6 +67,8 @@ declare module 'botpress/sdk' {
     error(message: string, metadata?: any): void
   }
 
+  export type ElementChangedAction = 'insert' | 'update' | 'delete'
+
   /**
    * The Module Entry Point is used by the module loader to bootstrap the module. It must be present in the index.js file
    * of the module. The path to the module must also be specified in the global botpress config.
@@ -85,6 +87,17 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     onFlowChanged?: ((bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void)
+    /**
+     * This method is called whenever a content element is created, updated or deleted.
+     * Modules can act on these events if they need to update references, for example.
+     */
+    onElementChanged: ((
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      action: ElementChangedAction,
+      element: ContentElement,
+      oldElement?: ContentElement
+    ) => void)
   }
 
   /**
