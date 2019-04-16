@@ -193,7 +193,7 @@ export class CMSService implements IDisposeOnExit {
     const dbElements = await query.offset(from)
     const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
 
-    return Promise.map(elements, el => this.translateIfRequired(el, language))
+    return Promise.map(elements, el => (language ? this._translateElement(el, language) : el))
   }
 
   async getContentElement(botId: string, id: string, language?: string): Promise<ContentElement> {
@@ -201,14 +201,15 @@ export class CMSService implements IDisposeOnExit {
       .where({ botId, id })
       .get(0)
 
-    return this.translateIfRequired(this.transformDbItemToApi(element), language)
+    const deserialized = this.transformDbItemToApi(element)
+    return language ? this._translateElement(deserialized, language) : deserialized
   }
 
   async getContentElements(botId: string, ids: string[], language?: string): Promise<ContentElement[]> {
     const elements = await this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
 
     const apiElements: ContentElement[] = elements.map(this.transformDbItemToApi)
-    return Promise.map(apiElements, el => this.translateIfRequired(el, language))
+    return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
   async countContentElements(botId: string): Promise<number> {
@@ -372,11 +373,7 @@ export class CMSService implements IDisposeOnExit {
     await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
   }
 
-  private translateIfRequired(element: ContentElement, language?: string) {
-    if (!language) {
-      return element
-    }
-
+  private _translateElement(element: ContentElement, language: string) {
     return {
       ...element,
       formData: this.getOriginalProps(element.formData, this.getContentType(element.contentType), language)
