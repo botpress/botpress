@@ -539,11 +539,13 @@ export class CMSService implements IDisposeOnExit {
         ...args,
         ...content.formData
       }
-    } else if (args.text) {
+    } else {
       contentTypeRenderer = await this.getContentType(contentId)
-      args = {
-        ...args,
-        text: renderTemplate(args.text, args)
+      if (args.text) {
+        args = {
+          ...args,
+          text: renderTemplate(args.text, args)
+        }
       }
     }
 
