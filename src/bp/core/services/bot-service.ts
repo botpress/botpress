@@ -368,6 +368,11 @@ export class BotService {
           ...botConfig
         }
 
+        if (!mergedConfigs.imports.contentTypes) {
+          const allContentTypes = await this.cms.getAllContentTypes()
+          mergedConfigs.imports.contentTypes = allContentTypes.map(x => x.id)
+        }
+
         if (!mergedConfigs.defaultLanguage) {
           mergedConfigs.disabled = true
         }

@@ -1,0 +1,21 @@
+{
+  "name": "extensions",
+  "version": "1.0.0",
+  "description": "Advanced components for the webchat",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "react-select": "^2.4.2"
+  }
+}
