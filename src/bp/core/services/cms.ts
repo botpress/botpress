@@ -193,25 +193,23 @@ export class CMSService implements IDisposeOnExit {
     const dbElements = await query.offset(from)
     const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
 
-    if (language) {
-      return elements.map(el => {
-        return { ...el, formData: this.getOriginalProps(el.formData, this.getContentType(el.contentType), language) }
-      })
-    }
-    return elements
+    return Promise.map(elements, el => (language ? this._translateElement(el, language) : el))
   }
 
-  async getContentElement(botId: string, id: string): Promise<ContentElement> {
+  async getContentElement(botId: string, id: string, language?: string): Promise<ContentElement> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
       .get(0)
 
-    return this.transformDbItemToApi(element)
+    const deserialized = this.transformDbItemToApi(element)
+    return language ? this._translateElement(deserialized, language) : deserialized
   }
 
-  async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
+  async getContentElements(botId: string, ids: string[], language?: string): Promise<ContentElement[]> {
     const elements = await this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
-    return Promise.map(elements, this.transformDbItemToApi)
+
+    const apiElements: ContentElement[] = elements.map(this.transformDbItemToApi)
+    return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
   async countContentElements(botId: string): Promise<number> {
@@ -267,8 +265,9 @@ export class CMSService implements IDisposeOnExit {
   private async _createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
-    formData: string,
-    contentElementId?: string
+    formData: object,
+    contentElementId?: string,
+    language?: string
   ): Promise<string> {
     process.ASSERT_LICENSED()
     contentTypeId = contentTypeId.toLowerCase()
@@ -279,6 +278,20 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
+
+    // If language is specified, we update only the one specified. This is mostly for requests made with the SDK
+    if (language) {
+      // If we are editing an existing content elements, we need to fetch other translations to merge them so they aren't lost
+      if (contentElementId) {
+        formData = {
+          ...(await this.getContentElement(botId, contentElementId)).formData,
+          ...this.getTranslatedProps(formData, language)
+        }
+      } else {
+        formData = this.getTranslatedProps(formData, language)
+      }
+    }
+
     const contentElement = {
       formData,
       ...(await this.fillComputedProps(contentType, formData, languages, defaultLanguage))
@@ -360,6 +373,13 @@ export class CMSService implements IDisposeOnExit {
     await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
   }
 
+  private _translateElement(element: ContentElement, language: string) {
+    return {
+      ...element,
+      formData: this.getOriginalProps(element.formData, this.getContentType(element.contentType), language)
+    }
+  }
+
   private transformDbItemToApi(item: any): ContentElement {
     if (!item) {
       return item
@@ -419,7 +439,7 @@ export class CMSService implements IDisposeOnExit {
     }
   }
 
-  private async fillComputedProps(contentType: ContentType, formData: string, languages: string[], defaultLanguage) {
+  private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
     if (formData == undefined) {
       throw new Error('"formData" must be a valid object')
     }
@@ -427,10 +447,7 @@ export class CMSService implements IDisposeOnExit {
     const expandedFormData = await this.resolveRefs(formData)
     const previews = this.computePreviews(contentType.id, expandedFormData, languages, defaultLanguage)
 
-    return {
-      formData,
-      previews
-    }
+    return { previews }
   }
 
   private computePreviews(contentTypeId, formData, languages, defaultLang) {

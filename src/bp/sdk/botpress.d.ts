@@ -1144,11 +1144,12 @@ declare module 'botpress/sdk' {
      * Returns a single Content Element
      * @param botId - The ID of the bot
      * @param id - The element id
+     * @param language - If language is set, it will return only the desired language with the base properties
      * @returns A content element
      */
-    export function getContentElement(botId: string, id: string): Promise<ContentElement>
+    export function getContentElement(botId: string, id: string, language?: string): Promise<ContentElement>
 
-    export function getContentElements(botId: string, ids: string[]): Promise<ContentElement[]>
+    export function getContentElements(botId: string, ids: string[], language?: string): Promise<ContentElement[]>
 
     /**
      *
@@ -1188,11 +1189,21 @@ declare module 'botpress/sdk' {
       eventDestination: IO.EventDestination
     ): Promise<object[]>
 
+    /**
+     * Updates an existing content element, or creates it if its current ID isn't defined
+     *
+     * @param botId The ID of the bot
+     * @param contentTypeId Only used when creating an element (the ID of the content type (renderer))
+     * @param formData The content of your element. May includes translations or not (see language parameter)
+     * @param contentElementId If not specified, will be treated as a new element and will be inserted
+     * @param language When language is set, only that language will be updated on this element. Otherwise, replaces all content
+     */
     export function createOrUpdateContentElement(
       botId: string,
       contentTypeId: string,
-      formData: string,
-      contentElementId?: string
+      formData: object,
+      contentElementId?: string,
+      language?: string
     ): Promise<string>
 
     export function saveFile(botId: string, fileName: string, content: Buffer): Promise<string>
