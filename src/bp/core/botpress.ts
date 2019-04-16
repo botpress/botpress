@@ -4,7 +4,7 @@ import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import _, { Partial } from 'lodash'
+import _ from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -251,7 +251,11 @@ export class Botpress {
       const updatedConfig: any = {}
 
       if (!bot.defaultLanguage) {
-        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`)
+        this.logger.warn(
+          `Bot "${
+            bot.id
+          }" doesn't have a default language, which is now required, go to your admin console to fix this issue.`
+        )
         updatedConfig.disabled = true
       }
 

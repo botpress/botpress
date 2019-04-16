@@ -100,7 +100,8 @@ export class ConverseService {
 
   private async _createDonePromise(userId) {
     return new Promise((resolve, reject) => {
-      converseApiEvents.once(`done.${userId}`, event => {
+      converseApiEvents.once(`done.${userId}`, async event => {
+        await Promise.delay(250)
         if (this._responseMap[event.target]) {
           Object.assign(this._responseMap[event.target], <ResponseMap>{
             state: event.state,
