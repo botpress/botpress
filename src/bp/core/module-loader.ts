@@ -110,14 +110,13 @@ export class ModuleLoader {
     return Object.keys(initedModules)
   }
 
-  public async reloadModule(moduleLocation, moduleName) {
+  public async reloadModule(moduleLocation: string, moduleName: string) {
     const resolver = new ModuleResolver(this.logger)
     const absoluteLocation = await resolver.resolve(moduleLocation)
 
     await this._unloadModule(absoluteLocation, moduleName)
 
-    const req = resolver.requireModule(absoluteLocation)
-    const entryPoint = (req.default ? req.default : req) as ModuleEntryPoint
+    const entryPoint = resolver.requireModule(absoluteLocation)
     const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
 
     // Module loaded successfully, we will process its regular lifecycle
@@ -131,7 +130,7 @@ export class ModuleLoader {
     }
   }
 
-  private async _loadModule(module, name) {
+  private async _loadModule(module: ModuleEntryPoint, name: string) {
     try {
       ModuleLoader.processModuleEntryPoint(module, name)
       const api = await createForModule(name)
@@ -149,20 +148,22 @@ export class ModuleLoader {
     return true
   }
 
-  private async _unloadModule(moduleLocation, moduleName) {
+  private async _unloadModule(moduleLocation: string, moduleName: string) {
     const loadedModule = this.entryPoints.get(moduleName)
-    if (loadedModule) {
-      const api = await createForModule(moduleName)
-
-      if (loadedModule.onBotUnmount) {
-        await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
-      }
-
-      await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
-
-      this.entryPoints.delete(moduleName)
-      delete require.cache[require.resolve(moduleLocation)]
+    if (!loadedModule) {
+      return
     }
+
+    const api = await createForModule(moduleName)
+
+    if (loadedModule.onBotUnmount) {
+      await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
+    }
+
+    await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
+
+    this.entryPoints.delete(moduleName)
+    delete require.cache[require.resolve(moduleLocation)]
   }
 
   public async unloadModulesForBot(botId: string) {

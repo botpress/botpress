@@ -42,9 +42,8 @@ async function start() {
       }
 
       const moduleLocation = await resolver.resolve(entry.location)
-      const req = resolver.requireModule(moduleLocation)
+      const rawEntry = resolver.requireModule(moduleLocation)
 
-      const rawEntry = (req.default ? req.default : req) as sdk.ModuleEntryPoint
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)
       process.LOADED_MODULES[entryPoint.definition.name] = moduleLocation
