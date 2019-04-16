@@ -11,8 +11,10 @@ const callApi = async (url, method, body, memory, variable) => {
       data: body
     })
     event.state[memory][variable] = data
+    event.state.temp.valid = 'true'
   } catch (error) {
     bp.logger.warning(`Error: ${error.response.status || ''} while calling resource "${url}"`)
+    event.state.temp.valid = 'false'
   }
 }
 

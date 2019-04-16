@@ -4,7 +4,7 @@ import { Transition } from './typings'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   return {
-    transitions: createTransitions(data),
+    transitions: createTransitions(),
     flow: {
       nodes: createNodes(data),
       catchAll: {
@@ -37,10 +37,10 @@ const createNodes = data => {
   return nodes
 }
 
-const createTransitions = (data): Transition[] => {
+const createTransitions = (): Transition[] => {
   return [
-    { caption: 'On success', condition: `${data.memory}.${data.variable}`, node: '' },
-    { caption: 'On failure', condition: `!${data.memory}.${data.variable}`, node: '' }
+    { caption: 'On success', condition: 'temp.valid = "true"', node: '' },
+    { caption: 'On failure', condition: 'temp.valid = "false"', node: '' }
   ]
 }
 
