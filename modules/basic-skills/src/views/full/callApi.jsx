@@ -7,10 +7,10 @@ import { BotpressTooltip } from 'botpress/tooltip'
 import { LinkDocumentationProvider } from 'botpress/documentation'
 
 const methodOptions = [
-  { label: 'get', value: 'get' },
-  { label: 'post', value: 'post' },
-  { label: 'put', value: 'put' },
-  { label: 'delete', value: 'delete' }
+  { label: 'Get', value: 'get' },
+  { label: 'Post', value: 'post' },
+  { label: 'Put', value: 'put' },
+  { label: 'Delete', value: 'delete' }
 ]
 
 const memoryOptions = [
