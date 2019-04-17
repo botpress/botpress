@@ -104,25 +104,6 @@ class Commander extends React.Component {
     })
   }
 
-  addCommand22({ name, link, externalLink, openPopup, runCmd }) {
-    this.commands.push({
-      name,
-      command: () => {
-        if (link) {
-          this.props.history.push(link)
-        } else if (externalLink) {
-          window.location = externalLink
-        } else if (openPopup) {
-          window.open(openPopup)
-        } else if (runCmd && _.isFunction(runCmd)) {
-          runCmd()
-        } else {
-          console.log('not supported')
-        }
-      }
-    })
-  }
-
   render() {
     if (!this.state.commands) {
       return null
@@ -131,7 +112,7 @@ class Commander extends React.Component {
     const options = {
       key: 'name',
       keys: ['name'],
-      threshold: -2000,
+      threshold: -2000, // because why not ? fuzzy thing, ajustment required
       limit: 7,
       allowTypo: true
     }
