@@ -72,6 +72,11 @@ declare module 'botpress/sdk' {
    * of the module. The path to the module must also be specified in the global botpress config.
    */
   export interface ModuleEntryPoint {
+    /**
+     * Called when the module is unloaded, before being reloaded
+     * onBotUnmount is called for each bots before this one is called
+     * */
+    onModuleUnmount: ((bp: typeof import('botpress/sdk')) => void)
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted: ((bp: typeof import('botpress/sdk')) => void)
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -954,6 +959,13 @@ declare module 'botpress/sdk' {
     export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
 
     /**
+     * This method is meant to unregister a router before unloading a module. It is meant to be used in a development environment.
+     * It could cause unpredictable behaviour in production
+     * @param routerName The name of the router (must have been registered with createRouterForBot)
+     */
+    export function deleteRouterForBot(routerName: string)
+
+    /**
      * Returns the required configuration to make an API call to another module by specifying only the relative path.
      * @param botId - The ID of the bot for which to get the configuration
      * @returns The configuration to use
@@ -988,6 +1000,9 @@ declare module 'botpress/sdk' {
      * @param midddleware - The middleware definition to register
      */
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
+
+    /** Removes the specified middleware from the chain. This is mostly used in case of a module being reloaded */
+    export function removeMiddleware(middlewareName): void
 
     /**
      * Send an event through the incoming or outgoing middleware chain

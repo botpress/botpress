@@ -23,6 +23,11 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   botScopedStorage.delete(botId)
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.removeMiddleware('qna.incoming')
+  bp.http.deleteRouterForBot('qna')
+}
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
   const qnaStorage = await botScopedStorage.get(botId)
@@ -54,6 +59,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onModuleUnmount,
   onFlowChanged,
   definition: {
     name: 'qna',

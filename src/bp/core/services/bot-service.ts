@@ -445,4 +445,10 @@ export class BotService {
   private _invalidateBotIds(): void {
     this._botIds = undefined
   }
+
+  public static getMountedBots() {
+    const bots: string[] = []
+    BotService._mountedBots.forEach((isMounted, bot) => isMounted && bots.push(bot))
+    return bots
+  }
 }
