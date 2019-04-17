@@ -49,6 +49,12 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
   }
 }
 
+const shortcuts = [
+  { name: 'Create New Question', action: 'link', arg: '/modules/qna#create' },
+  { name: 'Import CSV', action: 'link', arg: '/modules/qna#importcsv' },
+  { name: 'Export CSV', action: 'link', arg: '/modules/qna#exportcsv' }
+]
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
@@ -60,7 +66,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'question_answer',
     menuText: 'Q&A',
     fullName: 'QNA',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.io',
+    shortcuts
   }
 }
 

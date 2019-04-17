@@ -118,6 +118,22 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+    shortcuts?: QuickShortcut[]
+  }
+
+  export interface QuickShortcut {
+    /** The label displayed in the command palette. The module name is automatically prepended */
+    name: string
+    /**
+     * These define how the parameters will be interpreted
+     * link: using history.router to redirect without refreshing the page
+     * externalLink: using window.location to reload the page to the destination
+     * popup: using window.open to open the request in a new tab
+     * runCmd: execute the function
+     */
+    action: 'link' | 'externalLink' | 'popup' | 'runCmd'
+    /** Any argument that the selected action can take  */
+    arg: any
   }
 
   /**

@@ -15,6 +15,13 @@ export class EntitiesComponent extends React.Component {
     this.fetchEntities()
   }
 
+  componentDidUpdate() {
+    if (window.location.hash === '#create') {
+      this.setState({ createModalVisible: true })
+    }
+    window.location.hash = ''
+  }
+
   fetchEntities = () => {
     this.props.bp.axios.get('/mod/nlu/entities').then(res => {
       const customEntities = res.data.filter(r => r.type !== 'system')

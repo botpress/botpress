@@ -26,6 +26,7 @@ import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import StatusBar from './StatusBar'
+import Commander from '../Shared/Commander'
 
 class Layout extends React.Component {
   state = {
@@ -86,6 +87,7 @@ class Layout extends React.Component {
     return (
       <HotKeys handlers={keyHandlers}>
         <DocumentationModal />
+        <Commander {...this.props} />
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <main className={layout.main} id="main" tabIndex={9999}>

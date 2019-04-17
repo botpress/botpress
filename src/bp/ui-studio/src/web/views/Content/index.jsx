@@ -49,6 +49,12 @@ class ContentView extends Component {
 
   componentDidUpdate() {
     this.init()
+
+    if (window.location.hash.length) {
+      const selectedId = window.location.hash.substr(1)
+      window.location.hash = ''
+      this.setState({ showModal: true, selectedId })
+    }
   }
 
   fetchCategoryItems(id) {

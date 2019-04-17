@@ -39,6 +39,11 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete nluByBot[botId]
 }
 
+const shortcuts = [
+  { name: 'Intents - Create Intent', action: 'link', arg: '/modules/nlu/Intents#create' },
+  { name: 'Entities - Create Entity', action: 'link', arg: '/modules/nlu/Entities#create' }
+]
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
@@ -52,7 +57,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'fiber_smart_record',
     menuText: 'NLU',
     fullName: 'NLU',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.io',
+    shortcuts
   }
 }
 

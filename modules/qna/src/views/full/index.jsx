@@ -98,6 +98,17 @@ export default class QnaAdmin extends Component {
     this.fetchCategories()
   }
 
+  componentDidUpdate() {
+    if (window.location.hash.length) {
+      if (window.location.hash === '#create') {
+        this.setState({ showQnAModal: true })
+      } else if (window.location.hash === '#importcsv') {
+        this.setState({ importCsvModalShow: true })
+      }
+      window.location.hash = ''
+    }
+  }
+
   filterOrFetch() {
     const { hash } = window.location
     const searchCmd = '#search:'

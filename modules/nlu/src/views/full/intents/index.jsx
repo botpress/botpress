@@ -19,6 +19,13 @@ export class IntentsComponent extends React.Component {
     this.checkForIntentSearch()
   }
 
+  componentDidUpdate() {
+    if (window.location.hash === '#create') {
+      this.createNewIntent()
+    }
+    window.location.hash = ''
+  }
+
   // Deprecated, will be fixed when we fix the whole NLU UI
   componentWillReceiveProps(nextProps) {
     if (nextProps.intent !== this.props.intent) {
