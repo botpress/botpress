@@ -62,7 +62,7 @@ export interface AuthUser {
   password_expired?: boolean
   password_expiry_date?: Date
   unsuccessful_logins?: number
-  last_login_attempt?: Date
+  last_login_attempt?: Date | undefined
 }
 
 export interface AuthRule {

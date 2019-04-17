@@ -19,7 +19,7 @@ export class InvalidCredentialsError extends ResponseError {
 
 export class LockedOutError extends ResponseError {
   constructor(message?: string) {
-    super('Account locked out' + (message ? ' ' + message : ''), 400, 'BP_0009')
+    super('Account locked out' + (message ? ' ' + message : ''), 400, 'BP_0011')
     this.skipLogging = true
   }
 
@@ -28,7 +28,7 @@ export class LockedOutError extends ResponseError {
 
 export class WeakPasswordError extends ResponseError {
   constructor(message?: string) {
-    super('Password doesnt match policy' + (message ? ' ' + message : ''), 400, 'BP_0009')
+    super('Password doesnt match policy' + (message ? ' ' + message : ''), 400, 'BP_0012')
     this.skipLogging = true
   }
 

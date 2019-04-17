@@ -290,7 +290,9 @@ export interface AuthStrategyBasic {
   maxLoginAttempt: number
   /**
    * The amount of time the account will be locked out after reaching the threshold of max login attempt.
-   * Leave undefined to never automatically unlock the user
+   * Leave undefined to never automatically unlock the user. The delay is reset on each attempt.
+   * To unlock a user, edit manually the file data/global/workspaces.json and set "locked_out" to false
+   *
    * @example 10m (unlock after 10 minutes - resets unsuccessful attempts)
    */
   lockoutDuration?: string

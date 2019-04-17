@@ -57,20 +57,32 @@ export default class AuthService {
       'password_expired',
       'password_expiry_date',
       'unsuccessful_logins',
-      'locked_out'
+      'locked_out',
+      'last_login_attempt'
     ])
 
-    if (!user || !validateHash(password || '', user.password!, user.salt!)) {
-      this.stats.track('auth', 'login', 'fail')
-      this.logger.info(`Login failed. User "${email}" from IP "${ipAddress}"`)
+    if (!user) {
+      debug('login failed; user does not exist %o', { email, ipAddress })
+      throw new InvalidCredentialsError()
+    }
 
-      user && (await this._incrementWrongPassword(user))
+    if (!validateHash(password || '', user.password!, user.salt!)) {
+      debug('login failed; wrong password %o', { email, ipAddress })
+      this.stats.track('auth', 'login', 'fail')
+
+      await this._incrementWrongPassword(user)
       throw new InvalidCredentialsError()
     }
 
     if (user.locked_out) {
-      this.logger.info(`Login failed. User "${email}" from IP "${ipAddress}" is locked out`)
-      throw new LockedOutError()
+      const config = await this.configProvider.getBotpressConfig()
+      const lockoutDuration = _.get(config, 'pro.auth.options.lockoutDuration')
+
+      const lockExpired = lockoutDuration && moment().isAfter(moment(user.last_login_attempt).add(ms(lockoutDuration)))
+      if (!lockoutDuration || !lockExpired) {
+        debug('login failed; user locked out %o', { email, ipAddress })
+        throw new LockedOutError()
+      }
     }
 
     const isDateExpired = user.password_expiry_date && moment().isAfter(user.password_expiry_date)
@@ -126,7 +138,7 @@ export default class AuthService {
   async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
     const more = updateLastLogon ? { last_logon: new Date() } : {}
     const result = await this.workspace.updateUser(email, { ...userData, ...more })
-    debug('updated user', { email, attributes: userData })
+    debug('updated user %o', { email, attributes: userData })
     return result
   }
 
@@ -140,7 +152,7 @@ export default class AuthService {
       password_expired: true
     })
 
-    debug('password reset', { email })
+    debug('password reset %o', { email })
 
     return password
   }
@@ -197,7 +209,16 @@ export default class AuthService {
 
     debug('login', { email, ipAddress })
 
-    await this.updateUser(email, { last_ip: ipAddress, unsuccessful_logins: 0, last_login_attempt: new Date() }, true)
+    await this.updateUser(
+      email,
+      {
+        last_ip: ipAddress,
+        unsuccessful_logins: 0,
+        last_login_attempt: undefined,
+        locked_out: false
+      },
+      true
+    )
 
     const duration = config.jwtToken && config.jwtToken.duration
     return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
