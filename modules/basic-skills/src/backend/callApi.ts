@@ -26,6 +26,7 @@ const createNodes = data => {
             url: data.url,
             method: data.method,
             body: data.body,
+            headers: data.headers,
             memory: data.memory,
             variable: data.variable
           }
