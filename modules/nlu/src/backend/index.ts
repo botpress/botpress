@@ -40,8 +40,8 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const shortcuts = [
-  { name: 'Intents - Create Intent', action: 'link', arg: '/modules/nlu/Intents#create' },
-  { name: 'Entities - Create Entity', action: 'link', arg: '/modules/nlu/Entities#create' }
+  { name: 'Intents - Create Intent', action: 'goto', arg: '/modules/nlu/Intents#create' },
+  { name: 'Entities - Create Entity', action: 'goto', arg: '/modules/nlu/Entities#create' }
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {

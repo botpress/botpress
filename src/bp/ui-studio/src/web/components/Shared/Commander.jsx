@@ -1,6 +1,7 @@
 import CommandPalette from 'react-command-palette'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import axios from 'axios'
 import { fetchContentCategories } from '~/actions'
 
 class Commander extends React.Component {
@@ -30,40 +31,44 @@ class Commander extends React.Component {
 
     this.commands = []
 
-    this.addCommand({ name: 'Flow Editor', action: 'link', arg: '/flows/main' })
-    this.addCommand({ name: 'Content Editor', action: 'link', arg: '/content' })
-    this.addCommand({ name: 'Back to Admin', action: 'externalLink', arg: `${window.location.origin}/admin` })
-    this.addCommand({ name: 'Documentation', action: 'openPopup', arg: `https://botpress.io/docs/introduction/` })
+    this.addCommand({ name: 'Flow Editor', action: 'goto', arg: '/flows/main' })
+    this.addCommand({ name: 'Content Editor', action: 'goto', arg: '/content' })
+    this.addCommand({ name: 'Back to Admin', action: 'redirect', arg: `${window.location.origin}/admin` })
+    this.addCommand({ name: 'Documentation', action: 'popup', arg: `https://botpress.io/docs/introduction/` })
 
     this.addCommand({
       name: 'Open Webchat in popup',
-      action: 'openPopup',
+      action: 'popup',
       arg: `${window.location.origin}/s/${window.BOT_ID}`
     })
 
     this.props.contentTypes.map(x =>
-      this.addCommand({ name: `Create new ${x.title}`, action: 'link', arg: `/content/#${x.id}` })
+      this.addCommand({ name: `Create new ${x.title}`, action: 'goto', arg: `/content/#${x.id}` })
     )
 
     this.props.modules.map(module => {
       if (!module.noInterface) {
         if (module.name !== 'nlu') {
-          this.addCommand({ name: `${module.fullName}`, action: 'link', arg: `/modules/${module.name}` })
+          this.addCommand({ name: `${module.fullName}`, action: 'goto', arg: `/modules/${module.name}` })
         } else {
           this.addCommand({
             name: `${module.fullName} - Intents`,
-            action: 'link',
+            action: 'goto',
             arg: `/modules/${module.name}/Intents`
           })
           this.addCommand({
             name: `${module.fullName} - Entities`,
-            action: 'link',
+            action: 'goto',
             arg: `/modules/${module.name}/Entities`
           })
         }
       }
 
-      this.addCommand({ name: `${module.fullName} - Reload module`, runCmd: () => this.reloadModule(module.name) })
+      this.addCommand({
+        name: `${module.fullName} - Reload module`,
+        action: 'execute',
+        arg: () => this.reloadModule(module.name)
+      })
 
       if (module.shortcuts) {
         module.shortcuts.map(short => this.addCommand({ ...short, name: module.fullName + ' - ' + short.name }))
@@ -73,7 +78,7 @@ class Commander extends React.Component {
     this.props.bots.map(bot =>
       this.addCommand({
         name: `Switch to bot ${bot.name} (${bot.id})`,
-        action: 'externalLink',
+        action: 'redirect',
         arg: window.location.origin + '/studio/' + bot.id
       })
     )
@@ -81,21 +86,22 @@ class Commander extends React.Component {
     this.setState({ commands: this.commands })
   }
 
-  reloadModule(moduleName) {
-    alert('RELOADING ' + moduleName)
+  async reloadModule(moduleName) {
+    await axios.get(`${window.API_PATH}/modules/reload/${moduleName}`)
+    window.location.href = window.location.href
   }
 
   addCommand({ name, action, arg }) {
     this.commands.push({
       name,
       command: () => {
-        if (action === 'link') {
+        if (action === 'goto') {
           this.props.history.push(arg)
-        } else if (action === 'externalLink') {
+        } else if (action === 'redirect') {
           window.location = arg
-        } else if (action === 'openPopup') {
+        } else if (action === 'popup') {
           window.open(arg)
-        } else if (action === 'runCmd' && _.isFunction(arg)) {
+        } else if (action === 'execute' && _.isFunction(arg)) {
           arg()
         } else {
           console.log('not supported')

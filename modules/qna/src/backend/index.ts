@@ -50,9 +50,9 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 }
 
 const shortcuts = [
-  { name: 'Create New Question', action: 'link', arg: '/modules/qna#create' },
-  { name: 'Import CSV', action: 'link', arg: '/modules/qna#importcsv' },
-  { name: 'Export CSV', action: 'link', arg: '/modules/qna#exportcsv' }
+  { name: 'Create New Question', action: 'goto', arg: '/modules/qna#create' },
+  { name: 'Import CSV', action: 'goto', arg: '/modules/qna#importcsv' },
+  { name: 'Export CSV', action: 'goto', arg: '/modules/qna#exportcsv' }
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {
