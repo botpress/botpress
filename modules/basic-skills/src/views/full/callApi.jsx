@@ -84,8 +84,8 @@ export class CallAPI extends React.Component {
     }
   }
 
-  handleInputChange = (key, event) => {
-    this.setState({ [key]: event.target.value })
+  handleInputChange = event => {
+    this.setState({ [event.target.name]: event.target.value })
   }
 
   handleMemoryChange = option => {
@@ -115,10 +115,11 @@ export class CallAPI extends React.Component {
           <Col md={10}>
             <Input
               id="url"
+              name="url"
               type="text"
               placeholder="Enter request URL"
               value={this.state.url}
-              onChange={e => this.handleInputChange('url', e)}
+              onChange={this.handleInputChange}
             />
           </Col>
         </Row>
@@ -135,8 +136,9 @@ export class CallAPI extends React.Component {
                   type="textarea"
                   rows="4"
                   id="body"
+                  name="body"
                   value={this.state.body}
-                  onChange={e => this.handleInputChange('body', e)}
+                  onChange={this.handleInputChange}
                 />
               </Tab>
               <Tab eventKey="headers" title="Headers">
@@ -177,11 +179,7 @@ export class CallAPI extends React.Component {
                 <Col md={6}>
                   <Label>Variable</Label>
                   <BotpressTooltip message="The response body will be assigned to this variable" />
-                  <Input
-                    type="text"
-                    value={this.state.variable}
-                    onChange={e => this.handleInputChange('variable', e)}
-                  />
+                  <Input type="text" name="variable" value={this.state.variable} onChange={this.handleInputChange} />
                 </Col>
               </Tab>
             </Tabs>
