@@ -235,10 +235,13 @@ export class CMSService implements IDisposeOnExit {
     const elements = await this.getContentElements(botId, ids)
     await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
 
-    return this.memDb(this.contentTable)
+    await this.memDb(this.contentTable)
       .where({ botId })
       .whereIn('id', ids)
       .del()
+
+    const contentTypes = _.uniq(_.map(elements, 'contentType'))
+    await Promise.mapSeries(contentTypes, contentTypeId => this.dumpDataToFile(botId, contentTypeId))
   }
 
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
