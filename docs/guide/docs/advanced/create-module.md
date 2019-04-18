@@ -135,7 +135,7 @@ const onServerStarted = async (bp: SDK) => {
 
 This is called once all modules are initialized and when the server is listening for incoming connections.
 
-Usually you will setup your [API endpoint](/docs/create-module#api-endpoint) here.
+Usually you will setup your [API endpoint](#api-endpoint) here.
 
 Example:
 
@@ -209,7 +209,7 @@ const botTemplates: sdk.BotTemplate[] = [
 
 The definition is used by Botpress to setup your module.
 
-Please refer to the [API Reference](/reference) for informations on the possible options
+Please refer to the [API Reference](https://botpress.io/reference/) for informations on the possible options
 
 The only way to communicate with modules (or between them) is by using the API endpoint.
 All modules are isolated and receives their own instance of `bp`

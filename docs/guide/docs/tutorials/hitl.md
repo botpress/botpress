@@ -6,7 +6,7 @@ title: Human in the loop
 Botpress allows you to build a powerful tool for autonomous communication with your users.
 However there may be cases where it is difficult or very resource-consuming to implement a conversation flow within the bot. At this point you may consider having a human take over the conversation and continue to communicate with your user.
 
-The [Human-in-the-Loop (hitl)](https://github.com/botpress/botpress/tree/master/modules/.hitl) module allows you to do just that!
+The [Human-in-the-Loop (hitl)](https://github.com/botpress/botpress/tree/master/modules/hitl) module allows you to do just that!
 
 Human-in-the-Loop is currently supported on `channel-web` and `channel-messenger`.
 

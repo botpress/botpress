@@ -80,7 +80,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](/docs/main/dialogs).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialogs).
 
 ##### Example
 
@@ -341,7 +341,7 @@ slots : {
 
 ### Slot Filling
 
-As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](/docs/main/dialogs). We plan to add suppport for **required slots** with automatic slot filling.
+As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](./dialogs). We plan to add suppport for **required slots** with automatic slot filling.
 
 **TODO provide example**
 
@@ -349,7 +349,7 @@ As of now when you define an intent slot, it is considered as optional. If it's 
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](/docs/main/code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](./code#hooks) and calling the external NLU provider via API.
 
 > **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
 

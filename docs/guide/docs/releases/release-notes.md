@@ -20,6 +20,6 @@ With Botpress Server, we went back to the roots and completely rewrote the engin
 
 ### Other minor changes
 
-- Modules can now deploy [Actions](../main/code)
+- Modules can now deploy [Actions](../main/code#actions)
 - Modules can export static assets
-- [Hooks](../main/code) have been added to replace `bp.hear` in your `index.js` file
+- [Hooks](../main/code#hooks) have been added to replace `bp.hear` in your `index.js` file
