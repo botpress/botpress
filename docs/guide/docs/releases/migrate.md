@@ -1,6 +1,6 @@
 ---
 id: migrate
-title: Migration
+title: Migrations
 ---
 
 ## Migration from 11.7 to 11.8

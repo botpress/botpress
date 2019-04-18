@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart", "updating"],
+    "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
     "Main Concepts": [
       "main/overview",
       "main/content",
@@ -20,14 +20,13 @@
       "advanced/debug",
       "advanced/hosting",
       "advanced/performances",
-      "advanced/migrate",
       "advanced/monitoring",
       "advanced/pipelines",
-      "advanced/release-notes",
       "advanced/versions",
       "advanced/webchat-extending"
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
+    "Release Notes": ["releases/release-notes", "releases/migrate"],
     "Tutorials": [
       "tutorials/existing-backend",
       "tutorials/database",
