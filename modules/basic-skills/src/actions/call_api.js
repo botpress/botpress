@@ -5,16 +5,20 @@ const axios = require('axios')
 
 const callApi = async (url, method, body, memory, variable, headers) => {
   try {
-    const { data } = await axios({
+    const response = await axios({
       method,
       url,
       headers,
       data: body
     })
-    event.state[memory][variable] = data
+
+    event.state[memory][variable] = { body: response.data, status: response.status }
     event.state.temp.valid = 'true'
   } catch (error) {
-    bp.logger.error(`Error: ${error.response.status || ''} while calling resource "${url}"`)
+    const errorCode = (error.response && error.response.status) || error.code || ''
+    bp.logger.error(`Error: ${errorCode} while calling resource "${url}"`)
+
+    event.state[memory][variable] = { status: errorCode }
     event.state.temp.valid = 'false'
   }
 }
