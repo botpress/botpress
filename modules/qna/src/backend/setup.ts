@@ -45,6 +45,26 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
   const buildSuggestions = async (event, question, confidence, intent, renderer): Promise<sdk.IO.Suggestion> => {
     const payloads = []
 
+    const config = await bp.config.getModuleConfigForBot('qna', event.botId)
+
+    if (config.saveQuestionData) {
+      //Save last question text
+      bp.kvs.setStorageWithExpiry(
+        event.botId,
+        bp.kvs.getConversationStorageKey(event.threadId, 'qna_last_question'),
+        event.payload.text,
+        'never'
+      )
+
+      //Save last answer
+      bp.kvs.setStorageWithExpiry(
+        event.botId,
+        bp.kvs.getConversationStorageKey(event.threadId, 'qna_last_answer'),
+        { id: intent.substring(NLU_PREFIX.length), text: question.questions[0] },
+        'never'
+      )
+    }
+
     if (question.action.includes('text')) {
       const args = {
         user: _.get(event, 'state.user') || {},
