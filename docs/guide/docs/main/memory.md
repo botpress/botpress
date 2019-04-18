@@ -3,8 +3,6 @@ id: memory
 title: Memory
 ---
 
-## Introduction
-
 In the course of a conversation, you may want to ask questions to the user, and remember his answer to use it later. There are four different kind of memories in Botpress; the difference between each of them is the duration and the scope.
 
 - `user` memory is kept forever for the user it is associated with.
