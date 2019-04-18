@@ -1,21 +1,29 @@
-import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
-const debug = DEBUG('nlu').sub('pretrained')
+export type LanguageEmbeddingFile = { path: string; lang: string }
 
-export default async (bp: typeof sdk) => {
-  const models = await bp.ghost.forGlobal().directoryListing('./models', '*.vec')
-  const pretrainedPath = path.join(__dirname, 'pretrained')
-  const files = fs.readdirSync(pretrainedPath).filter(x => x.toLowerCase().endsWith('.vec'))
-  const globalGhost = bp.ghost.forGlobal()
-  const missing = _.without(files, ...models)
-
-  debug('start copying missing pretrained models', missing)
-  for (const model of missing) {
-    const data = fs.readFileSync(path.join(pretrainedPath, model))
-    await globalGhost.upsertFile('./models', model, data)
+export function getPretrained(): LanguageEmbeddingFile[] {
+  const modelPath = path.join(process.APP_DATA_PATH, 'embeddings')
+  if (!fs.existsSync(modelPath)) {
+    return []
   }
-  debug('end copy missing pretrained models')
+
+  const files = fs.readdirSync(modelPath)
+  return files
+    .map(f => {
+      // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
+      const regex = /(\w+)\.(\w+)\.(\d+)\.bin/i
+      const match = f.match(regex)
+      if (!match) {
+        return
+      }
+
+      return <LanguageEmbeddingFile>{
+        lang: match[2],
+        path: path.join(modelPath, f)
+      }
+    })
+    .filter(Boolean)
 }

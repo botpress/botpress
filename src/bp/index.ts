@@ -6,6 +6,7 @@ const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
 const { Debug } = require('./debug')
+const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -33,6 +34,12 @@ function stripDeprecationWrite(this: Function): boolean {
   }
 
   return originalWrite.apply(this, (arguments as never) as [string])
+}
+
+if (process.env.APP_DATA_PATH) {
+  process.APP_DATA_PATH = process.env.APP_DATA_PATH
+} else {
+  process.APP_DATA_PATH = getAppDataPath()
 }
 
 process.BOTPRESS_EVENTS = new EventEmitter()

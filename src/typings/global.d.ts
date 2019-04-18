@@ -16,6 +16,11 @@ declare namespace NodeJS {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
     APP_SECRET: string
+    /**
+     * Path to the global APP DATA folder, shared across all installations of Botpress Server
+     * Use this folder to store stuff you'd like to cache, like NLU language models etc
+     */
+    APP_DATA_PATH: string
     HOST: string
     PORT: number
     PROXY?: string
@@ -63,6 +68,12 @@ declare type BotpressEnvironementVariables = {
    * @example bp:dialog:*,bp:nlu:intents:*
    */
   readonly DEBUG?: string
+
+  /**
+   * Overrides the auto-computed `process.APP_DATA_PATH` path
+   * @see Process.APP_DATA_PATH
+   */
+  readonly APP_DATA_PATH?: string
 }
 
 interface IDebug {

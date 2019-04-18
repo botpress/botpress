@@ -1,16 +1,14 @@
 import * as sdk from 'botpress/sdk'
-
 import _ from 'lodash'
 import math from 'mathjs'
-
 import { VError } from 'verror'
-import { GetZPercent } from '../../tools/math'
 
+import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import FTWordVecFeaturizer from '../language/ft_featurizer'
-
 import { tokenize } from '../language/tokenizers'
-import tfidf, { TfidfOutput, TfidfInput } from './tfidf'
+
+import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
 
 const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
@@ -37,7 +35,7 @@ export default class SVMClassifier {
       throw new Error('Could not find a Level-0 intent model')
     }
 
-    if (l1Models.length < 1) {
+    if (!l1Models.length) {
       throw new Error('Could not find any Level-1 intent model')
     }
 
@@ -157,6 +155,7 @@ export default class SVMClassifier {
     const l1Tfidf: {
       [context: string]: TfidfOutput
     } = {}
+
     for (const context of allContexts) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
       l0TfidfInput[context] = _.flatten(_.flatten(intents.map(x => x.tokens)))
