@@ -39,6 +39,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
     },
+    deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
     },
@@ -56,6 +57,7 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
+    removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
@@ -174,12 +176,8 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
 
 const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms => {
   return {
-    getContentElement(botId: string, id: string): Promise<any> {
-      return cmsService.getContentElement(botId, id)
-    },
-    getContentElements(botId: string, ids: string[]): Promise<any[]> {
-      return cmsService.getContentElements(botId, ids)
-    },
+    getContentElement: cmsService.getContentElement.bind(cmsService),
+    getContentElements: cmsService.getContentElements.bind(cmsService),
     listContentElements: cmsService.listContentElements.bind(cmsService),
     deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
     getAllContentTypes(botId?: string): Promise<any[]> {
@@ -188,14 +186,7 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     renderElement(contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> {
       return cmsService.renderElement(contentId, args, eventDestination)
     },
-    createOrUpdateContentElement(
-      botId: string,
-      contentTypeId: string,
-      formData: string,
-      contentElementId?: string
-    ): Promise<string> {
-      return cmsService.createOrUpdateContentElement(botId, contentTypeId, formData, contentElementId)
-    },
+    createOrUpdateContentElement: cmsService.createOrUpdateContentElement.bind(cmsService),
     async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
       return mediaService.saveFile(botId, fileName, content)
     },

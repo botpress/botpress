@@ -35,11 +35,16 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete clients[botId]
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.removeMiddleware('telegram.sendMessages')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onModuleUnmount,
   definition: {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true

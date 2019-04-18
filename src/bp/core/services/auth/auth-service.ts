@@ -1,18 +1,21 @@
 import { Logger } from 'botpress/sdk'
-import { AuthStrategy } from 'core/config/botpress.config'
+import { AuthStrategy, BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
+import moment from 'moment'
+import ms from 'ms'
 import nanoid from 'nanoid'
+import { charsets, PasswordPolicy } from 'password-sheriff'
 
 import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
 
-import { InvalidCredentialsError, PasswordExpiredError } from './errors'
+import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
 import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from './util'
 
 export const TOKEN_AUDIENCE = 'web-login'
@@ -47,15 +50,43 @@ export default class AuthService {
   }
 
   async checkUserAuth(email: string, password: string, newPassword?: string, ipAddress: string = '') {
-    const user = await this.findUserByEmail(email || '', ['email', 'password', 'salt', 'password_expired'])
+    const user = await this.findUserByEmail(email || '', [
+      'email',
+      'password',
+      'salt',
+      'password_expired',
+      'password_expiry_date',
+      'unsuccessful_logins',
+      'locked_out',
+      'last_login_attempt'
+    ])
 
-    if (!user || !validateHash(password || '', user.password!, user.salt!)) {
-      this.stats.track('auth', 'login', 'fail')
-      this.logger.info(`Login failed. User "${email}" from IP "${ipAddress}"`)
+    if (!user) {
+      debug('login failed; user does not exist %o', { email, ipAddress })
       throw new InvalidCredentialsError()
     }
 
-    if (user.password_expired && !newPassword) {
+    if (!validateHash(password || '', user.password!, user.salt!)) {
+      debug('login failed; wrong password %o', { email, ipAddress })
+      this.stats.track('auth', 'login', 'fail')
+
+      await this._incrementWrongPassword(user)
+      throw new InvalidCredentialsError()
+    }
+
+    if (user.locked_out) {
+      const config = await this.configProvider.getBotpressConfig()
+      const lockoutDuration = _.get(config, 'pro.auth.options.lockoutDuration')
+
+      const lockExpired = lockoutDuration && moment().isAfter(moment(user.last_login_attempt).add(ms(lockoutDuration)))
+      if (!lockoutDuration || !lockExpired) {
+        debug('login failed; user locked out %o', { email, ipAddress })
+        throw new LockedOutError()
+      }
+    }
+
+    const isDateExpired = user.password_expiry_date && moment().isAfter(user.password_expiry_date)
+    if ((user.password_expired || isDateExpired) && !newPassword) {
       throw new PasswordExpiredError()
     }
 
@@ -107,7 +138,7 @@ export default class AuthService {
   async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
     const more = updateLastLogon ? { last_logon: new Date() } : {}
     const result = await this.workspace.updateUser(email, { ...userData, ...more })
-    debug('updated user', { email, attributes: userData })
+    debug('updated user %o', { email, attributes: userData })
     return result
   }
 
@@ -121,7 +152,7 @@ export default class AuthService {
       password_expired: true
     })
 
-    debug('password reset', { email })
+    debug('password reset %o', { email })
 
     return password
   }
@@ -161,22 +192,86 @@ export default class AuthService {
 
   async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
     await this.checkUserAuth(email, password, newPassword, ipAddress)
+    const config = await this.configProvider.getBotpressConfig()
     this.stats.track('auth', 'login', 'success')
 
     if (newPassword) {
+      this._validatePassword(newPassword, config)
+
       const hash = saltHashPassword(newPassword)
       await this.updateUser(email, {
         password: hash.hash,
         salt: hash.salt,
-        password_expired: false
+        password_expired: false,
+        ...this._addPasswordExpiry(config)
       })
     }
 
     debug('login', { email, ipAddress })
 
-    await this.updateUser(email, { last_ip: ipAddress }, true)
-    const config = await this.configProvider.getBotpressConfig()
+    await this.updateUser(
+      email,
+      {
+        last_ip: ipAddress,
+        unsuccessful_logins: 0,
+        last_login_attempt: undefined,
+        locked_out: false
+      },
+      true
+    )
+
     const duration = config.jwtToken && config.jwtToken.duration
     return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
+  }
+
+  private _validatePassword(password: string, config: BotpressConfig) {
+    const authOptions = _.get(config, 'pro.auth.options')
+    if (!authOptions) {
+      return
+    }
+
+    const rules: any = {}
+    if (authOptions.passwordMinLength) {
+      rules.length = { minLength: authOptions.passwordMinLength }
+    }
+
+    if (authOptions.requireComplexPassword) {
+      rules.containsAtLeast = {
+        atLeast: 3,
+        expressions: [charsets.lowerCase, charsets.upperCase, charsets.numbers, charsets.specialCharacters]
+      }
+    }
+
+    try {
+      const policyChecker = new PasswordPolicy(rules)
+      policyChecker.assert(password)
+    } catch (err) {
+      throw new WeakPasswordError()
+    }
+  }
+
+  private _addPasswordExpiry(config: BotpressConfig) {
+    const passwordExpiryDelay = _.get(config, 'pro.auth.options.passwordExpiryDelay')
+    if (!passwordExpiryDelay) {
+      return {}
+    }
+
+    return {
+      password_expiry_date: moment()
+        .add(ms(passwordExpiryDelay))
+        .toDate()
+    }
+  }
+
+  private async _incrementWrongPassword(user: AuthUser) {
+    const config = await this.configProvider.getBotpressConfig()
+    const maxLoginAttempt = _.get(config, 'pro.auth.options.maxLoginAttempt')
+    const invalidLoginCount = (user.unsuccessful_logins || 0) + 1
+
+    await this.workspace.updateUser(user.email, {
+      unsuccessful_logins: invalidLoginCount,
+      last_login_attempt: new Date(),
+      ...(maxLoginAttempt && invalidLoginCount > maxLoginAttempt && { locked_out: true })
+    })
   }
 }

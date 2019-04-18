@@ -17,6 +17,7 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
+import { ModuleLoader } from 'core/module-loader'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -46,7 +47,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
   disposeOnExit() {
@@ -193,25 +195,23 @@ export class CMSService implements IDisposeOnExit {
     const dbElements = await query.offset(from)
     const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
 
-    if (language) {
-      return elements.map(el => {
-        return { ...el, formData: this.getOriginalProps(el.formData, this.getContentType(el.contentType), language) }
-      })
-    }
-    return elements
+    return Promise.map(elements, el => (language ? this._translateElement(el, language) : el))
   }
 
-  async getContentElement(botId: string, id: string): Promise<ContentElement> {
+  async getContentElement(botId: string, id: string, language?: string): Promise<ContentElement> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
       .get(0)
 
-    return this.transformDbItemToApi(element)
+    const deserialized = this.transformDbItemToApi(element)
+    return language ? this._translateElement(deserialized, language) : deserialized
   }
 
-  async getContentElements(botId: string, ids: string[]): Promise<ContentElement[]> {
+  async getContentElements(botId: string, ids: string[], language?: string): Promise<ContentElement[]> {
     const elements = await this.memDb(this.contentTable).where(builder => builder.where({ botId }).whereIn('id', ids))
-    return Promise.map(elements, this.transformDbItemToApi)
+
+    const apiElements: ContentElement[] = elements.map(this.transformDbItemToApi)
+    return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
   async countContentElements(botId: string): Promise<number> {
@@ -232,10 +232,16 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async _deleteContentElements(botId: string, ids: string[]): Promise<void> {
-    return this.memDb(this.contentTable)
+    const elements = await this.getContentElements(botId, ids)
+    await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
+
+    await this.memDb(this.contentTable)
       .where({ botId })
       .whereIn('id', ids)
       .del()
+
+    const contentTypes = _.uniq(_.map(elements, 'contentType'))
+    await Promise.mapSeries(contentTypes, contentTypeId => this.dumpDataToFile(botId, contentTypeId))
   }
 
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
@@ -267,8 +273,9 @@ export class CMSService implements IDisposeOnExit {
   private async _createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
-    formData: string,
-    contentElementId?: string
+    formData: object,
+    contentElementId?: string,
+    language?: string
   ): Promise<string> {
     process.ASSERT_LICENSED()
     contentTypeId = contentTypeId.toLowerCase()
@@ -279,36 +286,64 @@ export class CMSService implements IDisposeOnExit {
     }
 
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
+
+    // If language is specified, we update only the one specified. This is mostly for requests made with the SDK
+    if (language) {
+      // If we are editing an existing content elements, we need to fetch other translations to merge them so they aren't lost
+      if (contentElementId) {
+        formData = {
+          ...(await this.getContentElement(botId, contentElementId)).formData,
+          ...this.getTranslatedProps(formData, language)
+        }
+      } else {
+        formData = this.getTranslatedProps(formData, language)
+      }
+    }
+
     const contentElement = {
       formData,
       ...(await this.fillComputedProps(contentType, formData, languages, defaultLanguage))
     }
     const body = this.transformItemApiToDb(botId, contentElement)
 
-    const isNewItemCreation = !contentElementId
-    let newContentElementId
-
-    if (isNewItemCreation) {
-      contentElementId = this.getNewContentElementId(contentType.id)
-      newContentElementId = await this.memDb(this.contentTable)
-        .insert({
-          ...body,
-          createdBy: 'admin',
-          createdOn: this.memDb.date.now(),
-          modifiedOn: this.memDb.date.now(),
-          id: contentElementId,
-          contentType: contentTypeId
-        })
-        .then()
+    if (!contentElementId) {
+      contentElementId = await this._createContentElement(botId, body, contentType.id)
     } else {
-      await this.memDb(this.contentTable)
-        .update({ ...body, modifiedOn: this.memDb.date.now() })
-        .where({ id: contentElementId, botId })
-        .then()
+      await this._updateContentElement(botId, body, contentElementId)
     }
 
     await this.dumpDataToFile(botId, contentTypeId)
-    return contentElementId || newContentElementId
+    return contentElementId
+  }
+
+  private async _updateContentElement(botId: string, body: object, contentElementId: string) {
+    const original = await this.getContentElement(botId, contentElementId)
+    await this.memDb(this.contentTable)
+      .update({ ...body, modifiedOn: this.memDb.date.now() })
+      .where({ id: contentElementId, botId })
+      .then()
+
+    const updated = await this.getContentElement(botId, contentElementId)
+    await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
+  }
+
+  private async _createContentElement(botId: string, body: object, contentTypeId: string) {
+    const newElementId = this.getNewContentElementId(contentTypeId)
+    await this.memDb(this.contentTable)
+      .insert({
+        ...body,
+        createdBy: 'admin',
+        createdOn: this.memDb.date.now(),
+        modifiedOn: this.memDb.date.now(),
+        id: newElementId,
+        contentType: contentTypeId
+      })
+      .then()
+
+    const created = await this.getContentElement(botId, newElementId)
+    await this.moduleLoader.onElementChanged(botId, 'create', created)
+
+    return newElementId
   }
 
   private getNewContentElementId(contentTypeId: string): string {
@@ -358,6 +393,13 @@ export class CMSService implements IDisposeOnExit {
     const fileName = this.filesById[contentTypeId]
     const content = JSON.stringify(items, undefined, 2)
     await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
+  }
+
+  private _translateElement(element: ContentElement, language: string) {
+    return {
+      ...element,
+      formData: this.getOriginalProps(element.formData, this.getContentType(element.contentType), language)
+    }
   }
 
   private transformDbItemToApi(item: any): ContentElement {
@@ -419,7 +461,7 @@ export class CMSService implements IDisposeOnExit {
     }
   }
 
-  private async fillComputedProps(contentType: ContentType, formData: string, languages: string[], defaultLanguage) {
+  private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
     if (formData == undefined) {
       throw new Error('"formData" must be a valid object')
     }
@@ -427,10 +469,7 @@ export class CMSService implements IDisposeOnExit {
     const expandedFormData = await this.resolveRefs(formData)
     const previews = this.computePreviews(contentType.id, expandedFormData, languages, defaultLanguage)
 
-    return {
-      formData,
-      previews
-    }
+    return { previews }
   }
 
   private computePreviews(contentTypeId, formData, languages, defaultLang) {

@@ -368,6 +368,11 @@ export class BotService {
           ...botConfig
         }
 
+        if (!mergedConfigs.imports.contentTypes) {
+          const allContentTypes = await this.cms.getAllContentTypes()
+          mergedConfigs.imports.contentTypes = allContentTypes.map(x => x.id)
+        }
+
         if (!mergedConfigs.defaultLanguage) {
           mergedConfigs.disabled = true
         }
@@ -439,5 +444,11 @@ export class BotService {
 
   private _invalidateBotIds(): void {
     this._botIds = undefined
+  }
+
+  public static getMountedBots() {
+    const bots: string[] = []
+    BotService._mountedBots.forEach((isMounted, bot) => isMounted && bots.push(bot))
+    return bots
   }
 }

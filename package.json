@@ -61,6 +61,7 @@
     "on-headers": "^1.0.2",
     "passport": "^0.4.0",
     "passport-saml": "^1.0.0",
+    "password-sheriff": "^1.1.0",
     "pg": "^7.8.0",
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
