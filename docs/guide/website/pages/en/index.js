@@ -90,11 +90,7 @@ const GuideCards = () => (
   <Block layout="fourColumn">
     {[
       {
-        content: 'Find all the code references you need in this always up-to-date API Reference.',
-        title: '<a href="/reference/">📘 API Reference</a>'
-      },
-      {
-        content: 'New to Botpress? This step-by-step tutorial will get you up and running quickly.',
+        content: 'New to Botpress? This documentation will help you learn the ropes quickly.',
         title: '<a href="/docs/introduction">🚀 Getting Started</a>'
       },
       {
@@ -102,8 +98,12 @@ const GuideCards = () => (
         title: '<a href="/docs/tutorials">💡 Tutorials</a>'
       },
       {
+        content: 'Find all the code references you need in this always up-to-date Botpress SDK Reference.',
+        title: '<a href="/reference/">📘 SDK Reference</a>'
+      },
+      {
         content: 'Advanced examples for developers on how you can use Botpress.',
-        title: '<a href="https://github.com/botpress/botpress/tree/master/examples">🧰 Examples</a>'
+        title: '<a href="https://github.com/botpress/botpress/tree/master/examples">💻 Code Examples</a>'
       }
     ]}
   </Block>
