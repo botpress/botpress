@@ -15,7 +15,7 @@ export default async (bp: SDK, db: Database) => {
   router.post('/sessions/:sessionId/message', (req, res) => {
     const { message } = req.body
 
-    db.getSession(req.params.sessionId).then(async session => {
+    db.getSessionById(req.params.sessionId).then(async session => {
       const event = bp.IO.Event({
         type: 'text',
         channel: session.channel,

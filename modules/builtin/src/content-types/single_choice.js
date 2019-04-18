@@ -13,7 +13,6 @@ function render(data) {
   return [
     ...events,
     {
-      on: 'webchat',
       text: data.text,
       quick_replies: data.choices.map(c => ({
         title: c.title,
@@ -93,14 +92,15 @@ module.exports = {
   },
 
   uiSchema: {
-    variations: {
-      'ui:options': {
-        orderable: false
-      }
+    text: {
+      'ui:field': 'i18n_field'
+    },
+    choices: {
+      'ui:field': 'i18n_array'
     }
   },
-
-  computePreviewText: formData => `Choices (${formData.choices.length}) ${formData.text}`,
+  computePreviewText: formData =>
+    formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
   renderElement: renderElement,
   hidden: true
 }

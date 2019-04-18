@@ -19,6 +19,7 @@ export interface Workspace {
   defaultRole: string
   adminRole: string
   bots: string[]
+  pipeline: Pipeline
 }
 
 export interface AuthConfig {
@@ -95,4 +96,14 @@ export interface Bot {
   license?: string
   created_at: string
   updated_at: string
+}
+
+export type Pipeline = Stage[]
+
+export type StageAction = 'promote_copy' | 'promote_move'
+
+export interface Stage {
+  id: string
+  label: string
+  action: StageAction
 }

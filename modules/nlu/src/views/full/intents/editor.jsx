@@ -7,6 +7,9 @@ import Editor from './draft/editor'
 
 import style from './style.scss'
 import Slots from './slots/Slots'
+import { Creatable } from 'react-select'
+import classnames from 'classnames'
+import { BotpressTooltip } from 'botpress/tooltip'
 
 const NLU_TABIDX = 3745
 
@@ -15,7 +18,8 @@ export default class IntentsEditor extends React.Component {
     initialUtterances: '',
     slotsEditor: null,
     slots: [],
-    utterances: []
+    utterances: [],
+    selectedContextOptions: []
   }
 
   editorRef = null
@@ -44,8 +48,9 @@ export default class IntentsEditor extends React.Component {
     const { utterances, slots, contexts } = (props && props.intent) || {
       utterances: [],
       slots: [],
-      contexts: ['global']
+      contexts
     }
+    const availableContexts = props.contexts
     const expanded = this.expandCanonicalUtterances(utterances)
 
     if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
@@ -53,8 +58,20 @@ export default class IntentsEditor extends React.Component {
       expanded.unshift({ id: nanoid(), text: '' })
     }
 
+    const selectedContextOptions =
+      contexts &&
+      contexts.map(x => {
+        return { value: x, label: x }
+      })
+
     this.initialHash = this.computeHash({ slots, utterances: expanded, contexts })
-    this.setState({ utterances: expanded, slots: slots, contexts })
+    this.setState({
+      utterances: expanded,
+      slots: slots,
+      contexts,
+      selectedContextOptions,
+      availableContexts
+    })
   }
 
   deleteIntent = () => {
@@ -225,6 +242,10 @@ export default class IntentsEditor extends React.Component {
     return utterances
   }
 
+  handleChangeContext = selectedContextOptions => {
+    this.setState({ selectedContextOptions, contexts: selectedContextOptions.map(x => x.value) })
+  }
+
   render() {
     if (!this.props.intent) {
       return this.renderNone()
@@ -242,17 +263,38 @@ export default class IntentsEditor extends React.Component {
             </h1>
           </div>
         </div>
-        <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
-          {this.renderEditor()}
-          <div className={style.entitiesPanel}>
-            <Slots
-              ref={el => (this.slotsEditor = el)}
-              axios={this.props.axios}
-              slots={this.state.slots}
-              onSlotsChanged={this.handleSlotsChanged}
-            />
+        <div className={classnames('pull-left', style.selectContext)}>
+          <div>
+            <label for="selectContext">Current contexts</label>
+            &nbsp;
+            <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot." />
           </div>
-        </SplitterLayout>
+          <Creatable
+            id="selectContext"
+            multi
+            onChange={this.handleChangeContext}
+            value={this.state.selectedContextOptions}
+            options={
+              this.state.availableContexts &&
+              this.state.availableContexts.map(x => {
+                return { value: x, label: x }
+              })
+            }
+          />
+        </div>
+        <div>
+          <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
+            {this.renderEditor()}
+            <div className={style.entitiesPanel}>
+              <Slots
+                ref={el => (this.slotsEditor = el)}
+                axios={this.props.axios}
+                slots={this.state.slots}
+                onSlotsChanged={this.handleSlotsChanged}
+              />
+            </div>
+          </SplitterLayout>
+        </div>
       </div>
     )
   }

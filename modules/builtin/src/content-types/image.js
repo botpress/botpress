@@ -80,17 +80,24 @@ module.exports = {
     }
   },
 
-  uiSchema: {},
+  uiSchema: {
+    title: {
+      'ui:field': 'i18n_field'
+    }
+  },
 
   computePreviewText: formData => {
-    let fileName = path.basename(formData.image)
+    if (!formData.image) {
+      return
+    }
 
+    let fileName = path.basename(formData.image)
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
 
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image (${fileName})${title}`
+    return `Image (${fileName}) ${title}`
   },
 
   renderElement: renderElement

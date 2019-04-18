@@ -184,6 +184,7 @@ class ContentView extends Component {
             schema={(selectedCategory && selectedCategory.schema.json) || {}}
             uiSchema={(selectedCategory && selectedCategory.schema.ui) || {}}
             formData={contentToEdit}
+            isEditing={this.state.modifyId !== null}
             handleCreateOrUpdate={this.handleUpsert}
             handleEdit={this.handleFormEdited}
             handleClose={this.handleCloseModal}
