@@ -67,7 +67,7 @@ declare module 'botpress/sdk' {
     error(message: string, metadata?: any): void
   }
 
-  export type ElementChangedAction = 'insert' | 'update' | 'delete'
+  export type ElementChangedAction = 'create' | 'update' | 'delete'
 
   /**
    * The Module Entry Point is used by the module loader to bootstrap the module. It must be present in the index.js file

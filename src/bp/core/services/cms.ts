@@ -323,8 +323,8 @@ export class CMSService implements IDisposeOnExit {
       .where({ id: contentElementId, botId })
       .then()
 
-    const inserted = await this.getContentElement(botId, contentElementId)
-    await this.moduleLoader.onElementChanged(botId, 'update', inserted, original)
+    const updated = await this.getContentElement(botId, contentElementId)
+    await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
   }
 
   private async _createContentElement(botId: string, body: object, contentTypeId: string) {
@@ -340,8 +340,8 @@ export class CMSService implements IDisposeOnExit {
       })
       .then()
 
-    const inserted = await this.getContentElement(botId, newElementId)
-    await this.moduleLoader.onElementChanged(botId, 'insert', inserted)
+    const created = await this.getContentElement(botId, newElementId)
+    await this.moduleLoader.onElementChanged(botId, 'create', created)
 
     return newElementId
   }
