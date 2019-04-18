@@ -26,7 +26,6 @@
       "advanced/webchat-extending"
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
-    "Release Notes": ["releases/release-notes", "releases/migrate"],
     "Tutorials": [
       "tutorials/existing-backend",
       "tutorials/database",
@@ -42,6 +41,7 @@
       "tutorials/contextual-faq",
       "tutorials/listen-file-changes"
     ],
-    "Botpress Pro": ["pro/about-pro", "pro/licensing"]
+    "Pro Edition": ["pro/about-pro", "pro/licensing"],
+    "Release Notes": ["releases/release-notes", "releases/migrate"]
   }
 }
