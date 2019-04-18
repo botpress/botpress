@@ -1,9 +1,9 @@
 ---
 id: code
-title: Custom Code
+title: Actions & Hooks
 ---
 
-There are 2 ways of easily adding custom code to enrich your bot's experience: Actions and Hooks.
+There are two ways of easily adding custom code to enrich your bot's experience: **Actions** and **Hooks**.
 
 Both are executed in a virtual machine to prevent server crash if there is a scripting error. Your scripts may require any module that is loaded by botpress by default (for example: lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
 
@@ -69,7 +69,7 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
 - `process`: sandboxed vm containing some of the env-variables (starting with `EXPOSED_`)
 
-Check out the page [Bot Memory and Data Retention](/docs/build/memory) for more details about the lifetime of these objects.
+Check out the page [Bot Memory and Data Retention](/docs/main/memory) for more details about the lifetime of these objects.
 
 ### Example
 

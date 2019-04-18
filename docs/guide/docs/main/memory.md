@@ -1,6 +1,6 @@
 ---
 id: memory
-title: Bot Memory and Data Retention
+title: Memory
 ---
 
 ## Introduction
@@ -96,7 +96,7 @@ There are two different ways to edit these 4 different types of data. The most s
 
 Another common use is using actions. Actions allows you to edit these variables directly. For example, you could write `user.firstname = 'potato'` in your code file to update the user's name.
 
-Please check out the [Custom Code](/docs/build/code#actions) section for more details about this.
+Please check out the [Custom Code](/docs/main/code#actions) section for more details about this.
 
 ## General Storage
 

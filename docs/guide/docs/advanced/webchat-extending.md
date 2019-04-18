@@ -7,7 +7,7 @@ title: Extending the webchat
 
 You can customize the look and feel of the Botpress Webchat with a custom stylesheet. Armed with the [list of all overridable classes](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css) and your browser inspector, you can customize every element of the Webchat.
 
-1. Add the `extraStylesheet: "path/to/custom-style.css"` property to your `window.botpressWebChat.init()` script. See [embedding](https://botpress.io/docs/recipes/embedding) if you don't know about `.init()`.
+1. Add the `extraStylesheet: "path/to/custom-style.css"` property to your `window.botpressWebChat.init()` script. See [embedding](../channels/web) if you don't know about `.init()`.
 1. Create your `custom-style.css` file and override the classes of your choice:
 
 ```css

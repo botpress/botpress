@@ -1,30 +1,34 @@
 {
   "docs": {
     "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart", "updating"],
-    "Build": [
-      "build/overview",
-      "build/nlu",
-      "build/dialogs",
-      "build/code",
-      "build/memory",
-      "build/content",
-      "build/channels",
-      "build/emulator"
+    "Main Concepts": [
+      "main/overview",
+      "main/content",
+      "main/code",
+      "main/dialogs",
+      "main/nlu",
+      "main/memory",
+      "main/emulator"
     ],
-    "Deploy": ["deploy/architecture", "deploy/hosting", "deploy/performances"],
-    "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
-    "Developers": [
-      "developers/release-notes",
-      "developers/migrate",
-      "developers/debug",
-      "developers/create-module",
-      "developers/cluster",
-      "developers/analytics",
-      "developers/pipelines",
-      "developers/webchat-extending"
+    "Advanced Concepts": [
+      "advanced/architecture",
+      "advanced/authentication",
+      "advanced/analytics",
+      "advanced/configuration",
+      "advanced/create-module",
+      "advanced/cluster",
+      "advanced/debug",
+      "advanced/hosting",
+      "advanced/performances",
+      "advanced/migrate",
+      "advanced/monitoring",
+      "advanced/pipelines",
+      "advanced/release-notes",
+      "advanced/versions",
+      "advanced/webchat-extending"
     ],
+    "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
-      "tutorials/webchat-embedding",
       "tutorials/existing-backend",
       "tutorials/database",
       "tutorials/hitl",
