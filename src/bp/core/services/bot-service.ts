@@ -27,6 +27,7 @@ import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
+const REVISIONS_DIR = './revisions'
 const DEFAULT_BOT_CONFIGS = {
   locked: false,
   disabled: false,
@@ -220,6 +221,9 @@ export class BotService {
               promoted_on: new Date()
             }
           }
+        }
+        if (await this.botExists(botId)) {
+          this._unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this._mountBot(botId)
@@ -455,11 +459,11 @@ export class BotService {
   public async listRevisions(botId: string): Promise<string[]> {
     const globalGhost = this.ghostService.global()
     let stageID = ''
-    if ((await this.workspaceService.getPipeline()).length > 1) {
+    if (await this.workspaceService.hasPipeline()) {
       const botConfig = await this.configProvider.getBotConfig(botId)
       stageID = botConfig.pipeline_status.current_stage.id
     }
-    const revisions = await globalGhost.directoryListing('/revisions')
+    const revisions = await globalGhost.directoryListing(REVISIONS_DIR)
 
     return revisions.filter(rev => rev.includes(botId) && rev.includes(stageID)).sort((revA, revB) => {
       const timeA = moment(revA.split('::')[1])
@@ -471,20 +475,38 @@ export class BotService {
   public async createRevision(botId: string): Promise<void> {
     // TODO add revision expiry ?
     // TODO add max number of revisions to keep
+    // TODO do the same as we did for nlu models
     const botConfig = await this.configProvider.getBotConfig(botId)
     let revName = `${botId}::${moment().format('YY-MM-DD-ha')}`
 
-    if ((await this.workspaceService.getPipeline()).length > 1) {
+    if (await this.workspaceService.hasPipeline()) {
       revName = `${revName}::${botConfig.pipeline_status.current_stage.id}`
     }
 
     const botGhost = this.ghostService.forBot(botId)
     const globalGhost = this.ghostService.global()
     globalGhost.ensureDirs('/', ['revisions'])
-    return globalGhost.upsertFile('/revisions', revName, await botGhost.exportToArchiveBuffer())
+    return globalGhost.upsertFile(REVISIONS_DIR, revName, await botGhost.exportToArchiveBuffer())
   }
 
-  public async rollbackToRevision(botId: string, revName: string) {
-    // TODO impl this using import bot
+  public async rollback(botId: string, revision: string): Promise<void> {
+    const botConfig = await this.configProvider.getBotConfig(botId)
+    const revParts = revision.split('::')
+    if (revParts.length < 2) {
+      // invalid rev
+    }
+
+    if (revParts[0] !== botId) {
+      // cannot rollback bot to another bot
+    }
+
+    if (await this.workspaceService.hasPipeline()) {
+      if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
+        // incompatible revision for stage
+      }
+    }
+
+    const botRevision = await this.ghostService.global().readFileAsBuffer(REVISIONS_DIR, revision)
+    return this.importBot(botId, botRevision, true)
   }
 }
