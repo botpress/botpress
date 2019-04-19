@@ -451,4 +451,40 @@ export class BotService {
     BotService._mountedBots.forEach((isMounted, bot) => isMounted && bots.push(bot))
     return bots
   }
+
+  public async listRevisions(botId: string): Promise<string[]> {
+    const globalGhost = this.ghostService.global()
+    let stageID = ''
+    if ((await this.workspaceService.getPipeline()).length > 1) {
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      stageID = botConfig.pipeline_status.current_stage.id
+    }
+    const revisions = await globalGhost.directoryListing('/revisions')
+
+    return revisions.filter(rev => rev.includes(botId) && rev.includes(stageID)).sort((revA, revB) => {
+      const timeA = moment(revA.split('::')[1])
+      const timeB = moment(revB.split('::')[1])
+      return timeB.diff(timeA)
+    })
+  }
+
+  public async createRevision(botId: string): Promise<void> {
+    // TODO add revision expiry ?
+    // TODO add max number of revisions to keep
+    const botConfig = await this.configProvider.getBotConfig(botId)
+    let revName = `${botId}::${moment().format('YY-MM-DD-ha')}`
+
+    if ((await this.workspaceService.getPipeline()).length > 1) {
+      revName = `${revName}::${botConfig.pipeline_status.current_stage.id}`
+    }
+
+    const botGhost = this.ghostService.forBot(botId)
+    const globalGhost = this.ghostService.global()
+    globalGhost.ensureDirs('/', ['revisions'])
+    return globalGhost.upsertFile('/revisions', revName, await botGhost.exportToArchiveBuffer())
+  }
+
+  public async rollbackToRevision(botId: string, revName: string) {
+    // TODO impl this using import bot
+  }
 }
