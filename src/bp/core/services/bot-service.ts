@@ -362,6 +362,7 @@ export class BotService {
 
     await this.unmountBot(botId)
     await this.ghostService.forBot(botId).deleteFolder('/')
+    await this._cleanupRevisions(botId, true)
     this._invalidateBotIds()
   }
 
@@ -520,11 +521,18 @@ export class BotService {
     return this.importBot(botId, botRevision, true)
   }
 
-  private async _cleanupRevisions(botId: string): Promise<void> {
+  private async _cleanupRevisions(botId: string, cleanAll: boolean = false): Promise<void> {
     const revs = await this.listRevisions(botId)
     const globalGhost = this.ghostService.global()
 
-    const nToRemove = revs.length > MAX_REV ? revs.length - MAX_REV : 0
+    let nToRemove = 0
+    if (revs.length > MAX_REV) {
+      nToRemove = revs.length - MAX_REV
+    }
+    if (cleanAll) {
+      nToRemove = revs.length
+    }
+
     const outDated = _.takeRight(revs, nToRemove)
     await Promise.mapSeries(outDated, rev => globalGhost.deleteFile(REVISIONS_DIR, rev))
   }
