@@ -9,7 +9,17 @@ import {
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert, MdWarning } from 'react-icons/lib/md'
+import {
+  MdModeEdit,
+  MdArchive,
+  MdDelete,
+  MdSkipNext,
+  MdLock,
+  MdMoreVert,
+  MdWarning,
+  MdBackup,
+  MdReplay
+} from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
 export default ({
@@ -41,8 +51,14 @@ export default ({
             <FaCog />
             &nbsp;Configs
           </DropdownItem>
-          <DropdownItem onClick={createRevision}>Create revision</DropdownItem>
-          <DropdownItem onClick={rollback}>Rollback to revision</DropdownItem>
+          <DropdownItem onClick={createRevision}>
+            <MdBackup />
+            &nbsp;Create revision
+          </DropdownItem>
+          <DropdownItem onClick={rollback}>
+            <MdReplay />
+            &nbsp;Rollback to revision
+          </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>
               <MdArchive />

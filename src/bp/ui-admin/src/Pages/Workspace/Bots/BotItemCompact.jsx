@@ -10,7 +10,7 @@ import {
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning } from 'react-icons/lib/md'
+import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
 export default ({ bot, deleteBot, exportBot, permissions, history, createRevision, rollback }) => (
@@ -31,8 +31,14 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
-          <DropdownItem onClick={createRevision}>Create revision</DropdownItem>
-          <DropdownItem onClick={rollback}>Rollback to revision</DropdownItem>
+          <DropdownItem onClick={createRevision}>
+            <MdBackup />
+            &nbsp;Create revision
+          </DropdownItem>
+          <DropdownItem onClick={rollback}>
+            <MdReplay />
+            &nbsp;Rollback to revision
+          </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>
               <MdArchive />
