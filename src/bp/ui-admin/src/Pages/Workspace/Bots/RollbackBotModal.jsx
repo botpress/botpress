@@ -42,9 +42,9 @@ class RollbackBotModal extends Component {
         .getSecured()
         .post(`/admin/bots/${this.props.botId}/rollback`, { revision: this.state.selectedRev })
         .then(() => {
-          this.setState({ ...defaultState })
           this.props.onRollbackSuccess && this.props.onRollbackSuccess()
           this.props.toggle()
+          this.setState({ ...defaultState })
         })
     }
   }
@@ -55,8 +55,8 @@ class RollbackBotModal extends Component {
 
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus}>
-        <ModalHeader toggle={this.props.toggle}>Rollback bot {this.props.botId}</ModalHeader>
+      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus} autoFocus={false}>
+        <ModalHeader toggle={this.props.toggle}>Rollback bot {this.props.botId || ''}</ModalHeader>
         <ModalBody>
           <p>Select from the available revisions below</p>
           <FormGroup>
@@ -64,6 +64,7 @@ class RollbackBotModal extends Component {
               <strong>Revisions</strong>
             </Label>
             <Select
+              tabIndex="1"
               ref={el => (this.select = el)}
               value={
                 this.state.selectedRev

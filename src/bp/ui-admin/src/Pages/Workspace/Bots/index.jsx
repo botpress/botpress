@@ -122,7 +122,7 @@ class Bots extends Component {
 
   toggleRollbackModal = botId => {
     this.setState({
-      focusedBot: botId || null,
+      focusedBot: typeof botId === 'string' ? botId : null,
       isRollbackModalOpen: !this.state.isRollbackModalOpen
     })
   }
