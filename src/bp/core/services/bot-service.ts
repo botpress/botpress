@@ -14,6 +14,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import path from 'path'
 import tmp from 'tmp'
+import { VError } from 'verror'
 
 import { extractArchive } from '../misc/archive'
 
@@ -495,16 +496,16 @@ export class BotService {
     const botConfig = await this.configProvider.getBotConfig(botId)
     const revParts = revision.split('::')
     if (revParts.length < 2) {
-      // invalid rev
+      throw new VError('invalid revision')
     }
 
     if (revParts[0] !== botId) {
-      // cannot rollback bot to another bot
+      throw new VError('cannot rollback a bot with a different Id')
     }
 
     if (await this.workspaceService.hasPipeline()) {
       if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
-        // incompatible revision for stage
+        throw new VError('cannot rollback a bot to a different stage')
       }
     }
 

@@ -1,0 +1,10 @@
+TODOS :
+
+_ Fix close modal error
+- Select tab Index
+- Add success feedback for revisions and rollback
+- Better error logging and throwing
+
+- Check botpress config and Auto create revisions on pipeline change accordingly
+
+- Test the shit out of it
