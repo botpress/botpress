@@ -289,6 +289,7 @@ export class BotService {
   }
 
   private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {
+    const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
     const users = await this.workspaceService.listUsers(['email', 'role'])
     const pipeline = await this.workspaceService.getPipeline()
@@ -300,7 +301,10 @@ export class BotService {
 
     await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
     if (_.isArray(hookResult.actions)) {
-      await Promise.map(hookResult.actions, action => {
+      await Promise.map(hookResult.actions, async action => {
+        if (bpConfig.autoRevision) {
+          await this.createRevision(alteredBot.id)
+        }
         if (action === 'promote_copy') {
           return this._promoteCopy(currentConfig, alteredBot)
         } else if (action === 'promote_move') {
@@ -313,6 +317,9 @@ export class BotService {
       await this.hookService.executeHook(
         new Hooks.AfterStageChanged(api, beforeRequestConfig, alteredBot, users, pipeline)
       )
+      if (bpConfig.autoRevision) {
+        await this.createRevision(alteredBot.id)
+      }
     }
   }
 
