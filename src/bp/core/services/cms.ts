@@ -17,6 +17,7 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
+import { ModuleLoader } from 'core/module-loader'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -46,7 +47,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
   disposeOnExit() {
@@ -230,10 +232,16 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async _deleteContentElements(botId: string, ids: string[]): Promise<void> {
-    return this.memDb(this.contentTable)
+    const elements = await this.getContentElements(botId, ids)
+    await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
+
+    await this.memDb(this.contentTable)
       .where({ botId })
       .whereIn('id', ids)
       .del()
+
+    const contentTypes = _.uniq(_.map(elements, 'contentType'))
+    await Promise.mapSeries(contentTypes, contentTypeId => this.dumpDataToFile(botId, contentTypeId))
   }
 
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
@@ -298,30 +306,44 @@ export class CMSService implements IDisposeOnExit {
     }
     const body = this.transformItemApiToDb(botId, contentElement)
 
-    const isNewItemCreation = !contentElementId
-    let newContentElementId
-
-    if (isNewItemCreation) {
-      contentElementId = this.getNewContentElementId(contentType.id)
-      newContentElementId = await this.memDb(this.contentTable)
-        .insert({
-          ...body,
-          createdBy: 'admin',
-          createdOn: this.memDb.date.now(),
-          modifiedOn: this.memDb.date.now(),
-          id: contentElementId,
-          contentType: contentTypeId
-        })
-        .then()
+    if (!contentElementId) {
+      contentElementId = await this._createContentElement(botId, body, contentType.id)
     } else {
-      await this.memDb(this.contentTable)
-        .update({ ...body, modifiedOn: this.memDb.date.now() })
-        .where({ id: contentElementId, botId })
-        .then()
+      await this._updateContentElement(botId, body, contentElementId)
     }
 
     await this.dumpDataToFile(botId, contentTypeId)
-    return contentElementId || newContentElementId
+    return contentElementId
+  }
+
+  private async _updateContentElement(botId: string, body: object, contentElementId: string) {
+    const original = await this.getContentElement(botId, contentElementId)
+    await this.memDb(this.contentTable)
+      .update({ ...body, modifiedOn: this.memDb.date.now() })
+      .where({ id: contentElementId, botId })
+      .then()
+
+    const updated = await this.getContentElement(botId, contentElementId)
+    await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
+  }
+
+  private async _createContentElement(botId: string, body: object, contentTypeId: string) {
+    const newElementId = this.getNewContentElementId(contentTypeId)
+    await this.memDb(this.contentTable)
+      .insert({
+        ...body,
+        createdBy: 'admin',
+        createdOn: this.memDb.date.now(),
+        modifiedOn: this.memDb.date.now(),
+        id: newElementId,
+        contentType: contentTypeId
+      })
+      .then()
+
+    const created = await this.getContentElement(botId, newElementId)
+    await this.moduleLoader.onElementChanged(botId, 'create', created)
+
+    return newElementId
   }
 
   private getNewContentElementId(contentTypeId: string): string {
