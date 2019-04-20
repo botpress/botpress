@@ -20,6 +20,7 @@ import CreateBotModal from './CreateBotModal'
 import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
+import { toast } from 'react-toastify'
 
 class Bots extends Component {
   state = {
@@ -118,6 +119,7 @@ class Bots extends Component {
 
   async createRevision(botId) {
     await api.getSecured().post(`admin/bots/${botId}/revisions`)
+    toast.success('Revisions created')
   }
 
   toggleRollbackModal = botId => {
@@ -125,6 +127,11 @@ class Bots extends Component {
       focusedBot: typeof botId === 'string' ? botId : null,
       isRollbackModalOpen: !this.state.isRollbackModalOpen
     })
+  }
+
+  handleRollbackSuccess = () => {
+    this.props.fetchBots()
+    toast.success('Rollback success')
   }
 
   renderCompactView() {
@@ -220,7 +227,7 @@ class Bots extends Component {
           botId={this.state.focusedBot}
           isOpen={this.state.isRollbackModalOpen}
           toggle={this.toggleRollbackModal}
-          onRollbackSuccess={this.props.fetchBots}
+          onRollbackSuccess={this.handleRollbackSuccess}
         />
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}
