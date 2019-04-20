@@ -464,10 +464,10 @@ export class BotService {
       stageID = botConfig.pipeline_status.current_stage.id
     }
     const revisions = await globalGhost.directoryListing(REVISIONS_DIR)
-
+    console.log(revisions, stageID)
     return revisions.filter(rev => rev.includes(botId) && rev.includes(stageID)).sort((revA, revB) => {
-      const timeA = moment(revA.split('::')[1])
-      const timeB = moment(revB.split('::')[1])
+      const timeA = moment(revA.split('::')[1].replace('.tgz', ''))
+      const timeB = moment(revB.split('::')[1].replace('.tgz', ''))
       return timeB.diff(timeA)
     })
   }
@@ -486,7 +486,7 @@ export class BotService {
     const botGhost = this.ghostService.forBot(botId)
     const globalGhost = this.ghostService.global()
     globalGhost.ensureDirs('/', ['revisions'])
-    return globalGhost.upsertFile(REVISIONS_DIR, revName, await botGhost.exportToArchiveBuffer())
+    return globalGhost.upsertFile(REVISIONS_DIR, revName + '.tgz', await botGhost.exportToArchiveBuffer())
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {

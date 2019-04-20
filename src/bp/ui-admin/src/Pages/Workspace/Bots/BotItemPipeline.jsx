@@ -12,7 +12,17 @@ import { IoIosChatbubble } from 'react-icons/lib/io'
 import { MdModeEdit, MdArchive, MdDelete, MdSkipNext, MdLock, MdMoreVert, MdWarning } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
-export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, allowStageChange, history }) => (
+export default ({
+  bot,
+  requestStageChange,
+  deleteBot,
+  exportBot,
+  permissions,
+  allowStageChange,
+  history,
+  createRevision,
+  rollback
+}) => (
   <div className="pipeline_bot" key={bot.id}>
     <div className="actions">
       <UncontrolledButtonDropdown>
@@ -31,6 +41,8 @@ export default ({ bot, requestStageChange, deleteBot, exportBot, permissions, al
             <FaCog />
             &nbsp;Configs
           </DropdownItem>
+          <DropdownItem onClick={createRevision}>Create revision</DropdownItem>
+          <DropdownItem onClick={rollback}>Rollback to revision</DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>
               <MdArchive />
