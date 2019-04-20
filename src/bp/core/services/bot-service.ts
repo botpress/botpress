@@ -28,6 +28,7 @@ import { WorkspaceService } from './workspace-service'
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
+const MAX_REV = 10
 const DEFAULT_BOT_CONFIGS = {
   locked: false,
   disabled: false,
@@ -458,24 +459,24 @@ export class BotService {
 
   public async listRevisions(botId: string): Promise<string[]> {
     const globalGhost = this.ghostService.global()
+
     let stageID = ''
     if (await this.workspaceService.hasPipeline()) {
       const botConfig = await this.configProvider.getBotConfig(botId)
       stageID = botConfig.pipeline_status.current_stage.id
     }
+
     const revisions = await globalGhost.directoryListing(REVISIONS_DIR)
-    console.log(revisions, stageID)
+
     return revisions.filter(rev => rev.includes(botId) && rev.includes(stageID)).sort((revA, revB) => {
-      const timeA = moment(revA.split('::')[1].replace('.tgz', ''))
-      const timeB = moment(revB.split('::')[1].replace('.tgz', ''))
-      return timeB.diff(timeA)
+      const dateA = revA.split('::')[1].replace('.tgz', '')
+      const dateB = revB.split('::')[1].replace('.tgz', '')
+      const diff = moment(dateA, 'YY-MM-DD-ha').diff(moment(dateB, 'YY-MM-DD-ha'))
+      return diff * -1 // descending
     })
   }
 
   public async createRevision(botId: string): Promise<void> {
-    // TODO add revision expiry ?
-    // TODO add max number of revisions to keep
-    // TODO do the same as we did for nlu models
     const botConfig = await this.configProvider.getBotConfig(botId)
     let revName = `${botId}::${moment().format('YY-MM-DD-ha')}`
 
@@ -485,8 +486,9 @@ export class BotService {
 
     const botGhost = this.ghostService.forBot(botId)
     const globalGhost = this.ghostService.global()
-    globalGhost.ensureDirs('/', ['revisions'])
-    return globalGhost.upsertFile(REVISIONS_DIR, revName + '.tgz', await botGhost.exportToArchiveBuffer())
+    await globalGhost.ensureDirs('/', ['revisions'])
+    await globalGhost.upsertFile(REVISIONS_DIR, revName + '.tgz', await botGhost.exportToArchiveBuffer())
+    return this._cleanupRevisions(botId)
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {
@@ -508,5 +510,14 @@ export class BotService {
 
     const botRevision = await this.ghostService.global().readFileAsBuffer(REVISIONS_DIR, revision)
     return this.importBot(botId, botRevision, true)
+  }
+
+  private async _cleanupRevisions(botId: string): Promise<void> {
+    const revs = await this.listRevisions(botId)
+    const globalGhost = this.ghostService.global()
+
+    const nToRemove = revs.length > MAX_REV ? revs.length - MAX_REV : 0
+    const outDated = _.takeRight(revs, nToRemove)
+    await Promise.mapSeries(outDated, rev => globalGhost.deleteFile(REVISIONS_DIR, rev))
   }
 }
