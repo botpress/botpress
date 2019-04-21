@@ -39,6 +39,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly direction: sdk.EventDirection
   public readonly payload: any
   public readonly botId: string
+  public readonly created_on: Date = new Date()
   public readonly threadId?: string
   public readonly preview: string
   public readonly suggestions?: sdk.IO.Suggestion[]
