@@ -27,7 +27,7 @@ const eventSchema = {
   payload: joi.object().required(),
   botId: joi.string().required(),
   threadId: joi.string().optional(),
-  created_on: joi.date().required(),
+  createdOn: joi.date().required(),
   flags: joi.any().required(),
   suggestions: joi.array().optional(),
   state: joi.any().optional(),
