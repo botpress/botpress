@@ -121,6 +121,8 @@ export class Botpress {
     await this.startServer()
     await this.discoverBots()
 
+    await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
+
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
   }

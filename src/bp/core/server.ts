@@ -11,6 +11,7 @@ import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
@@ -67,6 +68,7 @@ const debugRequestMw = (req: Request, _res, next) => {
 export default class HTTPServer {
   public readonly httpServer: Server
   public readonly app: express.Express
+  private isBotpressReady = false
 
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
@@ -162,6 +164,10 @@ export default class HTTPServer {
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+
+    AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
+      this.isBotpressReady = true
+    })
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
@@ -169,6 +175,19 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    /**
+     * The loading of language models can take some time, access to Botpress is disabled until it is completed
+     * During this time, internal calls between modules can be made
+     */
+    this.app.use((req, res, next) => {
+      if (!this.isBotpressReady) {
+        if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
+          return res.status(503).send('Botpress is loading. Please try again later.')
+        }
+      }
+      next()
+    })
 
     this.app.use(monitoringMiddleware)
 
