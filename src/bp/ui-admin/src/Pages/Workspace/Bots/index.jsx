@@ -148,7 +148,7 @@ class Bots extends Component {
             return (
               <Col key={stage.id} md={colSize}>
                 {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
-                {idx == 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
+                {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
                   <BotItemPipeline
                     key={bot.id}
@@ -195,7 +195,9 @@ class Bots extends Component {
 
     return (
       <Fragment>
-        <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName} />
+        <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName}>
+          {' '}
+        </a>
         <SectionLayout
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."

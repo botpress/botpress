@@ -146,8 +146,8 @@ class Bots extends Component {
     }
 
     const status = this.state.status && this.state.status.value
-    bot.disabled = status === 'disabled' && bot.defaultLanguage == this.bot.defaultLanguage //force enable if language changed
-    bot.private = status == 'private'
+    bot.disabled = status === 'disabled' && bot.defaultLanguage === this.bot.defaultLanguage //force enable if language changed
+    bot.private = status === 'private'
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
@@ -196,7 +196,7 @@ class Bots extends Component {
       return
     }
 
-    if (this.state.selectedDefaultLang != lang) {
+    if (this.state.selectedDefaultLang !== lang) {
       const conf = window.confirm(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
           lang.label
@@ -450,7 +450,7 @@ class Bots extends Component {
             </Label>
             <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
           </Col>
-          <Col md={4}>{this.state.avatarUrl && <img height={75} src={this.state.avatarUrl} />}</Col>
+          <Col md={4}>{this.state.avatarUrl && <img height={75} alt="avatar" src={this.state.avatarUrl} />}</Col>
         </Row>
         <Row>
           <Col md={4}>
@@ -459,7 +459,9 @@ class Bots extends Component {
             </Label>
             <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
           </Col>
-          <Col md={8}>{this.state.coverPictureUrl && <img width="100%" src={this.state.coverPictureUrl} />}</Col>
+          <Col md={8}>
+            {this.state.coverPictureUrl && <img width="100%" alt="cover" src={this.state.coverPictureUrl} />}
+          </Col>
         </Row>
       </Fragment>
     )
