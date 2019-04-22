@@ -7,6 +7,7 @@ import bots from './bots'
 import roles from './roles'
 import monitoring from './monitoring'
 import modules from './modules'
+import server from './server'
 
 export default combineReducers({
   routing: routerReducer,
@@ -16,5 +17,6 @@ export default combineReducers({
   user,
   roles,
   monitoring,
-  modules
+  modules,
+  server
 })

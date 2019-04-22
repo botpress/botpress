@@ -3,7 +3,6 @@ import Joi from 'joi'
 export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{2,}[A-Z0-9]+$/i
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
-import supportedLangs from './supported-languages'
 
 export const BotCreationSchema = Joi.object().keys({
   id: Joi.string()
@@ -42,14 +41,12 @@ export const BotEditSchema = Joi.object().keys({
   disabled: Joi.bool(),
   private: Joi.bool(),
   defaultLanguage: Joi.string()
-    .valid(supportedLangs)
     .min(2)
     .max(3),
   languages: Joi.array().items(
     Joi.string()
       .min(2)
       .max(3)
-      .valid(supportedLangs)
   ),
   details: {
     website: Joi.string()
