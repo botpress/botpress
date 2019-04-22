@@ -74,35 +74,35 @@ declare module 'botpress/sdk' {
    * of the module. The path to the module must also be specified in the global botpress config.
    */
   export interface ModuleEntryPoint {
-    /**
-     * Called when the module is unloaded, before being reloaded
-     * onBotUnmount is called for each bots before this one is called
-     * */
-    onModuleUnmount: ((bp: typeof import('botpress/sdk')) => void)
-    /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted: ((bp: typeof import('botpress/sdk')) => void)
-    /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady: ((bp: typeof import('botpress/sdk')) => void)
-    onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
-    onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
-    onFlowChanged?: ((bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void)
+    /** Called once the core is initialized. Usually for middlewares / database init */
+    onServerStarted: (bp: typeof import('botpress/sdk')) => void
+    /** This is called once all modules are initialized, usually for routing and logic */
+    onServerReady: (bp: typeof import('botpress/sdk')) => void
+    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
+    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
+    /**
+     * Called when the module is unloaded, before being reloaded
+     * onBotUnmount is called for each bots before this one is called
+     * */
+    onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
+    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
      */
-    onElementChanged: ((
+    onElementChanged?: (
       bp: typeof import('botpress/sdk'),
       botId: string,
       action: ElementChangedAction,
       element: ContentElement,
       oldElement?: ContentElement
-    ) => void)
+    ) => void
   }
 
   /**
