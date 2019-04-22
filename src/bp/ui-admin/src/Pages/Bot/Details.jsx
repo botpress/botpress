@@ -483,7 +483,7 @@ class Bots extends Component {
   render() {
     return (
       <SectionLayout
-        title={this.state.name}
+        title={this.state.name || this.state.botId}
         helpText="This page shows the details you can configure for a desired bot."
         activePage="bots"
         currentTeam={this.props.team}

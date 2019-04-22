@@ -28,7 +28,6 @@ const HISTORY_UP = 'ArrowUp'
 
 const defaultOptions = {
   locale: 'en-US',
-  botName: 'Bot',
   backgroundColor: '#ffffff',
   textColorOnBackground: '#666666',
   foregroundColor: '#000000',
@@ -593,6 +592,7 @@ export default class Web extends React.Component {
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
         botInfo={this.state.botInfo}
+        botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
       />
     )
   }
