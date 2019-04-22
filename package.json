@@ -119,7 +119,7 @@
     "jest-extended": "^0.10.0",
     "jest-html-reporter": "^2.4.2",
     "lint-staged": "^8.1.5",
-    "pkg": "./pkg-v4.3.4.tgz",
+    "pkg": "^4.3.7",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
     "showdown": "^1.9.0",
