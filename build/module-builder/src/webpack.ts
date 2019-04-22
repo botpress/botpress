@@ -34,7 +34,7 @@ export function config(projectPath) {
     resolve: {
       extensions: ['.js', '.jsx']
     },
-    plugins: [new CleanWebpackPlugin([path.resolve(projectPath, './assets/web')], { root: projectPath })],
+    plugins: [new CleanWebpackPlugin()],
     module: {
       rules: [
         {
@@ -99,7 +99,8 @@ export function config(projectPath) {
       filename: 'lite.bundle.js',
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
-    }
+    },
+    plugins: [] // We clear the plugins here, since the cleanup is already done by the "full" view
   })
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
