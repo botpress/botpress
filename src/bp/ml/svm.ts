@@ -32,7 +32,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
-  ): Promise<void> {
+  ): Promise<any> {
     this.labels = []
 
     return new Promise((resolve, reject) => {
