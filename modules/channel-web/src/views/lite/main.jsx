@@ -27,12 +27,8 @@ const HISTORY_MAX_MESSAGES = 10
 const HISTORY_UP = 'ArrowUp'
 
 const defaultOptions = {
-  locale: 'en-US',
-  backgroundColor: '#ffffff',
-  textColorOnBackground: '#666666',
-  foregroundColor: '#000000',
-  textColorOnForeground: '#ffffff',
   enableReset: true,
+  stylesheet: '/assets/modules/channel-web/default.css',
   extraStylesheet: '',
   showConversationsButton: true,
   showUserName: false,
@@ -608,13 +604,14 @@ export default class Web extends React.Component {
       this.parentClass = parentClass
     }
 
-    const stylesheet = this.state.config.extraStylesheet
+    const { stylesheet, extraStylesheet } = this.state.config
+
     const view = this.state.view !== 'side' && !this.props.fullscreen ? this.renderWidget() : this.renderSide()
 
     return (
       <div onFocus={this.handleResetUnreadCount}>
-        <link rel="stylesheet" type="text/css" href={'/assets/modules/channel-web/default.css'} />
         {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
+        {extraStylesheet && extraStylesheet.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         {view}
       </div>
     )
