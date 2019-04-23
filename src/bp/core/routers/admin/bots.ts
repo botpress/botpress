@@ -1,8 +1,9 @@
-import { BotConfig, BotPipelineStatus, Logger } from 'botpress/sdk'
+import { BotConfig, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
@@ -161,6 +162,42 @@ export class BotsRouter extends CustomRouter {
           'Content-Length': tarball.length
         })
         res.end(tarball)
+      })
+    )
+
+    router.get(
+      '/:botId/revisions',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const revisions = await this.botService.listRevisions(botId)
+
+        return sendSuccess(res, 'Bot revisions', {
+          revisions
+        })
+      })
+    )
+
+    router.post(
+      '/:botId/revisions',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        await this.botService.createRevision(botId)
+        return sendSuccess(res, `Created a new revision for bot ${botId}`)
+      })
+    )
+
+    router.post(
+      '/:botId/rollback',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        Joi.validate(req.body, { revision: Joi.string() })
+
+        await this.botService.rollback(botId, req.body.revision)
+
+        return sendSuccess(res, `Created a new revision for bot ${botId}`)
       })
     )
   }

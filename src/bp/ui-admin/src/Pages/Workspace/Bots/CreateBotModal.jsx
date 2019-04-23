@@ -5,8 +5,8 @@ import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, 
 import { MdGroupAdd } from 'react-icons/lib/md'
 import Select from 'react-select'
 
-import api from '../../api'
-import { fetchBotTemplates, fetchBotCategories } from '../../reducers/bots'
+import api from '../../../api'
+import { fetchBotTemplates, fetchBotCategories } from '../../../reducers/bots'
 
 const defaultState = {
   name: '',

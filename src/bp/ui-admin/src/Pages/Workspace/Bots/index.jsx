@@ -16,18 +16,17 @@ import LoadingSection from '../../Components/LoadingSection'
 
 import api from '../../../api'
 import { AccessControl } from '../../../App/AccessControl'
-import CreateBotModal from '../CreateBotModal'
+import CreateBotModal from './CreateBotModal'
 import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
+import RollbackBotModal from './RollbackBotModal'
+import { toast } from 'react-toastify'
 
 class Bots extends Component {
   state = {
     isCreateBotModalOpen: false,
-    errorCreateBot: undefined,
-    errorEditBot: undefined,
-    id: '',
-    name: '',
-    description: ''
+    focusedBot: null,
+    isRollbackModalOpen: false
   }
 
   renderLoading() {
@@ -118,6 +117,23 @@ class Bots extends Component {
     return _.get(this.props.licensing, 'status') === 'licensed'
   }
 
+  async createRevision(botId) {
+    await api.getSecured().post(`admin/bots/${botId}/revisions`)
+    toast.success('Revisions created')
+  }
+
+  toggleRollbackModal = botId => {
+    this.setState({
+      focusedBot: typeof botId === 'string' ? botId : null,
+      isRollbackModalOpen: !this.state.isRollbackModalOpen
+    })
+  }
+
+  handleRollbackSuccess = () => {
+    this.props.fetchBots()
+    toast.success('Rollback success')
+  }
+
   renderCompactView() {
     return (
       <div className="bp_table bot_views compact_view">
@@ -129,6 +145,8 @@ class Bots extends Component {
             deleteBot={this.deleteBot.bind(this, bot.id)}
             exportBot={this.exportBot.bind(this, bot.id)}
             permissions={this.props.permissions}
+            createRevision={this.createRevision.bind(this, bot.id)}
+            rollback={this.toggleRollbackModal.bind(this, bot.id)}
           />
         ))}
       </div>
@@ -159,6 +177,8 @@ class Bots extends Component {
                     deleteBot={this.deleteBot.bind(this, bot.id)}
                     exportBot={this.exportBot.bind(this, bot.id)}
                     permissions={this.props.permissions}
+                    createRevision={this.createRevision.bind(this, bot.id)}
+                    rollback={this.toggleRollbackModal.bind(this, bot.id)}
                   />
                 ))}
               </Col>
@@ -202,6 +222,12 @@ class Bots extends Component {
           activePage="bots"
           mainContent={this.props.bots.length > 0 ? this.renderBots() : this.renderEmptyBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
+        />
+        <RollbackBotModal
+          botId={this.state.focusedBot}
+          isOpen={this.state.isRollbackModalOpen}
+          toggle={this.toggleRollbackModal}
+          onRollbackSuccess={this.handleRollbackSuccess}
         />
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}

@@ -197,4 +197,8 @@ export class WorkspaceService {
 
     return workspace.pipeline
   }
+
+  async hasPipeline(): Promise<boolean> {
+    return (await this.getPipeline()).length > 1
+  }
 }
