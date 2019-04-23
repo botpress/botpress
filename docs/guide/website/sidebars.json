@@ -4,19 +4,20 @@
     "Main Concepts": [
       "main/overview",
       "main/content",
+      "main/dialog",
       "main/code",
-      "main/dialogs",
-      "main/nlu",
       "main/memory",
+      "main/module",
+      "main/nlu",
       "main/emulator"
     ],
     "Advanced Concepts": [
-      "advanced/authentication",
-      "advanced/analytics",
       "advanced/configuration",
-      "advanced/create-module",
       "advanced/debug",
       "advanced/webchat-extending",
+      "advanced/custom-module",
+      "advanced/analytics",
+      "advanced/authentication",
       "advanced/performances",
       {
         "type": "subcategory",

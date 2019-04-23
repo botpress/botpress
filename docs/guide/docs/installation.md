@@ -41,17 +41,3 @@ Once the modules are installed and loaded, you should see something similar to t
 You may also start Botpress Server using the Command Line Interface (CLI). To see all the commands available, run `./bp --help`.
 
 ![CLI Start](assets/cli-help.png)
-
-## Enabling or disabling modules
-
-Modules are already bundled with the server binary for the moment. They are bundled in zip files in the folder `modules`. It is possible to enable or disable them by opening the file `data/global/botpress.config.json` in a text editor and setting the value to `true` or `false`
-
-```js
-"modules": [
-  ...
-  {
-    "location": "MODULES_ROOT/module_name",
-    "enabled": true
-  }
-]
-```

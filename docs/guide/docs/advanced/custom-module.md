@@ -1,19 +1,14 @@
 ---
-id: create-module
-title: Creating Modules
+id: custom-module
+title: Custom Module
 ---
 
-<br/>
+## Module Templates
 
-> ⚠️ Not yet finalized, subject to breaking changes
+To help you get started, two templates are available: [Module Templates](https://github.com/botpress/botpress/tree/master/examples/module-templates).
 
-## Why should I create a module?
-
-Modules are very powerful and have a lot more features than before. They can register new actions, create multiple skills, provide new hooks, and soon they will be able to add new content types and content elements.
-
-Example: You can create a "Restaurant" module, which could be used by a restaurant owner to easily setup his bot. This could include special content types (food items, menu categories, etc), a reservation system, a list of common questions, a way to set opening hours, an example restaurant, etc.
-
-Check out our [existing modules](https://github.com/botpress/botpress/tree/master/modules) to get a better idea of what's possible.
+1. Copy / Paste the template of your choice in `modules/`
+1. In your `botpress.config.json`, [enable the module](../main/module#enabling-or-disabling-modules)
 
 ## Module Structure
 
@@ -34,8 +29,6 @@ module-directory
 
 ## Module Builder
 
-Module creation is now standardized, thanks to a new component called the "Module Builder".
-
 It is the only dependency you have to add in your dev-dependencies. It handles typescript compilation, webpack setup and compilation, packaging for distribution, etc... Here's how to get started:
 
 1. Add the `module-builder` as a dependency:
@@ -46,7 +39,7 @@ It is the only dependency you have to add in your dev-dependencies. It handles t
 }
 ```
 
-1. Add those scripts commands
+2. Add those scripts commands
 
 ```js
 "scripts": {
