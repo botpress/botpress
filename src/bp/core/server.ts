@@ -183,7 +183,7 @@ export default class HTTPServer {
     this.app.use((req, res, next) => {
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
-          return res.status(503).send('Botpress is loading. Please try again later.')
+          return res.status(503).send('Botpress is loading. Please try again in a minute.')
         }
       }
       next()
