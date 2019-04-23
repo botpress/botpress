@@ -5,19 +5,19 @@ title: About
 
 ## Additionnal Features
 
-| Feature                | Community | Pro |
-| ---------------------- | --------- | --- |
-| Botpress NLU           | ✔️        | ✔️  |
-| Visual Flow Editor     | ✔️        | ✔️  |
-| Dialog Management      | ✔️        | ✔️  |
-| Bot CMS                | ✔️        | ✔️  |
-| Unlimited Bots         |           | ✔️  |
-| Unlimited Admins       |           | ✔️  |
-| White-Label Interface  |           | ✔️  |
-| RBAC                   |           | ✔️  |
-| High-Availability      |           | ✔️  |
-| Increased Performances |           | ✔️  |
-| Standard Support       |           | ✔️  |
+| Feature                    | Community | Pro |
+| -------------------------- | --------- | --- |
+| Botpress NLU               | ✔️        | ✔️  |
+| Visual Flow Editor         | ✔️        | ✔️  |
+| Dialog Management          | ✔️        | ✔️  |
+| Bot CMS                    | ✔️        | ✔️  |
+| Unlimited Bots             | ✔️        | ✔️  |
+| Unlimited Admins           |           | ✔️  |
+| White-Label Chat Interface |           | ✔️  |
+| RBAC                       |           | ✔️  |
+| High-Availability          |           | ✔️  |
+| Increased Performances     |           | ✔️  |
+| Standard Support           |           | ✔️  |
 
 For more details, visit our [pricing page](https://botpress.io/pricing/).
 
