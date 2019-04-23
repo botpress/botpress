@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 import { MdInfoOutline } from 'react-icons/lib/md'
 

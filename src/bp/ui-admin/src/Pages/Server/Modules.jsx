@@ -3,7 +3,6 @@ import { Container, Button, Alert } from 'reactstrap'
 import { connect } from 'react-redux'
 
 import api from '../../api'
-import _ from 'lodash'
 import { fetchModules } from '../../reducers/modules'
 
 class Modules extends React.Component {
