@@ -27,7 +27,6 @@ const HISTORY_MAX_MESSAGES = 10
 const HISTORY_UP = 'ArrowUp'
 
 const defaultOptions = {
-  botName: 'Bot',
   enableReset: true,
   stylesheet: '/assets/modules/channel-web/default.css',
   extraStylesheet: '',
@@ -589,6 +588,7 @@ export default class Web extends React.Component {
         downloadConversation={this.downloadConversation}
         createConversation={this.createConversation}
         botInfo={this.state.botInfo}
+        botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
       />
     )
   }

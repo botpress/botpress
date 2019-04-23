@@ -50,14 +50,13 @@ export default class Header extends React.Component {
   }
 
   renderAvatar = () => {
-    const name = this.props.config.botName || this.props.botInfo.name
     const avatarUrl =
       (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl
-    return <Avatar name={name} avatarUrl={avatarUrl} height={40} width={40} />
+    return <Avatar name={this.props.botName} avatarUrl={avatarUrl} height={40} width={40} />
   }
 
   renderTitle = () => {
-    const title = this.props.showConvos ? 'Conversations' : this.props.config.botName || this.props.botInfo.name
+    const title = this.props.showConvos ? 'Conversations' : this.props.botName
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
 
