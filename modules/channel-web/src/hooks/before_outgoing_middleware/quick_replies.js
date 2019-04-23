@@ -1,6 +1,6 @@
 const _ = require('lodash')
 
-if (event.payload.quick_replies) {
+if (event.payload.quick_replies && event.channel == 'channel-web') {
   event.payload = {
     type: 'custom',
     module: 'channel-web',
