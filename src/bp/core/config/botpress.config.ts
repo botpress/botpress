@@ -234,6 +234,11 @@ export type BotpressConfig = {
      */
     allowRefresh: boolean
   }
+  /**
+   * When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage
+   * @default false
+   */
+  autoRevision: boolean
 }
 
 export interface ExternalAuthConfig {

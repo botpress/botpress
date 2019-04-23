@@ -10,10 +10,10 @@ import {
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
 import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning } from 'react-icons/lib/md'
+import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/lib/md'
 import { FaCog } from 'react-icons/lib/fa'
 
-export default ({ bot, deleteBot, exportBot, permissions, history }) => (
+export default ({ bot, deleteBot, exportBot, permissions, history, createRevision, rollback }) => (
   <div className="bp_table-row" key={bot.id}>
     <div className="actions">
       <Button size="sm" color="link" onClick={() => history.push(`/bot/${bot.id}/details`)}>
@@ -30,6 +30,14 @@ export default ({ bot, deleteBot, exportBot, permissions, history }) => (
           <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
             <MdModeEdit />
             &nbsp;Edit in studio
+          </DropdownItem>
+          <DropdownItem onClick={createRevision}>
+            <MdBackup />
+            &nbsp;Create revision
+          </DropdownItem>
+          <DropdownItem onClick={rollback}>
+            <MdReplay />
+            &nbsp;Rollback
           </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>
