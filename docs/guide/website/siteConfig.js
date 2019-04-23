@@ -26,9 +26,9 @@ const siteConfig = {
   docsSideNavCollapsible: true,
   headerLinks: [
     { doc: 'introduction', label: 'Docs' },
+    { href: 'https://botpress.io/reference/', label: 'SDK' },
     { href: 'https://help.botpress.io/', label: 'Community' },
     { href: 'https://github.com/botpress/botpress', label: 'Github' },
-    { href: 'https://botpress.io/reference/', label: 'SDK' },
     { search: true }
   ],
 
