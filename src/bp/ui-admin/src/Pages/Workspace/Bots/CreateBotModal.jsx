@@ -9,7 +9,9 @@ import api from '../../../api'
 import { fetchBotTemplates, fetchBotCategories } from '../../../reducers/bots'
 
 const defaultState = {
+  botId: '',
   name: '',
+  generateId: true,
   template: null,
   category: null,
   error: null
@@ -36,22 +38,16 @@ class CreateBotModal extends Component {
   }
 
   handleNameChanged = e => {
-    this.setState({ name: e.target.value })
+    const name = e.target.value
+    this.setState({ name, botId: this.state.generateId ? this.sanitizeName(name) : this.state.botId })
   }
 
-  handleTemplateChanged = template => {
-    this.setState({ template })
-  }
+  handleBotIdChanged = e => this.setState({ botId: this.sanitizeName(e.target.value), generateId: false })
+  handleTemplateChanged = template => this.setState({ template })
+  handleCategoryChanged = category => this.setState({ category })
 
-  handleCategoryChanged = category => {
-    this.setState({ category })
-  }
-  handleLangChanged = ({ value }) => {
-    this.setState({ defaultLanguage: value })
-  }
-
-  stanitizeName = () => {
-    return this.state.name
+  sanitizeName = name => {
+    return name
       .toLowerCase()
       .replace(/\s/g, '-')
       .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
@@ -64,15 +60,13 @@ class CreateBotModal extends Component {
       return
     }
 
-    const id = this.stanitizeName()
-    const name = this.state.name
+    const { botId, name } = this.state
+
     const template = _.pick(this.state.template, ['id', 'moduleId'])
     const category = this.state.category ? this.state.category.value : null
 
     try {
-      await api
-        .getSecured()
-        .post(`/admin/bots`, { id, name, template, category, defaultLanguage: this.state.defaultLanguage })
+      await api.getSecured().post(`/admin/bots`, { id: botId, name, template, category })
       this.setState({ ...defaultState })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
       this.props.toggle()
@@ -108,12 +102,16 @@ class CreateBotModal extends Component {
           <form onSubmit={this.createBot} ref={form => (this.formEl = form)}>
             <FormGroup>
               <Label for="name">
-                <strong>Name</strong>
+                <strong>Name of your bot</strong>
+                <br />
+                <small>
+                  It will be displayed to your visitors. You can change it anytime. If you put nothing, it will be named
+                  "Bot" by default.
+                </small>
               </Label>
               <Input
                 tabIndex="1"
                 innerRef={el => (this.nameInput = el)}
-                required
                 type="text"
                 id="name"
                 value={this.state.name}
@@ -121,10 +119,30 @@ class CreateBotModal extends Component {
               />
               <FormFeedback>The bot name should have at least 4 characters.</FormFeedback>
             </FormGroup>
+
+            <FormGroup>
+              <Label for="id">
+                <strong>Your bot ID *</strong>
+                <br />
+                <small>
+                  This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see
+                  it. Special characters are not allowed. Minimum length: 3
+                </small>
+              </Label>
+              <Input
+                tabIndex="2"
+                required
+                type="text"
+                minLength={3}
+                value={this.state.botId}
+                onChange={this.handleBotIdChanged}
+              />
+              <FormFeedback>The bot id should have at least 4 characters.</FormFeedback>
+            </FormGroup>
             {this.props.botTemplates.length > 0 && (
               <FormGroup>
                 <Label for="template">
-                  <strong>Bot Template</strong>
+                  <strong>Bot Template *</strong>
                 </Label>
                 {this.renderTemplateGroupSelect()}
               </FormGroup>

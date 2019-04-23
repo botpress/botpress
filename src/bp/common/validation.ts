@@ -9,9 +9,9 @@ export const BotCreationSchema = Joi.object().keys({
     .regex(BOTID_REGEX)
     .required(),
   name: Joi.string()
-    .min(3)
     .max(50)
-    .required(),
+    .allow('')
+    .optional(),
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
@@ -29,9 +29,8 @@ export const BotCreationSchema = Joi.object().keys({
 
 export const BotEditSchema = Joi.object().keys({
   name: Joi.string()
-    .min(3)
-    .max(50)
-    .required(),
+    .allow('')
+    .max(50),
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()

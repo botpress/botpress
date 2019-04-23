@@ -60,7 +60,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
           &nbsp;
         </span>
       )}
-      {bot.disabled ? <span>{bot.name}</span> : <a href={`/studio/${bot.id}`}>{bot.name}</a>}
+      {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={`/studio/${bot.id}`}>{bot.name || bot.id}</a>}
 
       {!bot.defaultLanguage && (
         <React.Fragment>
