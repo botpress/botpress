@@ -24,12 +24,22 @@ class RollbackBotModal extends Component {
       .getSecured()
       .get(`/admin/bots/${this.props.botId}/revisions`)
       .then(({ data }) => {
-        this.setState({ revisions: data.payload.revisions })
+        const revisions = data.payload.revisions.map(rev => {
+          const parts = rev.replace('.tgz', '').split('++')
+          parts[1] = new Date(parseInt(parts[1], 10)).toLocaleString()
+          return {
+            label: parts.join(' - '),
+            value: rev
+          }
+        })
+        this.setState({ revisions })
       })
   }
 
-  selectRev = ({ value: selectedRev }) => {
-    this.setState({ selectedRev })
+  selectRev = selectedRev => {
+    this.setState({ selectedRev }, () => {
+      this.submitEl.focus()
+    })
   }
 
   rollback = () => {
@@ -40,7 +50,7 @@ class RollbackBotModal extends Component {
     ) {
       api
         .getSecured()
-        .post(`/admin/bots/${this.props.botId}/rollback`, { revision: this.state.selectedRev })
+        .post(`/admin/bots/${this.props.botId}/rollback`, { revision: this.state.selectedRev.value })
         .then(() => {
           this.props.onRollbackSuccess && this.props.onRollbackSuccess()
           this.props.toggle()
@@ -50,7 +60,7 @@ class RollbackBotModal extends Component {
   }
 
   focus = () => {
-    this.select.focus()
+    this.selectEl.focus()
   }
 
   render() {
@@ -65,13 +75,9 @@ class RollbackBotModal extends Component {
             </Label>
             <Select
               tabIndex="1"
-              ref={el => (this.select = el)}
-              value={
-                this.state.selectedRev
-                  ? { label: this.state.selectedRev.replace('.tgz', ''), value: this.state.selectedRev }
-                  : null
-              }
-              options={this.state.revisions.map(rev => ({ label: rev.replace('.tgz', ''), value: rev }))}
+              ref={el => (this.selectEl = el)}
+              value={this.state.selectedRev}
+              options={this.state.revisions}
               onChange={this.selectRev}
             />
           </FormGroup>
@@ -82,6 +88,7 @@ class RollbackBotModal extends Component {
             color="primary"
             disabled={!this.state.selectedRev}
             onClick={this.rollback}
+            innerRef={el => (this.submitEl = el)}
           >
             <MdReplay /> Rollback
           </Button>

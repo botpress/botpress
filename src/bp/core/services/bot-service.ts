@@ -29,6 +29,7 @@ import { WorkspaceService } from './workspace-service'
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
+const REV_SPLIT_CHAR = '++'
 const MAX_REV = 10
 const DEFAULT_BOT_CONFIGS = {
   locked: false,
@@ -225,7 +226,7 @@ export class BotService {
           }
         }
         if (await this.botExists(botId)) {
-          this._unmountBot(botId)
+          await this._unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this._mountBot(botId)
@@ -477,32 +478,32 @@ export class BotService {
 
     const revisions = await globalGhost.directoryListing(REVISIONS_DIR)
 
-    return revisions.filter(rev => rev.includes(botId) && rev.includes(stageID)).sort((revA, revB) => {
-      const dateA = revA.split('::')[1].replace('.tgz', '')
-      const dateB = revB.split('::')[1].replace('.tgz', '')
-      const diff = moment(dateA, 'YY-MM-DD-ha').diff(moment(dateB, 'YY-MM-DD-ha'))
-      return diff * -1 // descending
-    })
+    return revisions
+      .filter(rev => rev.startsWith(`${botId}${REV_SPLIT_CHAR}`) && rev.includes(stageID))
+      .sort((revA, revB) => {
+        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+
+        return parseInt(dateA, 10) - parseInt(dateB, 10)
+      })
   }
 
   public async createRevision(botId: string): Promise<void> {
-    const botConfig = await this.configProvider.getBotConfig(botId)
-    let revName = `${botId}::${moment().format('YY-MM-DD-ha')}`
+    let revName = `${botId}${REV_SPLIT_CHAR}${Date.now()}`
 
     if (await this.workspaceService.hasPipeline()) {
-      revName = `${revName}::${botConfig.pipeline_status.current_stage.id}`
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      revName = `${revName}${REV_SPLIT_CHAR}${botConfig.pipeline_status.current_stage.id}`
     }
 
     const botGhost = this.ghostService.forBot(botId)
     const globalGhost = this.ghostService.global()
-    await globalGhost.ensureDirs('/', ['revisions'])
     await globalGhost.upsertFile(REVISIONS_DIR, revName + '.tgz', await botGhost.exportToArchiveBuffer())
     return this._cleanupRevisions(botId)
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {
-    const botConfig = await this.configProvider.getBotConfig(botId)
-    const revParts = revision.split('::')
+    const revParts = revision.split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
       throw new VError('invalid revision')
     }
@@ -512,6 +513,7 @@ export class BotService {
     }
 
     if (await this.workspaceService.hasPipeline()) {
+      const botConfig = await this.configProvider.getBotConfig(botId)
       if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
         throw new VError('cannot rollback a bot to a different stage')
       }
@@ -523,17 +525,9 @@ export class BotService {
 
   private async _cleanupRevisions(botId: string, cleanAll: boolean = false): Promise<void> {
     const revs = await this.listRevisions(botId)
+    const outDated = revs.filter((r, i) => cleanAll || i > MAX_REV)
+
     const globalGhost = this.ghostService.global()
-
-    let nToRemove = 0
-    if (revs.length > MAX_REV) {
-      nToRemove = revs.length - MAX_REV
-    }
-    if (cleanAll) {
-      nToRemove = revs.length
-    }
-
-    const outDated = _.takeRight(revs, nToRemove)
     await Promise.mapSeries(outDated, rev => globalGhost.deleteFile(REVISIONS_DIR, rev))
   }
 }

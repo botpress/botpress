@@ -57,7 +57,7 @@ export default ({
           </DropdownItem>
           <DropdownItem onClick={rollback}>
             <MdReplay />
-            &nbsp;Rollback to revision
+            &nbsp;Rollback
           </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={exportBot}>
