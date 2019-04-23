@@ -11,19 +11,23 @@
       "main/emulator"
     ],
     "Advanced Concepts": [
-      "advanced/architecture",
       "advanced/authentication",
       "advanced/analytics",
       "advanced/configuration",
       "advanced/create-module",
-      "advanced/cluster",
       "advanced/debug",
-      "advanced/hosting",
+      "advanced/webchat-extending",
       "advanced/performances",
-      "advanced/monitoring",
-      "advanced/pipelines",
-      "advanced/versions",
-      "advanced/webchat-extending"
+      {
+        "type": "subcategory",
+        "label": "Version Management",
+        "ids": ["advanced/pipelines", "advanced/versions"]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hosting & High Availability",
+        "ids": ["advanced/architecture", "advanced/hosting", "advanced/cluster", "advanced/monitoring"]
+      }
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
