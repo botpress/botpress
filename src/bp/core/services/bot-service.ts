@@ -525,7 +525,7 @@ export class BotService {
     try {
       await extractArchive(revArchive, tmpFolder)
       await this._unmountBot(botId)
-      await this.deleteBot(botId)
+      await this.ghostService.forBot(botId).deleteFolder('/')
       await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
       await this._mountBot(botId)
       this.logger.info(`Rollback of bot ${botId} successful`)
