@@ -26,7 +26,7 @@ Modules are already bundled with the server binary for the moment. They are bund
 "modules": [
   ...
   {
-    "location": "MODULES_ROOT/module_name",
+    "location": "MODULES_ROOT/<module_name>",
     "enabled": true
   }
 ]

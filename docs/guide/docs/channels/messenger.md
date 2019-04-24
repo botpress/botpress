@@ -7,6 +7,7 @@ title: Facebook Messenger
 
 Messenger requires you to have a Facebook App and a Facebook Page to setup your bot.
 
+- [Enable Channel-Messenger Module](../main/module#enabling-or-disabling-modules)
 - [Create a Facebook App](https://developers.facebook.com/docs/apps/)
 - [Create a Facebook Page](https://www.facebook.com/pages/creation/)
 - An HTTPS Endpoint to your bot
@@ -51,6 +52,54 @@ You will need to setup the following properties:
 
 Restart Botpress Server to reload the configuration.
 
-## Advanced Configuration
+## Configurations
 
-Read the `http://localhost:3000/assets/modules/channel-messenger/config.schema.json` file to read more about the more advanced configuration.
+Read the [config definition file](https://github.com/botpress/botpress/blob/master/modules/channel-messenger/src/config.ts) to learn more about configurations.
+
+### Greeting Text
+
+```json
+"greeting": "Hello, I'm your bot!"
+```
+
+Read more about [greeting](https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting).
+
+### Get Started
+
+```json
+"getStarted": "<GET_STARTED_PAYLOAD>"
+```
+
+Read more about [get started](https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/get-started-button).
+
+### Persistent Menu
+
+The raw persistent menu object. Read more about persistent menu [here](https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu).
+
+```json
+ "persistentMenu": [
+    {
+      "locale": "default",
+      "composer_input_disabled": true,
+      "call_to_actions": [
+        {
+          "title": "My Account",
+          "type": "nested",
+          "call_to_actions": [
+            {
+              "title": "Pay Bill",
+              "type": "postback",
+              "payload": "PAYBILL_PAYLOAD"
+            },
+            {
+              "type": "web_url",
+              "title": "Latest News",
+              "url": "https://www.messenger.com/",
+              "webview_height_ratio": "full"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+```
