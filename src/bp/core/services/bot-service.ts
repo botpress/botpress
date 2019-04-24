@@ -497,7 +497,7 @@ export class BotService {
 
     const botGhost = this.ghostService.forBot(botId)
     const globalGhost = this.ghostService.global()
-    await globalGhost.upsertFile(REVISIONS_DIR, `${revName}.tgz`, await botGhost.exportToArchiveBuffer())
+    await globalGhost.upsertFile(REVISIONS_DIR, `${revName}.tgz`, await botGhost.exportToArchiveBuffer('models/*'))
     return this._cleanupRevisions(botId)
   }
 
