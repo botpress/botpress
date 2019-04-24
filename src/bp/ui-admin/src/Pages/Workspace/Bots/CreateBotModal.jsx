@@ -39,18 +39,18 @@ class CreateBotModal extends Component {
 
   handleNameChanged = e => {
     const name = e.target.value
-    this.setState({ name, botId: this.state.generateId ? this.sanitizeName(name) : this.state.botId })
+    this.setState({ name, botId: this.state.generateId ? this.sanitizeBotId(name) : this.state.botId })
   }
 
-  handleBotIdChanged = e => this.setState({ botId: this.sanitizeName(e.target.value), generateId: false })
+  handleBotIdChanged = e => this.setState({ botId: this.sanitizeBotId(e.target.value), generateId: false })
   handleTemplateChanged = template => this.setState({ template })
   handleCategoryChanged = category => this.setState({ category })
 
-  sanitizeName = name => {
-    return name
+  sanitizeBotId = text => {
+    return text
       .toLowerCase()
       .replace(/\s/g, '-')
-      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
+      .replace(/[^a-z0-9_-]/g, '')
   }
 
   createBot = async e => {
@@ -94,9 +94,14 @@ class CreateBotModal extends Component {
     )
   }
 
+  toggle = () => {
+    this.setState({ ...defaultState })
+    this.props.toggle()
+  }
+
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus}>
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} fade={false} onOpened={this.focus}>
         <ModalHeader toggle={this.props.toggle}>Create a new bot</ModalHeader>
         <ModalBody>
           <form onSubmit={this.createBot} ref={form => (this.formEl = form)}>
