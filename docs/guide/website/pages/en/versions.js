@@ -74,10 +74,17 @@ function Versions() {
                     </tr>
                   )
               )}
+            </tbody>
+          </table>
+
+          <h3 id="archive" style={{ color: '#FF0000' }}>
+            ⚠️ Deprecated Versions
+          </h3>
+
+          <table className="versions">
+            <tbody>
               <tr>
-                <th>
-                  Older versions: <b>10.x</b>
-                </th>
+                <th>10.50</th>
                 <td>
                   <a href={`/docs/10.50`}>Documentation</a>
                 </td>

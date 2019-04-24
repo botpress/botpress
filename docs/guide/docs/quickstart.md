@@ -3,22 +3,7 @@ id: quickstart
 title: Quick Start
 ---
 
-## CLI
-
-You may also start Botpress Server using the Command Line Interface (CLI). To see all the commands available, run `./bp --help`.
-
-##### Example
-
-```sh
-> ./bp --help
-Options:
-  --version         Show version number                                [boolean]
-  --verbose, -v     verbosity level                         [count] [default: 2]
-  --production, -p  run in production mode            [boolean] [default: false]
-  --help            Show help                                          [boolean]
-```
-
-## Admin Panel
+## Admin
 
 The admin dashboard is the place where you'll be able to manage and configure everything related to your Botpress Server installation, including:
 

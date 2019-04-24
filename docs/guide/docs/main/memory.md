@@ -1,9 +1,7 @@
 ---
 id: memory
-title: Bot Memory and Data Retention
+title: Memory
 ---
-
-## Introduction
 
 In the course of a conversation, you may want to ask questions to the user, and remember his answer to use it later. There are four different kind of memories in Botpress; the difference between each of them is the duration and the scope.
 
@@ -96,7 +94,7 @@ There are two different ways to edit these 4 different types of data. The most s
 
 Another common use is using actions. Actions allows you to edit these variables directly. For example, you could write `user.firstname = 'potato'` in your code file to update the user's name.
 
-Please check out the [Custom Code](/docs/build/code#actions) section for more details about this.
+Please check out the [Custom Code](./code#actions) section for more details about this.
 
 ## General Storage
 
