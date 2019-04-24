@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { FormGroup, InputGroup, FormControl, Glyphicon } from 'react-bootstrap'
+import { FormGroup, InputGroup, FormControl } from 'react-bootstrap'
+import { IoIosFolderOpen, IoMdCreate } from 'react-icons/io'
 
 import store from '~/store'
 import { upsertContentItem, fetchContentItem } from '~/actions'
@@ -52,15 +53,18 @@ class ContentPickerWidget extends Component {
       <FormGroup>
         <InputGroup>
           <FormControl placeholder={placeholder} value={textContent} disabled id={inputId || ''} />
-          <InputGroup.Addon>
+          <InputGroup.Addon style={{ padding: 0 }}>
             {contentItem && (
-              <a onClick={this.editItem} style={{ marginRight: '8px' }}>
-                <Glyphicon glyph="pencil" />
-              </a>
+              <div className={style.actionBtn} style={{ marginRight: '3px' }} onClick={this.editItem}>
+                <IoMdCreate size={20} color={'#0078cf'} />
+              </div>
             )}
-            <a onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
-              <Glyphicon glyph="folder-open" />
-            </a>
+            <div
+              className={style.actionBtn}
+              onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
+            >
+              <IoIosFolderOpen size={20} color={'#0078cf'} />
+            </div>
           </InputGroup.Addon>
           <CreateOrEditModal
             show={this.state.showItemEdit}

@@ -20,7 +20,7 @@ window.botpressWebChat.sendEvent({
 })
 ```
 
-2. This trigger will be dispatched to the bot so you need to add a handler for it. This should be added as a [Hook](/docs/build/code#hooks)
+2. This trigger will be dispatched to the bot so you need to add a handler for it. This should be added as a [Hook](../main/code#hooks)
 
 ```js
 if (event.type === 'proactive-trigger') {

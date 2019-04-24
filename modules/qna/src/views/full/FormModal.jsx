@@ -195,7 +195,12 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal className={classnames(style.newQnaModal, 'newQnaModal')} show={showQnAModal} onHide={this.closeAndClear}>
+      <Modal
+        className={classnames(style.newQnaModal, 'newQnaModal')}
+        show={showQnAModal}
+        onHide={this.closeAndClear}
+        backdrop={'static'}
+      >
         <form>
           <Modal.Header className={style.qnaModalHeader}>
             <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>

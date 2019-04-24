@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate, Logger, Stage, StageAction } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -14,6 +14,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import path from 'path'
 import tmp from 'tmp'
+import { VError } from 'verror'
 
 import { extractArchive } from '../misc/archive'
 
@@ -27,6 +28,9 @@ import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
+const REVISIONS_DIR = './revisions'
+const REV_SPLIT_CHAR = '++'
+const MAX_REV = 10
 const DEFAULT_BOT_CONFIGS = {
   locked: false,
   disabled: false,
@@ -221,6 +225,9 @@ export class BotService {
             }
           }
         }
+        if (await this.botExists(botId)) {
+          await this._unmountBot(botId)
+        }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this._mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
@@ -283,6 +290,7 @@ export class BotService {
   }
 
   private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {
+    const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
     const users = await this.workspaceService.listUsers(['email', 'role'])
     const pipeline = await this.workspaceService.getPipeline()
@@ -294,7 +302,10 @@ export class BotService {
 
     await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
     if (_.isArray(hookResult.actions)) {
-      await Promise.map(hookResult.actions, action => {
+      await Promise.map(hookResult.actions, async action => {
+        if (bpConfig.autoRevision) {
+          await this.createRevision(alteredBot.id)
+        }
         if (action === 'promote_copy') {
           return this._promoteCopy(currentConfig, alteredBot)
         } else if (action === 'promote_move') {
@@ -307,6 +318,9 @@ export class BotService {
       await this.hookService.executeHook(
         new Hooks.AfterStageChanged(api, beforeRequestConfig, alteredBot, users, pipeline)
       )
+      if (bpConfig.autoRevision) {
+        await this.createRevision(alteredBot.id)
+      }
     }
   }
 
@@ -348,6 +362,7 @@ export class BotService {
     this.stats.track('bot', 'delete')
 
     await this.unmountBot(botId)
+    await this._cleanupRevisions(botId, true)
     await this.ghostService.forBot(botId).deleteFolder('/')
     this._invalidateBotIds()
   }
@@ -366,6 +381,11 @@ export class BotService {
           ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,
           ...botConfig
+        }
+
+        if (!mergedConfigs.imports.contentTypes) {
+          const allContentTypes = await this.cms.getAllContentTypes()
+          mergedConfigs.imports.contentTypes = allContentTypes.map(x => x.id)
         }
 
         if (!mergedConfigs.defaultLanguage) {
@@ -439,5 +459,86 @@ export class BotService {
 
   private _invalidateBotIds(): void {
     this._botIds = undefined
+  }
+
+  public static getMountedBots() {
+    const bots: string[] = []
+    BotService._mountedBots.forEach((isMounted, bot) => isMounted && bots.push(bot))
+    return bots
+  }
+
+  public async listRevisions(botId: string): Promise<string[]> {
+    const globalGhost = this.ghostService.global()
+
+    let stageID = ''
+    if (await this.workspaceService.hasPipeline()) {
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      stageID = botConfig.pipeline_status.current_stage.id
+    }
+
+    const revisions = await globalGhost.directoryListing(REVISIONS_DIR, '*.tgz')
+    return revisions
+      .filter(rev => rev.startsWith(`${botId}${REV_SPLIT_CHAR}`) && rev.includes(stageID))
+      .sort((revA, revB) => {
+        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+
+        return parseInt(dateA, 10) - parseInt(dateB, 10)
+      })
+  }
+
+  public async createRevision(botId: string): Promise<void> {
+    let revName = botId + REV_SPLIT_CHAR + Date.now()
+
+    if (await this.workspaceService.hasPipeline()) {
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      revName = revName + REV_SPLIT_CHAR + botConfig.pipeline_status.current_stage.id
+    }
+
+    const botGhost = this.ghostService.forBot(botId)
+    const globalGhost = this.ghostService.global()
+    await globalGhost.upsertFile(REVISIONS_DIR, `${revName}.tgz`, await botGhost.exportToArchiveBuffer('models/*'))
+    return this._cleanupRevisions(botId)
+  }
+
+  public async rollback(botId: string, revision: string): Promise<void> {
+    const revParts = revision.replace('.tgz', '').split(REV_SPLIT_CHAR)
+    if (revParts.length < 2) {
+      throw new VError('invalid revision')
+    }
+
+    if (revParts[0] !== botId) {
+      throw new VError('cannot rollback a bot with a different Id')
+    }
+
+    if (await this.workspaceService.hasPipeline()) {
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
+        throw new VError('cannot rollback a bot to a different stage')
+      }
+    }
+
+    const revArchive = await this.ghostService.global().readFileAsBuffer(REVISIONS_DIR, revision)
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const tmpFolder = tmpDir.name
+
+    try {
+      await extractArchive(revArchive, tmpFolder)
+      await this._unmountBot(botId)
+      await this.ghostService.forBot(botId).deleteFolder('/')
+      await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
+      await this._mountBot(botId)
+      this.logger.info(`Rollback of bot ${botId} successful`)
+    } finally {
+      tmpDir.removeCallback()
+    }
+  }
+
+  private async _cleanupRevisions(botId: string, cleanAll: boolean = false): Promise<void> {
+    const revs = await this.listRevisions(botId)
+    const outDated = revs.filter((_, i) => cleanAll || i > MAX_REV)
+
+    const globalGhost = this.ghostService.global()
+    await Promise.mapSeries(outDated, rev => globalGhost.deleteFile(REVISIONS_DIR, rev))
   }
 }

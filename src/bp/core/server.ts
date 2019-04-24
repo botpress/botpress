@@ -113,7 +113,14 @@ export default class HTTPServer {
 
     this.app.use(debugRequestMw)
 
-    this.modulesRouter = new ModulesRouter(this.logger, this.authService, moduleLoader, skillService)
+    this.modulesRouter = new ModulesRouter(
+      this.logger,
+      this.authService,
+      moduleLoader,
+      skillService,
+      this.configProvider
+    )
+
     this.authRouter = new AuthRouter(
       this.logger,
       this.authService,
@@ -274,6 +281,10 @@ export default class HTTPServer {
 
   createRouterForBot(router: string, options: RouterOptions): any & http.RouterExtension {
     return this.botsRouter.getNewRouter(router, options)
+  }
+
+  deleteRouterForBot(router: string): void {
+    return this.botsRouter.deleteRouter(router, this.app)
   }
 
   createShortLink(name: string, destination: string, params: any) {

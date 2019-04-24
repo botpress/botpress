@@ -10,12 +10,12 @@ import { updateDocumentationModal } from '~/actions'
 import style from './DocumentationModal.styl'
 
 const docs = {
-  flows: require('DOCS/build/dialogs.md'),
-  action: require('DOCS/build/code.md'),
-  memory: require('DOCS/build/memory.md'),
-  content: require('DOCS/build/content.md'),
-  nlu: require('DOCS/build/nlu.md'),
-  debug: require('DOCS/build/emulator.md')
+  flows: require('DOCS/main/dialog.md'),
+  action: require('DOCS/main/code.md'),
+  memory: require('DOCS/main/memory.md'),
+  content: require('DOCS/main/content.md'),
+  nlu: require('DOCS/main/nlu.md'),
+  debug: require('DOCS/main/emulator.md')
 }
 
 class DocumentationModal extends React.Component {
