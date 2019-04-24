@@ -40,8 +40,8 @@ const DEFAULT_BOT_CONFIGS = {
 
 @injectable()
 export class BotService {
-  public mountBot: Function = this._mountBot
-  public unmountBot: Function = this._unmountBot
+  public mountBot: Function = this._localMount
+  public unmountBot: Function = this._localUnmount
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
@@ -64,8 +64,8 @@ export class BotService {
 
   @postConstruct()
   async init() {
-    this.mountBot = await this.jobService.broadcast<void>(this._mountBot.bind(this))
-    this.unmountBot = await this.jobService.broadcast<void>(this._unmountBot.bind(this))
+    this.mountBot = await this.jobService.broadcast<void>(this._localMount.bind(this))
+    this.unmountBot = await this.jobService.broadcast<void>(this._localUnmount.bind(this))
   }
 
   async findBotById(botId: string): Promise<BotConfig | undefined> {
@@ -226,10 +226,10 @@ export class BotService {
           }
         }
         if (await this.botExists(botId)) {
-          await this._unmountBot(botId)
+          await this.unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
-        await this._mountBot(botId)
+        await this.mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
         this.logger.info(`Import of bot ${botId} was denied by hook validation`)
@@ -282,7 +282,7 @@ export class BotService {
     )
 
     await this.workspaceService.addBotRef(destBotId)
-    await this._mountBot(destBotId)
+    await this.mountBot(destBotId)
   }
 
   private async botExists(botId: string): Promise<boolean> {
@@ -421,7 +421,8 @@ export class BotService {
     return BotService._mountedBots.get(botId) || false
   }
 
-  private async _mountBot(botId: string) {
+  // Do not use directly use the public version instead due to broadcasting
+  private async _localMount(botId: string) {
     if (this._isBotMounted(botId)) {
       return
     }
@@ -443,7 +444,8 @@ export class BotService {
     }
   }
 
-  private async _unmountBot(botId: string) {
+  // Do not use directly use the public version instead due to broadcasting
+  private async _localUnmount(botId: string) {
     if (!this._isBotMounted(botId)) {
       return
     }
@@ -524,10 +526,10 @@ export class BotService {
 
     try {
       await extractArchive(revArchive, tmpFolder)
-      await this._unmountBot(botId)
+      await this.unmountBot(botId)
       await this.ghostService.forBot(botId).deleteFolder('/')
       await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
-      await this._mountBot(botId)
+      await this.mountBot(botId)
       this.logger.info(`Rollback of bot ${botId} successful`)
     } finally {
       tmpDir.removeCallback()
