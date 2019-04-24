@@ -52,19 +52,11 @@ export default class SlotModal extends React.Component {
   initializeFromProps = () => {
     if (this.props.slot) {
       let slot = { ...this.props.slot }
-      // @deprecated > 11 ensures entities is defined for a slot
-      if (!slot.entities) {
-        slot.entities = slot.entity
-          ? [
-              {
-                label: slot.entity,
-                value: slot.entity
-              }
-            ]
-          : []
-      }
+      slot.entities = slot.entities.map(e => ({
+        label: e,
+        value: e
+      }))
       this.setState({ ...slot, editing: true })
-      console.log('you this:', slot)
     } else this.resetState()
   }
 
