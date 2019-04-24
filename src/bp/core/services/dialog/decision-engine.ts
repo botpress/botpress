@@ -20,6 +20,7 @@ export class DecisionEngine {
   public onBeforeSuggestionsElection:
     | ((sessionId: string, event: IO.IncomingEvent, suggestions: IO.Suggestion[]) => Promise<void>)
     | undefined
+  public onAfterEventProcessed: ((event) => Promise<void>) | undefined
 
   constructor(
     @inject(TYPES.Logger)
@@ -79,6 +80,8 @@ export class DecisionEngine {
           }
         })
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
+
         await this.stateManager.persist(processedEvent, false)
         return
       } catch (err) {

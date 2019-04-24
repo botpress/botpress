@@ -15,9 +15,15 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {}
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.removeMiddleware('web.sendMessages')
+  bp.http.deleteRouterForBot('channel-web')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
+  onModuleUnmount,
   definition: {
     name: 'channel-web',
     menuIcon: 'chrome_reader_mode',

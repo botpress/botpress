@@ -13,12 +13,14 @@ The latest stable binaries are available for download [**here**](https://botpres
 
 To install Botpress, simply unzip the file you download somewhere on your computer. Make sure that your computer has at least:
 
-- 512mb of RAM
-- 1gb of available disk space
+- Memory (RAM): Recommended 4 GB or above.
+- Hard Drive: Recommended 64 GB of free space or above.
 - A 64 bits architecture
 - The right to read/write to the directory and subdirectories where Botpress is located
 
 ## Starting Botpress
+
+### Executable
 
 To start Botpress, all you have to do is double click on the `bp` file in the directory you extracted Botpress to.
 
@@ -32,18 +34,10 @@ The first time you run Botpress, the built-in modules take some time to install.
 
 Once the modules are installed and loaded, you should see something similar to the screenshot below.
 
-![First Run](assets/install-start.png)
+![First Run](assets/server-start.png)
 
-## Enabling or disabling modules
+### Commands
 
-Modules are already bundled with the server binary for the moment. They are bundled in zip files in the folder `modules`. It is possible to enable or disable them by opening the file `data/global/botpress.config.json` in a text editor and setting the value to `true` or `false`
+You may also start Botpress Server using the Command Line Interface (CLI). To see all the commands available, run `./bp --help`.
 
-```js
-"modules": [
-  ...
-  {
-    "location": "MODULES_ROOT/module_name",
-    "enabled": true
-  }
-]
-```
+![CLI Start](assets/cli-help.png)

@@ -18,7 +18,7 @@ import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router } from 'express'
+import { RequestHandler, Router, Express } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -101,6 +101,22 @@ export class BotsRouter extends CustomRouter {
     }
 
     next()
+  }
+
+  /**
+   * There is no built-in API in express to remove routes at runtime. Therefore, it is recommended to use this method in development only.
+   * A good explanation is available here: https://github.com/expressjs/express/issues/2596
+   */
+  deleteRouter(path: string, app: Express) {
+    const relPath = '/mod/' + path
+
+    // We need to access the global stack and dig in it to find the desired stack
+    const mainRouterStack = app._router.stack
+    const botRouter = mainRouterStack.find(x => x.name === 'router' && x.regexp.exec('/api/v1/bots/:botId'))
+
+    if (botRouter) {
+      botRouter.handle.stack = botRouter.handle.stack.filter(x => !x.regexp.exec(relPath))
+    }
   }
 
   getNewRouter(path: string, options?: RouterOptions) {

@@ -30,7 +30,7 @@ Now that we have a Botpress account setup, we can buy license. Go ahead an click
 - Add collaborators
 - Define and assign custom roles and permissions to your collaborators
 
-Note that all bots will run on a single instance, where you might end up with a scalability issue when your bot hit a certain messages / sec threshold. To address this problem, we allow our clients to scale their Botpress installation to [multiple nodes](/docs/developers/cluster). You can add as many additional Nodes to your license as you need.
+Note that all bots will run on a single instance, where you might end up with a scalability issue when your bot hit a certain messages / sec threshold. To address this problem, we allow our clients to scale their Botpress installation to [multiple nodes](/docs/advanced/cluster). You can add as many additional Nodes to your license as you need.
 
 ![BP customie license](assets/bp-customize-license.jpg)
 

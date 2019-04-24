@@ -41,4 +41,5 @@ export interface LicenseInfo {
   versions: string
   support: SupportType
   limits: Limit[]
+  manualRefresh: boolean
 }
