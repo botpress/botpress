@@ -39,18 +39,18 @@ class CreateBotModal extends Component {
 
   handleNameChanged = e => {
     const name = e.target.value
-    this.setState({ name, botId: this.state.generateId ? this.sanitizeName(name) : this.state.botId })
+    this.setState({ name, botId: this.state.generateId ? this.sanitizeBotId(name) : this.state.botId })
   }
 
-  handleBotIdChanged = e => this.setState({ botId: this.sanitizeName(e.target.value), generateId: false })
+  handleBotIdChanged = e => this.setState({ botId: this.sanitizeBotId(e.target.value), generateId: false })
   handleTemplateChanged = template => this.setState({ template })
   handleCategoryChanged = category => this.setState({ category })
 
-  sanitizeName = name => {
-    return name
+  sanitizeBotId = text => {
+    return text
       .toLowerCase()
       .replace(/\s/g, '-')
-      .replace(/[$&+,:;=?@#|'<>.^*()%!]/g, '')
+      .replace(/[^a-z0-9_-]/g, '')
   }
 
   createBot = async e => {
