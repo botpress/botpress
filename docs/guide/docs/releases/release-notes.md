@@ -3,23 +3,29 @@ id: release-notes
 title: Release Notes
 ---
 
-The transition from Botpress to Botpress X was a huge game changer, and the latest one from Botpress X to Botpress Server (v11) is even bigger.
+## Features
 
-## What's new in Botpress Server
+- Allow creation of revisions of a bot & allows rollback to those revisions
+- New Dropdown component added for channel-web
+- Modules can register an event handler to be notified of content element changes
+- Modules can now be reloaded while botpress is running (developer experience)
+- Added new hook `AfterEventProcessed`
+- The base CSS of Channel-Web can be overwritten (or/and extended)
+- Added possibility to set a password policy for basic authentication
 
-There are 4 major differences between Botpress X (10.x) and Botpress Server (11.x).
+## Bug fixes
 
-- **v11** is not an NPM library anymore – it is a standalone application. We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
-- **v11** now supports multiple bots natively – thus the naming of Botpress Server.
-- **v11** is a complete backend rewrite to TypeScript. We have made significant architectural changes [that are not backward-compatible](../advanced/architecture).
-- We introduced our first version of [Botpress Native NLU](../main/nlu)
+- Bot ID can now be customized when creating a new bot
+- Fix small UX issue which closed modals when clicking outside (thus, clearing the form)
+- Fix CSV Import Tooltip (some information was missing)
+- When deleting content from the CMS, the json files are correctly updated
 
----
+## Documentation
 
-With Botpress Server, we went back to the roots and completely rewrote the engine from scratch using Typescript. Multi-bot support was added natively. We are giving a much bigger place to modules, which can do a lot more than before. We expose a new SDK that makes it very easy to develop for Botpress.
+- Document channel-messenger
+- Document channel-telegram
+- How to customize css of Channel-Web
 
-### Other minor changes
+## Changelog
 
-- Modules can now deploy [Actions](../main/code#actions)
-- Modules can export static assets
-- [Hooks](../main/code#hooks) have been added to replace `bp.hear` in your `index.js` file
+Please look at the complete [changelog](https://github.com/botpress/botpress/blob/master/CHANGELOG.md) for more details.
