@@ -245,7 +245,7 @@ export class ScopedGhostService {
   }
 
   public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
-    const allFiles = await this.directoryListing('./', undefined, exludes)
+    const allFiles = await this.directoryListing('./', '*.*', exludes)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
