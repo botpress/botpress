@@ -94,9 +94,14 @@ class CreateBotModal extends Component {
     )
   }
 
+  toggle = () => {
+    this.setState({ ...defaultState })
+    this.props.toggle()
+  }
+
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} fade={false} onOpened={this.focus}>
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} fade={false} onOpened={this.focus}>
         <ModalHeader toggle={this.props.toggle}>Create a new bot</ModalHeader>
         <ModalBody>
           <form onSubmit={this.createBot} ref={form => (this.formEl = form)}>
