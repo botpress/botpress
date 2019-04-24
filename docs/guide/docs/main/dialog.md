@@ -1,6 +1,6 @@
 ---
-id: dialogs
-title: Flows & Dialogs
+id: dialog
+title: Dialog Engine
 ---
 
 Botpress use what we call the **Dialog Engine** to handle conversations. The Dialog Engine is responsible for every interaction with a bot. It handles the user input and the bot response. But between the two, there's a whole lot happening.
@@ -129,7 +129,7 @@ An **Action** is JavaScript code that is executed in a Node.js VM. It can be any
 - **Script**: A user defined Action that is used to run custom code.
 - **Output**: An output Action that is used to make a bot output something.
 
-> To learn more on Actions, please refer to the [Custom Code](/docs/build/code) section.
+> To learn more on Actions, please refer to the [Custom Code](/docs/main/code) section.
 
 ## Skills
 

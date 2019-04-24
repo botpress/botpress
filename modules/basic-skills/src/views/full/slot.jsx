@@ -154,12 +154,10 @@ export class Slot extends React.Component {
   }
 
   getSlotOptionsForIntent(intent) {
-    return (
-      intent &&
-      intent.slots.map(slot => {
-        return { value: slot.name, label: slot.name }
-      })
-    )
+    const slots = _.get(intent, 'slots', [])
+    return slots.map(slot => {
+      return { value: slot.name, label: slot.name }
+    })
   }
 
   render() {

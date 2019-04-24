@@ -39,6 +39,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly direction: sdk.EventDirection
   public readonly payload: any
   public readonly botId: string
+  public readonly createdOn: Date
   public readonly threadId?: string
   public readonly preview: string
   public readonly suggestions?: sdk.IO.Suggestion[]
@@ -54,6 +55,7 @@ export class IOEvent implements sdk.IO.Event {
     this.payload = args.payload
     this.target = args.target
     this.botId = args.botId
+    this.createdOn = new Date()
     this.threadId = args.threadId ? args.threadId.toString() : undefined
     this.id = args.id || (Date.now() * 100000 + ((Math.random() * 100000) | 0)).toString()
     this.preview = args.preview || this.constructPreview()

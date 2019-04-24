@@ -1,30 +1,37 @@
 {
   "docs": {
-    "Getting Started": ["introduction", "installation", "troubleshoot", "quickstart", "updating"],
-    "Build": [
-      "build/overview",
-      "build/nlu",
-      "build/dialogs",
-      "build/code",
-      "build/memory",
-      "build/content",
-      "build/channels",
-      "build/emulator"
+    "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
+    "Main Concepts": [
+      "main/overview",
+      "main/content",
+      "main/dialog",
+      "main/code",
+      "main/memory",
+      "main/module",
+      "main/nlu",
+      "main/emulator"
     ],
-    "Deploy": ["deploy/architecture", "deploy/hosting", "deploy/performances"],
-    "Manage": ["manage/configuration", "manage/versions", "manage/monitoring", "manage/authentication"],
-    "Developers": [
-      "developers/release-notes",
-      "developers/migrate",
-      "developers/debug",
-      "developers/create-module",
-      "developers/cluster",
-      "developers/analytics",
-      "developers/pipelines",
-      "developers/webchat-extending"
+    "Advanced Concepts": [
+      "advanced/configuration",
+      "advanced/debug",
+      "advanced/webchat-extending",
+      "advanced/custom-module",
+      "advanced/analytics",
+      "advanced/authentication",
+      "advanced/performances",
+      {
+        "type": "subcategory",
+        "label": "Version Management",
+        "ids": ["advanced/pipelines", "advanced/versions"]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hosting & High Availability",
+        "ids": ["advanced/architecture", "advanced/hosting", "advanced/cluster", "advanced/monitoring"]
+      }
     ],
+    "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
-      "tutorials/webchat-embedding",
       "tutorials/existing-backend",
       "tutorials/database",
       "tutorials/hitl",
@@ -39,6 +46,7 @@
       "tutorials/contextual-faq",
       "tutorials/listen-file-changes"
     ],
-    "Botpress Pro": ["pro/about-pro", "pro/licensing"]
+    "Pro Edition": ["pro/about-pro", "pro/licensing"],
+    "Release Notes": ["releases/release-notes", "releases/migrate"]
   }
 }

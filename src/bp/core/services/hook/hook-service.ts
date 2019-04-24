@@ -65,6 +65,12 @@ export namespace Hooks {
     }
   }
 
+  export class AfterEventProcessed extends BaseHook {
+    constructor(bp: typeof sdk, event: IO.Event) {
+      super('after_event_processed', { bp, event })
+    }
+  }
+
   export class BeforeSessionTimeout extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_session_timeout', { bp, event })

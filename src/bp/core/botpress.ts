@@ -318,6 +318,10 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.BeforeSuggestionsElection(this.api, sessionId, event, suggestions))
     }
 
+    this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
+      await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
+    }
+
     this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')

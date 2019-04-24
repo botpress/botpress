@@ -15,7 +15,6 @@ import {
 import { MdRefresh, MdSave } from 'react-icons/lib/md'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
 import api from '../../api'
-import _ from 'lodash'
 
 export default class Debug extends React.Component {
   state = { nodes: undefined, checked: [], expanded: ['bp'] }

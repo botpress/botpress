@@ -1,7 +1,8 @@
-import { Logger, ListenHandle } from 'botpress/sdk'
+import { ListenHandle, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { forceForwardSlashes } from 'core/misc/utils'
+import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -17,9 +18,8 @@ import { TYPES } from '../../types'
 import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
-import { EventEmitter2 } from 'eventemitter2'
 
-const MAX_GHOST_FILE_SIZE = 10 * 1024 * 1024 // 10 Mb
+const MAX_GHOST_FILE_SIZE = 20 * 1024 * 1024 // 20 Mb
 
 @injectable()
 export class GhostService {
@@ -182,7 +182,7 @@ export class ScopedGhostService {
     const fileName = this.normalizeFileName(rootFolder, file)
 
     if (content.length > MAX_GHOST_FILE_SIZE) {
-      throw new Error(`The size of the file ${fileName} is over the 10mb limit`)
+      throw new Error(`The size of the file ${fileName} is over the 20mb limit`)
     }
 
     await this.primaryDriver.upsertFile(fileName, content, true)
@@ -244,8 +244,8 @@ export class ScopedGhostService {
     }
   }
 
-  public async exportToDirectory(directory: string): Promise<string[]> {
-    const allFiles = await this.directoryListing('./')
+  public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
+    const allFiles = await this.directoryListing('./', '*.*', exludes)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
@@ -279,11 +279,11 @@ export class ScopedGhostService {
     await this.upsertFiles('/', files)
   }
 
-  public async exportToArchiveBuffer(): Promise<Buffer> {
+  public async exportToArchiveBuffer(exludes?: string | string[]): Promise<Buffer> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
     try {
-      const outFiles = await this.exportToDirectory(tmpDir.name)
+      const outFiles = await this.exportToDirectory(tmpDir.name, exludes)
       const filename = path.join(tmpDir.name, 'archive.tgz')
 
       const archive = await createArchive(filename, tmpDir.name, outFiles)

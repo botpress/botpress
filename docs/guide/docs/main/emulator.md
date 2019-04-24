@@ -3,8 +3,6 @@ id: emulator
 title: Emulator
 ---
 
-## Emulator Window
-
 You can debug your bot conversation by using the built-in Emulator Window. The emulator is meant for developers to debug the conversations and is not meant to replicate what the end-users will see visually (i.e. some messages will not render properly). To visualize the full user experience, you should use the Web Channel directly.
 
 To open the Emulator, you can:
@@ -16,17 +14,17 @@ To open the Emulator, you can:
 
 You can close the Emulator by pressing <kbd>ESC</kbd> or by clicking again on the emulator icon.
 
-### Resending the same messages
+## Resending the same messages
 
 Using <kbd>↑</kbd> or <kbd>↓</kbd> on your keyboard in the text input will allow you to quickly navigate and re-send previously sent messages. The last 20 messages sent to this bot are persisted in your browser storage.
 
-### Payload Inspector
+## Payload Inspector
 
-The payload inspector lets you see and understand what the bot understood and why it took the decision he chose. Inside the emulator, you will see the metadata about [NLU](/docs/build/nlu), the conversation [State](/docs/build/dialogs) and the raw responses.
+The payload inspector lets you see and understand what the bot understood and why it took the decision he chose. Inside the emulator, you will see the metadata about [NLU](./nlu), the conversation [State](./dialogs) and the raw responses.
 
 ![Emulator Window](assets/emulator_win_inspector.jpg)
 
-### Sessions
+## Sessions
 
 All the messages you send using the Emulator will come from the same user from the bot's perspective.
 

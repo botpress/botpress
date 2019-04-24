@@ -1,19 +1,14 @@
 ---
-id: create-module
-title: Creating Modules
+id: custom-module
+title: Custom Module
 ---
 
-<br/>
+## Module Templates
 
-> ⚠️ Not yet finalized, subject to breaking changes
+To help you get started, two templates are available: [Module Templates](https://github.com/botpress/botpress/tree/master/examples/module-templates).
 
-## Why should I create a module?
-
-Modules are very powerful and have a lot more features than before. They can register new actions, create multiple skills, provide new hooks, and soon they will be able to add new content types and content elements.
-
-Example: You can create a "Restaurant" module, which could be used by a restaurant owner to easily setup his bot. This could include special content types (food items, menu categories, etc), a reservation system, a list of common questions, a way to set opening hours, an example restaurant, etc.
-
-Check out our [existing modules](https://github.com/botpress/botpress/tree/master/modules) to get a better idea of what's possible.
+1. Copy / Paste the template of your choice in `modules/`
+1. In your `botpress.config.json`, [enable the module](../main/module#enabling-or-disabling-modules)
 
 ## Module Structure
 
@@ -34,8 +29,6 @@ module-directory
 
 ## Module Builder
 
-Module creation is now standardized, thanks to a new component called the "Module Builder".
-
 It is the only dependency you have to add in your dev-dependencies. It handles typescript compilation, webpack setup and compilation, packaging for distribution, etc... Here's how to get started:
 
 1. Add the `module-builder` as a dependency:
@@ -46,7 +39,7 @@ It is the only dependency you have to add in your dev-dependencies. It handles t
 }
 ```
 
-1. Add those scripts commands
+2. Add those scripts commands
 
 ```js
 "scripts": {
@@ -135,7 +128,7 @@ const onServerStarted = async (bp: SDK) => {
 
 This is called once all modules are initialized and when the server is listening for incoming connections.
 
-Usually you will setup your [API endpoint](/docs/create-module#api-endpoint) here.
+Usually you will setup your [API endpoint](#api-endpoint) here.
 
 Example:
 
@@ -209,7 +202,7 @@ const botTemplates: sdk.BotTemplate[] = [
 
 The definition is used by Botpress to setup your module.
 
-Please refer to the [API Reference](/reference) for informations on the possible options
+Please refer to the [API Reference](https://botpress.io/reference/) for informations on the possible options
 
 The only way to communicate with modules (or between them) is by using the API endpoint.
 All modules are isolated and receives their own instance of `bp`
@@ -492,7 +485,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
 
 ## Register Actions
 
-Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](../build/code) section for more informations about Actions.
+Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](../main/code) section for more informations about Actions.
 Those actions must be deployed to the `data/global/actions` folder to be recognized by Botpress. Here is how to do that:
 
 1. Create a folder named `actions` in `src`

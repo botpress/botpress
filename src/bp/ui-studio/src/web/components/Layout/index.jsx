@@ -36,6 +36,7 @@ class Layout extends React.Component {
   componentDidMount() {
     this.botpressVersion = window.BOTPRESS_VERSION
     this.botName = window.BOT_NAME
+    this.botId = window.BOT_ID
 
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
@@ -105,7 +106,7 @@ class Layout extends React.Component {
           <SelectContentManager />
           <Dock isOpen={this.state.emulatorOpen} onToggle={this.toggleEmulator} />
           <StatusBar
-            botName={this.botName}
+            botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
             isEmulatorOpen={this.state.emulatorOpen}
             botpressVersion={this.botpressVersion}
