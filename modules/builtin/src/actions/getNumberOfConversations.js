@@ -5,13 +5,13 @@
  * @author Botpress, Inc.
  * @param {string} output - The state variable to output the count to
  */
-const getNumberOfConversations = async output => {
+const getNumberOfConversations = async () => {
   const userId = event.target
   const botId = event.botId
   const key = bp.kvs.getUserStorageKey(userId, 'numberOfConversations')
   const value = await bp.kvs.getStorageWithExpiry(botId, key)
 
-  temp[output] = value
+  temp[args.output] = value
 }
 
 return getNumberOfConversations()
