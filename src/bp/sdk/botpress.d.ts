@@ -390,6 +390,8 @@ declare module 'botpress/sdk' {
       readonly payload: any
       /** A textual representation of the event */
       readonly preview: string
+      /** The date the event was created */
+      readonly createdOn: Date
       readonly credentials?: any
       /**
        * Check if the event has a specific flag
