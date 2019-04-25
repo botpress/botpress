@@ -58,6 +58,13 @@ export default class SlotModal extends React.Component {
 
   resetState = () => this.setState({ ...INITIAL_STATE, availableEntities: this.state.availableEntities })
 
+  getNextAvailableColor = () => {
+    const maxColor = _.get(_.maxBy(this.props.slots, 'color'), 'color') || 0
+
+    //if no more colors available, we return a random color
+    return maxColor <= N_COLORS ? maxColor + 1 : random(1, N_COLORS)
+  }
+
   onSave = e => {
     e.preventDefault()
 
@@ -66,7 +73,7 @@ export default class SlotModal extends React.Component {
       id: this.state.id || nanoid(),
       name: this.state.name,
       entity: this.state.entity,
-      color: this.state.color || random(1, N_COLORS)
+      color: this.state.color || this.getNextAvailableColor()
     }
 
     this.props.onSlotSave && this.props.onSlotSave(slot, operation)

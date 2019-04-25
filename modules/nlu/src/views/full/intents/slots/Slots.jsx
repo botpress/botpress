@@ -39,7 +39,7 @@ export default class Slots extends React.Component {
   }
 
   // this should be passed as props from intent editor (index.js)
-  tagSelectedText = (slot) => {
+  tagSelectedText = slot => {
     if (!slot) {
       slot = this.state.selectedSlot
     }
@@ -164,7 +164,14 @@ export default class Slots extends React.Component {
         <ul>
           {slots.map((slot, i) => {
             if (this.hasSelectedText()) {
-              return <ActionSlotItem key={slot.id} slot={slot} active={slot.id === this.state.selectedSlot.id} onClick={this.tagSelectedText.bind(this, slot)} />
+              return (
+                <ActionSlotItem
+                  key={slot.id}
+                  slot={slot}
+                  active={slot.id === this.state.selectedSlot.id}
+                  onClick={this.tagSelectedText.bind(this, slot)}
+                />
+              )
             } else {
               return (
                 <SlotItem
@@ -223,6 +230,7 @@ export default class Slots extends React.Component {
           slot={this.state.selectedSlot}
           onSlotSave={this.onSlotSave}
           onHide={this.hideSlotModal}
+          slots={this.getSlots()}
         />
         {this.getSlots().length > 0 ? this.renderWithSlots() : this.renderWithoutSlots()}
       </div>
