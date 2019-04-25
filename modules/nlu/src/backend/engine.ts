@@ -9,6 +9,7 @@ import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
+import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
@@ -49,6 +50,7 @@ export default class ScopedEngine implements Engine {
   private _isSyncingTwice: boolean
   private _autoTrainInterval: number = 0
   private _autoTrainTimer: NodeJS.Timer
+  private _exactIntentMatcher: ExactMatcher
 
   constructor(
     protected logger: sdk.Logger,
@@ -124,6 +126,7 @@ export default class ScopedEngine implements Engine {
         await this.loadModels(intents, modelHash)
       }
 
+      this._exactIntentMatcher = new ExactMatcher(intents)
       this._currentModelHash = modelHash
       this._preloaded = true
     } catch (e) {
@@ -270,6 +273,15 @@ export default class ScopedEngine implements Engine {
   ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
     const tokens = await tokenize(text, lang)
 
+    const exactIntent = this._exactIntentMatcher.exactMatch(text, includedContexts)
+
+    if (exactIntent) {
+      return {
+        includedContexts,
+        intent: exactIntent,
+        intents: [exactIntent]
+      }
+    }
     const intents = await this.intentClassifier.predict(tokens, includedContexts)
 
     // TODO: This is no longer relevant because of multi-context
