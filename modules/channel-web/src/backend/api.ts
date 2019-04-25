@@ -96,9 +96,9 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       res.send({
-        showBotInfoPage: config.showBotInfoPage,
+        showBotInfoPage: (config.infoPage && config.infoPage.enabled) || config.showBotInfoPage,
         name: botInfo.name,
-        description: botInfo.description,
+        description: (config.infoPage && config.infoPage.description) || botInfo.description,
         details: botInfo.details
       })
     })
