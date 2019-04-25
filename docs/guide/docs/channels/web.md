@@ -47,22 +47,7 @@ You will see the page when starting a new conversation. The page is always acces
 You can customize the look and feel of the Botpress Webchat with a custom stylesheet. Armed with the [list of all overridable classes](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css) and your browser inspector, you can customize every element of the Webchat.
 
 1. Add the `extraStylesheet: "path/to/custom-style.css"` property to your `window.botpressWebChat.init()` script.
-1. Create your `custom-style.css` file and override the classes of your choice:
-
-```css
-.bpw-chat-bubble {
-  border-radius: 14px;
-  border-color: #0069ff;
-  margin: 14px;
-}
-.bpw-from-bot .bpw-chat-bubble {
-  background-color: #0069ff;
-  color: white;
-}
-.bpw-message-big-container {
-  background-color: #010e28;
-}
-```
+1. Create your `custom-style.css` file and override the classes of your choice
 
 ![WebChat Customization](assets/webchat-customization.png)
 
