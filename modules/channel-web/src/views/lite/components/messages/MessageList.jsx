@@ -5,9 +5,11 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 import MessageGroup from './MessageGroup'
 import Avatar from '../common/Avatar'
 
+import { injectIntl } from 'react-intl'
+
 const TIME_BETWEEN_DATES = 10 // 10 minutes
 
-export default class MessageList extends Component {
+class MessageList extends Component {
   componentDidMount() {
     this.tryScrollToBottom()
   }
@@ -56,7 +58,14 @@ export default class MessageList extends Component {
   renderDate(date) {
     return (
       <div className={'bpw-date-container'}>
-        {format(new Date(date), 'MMMM Do YYYY, h:mm a')}
+        {this.props.intl.formatTime(new Date(date), {
+          hour12: false,
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        })}
         <div className={'bpw-small-line'} />
       </div>
     )
@@ -156,3 +165,5 @@ export default class MessageList extends Component {
     )
   }
 }
+
+export default injectIntl(MessageList)
