@@ -1,6 +1,6 @@
 const _ = require('lodash')
 
-const channels = ['api', 'channel-web']
+const channels = ['api', 'web']
 if (event.payload.quick_replies && channels.includes(event.channel)) {
   event.payload = {
     type: 'custom',
