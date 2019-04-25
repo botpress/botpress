@@ -1,3 +1,7 @@
+## [11.8.2](https://github.com/botpress/botpress/compare/v11.8.1...v11.8.2) (2019-04-25)
+
+
+
 ## [11.8.1](https://github.com/botpress/botpress/compare/v11.8.0...v11.8.1) (2019-04-24)
 
 ### Bug Fixes
