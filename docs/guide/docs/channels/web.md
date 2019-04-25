@@ -29,16 +29,18 @@ There is an example included in the default botpress installation at `http://loc
 
 The information page displays informations like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
+![Bot Info Page](assets/webchat-bot-info.png)
+
 How to set up the information page:
 
 1. On the Admin UI, click on the link `Config` next to the name of the bot you want to change.
 2. Edit your bot informations in the `More details` and `Pictures` sections.
-3. Edit the file `data/global/config/channel-web.json` and set `showBotInfoPage` to `true` \*\*
+3. Edit the file `data/global/config/channel-web.json` and set `showBotInfoPage` to `true` **\*\***
 4. Refresh your browser.
 
 You will see the page when starting a new conversation. The page is always accessible by clicking on the information icon in the top right corner of the chat window.
 
-\*\* We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, you will need to copy the file `data/global/config/channel-web.json` to your bot folder `data/bots/BOT_NAME/config/channel-web.json` and edit that file.
+> **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, you will need to copy the file `data/global/config/channel-web.json` to your bot folder `data/bots/BOT_NAME/config/channel-web.json` and edit that file.
 
 ## Customizing the look and feel of the Webchat
 
@@ -64,7 +66,7 @@ You can customize the look and feel of the Botpress Webchat with a custom styles
 
 ![WebChat Customization](assets/webchat-customization.png)
 
-## Display and hide automatically
+## Show and hide automatically
 
 If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You will also need to pass the `hideWidget` key to your `init` function like this:
 
