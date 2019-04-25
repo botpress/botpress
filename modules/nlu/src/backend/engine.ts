@@ -9,15 +9,15 @@ import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
+import SVMClassifier from './pipelines/intents/svm_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
+import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
+import { tokenize } from './pipelines/language/tokenizers'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
-import { tokenize } from './pipelines/language/tokenizers'
-import SVMClassifier from './pipelines/intents/svm_classifier'
-import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
@@ -271,6 +271,11 @@ export default class ScopedEngine implements Engine {
     const tokens = await tokenize(text, lang)
 
     const intents = await this.intentClassifier.predict(tokens, includedContexts)
+
+    // TODO: This is no longer relevant because of multi-context
+    // We need to actually check if there's a clear winner
+    // We also need to adjust the scores depending on the interaction model
+    // We need to return a disambiguation flag here too if we're uncertain
     const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
     intent.matches = createIntentMatcher(intent.name)
 
@@ -293,9 +298,18 @@ export default class ScopedEngine implements Engine {
     text: string,
     intent: sdk.NLU.Intent,
     entities: sdk.NLU.Entity[]
-  ): Promise<sdk.NLU.SlotsCollection> {
+  ): Promise<sdk.NLU.SlotCollection> {
     const intentDef = await this.storage.getIntent(intent.name)
-    return await this.slotExtractor.extract(text, intentDef, entities)
+    const collection = await this.slotExtractor.extract(text, intentDef, entities)
+    const result: sdk.NLU.SlotCollection = {}
+
+    for (const name of Object.keys(collection)) {
+      if (Array.isArray(collection[name])) {
+        result[name] = collection[name][0]
+      }
+    }
+
+    return result
   }
 
   private async _extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {

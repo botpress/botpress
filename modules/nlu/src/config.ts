@@ -2,7 +2,7 @@ export interface Config {
   /**
    * The minimum confidence required (in %) for an intent to match
    * Set to '0' to always match
-   * @default 0.7
+   * @default 0.5
    */
   confidenceTreshold: number
 

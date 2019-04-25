@@ -133,7 +133,7 @@ export default class CRFExtractor implements SlotExtractor {
             slotCollection[slotName] = [slotCollection[slotName], slot]
           }
         } else {
-          slotCollection[slotName] = slot
+          slotCollection[slotName] = [slot]
         }
         return slotCollection
       }, {})

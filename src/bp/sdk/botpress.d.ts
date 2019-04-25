@@ -89,7 +89,7 @@ declare module 'botpress/sdk' {
     /**
      * Called when the module is unloaded, before being reloaded
      * onBotUnmount is called for each bots before this one is called
-     * */
+     */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
     /**
@@ -377,8 +377,12 @@ declare module 'botpress/sdk' {
       entity: Entity
     }
 
+    export interface SlotCollection {
+      [key: string]: Slot
+    }
+
     export interface SlotsCollection {
-      [key: string]: Slot | Slot[]
+      [key: string]: Slot[]
     }
   }
   export namespace IO {
@@ -466,7 +470,7 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotsCollection
+      readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
     }
