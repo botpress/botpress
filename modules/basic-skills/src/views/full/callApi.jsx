@@ -46,8 +46,8 @@ export class CallAPI extends React.Component {
     const data = this.props.initialData
     if (data) {
       this.setState({
-        selectedMethod: data.method ? { value: data.method, label: data.method } : this.state.method,
-        selectedMemory: data.memory ? { value: data.memory, label: data.memory } : this.state.memory,
+        selectedMethod: data.method ? { value: data.method, label: data.method } : this.state.selectedMethod,
+        selectedMemory: data.memory ? { value: data.memory, label: data.memory } : this.state.selectedMemory,
         variable: data.variable ? data.variable : this.state.variable,
         body: data.body ? data.body : this.state.body,
         url: data.url ? data.url : this.state.url,
@@ -56,14 +56,14 @@ export class CallAPI extends React.Component {
     }
   }
 
-  componentDidUpdate() {
-    const { selectedMethod, selectedMemory, body, url, variable, parsedHeaders, invalidJson } = this.state
-    if (url && selectedMethod && selectedMemory && variable && !invalidJson) {
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedMethod, selectedMemory, body, url, variable, jsonHeaders, invalidJson } = this.state
+    if (url && selectedMethod && selectedMemory && variable && !invalidJson && this.state !== prevState) {
       const data = {
         method: selectedMethod.value,
         memory: selectedMemory.value,
         body,
-        headers: parsedHeaders,
+        headers: jsonHeaders,
         url,
         variable,
         invalidJson
@@ -77,8 +77,14 @@ export class CallAPI extends React.Component {
   handleHeadersChange = event => {
     const value = event.target.value
     try {
-      const parsedHeaders = JSON.parse(value)
-      this.setState({ headers: value, parsedHeaders, invalidJson: false })
+      if (value === '') {
+        // Allow empty string to be valid JSON
+        this.setState({ headers: value, invalidJson: false })
+      } else {
+        // Will throw if JSON is invalid
+        const jsonHeaders = JSON.parse(value)
+        this.setState({ headers: value, jsonHeaders, invalidJson: false })
+      }
     } catch (e) {
       this.setState({ headers: value, invalidJson: true })
     }

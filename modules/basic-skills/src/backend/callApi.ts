@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
 import { Transition } from './typings'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
@@ -40,8 +41,8 @@ const createNodes = data => {
 
 const createTransitions = (): Transition[] => {
   return [
-    { caption: 'On success', condition: 'temp.valid = "true"', node: '' },
-    { caption: 'On failure', condition: 'temp.valid = "false"', node: '' }
+    { caption: 'On success', condition: 'temp.valid', node: '' },
+    { caption: 'On failure', condition: '!temp.valid', node: '' }
   ]
 }
 
