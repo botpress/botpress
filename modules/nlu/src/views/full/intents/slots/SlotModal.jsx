@@ -108,7 +108,7 @@ export default class SlotModal extends React.Component {
             placeholder="Type a name here"
             onChange={this.onNameChange}
           />
-          <h4>Associated Entity</h4>
+          <h4>Associated Entities</h4>
           <Select
             isMulti
             tabIndex="2"
