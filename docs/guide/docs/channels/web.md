@@ -25,7 +25,7 @@ And that's it! Once you deploy the changes to your website, the bot will become 
 
 There is an example included in the default botpress installation at `http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html`
 
-## How to display a Bot Information page
+## Bot Information page
 
 The information page displays informations like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
@@ -42,7 +42,7 @@ You will see the page when starting a new conversation. The page is always acces
 
 > **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, you will need to copy the file `data/global/config/channel-web.json` to your bot folder `data/bots/BOT_NAME/config/channel-web.json` and edit that file.
 
-## Customizing the look and feel of the Webchat
+## Custom look and feel
 
 You can customize the look and feel of the Botpress Webchat with a custom stylesheet. Armed with the [list of all overridable classes](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css) and your browser inspector, you can customize every element of the Webchat.
 
@@ -89,9 +89,9 @@ window.addEventListener('message', message => {
 })
 ```
 
-## Configuring the Webchat during a conversation
+## Configure at runtime
 
-The method `window.botpressWebChat.configure` allows you to change the configuration of the chat during a conversation without having to reload the page
+The method `window.botpressWebChat.configure` allows you to change the configuration of the chat during a conversation without having to reload the page.
 
 ## Advanced Customization
 
