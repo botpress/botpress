@@ -58,26 +58,26 @@ export default class TransitionSection extends Component {
     const renderMoveUp = i => (i > 0 ? <a onClick={() => this.onMove(i, -1)}>Up</a> : null)
 
     const renderMoveDown = i => (i < items.length - 1 ? <a onClick={() => this.onMove(i, 1)}>Down</a> : null)
-  
+
     const handleAddAction = () => this.setState({ showConditionalModalForm: true })
-  
+
     const renderType = i => {
       if (!i.node || i.node === '') {
         return <Label bsStyle="danger">Missing Link</Label>
       }
-  
+
       if (i.node === 'END') {
         return <Label bsStyle="warning">End</Label>
       }
-  
+
       if (i.node === '#') {
         return <Label bsStyle="warning">Return</Label>
       }
-  
+
       if (i.node.includes('.flow.json')) {
         return <Label bsStyle="primary">{i.node}</Label>
       }
-  
+
       return <Label bsStyle="default">{i.node}</Label>
     }
 
