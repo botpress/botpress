@@ -4,7 +4,11 @@ export const ID_REGEX = /^[a-zA-Z0-9]+[A-Z0-9_-]{2,}$/i
 
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
-  entity: Joi.string().required(),
+  // @deprecated >11
+  entity: Joi.string().optional(),
+  entities: Joi.array()
+    .items(Joi.string())
+    .required(),
   color: Joi.number().required(),
   id: Joi.string().required()
 })
