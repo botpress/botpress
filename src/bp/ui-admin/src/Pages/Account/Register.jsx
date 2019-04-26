@@ -32,6 +32,11 @@ export default class Register extends Component {
   handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
   handleInputKeyPress = e => e.key === 'Enter' && this.register()
 
+  get isFormValid() {
+    const { email, password, confirmPassword } = this.state
+    return email.length > 4 && password.length > 4 && confirmPassword.length > 4
+  }
+
   renderForm = () => {
     return (
       <Fragment>
@@ -72,7 +77,9 @@ export default class Register extends Component {
           />
         </FormGroup>
         <p>
-          <Button onClick={this.register}>Create Account</Button>
+          <Button onClick={this.register} color="primary" disabled={!this.isFormValid}>
+            Create Account
+          </Button>
         </p>
       </Fragment>
     )
