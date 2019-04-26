@@ -142,7 +142,7 @@ class StatusBar extends React.Component {
             <strong>v{this.props.botpressVersion}</strong>
           </div>
           <ActionItem title="Switch Bot" description="Switch to an other bot. This will leave this interface.">
-            <a href="/admin">
+            <a href="/admin/">
               <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
               <strong>{this.props.botName}</strong> (bot)
             </a>

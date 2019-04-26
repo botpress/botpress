@@ -29,8 +29,8 @@ export default class CreateEntityModal extends React.Component {
     this.validate()
   }
 
-  handleTypeChange = selected => {
-    this.setState({ type: selected.value })
+  handleTypeChange = type => {
+    this.setState({ type })
     this.validate()
   }
 
@@ -40,7 +40,7 @@ export default class CreateEntityModal extends React.Component {
     const entity = {
       id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
-      type: this.state.type,
+      type: this.state.type.value,
       occurences: []
     }
     this.props.axios.post(`/mod/nlu/entities/`, entity).then(() => {

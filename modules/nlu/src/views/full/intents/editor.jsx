@@ -7,7 +7,7 @@ import Editor from './draft/editor'
 
 import style from './style.scss'
 import Slots from './slots/Slots'
-import { Creatable } from 'react-select'
+import Creatable from 'react-select/lib/Creatable'
 import classnames from 'classnames'
 import { BotpressTooltip } from 'botpress/tooltip'
 
@@ -271,7 +271,7 @@ export default class IntentsEditor extends React.Component {
           </div>
           <Creatable
             id="selectContext"
-            multi
+            isMulti
             onChange={this.handleChangeContext}
             value={this.state.selectedContextOptions}
             options={
