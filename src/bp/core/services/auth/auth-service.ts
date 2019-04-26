@@ -5,17 +5,17 @@ import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
-import nanoid from 'nanoid'
-import ms from 'ms'
 import moment from 'moment'
-import { PasswordPolicy, charsets } from 'password-sheriff'
+import ms from 'ms'
+import nanoid from 'nanoid'
+import { charsets, PasswordPolicy } from 'password-sheriff'
 
 import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
 
-import { InvalidCredentialsError, PasswordExpiredError, LockedOutError, WeakPasswordError } from './errors'
+import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
 import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from './util'
 
 export const TOKEN_AUDIENCE = 'web-login'
@@ -230,7 +230,7 @@ export default class AuthService {
       return
     }
 
-    let rules: any = {}
+    const rules: any = {}
     if (authOptions.passwordMinLength) {
       rules.length = { minLength: authOptions.passwordMinLength }
     }
