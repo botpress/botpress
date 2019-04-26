@@ -57,6 +57,7 @@ export default class Container extends React.Component {
         showConvos={this.state.showConvos}
         showBotInfo={this.state.showBotInfo}
         botInfo={this.props.botInfo}
+        botName={this.props.botName}
         config={this.props.config}
         currentConversation={this.props.currentConversation}
         unreadCount={this.props.unreadCount}
@@ -73,17 +74,16 @@ export default class Container extends React.Component {
 
   renderComposer() {
     const focused = this.state.currentFocus === 'input' && !this.state.showConvos && !this.state.showBotInfo
-    const name = this.props.config.botName || 'Bot'
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
 
     if (Component) {
-      return <Component original={{ Composer }} name={name} {...this.props} />
+      return <Component original={{ Composer }} name={this.props.botName} {...this.props} />
     }
 
     return (
       <Keyboard.Default>
         <Composer
-          placeholder={'Reply to ' + name}
+          placeholder={'Reply to ' + this.props.botName}
           send={this.props.onTextSend}
           change={this.props.onTextChanged}
           text={this.props.text}
@@ -105,7 +105,7 @@ export default class Container extends React.Component {
       bp: this.props.bp,
       typingUntil: this.props.currentConversation && this.props.currentConversation.typingUntil,
       messages: this.props.currentConversation && this.props.currentConversation.messages,
-      botName: this.props.botInfo.name || this.props.config.botName,
+      botName: this.props.botName,
       botAvatarUrl: (this.props.botInfo.details && this.props.botInfo.details.avatarUrl) || this.props.config.avatarUrl,
       showUserName: this.props.config && this.props.config.showUserName,
       showUserAvatar: this.props.config && this.props.config.showUserAvatar,

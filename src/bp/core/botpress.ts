@@ -251,7 +251,11 @@ export class Botpress {
       const updatedConfig: any = {}
 
       if (!bot.defaultLanguage) {
-        this.logger.warn(`Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`)
+        this.logger.warn(
+          `Bot "${
+            bot.id
+          }" doesn't have a default language, which is now required, go to your admin console to fix this issue.`
+        )
         updatedConfig.disabled = true
       }
 
@@ -310,6 +314,10 @@ export class Botpress {
       suggestions: sdk.IO.Suggestion[]
     ) => {
       await this.hookService.executeHook(new Hooks.BeforeSuggestionsElection(this.api, sessionId, event, suggestions))
+    }
+
+    this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
+      await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
     this.dataRetentionService.initialize()

@@ -151,7 +151,7 @@ export type BotpressConfig = {
       /**
        * Defines custom options based on the chosen authentication strategy
        */
-      options: AuthStrategySaml | AuthStrategyLdap | undefined
+      options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
       /**
        * Maps the values returned by your provider to Botpress user parameters.
        * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
@@ -234,6 +234,11 @@ export type BotpressConfig = {
      */
     allowRefresh: boolean
   }
+  /**
+   * When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage
+   * @default false
+   */
+  autoRevision: boolean
 }
 
 export interface ExternalAuthConfig {
@@ -279,6 +284,38 @@ export interface DataRetentionConfig {
  */
 export type RetentionPolicy = {
   [key: string]: string
+}
+
+export interface AuthStrategyBasic {
+  /**
+   * The maximum number of wrong passwords the user can enter before his account is locked out.
+   * Set it to 0 for unlimited tries
+   * @default 0
+   */
+  maxLoginAttempt: number
+  /**
+   * The amount of time the account will be locked out after reaching the threshold of max login attempt.
+   * Leave undefined to never automatically unlock the user. The delay is reset on each attempt.
+   * To unlock a user, edit manually the file data/global/workspaces.json and set "locked_out" to false
+   *
+   * @example 10m (unlock after 10 minutes - resets unsuccessful attempts)
+   */
+  lockoutDuration?: string
+  /**
+   * The password will expire after the duration specified here, prompting the user to change it
+   * @example 30d (expires in 30 days)
+   * @default
+   */
+  passwordExpiryDelay?: string
+  /**
+   * The minimum length of the password. None if undefined.
+   */
+  passwordMinLength?: number
+  /**
+   * When enabled, the password must have at least one character from 3 of these categories: lowercase, uppercase, number, special char
+   * @default false
+   */
+  requireComplexPassword?: boolean
 }
 
 export interface AuthStrategySaml {

@@ -39,11 +39,17 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete nluByBot[botId]
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.removeMiddleware('nlu.incoming')
+  bp.http.deleteRouterForBot('nlu')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onModuleUnmount,
   definition: {
     name: 'nlu',
     moduleView: {

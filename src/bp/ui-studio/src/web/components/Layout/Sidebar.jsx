@@ -34,10 +34,10 @@ class Sidebar extends React.Component {
     nluCollapseOpen: false
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
-    this.setState({ mql: mql, sidebarDocked: mql.matches })
+    this.setState({ mql, sidebarDocked: mql.matches })
   }
 
   componentWillUnmount() {
@@ -46,16 +46,12 @@ class Sidebar extends React.Component {
 
   mediaQueryChanged = () => this.setState({ sidebarDocked: this.state.mql.matches })
 
-  toggleNluCollapse = event => {
-    event.preventDefault()
-    this.setState({ nluCollapseOpen: !this.state.nluCollapseOpen })
-  }
-
-  handleSideBarLeave = () => this.setState({ nluCollapseOpen: false })
+  showNluMenu = () => this.setState({ nluCollapseOpen: true })
+  hideNluMenu = () => this.setState({ nluCollapseOpen: false })
 
   renderModuleItem = module => {
     const path = `/modules/${module.name}`
-    const iconPath = `/assets/module/${module.name}/icon.png`
+    const iconPath = `/assets/modules/${module.name}/icon.png`
     const moduleIcon =
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
@@ -76,11 +72,15 @@ class Sidebar extends React.Component {
     if (module.name === 'nlu') {
       return (
         <li key={`menu_module_${module.name}`}>
-          <a onClick={this.toggleNluCollapse} className={classnames(style.link, { [style.active]: isNluActive })}>
+          <a
+            onMouseOver={this.showNluMenu}
+            onMouseOut={this.hideNluMenu}
+            className={classnames(style.link, { [style.active]: isNluActive })}
+          >
             {moduleIcon}
             <span>Understanding</span>
           </a>
-          <Collapse in={this.state.nluCollapseOpen}>
+          <Collapse in={this.state.nluCollapseOpen} onMouseOver={this.showNluMenu} onMouseOut={this.hideNluMenu}>
             <ul className={style.mainMenu_level2}>
               <li className={style.mainMenu__item}>
                 <NavLink
@@ -138,7 +138,7 @@ class Sidebar extends React.Component {
     const emptyClassName = classnames(style.empty, 'bp-empty')
 
     return (
-      <aside onMouseLeave={this.handleSideBarLeave} style={{ zIndex: '1000' }}>
+      <aside style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
           <div style={{ padding: '8px 13px' }}>
             <a href={window.BP_BASE_PATH} className={classnames(style.logo, 'bp-logo')}>

@@ -16,6 +16,7 @@ export default class NodePropsModal extends Component {
         show={this.props.show}
         onHide={this.props.closeFlowNodeProps}
         container={document.getElementById('app')}
+        backdrop={'static'}
       >
         <Modal.Header closeButton>
           <Modal.Title>{node ? 'Node Properties' : 'Flow Properties'}</Modal.Title>

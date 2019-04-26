@@ -19,6 +19,7 @@ import Workspace from '../Pages/Workspace'
 import MyAccount from '../Pages/MyAccount'
 import Bot from '../Pages/Bot'
 import Debug from '../Pages/Server/Debug'
+import Modules from '../Pages/Server/Modules'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -44,6 +45,7 @@ export const makeMainRoutes = () => {
               <Route path="/server" component={Server} />
               <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
+              <Route path="/modules" component={Modules} />
               <Redirect from="/" to="/workspace/bots" />
             </Switch>
           </PrivateRoute>

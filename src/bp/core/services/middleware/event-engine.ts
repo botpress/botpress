@@ -27,6 +27,7 @@ const eventSchema = {
   payload: joi.object().required(),
   botId: joi.string().required(),
   threadId: joi.string().optional(),
+  createdOn: joi.date().required(),
   flags: joi.any().required(),
   suggestions: joi.array().optional(),
   state: joi.any().optional(),
@@ -140,6 +141,21 @@ export class EventEngine {
       debugOutgoing('register %o', middleware)
       this.outgoingMiddleware.push(middleware)
       this.outgoingMiddleware = _.sortBy(this.outgoingMiddleware, mw => mw.order)
+    }
+  }
+
+  removeMiddleware(middlewareName: string): void {
+    const mw = [...this.incomingMiddleware, ...this.outgoingMiddleware].find(x => x.name === middlewareName)
+    if (!mw) {
+      return
+    }
+
+    if (mw.direction === 'incoming') {
+      debugIncoming('unregister %o', middlewareName)
+      this.incomingMiddleware = this.incomingMiddleware.filter(x => x.name !== middlewareName)
+    } else {
+      debugOutgoing('unregister %o', middlewareName)
+      this.outgoingMiddleware = this.outgoingMiddleware.filter(x => x.name !== middlewareName)
     }
   }
 

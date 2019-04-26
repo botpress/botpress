@@ -6,7 +6,8 @@ import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
 import { CustomRouter } from './customRouter'
-import { checkTokenHeader } from './util'
+import { checkTokenHeader, assertSuperAdmin } from './util'
+import { ConfigProvider } from 'core/config/config-loader'
 
 export class ModulesRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -15,7 +16,8 @@ export class ModulesRouter extends CustomRouter {
     logger: Logger,
     private authService: AuthService,
     private moduleLoader: ModuleLoader,
-    private skillService: SkillService
+    private skillService: SkillService,
+    private configProvider: ConfigProvider
   ) {
     super('Modules', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -26,6 +28,24 @@ export class ModulesRouter extends CustomRouter {
     this.router.get('/', (req, res) => {
       res.json(this.moduleLoader.getLoadedModules())
     })
+
+    this.router.get(
+      '/reload/:moduleName',
+      this.checkTokenHeader,
+      assertSuperAdmin,
+      this.asyncMiddleware(async (req, res, next) => {
+        const moduleName = req.params.moduleName
+        const config = await this.configProvider.getBotpressConfig()
+        const module = config.modules.find(x => x.location.endsWith(moduleName))
+
+        if (module) {
+          await this.moduleLoader.reloadModule(module.location, moduleName)
+          return res.sendStatus(200)
+        }
+
+        res.sendStatus(404)
+      })
+    )
 
     this.router.get(
       '/botTemplates',

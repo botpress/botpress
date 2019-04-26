@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, ModuleEntryPoint } from 'botpress/sdk'
 import { TYPES } from 'core/types'
 import { ConfigurationError } from 'errors'
 import fs from 'fs'
@@ -99,5 +99,24 @@ export default class ModuleResolver {
     }
 
     throw new ConfigurationError(`Could not find module at path "${modulePath}"`)
+  }
+
+  requireModule(moduleLocation: string): ModuleEntryPoint {
+    let originalRequirePaths = global.require.getPaths()
+
+    try {
+      // We temporarily bump the module's node_modules in priority
+      // So that it loads the local versions of its own dependencies
+      global.require.overwritePaths([
+        path.join(moduleLocation, 'node_production_modules'),
+        path.join(moduleLocation, 'node_modules'),
+        ...originalRequirePaths
+      ])
+
+      const req = require(moduleLocation)
+      return req.default ? req.default : req
+    } finally {
+      global.require.overwritePaths(originalRequirePaths)
+    }
   }
 }

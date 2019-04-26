@@ -221,7 +221,11 @@ export default class QnaAdmin extends Component {
     const { csvUploadStatus } = this.state
 
     return (
-      <Modal show={this.state.importCsvModalShow} onHide={() => this.setState({ importCsvModalShow: false })}>
+      <Modal
+        show={this.state.importCsvModalShow}
+        onHide={() => this.setState({ importCsvModalShow: false })}
+        backdrop={'static'}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Import CSV</Modal.Title>
         </Modal.Header>
@@ -242,7 +246,7 @@ export default class QnaAdmin extends Component {
                 accept=".csv"
                 onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
               />
-              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer&quot;</HelpBlock>
+              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
             </FormGroup>
             <FormGroup>
               <Checkbox
