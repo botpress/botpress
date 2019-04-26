@@ -13,7 +13,8 @@
       "react-select": "ReactSelect",
       "botpress/content-picker": "BotpressContentPicker",
       "botpress/select-action-dropdown": "SelectActionDropdown",
-      "botpress/tooltip": "BotpressTooltip"
+      "botpress/tooltip": "BotpressTooltip",
+      "botpress/documentation": "DocumentationProvider"
     }
   },
   "scripts": {
