@@ -515,6 +515,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface DialogTurnHistory {
+      eventId: string
       incomingPreview: string
       replySource: string
       replyPreview: string

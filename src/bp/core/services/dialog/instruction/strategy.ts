@@ -74,6 +74,7 @@ export class ActionStrategy implements InstructionStrategy {
     debug.forBot(botId, `[${event.target}] render element "${outputType}"`)
 
     const message: IO.DialogTurnHistory = {
+      eventId: event.id,
       incomingPreview: event.preview,
       replyConfidence: 1.0,
       replySource: 'dialogManager',
