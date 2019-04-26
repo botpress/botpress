@@ -66,3 +66,20 @@
 .warning {
   color: red;
 }
+
+.callApiNote {
+  margin: 10px 0 10px 0;
+}
+
+.callApiSection {
+  margin-top: 10px;
+}
+
+.callApiWarning {
+  color: darkred;
+
+  i {
+    font-size: 16px;
+    vertical-align: baseline;
+  }
+}

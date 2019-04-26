@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import snarkdown from 'snarkdown'
 
 import style from './BotInfo.scss'
 import PhoneIcon from '../../icons/Phone'
@@ -30,6 +31,13 @@ class BotInfo extends React.Component {
       this.props.onSendData({ type: 'request_start_conversation' }).then(this.props.toggleBotInfo)
   }
 
+  renderDescription(text) {
+    let html = snarkdown(text || '')
+    html = html.replace(/<a href/gi, `<a target="_blank" href`)
+
+    return <div dangerouslySetInnerHTML={{ __html: html }} />
+  }
+
   render() {
     const { botInfo, config, currentConversation } = this.props
 
@@ -42,7 +50,7 @@ class BotInfo extends React.Component {
         <div className={'bp-bot-info-summmary ' + style.summary}>
           <BotAvatar botInfo={botInfo} config={config} />
           <h3>{botInfo.name || config.botName}</h3>
-          <p>{botInfo.description}</p>
+          <p>{this.renderDescription(botInfo.description)}</p>
         </div>
         {botInfo.details && (
           <Fragment>

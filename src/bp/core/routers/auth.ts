@@ -9,7 +9,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
-import { NotFoundError } from './errors'
+import { BadRequestError, NotFoundError } from './errors'
 import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
@@ -55,6 +55,9 @@ export class AuthRouter extends CustomRouter {
       res.status(403).send(`Registration is disabled`)
     } else {
       const { email, password } = req.body
+      if (email.length < 4 || password.length < 4) {
+        throw new BadRequestError('Email or password is too short.')
+      }
       const token = await this.authService.register(email, password, req.ip)
       return sendSuccess(res, 'Registration successful', { token })
     }

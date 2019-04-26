@@ -1,3 +1,49 @@
+## [11.8.3](https://github.com/botpress/botpress/compare/v11.8.2...v11.8.3) (2019-04-26)
+
+### Bug Fixes
+
+- **messenger:** body-parser require of undefined ([cbaccbc](https://github.com/botpress/botpress/commit/cbaccbc))
+- **actions:** displaying the correct stack trace for actions ([15e473d](https://github.com/botpress/botpress/commit/15e473d))
+- **channel-web:** bigger desc + allow markdown and html ([657da19](https://github.com/botpress/botpress/commit/657da19))
+- **messenger:** messages is not iterable ([1bf9bef](https://github.com/botpress/botpress/commit/1bf9bef))
+- **studio:** prevent edge case ui from crashing ([1f0ec66](https://github.com/botpress/botpress/commit/1f0ec66))
+- **studio:** correct module custom icon path ([288fa92](https://github.com/botpress/botpress/commit/288fa92))
+
+### Features
+
+- **nlu:** multi entities slots ([fcb8d33](https://github.com/botpress/botpress/commit/fcb8d33))
+- **skill-api:** add call-api skill ([6ee330c](https://github.com/botpress/botpress/commit/6ee330c))
+
+## [11.8.2](https://github.com/botpress/botpress/compare/v11.8.1...v11.8.2) (2019-04-25)
+
+## [11.8.1](https://github.com/botpress/botpress/compare/v11.8.0...v11.8.1) (2019-04-24)
+
+### Bug Fixes
+
+- **admin:** changing how languages are handled (part 1) ([e161e24](https://github.com/botpress/botpress/commit/e161e24))
+- **admin:** prevent logging out when server errors ([7e7fac5](https://github.com/botpress/botpress/commit/7e7fac5))
+- **bot:** normalized bot name and id ([a34e445](https://github.com/botpress/botpress/commit/a34e445))
+- **channel-web:** verify if its a channel-web msg ([a07d67b](https://github.com/botpress/botpress/commit/a07d67b))
+- **channel-web:** adding config to change default css ([7e70b80](https://github.com/botpress/botpress/commit/7e70b80))
+- **cms:** added missing properties to simplify multilang ([e8444c4](https://github.com/botpress/botpress/commit/e8444c4))
+- **cms:** logic error when fetching content renderer ([0abf0fb](https://github.com/botpress/botpress/commit/0abf0fb))
+- **cms:** updating json files when deleting elements ([f98008e](https://github.com/botpress/botpress/commit/f98008e))
+- **core:** added event creation time ([ee65a1c](https://github.com/botpress/botpress/commit/ee65a1c))
+- **module-builder:** cleanup of assets folder wasn't working ([1ca71ec](https://github.com/botpress/botpress/commit/1ca71ec))
+- **qna:** correct UI tip with list of columns in CSV to import ([8e09d98](https://github.com/botpress/botpress/commit/8e09d98))
+- **skill-slot:** slots map of undefined ([c8ab14b](https://github.com/botpress/botpress/commit/c8ab14b))
+- **studio:** showing understanding menu on mouse over ([b59e567](https://github.com/botpress/botpress/commit/b59e567))
+- **ux:** minor ux fix when editing a node on flow editor ([3506554](https://github.com/botpress/botpress/commit/3506554))
+- **ux:** prevent closing when clicking outside modal (use btn or esc) ([ab24781](https://github.com/botpress/botpress/commit/ab24781))
+- ignore models in bot revs ([732ed32](https://github.com/botpress/botpress/commit/732ed32))
+
+### Features
+
+- **cms:** warn modules of content element changes ([da424fa](https://github.com/botpress/botpress/commit/da424fa))
+- **dropdown:** added dropdown component for the webchat ([d7b0890](https://github.com/botpress/botpress/commit/d7b0890))
+- **module:** allow hot reloading of modules ([46a01c5](https://github.com/botpress/botpress/commit/46a01c5))
+- Bot backups & Rollback ([3265b6d](https://github.com/botpress/botpress/commit/3265b6d))
+
 # [11.8.0](https://github.com/botpress/botpress/compare/v11.7.4...v11.8.0) (2019-04-11)
 
 ### Bug Fixes

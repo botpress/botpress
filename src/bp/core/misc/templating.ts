@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import Mustache from 'mustache'
 
+const MAX_NESTING_LEVEL = 3
 type TemplateItem = Object | Object[] | string[] | string
 
 export function renderRecursive(item: TemplateItem, context: any): any {
@@ -17,7 +18,7 @@ export function renderRecursive(item: TemplateItem, context: any): any {
 
 export function renderTemplate(template: string, context: any): string {
   let i = 0
-  while (i < 3 && containsTemplate(template)) {
+  while (i < MAX_NESTING_LEVEL && containsTemplate(template)) {
     template = Mustache.render(template, context)
     i++
   }

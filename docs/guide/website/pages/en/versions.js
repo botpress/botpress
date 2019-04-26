@@ -36,7 +36,7 @@ function Versions() {
                   <a href={`/docs/installation`}>Documentation</a>
                 </td>
                 <td>
-                  <a href={`/docs/release-notes`}>Release Notes</a>
+                  <a href={`/docs/releases/release-notes`}>Release Notes</a>
                 </td>
               </tr>
             </tbody>

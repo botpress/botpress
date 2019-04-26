@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import choice from './choice'
+import apiCall from './callApi'
 import slot from './slot'
 
 export type Extension = {}
@@ -26,7 +27,12 @@ const skillsToRegister: sdk.Skill[] = [
     flowGenerator: choice.generateFlow
   },
   {
-    id: 'slot',
+    id: 'CallAPI',
+    name: 'Call API',
+    flowGenerator: apiCall.generateFlow
+  },
+  {
+    id: 'Slot',
     name: 'Slot',
     flowGenerator: slot.generateFlow
   }
