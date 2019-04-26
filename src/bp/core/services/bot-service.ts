@@ -189,7 +189,7 @@ export class BotService {
   }
 
   async exportBot(botId: string): Promise<Buffer> {
-    return this.ghostService.forBot(botId).exportToArchiveBuffer()
+    return this.ghostService.forBot(botId).exportToArchiveBuffer('models/*')
   }
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {

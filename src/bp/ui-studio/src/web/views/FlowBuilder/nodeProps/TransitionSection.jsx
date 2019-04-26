@@ -117,7 +117,7 @@ export default class TransitionSection extends Component {
             show={this.state.showConditionalModalForm}
             onClose={() => this.setState({ showConditionalModalForm: false, itemToEditIndex: null })}
             onSubmit={this.onSubmit}
-            item={this.props.items[this.state.itemToEditIndex]}
+            item={items[this.state.itemToEditIndex]}
           />
         )}
       </Fragment>
