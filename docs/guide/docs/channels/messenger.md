@@ -56,6 +56,8 @@ Restart Botpress Server to reload the configuration.
 
 Read the [config definition file](https://github.com/botpress/botpress/blob/master/modules/channel-messenger/src/config.ts) to learn more about configurations.
 
+> All changes to the configuration will take effect on `onBotMount`. To refresh the configuration at runtime, you can disable and enable the bot again without having to restart the server.
+
 ### Greeting Text
 
 ```json
@@ -76,11 +78,14 @@ Read more about [get started](https://developers.facebook.com/docs/messenger-pla
 
 The raw persistent menu object. Read more about persistent menu [here](https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu).
 
+> The persistent menu is cached locally on the user's client, but updates are fetched periodically. If you change the persistent menu, it can take some time for the menu to update. You can force refresh by deleting the conversation and starting a new one.
+
+**Configuration example**:
+
 ```json
  "persistentMenu": [
     {
       "locale": "default",
-      "composer_input_disabled": true,
       "call_to_actions": [
         {
           "title": "My Account",
