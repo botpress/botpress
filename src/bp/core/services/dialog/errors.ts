@@ -10,6 +10,13 @@ export class ProcessingError extends Error {
   }
 }
 
+export class BPError extends Error {
+  private hideStack = true
+  constructor(message: string, private code) {
+    super(message)
+  }
+}
+
 export class FlowError extends Error {
   constructor(
     message: string,
