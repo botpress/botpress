@@ -1,3 +1,28 @@
+## [11.8.3](https://github.com/botpress/botpress/compare/v11.8.2...v11.8.3) (2019-04-26)
+
+
+### Bug Fixes
+
+* **messenger:** body-parser require of undefined ([cbaccbc](https://github.com/botpress/botpress/commit/cbaccbc))
+* validate incoming Message ([10f5050](https://github.com/botpress/botpress/commit/10f5050))
+* when sender is not sent return ([2fe65ee](https://github.com/botpress/botpress/commit/2fe65ee))
+* wrong validation ([9e8fd00](https://github.com/botpress/botpress/commit/9e8fd00))
+* **actions:** displaying the correct stack trace for actions ([15e473d](https://github.com/botpress/botpress/commit/15e473d))
+* **channel-web:** bigger desc + allow markdown and html ([657da19](https://github.com/botpress/botpress/commit/657da19))
+* **channel-web:** bigger desc + allow markdown and html ([45052f3](https://github.com/botpress/botpress/commit/45052f3))
+* **messenger:** messages is not iterable ([1bf9bef](https://github.com/botpress/botpress/commit/1bf9bef))
+* **studio:** prevent edge case ui from crashing ([1f0ec66](https://github.com/botpress/botpress/commit/1f0ec66))
+* **ui-studio:** correct module custom icon path ([288fa92](https://github.com/botpress/botpress/commit/288fa92))
+* **ui-studio:** correct module custom icon path ([8fd9e72](https://github.com/botpress/botpress/commit/8fd9e72))
+
+
+### Features
+
+* **nlu:** multi entities slots ([fcb8d33](https://github.com/botpress/botpress/commit/fcb8d33))
+* **skill-api:** add call-api skill ([6ee330c](https://github.com/botpress/botpress/commit/6ee330c))
+
+
+
 ## [11.8.2](https://github.com/botpress/botpress/compare/v11.8.1...v11.8.2) (2019-04-25)
 
 
