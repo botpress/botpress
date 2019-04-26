@@ -137,6 +137,7 @@ export class DecisionEngine {
       await this.eventEngine.replyToEvent(event, payloads)
 
       const message: IO.DialogTurnHistory = {
+        eventId: event.id,
         replyDate: new Date(),
         replySource: reply.source + ' ' + reply.sourceDetails,
         incomingPreview: event.preview,
@@ -146,6 +147,8 @@ export class DecisionEngine {
 
       result.executeFlows = false
       event.state.session.lastMessages.push(message)
+
+      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       await this.stateManager.persist(event, true)
     }
 
