@@ -323,12 +323,16 @@ export class Botpress {
     this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
-    this.dialogEngine.onProcessingError = err => {
+    this.dialogEngine.onProcessingError = (err, hideStack?) => {
       const message = this.formatProcessingError(err)
-      dialogEngineLogger
-        .forBot(err.botId)
-        .attachError(err)
-        .warn(message)
+      if (!hideStack) {
+        dialogEngineLogger
+          .forBot(err.botId)
+          .attachError(err)
+          .warn(message)
+      } else {
+        dialogEngineLogger.forBot(err.botId).warn(message)
+      }
     }
 
     this.notificationService.onNotification = notification => {

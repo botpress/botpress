@@ -10,6 +10,7 @@ import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
+import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
@@ -195,6 +196,9 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     },
     getFilePath(botId: string, fileName: string): string {
       return mediaService.getFilePath(botId, fileName)
+    },
+    renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
+      return renderRecursive(templateItem, context)
     }
   }
 }

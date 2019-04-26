@@ -14,4 +14,4 @@ const getNumberOfConversations = async output => {
   temp[output] = value
 }
 
-return getNumberOfConversations()
+return getNumberOfConversations(args.output)

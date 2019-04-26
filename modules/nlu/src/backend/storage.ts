@@ -29,14 +29,21 @@ export default class Storage {
 
   async saveIntent(intent: string, content: sdk.NLU.IntentDefinition) {
     intent = sanitizeFilenameNoExt(intent)
-    const entities = await this.getAvailableEntities()
+    const availableEntities = await this.getAvailableEntities()
 
     if (content.slots) {
-      await Promise.map(content.slots, async slot => {
-        if (!entities.find(e => e.name === slot.entity)) {
-          throw Error(`"${slot.entity}" is neither a system entity nor a custom entity`)
+      for (const slot of content.slots) {
+        // @deprecated > 11 gracefull migration
+        if (!slot.entities && slot.entity) {
+          slot.entities = [slot.entity]
         }
-      })
+
+        for (const entity of slot.entities!) {
+          if (!availableEntities.find(e => e.name === entity)) {
+            throw Error(`"${entity}" is neither a system entity nor a custom entity`)
+          }
+        }
+      }
     }
 
     if (!content.contexts) {
@@ -110,8 +117,22 @@ export default class Storage {
     }
 
     // @deprecated remove in bp > 11
+    let hasChange = false
     if (!properties.utterances) {
       await this._legacyAppendIntentUtterances(obj, intent)
+      hasChange = true
+    }
+
+    // @deprecated > 11 graceful migration
+    for (const slot of obj.slots || []) {
+      if (!slot.entities && slot.entity) {
+        slot.entities = [slot.entity]
+        delete slot.entity
+        hasChange = true
+      }
+    }
+
+    if (hasChange) {
       await this.saveIntent(intent, obj)
     }
 

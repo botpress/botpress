@@ -32,11 +32,12 @@
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
+      "tutorials/skill-call-api",
+      "tutorials/proactive",
       "tutorials/existing-backend",
       "tutorials/database",
       "tutorials/hitl",
       "tutorials/jump-to",
-      "tutorials/proactive",
       "tutorials/interbot",
       "tutorials/shortlinks",
       "tutorials/timeouts",

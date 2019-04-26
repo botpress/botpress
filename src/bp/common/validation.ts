@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{2,}[A-Z0-9]+$/i
+export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
@@ -15,8 +15,8 @@ export const BotCreationSchema = Joi.object().keys({
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
-    .min(3)
-    .max(50),
+    .max(250)
+    .allow(''),
   pipeline_status: {
     current_stage: {
       promoted_by: Joi.string(),
@@ -34,9 +34,8 @@ export const BotEditSchema = Joi.object().keys({
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
-    .min(3)
-    .max(50)
-    .required(),
+    .max(250)
+    .allow(''),
   disabled: Joi.bool(),
   private: Joi.bool(),
   defaultLanguage: Joi.string()

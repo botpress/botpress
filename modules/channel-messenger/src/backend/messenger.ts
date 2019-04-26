@@ -1,8 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
-import bodyParser from 'body-parser'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import { Router } from 'express'
+import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -29,12 +28,14 @@ export class MessengerService {
   async initialize() {
     const config = (await this.bp.config.getModuleConfig('channel-messenger')) as Config
 
-    if (!config.verifyToken || config.verifyToken.length < 1) {
-      throw new Error('You need to set a non-empty value for "verifyToken" in the *global* messenger config')
+    if (!config.verifyToken || !config.verifyToken.length) {
+      throw new Error(
+        'You need to set a non-empty value for "verifyToken" in data/global/config/channel-messenger.json'
+      )
     }
 
-    if (!config.appSecret || config.appSecret.length < 1) {
-      throw new Error(`You need to provide your app's App Secret in the *global* messenger config`)
+    if (!config.appSecret || !config.appSecret.length) {
+      throw new Error(`You need to set a non-empty value for "appSecret" in data/global/config/channel-messenger.json`)
     }
 
     this.appSecret = config.appSecret
@@ -53,7 +54,7 @@ export class MessengerService {
     })
 
     this.router.use(
-      bodyParser.json({
+      expressJson({
         verify: this._verifySignature.bind(this)
       })
     )
@@ -161,6 +162,10 @@ export class MessengerService {
       }
 
       for (const webhookEvent of messages) {
+        if (!webhookEvent.sender) {
+          return
+        }
+
         debugMessages('incoming', webhookEvent)
         const senderId = webhookEvent.sender.id
 
@@ -256,36 +261,34 @@ export class MessengerClient {
       return
     }
 
-    const body = {
+    await this.sendProfile({
       get_started: {
         payload: config.getStarted
       }
-    }
-
-    await this.sendProfile(body)
+    })
   }
 
   async setupGreeting(): Promise<void> {
     const config = await this.getConfig()
     if (!config.greeting) {
+      await this.deleteProfileFields(['greeting'])
       return
     }
 
-    const payload = {
+    await this.sendProfile({
       greeting: [
         {
           locale: 'default',
           text: config.greeting
         }
       ]
-    }
-
-    await this.sendProfile(payload)
+    })
   }
 
   async setupPersistentMenu(): Promise<void> {
     const config = await this.getConfig()
     if (!config.persistentMenu || !config.persistentMenu.length) {
+      await this.deleteProfileFields(['persistent_menu'])
       return
     }
 
@@ -313,6 +316,13 @@ export class MessengerClient {
 
     debugMessages('outgoing text message', { senderId, message, body })
     await this._callEndpoint('/messages', body)
+  }
+
+  async deleteProfileFields(fields: string[]) {
+    const endpoint = '/messenger_profile'
+    const config = await this.getConfig()
+    debugHttpOut(endpoint, fields)
+    await this.http.delete(endpoint, { params: { access_token: config.accessToken }, data: { fields } })
   }
 
   async sendProfile(message) {

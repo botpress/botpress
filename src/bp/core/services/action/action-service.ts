@@ -11,6 +11,7 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
+import { BPError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
@@ -25,7 +26,7 @@ export default class ActionService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Logger)
-    @tagged('name', 'Actions')
+    @tagged('name', 'ActionService')
     private logger: Logger
   ) {}
 
@@ -53,7 +54,7 @@ export class ScopedActionService {
   private _actionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
 
-  constructor(private ghost: GhostService, private logger, private botId: string, private cache: ObjectCache) {
+  constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
   }
 
@@ -173,7 +174,8 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: { // TODO: Memoize this to prevent computing every time
+        process: {
+          // TODO: Memoize this to prevent computing every time
           ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
           env: _.pickBy(process.env, (value, name) => name.startsWith('EXPOSED_'))
         }
@@ -188,7 +190,8 @@ export class ScopedActionService {
     const runner = new VmRunner()
 
     const result = await runner.runInVm(vm, code, dirPath).catch(err => {
-      throw new VError(new Error(err.message), `An error occurred while executing the action "${actionName}"`)
+      this.logger.attachError(err).error(`An error occurred while executing the action "${actionName}`)
+      throw new BPError(`An error occurred while executing the action "${actionName}"`, 'BP_451')
     })
 
     debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
