@@ -27,6 +27,7 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
+const stripSpecialChars = txt => txt.replace(/[&\/\\#,+()$!^~%.'":*?<>{}]/g, '')
 
 export default class CRFExtractor implements SlotExtractor {
   private _isTrained: boolean = false
@@ -121,6 +122,11 @@ export default class CRFExtractor implements SlotExtractor {
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
         const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
+
+        if (!slot) {
+          return slotCollection
+        }
+
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           // simply append the source if the tag is inside a slot
           slotCollection[slotName].source += ` ${token.value}`
@@ -159,31 +165,40 @@ export default class CRFExtractor implements SlotExtractor {
     token: Token,
     slotDefinitions: sdk.NLU.SlotDefinition[],
     entities: sdk.NLU.Entity[]
-  ): sdk.NLU.Slot {
+  ): sdk.NLU.Slot | undefined {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
+
+    if (!slotDef) {
+      return
+    }
+
     const entity =
       slotDef &&
       entities.find(
-        e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
+        entity =>
+          slotDef.entities.includes(entity.name) && entity.meta.start <= token.start && entity.meta.end >= token.end
       )
 
-    const value = _.get(entity, 'data.value', token.value)
-
-    const slot = {
-      name: slotName,
-      value
-    } as sdk.NLU.Slot
-
-    if (entity) {
-      slot.entity = entity
+    if (slotDef && !entity) {
+      return
     }
 
-    return slot
+    const value = _.get(entity, 'data.value', token.value) // entity can be null if slot type = any
+    const confidence = _.get(entity, 'meta.confidence', -1)
+
+    return {
+      name: slotName,
+      value,
+      entity,
+      confidence
+    } as sdk.NLU.Slot
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.value))
+    const data = await Promise.mapSeries(tokens, t =>
+      this._ft.queryWordVectors(stripSpecialChars(t.value.toLowerCase()))
+    )
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
@@ -226,7 +241,7 @@ export default class CRFExtractor implements SlotExtractor {
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
         .map(s => {
-          if (s.tag === BIO.OUT) return s.value
+          if (s.tag === BIO.OUT) return stripSpecialChars(s.value.toLowerCase())
           else return s.slot
         })
         .join(' ')
@@ -291,7 +306,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.queryWordVectors(word)
+    const vector = await this._ft.queryWordVectors(stripSpecialChars(word.toLowerCase()))
     return this._kmeansModel.nearest([vector])[0]
   }
 }

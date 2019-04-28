@@ -318,7 +318,7 @@ export default class ScopedEngine implements Engine {
 
     for (const name of Object.keys(collection)) {
       if (Array.isArray(collection[name])) {
-        result[name] = collection[name][0]
+        result[name] = _.orderBy(collection[name], ['confidence'], ['desc'])[0]
       }
     }
 
