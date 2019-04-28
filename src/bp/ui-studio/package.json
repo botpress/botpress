@@ -20,7 +20,7 @@
     "nanoid": "^2.0.1",
     "progressbar.js": "^1.0.1",
     "prop-types": "^15.6.0",
-    "query-string": "^6.4.0",
+    "query-string": "^5.1.1",
     "react": "^16.4.0",
     "react-bootstrap": "^0.32.1",
     "react-dock": "^0.2.4",
