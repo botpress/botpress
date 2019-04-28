@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+const stripSpecialChars = txt => txt.replace(/[&\/\\#,+()$!^~%.'":*?<>{}]/g, '')
+
 // this will quickly be replaced by a knn
 export default class ExactMatcher {
   constructor(private intentDefs: sdk.NLU.IntentDefinition[]) {}
@@ -10,9 +12,9 @@ export default class ExactMatcher {
       i => !includedContext.length || _.intersection(i.contexts, includedContext).length
     )
 
-    const lowText = text.toLowerCase()
+    const lowText = stripSpecialChars(text.toLowerCase())
     for (const intent of contextedIntents) {
-      if (_.findIndex(intent.utterances, u => u.toLowerCase() === lowText) !== -1) {
+      if (_.findIndex(intent.utterances, u => stripSpecialChars(u.toLowerCase()) === lowText) !== -1) {
         return {
           name: intent.name,
           confidence: 1,

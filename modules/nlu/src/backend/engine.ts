@@ -183,6 +183,7 @@ export default class ScopedEngine implements Engine {
       throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
     }
 
+    this._exactIntentMatcher = new ExactMatcher(intents)
     await this.intentClassifier.load(intentModels)
 
     const trainingSet = flatMap(intents, intent => {
