@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'
+import kmeans from 'ml-kmeans'
 import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
@@ -106,6 +107,58 @@ export default class SVMClassifier {
         }
       }
 
+      //////////////////////////////
+      // split with k-means here
+      //////////////////////////////
+
+      const data = l1Points.map(x => x.coordinates)
+      const nLabels = _.uniq(l1Points.map(x => x.label)).length
+
+      let bestScore = 0
+      let bestCluster: { [clusterId: number]: { [label: string]: number[][] } } = {}
+
+      for (
+        let i = Math.min(Math.floor(nLabels / 2), l1Points.length);
+        i < Math.min(nLabels, l1Points.length);
+        i += 10
+      ) {
+        const km = kmeans(data, i)
+        const clusters: { [clusterId: number]: { [label: string]: number[][] } } = {}
+        l1Points.forEach(pts => {
+          const r = km.nearest([pts.coordinates])[0] as number
+          clusters[r] = clusters[r] || {}
+          clusters[r][pts.label] = clusters[r][pts.label] || []
+          clusters[r][pts.label].push(pts.coordinates)
+        })
+        const total = _.sum(_.map(clusters, c => _.max(_.map(c, y => y.length)))) / l1Points.length
+        const score = total / Math.sqrt(i)
+        if (score >= bestScore) {
+          bestScore = score
+          bestCluster = clusters
+        }
+      }
+
+      const labelIncCluster: { [label: string]: number } = {}
+
+      for (const pairs of _.values(bestCluster)) {
+        const labels = Object.keys(pairs)
+        for (const label of labels) {
+          const samples = pairs[label]
+          if (samples.length >= 4) {
+            labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
+            const newLabel = label + '__k__' + labelIncCluster[label]
+            l1Points
+              .filter(x => samples.includes(x.coordinates))
+              .forEach(x => {
+                x.label = newLabel
+              })
+          }
+        }
+      }
+
+      //////////////////////////////
+      //////////////////////////////
+
       const svm = new this.toolkit.SVM.Trainer()
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
@@ -116,7 +169,7 @@ export default class SVMClassifier {
       })
     }
 
-    const svm = new this.toolkit.SVM.Trainer({ kernel: 'linear', classifier: 'C_SVC' })
+    const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
 
