@@ -94,8 +94,18 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   async predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
     const results = await this.clf.predictProbabilities(coordinates)
 
+    const reducedResults = _.reduce(
+      Object.keys(results),
+      (acc, curr) => {
+        const label = this.getLabelByIdx(curr).replace(/__k__\d+$/, '')
+        acc[label] = (acc[label] || 0) + results[curr]
+        return acc
+      },
+      {}
+    )
+
     return _.orderBy(
-      Object.keys(results).map(idx => ({ label: this.getLabelByIdx(idx), confidence: results[idx] })),
+      Object.keys(reducedResults).map(idx => ({ label: idx, confidence: reducedResults[idx] })),
       'confidence',
       'desc'
     )
