@@ -270,19 +270,23 @@ export default class Web extends React.Component {
     }
   }
 
-  fetchData = () => {
-    return this.fetchBotInfo()
-      .then(this.fetchConversations)
-      .then(this.fetchCurrentConversation)
-      .then(() => {
-        const locale = navigator.language || navigator.userLanguage
-        this.handleSendData({
-          type: 'visit',
-          text: 'User visit',
-          timezone: new Date().getTimezoneOffset() / 60,
-          language: locale && locale.substring(0, locale.indexOf('-'))
-        }).catch(this.checkForExpiredExternalToken)
-      })
+  fetchData = async () => {
+    try {
+      await this.fetchBotInfo()
+        .then(this.fetchConversations)
+        .then(this.fetchCurrentConversation)
+    } catch (err) {
+      console.log('Error while fetching data, creating new convo...', err)
+      await this.createConversation()
+    }
+
+    const locale = navigator.language || navigator.userLanguage
+    this.handleSendData({
+      type: 'visit',
+      text: 'User visit',
+      timezone: new Date().getTimezoneOffset() / 60,
+      language: locale && locale.substring(0, locale.indexOf('-'))
+    }).catch(this.checkForExpiredExternalToken)
   }
 
   fetchConversations = () => {
@@ -535,12 +539,14 @@ export default class Web extends React.Component {
     )
   }
 
-  createConversation = () => {
+  createConversation = async () => {
     const userId = window.__BP_VISITOR_ID
     const url = `/mod/channel-web/conversations/${userId}/new`
+    const { data } = await this.props.bp.axios.post(url, {}, this.axiosConfig)
 
-    // TODO here we might we might want switch convo with the newly created conversation (need to return the convo ID in BE)
-    return this.props.bp.axios.post(url, {}, this.axiosConfig).then(this.fetchConversations)
+    this.fetchConversations().then(() => {
+      this.handleSwitchConvo(data.convoId)
+    })
   }
 
   downloadFile(name, blob) {

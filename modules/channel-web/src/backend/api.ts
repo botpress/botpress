@@ -310,8 +310,8 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post('/conversations/:userId/new', async (req, res) => {
     const { userId, botId } = req.params
-    await db.createConversation(botId, userId)
-    res.sendStatus(200)
+    const convoId = await db.createConversation(botId, userId)
+    res.send({ convoId })
   })
 
   router.get('/:userId/reference', async (req, res) => {
