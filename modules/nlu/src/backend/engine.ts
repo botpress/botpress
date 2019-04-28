@@ -14,6 +14,7 @@ import SVMClassifier from './pipelines/intents/svm_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
+import { sanitize } from './pipelines/language/sanitizer'
 import { tokenize } from './pipelines/language/tokenizers'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
@@ -272,9 +273,10 @@ export default class ScopedEngine implements Engine {
     lang: string,
     includedContexts: string[]
   ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
-    const tokens = await tokenize(text, lang)
+    const lowerText = sanitize(text.toLowerCase())
+    const tokens = await tokenize(lowerText, lang)
 
-    const exactIntent = this._exactIntentMatcher.exactMatch(text, includedContexts)
+    const exactIntent = this._exactIntentMatcher.exactMatch(lowerText, includedContexts)
 
     if (exactIntent) {
       return {
@@ -283,6 +285,7 @@ export default class ScopedEngine implements Engine {
         intents: [exactIntent]
       }
     }
+
     const intents = await this.intentClassifier.predict(tokens, includedContexts)
 
     // TODO: This is no longer relevant because of multi-context

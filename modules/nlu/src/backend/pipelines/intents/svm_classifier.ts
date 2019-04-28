@@ -7,6 +7,7 @@ import { VError } from 'verror'
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import FTWordVecFeaturizer from '../language/ft_featurizer'
+import { sanitize } from '../language/sanitizer'
 import { tokenize } from '../language/tokenizers'
 
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
@@ -71,10 +72,14 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = await Promise.map(intentDefs, async i => ({
-      ...i,
-      tokens: await Promise.map(i.utterances, u => tokenize(u, this.language))
-    }))
+    const intentsWTokens = await Promise.map(intentDefs, async intent => {
+      const lowerUtterances = intent.utterances.map(x => sanitize(x.toLowerCase()))
+
+      return {
+        ...intent,
+        tokens: await Promise.map(lowerUtterances, u => tokenize(u, this.language))
+      }
+    })
 
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
@@ -169,7 +174,7 @@ export default class SVMClassifier {
       })
     }
 
-    const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
+    const svm = new this.toolkit.SVM.Trainer({ kernel: 'linear', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
 

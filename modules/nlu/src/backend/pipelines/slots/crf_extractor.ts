@@ -5,6 +5,7 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
+import { sanitize } from '../language/sanitizer'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -27,7 +28,6 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
-const stripSpecialChars = txt => txt.replace(/[&\/\\#,+()$!^~%.'":*?<>{}]/g, '')
 
 export default class CRFExtractor implements SlotExtractor {
   private _isTrained: boolean = false
@@ -196,9 +196,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, t =>
-      this._ft.queryWordVectors(stripSpecialChars(t.value.toLowerCase()))
-    )
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(sanitize(t.value.toLowerCase())))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
@@ -241,7 +239,7 @@ export default class CRFExtractor implements SlotExtractor {
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
         .map(s => {
-          if (s.tag === BIO.OUT) return stripSpecialChars(s.value.toLowerCase())
+          if (s.tag === BIO.OUT) return sanitize(s.value.toLowerCase())
           else return s.slot
         })
         .join(' ')
@@ -306,7 +304,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.queryWordVectors(stripSpecialChars(word.toLowerCase()))
+    const vector = await this._ft.queryWordVectors(sanitize(word.toLowerCase()))
     return this._kmeansModel.nearest([vector])[0]
   }
 }
