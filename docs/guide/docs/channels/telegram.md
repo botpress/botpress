@@ -5,6 +5,7 @@ title: Telegram
 
 ## Requirements
 
+- You have enabled `channel-telegram`. See [how to enable a module](../main/module)
 - Use Telegram's BotFather to create a bot. Please refer to [How do I create a bot?](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 - Have your Telegram bot token ready
 
@@ -14,8 +15,11 @@ title: Telegram
 
 ```json
 {
-  "botToken": "<your_bot_token>"
+  "botToken": "<your_bot_token>",
+  "enabled": true
 }
 ```
 
-2. Restart Botpress and talk to your Telegram bot.
+2. Set the `enabled` property to `true`. It lets you have control over which bot enable which module.
+
+3. Restart Botpress and talk to your Telegram bot.
