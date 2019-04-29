@@ -54,6 +54,25 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
   }
 }
 
+const onElementChanged = async (bp, botId, action, element) => {
+  const qnaStorage = await botScopedStorage.get(botId)
+  const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+  // Update all questions that have this contentElement as answer
+  if (action === 'delete') {
+    const affectedItems = questions.items.filter(item =>
+      item.data.answers.filter(answer => answer.contentId === element.id)
+    )
+    for (const item of affectedItems) {
+      const newAnswers = item.data.answers.filter(answer => answer.contentId !== element.id)
+      if (newAnswers.length) {
+        await qnaStorage.update({ ...item.data, answers: newAnswers }, item.id)
+      } else {
+        await qnaStorage.delete(item.id)
+      }
+    }
+  }
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
@@ -61,6 +80,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   onModuleUnmount,
   onFlowChanged,
+  onElementChanged,
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',
