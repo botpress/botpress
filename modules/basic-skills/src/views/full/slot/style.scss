@@ -1,0 +1,27 @@
+.intentSelect {
+  z-index: 1000 !important;
+}
+
+.slotSelect {
+  z-index: 900 !important;
+}
+
+.contentPicker {
+  z-index: 800 !important;
+}
+
+.actionSelect {
+  z-index: 700 !important;
+}
+
+.notFoundSelect {
+  z-index: 600 !important;
+}
+
+.modalContent {
+  padding: 15px;
+}
+
+.warning {
+  color: red;
+}

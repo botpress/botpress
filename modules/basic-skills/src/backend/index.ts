@@ -2,8 +2,9 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import choice from './choice'
 import apiCall from './callApi'
+import choice from './choice'
+import intent from './intent'
 import slot from './slot'
 
 export type Extension = {}
@@ -22,14 +23,19 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 
 const skillsToRegister: sdk.Skill[] = [
   {
+    id: 'CallAPI',
+    name: 'Call API',
+    flowGenerator: apiCall.generateFlow
+  },
+  {
     id: 'choice',
     name: 'Choice',
     flowGenerator: choice.generateFlow
   },
   {
-    id: 'CallAPI',
-    name: 'Call API',
-    flowGenerator: apiCall.generateFlow
+    id: 'Intent',
+    name: 'Intent',
+    flowGenerator: intent.generateFlow
   },
   {
     id: 'Slot',
