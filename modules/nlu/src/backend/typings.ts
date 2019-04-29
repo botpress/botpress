@@ -21,6 +21,7 @@ export interface Sequence {
   intent: string
   cannonical: string
   tokens: Token[]
+  contexts?: string[]
 }
 
 export type EngineByBot = { [botId: string]: Engine }

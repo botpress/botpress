@@ -62,7 +62,8 @@ const _generateTrainingTokens = (
 export const generateTrainingSequence = (
   input: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
-  intentName: string = ''
+  intentName: string = '',
+  contexts: string[] = []
 ): Sequence => {
   let matches: RegExpExecArray | null
   let start = 0
@@ -89,7 +90,8 @@ export const generateTrainingSequence = (
   return {
     intent: intentName,
     cannonical: tokens.map(t => t.value).join(' '),
-    tokens
+    tokens,
+    contexts
   }
 }
 

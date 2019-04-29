@@ -127,7 +127,6 @@ export default class ScopedEngine implements Engine {
         await this.loadModels(intents, modelHash)
       }
 
-      this._exactIntentMatcher = new ExactMatcher(intents)
       this._currentModelHash = modelHash
       this._preloaded = true
     } catch (e) {
@@ -183,13 +182,14 @@ export default class ScopedEngine implements Engine {
     if (!intentModels || !intentModels.length) {
       throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
     }
-
-    this._exactIntentMatcher = new ExactMatcher(intents)
-    await this.intentClassifier.load(intentModels)
-
     const trainingSet = flatMap(intents, intent => {
-      return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      return intent.utterances.map(utterance =>
+        generateTrainingSequence(utterance, intent.slots, intent.name, intent.contexts)
+      )
     })
+
+    this._exactIntentMatcher = new ExactMatcher(trainingSet)
+    await this.intentClassifier.load(intentModels)
 
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
 

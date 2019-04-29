@@ -1,25 +1,27 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { Sequence } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
 // this will quickly be replaced by a knn
+// TODO if we're going to keep this, replace the training set with a tree or at least something that runs faster than N at predict time
+// inversed index would be better
 export default class ExactMatcher {
-  constructor(private intentDefs: sdk.NLU.IntentDefinition[]) {}
+  constructor(private trainingSet: Sequence[]) {}
 
   exactMatch(text: string, includedContext: string[]): sdk.NLU.Intent | void {
-    const contextedIntents = this.intentDefs.filter(
-      i => !includedContext.length || _.intersection(i.contexts, includedContext).length
+    const filteredDataset = this.trainingSet.filter(
+      seq => !includedContext.length || _.intersection(seq.contexts || [], includedContext).length
     )
 
     const lowText = sanitize(text.toLowerCase())
-    for (const intent of contextedIntents) {
-      if (_.findIndex(intent.utterances, u => sanitize(u.toLowerCase()) === lowText) !== -1) {
-        return {
-          name: intent.name,
-          confidence: 1,
-          context: intent.contexts[0] // todo fix this
-        }
+    const seq = _.find(filteredDataset, s => sanitize(s.cannonical.toLowerCase()) === lowText)
+    if (seq) {
+      return {
+        name: seq.intent,
+        confidence: 1,
+        context: seq.contexts[0] // todo fix this
       }
     }
   }
