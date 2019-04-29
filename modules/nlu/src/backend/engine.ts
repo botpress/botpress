@@ -269,14 +269,15 @@ export default class ScopedEngine implements Engine {
   }
 
   private async _extractIntents(
-    text: string,
+    originalText: string,
+    noEntitiesText: string,
     lang: string,
     includedContexts: string[]
   ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
-    const lowerText = sanitize(text.toLowerCase())
+    const lowerText = sanitize(noEntitiesText.toLowerCase())
     const tokens = await tokenize(lowerText, lang)
 
-    const exactIntent = this._exactIntentMatcher.exactMatch(lowerText, includedContexts)
+    const exactIntent = this._exactIntentMatcher.exactMatch(sanitize(originalText.toLowerCase()), includedContexts)
 
     if (exactIntent) {
       return {
@@ -301,7 +302,7 @@ export default class ScopedEngine implements Engine {
       .uniq()
       .value()
 
-    debugIntents(text, { intents })
+    debugIntents(noEntitiesText, { intents })
 
     return {
       includedContexts,
@@ -332,6 +333,7 @@ export default class ScopedEngine implements Engine {
     let ret: any = { errored: true }
     const t1 = Date.now()
     try {
+      ret.language = await this.langDetector.identify(text)
       const entities = await this._extractEntities(text, ret.language)
 
       const entitiesToReplace = _.chain(entities)
@@ -353,8 +355,7 @@ export default class ScopedEngine implements Engine {
 
       noEntitiesText += text.substr(cursor, text.length - cursor)
 
-      ret.language = await this.langDetector.identify(text)
-      ret = { ...ret, ...(await this._extractIntents(noEntitiesText, ret.language, includedContexts)) }
+      ret = { ...ret, ...(await this._extractIntents(text, noEntitiesText, ret.language, includedContexts)) }
       ret.entities = entities
       ret.slots = await this._extractSlots(text, ret.intent, entities)
       debugEntities('slots', { text, slots: ret.slots })
