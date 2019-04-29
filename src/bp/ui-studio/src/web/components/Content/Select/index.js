@@ -46,6 +46,10 @@ class SelectContent extends Component {
     this.props.container.addEventListener('keyup', this.handleChangeActiveItem)
   }
 
+  componentWillUnmount() {
+    this.props.container.removeEventListener('keyup', this.handleChangeActiveItem)
+  }
+
   componentWillReceiveProps(newProps) {
     const { categories } = newProps
     if (!categories || this.state.step !== formSteps.INITIAL || this.state.contentType) {
