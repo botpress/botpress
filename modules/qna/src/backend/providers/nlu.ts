@@ -243,7 +243,7 @@ export default class Storage implements QnaStorage {
       const data = await this.getQuestion(id)
       if (data.data.enabled) {
         await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, await this.getAxiosConfig())
-        if (yn(opt.shouldDeleteElements)) {
+        if (yn(opt && opt.shouldDeleteElements)) {
           this.bp.cms.deleteContentElements(this.botId, data.data.answers.map(a => a.contentId).filter(a => a))
         }
       }
