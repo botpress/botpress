@@ -22,8 +22,8 @@ export default class ElementsList extends React.Component {
     this.setState({ pickingContentType: false, editElementIndex: undefined })
   }
 
-  handlePickContent = async (contentElement, notNew) => {
-    this.props.onCreate({ contentId: contentElement.id }, notNew)
+  handlePickContent = async item => {
+    item.id && this.props.onCreate({ contentId: item.id })
     this.setState({ editElementIndex: undefined })
   }
 
