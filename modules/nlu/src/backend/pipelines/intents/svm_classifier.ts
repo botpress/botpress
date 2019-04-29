@@ -9,6 +9,7 @@ import { Model } from '../../typings'
 import FTWordVecFeaturizer from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
 import { tokenize } from '../language/tokenizers'
+import { keepEntityTypes } from '../slots/pre-processor'
 
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
 
@@ -73,7 +74,7 @@ export default class SVMClassifier {
       .value()
 
     const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = intent.utterances.map(x => sanitize(x.toLowerCase()))
+      const lowerUtterances = intent.utterances.map(x => keepEntityTypes(sanitize(x.toLowerCase())))
 
       return {
         ...intent,

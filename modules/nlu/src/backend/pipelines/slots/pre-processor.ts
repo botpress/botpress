@@ -1,12 +1,21 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { BIO, Sequence, Tag, Token } from '../../typings'
 
-const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+export const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
 // TODO replace this for appropriate tokenizer
 const _tokenize = (input: string): string[] => {
   return input.split(' ').filter(w => w.length)
+}
+
+export function keepEntityTypes(text: string): string {
+  return text.replace(SLOTS_REGEX, '$2')
+}
+
+export function keepEntityValues(text: string): string {
+  return text.replace(SLOTS_REGEX, '$1')
 }
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token => {
@@ -33,9 +42,9 @@ const _generateTrainingTokens = (
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
 ): Token[] => {
-  const matchedEntities = slotDefinitions
-    .filter(slotDef => slot && slotDef.name === slot)
-    .map(slotDef => slotDef.entity)
+  const matchedEntities = _.flatten(
+    slotDefinitions.filter(slotDef => slot && slotDef.name === slot).map(slotDef => slotDef.entities)
+  )
 
   return _tokenize(input).map((t, idx) => {
     let tag = BIO.OUT

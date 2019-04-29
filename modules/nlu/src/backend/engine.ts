@@ -17,7 +17,7 @@ import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import { tokenize } from './pipelines/language/tokenizers'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import { generateTrainingSequence } from './pipelines/slots/pre-processor'
+import { generateTrainingSequence, keepEntityTypes } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
@@ -332,10 +332,31 @@ export default class ScopedEngine implements Engine {
     let ret: any = { errored: true }
     const t1 = Date.now()
     try {
+      const entities = await this._extractEntities(text, ret.language)
+
+      const entitiesToReplace = _.chain(entities)
+        .filter(x => x.type === 'pattern' || x.type === 'list')
+        .orderBy(['entity.meta.start', 'entity.meta.confidence'], ['asc', 'desc'])
+        .value()
+
+      let noEntitiesText = ''
+      let cursor = 0
+
+      for (const entity of entitiesToReplace) {
+        if (entity.meta.start < cursor) {
+          continue
+        }
+
+        noEntitiesText += text.substr(cursor, entity.meta.start - cursor) + entity.name
+        cursor = entity.meta.end
+      }
+
+      noEntitiesText += text.substr(cursor, text.length - cursor)
+
       ret.language = await this.langDetector.identify(text)
-      ret = { ...ret, ...(await this._extractIntents(text, ret.language, includedContexts)) }
-      ret.entities = await this._extractEntities(text, ret.language)
-      ret.slots = await this._extractSlots(text, ret.intent, ret.entities)
+      ret = { ...ret, ...(await this._extractIntents(noEntitiesText, ret.language, includedContexts)) }
+      ret.entities = entities
+      ret.slots = await this._extractSlots(text, ret.intent, entities)
       debugEntities('slots', { text, slots: ret.slots })
       ret.errored = false
     } catch (error) {

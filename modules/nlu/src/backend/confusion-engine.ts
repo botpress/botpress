@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { flatten, groupBy } from 'lodash'
 
 import ScopedEngine from './engine'
+import { keepEntityValues } from './pipelines/slots/pre-processor'
 import { FiveFolder, RecordCallback, Result } from './tools/five-fold'
 
 type TrainingEntry = {
@@ -89,7 +90,9 @@ export default class ConfusionEngine extends ScopedEngine {
     const defs = this._entriesToDefinition(trainSet)
 
     await this.loadModels(defs, this.modelName)
-    const actual = await Promise.mapSeries(testSet, (__, idx) => this.extract(testSet[idx].utterance, []))
+    const actual = await Promise.mapSeries(testSet, (__, idx) =>
+      this.extract(keepEntityValues(testSet[idx].utterance), [])
+    )
 
     testSet.forEach((__, idx) => record(testSet[idx].definition.name, actual[idx].intent.name))
   }
