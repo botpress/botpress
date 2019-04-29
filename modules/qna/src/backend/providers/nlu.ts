@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
+import yn from 'yn'
 
 import { QnaEntry, QnaStorage } from '../qna'
 
@@ -131,7 +132,7 @@ export default class Storage implements QnaStorage {
     return ids
   }
 
-  private async checkForDuplicatedQuestions(newQuestions, editingQnaId?) {
+  async checkForDuplicatedQuestions(newQuestions, editingQnaId?) {
     let allQuestions = await this.fetchAllQuestions()
 
     if (editingQnaId) {
@@ -232,7 +233,7 @@ export default class Storage implements QnaStorage {
     return questions.length
   }
 
-  async delete(qnaId) {
+  async delete(qnaId, opt: { shouldDeleteElements: boolean }) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
     if (ids.length === 0) {
       return
@@ -242,6 +243,9 @@ export default class Storage implements QnaStorage {
       const data = await this.getQuestion(id)
       if (data.data.enabled) {
         await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, await this.getAxiosConfig())
+        if (yn(opt.shouldDeleteElements)) {
+          this.bp.cms.deleteContentElements(this.botId, data.data.answers.map(a => a.contentId).filter(a => a))
+        }
       }
       return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
     }

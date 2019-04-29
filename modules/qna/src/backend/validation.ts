@@ -14,7 +14,9 @@ export const QnaDefSchema = Joi.object().keys({
     .items(Joi.string())
     .default([]),
   answers: Joi.array()
-    .items(Joi.string())
+    .items(Joi.alternatives().try(Joi.string().required(), Joi.object().keys({ contentId: Joi.string().required() })))
     .default([]),
-  answer: Joi.string().optional()
+  answer: Joi.alternatives()
+    .try(Joi.string().required(), Joi.object().keys({ contentId: Joi.string().required() }))
+    .optional()
 })

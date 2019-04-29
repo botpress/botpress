@@ -9,6 +9,7 @@ export interface QnaStorage {
   delete(id: string, statusCallback?: any): void
   count(): Promise<number>
   answersOn(question)
+  checkForDuplicatedQuestions(newQuestions, editingQnaId?)
   getQuestion(opts: any)
   getCategories(): string[]
   hasCategories(): boolean

@@ -15,7 +15,8 @@
       "react": "React",
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
-      "botpress/elements-list": "ElementsList"
+      "botpress/elements-list": "ElementsList",
+      "botpress/content-element-output": "ContentElementOutput"
     }
   },
   "devDependencies": {

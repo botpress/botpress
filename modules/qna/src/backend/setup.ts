@@ -46,12 +46,21 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     const payloads = []
 
     if (question.action.includes('text')) {
-      const args = {
+      const electedAnswer = getAlternativeAnswer(question)
+      let args: any = {
         user: _.get(event, 'state.user') || {},
         session: _.get(event, 'state.session') || {},
-        temp: _.get(event, 'state.temp') || {},
-        text: getAlternativeAnswer(question),
-        typing: true
+        temp: _.get(event, 'state.temp') || {}
+      }
+
+      if (electedAnswer.contentId) {
+        renderer = `!${electedAnswer.contentId}`
+      } else {
+        args = {
+          ...args,
+          text: electedAnswer,
+          typing: true
+        }
       }
 
       const element = await bp.cms.renderElement(renderer, args, {

@@ -27,6 +27,8 @@ import style from './style.scss'
 import 'react-select/dist/react-select.css'
 import './button.css'
 
+import ContentElementOutput from 'botpress/content-element-output'
+
 const ITEMS_PER_PAGE = 50
 const CSV_STATUS_POLL_INTERVAL = 1000
 
@@ -133,6 +135,7 @@ export default class QnaAdmin extends Component {
   uploadCsv = async () => {
     const formData = new FormData()
     formData.set('isReplace', this.state.isCsvUploadReplace)
+    formData.set('isDeletingContentElements', this.state.isCsvUploadDeleteContentElements)
     formData.append('csv', this.state.csvToUpload)
 
     const headers = { 'Content-Type': 'multipart/form-data' }
@@ -255,6 +258,13 @@ export default class QnaAdmin extends Component {
               >
                 Replace existing FAQs
               </Checkbox>
+              <Checkbox
+                disabled={!this.state.isCsvUploadReplace}
+                checked={this.state.isCsvUploadReplace && this.state.isCsvUploadDeleteContentElements}
+                onChange={e => this.setState({ isCsvUploadDeleteContentElements: e.target.checked })}
+              >
+                Delete Content Elements
+              </Checkbox>
               <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
             </FormGroup>
           </form>
@@ -330,9 +340,16 @@ export default class QnaAdmin extends Component {
     return (
       <Popover id="questions-popover">
         <ul className={style.questionsList}>
-          {variations.map(variation => (
-            <li key={variation}>{variation}</li>
-          ))}
+          {variations.map(
+            variation =>
+              variation.contentId ? (
+                <li key={variation.contentId}>
+                  <ContentElementOutput itemId={variation.contentId} />
+                </li>
+              ) : (
+                <li key={variation}>{variation}</li>
+              )
+          )}
         </ul>
       </Popover>
     )
@@ -392,7 +409,13 @@ export default class QnaAdmin extends Component {
           {item.answers[0] && (
             <div className={style.itemAnswerContainer}>
               <span className={style.itemAnswerTitle}>A:</span>
-              <div className={style.itemAnswerText}>{item.answers[0]}</div>
+              <div className={style.itemAnswerText}>
+                {item.answers[0].contentId ? (
+                  <ContentElementOutput itemId={item.answers[0].contentId} />
+                ) : (
+                  item.answers[0]
+                )}
+              </div>
               {this.renderVariationsOverlayTrigger(item.answers)}
             </div>
           )}
@@ -420,13 +443,22 @@ export default class QnaAdmin extends Component {
   }
 
   deleteItem = id => () => {
+    const item = this.state.items.find(item => item.id === id)
     const needDelete = confirm('Do you want to delete the question?')
     const { filterQuestion, filterCategory, page } = this.state
+    let shouldDeleteElements = false
+    // If choose to delete, will check for content elements using filter in the answers from the item
+    if (needDelete && item.data.answers.filter(a => a.contentId).length > 0) {
+      if (confirm('The question has content elements as answers, do you also want to delete these content elements?')) {
+        shouldDeleteElements = true
+      }
+    }
     const params = {
       question: filterQuestion,
       categories: filterCategory.map(({ value }) => value),
       limit: ITEMS_PER_PAGE,
-      offset: (page - 1) * ITEMS_PER_PAGE
+      offset: (page - 1) * ITEMS_PER_PAGE,
+      shouldDeleteElements
     }
 
     if (needDelete) {

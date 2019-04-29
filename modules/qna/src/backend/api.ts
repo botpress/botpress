@@ -9,7 +9,7 @@ import nanoid from 'nanoid'
 import yn from 'yn'
 
 import { QnaEntry, QnaStorage } from './qna'
-import { importQuestions, prepareExport } from './transfer'
+import { importQuestions, prepareExport, prepareImport } from './transfer'
 import { QnaDefSchema } from './validation'
 
 export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>) => {
@@ -71,12 +71,12 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
 
   router.delete('/questions/:id', async (req, res) => {
     const {
-      query: { limit, offset, question, categories }
+      query: { limit, offset, question, categories, shouldDeleteElements }
     } = req
 
     try {
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.delete(req.params.id, undefined)
+      await storage.delete(req.params.id, { shouldDeleteElements })
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
     } catch (e) {
@@ -95,7 +95,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
   router.get('/export/:format', async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
     const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
-    const data = await prepareExport(storage, { flat: true })
+    const data = await prepareExport(storage, bp, { flat: true })
 
     if (req.params.format === 'csv') {
       res.setHeader('Content-Type', 'text/csv')
@@ -124,25 +124,39 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     const uploadStatusId = nanoid()
     res.end(uploadStatusId)
 
-    updateUploadStatus(uploadStatusId, 'Deleting existing questions')
-    if (yn(req.body.isReplace)) {
-      const questions = await storage.fetchAllQuestions()
-
-      const statusCb = processedCount =>
-        updateUploadStatus(uploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
-      await storage.delete(questions.map(({ id }) => id), statusCb)
-    }
-
     try {
-      const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
       const params = {
         storage,
         config,
         format: 'csv',
         statusCallback: updateUploadStatus,
-        uploadStatusId
+        uploadStatusId,
+        isReplace: yn(req.body.isReplace)
       }
-      await importQuestions(questions, params)
+
+      updateUploadStatus(uploadStatusId, 'Checking questions')
+      const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
+      const preparedQuestions = await prepareImport(questions, bp, params)
+
+      // Delete current qnas if selected
+      if (yn(req.body.isReplace)) {
+        const questions = await storage.fetchAllQuestions()
+        const statusCb = processedCount =>
+          updateUploadStatus(uploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
+        // Delete content Elements from qnas if selected
+        if (yn(req.body.isDeletingContentElements)) {
+          updateUploadStatus(uploadStatusId, 'Deleting content Elements')
+          await bp.cms.deleteContentElements(
+            req.params.botId,
+            // Get ids from contentElements if there are any
+            _.flatMap(questions, q => q.data.answers.filter(a => a.contentId).map(a => a.contentId))
+          )
+        }
+        updateUploadStatus(uploadStatusId, 'Deleting existing questions')
+        await storage.delete(questions.map(({ id }) => id), statusCb)
+      }
+
+      await importQuestions(preparedQuestions, bp, params)
 
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {

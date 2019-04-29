@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { FormGroup, InputGroup, FormControl } from 'react-bootstrap'
-import { IoIosFolderOpen, IoMdCreate } from 'react-icons/io'
+import { IoIosFolderOpen, IoMdCreate, IoIosTrash } from 'react-icons/io'
 
 import store from '~/store'
 import { upsertContentItem, fetchContentItem } from '~/actions'
@@ -44,13 +44,13 @@ class ContentPickerWidget extends Component {
   }
 
   render() {
-    const { inputId, contentItem, placeholder } = this.props
+    const { inputId, contentItem, placeholder, onDelete, onClickChange } = this.props
     const contentType = (contentItem && contentItem.contentType) || this.props.contentType
     const schema = (contentItem && contentItem.schema) || { json: {}, ui: {} }
     const textContent = (contentItem && `${schema.title} | ${contentItem.previews[this.props.contentLang]}`) || ''
 
     return (
-      <FormGroup>
+      <FormGroup className={this.props.className}>
         <InputGroup>
           <FormControl placeholder={placeholder} value={textContent} disabled id={inputId || ''} />
           <InputGroup.Addon style={{ padding: 0 }}>
@@ -61,10 +61,18 @@ class ContentPickerWidget extends Component {
             )}
             <div
               className={style.actionBtn}
-              onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
+              onClick={() => {
+                onClickChange && onClickChange()
+                window.botpress.pickContent({ contentType }, this.onChange)
+              }}
             >
               <IoIosFolderOpen size={20} color={'#0078cf'} />
             </div>
+            {onDelete && (
+              <div className={style.actionBtn} onClick={onDelete}>
+                <IoIosTrash size={20} color={'#0078cf'} />
+              </div>
+            )}
           </InputGroup.Addon>
           <CreateOrEditModal
             show={this.state.showItemEdit}

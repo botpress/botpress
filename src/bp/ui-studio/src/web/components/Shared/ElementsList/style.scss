@@ -32,3 +32,45 @@
   display: none !important;
   padding-left: 10px;
 }
+
+.qnaAnswersInput {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+
+  @media (max-width: 475px) {
+    flex-wrap: wrap;
+  }
+}
+
+.qnaAnswersInputContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 17%;
+  max-width: 17%;
+}
+.qnaAnswersInputText {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 82%;
+  max-width: 82%;
+}
+
+.qnaAnswersInputText textarea {
+  margin-top: 0px;
+}
+
+.qnaAnswersInputContent,
+.qnaAnswersInputText {
+  @media (max-width: 475px) {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+.contentPickerWidget {
+  width: 100%;
+  margin: 0px !important;
+}
