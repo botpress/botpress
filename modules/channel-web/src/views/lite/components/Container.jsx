@@ -40,10 +40,16 @@ export default class Container extends React.Component {
     }
   }
 
-  isConvoStarted = conversation => conversation && !!conversation.messages.length
+  isConvoStarted = conversation => this.state.convoStarted || (conversation && !!conversation.messages.length)
   handleFocusChanged = nextFocus => this.setState({ currentFocus: nextFocus })
   handleToggleShowConvos = () => this.setState({ showConvos: !this.state.showConvos })
-  toggleBotInfo = () => this.setState({ showBotInfo: !this.state.showBotInfo })
+  toggleBotInfo = started => {
+    let state = { showBotInfo: !this.state.showBotInfo }
+    if (started) {
+      state.convoStarted = true
+    }
+    this.setState(state)
+  }
 
   handleConvoClicked = convoId => {
     this.props.onSwitchConvo && this.props.onSwitchConvo(convoId)
