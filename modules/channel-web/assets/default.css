@@ -623,6 +623,7 @@ body {
   vertical-align: middle;
   cursor: pointer;
   fill: #bbb;
+  width: 15px;
 }
 
 .bpw-header-icon :hover {
