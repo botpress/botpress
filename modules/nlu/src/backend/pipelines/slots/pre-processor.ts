@@ -33,9 +33,8 @@ const _generateTrainingTokens = (
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
 ): Token[] => {
-  const matchedEntities = slotDefinitions
-    .filter(slotDef => slot && slotDef.name === slot)
-    .map(slotDef => slotDef.entity)
+  const slotDef = slotDefinitions.find(slotDef => !!slot && slotDef.name === slot)
+  const matchedEntities = slotDef ? slotDef.entities : []
 
   return _tokenize(input).map((t, idx) => {
     let tag = BIO.OUT

@@ -5,21 +5,25 @@ import { BIO } from '../../typings'
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
 
 const AN_ENTITY = 'person'
+const OTHER_ENTITY = 'animal'
 
 describe('Preprocessing', () => {
   test('generate training seq', () => {
     const slotDef = [
       {
         name: 'ME',
-        entity: AN_ENTITY
+        entities: [AN_ENTITY]
       },
       {
         name: 'YOU',
-        entity: AN_ENTITY
+        entities: [AN_ENTITY, OTHER_ENTITY]
       }
     ]
 
-    const trainingSeq = generateTrainingSequence(`hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`, slotDef)
+    const trainingSeq = generateTrainingSequence(
+      `hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
+      slotDef
+    )
 
     expect(trainingSeq.cannonical).toEqual('hello my name is Jacob Jacobson and your name is Paul')
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
@@ -28,13 +32,14 @@ describe('Preprocessing', () => {
     expect(trainingSeq.tokens[0].tag).toEqual(BIO.OUT)
     expect(trainingSeq.tokens[0].value).toEqual('hello')
     expect(trainingSeq.tokens[4].slot).toEqual(slotDef[0].name)
-    expect(trainingSeq.tokens[4].matchedEntities).toEqual([slotDef[0].entity])
+    expect(trainingSeq.tokens[4].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[4].tag).toEqual(BIO.BEGINNING)
     expect(trainingSeq.tokens[4].value).toEqual('Jacob')
     expect(trainingSeq.tokens[5].slot).toEqual(slotDef[0].name)
-    expect(trainingSeq.tokens[5].matchedEntities).toEqual([slotDef[0].entity])
+    expect(trainingSeq.tokens[5].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[5].tag).toEqual(BIO.INSIDE)
     expect(trainingSeq.tokens[5].value).toEqual('Jacobson')
+    expect(trainingSeq.tokens[10].matchedEntities).toEqual(slotDef[1].entities)
   })
 
   test('generate prediction seq', () => {
@@ -88,7 +93,11 @@ describe('Preprocessing', () => {
     ] as sdk.NLU.Entity[]
 
     // some extra spaces on purpose here
-    const testingSeq = generatePredictionSequence('Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com', 'a name', entities)
+    const testingSeq = generatePredictionSequence(
+      'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com',
+      'a name',
+      entities
+    )
 
     const entityTokens = testingSeq.tokens.filter(t => t.matchedEntities.length)
     expect(entityTokens.length).toEqual(3)
