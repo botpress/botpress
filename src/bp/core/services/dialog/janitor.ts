@@ -59,7 +59,7 @@ export class DialogJanitor extends Janitor {
           // This event only exists so that processTimeout can call processEvent
           const fakeEvent = Event({
             type: 'timeout',
-            channel: 'web',
+            channel: id.substring(0, id.indexOf('::')),
             target: target,
             direction: 'incoming',
             payload: '',
