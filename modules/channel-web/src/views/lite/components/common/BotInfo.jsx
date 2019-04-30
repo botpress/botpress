@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react'
 import snarkdown from 'snarkdown'
 
-import style from './BotInfo.scss'
 import PhoneIcon from '../../icons/Phone'
 import WebsiteIcon from '../../icons/Website'
 import EmailIcon from '../../icons/Email'
@@ -9,6 +8,7 @@ import Avatar from './Avatar'
 
 const CoverPicture = ({ botInfo }) => (
   <img
+    className={'bpw-botinfo-cover-picture'}
     src={
       (botInfo.details && botInfo.details.coverPictureUrl) || `https://via.placeholder.com/400x175?text=${botInfo.name}`
     }
@@ -35,7 +35,7 @@ class BotInfo extends React.Component {
     let html = snarkdown(text || '')
     html = html.replace(/<a href/gi, `<a target="_blank" href`)
 
-    return <div dangerouslySetInnerHTML={{ __html: html }} />
+    return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
   }
 
   render() {
@@ -45,18 +45,18 @@ class BotInfo extends React.Component {
     const onDismiss = isConvoStarted ? this.props.toggleBotInfo : this.startConversation
 
     return (
-      <div className={'bp-bot-info-container ' + style['bot-info-container']}>
+      <div className={'bpw-botinfo-container'}>
         <CoverPicture botInfo={botInfo} />
-        <div className={'bp-bot-info-summmary ' + style.summary}>
+        <div className={'bpw-botinfo-summary'}>
           <BotAvatar botInfo={botInfo} config={config} />
           <h3>{botInfo.name || config.botName}</h3>
-          <p>{this.renderDescription(botInfo.description)}</p>
+          {this.renderDescription(botInfo.description)}
         </div>
         {botInfo.details && (
           <Fragment>
-            <div className={'bp-bot-info-links ' + style.links}>
+            <div className={'bpw-botinfo-links'}>
               {botInfo.details.phoneNumber && (
-                <div className={'bp-bot-info-icon-link ' + style['icon-link']}>
+                <div className={'bpw-botinfo-link'}>
                   <i>
                     <PhoneIcon />
                   </i>
@@ -66,7 +66,7 @@ class BotInfo extends React.Component {
                 </div>
               )}
               {botInfo.details.website && (
-                <div className={'bp-bot-info-icon-link ' + style['icon-link']}>
+                <div className={'bpw-botinfo-link'}>
                   <i>
                     <WebsiteIcon />
                   </i>
@@ -76,7 +76,7 @@ class BotInfo extends React.Component {
                 </div>
               )}
               {botInfo.details.emailAddress && (
-                <div className={'bp-bot-info-icon-link ' + style['icon-link']}>
+                <div className={'bpw-botinfo-link'}>
                   <i>
                     <EmailIcon />
                   </i>
@@ -87,14 +87,14 @@ class BotInfo extends React.Component {
               )}
             </div>
             {botInfo.details.termsConditions && (
-              <div className={'bp-bot-info-terms ' + style.terms}>
+              <div className={'bpw-botinfo-terms'}>
                 <a target="_blank" href={botInfo.details.termsConditions}>
                   View Terms of Service
                 </a>
               </div>
             )}
             {botInfo.details.privacyPolicy && (
-              <div className={'bp-bot-info-terms ' + style.terms}>
+              <div className={'bpw-botinfo-terms'}>
                 <a target="_blank" href={botInfo.details.privacyPolicy}>
                   View Privacy Policy
                 </a>
@@ -102,12 +102,7 @@ class BotInfo extends React.Component {
             )}
           </Fragment>
         )}
-        <button
-          tabIndex="1"
-          ref={el => (this.btnEl = el)}
-          className={'bp-bot-info-start-convo-button ' + style.startBtn}
-          onClick={onDismiss}
-        >
+        <button tabIndex="1" ref={el => (this.btnEl = el)} className={'bpw-botinfo-start-button'} onClick={onDismiss}>
           {isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
         </button>
       </div>
