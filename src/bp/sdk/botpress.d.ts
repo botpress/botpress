@@ -293,7 +293,8 @@ declare module 'botpress/sdk' {
 
     export interface SlotDefinition {
       name: string
-      entity: string
+      entities?: string[]
+      entity?: string
     }
 
     export interface IntentDefinition {
