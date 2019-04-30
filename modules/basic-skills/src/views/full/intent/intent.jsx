@@ -14,32 +14,8 @@ export class Intent extends React.Component {
     selectedNodes: []
   }
 
-  setSelectedIntents() {
-    if (!_.get(this.props, 'initialData.intents')) {
-      return this.state.selectedIntents
-    }
-
-    return this.props.initialData.intents.map(x => ({ label: x.intent, value: x.intent }))
-  }
-
-  setSelectedFlows() {
-    debugger
-    const selectedFlows = this.props.initialData.intents.map(x => {
-      return { [x.intent]: x.flow }
-    })
-
-    return _.keyBy(selectedFlows, x => x.intent)
-  }
-
-  setSelectedNodes() {}
-
   componentDidMount() {
-    this.setState({
-      selectedIntents: this.setSelectedIntents(),
-      selectedFlows: this.setSelectedFlows(),
-      selectedNodes: this.setSelectedNodes()
-    })
-
+    this.setStateFromProps()
     this.fetchIntents()
     this.fetchFlows()
   }
@@ -60,6 +36,24 @@ export class Intent extends React.Component {
 
     this.props.onDataChanged && this.props.onDataChanged(data)
     this.props.onValidChanged && this.props.onValidChanged(true)
+  }
+
+  setStateFromProps() {
+    if (!_.get(this.props, 'initialData.intents')) {
+      return
+    }
+
+    const selectedIntents = this.props.initialData.intents.map(x => ({ label: x.intent, value: x.intent }))
+    let selectedFlows = this.props.initialData.intents.map(x => ({ [x.intent]: x.flow }))
+    let selectedNodes = this.props.initialData.intents.map(x => ({ [x.intent]: x.flow }))
+    selectedFlows = _.keyBy(selectedFlows, x => x.intent)
+    selectedNodes = _.keyBy(selectedNodes, x => x.intent)
+
+    this.setState({
+      selectedIntents,
+      selectedFlows,
+      selectedNodes
+    })
   }
 
   fetchIntents = () => {
