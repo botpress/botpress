@@ -42,12 +42,19 @@ export const prepareImport = async (questions, bp: typeof sdk, params) => {
   }
 
   // Parse answers and return questions
-  return questionsToSave.map((question, questionIndex) => ({
-    ...question,
-    answers: question.answer
-      .split(ANSWERS_SPLIT_CHAR)
-      .map((answer, answerIndex) => parseAnswer(answer, questionIndex, answerIndex))
-  }))
+  return questionsToSave.map((question, questionIndex) => {
+    const { questions, action, redirectFlow, redirectNode, category, answer } = question
+    return {
+      questions,
+      action,
+      redirectFlow,
+      redirectNode,
+      category,
+      answers: answer
+        .split(ANSWERS_SPLIT_CHAR)
+        .map((answer, answerIndex) => parseAnswer(answer, questionIndex, answerIndex))
+    }
+  })
 }
 
 export const importQuestions = async (questions, bp: typeof sdk, params) => {
