@@ -266,7 +266,14 @@ export default class Web extends React.Component {
   }
 
   checkForExpiredExternalToken = error => {
-    if (_.get(error, 'response.data.errorCode') === 'BP_0401') {
+    //@deprecated 11.9 (replace with proper error management)
+    const data = _.get(error, 'response.data', {})
+    if (data && typeof data === 'string' && data.includes('BP_CONV_NOT_FOUND')) {
+      console.log('Conversation not found, starting a new one...')
+      this.createConversation()
+    }
+
+    if (data.errorCode === 'BP_0401') {
       this.setState({ config: { ...this.state.config, externalAuthToken: undefined } }, this.updateAxiosConfig)
       console.log(`External token expired or invalid. Removed from future requests`)
     }
