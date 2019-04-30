@@ -623,6 +623,7 @@ body {
   vertical-align: middle;
   cursor: pointer;
   fill: #bbb;
+  width: 15px;
 }
 
 .bpw-header-icon :hover {
@@ -678,6 +679,93 @@ body {
   background-color: #ff5d5d;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
 }
+
+/** BOT INFORMATION PAGE - START */
+
+.bpw-botinfo-container {
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  color: #1e1e1e;
+  overflow-y: auto;
+}
+
+.bpw-botinfo-cover-picture {
+  width: 100%;
+}
+
+.bpw-botinfo-container button,
+.bpw-botinfo-container a {
+  font-size: 0.9em;
+  color: rgb(102, 102, 102);
+  text-decoration: none;
+}
+
+.bpw-botinfo-summary {
+  margin-top: -32px;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 5px -5px #ccc;
+}
+
+.bpw-botinfo-description {
+  margin-top: 0.4em;
+  margin-bottom: 1em;
+}
+
+.bpw-botinfo-summary h3 {
+  margin: 0;
+}
+
+.bpw-botinfo-links {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.bpw-botinfo-link {
+  padding-left: 25%;
+  display: flex;
+  margin: 20px 0;
+}
+
+.bpw-botinfo-link i {
+  margin-right: 10px;
+}
+
+.bpw-botinfo-terms {
+  padding: 0px 20px;
+  text-align: left;
+}
+
+.bpw-botinfo-terms a {
+  display: inline-block;
+  width: 100%;
+  line-height: 2.5;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.bpw-botinfo-start-button {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  line-height: 24px;
+  padding: 5px 10px;
+  margin-top: 25px;
+  border: 1px solid rgb(100, 100, 100);
+}
+
+.bpw-botinfo-start-button:focus {
+  border: 1px solid black;
+  color: black;
+}
+
+/* Fix for IE which has trouble with the max-width property */
+@media only screen and (min-width: 800px) {
+  .bpw-botinfo-container {
+    width: 800px;
+  }
+}
+/** BOT INFORMATION PAGE - END */
 
 /** TYPING ANIMATIIONS */
 @keyframes typingAnimation {

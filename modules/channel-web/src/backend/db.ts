@@ -81,7 +81,7 @@ export default class WebchatDb {
       .get(0)
 
     if (!convo) {
-      throw new Error(`Conversation "${conversationId}" not found`)
+      throw new Error(`Conversation "${conversationId}" not found - BP_CONV_NOT_FOUND`)
     }
 
     const message = {
