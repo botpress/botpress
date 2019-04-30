@@ -16,9 +16,9 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
 
 const createTransitions = (): Transition[] => {
   return [
-    { caption: 'On extracted', condition: 'temp.extracted == "true"', node: '' },
-    { caption: 'On not found', condition: 'temp.notExtracted == "true"', node: '' },
-    { caption: 'On already extracted', condition: 'temp.alreadyExtracted == "true"', node: '' }
+    { caption: 'On extracted', condition: 'temp.extracted === true', node: '' },
+    { caption: 'On not found', condition: 'temp.notExtracted === true', node: '' },
+    { caption: 'On already extracted', condition: 'temp.alreadyExtracted === true', node: '' }
   ]
 }
 
@@ -63,7 +63,12 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'builtin/setVariable {"type":"temp","name":"extracted","value":"true"}'
+          name: 'builtin/setVariable',
+          args: {
+            type: 'temp',
+            name: 'extracted',
+            value: true
+          }
         }
       ],
       onReceive: undefined,
@@ -79,7 +84,10 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slot_not_found {"retryAttempts":"${data.retryAttempts}"}`
+          name: 'basic-skills/slot_not_found',
+          args: {
+            retryAttempts: data.retryAttempts
+          }
         },
         {
           type: sdk.NodeActionType.RenderElement,
@@ -111,7 +119,10 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: `basic-skills/slot_update_contexts {"intentName":"${data.intent}"}`
+          name: 'basic-skills/slot_update_contexts',
+          args: {
+            intentName: data.intent
+          }
         }
       ],
       onReceive: undefined,
@@ -131,7 +142,10 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
+          name: 'basic-skills/slot_validate_extract',
+          args: {
+            slotName: data.slotName
+          }
         }
       ],
       onReceive: undefined,

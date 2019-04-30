@@ -8,7 +8,7 @@ const hardLimit = 10
  */
 const slotNotFound = async retryAttempts => {
   if (retryAttempts > hardLimit) {
-    temp.notExtracted = 'true'
+    temp.notExtracted = true
     return
   }
 
@@ -19,7 +19,7 @@ const slotNotFound = async retryAttempts => {
   if (session.extractedSlots.notFound < Number(retryAttempts)) {
     session.extractedSlots.notFound++
   } else {
-    temp.notExtracted = 'true'
+    temp.notExtracted = true
   }
 }
 
