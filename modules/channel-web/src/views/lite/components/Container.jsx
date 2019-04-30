@@ -72,7 +72,9 @@ class Container extends React.Component {
     return (
       <Keyboard.Default>
         <Composer
-          placeholder={`${this.props.intl.formatMessage({ id: 'chatInput.placeholder', defaultMessage: 'Reply to' })} ${this.props.botName}`}
+          placeholder={`${this.props.intl.formatMessage({ id: 'chatInput.placeholder', defaultMessage: 'Reply to' })} ${
+            this.props.botName
+          }`}
           send={this.props.onTextSend}
           change={this.props.onTextChanged}
           text={this.props.text}

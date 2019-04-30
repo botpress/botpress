@@ -4,5 +4,5 @@ import en from './en.json'
 export default {
   pt,
   en,
-  "en-US": en
+  'en-US': en
 }

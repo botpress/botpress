@@ -10,7 +10,7 @@ import CloseIcon from './icons/CloseChat'
 import Container from './components/Container'
 import { downloadFile } from './utils'
 
-import { IntlProvider, addLocaleData } from "react-intl"
+import { IntlProvider, addLocaleData } from 'react-intl'
 import pt from 'react-intl/locale-data/pt'
 import en from 'react-intl/locale-data/en'
 import Translations from './translations'

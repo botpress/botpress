@@ -6,7 +6,10 @@ import Add from '../icons/Add'
 import { injectIntl } from 'react-intl'
 
 const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }) => {
-  const title = conversation.title || conversation.message_author || intl.formatMessage({ id: 'conversationList.untitledConversation', defaultMessage: 'Untitled Conversation' })
+  const title =
+    conversation.title ||
+    conversation.message_author ||
+    intl.formatMessage({ id: 'conversationList.untitledConversation', defaultMessage: 'Untitled Conversation' })
   const date = intl.formatRelative(conversation.message_sent_on || conversation.created_on)
   const message = conversation.message_text || '...'
 

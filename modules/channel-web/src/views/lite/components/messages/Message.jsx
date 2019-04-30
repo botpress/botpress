@@ -81,7 +81,12 @@ class Message extends Component {
   }
 
   render_unsupported() {
-    return this.render_text(this.props.intl.formatMessage({ id: 'message.unsupportedMessageType', defaultMessage: '*Unsupported message type*' }))
+    return this.render_text(
+      this.props.intl.formatMessage({
+        id: 'message.unsupportedMessageType',
+        defaultMessage: '*Unsupported message type*'
+      })
+    )
   }
 
   render() {
