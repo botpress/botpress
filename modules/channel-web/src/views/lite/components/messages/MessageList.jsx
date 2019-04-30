@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import format from 'date-fns/format'
-import differenceInMinutes from 'date-fns/difference_in_minutes'
+import { differenceInMinutes } from '../../utils'
 
 import MessageGroup from './MessageGroup'
 import Avatar from '../common/Avatar'

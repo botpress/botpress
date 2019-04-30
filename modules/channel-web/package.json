@@ -23,7 +23,6 @@
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "classnames": "^2.2.6",
-    "date-fns": "^1.28.5",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.1",
     "mime-types": "^2.1.22",

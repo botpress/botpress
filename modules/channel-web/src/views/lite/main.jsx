@@ -1,8 +1,8 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import addMilliseconds from 'date-fns/add_milliseconds'
-import isBefore from 'date-fns/is_before'
+import { addMilliseconds } from './utils'
+import { isBefore } from './utils'
 import queryString from 'query-string'
 import ms from 'ms'
 import ChatIcon from './icons/Chat'

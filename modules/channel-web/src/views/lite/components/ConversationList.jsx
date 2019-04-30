@@ -1,6 +1,5 @@
 import React from 'react'
 
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
 import Add from '../icons/Add'
 
 import { injectIntl } from 'react-intl'
