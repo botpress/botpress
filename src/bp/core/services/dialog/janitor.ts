@@ -53,14 +53,17 @@ export class DialogJanitor extends Janitor {
 
       await Promise.mapSeries(sessionsIds, async id => {
         try {
+          const channel = SessionIdFactory.createChannelFromId(id)
           const target = SessionIdFactory.createTargetFromId(id)
+          const threadId = SessionIdFactory.createThreadIdFromId(id)
           const session = await this.sessionRepo.get(id)
 
           // This event only exists so that processTimeout can call processEvent
           const fakeEvent = Event({
             type: 'timeout',
-            channel: id.substring(0, id.indexOf('::')),
+            channel: channel,
             target: target,
+            threadId: threadId,
             direction: 'incoming',
             payload: '',
             botId: botId
