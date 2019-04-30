@@ -33,9 +33,8 @@ const _generateTrainingTokens = (
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
 ): Token[] => {
-  const matchedEntities = slotDefinitions
-    .filter(slotDef => slot && slotDef.name === slot)
-    .map(slotDef => slotDef.entity)
+  const slotDef = slotDefinitions.find(slotDef => !!slot && slotDef.name === slot)
+  const matchedEntities = slotDef ? slotDef.entities : []
 
   return _tokenize(input).map((t, idx) => {
     let tag = BIO.OUT
@@ -53,7 +52,8 @@ const _generateTrainingTokens = (
 export const generateTrainingSequence = (
   input: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
-  intentName: string = ''
+  intentName: string = '',
+  contexts: string[] = []
 ): Sequence => {
   let matches: RegExpExecArray | null
   let start = 0
@@ -80,7 +80,8 @@ export const generateTrainingSequence = (
   return {
     intent: intentName,
     cannonical: tokens.map(t => t.value).join(' '),
-    tokens
+    tokens,
+    contexts
   }
 }
 
