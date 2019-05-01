@@ -49,6 +49,8 @@ class Toolbar extends React.Component {
       })
     }
 
+    const canDelete = !!this.props.currentFlowNode && this.props.currentFlowNode.name !== this.props.currentFlow.startNode
+
     const noSkills = (
       <MenuItem eventKey="1" disabled={true}>
         No skills installed
@@ -95,7 +97,7 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default" onClick={this.props.onCopy}>
+          <Button className={style.btn} bsStyle="default" disabled={!this.props.canCopy} onClick={this.props.onCopy}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('copy', 'Copy')}>
               <i className="material-icons">content_copy</i>
             </OverlayTrigger>
@@ -129,17 +131,24 @@ class Toolbar extends React.Component {
 
           <div className={style.separator} />
 
-          <Button className={style.btn} bsStyle="default" disabled={!canMakeStartNode()} onClick={setAsCurrentNode}>
-            <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
-              <i className="material-icons">stars</i>
-            </OverlayTrigger>
-          </Button>
-
-          <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
-            <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
-              <i className="material-icons">delete</i>
-            </OverlayTrigger>
-          </Button>
+          {
+            canMakeStartNode() && (
+              <Button className={style.btn} bsStyle="default" onClick={setAsCurrentNode}>
+                <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
+                  <i className="material-icons">stars</i>
+                </OverlayTrigger>
+            </Button>
+            )
+          }
+          {
+            canDelete && (
+              <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
+                <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
+                  <i className="material-icons">delete</i>
+                </OverlayTrigger>
+            </Button>
+            )
+          }
         </div>
       </div>
     )
