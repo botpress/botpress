@@ -143,8 +143,12 @@ export default class FlowsList extends Component {
     const dropdown = (
       <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
         <ul className={style.menu}>
-          {flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>}
-          <li onClick={handleRename}>Rename</li>
+          {
+            flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>
+          }
+          {
+            flow.name !== 'main.flow.json' && <li onClick={handleRename}>Rename</li>
+          }
           <li onClick={handleDuplicate}>Duplicate</li>
         </ul>
       </Popover>
