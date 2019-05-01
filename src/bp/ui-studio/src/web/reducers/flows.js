@@ -350,7 +350,7 @@ reducer = reduceReducers(
 
       [deleteFlow]: (state, { payload: name }) => ({
         ...state,
-        currentFlow: state.currentFlow === name ? null : state.currentFlow,
+        currentFlow: state.currentFlow === name ? 'main.flow.json' : state.currentFlow,
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
       }),
