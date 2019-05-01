@@ -12,20 +12,7 @@ import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 const style = require('./toolbar.scss')
 
 class Toolbar extends React.Component {
-  componentDidMount() {
-    this.props.updateGlobalStyle({
-      'bp-navbar': {
-        borderBottom: 'none'
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    this.props.updateGlobalStyle({
-      'bp-navbar': {}
-    })
-  }
-
+  
   render() {
     const createTooltip = (name, text) => <Tooltip id={name}>{text}</Tooltip>
 
