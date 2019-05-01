@@ -3,20 +3,12 @@ id: release-notes
 title: Release Notes
 ---
 
-## Features
-
-- Add the new Call API skill
-- Allow markdown in the channel-web bot description
-
-## Improvements
-- Export bot without mode cache
-- Allow slot to match to multiple entities options
-
 ## Bug fixes
 
-- Fix require of undefined on channel-messenger
-- Display the relevant stack trace when actions crash
-- Intent Slot colors
+- Fix dialog engine timeout process
+- Fix missing typings in SDK
+- NLU Training sequence now use multiple entities
+- NLU Exact intent matcher is now based on given utterance
 
 ## Changelog
 

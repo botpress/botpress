@@ -1,3 +1,23 @@
+## [11.8.4](https://github.com/botpress/botpress/compare/v11.8.3...v11.8.4) (2019-04-30)
+
+
+### Bug Fixes
+
+* **channel-web:** added cookie fallback ([109f5f3](https://github.com/botpress/botpress/commit/109f5f3))
+* **channel-web:** starting new convo when not found ([182b2d8](https://github.com/botpress/botpress/commit/182b2d8))
+* jump to timeout node ([3a00dc7](https://github.com/botpress/botpress/commit/3a00dc7))
+* missing typing in sdk ([ff18810](https://github.com/botpress/botpress/commit/ff18810))
+* timeout fake event ([dc16c5b](https://github.com/botpress/botpress/commit/dc16c5b))
+* **nlu:** training seq to use multiple entities ([d4c1947](https://github.com/botpress/botpress/commit/d4c1947))
+
+
+### Features
+
+* **dialog-engine:** set channel name dinamically ([e86ca6d](https://github.com/botpress/botpress/commit/e86ca6d))
+* **nlu:** exact intent matcher given utterance ([3b1a2fe](https://github.com/botpress/botpress/commit/3b1a2fe))
+
+
+
 ## [11.8.3](https://github.com/botpress/botpress/compare/v11.8.2...v11.8.3) (2019-04-26)
 
 ### Bug Fixes
