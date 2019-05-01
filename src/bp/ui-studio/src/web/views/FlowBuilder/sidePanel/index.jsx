@@ -51,6 +51,7 @@ export default class SidePanel extends Component {
           goToFlow={this.goToFlow}
           deleteFlow={this.props.deleteFlow}
           duplicateFlow={this.props.duplicateFlow}
+          renameFlow={this.props.renameFlow}
           currentFlow={this.props.currentFlow}
         />
       </div>
