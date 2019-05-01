@@ -113,7 +113,7 @@ class FlowBuilder extends Component {
           <div className={style.workspace}>
             <SplitPane split="vertical" minSize={200} defaultSize={250}>
               <div className={style.sidePanel}>
-                <SidePanel readOnly={readOnly} />
+                <SidePanel readOnly={readOnly} onCreateFlow={name => this.diagram.createFlow(name)}/>
               </div>
 
               <div className={style.diagram}>

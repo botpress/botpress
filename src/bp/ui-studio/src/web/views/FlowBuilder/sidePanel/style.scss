@@ -3,5 +3,19 @@
   overflow-y: auto;
   margin: 0 5px 0 0;
   width: 100%;
-  height: 100%;
+  padding: 10px;
+
+  .panelHead {
+    font-size: 2rem;
+    margin-bottom: 15px;
+
+    .newFlow {
+      border: none;
+      background: transparent;
+      color: #777;
+      &:hover {
+        color: var(--c-background--dark-2);
+      }
+    }
+  }
 }
