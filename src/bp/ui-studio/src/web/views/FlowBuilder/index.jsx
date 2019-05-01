@@ -47,14 +47,19 @@ class FlowBuilder extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { flow } = nextProps.match.params
-    if (flow) {
-      const nextFlow = `${flow}.flow.json`
-      if (this.props.currentFlow !== nextFlow) {
-        this.props.switchFlow(nextFlow)
-      }
-    } else if (this.props.currentFlow) {
-      this.props.history.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
+    const nextRouteFlow = `${flow}.flow.json`
+
+    if (this.props.currentFlow !== nextProps.currentFlow){
+      this.pushFlowState(nextProps.currentFlow)
+    } else if(this.props.currentFlow !== nextProps){
+      this.props.switchFlow(nextRouteFlow)
+    } else if(this.props.currentFlow){
+      this.pushFlowState(this.props.currentFlow)
     }
+  }
+
+  pushFlowState = flow => {
+    this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
   }
 
   componentWillUnmount() {
@@ -113,7 +118,10 @@ class FlowBuilder extends Component {
           <div className={style.workspace}>
             <SplitPane split="vertical" minSize={200} defaultSize={250}>
               <div className={style.sidePanel}>
-                <SidePanel readOnly={readOnly} onCreateFlow={name => this.diagram.createFlow(name)}/>
+                <SidePanel readOnly={readOnly} onCreateFlow={name => {
+                  this.diagram.createFlow(name)
+                  this.props.switchFlow(`${name}.flow.json`)
+                }}/>
               </div>
 
               <div className={style.diagram}>
