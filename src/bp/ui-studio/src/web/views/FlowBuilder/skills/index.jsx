@@ -140,8 +140,16 @@ class SkillsBuilder extends React.Component {
       .then(({ data }) => data)
   }
 
+  findInstalledSkill() {
+    const skillId = this.props.skillId
+    if (skillId) {
+      return find(this.props.installedSkills, x => x.id.toLowerCase() === skillId.toLowerCase())
+    }
+    return undefined
+  }
+
   render() {
-    const skill = find(this.props.installedSkills, { id: this.props.skillId })
+    const skill = this.findInstalledSkill()
     const modalClassName = style['size-' + this.state.windowSize]
     const submitName = this.props.action === 'new' ? 'Insert' : 'Save'
 
