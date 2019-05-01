@@ -51,10 +51,8 @@ class FlowBuilder extends Component {
 
     if (this.props.currentFlow !== nextProps.currentFlow){
       this.pushFlowState(nextProps.currentFlow)
-    } else if(this.props.currentFlow !== nextProps){
+    } else if(flow && this.props.currentFlow !== nextRouteFlow){
       this.props.switchFlow(nextRouteFlow)
-    } else if(this.props.currentFlow){
-      this.pushFlowState(this.props.currentFlow)
     }
   }
 

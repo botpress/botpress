@@ -42,11 +42,22 @@ export default class FlowsList extends Component {
   menuButtons = {}
 
   componentDidMount() {
-    this.initializeState(this.props)
+    if(this.props.currentFlow){
+      this.initState(this.props.currentFlow)
+    }
   }
 
-  componentDidUpdate(props) {
-    this.initializeState(props)
+  componentDidUpdate(nextProps) {
+    const { currentFlow } = nextProps
+    if(currentFlow && (!this.state.activeNode || this.state.activeNode.split(':')[1] !== currentFlow.name.replace('.flow.json', ''))){
+      this.initState(currentFlow)
+    }
+
+  }
+
+  initState(currentFlow){
+    const state = getInitialState(currentFlow)
+    this.setState(state)
   }
 
   initializeState(props) {
@@ -89,6 +100,8 @@ export default class FlowsList extends Component {
         this.props.deleteFlow(flow.name)
       }
     })
+
+    // TODO handle rename goes here
 
     const handleDuplicate = handleAction(() => {
       let name = prompt('Enter the name of the new flow')
