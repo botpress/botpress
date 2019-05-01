@@ -94,25 +94,6 @@ class FlowBuilder extends Component {
           <PageHeader className={style.header} width="100%">
             <Topbar readOnly={readOnly} />
           </PageHeader>
-          {!readOnly && (
-            <Toolbar
-              onSaveAllFlows={() => {
-                this.diagram.saveAllFlows()
-              }}
-              onCreateFlow={name => {
-                this.diagram.createFlow(name)
-              }}
-              onDelete={() => {
-                this.diagram.deleteSelectedElements()
-              }}
-              onCopy={() => {
-                this.diagram.copySelectedElementToBuffer()
-              }}
-              onPaste={() => {
-                this.diagram.pasteElementFromBuffer()
-              }}
-            />
-          )}
           <div className={style.workspace}>
             <SplitPane split="vertical" minSize={200} defaultSize={250}>
               <div className={style.sidePanel}>
@@ -121,8 +102,26 @@ class FlowBuilder extends Component {
                   this.props.switchFlow(`${name}.flow.json`)
                 }}/>
               </div>
-
               <div className={style.diagram}>
+              {!readOnly && (
+                <Toolbar
+                  onSaveAllFlows={() => {
+                    this.diagram.saveAllFlows()
+                  }}
+                  onCreateFlow={name => {
+                    this.diagram.createFlow(name)
+                  }}
+                  onDelete={() => {
+                    this.diagram.deleteSelectedElements()
+                  }}
+                  onCopy={() => {
+                    this.diagram.copySelectedElementToBuffer()
+                  }}
+                  onPaste={() => {
+                    this.diagram.pasteElementFromBuffer()
+                  }}
+                />
+              )}
                 <Diagram
                   readOnly={readOnly}
                   ref={el => {
