@@ -9,8 +9,9 @@ import BotInfo from './common/BotInfo'
 import MessageList from './messages/MessageList'
 
 import { getOverridedComponent } from '../utils'
+import { injectIntl } from 'react-intl'
 
-export default class Container extends React.Component {
+class Container extends React.Component {
   state = {
     currentFocus: 'input',
     showConvos: false,
@@ -71,7 +72,9 @@ export default class Container extends React.Component {
     return (
       <Keyboard.Default>
         <Composer
-          placeholder={'Reply to ' + this.props.botName}
+          placeholder={`${this.props.intl.formatMessage({ id: 'chatInput.placeholder', defaultMessage: 'Reply to' })} ${
+            this.props.botName
+          }`}
           send={this.props.onTextSend}
           change={this.props.onTextChanged}
           text={this.props.text}
@@ -158,3 +161,5 @@ export default class Container extends React.Component {
     )
   }
 }
+
+export default injectIntl(Container)

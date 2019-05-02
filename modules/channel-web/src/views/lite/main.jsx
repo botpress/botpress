@@ -1,14 +1,20 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import addMilliseconds from 'date-fns/add_milliseconds'
-import isBefore from 'date-fns/is_before'
+import { addMilliseconds } from './utils'
+import { isBefore } from './utils'
 import queryString from 'query-string'
 import ms from 'ms'
 import ChatIcon from './icons/Chat'
 import CloseIcon from './icons/CloseChat'
 import Container from './components/Container'
 import { downloadFile } from './utils'
+
+import { IntlProvider, addLocaleData } from 'react-intl'
+import pt from 'react-intl/locale-data/pt'
+import en from 'react-intl/locale-data/en'
+import Translations from './translations'
+addLocaleData([...pt, ...en])
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -541,28 +547,30 @@ export default class Web extends React.Component {
 
   renderSide() {
     return (
-      <Container
-        bp={this.props.bp}
-        config={this.state.config}
-        text={this.state.textToSend}
-        fullscreen={this.props.fullscreen}
-        transition={!this.props.fullscreen ? this.state.sideTransition : null}
-        unreadCount={this.state.unreadCount}
-        currentConversation={this.state.currentConversation}
-        conversations={this.state.conversations}
-        onClose={!this.props.fullscreen ? this.handleClosePanel : null}
-        onResetSession={this.handleSessionReset}
-        onSwitchConvo={this.handleSwitchConvo}
-        onTextSend={this.handleSendMessage}
-        recallHistory={this.handleRecallHistory}
-        onTextChanged={this.handleTextChanged}
-        onFileUpload={this.handleFileUpload}
-        onSendData={this.handleSendData}
-        downloadConversation={this.downloadConversation}
-        createConversation={this.createConversation}
-        botInfo={this.state.botInfo}
-        botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
-      />
+      <IntlProvider locale={this.state.config.locale} messages={Translations[this.state.config.locale]}>
+        <Container
+          bp={this.props.bp}
+          config={this.state.config}
+          text={this.state.textToSend}
+          fullscreen={this.props.fullscreen}
+          transition={!this.props.fullscreen ? this.state.sideTransition : null}
+          unreadCount={this.state.unreadCount}
+          currentConversation={this.state.currentConversation}
+          conversations={this.state.conversations}
+          onClose={!this.props.fullscreen ? this.handleClosePanel : null}
+          onResetSession={this.handleSessionReset}
+          onSwitchConvo={this.handleSwitchConvo}
+          onTextSend={this.handleSendMessage}
+          recallHistory={this.handleRecallHistory}
+          onTextChanged={this.handleTextChanged}
+          onFileUpload={this.handleFileUpload}
+          onSendData={this.handleSendData}
+          downloadConversation={this.downloadConversation}
+          createConversation={this.createConversation}
+          botInfo={this.state.botInfo}
+          botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
+        />
+      </IntlProvider>
     )
   }
 

@@ -1,11 +1,15 @@
 import React from 'react'
 
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
 import Add from '../icons/Add'
 
-const ConversationListItem = ({ conversation, onClick, hasFocus }) => {
-  const title = conversation.title || conversation.message_author || 'Untitled Conversation'
-  const date = distanceInWordsToNow(new Date(conversation.message_sent_on || conversation.created_on))
+import { injectIntl } from 'react-intl'
+
+const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }) => {
+  const title =
+    conversation.title ||
+    conversation.message_author ||
+    intl.formatMessage({ id: 'conversationList.untitledConversation', defaultMessage: 'Untitled Conversation' })
+  const date = intl.formatRelative(conversation.message_sent_on || conversation.created_on)
   const message = conversation.message_text || '...'
 
   return (
@@ -21,7 +25,7 @@ const ConversationListItem = ({ conversation, onClick, hasFocus }) => {
       </div>
     </div>
   )
-}
+})
 
 class ConversationList extends React.Component {
   state = {
