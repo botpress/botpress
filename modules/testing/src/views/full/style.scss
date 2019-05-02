@@ -1,0 +1,16 @@
+.scenarioList {
+  display: flex;
+  border-bottom: 1px solid #dfdfdf;
+  margin-bottom: 10px;
+
+  .title {
+    width: 200px;
+    span {
+      margin-left: 10px;
+    }
+  }
+
+  .steps {
+    width: 200px;
+  }
+}
