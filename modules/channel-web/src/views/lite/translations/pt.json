@@ -1,5 +1,10 @@
 {
-  "chatInput.placeholder": "Fale com",
+  "composer.placeholder": "Fale com {name}",
+  "composer.send": "Send",
   "header.conversations": "Conversas",
-  "conversationList.untitledConversation": "Conversa sem título"
+  "conversationList.untitledConversation": "Conversa sem título",
+  "botInfo.backToConversation": "Back to Conversation",
+  "botInfo.startConversation": "Start Conversation",
+  "botInfo.privacyPolicy": "View Privacy Policy",
+  "botInfo.termsAndConditions": "View Terms of Service"
 }

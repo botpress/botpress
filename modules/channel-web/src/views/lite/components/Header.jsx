@@ -59,7 +59,7 @@ class Header extends React.Component {
 
   renderTitle = () => {
     const title = this.props.showConvos
-      ? this.props.intl.formatMessage({ id: 'header.conversations', defaultMessage: 'Conversations' })
+      ? this.props.intl.formatMessage({ id: 'header.conversations' })
       : this.props.botName
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
