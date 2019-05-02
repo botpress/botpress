@@ -142,10 +142,11 @@ class SkillsBuilder extends React.Component {
 
   findInstalledSkill() {
     const skillId = this.props.skillId
-    if (skillId) {
-      return find(this.props.installedSkills, x => x.id.toLowerCase() === skillId.toLowerCase())
+    if (!skillId) {
+      return
     }
-    return undefined
+
+    return find(this.props.installedSkills, x => x.id.toLowerCase() === skillId.toLowerCase())
   }
 
   render() {
