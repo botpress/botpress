@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
-export default class Composer extends Component {
+class Composer extends Component {
   componentDidMount() {
     this.textInput.focus()
   }
@@ -51,9 +52,11 @@ export default class Composer extends Component {
           onKeyDown={this.handleKeyDown}
         />
         <button className={'bpw-send-button'} disabled={!this.props.text.length} onClick={this.props.send}>
-          Send
+          <FormattedMessage id="composer.send" />
         </button>
       </div>
     )
   }
 }
+
+export default injectIntl(Composer)

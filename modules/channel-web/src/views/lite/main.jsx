@@ -9,13 +9,12 @@ import CloseIcon from './icons/CloseChat'
 import Container from './components/Container'
 import { downloadFile, checkLocationOrigin, initializeAnalytics } from './utils'
 
-import { IntlProvider, addLocaleData } from 'react-intl'
-import pt from 'react-intl/locale-data/pt'
-import en from 'react-intl/locale-data/en'
-import Translations from './translations'
-addLocaleData([...pt, ...en])
+import { IntlProvider } from 'react-intl'
+import { initializeLocale, translations, availableLocale, defaultLocale, getUserLocale } from './translations'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
+
+initializeLocale()
 checkLocationOrigin()
 
 const ANIM_DURATION = 300
@@ -343,17 +342,12 @@ export default class Web extends React.Component {
     }
   }
 
-  getLocale = () => {
-    const locale = navigator.language || navigator.userLanguage || ''
-    return locale.split("-")[0]
-  }
-
   sendUserVisit = async () => {
     await this.handleSendData({
       type: 'visit',
       text: 'User visit',
       timezone: new Date().getTimezoneOffset() / 60,
-      language: this.getLocale()
+      language: getUserLocale()
     })
   }
 
@@ -505,9 +499,9 @@ export default class Web extends React.Component {
   }
 
   renderSide() {
-    const locale = this.getLocale()
+    const locale = getUserLocale(availableLocale, defaultLocale)
     return (
-      <IntlProvider locale={locale} messages={Translations[locale]}>
+      <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
         <Container
           bp={this.props.bp}
           config={this.state.config}
@@ -529,7 +523,7 @@ export default class Web extends React.Component {
           createConversation={this.createConversation}
           botInfo={this.state.botInfo}
           botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
-      />
+        />
       </IntlProvider>
     )
   }

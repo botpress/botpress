@@ -66,15 +66,17 @@ class Container extends React.Component {
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
 
     if (Component) {
-      return <Component original={{ Composer }} name={this.props.botName} {...this.props} />
+      return (
+        <Keyboard.Default>
+          <Component original={{ Composer }} name={this.props.botName} {...this.props} />
+        </Keyboard.Default>
+      )
     }
 
     return (
       <Keyboard.Default>
         <Composer
-          placeholder={`${this.props.intl.formatMessage({ id: 'chatInput.placeholder', defaultMessage: 'Reply to' })} ${
-            this.props.botName
-          }`}
+          placeholder={this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })}
           send={this.props.onTextSend}
           change={this.props.onTextChanged}
           text={this.props.text}
