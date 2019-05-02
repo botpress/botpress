@@ -285,6 +285,11 @@ export default class Web extends React.Component {
     }
   }
 
+  getLocale = () => {
+    const locale = navigator.language || navigator.userLanguage || ''
+    return locale.split("-")[0]
+  }
+
   fetchData = async () => {
     try {
       await this.fetchBotInfo()
@@ -295,12 +300,11 @@ export default class Web extends React.Component {
       await this.createConversation()
     }
 
-    const locale = navigator.language || navigator.userLanguage
     this.handleSendData({
       type: 'visit',
       text: 'User visit',
       timezone: new Date().getTimezoneOffset() / 60,
-      language: locale && locale.substring(0, locale.indexOf('-'))
+      language: this.getLocale()
     }).catch(this.checkForExpiredExternalToken)
   }
 
@@ -546,8 +550,9 @@ export default class Web extends React.Component {
   }
 
   renderSide() {
+    const locale = this.getLocale()
     return (
-      <IntlProvider locale={this.state.config.locale} messages={Translations[this.state.config.locale]}>
+      <IntlProvider locale={locale} messages={Translations[locale]}>
         <Container
           bp={this.props.bp}
           config={this.state.config}
