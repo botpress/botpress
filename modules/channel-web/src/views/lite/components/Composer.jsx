@@ -50,6 +50,9 @@ export default class Composer extends Component {
           onKeyPress={this.handleKeyPress}
           onKeyDown={this.handleKeyDown}
         />
+        <button className={'bpw-send-button'} disabled={!this.props.text.length} onClick={this.props.send}>
+          Send
+        </button>
       </div>
     )
   }

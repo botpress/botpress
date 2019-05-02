@@ -67,6 +67,23 @@ body {
   display: flex;
 }
 
+.bpw-send-button {
+  position: absolute;
+  right: 30px;
+  bottom: 28px;
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bpw-send-button:hover {
+  background: #d8d8d8;
+}
+
 .bpw-layout-fullscreen {
   visibility: visible !important;
 }

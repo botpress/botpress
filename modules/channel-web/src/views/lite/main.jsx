@@ -1,14 +1,13 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import { addMilliseconds } from './utils'
 import { isBefore } from './utils'
 import queryString from 'query-string'
 import ms from 'ms'
 import ChatIcon from './icons/Chat'
 import CloseIcon from './icons/CloseChat'
 import Container from './components/Container'
-import { downloadFile } from './utils'
+import { downloadFile, checkLocationOrigin, initializeAnalytics } from './utils'
 
 import { IntlProvider, addLocaleData } from 'react-intl'
 import pt from 'react-intl/locale-data/pt'
@@ -17,19 +16,10 @@ import Translations from './translations'
 addLocaleData([...pt, ...en])
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
-
-if (!window.location.origin) {
-  window.location.origin =
-    window.location.protocol +
-    '//' +
-    window.location.hostname +
-    (window.location.port ? ':' + window.location.port : '')
-}
+checkLocationOrigin()
 
 const ANIM_DURATION = 300
-
 const MIN_TIME_BETWEEN_SOUNDS = 10000 // 10 seconds
-
 const HISTORY_STARTING_POINT = -1
 const HISTORY_MAX_MESSAGES = 10
 const HISTORY_UP = 'ArrowUp'
@@ -49,11 +39,7 @@ export default class Web extends React.Component {
   constructor(props) {
     super(props)
 
-    if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
-      ReactGA.initialize('UA-90044826-2')
-      ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
-    }
-
+    initializeAnalytics()
     const { options } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
@@ -81,39 +67,31 @@ export default class Web extends React.Component {
       historyPosition: HISTORY_STARTING_POINT
     }
 
+    this.axios = this.props.bp.axios
     this.updateAxiosConfig()
   }
 
-  componentWillMount() {
-    this.setupSocket()
-  }
-
   componentDidMount() {
+    this.setupSocket()
+
     if (this.state.config.userId) {
       this.props.bp.events.updateVisitorId(this.state.config.userId)
     }
 
-    this.setUserId()
-      .then(this.fetchData)
-      .then(() => {
-        this.handleSwitchView('widget')
-        this.setState({ loading: false })
-      })
-
     window.addEventListener('message', this.handleIframeApi)
 
-    this.props.bp.axios.interceptors.request.use(
+    this.axios.interceptors.request.use(
       config => {
-        if (/\/api\/ext\/channel-web\//i.test(config.url)) {
-          const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-          config.url += prefix + '__ts=' + new Date().getTime()
-        }
+        const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
+        config.url += prefix + '__ts=' + new Date().getTime()
         return config
       },
       error => {
         return Promise.reject(error)
       }
     )
+
+    this.initialize()
   }
 
   componentWillUnmount() {
@@ -121,12 +99,123 @@ export default class Web extends React.Component {
     this.isUnmounted = true
   }
 
+  async initialize() {
+    await this.setUserId()
+    await this.fetchData()
+
+    this.handleSwitchView('widget')
+    this.setState({ loading: false })
+  }
+
+  fetchData = async () => {
+    try {
+      await this.fetchBotInfo()
+      await this.fetchConversations()
+      await this.fetchCurrentConversation()
+    } catch (err) {
+      console.log('Error while fetching data, creating new convo...', err)
+      await this.createConversation()
+    }
+
+    await this.sendUserVisit()
+  }
+
+  fetchBotInfo = async () => {
+    try {
+      const { data: botInfo } = await this.axios.get('/botInfo', this.axiosConfig)
+      this.setState({ botInfo })
+    } catch (err) {
+      console.log('Error while fetching bot informations', err)
+    }
+  }
+
+  fetchConversations = async () => {
+    const { data } = await this.axios.get(`/conversations/${this.userId}`, this.axiosConfig)
+    if (!this.isUnmounted) {
+      this.setState(data)
+    }
+  }
+
+  fetchCurrentConversation = async convoId => {
+    const { conversations, currentConversationId } = this.state
+    let conversationIdToFetch = convoId || currentConversationId
+
+    if (conversations.length && !conversationIdToFetch) {
+      const lifeTimeMargin = Date.now() - ms(this.state.recentConversationLifetime)
+      const isConversationExpired = new Date(conversations[0].last_heard_on).getTime() < lifeTimeMargin
+      if (isConversationExpired && this.state.startNewConvoOnTimeout) {
+        return
+      }
+
+      conversationIdToFetch = conversations[0].id
+      this.setState({ currentConversationId: conversationIdToFetch })
+    }
+
+    const { data } = await this.axios.get(`/conversations/${this.userId}/${conversationIdToFetch}`, this.axiosConfig)
+
+    // Possible race condition if the current conversation changed while fetching
+    if (this.state.currentConversationId !== conversationIdToFetch) {
+      // In which case we simply restart fetching
+      return this.fetchCurrentConversation()
+    }
+
+    this.setState({ currentConversation: data })
+  }
+
+  handleSendData = async data => {
+    const msgTypes = ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'postback']
+    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
+
+    try {
+      if (!msgTypes.includes(data.type)) {
+        return await this.axios.post(`/events/${this.userId}`, data, this.axiosConfig)
+      }
+
+      return await this.axios.post(`/messages/${this.userId}`, data, config)
+    } catch (err) {
+      this.handleApiError(err)
+    }
+  }
+
+  handleFileUpload = async (title, payload, file) => {
+    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
+
+    const data = new FormData()
+    data.append('file', file)
+
+    await this.axios.post(`/messages/${this.userId}/files`, data, config)
+  }
+
+  handleSessionReset = async () => {
+    const convoId = this.state.currentConversationId
+    return this.axios.post(`/conversations/${this.userId}/${convoId}/reset`, {}, this.axiosConfig)
+  }
+
+  createConversation = async () => {
+    const { data } = await this.axios.post(`/conversations/${this.userId}/new`, {}, this.axiosConfig)
+
+    await this.fetchConversations()
+    await this.handleSwitchConvo(data.convoId)
+  }
+
+  downloadConversation = async () => {
+    const convoId = this.state.currentConversationId
+    try {
+      const { data } = await this.axios.get(`/conversations/${this.userId}/${convoId}/download/txt`, this.axiosConfig)
+      const blobFile = new Blob([data.txt])
+
+      downloadFile(data.name, blobFile)
+    } catch (err) {
+      console.log('Error trying to download conversation')
+    }
+  }
+
   updateAxiosConfig() {
     const { botId, externalAuthToken } = this.state.config
 
     this.axiosConfig = botId
-      ? { baseURL: `${window.location.origin}/api/v1/bots/${botId}` }
-      : { baseURL: `${window.BOT_API_PATH}` }
+      ? { baseURL: `${window.location.origin}/api/v1/bots/${botId}/mod/channel-web` }
+      : { baseURL: `${window.BOT_API_PATH}/mod/channel-web` }
 
     if (externalAuthToken) {
       this.axiosConfig = {
@@ -138,16 +227,30 @@ export default class Web extends React.Component {
     }
   }
 
-  fetchBotInfo = () => {
-    return this.props.bp.axios
-      .get('/mod/channel-web/botInfo', this.axiosConfig)
-      .then(({ data }) => this.setState({ botInfo: data }))
-  }
-
-  changeUserId = newId => {
+  changeUserId = async newId => {
     this.props.bp.events.updateVisitorId(newId)
     this.setState({ currentConversationId: null })
-    this.setUserId().then(this.fetchData)
+
+    await this.setUserId()
+    await this.fetchData()
+  }
+
+  setUserId() {
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (window.__BP_VISITOR_ID) {
+          clearInterval(interval)
+          this.userId = window.__BP_VISITOR_ID
+          window.parent.postMessage({ userId: this.userId }, '*')
+          resolve()
+        }
+      }, 250)
+
+      setTimeout(() => {
+        clearInterval(interval)
+        reject()
+      }, 300000)
+    })
   }
 
   handleIframeApi = ({ data: { action, payload } }) => {
@@ -169,24 +272,6 @@ export default class Web extends React.Component {
         return this.handleSendData({ type, payload })
       }
     }
-  }
-
-  setUserId() {
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(() => {
-        if (window.__BP_VISITOR_ID) {
-          clearInterval(interval)
-          this.userId = window.__BP_VISITOR_ID
-          window.parent.postMessage({ userId: this.userId }, '*')
-          resolve()
-        }
-      }, 250)
-
-      setTimeout(() => {
-        clearInterval(interval)
-        reject()
-      }, 300000)
-    })
   }
 
   handleSwitchView(view) {
@@ -213,10 +298,7 @@ export default class Web extends React.Component {
     }
 
     if (view === 'widget') {
-      this.setState({
-        convoTransition: 'fadeOut',
-        sideTransition: 'fadeOut'
-      })
+      this.setState({ convoTransition: 'fadeOut', sideTransition: 'fadeOut' })
 
       if (!this.state.view || this.state.view === 'side') {
         setTimeout(() => {
@@ -230,10 +312,7 @@ export default class Web extends React.Component {
     }
 
     setTimeout(() => {
-      this.setState({
-        view: view,
-        isTransitioning: false
-      })
+      this.setState({ view: view, isTransitioning: false })
     }, ANIM_DURATION)
 
     setTimeout(() => {
@@ -247,31 +326,10 @@ export default class Web extends React.Component {
   }
 
   handleButtonClicked = () => {
-    if (this.state.view === 'convo') {
-      this.handleSwitchView('widget')
-    } else {
-      this.handleSwitchView('side')
-    }
+    this.state.view === 'convo' ? this.handleSwitchView('widget') : this.handleSwitchView('side')
   }
 
-  setupSocket() {
-    // Connect the Botpress's Web Socket to the server
-    if (this.props.bp && this.props.bp.events) {
-      this.props.bp.events.setup()
-    }
-
-    this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
-    this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
-    //firehose events to parent page
-    this.props.bp.events.onAny(this.postToParent)
-  }
-
-  postToParent = (t, payload) => {
-    // we could filter on event type if necessary
-    window.parent && window.parent.postMessage(payload, '*')
-  }
-
-  checkForExpiredExternalToken = error => {
+  handleApiError = error => {
     //@deprecated 11.9 (replace with proper error management)
     const data = _.get(error, 'response.data', {})
     if (data && typeof data === 'string' && data.includes('BP_CONV_NOT_FOUND')) {
@@ -290,68 +348,48 @@ export default class Web extends React.Component {
     return locale.split("-")[0]
   }
 
-  fetchData = async () => {
-    try {
-      await this.fetchBotInfo()
-        .then(this.fetchConversations)
-        .then(this.fetchCurrentConversation)
-    } catch (err) {
-      console.log('Error while fetching data, creating new convo...', err)
-      await this.createConversation()
-    }
-
-    this.handleSendData({
+  sendUserVisit = async () => {
+    await this.handleSendData({
       type: 'visit',
       text: 'User visit',
       timezone: new Date().getTimezoneOffset() / 60,
       language: this.getLocale()
-    }).catch(this.checkForExpiredExternalToken)
-  }
-
-  fetchConversations = () => {
-    const axios = this.props.bp.axios
-    const userId = this.userId
-    const url = `/mod/channel-web/conversations/${userId}`
-
-    return axios
-      .get(url, this.axiosConfig)
-      .then(({ data }) => new Promise(resolve => !this.isUnmounted && this.setState(data, resolve)))
-  }
-
-  fetchCurrentConversation = convoId => {
-    const axios = this.props.bp.axios
-    const userId = this.userId
-    const { conversations, currentConversationId } = this.state
-
-    let conversationIdToFetch = convoId || currentConversationId
-    if (conversations.length > 0 && !conversationIdToFetch) {
-      const lifeTimeMargin = Date.now() - ms(this.state.recentConversationLifetime)
-      if (new Date(conversations[0].last_heard_on).getTime() < lifeTimeMargin && this.state.startNewConvoOnTimeout) {
-        return
-      }
-      conversationIdToFetch = conversations[0].id
-      this.setState({ currentConversationId: conversationIdToFetch })
-    }
-
-    const url = `/mod/channel-web/conversations/${userId}/${conversationIdToFetch}`
-
-    return axios.get(url, this.axiosConfig).then(({ data }) => {
-      // Possible race condition if the current conversation changed while fetching
-      if (this.state.currentConversationId !== conversationIdToFetch) {
-        // In which case we simply restart fetching
-        return this.fetchCurrentConversation()
-      }
-
-      this.setState({ currentConversation: data })
     })
   }
 
-  handleNewMessage = event => {
+  handleSendMessage = async () => {
+    if (!this.state.textToSend || !this.state.textToSend.length) {
+      return
+    }
+
+    this.setState({
+      messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], HISTORY_MAX_MESSAGES),
+      historyPosition: HISTORY_STARTING_POINT
+    })
+
+    await this.handleSendData({ type: 'text', text: this.state.textToSend })
+    this.handleSwitchView('side')
+    this.setState({ textToSend: '' })
+  }
+
+  setupSocket() {
+    // Connect the Botpress's Web Socket to the server
+    if (this.props.bp && this.props.bp.events) {
+      this.props.bp.events.setup()
+    }
+
+    this.props.bp.events.on('guest.webchat.message', this.handleNewMessage)
+    this.props.bp.events.on('guest.webchat.typing', this.handleBotTyping)
+    //firehose events to parent page
+    this.props.bp.events.onAny(this.postToParent)
+  }
+
+  handleNewMessage = async event => {
     if ((event.payload && event.payload.type === 'visit') || event.message_type === 'visit') {
       // don't do anything, it's the system message
       return
     }
-    this.safeUpdateCurrentConvo(event.conversationId, true, convo => {
+    await this.safeUpdateCurrentConvo(event.conversationId, true, convo => {
       return Object.assign({}, convo, {
         messages: [...convo.messages, event],
         typingUntil: event.userId ? convo.typingUntil : null
@@ -359,31 +397,37 @@ export default class Web extends React.Component {
     })
   }
 
-  handleBotTyping = event => {
-    this.safeUpdateCurrentConvo(event.conversationId, false, convo => {
+  handleBotTyping = async event => {
+    await this.safeUpdateCurrentConvo(event.conversationId, false, convo => {
       return Object.assign({}, convo, {
-        typingUntil: addMilliseconds(new Date(), event.timeInMs)
+        typingUntil: new Date(Date.now() + event.timeInMs)
       })
     })
 
     setTimeout(this.expireTyping, event.timeInMs + 50)
   }
 
-  expireTyping = () => {
+  expireTyping = async () => {
     const currentTypingUntil = this.state.currentConversation && this.state.currentConversation.typingUntil
 
     const timerExpired = currentTypingUntil && isBefore(new Date(currentTypingUntil), new Date())
     if (timerExpired) {
-      this.safeUpdateCurrentConvo(this.state.currentConversationId, false, convo => {
+      await this.safeUpdateCurrentConvo(this.state.currentConversationId, false, convo => {
         return Object.assign({}, convo, { typingUntil: null })
       })
     }
   }
 
-  safeUpdateCurrentConvo(convoId, addToUnread, updater) {
+  postToParent = (t, payload) => {
+    // we could filter on event type if necessary
+    window.parent && window.parent.postMessage(payload, '*')
+  }
+
+  async safeUpdateCurrentConvo(convoId, addToUnread, updater) {
     // there's no conversation to update or our convo changed
     if (!this.state.currentConversation || this.state.currentConversationId != convoId) {
-      this.fetchConversations().then(this.fetchCurrentConversation)
+      await this.fetchConversations()
+      await this.fetchCurrentConversation()
       return
     }
 
@@ -392,14 +436,13 @@ export default class Web extends React.Component {
       this.playSound()
 
       if (addToUnread) {
-        this.increaseUnreadCount()
+        this.setState({ unreadCount: this.state.unreadCount + 1 })
       }
     }
 
     this.handleResetUnreadCount()
 
     const newConvo = updater && updater(this.state.currentConversation)
-
     if (newConvo) {
       this.setState({ currentConversation: newConvo })
     }
@@ -411,46 +454,18 @@ export default class Web extends React.Component {
       const audio = new Audio('/assets/modules/channel-web/notification.mp3')
       audio.play()
 
-      this.setState({
-        played: true
-      })
+      this.setState({ played: true })
 
       setTimeout(() => {
-        this.setState({
-          played: false
-        })
+        this.setState({ played: false })
       }, MIN_TIME_BETWEEN_SOUNDS)
     }
   }
 
-  increaseUnreadCount() {
-    this.setState({
-      unreadCount: this.state.unreadCount + 1
-    })
-  }
-
   handleResetUnreadCount = () => {
     if (document.hasFocus && document.hasFocus() && this.state.view === 'side') {
-      this.setState({
-        unreadCount: 0
-      })
+      this.setState({ unreadCount: 0 })
     }
-  }
-
-  handleSendMessage = () => {
-    if (!this.state.textToSend || !this.state.textToSend.length) {
-      return
-    }
-
-    this.setState({
-      messageHistory: _.take([this.state.textToSend, ...this.state.messageHistory], HISTORY_MAX_MESSAGES),
-      historyPosition: HISTORY_STARTING_POINT
-    })
-
-    return this.handleSendData({ type: 'text', text: this.state.textToSend }).then(() => {
-      this.handleSwitchView('side')
-      this.setState({ textToSend: '' })
-    })
   }
 
   handleRecallHistory = direction => {
@@ -460,57 +475,16 @@ export default class Web extends React.Component {
   }
 
   handleTextChanged = event => {
-    this.setState({
-      textToSend: event.target.value
-    })
+    this.setState({ textToSend: event.target.value })
   }
 
-  handleFileUpload = (title, payload, file) => {
-    const userId = window.__BP_VISITOR_ID
-    const url = `/mod/channel-web/messages/${userId}/files`
-    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
-
-    const data = new FormData()
-    data.append('file', file)
-
-    return this.props.bp.axios.post(url, data, config).then()
-  }
-
-  handleSendData = data => {
-    const userId = window.__BP_VISITOR_ID
-    const msgTypes = ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'postback']
-
-    if (!msgTypes.includes(data.type)) {
-      const url = `/mod/channel-web/events/${userId}`
-      return this.props.bp.axios.post(url, data, this.axiosConfig)
-    }
-
-    const url = `/mod/channel-web/messages/${userId}`
-    const config = { params: { conversationId: this.state.currentConversationId }, ...this.axiosConfig }
-
-    return this.props.bp.axios
-      .post(url, data, config)
-      .then()
-      .catch(this.checkForExpiredExternalToken)
-  }
-
-  handleSwitchConvo = convoId => {
-    this.setState({
-      currentConversation: null,
-      currentConversationId: convoId
-    })
-
-    this.fetchCurrentConversation(convoId)
+  handleSwitchConvo = async convoId => {
+    this.setState({ currentConversation: null, currentConversationId: convoId })
+    await this.fetchCurrentConversation(convoId)
   }
 
   handleClosePanel = () => {
     this.handleSwitchView('widget')
-  }
-
-  handleSessionReset = () => {
-    const userId = window.__BP_VISITOR_ID
-    const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/reset`
-    return this.props.bp.axios.post(url, {}, this.axiosConfig).then()
   }
 
   renderWidget() {
@@ -530,25 +504,6 @@ export default class Web extends React.Component {
     )
   }
 
-  createConversation = async () => {
-    const userId = window.__BP_VISITOR_ID
-    const url = `/mod/channel-web/conversations/${userId}/new`
-    const { data } = await this.props.bp.axios.post(url, {}, this.axiosConfig)
-
-    this.fetchConversations().then(() => {
-      this.handleSwitchConvo(data.convoId)
-    })
-  }
-
-  downloadConversation = async () => {
-    const userId = window.__BP_VISITOR_ID
-    const url = `/mod/channel-web/conversations/${userId}/${this.state.currentConversationId}/download/txt`
-    const file = (await this.props.bp.axios.get(url, this.axiosConfig)).data
-    const blobFile = new Blob([file.txt])
-
-    downloadFile(file.name, blobFile)
-  }
-
   renderSide() {
     const locale = this.getLocale()
     return (
@@ -558,11 +513,11 @@ export default class Web extends React.Component {
           config={this.state.config}
           text={this.state.textToSend}
           fullscreen={this.props.fullscreen}
-          transition={!this.props.fullscreen ? this.state.sideTransition : null}
+          transition={!this.props.fullscreen && this.state.sideTransition}
           unreadCount={this.state.unreadCount}
           currentConversation={this.state.currentConversation}
           conversations={this.state.conversations}
-          onClose={!this.props.fullscreen ? this.handleClosePanel : null}
+          onClose={!this.props.fullscreen && this.handleClosePanel}
           onResetSession={this.handleSessionReset}
           onSwitchConvo={this.handleSwitchConvo}
           onTextSend={this.handleSendMessage}
@@ -574,7 +529,7 @@ export default class Web extends React.Component {
           createConversation={this.createConversation}
           botInfo={this.state.botInfo}
           botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
-        />
+      />
       </IntlProvider>
     )
   }

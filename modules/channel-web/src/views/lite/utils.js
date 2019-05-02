@@ -64,21 +64,6 @@ export const differenceInMinutes = (dirtyDateLeft, dirtyDateRight) => {
   return diff > 0 ? Math.floor(diff) : Math.ceil(diff)
 }
 
-export const addMilliseconds = (dirtyDate, dirtyAmount) => {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  function toInteger(dirtyNumber) {
-    var number = Number(dirtyNumber)
-    return number < 0 ? Math.ceil(number) : Math.floor(number)
-  }
-
-  var timestamp = toDate(dirtyDate).getTime()
-  var amount = toInteger(dirtyAmount)
-  return new Date(timestamp + amount)
-}
-
 export const isBefore = (dirtyDate, dirtyDateToCompare) => {
   if (arguments.length < 2) {
     throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
@@ -87,4 +72,22 @@ export const isBefore = (dirtyDate, dirtyDateToCompare) => {
   var date = toDate(dirtyDate)
   var dateToCompare = toDate(dirtyDateToCompare)
   return date.getTime() < dateToCompare.getTime()
+}
+
+export const checkLocationOrigin = () => {
+  if (!window.location.origin) {
+    const { protocol, hostname, port } = window.location
+    window.location.origin = `${protocol}//${hostname}${port && ':' + port}`
+  }
+}
+
+export const initializeAnalytics = () => {
+  if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
+    try {
+      ReactGA.initialize('UA-90044826-2')
+      ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
+    } catch (err) {
+      console.log('Error init analytics', err)
+    }
+  }
 }
