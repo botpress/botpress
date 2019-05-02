@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { FileMessage, Carousel, LoginPrompt, Text } from './renderer'
 import classnames from 'classnames'
 import * as Keyboard from '../Keyboard'
-import { injectIntl } from 'react-intl'
 
 class Message extends Component {
   render_text(textMessage) {
@@ -81,12 +80,7 @@ class Message extends Component {
   }
 
   render_unsupported() {
-    return this.render_text(
-      this.props.intl.formatMessage({
-        id: 'message.unsupportedMessageType',
-        defaultMessage: '*Unsupported message type*'
-      })
-    )
+    return '*Unsupported message type*'
   }
 
   render() {
@@ -111,4 +105,4 @@ class Message extends Component {
   }
 }
 
-export default injectIntl(Message)
+export default Message

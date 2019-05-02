@@ -1,6 +1,5 @@
 {
   "chatInput.placeholder": "Reply to",
-  "message.unsupportedMessageType": "*Unsupported message type*",
   "header.conversations": "Conversations",
   "conversationList.untitledConversation": "Untitled Conversation"
 }
