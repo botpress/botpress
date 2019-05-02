@@ -13,6 +13,7 @@ import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
+import RegexMatcher from './pipelines/intents/regex_matcher'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
@@ -34,6 +35,7 @@ export default class ScopedEngine implements Engine {
   private _lmLoaded: boolean = false
   private _currentModelHash: string
   private _exactIntentMatcher: ExactMatcher
+  private _regexIntentMatcher: RegexMatcher
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -209,6 +211,7 @@ export default class ScopedEngine implements Engine {
     })
 
     this._exactIntentMatcher = new ExactMatcher(trainingSet)
+    this._regexIntentMatcher = new RegexMatcher(trainingSet)
     await this.intentClassifier.load(intentModels)
 
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
@@ -314,6 +317,16 @@ export default class ScopedEngine implements Engine {
         includedContexts,
         intent: exactIntent,
         intents: [exactIntent]
+      }
+    }
+
+    const regexIntent = this._regexIntentMatcher.match(text, includedContexts)
+
+    if (regexIntent) {
+      return {
+        includedContexts,
+        intent: regexIntent,
+        intents: [regexIntent]
       }
     }
 
