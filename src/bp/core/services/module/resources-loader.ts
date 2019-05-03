@@ -8,6 +8,12 @@ import { GhostService } from '../ghost/service'
 
 const CHECKSUM = '//CHECKSUM:'
 
+/**
+ * Files starting with a dot are disabled. This prefix means it was automatically disabled and
+ * will be automatically re-enabled when the corresponding module is enabled in the future
+ */
+const DISABLED_PREFIX = '.__'
+
 /** Describes a resource that the module will export to the data folder */
 interface ResourceExportPath {
   /** The source location of the file, in the module's folder */
@@ -21,12 +27,21 @@ interface ResourceExportPath {
 
 export class ModuleResourceLoader {
   private exportPaths: ResourceExportPath[] = []
+  private globalPaths: string[]
+  private hookMatcher: RegExp
 
   private get modulePath(): string {
     return process.LOADED_MODULES[this.moduleName]
   }
 
-  constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {}
+  constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {
+    this.globalPaths = [
+      `/actions/${this.moduleName}`,
+      `/assets/modules/${this.moduleName}`,
+      `/content-types/${this.moduleName}`
+    ]
+    this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}/`)
+  }
 
   async importResources() {
     this.exportPaths = [
@@ -49,6 +64,44 @@ export class ModuleResourceLoader {
     ]
 
     await this._loadModuleResources()
+  }
+
+  async enableResources() {
+    const ghost = this.ghost.global()
+
+    for (const path of this.globalPaths) {
+      const files = await ghost.directoryListing(path, undefined, undefined, true)
+      await Promise.all(
+        files
+          .filter(name => name.startsWith(DISABLED_PREFIX))
+          .map(file => ghost.renameFile(path, file, file.replace(DISABLED_PREFIX, '')))
+      )
+    }
+
+    const hooks = await ghost.directoryListing('/hooks', undefined, undefined, true)
+    await Promise.all(
+      hooks
+        .filter(f => this.hookMatcher.test(f) && path.basename(f).startsWith(DISABLED_PREFIX))
+        .map(f =>
+          ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), path.basename(f).replace(DISABLED_PREFIX, ''))
+        )
+    )
+  }
+
+  async disableResources() {
+    const ghost = this.ghost.global()
+
+    for (const path of this.globalPaths) {
+      const files = await ghost.directoryListing(path)
+      await Promise.all(files.map(file => ghost.renameFile(path, file, DISABLED_PREFIX + file)))
+    }
+
+    const hooks = await ghost.directoryListing('/hooks')
+    await Promise.all(
+      hooks
+        .filter(file => this.hookMatcher.test(file))
+        .map(f => ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), DISABLED_PREFIX + path.basename(f)))
+    )
   }
 
   private async isSymbolicLink(filePath) {

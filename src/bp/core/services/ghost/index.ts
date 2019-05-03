@@ -3,9 +3,10 @@ export interface StorageDriver {
   readFile(filePath: string): Promise<Buffer>
   deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   deleteDir(dirPath: string): Promise<void>
-  directoryListing(folder: string, exlude?): Promise<string[]>
+  directoryListing(folder: string, exclude?: string | string[], includeDotFiles?: boolean): Promise<string[]>
   listRevisions(pathPrefix: string): Promise<FileRevision[]>
   deleteRevision(filePath: string, revision: string): Promise<void>
+  moveFile(fromPath: string, toPath: string): Promise<void>
 }
 
 export type FileRevision = {
