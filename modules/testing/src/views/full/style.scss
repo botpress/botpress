@@ -41,10 +41,15 @@
     }
   }
 
+  .reportInteractions {
+    margin-top: 20px;
+  }
+
   .interaction {
     margin-bottom: 15px;
-    border-bottom: solid 1px #eee;
     strong {
+      display: inline-block;
+      width: 50px;
       margin-right: 25px;
     }
 

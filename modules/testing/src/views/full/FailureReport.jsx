@@ -3,6 +3,7 @@ import React from 'react'
 import { Row, Col, Grid } from 'react-bootstrap'
 
 import style from './style.scss'
+import Interaction from './Interaction'
 
 class FailureReport extends React.Component {
   renderMessage(response, source) {
@@ -56,7 +57,7 @@ class FailureReport extends React.Component {
         <Row>
           <h4>Failure report</h4>
           <Col md={12}>
-            <p className="text-danger">
+            <p>
               Failed to complete scenario at interaction <strong>#{this.props.failureIdx}</strong>. Skipped{' '}
               <strong>{this.props.skipped}</strong> remaining interactions
             </p>
@@ -65,18 +66,28 @@ class FailureReport extends React.Component {
             </p>
           </Col>
         </Row>
-        <Row className={style.reportInteraction}>
+        <Row className={style.reportInteractions}>
           <Col md={6}>
             <p className="text-center">
               <strong>Expected interaction</strong>
             </p>
-            {this.renderInteraction(this.props.mismatch.expected)}
+            <Interaction
+              {...this.props.mismatch.expected}
+              contentElements={this.props.contentElements}
+              failure={true}
+              mismatchIdx={this.props.mismatch.index}
+            />
           </Col>
           <Col md={6}>
             <p className="text-center">
               <strong>Actual interaction</strong>
             </p>
-            {this.renderInteraction(this.props.mismatch.received)}
+            <Interaction
+              {...this.props.mismatch.received}
+              contentElements={this.props.contentElements}
+              failure={true}
+              mismatchIdx={this.props.mismatch.index}
+            />
           </Col>
         </Row>
       </Grid>

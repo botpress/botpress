@@ -56,15 +56,25 @@ class Scenario extends React.Component {
         </Panel.Heading>
         <Panel.Collapse>
           <Panel.Body className={style.scenarioBody}>
-            {scenario.steps.map((step, i) => (
-              <Interaction
-                step={step}
-                stepIndex={i}
-                completedSteps={scenario.completedSteps}
-                scenarioStatus={scenario.status}
-                mismatch={scenario.mismatch}
-              />
-            ))}
+            {scenario.steps.map((step, i) => {
+              const success = i < scenario.completedSteps
+              const failure = scenario.status === 'fail' && i === scenario.completedSteps
+              const skipped = scenario.status === 'fail' && i > scenario.completedSteps
+
+              return (
+                <Interaction
+                  {...step}
+                  key={step.userMessage}
+                  contentElements={this.props.contentElements}
+                  success={success}
+                  failure={failure}
+                  skipped={skipped}
+                  maxChars={50}
+                  mismatchIdx={scenario.mismatch ? scenario.mismatch.index : null}
+                  style={{ borderBottom: 'solid 1px #eee' }}
+                />
+              )
+            })}
             {scenario.mismatch && (
               <FailureReport
                 mismatch={scenario.mismatch}

@@ -4,35 +4,48 @@ import classnames from 'classnames'
 import { MdCheck, MdClose, MdRemove } from 'react-icons/md'
 import style from './style.scss'
 
-const Interaction = ({ step, stepIndex, completedSteps, scenarioStatus, mismatch }) => {
-  const success = stepIndex < completedSteps
-  const failure = scenarioStatus === 'fail' && stepIndex === completedSteps
-  const skipped = scenarioStatus == 'fail' && stepIndex > completedSteps
-
+const Interaction = ({
+  userMessage,
+  success,
+  failure,
+  skipped,
+  botReplies,
+  mismatchIdx,
+  contentElements,
+  maxChars
+}) => {
   return (
     <div className={style.interaction}>
       <p className={skipped ? 'text-muted' : ''}>
-        <div className={style.interactionStatus}>
+        <span className={style.interactionStatus}>
           {success && <MdCheck className="text-success" />}
           {failure && <MdClose className="text-danger" />}
           {skipped && <MdRemove className="text-muted" />}
-        </div>
+        </span>
         <strong>User</strong>
-        {step.userMessage}
+        {userMessage}
       </p>
       <div className={classnames(style.botReplies, skipped && 'text-muted')}>
         <div>
           <strong>Bot</strong>
         </div>
         <ul style={{ listStyle: 'none' }}>
-          {step.botReplies.map((reply, i) => {
+          {botReplies.map((reply, i) => {
             let textClass = 'text-muted'
-            if (failure && mismatch && mismatch.index === i) {
+            if (failure && mismatchIdx !== null && mismatchIdx === i) {
               textClass = 'text-danger'
-            } else if (success || (mismatch && i < mismatch.index)) {
+            } else if (success || (mismatchIdx != null && i < mismatchIdx)) {
               textClass = 'text-success'
             }
-            return <li className={textClass}>{reply.botResponse}</li>
+
+            const element = contentElements.find(el => el.id === reply.botResponse)
+
+            return (
+              <li key={i} className={textClass}>
+                {element && element.preview.slice(0, maxChars || 500)}
+                {element && element.preview.length > maxChars && '...'}
+              </li>
+            )
           })}
         </ul>
       </div>
