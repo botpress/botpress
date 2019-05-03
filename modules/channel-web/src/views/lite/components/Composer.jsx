@@ -39,21 +39,23 @@ class Composer extends Component {
   render() {
     return (
       <div className={'bpw-composer'}>
-        <textarea
-          tabIndex="1"
-          ref={input => {
-            this.textInput = input
-          }}
-          onFocus={this.props.onFocus}
-          placeholder={this.props.placeholder}
-          onChange={this.props.change}
-          value={this.props.text}
-          onKeyPress={this.handleKeyPress}
-          onKeyDown={this.handleKeyDown}
-        />
-        <button className={'bpw-send-button'} disabled={!this.props.text.length} onClick={this.props.send}>
-          <FormattedMessage id="composer.send" />
-        </button>
+        <div className={'bpw-composer-inner'}>
+          <textarea
+            tabIndex="1"
+            ref={input => {
+              this.textInput = input
+            }}
+            onFocus={this.props.onFocus}
+            placeholder={this.props.placeholder}
+            onChange={this.props.change}
+            value={this.props.text}
+            onKeyPress={this.handleKeyPress}
+            onKeyDown={this.handleKeyDown}
+          />
+          <button className={'bpw-send-button'} disabled={!this.props.text.length} onClick={this.props.send}>
+            <FormattedMessage id="composer.send" />
+          </button>
+        </div>
       </div>
     )
   }
