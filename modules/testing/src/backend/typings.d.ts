@@ -27,6 +27,7 @@ export interface ScenarioMismatch {
   reason?: string
   expected?: DialogStep
   received?: DialogStep
+  index?: number
 }
 
 export interface DialogStep {

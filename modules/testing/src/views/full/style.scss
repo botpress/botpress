@@ -1,16 +1,51 @@
-.scenarioList {
-  display: flex;
-  border-bottom: 1px solid #dfdfdf;
-  margin-bottom: 10px;
+.workspace {
+  padding-top: 20px;
+  min-height: 100vh;
+  background: #fdfdfd;
+  h2 {
+    margin: 0;
+  }
+}
 
-  .title {
-    width: 200px;
-    span {
-      margin-left: 10px;
+.summary {
+  strong {
+    margin-right: 10px;
+  }
+}
+
+.scenario {
+  border: solid 1px #eee;
+  margin-top: 20px;
+
+  .scenarioHead {
+    display: flex;
+    text-transform: none;
+    justify-content: space-between;
+    .title {
+      display: flex;
+      align-items: flex-end;
+      font-size: 2rem;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    p {
+      margin-left: 20px;
+      font-size: 14px;
+      font-weight: normal;
     }
   }
 
-  .steps {
-    width: 200px;
+  .interaction {
+    margin-bottom: 15px;
+    border-bottom: solid 1px #eee;
+
+    .interactionStatus {
+      display: inline-block;
+      width: 25px;
+    }
+
+    .interactionBotReplies {
+      margin-left: 25px;
+    }
   }
 }

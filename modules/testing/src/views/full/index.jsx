@@ -1,7 +1,7 @@
 import React from 'react'
-import { Button, FormControl } from 'react-bootstrap'
-import { MdLens } from 'react-icons/md'
+import { Button, FormControl, Grid, Row, Col } from 'react-bootstrap'
 import style from './style.scss'
+import Scenario from './Scenario'
 
 export default class Testing extends React.Component {
   state = {
@@ -86,125 +86,6 @@ export default class Testing extends React.Component {
   cancel = () => this.setState({ recordView: false, recordedScenario: undefined })
   handleInputChanged = e => this.setState({ [e.target.name]: e.target.value })
 
-  renderMessage(response, source, idx) {
-    const { displayPreview, contentElements } = this.state
-
-    if (typeof response === 'string' && displayPreview) {
-      const element = contentElements.find(el => el.id === response)
-      response = (element && element.preview) || response
-    }
-
-    if (typeof response === 'object') {
-      const InjectedModuleView = this.props.bp.getModuleInjector()
-      return (
-        <div className="bpw-from-bot" key={idx}>
-          <InjectedModuleView
-            moduleName={'channel-web'}
-            componentName={'Message'}
-            extraProps={{ payload: response || 'error previewing' }}
-            onNotFound={undefined}
-          />
-          <small>(source: {source})</small>
-        </div>
-      )
-    } else {
-      return (
-        <div className="bpw-from-bot" key={idx}>
-          <div className="bpw-chat-bubble">{response}</div>
-        </div>
-      )
-    }
-  }
-
-  renderExchange(interactions) {
-    if (!interactions) {
-      return
-    }
-
-    const { userMessage, botReplies } = interactions
-    return (
-      <div style={{ margin: '0 15px 0 15px' }}>
-        <div style={{ width: '100%', marginBottom: 3 }} align="right">
-          <div className="bpw-from-user" style={{ width: 'auto' }}>
-            <div className="bpw-chat-bubble">{userMessage}</div>
-          </div>
-        </div>
-
-        {botReplies.map(({ botResponse, replySource }, idx) => this.renderMessage(botResponse, replySource, idx))}
-      </div>
-    )
-  }
-
-  renderScenario(scenario) {
-    const { name, stepsCount, completedSteps, mismatch, status } = scenario
-
-    let color = 'gray'
-    if (status === 'fail') {
-      color = 'red'
-    } else if (status === 'pass') {
-      color = 'green'
-    }
-
-    let progress = `${stepsCount} interactions`
-    if (status === 'pending') {
-      progress = `Progress: ${completedSteps} / ${stepsCount}`
-    } else if (status === 'fail') {
-      progress = `Failed at step ${completedSteps + 1} / ${stepsCount} `
-    }
-
-    return (
-      <div className={style.scenarioList} key={name}>
-        <div className={style.title}>
-          <MdLens color={color} />
-          <span>{name}</span>
-        </div>
-        <div className={style.steps}>{progress}</div>
-        <div>
-          {mismatch && mismatch.reason && 'Fail Reason: ' + mismatch.reason}
-          {mismatch && (
-            <div style={{ display: 'flex' }}>
-              <div style={{ width: 400 }}>{this.renderExchange(mismatch.expected)}</div>
-              <div style={{ width: 400 }}>{this.renderExchange(mismatch.received)}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  renderScenarioPreview() {
-    return (
-      <div>
-        <div style={{ display: 'flex' }}>
-          <FormControl
-            name="scenarioName"
-            placeholder={'Name of your scenario'}
-            style={{ width: 400 }}
-            value={this.state.scenarioName}
-            onChange={this.handleInputChanged}
-          />
-          &nbsp;
-          <Button onClick={this.saveScenario} bsStyle="primary">
-            Save Scenario
-          </Button>
-          &nbsp;
-          <Button onClick={this.cancel} bsStyle="danger">
-            Cancel
-          </Button>
-        </div>
-        <div style={{ paddingTop: 10 }}>
-          <FormControl
-            componentClass="textarea"
-            rows="30"
-            name="recordedScenario"
-            value={this.state.recordedScenario}
-            onChange={this.handleInputChanged}
-          />
-        </div>
-      </div>
-    )
-  }
-
   renderRecordSettings() {
     return (
       <div>
@@ -257,35 +138,50 @@ export default class Testing extends React.Component {
       </div>
     )
   }
-
-  renderList() {
-    const { scenarios } = this.state
+  renderSummary = () => {
+    const total = this.state.scenarios.length
+    const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
+    const passCount = this.state.scenarios.filter(s => s.status === 'pass').length // we don't do a simple substraction in case some are pending
     return (
-      <div>
-        <Button onClick={this.runAll} disabled={this.state.isRunning}>
-          Run All
-        </Button>
-        &nbsp;
-        <Button onClick={() => this.setState({ recordView: true, isRecording: false })}>Switch to Record View</Button>
-        <h3>Scenarios</h3>
-        <div style={{ display: 'flex' }}>
-          <div />
-          <div style={{ marginLeft: 400, width: 400, textAlign: 'center' }}>
-            <h4>Expected</h4>
-          </div>
-          <div style={{ width: 400, textAlign: 'center' }}>
-            <h4>Received</h4>
-          </div>
-        </div>
-        <div>{scenarios && _.orderBy(scenarios, 'status').map(x => this.renderScenario(x))}</div>
+      <div className={style.summary}>
+        <strong>Total: {total}</strong>
+        {!!failCount && <strong className="text-danger">Failed: {failCount}</strong>}
+        {!!passCount && <strong className="text-success">Passed: {passCount}</strong>}
       </div>
     )
   }
 
   render() {
     return (
-      <div style={{ padding: 10, background: '#ffffff', height: '100%' }}>
-        {this.state.recordView ? this.renderRecordView() : this.renderList()}
+      <div className={style.workspace}>
+        <Grid>
+          <Row>
+            <Col md={7} mdOffset={1}>
+              <h2>Scenarios</h2>
+              {this.renderSummary()}
+            </Col>
+            <Col md={3}>
+              <div className="pull-right">
+                <Button onClick={this.runAll} disabled={this.state.isRunning}>
+                  Run All
+                </Button>
+                &nbsp;
+                <Button onClick={() => this.setState({ recordView: true, isRecording: false })}>
+                  Switch to Record View
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          {this.state.recordView && this.renderRecordView()}
+          {!this.state.recordView &&
+            this.state.scenarios.map(s => (
+              <Row key={s.name}>
+                <Col md={10} mdOffset={1}>
+                  <Scenario scenario={s} contentElements={this.state.contentElements} bp={this.props.bp} />
+                </Col>
+              </Row>
+            ))}
+        </Grid>
       </div>
     )
   }

@@ -46,7 +46,7 @@ export class Testing {
     return this._scenarios.map(({ name, steps }) => {
       return {
         name,
-        stepsCount: steps.length,
+        steps,
         ...this._replayer.getStatus(name)
       }
     })

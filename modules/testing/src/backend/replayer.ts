@@ -99,7 +99,7 @@ export class Replayer {
     _.each(_.zip(expected.botReplies, received.botReplies), ([exp, rec], idx) => {
       // This can happen if the bot doesn't respond
       if (!exp || !rec) {
-        mismatch = { reason: 'Missing an expected or received reply', expected, received }
+        mismatch = { reason: 'Missing an expected or received reply', expected, received, index: idx }
         return false
       }
 
@@ -113,7 +113,7 @@ export class Replayer {
        * If the source is Dialog Manager, then the answer must be identical (either payload or content element id)
        */
       if (!sameSource || (source !== 'qna' && (source === 'dialogManager' && !sameResponse))) {
-        mismatch = { reason: 'The reply was invalid', expected, received }
+        mismatch = { reason: 'The reply was invalid', expected, received, index: idx }
         return false
       }
     })
