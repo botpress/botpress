@@ -55,7 +55,7 @@ class Scenario extends React.Component {
           <div>{this.renderStatusLabel(scenario.status)}</div>
         </Panel.Heading>
         <Panel.Collapse>
-          <Panel.Body>
+          <Panel.Body className={style.scenarioBody}>
             {scenario.steps.map((step, i) => (
               <Interaction
                 step={step}

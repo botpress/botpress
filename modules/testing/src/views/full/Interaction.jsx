@@ -1,5 +1,6 @@
 import React from 'react'
 
+import classnames from 'classnames'
 import { MdCheck, MdClose, MdRemove } from 'react-icons/md'
 import style from './style.scss'
 
@@ -16,11 +17,13 @@ const Interaction = ({ step, stepIndex, completedSteps, scenarioStatus, mismatch
           {failure && <MdClose className="text-danger" />}
           {skipped && <MdRemove className="text-muted" />}
         </div>
-        <strong>User:&nbsp;</strong>
+        <strong>User</strong>
         {step.userMessage}
       </p>
-      <p className={skipped ? 'text-muted' : ''} style={{ marginLeft: 25 }}>
-        <strong>Bot:</strong>
+      <div className={classnames(style.botReplies, skipped && 'text-muted')}>
+        <div>
+          <strong>Bot</strong>
+        </div>
         <ul style={{ listStyle: 'none' }}>
           {step.botReplies.map((reply, i) => {
             let textClass = 'text-muted'
@@ -32,7 +35,7 @@ const Interaction = ({ step, stepIndex, completedSteps, scenarioStatus, mismatch
             return <li className={textClass}>{reply.botResponse}</li>
           })}
         </ul>
-      </p>
+      </div>
     </div>
   )
 }

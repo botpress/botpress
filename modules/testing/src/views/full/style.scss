@@ -17,10 +17,16 @@
   border: solid 1px #eee;
   margin-top: 20px;
 
+  .scenarioBody {
+    padding: 10px 20px;
+  }
+
   .scenarioHead {
     display: flex;
     text-transform: none;
     justify-content: space-between;
+    padding: 10px 20px;
+
     .title {
       display: flex;
       align-items: flex-end;
@@ -29,8 +35,8 @@
       cursor: pointer;
     }
     p {
-      margin-left: 20px;
-      font-size: 14px;
+      margin: 0 0 0 20px;
+      font-size: 12px;
       font-weight: normal;
     }
   }
@@ -38,14 +44,25 @@
   .interaction {
     margin-bottom: 15px;
     border-bottom: solid 1px #eee;
+    strong {
+      margin-right: 25px;
+    }
 
     .interactionStatus {
       display: inline-block;
       width: 25px;
+      vertical-align: middle;
     }
 
-    .interactionBotReplies {
-      margin-left: 25px;
+    .botReplies {
+      display: flex;
+      > div {
+        margin-left: 25px;
+      }
+      > ul {
+        list-style: none;
+        padding: 0;
+      }
     }
   }
 }

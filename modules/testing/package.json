@@ -16,6 +16,7 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
     "react-icons": "^3.6.1"
   }
 }

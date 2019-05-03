@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, FormControl, Grid, Row, Col } from 'react-bootstrap'
+import { Button, FormControl, Grid, Row, Col, Glyphicon } from 'react-bootstrap'
 import style from './style.scss'
 import Scenario from './Scenario'
 
@@ -42,7 +42,7 @@ export default class Testing extends React.Component {
 
     if (!this.interval) {
       this.loadScenarios()
-      this.interval = setInterval(this.loadScenarios, 2000)
+      this.interval = setInterval(this.loadScenarios, 1500)
     }
   }
 
@@ -138,6 +138,7 @@ export default class Testing extends React.Component {
       </div>
     )
   }
+
   renderSummary = () => {
     const total = this.state.scenarios.length
     const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
@@ -151,38 +152,40 @@ export default class Testing extends React.Component {
     )
   }
 
-  render() {
+  renderScenarios = () => {
     return (
-      <div className={style.workspace}>
-        <Grid>
-          <Row>
-            <Col md={7} mdOffset={1}>
-              <h2>Scenarios</h2>
-              {this.renderSummary()}
-            </Col>
-            <Col md={3}>
-              <div className="pull-right">
-                <Button onClick={this.runAll} disabled={this.state.isRunning}>
-                  Run All
-                </Button>
-                &nbsp;
-                <Button onClick={() => this.setState({ recordView: true, isRecording: false })}>
-                  Switch to Record View
-                </Button>
-              </div>
+      <Grid>
+        <Row>
+          <Col md={7} mdOffset={1}>
+            <h2>Scenarios</h2>
+            {this.renderSummary()}
+          </Col>
+          <Col md={3}>
+            <div className="pull-right">
+              <Button onClick={this.runAll} disabled={this.state.isRunning}>
+                <Glyphicon glyph="play" /> Run All
+              </Button>
+              &nbsp;
+              <Button onClick={() => this.setState({ recordView: true, isRecording: false })}>
+                <Glyphicon glyph="record " /> Record new
+              </Button>
+            </div>
+          </Col>
+        </Row>
+        {this.state.scenarios.map(s => (
+          <Row key={s.name}>
+            <Col md={10} mdOffset={1}>
+              <Scenario scenario={s} contentElements={this.state.contentElements} bp={this.props.bp} />
             </Col>
           </Row>
-          {this.state.recordView && this.renderRecordView()}
-          {!this.state.recordView &&
-            this.state.scenarios.map(s => (
-              <Row key={s.name}>
-                <Col md={10} mdOffset={1}>
-                  <Scenario scenario={s} contentElements={this.state.contentElements} bp={this.props.bp} />
-                </Col>
-              </Row>
-            ))}
-        </Grid>
-      </div>
+        ))}
+      </Grid>
+    )
+  }
+
+  render() {
+    return (
+      <div className={style.workspace}>{this.state.recordView ? this.renderRecorder() : this.renderScenarios()}</div>
     )
   }
 }
