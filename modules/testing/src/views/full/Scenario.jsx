@@ -75,7 +75,9 @@ class Scenario extends React.Component {
                 />
               )
             })}
-            {scenario.mismatch && (
+          </Panel.Body>
+          {scenario.mismatch && (
+            <Panel.Footer className={style.scenarioFooter}>
               <FailureReport
                 mismatch={scenario.mismatch}
                 failureIdx={scenario.completedSteps + 1}
@@ -83,8 +85,8 @@ class Scenario extends React.Component {
                 contentElements={this.props.contentElements}
                 bp={this.props.bp}
               />
-            )}
-          </Panel.Body>
+            </Panel.Footer>
+          )}
         </Panel.Collapse>
       </Panel>
     )

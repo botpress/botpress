@@ -1,22 +1,18 @@
 import React from 'react'
-import { Button, FormControl, Grid, Row, Col, Glyphicon } from 'react-bootstrap'
+import { Button, Grid, Row, Col, Glyphicon } from 'react-bootstrap'
 import style from './style.scss'
 import Scenario from './Scenario'
+import ScenarioRecorder from './ScenarioRecorder'
 
 export default class Testing extends React.Component {
   state = {
-    chatUserId: '',
     scenarios: [],
     isRunning: false,
-    isRecording: false,
     recordView: false,
-    testSteps: '',
-    displayPreview: true,
     contentElements: []
   }
 
   componentDidMount() {
-    this.setState({ chatUserId: window.__BP_VISITOR_ID })
     this.loadScenarios()
   }
 
@@ -42,29 +38,8 @@ export default class Testing extends React.Component {
 
     if (!this.interval) {
       this.loadScenarios()
-      this.interval = setInterval(this.loadScenarios, 1500)
+      this.interval = setInterval(this.loadScenarios, 2000)
     }
-  }
-
-  startRecording = async () => {
-    this.setState({ recordView: true, isRecording: true })
-    await this.props.bp.axios.get('/mod/testing/startRecording/' + this.state.chatUserId)
-  }
-
-  stopRecording = async () => {
-    const { data } = await this.props.bp.axios.get('/mod/testing/stopRecording')
-    this.setState({ isRecording: false, recordedScenario: JSON.stringify(data, null, 2) })
-  }
-
-  saveScenario = async () => {
-    const { scenarioName, recordedScenario } = this.state
-
-    await this.props.bp.axios.post('/mod/testing/saveScenario', {
-      name: scenarioName,
-      steps: JSON.parse(recordedScenario)
-    })
-    await this.loadScenarios()
-    this.setState({ recordView: false })
   }
 
   extractElementIds(scenarios) {
@@ -83,62 +58,6 @@ export default class Testing extends React.Component {
     this.setState({ contentElements: data })
   }
 
-  cancel = () => this.setState({ recordView: false, recordedScenario: undefined })
-  handleInputChanged = e => this.setState({ [e.target.name]: e.target.value })
-
-  renderRecordSettings() {
-    return (
-      <div>
-        <div style={{ paddingBottom: 10 }}>
-          <Button onClick={this.cancel} bsStyle="danger">
-            Cancel
-          </Button>
-          &nbsp;
-          <Button onClick={this.startRecording} bsStyle="primary">
-            Start Recording
-          </Button>
-        </div>
-        <p>
-          This tool allow you to chat with your bot and record the interaction. It can then be replayed to make sure
-          your bot still answers as expected.
-        </p>
-
-        <p>
-          By default, the user id that will be listened on for events is your webchat ID. You can also create a new
-          session on the emulator and use that ID instead. Remove the ID to record all events.
-        </p>
-        <FormControl
-          name="chatUserId"
-          placeholder={'The user ID to listen to'}
-          style={{ width: 400 }}
-          value={this.state.chatUserId}
-          onChange={this.handleInputChanged}
-        />
-      </div>
-    )
-  }
-
-  renderRecordView() {
-    if (!this.state.isRecording) {
-      const hasRecord = this.state.recordedScenario && this.state.recordedScenario.length
-      if (hasRecord) {
-        return this.renderScenarioPreview()
-      }
-      return this.renderRecordSettings()
-    }
-
-    return (
-      <div>
-        <div style={{ paddingBottom: 10 }}>
-          <Button onClick={this.stopRecording} bsStyle="primary">
-            Stop Recording
-          </Button>
-        </div>
-        Recording...
-      </div>
-    )
-  }
-
   renderSummary = () => {
     const total = this.state.scenarios.length
     const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
@@ -150,6 +69,14 @@ export default class Testing extends React.Component {
         {!!passCount && <strong className="text-success">Passed: {passCount}</strong>}
       </div>
     )
+  }
+
+  toggleRecordView = () => {
+    this.setState({ recordView: !this.state.recordView })
+  }
+
+  renderRecorder = () => {
+    return <ScenarioRecorder bp={this.props.bp} onSave={this.loadScenarios} cancel={this.toggleRecordView} />
   }
 
   renderScenarios = () => {
@@ -166,7 +93,7 @@ export default class Testing extends React.Component {
                 <Glyphicon glyph="play" /> Run All
               </Button>
               &nbsp;
-              <Button onClick={() => this.setState({ recordView: true, isRecording: false })}>
+              <Button onClick={this.toggleRecordView}>
                 <Glyphicon glyph="record " /> Record new
               </Button>
             </div>

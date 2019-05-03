@@ -11,14 +11,20 @@
   strong {
     margin-right: 10px;
   }
+  margin-bottom: 20px;
 }
 
 .scenario {
   border: solid 1px #eee;
-  margin-top: 20px;
+  margin: 2px 0;
 
   .scenarioBody {
     padding: 10px 20px;
+  }
+
+  .scenarioFooter {
+    background: white;
+    border-color: #f7f7f7;
   }
 
   .scenarioHead {
