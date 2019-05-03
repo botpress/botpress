@@ -48,6 +48,14 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async moveFile(fromPath: string, toPath: string): Promise<void> {
+    try {
+      return fse.move(fromPath, toPath)
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error moving file "${fromPath}" to "${toPath}"`)
+    }
+  }
+
   async deleteDir(dirPath: string): Promise<void> {
     try {
       return fse.removeSync(this.resolvePath(dirPath))

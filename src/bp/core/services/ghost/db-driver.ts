@@ -79,6 +79,17 @@ export default class DBStorageDriver implements StorageDriver {
     }
   }
 
+  async moveFile(fromPath: string, toPath: string) {
+    try {
+      await this.database
+        .knex('srv_ghost_files')
+        .update({ file_path: toPath })
+        .where({ file_path: fromPath })
+    } catch (e) {
+      throw new VError(e, `[DB Storage] Error moving file "${fromPath}" to "${toPath}"`)
+    }
+  }
+
   async deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   async deleteFile(filePath: string): Promise<void>
   async deleteFile(filePath: string, recordRevision: boolean = true): Promise<void> {
