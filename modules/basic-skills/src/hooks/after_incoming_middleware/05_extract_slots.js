@@ -4,7 +4,6 @@ const _ = require('lodash')
 event.state.session.extractedSlots = event.state.session.extractedSlots || {}
 rotateTurns()
 extractIntentSlots()
-extractFromEntityResponse()
 
 function extractIntentSlots() {
   const slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
@@ -45,10 +44,5 @@ function rotateTurns() {
     if (typeof slot.expiresAfterTurns === 'number' && slot.turns >= slot.expiresAfterTurns) {
       delete event.state.session.extractedSlots[slot.name]
     }
-  }
-}
-
-function extractFromEntityResponse() {
-  if (event.state.session.extractedSlots.__currentSlot) {
   }
 }
