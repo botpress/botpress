@@ -12,7 +12,7 @@ export class Recorder {
   constructor() {}
 
   processIncoming(event: sdk.IO.IncomingEvent) {
-    if (!this._scenario || !this._scenario.initialState) {
+    if (!this._scenario || this._scenario.initialState) {
       return
     }
 

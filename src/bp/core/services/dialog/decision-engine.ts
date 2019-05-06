@@ -148,7 +148,6 @@ export class DecisionEngine {
       result.executeFlows = false
       event.state.session.lastMessages.push(message)
 
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       await this.stateManager.persist(event, true)
     }
 
@@ -156,6 +155,10 @@ export class DecisionEngine {
     if (redirect && redirect.flow && redirect.node) {
       await this.dialogEngine.jumpTo(sessionId, event, redirect.flow, redirect.node)
       result.executeFlows = true
+    }
+
+    if (!result.executeFlows) {
+      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
     }
 
     return result
