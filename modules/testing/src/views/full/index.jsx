@@ -43,14 +43,13 @@ export default class Testing extends React.Component {
   }
 
   extractElementIds(scenarios) {
-    const filtered = scenarios.filter(x => x.mismatch && x.mismatch.expected && x.mismatch.received)
-    const allResponses = filtered.reduce((acc, { mismatch }) => {
-      const allReplies = [...mismatch.expected.botReplies, ...mismatch.received.botReplies]
-      acc = [...acc, ...allReplies.map(x => x.botResponse)]
-      return acc
-    }, [])
+    const elIds = _.chain(scenarios)
+      .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies.map(rep => rep.botResponse)))
+      .filter(_.isString)
+      .uniq()
+      .value()
 
-    return _.uniq(allResponses.filter(_.isString))
+    return elIds
   }
 
   fetchPreviews = async elementIds => {
