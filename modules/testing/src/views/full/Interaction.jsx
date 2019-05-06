@@ -38,12 +38,18 @@ const Interaction = ({
               textClass = 'text-success'
             }
 
-            const element = contentElements.find(el => el.id === reply.botResponse)
+            let element
+            if (_.isString(reply.botResponse)) {
+              element = contentElements[reply.botResponse]
+            } else if (_.isObject(reply.botResponse) && reply.replySource.startsWith('qna')) {
+              // temporary hack to render qnas
+              element = contentElements[reply.replySource]
+            }
 
             return (
               <li key={i} className={textClass}>
-                {element && element.preview.slice(0, maxChars || 500)}
-                {element && element.preview.length > maxChars && '...'}
+                {element && element.slice(0, maxChars || 500)}
+                {element && element.length > maxChars && '...'}
               </li>
             )
           })}

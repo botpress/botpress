@@ -9,7 +9,7 @@ export default class Testing extends React.Component {
     scenarios: [],
     isRunning: false,
     recordView: false,
-    contentElements: []
+    contentElements: {}
   }
 
   componentDidMount() {
@@ -18,14 +18,20 @@ export default class Testing extends React.Component {
 
   loadScenarios = async () => {
     const { data } = await this.props.bp.axios.get('/mod/testing/scenarios')
-    this.setState({ scenarios: data.scenarios, status: data.status })
+    this.setState({ scenarios: data.scenarios, status: data.status }, this.setContent)
 
     if (data.status && !data.status.replaying && this.interval) {
       clearInterval(this.interval)
       this.setState({ isRunning: false })
     }
+  }
 
-    this.fetchPreviews(this.extractElementIds(data.scenarios))
+  setContent = async () => {
+    const { scenarios } = this.state
+    const elementPreviews = await this.getElementPreviews(scenarios)
+    const qnaPreviews = this.getQnaPreviews(scenarios)
+
+    this.setState({ contentElements: { ...elementPreviews, ...qnaPreviews } })
   }
 
   runAll = async () => {
@@ -42,19 +48,30 @@ export default class Testing extends React.Component {
     }
   }
 
-  extractElementIds(scenarios) {
-    const elIds = _.chain(scenarios)
+  getQnaPreviews(scenarios) {
+    return _.chain(scenarios)
+      .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies))
+      .filter(reply => _.isObject(reply.botResponse) && reply.replySource.startsWith('qna'))
+      .reduce((acc, next) => {
+        acc[next.replySource] = next.botResponse.text
+        return acc
+      }, {})
+      .value()
+  }
+
+  getElementPreviews = async scenarios => {
+    const elementIds = _.chain(scenarios)
       .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies.map(rep => rep.botResponse)))
       .filter(_.isString)
       .uniq()
       .value()
 
-    return elIds
-  }
-
-  fetchPreviews = async elementIds => {
     const { data } = await this.props.bp.axios.post('/mod/testing/fetchPreviews', { elementIds })
-    this.setState({ contentElements: data })
+
+    return data.reduce((acc, next) => {
+      acc[next.id] = next.preview
+      return acc
+    }, {})
   }
 
   renderSummary = () => {
