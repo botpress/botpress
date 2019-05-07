@@ -30,4 +30,4 @@ ENV LANG=C.UTF-8
 EXPOSE 3000
 
 
-CMD ./botpress/duckling & ./bp
+CMD ./duckling & ./bp
