@@ -48,8 +48,8 @@ export default class ModuleUnpacker {
     })
 
     mkdirp.sync(finalDirectory) // Create the `.cache` directory if doesn't exist
-    // We rename in case the extraction failed and .cache is corrupted
-    fse.renameSync(temporaryDestination, finalDestination)
+    // We move in case the extraction failed and .cache is corrupted
+    fse.moveSync(temporaryDestination, finalDestination)
 
     return finalDestination
   }
