@@ -122,11 +122,9 @@ export class ModuleResourceLoader {
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
       const isModified = isNewFile || (await this._isModified(to))
       if (isNewFile || !isModified) {
-        if (!(await this.ghost.global().fileExists('/', to))) {
-          debug('adding missing file "%s"', file)
-          await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
-          await this._addHashToFile(to)
-        }
+        debug('adding missing file "%s"', file)
+        await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
+        await this._addHashToFile(to)
       } else {
         debug('not copying file "%s" because it has been changed manually', file)
       }
