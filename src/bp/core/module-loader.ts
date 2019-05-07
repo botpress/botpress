@@ -120,6 +120,13 @@ export class ModuleLoader {
     return Object.keys(initedModules)
   }
 
+  public async disableModuleResources(modules: string[]) {
+    for (const module of modules) {
+      const resourceLoader = new ModuleResourceLoader(this.logger, module, this.ghost)
+      await resourceLoader.disableResources()
+    }
+  }
+
   public async reloadModule(moduleLocation: string, moduleName: string) {
     const resolver = new ModuleResolver(this.logger)
     const absoluteLocation = await resolver.resolve(moduleLocation)
@@ -149,6 +156,7 @@ export class ModuleLoader {
       this.entryPoints.set(name, module)
 
       const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
+      await resourceLoader.enableResources()
       await resourceLoader.runMigrations()
       await resourceLoader.importResources()
     } catch (err) {
