@@ -56,7 +56,7 @@ export class Slot extends React.Component {
         validationAction: this.state.selectedActionOption && this.state.selectedActionOption.value,
         intent: intent && intent.name,
         slotName: slot && slot.name,
-        entity: slot && slot.entity
+        entities: slot && slot.entities
       }
 
       this.props.onDataChanged && this.props.onDataChanged(data)

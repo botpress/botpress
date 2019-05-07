@@ -1,12 +1,12 @@
 import {
   BotTemplate,
+  ContentElement,
+  ElementChangedAction,
   Flow,
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
-  Skill,
-  ContentElement,
-  ElementChangedAction
+  Skill
 } from 'botpress/sdk'
 import { ValidationError } from 'errors'
 
@@ -17,12 +17,12 @@ import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
 
+import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
+import { BotService } from './services/bot-service'
 import ConfigReader from './services/module/config-reader'
 import { ModuleResourceLoader } from './services/module/resources-loader'
 import { TYPES } from './types'
-import ModuleResolver from './modules/resolver'
-import { BotService } from './services/bot-service'
 
 const MODULE_SCHEMA = joi.object().keys({
   onServerStarted: joi.func().required(),
@@ -149,6 +149,7 @@ export class ModuleLoader {
       this.entryPoints.set(name, module)
 
       const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
+      await resourceLoader.runMigrations()
       await resourceLoader.importResources()
     } catch (err) {
       this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)

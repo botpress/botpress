@@ -1,12 +1,22 @@
 import { Logger } from 'botpress/sdk'
 import crypto from 'crypto'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import os from 'os'
 import path from 'path'
 
 import { GhostService } from '../ghost/service'
 
+const debug = DEBUG('initialization')
+  .sub('modules')
+  .sub('resources')
+
 const CHECKSUM = '//CHECKSUM:'
+
+interface ModuleMigrationInstruction {
+  /** exact name of the files to delete (path is relative to the migration file) */
+  filesToDelete: string[]
+}
 
 /** Describes a resource that the module will export to the data folder */
 interface ResourceExportPath {
@@ -27,6 +37,13 @@ export class ModuleResourceLoader {
   }
 
   constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {}
+
+  async runMigrations() {
+    const mfile = `${this.modulePath}/migrations.json`
+    if (fse.existsSync(mfile)) {
+      await this._executeMigration(mfile)
+    }
+  }
 
   async importResources() {
     this.exportPaths = [
@@ -94,20 +111,22 @@ export class ModuleResourceLoader {
     }
   }
 
+  @WrapErrorsWith('Error copying module ressources')
   private async _updateOutdatedFiles(src, dest): Promise<void> {
     const files = fse.readdirSync(src)
 
     for (const file of files) {
       const from = path.join(src, file)
       const to = path.join(dest, file)
+
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
       const isModified = isNewFile || (await this._isModified(to))
-
       if (isNewFile || !isModified) {
+        debug('adding missing file "%s"', file)
         await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
         await this._addHashToFile(to)
       } else {
-        this.logger.debug(`File ${file} has been changed manually, skipping...`)
+        debug('not copying file "%s" because it has been changed manually', file)
       }
     }
   }
@@ -146,5 +165,28 @@ export class ModuleResourceLoader {
     await this.ghost
       .global()
       .upsertFile('/', filename, `${CHECKSUM}${this._calculateHash(fileContent)}${os.EOL}${fileContent}`)
+  }
+
+  @WrapErrorsWith(args => `Error in migration script "${args[2]}" located at "${args[3]}".`)
+  private async _executeMigration(migrationsFile: string) {
+    const content: ModuleMigrationInstruction[] = JSON.parse(fse.readFileSync(migrationsFile, 'utf8'))
+    if (!content) {
+      throw new Error(`Expected a valid JSON object.`)
+    }
+
+    for (const migration of content) {
+      if (!Array.isArray(migration.filesToDelete)) {
+        continue
+      }
+
+      for (const fileToDelete of migration.filesToDelete) {
+        if (await this.ghost.global().fileExists('/', fileToDelete)) {
+          debug('migration deleted file "%s"', fileToDelete)
+          await this.ghost.global().deleteFile('/', fileToDelete)
+        } else {
+          debug('not deleting file "%s", reason: not found', fileToDelete)
+        }
+      }
+    }
   }
 }
