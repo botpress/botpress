@@ -2,16 +2,28 @@
   padding-top: 20px;
   min-height: 100vh;
   background: #fdfdfd;
-  h2 {
-    margin: 0;
+  .empty {
+    background: white;
+    border: solid 1px rgba(0, 0, 0, 0.05);
+    h3 {
+      font-weight: 500;
+    }
+    p {
+      font-size: 17px;
+    }
   }
-}
+  .testSuite {
+    h2 {
+      margin: 0;
+    }
+  }
 
-.summary {
-  strong {
-    margin-right: 10px;
+  .summary {
+    strong {
+      margin-right: 10px;
+    }
+    margin-bottom: 20px;
   }
-  margin-bottom: 20px;
 }
 
 .scenario {

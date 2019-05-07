@@ -3,6 +3,7 @@ import { Button, Grid, Row, Col, Glyphicon } from 'react-bootstrap'
 import style from './style.scss'
 import Scenario from './Scenario'
 import ScenarioRecorder from './ScenarioRecorder'
+import NoScenarios from './NoScenarios'
 
 export default class Testing extends React.Component {
   state = {
@@ -91,44 +92,51 @@ export default class Testing extends React.Component {
     this.setState({ recordView: !this.state.recordView })
   }
 
-  renderRecorder = () => {
-    return <ScenarioRecorder bp={this.props.bp} onSave={this.loadScenarios} cancel={this.toggleRecordView} />
-  }
-
-  renderScenarios = () => {
-    return (
-      <Grid>
-        <Row>
-          <Col md={7} mdOffset={1}>
-            <h2>Scenarios</h2>
-            {this.renderSummary()}
-          </Col>
-          <Col md={3}>
-            <div className="pull-right">
-              <Button onClick={this.runAll} disabled={this.state.isRunning}>
-                <Glyphicon glyph="play" /> Run All
-              </Button>
-              &nbsp;
-              <Button onClick={this.toggleRecordView}>
-                <Glyphicon glyph="record " /> Record new
-              </Button>
-            </div>
-          </Col>
-        </Row>
-        {this.state.scenarios.map(s => (
-          <Row key={s.name}>
-            <Col md={10} mdOffset={1}>
-              <Scenario scenario={s} contentElements={this.state.contentElements} bp={this.props.bp} />
-            </Col>
-          </Row>
-        ))}
-      </Grid>
-    )
-  }
-
   render() {
     return (
-      <div className={style.workspace}>{this.state.recordView ? this.renderRecorder() : this.renderScenarios()}</div>
+      <div className={style.workspace}>
+        <Grid>
+          <Row>
+            <Col md={10} mdOffset={1}>
+              {this.state.recordView && (
+                <ScenarioRecorder bp={this.props.bp} onSave={this.loadScenarios} cancel={this.toggleRecordView} />
+              )}
+              {!this.state.recordView &&
+                this.state.scenarios.length === 0 && <NoScenarios onRecordClicked={this.toggleRecordView} />}
+              {!this.state.recordView &&
+                this.state.scenarios.length > 0 && (
+                  <div className={style.testSuite}>
+                    <Row>
+                      <Col md={8}>
+                        <h2>Scenarios</h2>
+                        {this.renderSummary()}
+                      </Col>
+                      <Col md={4}>
+                        <div className="pull-right">
+                          <Button onClick={this.runAll} disabled={this.state.isRunning}>
+                            <Glyphicon glyph="play" /> Run All
+                          </Button>
+                          &nbsp;
+                          <Button onClick={this.toggleRecordView}>
+                            <Glyphicon glyph="record " /> Record new
+                          </Button>
+                        </div>
+                      </Col>
+                    </Row>
+                    {this.state.scenarios.map(s => (
+                      <Scenario
+                        key={s.name}
+                        scenario={s}
+                        contentElements={this.state.contentElements}
+                        bp={this.props.bp}
+                      />
+                    ))}
+                  </div>
+                )}
+            </Col>
+          </Row>
+        </Grid>
+      </div>
     )
   }
 }

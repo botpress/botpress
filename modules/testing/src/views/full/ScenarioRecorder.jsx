@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Button, FormControl, Grid, Row, Col } from 'react-bootstrap'
+import { Button, FormControl, Row, Col } from 'react-bootstrap'
 
 class ScenarioRecorder extends React.Component {
   state = {
@@ -41,9 +41,9 @@ class ScenarioRecorder extends React.Component {
 
   render() {
     return (
-      <Grid>
+      <div>
         <Row>
-          <Col md={10} mdOffset={1}>
+          <Col md={12}>
             <h2>Record a scenario</h2>
             {this.state.isRecording && <Button onClick={this.stopRecording}>Stop Recording</Button>}
             {!this.state.isRecording && (
@@ -56,11 +56,7 @@ class ScenarioRecorder extends React.Component {
           </Col>
         </Row>
         <Row>
-          <Col md={10} mdOffset={1}>
-            <p>
-              This tool allow you to chat with your bot and record the interaction. It can then be replayed to make sure
-              your bot still answers as expected.
-            </p>
+          <Col md={12}>
             {this.state.recordedScenario && (
               <div>
                 <FormControl
@@ -93,7 +89,7 @@ class ScenarioRecorder extends React.Component {
             )}
           </Col>
         </Row>
-      </Grid>
+      </div>
     )
   }
 }
