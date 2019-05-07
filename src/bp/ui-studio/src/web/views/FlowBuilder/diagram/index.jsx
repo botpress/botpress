@@ -493,15 +493,10 @@ export default class FlowBuilder extends Component {
   }
 
   renderCatchAllInfo() {
-    const nbOnReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
     const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
 
     return (
       <div>
-        <Button bsStyle="link" onClick={this.handleFlowWideClicked}>
-          <Label bsStyle={nbOnReceive > 0 ? 'danger' : 'default'}>{nbOnReceive}</Label> flow-wide onReceive
-        </Button>
-
         <Button bsStyle="link" onClick={this.handleFlowWideClicked}>
           <Label bsStyle={nbNext > 0 ? 'primary' : 'default'}>{nbNext}</Label> flow-wide
           {nbNext === 1 ? ' transition' : ' transitions'}

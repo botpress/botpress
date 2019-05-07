@@ -3,7 +3,7 @@ import values from 'lodash/values'
 import { withRouter } from 'react-router-dom'
 
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
-import { deleteFlow, duplicateFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, renameFlow} from '~/actions'
 
 import SidePanel from '../sidePanel'
 
@@ -15,7 +15,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
   deleteFlow,
-  duplicateFlow
+  duplicateFlow,
+  renameFlow
 }
 
 const ConnectedSidePanel = connect(mapStateToProps, mapDispatchToProps)(withRouter(SidePanel))

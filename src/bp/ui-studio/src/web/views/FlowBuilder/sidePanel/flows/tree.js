@@ -9,7 +9,7 @@ import style from './style.scss'
 const theme = merge({}, defaultTheme, {
   tree: {
     base: {
-      color: 'black',
+      color: '#1e1e1e',
       backgroundColor: 'transparent',
       height: '100%'
     },
@@ -20,7 +20,7 @@ const theme = merge({}, defaultTheme, {
       },
       header: {
         base: {
-          color: 'black'
+          color: '#1e1e1e'
         }
       }
     }

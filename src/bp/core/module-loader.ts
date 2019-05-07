@@ -157,6 +157,7 @@ export class ModuleLoader {
 
       const resourceLoader = new ModuleResourceLoader(this.logger, name, this.ghost)
       await resourceLoader.enableResources()
+      await resourceLoader.runMigrations()
       await resourceLoader.importResources()
     } catch (err) {
       this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)

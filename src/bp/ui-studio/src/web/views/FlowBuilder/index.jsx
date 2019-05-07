@@ -41,20 +41,21 @@ class FlowBuilder extends Component {
     this.init()
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     this.init()
+
+    const { flow } = this.props.match.params
+    const nextRouteFlow = `${flow}.flow.json`
+
+    if (prevProps.currentFlow !== this.props.currentFlow) {
+      this.pushFlowState(this.props.currentFlow)
+    } else if (flow && prevProps.currentFlow !== nextRouteFlow) {
+      this.props.switchFlow(nextRouteFlow)
+    }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { flow } = nextProps.match.params
-    if (flow) {
-      const nextFlow = `${flow}.flow.json`
-      if (this.props.currentFlow !== nextFlow) {
-        this.props.switchFlow(nextFlow)
-      }
-    } else if (this.props.currentFlow) {
-      this.props.history.push(`/flows/${this.props.currentFlow.replace(/\.flow\.json/, '')}`)
-    }
+  pushFlowState = flow => {
+    this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
   }
 
   componentWillUnmount() {
@@ -91,32 +92,34 @@ class FlowBuilder extends Component {
           <PageHeader className={style.header} width="100%">
             <Topbar readOnly={readOnly} />
           </PageHeader>
-          {!readOnly && (
-            <Toolbar
-              onSaveAllFlows={() => {
-                this.diagram.saveAllFlows()
-              }}
-              onCreateFlow={name => {
-                this.diagram.createFlow(name)
-              }}
-              onDelete={() => {
-                this.diagram.deleteSelectedElements()
-              }}
-              onCopy={() => {
-                this.diagram.copySelectedElementToBuffer()
-              }}
-              onPaste={() => {
-                this.diagram.pasteElementFromBuffer()
-              }}
-            />
-          )}
           <div className={style.workspace}>
             <SplitPane split="vertical" minSize={200} defaultSize={250}>
               <div className={style.sidePanel}>
-                <SidePanel readOnly={readOnly} />
+                <SidePanel
+                  readOnly={readOnly}
+                  onCreateFlow={name => {
+                    this.diagram.createFlow(name)
+                    this.props.switchFlow(`${name}.flow.json`)
+                  }}
+                />
               </div>
-
               <div className={style.diagram}>
+                {!readOnly && (
+                  <Toolbar
+                    onSaveAllFlows={() => {
+                      this.diagram.saveAllFlows()
+                    }}
+                    onDelete={() => {
+                      this.diagram.deleteSelectedElements()
+                    }}
+                    onCopy={() => {
+                      this.diagram.copySelectedElementToBuffer()
+                    }}
+                    onPaste={() => {
+                      this.diagram.pasteElementFromBuffer()
+                    }}
+                  />
+                )}
                 <Diagram
                   readOnly={readOnly}
                   ref={el => {
