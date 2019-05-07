@@ -2,7 +2,7 @@ const _ = require('lodash')
 
 // Make sure extractedSlots exists
 event.state.session.extractedSlots = event.state.session.extractedSlots || {}
-rotateTurns()
+handleSlotsExpiry()
 extractIntentSlots()
 
 function extractIntentSlots() {
@@ -34,7 +34,7 @@ function extractIntentSlots() {
   }
 }
 
-function rotateTurns() {
+function handleSlotsExpiry() {
   for (let slot of _.values(event.state.session.extractedSlots)) {
     if (typeof slot.turns === 'number') {
       ++slot.turns
