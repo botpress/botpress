@@ -81,9 +81,9 @@ export class FlowService {
     }
   }
 
-  async saveAll(botId: string, flowViews: FlowView[]) {
+  async saveAll(botId: string, flowViews: FlowView[], flowsToKeep: string[] = []) {
     process.ASSERT_LICENSED()
-    if (!flowViews.find(f => f.name === 'main.flow.json')) {
+    if (!flowViews.find(f => f.name === 'main.flow.json') && flowsToKeep.indexOf('main.flow.json') === -1) {
       throw new Error(`Expected flows list to contain 'main.flow.json'`)
     }
 
@@ -100,7 +100,11 @@ export class FlowService {
       ])
     )
 
-    const pathsToOmit = _.flatten(flowsToSave.map(flow => [flow.flowPath, flow.uiPath]))
+    const pathsToOmit = _.flatten([
+      ...flowsToSave.map(flow => [flow.flowPath, flow.uiPath]),
+      ...flowsToKeep.map(f => [f, f.replace('.flow.json', '.ui.json')])
+    ])
+
     const flowsToDelete = flowFiles.filter(f => !pathsToOmit.includes(f))
     const flowsDeletePromises = flowsToDelete.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
 
