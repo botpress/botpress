@@ -1,4 +1,5 @@
 import { forceForwardSlashes } from 'core/misc/utils'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable } from 'inversify'
@@ -48,12 +49,9 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  @WrapErrorsWith(args => `[Disk Storage Error while moving file from "${args[0]}" to  "${args[1]}".`)
   async moveFile(fromPath: string, toPath: string): Promise<void> {
-    try {
-      return fse.move(fromPath, toPath)
-    } catch (e) {
-      throw new VError(e, `[Disk Storage] Error moving file "${fromPath}" to "${toPath}"`)
-    }
+    return fse.move(fromPath, toPath)
   }
 
   async deleteDir(dirPath: string): Promise<void> {
