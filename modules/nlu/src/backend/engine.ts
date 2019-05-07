@@ -211,7 +211,7 @@ export default class ScopedEngine implements Engine {
     })
 
     this._exactIntentMatcher = new ExactMatcher(trainingSet)
-    this._regexIntentMatcher = new RegexMatcher(trainingSet)
+    this._regexIntentMatcher = new RegexMatcher(trainingSet, this.logger)
     await this.intentClassifier.load(intentModels)
 
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)

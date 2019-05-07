@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Sequence } from '../../typings'
 
 export default class RegexMatcher {
-  constructor(private trainingSet: Sequence[]) {}
+  constructor(private trainingSet: Sequence[], private readonly logger?: sdk.Logger) {}
 
   match(text: string, includedContext: string[]): sdk.NLU.Intent | void {
     const filteredDataset = this.trainingSet.filter(
@@ -16,8 +16,12 @@ export default class RegexMatcher {
 
     const lowText = text.toLowerCase()
     const seq = _.find(filteredDataset, s => {
-      if (lowText.search(s.cannonical.slice(4, s.cannonical.search('</re>'))) != -1) {
-        return true
+      try {
+        if (lowText.search(s.cannonical.slice(4, s.cannonical.search('</re>'))) != -1) {
+          return true
+        }
+      } catch (e) {
+        this.logger.error(`Error matching regular expression '${s.cannonical}': ${e.message}`)
       }
       return false
     })
