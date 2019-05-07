@@ -53,4 +53,5 @@ edition.json
 # for python savvy users
 .python-version
 /internal-modules
+/private-modules
 /src/bp/ml/node-svm
