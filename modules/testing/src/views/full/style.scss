@@ -31,19 +31,20 @@
     display: flex;
     text-transform: none;
     justify-content: space-between;
-    padding: 10px 20px;
+    padding: 5px 20px;
 
     .title {
       display: flex;
-      align-items: flex-end;
-      font-size: 2rem;
-      margin-bottom: 5px;
+      align-items: center;
+      font-size: 1.7rem;
       cursor: pointer;
     }
-    p {
-      margin: 0 0 0 20px;
-      font-size: 12px;
-      font-weight: normal;
+    .scenarioStatus {
+      display: flex;
+      align-items: baseline;
+      > span {
+        margin-right: 10px;
+      }
     }
   }
 

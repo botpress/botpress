@@ -9,7 +9,7 @@ import FailureReport from './FailureReport'
 
 class Scenario extends React.Component {
   state = {
-    open: false
+    expanded: false
   }
 
   renderStatusLabel = status => {
@@ -30,29 +30,27 @@ class Scenario extends React.Component {
     )
   }
 
+  toggleExpanded = expanded => {
+    this.setState({ expanded })
+  }
+
   render() {
     const { scenario } = this.props
-    const expanded = this.state.open || (scenario.status && scenario.status === 'pending')
+    const expanded = this.state.expanded || (scenario.status && scenario.status === 'pending')
     return (
       <Panel className={style.scenario} id={scenario.name} expanded={expanded}>
         <Panel.Heading className={style.scenarioHead}>
-          <Panel.Title>
-            <div
-              className={style.title}
-              onClick={e => {
-                this.setState({ open: !expanded })
-              }}
-            >
-              {expanded && <MdExpandLess />}
-              {!expanded && <MdExpandMore />}
-              {scenario.name}
-            </div>
-            <p>
-              {scenario.status && <span>{scenario.completedSteps} / </span>}
-              {scenario.steps.length} interactions
-            </p>
+          <Panel.Title className={style.title} onClick={this.toggleExpanded.bind(this, !expanded)}>
+            {expanded && <MdExpandLess />}
+            {!expanded && <MdExpandMore />}
+            {scenario.name}
           </Panel.Title>
-          <div>{this.renderStatusLabel(scenario.status)}</div>
+          <div className={style.scenarioStatus}>
+            <span>
+              {scenario.status && `${scenario.completedSteps}`} / {scenario.steps.length} interactions
+            </span>
+            {this.renderStatusLabel(scenario.status)}
+          </div>
         </Panel.Heading>
         <Panel.Collapse>
           <Panel.Body className={style.scenarioBody}>
