@@ -55,3 +55,5 @@ const getCircularReplacer = () => {
 export const safeStringify = (obj: any, spaces?: number) => JSON.stringify(obj, getCircularReplacer(), spaces || 0)
 
 export const forceForwardSlashes = path => path.replace(/\\/g, '/')
+
+export const getCacheKeyInMinutes = (minutes: number = 1) => Math.round(new Date().getTime() / 1000 / 60 / minutes)

@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
-import { AuthUser, Stage } from 'core/misc/interfaces'
+import { UntrustedSandbox } from 'core/misc/code-sandbox'
+import { AuthUser } from 'core/misc/interfaces'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -207,7 +208,7 @@ export class HookService {
       console: 'inherit',
       sandbox: {
         ...hook.args,
-        process: _.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
+        process: UntrustedSandbox.getSandboxProcessArgs(),
         printObject
       },
       timeout: hook.options.timeout,
