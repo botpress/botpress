@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
-export default class Composer extends Component {
+class Composer extends Component {
   componentDidMount() {
     this.textInput.focus()
   }
@@ -38,19 +39,26 @@ export default class Composer extends Component {
   render() {
     return (
       <div className={'bpw-composer'}>
-        <textarea
-          tabIndex="1"
-          ref={input => {
-            this.textInput = input
-          }}
-          onFocus={this.props.onFocus}
-          placeholder={this.props.placeholder}
-          onChange={this.props.change}
-          value={this.props.text}
-          onKeyPress={this.handleKeyPress}
-          onKeyDown={this.handleKeyDown}
-        />
+        <div className={'bpw-composer-inner'}>
+          <textarea
+            tabIndex="1"
+            ref={input => {
+              this.textInput = input
+            }}
+            onFocus={this.props.onFocus}
+            placeholder={this.props.placeholder}
+            onChange={this.props.change}
+            value={this.props.text}
+            onKeyPress={this.handleKeyPress}
+            onKeyDown={this.handleKeyDown}
+          />
+          <button className={'bpw-send-button'} disabled={!this.props.text.length} onClick={this.props.send}>
+            <FormattedMessage id="composer.send" />
+          </button>
+        </div>
       </div>
     )
   }
 }
+
+export default injectIntl(Composer)

@@ -509,13 +509,13 @@ body {
 .bpw-composer {
   border-top-width: 1px;
   border-top-style: solid;
-  border-top-color: #000000;
+  border-top-color: #aaaaaa;
   position: relative;
   padding: 0.5rem 0 0;
   background: rgba(255, 255, 255, 0.9);
   transition: border 0.3s ease;
   outline: none;
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
 }
 
 .bpw-composer textarea {
@@ -524,11 +524,29 @@ body {
   width: 100%;
   resize: none;
   line-height: 1.2;
-  height: 43px;
+  height: 50px;
   border: none;
   font-size: 1rem;
   padding: 0.75rem 1rem;
+  padding-right: 60px;
   margin-bottom: 0.5rem;
+}
+
+.bpw-send-button {
+  position: absolute;
+  right: 25px;
+  bottom: 28px;
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bpw-send-button:hover {
+  background: #d8d8d8;
 }
 
 /** HEADER STUFF */

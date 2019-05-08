@@ -36,3 +36,21 @@ export const downloadFile = (name, blob) => {
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
 }
+
+export const checkLocationOrigin = () => {
+  if (!window.location.origin) {
+    const { protocol, hostname, port } = window.location
+    window.location.origin = `${protocol}//${hostname}${port && ':' + port}`
+  }
+}
+
+export const initializeAnalytics = () => {
+  if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
+    try {
+      ReactGA.initialize('UA-90044826-2')
+      ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
+    } catch (err) {
+      console.log('Error init analytics', err)
+    }
+  }
+}
