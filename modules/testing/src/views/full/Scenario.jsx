@@ -40,7 +40,7 @@ class Scenario extends React.Component {
   }
 
   render() {
-    const { scenario } = this.props
+    const { scenario, isRunning } = this.props
     const pending = scenario.status && scenario.status === 'pending'
     const expanded = this.state.expanded || pending
     return (
@@ -50,7 +50,7 @@ class Scenario extends React.Component {
             {expanded && <MdExpandLess />}
             {!expanded && <MdExpandMore />}
             <span>{scenario.name}</span>
-            {!pending && <Glyphicon onClick={this.handleRunClick} className="text-success" glyph="play" />}
+            {!isRunning && <Glyphicon onClick={this.handleRunClick} className="text-success" glyph="play" />}
           </Panel.Title>
           <div className={style.scenarioStatus}>
             <span>

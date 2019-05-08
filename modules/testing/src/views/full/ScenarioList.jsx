@@ -33,7 +33,7 @@ export default ({ scenarios, runAll, runSingle, previews, isRunning, toggleRecor
         </Col>
       </Row>
       {scenarios.map(s => (
-        <Scenario key={s.name} scenario={s} run={runSingle} previews={previews} bp={bp} />
+        <Scenario key={s.name} scenario={s} run={runSingle} previews={previews} bp={bp} isRunning={isRunning} />
       ))}
     </div>
   )
