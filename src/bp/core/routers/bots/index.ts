@@ -18,7 +18,7 @@ import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router, Express } from 'express'
+import { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -267,9 +267,9 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const flowViews = <FlowView[]>req.body
+        const flowViews = <FlowView[]>req.body.dirtyFlows
 
-        await this.flowService.saveAll(botId, flowViews)
+        await this.flowService.saveAll(botId, flowViews, req.body.cleanFlows)
         res.sendStatus(201)
       })
     )

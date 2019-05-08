@@ -2,6 +2,7 @@ import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
 import BatchRunner from './BatchRunner'
+import { getDirtyFlows } from '../reducers/selectors'
 
 // Flows
 export const requestFlows = createAction('FLOWS/REQUEST')
@@ -22,20 +23,33 @@ export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flow
 export const saveAllFlows = () => (dispatch, getState) => {
   dispatch(requestSaveFlows())
 
-  const flows = _.values(getState().flows.flowsByName).map(flow => ({
-    name: flow.name,
-    version: '0.0.1',
-    flow: flow.name,
-    location: flow.location,
-    startNode: flow.startNode,
-    catchAll: flow.catchAll,
-    links: flow.links,
-    nodes: flow.nodes,
-    skillData: flow.skillData,
-    timeoutNode: flow.timeoutNode
-  }))
+  const state = getState()
+  const flowsByName = state.flows.flowsByName
 
-  axios.post(`${window.BOT_API_PATH}/flows`, flows).then(() => {
+  let dirtyFlows = getDirtyFlows(state)
+  const cleanFlows = _.chain(flowsByName)
+    .values()
+    .map(flow => flow.name)
+    .difference(dirtyFlows)
+    .value()
+
+  dirtyFlows = dirtyFlows.filter(name => !!flowsByName[name]).map(name => {
+    const flow = flowsByName[name]
+    return {
+      name,
+      version: '0.0.1',
+      flow: name,
+      location: flow.location,
+      startNode: flow.startNode,
+      catchAll: flow.catchAll,
+      links: flow.links,
+      nodes: flow.nodes,
+      skillData: flow.skillData,
+      timeoutNode: flow.timeoutNode
+    }
+  })
+
+  axios.post(`${window.BOT_API_PATH}/flows`, { cleanFlows, dirtyFlows }).then(() => {
     dispatch(receiveSaveFlows())
   })
 }
