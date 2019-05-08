@@ -48,8 +48,11 @@
     .title {
       display: flex;
       align-items: center;
-      font-size: 1.7rem;
       cursor: pointer;
+      span:last-of-type {
+        font-size: 12px;
+        margin-left: 15px;
+      }
     }
     .scenarioStatus {
       display: flex;

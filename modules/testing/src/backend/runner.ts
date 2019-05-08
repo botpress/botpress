@@ -6,7 +6,7 @@ import { convertLastMessages } from './utils'
 
 const TIMEOUT = 3000
 
-export class Replayer {
+export class SenarioRunner {
   private _active: RunningScenario[]
   private _status: ScenarioStatus
   private _interval: any
@@ -17,6 +17,7 @@ export class Replayer {
 
   startReplay() {
     this._status = {}
+    this._active = []
     this._interval = setInterval(this._checkScenarioTimeout.bind(this), 5000)
   }
 
@@ -43,6 +44,7 @@ export class Replayer {
     }
 
     const { name, completedSteps, steps } = scenario
+
     const conversation = convertLastMessages(event.state.session.lastMessages, event.id)
     if (!conversation) {
       this._failScenario(name, { reason: 'Could not extract messages for the event ' + event.id })
@@ -83,7 +85,7 @@ export class Replayer {
     return (this._status && this._status[scenarioName]) || {}
   }
 
-  isReplaying() {
+  isRunning() {
     return !!this._active.length
   }
 

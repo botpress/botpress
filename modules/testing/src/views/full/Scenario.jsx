@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Label } from 'react-bootstrap'
+import { Panel, Label, Glyphicon } from 'react-bootstrap'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 
 import style from './style.scss'
@@ -34,20 +34,27 @@ class Scenario extends React.Component {
     this.setState({ expanded })
   }
 
+  handleRunClick = e => {
+    e.stopPropagation()
+    this.props.run(this.props.scenario)
+  }
+
   render() {
     const { scenario } = this.props
-    const expanded = this.state.expanded || (scenario.status && scenario.status === 'pending')
+    const pending = scenario.status && scenario.status === 'pending'
+    const expanded = this.state.expanded || pending
     return (
       <Panel className={style.scenario} id={scenario.name} expanded={expanded}>
         <Panel.Heading className={style.scenarioHead}>
           <Panel.Title className={style.title} onClick={this.toggleExpanded.bind(this, !expanded)}>
             {expanded && <MdExpandLess />}
             {!expanded && <MdExpandMore />}
-            {scenario.name}
+            <span>{scenario.name}</span>
+            {!pending && <Glyphicon onClick={this.handleRunClick} className="text-success" glyph="play" />}
           </Panel.Title>
           <div className={style.scenarioStatus}>
             <span>
-              {scenario.status && `${scenario.completedSteps}`} / {scenario.steps.length} interactions
+              {scenario.status && `${scenario.completedSteps} /`} {scenario.steps.length} interactions
             </span>
             {this.renderStatusLabel(scenario.status)}
           </div>
@@ -63,7 +70,7 @@ class Scenario extends React.Component {
                 <Interaction
                   {...step}
                   key={step.userMessage}
-                  contentElements={this.props.contentElements}
+                  previews={this.props.previews}
                   success={success}
                   failure={failure}
                   skipped={skipped}
@@ -80,7 +87,7 @@ class Scenario extends React.Component {
                 mismatch={scenario.mismatch}
                 failureIdx={scenario.completedSteps + 1}
                 skipped={scenario.steps.length - scenario.completedSteps - 1}
-                contentElements={this.props.contentElements}
+                previews={this.props.previews}
                 bp={this.props.bp}
               />
             </Panel.Footer>

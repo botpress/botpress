@@ -4,16 +4,7 @@ import classnames from 'classnames'
 import { MdCheck, MdClose, MdRemove } from 'react-icons/md'
 import style from './style.scss'
 
-const Interaction = ({
-  userMessage,
-  success,
-  failure,
-  skipped,
-  botReplies,
-  mismatchIdx,
-  contentElements,
-  maxChars
-}) => {
+const Interaction = ({ userMessage, success, failure, skipped, botReplies, mismatchIdx, previews, maxChars }) => {
   return (
     <div className={style.interaction}>
       <p className={skipped ? 'text-muted' : ''}>
@@ -30,7 +21,7 @@ const Interaction = ({
           <strong>Bot</strong>
         </div>
         <ul style={{ listStyle: 'none' }}>
-          {botReplies.map((reply, i) => {
+          {(botReplies || []).map((reply, i) => {
             let textClass = 'text-muted'
             if (failure && mismatchIdx !== null && mismatchIdx === i) {
               textClass = 'text-danger'
@@ -40,10 +31,10 @@ const Interaction = ({
 
             let element
             if (_.isString(reply.botResponse)) {
-              element = contentElements[reply.botResponse]
+              element = previews[reply.botResponse]
             } else if (_.isObject(reply.botResponse) && reply.replySource.startsWith('qna')) {
               // temporary hack to render qnas
-              element = contentElements[reply.replySource]
+              element = previews[reply.replySource]
             }
 
             return (

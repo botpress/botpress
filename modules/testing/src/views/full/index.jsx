@@ -1,27 +1,34 @@
 import React from 'react'
-import { Button, Grid, Row, Col, Glyphicon } from 'react-bootstrap'
+import { Grid, Row, Col } from 'react-bootstrap'
 import style from './style.scss'
-import Scenario from './Scenario'
 import ScenarioRecorder from './ScenarioRecorder'
 import NoScenarios from './NoScenarios'
+import ScenarioList from './ScenarioList'
 
 export default class Testing extends React.Component {
   state = {
     scenarios: [],
     isRunning: false,
     recordView: false,
-    contentElements: {}
+    previews: {}
   }
 
   componentDidMount() {
     this.loadScenarios()
+    // this.fetchStatus()
   }
+
+  // fetchStatus = () => {
+  //   const {data} = await this.props.bp.axios.get('/mod/testing/status')
+
+  //   // if (data.status && !data.status)
+  // }
 
   loadScenarios = async () => {
     const { data } = await this.props.bp.axios.get('/mod/testing/scenarios')
     this.setState({ scenarios: data.scenarios, status: data.status }, this.setContent)
 
-    if (data.status && !data.status.replaying && this.interval) {
+    if (data.status && this.interval && !data.status.running) {
       clearInterval(this.interval)
       this.setState({ isRunning: false })
     }
@@ -32,21 +39,36 @@ export default class Testing extends React.Component {
     const elementPreviews = await this.getElementPreviews(scenarios)
     const qnaPreviews = this.getQnaPreviews(scenarios)
 
-    this.setState({ contentElements: { ...elementPreviews, ...qnaPreviews } })
+    this.setState({ previews: { ...elementPreviews, ...qnaPreviews } })
   }
 
-  runAll = async () => {
+  longPoll = () => {
+    if (!this.interval) {
+      this.loadScenarios()
+      this.interval = setInterval(this.loadScenarios, 2000)
+    }
+  }
+
+  runAllScenarios = async () => {
     if (this.state.isRunning) {
       return
     }
 
     this.setState({ isRunning: true })
-    await this.props.bp.axios.get('/mod/testing/runAll')
+    await this.props.bp.axios.post('/mod/testing/runAll')
 
-    if (!this.interval) {
-      this.loadScenarios()
-      this.interval = setInterval(this.loadScenarios, 2000)
+    this.longPoll()
+  }
+
+  runSingleScenario = async scenario => {
+    if (this.state.isRunning) {
+      return
     }
+
+    this.setState({ isRunning: true })
+    await this.props.bp.axios.post('/mod/testing/run', { scenario })
+
+    this.longPoll()
   }
 
   getQnaPreviews(scenarios) {
@@ -75,21 +97,12 @@ export default class Testing extends React.Component {
     }, {})
   }
 
-  renderSummary = () => {
-    const total = this.state.scenarios.length
-    const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
-    const passCount = this.state.scenarios.filter(s => s.status === 'pass').length // we don't do a simple substraction in case some are pending
-    return (
-      <div className={style.summary}>
-        <strong>Total: {total}</strong>
-        {!!failCount && <strong className="text-danger">Failed: {failCount}</strong>}
-        {!!passCount && <strong className="text-success">Passed: {passCount}</strong>}
-      </div>
-    )
-  }
-
   toggleRecordView = () => {
     this.setState({ recordView: !this.state.recordView })
+  }
+
+  get hasScenarios() {
+    return this.state.scenarios.length > 0
   }
 
   render() {
@@ -101,37 +114,18 @@ export default class Testing extends React.Component {
               {this.state.recordView && (
                 <ScenarioRecorder bp={this.props.bp} onSave={this.loadScenarios} cancel={this.toggleRecordView} />
               )}
+              {!this.state.recordView && !this.hasScenarios && <NoScenarios onRecordClicked={this.toggleRecordView} />}
               {!this.state.recordView &&
-                this.state.scenarios.length === 0 && <NoScenarios onRecordClicked={this.toggleRecordView} />}
-              {!this.state.recordView &&
-                this.state.scenarios.length > 0 && (
-                  <div className={style.testSuite}>
-                    <Row>
-                      <Col md={8}>
-                        <h2>Scenarios</h2>
-                        {this.renderSummary()}
-                      </Col>
-                      <Col md={4}>
-                        <div className="pull-right">
-                          <Button onClick={this.runAll} disabled={this.state.isRunning}>
-                            <Glyphicon glyph="play" /> Run All
-                          </Button>
-                          &nbsp;
-                          <Button onClick={this.toggleRecordView}>
-                            <Glyphicon glyph="record " /> Record new
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-                    {this.state.scenarios.map(s => (
-                      <Scenario
-                        key={s.name}
-                        scenario={s}
-                        contentElements={this.state.contentElements}
-                        bp={this.props.bp}
-                      />
-                    ))}
-                  </div>
+                this.hasScenarios && (
+                  <ScenarioList
+                    scenarios={this.state.scenarios}
+                    runAll={this.runAllScenarios}
+                    runSingle={this.runSingleScenario}
+                    previews={this.state.previews}
+                    isRunning={this.state.isRunning}
+                    toggleRecorder={this.toggleRecordView}
+                    bp={this.props.bp}
+                  />
                 )}
             </Col>
           </Row>

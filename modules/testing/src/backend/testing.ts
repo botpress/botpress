@@ -4,7 +4,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 
 import { Recorder } from './recorder'
-import { Replayer } from './replayer'
+import { SenarioRunner } from './runner'
 import { Scenario } from './typings'
 
 const SCENARIO_FOLDER = 'scenarios'
@@ -13,14 +13,14 @@ export class Testing {
   private bp: typeof sdk
   private botId: string
   private _recorder: Recorder
-  private _replayer: Replayer
+  private _runner: SenarioRunner
   private _scenarios: Scenario[]
 
   constructor(bp: typeof sdk, botId: string) {
     this.bp = bp
     this.botId = botId
     this._recorder = new Recorder()
-    this._replayer = new Replayer(bp)
+    this._runner = new SenarioRunner(bp)
   }
 
   startRecording(chatUserId) {
@@ -34,7 +34,7 @@ export class Testing {
   getStatus() {
     return {
       recording: this._recorder.isRecording(),
-      replaying: this._replayer.isReplaying()
+      running: this._runner.isRunning()
     }
   }
 
@@ -47,19 +47,19 @@ export class Testing {
       return {
         name,
         steps,
-        ...this._replayer.getStatus(name)
+        ...this._runner.getStatus(name)
       }
     })
   }
 
   processIncomingEvent(event: sdk.IO.IncomingEvent): sdk.IO.EventState | void {
     this._recorder.processIncoming(event)
-    return this._replayer.processIncoming(event)
+    return this._runner.processIncoming(event)
   }
 
   processCompletedEvent(event: sdk.IO.IncomingEvent): void {
     this._recorder.processCompleted(event)
-    this._replayer.processCompleted(event)
+    this._runner.processCompleted(event)
   }
 
   async saveScenario(name, scenario) {
@@ -70,19 +70,34 @@ export class Testing {
     await this._loadScenarios()
   }
 
+  private _executeScenario(scenario: Scenario) {
+    const eventDestination: sdk.IO.EventDestination = {
+      channel: 'web',
+      botId: this.botId,
+      threadId: undefined,
+      target: `test_${nanoid()}`
+    }
+
+    this._runner.runScenario({ ...scenario }, eventDestination)
+  }
+
+  async executeSingle(liteScenario: Partial<Scenario>) {
+    this._runner.startReplay()
+
+    // TODO perform scenario validation here
+    const scenario = await this.bp.ghost
+      .forBot(this.botId)
+      .readFileAsObject(SCENARIO_FOLDER, liteScenario.name + '.json')
+
+    this._executeScenario({ ...liteScenario, ...scenario })
+  }
+
   async executeAll() {
     const scenarios = await this._loadScenarios()
-    this._replayer.startReplay()
+    this._runner.startReplay()
 
     scenarios.forEach(scenario => {
-      const eventDestination: sdk.IO.EventDestination = {
-        channel: 'web',
-        botId: this.botId,
-        threadId: undefined,
-        target: `test_${nanoid()}`
-      }
-
-      this._replayer.runScenario({ ...scenario }, eventDestination)
+      this._executeScenario(scenario)
     })
   }
 
