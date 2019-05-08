@@ -13,11 +13,6 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     res.send({ scenarios, status })
   })
 
-  router.get('/status', async (req, res) => {
-    const status = await testByBot[req.params.botId].getStatus()
-    res.send({ status })
-  })
-
   router.post('/runAll', async (req, res) => {
     await testByBot[req.params.botId].executeAll()
     res.sendStatus(200)

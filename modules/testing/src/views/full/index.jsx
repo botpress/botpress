@@ -13,28 +13,25 @@ export default class Testing extends React.Component {
     previews: {}
   }
 
-  componentDidMount() {
-    this.loadScenarios()
-    // this.fetchStatus()
+  async componentDidMount() {
+    await this.loadScenarios()
+    await this.loadPreviews()
   }
-
-  // fetchStatus = () => {
-  //   const {data} = await this.props.bp.axios.get('/mod/testing/status')
-
-  //   // if (data.status && !data.status)
-  // }
 
   loadScenarios = async () => {
     const { data } = await this.props.bp.axios.get('/mod/testing/scenarios')
-    this.setState({ scenarios: data.scenarios, status: data.status }, this.setContent)
+    let newState = { scenarios: data.scenarios }
 
-    if (data.status && this.interval && !data.status.running) {
+    if (this.interval && data.status && !data.status.running) {
+      newState.isRunning = false
       clearInterval(this.interval)
-      this.setState({ isRunning: false })
+      this.interval = undefined
     }
+
+    this.setState(newState)
   }
 
-  setContent = async () => {
+  loadPreviews = async () => {
     const { scenarios } = this.state
     const elementPreviews = await this.getElementPreviews(scenarios)
     const qnaPreviews = this.getQnaPreviews(scenarios)
@@ -45,7 +42,7 @@ export default class Testing extends React.Component {
   longPoll = () => {
     if (!this.interval) {
       this.loadScenarios()
-      this.interval = setInterval(this.loadScenarios, 2000)
+      this.interval = setInterval(this.loadScenarios, 1500)
     }
   }
 
