@@ -6,6 +6,7 @@ import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import style from './style.scss'
 import Interaction from './Interaction'
 import FailureReport from './FailureReport'
+import classnames from 'classnames'
 
 class Scenario extends React.Component {
   state = {
@@ -50,7 +51,9 @@ class Scenario extends React.Component {
             {expanded && <MdExpandLess />}
             {!expanded && <MdExpandMore />}
             <span>{scenario.name}</span>
-            {!isRunning && <Glyphicon onClick={this.handleRunClick} className="text-success" glyph="play" />}
+            {!isRunning && (
+              <Glyphicon onClick={this.handleRunClick} className={classnames(style.run, 'text-success')} glyph="play" />
+            )}
           </Panel.Title>
           <div className={style.scenarioStatus}>
             <span>
