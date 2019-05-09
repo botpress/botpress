@@ -6,10 +6,9 @@
 
 .wrapper {
   width: 100%;
-  border-top: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
   background: #fafafa;
-  padding: 0 40px;
+  padding-left: 15px;
 }
 
 .toolbar {
@@ -32,7 +31,7 @@
   margin: 6px 0 0 2px;
   height: 30px;
   background: 0;
-  border-color: transparent;
+  border-color: transparent !important;
   border-style: solid;
   border-width: 1px;
   border-radius: 2px;
@@ -57,10 +56,7 @@
     opacity: 0.54;
   }
 
-  &:hover {
-    border-color: transparent !important;
-    border-color: rgba(0, 0, 0, 0.06);
-
+  &:not([disabled]):hover {
     i {
       opacity: 1;
     }

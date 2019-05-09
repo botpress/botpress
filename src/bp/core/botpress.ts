@@ -114,6 +114,7 @@ export class Botpress {
 
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
+    await this.cleanDisabledModules()
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
@@ -378,6 +379,13 @@ export class Botpress {
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
     this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
+  }
+
+  private async cleanDisabledModules() {
+    const config = await this.configProvider.getBotpressConfig()
+    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+
+    await this.moduleLoader.disableModuleResources(disabledModules)
   }
 
   private async startServer() {

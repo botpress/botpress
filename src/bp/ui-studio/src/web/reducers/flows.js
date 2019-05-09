@@ -293,14 +293,14 @@ reducer = reduceReducers(
   reducer,
   handleActions(
     {
-      [renameFlow]: (state, { payload }) => ({
+      [renameFlow]: (state, { payload : { targetFlow, name } }) => ({
         ...state,
         flowsByName: doRenameFlow({
-          flow: state.currentFlow,
-          name: payload,
+          flow: targetFlow,
+          name,
           flows: _.values(state.flowsByName)
         }),
-        currentFlow: payload
+        currentFlow: name
       }),
 
       [updateFlow]: (state, { payload }) => {
@@ -350,7 +350,7 @@ reducer = reduceReducers(
 
       [deleteFlow]: (state, { payload: name }) => ({
         ...state,
-        currentFlow: state.currentFlow === name ? null : state.currentFlow,
+        currentFlow: state.currentFlow === name ? 'main.flow.json' : state.currentFlow,
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
       }),

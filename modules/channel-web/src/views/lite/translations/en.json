@@ -1,0 +1,10 @@
+{
+  "composer.placeholder": "Reply to {name}",
+  "composer.send": "Send",
+  "header.conversations": "Conversations",
+  "conversationList.untitledConversation": "Untitled Conversation",
+  "botInfo.backToConversation": "Back to Conversation",
+  "botInfo.startConversation": "Start Conversation",
+  "botInfo.privacyPolicy": "View Privacy Policy",
+  "botInfo.termsAndConditions": "View Terms of Service"
+}
