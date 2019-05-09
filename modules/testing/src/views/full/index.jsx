@@ -1,21 +1,33 @@
 import React from 'react'
-import { Grid, Row, Col } from 'react-bootstrap'
+import { Grid, Row, Col, Button, Glyphicon } from 'react-bootstrap'
 import style from './style.scss'
 import ScenarioRecorder from './ScenarioRecorder'
 import NoScenarios from './NoScenarios'
-import ScenarioList from './ScenarioList'
+import Scenario from './Scenario'
 
 export default class Testing extends React.Component {
   state = {
     scenarios: [],
     isRunning: false,
+    isRecording: false,
     recordView: false,
     previews: {}
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.init()
+  }
+
+  init = async () => {
     await this.loadScenarios()
-    await this.loadPreviews()
+    this.loadPreviews()
+  }
+
+  startRecording = () => {
+    this.setState({ isRecording: true })
+    this.props.bp.axios.get('/mod/testing/startRecording/' + window.__BP_VISITOR_ID)
+
+    setTimeout(window.botpressWebChat.sendEvent({ type: 'show' }), 1500)
   }
 
   loadScenarios = async () => {
@@ -102,27 +114,78 @@ export default class Testing extends React.Component {
     return this.state.scenarios.length > 0
   }
 
+  renderSummary = () => {
+    if (this.state.isRecording) {
+      return
+    }
+
+    const total = this.state.scenarios.length
+    const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
+    const passCount = this.state.scenarios.filter(s => s.status === 'pass').length // we don't do a simple substraction in case some are pending
+
+    return (
+      <div className={style.summary}>
+        <strong>Total: {total}</strong>
+        {!!failCount && <strong className="text-danger">Failed: {failCount}</strong>}
+        {!!passCount && <strong className="text-success">Passed: {passCount}</strong>}
+      </div>
+    )
+  }
+
+  handleScenarioSaved = () => {
+    this.setState({ isRecording: false })
+    this.init()
+  }
+
   render() {
     return (
       <div className={style.workspace}>
         <Grid>
           <Row>
             <Col md={10} mdOffset={1}>
-              {this.state.recordView && (
-                <ScenarioRecorder bp={this.props.bp} onSave={this.loadScenarios} cancel={this.toggleRecordView} />
+              <Row>
+                {/* TODO extract this in header component ? */}
+                <Col md={8}>
+                  <h2>Scenarios</h2>
+                  {this.renderSummary()}
+                </Col>
+                {!this.state.isRecording && (
+                  <Col md={4}>
+                    <div className="pull-right">
+                      <Button bsSize="small" onClick={this.runAllScenarios} disabled={this.state.isRunning}>
+                        <Glyphicon glyph="play" /> Run All
+                      </Button>
+                      &nbsp;
+                      <Button bsSize="small" onClick={this.startRecording}>
+                        <Glyphicon glyph="record " /> Record new
+                      </Button>
+                    </div>
+                  </Col>
+                )}
+              </Row>
+
+              {this.state.isRecording && (
+                <ScenarioRecorder
+                  bp={this.props.bp}
+                  onSave={this.handleScenarioSaved}
+                  isRecording={this.state.isRecording}
+                />
               )}
-              {!this.state.recordView && !this.hasScenarios && <NoScenarios onRecordClicked={this.toggleRecordView} />}
-              {!this.state.recordView &&
+              {!this.state.isRecording && !this.hasScenarios && <NoScenarios onRecordClicked={this.startRecording} />}
+              {!this.state.isRecording &&
                 this.hasScenarios && (
-                  <ScenarioList
-                    scenarios={this.state.scenarios}
-                    runAll={this.runAllScenarios}
-                    runSingle={this.runSingleScenario}
-                    previews={this.state.previews}
-                    isRunning={this.state.isRunning}
-                    toggleRecorder={this.toggleRecordView}
-                    bp={this.props.bp}
-                  />
+                  <div>
+                    {this.state.scenarios.map(s => (
+                      <Scenario
+                        key={s.name}
+                        scenario={s}
+                        run={this.runSingleScenario.bind(this, s)}
+                        previews={this.state.previews}
+                        bp={this.props.bp}
+                        isRunning={this.state.isRunning}
+                      />
+                    ))}
+                  </div>
                 )}
             </Col>
           </Row>

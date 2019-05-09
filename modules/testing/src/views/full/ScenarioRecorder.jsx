@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Button, FormControl, Row, Col } from 'react-bootstrap'
+import { Button, FormControl, Row, Col, Alert } from 'react-bootstrap'
 
 class ScenarioRecorder extends React.Component {
   state = {
@@ -20,8 +20,9 @@ class ScenarioRecorder extends React.Component {
   }
 
   stopRecording = async () => {
+    window.botpressWebChat.sendEvent({ type: 'hide' })
     const { data } = await this.props.bp.axios.get('/mod/testing/stopRecording')
-    this.setState({ isRecording: false, recordedScenario: JSON.stringify(data, null, 2) })
+    this.setState({ recordedScenario: JSON.stringify(data, null, 2) })
   }
 
   flush = () => {
@@ -41,55 +42,53 @@ class ScenarioRecorder extends React.Component {
 
   render() {
     return (
-      <div>
-        <Row>
-          <Col md={12}>
-            <h2>Record a scenario</h2>
-            {this.state.isRecording && <Button onClick={this.stopRecording}>Stop Recording</Button>}
-            {!this.state.isRecording && (
-              <div>
-                <Button onClick={this.props.cancel}>Cancel</Button>
-                &nbsp;
-                <Button onClick={this.startRecording}>Start Recording</Button>
-              </div>
-            )}
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            {this.state.recordedScenario && (
-              <div>
-                <FormControl
-                  name="scenarioName"
-                  placeholder={'Name of your scenario'}
-                  style={{ width: 400 }}
-                  value={this.state.scenarioName}
-                  onChange={e => {
-                    this.setState({ scenarioName: e.target.value })
-                  }}
-                />
-                &nbsp;
-                <Button onClick={this.saveScenario} bsStyle="primary">
-                  Save Scenario
+      <Row>
+        <Col md={10}>
+          {this.props.isRecording &&
+            !this.state.recordedScenario && (
+              <Alert style={{ marginTop: 25 }}>
+                <h4>Recording</h4>
+                <p>
+                  You are now recording a scenario, every interaction in the emulator will be saved in a scenario. You
+                  can either continue your current session or start a new session.
+                </p>
+                <Button bsSize="sm" onClick={this.stopRecording}>
+                  Stop recording
                 </Button>
-                &nbsp;
-                <Button onClick={this.flush} bsStyle="danger">
-                  Discard
-                </Button>
-                <FormControl
-                  componentClass="textarea"
-                  rows="30"
-                  name="recordedScenario"
-                  value={this.state.recordedScenario}
-                  onChange={e => {
-                    this.setState({ recordedScenario: e.target.value })
-                  }}
-                />
-              </div>
+              </Alert>
             )}
-          </Col>
-        </Row>
-      </div>
+          {this.state.recordedScenario && (
+            <div>
+              <FormControl
+                name="scenarioName"
+                placeholder={'Name of your scenario'}
+                style={{ width: 400 }}
+                value={this.state.scenarioName}
+                onChange={e => {
+                  this.setState({ scenarioName: e.target.value })
+                }}
+              />
+              &nbsp;
+              <Button onClick={this.saveScenario} bsStyle="primary">
+                Save Scenario
+              </Button>
+              &nbsp;
+              <Button onClick={this.flush} bsStyle="danger">
+                Discard
+              </Button>
+              <FormControl
+                componentClass="textarea"
+                rows="30"
+                name="recordedScenario"
+                value={this.state.recordedScenario}
+                onChange={e => {
+                  this.setState({ recordedScenario: e.target.value })
+                }}
+              />
+            </div>
+          )}
+        </Col>
+      </Row>
     )
   }
 }
