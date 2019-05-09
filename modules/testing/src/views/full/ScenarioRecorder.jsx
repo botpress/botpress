@@ -1,14 +1,18 @@
 import React from 'react'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+import { Button, FormControl, Row, Col, Alert, Form, Collapse } from 'react-bootstrap'
 
-import { Button, FormControl, Row, Col, Alert } from 'react-bootstrap'
+import style from './style.scss'
+import Interaction from './Interaction'
+
+const DEFAULT_STATE = {
+  recordedScenario: null,
+  scenarioName: '',
+  previewDisplyed: false
+}
 
 class ScenarioRecorder extends React.Component {
-  state = {
-    recordedScenario: null,
-    isRecording: false,
-    chatUserId: '',
-    scenarioName: ''
-  }
+  state = { ...DEFAULT_STATE }
 
   componentDidMount() {
     this.setState({ chatUserId: window.__BP_VISITOR_ID })
@@ -26,7 +30,8 @@ class ScenarioRecorder extends React.Component {
   }
 
   flush = () => {
-    this.setState({ recordedScenario: null })
+    this.setState(DEFAULT_STATE)
+    this.props.cancel()
   }
 
   saveScenario = async () => {
@@ -43,10 +48,10 @@ class ScenarioRecorder extends React.Component {
   render() {
     return (
       <Row>
-        <Col md={10}>
+        <Col md={10} className={style.scenarioRecorder}>
           {this.props.isRecording &&
             !this.state.recordedScenario && (
-              <Alert style={{ marginTop: 25 }}>
+              <Alert>
                 <h4>Recording</h4>
                 <p>
                   You are now recording a scenario, every interaction in the emulator will be saved in a scenario. You
@@ -59,32 +64,43 @@ class ScenarioRecorder extends React.Component {
             )}
           {this.state.recordedScenario && (
             <div>
-              <FormControl
-                name="scenarioName"
-                placeholder={'Name of your scenario'}
-                style={{ width: 400 }}
-                value={this.state.scenarioName}
-                onChange={e => {
-                  this.setState({ scenarioName: e.target.value })
-                }}
-              />
-              &nbsp;
-              <Button onClick={this.saveScenario} bsStyle="primary">
-                Save Scenario
-              </Button>
-              &nbsp;
-              <Button onClick={this.flush} bsStyle="danger">
-                Discard
-              </Button>
-              <FormControl
-                componentClass="textarea"
-                rows="30"
-                name="recordedScenario"
-                value={this.state.recordedScenario}
-                onChange={e => {
-                  this.setState({ recordedScenario: e.target.value })
-                }}
-              />
+              <Alert bsStyle="success">Recording complete</Alert>
+              <Form inline>
+                <FormControl
+                  name="scenarioName"
+                  placeholder={'Name of your scenario'}
+                  value={this.state.scenarioName}
+                  onChange={e => {
+                    this.setState({ scenarioName: e.target.value })
+                  }}
+                />
+                &nbsp;
+                <Button onClick={this.saveScenario} bsStyle="primary">
+                  Save
+                </Button>
+                &nbsp;
+                <Button onClick={this.flush}>Discard</Button>
+              </Form>
+              <div className={style.scenarioPreview}>
+                <span
+                  onClick={() => {
+                    this.setState({ previewDisplyed: !this.state.previewDisplyed })
+                  }}
+                >
+                  {this.state.previewDisplyed && <MdExpandLess />}
+                  {!this.state.previewDisplyed && <MdExpandMore />}
+                  Show details
+                </span>
+                <Collapse in={this.state.previewDisplyed} timeout={100}>
+                  <FormControl
+                    readOnly
+                    componentClass="textarea"
+                    name="recordedScenario"
+                    rows={this.state.recordedScenario.split(/\n/).length}
+                    value={this.state.recordedScenario}
+                  />
+                </Collapse>
+              </div>
             </div>
           )}
         </Col>

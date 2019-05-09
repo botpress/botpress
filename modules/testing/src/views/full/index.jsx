@@ -169,6 +169,7 @@ export default class Testing extends React.Component {
                   bp={this.props.bp}
                   onSave={this.handleScenarioSaved}
                   isRecording={this.state.isRecording}
+                  cancel={() => this.setState({ isRecording: false })}
                 />
               )}
               {!this.state.isRecording && !this.hasScenarios && <NoScenarios onRecordClicked={this.startRecording} />}
