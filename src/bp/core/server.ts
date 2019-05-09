@@ -287,8 +287,8 @@ export default class HTTPServer {
     app.get('/', (req, res) => res.redirect('/admin'))
   }
 
-  createRouterForBot(router: string, owner: string, options: RouterOptions): any & http.RouterExtension {
-    return this.botsRouter.getNewRouter(router, owner, options)
+  createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
+    return this.botsRouter.getNewRouter(router, identity, options)
   }
 
   deleteRouterForBot(router: string): void {
