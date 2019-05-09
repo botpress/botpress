@@ -27,7 +27,8 @@ const webConfig = {
     extensions: ['.js', '.jsx', '.css'],
     alias: {
       '~': path.resolve(__dirname, './src/web'),
-      DOCS: path.resolve(__dirname, '../../../docs/guide/docs')
+      DOCS: path.resolve(__dirname, '../../../docs/guide/docs'),
+      common: path.resolve(__dirname, '../../../out/bp/common')
     }
   },
   optimization: {
