@@ -15,6 +15,7 @@ export class Testing {
   private _recorder: Recorder
   private _runner: SenarioRunner
   private _scenarios: Scenario[]
+  private _interval: any
 
   constructor(bp: typeof sdk, botId: string) {
     this.bp = bp
@@ -23,7 +24,8 @@ export class Testing {
     this._runner = new SenarioRunner(bp)
   }
 
-  startRecording(chatUserId) {
+  async startRecording(chatUserId) {
+    await this._ensureHooksEnabled()
     this._recorder.startRecording(chatUserId)
   }
 
@@ -82,6 +84,7 @@ export class Testing {
   }
 
   async executeSingle(liteScenario: Partial<Scenario>) {
+    await this._ensureHooksEnabled()
     this._runner.startReplay()
 
     // TODO perform scenario validation here
@@ -93,12 +96,32 @@ export class Testing {
   }
 
   async executeAll() {
+    await this._ensureHooksEnabled()
     const scenarios = await this._loadScenarios()
     this._runner.startReplay()
 
     scenarios.forEach(scenario => {
       this._executeScenario(scenario)
     })
+  }
+
+  private async _ensureHooksEnabled() {
+    if (!this._interval) {
+      this._interval = setInterval(this._waitTestCompletion.bind(this), 2000)
+    }
+
+    await this.bp.experimental.enableHook('recorder', 'before_incoming_middleware', 'testing')
+    await this.bp.experimental.enableHook('recorder', 'after_event_processed', 'testing')
+  }
+
+  private async _waitTestCompletion() {
+    if (!this._runner.isRunning() && !this._recorder.isRecording()) {
+      await this.bp.experimental.disableHook('recorder', 'before_incoming_middleware', 'testing')
+      await this.bp.experimental.disableHook('recorder', 'after_event_processed', 'testing')
+
+      clearInterval(this._interval)
+      this._interval = undefined
+    }
   }
 
   private async _loadScenarios() {

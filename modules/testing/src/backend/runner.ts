@@ -61,9 +61,6 @@ export class SenarioRunner {
 
     if (steps.length !== completedSteps.length) {
       scenario.lastEventTs = +new Date()
-      if (name === 'bobby') {
-        return
-      }
       this._sendMessage(steps[completedSteps.length].userMessage, scenario.eventDestination)
     } else {
       this._passScenario(name)

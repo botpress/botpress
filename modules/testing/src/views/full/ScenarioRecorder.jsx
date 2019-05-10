@@ -65,11 +65,12 @@ class ScenarioRecorder extends React.Component {
           {this.state.recordedScenario && (
             <div>
               <Alert bsStyle="success">Recording complete</Alert>
-              <Form inline>
+              <Form onSubmit={e => e.preventDefault()} inline>
                 <FormControl
                   name="scenarioName"
                   placeholder={'Name of your scenario'}
                   value={this.state.scenarioName}
+                  onKeyDown={e => e.key === 'Enter' && this.saveScenario()}
                   onChange={e => {
                     this.setState({ scenarioName: e.target.value })
                   }}
