@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import reject from 'lodash/reject'
 import classnames from 'classnames'
-import {Tooltip, OverlayTrigger} from 'react-bootstrap'
+import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 
 import FlowsList from './flows'
 
@@ -38,11 +38,13 @@ export default class SidePanel extends Component {
       <div className={style.panel}>
         <div className={style.panelHead}>
           <span>Flows</span>
-          <button className={classnames(style.newFlow, "pull-right")} onClick={this.createFlow}>
-            <OverlayTrigger placement="bottom" overlay={<Tooltip>Create flow</Tooltip>}>
-              <i className="material-icons">create_new_folder</i>
-            </OverlayTrigger>
-          </button>
+          {!this.props.readOnly && (
+            <button className={classnames(style.newFlow, 'pull-right')} onClick={this.createFlow}>
+              <OverlayTrigger placement="bottom" overlay={<Tooltip>Create flow</Tooltip>}>
+                <i className="material-icons">create_new_folder</i>
+              </OverlayTrigger>
+            </button>
+          )}
         </div>
         <FlowsList
           readOnly={this.props.readOnly}
