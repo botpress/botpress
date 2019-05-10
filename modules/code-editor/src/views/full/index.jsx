@@ -1,6 +1,6 @@
 import Editor from './Editor'
 import Navigator from './Navigator'
-import { Button, Col, Row } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import { baseAction } from './utils/templates'
 import style from './style.scss'
 import { GoFileCode } from 'react-icons/go'
@@ -51,7 +51,7 @@ export default class CodeEditor extends React.Component {
       content: this.state.editedContent
     })
 
-    this.setState({ isEditing: false })
+    this.setState({ isEditing: false }, this.initialize)
   }
 
   handleFileChanged = selectedFile => this.setState({ isEditing: false, askConfirmDiscard: false, selectedFile })

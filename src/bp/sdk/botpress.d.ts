@@ -515,7 +515,7 @@ declare module 'botpress/sdk' {
 
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
-      nluContexts: NluContext[]
+      nluContexts?: NluContext[]
     }
 
     /**
@@ -524,7 +524,8 @@ declare module 'botpress/sdk' {
      * The TTL (Time-To-Live) represents how long the contexts will be valid before they are automatically removed.
      * For example, the default value of `1` will listen for that context only once (the next time the user speaks).
      *
-     * If a context was already present in the list, the higher TTL will win. */
+     * If a context was already present in the list, the higher TTL will win.
+     */
     export interface NluContext {
       context: string
       /** Represent the number of turns before the context is removed from the session */
@@ -1278,7 +1279,7 @@ declare module 'botpress/sdk' {
   /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace
-   * */
+   */
   export namespace experimental {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
