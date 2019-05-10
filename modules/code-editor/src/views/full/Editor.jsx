@@ -33,20 +33,21 @@ export default class Editor extends React.Component {
       typeRoots: ['types']
     })
 
-    const model = monaco.editor.createModel('', 'typescript', 'bp://files/blank.ts')
-    this.editor = monaco.editor.create(this.editorContainer, { model, theme: 'vs-dark' })
+    this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-dark' })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
-
     this.editor.onDidChangeModelContent(this.handleContentChanged)
+
+    this.loadFile({ name: 'blank.ts', content: '' }, true)
   }
 
-  loadFile(selectedFile) {
+  loadFile(selectedFile, noWrapper) {
     const { content, name } = selectedFile
 
     const uri = 'bp://files/' + name.replace('.js', '.ts')
     let model = monaco.editor.getModel(uri)
     if (!model) {
-      model = monaco.editor.createModel(wrapper.add(content), 'typescript', uri)
+      const fileContent = noWrapper ? content : wrapper.add(content)
+      model = monaco.editor.createModel(fileContent, 'typescript', uri)
     }
 
     this.editor && this.editor.setModel(model)
