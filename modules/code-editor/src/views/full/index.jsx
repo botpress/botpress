@@ -75,9 +75,6 @@ export default class CodeEditor extends React.Component {
           {errors && !!errors.length && `There are ${errors.length} errors in your file.`}
         </div>
         <br />
-        <Button bsSize="small" bsStyle="primary" onClick={this.saveChanges}>
-          Save Changes
-        </Button>
         &nbsp;
         {this.state.askConfirmDiscard ? (
           <Button

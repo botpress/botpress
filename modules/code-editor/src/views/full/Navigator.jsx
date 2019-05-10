@@ -1,5 +1,29 @@
-import { Treebeard } from 'react-treebeard'
 import { buildTree } from './utils/tree'
+
+import { Treebeard, theme as defaultTheme } from 'react-treebeard'
+
+import merge from 'lodash/merge'
+
+const style = merge({}, defaultTheme, {
+  tree: {
+    base: {
+      padding: '10px'
+    },
+    node: {
+      activeLink: {
+        fontWeight: 'bold'
+      },
+      toggle: {
+        wrapper: {
+          height: 10,
+          margin: '-9px 0 0 -9px'
+        },
+        height: 10,
+        width: 10
+      }
+    }
+  }
+})
 
 export default class Navigator extends React.Component {
   state = {
@@ -64,6 +88,6 @@ export default class Navigator extends React.Component {
       return null
     }
 
-    return <Treebeard data={this.state.nodes} onToggle={this.handleToggle} />
+    return <Treebeard data={this.state.nodes} onToggle={this.handleToggle} animations={false} style={style} />
   }
 }
