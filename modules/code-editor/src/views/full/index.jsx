@@ -1,9 +1,9 @@
 import Editor from './Editor'
 import Navigator from './Navigator'
-import { Button } from 'react-bootstrap'
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { baseAction } from './utils/templates'
 import style from './style.scss'
-import { GoFileCode } from 'react-icons/go'
+import { FiFilePlus } from 'react-icons/fi'
 import SplashScreen from './SplashScreen'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
@@ -101,11 +101,13 @@ export default class CodeEditor extends React.Component {
       <div style={{ display: 'flex', background: '#21252B' }}>
         <div style={{ width: 300 }}>
           <div className={style.section}>
-            <div style={{ display: 'inline-block' }}>Actions</div>
-            <div style={{ float: 'right', marginRight: 10 }}>
-              <a className={style.btn} onClick={this.createFilePrompt}>
-                Create <GoFileCode />
-              </a>
+            <strong>Actions</strong>
+            <div>
+              <OverlayTrigger placement="top" overlay={<Tooltip>New action</Tooltip>}>
+                <a className={style.btn} onClick={this.createFilePrompt}>
+                  <FiFilePlus />
+                </a>
+              </OverlayTrigger>
             </div>
           </div>
           {this.state.isEditing ? (
