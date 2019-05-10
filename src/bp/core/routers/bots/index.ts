@@ -119,10 +119,11 @@ export class BotsRouter extends CustomRouter {
     }
   }
 
-  getNewRouter(path: string, options?: RouterOptions) {
+  getNewRouter(path: string, identity: string, options?: RouterOptions) {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
+      router.use(this.needPermissions('write', identity))
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {
