@@ -35,6 +35,7 @@ export default class Editor extends React.Component {
 
     const model = monaco.editor.createModel('', 'typescript', 'bp://files/blank.ts')
     this.editor = monaco.editor.create(this.editorContainer, { model, theme: 'vs-dark' })
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
 
     this.editor.onDidChangeModelContent(this.handleContentChanged)
   }
