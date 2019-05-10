@@ -1,0 +1,25 @@
+.btn {
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.status {
+  color: #ffffff;
+  padding: 0 0 10px 0;
+}
+
+.section {
+  width: 100%;
+
+  padding: 2px 0 2px 5px;
+  border-top: 2px solid #222222;
+  border-bottom: 2px solid #222222;
+  color: #ffffff;
+  background: #333333;
+
+  .actions {
+    width: 200px;
+    align-self: right;
+    color: #ffffff;
+  }
+}
