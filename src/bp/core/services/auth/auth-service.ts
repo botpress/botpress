@@ -12,6 +12,7 @@ import { charsets, PasswordPolicy } from 'password-sheriff'
 
 import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
+import { SERVER_USER } from '../../server'
 import { TYPES } from '../../types'
 import { WorkspaceService } from '../workspace-service'
 
@@ -50,6 +51,11 @@ export default class AuthService {
   }
 
   async checkUserAuth(email: string, password: string, newPassword?: string, ipAddress: string = '') {
+    if (email === SERVER_USER) {
+      debug('user tried to login with server user %o', { email, ipAddress })
+      throw new InvalidCredentialsError()
+    }
+
     const user = await this.findUserByEmail(email || '', [
       'email',
       'password',

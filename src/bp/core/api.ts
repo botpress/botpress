@@ -29,7 +29,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
 
-const http = (httpServer: HTTPServer): typeof sdk.http => {
+const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
     createShortLink(name: string, destination: string, params?: any): void {
       httpServer.createShortLink(name, destination, params)
@@ -39,7 +39,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     },
     createRouterForBot(routerName: string, options?: sdk.RouterOptions): any & sdk.http.RouterExtension {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
-      return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
+      return httpServer.createRouterForBot(routerName, identity, options || defaultRouterOptions)
     },
     deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
@@ -224,7 +224,7 @@ export class RealTimeAPI implements RealTimeAPI {
 
 @injectable()
 export class BotpressAPIProvider {
-  http: typeof sdk.http
+  http: (owner: string) => typeof sdk.http
   events: typeof sdk.events
   dialog: typeof sdk.dialog
   config: typeof sdk.config
@@ -275,7 +275,7 @@ export class BotpressAPIProvider {
   }
 
   @Memoize()
-  async create(loggerName: string): Promise<typeof sdk> {
+  async create(loggerName: string, owner: string): Promise<typeof sdk> {
     return {
       version: '',
       RealTimePayload: RealTimePayload,
@@ -289,7 +289,7 @@ export class BotpressAPIProvider {
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
-      http: this.http,
+      http: this.http(owner),
       logger: await this.loggerProvider(loggerName),
       config: this.config,
       database: this.database,
@@ -307,18 +307,18 @@ export class BotpressAPIProvider {
 
 export function createForModule(moduleId: string): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`, `module.${moduleId}`)
 }
 
 export function createForGlobalHooks(): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`, 'hooks')
 }
 
 export function createForBotpress(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`, 'botpress')
 }
 
 export function createForAction(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Actions')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Actions', 'actions')
 }

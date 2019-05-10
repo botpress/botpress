@@ -21,6 +21,11 @@ export const defaultRoles: AuthRole[] = [
     name: 'Content Editor',
     description:
       'Content Editors have read/write access to content and NLU, and read-only access to flows and actions.',
-    rules: [{ res: '*', op: '+r' }, { res: 'admin.collaborators.*', op: '-r' }]
+    rules: [
+      { res: '*', op: '+r' },
+      { res: 'admin.collaborators.*', op: '-r' },
+      { res: 'bot.flows', op: '+r-w' },
+      { res: 'bot.content', op: '+r+w' }
+    ]
   }
 ]
