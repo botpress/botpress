@@ -21,6 +21,7 @@ import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
+import { HookService } from './services/hook/hook-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
@@ -203,6 +204,13 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
   }
 }
 
+const experimental = (hookService: HookService): typeof sdk.experimental => {
+  return {
+    disableHook: hookService.disableHook.bind(hookService),
+    enableHook: hookService.enableHook.bind(hookService)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -229,6 +237,7 @@ export class BotpressAPIProvider {
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
   mlToolkit: typeof sdk.MLToolkit
+  experimental: typeof sdk.experimental
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -246,7 +255,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
-    @inject(TYPES.MediaService) mediaService: MediaService
+    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.HookService) hookService: HookService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -261,6 +271,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
+    this.experimental = experimental(hookService)
   }
 
   @Memoize()
@@ -288,7 +299,8 @@ export class BotpressAPIProvider {
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
-      cms: this.cms
+      cms: this.cms,
+      experimental: this.experimental
     }
   }
 }
