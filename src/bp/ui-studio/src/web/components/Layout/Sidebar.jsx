@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { NavLink, withRouter } from 'react-router-dom'
 import classnames from 'classnames'
 import { Collapse } from 'react-bootstrap'
+import { GoBeaker } from 'react-icons/go'
 import _ from 'lodash'
 
 import PermissionsChecker from './PermissionsChecker'
@@ -116,6 +117,7 @@ class Sidebar extends React.Component {
             <NavLink to={path} title={module.menuText} activeClassName={style.active}>
               {moduleIcon}
               <span>{module.menuText}</span>
+              {module.experimental && <GoBeaker className={style.experimental} />}
             </NavLink>
           </li>
         </PermissionsChecker>
@@ -138,10 +140,6 @@ class Sidebar extends React.Component {
   )
 
   render() {
-    const modules = this.props.modules
-    const moduleItems = modules.filter(x => !x.noInterface).map(this.renderModuleItem)
-    const emptyClassName = classnames(style.empty, 'bp-empty')
-
     return (
       <aside style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
@@ -152,8 +150,8 @@ class Sidebar extends React.Component {
           </div>
           <ul className={classnames('nav', style.mainMenu)}>
             {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
-            {moduleItems}
-            <li className={emptyClassName} />
+            {this.props.modules.filter(m => !m.noInterface).map(this.renderModuleItem)}
+            <li className={classnames(style.empty, 'bp-empty')} />
           </ul>
         </div>
         {this.props.children}
