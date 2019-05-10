@@ -153,6 +153,28 @@ export class HookService {
     await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }
 
+  async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
+    try {
+      const rootPath = moduleName ? `/hooks/${hookType}/${moduleName}/` : `/hooks/${hookType}/`
+      await this.ghost.global().renameFile(rootPath, hookName + '.js', `.${hookName}.js`)
+      return true
+    } catch (error) {
+      // if the hook was already disabled or not found
+      return false
+    }
+  }
+
+  async enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
+    try {
+      const rootPath = moduleName ? `/hooks/${hookType}/${moduleName}/` : `/hooks/${hookType}/`
+      await this.ghost.global().renameFile(rootPath, `.${hookName}.js`, hookName + '.js')
+      return true
+    } catch (error) {
+      // if the hook was already enabled (or not found)
+      return false
+    }
+  }
+
   private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
     if (this._scriptsCache.has(hook.folder)) {
       return this._scriptsCache.get(hook.folder)!
