@@ -136,6 +136,8 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+    /** Whether or not the module is likely to change */
+    experimental?: boolean
   }
 
   /**
