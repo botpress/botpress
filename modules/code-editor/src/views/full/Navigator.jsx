@@ -4,7 +4,7 @@ import { buildTree } from './utils/tree'
 export default class Navigator extends React.Component {
   state = {
     files: undefined,
-    nodes: undefined
+    nodes: []
   }
 
   componentDidMount() {
@@ -18,13 +18,17 @@ export default class Navigator extends React.Component {
   }
 
   async refreshNodes() {
+    if (!this.props.files) {
+      return
+    }
+
     const { actionsGlobal, actionsBot } = this.props.files
 
     const nodes = []
 
     if (actionsBot) {
       nodes.push({
-        name: 'Bot',
+        name: `${window.BOT_NAME} (bot)`,
         toggled: true,
         children: buildTree(this.props.files.actionsBot)
       })
