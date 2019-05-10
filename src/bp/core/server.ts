@@ -46,7 +46,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
-const SERVER_USER = 'server::modules'
+export const SERVER_USER = 'server::modules'
 const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
@@ -287,8 +287,8 @@ export default class HTTPServer {
     app.get('/', (req, res) => res.redirect('/admin'))
   }
 
-  createRouterForBot(router: string, options: RouterOptions): any & http.RouterExtension {
-    return this.botsRouter.getNewRouter(router, options)
+  createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
+    return this.botsRouter.getNewRouter(router, identity, options)
   }
 
   deleteRouterForBot(router: string): void {

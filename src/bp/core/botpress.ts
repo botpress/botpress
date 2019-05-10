@@ -198,6 +198,11 @@ export class Botpress {
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
     const botsRef = await this.workspaceService.getBotRefs()
+
+    for (const botId of botsRef) {
+      await this.ghostService.forBot(botId).sync()
+    }
+
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
     const deleted = _.difference(botsRef, botsIds)

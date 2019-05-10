@@ -136,6 +136,8 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+    /** Whether or not the module is likely to change */
+    experimental?: boolean
   }
 
   /**
@@ -1271,5 +1273,14 @@ declare module 'botpress/sdk' {
      * @param context Variables to use for the template rendering
      */
     export function renderTemplate(item: TemplateItem, context): TemplateItem
+  }
+
+  /**
+   * These features are subject to change and should not be relied upon.
+   * They will eventually be either removed or moved in another namespace
+   * */
+  export namespace experimental {
+    export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
+    export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
   }
 }
