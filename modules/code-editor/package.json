@@ -19,7 +19,7 @@
   "dependencies": {
     "dts-gen": "^0.5.7",
     "monaco-editor": "^0.17.0",
-    "react-icons": "^3.6.1",
+    "react-icons": "^3.7.0",
     "react-treebeard": "^3.2.3"
   }
 }

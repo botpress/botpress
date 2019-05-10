@@ -2,6 +2,8 @@ import React from 'react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { wrapper } from './utils/actions'
 
+import style from './style.scss'
+
 export default class Editor extends React.Component {
   componentDidMount() {
     this.setupEditor()
@@ -17,11 +19,9 @@ export default class Editor extends React.Component {
       return
     }
 
-    if (!this.props.selectedFile) {
-      return this.loadFile({ name: 'blank.ts', content: '' })
+    if (this.props.selectedFile) {
+      this.loadFile(this.props.selectedFile)
     }
-
-    this.loadFile(this.props.selectedFile)
   }
 
   setupEditor() {
@@ -36,8 +36,6 @@ export default class Editor extends React.Component {
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-dark' })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
     this.editor.onDidChangeModelContent(this.handleContentChanged)
-
-    this.loadFile({ name: 'blank.ts', content: '' }, true)
   }
 
   loadFile(selectedFile, noWrapper) {
@@ -73,7 +71,6 @@ export default class Editor extends React.Component {
   }
 
   render() {
-    const height = window.innerHeight - 50 - 30 // Topbar - Statusbar
-    return <div ref={ref => (this.editorContainer = ref)} style={{ height }} />
+    return <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
   }
 }

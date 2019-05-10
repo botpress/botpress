@@ -4,6 +4,7 @@ import { Button } from 'react-bootstrap'
 import { baseAction } from './utils/templates'
 import style from './style.scss'
 import { GoFileCode } from 'react-icons/go'
+import SplashScreen from './SplashScreen'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
@@ -98,7 +99,7 @@ export default class CodeEditor extends React.Component {
   render() {
     return (
       <div style={{ display: 'flex', background: '#21252B' }}>
-        <div style={{ width: 400 }}>
+        <div style={{ width: 300 }}>
           <div className={style.section}>
             <div style={{ display: 'inline-block' }}>Actions</div>
             <div style={{ float: 'right', marginRight: 10 }}>
@@ -113,14 +114,15 @@ export default class CodeEditor extends React.Component {
             <Navigator files={this.state.files} onFileSelected={this.handleFileChanged} />
           )}
         </div>
-        <div style={{ width: '80%' }}>
+        {this.state.selectedFile && (
           <Editor
             bp={this.props.bp}
             selectedFile={this.state.selectedFile}
             onContentChanged={this.handleContentChanged}
             onSaveClicked={this.saveChanges}
           />
-        </div>
+        )}
+        {!this.state.selectedFile && <SplashScreen />}
       </div>
     )
   }

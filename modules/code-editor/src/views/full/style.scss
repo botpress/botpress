@@ -23,3 +23,32 @@
     color: #ffffff;
   }
 }
+
+.editor,
+.splashScreen {
+  flex-grow: 1;
+  height: calc(100vh - 50px - 30px);
+}
+
+.splashScreen {
+  background: #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    font-size: 250px;
+    margin-bottom: -50px;
+  }
+  > div {
+    width: 50%;
+    text-align: center;
+    font-size: 16px;
+    padding-bottom: 100px;
+    p:first-of-type {
+      margin-bottom: 20px;
+    }
+    kbd {
+      color: #616161;
+    }
+  }
+}
