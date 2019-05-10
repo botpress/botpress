@@ -5,7 +5,6 @@ import style from './style.scss'
 
 export default ({ onRecordClicked }) => (
   <div>
-    <h2>Scenarios</h2>
     <Jumbotron className={style.empty}>
       <h3>No conversation scenarios</h3>
       <p>
