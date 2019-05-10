@@ -23,7 +23,7 @@ export default class Editor {
 
   async fetchFiles() {
     return {
-      actionsGlobal: await this._loadFiles('/actions', 'action'),
+      actionsGlobal: this._config.allowGlobal && (await this._loadFiles('/actions', 'action')),
       actionsBot: await this._loadFiles('/actions', 'action', this._botId)
     }
   }
