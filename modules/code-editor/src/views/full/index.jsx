@@ -47,6 +47,11 @@ export default class CodeEditor extends React.Component {
   }
 
   saveChanges = async () => {
+    if (this.state.errorCount) {
+      window.alert('you have erros in your file')
+      return
+    }
+
     await this.props.bp.axios.post('/mod/code-editor/save', {
       ...this.state.selectedFile,
       content: this.state.editedContent
