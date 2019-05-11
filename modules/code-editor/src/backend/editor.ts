@@ -62,15 +62,23 @@ export default class Editor {
     }
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync(path.join(__dirname, '/../../node_modules/@types/node/index.d.ts'), 'utf-8')
 
     this._typings = {
       'process.d.ts': this._buildRestrictedProcessVars(),
-      'node.d.ts': nodeTyping.toString(),
+      'node.d.ts': this._getNodeTypings().toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`)
     }
 
     return this._typings
+  }
+
+  private _getNodeTypings() {
+    const getTypingPath = folder => path.join(__dirname, `/../../${folder}/@types/node/index.d.ts`)
+
+    if (fs.existsSync(getTypingPath('node_modules'))) {
+      return fs.readFileSync(getTypingPath('node_modules'), 'utf-8')
+    }
+    return fs.readFileSync(getTypingPath('node_production_modules'), 'utf-8')
   }
 
   private async _loadFiles(rootFolder: string, type: FileType, botId?: string): Promise<EditableFile[]> {
