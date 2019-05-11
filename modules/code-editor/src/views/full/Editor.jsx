@@ -8,6 +8,10 @@ export default class Editor extends React.Component {
   componentDidMount() {
     this.setupEditor()
     this.loadTypings()
+
+    if (this.props.selectedFile) {
+      this.loadFile(this.props.selectedFile)
+    }
   }
 
   componentWillUnmount() {
@@ -35,6 +39,11 @@ export default class Editor extends React.Component {
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-dark' })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
+    this.editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, this.props.onCreateNewClicked)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>
+      this.editor.trigger('', 'editor.action.quickCommand')
+    )
+
     this.editor.onDidChangeModelContent(this.handleContentChanged)
   }
 

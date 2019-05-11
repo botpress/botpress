@@ -21,14 +21,20 @@ export default () => (
         &nbsp;+&nbsp;
         <kbd>s</kbd>
       </p>
-      {/* <p>
+      <p>
         New file&nbsp;
+        <kbd>alt</kbd>
+        &nbsp;+&nbsp;
+        <kbd>n</kbd>
+      </p>
+      <p>
+        Command Palette&nbsp;
         <kbd>{hotKey}</kbd>
         &nbsp;+&nbsp;
         <kbd>shift</kbd>
         &nbsp;+&nbsp;
-        <kbd>n</kbd>
-      </p> */}
+        <kbd>p</kbd>
+      </p>
     </div>
   </div>
 )

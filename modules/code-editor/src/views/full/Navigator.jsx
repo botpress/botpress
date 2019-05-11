@@ -1,8 +1,8 @@
-import { buildTree } from './utils/tree'
-
-import { Treebeard, theme as defaultTheme } from 'react-treebeard'
-
 import merge from 'lodash/merge'
+import { Treebeard, theme as defaultTheme, decorators as defaultDecorators } from 'react-treebeard'
+import { GoTriangleRight } from 'react-icons/go'
+
+import { buildTree } from './utils/tree'
 
 const style = merge({}, defaultTheme, {
   tree: {
@@ -24,6 +24,19 @@ const style = merge({}, defaultTheme, {
     }
   }
 })
+
+const decorators = {
+  ...defaultDecorators,
+  Toggle: ({ style }) => {
+    return (
+      <div style={style.base}>
+        <div style={{ ...style.wrapper, display: 'flex' }}>
+          <GoTriangleRight />
+        </div>
+      </div>
+    )
+  }
+}
 
 export default class Navigator extends React.Component {
   state = {
@@ -88,6 +101,14 @@ export default class Navigator extends React.Component {
       return null
     }
 
-    return <Treebeard data={this.state.nodes} onToggle={this.handleToggle} animations={false} style={style} />
+    return (
+      <Treebeard
+        data={this.state.nodes}
+        onToggle={this.handleToggle}
+        animations={false}
+        style={style}
+        decorators={decorators}
+      />
+    )
   }
 }

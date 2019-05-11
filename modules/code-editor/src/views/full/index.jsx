@@ -119,6 +119,7 @@ export default class CodeEditor extends React.Component {
             selectedFile={this.state.selectedFile}
             onContentChanged={this.handleContentChanged}
             onSaveClicked={this.saveChanges}
+            onCreateNewClicked={this.createFilePrompt}
           />
         )}
         {!this.state.selectedFile && <SplashScreen />}
