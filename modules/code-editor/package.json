@@ -12,7 +12,7 @@
     "package": "./node_modules/.bin/module-builder package"
   },
   "devDependencies": {
-    "@types/node": "^10.11.7",
+    "@types/node": "10.11.7",
     "module-builder": "../../build/module-builder",
     "monaco-editor-webpack-plugin": "^1.7.0"
   },

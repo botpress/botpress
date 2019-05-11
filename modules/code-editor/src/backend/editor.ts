@@ -62,7 +62,7 @@ export default class Editor {
     }
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync('../../node_modules/@types/node/index.d.ts', 'utf-8')
+    const nodeTyping = fs.readFileSync(path.join(__dirname, '/../../node_modules/@types/node/index.d.ts'), 'utf-8')
 
     this._typings = {
       'process.d.ts': this._buildRestrictedProcessVars(),
