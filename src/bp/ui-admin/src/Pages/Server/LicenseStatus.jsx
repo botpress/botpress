@@ -150,7 +150,7 @@ class LicenseStatus extends React.Component {
             <h4>Enable Botpress Professionnal</h4>
             <p>
               Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
-              pro.
+              pro otherwise.
             </p>
             <p>
               <u>Method 1</u>
