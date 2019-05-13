@@ -49,14 +49,16 @@ export default class Editor extends React.Component {
   }
 
   loadFile(selectedFile, noWrapper) {
-    const { content, name } = selectedFile
+    const { content, location } = selectedFile
+    const uri = 'bp://files/' + location.replace('.js', '.ts')
 
-    const uri = 'bp://files/' + name.replace('.js', '.ts')
-    let model = monaco.editor.getModel(uri)
-    if (!model) {
-      const fileContent = noWrapper ? content : wrapper.add(content)
-      model = monaco.editor.createModel(fileContent, 'typescript', uri)
+    let oldModel = monaco.editor.getModel(uri)
+    if (oldModel) {
+      oldModel.dispose()
     }
+
+    const fileContent = noWrapper ? content : wrapper.add(content)
+    const model = monaco.editor.createModel(fileContent, 'typescript', uri)
 
     this.editor && this.editor.setModel(model)
   }

@@ -11,7 +11,11 @@ const action = {
 
 const wrapper = {
   add: content => `${action.startBlock}${content}${action.endBlock}`,
-  remove: content => content.replace(action.startBlock, '').replace(action.endBlock, '')
+  remove: content =>
+    content
+      .replace(action.startBlock.trim(), '')
+      .replace(action.endBlock.trim(), '')
+      .trim()
 }
 
 export { wrapper }

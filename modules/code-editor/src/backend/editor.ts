@@ -50,10 +50,10 @@ export default class Editor {
 
   async saveFile(file: EditableFile) {
     this._validateContent(file)
-    const { name, botId, content } = file
+    const { location, botId, content } = file
     const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
 
-    await ghost.upsertFile('/actions', name, content)
+    await ghost.upsertFile('/actions', location, content)
   }
 
   async loadTypings() {
