@@ -23,6 +23,8 @@ export default () => (
       </p>
       <p>
         New file&nbsp;
+        <kbd>{hotKey}</kbd>
+        &nbsp;+&nbsp;
         <kbd>alt</kbd>
         &nbsp;+&nbsp;
         <kbd>n</kbd>

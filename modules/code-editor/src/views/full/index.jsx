@@ -20,6 +20,18 @@ export default class CodeEditor extends React.Component {
 
   componentDidMount() {
     this.initialize()
+    document.addEventListener('keydown', this.createNewFileShortcut)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.createNewFileShortcut)
+  }
+
+  createNewFileShortcut = e => {
+    // The editor normally handles keybindings, so this one is only active while it is closed
+    if (e.ctrlKey && e.altKey && e.key === 'n' && !this.state.selectedFile) {
+      this.createFilePrompt()
+    }
   }
 
   async initialize() {
@@ -35,12 +47,15 @@ export default class CodeEditor extends React.Component {
 
     if (!FILENAME_REGEX.test(name)) {
       alert('Invalid filename')
+      return
     }
 
+    name = name.endsWith('.js') ? name : name + '.js'
     this.setState({
       isEditing: true,
       selectedFile: {
-        name: name.endsWith('.js') ? name : name + '.js',
+        name,
+        location: name,
         content: baseAction,
         type: 'action',
         botId: window.BOT_ID
@@ -49,21 +64,44 @@ export default class CodeEditor extends React.Component {
   }
 
   saveChanges = async () => {
+    if (!this.state.editedContent) {
+      return
+    }
+
     await this.props.bp.axios.post('/mod/code-editor/save', {
       ...this.state.selectedFile,
       content: this.state.editedContent
     })
 
-    this.setState({ isEditing: false }, this.initialize)
+    this.setState({ isEditing: false, editedContent: undefined }, this.initialize)
   }
 
   handleFileChanged = selectedFile => this.setState({ isEditing: false, askConfirmDiscard: false, selectedFile })
   handleContentChanged = editedContent => this.setState({ isEditing: true, editedContent })
   handleProblemsChanged = errors => this.setState({ errors })
 
-  renderErrors(errors) {
+  handleDiscardChanges = () => {
+    if (this.state.editedContent) {
+      if (window.confirm(`Do you want to save the changes you made to ${this.state.selectedFile.name}?`)) {
+        return this.saveChanges()
+      }
+    }
+
+    this.setState({ isEditing: false, selectedFile: undefined })
+  }
+
+  renderEditing() {
+    const { errors } = this.state
+    if (!errors || !errors.length) {
+      return (
+        <div style={{ padding: '5px' }}>
+          <small>Tip: Use CTRL+S to save your file</small>
+        </div>
+      )
+    }
+
     return (
-      <div>
+      <div className={style.status}>
         <strong>Warning</strong>
         <br />
         There are {errors.length} errors in your file.
@@ -96,30 +134,6 @@ export default class CodeEditor extends React.Component {
     )
   }
 
-  renderEditing() {
-    const { errors } = this.state
-    return (
-      <div style={{ padding: 10 }}>
-        <div className={style.status}>{errors && !!errors.length && this.renderErrors(errors)}</div>
-        <br />
-        &nbsp;
-        {this.state.askConfirmDiscard ? (
-          <Button
-            bsSize="small"
-            bsStyle="danger"
-            onClick={() => this.setState({ isEditing: false, selectedFile: undefined })}
-          >
-            Are you sure?
-          </Button>
-        ) : (
-          <Button bsSize="small" bsStyle="danger" onClick={() => this.setState({ askConfirmDiscard: true })}>
-            Discard Changes
-          </Button>
-        )}
-      </div>
-    )
-  }
-
   render() {
     return (
       <div style={{ display: 'flex', background: '#21252B' }}>
@@ -148,6 +162,7 @@ export default class CodeEditor extends React.Component {
             onProblemsChanged={this.handleProblemsChanged}
             onSaveClicked={this.saveChanges}
             onCreateNewClicked={this.createFilePrompt}
+            onDiscardChanges={this.handleDiscardChanges}
           />
         )}
         {!this.state.selectedFile && <SplashScreen />}

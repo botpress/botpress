@@ -1,6 +1,6 @@
 .status {
   color: #ffffff;
-  padding: 0 0 10px 0;
+  padding: 10px;
 }
 
 .section {
@@ -56,11 +56,24 @@
   }
 }
 
+.editorContainer {
+  width: 100%;
+
+  .btn {
+    cursor: pointer;
+    color: #b1b1b1;
+    vertical-align: middle;
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
 .tabsContainer {
-  background: '#000000';
+  background: #333333;
   display: 'flex';
   height: 30px;
-  padding-left: 15px;
+  padding-left: 0px;
 }
 
 .tab {
@@ -69,11 +82,10 @@
   color: #ffffff;
   height: 30px;
   display: flex;
-  border-right: 1px solid #050505;
-  border-left: 1px solid #050505;
   padding: 10px 10px 0px 10px;
 
   span {
     font-size: 0.8em;
+    margin-right: 5px;
   }
 }
