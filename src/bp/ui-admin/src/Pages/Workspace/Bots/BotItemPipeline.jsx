@@ -47,6 +47,12 @@ export default ({
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
+          {allowStageChange && (
+            <DropdownItem onClick={requestStageChange}>
+              <MdSkipNext />
+              &nbsp;Promote to next stage
+            </DropdownItem>
+          )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem disabled={bot.locked} onClick={() => history.push(`/bot/${bot.id}/details`)}>
               <FaCog />
@@ -60,17 +66,10 @@ export default ({
               <MdReplay />
               &nbsp;Rollback
             </DropdownItem>
-
             <DropdownItem onClick={exportBot}>
               <MdArchive />
               &nbsp;Export
             </DropdownItem>
-            {allowStageChange && (
-              <DropdownItem onClick={requestStageChange}>
-                <MdSkipNext />
-                &nbsp;Promote to next stage
-              </DropdownItem>
-            )}
             <DropdownItem onClick={deleteBot}>
               <MdDelete />
               &nbsp;Delete
