@@ -362,7 +362,7 @@ export class ScopedGhostService {
     const fromPath = this.normalizeFileName(rootFolder, fromName)
     const toPath = this.normalizeFileName(rootFolder, toName)
 
-    await this.diskDriver.moveFile(fromPath, toPath)
+    await this.primaryDriver.moveFile(fromPath, toPath)
   }
 
   async deleteFolder(folder: string): Promise<void> {
