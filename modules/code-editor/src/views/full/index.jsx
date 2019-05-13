@@ -80,10 +80,10 @@ export default class CodeEditor extends React.Component {
   handleContentChanged = editedContent => this.setState({ isEditing: true, editedContent })
   handleProblemsChanged = errors => this.setState({ errors })
 
-  handleDiscardChanges = () => {
+  handleDiscardChanges = async () => {
     if (this.state.editedContent) {
       if (window.confirm(`Do you want to save the changes you made to ${this.state.selectedFile.name}?`)) {
-        return this.saveChanges()
+        await this.saveChanges()
       }
     }
 
