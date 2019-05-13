@@ -12,8 +12,8 @@ const addNode = (tree, folders, flowDesc, data) => {
   tree.children.push({ ...flowDesc, parent: tree, ...data })
 }
 
-export const splitPath = flow => {
-  const paths = flow.split('/')
+export const splitPath = location => {
+  const paths = location.split('/')
   const filename = paths[paths.length - 1]
   const fileFolders = paths.slice(0, paths.length - 1)
   const folders = []
@@ -26,15 +26,15 @@ export const splitPath = flow => {
   currentPath.push(filename)
   return {
     folders,
-    flow: { type: 'file', name: filename, fullPath: currentPath.join('/') }
+    location: { type: 'file', name: filename, fullPath: currentPath.join('/') }
   }
 }
 
 export const buildTree = files => {
   const tree = { type: 'root', fullPath: '', name: '<root>', children: [] }
   files.forEach(fileData => {
-    const { folders, flow } = splitPath(fileData.location)
-    addNode(tree, folders, flow, {
+    const { folders, location } = splitPath(fileData.location)
+    addNode(tree, folders, location, {
       data: fileData
     })
   })

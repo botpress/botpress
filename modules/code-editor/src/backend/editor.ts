@@ -28,7 +28,7 @@ export default class Editor {
     }
   }
 
-  async _validateContent({ name, botId, type }: Partial<EditableFile>) {
+  async _validateMetadata({ name, botId, type }: Partial<EditableFile>) {
     if (!botId || !botId.length) {
       if (!this._config.allowGlobal) {
         throw new Error(`Global files are restricted, please check your configuration`)
@@ -49,7 +49,7 @@ export default class Editor {
   }
 
   async saveFile(file: EditableFile): Promise<void> {
-    this._validateContent(file)
+    this._validateMetadata(file)
     const { location, botId, content } = file
     const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
 
@@ -84,7 +84,7 @@ export default class Editor {
   private async _loadFiles(rootFolder: string, type: FileType, botId?: string): Promise<EditableFile[]> {
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
 
-    return Promise.map(await ghost.directoryListing(rootFolder, '*.*'), async (filepath: string) => {
+    return Promise.map(await ghost.directoryListing(rootFolder, '*.js'), async (filepath: string) => {
       return {
         name: path.basename(filepath),
         location: filepath,
