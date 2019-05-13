@@ -51,7 +51,7 @@ class Sidebar extends React.Component {
   hideNluMenu = () => this.setState({ nluCollapseOpen: false })
 
   renderModuleItem = module => {
-    const rule = { res: `module.${module.name}`, op: 'read' }
+    const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
     const iconPath = `/assets/modules/${module.name}/icon.png`
     const moduleIcon =
