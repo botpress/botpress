@@ -49,5 +49,12 @@
     "utility": "cpp",
     "typeinfo": "cpp",
     "string": "cpp"
-  }
+  },
+  "sqltools.connections": [
+    {
+      "database": "/home/francois/Documents/botpress-root/botpress/out/bp/data/storage/core.sqlite",
+      "dialect": "SQLite",
+      "name": "dev"
+    }
+  ]
 }

@@ -2,43 +2,48 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
 const onServerStarted = async (bp: typeof sdk) => {
-  console.log('on server started')
-
   bp.database.createTableIfNotExists('msg_history', table => {
     table.increments('id').primary()
-    table.string('msg')
+    table.string('msg_content')
   })
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  let allBots: Map<string, sdk.BotConfig>
-  await bp.bots.getAllBots().then(v => {
-    allBots = v
-  })
-  const keys: string[] = [...allBots.keys()]
-  console.log(`on server ready was called with bots ${keys}`)
-
   const router = bp.http.createRouterForBot('history')
 
-  router.get('/msg', async (req, res) => {
-    const messages = await bp.database.select('*').table('msg_history')
-    res.send(messages)
+  router.get('/conversations', async (req, res) => {
+    const conversations = await bp.database
+      .select('*')
+      .table('msg_history')
+      .map(x => JSON.parse(x.msg_content))
+      .filter(msg => msg.botId === req.params.botId)
+      .map(msg => msg.threadId)
+
+    const uniqueConversations = conversations.filter((value, index) => {
+      return conversations.indexOf(value) === index
+    })
+
+    res.send(uniqueConversations)
   })
 
-  console.log('router instanciated')
+  router.get('/messages/:convId', async (req, res) => {
+    const convId = req.params.convId
+
+    const messages = await bp.database
+      .select('*')
+      .table('msg_history')
+      .map(x => JSON.parse(x.msg_content))
+      .filter(msg => msg.threadId === convId)
+
+    res.send(messages)
+  })
 }
 
-const onBotMount = async (bp: typeof sdk) => {
-  console.log('on bot mounted')
-}
+const onBotMount = async (bp: typeof sdk) => {}
 
-const onBotUnmount = async (bp: typeof sdk) => {
-  console.log('on server unmounted')
-}
+const onBotUnmount = async (bp: typeof sdk) => {}
 
-const onModuleUnmount = async (bp: typeof sdk) => {
-  console.log('on module unmount')
-}
+const onModuleUnmount = async (bp: typeof sdk) => {}
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
