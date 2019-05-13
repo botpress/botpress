@@ -84,7 +84,7 @@ export default class Navigator extends React.Component {
 
   handleToggle = (node, toggled) => {
     node.active = true
-    if (this.state.cursor) {
+    if (this.state.cursor && this.state.cursor.fullPath != node.fullPath) {
       this.state.cursor.active = false
     }
 
