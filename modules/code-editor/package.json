@@ -1,0 +1,24 @@
+{
+  "name": "code-editor",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "devDependencies": {
+    "module-builder": "../../build/module-builder",
+    "monaco-editor-webpack-plugin": "^1.7.0"
+  },
+  "dependencies": {
+    "@types/node": "10.11.7",
+    "monaco-editor": "^0.17.0",
+    "react-icons": "^3.7.0",
+    "react-treebeard": "^3.2.3"
+  }
+}

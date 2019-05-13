@@ -1,0 +1,95 @@
+.status {
+  color: #ffffff;
+  padding: 10px;
+}
+
+.section {
+  width: 100%;
+  height: 30px;
+  padding: 2px 5px;
+  color: #b1b1b1;
+  background: #333333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .btn {
+    cursor: pointer;
+    color: #b1b1b1;
+    vertical-align: middle;
+    &:hover {
+      color: #fff;
+    }
+  }
+  .actions {
+    width: 200px;
+    align-self: right;
+  }
+}
+
+.editor,
+.splashScreen {
+  flex-grow: 1;
+  height: calc(100vh - 50px - 30px);
+}
+
+.splashScreen {
+  background: #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    font-size: 250px;
+    margin-bottom: -50px;
+  }
+  > div {
+    width: 50%;
+    text-align: center;
+    font-size: 16px;
+    padding-bottom: 100px;
+    p:first-of-type {
+      margin-bottom: 20px;
+    }
+    kbd {
+      color: #616161;
+    }
+  }
+}
+
+.editorContainer {
+  width: 100%;
+
+  .btn {
+    cursor: pointer;
+    color: #b1b1b1;
+    vertical-align: middle;
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.tabsContainer {
+  background: #333333;
+  display: 'flex';
+  height: 30px;
+  padding-left: 0px;
+}
+
+.tab {
+  background: #1e1e1e;
+  width: fit-content;
+  color: #ffffff;
+  height: 30px;
+  display: flex;
+  padding: 10px 10px 0px 10px;
+
+  span {
+    font-size: 0.8em;
+    margin-right: 5px;
+  }
+}
+
+.sidePanel {
+  width: 400px;
+}
