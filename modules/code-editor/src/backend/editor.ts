@@ -35,12 +35,12 @@ export default class Editor {
       }
     } else {
       if (botId !== this._botId) {
-        throw new Error('The bot ID mismatches')
+        throw new Error(`Please switch to the correct bot to change its actions.`)
       }
     }
 
     if (type !== 'action') {
-      throw new Error('Invalid file type')
+      throw new Error('Invalid file type Only actions are allowed at the moment')
     }
 
     if (!FILENAME_REGEX.test(name)) {
@@ -48,12 +48,12 @@ export default class Editor {
     }
   }
 
-  async saveFile(file: EditableFile) {
+  async saveFile(file: EditableFile): Promise<void> {
     this._validateContent(file)
     const { location, botId, content } = file
     const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
 
-    await ghost.upsertFile('/actions', location, content)
+    return ghost.upsertFile('/actions', location, content)
   }
 
   async loadTypings() {
