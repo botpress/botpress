@@ -1,8 +1,10 @@
 import Editor from './Editor'
 import Navigator from './Navigator'
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, OverlayTrigger, Tooltip, Collapse } from 'react-bootstrap'
+
 import { baseAction } from './utils/templates'
 import style from './style.scss'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import { FiFilePlus } from 'react-icons/fi'
 import SplashScreen from './SplashScreen'
 
@@ -47,11 +49,6 @@ export default class CodeEditor extends React.Component {
   }
 
   saveChanges = async () => {
-    if (this.state.errorCount) {
-      window.alert('you have erros in your file')
-      return
-    }
-
     await this.props.bp.axios.post('/mod/code-editor/save', {
       ...this.state.selectedFile,
       content: this.state.editedContent
@@ -61,24 +58,49 @@ export default class CodeEditor extends React.Component {
   }
 
   handleFileChanged = selectedFile => this.setState({ isEditing: false, askConfirmDiscard: false, selectedFile })
-  handleContentChanged = (editedContent, errors) => {
-    this.setState({
-      isEditing: true,
-      editedContent,
-      errorCount: errors.length,
-      errors: errors.map(x => x.message)
-    })
+  handleContentChanged = editedContent => this.setState({ isEditing: true, editedContent })
+  handleProblemsChanged = errors => this.setState({ errors })
+
+  renderErrors(errors) {
+    return (
+      <div>
+        <strong>Warning</strong>
+        <br />
+        There are {errors.length} errors in your file.
+        <br />
+        Please make sure to fix them before saving.
+        <br />
+        <br />
+        <span
+          onClick={() => {
+            this.setState({ displayErrors: !this.state.displayErrors })
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {this.state.displayErrors && <MdExpandLess />}
+          {!this.state.displayErrors && <MdExpandMore />}
+          View details
+        </span>
+        <Collapse in={this.state.displayErrors} timeout={100}>
+          <div>
+            {errors.map(x => (
+              <div style={{ marginBottom: 10 }}>
+                Line <strong>{x.startLineNumber}</strong>
+                <br />
+                {x.message}
+              </div>
+            ))}
+          </div>
+        </Collapse>
+      </div>
+    )
   }
 
   renderEditing() {
-    const { selectedFile, errors } = this.state
+    const { errors } = this.state
     return (
       <div style={{ padding: 10 }}>
-        <div className={style.status}>
-          Currently editing: <strong> {selectedFile && selectedFile.name}</strong>
-          <br />
-          {errors && !!errors.length && `There are ${errors.length} errors in your file.`}
-        </div>
+        <div className={style.status}>{errors && !!errors.length && this.renderErrors(errors)}</div>
         <br />
         &nbsp;
         {this.state.askConfirmDiscard ? (
@@ -91,7 +113,7 @@ export default class CodeEditor extends React.Component {
           </Button>
         ) : (
           <Button bsSize="small" bsStyle="danger" onClick={() => this.setState({ askConfirmDiscard: true })}>
-            Discard
+            Discard Changes
           </Button>
         )}
       </div>
@@ -101,7 +123,7 @@ export default class CodeEditor extends React.Component {
   render() {
     return (
       <div style={{ display: 'flex', background: '#21252B' }}>
-        <div style={{ width: 300 }}>
+        <div style={{ width: 400 }}>
           <div className={style.section}>
             <strong>Actions</strong>
             <div>
@@ -123,6 +145,7 @@ export default class CodeEditor extends React.Component {
             bp={this.props.bp}
             selectedFile={this.state.selectedFile}
             onContentChanged={this.handleContentChanged}
+            onProblemsChanged={this.handleProblemsChanged}
             onSaveClicked={this.saveChanges}
             onCreateNewClicked={this.createFilePrompt}
           />

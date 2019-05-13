@@ -55,3 +55,25 @@
     }
   }
 }
+
+.tabsContainer {
+  background: '#000000';
+  display: 'flex';
+  height: 30px;
+  padding-left: 15px;
+}
+
+.tab {
+  background: #1e1e1e;
+  width: fit-content;
+  color: #ffffff;
+  height: 30px;
+  display: flex;
+  border-right: 1px solid #050505;
+  border-left: 1px solid #050505;
+  padding: 10px 10px 0px 10px;
+
+  span {
+    font-size: 0.8em;
+  }
+}

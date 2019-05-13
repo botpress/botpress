@@ -45,6 +45,7 @@ export default class Editor extends React.Component {
     )
 
     this.editor.onDidChangeModelContent(this.handleContentChanged)
+    this.editor.onDidChangeModelDecorations(this.handleDecorationChanged)
   }
 
   loadFile(selectedFile, noWrapper) {
@@ -73,13 +74,25 @@ export default class Editor extends React.Component {
 
   handleContentChanged = () => {
     const content = wrapper.remove(this.editor.getValue())
+    this.props.onContentChanged && this.props.onContentChanged(content)
+  }
+
+  handleDecorationChanged = () => {
     const uri = this.editor.getModel().uri
     const markers = monaco.editor.getModelMarkers({ resource: uri })
-
-    this.props.onContentChanged && this.props.onContentChanged(content, markers)
+    this.props.onProblemsChanged && this.props.onProblemsChanged(markers)
   }
 
   render() {
-    return <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
+    return (
+      <div style={{ width: '100%' }}>
+        <div className={style.tabsContainer}>
+          <div className={style.tab}>
+            <span>{this.props.selectedFile.name}</span>
+          </div>
+        </div>
+        <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
+      </div>
+    )
   }
 }
