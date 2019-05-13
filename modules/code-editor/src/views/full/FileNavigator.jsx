@@ -38,7 +38,7 @@ const decorators = {
   }
 }
 
-export default class Navigator extends React.Component {
+export default class FileNavigator extends React.Component {
   state = {
     files: undefined,
     nodes: []

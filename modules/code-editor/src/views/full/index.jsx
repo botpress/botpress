@@ -1,12 +1,8 @@
 import Editor from './Editor'
-import Navigator from './Navigator'
-import { Button, OverlayTrigger, Tooltip, Collapse } from 'react-bootstrap'
 
 import { baseAction } from './utils/templates'
-import style from './style.scss'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
-import { FiFilePlus } from 'react-icons/fi'
 import SplashScreen from './SplashScreen'
+import SidePanel from './SidePanel'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
@@ -81,7 +77,7 @@ export default class CodeEditor extends React.Component {
   handleProblemsChanged = errors => this.setState({ errors })
 
   handleDiscardChanges = async () => {
-    if (this.state.editedContent) {
+    if (this.state.isEditing && this.state.editedContent) {
       if (window.confirm(`Do you want to save the changes you made to ${this.state.selectedFile.name}?`)) {
         await this.saveChanges()
       }
@@ -90,70 +86,16 @@ export default class CodeEditor extends React.Component {
     this.setState({ isEditing: false, selectedFile: undefined })
   }
 
-  renderEditing() {
-    const { errors } = this.state
-    if (!errors || !errors.length) {
-      return (
-        <div style={{ padding: '5px' }}>
-          <small>Tip: Use CTRL+S to save your file</small>
-        </div>
-      )
-    }
-
-    return (
-      <div className={style.status}>
-        <strong>Warning</strong>
-        <br />
-        There are {errors.length} errors in your file.
-        <br />
-        Please make sure to fix them before saving.
-        <br />
-        <br />
-        <span
-          onClick={() => {
-            this.setState({ displayErrors: !this.state.displayErrors })
-          }}
-          style={{ cursor: 'pointer' }}
-        >
-          {this.state.displayErrors && <MdExpandLess />}
-          {!this.state.displayErrors && <MdExpandMore />}
-          View details
-        </span>
-        <Collapse in={this.state.displayErrors} timeout={100}>
-          <div>
-            {errors.map(x => (
-              <div style={{ marginBottom: 10 }}>
-                Line <strong>{x.startLineNumber}</strong>
-                <br />
-                {x.message}
-              </div>
-            ))}
-          </div>
-        </Collapse>
-      </div>
-    )
-  }
-
   render() {
     return (
       <div style={{ display: 'flex', background: '#21252B' }}>
-        <div style={{ width: 400 }}>
-          <div className={style.section}>
-            <strong>Actions</strong>
-            <div>
-              <OverlayTrigger placement="top" overlay={<Tooltip>New action</Tooltip>}>
-                <a className={style.btn} onClick={this.createFilePrompt}>
-                  <FiFilePlus />
-                </a>
-              </OverlayTrigger>
-            </div>
-          </div>
-          {this.state.isEditing ? (
-            this.renderEditing()
-          ) : (
-            <Navigator files={this.state.files} onFileSelected={this.handleFileChanged} />
-          )}
-        </div>
+        <SidePanel
+          errors={this.state.errors}
+          isEditing={this.state.isEditing}
+          files={this.state.files}
+          handleFileChanged={this.handleFileChanged}
+          createFilePrompt={this.createFilePrompt}
+        />
         {this.state.selectedFile && (
           <Editor
             bp={this.props.bp}

@@ -2,9 +2,8 @@ import React from 'react'
 
 import { MdCode } from 'react-icons/md'
 
+import { ACTION_KEY } from './utils/hotkey'
 import style from './style.scss'
-
-const hotKey = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'cmd' : 'ctrl'
 
 export default () => (
   <div className={style.splashScreen}>
@@ -17,13 +16,13 @@ export default () => (
       </p>
       <p>
         Save file&nbsp;
-        <kbd>{hotKey}</kbd>
+        <kbd>{ACTION_KEY}</kbd>
         &nbsp;+&nbsp;
         <kbd>s</kbd>
       </p>
       <p>
         New file&nbsp;
-        <kbd>{hotKey}</kbd>
+        <kbd>{ACTION_KEY}</kbd>
         &nbsp;+&nbsp;
         <kbd>alt</kbd>
         &nbsp;+&nbsp;
@@ -31,7 +30,7 @@ export default () => (
       </p>
       <p>
         Command Palette&nbsp;
-        <kbd>{hotKey}</kbd>
+        <kbd>{ACTION_KEY}</kbd>
         &nbsp;+&nbsp;
         <kbd>shift</kbd>
         &nbsp;+&nbsp;
