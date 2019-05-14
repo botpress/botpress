@@ -13,5 +13,10 @@
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch",
     "package": "./node_modules/.bin/module-builder package"
+  },
+  "dependencies": {
+    "react-day-picker": "^7.3.0",
+    "react-icons": "^3.7.0",
+    "react-json-tree": "^0.11.2"
   }
 }

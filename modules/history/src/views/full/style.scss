@@ -1,20 +1,43 @@
 .msg-container {
   display: flex;
   width: 100%;
+  height: 100%;
+}
+
+.query-options {
+  display: flex;
+  border-bottom: solid;
 }
 
 .conversations {
-  margin-right: auto;
+  width: 30%;
+  height: 100%;
 }
 
-.messages {
-  margin-right: auto;
+.message-viewer {
+  width: 70%;
+  border-left: solid;
+  height: 100%;
+}
+
+.message-list {
+  height: 50%;
+  overflow-y: scroll;
+  word-wrap: break-word;
+}
+
+.message-inspector {
+  height: 50%;
+  background-color: black;
+  overflow-y: scroll;
 }
 
 .outgoing {
   color: #5ea86f;
+  cursor: pointer;
 }
 
 .incomming {
   color: gray;
+  cursor: pointer;
 }
