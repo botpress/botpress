@@ -15,5 +15,9 @@
     "@types/node": "^10.11.3",
     "module-builder": "../../build/module-builder"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react-day-picker": "^7.3.0",
+    "react-icons": "^3.7.0",
+    "react-json-tree": "^0.11.2"
+  }
 }

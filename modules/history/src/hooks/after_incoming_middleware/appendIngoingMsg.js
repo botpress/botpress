@@ -1,5 +1,5 @@
-const appendOutgoingMsg = async () => {
-  if (event.type === 'text') {
+const appendIngoingMsg = async () => {
+  if (event.type === 'text' || event.type === 'quick_reply') {
     await bp.database('msg_history').insert({
       created_on: event.createdOn,
       thread_id: event.threadId,
@@ -8,4 +8,4 @@ const appendOutgoingMsg = async () => {
   }
 }
 
-return appendOutgoingMsg()
+return appendIngoingMsg()
