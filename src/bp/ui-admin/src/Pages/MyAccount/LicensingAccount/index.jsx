@@ -3,7 +3,7 @@ import { registerAuthStateChanged } from '../../../Auth/licensing'
 import KeyList from './KeyList'
 import Login from './Login'
 
-class BotpressAccount extends Component {
+class LicensingAccount extends Component {
   //TODO move this into redux store if necessary
   state = {
     currentUser: null
@@ -26,4 +26,4 @@ class BotpressAccount extends Component {
   }
 }
 
-export default BotpressAccount
+export default LicensingAccount

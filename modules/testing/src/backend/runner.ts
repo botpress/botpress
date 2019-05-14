@@ -53,7 +53,7 @@ export class SenarioRunner {
 
     const mismatch = this._findMismatch(steps[completedSteps.length], conversation)
     if (mismatch) {
-      this._failScenario(name, mismatch)
+      return this._failScenario(name, mismatch)
     } else {
       completedSteps.push(conversation)
       this._updateStatus(name, { completedSteps: completedSteps.length })
