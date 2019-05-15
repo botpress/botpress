@@ -6,7 +6,7 @@ Here you will find two different type of templates to start developing modules:
 
 - [Complete](./module-templates/complete-module): Includes almost all available features, with comments on almost all of them
 - [Basic](./module-templates/basic-module): Includes the basic structure, without any comments
-- [Inter-bot Communication](./bot-examples/interbot): Includes an example of inter-bot communication, i.e. a Master bot delegating questions to two sub-bots
+- [Inter-bot Communication](./interbot): Includes an example of inter-bot communication, i.e. a Master bot delegating questions to two sub-bots
 
 ### [Custom Components](./custom-component)
 
