@@ -21,7 +21,6 @@
 - **admin:** white label / custom css ([1b194a7](https://github.com/botpress/botpress/commit/1b194a7))
 - **channel-web:** internationalization ([43b4ff1](https://github.com/botpress/botpress/commit/43b4ff1))
 - **code-editor:** Edit actions directly in the studio ([4e11d2d](https://github.com/botpress/botpress/commit/4e11d2d))
-- **code-editor:** initial commit ([9a01df3](https://github.com/botpress/botpress/commit/9a01df3))
 - **sdk:** added method to enable or disable hooks (beta) ([39050d0](https://github.com/botpress/botpress/commit/39050d0))
 - add reset slot action ([345d90f](https://github.com/botpress/botpress/commit/345d90f))
 - conversation scenarios ([3980987](https://github.com/botpress/botpress/commit/3980987))
