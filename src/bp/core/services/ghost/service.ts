@@ -358,6 +358,13 @@ export class ScopedGhostService {
     await this._invalidateFile(fileName)
   }
 
+  async renameFile(rootFolder: string, fromName: string, toName: string): Promise<void> {
+    const fromPath = this.normalizeFileName(rootFolder, fromName)
+    const toPath = this.normalizeFileName(rootFolder, toName)
+
+    await this.primaryDriver.moveFile(fromPath, toPath)
+  }
+
   async deleteFolder(folder: string): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
@@ -370,12 +377,18 @@ export class ScopedGhostService {
   async directoryListing(
     rootFolder: string,
     fileEndingPattern: string = '*.*',
-    exludes?: string | string[]
+    excludes?: string | string[],
+    includeDotFiles?: boolean
   ): Promise<string[]> {
     try {
-      const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
+      const files = await this.primaryDriver.directoryListing(
+        this.normalizeFolderName(rootFolder),
+        excludes,
+        includeDotFiles
+      )
+
       return (files || []).filter(
-        minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false })
+        minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false, dot: includeDotFiles })
       )
     } catch (err) {
       if (err && err.message && err.message.includes('ENOENT')) {

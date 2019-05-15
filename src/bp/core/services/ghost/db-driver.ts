@@ -1,4 +1,5 @@
 import { forceForwardSlashes } from 'core/misc/utils'
+import { WrapErrorsWith } from 'errors'
 import { inject, injectable } from 'inversify'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -77,6 +78,14 @@ export default class DBStorageDriver implements StorageDriver {
     } catch (e) {
       throw new VError(e, `[DB Storage] Error reading file "${filePath}"`)
     }
+  }
+
+  @WrapErrorsWith(args => `[DB Storage] Error while moving file from "${args[0]}" to  "${args[1]}".`)
+  async moveFile(fromPath: string, toPath: string) {
+    await this.database
+      .knex('srv_ghost_files')
+      .update({ file_path: toPath })
+      .where({ file_path: fromPath })
   }
 
   async deleteFile(filePath: string, recordRevision: boolean): Promise<void>

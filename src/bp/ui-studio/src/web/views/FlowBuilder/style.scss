@@ -6,7 +6,7 @@ $toolbar-bar-height: 42px;
   position: relative !important;
   width: 100%;
   min-height: 500px;
-  height: calc(100vh - #{$status-bar-height} - #{$header-bar-height} - #{$toolbar-bar-height});
+  height: calc(100vh - #{$status-bar-height} - #{$header-bar-height});
 }
 
 .workspace :global(.Resizer.vertical) {
@@ -60,7 +60,7 @@ $toolbar-bar-height: 42px;
 
 .diagram {
   width: 100%;
-  height: 100%;
+  height: calc(100% - #{$toolbar-bar-height});
 }
 
 .sidePanel {
@@ -74,7 +74,7 @@ $toolbar-bar-height: 42px;
 
 .diagram :global(.storm-diagrams-canvas) {
   width: 100%;
-  height: 100%;
+  height: calc(100% - #{$toolbar-bar-height});
   background: url('/assets/ui-studio/public/img/grid.png') repeat;
 }
 

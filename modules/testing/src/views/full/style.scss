@@ -1,0 +1,103 @@
+.workspace {
+  padding-top: 20px;
+  min-height: 100vh;
+  background: #fdfdfd;
+  h2 {
+    margin: 0;
+  }
+  .empty {
+    background: white;
+    border: solid 1px rgba(0, 0, 0, 0.05);
+    h3 {
+      font-weight: 500;
+    }
+    p {
+      font-size: 17px;
+    }
+  }
+
+  .summary {
+    strong {
+      margin-right: 10px;
+    }
+    margin-bottom: 20px;
+  }
+}
+
+.scenario {
+  border: solid 1px #eee;
+  margin: 2px 0;
+
+  .scenarioBody {
+    padding: 10px 20px;
+  }
+
+  .scenarioFooter {
+    background: white;
+    border-color: #f7f7f7;
+  }
+
+  .scenarioHead {
+    display: flex;
+    text-transform: none;
+    justify-content: space-between;
+    padding: 5px 20px;
+
+    .title {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      .run {
+        font-size: 12px;
+        margin-left: 15px;
+      }
+    }
+    .scenarioStatus {
+      display: flex;
+      align-items: baseline;
+      > span {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .reportInteractions {
+    margin-top: 20px;
+  }
+
+  .interaction {
+    margin-bottom: 15px;
+    strong {
+      display: inline-block;
+      width: 50px;
+      margin-right: 25px;
+    }
+
+    .interactionStatus {
+      display: inline-block;
+      width: 25px;
+      vertical-align: middle;
+    }
+
+    .botReplies {
+      display: flex;
+      > div {
+        margin-left: 25px;
+      }
+      > ul {
+        list-style: none;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.scenarioRecorder {
+  margin-top: 20px;
+  .scenarioPreview {
+    margin-top: 20px;
+    span {
+      cursor: pointer;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ---
 id: skill-call-api
-title: How to use Call API
+title: How to use Call API Skill
 ---
 
 ## Overview

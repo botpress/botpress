@@ -16,9 +16,11 @@ import { FaCog } from 'react-icons/lib/fa'
 export default ({ bot, deleteBot, exportBot, permissions, history, createRevision, rollback }) => (
   <div className="bp_table-row" key={bot.id}>
     <div className="actions">
-      <Button size="sm" color="link" onClick={() => history.push(`/bot/${bot.id}/details`)}>
-        <FaCog /> Configs
-      </Button>
+      <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
+        <Button size="sm" color="link" onClick={() => history.push(`/bot/${bot.id}/details`)}>
+          <FaCog /> Configs
+        </Button>
+      </AccessControl>
       <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
         <IoIosChatbubble /> Open chat
       </Button>
@@ -31,15 +33,15 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
-          <DropdownItem onClick={createRevision}>
-            <MdBackup />
-            &nbsp;Create revision
-          </DropdownItem>
-          <DropdownItem onClick={rollback}>
-            <MdReplay />
-            &nbsp;Rollback
-          </DropdownItem>
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
+            <DropdownItem onClick={createRevision}>
+              <MdBackup />
+              &nbsp;Create revision
+            </DropdownItem>
+            <DropdownItem onClick={rollback}>
+              <MdReplay />
+              &nbsp;Rollback
+            </DropdownItem>
             <DropdownItem onClick={exportBot}>
               <MdArchive />
               &nbsp;Export

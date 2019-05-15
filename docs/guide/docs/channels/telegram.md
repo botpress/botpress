@@ -14,8 +14,11 @@ title: Telegram
 
 ```json
 {
-  "botToken": "<your_bot_token>"
+  "botToken": "<your_bot_token>",
+  "enabled": true
 }
 ```
 
 2. Restart Botpress and talk to your Telegram bot.
+
+> **Tip**: Don't forget to set `enabled: true` in your config. Otherwise the module will be disabled for your bot.

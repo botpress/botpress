@@ -33,6 +33,7 @@
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
       "tutorials/skill-call-api",
+      "tutorials/skill-slot",
       "tutorials/proactive",
       "tutorials/existing-backend",
       "tutorials/database",
@@ -41,7 +42,6 @@
       "tutorials/interbot",
       "tutorials/shortlinks",
       "tutorials/timeouts",
-      "tutorials/i18n",
       "tutorials/external-api",
       "tutorials/chat-3rd-party-OAuth",
       "tutorials/contextual-faq",

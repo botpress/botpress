@@ -341,9 +341,7 @@ slots : {
 
 ### Slot Filling
 
-As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](./dialogs). We plan to add suppport for **required slots** with automatic slot filling.
-
-**TODO provide example**
+Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
 
 ## External NLU Providers
 

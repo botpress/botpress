@@ -174,7 +174,10 @@ try {
       }
     )
     .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {
-      require('./extractor').default(argv)
+      getos.default().then(distro => {
+        process.distro = distro
+        require('./extractor').default(argv)
+      })
     })
     .option('verbose', {
       alias: 'v',

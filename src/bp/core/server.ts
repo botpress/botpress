@@ -19,7 +19,6 @@ import portFinder from 'portfinder'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
-import { RequestWithUser } from './misc/interfaces'
 import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
@@ -47,7 +46,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
-const SERVER_USER = 'server::modules'
+export const SERVER_USER = 'server::modules'
 const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
@@ -203,7 +202,7 @@ export default class HTTPServer {
       res.send(await this.monitoringService.getStatus())
     })
 
-    this.app.use('/assets', express.static(this.resolveAsset('')))
+    this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
@@ -256,6 +255,15 @@ export default class HTTPServer {
     return this.app
   }
 
+  private guardWhiteLabel() {
+    return (req, res, next) => {
+      if (path.normalize(req.path) === '/custom-theme.css' && (!process.IS_PRO_ENABLED || !process.IS_LICENSED)) {
+        return res.sendStatus(404)
+      }
+      next()
+    }
+  }
+
   setupStaticRoutes(app) {
     app.get('/studio', (req, res, next) => res.redirect('/admin'))
 
@@ -279,8 +287,8 @@ export default class HTTPServer {
     app.get('/', (req, res) => res.redirect('/admin'))
   }
 
-  createRouterForBot(router: string, options: RouterOptions): any & http.RouterExtension {
-    return this.botsRouter.getNewRouter(router, options)
+  createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
+    return this.botsRouter.getNewRouter(router, identity, options)
   }
 
   deleteRouterForBot(router: string): void {

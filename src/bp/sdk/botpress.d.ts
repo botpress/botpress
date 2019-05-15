@@ -136,6 +136,8 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+    /** Whether or not the module is likely to change */
+    experimental?: boolean
   }
 
   /**
@@ -513,6 +515,21 @@ declare module 'botpress/sdk' {
 
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
+      nluContexts?: NluContext[]
+    }
+
+    /**
+     * They represent the contexts that will be used by the NLU Engine for the next messages for that chat session.
+     *
+     * The TTL (Time-To-Live) represents how long the contexts will be valid before they are automatically removed.
+     * For example, the default value of `1` will listen for that context only once (the next time the user speaks).
+     *
+     * If a context was already present in the list, the higher TTL will win.
+     */
+    export interface NluContext {
+      context: string
+      /** Represent the number of turns before the context is removed from the session */
+      ttl: number
     }
 
     export interface DialogTurnHistory {
@@ -616,6 +633,7 @@ declare module 'botpress/sdk' {
      * To stop listening, call the `remove()` method of the returned ListenHandle
      */
     onFileChanged(callback: (filePath: string) => void): ListenHandle
+    fileExists(rootFolder: string, file: string): Promise<boolean>
   }
 
   export interface ListenHandle {
@@ -1256,5 +1274,14 @@ declare module 'botpress/sdk' {
      * @param context Variables to use for the template rendering
      */
     export function renderTemplate(item: TemplateItem, context): TemplateItem
+  }
+
+  /**
+   * These features are subject to change and should not be relied upon.
+   * They will eventually be either removed or moved in another namespace
+   */
+  export namespace experimental {
+    export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
+    export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
   }
 }
