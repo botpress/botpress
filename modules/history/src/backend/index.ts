@@ -20,6 +20,17 @@ const cleanDatabase = async (db, limitDate: Date) => {
     .del()
 }
 
+const buildConversationInfo = async (db, threadId: string) => {
+  const messageCountObject = await db
+    .table('msg_history')
+    .count()
+    .where('thread_id', threadId)
+
+  const messageCount = messageCountObject.pop()['count(*)']
+
+  return { id: threadId, count: messageCount }
+}
+
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('history')
   const globalConfig = (await bp.config.getModuleConfig('history')) as Config
@@ -31,9 +42,9 @@ const onServerReady = async (bp: typeof sdk) => {
     const limitDate = new Date(Date.now())
     limitDate.setDate(limitDate.getDate() - globalConfig.DatabaseEntryDaysToLive)
 
-    cleanDatabase(bp.database, limitDate)
+    cleanDatabase(bp.database, limitDate) // pourrait être déplacé dans un hook ou un middleware ?
 
-    const uniqueConversations = await bp.database
+    const uniqueConversations: string[] = await bp.database
       .select()
       .distinct('thread_id')
       .where('created_on', '>=', from)
@@ -42,7 +53,9 @@ const onServerReady = async (bp: typeof sdk) => {
       .table('msg_history')
       .map(x => x.thread_id)
 
-    res.send(uniqueConversations)
+    const conversationInfo = await Promise.all(uniqueConversations.map(c => buildConversationInfo(bp.database, c)))
+
+    res.send(conversationInfo)
   })
 
   router.get('/messages/:convId', async (req, res) => {

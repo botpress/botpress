@@ -46,13 +46,16 @@ function ConversationPicker(props) {
       <div>
         {props.conversations.map(conv => {
           return (
-            <div
-              className={style['conversations-text']}
-              key={conv}
-              value={conv}
-              onClick={() => props.conversationChosenHandler(conv)}
-            >
-              {`conversation #${conv}`}
+            <div className={style['conversations-entry']}>
+              <span
+                className={style['conversations-text']}
+                key={conv.id}
+                value={conv.id}
+                onClick={() => props.conversationChosenHandler(conv.id)}
+              >
+                {`conversation #${conv.id}`}
+              </span>
+              <span className={style['conversations-count']}>({conv.count})</span>
             </div>
           )
         })}

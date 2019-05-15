@@ -37,16 +37,25 @@
     padding: 2%;
   }
 
-  &-text {
-    color: #c1c0c6;
+  &-entry {
     cursor: pointer;
-    font-size: 1.5em;
     padding-left: 6%;
     padding-top: 3%;
+
+    color: #c1c0c6;
 
     &:hover {
       background-color: #4c4c4c;
     }
+  }
+
+  &-text {
+    font-size: 1.5em;
+  }
+
+  &-count {
+    font-size: 1em;
+    padding: 3%;
   }
 }
 
