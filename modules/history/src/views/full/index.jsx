@@ -11,11 +11,11 @@ function QueryOptions(props) {
     <div className={style['query-options']}>
       <div>
         <div>from:</div>
-        <DayPickerInput selectedDays={[new Date(Date.now())]} onDayChange={props.handleFromChange} />
+        <DayPickerInput value={props.defaultFrom} onDayChange={props.handleFromChange} />
       </div>
       <div>
         <div>to:</div>
-        <DayPickerInput onDayChange={props.handleToChange} />
+        <DayPickerInput value={props.defaultTo} onDayChange={props.handleToChange} />
       </div>
       <TiRefresh size={70} onClick={props.refresh} />
     </div>
@@ -29,6 +29,8 @@ function ConversationPicker(props) {
         handleFromChange={props.handleFromChange}
         handleToChange={props.handleToChange}
         refresh={props.refresh}
+        defaultFrom={props.defaultFrom}
+        defaultTo={props.defaultTo}
       />
       <div>
         {props.conversations.map(conv => {
@@ -70,16 +72,12 @@ function MessagesViewer(props) {
 }
 
 export default class FullView extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      conversations: [],
-      messages: [],
-      currentlyFocusedMessage: null,
-      to: new Date(Date.now),
-      from: this.offsetDate(Date.now, -20)
-    }
+  state = {
+    conversations: [],
+    messages: [],
+    currentlyFocusedMessage: null,
+    to: new Date(Date.now()),
+    from: this.offsetDate(Date.now(), -20)
   }
 
   offsetDate(date, offset) {
@@ -126,12 +124,10 @@ export default class FullView extends React.Component {
         <ConversationPicker
           conversations={this.state.conversations}
           conversationChosenHandler={this.getMessagesOfConversation.bind(this)}
-          handleFromChange={day => {
-            this.state.from = day
-          }}
-          handleToChange={day => {
-            this.state.to = day
-          }}
+          handleFromChange={day => this.setState({ from: day })}
+          handleToChange={day => this.setState({ to: day })}
+          defaultFrom={this.state.from}
+          defaultTo={this.state.to}
           refresh={this.getConversations.bind(this)}
         />
         <MessagesViewer

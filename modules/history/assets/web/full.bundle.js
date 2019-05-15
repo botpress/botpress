@@ -14554,13 +14554,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
@@ -14573,9 +14575,10 @@ function QueryOptions(props) {
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['query-options']
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "from:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
-    selectedDays: [new Date(Date.now())],
+    value: props.defaultFrom,
     onDayChange: props.handleFromChange
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "to:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
+    value: props.defaultTo,
     onDayChange: props.handleToChange
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_icons_ti__WEBPACK_IMPORTED_MODULE_5__["TiRefresh"], {
     size: 70,
@@ -14589,7 +14592,9 @@ function ConversationPicker(props) {
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(QueryOptions, {
     handleFromChange: props.handleFromChange,
     handleToChange: props.handleToChange,
-    refresh: props.refresh
+    refresh: props.refresh,
+    defaultFrom: props.defaultFrom,
+    defaultTo: props.defaultTo
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.conversations.map(function (conv) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       key: conv,
@@ -14628,19 +14633,27 @@ var FullView =
 function (_React$Component) {
   _inherits(FullView, _React$Component);
 
-  function FullView(props) {
+  function FullView() {
+    var _getPrototypeOf2;
+
     var _this;
 
     _classCallCheck(this, FullView);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FullView).call(this, props));
-    _this.state = {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(FullView)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_this), "state", {
       conversations: [],
       messages: [],
       currentlyFocusedMessage: null,
-      to: new Date(Date.now),
-      from: _this.offsetDate(Date.now, -20)
-    };
+      to: new Date(Date.now()),
+      from: _this.offsetDate(Date.now(), -20)
+    });
+
     return _this;
   }
 
@@ -14711,11 +14724,17 @@ function (_React$Component) {
         conversations: this.state.conversations,
         conversationChosenHandler: this.getMessagesOfConversation.bind(this),
         handleFromChange: function handleFromChange(day) {
-          _this4.state.from = day;
+          return _this4.setState({
+            from: day
+          });
         },
         handleToChange: function handleToChange(day) {
-          _this4.state.to = day;
+          return _this4.setState({
+            to: day
+          });
         },
+        defaultFrom: this.state.from,
+        defaultTo: this.state.to,
         refresh: this.getConversations.bind(this)
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MessagesViewer, {
         messages: this.state.messages,
