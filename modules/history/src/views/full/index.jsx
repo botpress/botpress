@@ -4,9 +4,12 @@ import JSONTree from 'react-json-tree'
 import 'react-day-picker/lib/style.css'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 
+import inspectorTheme from './inspectortheme'
+
 import classnames from 'classnames'
 
 import { TiRefresh } from 'react-icons/ti'
+import { GoX } from 'react-icons/go'
 
 function QueryOptions(props) {
   return (
@@ -58,44 +61,78 @@ function ConversationPicker(props) {
   )
 }
 
-function MessagesViewer(props) {
-  return (
-    <div className={style['message-viewer']}>
-      <div className={style['message-list']}>
-        {props.convId && <div className={style['message-title']}>Conversation #{props.convId}</div>}
-        {props.convId && (
-          <div className={style['message-lastdate']}>
-            Last message on : #{getLastMessageDate(props.messages).toUTCString()}
-          </div>
-        )}
-        {props.messages &&
-          props.messages.map(m => {
-            return (
-              <div
-                className={classnames(
-                  style['message-elements'],
-                  m.direction === 'outgoing' ? style['message-outgoing'] : style['message-incomming']
-                )}
-                key={`${m.id}: ${m.direction}`}
-                value={m.id}
-                onClick={() => props.messageChosenHandler(m)}
-              >
-                > {m.payload.text}
-              </div>
-            )
-          })}
-      </div>
-      <div className={style['message-inspector']}>
-        {props.currentlyFocusedMessage && (
-          <JSONTree data={props.currentlyFocusedMessage} invertTheme={false} hideRoot={true} />
-        )}
-      </div>
-    </div>
-  )
-}
+class MessagesViewer extends React.Component {
+  constructor(props) {
+    super(props)
 
-const getLastMessageDate = messages => {
-  return new Date(Math.max(...messages.map(m => new Date(m.createdOn))))
+    this.state = { inspectorIsShown: false, currentlyFocusedMessage: null }
+  }
+
+  getLastMessageDate = messages => {
+    return new Date(Math.max(...messages.map(m => new Date(m.createdOn))))
+  }
+
+  closeInspector = () => {
+    this.setState({ inspectorIsShown: false })
+  }
+
+  focusMessage(m) {
+    this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })
+  }
+
+  render() {
+    return (
+      <div className={style['message-viewer']}>
+        <div
+          className={classnames(
+            style['message-list'],
+            this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
+          )}
+        >
+          {this.props.convId && <div className={style['message-title']}>Conversation #{this.props.convId}</div>}
+          {this.props.convId && (
+            <div className={style['message-lastdate']}>
+              Last message on : #{this.getLastMessageDate(this.props.messages).toUTCString()}
+            </div>
+          )}
+          {this.props.messages &&
+            this.props.messages.map(m => {
+              return (
+                <div
+                  className={classnames(
+                    style['message-elements'],
+                    m.direction === 'outgoing' ? style['message-outgoing'] : style['message-incomming']
+                  )}
+                  key={`${m.id}: ${m.direction}`}
+                  value={m.id}
+                  onClick={() => this.focusMessage(m)}
+                >
+                  > {m.payload.text}
+                </div>
+              )
+            })}
+        </div>
+        <div
+          className={classnames(
+            style['message-inspector'],
+            this.state.inspectorIsShown ? '' : style['message-inspector-hidden']
+          )}
+        >
+          <div className={style['quit-inspector']} onClick={this.closeInspector}>
+            <GoX />
+          </div>
+          {this.state.currentlyFocusedMessage && (
+            <JSONTree
+              theme={inspectorTheme}
+              data={this.state.currentlyFocusedMessage}
+              invertTheme={false}
+              hideRoot={true}
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
 }
 
 export default class FullView extends React.Component {
@@ -106,7 +143,6 @@ export default class FullView extends React.Component {
   state = {
     conversations: [],
     messages: [],
-    currentlyFocusedMessage: null,
     to: new Date(Date.now()),
     from: this.offsetDate(Date.now(), -20),
     currentConvId: null
@@ -161,10 +197,6 @@ export default class FullView extends React.Component {
     })
   }
 
-  focusMessage(message) {
-    this.setState({ currentlyFocusedMessage: message })
-  }
-
   render() {
     if (!this.state.conversations) {
       return null
@@ -186,12 +218,7 @@ export default class FullView extends React.Component {
           defaultTo={this.state.to}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
-        <MessagesViewer
-          convId={this.state.currentConvId}
-          messages={this.state.messages}
-          messageChosenHandler={this.focusMessage.bind(this)}
-          currentlyFocusedMessage={this.state.currentlyFocusedMessage}
-        />
+        <MessagesViewer convId={this.state.currentConvId} messages={this.state.messages} />
       </div>
     )
   }

@@ -55,6 +55,7 @@
     width: 80%;
     border-left: solid;
     height: 100%;
+    overflow: hidden;
   }
 
   &-title {
@@ -69,10 +70,17 @@
   }
 
   &-list {
-    height: 50%;
     overflow-y: auto;
     word-wrap: break-word;
     padding: 1%;
+
+    &-full {
+      height: 100%;
+    }
+
+    &-partial {
+      height: 50%;
+    }
   }
 
   &-inspector {
@@ -80,6 +88,11 @@
     background-color: #1e1e1e;
     overflow-y: auto;
     padding: 0.5%;
+    position: relative;
+
+    &-hidden {
+      visibility: hidden;
+    }
   }
 
   &-elements {
@@ -98,4 +111,12 @@
   &-incomming {
     color: gray;
   }
+}
+
+.quit-inspector {
+  right: 5px;
+  top: 5px;
+  position: absolute;
+  cursor: pointer;
+  color: #434343;
 }
