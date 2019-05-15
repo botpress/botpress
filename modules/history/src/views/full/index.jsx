@@ -54,6 +54,7 @@ function MessagesViewer(props) {
             return (
               <div
                 className={m.direction === 'outgoing' ? style['outgoing'] : style['incomming']}
+                key={`${m.id}: ${m.direction}`}
                 value={m.id}
                 onClick={() => props.messageChosenHandler(m)}
               >
@@ -72,6 +73,10 @@ function MessagesViewer(props) {
 }
 
 export default class FullView extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
   state = {
     conversations: [],
     messages: [],
@@ -79,6 +84,8 @@ export default class FullView extends React.Component {
     to: new Date(Date.now()),
     from: this.offsetDate(Date.now(), -20)
   }
+
+  threadIdParamName = 'threadId'
 
   offsetDate(date, offset) {
     const newDate = new Date(date)
@@ -88,6 +95,11 @@ export default class FullView extends React.Component {
 
   componentDidMount() {
     this.getConversations()
+    const url = new URL(window.location.href)
+    const threadId = url.searchParams.get(this.threadIdParamName)
+    if (threadId) {
+      this.getMessagesOfConversation(threadId)
+    }
   }
 
   componentWillUnmount() {
@@ -103,6 +115,13 @@ export default class FullView extends React.Component {
       .then(({ data }) => {
         this.setState({ conversations: data })
       })
+  }
+
+  onConversationSelected(convId) {
+    const url = new URL(window.location.href)
+    url.searchParams.set(this.threadIdParamName, convId)
+    window.history.pushState(window.history.state, '', url.toString())
+    this.getMessagesOfConversation(convId)
   }
 
   getMessagesOfConversation(convId) {
@@ -123,7 +142,7 @@ export default class FullView extends React.Component {
       <div className={style['msg-container']}>
         <ConversationPicker
           conversations={this.state.conversations}
-          conversationChosenHandler={this.getMessagesOfConversation.bind(this)}
+          conversationChosenHandler={this.onConversationSelected.bind(this)}
           handleFromChange={day => this.setState({ from: day })}
           handleToChange={day => this.setState({ to: day })}
           defaultFrom={this.state.from}

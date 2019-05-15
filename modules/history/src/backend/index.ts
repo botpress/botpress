@@ -13,7 +13,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const cleanDatabase = async (db, limitDate: Date) => {
-  console.log(`clean database called with limit date = '${limitDate.toDateString()}' (${limitDate.getTime()})`)
+  // console.log(`clean database called with limit date = '${limitDate.toDateString()}' (${limitDate.getTime()})`)
   await db
     .table('msg_history')
     .where('created_on', '<', limitDate.getTime())

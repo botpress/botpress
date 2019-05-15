@@ -14614,6 +14614,7 @@ function MessagesViewer(props) {
   }, props.messages && props.messages.map(function (m) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       className: m.direction === 'outgoing' ? _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['outgoing'] : _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['incomming'],
+      key: "".concat(m.id, ": ").concat(m.direction),
       value: m.id,
       onClick: function onClick() {
         return props.messageChosenHandler(m);
@@ -14633,18 +14634,12 @@ var FullView =
 function (_React$Component) {
   _inherits(FullView, _React$Component);
 
-  function FullView() {
-    var _getPrototypeOf2;
-
+  function FullView(props) {
     var _this;
 
     _classCallCheck(this, FullView);
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(FullView)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(FullView).call(this, props));
 
     _defineProperty(_assertThisInitialized(_this), "state", {
       conversations: [],
@@ -14653,6 +14648,8 @@ function (_React$Component) {
       to: new Date(Date.now()),
       from: _this.offsetDate(Date.now(), -20)
     });
+
+    _defineProperty(_assertThisInitialized(_this), "threadIdParamName", 'threadId');
 
     return _this;
   }
@@ -14668,6 +14665,12 @@ function (_React$Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.getConversations();
+      var url = new URL(window.location.href);
+      var threadId = url.searchParams.get(this.threadIdParamName);
+
+      if (threadId) {
+        this.getMessagesOfConversation(threadId);
+      }
     }
   }, {
     key: "componentWillUnmount",
@@ -14688,6 +14691,14 @@ function (_React$Component) {
           conversations: data
         });
       });
+    }
+  }, {
+    key: "onConversationSelected",
+    value: function onConversationSelected(convId) {
+      var url = new URL(window.location.href);
+      url.searchParams.set(this.threadIdParamName, convId);
+      window.history.pushState(window.history.state, '', url.toString());
+      this.getMessagesOfConversation(convId);
     }
   }, {
     key: "getMessagesOfConversation",
@@ -14722,7 +14733,7 @@ function (_React$Component) {
         className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['msg-container']
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ConversationPicker, {
         conversations: this.state.conversations,
-        conversationChosenHandler: this.getMessagesOfConversation.bind(this),
+        conversationChosenHandler: this.onConversationSelected.bind(this),
         handleFromChange: function handleFromChange(day) {
           return _this4.setState({
             from: day
