@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Button } from './Button'
+
+import { Renderer } from '../../../typings'
 import * as Keyboard from '../../Keyboard'
+
+import { Button } from './Button'
 
 /**
  * Displays an array of button, and handle when they are clicked
@@ -11,35 +14,27 @@ import * as Keyboard from '../../Keyboard'
  *
  * @return onSendData is called with the reply
  */
-export class QuickReplies extends Component {
-  constructor(props) {
-    super(props)
-  }
-
+export class QuickReplies extends Component<Renderer.QuickReply> {
   handleButtonClicked = (title, payload) => {
-    if (this.props.onSendData) {
+    this.props.onSendData &&
       this.props.onSendData({
         type: 'quick_reply',
         text: title,
         payload
       })
-    }
   }
 
-  renderKeyboard(buttons) {
+  renderKeyboard(buttons: Renderer.QuickReplyButton[]) {
     return buttons.map((btn, idx) => {
       if (Array.isArray(btn)) {
         return <div>{this.renderKeyboard(btn)}</div>
       } else {
-        // By default, we prevent double clicks on buttons
-        const preventDoubleClick = btn.allowMultipleClick === true ? false : true
-
         return (
           <Button
             key={idx}
             label={btn.label || btn.title}
             payload={btn.payload}
-            preventDoubleClick={preventDoubleClick}
+            preventDoubleClick={!btn.allowMultipleClick}
             onButtonClick={this.handleButtonClicked}
             onFileUpload={this.props.onFileUpload}
           />

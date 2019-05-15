@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import FileInput from './FileInput'
+
+import { HTMLInputEvent, Renderer } from '../../../typings'
+
+import { FileInput } from './FileInput'
 
 /**
  * A simple button, with a possibility to be used as a file upload button
@@ -8,7 +11,7 @@ import FileInput from './FileInput'
  * @param {function} onButtonClicked Called when the button is clicked with the label and the payload
  * @param {function} onFileUpload This is called when a file is uploaded
  */
-export class Button extends Component {
+export class Button extends Component<Renderer.Button> {
   constructor(props) {
     super(props)
   }
@@ -21,7 +24,7 @@ export class Button extends Component {
     this.props.onButtonClick && this.props.onButtonClick(this.props.label, this.props.payload)
   }
 
-  handleFileUpload = event => {
+  handleFileUpload = (event: HTMLInputEvent) => {
     if (!event.target.files) {
       return
     }
@@ -34,11 +37,11 @@ export class Button extends Component {
       <button className={'bpw-button'}>
         <span>{this.props.label}</span>
         <FileInput
-          name="uploadField"
+          name={'uploadField'}
           accept={accept}
           className={'bpw-file-message'}
           placeholder={this.props.label}
-          onChange={this.handleFileUpload}
+          onFileChanged={this.handleFileUpload}
         />
       </button>
     )

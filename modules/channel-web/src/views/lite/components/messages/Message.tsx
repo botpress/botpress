@@ -1,10 +1,16 @@
-import React, { Component } from 'react'
-import { FileMessage, Carousel, LoginPrompt, Text } from './renderer'
 import classnames from 'classnames'
+import pick from 'lodash/pick'
+import { inject, observer } from 'mobx-react'
+import React, { Component } from 'react'
+
+import { RootStore } from '../../store'
+import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
-class Message extends Component {
-  render_text(textMessage) {
+import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
+
+class Message extends Component<Renderer.Message> {
+  render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
 
     if (!textMessage && !text) {
@@ -46,7 +52,7 @@ class Message extends Component {
   }
 
   render_custom() {
-    const { module, component, wrapped } = this.props.payload || {}
+    const { module = undefined, component = undefined, wrapped = undefined } = this.props.payload || {}
     if (!module || !component) {
       return this.render_unsupported()
     }
@@ -58,7 +64,7 @@ class Message extends Component {
     delete messageDataProps.component
 
     const props = {
-      ..._.pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload', 'sentOn']),
+      ...pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload', 'sentOn', 'store']),
       ...messageDataProps,
       keyboard: Keyboard,
       children: wrapped && <Message bp={this.props.bp} keyboard={Keyboard} noBubble={true} payload={wrapped} />
@@ -88,7 +94,7 @@ class Message extends Component {
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
     const rendered = renderer()
     if (rendered === null) {
-      return null
+      return undefined
     }
 
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
@@ -105,4 +111,9 @@ class Message extends Component {
   }
 }
 
-export default Message
+export default inject(({ store }: { store: RootStore }) => ({
+  store,
+  bp: store.bp,
+  onSendData: store.sendData,
+  onFileUpload: store.uploadFile
+}))(observer(Message))

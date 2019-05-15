@@ -1,11 +1,14 @@
-import React, { Fragment } from 'react'
+import { inject, observer } from 'mobx-react'
+import * as React from 'react'
+import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 import snarkdown from 'snarkdown'
 
+import EmailIcon from '../../icons/Email'
 import PhoneIcon from '../../icons/Phone'
 import WebsiteIcon from '../../icons/Website'
-import EmailIcon from '../../icons/Email'
+import { RootStore, StoreDef } from '../../store'
+
 import Avatar from './Avatar'
-import { injectIntl, FormattedMessage } from 'react-intl'
 
 const CoverPicture = ({ botInfo }) => (
   <img
@@ -16,20 +19,11 @@ const CoverPicture = ({ botInfo }) => (
   />
 )
 
-const BotAvatar = ({ botInfo, config }) => {
-  const name = botInfo.name || config.botName
-  const avatarUrl = (botInfo.details && botInfo.details.avatarUrl) || config.avatarUrl
-  return <Avatar name={name} avatarUrl={avatarUrl} height={64} width={64} />
-}
+class BotInfoPage extends React.Component<BotInfoProps> {
+  private btnEl: HTMLElement
 
-class BotInfo extends React.Component {
   componentDidMount() {
     this.btnEl && this.btnEl.focus()
-  }
-
-  startConversation = () => {
-    this.props.onSendData &&
-      this.props.onSendData({ type: 'request_start_conversation' }).then(this.props.toggleBotInfo)
   }
 
   renderDescription(text) {
@@ -40,28 +34,26 @@ class BotInfo extends React.Component {
   }
 
   render() {
-    const { botInfo, config, currentConversation } = this.props
-
-    const isConvoStarted = currentConversation && !!currentConversation.messages.length
-    const onDismiss = isConvoStarted ? this.props.toggleBotInfo : this.startConversation
+    const { botInfo, botName, avatarUrl } = this.props
+    const onDismiss = this.props.isConversationStarted ? this.props.toggleBotInfo : this.props.startConversation
 
     return (
       <div className={'bpw-botinfo-container'}>
         <CoverPicture botInfo={botInfo} />
         <div className={'bpw-botinfo-summary'}>
-          <BotAvatar botInfo={botInfo} config={config} />
-          <h3>{botInfo.name || config.botName}</h3>
+          <Avatar name={botName} avatarUrl={avatarUrl} height={64} width={64} />
+          <h3>{botName}</h3>
           {this.renderDescription(botInfo.description)}
         </div>
         {botInfo.details && (
-          <Fragment>
+          <React.Fragment>
             <div className={'bpw-botinfo-links'}>
               {botInfo.details.phoneNumber && (
                 <div className={'bpw-botinfo-link'}>
                   <i>
                     <PhoneIcon />
                   </i>
-                  <a target="_blank" href={`tel:${botInfo.details.phoneNumber}`}>
+                  <a target={'_blank'} href={`tel:${botInfo.details.phoneNumber}`}>
                     {botInfo.details.phoneNumber}
                   </a>
                 </div>
@@ -71,7 +63,7 @@ class BotInfo extends React.Component {
                   <i>
                     <WebsiteIcon />
                   </i>
-                  <a target="_blank" href={botInfo.details.website}>
+                  <a target={'_blank'} href={botInfo.details.website}>
                     {botInfo.details.website}
                   </a>
                 </div>
@@ -81,7 +73,7 @@ class BotInfo extends React.Component {
                   <i>
                     <EmailIcon />
                   </i>
-                  <a target="_blank" href={`mailto:${botInfo.details.emailAddress}`}>
+                  <a target={'_blank'} href={`mailto:${botInfo.details.emailAddress}`}>
                     {botInfo.details.emailAddress}
                   </a>
                 </div>
@@ -89,25 +81,30 @@ class BotInfo extends React.Component {
             </div>
             {botInfo.details.termsConditions && (
               <div className={'bpw-botinfo-terms'}>
-                <a target="_blank" href={botInfo.details.termsConditions}>
-                  <FormattedMessage id="botInfo.termsAndConditions" />
+                <a target={'_blank'} href={botInfo.details.termsConditions}>
+                  <FormattedMessage id={'botInfo.termsAndConditions'} />
                 </a>
               </div>
             )}
             {botInfo.details.privacyPolicy && (
               <div className={'bpw-botinfo-terms'}>
-                <a target="_blank" href={botInfo.details.privacyPolicy}>
-                  <FormattedMessage id="botInfo.privacyPolicy" />
+                <a target={'_blank'} href={botInfo.details.privacyPolicy}>
+                  <FormattedMessage id={'botInfo.privacyPolicy'} />
                 </a>
               </div>
             )}
-          </Fragment>
+          </React.Fragment>
         )}
-        <button tabIndex="1" ref={el => (this.btnEl = el)} className={'bpw-botinfo-start-button'} onClick={onDismiss}>
-          {isConvoStarted ? (
-            <FormattedMessage id="botInfo.backToConversation" />
+        <button
+          tabIndex={1}
+          ref={el => (this.btnEl = el)}
+          className={'bpw-botinfo-start-button'}
+          onClick={onDismiss.bind(this, undefined)}
+        >
+          {this.props.isConversationStarted ? (
+            <FormattedMessage id={'botInfo.backToConversation'} />
           ) : (
-            <FormattedMessage id="botInfo.startConversation" />
+            <FormattedMessage id={'botInfo.startConversation'} />
           )}
         </button>
       </div>
@@ -115,4 +112,23 @@ class BotInfo extends React.Component {
   }
 }
 
-export default injectIntl(BotInfo)
+export default inject(({ store }: { store: RootStore }) => ({
+  botName: store.botName,
+  botInfo: store.botInfo,
+  avatarUrl: store.botAvatarUrl,
+  startConversation: store.startConversation,
+  toggleBotInfo: store.view.toggleBotInfo,
+  isConversationStarted: store.isConversationStarted
+}))(injectIntl(observer(BotInfoPage)))
+
+type BotInfoProps = InjectedIntlProps &
+  Pick<
+    StoreDef,
+    | 'botInfo'
+    | 'botName'
+    | 'avatarUrl'
+    | 'toggleBotInfo'
+    | 'startConversation'
+    | 'isConversationStarted'
+    | 'enableArrowNavigation'
+  >

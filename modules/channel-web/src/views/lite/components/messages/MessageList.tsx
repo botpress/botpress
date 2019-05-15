@@ -1,14 +1,17 @@
-import React, { Component } from 'react'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
-
-import MessageGroup from './MessageGroup'
-import Avatar from '../common/Avatar'
-
+import { inject, observer } from 'mobx-react'
+import React from 'react'
 import { injectIntl } from 'react-intl'
 
-const TIME_BETWEEN_DATES = 10 // 10 minutes
+import constants from '../../core/constants'
+import { RootStore, StoreDef } from '../../store'
+import Avatar from '../common/Avatar'
 
-class MessageList extends Component {
+import MessageGroup from './MessageGroup'
+
+class MessageList extends React.Component<MessageListProps> {
+  private messagesDiv: HTMLElement
+
   componentDidMount() {
     this.tryScrollToBottom()
   }
@@ -18,8 +21,8 @@ class MessageList extends Component {
       this.messagesDiv.focus()
     }
 
-    //new message to display
-    if (prevProps.messages !== this.props.messages || this.props.typingUntil) {
+    // new message to display
+    if (prevProps.messages !== this.props.currentMessages || this.props.currentConvoTyping) {
       this.tryScrollToBottom()
     }
   }
@@ -75,19 +78,22 @@ class MessageList extends Component {
   }
 
   renderMessageGroups() {
-    const messages = this.props.messages || []
+    const messages = this.props.currentMessages || []
     const groups = []
 
-    let lastSpeaker = null
-    let lastDate = null
-    let currentGroup = null
+    let lastSpeaker = undefined
+    let lastDate = undefined
+    let currentGroup = undefined
 
     messages.forEach(m => {
       const speaker = !!m.userId ? m.userId : 'bot'
       const date = m.sent_on
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
-      if (speaker !== lastSpeaker || differenceInMinutes(new Date(date), new Date(lastDate)) >= TIME_BETWEEN_DATES) {
+      if (
+        speaker !== lastSpeaker ||
+        differenceInMinutes(new Date(date), new Date(lastDate)) >= constants.TIME_BETWEEN_DATES
+      ) {
         currentGroup = []
         groups.push(currentGroup)
       }
@@ -98,7 +104,7 @@ class MessageList extends Component {
       lastDate = date
     })
 
-    if (this.props.typingUntil) {
+    if (this.props.currentConvoTyping) {
       if (lastSpeaker !== 'bot') {
         currentGroup = []
         groups.push(currentGroup)
@@ -106,7 +112,7 @@ class MessageList extends Component {
 
       currentGroup.push({
         sent_on: new Date(),
-        userId: null,
+        userId: undefined,
         message_type: 'typing'
       })
     }
@@ -118,7 +124,8 @@ class MessageList extends Component {
           const groupDate = group && group[0].sent_on
 
           const isDateNeeded =
-            !groups[i - 1] || differenceInMinutes(new Date(groupDate), new Date(lastDate)) > TIME_BETWEEN_DATES
+            !groups[i - 1] ||
+            differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
           const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
 
@@ -128,19 +135,14 @@ class MessageList extends Component {
 
           return (
             <div key={i}>
-              {isDateNeeded ? this.renderDate(group[0].sent_on) : null}
+              {isDateNeeded && this.renderDate(group[0].sent_on)}
               <MessageGroup
-                bp={this.props.bp}
                 isBot={!userId}
                 avatar={avatar}
                 userName={userName}
-                showUserAvatar={this.props.showUserAvatar}
-                showUserName={this.props.showUserName}
                 key={`msg-group-${i}`}
                 isLastGroup={i >= groups.length - 1}
                 messages={group}
-                onSendData={this.props.onSendData}
-                onFileUpload={this.props.onFileUpload}
               />
             </div>
           )
@@ -152,7 +154,7 @@ class MessageList extends Component {
   render() {
     return (
       <div
-        tabIndex="-1"
+        tabIndex={-1}
         onKeyDown={this.handleKeyDown}
         className={'bpw-msg-list'}
         ref={m => {
@@ -165,4 +167,29 @@ class MessageList extends Component {
   }
 }
 
-export default injectIntl(MessageList)
+export default inject(({ store }: { store: RootStore }) => ({
+  botName: store.botName,
+  botAvatarUrl: store.botAvatarUrl,
+  currentConvoTyping: store.currentConvoTyping,
+  currentMessages: store.currentMessages,
+  currentConversation: store.currentConversation,
+  focusPrevious: store.view.focusPrevious,
+  focusNext: store.view.focusNext,
+  showUserAvatar: store.config.showUserAvatar,
+  enableArrowNavigation: store.config.enableArrowNavigation
+}))(injectIntl(observer(MessageList)))
+
+type MessageListProps = {
+  intl: any
+  focused: boolean
+} & Pick<
+  StoreDef,
+  | 'currentConvoTyping'
+  | 'focusPrevious'
+  | 'focusNext'
+  | 'botAvatarUrl'
+  | 'botName'
+  | 'enableArrowNavigation'
+  | 'showUserAvatar'
+  | 'currentMessages'
+>

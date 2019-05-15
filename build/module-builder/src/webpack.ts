@@ -32,11 +32,12 @@ export function config(projectPath) {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
     },
     resolve: {
-      extensions: ['.js', '.jsx']
+      extensions: ['.js', '.jsx', '.tsx']
     },
     plugins: [new CleanWebpackPlugin()],
     module: {
       rules: [
+        { test: /\.tsx$/, loader: 'ts-loader', exclude: /node_modules/ },
         {
           test: /\.jsx?$/,
           use: {
@@ -44,7 +45,8 @@ export function config(projectPath) {
             options: {
               presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-proposal-class-properties', { loose: true }],
                 '@babel/plugin-syntax-function-bind',
                 '@babel/plugin-proposal-function-bind'
               ]

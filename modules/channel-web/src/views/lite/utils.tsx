@@ -40,6 +40,7 @@ export const downloadFile = (name, blob) => {
 export const checkLocationOrigin = () => {
   if (!window.location.origin) {
     const { protocol, hostname, port } = window.location
+    // @ts-ignore
     window.location.origin = `${protocol}//${hostname}${port && ':' + port}`
   }
 }
@@ -47,7 +48,9 @@ export const checkLocationOrigin = () => {
 export const initializeAnalytics = () => {
   if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
     try {
+      // @ts-ignore
       ReactGA.initialize('UA-90044826-2')
+      // @ts-ignore
       ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
     } catch (err) {
       console.log('Error init analytics', err)

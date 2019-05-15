@@ -1,9 +1,13 @@
-import React from 'react'
 import classnames from 'classnames'
+import { inject } from 'mobx-react'
+import React from 'react'
+
+import { RootStore } from '../../store'
+import { Message as MessageDetails } from '../../typings'
 
 import Message from './Message'
 
-const MessageGroup = props => {
+const MessageGroup = (props: MessageGroupProps) => {
   return (
     <div
       className={classnames('bpw-message-big-container', {
@@ -38,14 +42,11 @@ const MessageGroup = props => {
 
             return (
               <Message
-                bp={props.bp}
                 key={`msg-${i}`}
                 isLastOfGroup={i >= props.messages.length - 1}
                 isLastGroup={props.isLastGroup}
                 payload={payload}
                 sentOn={data.sent_on}
-                onSendData={props.onSendData}
-                onFileUpload={props.onFileUpload}
                 isBotMessage={!data.userId}
               />
             )
@@ -56,4 +57,13 @@ const MessageGroup = props => {
   )
 }
 
-export default MessageGroup
+export default inject(({ store }: { store: RootStore }) => ({ showUserName: store.config.showUserName }))(MessageGroup)
+
+interface MessageGroupProps {
+  isBot: boolean
+  avatar: JSX.Element
+  showUserName?: boolean
+  userName: string
+  messages: MessageDetails[]
+  isLastGroup: boolean
+}

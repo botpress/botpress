@@ -3,11 +3,14 @@ import React from 'react'
 import Slider from 'react-slick'
 
 // Added those manually to remove the font dependencies which keeps showing 404 not found
-import '../../../../../../assets/slick/slick.css'
 import '../../../../../../assets/slick/slick-theme.css'
+import '../../../../../../assets/slick/slick.css'
+import { Renderer } from '../../../typings'
 
 export const Carousel = props => {
-  const elements = props.carousel.elements || []
+  const carousel: Renderer.Carousel = props.carousel
+  const elements = carousel.elements || []
+
   const defaultSettings = {
     dots: false,
     infinite: false,
@@ -24,7 +27,7 @@ export const Carousel = props => {
     arrows: elements.length > 1
   }
 
-  const settings = Object.assign({}, defaultSettings, props.carousel.settings)
+  const settings = Object.assign({}, defaultSettings, carousel.settings)
 
   return (
     <Slider {...settings}>
@@ -36,7 +39,7 @@ export const Carousel = props => {
 }
 
 export const Card = props => {
-  const { picture, title, subtitle, buttons } = props.element
+  const { picture, title, subtitle, buttons } = props.element as Renderer.Card
 
   return (
     <div className={'bpw-card-container'}>
@@ -47,10 +50,10 @@ export const Card = props => {
           {subtitle && <div className={'bpw-card-subtitle'}>{subtitle}</div>}
         </div>
         <div className={'bpw-card-buttons'}>
-          {buttons.map(btn => {
+          {buttons.map((btn: Renderer.CardButton) => {
             if (btn.url) {
               return (
-                <a href={btn.url} key={`1-${btn.title}`} target="_blank" className={'bpw-card-action'}>
+                <a href={btn.url} key={`1-${btn.title}`} target={'_blank'} className={'bpw-card-action'}>
                   {btn.title || btn}
                   <i className={'bpw-card-external-icon'} />
                 </a>
@@ -58,7 +61,7 @@ export const Card = props => {
             } else if (btn.type == 'postback' || btn.payload) {
               return (
                 <a
-                  href
+                  href={'#'}
                   onClick={props.onSendData.bind(this, { type: 'postback', payload: btn.payload })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
@@ -69,7 +72,7 @@ export const Card = props => {
             } else if (btn.type == 'say_something' || btn.text) {
               return (
                 <a
-                  href
+                  href={'#'}
                   onClick={props.onSendData.bind(this, { type: 'say_something', text: btn.text })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
@@ -79,7 +82,7 @@ export const Card = props => {
               )
             } else {
               return (
-                <a href="#" key={`3-${btn.title}`} target="_blank" className={'bpw-card-action'}>
+                <a href={'#'} key={`3-${btn.title}`} target={'_blank'} className={'bpw-card-action'}>
                   {btn.title || btn}
                   <i className={'bpw-card-external-icon'} />
                 </a>

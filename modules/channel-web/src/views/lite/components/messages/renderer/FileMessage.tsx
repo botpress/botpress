@@ -1,9 +1,12 @@
-import React from 'react'
+import mimeTypes from 'mime/lite'
 import path from 'path'
-import mimeTypes from 'mime-types'
+import React from 'react'
+
+import { Renderer } from '../../../typings'
+
 import { Text } from './Text'
 
-export const FileMessage = props => {
+export const FileMessage = (props: Renderer.FileMessage) => {
   if (!props.file) {
     return null
   }
@@ -11,11 +14,11 @@ export const FileMessage = props => {
   const { url, name, storage, text } = props.file
 
   const extension = path.extname(url)
-  const mime = mimeTypes.lookup(extension)
+  const mime = mimeTypes.getType(extension)
   const basename = path.basename(url, extension)
 
   if (text) {
-    return <Text text={text} />
+    return <Text text={text} markdown={true} />
   }
 
   if (storage === 'local') {
@@ -29,7 +32,7 @@ export const FileMessage = props => {
   if (!mime) {
     return (
       <div className={'bpw-file-message'}>
-        <a href={url} target="_blank">
+        <a href={url} target={'_blank'}>
           {name}
         </a>
       </div>
@@ -38,7 +41,7 @@ export const FileMessage = props => {
 
   if (mime.includes('image/')) {
     return (
-      <a href={url} target="_blank">
+      <a href={url} target={'_blank'}>
         <img src={url} title={name} />
       </a>
     )
@@ -50,7 +53,7 @@ export const FileMessage = props => {
     )
   } else if (mime.includes('video/')) {
     return (
-      <video width="240" controls>
+      <video width={240} controls>
         <source src={url} type={mime} />
       </video>
     )

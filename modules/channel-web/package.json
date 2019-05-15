@@ -1,6 +1,6 @@
 {
   "name": "channel-web",
-  "version": "10.33.0",
+  "version": "11.9.0",
   "description": "An embeddable webchat for Botpress",
   "private": true,
   "main": "dist/backend/index.js",
@@ -15,6 +15,10 @@
     "@types/bluebird-global": "^3.5.7",
     "@types/express": "^4.16.0",
     "@types/lodash": "^4.14.116",
+    "@types/node": "^10.10.3",
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-intl": "^2.3.17",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
@@ -25,7 +29,10 @@
     "classnames": "^2.2.6",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.1",
-    "mime-types": "^2.1.22",
+    "mime": "^2.4.3",
+    "mobx": "^5.9.4",
+    "mobx-react": "^5.4.3",
+    "mobx-react-devtools": "^6.1.1",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.0",

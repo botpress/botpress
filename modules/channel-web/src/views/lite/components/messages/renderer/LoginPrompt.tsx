@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 
-export class LoginPrompt extends Component {
+import { Renderer } from '../../../typings'
+
+export class LoginPrompt extends Component<Renderer.Message> {
   state = {
     username: '',
     password: ''

@@ -18,7 +18,7 @@ export default async (argv: any) => {
   }
 
   const watcher = chokidar.watch(path.join(modulePath, 'src'), {
-    ignored: ['**/*.d.ts', '**/src/views/**'],
+    ignored: ['**/*.d.ts'],
     ignoreInitial: true,
     atomic: 500
   })

@@ -1,14 +1,17 @@
+import { inject, observer } from 'mobx-react'
 import React from 'react'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import Add from '../icons/Add'
+import { RootStore, StoreDef } from '../store'
+import { ConversationSummary } from '../typings'
 
-import { injectIntl } from 'react-intl'
-
-const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }) => {
+const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }: ConversationListItemProps) => {
   const title =
     conversation.title ||
     conversation.message_author ||
     intl.formatMessage({ id: 'conversationList.untitledConversation', defaultMessage: 'Untitled Conversation' })
+
   const date = intl.formatRelative(conversation.message_sent_on || conversation.created_on)
   const message = conversation.message_text || '...'
 
@@ -27,9 +30,19 @@ const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl
   )
 })
 
-class ConversationList extends React.Component {
+type ConversationListItemProps = {
+  conversation: ConversationSummary
+  hasFocus: boolean
+  onClick: (event: React.MouseEvent) => void
+} & InjectedIntlProps &
+  Pick<StoreDef, 'conversations' | 'fetchConversation' | 'createConversation'>
+
+class ConversationList extends React.Component<ConversationListProps> {
+  private main: HTMLElement
+  private btn: HTMLElement
+
   state = {
-    focusIdx: null
+    focusIdx: undefined
   }
 
   componentDidMount() {
@@ -68,23 +81,27 @@ class ConversationList extends React.Component {
       this.changeFocus(-1)
     } else if (e.key == 'Enter' && this.state.focusIdx && this.state.focusIdx < this.props.conversations.length) {
       const convoId = this.props.conversations[this.state.focusIdx].id
-      this.props.onConversationClicked(convoId)
+      this.props.fetchConversation.bind(this, convoId)
     }
   }
 
   render() {
-    const { conversations, createConversation, onConversationClicked } = this.props
+    const { conversations, createConversation, fetchConversation } = this.props
     return (
-      <div tabIndex="0" ref={el => (this.main = el)} className={'bpw-convo-list'} onKeyDown={this.handleKeyDown}>
+      <div tabIndex={0} ref={el => (this.main = el)} className={'bpw-convo-list'} onKeyDown={this.handleKeyDown}>
         {conversations.map((convo, idx) => (
           <ConversationListItem
             key={convo.id}
             hasFocus={this.state.focusIdx == idx}
             conversation={convo}
-            onClick={onConversationClicked.bind(this, convo.id)}
+            onClick={fetchConversation.bind(this, convo.id)}
           />
         ))}
-        <button ref={el => (this.btn = el)} className={'bpw-convo-add-btn'} onClick={createConversation}>
+        <button
+          ref={el => (this.btn = el)}
+          className={'bpw-convo-add-btn'}
+          onClick={createConversation.bind(this, undefined)}
+        >
           <Add width={15} height={15} />
         </button>
       </div>
@@ -92,4 +109,12 @@ class ConversationList extends React.Component {
   }
 }
 
-export default ConversationList
+export default inject(({ store }: { store: RootStore }) => ({
+  conversations: store.conversations,
+  createConversation: store.createConversation,
+  fetchConversation: store.fetchConversation,
+  enableArrowNavigation: store.config.enableArrowNavigation
+}))(injectIntl(observer(ConversationList)))
+
+type ConversationListProps = InjectedIntlProps &
+  Pick<StoreDef, 'conversations' | 'fetchConversation' | 'createConversation' | 'enableArrowNavigation'>
