@@ -22,7 +22,7 @@ class MessageList extends React.Component<MessageListProps> {
     }
 
     // new message to display
-    if (prevProps.messages !== this.props.currentMessages || this.props.currentConvoTyping) {
+    if (prevProps.currentMessages !== this.props.currentMessages || this.props.currentConvoTyping) {
       this.tryScrollToBottom()
     }
   }
@@ -34,7 +34,7 @@ class MessageList extends React.Component<MessageListProps> {
       } catch (err) {
         // Discard the error
       }
-    }, 0)
+    }, 50)
   }
 
   handleKeyDown = e => {

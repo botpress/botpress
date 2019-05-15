@@ -1,9 +1,8 @@
 import classnames from 'classnames'
 import pick from 'lodash/pick'
-import { inject, observer } from 'mobx-react'
+
 import React, { Component } from 'react'
 
-import { RootStore } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
@@ -67,7 +66,7 @@ class Message extends Component<Renderer.Message> {
       ...pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload', 'sentOn', 'store']),
       ...messageDataProps,
       keyboard: Keyboard,
-      children: wrapped && <Message bp={this.props.bp} keyboard={Keyboard} noBubble={true} payload={wrapped} />
+      children: wrapped && <Message {...this.props} keyboard={Keyboard} noBubble={true} payload={wrapped} />
     }
 
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
@@ -111,9 +110,4 @@ class Message extends Component<Renderer.Message> {
   }
 }
 
-export default inject(({ store }: { store: RootStore }) => ({
-  store,
-  bp: store.bp,
-  onSendData: store.sendData,
-  onFileUpload: store.uploadFile
-}))(observer(Message))
+export default Message

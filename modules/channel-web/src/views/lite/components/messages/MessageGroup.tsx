@@ -3,7 +3,7 @@ import { inject } from 'mobx-react'
 import React from 'react'
 
 import { RootStore } from '../../store'
-import { Message as MessageDetails } from '../../typings'
+import { Message as MessageDetails, StudioConnector } from '../../typings'
 
 import Message from './Message'
 
@@ -48,6 +48,10 @@ const MessageGroup = (props: MessageGroupProps) => {
                 payload={payload}
                 sentOn={data.sent_on}
                 isBotMessage={!data.userId}
+                onSendData={props.onSendData}
+                onFileUpload={props.onFileUpload}
+                bp={props.bp}
+                store={props.store}
               />
             )
           })}
@@ -57,7 +61,13 @@ const MessageGroup = (props: MessageGroupProps) => {
   )
 }
 
-export default inject(({ store }: { store: RootStore }) => ({ showUserName: store.config.showUserName }))(MessageGroup)
+export default inject(({ store }: { store: RootStore }) => ({
+  store,
+  bp: store.bp,
+  onSendData: store.sendData,
+  onFileUpload: store.uploadFile,
+  showUserName: store.config.showUserName
+}))(MessageGroup)
 
 interface MessageGroupProps {
   isBot: boolean
@@ -66,4 +76,8 @@ interface MessageGroupProps {
   userName: string
   messages: MessageDetails[]
   isLastGroup: boolean
+  onFileUpload?: any
+  onSendData?: any
+  bp?: StudioConnector
+  store?: RootStore
 }

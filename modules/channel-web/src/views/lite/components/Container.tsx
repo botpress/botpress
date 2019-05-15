@@ -58,13 +58,11 @@ class Container extends React.Component<ContainerProps> {
     const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
 
     return (
-      <span>
-        <div className={classNames}>
-          <Header focused={this.props.isFocused('header')} />
-          {this.renderBody()}
-          {CustomComponent && <CustomComponent {...this.props} />}
-        </div>
-      </span>
+      <div className={classNames}>
+        <Header focused={this.props.isFocused('header')} />
+        {this.renderBody()}
+        {CustomComponent && <CustomComponent {...this.props} />}
+      </div>
     )
   }
 }

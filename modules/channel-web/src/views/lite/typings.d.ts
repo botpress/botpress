@@ -1,3 +1,5 @@
+import { RootStore } from './store'
+
 declare global {
   interface Window {
     __BP_VISITOR_ID: string
@@ -19,6 +21,7 @@ export namespace Renderer {
   export interface Message {
     type?: string
     payload?: any
+    store?: RootStore
     bp?: StudioConnector
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
