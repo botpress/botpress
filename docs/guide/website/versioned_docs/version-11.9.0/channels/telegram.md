@@ -1,6 +1,7 @@
 ---
-id: telegram
+id: version-11.9.0-telegram
 title: Telegram
+original_id: telegram
 ---
 
 ## Requirements
