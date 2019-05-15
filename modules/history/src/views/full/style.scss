@@ -27,6 +27,7 @@
     color: #c1c0c6;
     margin-left: auto;
     cursor: pointer;
+    vertical-align: middle;
   }
 
   &-titlebar {
@@ -60,6 +61,31 @@
 }
 
 .message {
+  &-header {
+    display: flex;
+
+    &-icons {
+      margin-left: auto;
+      display: flex;
+      vertical-align: middle;
+      width: fit-content;
+
+      :last-child {
+        padding-left: 15%;
+      }
+    }
+
+    &-icon_item {
+      cursor: pointer;
+      transition: transform 0.3s ease-out;
+      color: #233abc;
+
+      &:hover {
+        transform: translate(0, -2px);
+      }
+    }
+  }
+
   &-viewer {
     width: 80%;
     border-left: solid;
@@ -76,6 +102,7 @@
     color: #a1a1a1;
     font-size: 1em;
     padding: 0.5%;
+    padding-bottom: 1.5%;
   }
 
   &-list {

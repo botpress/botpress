@@ -3,6 +3,7 @@ import style from './style.scss'
 import JSONTree from 'react-json-tree'
 import 'react-day-picker/lib/style.css'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import inspectorTheme from './inspectortheme'
 
@@ -10,6 +11,8 @@ import classnames from 'classnames'
 
 import { TiRefresh } from 'react-icons/ti'
 import { GoX } from 'react-icons/go'
+import { MdCloudDownload } from 'react-icons/md'
+import { FiLink } from 'react-icons/fi'
 
 function QueryOptions(props) {
   return (
@@ -92,12 +95,26 @@ class MessagesViewer extends React.Component {
             this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
           )}
         >
-          {this.props.convId && <div className={style['message-title']}>Conversation #{this.props.convId}</div>}
-          {this.props.convId && (
-            <div className={style['message-lastdate']}>
-              Last message on : #{this.getLastMessageDate(this.props.messages).toUTCString()}
+          <div className={style['message-header']}>
+            <div>
+              {this.props.convId && <div className={style['message-title']}>Conversation #{this.props.convId}</div>}
+              {this.props.convId && (
+                <div className={style['message-lastdate']}>
+                  Last message on : #{this.getLastMessageDate(this.props.messages).toDateString()}
+                </div>
+              )}
             </div>
-          )}
+            <div className={style['message-header-icons']}>
+              <div className={style['message-header-icon_item']}>
+                <MdCloudDownload onClick={() => console.log('download !')} size={40} />
+              </div>
+              <div className={style['message-header-icon_item']}>
+                <CopyToClipboard text={window.location.href} onCopy={() => console.log(window.location.href)}>
+                  <FiLink size={40} />
+                </CopyToClipboard>
+              </div>
+            </div>
+          </div>
           {this.props.messages &&
             this.props.messages.map(m => {
               return (
