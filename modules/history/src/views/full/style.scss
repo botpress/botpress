@@ -1,4 +1,4 @@
-.msg-container {
+.history-component {
   display: flex;
   width: 100%;
   height: 100%;
@@ -6,38 +6,96 @@
 
 .query-options {
   display: flex;
-  border-bottom: solid;
+  color: #c1c0c6;
+  padding: 2%;
+
+  :last-child {
+    margin-left: auto;
+  }
+}
+
+.daypicker {
+  color: black;
 }
 
 .conversations {
-  width: 30%;
+  width: 20%;
   height: 100%;
+  background-color: #37373f;
+
+  &-refresh {
+    color: #c1c0c6;
+    margin-left: auto;
+    cursor: pointer;
+  }
+
+  &-titlebar {
+    background-color: #676767;
+    font-size: 2em;
+    color: #c1c0c6;
+    display: flex;
+    padding: 2%;
+  }
+
+  &-text {
+    color: #c1c0c6;
+    cursor: pointer;
+    font-size: 1.5em;
+    padding-left: 6%;
+    padding-top: 3%;
+
+    &:hover {
+      background-color: #4c4c4c;
+    }
+  }
 }
 
-.message-viewer {
-  width: 70%;
-  border-left: solid;
-  height: 100%;
-}
+.message {
+  &-viewer {
+    width: 80%;
+    border-left: solid;
+    height: 100%;
+  }
 
-.message-list {
-  height: 50%;
-  overflow-y: scroll;
-  word-wrap: break-word;
-}
+  &-title {
+    color: #2c2c2c;
+    font-size: 1.6em;
+  }
 
-.message-inspector {
-  height: 50%;
-  background-color: black;
-  overflow-y: scroll;
-}
+  &-lastdate {
+    color: #a1a1a1;
+    font-size: 1em;
+    padding: 0.5%;
+  }
 
-.outgoing {
-  color: #5ea86f;
-  cursor: pointer;
-}
+  &-list {
+    height: 50%;
+    overflow-y: auto;
+    word-wrap: break-word;
+    padding: 1%;
+  }
 
-.incomming {
-  color: gray;
-  cursor: pointer;
+  &-inspector {
+    height: 50%;
+    background-color: #1e1e1e;
+    overflow-y: auto;
+    padding: 0.5%;
+  }
+
+  &-elements {
+    cursor: pointer;
+    padding: 0.2%;
+    font-size: 1.4em;
+    &:hover {
+      background-color: pink;
+    }
+  }
+
+  &-outgoing {
+    color: #5ea86f;
+  }
+
+  &-incomming {
+    color: gray;
+  }
 }

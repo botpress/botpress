@@ -1902,6 +1902,68 @@ module.exports = exports['default'];
 
 /***/ }),
 
+/***/ "./node_modules/classnames/index.js":
+/*!******************************************!*\
+  !*** ./node_modules/classnames/index.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg) && arg.length) {
+				var inner = classNames.apply(null, arg);
+				if (inner) {
+					classes.push(inner);
+				}
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if (typeof module !== 'undefined' && module.exports) {
+		classNames.default = classNames;
+		module.exports = classNames;
+	} else if (true) {
+		// register as 'classnames', consistent with npm package name
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+			return classNames;
+		}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	} else {}
+}());
+
+
+/***/ }),
+
 /***/ "./node_modules/core-js/library/fn/get-iterator.js":
 /*!*********************************************************!*\
   !*** ./node_modules/core-js/library/fn/get-iterator.js ***!
@@ -3989,18 +4051,25 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".history__style__msg-container___1tYWN {\n  display: flex;\n  width: 100%;\n  height: 100%; }\n\n.history__style__query-options___vniR3 {\n  display: flex;\n  border-bottom: solid; }\n\n.history__style__conversations___-jjK7 {\n  width: 30%;\n  height: 100%; }\n\n.history__style__message-viewer___2zSti {\n  width: 70%;\n  border-left: solid;\n  height: 100%; }\n\n.history__style__message-list___TsY0h {\n  height: 50%;\n  overflow-y: scroll;\n  word-wrap: break-word; }\n\n.history__style__message-inspector___1wbGK {\n  height: 50%;\n  background-color: black;\n  overflow-y: scroll; }\n\n.history__style__outgoing___3ryrs {\n  color: #5ea86f;\n  cursor: pointer; }\n\n.history__style__incomming___3xlrm {\n  color: gray;\n  cursor: pointer; }\n", ""]);
+exports.push([module.i, ".history__style__history-component___379cJ {\n  display: flex;\n  width: 100%;\n  height: 100%; }\n\n.history__style__query-options___vniR3 {\n  display: flex;\n  color: #c1c0c6;\n  padding: 2%; }\n  .history__style__query-options___vniR3 :last-child {\n    margin-left: auto; }\n\n.history__style__daypicker___2ZQRm {\n  color: black; }\n\n.history__style__conversations___-jjK7 {\n  width: 20%;\n  height: 100%;\n  background-color: #37373f; }\n  .history__style__conversations-refresh___3a-k8 {\n    color: #c1c0c6;\n    margin-left: auto;\n    cursor: pointer; }\n  .history__style__conversations-titlebar___3DohT {\n    background-color: #676767;\n    font-size: 2em;\n    color: #c1c0c6;\n    display: flex;\n    padding: 2%; }\n  .history__style__conversations-text___1G-1S {\n    color: #c1c0c6;\n    cursor: pointer;\n    font-size: 1.5em;\n    padding-left: 6%;\n    padding-top: 3%; }\n    .history__style__conversations-text___1G-1S:hover {\n      background-color: #4c4c4c; }\n\n.history__style__message-viewer___2zSti {\n  width: 80%;\n  border-left: solid;\n  height: 100%; }\n\n.history__style__message-title___82LqU {\n  color: #2c2c2c;\n  font-size: 1.6em; }\n\n.history__style__message-lastdate___1D-Cz {\n  color: #a1a1a1;\n  font-size: 1em;\n  padding: 0.5%; }\n\n.history__style__message-list___TsY0h {\n  height: 50%;\n  overflow-y: auto;\n  word-wrap: break-word;\n  padding: 1%; }\n\n.history__style__message-inspector___1wbGK {\n  height: 50%;\n  background-color: #1e1e1e;\n  overflow-y: auto;\n  padding: 0.5%; }\n\n.history__style__message-elements___2YaUx {\n  cursor: pointer;\n  padding: 0.2%;\n  font-size: 1.4em; }\n  .history__style__message-elements___2YaUx:hover {\n    background-color: pink; }\n\n.history__style__message-outgoing___24z-Y {\n  color: #5ea86f; }\n\n.history__style__message-incomming___3s94x {\n  color: gray; }\n", ""]);
 
 // exports
 exports.locals = {
-	"msg-container": "history__style__msg-container___1tYWN",
+	"history-component": "history__style__history-component___379cJ",
 	"query-options": "history__style__query-options___vniR3",
+	"daypicker": "history__style__daypicker___2ZQRm",
 	"conversations": "history__style__conversations___-jjK7",
+	"conversations-refresh": "history__style__conversations-refresh___3a-k8",
+	"conversations-titlebar": "history__style__conversations-titlebar___3DohT",
+	"conversations-text": "history__style__conversations-text___1G-1S",
 	"message-viewer": "history__style__message-viewer___2zSti",
+	"message-title": "history__style__message-title___82LqU",
+	"message-lastdate": "history__style__message-lastdate___1D-Cz",
 	"message-list": "history__style__message-list___TsY0h",
 	"message-inspector": "history__style__message-inspector___1wbGK",
-	"outgoing": "history__style__outgoing___3ryrs",
-	"incomming": "history__style__incomming___3xlrm"
+	"message-elements": "history__style__message-elements___2YaUx",
+	"message-outgoing": "history__style__message-outgoing___24z-Y",
+	"message-incomming": "history__style__message-incomming___3s94x"
 };
 
 /***/ }),
@@ -14543,7 +14612,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_day_picker_lib_style_css__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react_day_picker_lib_style_css__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-day-picker/DayPickerInput */ "./node_modules/react-day-picker/DayPickerInput.js");
 /* harmony import */ var react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var react_icons_ti__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-icons/ti */ "./node_modules/react-icons/ti/index.esm.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var react_icons_ti__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-icons/ti */ "./node_modules/react-icons/ti/index.esm.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -14564,6 +14635,15 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+
 
 
 
@@ -14574,16 +14654,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function QueryOptions(props) {
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['query-options']
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "from:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "from:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['daypicker']
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
     value: props.defaultFrom,
     onDayChange: props.handleFromChange
-  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "to:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
+  }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "to:"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['daypicker']
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_day_picker_DayPickerInput__WEBPACK_IMPORTED_MODULE_4___default.a, {
     value: props.defaultTo,
     onDayChange: props.handleToChange
-  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_icons_ti__WEBPACK_IMPORTED_MODULE_5__["TiRefresh"], {
-    size: 70,
-    onClick: props.refresh
-  }));
+  }))));
 }
 
 function ConversationPicker(props) {
@@ -14592,11 +14673,16 @@ function ConversationPicker(props) {
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(QueryOptions, {
     handleFromChange: props.handleFromChange,
     handleToChange: props.handleToChange,
-    refresh: props.refresh,
     defaultFrom: props.defaultFrom,
     defaultTo: props.defaultTo
-  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.conversations.map(function (conv) {
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['conversations-titlebar']
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "Conversations"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_icons_ti__WEBPACK_IMPORTED_MODULE_6__["TiRefresh"], {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['conversations-refresh'],
+    onClick: props.refresh
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.conversations.map(function (conv) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['conversations-text'],
       key: conv,
       value: conv,
       onClick: function onClick() {
@@ -14611,23 +14697,33 @@ function MessagesViewer(props) {
     className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-viewer']
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-list']
-  }, props.messages && props.messages.map(function (m) {
+  }, props.convId && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-title']
+  }, "Conversation #", props.convId), props.convId && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-lastdate']
+  }, "Last message on : #", getLastMessageDate(props.messages).toUTCString()), props.messages && props.messages.map(function (m) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-      className: m.direction === 'outgoing' ? _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['outgoing'] : _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['incomming'],
+      className: classnames__WEBPACK_IMPORTED_MODULE_5___default()(_style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-elements'], m.direction === 'outgoing' ? _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-outgoing'] : _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-incomming']),
       key: "".concat(m.id, ": ").concat(m.direction),
       value: m.id,
       onClick: function onClick() {
         return props.messageChosenHandler(m);
       }
     }, "> ", m.payload.text);
-  })), props.currentlyFocusedMessage && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['message-inspector']
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_json_tree__WEBPACK_IMPORTED_MODULE_2___default.a, {
+  }, props.currentlyFocusedMessage && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_json_tree__WEBPACK_IMPORTED_MODULE_2___default.a, {
     data: props.currentlyFocusedMessage,
     invertTheme: false,
     hideRoot: true
   })));
 }
+
+var getLastMessageDate = function getLastMessageDate(messages) {
+  return new Date(Math.max.apply(Math, _toConsumableArray(messages.map(function (m) {
+    return new Date(m.createdOn);
+  }))));
+};
 
 var FullView =
 /*#__PURE__*/
@@ -14646,7 +14742,8 @@ function (_React$Component) {
       messages: [],
       currentlyFocusedMessage: null,
       to: new Date(Date.now()),
-      from: _this.offsetDate(Date.now(), -20)
+      from: _this.offsetDate(Date.now(), -20),
+      currentConvId: null
     });
 
     _defineProperty(_assertThisInitialized(_this), "threadIdParamName", 'threadId');
@@ -14664,11 +14761,14 @@ function (_React$Component) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.getConversations();
+      this.getConversations(this.state.from, this.state.to);
       var url = new URL(window.location.href);
       var threadId = url.searchParams.get(this.threadIdParamName);
 
       if (threadId) {
+        this.setState({
+          currentConvId: threadId
+        });
         this.getMessagesOfConversation(threadId);
       }
     }
@@ -14680,11 +14780,11 @@ function (_React$Component) {
     }
   }, {
     key: "getConversations",
-    value: function getConversations() {
+    value: function getConversations(from, to) {
       var _this2 = this;
 
-      var ceiledToDate = this.offsetDate(this.state.to, 1);
-      this.props.bp.axios.get("/mod/history/conversations/".concat(this.state.from.getTime(), "/").concat(ceiledToDate.getTime())).then(function (_ref) {
+      var ceiledToDate = this.offsetDate(to, 1);
+      this.props.bp.axios.get("/mod/history/conversations/".concat(from.getTime(), "/").concat(ceiledToDate.getTime())).then(function (_ref) {
         var data = _ref.data;
 
         _this2.setState({
@@ -14698,6 +14798,9 @@ function (_React$Component) {
       var url = new URL(window.location.href);
       url.searchParams.set(this.threadIdParamName, convId);
       window.history.pushState(window.history.state, '', url.toString());
+      this.setState({
+        currentConvId: convId
+      });
       this.getMessagesOfConversation(convId);
     }
   }, {
@@ -14730,24 +14833,31 @@ function (_React$Component) {
       }
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['msg-container']
+        className: _style_scss__WEBPACK_IMPORTED_MODULE_1___default.a['history-component']
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ConversationPicker, {
         conversations: this.state.conversations,
         conversationChosenHandler: this.onConversationSelected.bind(this),
         handleFromChange: function handleFromChange(day) {
-          return _this4.setState({
+          _this4.setState({
             from: day
           });
+
+          _this4.getConversations(day, _this4.state.to);
         },
         handleToChange: function handleToChange(day) {
-          return _this4.setState({
+          _this4.setState({
             to: day
           });
+
+          _this4.getConversations(_this4.state.from, day);
         },
         defaultFrom: this.state.from,
         defaultTo: this.state.to,
-        refresh: this.getConversations.bind(this)
+        refresh: function refresh() {
+          return _this4.getConversations(_this4.state.from, _this4.state.to);
+        }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MessagesViewer, {
+        convId: this.state.currentConvId,
         messages: this.state.messages,
         messageChosenHandler: this.focusMessage.bind(this),
         currentlyFocusedMessage: this.state.currentlyFocusedMessage

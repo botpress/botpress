@@ -4,6 +4,8 @@ import JSONTree from 'react-json-tree'
 import 'react-day-picker/lib/style.css'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 
+import classnames from 'classnames'
+
 import { TiRefresh } from 'react-icons/ti'
 
 function QueryOptions(props) {
@@ -11,13 +13,16 @@ function QueryOptions(props) {
     <div className={style['query-options']}>
       <div>
         <div>from:</div>
-        <DayPickerInput value={props.defaultFrom} onDayChange={props.handleFromChange} />
+        <div className={style['daypicker']}>
+          <DayPickerInput value={props.defaultFrom} onDayChange={props.handleFromChange} />
+        </div>
       </div>
       <div>
         <div>to:</div>
-        <DayPickerInput value={props.defaultTo} onDayChange={props.handleToChange} />
+        <div className={style['daypicker']}>
+          <DayPickerInput value={props.defaultTo} onDayChange={props.handleToChange} />
+        </div>
       </div>
-      <TiRefresh size={70} onClick={props.refresh} />
     </div>
   )
 }
@@ -28,14 +33,22 @@ function ConversationPicker(props) {
       <QueryOptions
         handleFromChange={props.handleFromChange}
         handleToChange={props.handleToChange}
-        refresh={props.refresh}
         defaultFrom={props.defaultFrom}
         defaultTo={props.defaultTo}
       />
+      <div className={style['conversations-titlebar']}>
+        <div>Conversations</div>
+        <TiRefresh className={style['conversations-refresh']} onClick={props.refresh} />
+      </div>
       <div>
         {props.conversations.map(conv => {
           return (
-            <div key={conv} value={conv} onClick={() => props.conversationChosenHandler(conv)}>
+            <div
+              className={style['conversations-text']}
+              key={conv}
+              value={conv}
+              onClick={() => props.conversationChosenHandler(conv)}
+            >
               {`conversation #${conv}`}
             </div>
           )
@@ -49,11 +62,20 @@ function MessagesViewer(props) {
   return (
     <div className={style['message-viewer']}>
       <div className={style['message-list']}>
+        {props.convId && <div className={style['message-title']}>Conversation #{props.convId}</div>}
+        {props.convId && (
+          <div className={style['message-lastdate']}>
+            Last message on : #{getLastMessageDate(props.messages).toUTCString()}
+          </div>
+        )}
         {props.messages &&
           props.messages.map(m => {
             return (
               <div
-                className={m.direction === 'outgoing' ? style['outgoing'] : style['incomming']}
+                className={classnames(
+                  style['message-elements'],
+                  m.direction === 'outgoing' ? style['message-outgoing'] : style['message-incomming']
+                )}
                 key={`${m.id}: ${m.direction}`}
                 value={m.id}
                 onClick={() => props.messageChosenHandler(m)}
@@ -63,13 +85,17 @@ function MessagesViewer(props) {
             )
           })}
       </div>
-      {props.currentlyFocusedMessage && (
-        <div className={style['message-inspector']}>
+      <div className={style['message-inspector']}>
+        {props.currentlyFocusedMessage && (
           <JSONTree data={props.currentlyFocusedMessage} invertTheme={false} hideRoot={true} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
+}
+
+const getLastMessageDate = messages => {
+  return new Date(Math.max(...messages.map(m => new Date(m.createdOn))))
 }
 
 export default class FullView extends React.Component {
@@ -82,7 +108,8 @@ export default class FullView extends React.Component {
     messages: [],
     currentlyFocusedMessage: null,
     to: new Date(Date.now()),
-    from: this.offsetDate(Date.now(), -20)
+    from: this.offsetDate(Date.now(), -20),
+    currentConvId: null
   }
 
   threadIdParamName = 'threadId'
@@ -94,10 +121,11 @@ export default class FullView extends React.Component {
   }
 
   componentDidMount() {
-    this.getConversations()
+    this.getConversations(this.state.from, this.state.to)
     const url = new URL(window.location.href)
     const threadId = url.searchParams.get(this.threadIdParamName)
     if (threadId) {
+      this.setState({ currentConvId: threadId })
       this.getMessagesOfConversation(threadId)
     }
   }
@@ -107,11 +135,11 @@ export default class FullView extends React.Component {
     clearInterval(this.metadataTimer)
   }
 
-  getConversations() {
-    const ceiledToDate = this.offsetDate(this.state.to, 1)
+  getConversations(from, to) {
+    const ceiledToDate = this.offsetDate(to, 1)
 
     this.props.bp.axios
-      .get(`/mod/history/conversations/${this.state.from.getTime()}/${ceiledToDate.getTime()}`)
+      .get(`/mod/history/conversations/${from.getTime()}/${ceiledToDate.getTime()}`)
       .then(({ data }) => {
         this.setState({ conversations: data })
       })
@@ -121,6 +149,9 @@ export default class FullView extends React.Component {
     const url = new URL(window.location.href)
     url.searchParams.set(this.threadIdParamName, convId)
     window.history.pushState(window.history.state, '', url.toString())
+
+    this.setState({ currentConvId: convId })
+
     this.getMessagesOfConversation(convId)
   }
 
@@ -139,17 +170,24 @@ export default class FullView extends React.Component {
       return null
     }
     return (
-      <div className={style['msg-container']}>
+      <div className={style['history-component']}>
         <ConversationPicker
           conversations={this.state.conversations}
           conversationChosenHandler={this.onConversationSelected.bind(this)}
-          handleFromChange={day => this.setState({ from: day })}
-          handleToChange={day => this.setState({ to: day })}
+          handleFromChange={day => {
+            this.setState({ from: day })
+            this.getConversations(day, this.state.to)
+          }}
+          handleToChange={day => {
+            this.setState({ to: day })
+            this.getConversations(this.state.from, day)
+          }}
           defaultFrom={this.state.from}
           defaultTo={this.state.to}
-          refresh={this.getConversations.bind(this)}
+          refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
         <MessagesViewer
+          convId={this.state.currentConvId}
           messages={this.state.messages}
           messageChosenHandler={this.focusMessage.bind(this)}
           currentlyFocusedMessage={this.state.currentlyFocusedMessage}
