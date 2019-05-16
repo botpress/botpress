@@ -49,13 +49,8 @@ function ConversationPicker(props) {
       <div>
         {props.conversations.map(conv => {
           return (
-            <div className={style['conversations-entry']}>
-              <span
-                className={style['conversations-text']}
-                key={conv.id}
-                value={conv.id}
-                onClick={() => props.conversationChosenHandler(conv.id)}
-              >
+            <div className={style['conversations-entry']} onClick={() => props.conversationChosenHandler(conv.id)}>
+              <span className={style['conversations-text']} key={conv.id} value={conv.id}>
                 {`conversation #${conv.id}`}
               </span>
               <span className={style['conversations-count']}>({conv.count})</span>
@@ -71,7 +66,10 @@ class MessagesViewer extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = { inspectorIsShown: false, currentlyFocusedMessage: null }
+    this.state = {
+      inspectorIsShown: false,
+      currentlyFocusedMessage: null
+    }
   }
 
   getLastMessageDate = messages => {
@@ -106,7 +104,9 @@ class MessagesViewer extends React.Component {
             </div>
             <div className={style['message-header-icons']}>
               <div className={style['message-header-icon_item']}>
-                <MdCloudDownload onClick={() => console.log('download !')} size={40} />
+                <a href={this.props.fileURL} download="message_history">
+                  <MdCloudDownload size={40} />
+                </a>
               </div>
               <div className={style['message-header-icon_item']}>
                 <CopyToClipboard text={window.location.href} onCopy={() => console.log(window.location.href)}>
@@ -158,14 +158,19 @@ class MessagesViewer extends React.Component {
 export default class FullView extends React.Component {
   constructor(props) {
     super(props)
-  }
 
-  state = {
-    conversations: [],
-    messages: [],
-    to: new Date(Date.now()),
-    from: this.offsetDate(Date.now(), -20),
-    currentConvId: null
+    const blob = new Blob([''], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+
+    this.state = {
+      conversations: [],
+      messages: [],
+      to: new Date(Date.now()),
+      from: this.offsetDate(Date.now(), -20),
+      currentConvId: null,
+      fileBlob: blob,
+      fileURL: url
+    }
   }
 
   threadIdParamName = 'threadId'
@@ -184,11 +189,6 @@ export default class FullView extends React.Component {
       this.setState({ currentConvId: threadId })
       this.getMessagesOfConversation(threadId)
     }
-  }
-
-  componentWillUnmount() {
-    this.unmounting = true
-    clearInterval(this.metadataTimer)
   }
 
   getConversations(from, to) {
@@ -213,7 +213,11 @@ export default class FullView extends React.Component {
 
   getMessagesOfConversation(convId) {
     this.props.bp.axios.get(`/mod/history/messages/${convId}`).then(({ data }) => {
-      this.setState({ messages: data })
+      const content = JSON.stringify(data)
+      var blob = new Blob([content], { type: 'application/json' })
+      var url = window.URL.createObjectURL(blob)
+
+      this.setState({ messages: data, fileBlob: blob, fileURL: url })
     })
   }
 
@@ -238,7 +242,7 @@ export default class FullView extends React.Component {
           defaultTo={this.state.to}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
-        <MessagesViewer convId={this.state.currentConvId} messages={this.state.messages} />
+        <MessagesViewer convId={this.state.currentConvId} messages={this.state.messages} fileURL={this.state.fileURL} />
       </div>
     )
   }
