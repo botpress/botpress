@@ -1,3 +1,4 @@
+import merge from 'lodash/merge'
 import { action, computed, observable, runInAction } from 'mobx'
 
 import constants from '../core/constants'
@@ -190,6 +191,13 @@ class ViewStore {
   @action.bound
   registerButton(newButton: CustomButton) {
     this.customButtons.push(newButton)
+  }
+
+  /** Updates one or multiple properties of a specific button */
+  @action.bound
+  updateButton(buttonId: string, newProps: Partial<CustomButton>) {
+    const button = this.customButtons.find(btn => btn.id === buttonId)
+    button && merge(button, newProps)
   }
 
   /** Removes the button from the interface */

@@ -224,12 +224,20 @@ interface ChatDimensions {
 }
 
 interface CustomButton {
-  /** An ID representing your button, it is required if you need to remove it */
-  id?: string
-  /** When disabled, nobody can click on it */
-  disabled?: boolean
-  /** The icon displayed  */
-  icon?: string
+  /** An ID to identify your button. It is required to remove it */
+  id: string
+  /** This text will be displayed when the mouse is over the button */
+  label?: string
+  /** Supply either a function or an element which will render the button */
+  icon: Function | JSX.Element
   /** The event triggered when the button is clicked */
-  onClick: (btnId: string, headerComponent: JSX.Element, e: React.MouseEvent) => void
+  onClick: (buttonId: string, headerComponent: JSX.Element, event: React.MouseEvent) => void
+}
+
+/** When set, this will wrap every messages displayed in the webchat */
+interface MessageWrapper {
+  /** The name of the module hosting the component */
+  module: string
+  /** Name of the component exposed by the module */
+  component: string
 }

@@ -2,8 +2,8 @@ import classnames from 'classnames'
 import { inject } from 'mobx-react'
 import React from 'react'
 
-import { RootStore } from '../../store'
-import { Message as MessageDetails, StudioConnector } from '../../typings'
+import { RootStore, StoreDef } from '../../store'
+import { Message as MessageDetails } from '../../typings'
 
 import Message from './Message'
 
@@ -26,7 +26,7 @@ const MessageGroup = (props: MessageGroupProps) => {
              * - payload: all the data (raw, whatever) that is necessary to display the element
              * - type: extracted from payload for easy sorting
              */
-            const payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
+            let payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
             if (!payload.type) {
               payload.type = data.message_type || (data.message_data && data.message_data.type) || 'text'
             }
@@ -38,6 +38,15 @@ const MessageGroup = (props: MessageGroupProps) => {
 
             if (data.message_type === 'file' && !payload.url) {
               payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
+            }
+
+            if (props.messageWrapper) {
+              payload = {
+                type: 'custom',
+                module: props.messageWrapper.module,
+                component: props.messageWrapper.component,
+                wrapped: payload
+              }
             }
 
             return (
@@ -66,18 +75,17 @@ export default inject(({ store }: { store: RootStore }) => ({
   bp: store.bp,
   onSendData: store.sendData,
   onFileUpload: store.uploadFile,
+  messageWrapper: store.messageWrapper,
   showUserName: store.config.showUserName
 }))(MessageGroup)
 
-interface MessageGroupProps {
+type MessageGroupProps = {
   isBot: boolean
   avatar: JSX.Element
-  showUserName?: boolean
   userName: string
   messages: MessageDetails[]
   isLastGroup: boolean
   onFileUpload?: any
   onSendData?: any
-  bp?: StudioConnector
   store?: RootStore
-}
+} & Pick<StoreDef, 'showUserName' | 'messageWrapper' | 'bp'>

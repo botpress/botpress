@@ -63,7 +63,15 @@ class Message extends Component<Renderer.Message> {
     delete messageDataProps.component
 
     const props = {
-      ...pick(this.props, ['isLastGroup', 'isLastOfGroup', 'onSendData', 'onFileUpload', 'sentOn', 'store']),
+      ...pick(this.props, [
+        'isLastGroup',
+        'isLastOfGroup',
+        'isBotMessage',
+        'onSendData',
+        'onFileUpload',
+        'sentOn',
+        'store'
+      ]),
       ...messageDataProps,
       keyboard: Keyboard,
       children: wrapped && <Message {...this.props} keyboard={Keyboard} noBubble={true} payload={wrapped} />

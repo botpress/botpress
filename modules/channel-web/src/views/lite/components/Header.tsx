@@ -149,14 +149,15 @@ class Header extends React.Component<HeaderProps> {
 
   renderCustomButtons() {
     return this.props.customButtons.map(btn => {
-      const Icon = btn.icon
+      const Icon: any = btn.icon
       return (
         <span
           tabIndex={-1}
-          className={'bpw-header-icon bpw-header-icon-close'}
+          className={'bpw-header-icon'}
           onClick={btn.onClick.bind(this, btn.id, this)}
+          title={btn.label || ''}
         >
-          <Icon />
+          {typeof Icon === 'function' ? <Icon /> : Icon}
         </span>
       )
     })

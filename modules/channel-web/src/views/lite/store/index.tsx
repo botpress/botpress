@@ -6,7 +6,15 @@ import ms from 'ms'
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
 import { getUserLocale } from '../translations'
-import { BotInfo, Config, ConversationSummary, CurrentConversation, Message, StudioConnector } from '../typings'
+import {
+  BotInfo,
+  Config,
+  ConversationSummary,
+  CurrentConversation,
+  Message,
+  MessageWrapper,
+  StudioConnector
+} from '../typings'
 
 import { downloadFile } from './../utils'
 import ComposerStore from './composer'
@@ -34,6 +42,10 @@ class RootStore {
 
   @observable
   public config: Config
+
+  /** When a wrapper is defined, every messages are wrapped by the specified component */
+  @observable
+  public messageWrapper: MessageWrapper | undefined
 
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
@@ -257,6 +269,16 @@ class RootStore {
   setUserId(userId: string): void {
     this.config.userId = userId
     this.api.updateUserId(userId)
+  }
+
+  @action.bound
+  setMessageWrapper(messageWrapper: MessageWrapper) {
+    this.messageWrapper = messageWrapper
+  }
+
+  @action.bound
+  clearMessageWrapper() {
+    this.messageWrapper = undefined
   }
 
   /**

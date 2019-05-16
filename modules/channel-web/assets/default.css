@@ -14,8 +14,8 @@ body {
 }
 
 * {
-  box-sizing: border-box;
-  outline: none;
+  box-sizing: border-box !important;
+  outline: none !important;
 }
 
 .bpw-from-user .bpw-chat-bubble {
