@@ -8,6 +8,7 @@ const onServerStarted = async (bp: typeof sdk) => {
     table.increments('id').primary()
     table.date('created_on')
     table.string('thread_id')
+    table.string('bot_id')
     table.string('msg_content')
   })
 }
@@ -49,6 +50,7 @@ const onServerReady = async (bp: typeof sdk) => {
       .distinct('thread_id')
       .where('created_on', '>=', from)
       .where('created_on', '<=', to)
+      .where('bot_id', req.params.botId)
       .whereNotNull('thread_id')
       .table('msg_history')
       .map(x => x.thread_id)
