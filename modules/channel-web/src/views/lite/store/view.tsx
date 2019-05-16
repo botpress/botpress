@@ -1,7 +1,7 @@
 import { action, computed, observable, runInAction } from 'mobx'
 
 import constants from '../core/constants'
-import { ChatDimensions } from '../typings'
+import { ChatDimensions, CustomButton } from '../typings'
 
 import { RootStore } from '.'
 
@@ -36,6 +36,10 @@ class ViewStore {
 
   @observable
   private _focused = 'input'
+
+  /** These buttons are displayed in the header, and can point to actions on your custom components */
+  @observable
+  public customButtons: CustomButton[] = []
 
   constructor(rootStore: RootStore, fullscreen: boolean) {
     this.rootStore = rootStore
@@ -171,15 +175,27 @@ class ViewStore {
   @action.bound
   setLayoutWidth(width: string | number) {
     if (width) {
-      this.dimensions.layout = width
+      this.dimensions.layout = typeof width === 'number' ? width + 'px' : width
     }
   }
 
   @action.bound
   setContainerWidth(width: string | number) {
     if (width) {
-      this.dimensions.container = width
+      this.dimensions.container = width = typeof width === 'number' ? width + 'px' : width
     }
+  }
+
+  /** Adds a new button on the header page */
+  @action.bound
+  registerButton(newButton: CustomButton) {
+    this.customButtons.push(newButton)
+  }
+
+  /** Removes the button from the interface */
+  @action.bound
+  unregisterButton(buttonId: string) {
+    this.customButtons = this.customButtons.filter(btn => btn.id !== buttonId)
   }
 
   @action.bound

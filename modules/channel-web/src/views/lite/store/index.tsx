@@ -1,4 +1,5 @@
 import isBefore from 'date-fns/is_before'
+import merge from 'lodash/merge'
 import { action, computed, observable, runInAction, when } from 'mobx'
 import ms from 'ms'
 
@@ -229,6 +230,13 @@ class RootStore {
     await this.api.uploadFile(file, this.currentConversationId)
   }
 
+  /** Use this method to replace a value or add a new config */
+  @action.bound
+  mergeConfig(config: Partial<Config>) {
+    this.config = merge(this.config, config)
+  }
+
+  /** This replaces all the configurations by this object */
   @action.bound
   updateConfig(config: Config, bp?: StudioConnector) {
     this.config = config

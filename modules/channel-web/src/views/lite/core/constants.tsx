@@ -14,6 +14,7 @@ export default {
   /** The default configuration when starting the chat */
   DEFAULT_CONFIG: {
     userId: undefined,
+    overrides: undefined,
     enableReset: true,
     stylesheet: '/assets/modules/channel-web/default.css',
     extraStylesheet: '',

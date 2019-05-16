@@ -147,6 +147,21 @@ class Header extends React.Component<HeaderProps> {
     )
   }
 
+  renderCustomButtons() {
+    return this.props.customButtons.map(btn => {
+      const Icon = btn.icon
+      return (
+        <span
+          tabIndex={-1}
+          className={'bpw-header-icon bpw-header-icon-close'}
+          onClick={btn.onClick.bind(this, btn.id, this)}
+        >
+          <Icon />
+        </span>
+      )
+    })
+  }
+
   handleKeyDown = (action, e) => {
     if (!this.props.enableArrowNavigation) {
       return
@@ -175,6 +190,7 @@ class Header extends React.Component<HeaderProps> {
             {this.renderTitle()}
           </div>
         </div>
+        {!!this.props.customButtons.length && this.renderCustomButtons()}
         {this.props.showResetButton && this.renderResetButton()}
         {this.props.showDownloadButton && this.renderDownloadButton()}
         {this.props.showConversationsButton && this.renderConvoButton()}
@@ -199,6 +215,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   hideChat: store.view.hideChat,
   toggleConversations: store.view.toggleConversations,
   toggleBotInfo: store.view.toggleBotInfo,
+  customButtons: store.view.customButtons,
 
   resetSession: store.resetSession,
   downloadConversation: store.downloadConversation,
@@ -236,4 +253,5 @@ type HeaderProps = {
     | 'showCloseButton'
     | 'enableArrowNavigation'
     | 'botConvoDescription'
+    | 'customButtons'
   >

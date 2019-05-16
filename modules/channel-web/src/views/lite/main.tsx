@@ -56,7 +56,6 @@ class Web extends React.Component<MainProps> {
 
     this.setupObserver()
 
-    this.props.hideChat()
     this.props.setLoadingCompleted()
   }
 
@@ -85,6 +84,12 @@ class Web extends React.Component<MainProps> {
 
       await this.socket.changeUserId(data.newValue)
       await this.props.initializeChat()
+    })
+
+    observe(this.props.config, 'overrides', data => {
+      if (data.newValue && window.parent) {
+        this.loadOverrides(data.newValue)
+      }
     })
 
     observe(this.props.dimensions, 'container', data => {

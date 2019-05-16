@@ -130,14 +130,23 @@ export type Config = {
   avatarUrl?: string
   /** Small description written under the bot's name */
   botConvoDescription?: string
-  /** Override existing components */
-  overrides: any
+  /** Replace or insert components at specific locations */
+  overrides?: Overrides
   /** When true, the widget button is hidden */
   hideWidget: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
   containerWidth?: string | number
   layoutWidth?: string | number
+}
+
+type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
+
+interface Overrides {
+  [componentToOverride: string]: {
+    module: string
+    component: string
+  }
 }
 
 interface BotDetails {
@@ -212,4 +221,15 @@ interface ChatDimensions {
   container: string | number
   /** The layout is the zone where the user speaks with the bot */
   layout: string | number
+}
+
+interface CustomButton {
+  /** An ID representing your button, it is required if you need to remove it */
+  id?: string
+  /** When disabled, nobody can click on it */
+  disabled?: boolean
+  /** The icon displayed  */
+  icon?: string
+  /** The event triggered when the button is clicked */
+  onClick: (btnId: string, headerComponent: JSX.Element, e: React.MouseEvent) => void
 }
