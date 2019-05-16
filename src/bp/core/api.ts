@@ -63,8 +63,8 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
-    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[]): void {
-      eventEngine.replyToEvent(eventDestination, payloads)
+    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string): void {
+      eventEngine.replyToEvent(eventDestination, payloads, incomingEventId)
     }
   }
 }
