@@ -229,6 +229,7 @@ export class BotService {
           await this.unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
+        await this.workspaceService.addBotRef(botId)
         await this.mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
