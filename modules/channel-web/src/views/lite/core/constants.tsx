@@ -9,6 +9,8 @@ export default {
   HISTORY_UP: 'ArrowUp',
   /** The number of minutes before a new timestamp is displayed */
   TIME_BETWEEN_DATES: 10,
+  DEFAULT_LAYOUT_WIDTH: 360,
+  DEFAULT_CONTAINER_WIDTH: 360,
   /** The default configuration when starting the chat */
   DEFAULT_CONFIG: {
     userId: undefined,

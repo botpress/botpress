@@ -1,6 +1,7 @@
 import { action, computed, observable, runInAction } from 'mobx'
 
 import constants from '../core/constants'
+import { ChatDimensions } from '../typings'
 
 import { RootStore } from '.'
 
@@ -13,6 +14,9 @@ class ViewStore {
 
   @observable
   public unreadCount = 0
+
+  @observable
+  public dimensions: ChatDimensions
 
   /** When true, the conversation list is displayed */
   @observable
@@ -36,7 +40,12 @@ class ViewStore {
   constructor(rootStore: RootStore, fullscreen: boolean) {
     this.rootStore = rootStore
     this.isFullscreen = fullscreen
-    this.activeView = this.isFullscreen ? 'side' : 'widget'
+    this.activeView = fullscreen ? 'side' : 'widget'
+
+    this.dimensions = {
+      container: fullscreen ? '100%' : constants.DEFAULT_CONTAINER_WIDTH,
+      layout: fullscreen ? '100%' : constants.DEFAULT_LAYOUT_WIDTH
+    }
   }
 
   @computed
@@ -157,6 +166,20 @@ class ViewStore {
   @action.bound
   setLoadingCompleted() {
     this._isLoading = false
+  }
+
+  @action.bound
+  setLayoutWidth(width: string | number) {
+    if (width) {
+      this.dimensions.layout = width
+    }
+  }
+
+  @action.bound
+  setContainerWidth(width: string | number) {
+    if (width) {
+      this.dimensions.container = width
+    }
   }
 
   @action.bound

@@ -26,6 +26,7 @@ export namespace Renderer {
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
     keyboard?: any
+    eventId?: string
 
     isLastGroup?: boolean
     isLastOfGroup?: boolean
@@ -135,6 +136,8 @@ export type Config = {
   hideWidget: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
+  containerWidth?: string | number
+  layoutWidth?: string | number
 }
 
 interface BotDetails {
@@ -199,4 +202,14 @@ export interface Message {
 
 export interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
+}
+
+interface ChatDimensions {
+  /**
+   * The container is the frame around the webchat.
+   * Setting the container bigger than the layout makes it possible to add components
+   */
+  container: string | number
+  /** The layout is the zone where the user speaks with the bot */
+  layout: string | number
 }

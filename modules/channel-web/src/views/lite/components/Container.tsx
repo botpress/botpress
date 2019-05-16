@@ -55,24 +55,30 @@ class Container extends React.Component<ContainerProps> {
       ['bpw-anim-' + this.props.sideTransition]: true
     })
 
-    const CustomComponent = getOverridedComponent(this.props.config.overrides, 'below_conversation')
+    const BeforeContainer = getOverridedComponent(this.props.config.overrides, 'before_container')
+    const BelowConversation = getOverridedComponent(this.props.config.overrides, 'below_conversation')
 
     return (
-      <div className={classNames}>
-        <Header focused={this.props.isFocused('header')} />
-        {this.renderBody()}
-        {CustomComponent && <CustomComponent {...this.props} />}
-      </div>
+      <React.Fragment>
+        {BeforeContainer && <BeforeContainer {...this.props} />}
+        <div className={classNames} style={{ width: this.props.dimensions.layout }}>
+          <Header focused={this.props.isFocused('header')} />
+          {this.renderBody()}
+          {BelowConversation && <BelowConversation {...this.props} />}
+        </div>
+      </React.Fragment>
     )
   }
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
+  store,
   displayConvos: store.view.displayConvos,
   displayBotInfo: store.view.displayBotInfo,
   isFullscreen: store.view.isFullscreen,
   isFocused: store.view.isFocused,
   sideTransition: store.view.sideTransition,
+  dimensions: store.view.dimensions,
   currentConversation: store.currentConversation,
   config: store.config,
   botName: store.botName
@@ -81,5 +87,12 @@ export default inject(({ store }: { store: RootStore }) => ({
 type ContainerProps = InjectedIntlProps &
   Pick<
     StoreDef,
-    'config' | 'botName' | 'isFocused' | 'displayConvos' | 'isFullscreen' | 'displayBotInfo' | 'sideTransition'
+    | 'config'
+    | 'botName'
+    | 'isFocused'
+    | 'displayConvos'
+    | 'isFullscreen'
+    | 'displayBotInfo'
+    | 'sideTransition'
+    | 'dimensions'
   >

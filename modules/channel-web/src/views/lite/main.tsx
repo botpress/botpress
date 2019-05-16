@@ -86,6 +86,12 @@ class Web extends React.Component<MainProps> {
       await this.socket.changeUserId(data.newValue)
       await this.props.initializeChat()
     })
+
+    observe(this.props.dimensions, 'container', data => {
+      if (data.newValue && window.parent) {
+        window.parent.postMessage({ type: 'setWidth', value: data.newValue }, '*')
+      }
+    })
   }
 
   handleIframeApi = ({ data: { action, payload } }) => {
@@ -214,6 +220,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   activeView: store.view.activeView,
   showChat: store.view.showChat,
   hideChat: store.view.hideChat,
+  dimensions: store.view.dimensions,
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted
@@ -242,4 +249,5 @@ type MainProps = Pick<
   | 'displayWidgetView'
   | 'resetUnread'
   | 'setLoadingCompleted'
+  | 'dimensions'
 >

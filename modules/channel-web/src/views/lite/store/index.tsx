@@ -238,6 +238,9 @@ class RootStore {
       this.api = new WebchatApi('', bp.axios)
     }
 
+    this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
+    this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
+
     this.api.updateAxiosConfig({ botId: config.botId, externalAuthToken: config.externalAuthToken })
   }
 
