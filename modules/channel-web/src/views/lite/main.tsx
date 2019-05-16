@@ -32,6 +32,7 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidMount() {
+    window.store = this.props.store
     window.addEventListener('message', this.handleIframeApi)
     this.initialize()
   }
@@ -102,6 +103,8 @@ class Web extends React.Component<MainProps> {
   handleIframeApi = ({ data: { action, payload } }) => {
     if (action === 'configure') {
       this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
+    } else if (action === 'mergeConfig') {
+      this.props.mergeConfig(payload)
     } else if (action === 'event') {
       const { type, text } = payload
 
@@ -211,6 +214,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   sendData: store.sendData,
   initializeChat: store.initializeChat,
   updateConfig: store.updateConfig,
+  mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
   setUserId: store.setUserId,
   updateTyping: store.updateTyping,
@@ -231,7 +235,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   setLoadingCompleted: store.view.setLoadingCompleted
 }))(observer(Web))
 
-type MainProps = Pick<
+type MainProps = { store: RootStore } & Pick<
   StoreDef,
   | 'bp'
   | 'config'
@@ -249,6 +253,7 @@ type MainProps = Pick<
   | 'showWidgetButton'
   | 'addEventToConversation'
   | 'updateConfig'
+  | 'mergeConfig'
   | 'isReady'
   | 'incrementUnread'
   | 'displayWidgetView'

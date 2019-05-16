@@ -14,7 +14,7 @@ export const Fullscreen = props => WebChat(props, true)
 const WebChat = (props, fullscreen) => (
   <Provider store={new RootStore({ fullscreen })}>
     <React.Fragment>
-      <Chat {...props} fullscreen={fullscreen} />
+      <Chat {...props} />
       <DevTools />
     </React.Fragment>
   </Provider>

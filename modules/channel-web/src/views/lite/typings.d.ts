@@ -4,6 +4,7 @@ declare global {
   interface Window {
     __BP_VISITOR_ID: string
     botpressWebChat: any
+    store: RootStore
     BOT_API_PATH: string
     API_PATH: string
     BOTPRESS_VERSION: string

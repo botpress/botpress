@@ -40,9 +40,13 @@ function init(config) {
   function sendEvent(payload) {
     iframeWindow.postMessage({ action: 'event', payload: payload }, '*')
   }
+  function mergeConfig(payload) {
+    iframeWindow.postMessage({ action: 'mergeConfig', payload: payload }, '*')
+  }
 
   window.botpressWebChat.configure = configure
   window.botpressWebChat.sendEvent = sendEvent
+  window.botpressWebChat.mergeConfig = mergeConfig
 }
 
 // Do we want to expose 'onPostback'

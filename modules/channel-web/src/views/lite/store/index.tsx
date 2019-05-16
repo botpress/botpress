@@ -246,6 +246,7 @@ class RootStore {
   @action.bound
   mergeConfig(config: Partial<Config>) {
     this.config = merge(this.config, config)
+    this._applyConfig()
   }
 
   /** This replaces all the configurations by this object */
@@ -258,10 +259,14 @@ class RootStore {
       this.api = new WebchatApi('', bp.axios)
     }
 
+    this._applyConfig()
+  }
+
+  private _applyConfig() {
     this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
 
-    this.api.updateAxiosConfig({ botId: config.botId, externalAuthToken: config.externalAuthToken })
+    this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
   }
 
   /** When this method is used, the user ID is changed in the configuration, then the socket is updated */
