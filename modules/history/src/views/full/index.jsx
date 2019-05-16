@@ -162,11 +162,14 @@ export default class FullView extends React.Component {
     const blob = new Blob([''], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
 
+    const defaultToDate = new Date(Date.now())
+    defaultToDate.setHours(0, 0, 0, 0)
+
     this.state = {
       conversations: [],
       messages: [],
-      to: new Date(Date.now()),
-      from: this.offsetDate(Date.now(), -20),
+      to: defaultToDate,
+      from: this.offsetDateByDays(defaultToDate, -30),
       currentConvId: null,
       fileBlob: blob,
       fileURL: url
@@ -175,7 +178,7 @@ export default class FullView extends React.Component {
 
   threadIdParamName = 'threadId'
 
-  offsetDate(date, offset) {
+  offsetDateByDays(date, offset) {
     const newDate = new Date(date)
     newDate.setDate(newDate.getDate() + offset)
     return newDate
@@ -192,7 +195,7 @@ export default class FullView extends React.Component {
   }
 
   getConversations(from, to) {
-    const ceiledToDate = this.offsetDate(to, 1)
+    const ceiledToDate = this.offsetDateByDays(to, 1)
 
     this.props.bp.axios
       .get(`/mod/history/conversations/${from.getTime()}/${ceiledToDate.getTime()}`)
@@ -231,10 +234,12 @@ export default class FullView extends React.Component {
           conversations={this.state.conversations}
           conversationChosenHandler={this.onConversationSelected.bind(this)}
           handleFromChange={day => {
+            day.setHours(0, 0, 0, 0)
             this.setState({ from: day })
             this.getConversations(day, this.state.to)
           }}
           handleToChange={day => {
+            day.setHours(0, 0, 0, 0)
             this.setState({ to: day })
             this.getConversations(this.state.from, day)
           }}
