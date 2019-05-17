@@ -171,7 +171,8 @@ export default class CRFExtractor implements SlotExtractor {
 
     const slot = {
       name: slotName,
-      value
+      value,
+      source: value.toString()
     } as sdk.NLU.Slot
 
     if (entity) {
