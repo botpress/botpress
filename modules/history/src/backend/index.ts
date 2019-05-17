@@ -14,11 +14,25 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const cleanDatabase = async (db, limitDate: Date) => {
-  // console.log(`clean database called with limit date = '${limitDate.toDateString()}' (${limitDate.getTime()})`)
   await db
     .table('msg_history')
     .where('created_on', '<', limitDate.getTime())
     .del()
+}
+
+const groupMessagesByIncomingId = (messages: sdk.IO.Event[]) => {
+  const messageGroups: Map<string, sdk.IO.Event[]> = new Map<string, sdk.IO.Event[]>()
+
+  for (const msg of messages) {
+    const groupKey = msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
+
+    if (!messageGroups.get(groupKey)) {
+      messageGroups.set(groupKey, [])
+    }
+    messageGroups.get(groupKey).push(msg)
+  }
+
+  return Array.from(messageGroups.values())
 }
 
 const buildConversationInfo = async (db, threadId: string) => {
@@ -69,7 +83,9 @@ const onServerReady = async (bp: typeof sdk) => {
       .table('msg_history')
       .map(x => JSON.parse(x.msg_content))
 
-    res.send(messages)
+    const messageGroups = groupMessagesByIncomingId(messages)
+
+    res.send(messageGroups)
   })
 }
 

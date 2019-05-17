@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
+    "lib": ["es2016"],
     "esModuleInterop": true,
-    "typeRoots": [
-      "./src/botpress.d.ts",
-      "./node_modules/@types",
-      "./node_modules"
-    ]
+    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types", "./node_modules"]
   }
 }

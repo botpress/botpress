@@ -2,19 +2,40 @@
   display: flex;
   width: 100%;
   height: 100%;
+  background-color: #fff;
 }
 
-.query-options {
-  display: flex;
-  color: #c1c0c6;
-  padding: 2%;
-
-  :last-child {
-    margin-left: auto;
+.no-conv {
+  width: 50%;
+  height: min-content;
+  padding: 3%;
+  border-radius: 11px;
+  background: white;
+  border: solid 1px rgba(0, 0, 0, 0.05);
+  h3 {
+    font-weight: 500;
+  }
+  p {
+    font-size: 17px;
+    font-weight: 200;
   }
 }
 
-.daypicker {
+.query-options {
+  color: #c1c0c6;
+  padding: 2%;
+
+  &-daypick {
+    display: flex;
+  }
+
+  &-from_to {
+    margin: 0;
+    width: 4em;
+  }
+}
+
+.daypicker-item {
   color: black;
 }
 
@@ -23,11 +44,22 @@
   height: 100%;
   background-color: #37373f;
 
+  &-icons {
+    margin-left: auto;
+  }
+
   &-refresh {
     color: #c1c0c6;
-    margin-left: auto;
     cursor: pointer;
     vertical-align: middle;
+    font-size: 4rem;
+  }
+
+  &-filter {
+    color: #c1c0c6;
+    cursor: pointer;
+    vertical-align: middle;
+    font-size: 2rem;
   }
 
   &-titlebar {
@@ -63,9 +95,11 @@
 .message {
   &-header {
     display: flex;
+    margin-bottom: 3%;
 
     &-icons {
       margin-left: auto;
+      margin-right: 1%;
       display: flex;
       vertical-align: middle;
       width: fit-content;
@@ -77,16 +111,31 @@
 
     &-icon_item {
       cursor: pointer;
-      transition: transform 0.3s ease-out;
       color: #233abc;
+      font-size: 3em;
     }
   }
 
   &-viewer {
     width: 80%;
-    border-left: solid;
     height: 100%;
     overflow: hidden;
+  }
+
+  &-sender {
+    color: #37373f;
+    font-weight: 900;
+  }
+
+  &-group {
+    margin-bottom: 4%;
+    width: 42%;
+    margin-left: 3%;
+
+    &-header {
+      display: flex;
+      background-color: #efefef;
+    }
   }
 
   &-title {
@@ -104,7 +153,7 @@
   &-list {
     overflow-y: auto;
     word-wrap: break-word;
-    padding: 1%;
+    padding: 3%;
 
     &-full {
       height: 100%;
@@ -113,6 +162,14 @@
     &-partial {
       height: 50%;
     }
+  }
+
+  &-inspect {
+    margin-left: auto;
+    width: fit-content;
+    cursor: pointer;
+    color: #233abc;
+    font-size: 1em;
   }
 
   &-inspector {
@@ -128,20 +185,17 @@
   }
 
   &-elements {
-    cursor: pointer;
     padding: 0.2%;
     font-size: 1.4em;
-    &:hover {
-      background-color: pink;
-    }
+    padding-left: 2.5%;
   }
 
   &-outgoing {
-    color: #5ea86f;
+    color: #a1a1a1;
   }
 
   &-incomming {
-    color: gray;
+    color: #a1a1a1;
   }
 }
 
