@@ -187,7 +187,8 @@ function MessageGroup(props) {
     <div className={style['message-group']}>
       <div className={style['message-group-header']}>
         <div>
-          <span style={{ 'font-weight': 'bold' }}>{`${userMessage.decision.confidence * 100}% decision:`}</span>
+          <span style={{ 'font-weight': 'bold' }}>{`${Math.round(userMessage.decision.confidence * 10000) /
+            100}% decision:`}</span>
           <span>{` ${userMessage.decision.sourceDetails}`}</span>
         </div>
         <div className={style['message-inspect']} onClick={() => props.focusMessage(userMessage)}>
