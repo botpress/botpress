@@ -15,7 +15,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const cleanDatabase = async (db, limitDate: Date) => {
   await db
-    .table('msg_history')
+    .from('msg_history')
     .where('created_on', '<', limitDate.getTime())
     .del()
 }
@@ -37,7 +37,7 @@ const groupMessagesByIncomingId = (messages: sdk.IO.Event[]) => {
 
 const buildConversationInfo = async (db, threadId: string) => {
   const messageCountObject = await db
-    .table('msg_history')
+    .from('msg_history')
     .count()
     .where('thread_id', threadId)
 
@@ -66,7 +66,7 @@ const onServerReady = async (bp: typeof sdk) => {
       .where('created_on', '<=', to)
       .where('bot_id', req.params.botId)
       .whereNotNull('thread_id')
-      .table('msg_history')
+      .from('msg_history')
       .map(x => x.thread_id)
 
     const conversationInfo = await Promise.all(uniqueConversations.map(c => buildConversationInfo(bp.database, c)))
@@ -80,7 +80,7 @@ const onServerReady = async (bp: typeof sdk) => {
     const messages = await bp.database
       .select('msg_content')
       .where('thread_id', convId)
-      .table('msg_history')
+      .from('msg_history')
       .map(x => JSON.parse(x.msg_content))
 
     const messageGroups = groupMessagesByIncomingId(messages)

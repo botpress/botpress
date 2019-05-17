@@ -27,6 +27,7 @@
 
   &-daypick {
     display: flex;
+    padding-bottom: 3%;
   }
 
   &-from_to {
@@ -135,6 +136,22 @@
     &-header {
       display: flex;
       background-color: #efefef;
+      padding: 0 1%;
+    }
+
+    &-explanation {
+      display: flex;
+      width: min-content;
+    }
+
+    &-confidence {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    &-decision {
+      padding-left: 3%;
+      white-space: nowrap;
     }
   }
 

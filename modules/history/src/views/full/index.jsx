@@ -186,10 +186,10 @@ function MessageGroup(props) {
   return (
     <div className={style['message-group']}>
       <div className={style['message-group-header']}>
-        <div>
-          <span style={{ 'font-weight': 'bold' }}>{`${Math.round(userMessage.decision.confidence * 10000) /
-            100}% decision:`}</span>
-          <span>{` ${userMessage.decision.sourceDetails}`}</span>
+        <div className={style['message-group-explanation']}>
+          <div className={style['message-group-confidence']}>{`${Math.round(userMessage.decision.confidence * 10000) /
+            100}% decision:`}</div>
+          <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
         </div>
         <div className={style['message-inspect']} onClick={() => props.focusMessage(userMessage)}>
           <MdSearch />
