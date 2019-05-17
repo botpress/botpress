@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { Config } from '../config'
 
@@ -20,21 +21,6 @@ const cleanDatabase = async (db, limitDate: Date) => {
     .del()
 }
 
-const groupMessagesByIncomingId = (messages: sdk.IO.Event[]) => {
-  const messageGroups: Map<string, sdk.IO.Event[]> = new Map<string, sdk.IO.Event[]>()
-
-  for (const msg of messages) {
-    const groupKey = msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
-
-    if (!messageGroups.get(groupKey)) {
-      messageGroups.set(groupKey, [])
-    }
-    messageGroups.get(groupKey).push(msg)
-  }
-
-  return Array.from(messageGroups.values())
-}
-
 const buildConversationInfo = async (db, threadId: string) => {
   const messageCountObject = await db
     .from('msg_history')
@@ -48,23 +34,25 @@ const buildConversationInfo = async (db, threadId: string) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('history')
-  const globalConfig = (await bp.config.getModuleConfig('history')) as Config
 
   router.get('/conversations/:from/:to', async (req, res) => {
     const from = req.params.from
     const to = req.params.to
+    const botId = req.params.botId
+
+    const config = (await bp.config.getModuleConfigForBot('history', botId)) as Config
 
     const limitDate = new Date(Date.now())
-    limitDate.setDate(limitDate.getDate() - globalConfig.DatabaseEntryDaysToLive)
+    limitDate.setDate(limitDate.getDate() - config.dataRetention)
 
-    cleanDatabase(bp.database, limitDate) // pourrait être déplacé dans un hook ou un middleware ?
+    cleanDatabase(bp.database, limitDate)
 
     const uniqueConversations: string[] = await bp.database
       .select()
       .distinct('thread_id')
       .where('created_on', '>=', from)
       .where('created_on', '<=', to)
-      .where('bot_id', req.params.botId)
+      .where('bot_id', botId)
       .whereNotNull('thread_id')
       .from('msg_history')
       .map(x => x.thread_id)
@@ -83,9 +71,12 @@ const onServerReady = async (bp: typeof sdk) => {
       .from('msg_history')
       .map(x => JSON.parse(x.msg_content))
 
-    const messageGroups = groupMessagesByIncomingId(messages)
+    const messageGroupKeyBuild = msg =>
+      msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
+    const messageGroups = _.groupBy(messages, messageGroupKeyBuild)
+    const messageGroupsArray = _.values(messageGroups)
 
-    res.send(messageGroups)
+    res.send(messageGroupsArray)
   })
 }
 

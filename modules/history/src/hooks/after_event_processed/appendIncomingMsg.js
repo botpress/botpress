@@ -1,4 +1,4 @@
-const appendIngoingMsg = async () => {
+const appendIncomingMsg = async () => {
   if (event.preview && event.type != 'visit') {
     await bp.database('msg_history').insert({
       created_on: event.createdOn,
@@ -9,4 +9,4 @@ const appendIngoingMsg = async () => {
   }
 }
 
-return appendIngoingMsg()
+return appendIncomingMsg()
