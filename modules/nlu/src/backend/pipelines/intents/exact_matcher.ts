@@ -4,9 +4,8 @@ import _ from 'lodash'
 import { Sequence } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
-// this will quickly be replaced by a knn
-// TODO if we're going to keep this, replace the training set with a tree or at least something that runs faster than N at predict time
-// inversed index would be better
+// TODO if we're going to keep this, replace the training set with an inversed index or tree or at anything faster than O(n) at predict time
+// this might be replaced by a knn with tweaked distance func & proper usage at predict time
 export default class ExactMatcher {
   constructor(private trainingSet: Sequence[]) {}
 

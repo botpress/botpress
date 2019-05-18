@@ -17,7 +17,7 @@ import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import { tokenize } from './pipelines/language/tokenizers'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import { generateTrainingSequence, keepEntityTypes } from './pipelines/slots/pre-processor'
+import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
 
@@ -33,6 +33,7 @@ export default class ScopedEngine implements Engine {
   private _preloaded: boolean = false
 
   private _currentModelHash: string
+  private _exactIntentMatcher: ExactMatcher
 
   private readonly intentClassifier: SVMClassifier
   private readonly langDetector: LanguageIdentifier
@@ -51,7 +52,6 @@ export default class ScopedEngine implements Engine {
   private _isSyncingTwice: boolean
   private _autoTrainInterval: number = 0
   private _autoTrainTimer: NodeJS.Timer
-  private _exactIntentMatcher: ExactMatcher
 
   constructor(
     protected logger: sdk.Logger,
@@ -182,6 +182,7 @@ export default class ScopedEngine implements Engine {
     if (!intentModels || !intentModels.length) {
       throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
     }
+
     const trainingSet = flatMap(intents, intent => {
       return intent.utterances.map(utterance =>
         generateTrainingSequence(utterance, intent.slots, intent.name, intent.contexts)

@@ -6,6 +6,7 @@ import Joi from 'joi'
 import onHeaders from 'on-headers'
 
 import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
+import { SERVER_USER } from '../server'
 import AuthService from '../services/auth/auth-service'
 import { incrementMetric } from '../services/monitoring'
 
@@ -177,6 +178,11 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   next: NextFunction
 ) => {
   const email = req.tokenUser && req.tokenUser!.email
+  // The server user is used internally, and has all the permissions
+  if (email === SERVER_USER) {
+    return next()
+  }
+
   const user = await workspaceService.findUser({ email })
 
   if (!user) {

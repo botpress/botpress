@@ -7,7 +7,9 @@ import Download from '../icons/Download'
 import Information from '../icons/Information'
 import Avatar from './common/Avatar'
 
-export default class Header extends React.Component {
+import { injectIntl } from 'react-intl'
+
+class Header extends React.Component {
   btnEls = {}
   state = {
     currentFocusIdx: null
@@ -56,7 +58,9 @@ export default class Header extends React.Component {
   }
 
   renderTitle = () => {
-    const title = this.props.showConvos ? 'Conversations' : this.props.botName
+    const title = this.props.showConvos
+      ? this.props.intl.formatMessage({ id: 'header.conversations' })
+      : this.props.botName
     const description = this.props.config.botConvoDescription
     const hasDescription = description && description.length > 0
 
@@ -198,3 +202,5 @@ export default class Header extends React.Component {
     )
   }
 }
+
+export default injectIntl(Header)

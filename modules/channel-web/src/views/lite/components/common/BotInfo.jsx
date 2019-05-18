@@ -5,6 +5,7 @@ import PhoneIcon from '../../icons/Phone'
 import WebsiteIcon from '../../icons/Website'
 import EmailIcon from '../../icons/Email'
 import Avatar from './Avatar'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const CoverPicture = ({ botInfo }) => (
   <img
@@ -89,25 +90,29 @@ class BotInfo extends React.Component {
             {botInfo.details.termsConditions && (
               <div className={'bpw-botinfo-terms'}>
                 <a target="_blank" href={botInfo.details.termsConditions}>
-                  View Terms of Service
+                  <FormattedMessage id="botInfo.termsAndConditions" />
                 </a>
               </div>
             )}
             {botInfo.details.privacyPolicy && (
               <div className={'bpw-botinfo-terms'}>
                 <a target="_blank" href={botInfo.details.privacyPolicy}>
-                  View Privacy Policy
+                  <FormattedMessage id="botInfo.privacyPolicy" />
                 </a>
               </div>
             )}
           </Fragment>
         )}
         <button tabIndex="1" ref={el => (this.btnEl = el)} className={'bpw-botinfo-start-button'} onClick={onDismiss}>
-          {isConvoStarted ? 'Back to Conversation' : 'Start Conversation'}
+          {isConvoStarted ? (
+            <FormattedMessage id="botInfo.backToConversation" />
+          ) : (
+            <FormattedMessage id="botInfo.startConversation" />
+          )}
         </button>
       </div>
     )
   }
 }
 
-export default BotInfo
+export default injectIntl(BotInfo)

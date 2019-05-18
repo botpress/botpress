@@ -1,8 +1,6 @@
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import { renameFlow } from '~/actions'
 import { getCurrentFlow } from '~/reducers'
 
 import Topbar from '../topbar.jsx'
@@ -12,8 +10,6 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state)
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ renameFlow }, dispatch)
-
-const ConnectedTopbar = connect(mapStateToProps, mapDispatchToProps)(Topbar)
+const ConnectedTopbar = connect(mapStateToProps)(Topbar)
 
 export default ConnectedTopbar

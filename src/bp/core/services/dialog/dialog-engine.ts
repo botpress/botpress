@@ -159,6 +159,7 @@ export class DialogEngine {
 
     event.state.context.currentNode = timeoutNode.name
     event.state.context.currentFlow = timeoutFlow.name
+    event.state.context.queue = undefined
     event.state.context.hasJumped = true
 
     return await this.processEvent(sessionId, event)

@@ -42,11 +42,22 @@ export default class FlowsList extends Component {
   menuButtons = {}
 
   componentDidMount() {
-    this.initializeState(this.props)
+    if(this.props.currentFlow){
+      this.initState(this.props.currentFlow)
+    }
   }
 
-  componentDidUpdate(props) {
-    this.initializeState(props)
+  componentDidUpdate(nextProps) {
+    const { currentFlow } = nextProps
+    if(currentFlow && (!this.state.activeNode || this.state.activeNode.split(':')[1] !== currentFlow.name.replace('.flow.json', ''))){
+      this.initState(currentFlow)
+    }
+
+  }
+
+  initState(currentFlow){
+    const state = getInitialState(currentFlow)
+    this.setState(state)
   }
 
   initializeState(props) {
@@ -90,6 +101,25 @@ export default class FlowsList extends Component {
       }
     })
 
+    const handleRename = handleAction(() => {
+
+      const name = window.prompt('Please enter the new name for that flow', flow.name.replace(/\.flow\.json$/i, ''))
+  
+      if (!name) {
+        return
+      }
+  
+      if (/[^A-Z0-9-_\/]/i.test(name)) {
+        return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
+      }
+  
+      if (name !== flow.name && includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
+          return alert(`ERROR: The flow ${name} already exists`)
+      }
+      
+      this.props.renameFlow({targetFlow: flow.name, name : `${name}.flow.json`})
+    })
+
     const handleDuplicate = handleAction(() => {
       let name = prompt('Enter the name of the new flow')
 
@@ -113,7 +143,12 @@ export default class FlowsList extends Component {
     const dropdown = (
       <Popover id={`flow-${index}-dropdown`} bsClass={classnames(style.popover, 'popover')}>
         <ul className={style.menu}>
-          {flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>}
+          {
+            flow.name !== 'main.flow.json' && <li onClick={handleDelete}>Delete</li>
+          }
+          {
+            flow.name !== 'main.flow.json' && <li onClick={handleRename}>Rename</li>
+          }
           <li onClick={handleDuplicate}>Duplicate</li>
         </ul>
       </Popover>

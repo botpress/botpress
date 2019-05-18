@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
-import { VError } from 'verror'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
@@ -174,11 +174,7 @@ export class ScopedActionService {
         session: incomingEvent.state.session,
         args: actionArgs,
         printObject: printObject,
-        process: {
-          // TODO: Memoize this to prevent computing every time
-          ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
-          env: _.pickBy(process.env, (value, name) => name.startsWith('EXPOSED_'))
-        }
+        process: UntrustedSandbox.getSandboxProcessArgs()
       },
       require: {
         external: true,
