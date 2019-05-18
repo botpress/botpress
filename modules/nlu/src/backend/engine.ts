@@ -1,7 +1,7 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import { flatMap } from 'lodash'
+import { flatMap, memoize } from 'lodash'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -68,6 +68,10 @@ export default class ScopedEngine implements Engine {
     this._autoTrainInterval = ms(config.autoTrainInterval || 0)
   }
 
+  static loadingWarn = memoize((logger: sdk.Logger, model: string) => {
+    logger.info(`Waiting for language model "${model}" to load, this may take some time ...`)
+  })
+
   async init(): Promise<void> {
     this.confidenceTreshold = this.config.confidenceTreshold
 
@@ -90,7 +94,15 @@ export default class ScopedEngine implements Engine {
         }
       }, this._autoTrainInterval)
     }
-    await FTWordVecFeaturizer.loadLanguage(this.config.languageModel)
+
+    const loadModelPromise = FTWordVecFeaturizer.loadLanguage(this.config.languageModel)
+    const val = await Promise.race([loadModelPromise, Promise.delay(ms('1s'), 'warn')])
+
+    if (val === 'warn') {
+      ScopedEngine.loadingWarn(this.logger, this.config.languageModel)
+    }
+
+    await loadModelPromise
   }
 
   protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
