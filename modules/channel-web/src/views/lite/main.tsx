@@ -76,7 +76,6 @@ class Web extends React.Component<MainProps> {
     }
   }
 
-  // When the user ID is changed in the configuration, it will update the socket automatically
   setupObserver() {
     observe(this.props.config, 'userId', async data => {
       if (!data.oldValue) {

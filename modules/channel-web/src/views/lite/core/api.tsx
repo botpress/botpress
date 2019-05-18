@@ -4,6 +4,7 @@ export default class WebchatApi {
   private axios
   private axiosConfig
   private userId: string
+  private botId: string
 
   constructor(userId: string, axiosInstance) {
     this.userId = userId
@@ -27,6 +28,7 @@ export default class WebchatApi {
   }
 
   updateAxiosConfig({ botId = undefined, externalAuthToken = undefined } = {}) {
+    this.botId = botId
     this.axiosConfig = botId
       ? { baseURL: `${window.location.origin}/api/v1/bots/${botId}/mod/channel-web` }
       : { baseURL: `${window.BOT_API_PATH}/mod/channel-web` }
@@ -129,7 +131,7 @@ export default class WebchatApi {
     }
 
     if (data.errorCode === 'BP_0401') {
-      // this.setState({ config: { ...this.state.config, externalAuthToken: undefined } }, this.updateAxiosConfig)
+      this.updateAxiosConfig({ botId: this.botId, externalAuthToken: undefined })
       console.log(`External token expired or invalid. Removed from future requests`)
     }
   }

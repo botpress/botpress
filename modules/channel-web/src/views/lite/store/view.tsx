@@ -187,22 +187,20 @@ class ViewStore {
     }
   }
 
-  /** Adds a new button on the header page */
   @action.bound
-  registerButton(newButton: CustomButton) {
+  addHeaderButton(newButton: CustomButton) {
     this.customButtons.push(newButton)
   }
 
   /** Updates one or multiple properties of a specific button */
   @action.bound
-  updateButton(buttonId: string, newProps: Partial<CustomButton>) {
+  updateHeaderButton(buttonId: string, newProps: Partial<CustomButton>) {
     const button = this.customButtons.find(btn => btn.id === buttonId)
     button && merge(button, newProps)
   }
 
-  /** Removes the button from the interface */
   @action.bound
-  unregisterButton(buttonId: string) {
+  removeHeaderButton(buttonId: string) {
     this.customButtons = this.customButtons.filter(btn => btn.id !== buttonId)
   }
 

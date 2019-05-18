@@ -6,7 +6,6 @@ export default {
   MIN_TIME_BETWEEN_SOUNDS: 1000,
   HISTORY_STARTING_POINT: -1,
   HISTORY_MAX_MESSAGES: 10,
-  HISTORY_UP: 'ArrowUp',
   /** The number of minutes before a new timestamp is displayed */
   TIME_BETWEEN_DATES: 10,
   DEFAULT_LAYOUT_WIDTH: 360,

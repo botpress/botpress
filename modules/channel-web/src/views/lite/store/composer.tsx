@@ -6,6 +6,8 @@ import constants from '../core/constants'
 
 import { RootStore } from '.'
 
+const HISTORY_UP = 'ArrowUp'
+
 class ComposerStore {
   private rootStore: RootStore
 
@@ -35,7 +37,7 @@ class ComposerStore {
 
   @action.bound
   recallHistory(direction: string) {
-    const position = direction === constants.HISTORY_UP ? this._historyPosition + 1 : this._historyPosition - 1
+    const position = direction === HISTORY_UP ? this._historyPosition + 1 : this._historyPosition - 1
     const text = nth(this._messageHistory, position)
 
     if (text) {
