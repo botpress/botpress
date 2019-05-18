@@ -105,7 +105,17 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault = ['analytics', 'basic-skills', 'builtin', 'channel-web', 'nlu', 'qna', 'extensions']
+    const enabledByDefault = [
+      'analytics',
+      'basic-skills',
+      'builtin',
+      'channel-web',
+      'nlu',
+      'qna',
+      'extensions',
+      'code-editor',
+      'testing'
+    ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)

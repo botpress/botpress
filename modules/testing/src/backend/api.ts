@@ -23,8 +23,8 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     res.sendStatus(200)
   })
 
-  router.get('/startRecording/:userId?', (req, res) => {
-    testByBot[req.params.botId].startRecording(req.params.userId || '')
+  router.get('/startRecording/:userId?', async (req, res) => {
+    await testByBot[req.params.botId].startRecording(req.params.userId || '')
     res.sendStatus(200)
   })
 
@@ -44,7 +44,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
 
   router.post('/incomingEvent', (req, res) => {
     const event = req.body as sdk.IO.IncomingEvent
-    return res.send(testByBot[req.params.botId].processIncomingEvent(event))
+    res.send(testByBot[req.params.botId].processIncomingEvent(event))
   })
 
   router.post('/processedEvent', (req, res) => {

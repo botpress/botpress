@@ -110,14 +110,14 @@ export class Testing {
       this._interval = setInterval(this._waitTestCompletion.bind(this), 2000)
     }
 
-    await this.bp.experimental.enableHook('recorder', 'before_incoming_middleware', 'testing')
-    await this.bp.experimental.enableHook('recorder', 'after_event_processed', 'testing')
+    await this.bp.experimental.enableHook('00_recorder', 'before_incoming_middleware', 'testing')
+    await this.bp.experimental.enableHook('00_recorder', 'after_event_processed', 'testing')
   }
 
   private async _waitTestCompletion() {
     if (!this._runner.isRunning() && !this._recorder.isRecording()) {
-      await this.bp.experimental.disableHook('recorder', 'before_incoming_middleware', 'testing')
-      await this.bp.experimental.disableHook('recorder', 'after_event_processed', 'testing')
+      await this.bp.experimental.disableHook('00_recorder', 'before_incoming_middleware', 'testing')
+      await this.bp.experimental.disableHook('00_recorder', 'after_event_processed', 'testing')
 
       clearInterval(this._interval)
       this._interval = undefined

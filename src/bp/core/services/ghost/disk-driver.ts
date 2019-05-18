@@ -51,7 +51,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   @WrapErrorsWith(args => `[Disk Storage Error while moving file from "${args[0]}" to  "${args[1]}".`)
   async moveFile(fromPath: string, toPath: string): Promise<void> {
-    return fse.move(fromPath, toPath)
+    return fse.move(this.resolvePath(fromPath), this.resolvePath(toPath))
   }
 
   async deleteDir(dirPath: string): Promise<void> {

@@ -418,6 +418,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      incomingEventId?: string
     }
 
     /**
@@ -492,6 +493,11 @@ declare module 'botpress/sdk' {
       readonly isPause?: boolean
     }
 
+    export interface OutgoingEvent extends Event {
+      /* Id of event which is being replied to; only defined for outgoing events */
+      readonly incomingEventId?: string
+    }
+
     export interface Suggestion {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
@@ -558,6 +564,21 @@ declare module 'botpress/sdk' {
 
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
+      nluContexts?: NluContext[]
+    }
+
+    /**
+     * They represent the contexts that will be used by the NLU Engine for the next messages for that chat session.
+     *
+     * The TTL (Time-To-Live) represents how long the contexts will be valid before they are automatically removed.
+     * For example, the default value of `1` will listen for that context only once (the next time the user speaks).
+     *
+     * If a context was already present in the list, the higher TTL will win.
+     */
+    export interface NluContext {
+      context: string
+      /** Represent the number of turns before the context is removed from the session */
+      ttl: number
     }
 
     export interface DialogTurnHistory {
@@ -661,6 +682,7 @@ declare module 'botpress/sdk' {
      * To stop listening, call the `remove()` method of the returned ListenHandle
      */
     onFileChanged(callback: (filePath: string) => void): ListenHandle
+    fileExists(rootFolder: string, file: string): Promise<boolean>
   }
 
   export interface ListenHandle {
@@ -1080,7 +1102,7 @@ declare module 'botpress/sdk' {
      * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
   }
 
   export type GetOrCreateResult<T> = Promise<{
