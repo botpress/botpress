@@ -35,27 +35,34 @@ const buildConversationInfo = async (db, threadId: string) => {
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('history')
 
-  router.get('/conversations/:from/:to', async (req, res) => {
-    const from = req.params.from
-    const to = req.params.to
-    const botId = req.params.botId
+  router.get('/conversations', async (req, res) => {
+    const { from, to, botId } = req.params
 
     const config = (await bp.config.getModuleConfigForBot('history', botId)) as Config
 
     const limitDate = new Date(Date.now())
     limitDate.setDate(limitDate.getDate() - config.dataRetention)
 
-    cleanDatabase(bp.database, limitDate)
+    await cleanDatabase(bp.database, limitDate)
 
-    const uniqueConversations: string[] = await bp.database
+    const query = bp.database
       .select()
       .distinct('thread_id')
-      .where('created_on', '>=', from)
-      .where('created_on', '<=', to)
-      .where('bot_id', botId)
-      .whereNotNull('thread_id')
       .from('msg_history')
-      .map(x => x.thread_id)
+      .whereNotNull('thread_id')
+      .andWhere('bot_id', botId)
+
+    if (from) {
+      query.andWhere('created_on', '>=', from)
+    }
+    if (to) {
+      query.andWhere('created_on', '<=', to)
+    }
+
+    const queryResults = await query
+    const uniqueConversations: string[] = queryResults.map(x => x.thread_id)
+
+    console.log(uniqueConversations)
 
     const conversationInfo = await Promise.all(uniqueConversations.map(c => buildConversationInfo(bp.database, c)))
 

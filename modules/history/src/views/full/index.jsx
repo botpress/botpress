@@ -47,7 +47,7 @@ export default class FullView extends React.Component {
     const ceiledToDate = this.offsetDateByDays(to, 1)
 
     this.props.bp.axios
-      .get(`/mod/history/conversations/${from.getTime()}/${ceiledToDate.getTime()}`)
+      .get(`/mod/history/conversations?from=${from.getTime()}&to=${ceiledToDate.getTime()}`)
       .then(({ data }) => {
         this.setState({ conversationsInfo: data })
       })
