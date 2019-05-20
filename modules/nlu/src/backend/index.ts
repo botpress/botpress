@@ -5,15 +5,11 @@ import { Config } from '../config'
 
 import api from './api'
 import ConfusionEngine from './confusion-engine'
+import LangProvider from './language-provider'
 import { registerMiddleware } from './middleware'
-import { getPretrained as discoverLocalEmbeddings } from './models'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 import Storage from './storage'
 import { EngineByBot } from './typings'
-
-const debug = DEBUG('nlu')
-const debugEmbeddings = debug.sub('embeddings')
 
 const nluByBot: EngineByBot = {}
 
@@ -23,15 +19,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
-
-  FTWordVecFeaturizer.setToolkit(bp.MLToolkit)
-
-  // TODO: Move this logic somewhere else
-  const embeddings = discoverLocalEmbeddings()
-  embeddings.forEach(e => {
-    FTWordVecFeaturizer.provideLanguage(e.lang, e.path)
-    debugEmbeddings('loaded local embedding', e)
-  })
+  await LangProvider.initialize(globalConfig.languageSources)
 
   await registerMiddleware(bp, nluByBot)
 }

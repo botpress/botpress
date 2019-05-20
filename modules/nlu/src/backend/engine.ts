@@ -12,7 +12,6 @@ import PatternExtractor from './pipelines/entities/pattern_extractor'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
-import FTWordVecFeaturizer from './pipelines/language/ft_featurizer'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import { tokenize } from './pipelines/language/tokenizers'
@@ -94,15 +93,6 @@ export default class ScopedEngine implements Engine {
         }
       }, this._autoTrainInterval)
     }
-
-    const loadModelPromise = FTWordVecFeaturizer.loadLanguage(this.config.languageModel)
-    const val = await Promise.race([loadModelPromise, Promise.delay(ms('1s'), 'warn')])
-
-    if (val === 'warn') {
-      ScopedEngine.loadingWarn(this.logger, this.config.languageModel)
-    }
-
-    await loadModelPromise
   }
 
   protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {

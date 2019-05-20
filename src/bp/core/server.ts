@@ -180,6 +180,7 @@ export default class HTTPServer {
      * During this time, internal calls between modules can be made
      */
     this.app.use((req, res, next) => {
+      res.header('X-Powered-By', 'Botpress')
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
           return res.status(503).send('Botpress is loading. Please try again in a minute.')

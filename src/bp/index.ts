@@ -180,6 +180,41 @@ try {
         require('./bench').default(argv)
       }
     )
+    .command(
+      'lang',
+      'Launch a local language server',
+      {
+        port: {
+          description: 'the port to listen to',
+          default: 3100
+        },
+        host: {
+          description: 'only allow connections from this host',
+          default: 'localhost'
+        },
+        langDir: {
+          description: 'the directory where the language models reside in'
+        },
+        authToken: {
+          description: 'require API requests to use this Bearer token'
+        },
+        limit: {
+          description: 'the maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'the time window on which the limit is applied',
+          default: '1h'
+        }
+      },
+      argv => {
+        getos.default().then(distro => {
+          process.distro = distro
+          console.log('LANGUAGE SERVER', argv)
+          require('./lang-server').default(argv)
+        })
+      }
+    )
     .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {
       getos.default().then(distro => {
         process.distro = distro

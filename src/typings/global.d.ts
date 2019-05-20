@@ -104,3 +104,7 @@ declare interface OSDistribution {
   /** The release number, for example 18.04 */
   release: string
 }
+
+declare interface Dic<T> {
+  [Key: string]: T
+}

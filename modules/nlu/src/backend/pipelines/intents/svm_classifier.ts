@@ -74,7 +74,9 @@ export default class SVMClassifier {
       .value()
 
     const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = intent.utterances.map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+      const lowerUtterances = intent.utterances
+        .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+        .filter(x => x.trim().length)
 
       return {
         ...intent,
