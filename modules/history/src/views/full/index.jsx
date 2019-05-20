@@ -56,8 +56,6 @@ export default class FullView extends React.Component {
     url.searchParams.set(this.threadIdParamName, convId)
     window.history.pushState(window.history.state, '', url.toString())
 
-    this.setState({ currentConvId: convId })
-
     this.getMessagesOfConversation(convId)
   }
 
@@ -75,7 +73,13 @@ export default class FullView extends React.Component {
         desiredConvInfo.count = flattenMessages.length
       }
 
-      this.setState({ messageGroups: data, fileBlob: blob, fileURL: url, conversationsInfo: conversationsInfoCopy })
+      this.setState({
+        currentConvId: convId,
+        messageGroups: data,
+        fileBlob: blob,
+        fileURL: url,
+        conversationsInfo: conversationsInfoCopy
+      })
     })
   }
 
