@@ -8,7 +8,7 @@ const appendOutgoingMsg = async () => {
       created_on: bp.database.date.format(event.createdOn),
       thread_id: event.threadId,
       bot_id: event.botId,
-      msg_content: JSON.stringify(event)
+      msg_content: bp.database.json.set(event)
     })
   }
 }

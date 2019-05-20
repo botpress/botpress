@@ -72,11 +72,12 @@ const onServerReady = async (bp: typeof sdk) => {
   router.get('/messages/:convId', async (req, res) => {
     const convId = req.params.convId
 
-    const messages = await bp.database
+    const query_result = await bp.database
       .select('msg_content')
       .where('thread_id', convId)
       .from('msg_history')
-      .map(x => JSON.parse(x.msg_content))
+
+    const messages = query_result.map(el => bp.database.json.get(el.msg_content))
 
     const messageGroupKeyBuild = msg =>
       msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
