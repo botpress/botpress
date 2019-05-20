@@ -20,16 +20,22 @@ function MessageGroup(props) {
 
   const userMessageIndex = messages.findIndex(m => m.direction === 'incoming')
   const userMessage = messages[userMessageIndex]
-  messages.splice(userMessageIndex, 1)
+  if (userMessage) {
+    messages.splice(userMessageIndex, 1)
+  }
 
   return (
     <div className={style['message-group']}>
       <div className={style['message-group-header']}>
-        <div className={style['message-group-explanation']}>
-          <div className={style['message-group-confidence']}>{`${Math.round(userMessage.decision.confidence * 10000) /
-            100}% decision:`}</div>
-          <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
-        </div>
+        {userMessage &&
+          userMessage.decision && (
+            <div className={style['message-group-explanation']}>
+              <div className={style['message-group-confidence']}>{`${Math.round(
+                userMessage.decision.confidence * 10000
+              ) / 100}% decision:`}</div>
+              <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
+            </div>
+          )}
         <div className={style['message-inspect']} onClick={() => props.focusMessage(userMessage)}>
           <MdSearch />
         </div>
