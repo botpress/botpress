@@ -1,6 +1,7 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import moment from 'moment'
 
 import { Config } from '../config'
 
@@ -36,14 +37,13 @@ const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('history')
 
   router.get('/conversations', async (req, res) => {
-    const { from, to, botId } = req.params
+    const { botId } = req.params
+    const { from, to } = req.query
 
     const config = (await bp.config.getModuleConfigForBot('history', botId)) as Config
 
-    const limitDate = new Date(Date.now())
-    limitDate.setDate(limitDate.getDate() - config.dataRetention)
-
-    await cleanDatabase(bp.database, limitDate)
+    const limitDate = moment().subtract(config.dataRetention, 'months')
+    await cleanDatabase(bp.database, limitDate.toDate())
 
     const query = bp.database
       .select()
@@ -53,16 +53,16 @@ const onServerReady = async (bp: typeof sdk) => {
       .andWhere('bot_id', botId)
 
     if (from) {
-      query.andWhere('created_on', '>=', from)
+      const fromDate = moment.unix(from).toDate()
+      query.andWhere(bp.database.date.isBefore(fromDate, 'created_on'))
     }
     if (to) {
-      query.andWhere('created_on', '<=', to)
+      const toDate = moment.unix(to).toDate()
+      query.andWhere(bp.database.date.isAfter(toDate, 'created_on'))
     }
 
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.thread_id)
-
-    console.log(uniqueConversations)
 
     const conversationInfo = await Promise.all(uniqueConversations.map(c => buildConversationInfo(bp.database, c)))
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import style from './style.scss'
+import moment from 'moment'
 
 import { MessagesViewer } from './message'
 import { ConversationPicker } from './conversation'
@@ -11,14 +12,17 @@ export default class FullView extends React.Component {
     const blob = new Blob([''], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
 
-    const defaultToDate = new Date(Date.now())
-    defaultToDate.setHours(0, 0, 0, 0)
+    const defaultToDate = moment().startOf('day')
+
+    const defaultFromDate = moment()
+      .startOf('day')
+      .subtract(30, 'days')
 
     this.state = {
       conversationsInfo: [],
       messageGroups: [],
       to: defaultToDate,
-      from: this.offsetDateByDays(defaultToDate, -30),
+      from: defaultFromDate,
       currentConvId: null,
       fileBlob: blob,
       fileURL: url
@@ -26,12 +30,6 @@ export default class FullView extends React.Component {
   }
 
   threadIdParamName = 'threadId'
-
-  offsetDateByDays(date, offset) {
-    const newDate = new Date(date)
-    newDate.setDate(newDate.getDate() + offset)
-    return newDate
-  }
 
   componentDidMount() {
     this.getConversations(this.state.from, this.state.to)
@@ -44,10 +42,10 @@ export default class FullView extends React.Component {
   }
 
   getConversations(from, to) {
-    const ceiledToDate = this.offsetDateByDays(to, 1)
+    const ceiledToDate = moment(to).add(1, 'days')
 
     this.props.bp.axios
-      .get(`/mod/history/conversations?from=${from.getTime()}&to=${ceiledToDate.getTime()}`)
+      .get(`/mod/history/conversations?from=${from.unix()}&to=${ceiledToDate.unix()}`)
       .then(({ data }) => {
         this.setState({ conversationsInfo: data })
       })
@@ -91,17 +89,17 @@ export default class FullView extends React.Component {
           conversations={this.state.conversationsInfo}
           conversationChosenHandler={this.onConversationSelected.bind(this)}
           handleFromChange={day => {
-            day.setHours(0, 0, 0, 0)
-            this.setState({ from: day })
-            this.getConversations(day, this.state.to)
+            const moment_day = moment(day).startOf('day')
+            this.setState({ from: moment_day })
+            this.getConversations(moment_day, this.state.to)
           }}
           handleToChange={day => {
-            day.setHours(0, 0, 0, 0)
-            this.setState({ to: day })
-            this.getConversations(this.state.from, day)
+            const moment_day = moment(day).startOf('day')
+            this.setState({ to: moment_day })
+            this.getConversations(this.state.from, moment_day)
           }}
-          defaultFrom={this.state.from}
-          defaultTo={this.state.to}
+          defaultFrom={this.state.from.toDate()}
+          defaultTo={this.state.to.toDate()}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
         <MessagesViewer
