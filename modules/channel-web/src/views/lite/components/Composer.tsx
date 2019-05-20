@@ -1,3 +1,4 @@
+import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
@@ -6,15 +7,19 @@ import { RootStore, StoreDef } from '../store'
 
 class Composer extends React.Component<ComposerProps> {
   private textInput: any
-
-  componentDidMount() {
-    this.textInput.focus()
+  constructor(props) {
+    super(props)
+    this.textInput = React.createRef()
   }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.focused && this.props.focused) {
-      this.textInput.focus()
-    }
+  componentDidMount() {
+    setTimeout(() => {
+      this.textInput.current.focus()
+    }, 0)
+
+    observe(this.props.focusedArea, focus => {
+      focus.newValue === 'input' && this.textInput.current.focus()
+    })
   }
 
   handleKeyPress = e => {
@@ -32,7 +37,8 @@ class Composer extends React.Component<ComposerProps> {
       }
 
       const shouldFocusNext =
-        e.target.selectionStart === this.textInput.value.length && (e.key === 'ArrowDown' || e.key === 'ArrowRight')
+        e.target.selectionStart === this.textInput.current.value.length &&
+        (e.key === 'ArrowDown' || e.key === 'ArrowRight')
       if (shouldFocusNext) {
         this.props.focusNext()
       }
@@ -44,16 +50,15 @@ class Composer extends React.Component<ComposerProps> {
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
   render() {
+    const placeholder = this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
     return (
       <div className={'bpw-composer'}>
         <div className={'bpw-composer-inner'}>
           <textarea
             tabIndex={1}
-            ref={input => {
-              this.textInput = input
-            }}
+            ref={this.textInput}
             onFocus={this.props.setFocus.bind(this, 'input')}
-            placeholder={this.props.placeholder}
+            placeholder={placeholder}
             onChange={this.handleMessageChanged}
             value={this.props.message}
             onKeyPress={this.handleKeyPress}
@@ -75,14 +80,17 @@ class Composer extends React.Component<ComposerProps> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   message: store.composer.message,
+  intl: store.intl,
   updateMessage: store.composer.updateMessage,
   sendMessage: store.sendMessage,
   recallHistory: store.composer.recallHistory,
+  botName: store.botName,
   setFocus: store.view.setFocus,
+  focusedArea: store.view.focusedArea,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
   enableArrowNavigation: store.config.enableArrowNavigation
-}))(injectIntl(observer(Composer)))
+}))(observer(Composer))
 
 type ComposerProps = {
   focused: boolean
@@ -90,6 +98,9 @@ type ComposerProps = {
 } & InjectedIntlProps &
   Pick<
     StoreDef,
+    | 'botName'
+    | 'intl'
+    | 'focusedArea'
     | 'sendMessage'
     | 'focusPrevious'
     | 'focusNext'

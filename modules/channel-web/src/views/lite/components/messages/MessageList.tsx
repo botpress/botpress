@@ -1,7 +1,7 @@
 import differenceInMinutes from 'date-fns/difference_in_minutes'
+import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-import { injectIntl } from 'react-intl'
 
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
@@ -14,17 +14,14 @@ class MessageList extends React.Component<MessageListProps> {
 
   componentDidMount() {
     this.tryScrollToBottom()
-  }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.focused && this.props.focused) {
-      this.messagesDiv.focus()
-    }
+    observe(this.props.focusedArea, focus => {
+      focus.newValue === 'convo' && this.messagesDiv.focus()
+    })
 
-    // new message to display
-    if (prevProps.currentMessages !== this.props.currentMessages || this.props.currentConvoTyping) {
+    observe(this.props.currentConversation, () => {
       this.tryScrollToBottom()
-    }
+    })
   }
 
   tryScrollToBottom() {
@@ -34,7 +31,7 @@ class MessageList extends React.Component<MessageListProps> {
       } catch (err) {
         // Discard the error
       }
-    }, 50)
+    }, 100)
   }
 
   handleKeyDown = e => {
@@ -168,6 +165,7 @@ class MessageList extends React.Component<MessageListProps> {
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
+  intl: store.intl,
   botName: store.botName,
   botAvatarUrl: store.botAvatarUrl,
   currentConvoTyping: store.currentConvoTyping,
@@ -175,16 +173,17 @@ export default inject(({ store }: { store: RootStore }) => ({
   currentConversation: store.currentConversation,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
+  focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
   enableArrowNavigation: store.config.enableArrowNavigation
-}))(injectIntl(observer(MessageList)))
+}))(observer(MessageList))
 
-type MessageListProps = {
-  intl: any
-  focused: boolean
-} & Pick<
+type MessageListProps = Pick<
   StoreDef,
+  | 'intl'
   | 'currentConvoTyping'
+  | 'currentConversation'
+  | 'focusedArea'
   | 'focusPrevious'
   | 'focusNext'
   | 'botAvatarUrl'

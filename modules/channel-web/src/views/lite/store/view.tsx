@@ -19,9 +19,8 @@ class ViewStore {
   @observable
   public dimensions: ChatDimensions
 
-  /** When true, the conversation list is displayed */
   @observable
-  public displayConvos = false
+  public isConversationsDisplayed = false
 
   @observable
   public activeView: string
@@ -36,7 +35,7 @@ class ViewStore {
   private _showBotInfo = false
 
   @observable
-  private _focused = 'input'
+  public focusedArea = observable.box('input')
 
   /** These buttons are displayed in the header, and can point to actions on your custom components */
   @observable
@@ -60,17 +59,22 @@ class ViewStore {
 
   @computed
   get showBotInfoButton() {
-    return !this.displayConvos && this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage
+    return !this.isConversationsDisplayed && this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage
   }
 
   @computed
   get showDownloadButton() {
-    return !this.displayConvos && !this.displayBotInfo && this.rootStore.config.enableTranscriptDownload
+    return !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config.enableTranscriptDownload
   }
 
   @computed
   get showResetButton() {
-    return !this.displayConvos && !this.displayBotInfo && this.rootStore.config && this.rootStore.config.enableReset
+    return (
+      !this.isConversationsDisplayed &&
+      !this.isBotInfoDisplayed &&
+      this.rootStore.config &&
+      this.rootStore.config.enableReset
+    )
   }
 
   @computed
@@ -88,15 +92,13 @@ class ViewStore {
     return this.unreadCount > 0
   }
 
-  /** Tells when the webchat is ready */
   @computed
-  get isReady() {
+  get isWebchatReady() {
     return !this._isLoading && this.activeView
   }
 
-  /** When true, the bot info page is displayed */
   @computed
-  get displayBotInfo(): boolean {
+  get isBotInfoDisplayed(): boolean {
     return this._showBotInfo && (this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage)
   }
 
@@ -119,22 +121,22 @@ class ViewStore {
   /** Sets the current focus to that element */
   @action.bound
   setFocus(element: string) {
-    this._focused = element
+    this.focusedArea.set(element)
   }
 
   @action.bound
   focusPrevious() {
-    const current = this._getFocusOrder(this._focused)
+    const current = this._getFocusOrder(this.focusedArea.get())
     if (current) {
-      this._focused = current.prev
+      this.setFocus(current.prev)
     }
   }
 
   @action.bound
   focusNext() {
-    const current = this._getFocusOrder(this._focused)
+    const current = this._getFocusOrder(this.focusedArea.get())
     if (current) {
-      this._focused = current.next
+      this.setFocus(current.next)
     }
   }
 
@@ -160,12 +162,12 @@ class ViewStore {
 
   @action.bound
   toggleConversations() {
-    this.displayConvos = !this.displayConvos
+    this.isConversationsDisplayed = !this.isConversationsDisplayed
   }
 
   @action.bound
   hideConversations() {
-    this.displayConvos = false
+    this.isConversationsDisplayed = false
   }
 
   @action.bound
@@ -255,21 +257,11 @@ class ViewStore {
   private _getFocusOrder(current) {
     if (current === 'header') {
       return { prev: 'input', next: 'convo' }
-    } else if (current === 'input' && !this.displayConvos && !this._showBotInfo) {
+    } else if (current === 'input' && !this.isConversationsDisplayed && !this.isBotInfoDisplayed) {
       return { prev: 'convo', next: 'header' }
     } else if (current === 'convo') {
       return { prev: 'header', next: 'input' }
     }
-  }
-
-  isFocused = view => {
-    if (this._focused === view) {
-      if (view !== 'input' || (view === 'input' && !this.displayConvos && !this._showBotInfo)) {
-        return true
-      }
-    }
-
-    return false
   }
 }
 

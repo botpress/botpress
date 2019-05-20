@@ -2,22 +2,27 @@ import { configure } from 'mobx'
 import { Provider } from 'mobx-react'
 import DevTools from 'mobx-react-devtools'
 import React from 'react'
-
+import { IntlProvider } from 'react-intl'
 import Chat from './main'
 import { RootStore } from './store'
-
+import { availableLocale, defaultLocale, getUserLocale, initializeLocale, translations } from './translations'
 configure({ enforceActions: 'observed' })
 
 export const Embedded = props => WebChat(props, false)
 export const Fullscreen = props => WebChat(props, true)
 
+initializeLocale()
+const locale = getUserLocale(availableLocale, defaultLocale)
+
 const WebChat = (props, fullscreen) => (
-  <Provider store={new RootStore({ fullscreen })}>
-    <React.Fragment>
-      <Chat {...props} />
-      <DevTools />
-    </React.Fragment>
-  </Provider>
+  <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
+    <Provider store={new RootStore({ fullscreen })}>
+      <React.Fragment>
+        <Chat {...props} />
+        <DevTools />
+      </React.Fragment>
+    </Provider>
+  </IntlProvider>
 )
 
 /**

@@ -3,14 +3,13 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import queryString from 'query-string'
 import React from 'react'
-import { IntlProvider } from 'react-intl'
+import { injectIntl } from 'react-intl'
 
 import Container from './components/Container'
 import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { availableLocale, defaultLocale, getUserLocale, initializeLocale, translations } from './translations'
 import { checkLocationOrigin, initializeAnalytics } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
@@ -26,12 +25,12 @@ class Web extends React.Component<MainProps> {
   constructor(props) {
     super(props)
 
-    initializeLocale()
     checkLocationOrigin()
     initializeAnalytics()
   }
 
   componentDidMount() {
+    this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
     window.addEventListener('message', this.handleIframeApi)
     this.initialize()
@@ -175,17 +174,8 @@ class Web extends React.Component<MainProps> {
     )
   }
 
-  renderSide() {
-    const locale = getUserLocale(availableLocale, defaultLocale)
-    return (
-      <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
-        <Container />
-      </IntlProvider>
-    )
-  }
-
   render() {
-    if (!this.props.isReady) {
+    if (!this.props.isWebchatReady) {
       return null
     }
 
@@ -201,7 +191,7 @@ class Web extends React.Component<MainProps> {
       <div onFocus={this.handleResetUnreadCount}>
         {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {extraStylesheet && extraStylesheet.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
-        {this.props.displayWidgetView ? this.renderWidget() : this.renderSide()}
+        {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
   }
@@ -219,7 +209,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
 
-  isReady: store.view.isReady,
+  isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
   hasUnreadMessages: store.view.hasUnreadMessages,
   unreadCount: store.view.unreadCount,
@@ -232,7 +222,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted
-}))(observer(Web))
+}))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
   StoreDef,
@@ -242,6 +232,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'sendMessage'
   | 'setUserId'
   | 'sendData'
+  | 'intl'
   | 'updateTyping'
   | 'hideChat'
   | 'showChat'
@@ -253,7 +244,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'addEventToConversation'
   | 'updateConfig'
   | 'mergeConfig'
-  | 'isReady'
+  | 'isWebchatReady'
   | 'incrementUnread'
   | 'displayWidgetView'
   | 'resetUnread'

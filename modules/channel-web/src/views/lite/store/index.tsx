@@ -2,6 +2,7 @@ import isBefore from 'date-fns/is_before'
 import merge from 'lodash/merge'
 import { action, computed, observable, runInAction, when } from 'mobx'
 import ms from 'ms'
+import { InjectedIntl } from 'react-intl'
 
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
@@ -43,6 +44,8 @@ class RootStore {
   @observable
   public config: Config
 
+  public intl: InjectedIntl
+
   /** When a wrapper is defined, every messages are wrapped by the specified component */
   @observable
   public messageWrapper: MessageWrapper | undefined
@@ -50,6 +53,11 @@ class RootStore {
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
     this.view = new ViewStore(this, fullscreen)
+  }
+
+  @action.bound
+  setIntlProvider(provider) {
+    this.intl = provider
   }
 
   @computed

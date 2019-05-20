@@ -1,6 +1,6 @@
+import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import Close from '../icons/Close'
 import Download from '../icons/Download'
@@ -18,14 +18,14 @@ class Header extends React.Component<HeaderProps> {
     currentFocusIdx: undefined
   }
 
-  onBlur = () => {
-    this.setCurrentFocusIdx(undefined)
+  componentDidMount() {
+    observe(this.props.focusedArea, focus => {
+      focus.newValue === 'header' && this.changeButtonFocus(1)
+    })
   }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.focused && this.props.focused) {
-      this.changeButtonFocus(1)
-    }
+  onBlur = () => {
+    this.setCurrentFocusIdx(undefined)
   }
 
   setCurrentFocusIdx = currentFocusIdx => {
@@ -55,7 +55,7 @@ class Header extends React.Component<HeaderProps> {
   }
 
   renderTitle = () => {
-    const title = this.props.displayConvos
+    const title = this.props.isConversationsDisplayed
       ? this.props.intl.formatMessage({ id: 'header.conversations' })
       : this.props.botName
 
@@ -152,6 +152,7 @@ class Header extends React.Component<HeaderProps> {
       const Icon: any = btn.icon
       return (
         <span
+          key={btn.id}
           tabIndex={-1}
           className={'bpw-header-icon'}
           onClick={btn.onClick.bind(this, btn.id, this)}
@@ -203,7 +204,8 @@ class Header extends React.Component<HeaderProps> {
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
-  displayConvos: store.view.displayConvos,
+  intl: store.intl,
+  isConversationsDisplayed: store.view.isConversationsDisplayed,
   showDownloadButton: store.view.showDownloadButton,
   showBotInfoButton: store.view.showBotInfoButton,
   showConversationsButton: store.view.showConversationsButton,
@@ -213,6 +215,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   unreadCount: store.view.unreadCount,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
+  focusedArea: store.view.focusedArea,
   hideChat: store.view.hideChat,
   toggleConversations: store.view.toggleConversations,
   toggleBotInfo: store.view.toggleBotInfo,
@@ -226,33 +229,32 @@ export default inject(({ store }: { store: RootStore }) => ({
 
   botConvoDescription: store.config.botConvoDescription,
   enableArrowNavigation: store.config.enableArrowNavigation
-}))(injectIntl(observer(Header)))
+}))(observer(Header))
 
-type HeaderProps = {
-  focused: boolean
-} & InjectedIntlProps &
-  Pick<
-    StoreDef,
-    | 'sendMessage'
-    | 'focusPrevious'
-    | 'focusNext'
-    | 'displayConvos'
-    | 'botName'
-    | 'hasUnreadMessages'
-    | 'unreadCount'
-    | 'hasBotInfoDescription'
-    | 'resetSession'
-    | 'downloadConversation'
-    | 'toggleConversations'
-    | 'hideChat'
-    | 'toggleBotInfo'
-    | 'botAvatarUrl'
-    | 'showResetButton'
-    | 'showDownloadButton'
-    | 'showConversationsButton'
-    | 'showBotInfoButton'
-    | 'showCloseButton'
-    | 'enableArrowNavigation'
-    | 'botConvoDescription'
-    | 'customButtons'
-  >
+type HeaderProps = Pick<
+  StoreDef,
+  | 'intl'
+  | 'sendMessage'
+  | 'focusPrevious'
+  | 'focusNext'
+  | 'focusedArea'
+  | 'isConversationsDisplayed'
+  | 'botName'
+  | 'hasUnreadMessages'
+  | 'unreadCount'
+  | 'hasBotInfoDescription'
+  | 'resetSession'
+  | 'downloadConversation'
+  | 'toggleConversations'
+  | 'hideChat'
+  | 'toggleBotInfo'
+  | 'botAvatarUrl'
+  | 'showResetButton'
+  | 'showDownloadButton'
+  | 'showConversationsButton'
+  | 'showBotInfoButton'
+  | 'showCloseButton'
+  | 'enableArrowNavigation'
+  | 'botConvoDescription'
+  | 'customButtons'
+>

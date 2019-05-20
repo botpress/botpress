@@ -4,7 +4,6 @@ import React from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import { RootStore, StoreDef } from '../store'
-import { getOverridedComponent } from '../utils'
 
 import BotInfo from './common/BotInfo'
 import MessageList from './messages/MessageList'
@@ -12,38 +11,21 @@ import Composer from './Composer'
 import ConversationList from './ConversationList'
 import Header from './Header'
 import * as Keyboard from './Keyboard'
+import OverridableComponent from './OverridableComponent'
 
 class Container extends React.Component<ContainerProps> {
-  renderComposer() {
-    const Component = getOverridedComponent(this.props.config.overrides, 'composer')
-    if (Component) {
-      return (
-        <Keyboard.Default>
-          <Component original={{ Composer }} name={this.props.botName} {...this.props} />
-        </Keyboard.Default>
-      )
-    }
-
-    return (
-      <Keyboard.Default>
-        <Composer
-          placeholder={this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })}
-          focused={this.props.isFocused('input')}
-        />
-      </Keyboard.Default>
-    )
-  }
-
   renderBody() {
-    if (this.props.displayConvos) {
+    if (this.props.isConversationsDisplayed) {
       return <ConversationList />
-    } else if (this.props.displayBotInfo) {
+    } else if (this.props.isBotInfoDisplayed) {
       return <BotInfo />
     } else {
       return (
         <div className={'bpw-msg-list-container'}>
-          <MessageList focused={this.props.isFocused('convo')} />
-          {this.renderComposer()}
+          <MessageList />
+          <Keyboard.Default>
+            <OverridableComponent name={'composer'} original={Composer} />
+          </Keyboard.Default>
         </div>
       )
     }
@@ -55,16 +37,13 @@ class Container extends React.Component<ContainerProps> {
       ['bpw-anim-' + this.props.sideTransition]: true
     })
 
-    const BeforeContainer = getOverridedComponent(this.props.config.overrides, 'before_container')
-    const BelowConversation = getOverridedComponent(this.props.config.overrides, 'below_conversation')
-
     return (
       <React.Fragment>
-        {BeforeContainer && <BeforeContainer {...this.props} />}
+        <OverridableComponent name={'before_container'} original={null} />
         <div className={classNames} style={{ width: this.props.dimensions.layout }}>
-          <Header focused={this.props.isFocused('header')} />
+          <Header />
           {this.renderBody()}
-          {BelowConversation && <BelowConversation {...this.props} />}
+          <OverridableComponent name={'below_conversation'} original={null} />
         </div>
       </React.Fragment>
     )
@@ -73,10 +52,9 @@ class Container extends React.Component<ContainerProps> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   store,
-  displayConvos: store.view.displayConvos,
-  displayBotInfo: store.view.displayBotInfo,
+  isConversationsDisplayed: store.view.isConversationsDisplayed,
+  isBotInfoDisplayed: store.view.isBotInfoDisplayed,
   isFullscreen: store.view.isFullscreen,
-  isFocused: store.view.isFocused,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
   currentConversation: store.currentConversation,
@@ -84,15 +62,14 @@ export default inject(({ store }: { store: RootStore }) => ({
   botName: store.botName
 }))(injectIntl(observer(Container)))
 
-type ContainerProps = InjectedIntlProps &
+type ContainerProps = { store?: RootStore } & InjectedIntlProps &
   Pick<
     StoreDef,
     | 'config'
     | 'botName'
-    | 'isFocused'
-    | 'displayConvos'
     | 'isFullscreen'
-    | 'displayBotInfo'
+    | 'isConversationsDisplayed'
+    | 'isBotInfoDisplayed'
     | 'sideTransition'
     | 'dimensions'
   >
