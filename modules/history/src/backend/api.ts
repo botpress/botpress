@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 
 import { Config } from '../config'
 
@@ -15,8 +16,19 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const config = (await bp.config.getModuleConfigForBot('history', botId)) as Config
 
-    const limitDate = moment().subtract(config.dataRetention, 'months')
-    await db.cleanDatabase(limitDate.toDate())
+    if (config.dataRetention !== 'never') {
+      const msTimeToLive = ms(config.dataRetention)
+      if (msTimeToLive) {
+        const limitDate = moment().subtract(msTimeToLive, 'milliseconds')
+        await db.cleanDatabase(limitDate.toDate())
+      } else {
+        bp.logger.error(
+          `config.dataRetention has an incorrect format: '${
+            config.dataRetention
+          }'. database won't be cleaned up. see ms documentation here 'https://www.npmjs.com/package/ms'`
+        )
+      }
+    }
 
     const conversationsInfo = await db.getDistinctConversations(botId, from, to)
 

@@ -1,7 +1,7 @@
 export interface Config {
   /**
-   * Number of months from now until the module deletes a database entry
-   * @default 2
+   * Time to live of a database entry before it is deleted or 'never'
+   * @default 60 days
    */
-  dataRetention: number
+  dataRetention: string
 }
