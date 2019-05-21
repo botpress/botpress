@@ -23,21 +23,21 @@ export default class FullView extends React.Component {
       messageGroups: [],
       to: defaultToDate,
       from: defaultFromDate,
-      currentConvId: null,
+      currentConvHash: null,
       fileBlob: blob,
       fileURL: url
     }
   }
 
-  threadIdParamName = 'threadId'
+  convHashParamName = 'convHash'
 
   componentDidMount() {
     this.getConversations(this.state.from, this.state.to)
     const url = new URL(window.location.href)
-    const threadId = url.searchParams.get(this.threadIdParamName)
-    if (threadId) {
-      this.setState({ currentConvId: threadId })
-      this.getMessagesOfConversation(threadId)
+    const convHash = url.searchParams.get(this.convHashParamName)
+    if (convHash) {
+      this.setState({ currentConvId: convHash })
+      this.getMessagesOfConversation(convHash)
     }
   }
 
@@ -51,16 +51,16 @@ export default class FullView extends React.Component {
       })
   }
 
-  onConversationSelected(convId) {
+  onConversationSelected(convHash) {
     const url = new URL(window.location.href)
-    url.searchParams.set(this.threadIdParamName, convId)
+    url.searchParams.set(this.convHashParamName, convHash)
     window.history.pushState(window.history.state, '', url.toString())
 
-    this.getMessagesOfConversation(convId)
+    this.getMessagesOfConversation(convHash)
   }
 
-  getMessagesOfConversation(convId) {
-    this.props.bp.axios.get(`/mod/history/messages/${convId}`).then(({ data }) => {
+  getMessagesOfConversation(convHash) {
+    this.props.bp.axios.get(`/mod/history/messages/${convHash}`).then(({ data }) => {
       const flattenMessages = data.flatMap(d => d)
 
       const content = JSON.stringify(flattenMessages)
@@ -68,13 +68,13 @@ export default class FullView extends React.Component {
       var url = window.URL.createObjectURL(blob)
 
       const conversationsInfoCopy = [...this.state.conversationsInfo]
-      const desiredConvInfo = conversationsInfoCopy.find(c => c.id === convId)
+      const desiredConvInfo = conversationsInfoCopy.find(c => c.id === convHash)
       if (desiredConvInfo) {
         desiredConvInfo.count = flattenMessages.length
       }
 
       this.setState({
-        currentConvId: convId,
+        currentConvHash: convHash,
         messageGroups: data,
         fileBlob: blob,
         fileURL: url,
@@ -107,7 +107,7 @@ export default class FullView extends React.Component {
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
         <MessagesViewer
-          convId={this.state.currentConvId}
+          convHash={this.state.currentConvHash}
           messageGroups={this.state.messageGroups}
           fileURL={this.state.fileURL}
         />

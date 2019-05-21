@@ -102,7 +102,7 @@ export class MessagesViewer extends React.Component {
   }
 
   render() {
-    if (!this.props.convId || this.props.messageGroups.length <= 0) {
+    if (!this.props.convHash || this.props.messageGroups.length <= 0) {
       return <NoConversationSelected />
     }
     return (
@@ -115,8 +115,8 @@ export class MessagesViewer extends React.Component {
         >
           <div className={style['message-header']}>
             <div>
-              {this.props.convId && <div className={style['message-title']}>Conversation #{this.props.convId}</div>}
-              {this.props.convId && (
+              {this.props.convHash && <div className={style['message-title']}>Conversation #{this.props.convHash}</div>}
+              {this.props.convHash && (
                 <div className={style['message-lastdate']}>
                   Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
                 </div>

@@ -13,9 +13,12 @@ export default class HistoryDb {
     this.knex.createTableIfNotExists('msg_history', table => {
       table.increments('id').primary()
       table.date('created_on')
+      table.string('conversation_hash')
       table.string('thread_id')
       table.string('bot_id')
-      table.string('msg_content')
+      table.string('target')
+      table.string('channel')
+      table.jsonb('msg_content')
     })
   }
 
@@ -29,9 +32,9 @@ export default class HistoryDb {
   getDistinctConversations = async (botId: string, from?: number, to?: number) => {
     const query = this.knex
       .select()
-      .distinct('thread_id')
+      .distinct('conversation_hash')
       .from('msg_history')
-      .whereNotNull('thread_id')
+      .whereNotNull('conversation_hash')
       .andWhere('bot_id', botId)
 
     if (from) {
@@ -44,7 +47,7 @@ export default class HistoryDb {
     }
 
     const queryResults = await query
-    const uniqueConversations: string[] = queryResults.map(x => x.thread_id)
+    const uniqueConversations: string[] = queryResults.map(x => x.conversation_hash)
 
     const conversationsInfo = await Promise.all(uniqueConversations.map(c => this._buildConversationInfo(c)))
 
@@ -54,7 +57,7 @@ export default class HistoryDb {
   getMessagesOfConversation = async convId => {
     const query_result = await this.knex
       .select('msg_content')
-      .where('thread_id', convId)
+      .where('conversation_hash', convId)
       .from('msg_history')
 
     const messages = query_result.map(el => this.knex.json.get(el.msg_content))
@@ -62,14 +65,14 @@ export default class HistoryDb {
     return messages
   }
 
-  private _buildConversationInfo = async (threadId: string) => {
+  private _buildConversationInfo = async (convId: string) => {
     const messageCountObject = await this.knex
       .from('msg_history')
       .count()
-      .where('thread_id', threadId)
+      .where('conversation_hash', convId)
 
     const messageCount = messageCountObject.pop()['count(*)']
 
-    return { id: threadId, count: messageCount }
+    return { id: convId, count: messageCount }
   }
 }
