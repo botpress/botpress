@@ -135,6 +135,8 @@ export type Config = {
   overrides?: Overrides
   /** When true, the widget button is hidden */
   hideWidget: boolean
+  /** Disable the slide in / out animations of the webchat */
+  disableAnimations: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
   containerWidth?: string | number

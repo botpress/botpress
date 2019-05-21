@@ -1,6 +1,6 @@
 import isBefore from 'date-fns/is_before'
 import merge from 'lodash/merge'
-import { action, computed, observable, runInAction, when } from 'mobx'
+import { action, computed, observable, runInAction } from 'mobx'
 import ms from 'ms'
 import { InjectedIntl } from 'react-intl'
 
@@ -46,6 +46,8 @@ class RootStore {
 
   public intl: InjectedIntl
 
+  public isBotTyping = observable.box(false)
+
   /** When a wrapper is defined, every messages are wrapped by the specified component */
   @observable
   public messageWrapper: MessageWrapper | undefined
@@ -88,11 +90,6 @@ class RootStore {
   }
 
   @computed
-  get currentConvoTyping() {
-    return this.currentConversation && this.currentConversation.typingUntil
-  }
-
-  @computed
   get currentConversationId(): number | undefined {
     return this.currentConversation && this.currentConversation.id
   }
@@ -115,7 +112,7 @@ class RootStore {
     }
 
     this.currentConversation.typingUntil = new Date(Date.now() + event.timeInMs)
-    when(() => this.currentConversation && this.currentConversation.typingUntil !== undefined, this._startExpiredTimer)
+    this._startTypingTimer()
   }
 
   /** Loads the initial state, for the first time or when the user ID is changed. */
@@ -273,6 +270,7 @@ class RootStore {
   private _applyConfig() {
     this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
+    this.view.disableAnimations = this.config.disableAnimations
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
   }
@@ -311,10 +309,11 @@ class RootStore {
 
   /** Starts a timer to remove the typing animation when it's completed */
   @action.bound
-  private _startExpiredTimer() {
+  private _startTypingTimer() {
     if (this._typingInterval) {
       return
     }
+    this.isBotTyping.set(true)
 
     this._typingInterval = setInterval(() => {
       const typeUntil = this.currentConversation && this.currentConversation.typingUntil
@@ -326,6 +325,7 @@ class RootStore {
 
   @action.bound
   private _expireTyping() {
+    this.isBotTyping.set(false)
     this.currentConversation.typingUntil = undefined
 
     clearInterval(this._typingInterval)

@@ -13,25 +13,25 @@ class MessageList extends React.Component<MessageListProps> {
   private messagesDiv: HTMLElement
 
   componentDidMount() {
-    this.tryScrollToBottom()
+    this.tryScrollToBottom(true)
 
     observe(this.props.focusedArea, focus => {
       focus.newValue === 'convo' && this.messagesDiv.focus()
     })
-
-    observe(this.props.currentConversation, () => {
-      this.tryScrollToBottom()
-    })
   }
 
-  tryScrollToBottom() {
+  componentDidUpdate() {
+    this.tryScrollToBottom()
+  }
+
+  tryScrollToBottom(delayed?: boolean) {
     setTimeout(() => {
       try {
         this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
       } catch (err) {
         // Discard the error
       }
-    }, 100)
+    }, delayed ? 200 : 0)
   }
 
   handleKeyDown = e => {
@@ -101,7 +101,7 @@ class MessageList extends React.Component<MessageListProps> {
       lastDate = date
     })
 
-    if (this.props.currentConvoTyping) {
+    if (this.props.isBotTyping.get()) {
       if (lastSpeaker !== 'bot') {
         currentGroup = []
         groups.push(currentGroup)
@@ -167,8 +167,8 @@ class MessageList extends React.Component<MessageListProps> {
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
   botName: store.botName,
+  isBotTyping: store.isBotTyping,
   botAvatarUrl: store.botAvatarUrl,
-  currentConvoTyping: store.currentConvoTyping,
   currentMessages: store.currentMessages,
   currentConversation: store.currentConversation,
   focusPrevious: store.view.focusPrevious,
@@ -181,7 +181,7 @@ export default inject(({ store }: { store: RootStore }) => ({
 type MessageListProps = Pick<
   StoreDef,
   | 'intl'
-  | 'currentConvoTyping'
+  | 'isBotTyping'
   | 'currentConversation'
   | 'focusedArea'
   | 'focusPrevious'

@@ -41,6 +41,9 @@ class ViewStore {
   @observable
   public customButtons: CustomButton[] = []
 
+  @observable
+  public disableAnimations = false
+
   constructor(rootStore: RootStore, fullscreen: boolean) {
     this.rootStore = rootStore
     this.isFullscreen = fullscreen
@@ -191,6 +194,11 @@ class ViewStore {
 
   @action.bound
   addHeaderButton(newButton: CustomButton) {
+    if (this.customButtons.find(btn => btn.id === newButton.id)) {
+      console.log(`Can't add another button with the same ID.`)
+      return
+    }
+
     this.customButtons.push(newButton)
   }
 
@@ -208,6 +216,11 @@ class ViewStore {
 
   @action.bound
   showChat() {
+    if (this.disableAnimations) {
+      this.activeView = 'side'
+      return this._updateTransitions({ widgetTransition: undefined, sideTransition: 'fadeIn' })
+    }
+
     this._updateTransitions({ widgetTransition: 'fadeOut' })
 
     setTimeout(() => {
@@ -222,6 +235,12 @@ class ViewStore {
     if (this.isFullscreen) {
       return
     }
+
+    if (this.disableAnimations) {
+      this.activeView = 'widget'
+      return this._updateTransitions({ widgetTransition: undefined, sideTransition: undefined })
+    }
+
     this._updateTransitions({ sideTransition: 'fadeOut' })
 
     if (!this.activeView || this.activeView === 'side') {
