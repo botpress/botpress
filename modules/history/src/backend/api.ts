@@ -31,7 +31,9 @@ export default async (bp: typeof sdk, db: Database) => {
     const messageGroupKeyBuild = msg =>
       msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
     const messageGroups = _.groupBy(messages, messageGroupKeyBuild)
-    const messageGroupsArray = _.values(messageGroups)
+
+    let messageGroupsArray = _.values(messageGroups)
+    messageGroupsArray = _.sortBy(messageGroupsArray, mg => moment(mg[0].createdOn).unix()).reverse()
 
     res.send(messageGroupsArray)
   })
