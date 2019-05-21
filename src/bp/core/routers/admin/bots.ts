@@ -75,6 +75,7 @@ export class BotsRouter extends CustomRouter {
           { code: 'pt', name: 'Portuguese' }
         ]
 
+        // TODO get languages from LanguageService here
         res.send(languages)
       })
     )

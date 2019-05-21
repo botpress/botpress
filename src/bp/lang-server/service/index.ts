@@ -17,12 +17,9 @@ type LoadedModel = AvailableModel & { model: MLToolkit.FastText.Model; sizeInMb:
 
 export default class LanguageService {
   private _models: Dic<AvailableModel | LoadedModel> = {}
-  private readonly _langDir: string
   private _ready: boolean = false
 
-  constructor(langDir?: string) {
-    this._langDir = langDir || path.join(process.APP_DATA_PATH, 'embeddings')
-  }
+  constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
 
   async initialize() {
     if (Object.keys(this._models).length) {
@@ -53,11 +50,11 @@ export default class LanguageService {
   }
 
   private _discoverModels() {
-    if (!fs.existsSync(this._langDir)) {
+    if (!fs.existsSync(this.langDir)) {
       return []
     }
 
-    const files = fs.readdirSync(this._langDir)
+    const files = fs.readdirSync(this.langDir)
     return files.forEach(f => {
       // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
       const regex = /(\w+)\.(\w+)\.(\d+)\.bin/i
@@ -66,7 +63,14 @@ export default class LanguageService {
         return
       }
 
-      this._provideLanguage(match[2], path.join(this._langDir, f))
+      const [__, domain, langCode, dim] = match
+
+      if (Number(dim) != this.dim || this.domain !== domain) {
+        console.log('skipping', domain, dim, langCode)
+        return
+      }
+
+      this._provideLanguage(langCode, path.join(this.langDir, f))
     })
   }
 

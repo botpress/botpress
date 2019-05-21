@@ -15,6 +15,7 @@ export type APIOptions = {
   limitWindow: string
   limit: number
   service: LanguageService
+  readOnly: boolean
 }
 
 const debug = DEBUG('api')
@@ -49,6 +50,13 @@ const AuthMiddleware: (token: string) => RequestHandler = (token: string) => (re
 const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
   if (!service.isReady()) {
     throw new NotReadyError('language')
+  }
+  next()
+}
+
+const DisabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, next) => {
+  if (readonly) {
+    throw new UnauthorizedError('API server is running in read-only mode')
   }
   next()
 }
@@ -110,6 +118,9 @@ export default async function(options: APIOptions) {
     res.send({
       version: '1',
       ready: options.service.isReady(),
+      dimentions: options.service.dim,
+      domain: options.service.domain,
+      readOnly: options.readOnly,
       languages: options.service
         .listModels()
         .filter(x => x.loaded)
@@ -132,6 +143,14 @@ export default async function(options: APIOptions) {
       next(err)
     }
   })
+
+  const router = express.Router({ mergeParams: true })
+  router.get('/list', (req, res, next) => {})
+  router.get('/status', (req, res, next) => {})
+  router.post('/install', (req, res, next) => {})
+  router.post('/remove', (req, res, next) => {})
+
+  app.use('/models', DisabledReadonlyMiddleware(options.readOnly), router)
 
   const httpServer = createServer(app)
   await Promise.fromCallback(callback => {

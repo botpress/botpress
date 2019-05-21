@@ -1,11 +1,12 @@
 import React from 'react'
-import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications } from 'react-icons/lib/md'
+import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications, MdLanguage } from 'react-icons/lib/md'
 
 import Versioning from './Versioning'
 import LicenseStatus from './LicenseStatus'
 import TabLayout from '../Layouts/Tabs'
 import Monitoring from './Monitoring'
 import Alerting from './Alerting'
+import Languages from './Languages'
 
 const Server = props => {
   const title = 'Server'
@@ -37,6 +38,12 @@ const Server = props => {
       route: '/server/version',
       icon: <MdCompareArrows />,
       component: Versioning
+    },
+    {
+      name: 'Languages',
+      route: '/server/languages',
+      icon: <MdLanguage />,
+      component: Languages
     }
   ]
 

@@ -205,12 +205,29 @@ try {
         limitWindow: {
           description: 'the time window on which the limit is applied',
           default: '1h'
+        },
+        readOnly: {
+          description: 'disables adding and removing embeddings at run-time',
+          default: false,
+          type: 'boolean'
+        },
+        metadataLocation: {
+          description: 'location of the available models to download',
+          default: 'https://s3.amazonaws.com/botpress-binaries/tools/metadata2.json'
+        },
+        dim: {
+          default: 300,
+          description: '(filter=dim) the dimentions of language to provide. files are named "domain.lang.dim.bin"'
+        },
+        domain: {
+          description:
+            '(filter=domain) the domain the embeddings were trained on. files are named "domain.lang.dim.bin"',
+          default: 'generic'
         }
       },
       argv => {
         getos.default().then(distro => {
           process.distro = distro
-          console.log('LANGUAGE SERVER', argv)
           require('./lang-server').default(argv)
         })
       }
