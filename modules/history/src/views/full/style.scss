@@ -69,6 +69,10 @@
     color: #c1c0c6;
     display: flex;
     padding: 2%;
+
+    @media (max-width: 1300px) {
+      display: block;
+    }
   }
 
   &-entry {
