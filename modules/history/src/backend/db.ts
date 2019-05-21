@@ -49,9 +49,7 @@ export default class HistoryDb {
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.conversation_hash)
 
-    const conversationsInfo = await Promise.all(uniqueConversations.map(c => this._buildConversationInfo(c)))
-
-    return conversationsInfo
+    return Promise.all(uniqueConversations.map(c => this._buildConversationInfo(c)))
   }
 
   getMessagesOfConversation = async convId => {
@@ -60,9 +58,7 @@ export default class HistoryDb {
       .where('conversation_hash', convId)
       .from('msg_history')
 
-    const messages = query_result.map(el => this.knex.json.get(el.msg_content))
-
-    return messages
+    return query_result.map(el => this.knex.json.get(el.msg_content))
   }
 
   private _buildConversationInfo = async (convId: string) => {

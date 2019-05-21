@@ -13,18 +13,9 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {}
 
-const onBotMount = async (bp: typeof sdk) => {}
-
-const onBotUnmount = async (bp: typeof sdk) => {}
-
-const onModuleUnmount = async (bp: typeof sdk) => {}
-
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onServerStarted,
-  onBotMount,
-  onBotUnmount,
-  onModuleUnmount,
   definition: {
     name: 'history',
     fullName: 'History',

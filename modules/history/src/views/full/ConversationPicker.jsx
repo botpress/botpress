@@ -41,7 +41,7 @@ export class ConversationPicker extends React.Component {
         <div className={style['conversations-titlebar']}>
           <div>Conversations</div>
           <div className={style['conversations-icons']}>
-            <FaFilter className={style['conversations-filter']} onClick={this.toggleFilters.bind(this)} />
+            <FaFilter className={style['conversations-filter']} onClick={() => this.toggleFilters()} />
             <TiRefresh className={style['conversations-refresh']} onClick={this.props.refresh} />
           </div>
         </div>
@@ -59,7 +59,7 @@ export class ConversationPicker extends React.Component {
               <div
                 key={conv.id}
                 className={style['conversations-entry']}
-                onClick={() => this.props.conversationChosenHandler(conv.id)}
+                onClick={() => this.props.onConversationChanged(conv.id)}
               >
                 <span className={style['conversations-text']} key={conv.id} value={conv.id}>
                   conversation

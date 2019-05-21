@@ -2,9 +2,8 @@ import React from 'react'
 import style from './style.scss'
 
 import { GoX } from 'react-icons/go'
-import { MdFileDownload } from 'react-icons/md'
+import { MdFileDownload, MdSearch } from 'react-icons/md'
 import { FiLink } from 'react-icons/fi'
-import { MdSearch } from 'react-icons/md'
 
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
@@ -77,14 +76,14 @@ function NoConversationSelected() {
   )
 }
 
-export class MessagesViewer extends React.Component {
+class MessagesHeader extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      inspectorIsShown: false,
-      currentlyFocusedMessage: null
-    }
+    const flattenMessages = props.messageGroups.flatMap(d => d)
+    const content = JSON.stringify(flattenMessages)
+    let blob = new Blob([content], { type: 'application/json' })
+    this.fileURL = window.URL.createObjectURL(blob)
   }
 
   getLastMessageDate = messageGroups => {
@@ -93,16 +92,65 @@ export class MessagesViewer extends React.Component {
     return new Date(maxDateMessage.createdOn)
   }
 
-  closeInspector = () => {
-    this.setState({ inspectorIsShown: false })
+  render() {
+    return (
+      <div className={style['message-header']}>
+        {this.props.convHash && (
+          <div>
+            <div className={style['message-title']}>Conversation #{this.props.convHash}</div>
+            <div className={style['message-lastdate']}>
+              Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
+            </div>
+          </div>
+        )}
+        <div className={style['message-header-icons']}>
+          <div className={style['message-header-icon_item']}>
+            <a
+              href={this.fileURL}
+              download="message_history"
+              style={{
+                color: '#233abc'
+              }}
+            >
+              <MdFileDownload />
+            </a>
+          </div>
+          <div className={style['message-header-icon_item']}>
+            <CopyToClipboard text={window.location.href}>
+              <FiLink />
+            </CopyToClipboard>
+          </div>
+        </div>
+      </div>
+    )
   }
+}
 
-  focusMessage(m) {
-    this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })
+function MessageInspector(props) {
+  return (
+    <div
+      className={classnames(style['message-inspector'], {
+        [style['message-inspector-hidden']]: props.inspectorIsShown
+      })}
+    >
+      <div className={style['quit-inspector']} onClick={props.closeInspector}>
+        <GoX />
+      </div>
+      {props.currentlyFocusedMessage && (
+        <JSONTree theme={inspectorTheme} data={props.currentlyFocusedMessage} invertTheme={false} hideRoot={true} />
+      )}
+    </div>
+  )
+}
+
+export class MessagesViewer extends React.Component {
+  state = {
+    inspectorIsShown: false,
+    currentlyFocusedMessage: null
   }
 
   render() {
-    if (!this.props.convHash || this.props.messageGroups.length <= 0) {
+    if (!this.props.convHash || !this.props.messageGroups.length) {
       return <NoConversationSelected />
     }
     return (
@@ -113,57 +161,19 @@ export class MessagesViewer extends React.Component {
             this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
           )}
         >
-          <div className={style['message-header']}>
-            <div>
-              {this.props.convHash && <div className={style['message-title']}>Conversation #{this.props.convHash}</div>}
-              {this.props.convHash && (
-                <div className={style['message-lastdate']}>
-                  Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
-                </div>
-              )}
-            </div>
-            <div className={style['message-header-icons']}>
-              <div className={style['message-header-icon_item']}>
-                <a
-                  href={this.props.fileURL}
-                  download="message_history"
-                  style={{
-                    color: '#233abc'
-                  }}
-                >
-                  <MdFileDownload />
-                </a>
-              </div>
-              <div className={style['message-header-icon_item']}>
-                <CopyToClipboard text={window.location.href}>
-                  <FiLink />
-                </CopyToClipboard>
-              </div>
-            </div>
-          </div>
+          <MessagesHeader convHash={this.props.convHash} messageGroups={this.props.messageGroups} />
           {this.props.messageGroups &&
             this.props.messageGroups.map(group => {
-              return <MessageGroup key={group[0].id} messages={group} focusMessage={this.focusMessage.bind(this)} />
+              return (
+                <MessageGroup
+                  key={group[0].id}
+                  messages={group}
+                  focusMessage={m => this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })}
+                />
+              )
             })}
         </div>
-        <div
-          className={classnames(
-            style['message-inspector'],
-            this.state.inspectorIsShown ? '' : style['message-inspector-hidden']
-          )}
-        >
-          <div className={style['quit-inspector']} onClick={this.closeInspector}>
-            <GoX />
-          </div>
-          {this.state.currentlyFocusedMessage && (
-            <JSONTree
-              theme={inspectorTheme}
-              data={this.state.currentlyFocusedMessage}
-              invertTheme={false}
-              hideRoot={true}
-            />
-          )}
-        </div>
+        <MessageInspector closeInspector={() => this.setState({ inspectorIsShown: false })} />
       </div>
     )
   }
