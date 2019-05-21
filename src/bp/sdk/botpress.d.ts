@@ -375,6 +375,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      incomingEventId?: string
     }
 
     /**
@@ -447,6 +448,11 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
+    }
+
+    export interface OutgoingEvent extends Event {
+      /* Id of event which is being replied to; only defined for outgoing events */
+      readonly incomingEventId?: string
     }
 
     export interface Suggestion {
@@ -1053,7 +1059,7 @@ declare module 'botpress/sdk' {
      * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
   }
 
   export type GetOrCreateResult<T> = Promise<{

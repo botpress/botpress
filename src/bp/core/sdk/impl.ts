@@ -45,6 +45,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly suggestions?: sdk.IO.Suggestion[]
   public readonly state: any
   public readonly credentials?: any
+  public readonly incomingEventId?: string
   private readonly flags: any
   private readonly nlu?: sdk.IO.EventUnderstanding
 
@@ -66,6 +67,10 @@ export class IOEvent implements sdk.IO.Event {
     if (this.direction === 'incoming') {
       this.suggestions = args.suggestions || []
       this.credentials = args.credentials
+    }
+
+    if (this.direction === 'outgoing') {
+      this.incomingEventId = args.incomingEventId
     }
 
     this.nlu = {

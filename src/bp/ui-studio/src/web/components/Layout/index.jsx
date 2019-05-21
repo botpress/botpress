@@ -67,9 +67,19 @@ class Layout extends React.Component {
 
   toggleLangSwitcher = () => {
     if (!isInputFocused()) {
-      this.setState({
-        langSwitcherOpen: !this.state.langSwitcherOpen
+      const langSwitcherOpen = !this.state.langSwitcherOpen
+      this.setState({ langSwitcherOpen }, () => {
+        //lang switcher just closed
+        if (!langSwitcherOpen) {
+          this.focusMain()
+        }
       })
+    }
+  }
+
+  focusMain = () => {
+    if (this.mainEl) {
+      this.mainEl.focus()
     }
   }
 
@@ -89,7 +99,7 @@ class Layout extends React.Component {
         <DocumentationModal />
         <div style={{ display: 'flex' }}>
           <Sidebar />
-          <main className={layout.main} id="main" tabIndex={9999}>
+          <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
             <Header />
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
