@@ -239,6 +239,7 @@ export type BotpressConfig = {
    * @default false
    */
   autoRevision: boolean
+  eventStorage: EventStorageConfig
 }
 
 export interface ExternalAuthConfig {
@@ -428,4 +429,35 @@ export interface AlertingConfig {
    * is called with the incident.
    */
   rules: IncidentRule[]
+}
+
+export interface EventStorageConfig {
+  /**
+   * When enabled, incoming and outgoing events will be saved on the database.
+   * It is required for some modules to work proprely (eg: history, testing, developer tools on channel web)
+   * @default true
+   */
+  enabled: boolean
+  /**
+   * Events are batched then sent to the database. Change the delay to save them more frequently or not.
+   * @default 5s
+   */
+  storageInterval: string
+  /**
+   * The duration for which events will be kept in the database
+   * @default 30d
+   */
+  retentionPeriod: string
+  /**
+   * Specify an array of event types that won't be persisted to the database. For example, typing events and visits
+   * may not provide you with useful informations
+   * @default ["visit","typing"]
+   */
+  ignoredEventTypes: string[]
+  /**
+   * Specify an array of properties that will be stripped from the event before being saved. For example, the "state" property of the event
+   * contains a lot of details about the user session (context, attributes, etc) and may not be useful in some cases.
+   * @default []
+   */
+  ignoredEventProperties: string[]
 }

@@ -10,6 +10,7 @@ import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { EventStorage } from './services/middleware/event-storage'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
@@ -100,6 +101,11 @@ container
 container
   .bind<WorkspaceService>(TYPES.WorkspaceService)
   .to(WorkspaceService)
+  .inSingletonScope()
+
+container
+  .bind<EventStorage>(TYPES.EventStorage)
+  .to(EventStorage)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
