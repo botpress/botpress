@@ -25,7 +25,7 @@ class ComposerStore {
   }
 
   @action.bound
-  async updateMessage(msg: string) {
+  updateMessage(msg: string) {
     this.message = msg
   }
 

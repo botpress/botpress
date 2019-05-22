@@ -3,6 +3,7 @@ import { Provider } from 'mobx-react'
 import DevTools from 'mobx-react-devtools'
 import React from 'react'
 import { IntlProvider } from 'react-intl'
+
 import Chat from './main'
 import { RootStore } from './store'
 import { availableLocale, defaultLocale, getUserLocale, initializeLocale, translations } from './translations'

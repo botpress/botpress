@@ -22,9 +22,9 @@ class Composer extends React.Component<ComposerProps> {
     })
   }
 
-  handleKeyPress = e => {
+  handleKeyPress = async e => {
     if (e.key === 'Enter') {
-      this.props.sendMessage()
+      await this.props.sendMessage()
       e.preventDefault()
     }
   }

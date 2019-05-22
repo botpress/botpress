@@ -12,10 +12,15 @@ const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
 
+  const getEntryPoint = view => {
+    const isTs = fs.existsSync(path.join(projectPath, `./src/views/${view}/index.tsx`))
+    return `./src/views/${view}/index.${isTs ? 'tsx' : 'jsx'}`
+  }
+
   const full: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
-    entry: ['./src/views/full/index.jsx'],
+    entry: [getEntryPoint('full')],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/modules/',
@@ -32,12 +37,12 @@ export function config(projectPath) {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
     },
     resolve: {
-      extensions: ['.js', '.jsx', '.tsx']
+      extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
     plugins: [new CleanWebpackPlugin()],
     module: {
       rules: [
-        { test: /\.tsx$/, loader: 'ts-loader', exclude: /node_modules/ },
+        { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
         {
           test: /\.jsx?$/,
           use: {
@@ -86,7 +91,7 @@ export function config(projectPath) {
     }
   }
 
-  if (process.argv.find(x => x.toLowerCase() === '--analyze')) {
+  if (process.argv.find(x => x.toLowerCase() === '--analyze-full')) {
     full.plugins.push(new BundleAnalyzerPlugin())
   }
 
@@ -95,7 +100,7 @@ export function config(projectPath) {
   }
 
   const lite: webpack.Configuration = Object.assign({}, full, {
-    entry: ['./src/views/lite/index.jsx'],
+    entry: [getEntryPoint('lite')],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/lite-modules/',
@@ -105,6 +110,10 @@ export function config(projectPath) {
     },
     plugins: [] // We clear the plugins here, since the cleanup is already done by the "full" view
   })
+
+  if (process.argv.find(x => x.toLowerCase() === '--analyze-lite')) {
+    lite.plugins.push(new BundleAnalyzerPlugin())
+  }
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
@@ -118,14 +127,6 @@ export function config(projectPath) {
 function writeStats(err, stats, exitOnError = true) {
   if (err || stats.hasErrors()) {
     error(stats.toString('minimal'))
-
-    // @deprecated : This warning should be removed next major version
-    console.error(`
-There was a breaking change in how module views are handled in Botpress 11.6
-Web bundles and liteViews were replaced by a more standardized method.
-
-Please check our migration guide here: https://botpress.io/docs/developers/migrate/
-`)
 
     if (exitOnError) {
       return process.exit(1)

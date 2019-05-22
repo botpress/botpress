@@ -1,16 +1,13 @@
 import React from 'react'
 
-import WebComponent from '../lite'
 import Message from '../lite/components/messages/Message'
 import * as Keyboard from '../lite/components/Keyboard'
-
-export const Web = WebComponent
 
 const INJECTION_ID = 'bp-channel-web-injection'
 const INJECTION_URL = `/assets/modules/channel-web/inject.js`
 
 export class WebBotpressUIInjection extends React.Component {
-  componentWillMount() {
+  componentDidMount() {
     if (document.getElementById(INJECTION_ID)) {
       return
     }
@@ -60,5 +57,13 @@ export class WebBotpressUIInjection extends React.Component {
   }
 }
 
-export { Carousel, QuickReplies, LoginPrompt, Text, FileMessage } from '../lite/components/messages/renderer'
+export {
+  Carousel,
+  QuickReplies,
+  LoginPrompt,
+  Text,
+  FileMessage,
+  FileInput,
+  Button
+} from '../lite/components/messages/renderer'
 export { Message, Keyboard }

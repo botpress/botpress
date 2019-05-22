@@ -16,8 +16,8 @@ import {
   MessageWrapper,
   StudioConnector
 } from '../typings'
+import { downloadFile } from '../utils'
 
-import { downloadFile } from './../utils'
 import ComposerStore from './composer'
 import ViewStore from './view'
 
@@ -101,8 +101,8 @@ class RootStore {
 
   /** Inserts the incoming message in the conversation array */
   @action.bound
-  async addEventToConversation(event: Message) {
-    if (!this._validateConvoId(+event.conversationId)) {
+  async addEventToConversation(event: Message): Promise<void> {
+    if (!(await this._validateConvoId(+event.conversationId))) {
       return
     }
 
@@ -111,8 +111,8 @@ class RootStore {
   }
 
   @action.bound
-  async updateTyping(event: Message) {
-    if (!this._validateConvoId(+event.conversationId)) {
+  async updateTyping(event: Message): Promise<void> {
+    if (!(await this._validateConvoId(+event.conversationId))) {
       return
     }
 
@@ -122,7 +122,7 @@ class RootStore {
 
   /** Loads the initial state, for the first time or when the user ID is changed. */
   @action.bound
-  async initializeChat() {
+  async initializeChat(): Promise<void> {
     try {
       await this.fetchBotInfo()
       await this.fetchConversations()
@@ -136,7 +136,7 @@ class RootStore {
   }
 
   @action.bound
-  async fetchBotInfo() {
+  async fetchBotInfo(): Promise<void> {
     const botInfo = await this.api.fetchBotInfo()
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
@@ -145,7 +145,7 @@ class RootStore {
 
   /** Fetches the list of conversation, and update the corresponding config values */
   @action.bound
-  async fetchConversations() {
+  async fetchConversations(): Promise<void> {
     const { conversations, recentConversationLifetime, startNewConvoOnTimeout } = await this.api.fetchConversations()
 
     runInAction('-> setConversations', () => {
@@ -161,7 +161,7 @@ class RootStore {
 
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
-  async fetchConversation(convoId?: number) {
+  async fetchConversation(convoId?: number): Promise<void> {
     const conversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
@@ -171,10 +171,9 @@ class RootStore {
 
   /** Sends the specified message, or fetch the message in the composer */
   @action.bound
-  async sendMessage(message?: string) {
+  async sendMessage(message?: string): Promise<void> {
     if (message) {
-      await this.sendData({ type: 'text', text: message })
-      return
+      return this.sendData({ type: 'text', text: message })
     }
 
     const userMessage = this.composer.message
@@ -189,14 +188,14 @@ class RootStore {
 
   /** Sends an event to start conversation & hide the bot info page */
   @action.bound
-  async startConversation() {
+  async startConversation(): Promise<void> {
     await this.sendData({ type: 'request_start_conversation' })
     await this.view.toggleBotInfo()
   }
 
   /** Creates a new conversation and switches to it */
   @action.bound
-  async createConversation() {
+  async createConversation(): Promise<void> {
     const newId = await this.api.createConversation()
     await this.fetchConversations()
     await this.fetchConversation(newId)
@@ -208,12 +207,12 @@ class RootStore {
   }
 
   @action.bound
-  async resetSession() {
+  async resetSession(): Promise<void> {
     return this.api.resetSession(this.currentConversationId)
   }
 
   @action.bound
-  async sendUserVisit() {
+  async sendUserVisit(): Promise<void> {
     await this.sendData({
       type: 'visit',
       text: 'User visit',
@@ -223,7 +222,7 @@ class RootStore {
   }
 
   @action.bound
-  async downloadConversation() {
+  async downloadConversation(): Promise<void> {
     try {
       const { txt, name } = await this.api.downloadConversation(this.currentConversationId)
       const blobFile = new Blob([txt])
@@ -236,7 +235,7 @@ class RootStore {
 
   /** Sends an event or a message, depending on how the backend manages those types */
   @action.bound
-  async sendData(data: any) {
+  async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
       return await this.api.sendEvent(data)
     }
@@ -245,7 +244,7 @@ class RootStore {
   }
 
   @action.bound
-  async uploadFile(title: string, payload: string, file: File) {
+  async uploadFile(title: string, payload: string, file: File): Promise<void> {
     const data = new FormData()
     data.append('file', file)
 
