@@ -1,5 +1,4 @@
 import React from 'react'
-
 import Slider from 'react-slick'
 
 // Added those manually to remove the font dependencies which keeps showing 404 not found
@@ -7,35 +6,57 @@ import '../../../../../../assets/slick/slick-theme.css'
 import '../../../../../../assets/slick/slick.css'
 import { Renderer } from '../../../typings'
 
-export const Carousel = props => {
-  const carousel: Renderer.Carousel = props.carousel
-  const elements = carousel.elements || []
-
-  const defaultSettings = {
-    dots: false,
-    infinite: false,
-    responsive: [
-      { breakpoint: 550, settings: { slidesToShow: 1 } },
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 1548, settings: { slidesToShow: 3 } },
-      { breakpoint: 2072, settings: { slidesToShow: 4 } },
-      { breakpoint: 10000, settings: 'unslick' }
-    ],
-    slidesToScroll: 1,
-    autoplay: false,
-    centerMode: false,
-    arrows: elements.length > 1
+export class Carousel extends React.Component<any, {}> {
+  private ref
+  state = {
+    ajustedWidth: undefined
   }
 
-  const settings = Object.assign({}, defaultSettings, carousel.settings)
+  componentDidMount() {
+    this.setState({ ajustedWidth: this.ref.offsetWidth - window.innerWidth })
+  }
 
-  return (
-    <Slider {...settings}>
-      {elements.map((el, idx) => (
-        <Card element={el} key={idx} onSendData={props.onSendData} />
-      ))}
-    </Slider>
-  )
+  renderCarousel() {
+    const carousel: Renderer.Carousel = this.props.carousel
+    const elements = carousel.elements || []
+
+    // Breakpoints must be adjusted since the carousel is based on the page width, and not its parent component
+    const ajustBreakpoint = size => size - this.state.ajustedWidth
+
+    const defaultSettings = {
+      dots: false,
+      infinite: false,
+      responsive: [
+        { breakpoint: ajustBreakpoint(550), settings: { slidesToShow: 1 } },
+        { breakpoint: ajustBreakpoint(1024), settings: { slidesToShow: 2 } },
+        { breakpoint: ajustBreakpoint(1548), settings: { slidesToShow: 3 } },
+        { breakpoint: ajustBreakpoint(2072), settings: { slidesToShow: 4 } },
+        { breakpoint: ajustBreakpoint(10000), settings: 'unslick' }
+      ],
+      slidesToScroll: 1,
+      autoplay: false,
+      centerMode: false,
+      arrows: elements.length > 1
+    }
+
+    const settings = Object.assign({}, defaultSettings, carousel.settings)
+
+    return (
+      <Slider {...settings}>
+        {elements.map((el, idx) => (
+          <Card element={el} key={idx} onSendData={this.props.onSendData} />
+        ))}
+      </Slider>
+    )
+  }
+
+  render() {
+    return (
+      <div ref={el => (this.ref = el)} style={{ width: '100%' }}>
+        {this.state.ajustedWidth && this.renderCarousel()}
+      </div>
+    )
+  }
 }
 
 export const Card = props => {

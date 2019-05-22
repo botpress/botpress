@@ -94,6 +94,11 @@ class RootStore {
     return this.currentConversation && this.currentConversation.id
   }
 
+  @action.bound
+  updateMessages(messages) {
+    this.currentConversation.messages = messages
+  }
+
   /** Inserts the incoming message in the conversation array */
   @action.bound
   async addEventToConversation(event: Message) {

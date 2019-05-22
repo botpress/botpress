@@ -24,6 +24,7 @@ export namespace Renderer {
     payload?: any
     store?: RootStore
     bp?: StudioConnector
+    incomingEventId?: string
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
     keyboard?: any
@@ -199,6 +200,7 @@ export type CurrentConversation = {
 export interface Message {
   id: string
   userId: string
+  incomingEventId: string
   conversationId: number
   avatar_url: string | undefined
   full_name: string

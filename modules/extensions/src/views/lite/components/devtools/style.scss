@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
+.block {
+  margin-bottom: 10px;
+}
+
+.hovering {
+  width: 100%;
+
+  &:hover {
+    background: #aaaaaa;
+    cursor: pointer;
+  }
+}
+
+.bpw-emulator {
+  position: absolute;
+  background: #efefef;
+  color: #000000;
+  padding: 15px;
+  width: 540px;
+  height: 100%;
+  font-size: 0.9rem;
+  border: 2px solid #555555;
+}
+
+.header {
+  cursor: pointer;
+}
+
+.inspectorContainer {
+  height: 100%;
+  background: #1e1e1e !important;
+}
+
+.inspector {
+  overflow-x: hidden;
+  background-color: var(--c-background-dark-2);
+  height: 100%;
+  width: 100%;
+
+  & > ul {
+    margin: none;
+    padding-left: 5px;
+  }
+}

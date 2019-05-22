@@ -58,6 +58,7 @@ export function config(projectPath) {
           test: /\.scss$/,
           use: [
             { loader: 'style-loader' },
+            { loader: 'css-modules-typescript-loader' },
             {
               loader: 'css-loader',
               options: {

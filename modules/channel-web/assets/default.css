@@ -703,6 +703,7 @@ body {
 .bpw-botinfo-container {
   margin: 0 auto;
   max-width: 800px;
+  width: 100%;
   text-align: center;
   color: #1e1e1e;
   overflow-y: auto;
@@ -777,12 +778,6 @@ body {
   color: black;
 }
 
-/* Fix for IE which has trouble with the max-width property */
-@media only screen and (min-width: 800px) {
-  .bpw-botinfo-container {
-    width: 800px;
-  }
-}
 /** BOT INFORMATION PAGE - END */
 
 /** TYPING ANIMATIIONS */

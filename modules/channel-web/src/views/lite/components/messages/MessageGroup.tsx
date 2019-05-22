@@ -54,9 +54,10 @@ const MessageGroup = (props: MessageGroupProps) => {
                 key={`msg-${i}`}
                 isLastOfGroup={i >= props.messages.length - 1}
                 isLastGroup={props.isLastGroup}
+                isBotMessage={!data.userId}
+                incomingEventId={data.incomingEventId}
                 payload={payload}
                 sentOn={data.sent_on}
-                isBotMessage={!data.userId}
                 onSendData={props.onSendData}
                 onFileUpload={props.onFileUpload}
                 bp={props.bp}
