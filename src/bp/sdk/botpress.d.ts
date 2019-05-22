@@ -524,6 +524,17 @@ declare module 'botpress/sdk' {
       nluContexts?: NluContext[]
     }
 
+    export type StoredEvent = {
+      /** This ID is automatically generated when inserted in the DB  */
+      readonly id?: number
+      direction: EventDirection
+      /** Outgoing events will have the incoming event ID, if they were triggered by one */
+      incomingEventId?: string
+      sessionId: string
+      event: IO.Event
+      createdOn: any
+    } & EventDestination
+
     /**
      * They represent the contexts that will be used by the NLU Engine for the next messages for that chat session.
      *
@@ -948,6 +959,14 @@ declare module 'botpress/sdk' {
     filters?: Filter[]
   }
 
+  export type EventSearchParams = {
+    /** Returns the amount of elements from the starting position  */
+    from: number
+    count: number
+    /** An array of columns with direction to sort results */
+    sortOrder?: SortOrder[]
+  }
+
   export interface Filter {
     /** The name of the column to filter on */
     column: string
@@ -1060,6 +1079,18 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    /**
+     * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param fields - One or multiple fields to add to the search query
+     * @param searchParams - Additional parameters for the query, like ordering, number of rows, etc.
+     */
+    export function findEvents(
+      fields: Partial<IO.StoredEvent>,
+      searchParams: EventSearchParams
+    ): Promise<IO.StoredEvent[]>
   }
 
   export type GetOrCreateResult<T> = Promise<{
