@@ -2,15 +2,19 @@ import * as sdk from 'botpress/sdk'
 
 const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
-  const events = []
   const router = bp.http.createRouterForBot('extensions')
-  router.post('/saveIncoming', (req, res) => {
-    events.push(req.body)
-    res.sendStatus(200)
-  })
 
-  router.get('/events/:eventId', (req, res) => {
-    res.send(events.find(x => x.id === req.params.eventId))
+  router.get('/events/:eventId', async (req, res) => {
+    const storedEvents = await bp.events.findEvents({
+      incomingEventId: req.params.eventId,
+      direction: 'incoming',
+      botId: req.params.botId
+    })
+    if (storedEvents.length) {
+      return res.send(storedEvents.map(s => s.event)[0])
+    }
+
+    res.sendStatus(404)
   })
 }
 
