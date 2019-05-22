@@ -71,7 +71,7 @@ const TYPES = {
   MonitoringService: Symbol.for('MonitoringService'),
   AlertingService: Symbol.for('AlertingService'),
   EventRepository: Symbol.for('EventRepository'),
-  EventStorage: Symbol.for('EventStorage')
+  EventCollector: Symbol.for('EventCollector')
 }
 
 export { TYPES }

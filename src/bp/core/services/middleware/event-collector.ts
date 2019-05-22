@@ -13,8 +13,8 @@ import ms from 'ms'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 @injectable()
-export class EventStorage {
-  private readonly BATCH_SIZE = 10
+export class EventCollector {
+  private readonly BATCH_SIZE = 100
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & KnexExtension
   private intervalRef
@@ -29,19 +29,19 @@ export class EventStorage {
 
   constructor(
     @inject(TYPES.Logger)
-    @tagged('name', 'EventStorage')
+    @tagged('name', 'EventCollector')
     private logger: sdk.Logger,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository
   ) {}
 
   async initialize(botpressConfig: BotpressConfig, database: Database) {
-    const config = _.get(botpressConfig, 'eventStorage')
+    const config = botpressConfig.eventCollector
     if (!config || !config.enabled) {
       return
     }
 
     this.knex = database.knex
-    this.interval = ms(config.storageInterval)
+    this.interval = ms(config.collectionInterval)
     this.retentionPeriod = ms(config.retentionPeriod)
     this.ignoredTypes = config.ignoredEventTypes || []
     this.ignoredProperties = config.ignoredEventProperties || []
@@ -91,12 +91,10 @@ export class EventStorage {
 
     this.currentPromise = this.knex
       .batchInsert(this.TABLE_NAME, this.batch, this.BATCH_SIZE)
-      .then(() => {
-        if (this.batch.length >= this.BATCH_SIZE) {
-          this.batch.splice(0, this.BATCH_SIZE)
-        } else {
-          this.batch.splice(0, this.batch.length)
-        }
+      .then(async () => {
+        this.batch.splice(0, this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length)
+
+        await this.runCleanup()
       })
       .catch(err => this.logger.attachError(err).error(`Couldn't store events to the database`))
       .finally(() => {
@@ -104,11 +102,11 @@ export class EventStorage {
       })
   }
 
-  private runCleanup() {
+  private async runCleanup() {
     const expiration = moment()
       .subtract(this.retentionPeriod)
       .toDate()
 
-    this.eventRepo.deleteBeforeDate(expiration)
+    await this.eventRepo.pruneUntil(expiration)
   }
 }

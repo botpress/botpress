@@ -7,7 +7,7 @@ import { TYPES } from '../types'
 
 export interface EventRepository {
   findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams: sdk.EventSearchParams)
-  deleteBeforeDate(date: Date): Promise<void>
+  pruneUntil(date: Date): Promise<void>
 }
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
@@ -54,10 +54,10 @@ export class KnexEventRepository implements EventRepository {
     )
   }
 
-  async deleteBeforeDate(date: Date): Promise<void> {
+  async pruneUntil(date: Date): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
-      .where(this.database.knex.date.isBefore('created_on', date))
+      .where(this.database.knex.date.isBefore('createdOn', date))
       .del()
       .then()
   }
