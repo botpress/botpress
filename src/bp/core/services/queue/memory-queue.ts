@@ -36,9 +36,9 @@ export default class MemoryQueue implements Queue {
     }
   }
 
-  drain = () => {
+  drain = async () => {
     if (this._queue.length > 0) {
-      this.tick()
+      await this.tick()
     }
   }
 
@@ -58,7 +58,7 @@ export default class MemoryQueue implements Queue {
     } else {
       this._queue.push(jobWrapped)
     }
-    this.tick()
+    await this.tick()
   }
 
   async dequeue() {
@@ -92,7 +92,7 @@ export default class MemoryQueue implements Queue {
       this.logger.attachError(err).warn(`${this.name} queue failed to process job: ${err.message}`)
 
       if (retries + 1 <= this._options.retries) {
-        this.enqueue(job, retries + 1, true)
+        await this.enqueue(job, retries + 1, true)
       } else {
         this.logger.error(
           `Retrying job within ${this.name} queue failed ${this._options.retries} times. Abandoning the job.`
@@ -101,7 +101,7 @@ export default class MemoryQueue implements Queue {
     } finally {
       delete this._lock[queueId]
       if (this._queue.length) {
-        this.tick()
+        await this.tick()
       }
     }
   }
