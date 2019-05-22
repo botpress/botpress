@@ -7,6 +7,7 @@ import ms from 'ms'
 import { isArray } from 'util'
 
 import LanguageService from './service'
+import DownloadManager from './service/download-manager'
 
 export type APIOptions = {
   host: string
@@ -16,6 +17,7 @@ export type APIOptions = {
   limit: number
   service: LanguageService
   readOnly: boolean
+  manager: DownloadManager
 }
 
 const debug = DEBUG('api')
@@ -145,11 +147,41 @@ export default async function(options: APIOptions) {
   })
 
   const router = express.Router({ mergeParams: true })
-  router.get('/list', (req, res, next) => {})
-  router.get('/status', (req, res, next) => {})
-  router.post('/install', (req, res, next) => {})
-  router.post('/remove', (req, res, next) => {})
+  router.get('/list', (req, res, next) => {
+    res.send(options.manager.available)
+  })
+  router.get('/status', (req, res, next) => {
+    const items = options.manager.inProgress.map(x => ({
+      status: x.getStatus(),
+      lang: x.lang,
+      id: x.id,
+      downloadedSize: x.downloadedSize,
+      fileSize: x.fileSize
+    }))
 
+    res.send(items)
+  })
+  router.post('/install/:lang', (req, res, next) => {
+    const { lang } = req.params
+    try {
+      options.manager.download(lang)
+      res.status(200).send({ success: true })
+    } catch (err) {
+      res.status(404).send({ success: false, error: err.message })
+    }
+  })
+  router.post('/remove/:lang', (req, res, next) => {
+    const { lang } = req.params
+    if (!lang || !options.service.listModels().find(x => x.name === lang)) {
+      throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
+    }
+    // TODO Remove here
+  })
+  router.post('/cancel/:id', (req, res, next) => {
+    const { id } = req.params
+    options.manager.cancelAndRemove(id)
+    res.status(200).send({ success: true })
+  })
   app.use('/models', DisabledReadonlyMiddleware(options.readOnly), router)
 
   const httpServer = createServer(app)
