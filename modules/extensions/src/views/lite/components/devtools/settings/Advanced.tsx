@@ -1,6 +1,7 @@
+import { Button, FormGroup, Intent, TextArea } from '@blueprintjs/core'
 import React from 'react'
 
-import { Button, FormGroup, H5, TextArea } from '@blueprintjs/core'
+import { AppToaster } from '../toaster'
 
 export default class AdvancedSettings extends React.Component<AdvancedSettingsProps, AdvancedSettingsState> {
   state = {
@@ -17,7 +18,11 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
       const parsed = JSON.parse(this.state.config)
       this.props.store.updateConfig(parsed)
     } catch (err) {
-      console.log('INVALID JSON', this.state.config)
+      AppToaster.show({
+        message: 'There was an error parsing your configuration. Please validate the syntax',
+        timeout: 3000,
+        intent: Intent.DANGER
+      })
     }
   }
 
@@ -26,7 +31,11 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
       const parsed = JSON.parse(this.state.rawPayload)
       this.props.store.sendData(parsed)
     } catch (err) {
-      console.log('INVALID PAYLOAD', this.state.rawPayload)
+      AppToaster.show({
+        message: 'There was an error parsing your payload. Please validate the syntax',
+        timeout: 3000,
+        intent: Intent.DANGER
+      })
     }
   }
 
@@ -36,24 +45,30 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
   render() {
     return (
       <div>
-        <H5>Edit Configuration</H5>
-        <FormGroup helperText={'Test temporary configuration changes. Refresh the page to reset.'} inline={true}>
+        <FormGroup
+          label="Edit Configuration"
+          helperText={'Test temporary configuration changes. Refresh the page to reset.'}
+        >
           <TextArea
             name="config"
             value={this.state.config}
             onChange={this.handleConfigChanged}
             style={{ width: 495 }}
-            rows={10}
+            rows={15}
             placeholder="Change Webchat Settings (must be valid json)"
           />
         </FormGroup>
 
-        <Button onClick={this.saveConfig}>Save</Button>
+        <Button onClick={this.saveConfig} intent={Intent.PRIMARY}>
+          Save Configuration
+        </Button>
 
-        <hr style={{ margin: 10 }} />
+        <hr style={{ margin: '20px 0' }} />
 
-        <H5>Send Raw Payloads</H5>
-        <FormGroup helperText={'Send raw payload, to test events, for example.'} inline={true}>
+        <FormGroup
+          label="Send Raw Payloads"
+          helperText={'Send any valid JSON message, to test custom events, for example'}
+        >
           <TextArea
             name="rawPayload"
             value={this.state.rawPayload}
@@ -63,7 +78,10 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
             placeholder="Valid JSON Payload"
           />
         </FormGroup>
-        <Button onClick={this.sendRawPayload}>Send Payload</Button>
+
+        <Button onClick={this.sendRawPayload} intent={Intent.PRIMARY}>
+          Send Payload
+        </Button>
       </div>
     )
   }

@@ -2,7 +2,8 @@
 // Please do not change this file!
 interface CssExports {
   'block': string;
-  'bpw-emulator': string;
+  'container': string;
+  'container2': string;
   'header': string;
   'hovering': string;
   'inspector': string;

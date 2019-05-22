@@ -1,6 +1,7 @@
+import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import React from 'react'
 
-import { Button, FormGroup, InputGroup } from '@blueprintjs/core'
+import { AppToaster } from '../toaster'
 
 export default class Basic extends React.Component<BasicSettingProps, BasicSettingState> {
   state = {
@@ -9,13 +10,17 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
   }
 
   componentDidMount() {
-    this.setState({
-      userId: this.props.store.config.userId
-    })
+    const { userId, externalAuthToken } = this.props.store.config
+    this.setState({ userId, externalAuthToken })
   }
 
   saveSettings = () => {
-    this.props.store.setUserId(this.state.userId)
+    this.props.store.mergeConfig({
+      userId: this.state.userId,
+      externalAuthToken: this.state.externalAuthToken
+    })
+
+    AppToaster.show({ message: 'Configuration updated successfully!', intent: Intent.SUCCESS, timeout: 3000 })
   }
 
   handleUserIdChanged = event => this.setState({ userId: event.target.value })
@@ -24,25 +29,21 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
   render() {
     return (
       <div>
-        <FormGroup helperText={'Changes the User ID stored on your browser'} inline={true}>
-          <InputGroup
-            name="userId"
-            value={this.state.userId}
-            onChange={this.handleUserIdChanged}
-            placeholder="User ID"
-          />
+        <FormGroup label="User ID" helperText={'Changes the User ID stored on your browser'}>
+          <InputGroup value={this.state.userId} onChange={this.handleUserIdChanged} placeholder="Your User ID" />
         </FormGroup>
 
-        <FormGroup helperText={'Must be a valid JWT Token'} inline={true}>
+        <FormGroup label="External Auth Token" helperText={'It must be a valid JWT Token'}>
           <InputGroup
-            name="externalAuthToken"
             value={this.state.externalAuthToken}
             onChange={this.handleAuthChanged}
-            placeholder="External Authentication Token"
+            placeholder="Token generated from your system"
           />
         </FormGroup>
 
-        <Button onClick={this.saveSettings}>Save</Button>
+        <Button onClick={this.saveSettings} intent={Intent.PRIMARY}>
+          Save
+        </Button>
       </div>
     )
   }

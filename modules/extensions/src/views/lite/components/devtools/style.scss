@@ -16,14 +16,21 @@
   }
 }
 
-.bpw-emulator {
+.container2 {
+  position: absolute;
+  width: 540px;
+  height: 100%;
+  border: 2px solid #555555;
+}
+
+.container {
   position: absolute;
   background: #efefef;
   color: #000000;
-  padding: 15px;
+  padding: 5px 15px 5px 15px;
   width: 540px;
   height: 100%;
-  font-size: 0.9rem;
+
   border: 2px solid #555555;
 }
 

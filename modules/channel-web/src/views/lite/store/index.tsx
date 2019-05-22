@@ -69,7 +69,7 @@ class RootStore {
 
   @computed
   get botName(): string {
-    return (this.botInfo && this.botInfo.name) || (this.config && this.config.botName) || 'Bot'
+    return (this.config && this.config.botName) || (this.botInfo && this.botInfo.name) || 'Bot'
   }
 
   @computed
@@ -278,6 +278,7 @@ class RootStore {
     this.view.disableAnimations = this.config.disableAnimations
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
+    this.api.updateUserId(this.config.userId)
   }
 
   /** When this method is used, the user ID is changed in the configuration, then the socket is updated */

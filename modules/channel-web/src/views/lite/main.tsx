@@ -77,7 +77,7 @@ class Web extends React.Component<MainProps> {
 
   setupObserver() {
     observe(this.props.config, 'userId', async data => {
-      if (!data.oldValue) {
+      if (!data.oldValue || data.oldValue === data.newValue) {
         return
       }
 

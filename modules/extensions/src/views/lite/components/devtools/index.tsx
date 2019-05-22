@@ -1,9 +1,20 @@
-import { Button, ButtonGroup, Tab, Tabs } from '@blueprintjs/core'
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  Classes,
+  Divider,
+  Elevation,
+  InputGroup,
+  NonIdealState,
+  Tab,
+  Tabs
+} from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
-
+import classnames from 'classnames'
 import nanoid from 'nanoid'
 import React from 'react'
-import { GoTerminal } from 'react-icons/go'
+import { MdVisibility } from 'react-icons/md'
 
 import Settings from './settings'
 import style from './style.scss'
@@ -13,13 +24,12 @@ import { Inspector } from './views/Inspector'
 import { Intents } from './views/Intents'
 import { Slots } from './views/Slots'
 import { Suggestions } from './views/Suggestions'
-
 export const updater = { isLoaded: false, callback: undefined }
 
 export class DevTools extends React.Component<DevToolProps, DevToolState> {
   state = {
     event: undefined,
-    visible: true,
+    visible: false,
     selectedTabId: 'basic',
     showSettings: false
   }
@@ -36,7 +46,7 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
     this.props.store.view.addHeaderButton({
       id: 'toggleDev',
       label: 'Show Developer Tools',
-      icon: <GoTerminal />,
+      icon: <MdVisibility />,
       onClick: this.handleToggleDev
     })
   }
@@ -51,10 +61,10 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
   }
 
   handleToggleDev = btnId => {
-    this.props.store.view.updateHeaderButton('toggleDev', {
+    /*this.props.store.view.updateHeaderButton('toggleDev', {
       label: 'Hide Developer Tools',
-      icon: <GoTerminal color="green" />
-    })
+      icon: <MdVisibility color="green" />
+    })*/
 
     this.props.store.view.setContainerWidth(this.state.visible ? 360 : 900)
     this.setState({ visible: !this.state.visible })
@@ -66,8 +76,10 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
   renderToolbar() {
     return (
       <ButtonGroup minimal={false}>
-        <Button icon="refresh" onClick={this.handleNewSession} small={true} title="New Session" />
-        <Button icon={<GoTerminal />} onClick={this.toggleSettings} small={true} title="Settings" />
+        <Button icon="refresh" onClick={this.handleNewSession} title="New Session" />
+        <Button icon="cog" onClick={this.toggleSettings} title="Settings" />
+        <Divider />
+        <Button icon="delete" onClick={this.handleToggleDev} title="Close" />
       </ButtonGroup>
     )
   }
@@ -84,23 +96,36 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
     )
   }
 
+  renderNoEvent() {
+    const action = <InputGroup className={Classes.ROUND} leftIcon="search" placeholder="Search..." />
+    const description = (
+      <>
+        Please select an event in the conversation
+        <br />
+        You can also search one by its ID
+      </>
+    )
+
+    return <NonIdealState icon={'search'} title="No event selected" description={description} action={action} />
+  }
+
   render() {
-    if (!this.state.event || !this.state.visible) {
+    if (!this.state.visible) {
       return null
     }
 
     return (
-      <div className={style['bpw-emulator']}>
-        <div style={{ float: 'right' }}>
-          <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
-          {this.renderToolbar()}
-        </div>
-
-        <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-          <Tab id="basic" title="Summary" panel={this.renderSummary()} />
-          <Tab id="advanced" title="View payload" panel={<Inspector data={this.state.event} />} />
-        </Tabs>
-      </div>
+      <Card className={style.container2} elevation={Elevation.FOUR}>
+        <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
+        <div style={{ textAlign: 'right' }}>{this.renderToolbar()}</div>
+        <div>{!this.state.event && this.renderNoEvent()}</div>
+        {this.state.event && (
+          <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
+            <Tab id="basic" title="Summary" panel={this.renderSummary()} />
+            <Tab id="advanced" title="View payload" panel={<Inspector data={this.state.event} />} />
+          </Tabs>
+        )}
+      </Card>
     )
   }
 }
