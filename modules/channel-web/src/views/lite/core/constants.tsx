@@ -13,14 +13,19 @@ export default {
   /** The default configuration when starting the chat */
   DEFAULT_CONFIG: {
     userId: undefined,
-    overrides: undefined,
-    enableReset: true,
     stylesheet: '/assets/modules/channel-web/default.css',
     extraStylesheet: '',
+    botName: undefined,
+    botConvoDescription: undefined,
+    overrides: undefined,
+    enableReset: true,
+    enableTranscriptDownload: true,
+    enableArrowNavigation: false,
     showConversationsButton: true,
     showUserName: false,
     showUserAvatar: false,
-    enableTranscriptDownload: true,
-    enableArrowNavigation: false
+    disableAnimations: false,
+    hideWidget: false,
+    externalAuthToken: undefined
   }
 }

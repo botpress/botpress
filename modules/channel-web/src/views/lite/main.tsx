@@ -33,6 +33,7 @@ class Web extends React.Component<MainProps> {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
     window.addEventListener('message', this.handleIframeApi)
+    // tslint:disable-next-line: no-floating-promises
     this.initialize()
   }
 
@@ -77,7 +78,7 @@ class Web extends React.Component<MainProps> {
 
   setupObserver() {
     observe(this.props.config, 'userId', async data => {
-      if (!data.oldValue) {
+      if (!data.oldValue || data.oldValue === data.newValue) {
         return
       }
 
@@ -98,7 +99,7 @@ class Web extends React.Component<MainProps> {
     })
   }
 
-  handleIframeApi = ({ data: { action, payload } }) => {
+  handleIframeApi = async ({ data: { action, payload } }) => {
     if (action === 'configure') {
       this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
     } else if (action === 'mergeConfig') {
@@ -111,9 +112,9 @@ class Web extends React.Component<MainProps> {
       } else if (type === 'hide') {
         this.props.hideChat()
       } else if (type === 'message') {
-        this.props.sendMessage(text)
+        await this.props.sendMessage(text)
       } else {
-        this.props.sendData({ type, payload })
+        await this.props.sendData({ type, payload })
       }
     }
   }
@@ -124,24 +125,24 @@ class Web extends React.Component<MainProps> {
       return
     }
 
-    this.props.addEventToConversation(event)
+    await this.props.addEventToConversation(event)
 
     // there's no focus on the actual conversation
     if ((document.hasFocus && !document.hasFocus()) || this.props.activeView !== 'side') {
-      this.playSound()
+      await this.playSound()
       this.props.incrementUnread()
     }
 
     this.handleResetUnreadCount()
   }
 
-  playSound() {
+  async playSound() {
     if (this.state.played) {
       return
     }
 
     const audio = new Audio('/assets/modules/channel-web/notification.mp3')
-    audio.play()
+    await audio.play()
 
     this.setState({ played: true })
 

@@ -170,7 +170,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   isBotTyping: store.isBotTyping,
   botAvatarUrl: store.botAvatarUrl,
   currentMessages: store.currentMessages,
-  currentConversation: store.currentConversation,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
   focusedArea: store.view.focusedArea,
@@ -182,7 +181,6 @@ type MessageListProps = Pick<
   StoreDef,
   | 'intl'
   | 'isBotTyping'
-  | 'currentConversation'
   | 'focusedArea'
   | 'focusPrevious'
   | 'focusNext'

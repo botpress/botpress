@@ -66,7 +66,7 @@ export default class WebchatApi {
       const { data } = await this.axios.get(`/conversations/${this.userId}/${convoId}`, this.axiosConfig)
       return data
     } catch (err) {
-      this.handleApiError(err)
+      await this.handleApiError(err)
     }
   }
 
@@ -100,7 +100,7 @@ export default class WebchatApi {
     try {
       return this.axios.post(`/events/${this.userId}`, data, this.axiosConfig)
     } catch (err) {
-      this.handleApiError(err)
+      await this.handleApiError(err)
     }
   }
 
@@ -109,7 +109,7 @@ export default class WebchatApi {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}`, data, config)
     } catch (err) {
-      this.handleApiError(err)
+      await this.handleApiError(err)
     }
   }
 
@@ -118,16 +118,16 @@ export default class WebchatApi {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}/files`, data, config)
     } catch (err) {
-      this.handleApiError(err)
+      await this.handleApiError(err)
     }
   }
 
-  handleApiError = error => {
+  handleApiError = async error => {
     // @deprecated 11.9 (replace with proper error management)
     const data = get(error, 'response.data', {})
     if (data && typeof data === 'string' && data.includes('BP_CONV_NOT_FOUND')) {
       console.log('Conversation not found, starting a new one...')
-      this.createConversation()
+      await this.createConversation()
     }
 
     if (data.errorCode === 'BP_0401') {

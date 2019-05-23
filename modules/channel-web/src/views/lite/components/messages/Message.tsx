@@ -56,25 +56,28 @@ class Message extends Component<Renderer.Message> {
       return this.render_unsupported()
     }
 
-    const InjectedModuleView = this.props.bp.getModuleInjector()
+    const InjectedModuleView = this.props.store.bp.getModuleInjector()
 
     const messageDataProps = { ...this.props.payload }
     delete messageDataProps.module
     delete messageDataProps.component
 
+    const sanitizedProps = pick(this.props, [
+      'incomingEventId',
+      'isLastGroup',
+      'isLastOfGroup',
+      'isBotMessage',
+      'onSendData',
+      'onFileUpload',
+      'sentOn',
+      'store'
+    ])
+
     const props = {
-      ...pick(this.props, [
-        'isLastGroup',
-        'isLastOfGroup',
-        'isBotMessage',
-        'onSendData',
-        'onFileUpload',
-        'sentOn',
-        'store'
-      ]),
+      ...sanitizedProps,
       ...messageDataProps,
       keyboard: Keyboard,
-      children: wrapped && <Message {...this.props} keyboard={Keyboard} noBubble={true} payload={wrapped} />
+      children: wrapped && <Message {...sanitizedProps} keyboard={Keyboard} noBubble={true} payload={wrapped} />
     }
 
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
@@ -107,11 +110,16 @@ class Message extends Component<Renderer.Message> {
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
 
     if (this.props.noBubble) {
-      return rendered
+      return <div style={additionalStyle}>{rendered}</div>
     }
 
     return (
-      <div className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type)} style={additionalStyle}>
+      <div
+        className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type, {
+          'bpw-bubble-highlight': this.props.isHighlighted
+        })}
+        style={additionalStyle}
+      >
         {rendered}
       </div>
     )

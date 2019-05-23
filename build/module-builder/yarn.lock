@@ -2046,6 +2046,13 @@ css-loader@^1.0.0:
     postcss-value-parser "^3.3.0"
     source-list-map "^2.0.0"
 
+css-modules-typescript-loader@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/css-modules-typescript-loader/-/css-modules-typescript-loader-2.0.2.tgz#f66b042eff99920336fed273d9b22fc4ef1879f1"
+  integrity sha512-UbcOYWykh9T2F3okQ4xOuXV2ctW20NYnt1D7KwXjwI5/yhpjvUCqBecugk9TURKaScKhM1y42ki06xWiB2nyww==
+  dependencies:
+    line-diff "^2.0.1"
+
 css-selector-tokenizer@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/css-selector-tokenizer/-/css-selector-tokenizer-0.7.0.tgz#e6988474ae8c953477bf5e7efecfceccd9cf4c86"
@@ -3495,6 +3502,18 @@ lcid@^2.0.0:
   integrity sha512-avPEb8P8EGnwXKClwsNUgryVjllcRqtMYa49NTsbQagYuT1DcXnl1915oxWjoyGrXR6zH/Y0Zc96xWsPcoDKeA==
   dependencies:
     invert-kv "^2.0.0"
+
+levdist@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/levdist/-/levdist-1.0.0.tgz#91d7a3044964f2ccc421a0477cac827fe75c5718"
+  integrity sha1-kdejBElk8szEIaBHfKyCf+dcVxg=
+
+line-diff@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/line-diff/-/line-diff-2.0.1.tgz#d893ae8d81914cd65974fd57e714e730ce1e96a8"
+  integrity sha512-l+tt/aYyO+uyVyk5mzLgvoNYOkGR2iiFw5w2rWfFerfM7va0pje7n8LWdGk7Gl+Fkzw/bPZ0X9bvCBuTVLv8RA==
+  dependencies:
+    levdist "^1.0.0"
 
 load-json-file@^1.0.0:
   version "1.1.0"

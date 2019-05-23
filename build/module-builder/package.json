@@ -26,6 +26,7 @@
     "copy-webpack-plugin": "^4.5.2",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
+    "css-modules-typescript-loader": "^2.0.2",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^2.0.0",
     "fs-extra": "^7.0.0",
