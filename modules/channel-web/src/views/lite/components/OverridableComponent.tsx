@@ -32,12 +32,13 @@ class CustomComponent extends React.Component<CustomComponentProps, CustomCompon
 
   getOverridedComponent = (componentName: string) => {
     const overrides = this.props.overrides
+    if (!overrides || !overrides[componentName]) {
+      return
+    }
 
-    if (overrides && overrides[componentName]) {
-      const { module, component } = overrides[componentName]
-      if (module && component) {
-        return window.botpress[module][component]
-      }
+    const { module, component } = overrides[componentName]
+    if (module && component) {
+      return window.botpress[module] && window.botpress[module][component]
     }
   }
 
