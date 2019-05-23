@@ -8,6 +8,8 @@ import { VError } from 'verror'
 
 import { GhostService } from '../'
 
+const debug = DEBUG('configuration').sub('modules')
+
 type Config = { [key: string]: any }
 
 /**
@@ -75,12 +77,40 @@ export default class ConfigReader {
   private async loadFromEnvVariables(moduleId: string) {
     const schema = await this.getModuleConfigSchema(moduleId)
     const config = {}
+    const debugConfig = debug.sub(moduleId)
 
-    for (const option of _.keys(schema.properties)) {
-      const key = `BP_${moduleId}_${option}`.toUpperCase()
+    /* START DEPRECATED */
+    // TODO: Remove support for those old env variables in BP 12 (we need to add those to 11 -> 12 migration guide)
+    for (const option of Object.keys(schema.properties)) {
+      const keyOld = `BP_${moduleId}_${option}`.toUpperCase()
+      if (keyOld in process.env) {
+        debugConfig('(deprecated) setting env variable', { variable: option, env: keyOld, module: moduleId })
+        config[option] = process.env[keyOld]
+      }
+    } /* END DEPRECATED */
 
-      if (key in process.env) {
-        config[option] = process.env[key]
+    const getPropertiesRecursive = (obj: any, path: string = ''): string[] => {
+      if (obj && obj.type === 'object' && obj.properties) {
+        return _.chain(Object.keys(obj.properties))
+          .filter(x => !x.startsWith('$'))
+          .map(key => getPropertiesRecursive(obj.properties[key], path.length ? path + '.' + key : key))
+          .flatten()
+          .value()
+      }
+
+      return [path]
+    }
+
+    for (const option of getPropertiesRecursive(schema)) {
+      const envOption = option.replace(/[^A-Z0-9_]+/gi, '_')
+      const envKey = `BP_MODULE_${envOption}`.toUpperCase()
+      if (envKey in process.env) {
+        // Using .set because it supports set on a path with dots
+        const value = process.env[envKey]
+        _.set(config, option, value)
+        debugConfig('ENV SET', { variable: option, env: envKey, value })
+      } else {
+        debugConfig('ENV NOT SET', { variable: option, env: envKey })
       }
     }
 
