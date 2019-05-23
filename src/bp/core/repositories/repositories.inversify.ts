@@ -3,6 +3,8 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 import {
+  EventRepository,
+  KnexEventRepository,
   KnexNotificationsRepository,
   KnexSessionRepository,
   KnexUserRepository,
@@ -27,6 +29,10 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
     .to(KnexNotificationsRepository)
+    .inSingletonScope()
+
+  bind<EventRepository>(TYPES.EventRepository)
+    .to(KnexEventRepository)
     .inSingletonScope()
 })
 
