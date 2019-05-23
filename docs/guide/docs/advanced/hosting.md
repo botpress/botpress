@@ -19,7 +19,7 @@ Below are multiple possible ways of deploying Botpress in the cloud.
 
 ### Preparing the Docker image
 
-To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \\\\\\\$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
+To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
 FROM botpress/server:$VERSION
