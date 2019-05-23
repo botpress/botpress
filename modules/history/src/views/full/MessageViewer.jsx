@@ -143,7 +143,7 @@ function MessageInspector(props) {
   )
 }
 
-export class MessagesViewer extends React.Component {
+export class MessageViewer extends React.Component {
   state = {
     inspectorIsShown: false,
     currentlyFocusedMessage: null
@@ -172,6 +172,9 @@ export class MessagesViewer extends React.Component {
                 />
               )
             })}
+          {this.props.isThereStillMessagesLeft && (
+            <button onClick={this.props.fetchNewMessages}>Click me motherfucker</button>
+          )}
         </div>
         <MessageInspector
           currentlyFocusedMessage={this.state.currentlyFocusedMessage}

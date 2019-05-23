@@ -2,7 +2,7 @@ import React from 'react'
 import style from './style.scss'
 import moment from 'moment'
 
-import { MessagesViewer } from './MessageViewer'
+import { MessageViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
 const CONV_PARAM_NAME = 'conversation'
@@ -15,7 +15,9 @@ export default class FullView extends React.Component {
     from: moment()
       .startOf('day')
       .subtract(30, 'days'),
-    currentConversation: null
+    currentConversation: null,
+    currentConversationMessageGroupsOffset: 0,
+    isThereStillMessagesLeft: false
   }
 
   componentDidMount() {
@@ -23,7 +25,6 @@ export default class FullView extends React.Component {
     const url = new URL(window.location.href)
     const sessionId = url.searchParams.get(CONV_PARAM_NAME)
     if (sessionId) {
-      this.setState({ currentConversation: sessionId })
       this.getMessagesOfConversation(sessionId)
     }
   }
@@ -36,11 +37,13 @@ export default class FullView extends React.Component {
   }
 
   selectConversation = async sessionId => {
-    const url = new URL(window.location.href)
-    url.searchParams.set(CONV_PARAM_NAME, sessionId)
-    window.history.pushState(window.history.state, '', url.toString())
+    if (sessionId != this.state.currentConversation) {
+      const url = new URL(window.location.href)
+      url.searchParams.set(CONV_PARAM_NAME, sessionId)
+      window.history.pushState(window.history.state, '', url.toString())
 
-    await this.getMessagesOfConversation(sessionId)
+      await this.getMessagesOfConversation(sessionId)
+    }
   }
 
   getMessagesOfConversation = async sessionId => {
@@ -55,7 +58,9 @@ export default class FullView extends React.Component {
     this.setState({
       currentConversation: sessionId,
       messageGroups: data.messageGroupsArray,
-      conversationsInfo: this.state.conversationsInfo
+      conversationsInfo: this.state.conversationsInfo,
+      currentConversationMessageGroupsOffset: data.messageGroupsArray.length,
+      isThereStillMessagesLeft: data.messageGroupsArray.flatMap(mg => mg).length !== data.messageCount
     })
   }
 
@@ -71,6 +76,23 @@ export default class FullView extends React.Component {
     this.getConversations(this.state.from, moment_day)
   }
 
+  fetchNewMessages = async () => {
+    const { data } = await this.props.bp.axios.get(
+      `/mod/history/messages/${this.state.currentConversation}?offset=${
+        this.state.currentConversationMessageGroupsOffset
+      }`
+    )
+
+    let messageGroupsCopy = [...this.state.messageGroups]
+    messageGroupsCopy = messageGroupsCopy.concat(data.messageGroupsArray)
+
+    this.setState({
+      messageGroups: messageGroupsCopy,
+      currentConversationMessageGroupsOffset: messageGroupsCopy.length,
+      isThereStillMessagesLeft: messageGroupsCopy.flatMap(mg => mg).length !== data.messageCount
+    })
+  }
+
   render() {
     if (!this.state.conversationsInfo) {
       return null
@@ -79,14 +101,19 @@ export default class FullView extends React.Component {
       <div className={style['history-component']}>
         <ConversationPicker
           conversations={this.state.conversationsInfo}
-          onConversationChanged={day => this.selectConversation(day)}
+          onConversationChanged={sessionId => this.selectConversation(sessionId)}
           handleFromChange={day => this.handleFromChange(day)}
           handleToChange={day => this.handleToChange(day)}
           defaultFrom={this.state.from.toDate()}
           defaultTo={this.state.to.toDate()}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
-        <MessagesViewer conversation={this.state.currentConversation} messageGroups={this.state.messageGroups} />
+        <MessageViewer
+          isThereStillMessagesLeft={this.state.isThereStillMessagesLeft}
+          fetchNewMessages={() => this.fetchNewMessages()}
+          conversation={this.state.currentConversation}
+          messageGroups={this.state.messageGroups}
+        />
       </div>
     )
   }

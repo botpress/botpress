@@ -5,11 +5,8 @@ import { isNullOrUndefined } from 'util'
 
 export default class HistoryDb {
   knex: any
-  messageOffset = {}
-  lastQueriedSessionId = undefined
 
   constructor(private bp: typeof sdk) {
-    this.bp = bp
     this.knex = bp.database
   }
 
@@ -37,28 +34,27 @@ export default class HistoryDb {
     return Promise.all(uniqueConversations.map(buildConversationInfo))
   }
 
-  getNMoreMessagesOfConversation = async (count, sessionId, offset?) => {
-    if (offset >= 0) {
-      this.messageOffset[sessionId] = offset
-    } else if (sessionId != this.lastQueriedSessionId) {
-      this.lastQueriedSessionId = sessionId
-      this.messageOffset[sessionId] = 0
-    } else if (!this.messageOffset[sessionId]) {
-      this.messageOffset[sessionId] = 0
-    }
+  getMessagesOfConversation = async (sessionId, count, offset) => {
+    const incomingMessages: sdk.IO.Event[] = await this.knex
+      .select('event')
+      .orderBy('createdOn', 'desc')
+      .where('sessionId', sessionId)
+      .andWhere('direction', 'incoming')
+      .from('events')
+      .offset(offset)
+      .limit(count)
+      .map(el => this.knex.json.get(el.event))
 
-    const searchFields: Partial<sdk.IO.StoredEvent> = { sessionId: sessionId }
-    const sortOrder: sdk.SortOrder = { column: 'createdOn', desc: true }
-    const searchParams: sdk.EventSearchParams = {
-      from: this.messageOffset[sessionId],
-      count: count,
-      sortOrder: [sortOrder]
+    let messages: sdk.IO.Event
+    if (incomingMessages.length) {
+      const allMessagesQuery = this.knex.select('event').from('events')
+      for (const incomingMessage of incomingMessages) {
+        allMessagesQuery.orWhere('incomingEventId', incomingMessage.id)
+      }
+      messages = await allMessagesQuery.map(el => this.knex.json.get(el.event))
     }
-
-    const messages = await this.bp.events.findEvents(searchFields, searchParams).map(e => e.event)
 
     const messageCount = await this._getConversationCount(sessionId)
-    this.messageOffset[sessionId] = Math.min(this.messageOffset[sessionId] + count, messageCount)
 
     return { messages, messageCount }
   }
