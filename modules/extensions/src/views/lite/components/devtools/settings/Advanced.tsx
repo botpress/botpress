@@ -17,6 +17,7 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
     try {
       const parsed = JSON.parse(this.state.config)
       this.props.store.updateConfig(parsed)
+      AppToaster.show({ message: 'Configuration updated successfully!', intent: Intent.SUCCESS, timeout: 3000 })
     } catch (err) {
       AppToaster.show({
         message: 'There was an error parsing your configuration. Please validate the syntax',
@@ -30,6 +31,7 @@ export default class AdvancedSettings extends React.Component<AdvancedSettingsPr
     try {
       const parsed = JSON.parse(this.state.rawPayload)
       this.props.store.sendData(parsed)
+      AppToaster.show({ message: 'Payload sent successfully!', intent: Intent.SUCCESS, timeout: 3000 })
     } catch (err) {
       AppToaster.show({
         message: 'There was an error parsing your payload. Please validate the syntax',
