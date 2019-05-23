@@ -102,7 +102,7 @@ export default class ConfigReader {
     }
 
     for (const option of getPropertiesRecursive(schema)) {
-      const envOption = option.replace(/[^A-Z0-9_]+/gi, '_')
+      const envOption = `${moduleId}_${option}`.replace(/[^A-Z0-9_]+/gi, '_')
       const envKey = `BP_MODULE_${envOption}`.toUpperCase()
       if (envKey in process.env) {
         // Using .set because it supports set on a path with dots
