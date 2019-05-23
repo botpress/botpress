@@ -21,7 +21,7 @@ export default async (bp: typeof sdk, db: Database) => {
     order: 100
   })
 
-  async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'web') {
       return next()
     }
@@ -50,7 +50,13 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
-      const message = await db.appendBotMessage(botName, botAvatarUrl, conversationId, event.payload)
+      const message = await db.appendBotMessage(
+        botName,
+        botAvatarUrl,
+        conversationId,
+        event.payload,
+        event.incomingEventId
+      )
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       throw new Error(`Message type "${messageType}" not implemented yet`)
