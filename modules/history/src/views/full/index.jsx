@@ -49,12 +49,12 @@ export default class FullView extends React.Component {
     const conversationsInfoCopy = [...this.state.conversationsInfo]
     const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
     if (desiredConvInfo) {
-      desiredConvInfo.count = data.flatMap(d => d).length
+      desiredConvInfo.count = data.messageCount
     }
 
     this.setState({
       currentConversation: sessionId,
-      messageGroups: data,
+      messageGroups: data.messageGroupsArray,
       conversationsInfo: this.state.conversationsInfo
     })
   }

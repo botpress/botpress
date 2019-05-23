@@ -1,11 +1,15 @@
 import * as sdk from 'botpress/sdk'
 
 import moment from 'moment'
+import { isNullOrUndefined } from 'util'
 
 export default class HistoryDb {
   knex: any
+  messageOffset = {}
+  lastQueriedSessionId = undefined
 
   constructor(private bp: typeof sdk) {
+    this.bp = bp
     this.knex = bp.database
   }
 
@@ -29,19 +33,37 @@ export default class HistoryDb {
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.sessionId)
 
-    return Promise.all(uniqueConversations.map(c => this._buildConversationInfo(c)))
+    const buildConversationInfo = async c => ({ id: c, count: await this._getConversationCount(c) })
+    return Promise.all(uniqueConversations.map(buildConversationInfo))
   }
 
-  getMessagesOfConversation = async convId => {
-    const query_result = await this.knex
-      .select('event')
-      .where('sessionId', convId)
-      .from('events')
+  getNMoreMessagesOfConversation = async (count, sessionId, offset?) => {
+    if (offset >= 0) {
+      this.messageOffset[sessionId] = offset
+    } else if (sessionId != this.lastQueriedSessionId) {
+      this.lastQueriedSessionId = sessionId
+      this.messageOffset[sessionId] = 0
+    } else if (!this.messageOffset[sessionId]) {
+      this.messageOffset[sessionId] = 0
+    }
 
-    return query_result.map(el => this.knex.json.get(el.event))
+    const searchFields: Partial<sdk.IO.StoredEvent> = { sessionId: sessionId }
+    const sortOrder: sdk.SortOrder = { column: 'createdOn', desc: true }
+    const searchParams: sdk.EventSearchParams = {
+      from: this.messageOffset[sessionId],
+      count: count,
+      sortOrder: [sortOrder]
+    }
+
+    const messages = await this.bp.events.findEvents(searchFields, searchParams).map(e => e.event)
+
+    const messageCount = await this._getConversationCount(sessionId)
+    this.messageOffset[sessionId] = Math.min(this.messageOffset[sessionId] + count, messageCount)
+
+    return { messages, messageCount }
   }
 
-  private _buildConversationInfo = async (sessionId: string) => {
+  private _getConversationCount = async (sessionId: string) => {
     const messageCountObject = await this.knex
       .from('events')
       .count()
@@ -49,6 +71,6 @@ export default class HistoryDb {
 
     const messageCount = messageCountObject.pop()['count(*)']
 
-    return { id: sessionId, count: messageCount }
+    return messageCount
   }
 }

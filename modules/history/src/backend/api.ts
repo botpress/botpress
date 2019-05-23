@@ -18,14 +18,24 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.get('/messages/:convId', async (req, res) => {
     const convId = req.params.convId
-
-    const messages = await db.getMessagesOfConversation(convId)
-
-    const messageGroupKeyBuild = msg =>
-      msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
-    const messageGroups = _.groupBy(messages, messageGroupKeyBuild)
-
-    const messageGroupsArray = _.sortBy(_.values(messageGroups), mg => moment(mg[0].createdOn).unix()).reverse()
-    res.send(messageGroupsArray)
+    const ressource = await prepareMessagesRessource(db, convId, 0)
+    res.send(ressource)
   })
+
+  router.get('/more-messages/:convId', async (req, res) => {
+    const convId = req.params.convId
+    const ressource = await prepareMessagesRessource(db, convId)
+    res.send(ressource)
+  })
+}
+
+async function prepareMessagesRessource(db: Database, convId, offset?) {
+  const { messages, messageCount } = await db.getNMoreMessagesOfConversation(10, convId, offset)
+
+  const messageGroupKeyBuild = (msg: sdk.IO.Event) =>
+    msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
+  const messageGroups = _.groupBy(messages, messageGroupKeyBuild)
+
+  const messageGroupsArray = _.sortBy(_.values(messageGroups), mg => moment(mg[0].createdOn).unix()).reverse()
+  return { messageGroupsArray, messageCount }
 }
