@@ -30,6 +30,7 @@ export namespace Renderer {
     keyboard?: any
     eventId?: string
 
+    isHighlighted?: boolean
     isLastGroup?: boolean
     isLastOfGroup?: boolean
     isBotMessage?: boolean

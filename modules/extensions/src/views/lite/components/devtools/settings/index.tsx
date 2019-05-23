@@ -21,7 +21,7 @@ export default class Settings extends React.Component<any> {
         className={Classes.OVERLAY_SCROLL_CONTAINER}
         usePortal={false}
       >
-        <div className={classnames(Classes.CARD, Classes.ELEVATION_4)} style={{ width: 535 }}>
+        <div className={classnames(Classes.CARD, Classes.ELEVATION_4)} style={{ width: 535, top: '20px', left: '25%' }}>
           <H4>Settings</H4>
 
           <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>

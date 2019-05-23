@@ -44,6 +44,9 @@ class ViewStore {
   @observable
   public disableAnimations = false
 
+  @observable
+  public highlightedMessages = []
+
   constructor(rootStore: RootStore, fullscreen: boolean) {
     this.rootStore = rootStore
     this.isFullscreen = fullscreen
@@ -200,6 +203,11 @@ class ViewStore {
     }
 
     this.customButtons.push(newButton)
+  }
+
+  @action.bound
+  setHighlightedMessages(ids: string[]) {
+    this.highlightedMessages = ids
   }
 
   /** Updates one or multiple properties of a specific button */

@@ -266,6 +266,10 @@ body {
   word-break: break-word;
 }
 
+.bpw-bubble-highlight {
+  border: 2px solid #0000cd;
+}
+
 .bpw-bubble-session_reset {
   color: red !important;
   background: none !important;

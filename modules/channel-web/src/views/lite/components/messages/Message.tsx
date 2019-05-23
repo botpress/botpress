@@ -114,7 +114,12 @@ class Message extends Component<Renderer.Message> {
     }
 
     return (
-      <div className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type)} style={additionalStyle}>
+      <div
+        className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type, {
+          ['bpw-bubble-highlight']: this.props.isHighlighted
+        })}
+        style={additionalStyle}
+      >
         {rendered}
       </div>
     )

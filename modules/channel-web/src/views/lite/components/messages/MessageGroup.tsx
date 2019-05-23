@@ -52,6 +52,7 @@ const MessageGroup = (props: MessageGroupProps) => {
             return (
               <Message
                 key={`msg-${i}`}
+                isHighlighted={props.highlightedMessages && props.highlightedMessages.includes(data.incomingEventId)}
                 isLastOfGroup={i >= props.messages.length - 1}
                 isLastGroup={props.isLastGroup}
                 isBotMessage={!data.userId}
@@ -77,7 +78,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   onSendData: store.sendData,
   onFileUpload: store.uploadFile,
   messageWrapper: store.messageWrapper,
-  showUserName: store.config.showUserName
+  showUserName: store.config.showUserName,
+  highlightedMessages: store.view.highlightedMessages
 }))(MessageGroup)
 
 type MessageGroupProps = {
@@ -89,4 +91,5 @@ type MessageGroupProps = {
   onFileUpload?: any
   onSendData?: any
   store?: RootStore
+  highlightedMessages?: string[]
 } & Pick<StoreDef, 'showUserName' | 'messageWrapper' | 'bp'>
