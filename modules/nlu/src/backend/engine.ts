@@ -185,15 +185,15 @@ export default class ScopedEngine implements Engine {
       throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
     }
 
-    const trainingSet = flatMap(intents, intent => {
-      return intent.utterances.map(utterance =>
-        generateTrainingSequence(utterance, intent.slots, intent.name, intent.contexts)
-      )
-    })
+    const trainingSet = intents
+      .map(intent => {
+        return intent.utterances.map(utterance => generateTrainingSequence(utterance, 'ja', intent.slots, intent.name))
+      })
+      .reduce((a, b) => a.concat(b), [])
 
     this._exactIntentMatcher = new ExactMatcher(trainingSet)
-    await this.intentClassifier.load(intentModels)
 
+    await this.intentClassifier.load(intentModels)
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
 
     this.logger.debug(`Done restoring models '${modelHash}' from storage`)
@@ -216,10 +216,16 @@ export default class ScopedEngine implements Engine {
     this.logger.debug('Training slot tagger')
 
     try {
-      const trainingSet = flatMap(intentDefs, intent => {
-        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
-      })
+      const trainingSet = intentDefs
+        .map(intent => {
+          return intent.utterances.map(utterance =>
+            generateTrainingSequence(utterance, 'ja', intent.slots, intent.name)
+          )
+        })
+        .reduce((a, b) => a.concat(b), [])
+
       const { language, crf } = await this.slotExtractor.train(trainingSet)
+
       this.logger.debug('Done training slot tagger')
 
       if (language && crf) {
@@ -316,11 +322,12 @@ export default class ScopedEngine implements Engine {
 
   private async _extractSlots(
     text: string,
+    lang: string,
     intent: sdk.NLU.Intent,
     entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotCollection> {
     const intentDef = await this.storage.getIntent(intent.name)
-    const collection = await this.slotExtractor.extract(text, intentDef, entities)
+    const collection = await this.slotExtractor.extract(text, lang, intentDef, entities)
     const result: sdk.NLU.SlotCollection = {}
 
     for (const name of Object.keys(collection)) {
@@ -360,7 +367,7 @@ export default class ScopedEngine implements Engine {
 
       ret = { ...ret, ...(await this._extractIntents(text, noEntitiesText, ret.language, includedContexts)) }
       ret.entities = entities
-      ret.slots = await this._extractSlots(text, ret.intent, entities)
+      ret.slots = await this._extractSlots(text, ret.language, ret.intent, entities)
       debugEntities('slots', { text, slots: ret.slots })
       ret.errored = false
     } catch (error) {
