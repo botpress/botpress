@@ -39,7 +39,7 @@ export class BotsRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        this.workspaceService.assertUserExists(req.tokenUser!.email)
+        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         const botsRefs = await this.workspaceService.getBotRefs()
         const bots = await this.botService.findBotsByIds(botsRefs)
@@ -85,7 +85,7 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
 
-        this.workspaceService.assertUserExists(req.tokenUser!.email)
+        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
@@ -141,7 +141,7 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const bot = <BotConfig>req.body
-        this.workspaceService.assertUserExists(req.tokenUser!.email)
+        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.updateBot(botId, bot)
 
@@ -156,7 +156,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        this.workspaceService.assertUserExists(req.tokenUser!.email)
+        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.deleteBot(botId)
         await this.workspaceService.deleteBotRef(botId)

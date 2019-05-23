@@ -25,6 +25,7 @@ export class AuthRouter extends CustomRouter {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
+    // tslint:disable-next-line: no-floating-promises
     this.setupRoutes()
   }
 

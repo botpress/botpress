@@ -133,7 +133,7 @@ export class FlowService {
       links: []
     }
 
-    this.saveAll(botId, [flow])
+    return this.saveAll(botId, [flow])
   }
 
   private async prepareSaveFlow(botId, flow, isNew: boolean) {
