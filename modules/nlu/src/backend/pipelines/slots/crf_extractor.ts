@@ -47,7 +47,6 @@ export default class CRFExtractor implements SlotExtractor {
     await ft.loadFromFile(ftModelFn)
     this._ft = ft
     this._ftModelFn = ftModelFn
-
     // load kmeans (retrain because there is no simple way to store it)
     await this._trainKmeans(traingingSet)
 
@@ -102,11 +101,12 @@ export default class CRFExtractor implements SlotExtractor {
    */
   async extract(
     text: string,
+    lang: string,
     intentDef: sdk.NLU.IntentDefinition,
     entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotsCollection> {
     debugExtract(text, { entities })
-    const seq = generatePredictionSequence(text, intentDef.name, entities)
+    const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
     const tags = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])

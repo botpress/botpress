@@ -8,7 +8,7 @@ const AN_ENTITY = 'person'
 const OTHER_ENTITY = 'animal'
 
 describe('Preprocessing', () => {
-  test('generate training seq', () => {
+  test('generate training seq', async () => {
     const slotDef = [
       {
         name: 'ME',
@@ -22,6 +22,7 @@ describe('Preprocessing', () => {
 
     const trainingSeq = generateTrainingSequence(
       `hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
+      'en',
       slotDef
     )
 
@@ -42,7 +43,7 @@ describe('Preprocessing', () => {
     expect(trainingSeq.tokens[10].matchedEntities).toEqual(slotDef[1].entities)
   })
 
-  test('generate prediction seq', () => {
+  test('generate prediction seq', async () => {
     const entities = [
       {
         name: 'numeral',
@@ -93,8 +94,9 @@ describe('Preprocessing', () => {
     ] as sdk.NLU.Entity[]
 
     // some extra spaces on purpose here
-    const testingSeq = generatePredictionSequence(
+    const testingSeq = await generatePredictionSequence(
       'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com',
+      'en',
       'a name',
       entities
     )

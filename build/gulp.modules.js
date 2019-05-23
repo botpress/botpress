@@ -88,6 +88,7 @@ const packageModule = (modulePath, cb) => {
     }
   )
 }
+
 const buildModuleBuilder = cb => {
   exec(`yarn && yarn build`, { cwd: 'build/module-builder' }, (err, stdout, stderr) => {
     if (err) {

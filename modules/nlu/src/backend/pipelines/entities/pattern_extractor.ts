@@ -4,15 +4,14 @@ import { flatMap, flatten } from 'lodash'
 import _ from 'lodash'
 
 import { extractPattern } from '../../tools/patterns-utils'
-import { tokenize } from '../language/tokenizers'
+import { sanitize } from '../language/sanitizer'
+import tokenize from '../language/tokenizers'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
 const MIN_LENGTH_FUZZY_MATCH = 4
 const MIN_CONFIDENCE = 0.65
-
-const stripSpecialChars = str => str.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit) {}
@@ -37,7 +36,7 @@ export default class PatternExtractor {
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
     const tokens = await tokenize(input, lang)
-    const values = await Promise.mapSeries([occurence.name, ...occurence.synonyms], v => tokenize(v, lang))
+    const values = await Promise.mapSeries([occurence.name, ...occurence.synonyms], async v => await tokenize(v, lang))
 
     const findings: sdk.NLU.Entity[] = []
 
@@ -70,8 +69,8 @@ export default class PatternExtractor {
             distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
           }
         } else {
-          const strippedPop = stripSpecialChars(partOfPhrase.toLowerCase())
-          const strippedOcc = stripSpecialChars(occ.toLowerCase())
+          const strippedPop = sanitize(partOfPhrase.toLowerCase())
+          const strippedOcc = sanitize(occ.toLowerCase())
           if (strippedPop.length && strippedOcc.length) {
             distance = strippedPop === strippedOcc ? 1 : 0
           }

@@ -1,13 +1,9 @@
 import * as sdk from 'botpress/sdk'
 
 import { BIO, Sequence, Tag, Token } from '../../typings'
+import tokenize from '../language/tokenizers'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-
-// TODO replace this for appropriate tokenizer
-const _tokenize = (input: string): string[] => {
-  return input.split(' ').filter(w => w.length)
-}
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token => {
   const token = {
@@ -29,6 +25,7 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
 // TODO use the same algorithm as in the prediction sequence
 const _generateTrainingTokens = (
   input: string,
+  lang: string,
   start: number,
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
@@ -36,7 +33,7 @@ const _generateTrainingTokens = (
   const slotDef = slotDefinitions.find(slotDef => !!slot && slotDef.name === slot)
   const matchedEntities = slotDef ? slotDef.entities : []
 
-  return _tokenize(input).map((t, idx) => {
+  return tokenize(input, lang).map((t, idx) => {
     let tag = BIO.OUT
     if (slot) {
       tag = idx === 0 ? BIO.BEGINNING : BIO.INSIDE
@@ -49,46 +46,16 @@ const _generateTrainingTokens = (
   })
 }
 
-export const generateTrainingSequence = (
+export const generatePredictionSequence = (
   input: string,
-  slotDefinitions: sdk.NLU.SlotDefinition[],
-  intentName: string = '',
-  contexts: string[] = []
+  lang: string,
+  intentName: string,
+  entities: sdk.NLU.Entity[]
 ): Sequence => {
-  let matches: RegExpExecArray | null
-  let start = 0
-  let tokens: Token[] = []
-
-  do {
-    matches = SLOTS_REGEX.exec(input)
-    if (matches) {
-      const sub = input.substr(start, matches.index - start - 1)
-      tokens = [
-        ...tokens,
-        ..._generateTrainingTokens(sub, start),
-        ..._generateTrainingTokens(matches[1], start + matches.index, matches[2], slotDefinitions)
-      ]
-      start = matches.index + matches[0].length
-    }
-  } while (matches)
-
-  if (start !== input.length) {
-    const lastingPart = input.substr(start, input.length - start)
-    tokens = [...tokens, ..._generateTrainingTokens(lastingPart, start)]
-  }
-
-  return {
-    intent: intentName,
-    cannonical: tokens.map(t => t.value).join(' '),
-    tokens,
-    contexts
-  }
-}
-
-export const generatePredictionSequence = (input: string, intentName: string, entities: sdk.NLU.Entity[]): Sequence => {
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
-  const tokens = _tokenize(input).map(value => {
+
+  const tokens = tokenize(input, lang).map(value => {
     const inputIdx = input.indexOf(value)
     currentIdx += inputIdx // in case of tokenization uses more than one char i.e words separated with multiple spaces
     input = input.slice(inputIdx + value.length)
@@ -106,5 +73,41 @@ export const generatePredictionSequence = (input: string, intentName: string, en
     intent: intentName,
     cannonical,
     tokens
+  }
+}
+
+export const generateTrainingSequence = (
+  input: string,
+  lang: string,
+  slotDefinitions: sdk.NLU.SlotDefinition[],
+  intentName: string = '',
+  contexts: string[] = []
+): Sequence => {
+  let matches: RegExpExecArray | null
+  let start = 0
+  let tokens: Token[] = []
+  do {
+    matches = SLOTS_REGEX.exec(input)
+    if (matches) {
+      const sub = input.substr(start, matches.index - start - 1)
+      tokens = [
+        ...tokens,
+        ..._generateTrainingTokens(sub, lang, start),
+        ..._generateTrainingTokens(matches[1], lang, start + matches.index, matches[2], slotDefinitions)
+      ]
+      start = matches.index + matches[0].length
+    }
+  } while (matches)
+
+  if (start !== input.length) {
+    const lastingPart = input.substr(start, input.length - start)
+    tokens = [...tokens, ..._generateTrainingTokens(lastingPart, lang, start)]
+  }
+
+  return {
+    intent: intentName,
+    cannonical: input,
+    tokens,
+    contexts
   }
 }
