@@ -80,8 +80,8 @@ class Sidebar extends React.Component {
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
-        <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op}>
-          <li key={`menu_module_${module.name}`}>
+        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+          <li>
             <a
               onMouseOver={this.showNluMenu}
               onMouseOut={this.hideNluMenu}
@@ -119,8 +119,8 @@ class Sidebar extends React.Component {
       )
     } else {
       return (
-        <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op}>
-          <li key={`menu_module_${module.name}`}>
+        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+          <li>
             <NavLink to={path} title={module.menuText} activeClassName={style.active}>
               {moduleIcon}
               <span>{module.menuText}</span>
