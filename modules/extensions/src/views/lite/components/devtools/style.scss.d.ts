@@ -2,12 +2,14 @@
 // Please do not change this file!
 interface CssExports {
   'block': string;
-  'container': string;
   'container2': string;
+  'content': string;
   'header': string;
   'hovering': string;
   'inspector': string;
   'inspectorContainer': string;
+  'notFound': string;
+  'splash': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

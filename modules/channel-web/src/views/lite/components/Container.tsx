@@ -57,7 +57,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   isFullscreen: store.view.isFullscreen,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
-  currentConversation: store.currentConversation,
   config: store.config,
   botName: store.botName
 }))(injectIntl(observer(Container)))

@@ -4,20 +4,13 @@ import { updater } from '.'
 import style from './style.scss'
 
 export class Wrapper extends React.Component<WrapperProps> {
-  highlightGroupedMessages = eventId => {
-    this.props.store.view.setHighlightedMessages(eventId)
-  }
-
-  handleMessageClicked = async eventId => {
-    const { data } = await this.props.bp.axios.get('/mod/extensions/events/' + eventId)
-    updater.callback(data)
-
-    this.highlightGroupedMessages(eventId)
+  handleMessageClicked = () => {
+    updater.callback(this.props.incomingEventId)
   }
 
   render() {
     return (
-      <div className={style.hovering} onClick={this.handleMessageClicked.bind(this, this.props.incomingEventId)}>
+      <div className={style.hovering} onClick={this.handleMessageClicked}>
         {this.props.children}
       </div>
     )
@@ -27,5 +20,4 @@ export class Wrapper extends React.Component<WrapperProps> {
 interface WrapperProps {
   incomingEventId: string
   store: any
-  bp: any
 }

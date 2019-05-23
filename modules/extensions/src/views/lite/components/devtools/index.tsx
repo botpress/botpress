@@ -12,8 +12,10 @@ import { Inspector } from './views/Inspector'
 import { Intents } from './views/Intents'
 import { Slots } from './views/Slots'
 import { Suggestions } from './views/Suggestions'
+import EventNotFound from './EventNotFound'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
+
 export const updater = { isLoaded: false, callback: undefined }
 
 const WEBCHAT_WIDTH = 350
@@ -22,19 +24,17 @@ const DEV_TOOOLS_WIDTH = 450
 export class DevTools extends React.Component<DevToolProps, DevToolState> {
   state = {
     event: undefined,
+    showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
     showSettings: false
   }
 
   componentDidMount() {
-    updater.callback = data => {
-      this.setState({ event: data })
-    }
+    updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH + DEV_TOOOLS_WIDTH)
-    this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
 
     this.props.store.view.addHeaderButton({
       id: 'toggleDev',
@@ -48,8 +48,28 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
     this.props.store.view.removeHeaderButton('toggleDev')
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState.visible && this.state.visible) {
+      this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
+    } else if (prevState.visible && !this.state.visible) {
+      this.props.store.view.setHighlightedMessages([])
+      this.props.store.setMessageWrapper(undefined)
+    }
+  }
+
+  loadEvent = async eventId => {
+    try {
+      const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      this.setState({ event: data, showEventNotFound: false })
+    } catch (err) {
+      this.setState({ event: undefined, showEventNotFound: true })
+    }
+
+    this.props.store.view.setHighlightedMessages(eventId)
+  }
+
   handleNewSession = () => {
-    const userId = 'emulator_' + nanoid(7)
+    const userId = nanoid(20)
     this.props.store.setUserId(userId)
   }
 
@@ -87,7 +107,7 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
       <div className={style.container2}>
         <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
         <Header newSession={this.handleNewSession} toggleSettings={this.toggleSettings} />
-        {!this.state.event && <SplashScreen />}
+        {!this.state.event && (this.state.showEventNotFound ? <EventNotFound /> : <SplashScreen />)}
         {this.state.event && (
           <div className={style.content}>
             <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
@@ -110,4 +130,5 @@ interface DevToolState {
   selectedTabId: string
   visible: boolean
   showSettings: boolean
+  showEventNotFound: boolean
 }

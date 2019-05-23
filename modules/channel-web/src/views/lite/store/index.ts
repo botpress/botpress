@@ -101,9 +101,9 @@ class RootStore {
 
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
-    if (this.currentConversationId !== +event.conversationId) {
+    if (this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
-      await this.fetchConversation(+event.conversationId)
+      await this.fetchConversation(Number(event.conversationId))
       return
     }
 
@@ -113,9 +113,9 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
-    if (this.currentConversationId !== +event.conversationId) {
+    if (this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
-      await this.fetchConversation(+event.conversationId)
+      await this.fetchConversation(Number(event.conversationId))
       return
     }
 
@@ -293,11 +293,6 @@ class RootStore {
   @action.bound
   setMessageWrapper(messageWrapper: MessageWrapper) {
     this.messageWrapper = messageWrapper
-  }
-
-  @action.bound
-  clearMessageWrapper() {
-    this.messageWrapper = undefined
   }
 
   /** Starts a timer to remove the typing animation when it's completed */

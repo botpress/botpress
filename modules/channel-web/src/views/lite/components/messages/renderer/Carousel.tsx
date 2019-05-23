@@ -6,10 +6,11 @@ import '../../../../../../assets/slick/slick-theme.css'
 import '../../../../../../assets/slick/slick.css'
 import { Renderer } from '../../../typings'
 
-export class Carousel extends React.Component<any, {}> {
+export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   private ref
-  state = {
-    ajustedWidth: undefined
+
+  public state = {
+    ajustedWidth: 0
   }
 
   componentDidMount() {
@@ -17,7 +18,7 @@ export class Carousel extends React.Component<any, {}> {
   }
 
   renderCarousel() {
-    const carousel: Renderer.Carousel = this.props.carousel
+    const carousel = this.props.carousel
     const elements = carousel.elements || []
 
     // Breakpoints must be adjusted since the carousel is based on the page width, and not its parent component
@@ -114,4 +115,13 @@ export const Card = props => {
       </div>
     </div>
   )
+}
+
+interface ICarouselProps {
+  carousel: Renderer.Carousel
+  onSendData: any
+}
+
+interface ICarouselState {
+  ajustedWidth: number
 }

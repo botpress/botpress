@@ -13,7 +13,6 @@
   width: 100%;
 
   &:hover {
-    /* background: #aaaaaa;*/
     cursor: pointer;
   }
 }
@@ -52,6 +51,12 @@
     h2 {
       margin: 10px 0;
     }
+  }
+}
+
+.notFound {
+  > div {
+    width: 95%;
   }
 }
 
