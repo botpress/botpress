@@ -15,6 +15,7 @@ import { CustomRouter } from '../customRouter'
 import { assertSuperAdmin, checkTokenHeader, loadUser } from '../util'
 
 import { BotsRouter } from './bots'
+import { LanguagesRouter } from './languages'
 import { LicenseRouter } from './license'
 import { RolesRouter } from './roles'
 import { ServerRouter } from './server'
@@ -29,6 +30,7 @@ export class AdminRouter extends CustomRouter {
   private versioningRouter!: VersioningRouter
   private rolesRouter!: RolesRouter
   private serverRouter!: ServerRouter
+  private languagesRouter!: LanguagesRouter
   private loadUser!: RequestHandler
 
   constructor(
@@ -50,6 +52,7 @@ export class AdminRouter extends CustomRouter {
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider)
+    this.languagesRouter = new LanguagesRouter(logger)
     this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
@@ -87,5 +90,6 @@ export class AdminRouter extends CustomRouter {
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
     router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
+    router.use('/languages', this.checkTokenHeader, assertSuperAdmin, this.languagesRouter.router)
   }
 }

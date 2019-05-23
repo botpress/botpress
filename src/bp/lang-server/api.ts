@@ -148,9 +148,6 @@ export default async function(options: APIOptions) {
 
   const router = express.Router({ mergeParams: true })
   router.get('/list', (req, res, next) => {
-    res.send(options.manager.available)
-  })
-  router.get('/status', (req, res, next) => {
     const items = options.manager.inProgress.map(x => ({
       status: x.getStatus(),
       lang: x.lang,
@@ -159,7 +156,16 @@ export default async function(options: APIOptions) {
       fileSize: x.fileSize
     }))
 
-    res.send(items)
+    res.send({
+      available: options.manager.available,
+      installed: options.service.listModels().map(x => ({
+        lang: x.name,
+        loaded: x.loaded,
+        dim: options.service.dim,
+        domain: options.service.domain
+      })),
+      in_progress: items
+    })
   })
   router.post('/install/:lang', (req, res, next) => {
     const { lang } = req.params
@@ -176,6 +182,13 @@ export default async function(options: APIOptions) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
     // TODO Remove here
+  })
+  router.post('/load/:lang', (req, res, next) => {
+    const { lang } = req.params
+    if (!lang || !options.service.listModels().find(x => x.name === lang)) {
+      throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
+    }
+    // TODO Load in memory here
   })
   router.post('/cancel/:id', (req, res, next) => {
     const { id } = req.params
