@@ -5,16 +5,7 @@ import style from './style.scss'
 
 export class Wrapper extends React.Component<WrapperProps> {
   highlightGroupedMessages = eventId => {
-    const style = { border: '2px solid #0000ff' }
-    const updatedMessages = this.props.store.currentConversation.messages.map(msg => {
-      delete msg.payload['web-style']
-      return {
-        ...msg,
-        payload: { ...msg.payload, ...(msg.incomingEventId === eventId && { ['web-style']: style }) }
-      }
-    })
-
-    this.props.store.updateMessages(updatedMessages)
+    this.props.store.view.setHighlightedMessages(eventId)
   }
 
   handleMessageClicked = async eventId => {
