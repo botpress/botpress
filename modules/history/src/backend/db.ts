@@ -16,7 +16,7 @@ export default class HistoryDb {
       .distinct('sessionId')
       .from('events')
       .whereNotNull('sessionId')
-      .andWhere('botId', botId)
+      .andWhere({ botId })
 
     if (from) {
       const fromDate = moment.unix(from).toDate()
@@ -38,21 +38,15 @@ export default class HistoryDb {
     const incomingMessages: sdk.IO.Event[] = await this.knex
       .select('event')
       .orderBy('createdOn', 'desc')
-      .where('sessionId', sessionId)
-      .andWhere('direction', 'incoming')
+      .where({ sessionId, direction: 'incoming' })
       .from('events')
       .offset(offset)
       .limit(count)
-      .map(el => this.knex.json.get(el.event))
+      .then(rows => rows.map(r => this.knex.json.get(r.event)))
 
-    let messages: sdk.IO.Event
-    if (incomingMessages.length) {
-      const allMessagesQuery = this.knex.select('event').from('events')
-      for (const incomingMessage of incomingMessages) {
-        allMessagesQuery.orWhere('incomingEventId', incomingMessage.id)
-      }
-      messages = await allMessagesQuery.map(el => this.knex.json.get(el.event))
-    }
+    const messages = await this.knex('events')
+      .whereIn('incomingEventId', incomingMessages.map(x => x.id))
+      .then(rows => rows.map(r => this.knex.json.get(r.event)))
 
     const messageCount = await this._getConversationCount(sessionId)
 
@@ -63,10 +57,8 @@ export default class HistoryDb {
     const messageCountObject = await this.knex
       .from('events')
       .count()
-      .where('sessionId', sessionId)
+      .where({ sessionId })
 
-    const messageCount = messageCountObject.pop()['count(*)']
-
-    return messageCount
+    return messageCountObject.pop()['count(*)']
   }
 }

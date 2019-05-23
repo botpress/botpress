@@ -37,13 +37,14 @@ export default class FullView extends React.Component {
   }
 
   selectConversation = async sessionId => {
-    if (sessionId != this.state.currentConversation) {
-      const url = new URL(window.location.href)
-      url.searchParams.set(CONV_PARAM_NAME, sessionId)
-      window.history.pushState(window.history.state, '', url.toString())
-
-      await this.getMessagesOfConversation(sessionId)
+    if (sessionId == this.state.currentConversation) {
+      return
     }
+    const url = new URL(window.location.href)
+    url.searchParams.set(CONV_PARAM_NAME, sessionId)
+    window.history.pushState(window.history.state, '', url.toString())
+
+    await this.getMessagesOfConversation(sessionId)
   }
 
   getMessagesOfConversation = async sessionId => {
