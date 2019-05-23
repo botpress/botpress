@@ -74,7 +74,7 @@ export default class SVMClassifier {
       .value()
 
     const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = intent.utterances
+      const lowerUtterances = intent.utterances[this.language]
         .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
         .filter(x => x.trim().length)
 
@@ -155,11 +155,9 @@ export default class SVMClassifier {
           if (samples.length >= 4) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
-            l1Points
-              .filter(x => samples.includes(x.coordinates))
-              .forEach(x => {
-                x.label = newLabel
-              })
+            l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
+              x.label = newLabel
+            })
           }
         }
       }

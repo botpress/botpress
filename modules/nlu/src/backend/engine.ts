@@ -1,7 +1,7 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import { flatMap, memoize } from 'lodash'
+import { memoize } from 'lodash'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -32,12 +32,12 @@ export default class ScopedEngine implements Engine {
   private _preloaded: boolean = false
 
   private _currentModelHash: string
-  private _exactIntentMatcher: ExactMatcher
+  private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
 
-  private readonly intentClassifier: SVMClassifier
+  private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
   private readonly langDetector: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
-  private readonly slotExtractor: SlotExtractor
+  private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
 
   private retryPolicy = {
@@ -56,15 +56,18 @@ export default class ScopedEngine implements Engine {
     protected logger: sdk.Logger,
     protected botId: string,
     protected readonly config: Config,
-    readonly toolkit: typeof sdk.MLToolkit
+    readonly toolkit: typeof sdk.MLToolkit,
+    private readonly languages: string[]
   ) {
     this.storage = new Storage(config, this.botId)
-    this.intentClassifier = new SVMClassifier(toolkit, this.config.languageModel)
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
-    this.slotExtractor = new CRFExtractor(toolkit)
     this.entityExtractor = new PatternExtractor(toolkit)
-    this._autoTrainInterval = ms(config.autoTrainInterval || 0)
+    this._autoTrainInterval = ms(config.autoTrainInterval || '0')
+    for (const lang of this.languages) {
+      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang)
+      this.slotExtractors[lang] = new CRFExtractor(toolkit)
+    }
   }
 
   static loadingWarn = memoize((logger: sdk.Logger, model: string) => {
@@ -114,7 +117,11 @@ export default class ScopedEngine implements Engine {
       const modelHash = this._getModelHash(intents)
       let loaded = false
 
-      if (!forceRetrain && (await this.storage.modelExists(modelHash))) {
+      const modelsExists = (await Promise.all(
+        this.languages.map(lang => this.storage.modelExists(modelHash, lang))
+      )).every(_.identity)
+
+      if (!forceRetrain && modelsExists) {
         try {
           await this.loadModels(intents, modelHash)
           loaded = true
@@ -162,39 +169,44 @@ export default class ScopedEngine implements Engine {
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
-    const models = await this.storage.getModelsFromHash(modelHash)
+    for (const lang of this.languages) {
+      // TODO add lang in get models from hash
+      const models = await this.storage.getModelsFromHash(modelHash, lang)
 
-    const intentModels = _.chain(models)
-      .filter(model => MODEL_TYPES.INTENT.includes(model.meta.type))
-      .orderBy(model => model.meta.created_on, 'desc')
-      .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
-      .value()
+      const intentModels = _.chain(models)
+        .filter(model => MODEL_TYPES.INTENT.includes(model.meta.type))
+        .orderBy(model => model.meta.created_on, 'desc')
+        .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
+        .value()
 
-    const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
-    const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
+      const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
+      const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
-    if (!skipgramModel) {
-      throw new Error(`Could not find skipgram model for slot tagging. Hash = "${modelHash}"`)
+      if (!skipgramModel) {
+        throw new Error(`Could not find skipgram model for slot tagging. Hash = "${modelHash}"`)
+      }
+
+      if (!skipgramModel) {
+        throw new Error(`Could not find CRF model for slot tagging. Hash = "${modelHash}"`)
+      }
+
+      if (!intentModels || !intentModels.length) {
+        throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
+      }
+
+      const trainingSet = intents
+        .map(intent => {
+          return intent.utterances[lang].map(utterance =>
+            generateTrainingSequence(utterance, lang, intent.slots, intent.name)
+          )
+        })
+        .reduce((a, b) => a.concat(b), [])
+
+      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
+
+      await this.intentClassifiers[lang].load(intentModels)
+      await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
     }
-
-    if (!skipgramModel) {
-      throw new Error(`Could not find CRF model for slot tagging. Hash = "${modelHash}"`)
-    }
-
-    if (!intentModels || !intentModels.length) {
-      throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
-    }
-
-    const trainingSet = flatMap(intents, intent => {
-      return intent.utterances.map(utterance =>
-        generateTrainingSequence(utterance, intent.slots, intent.name, intent.contexts)
-      )
-    })
-
-    this._exactIntentMatcher = new ExactMatcher(trainingSet)
-    await this.intentClassifier.load(intentModels)
-
-    await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
 
     this.logger.debug(`Done restoring models '${modelHash}' from storage`)
   }
@@ -212,14 +224,24 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  private async _trainSlotTagger(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+  private async _trainSlotTagger(
+    intentDefs: sdk.NLU.IntentDefinition[],
+    modelHash: string,
+    lang: string
+  ): Promise<Model[]> {
     this.logger.debug('Training slot tagger')
 
     try {
-      const trainingSet = flatMap(intentDefs, intent => {
-        return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
-      })
-      const { language, crf } = await this.slotExtractor.train(trainingSet)
+      const trainingSet = intentDefs
+        .map(intent => {
+          return intent.utterances[lang].map(utterance =>
+            generateTrainingSequence(utterance, 'ja', intent.slots, intent.name)
+          )
+        })
+        .reduce((a, b) => a.concat(b), [])
+
+      const { language, crf } = await this.slotExtractors[lang].train(trainingSet)
+
       this.logger.debug('Done training slot tagger')
 
       if (language && crf) {
@@ -235,13 +257,15 @@ export default class ScopedEngine implements Engine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
-    try {
-      const mdls = await this.intentClassifier.train(intentDefs, modelHash)
-      const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash)
+    for (const lang of this.languages) {
+      try {
+        const mdls = await this.intentClassifiers[lang].train(intentDefs, modelHash)
+        const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash, lang)
 
-      await this.storage.persistModels([...slotTaggerModels, ...mdls])
-    } catch (err) {
-      this.logger.attachError(err).error('Error training NLU model')
+        await this.storage.persistModels([...slotTaggerModels, ...mdls], lang)
+      } catch (err) {
+        this.logger.attachError(err).error('Error training NLU model')
+      }
     }
   }
 
@@ -280,7 +304,10 @@ export default class ScopedEngine implements Engine {
     const lowerText = sanitize(noEntitiesText.toLowerCase())
     const tokens = await tokenize(lowerText, lang)
 
-    const exactIntent = this._exactIntentMatcher.exactMatch(sanitize(originalText.toLowerCase()), includedContexts)
+    const exactIntent = this._exactIntentMatchers[lang].exactMatch(
+      sanitize(originalText.toLowerCase()),
+      includedContexts
+    )
 
     if (exactIntent) {
       return {
@@ -290,7 +317,7 @@ export default class ScopedEngine implements Engine {
       }
     }
 
-    const intents = await this.intentClassifier.predict(tokens, includedContexts)
+    const intents = await this.intentClassifiers[lang].predict(tokens, includedContexts)
 
     // TODO: This is no longer relevant because of multi-context
     // We need to actually check if there's a clear winner
@@ -316,11 +343,12 @@ export default class ScopedEngine implements Engine {
 
   private async _extractSlots(
     text: string,
+    lang: string,
     intent: sdk.NLU.Intent,
     entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotCollection> {
     const intentDef = await this.storage.getIntent(intent.name)
-    const collection = await this.slotExtractor.extract(text, intentDef, entities)
+    const collection = await this.slotExtractors[lang].extract(text, lang, intentDef, entities)
     const result: sdk.NLU.SlotCollection = {}
 
     for (const name of Object.keys(collection)) {
@@ -360,7 +388,7 @@ export default class ScopedEngine implements Engine {
 
       ret = { ...ret, ...(await this._extractIntents(text, noEntitiesText, ret.language, includedContexts)) }
       ret.entities = entities
-      ret.slots = await this._extractSlots(text, ret.intent, entities)
+      ret.slots = await this._extractSlots(text, ret.language, ret.intent, entities)
       debugEntities('slots', { text, slots: ret.slots })
       ret.errored = false
     } catch (error) {

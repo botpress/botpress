@@ -48,7 +48,6 @@ export default class CRFExtractor implements SlotExtractor {
     await ft.loadFromFile(ftModelFn)
     this._ft = ft
     this._ftModelFn = ftModelFn
-
     // load kmeans (retrain because there is no simple way to store it)
     await this._trainKmeans(traingingSet)
 
@@ -103,11 +102,12 @@ export default class CRFExtractor implements SlotExtractor {
    */
   async extract(
     text: string,
+    lang: string,
     intentDef: sdk.NLU.IntentDefinition,
     entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotsCollection> {
     debugExtract(text, { entities })
-    const seq = generatePredictionSequence(text, intentDef.name, entities)
+    const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
     const tags = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
@@ -176,18 +176,21 @@ export default class CRFExtractor implements SlotExtractor {
         e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
       )
 
-    const value = _.get(entity, 'data.value', token.value)
-
-    const slot = {
-      name: slotName,
-      value
-    } as sdk.NLU.Slot
-
-    if (entity) {
-      slot.entity = entity
+    if (slotDef && !entity) {
+      return
     }
 
-    return slot
+    const value = _.get(entity, 'data.value', token.value)
+    const source = _.get(entity, 'meta.source', token.value)
+    const confidence = _.get(entity, 'meta.confidence', -1)
+
+    return {
+      name: slotName,
+      value,
+      entity,
+      confidence,
+      source
+    } as sdk.NLU.Slot
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {

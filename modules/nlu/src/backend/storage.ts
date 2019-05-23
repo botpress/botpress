@@ -239,14 +239,16 @@ export default class Storage {
     return this.botGhost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
-  private async _persistModel(model: Model) {
+  private async _persistModel(model: Model, lang: string) {
     // TODO Ghost to support streams?
     const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
-    return this.botGhost.upsertFile(this.modelsDir, modelName, model.model)
+    const modelDir = `${this.modelsDir}/${lang}`
+
+    return this.botGhost.upsertFile(modelDir, modelName, model.model)
   }
 
-  private async _cleanupModels(): Promise<void> {
-    const models = await this._getAvailableModels(false)
+  private async _cleanupModels(lang: string): Promise<void> {
+    const models = await this._getAvailableModels(false, lang)
     const uniqModelMeta = _.chain(models)
       .orderBy('created_on', 'desc')
       .uniqBy('hash')
@@ -262,18 +264,15 @@ export default class Storage {
     }
   }
 
-  async persistModels2(models: Partial<FullModel>) {}
-
-  async persistModels(models: Model[]) {
-    await Promise.map(models, model => this._persistModel(model))
-    return this._cleanupModels()
+  async persistModels(models: Model[], lang: string) {
+    await Promise.map(models, model => this._persistModel(model, lang))
+    return this._cleanupModels(lang)
   }
 
-  private async _getAvailableModels(includeGlobalModels: boolean = false): Promise<ModelMeta[]> {
-    const botModels = await this.botGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
-    const globalModels = includeGlobalModels
-      ? await this.globalGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
-      : []
+  private async _getAvailableModels(includeGlobalModels: boolean, lang: string): Promise<ModelMeta[]> {
+    const modelDir = `${this.modelsDir}/${lang}`
+    const botModels = await this.botGhost.directoryListing(modelDir, '*.+(bin|vec)')
+    const globalModels = includeGlobalModels ? await this.globalGhost.directoryListing(modelDir, '*.+(bin|vec)') : []
 
     return [...botModels, ...globalModels]
       .map(x => {
@@ -299,18 +298,18 @@ export default class Storage {
       .filter(x => !!x)
   }
 
-  async modelExists(modelHash: string): Promise<boolean> {
-    const models = await this._getAvailableModels(false)
+  async modelExists(modelHash: string, lang: string): Promise<boolean> {
+    const models = await this._getAvailableModels(false, lang)
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelsFromHash(modelHash: string): Promise<Model[]> {
-    const modelsMeta = await this._getAvailableModels(true)
+  async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {
+    const modelsMeta = await this._getAvailableModels(true, lang)
     return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
       const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
       return {
         meta,
-        model: await ghostDriver.readFileAsBuffer(this.modelsDir, meta.fileName!)
+        model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)
       }
     })
   }

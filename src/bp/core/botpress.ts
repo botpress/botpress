@@ -32,6 +32,7 @@ import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
+import { EventCollector } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MonitoringService } from './services/monitoring'
@@ -84,7 +85,8 @@ export class Botpress {
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
-    @inject(TYPES.AlertingService) private alertingService: AlertingService
+    @inject(TYPES.AlertingService) private alertingService: AlertingService,
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -295,6 +297,7 @@ export class Botpress {
 
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
+    await this.eventCollector.initialize(this.config!, this.database)
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
@@ -313,6 +316,7 @@ export class Botpress {
     }
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
 
@@ -325,6 +329,7 @@ export class Botpress {
     }
 
     this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
+      this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
@@ -355,6 +360,7 @@ export class Botpress {
     await this.dialogJanitor.start()
     await this.monitoringService.start()
     await this.alertingService.start()
+    await this.eventCollector.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

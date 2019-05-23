@@ -31,6 +31,7 @@
     "draftjs-utils": "^0.9.4",
     "https-proxy-agent": "^2.2.1",
     "joi": "^13.6.0",
+    "kuromoji": "^0.1.2",
     "lodash": "^4.17.11",
     "mathjs": "^5.9.0",
     "ml-kmeans": "^4.2.1",

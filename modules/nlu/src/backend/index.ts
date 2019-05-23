@@ -30,7 +30,8 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
-  const scoped = new ConfusionEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
+  const bot = await bp.bots.getBotById(botId)
+  const scoped = new ConfusionEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit, bot.languages)
   await scoped.init()
   nluByBot[botId] = scoped
 }

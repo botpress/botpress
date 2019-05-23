@@ -12,7 +12,7 @@ import Database from './database'
 import { LoggerProvider } from './logger'
 import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
-import { SessionRepository, UserRepository } from './repositories'
+import { EventRepository, SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -54,18 +54,15 @@ const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => 
   }
 }
 
-const event = (eventEngine: EventEngine): typeof sdk.events => {
+const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
-    sendEvent(event: sdk.IO.Event): void {
-      eventEngine.sendEvent(event)
-    },
-    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string): void {
-      eventEngine.replyToEvent(eventDestination, payloads, incomingEventId)
-    }
+    sendEvent: eventEngine.sendEvent.bind(eventEngine),
+    replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
+    findEvents: eventRepo.findEvents.bind(eventRepo)
   }
 }
 
@@ -256,10 +253,11 @@ export class BotpressAPIProvider {
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
-    @inject(TYPES.HookService) hookService: HookService
+    @inject(TYPES.HookService) hookService: HookService,
+    @inject(TYPES.EventRepository) eventRepo: EventRepository
   ) {
     this.http = http(httpServer)
-    this.events = event(eventEngine)
+    this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, sessionRepo)
     this.config = config(moduleLoader, configProfider)
     this.realtime = new RealTimeAPI(realtimeService)
