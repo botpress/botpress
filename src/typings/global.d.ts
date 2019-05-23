@@ -62,6 +62,11 @@ declare type BotpressEnvironementVariables = {
    * @example bp:dialog:*,bp:nlu:intents:*
    */
   readonly DEBUG?: string
+
+  /**
+   * Truthy if running the official Botpress docker image
+   */
+  readonly BP_IS_DOCKER?: boolean
 }
 
 interface IDebug {

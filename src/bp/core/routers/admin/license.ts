@@ -34,6 +34,7 @@ export class LicenseRouter extends CustomRouter {
         // Only SuperAdmins can see the details of the server's license
         const clusterFingerprint = await svc.getFingerprint('cluster_url')
         const machineFingerprint = await svc.getFingerprint('machine_v1')
+
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
