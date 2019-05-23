@@ -99,10 +99,11 @@ class RootStore {
     this.currentConversation.messages = messages
   }
 
-  /** Inserts the incoming message in the conversation array */
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
-    if (!(await this._validateConvoId(+event.conversationId))) {
+    if (this.currentConversationId !== +event.conversationId) {
+      await this.fetchConversations()
+      await this.fetchConversation(+event.conversationId)
       return
     }
 
@@ -112,7 +113,9 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
-    if (!(await this._validateConvoId(+event.conversationId))) {
+    if (this.currentConversationId !== +event.conversationId) {
+      await this.fetchConversations()
+      await this.fetchConversation(+event.conversationId)
       return
     }
 
@@ -295,21 +298,6 @@ class RootStore {
   @action.bound
   clearMessageWrapper() {
     this.messageWrapper = undefined
-  }
-
-  /**
-   * If an incoming event is for a different conversation ID, we'll fetch the corresponding conversation
-   * In that case, we discard the incoming change
-   *
-   */
-  @action.bound
-  private async _validateConvoId(incomingConvoId: number): Promise<boolean> {
-    if (this.currentConversationId !== incomingConvoId) {
-      await this.fetchConversations()
-      await this.fetchConversation(incomingConvoId)
-      return false
-    }
-    return true
   }
 
   /** Starts a timer to remove the typing animation when it's completed */
