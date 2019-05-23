@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
+import _ from 'lodash'
 import ms from 'ms'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
-import _ from 'lodash'
 
 const SYNC_INTERVAL_MS = ms('15s')
 
@@ -105,6 +105,16 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
       res.status(400).send('Invalid schema')
     }
+  })
+
+  // TODO use this in UI
+  router.put('/intents/:id/utterances', async (req, res) => {
+    const { botId, id } = req.params
+    const { lang, utterances } = req.body
+    const botEngine = nlus[botId] as ScopedEngine
+    // TODO add validation : bot exists, intent exist, lang is supported by bot utterance is string[])
+
+    await botEngine.storage.updateIntent(id, { utterances: { [lang]: utterances } })
   })
 
   router.get('/contexts', async (req, res) => {

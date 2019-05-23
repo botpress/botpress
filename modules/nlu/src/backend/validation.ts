@@ -15,9 +15,9 @@ export const SlotsCreateSchema = Joi.object().keys({
 
 export const IntentDefCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
-  utterances: Joi.array()
-    .items(Joi.string())
-    .default([]),
+  utterances: Joi.object()
+    .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({}),
   slots: Joi.array()
     .items(SlotsCreateSchema)
     .default([]),

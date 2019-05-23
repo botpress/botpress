@@ -57,6 +57,13 @@ export default class Storage {
     await this.botGhost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
   }
 
+  async updateIntent(intentName: string, content: Partial<sdk.NLU.IntentDefinition>) {
+    const intentDef = await this.getIntent(intentName)
+    const merged = _.merge(intentDef, content)
+
+    return this.saveIntent(intentName, merged)
+  }
+
   async saveConfusionMatrix(modelHash: string, results: Result) {
     await this.botGhost.upsertFile(
       this.modelsDir,
