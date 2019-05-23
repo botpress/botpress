@@ -111,6 +111,14 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
 
     const extraProps = this.props.extraProps || {}
 
-    return <InjectedComponent component={moduleComponent} name={this.props.moduleName} bp={bp} {...extraProps} />
+    return (
+      <InjectedComponent
+        component={moduleComponent}
+        name={this.props.moduleName}
+        contentLang={this.props.contentLang}
+        bp={bp}
+        {...extraProps}
+      />
+    )
   }
 }
