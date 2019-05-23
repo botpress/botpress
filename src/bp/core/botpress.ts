@@ -132,7 +132,7 @@ export class Botpress {
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
       appSecret = nanoid(40)
-      this.configProvider.mergeBotpressConfig({ appSecret })
+      await this.configProvider.mergeBotpressConfig({ appSecret })
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
@@ -326,7 +326,7 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
-    this.dataRetentionService.initialize()
+    await this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = (err, hideStack?) => {
