@@ -95,9 +95,9 @@ class MessagesHeader extends React.Component {
   render() {
     return (
       <div className={style['message-header']}>
-        {this.props.convHash && (
+        {this.props.conversation && (
           <div>
-            <div className={style['message-title']}>Conversation #{this.props.convHash}</div>
+            <div className={style['message-title']}>Conversation {this.props.conversation}</div>
             <div className={style['message-lastdate']}>
               Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
             </div>
@@ -150,7 +150,7 @@ export class MessagesViewer extends React.Component {
   }
 
   render() {
-    if (!this.props.convHash || !this.props.messageGroups.length) {
+    if (!this.props.conversation || !this.props.messageGroups.length) {
       return <NoConversationSelected />
     }
     return (
@@ -161,7 +161,7 @@ export class MessagesViewer extends React.Component {
             this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
           )}
         >
-          <MessagesHeader convHash={this.props.convHash} messageGroups={this.props.messageGroups} />
+          <MessagesHeader conversation={this.props.conversation} messageGroups={this.props.messageGroups} />
           {this.props.messageGroups &&
             this.props.messageGroups.map(group => {
               return (
@@ -173,7 +173,10 @@ export class MessagesViewer extends React.Component {
               )
             })}
         </div>
-        <MessageInspector closeInspector={() => this.setState({ inspectorIsShown: false })} />
+        <MessageInspector
+          currentlyFocusedMessage={this.state.currentlyFocusedMessage}
+          closeInspector={() => this.setState({ inspectorIsShown: false })}
+        />
       </div>
     )
   }

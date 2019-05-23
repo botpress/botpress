@@ -61,10 +61,7 @@ export class ConversationPicker extends React.Component {
                 className={style['conversations-entry']}
                 onClick={() => this.props.onConversationChanged(conv.id)}
               >
-                <span className={style['conversations-text']} key={conv.id} value={conv.id}>
-                  conversation
-                </span>
-                <span className={style['conversations-hash']}>{conv.id}</span>
+                <span className={style['conversations-sessionId']}>{conv.id}</span>
                 <span className={style['conversations-count']}>({conv.count})</span>
               </div>
             )

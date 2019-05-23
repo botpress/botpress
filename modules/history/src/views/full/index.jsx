@@ -5,7 +5,7 @@ import moment from 'moment'
 import { MessagesViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
-const CONV_HASH_PARAM_NAME = 'convHash'
+const CONV_PARAM_NAME = 'conversation'
 
 export default class FullView extends React.Component {
   state = {
@@ -15,16 +15,16 @@ export default class FullView extends React.Component {
     from: moment()
       .startOf('day')
       .subtract(30, 'days'),
-    currentConvHash: null
+    currentConversation: null
   }
 
   componentDidMount() {
     this.getConversations(this.state.from, this.state.to)
     const url = new URL(window.location.href)
-    const convHash = url.searchParams.get(CONV_HASH_PARAM_NAME)
-    if (convHash) {
-      this.setState({ currentConvHash: convHash })
-      this.getMessagesOfConversation(convHash)
+    const sessionId = url.searchParams.get(CONV_PARAM_NAME)
+    if (sessionId) {
+      this.setState({ currentConversation: sessionId })
+      this.getMessagesOfConversation(sessionId)
     }
   }
 
@@ -35,25 +35,25 @@ export default class FullView extends React.Component {
     this.setState({ conversationsInfo: data })
   }
 
-  selectConversation = async convHash => {
+  selectConversation = async sessionId => {
     const url = new URL(window.location.href)
-    url.searchParams.set(CONV_HASH_PARAM_NAME, convHash)
+    url.searchParams.set(CONV_PARAM_NAME, sessionId)
     window.history.pushState(window.history.state, '', url.toString())
 
-    await this.getMessagesOfConversation(convHash)
+    await this.getMessagesOfConversation(sessionId)
   }
 
-  getMessagesOfConversation = async convHash => {
-    const { data } = await this.props.bp.axios.get(`/mod/history/messages/${convHash}`)
+  getMessagesOfConversation = async sessionId => {
+    const { data } = await this.props.bp.axios.get(`/mod/history/messages/${sessionId}`)
 
     const conversationsInfoCopy = [...this.state.conversationsInfo]
-    const desiredConvInfo = conversationsInfoCopy.find(c => c.id === convHash)
+    const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
     if (desiredConvInfo) {
       desiredConvInfo.count = data.flatMap(d => d).length
     }
 
     this.setState({
-      currentConvHash: convHash,
+      currentConversation: sessionId,
       messageGroups: data,
       conversationsInfo: this.state.conversationsInfo
     })
@@ -86,7 +86,7 @@ export default class FullView extends React.Component {
           defaultTo={this.state.to.toDate()}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
-        <MessagesViewer convHash={this.state.currentConvHash} messageGroups={this.state.messageGroups} />
+        <MessagesViewer conversation={this.state.currentConversation} messageGroups={this.state.messageGroups} />
       </div>
     )
   }
