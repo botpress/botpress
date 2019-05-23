@@ -173,7 +173,9 @@ export class MessageViewer extends React.Component {
               )
             })}
           {this.props.isThereStillMessagesLeft && (
-            <button onClick={this.props.fetchNewMessages}>Click me motherfucker</button>
+            <div className={style['fetch-more']} onClick={this.props.fetchNewMessages}>
+              Load More...
+            </div>
           )}
         </div>
         <MessageInspector

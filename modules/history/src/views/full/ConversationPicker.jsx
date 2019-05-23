@@ -55,13 +55,16 @@ export class ConversationPicker extends React.Component {
         )}
         <div>
           {this.props.conversations.map(conv => {
+            const convId = conv.id
+            const lastCharIndex = Math.min(convId.indexOf('::') + 6, convId.length)
+            const convDisplayName = `${convId.substr(0, lastCharIndex)}...`
             return (
               <div
                 key={conv.id}
                 className={style['conversations-entry']}
                 onClick={() => this.props.onConversationChanged(conv.id)}
               >
-                <span className={style['conversations-sessionId']}>{conv.id}</span>
+                <span className={style['conversations-sessionId']}>{convDisplayName}</span>
                 <span className={style['conversations-count']}>({conv.count})</span>
               </div>
             )
