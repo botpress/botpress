@@ -20,7 +20,7 @@ const WebChat = (props, fullscreen) => (
     <Provider store={new RootStore({ fullscreen })}>
       <React.Fragment>
         <Chat {...props} />
-        <DevTools />
+        <DevTools position="topLeft" noPanel={true} />
       </React.Fragment>
     </Provider>
   </IntlProvider>

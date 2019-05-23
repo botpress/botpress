@@ -35,6 +35,9 @@ export class WebBotpressUIInjection extends React.Component {
 
     window.document.body.appendChild(script)
 
+    // TODO: FIND WAY FOR MODULES TO ADD BUTTONS
+    /*
+
     const button = document.createElement('li')
     Object.assign(button, {
       role: 'presentation',
@@ -49,7 +52,7 @@ export class WebBotpressUIInjection extends React.Component {
     })
 
     const target = document.querySelector('.bp-navbar-module-buttons') || document.querySelector('.nav.navbar-nav')
-    target.appendChild(button)
+    target.appendChild(button)*/
   }
 
   render() {

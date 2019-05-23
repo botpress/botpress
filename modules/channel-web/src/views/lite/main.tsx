@@ -32,7 +32,15 @@ class Web extends React.Component<MainProps> {
   componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
+
     window.addEventListener('message', this.handleIframeApi)
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        this.props.hideChat()
+        window.parent.document.getElementById('mainLayout').focus()
+      }
+    })
+
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
   }
@@ -111,6 +119,8 @@ class Web extends React.Component<MainProps> {
         this.props.showChat()
       } else if (type === 'hide') {
         this.props.hideChat()
+      } else if (type === 'toggle') {
+        this.props.displayWidgetView ? this.props.showChat() : this.props.hideChat()
       } else if (type === 'message') {
         await this.props.sendMessage(text)
       } else {

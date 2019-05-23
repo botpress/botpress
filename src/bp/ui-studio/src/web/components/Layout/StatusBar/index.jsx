@@ -9,8 +9,11 @@ import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 
 import { updateDocumentationModal } from '~/actions'
+import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
 import ActionItem from './ActionItem'
+import PermissionsChecker from '../PermissionsChecker'
+import NotificationHub from '~/components/Notifications/Hub'
 
 const COMPLETED_DURATION = 2000
 
@@ -138,6 +141,16 @@ class StatusBar extends React.Component {
             <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
             Emulator
           </ActionItem>
+          <ActionItem title="Notification" description="View Notifications" className={style.right}>
+            <NotificationHub />
+          </ActionItem>
+          <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
+            <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
+              <a href={window.BP_BASE_PATH + '/logs'}>
+                <GoFile />
+              </a>
+            </ActionItem>
+          </PermissionsChecker>
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
@@ -160,6 +173,7 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints
 })
