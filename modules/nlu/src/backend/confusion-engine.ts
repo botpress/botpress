@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { flatten, groupBy } from 'lodash'
 
 import ScopedEngine from './engine'
+import { keepEntityValues } from './pipelines/slots/pre-processor'
 import { FiveFolder, RecordCallback, Result } from './tools/five-fold'
 
 type TrainingEntry = {
@@ -85,15 +86,14 @@ export default class ConfusionEngine extends ScopedEngine {
     await super.trainModels(defs, this.modelName)
   }
 
-  private async _evaluateIntents(dataSet: TrainingEntry[], record: RecordCallback) {
-    const defs = this._entriesToDefinition(dataSet)
-
-    await this.loadModels(defs, this.originalModelHash)
-    const expected = await Promise.mapSeries(dataSet, (__, idx) => this.extract(dataSet[idx].utterance, []))
+  private async _evaluateIntents(trainSet: TrainingEntry[], testSet: TrainingEntry[], record: RecordCallback) {
+    const defs = this._entriesToDefinition(trainSet)
 
     await this.loadModels(defs, this.modelName)
-    const actual = await Promise.mapSeries(dataSet, (__, idx) => this.extract(dataSet[idx].utterance, []))
+    const actual = await Promise.mapSeries(testSet, (__, idx) =>
+      this.extract(keepEntityValues(testSet[idx].utterance), [])
+    )
 
-    dataSet.forEach((__, idx) => record(expected[idx].intent.name, actual[idx].intent.name))
+    testSet.forEach((__, idx) => record(testSet[idx].definition.name, actual[idx].intent.name))
   }
 }

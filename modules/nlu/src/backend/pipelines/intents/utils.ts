@@ -25,7 +25,7 @@ export function findMostConfidentIntentMeanStd(
     return NoneIntent
   }
 
-  const best = intents.find(x => x.confidence >= fixedThreshold)
+  const best = _.orderBy(intents, ['confidence'], 'desc').find(x => x.confidence >= fixedThreshold)
 
   if (best) {
     return best

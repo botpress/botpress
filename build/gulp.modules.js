@@ -9,7 +9,7 @@ const print = require('gulp-print').default
 const mkdirp = require('mkdirp')
 const { symlink } = require('gulp')
 const rimraf = require('gulp-rimraf')
-const cwd = path.join(__dirname, '../', process.argv.includes('--private') ? 'private-modules' : 'modules')
+const cwd = path.join(__dirname, '../', process.argv.includes('--internal') ? 'internal-modules' : 'modules')
 
 const getAllModulesRoot = () => {
   return glob
@@ -148,7 +148,7 @@ const cleanModuleAssets = () => {
 }
 
 const createModuleSymlink = () => {
-  const moduleFolder = process.argv.includes('--private') ? 'private-modules' : 'modules'
+  const moduleFolder = process.argv.includes('--internal') ? 'internal-modules' : 'modules'
   const moduleName = _.last(process.argv)
   return gulp
     .src(`./${moduleFolder}/${moduleName}/assets/`)

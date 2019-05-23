@@ -4,10 +4,9 @@ import * as sdk from 'botpress/sdk'
 import { Config } from '../config'
 
 import api from './api'
-import { registerMiddleware } from './middleware'
-
 import ConfusionEngine from './confusion-engine'
-import models from './models'
+import LangProvider from './language-provider'
+import { registerMiddleware } from './middleware'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
 import { EngineByBot } from './typings'
@@ -18,14 +17,15 @@ const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
 
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
+
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+  await LangProvider.initialize(globalConfig.languageSources)
 
   await registerMiddleware(bp, nluByBot)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, nluByBot)
-  await models(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {

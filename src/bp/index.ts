@@ -6,6 +6,7 @@ const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
 const { Debug } = require('./debug')
+const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -32,7 +33,13 @@ function stripDeprecationWrite(this: Function): boolean {
     return (arguments[2] || arguments[1])()
   }
 
-  return originalWrite.apply(this, arguments)
+  return originalWrite.apply(this, (arguments as never) as [string])
+}
+
+if (process.env.APP_DATA_PATH) {
+  process.APP_DATA_PATH = process.env.APP_DATA_PATH
+} else {
+  process.APP_DATA_PATH = getAppDataPath()
 }
 
 process.BOTPRESS_EVENTS = new EventEmitter()
@@ -171,6 +178,58 @@ try {
       },
       argv => {
         require('./bench').default(argv)
+      }
+    )
+    .command(
+      'lang',
+      'Launch a local language server',
+      {
+        port: {
+          description: 'the port to listen to',
+          default: 3100
+        },
+        host: {
+          description: 'only allow connections from this host',
+          default: 'localhost'
+        },
+        langDir: {
+          description: 'the directory where the language models reside in'
+        },
+        authToken: {
+          description: 'require API requests to use this Bearer token'
+        },
+        limit: {
+          description: 'the maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'the time window on which the limit is applied',
+          default: '1h'
+        },
+        readOnly: {
+          description: 'disables adding and removing embeddings at run-time',
+          default: false,
+          type: 'boolean'
+        },
+        metadataLocation: {
+          description: 'location of the available models to download',
+          default: 'https://s3.amazonaws.com/botpress-binaries/tools/metadata2.json'
+        },
+        dim: {
+          default: 300,
+          description: '(filter=dim) the dimentions of language to provide. files are named "domain.lang.dim.bin"'
+        },
+        domain: {
+          description:
+            '(filter=domain) the domain the embeddings were trained on. files are named "domain.lang.dim.bin"',
+          default: 'generic'
+        }
+      },
+      argv => {
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./lang-server').default(argv)
+        })
       }
     )
     .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {

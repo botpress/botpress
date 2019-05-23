@@ -4,7 +4,7 @@ import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import _, { Partial } from 'lodash'
+import _ from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -121,6 +121,8 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+
+    await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))

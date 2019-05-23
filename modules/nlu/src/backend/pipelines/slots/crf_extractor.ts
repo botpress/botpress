@@ -5,6 +5,7 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
+import { sanitize } from '../language/sanitizer'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -121,6 +122,11 @@ export default class CRFExtractor implements SlotExtractor {
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
         const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
+
+        if (!slot) {
+          return slotCollection
+        }
+
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           // prevent cases where entity has multiple tokens e.g. "4 months months"
           if (!slot.entity || token.end > slot.entity.meta.end) {
@@ -136,7 +142,7 @@ export default class CRFExtractor implements SlotExtractor {
             slotCollection[slotName] = [slotCollection[slotName], slot]
           }
         } else {
-          slotCollection[slotName] = slot
+          slotCollection[slotName] = [slot]
         }
         return slotCollection
       }, {})
@@ -171,12 +177,10 @@ export default class CRFExtractor implements SlotExtractor {
       )
 
     const value = _.get(entity, 'data.value', token.value)
-    const source = _.get(entity, 'meta.source', token.value)
 
     const slot = {
       name: slotName,
-      value,
-      source
+      value
     } as sdk.NLU.Slot
 
     if (entity) {
@@ -188,7 +192,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.value))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(sanitize(t.value.toLowerCase())))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
@@ -231,7 +235,7 @@ export default class CRFExtractor implements SlotExtractor {
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
         .map(s => {
-          if (s.tag === BIO.OUT) return s.value
+          if (s.tag === BIO.OUT) return sanitize(s.value.toLowerCase())
           else return s.slot
         })
         .join(' ')
@@ -296,7 +300,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.queryWordVectors(word)
+    const vector = await this._ft.queryWordVectors(sanitize(word.toLowerCase()))
     return this._kmeansModel.nearest([vector])[0]
   }
 }

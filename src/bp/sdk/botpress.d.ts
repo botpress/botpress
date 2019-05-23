@@ -230,9 +230,47 @@ declare module 'botpress/sdk' {
 
       export interface ModelConstructor {
         new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
+    }
+
+    export namespace SVM {
+      export interface SVMOptions {
+        classifier: 'C_SVC'
+        kernel: 'linear' | 'RBF' | 'POLY'
+        c: number | number[]
+        gamma: number | number[]
+      }
+
+      export type DataPoint = {
+        label: string
+        coordinates: number[]
+      }
+
+      export type Prediction = {
+        label: string
+        confidence: number
+      }
+
+      export interface TrainProgressCallback {
+        (progress: number): void
+      }
+
+      export class Trainer {
+        constructor(options?: Partial<SVMOptions>)
+        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        isTrained(): boolean
+        serialize(): string
+      }
+
+      export class Predictor {
+        constructor(model: string)
+        predict(coordinates: number[]): Promise<Prediction[]>
+        isLoaded(): boolean
+        getLabels(): string[]
+      }
     }
 
     export namespace Strings {
@@ -340,10 +378,15 @@ declare module 'botpress/sdk' {
       name: string
       value: any
       entity: Entity
+      confidence: number
+    }
+
+    export interface SlotCollection {
+      [key: string]: Slot
     }
 
     export interface SlotsCollection {
-      [key: string]: Slot | Slot[]
+      [key: string]: Slot[]
     }
   }
   export namespace IO {
@@ -432,7 +475,7 @@ declare module 'botpress/sdk' {
       readonly intents: NLU.Intent[]
       readonly language: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotsCollection
+      readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
     }
