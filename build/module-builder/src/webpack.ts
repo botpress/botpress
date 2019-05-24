@@ -31,7 +31,8 @@ export function config(projectPath) {
     externals: {
       react: 'React',
       'react-dom': 'ReactDOM',
-      'react-bootstrap': 'ReactBootstrap'
+      'react-bootstrap': 'ReactBootstrap',
+      '@blueprintjs/core': 'BlueprintJsCore'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]

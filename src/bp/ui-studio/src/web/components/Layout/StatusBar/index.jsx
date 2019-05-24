@@ -133,6 +133,7 @@ class StatusBar extends React.Component {
         <div className={style.list}>
           <ActionItem
             title="Toggle Emulator"
+            id={'sidebar_emulator'}
             shortcut={keyMap['emulator-focus']}
             description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
@@ -154,7 +155,11 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem title="Switch Bot" description="Switch to an other bot. This will leave this interface.">
+          <ActionItem
+            id="sidebar_switchbot"
+            title="Switch Bot"
+            description="Switch to an other bot. This will leave this interface."
+          >
             <a href="/admin/">
               <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
               <strong>{this.props.botName}</strong> (bot)

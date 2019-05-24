@@ -16,10 +16,10 @@ import EventNotFound from './EventNotFound'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 
-export const updater = { isLoaded: false, callback: undefined }
+export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 350
-const DEV_TOOOLS_WIDTH = 450
+const WEBCHAT_WIDTH = 400
+const DEV_TOOLS_WIDTH = 450
 
 export class DevTools extends React.Component<DevToolProps, DevToolState> {
   state = {
@@ -34,26 +34,41 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
     updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
-    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH + DEV_TOOOLS_WIDTH)
-
+    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
     this.props.store.view.addHeaderButton({
       id: 'toggleDev',
       label: 'Show Debugger',
       icon: <MdBugReport />,
-      onClick: this.handleToggleDev
+      onClick: this.toggleDebugger
     })
+
+    window.addEventListener('keydown', this.hotkeyListener)
   }
 
   componentWillUnmount() {
     this.props.store.view.removeHeaderButton('toggleDev')
+    window.removeEventListener('keydown', this.hotkeyListener)
+    this.resetWebchat()
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.visible && this.state.visible) {
       this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
     } else if (prevState.visible && !this.state.visible) {
-      this.props.store.view.setHighlightedMessages([])
-      this.props.store.setMessageWrapper(undefined)
+      this.resetWebchat()
+    }
+  }
+
+  resetWebchat() {
+    this.props.store.view.setHighlightedMessages([])
+    this.props.store.setMessageWrapper(undefined)
+    this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
+    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
+  }
+
+  hotkeyListener = e => {
+    if (e.ctrlKey && e.key === 'F12') {
+      this.toggleDebugger()
     }
   }
 
@@ -73,13 +88,8 @@ export class DevTools extends React.Component<DevToolProps, DevToolState> {
     this.props.store.setUserId(userId)
   }
 
-  handleToggleDev = btnId => {
-    /*this.props.store.view.updateHeaderButton('toggleDev', {
-      label: 'Hide Developer Tools',
-      icon: <MdVisibility color="green" />
-    })*/
-
-    this.props.store.view.setContainerWidth(this.state.visible ? WEBCHAT_WIDTH : WEBCHAT_WIDTH + DEV_TOOOLS_WIDTH)
+  toggleDebugger = () => {
+    this.props.store.view.setContainerWidth(this.state.visible ? WEBCHAT_WIDTH : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH)
     this.setState({ visible: !this.state.visible })
   }
 

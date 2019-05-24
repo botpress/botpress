@@ -226,7 +226,7 @@ class ViewStore {
   showChat() {
     if (this.disableAnimations) {
       this.activeView = 'side'
-      return this._updateTransitions({ widgetTransition: undefined, sideTransition: 'fadeIn' })
+      return this._updateTransitions({ widgetTransition: undefined, sideTransition: 'none' })
     }
 
     this._updateTransitions({ widgetTransition: 'fadeOut' })
