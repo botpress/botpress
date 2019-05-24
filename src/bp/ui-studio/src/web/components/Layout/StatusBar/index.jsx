@@ -7,7 +7,7 @@ import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
-
+import { NavLink } from 'react-router-dom'
 import { updateDocumentationModal } from '~/actions'
 import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
@@ -147,9 +147,9 @@ class StatusBar extends React.Component {
           </ActionItem>
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
-              <a href={window.BP_BASE_PATH + '/logs'}>
+              <NavLink to={'/logs'}>
                 <GoFile />
-              </a>
+              </NavLink>
             </ActionItem>
           </PermissionsChecker>
           <div className={style.item}>

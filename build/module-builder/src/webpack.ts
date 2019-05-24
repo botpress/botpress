@@ -109,6 +109,10 @@ export function config(projectPath) {
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
     },
+    externals: {
+      react: 'React',
+      'react-dom': 'ReactDOM'
+    },
     plugins: [] // We clear the plugins here, since the cleanup is already done by the "full" view
   })
 
