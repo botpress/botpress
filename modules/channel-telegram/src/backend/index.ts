@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import { Router } from 'express'
 import Telegraf from 'telegraf'
 
 import { Config } from '../config'
@@ -19,8 +20,29 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
 
   if (config.enabled) {
     const bot = new Telegraf(config.botToken)
+
+    // TODO: && cluster enabled
+    if (process.EXTERNAL_URL) {
+      const webhookURL = process.EXTERNAL_URL + `/api/v1/bots/${botId}/mod/channel-telegram/secrets`
+      const router = bp.http.createRouterForBot('channel-telegram', {
+        checkAuthentication: false,
+        enableJsonBodyParser: false // telegraf webhook has its custom body parser
+      }) as Router
+
+      router.use((req, res, next) => {
+        console.log('===>', req.url, webhookURL)
+        next()
+      })
+
+      router.use(bot.webhookCallback('/secrets'))
+      await bot.telegram.setWebhook(webhookURL)
+    } else {
+      // Must delete webhook prior to using getUpdates()
+      await bot.telegram.deleteWebhook()
+      bot.startPolling()
+    }
+
     clients[botId] = bot
-    bot.startPolling()
     await setupBot(bp, botId, clients)
   }
 }
