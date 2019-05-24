@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Tab, Tabs } from '@blueprintjs/core'
+import { Tab, Tabs } from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
 import nanoid from 'nanoid'
 import React from 'react'
@@ -21,7 +21,7 @@ export const updater = { callback: undefined }
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
 
-export class DevTools extends React.Component<DevToolProps, DevToolState> {
+export class Debugger extends React.Component<DevToolProps, DevToolState> {
   state = {
     event: undefined,
     showEventNotFound: false,

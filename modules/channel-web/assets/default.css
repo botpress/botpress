@@ -887,3 +887,7 @@ body {
     transform: translateX(100%);
   }
 }
+
+.bpw-mobx-tools {
+  visibility: hidden;
+}
