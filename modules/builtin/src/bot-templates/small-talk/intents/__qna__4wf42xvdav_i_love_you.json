@@ -1,13 +1,9 @@
 {
   "name": "__qna__4wf42xvdav_i_love_you",
   "filename": "__qna__4wf42xvdav_i_love_you.json",
-  "contexts": [
-    "global"
-  ],
-  "entities": [],
-  "utterances": [
-    "I love you",
-    "I am in love with you",
-    "Do you love me?"
-  ]
+  "contexts": ["global"],
+  "slots": [],
+  "utterances": {
+    "en": ["I love you", "I am in love with you", "Do you love me?"]
+  }
 }
