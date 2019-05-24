@@ -11,10 +11,15 @@ function injectDOMElement(tagName, targetSelector, options) {
 
 window.addEventListener('message', function(payload) {
   const data = payload.data
-  if (!data || !data.type || data.type !== 'setClass') {
+  if (!data || !data.type) {
     return
   }
-  document.querySelector('#bp-widget').setAttribute('class', data.value)
+
+  if (data.type === 'setClass') {
+    document.querySelector('#bp-widget').setAttribute('class', data.value)
+  } else if (data.type === 'setWidth') {
+    document.querySelector('#bp-widget').style.width = data.value
+  }
 })
 
 function init(config) {
@@ -35,9 +40,13 @@ function init(config) {
   function sendEvent(payload) {
     iframeWindow.postMessage({ action: 'event', payload: payload }, '*')
   }
+  function mergeConfig(payload) {
+    iframeWindow.postMessage({ action: 'mergeConfig', payload: payload }, '*')
+  }
 
   window.botpressWebChat.configure = configure
   window.botpressWebChat.sendEvent = sendEvent
+  window.botpressWebChat.mergeConfig = mergeConfig
 }
 
 // Do we want to expose 'onPostback'

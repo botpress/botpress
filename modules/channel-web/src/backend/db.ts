@@ -45,6 +45,7 @@ export default class WebchatDb {
         return this.knex.createTableIfNotExists('web_messages', function(table) {
           table.string('id').primary()
           table.integer('conversationId')
+          table.string('incomingEventId')
           table.string('userId')
           table.string('message_type') // @ deprecated Remove in a future release (11.9)
           table.text('message_text') // @ deprecated Remove in a future release (11.9)
@@ -69,7 +70,7 @@ export default class WebchatDb {
       )
   }
 
-  async appendUserMessage(botId, userId, conversationId, payload) {
+  async appendUserMessage(botId, userId, conversationId, payload, incomingEventId) {
     const { fullName, avatar_url } = await this.getUserInfo(userId)
     const { type, text, raw, data } = payload
 
@@ -87,6 +88,7 @@ export default class WebchatDb {
     const message = {
       id: uuid.v4(),
       conversationId,
+      incomingEventId,
       userId,
       full_name: fullName,
       avatar_url,
@@ -118,11 +120,12 @@ export default class WebchatDb {
     )
   }
 
-  async appendBotMessage(botName, botAvatar, conversationId, payload) {
+  async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
     const { type, text, raw, data } = payload
     const message = {
       id: uuid.v4(),
       conversationId: conversationId,
+      incomingEventId,
       userId: undefined,
       full_name: botName,
       avatar_url: botAvatar,

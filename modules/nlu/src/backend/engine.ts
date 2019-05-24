@@ -58,7 +58,7 @@ export default class ScopedEngine implements Engine {
     protected botId: string,
     protected readonly config: Config,
     readonly toolkit: typeof sdk.MLToolkit,
-    private readonly languages: string[],
+    protected readonly languages: string[],
     private readonly defaultLanguage: string
   ) {
     this.storage = new Storage(config, this.botId)
@@ -198,7 +198,7 @@ export default class ScopedEngine implements Engine {
 
       const trainingSet = intents
         .map(intent => {
-          return intent.utterances[lang].map(utterance =>
+          return (intent.utterances[lang] || []).map(utterance =>
             generateTrainingSequence(utterance, lang, intent.slots, intent.name)
           )
         })
@@ -236,8 +236,8 @@ export default class ScopedEngine implements Engine {
     try {
       const trainingSet = intentDefs
         .map(intent => {
-          return intent.utterances[lang].map(utterance =>
-            generateTrainingSequence(utterance, 'ja', intent.slots, intent.name)
+          return (intent.utterances[lang] || []).map(utterance =>
+            generateTrainingSequence(utterance, lang, intent.slots, intent.name)
           )
         })
         .reduce((a, b) => a.concat(b), [])

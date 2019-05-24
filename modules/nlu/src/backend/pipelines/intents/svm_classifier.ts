@@ -69,12 +69,12 @@ export default class SVMClassifier {
 
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
     const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
-      .flatMap(x => x.contexts)
+      .flatMap(x => (<sdk.NLU.IntentDefinition>x).contexts)
       .uniq()
       .value()
 
     const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = intent.utterances[this.language]
+      const lowerUtterances = (intent.utterances[this.language] || [])
         .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
         .filter(x => x.trim().length)
 
@@ -156,9 +156,11 @@ export default class SVMClassifier {
           if (samples.length >= 4) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
-            l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
-              x.label = newLabel
-            })
+            l1Points
+              .filter(x => samples.includes(x.coordinates))
+              .forEach(x => {
+                x.label = newLabel
+              })
           }
         }
       }
@@ -200,13 +202,15 @@ export default class SVMClassifier {
     intentsWTokens: {
       tokens: string[][]
       name: string
-      utterances: string[]
+      utterances: {
+        [lang: string]: string[]
+      }
       filename: string
       slots: sdk.NLU.SlotDefinition[]
       contexts: string[]
     }[]
   ): { l1Tfidf: { [context: string]: TfidfOutput }; l0Tfidf: TfidfOutput } {
-    const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentsWTokens)
+    const allContexts = _.chain(intentsWTokens)
       .flatMap(x => x.contexts)
       .uniq()
       .value()
