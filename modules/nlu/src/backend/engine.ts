@@ -24,6 +24,7 @@ const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
+const debugSlots = debugExtract.sub('slots')
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -57,7 +58,8 @@ export default class ScopedEngine implements Engine {
     protected botId: string,
     protected readonly config: Config,
     readonly toolkit: typeof sdk.MLToolkit,
-    private readonly languages: string[]
+    private readonly languages: string[],
+    private readonly defaultLanguage: string
   ) {
     this.storage = new Storage(config, this.botId)
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
@@ -361,11 +363,11 @@ export default class ScopedEngine implements Engine {
   }
 
   private async _extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
-    let ret: any = { errored: true }
+    let res: any = { errored: true }
     const t1 = Date.now()
     try {
-      ret.language = await this.langDetector.identify(text)
-      const entities = await this._extractEntities(text, ret.language)
+      res.language = await this._detectLang(text)
+      const entities = await this._extractEntities(text, res.language)
 
       const entitiesToReplace = _.chain(entities)
         .filter(x => x.type === 'pattern' || x.type === 'list')
@@ -386,16 +388,27 @@ export default class ScopedEngine implements Engine {
 
       noEntitiesText += text.substr(cursor, text.length - cursor)
 
-      ret = { ...ret, ...(await this._extractIntents(text, noEntitiesText, ret.language, includedContexts)) }
-      ret.entities = entities
-      ret.slots = await this._extractSlots(text, ret.language, ret.intent, entities)
-      debugEntities('slots', { text, slots: ret.slots })
-      ret.errored = false
+      res = { ...res, ...(await this._extractIntents(text, noEntitiesText, res.language, includedContexts)) }
+      res.entities = entities
+      res.slots = res.intent.name === 'none' ? {} : await this._extractSlots(text, res.language, res.intent, entities)
+
+      debugSlots('slots', { text, slots: res.slots })
+      res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
-      ret.ms = Date.now() - t1
-      return ret as sdk.IO.EventUnderstanding
+      res.ms = Date.now() - t1
+      return res as sdk.IO.EventUnderstanding
     }
+  }
+
+  private async _detectLang(text: string): Promise<string> {
+    let lang = await this.langDetector.identify(text)
+    if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
+      this.logger.debug(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
+      lang = this.defaultLanguage
+    }
+
+    return lang
   }
 }
