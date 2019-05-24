@@ -17,7 +17,7 @@ export default class FullView extends React.Component {
       .subtract(30, 'days'),
     currentConversation: null,
     currentConversationMessageGroupsOffset: 0,
-    isThereStillMessagesLeft: false
+    currentConversationMessageGroupsCount: 0
   }
 
   componentDidMount() {
@@ -37,9 +37,6 @@ export default class FullView extends React.Component {
   }
 
   selectConversation = async sessionId => {
-    if (sessionId == this.state.currentConversation) {
-      return
-    }
     const url = new URL(window.location.href)
     url.searchParams.set(CONV_PARAM_NAME, sessionId)
     window.history.pushState(window.history.state, '', url.toString())
@@ -47,21 +44,28 @@ export default class FullView extends React.Component {
     await this.getMessagesOfConversation(sessionId)
   }
 
+  hasConversationChanged(sessionId, currentConversation, receivedData) {
+    return sessionId !== this.state.currentConversation || currentConversation.count !== receivedData.messageCount
+  }
+
   getMessagesOfConversation = async sessionId => {
     const { data } = await this.props.bp.axios.get(`/mod/history/messages/${sessionId}`)
 
     const conversationsInfoCopy = [...this.state.conversationsInfo]
     const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
-    if (desiredConvInfo) {
-      desiredConvInfo.count = data.messageCount
+
+    if (!desiredConvInfo || !this.hasConversationChanged(sessionId, desiredConvInfo, data)) {
+      return
     }
+
+    desiredConvInfo.count = data.messageCount
 
     this.setState({
       currentConversation: sessionId,
       messageGroups: data.messageGroupsArray,
-      conversationsInfo: this.state.conversationsInfo,
+      conversationsInfo: conversationsInfoCopy,
       currentConversationMessageGroupsOffset: data.messageGroupsArray.length,
-      isThereStillMessagesLeft: data.messageGroupsArray.flatMap(mg => mg).length !== data.messageCount
+      currentConversationMessageGroupsCount: data.messageGroupCount
     })
   }
 
@@ -77,20 +81,19 @@ export default class FullView extends React.Component {
     this.getConversations(this.state.from, moment_day)
   }
 
-  fetchNewMessages = async () => {
+  fetchMoreMessages = async () => {
     const { data } = await this.props.bp.axios.get(
-      `/mod/history/messages/${this.state.currentConversation}?offset=${
+      `/mod/history/more-messages/${this.state.currentConversation}?offset=${
         this.state.currentConversationMessageGroupsOffset
-      }`
+      }&clientCount=${this.state.currentConversationMessageGroupsCount}`
     )
 
     let messageGroupsCopy = [...this.state.messageGroups]
-    messageGroupsCopy = messageGroupsCopy.concat(data.messageGroupsArray)
+    messageGroupsCopy = messageGroupsCopy.concat(data)
 
     this.setState({
       messageGroups: messageGroupsCopy,
-      currentConversationMessageGroupsOffset: messageGroupsCopy.length,
-      isThereStillMessagesLeft: messageGroupsCopy.flatMap(mg => mg).length !== data.messageCount
+      currentConversationMessageGroupsOffset: messageGroupsCopy.length
     })
   }
 
@@ -98,6 +101,8 @@ export default class FullView extends React.Component {
     if (!this.state.conversationsInfo) {
       return null
     }
+    const isThereStillMessagesLeftToFetch =
+      this.state.currentConversationMessageGroupsOffset !== this.state.currentConversationMessageGroupsCount
     return (
       <div className={style['history-component']}>
         <ConversationPicker
@@ -110,8 +115,8 @@ export default class FullView extends React.Component {
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
         <MessageViewer
-          isThereStillMessagesLeft={this.state.isThereStillMessagesLeft}
-          fetchNewMessages={() => this.fetchNewMessages()}
+          isThereStillMessagesLeft={isThereStillMessagesLeftToFetch}
+          fetchNewMessages={() => this.fetchMoreMessages()}
           conversation={this.state.currentConversation}
           messageGroups={this.state.messageGroups}
         />

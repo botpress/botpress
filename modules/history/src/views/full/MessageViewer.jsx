@@ -80,14 +80,14 @@ class MessagesHeader extends React.Component {
   constructor(props) {
     super(props)
 
-    const flattenMessages = props.messageGroups.flatMap(d => d)
+    const flattenMessages = props.messageGroups.flat()
     const content = JSON.stringify(flattenMessages)
     let blob = new Blob([content], { type: 'application/json' })
     this.fileURL = window.URL.createObjectURL(blob)
   }
 
   getLastMessageDate = messageGroups => {
-    const messages = messageGroups.flatMap(m => m)
+    const messages = messageGroups.flat()
     const maxDateMessage = _.maxBy(messages, m => m.createdOn)
     return new Date(maxDateMessage.createdOn)
   }

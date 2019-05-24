@@ -30,7 +30,7 @@ export default class HistoryDb {
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.sessionId)
 
-    const buildConversationInfo = async c => ({ id: c, count: await this._getConversationCount(c) })
+    const buildConversationInfo = async c => ({ id: c, count: await this.getConversationMessageCount(c) })
     return Promise.all(uniqueConversations.map(buildConversationInfo))
   }
 
@@ -48,16 +48,22 @@ export default class HistoryDb {
       .whereIn('incomingEventId', incomingMessages.map(x => x.id))
       .then(rows => rows.map(r => this.knex.json.get(r.event)))
 
-    const messageCount = await this._getConversationCount(sessionId)
-
-    return { messages, messageCount }
+    return messages
   }
 
-  private _getConversationCount = async (sessionId: string) => {
+  getConversationMessageCount = async (sessionId: string) => {
+    return this._getMessageCountWhere({ sessionId })
+  }
+
+  getConversationMessageGroupCount = async (sessionId: string) => {
+    return this._getMessageCountWhere({ sessionId, direction: 'incoming' })
+  }
+
+  private async _getMessageCountWhere(whereParams) {
     const messageCountObject = await this.knex
       .from('events')
       .count()
-      .where({ sessionId })
+      .where(whereParams)
 
     return messageCountObject.pop()['count(*)']
   }
