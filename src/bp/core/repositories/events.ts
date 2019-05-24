@@ -6,7 +6,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface EventRepository {
-  findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams: sdk.EventSearchParams)
+  findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams)
   pruneUntil(date: Date): Promise<void>
 }
 

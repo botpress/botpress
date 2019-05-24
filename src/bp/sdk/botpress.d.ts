@@ -1089,7 +1089,7 @@ declare module 'botpress/sdk' {
      */
     export function findEvents(
       fields: Partial<IO.StoredEvent>,
-      searchParams: EventSearchParams
+      searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
   }
 

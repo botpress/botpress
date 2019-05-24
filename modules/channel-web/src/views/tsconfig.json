@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "target": "es5",
+    "lib": ["es7", "dom"],
+    "jsx": "react",
+    "typeRoots": ["../../node_modules/@types", "lite/typings.d.ts"]
+  }
+}
