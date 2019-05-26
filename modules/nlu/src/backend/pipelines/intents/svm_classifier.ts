@@ -153,6 +153,7 @@ export default class SVMClassifier {
         const labels = Object.keys(pairs)
         for (const label of labels) {
           const samples = pairs[label]
+          // what is this magic 4 ?
           if (samples.length >= 4) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
@@ -168,6 +169,7 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
+      // TODO use RBF kernel ?
       const svm = new this.toolkit.SVM.Trainer()
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
@@ -178,6 +180,7 @@ export default class SVMClassifier {
       })
     }
 
+    // TODO use RBF kernel
     const svm = new this.toolkit.SVM.Trainer({ kernel: 'linear', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()

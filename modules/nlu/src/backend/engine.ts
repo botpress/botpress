@@ -7,6 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
+import { MIN_NB_UTTERANCES } from './pipelines/constants'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import ExactMatcher from './pipelines/intents/exact_matcher'
@@ -172,7 +173,6 @@ export default class ScopedEngine implements Engine {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
     for (const lang of this.languages) {
-      // TODO add lang in get models from hash
       const models = await this.storage.getModelsFromHash(modelHash, lang)
 
       const intentModels = _.chain(models)
@@ -259,12 +259,16 @@ export default class ScopedEngine implements Engine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+    // TODO use the same data structure to train intent and slot models
+    // TODO generate single training set here and filter
     for (const lang of this.languages) {
       try {
-        const mdls = await this.intentClassifiers[lang].train(intentDefs, modelHash)
-        const slotTaggerModels = await this._trainSlotTagger(intentDefs, modelHash, lang)
+        const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
-        await this.storage.persistModels([...slotTaggerModels, ...mdls], lang)
+        const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
+        const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
+
+        await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
       } catch (err) {
         this.logger.attachError(err).error('Error training NLU model')
       }
