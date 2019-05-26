@@ -133,7 +133,7 @@ class StatusBar extends React.Component {
         <div className={style.list}>
           <ActionItem
             title="Toggle Emulator"
-            id={'sidebar_emulator'}
+            id={'statusbar_emulator'}
             shortcut={keyMap['emulator-focus']}
             description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
@@ -156,7 +156,7 @@ class StatusBar extends React.Component {
             <strong>v{this.props.botpressVersion}</strong>
           </div>
           <ActionItem
-            id="sidebar_switchbot"
+            id="statusbar_switchbot"
             title="Switch Bot"
             description="Switch to an other bot. This will leave this interface."
           >

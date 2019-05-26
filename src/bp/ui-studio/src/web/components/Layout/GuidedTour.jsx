@@ -1,6 +1,7 @@
 import React from 'react'
 import Tour from 'reactour'
 import storage from '../../util/storage'
+import { Button } from '@blueprintjs/core'
 
 // Change this key to display the tour the next time a user opens Botpress
 const TOUR_KEY = 'guidedTour11_9_0'
@@ -29,15 +30,22 @@ export default class GuidedTour extends React.Component {
         content: 'Welcome to Botpress ! This is a quick your of the most important features'
       },
       {
-        selector: '#sidebar_emulator',
+        selector: '#statusbar_emulator',
         content: 'The emulator allows you to easily test your bot'
       },
       {
-        selector: '#sidebar_switchbot',
+        selector: '#statusbar_switchbot',
         content: 'Click here to return to the Admin UI and change bot'
       }
     ]
 
-    return <Tour steps={steps} isOpen={this.state.isDisplayed} onRequestClose={this.closeTour} />
+    return (
+      <Tour
+        steps={steps}
+        isOpen={this.state.isDisplayed}
+        onRequestClose={this.closeTour}
+        lastStepNextButton={<Button>Let's get to work!</Button>}
+      />
+    )
   }
 }

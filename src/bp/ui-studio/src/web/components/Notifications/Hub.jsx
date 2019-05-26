@@ -52,7 +52,7 @@ class NotificationHub extends NotificationComponent {
 
     const label = (
       <span>
-        <em className="glyphicon glyphicon-bell" />
+        <GoBell />
         <span className={className}>{unreadCount}</span>
       </span>
     )
@@ -77,35 +77,9 @@ class NotificationHub extends NotificationComponent {
             {this.renderMenuItems(displayedNotifications)}
           </div>
         }
-        target={<GoBell />}
+        target={label}
       />
     )
-    /** 
-    return (
-      <NavDropdown
-        id="notificationsDropdown"
-        noCaret={!unreadCount}
-        title={label}
-        className={classnames(styles.dropdown, 'bp-notifications-dropdown')}
-      >
-        <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
-          <span>
-            <strong>Notifications {!isEmpty && `(${notifications.length})`}</strong>
-          </span>
-          {!isEmpty && (
-            <div className="pull-right">
-              <a href="#" onClick={this.markAllAsRead}>
-                Mark all as read
-              </a>
-              &nbsp; &middot; &nbsp;
-              <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
-            </div>
-          )}
-        </MenuItem>
-        {isEmpty && this.renderEmptyPanel()}
-        {this.renderMenuItems(displayedNotifications)}
-      </NavDropdown>
-    )*/
   }
 }
 
