@@ -108,7 +108,7 @@ export default class CRFExtractor implements SlotExtractor {
   ): Promise<sdk.NLU.SlotsCollection> {
     debugExtract(text, { entities })
     const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
-    const tags = await this._tag(seq)
+    const { probability, result: tags } = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tag]) => {
@@ -121,7 +121,7 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
 
         if (!slot) {
           return slotCollection
@@ -149,7 +149,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // this is made "protected" to facilitate model validation
-  async _tag(seq: Sequence): Promise<string[]> {
+  async _tag(seq: Sequence): Promise<{ probability: number; result: string[] }> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
@@ -160,14 +160,15 @@ export default class CRFExtractor implements SlotExtractor {
       inputVectors.push(featureVec)
     }
 
-    return this._tagger.tag(inputVectors).result
+    return this._tagger.tag(inputVectors)
   }
 
   private _makeSlot(
     slotName: string,
     token: Token,
     slotDefinitions: sdk.NLU.SlotDefinition[],
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    confidence: number
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
@@ -176,13 +177,13 @@ export default class CRFExtractor implements SlotExtractor {
         e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
       )
 
-    if (slotDef && !entity) {
+    // TODO: we might want to build up an entity with populated data with and 'any' slot
+    if (slotDef && !slotDef.entities.includes('any') && !entity) {
       return
     }
 
     const value = _.get(entity, 'data.value', token.value)
     const source = _.get(entity, 'meta.source', token.value)
-    const confidence = _.get(entity, 'meta.confidence', -1)
 
     return {
       name: slotName,
