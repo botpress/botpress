@@ -2,6 +2,7 @@ import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
+import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -17,7 +18,6 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
-import { ModuleLoader } from 'core/module-loader'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -436,6 +436,7 @@ export class CMSService implements IDisposeOnExit {
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
 
     for (const contentType of this.contentTypes) {
+      // @ts-ignore
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
