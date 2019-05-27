@@ -7,10 +7,13 @@ import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
-
+import { NavLink } from 'react-router-dom'
 import { updateDocumentationModal } from '~/actions'
+import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
 import ActionItem from './ActionItem'
+import PermissionsChecker from '../PermissionsChecker'
+import NotificationHub from '~/components/Notifications/Hub'
 
 const COMPLETED_DURATION = 2000
 
@@ -130,6 +133,7 @@ class StatusBar extends React.Component {
         <div className={style.list}>
           <ActionItem
             title="Toggle Emulator"
+            id={'statusbar_emulator'}
             shortcut={keyMap['emulator-focus']}
             description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
@@ -138,10 +142,24 @@ class StatusBar extends React.Component {
             <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
             Emulator
           </ActionItem>
+          <ActionItem title="Notification" description="View Notifications" className={style.right}>
+            <NotificationHub />
+          </ActionItem>
+          <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
+            <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
+              <NavLink to={'/logs'}>
+                <GoFile />
+              </NavLink>
+            </ActionItem>
+          </PermissionsChecker>
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem title="Switch Bot" description="Switch to an other bot. This will leave this interface.">
+          <ActionItem
+            id="statusbar_switchbot"
+            title="Switch Bot"
+            description="Switch to an other bot. This will leave this interface."
+          >
             <a href="/admin/">
               <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
               <strong>{this.props.botName}</strong> (bot)
@@ -160,6 +178,7 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints
 })

@@ -31,7 +31,8 @@ export function config(projectPath) {
     externals: {
       react: 'React',
       'react-dom': 'ReactDOM',
-      'react-bootstrap': 'ReactBootstrap'
+      'react-bootstrap': 'ReactBootstrap',
+      '@blueprintjs/core': 'BlueprintJsCore'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
@@ -107,6 +108,10 @@ export function config(projectPath) {
       filename: 'lite.bundle.js',
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
+    },
+    externals: {
+      react: 'React',
+      'react-dom': 'ReactDOM'
     },
     plugins: [] // We clear the plugins here, since the cleanup is already done by the "full" view
   })

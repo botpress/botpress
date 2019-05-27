@@ -4,9 +4,11 @@ import { NavDropdown, MenuItem } from 'react-bootstrap'
 import _ from 'lodash'
 import classnames from 'classnames'
 import { fetchNotifications } from '~/actions'
-
+import { Popover } from '@blueprintjs/core'
+import '@blueprintjs/core/lib/css/blueprint.css'
 import NotificationComponent from './index.jsx'
 import styles from './hubStyle.scss'
+import { GoBell } from 'react-icons/go'
 
 const NB_OF_NOTIFICATIONS_TO_DISPLAY = 6
 
@@ -50,35 +52,33 @@ class NotificationHub extends NotificationComponent {
 
     const label = (
       <span>
-        <em className="glyphicon glyphicon-bell" />
+        <GoBell />
         <span className={className}>{unreadCount}</span>
       </span>
     )
 
     return (
-      <NavDropdown
-        id="notificationsDropdown"
-        noCaret={!unreadCount}
-        title={label}
-        className={classnames(styles.dropdown, 'bp-notifications-dropdown')}
-      >
-        <MenuItem header className={classnames(styles.topMenu, 'bp-top-menu')}>
-          <span>
-            <strong>Notifications {!isEmpty && `(${notifications.length})`}</strong>
-          </span>
-          {!isEmpty && (
-            <div className="pull-right">
-              <a href="#" onClick={this.markAllAsRead}>
-                Mark all as read
-              </a>
-              &nbsp; &middot; &nbsp;
-              <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
-            </div>
-          )}
-        </MenuItem>
-        {isEmpty && this.renderEmptyPanel()}
-        {this.renderMenuItems(displayedNotifications)}
-      </NavDropdown>
+      <Popover
+        content={
+          <div className={classnames(styles.topMenu, 'bp-top-menu')}>
+            <span>
+              <strong>Notifications {!isEmpty && `(${notifications.length})`}</strong>
+            </span>
+            {!isEmpty && (
+              <div className="pull-right">
+                <a href="#" onClick={this.markAllAsRead}>
+                  Mark all as read
+                </a>
+                &nbsp; &middot; &nbsp;
+                <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
+              </div>
+            )}
+            {isEmpty && this.renderEmptyPanel()}
+            {this.renderMenuItems(displayedNotifications)}
+          </div>
+        }
+        target={label}
+      />
     )
   }
 }

@@ -844,6 +844,10 @@ body {
   animation-iteration-count: 1;
 }
 
+.bpw-anim-none {
+  visibility: visible;
+}
+
 @keyframes slideInRight {
   0% {
     visibility: visible;
@@ -882,4 +886,8 @@ body {
     visibility: hidden;
     transform: translateX(100%);
   }
+}
+
+.bpw-mobx-tools {
+  visibility: hidden;
 }

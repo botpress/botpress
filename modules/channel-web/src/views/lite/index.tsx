@@ -20,7 +20,7 @@ const WebChat = (props, fullscreen) => (
     <Provider store={new RootStore({ fullscreen })}>
       <React.Fragment>
         <Chat {...props} />
-        <DevTools />
+        {process.env.NODE_ENV === 'development' && <DevTools className="bpw-mobx-tools" />}
       </React.Fragment>
     </Provider>
   </IntlProvider>

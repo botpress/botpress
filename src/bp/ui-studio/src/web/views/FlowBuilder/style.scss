@@ -1,4 +1,3 @@
-$header-bar-height: 50px;
 $status-bar-height: 24px;
 $toolbar-bar-height: 42px;
 
@@ -6,7 +5,8 @@ $toolbar-bar-height: 42px;
   position: relative !important;
   width: 100%;
   min-height: 500px;
-  height: calc(100vh - #{$status-bar-height} - #{$header-bar-height});
+  background-color: #fff;
+  height: calc(100vh - #{$status-bar-height});
 }
 
 .workspace :global(.Resizer.vertical) {
