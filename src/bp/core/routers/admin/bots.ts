@@ -183,14 +183,14 @@ export class BotsRouter extends CustomRouter {
     router.post(
       '/:botId/import',
       this.asyncMiddleware(async (req, res) => {
-        let body = ''
+        const buffers: any[] = []
         req.on('data', chunk => {
-          body += chunk.toString()
+          buffers.push(chunk)
         })
         req.on('end', async () => {
           const botId = req.params.botId
           try {
-            await this.botService.importBot(botId, Buffer.from(body, 'binary'), true)
+            await this.botService.importBot(botId, Buffer.concat(buffers), true)
             res.send('Ok')
           } catch (error) {
             res.status(500).send('Error while importing bot')

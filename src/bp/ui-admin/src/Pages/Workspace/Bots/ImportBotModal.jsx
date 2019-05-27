@@ -26,7 +26,7 @@ class ImportBotModal extends Component {
 
     try {
       await api.getSecured().post(`/admin/bots/${botId}/import`, this.state.fileValue, {
-        headers: { 'Content-Type': 'application/tar+gzip', 'Content-Length': this.state.fileValue.length }
+        headers: { 'Content-Type': 'application/tar+gzip' }
       })
       this.setState({ ...defaultState })
       this.props.onCreateBotSuccess && this.props.onCreateBotSuccess()
@@ -48,7 +48,7 @@ class ImportBotModal extends Component {
   handleFileChanged = e => {
     const { value, files } = e.target
     const fr = new FileReader()
-    fr.readAsBinaryString(files[0])
+    fr.readAsArrayBuffer(files[0])
     fr.onload = loadedEvent => {
       this.setState({ fileValue: loadedEvent.target.result })
     }
