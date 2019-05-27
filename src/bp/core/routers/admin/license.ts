@@ -44,6 +44,7 @@ export class LicenseRouter extends CustomRouter {
             cluster_url: clusterFingerprint
           },
           isPro: true,
+          builtWithPro: process.IS_PRO_AVAILABLE,
           license: info,
           ...status
         })
