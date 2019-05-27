@@ -237,7 +237,7 @@ export default class ScopedEngine implements Engine {
       const trainingSet = intentDefs
         .map(intent => {
           return intent.utterances[lang].map(utterance =>
-            generateTrainingSequence(utterance, 'ja', intent.slots, intent.name)
+            generateTrainingSequence(utterance, lang, intent.slots, intent.name)
           )
         })
         .reduce((a, b) => a.concat(b), [])
@@ -350,16 +350,7 @@ export default class ScopedEngine implements Engine {
     entities: sdk.NLU.Entity[]
   ): Promise<sdk.NLU.SlotCollection> {
     const intentDef = await this.storage.getIntent(intent.name)
-    const collection = await this.slotExtractors[lang].extract(text, lang, intentDef, entities)
-    const result: sdk.NLU.SlotCollection = {}
-
-    for (const name of Object.keys(collection)) {
-      if (Array.isArray(collection[name])) {
-        result[name] = _.orderBy(collection[name], ['confidence'], ['desc'])[0]
-      }
-    }
-
-    return result
+    return await this.slotExtractors[lang].extract(text, lang, intentDef, entities)
   }
 
   private async _extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
@@ -390,6 +381,10 @@ export default class ScopedEngine implements Engine {
 
       res = { ...res, ...(await this._extractIntents(text, noEntitiesText, res.language, includedContexts)) }
       res.entities = entities
+
+      console.log('INTENT IS')
+      console.log(res.intent.name)
+
       res.slots = res.intent.name === 'none' ? {} : await this._extractSlots(text, res.language, res.intent, entities)
 
       debugSlots('slots', { text, slots: res.slots })

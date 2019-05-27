@@ -5,7 +5,6 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
-import { sanitize } from '../language/sanitizer'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -105,34 +104,32 @@ export default class CRFExtractor implements SlotExtractor {
     lang: string,
     intentDef: sdk.NLU.IntentDefinition,
     entities: sdk.NLU.Entity[]
-  ): Promise<sdk.NLU.SlotsCollection> {
+  ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(text, { entities })
     const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
-    const tags = await this._tag(seq)
+    const tag = await this._tag(seq)
+    const confidence = tag.probability
+
+    // const isInsideSlot = ([tag, token]) => token && tag && (tag == BIO.INSIDE || tag == BIO.BEGINNING)
+    //const slotIsValid = ([tag, token]) => intentDef.slots.find(slotDef => slotDef.name === tag.slice(2)) !== undefined
+
     // notice usage of zip here, we want to loop on tokens and tags at the same index
-    return (_.zip(seq.tokens, tags) as [Token, string][])
-      .filter(([token, tag]) => {
-        if (!token || !tag || tag === BIO.OUT) {
+    return (_.zip(seq.tokens, tag.result) as [Token, string][])
+      .filter(([token, tagResult]) => {
+        if (!token || !tag || tagResult === BIO.OUT) {
           return false
         }
 
-        const slotName = tag.slice(2)
+        const slotName = tagResult.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
-
-        if (!slot) {
-          return slotCollection
-        }
+        const slot = this._makeSlot(slotName, token, confidence, intentDef.slots, entities)
 
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
-          // prevent cases where entity has multiple tokens e.g. "4 months months"
-          if (!slot.entity || token.end > slot.entity.meta.end) {
-            // simply append the source if the tag is inside a slot
-            slotCollection[slotName].source += ` ${token.value}`
-          }
+          // simply append the source if the tag is inside a slot
+          slotCollection[slotName].source += ` ${token.value}`
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
@@ -142,30 +139,31 @@ export default class CRFExtractor implements SlotExtractor {
             slotCollection[slotName] = [slotCollection[slotName], slot]
           }
         } else {
-          slotCollection[slotName] = [slot]
+          slotCollection[slotName] = slot
         }
         return slotCollection
       }, {})
   }
 
   // this is made "protected" to facilitate model validation
-  async _tag(seq: Sequence): Promise<string[]> {
+  async _tag(seq: Sequence): Promise<{ probability: number; result: string[] }> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
     const inputVectors: string[][] = []
+
     for (let i = 0; i < seq.tokens.length; i++) {
       const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
-
       inputVectors.push(featureVec)
     }
 
-    return this._tagger.tag(inputVectors).result
+    return this._tagger.tag(inputVectors)
   }
 
   private _makeSlot(
     slotName: string,
     token: Token,
+    confidence: number,
     slotDefinitions: sdk.NLU.SlotDefinition[],
     entities: sdk.NLU.Entity[]
   ): sdk.NLU.Slot {
@@ -176,26 +174,24 @@ export default class CRFExtractor implements SlotExtractor {
         e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
       )
 
-    if (slotDef && !entity) {
-      return
-    }
-
     const value = _.get(entity, 'data.value', token.value)
-    const source = _.get(entity, 'meta.source', token.value)
-    const confidence = _.get(entity, 'meta.confidence', -1)
 
-    return {
+    const slot = {
       name: slotName,
       value,
-      entity,
-      confidence,
-      source
+      confidence
     } as sdk.NLU.Slot
+
+    if (entity) {
+      slot.entity = entity
+    }
+
+    return slot
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(sanitize(t.value.toLowerCase())))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.value))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
@@ -238,7 +234,7 @@ export default class CRFExtractor implements SlotExtractor {
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
         .map(s => {
-          if (s.tag === BIO.OUT) return sanitize(s.value.toLowerCase())
+          if (s.tag === BIO.OUT) return s.value
           else return s.slot
         })
         .join(' ')
@@ -303,7 +299,7 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.queryWordVectors(sanitize(word.toLowerCase()))
+    const vector = await this._ft.queryWordVectors(word)
     return this._kmeansModel.nearest([vector])[0]
   }
 }

@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+import { getAllMatchingForRegex } from '../util'
+
 export default class Parser {
   extractLabelsFromCanonical(canonicalUtterance, intentEntities) {
     const labels = []
@@ -9,6 +11,7 @@ export default class Parser {
     let m
     let i = 0
 
+    // TODO use getAllMatchingForRegex(regex) instead of this do while
     do {
       m = regex.exec(canonicalUtterance)
       if (m) {

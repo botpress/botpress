@@ -44,7 +44,7 @@ export interface SlotExtractor {
     lang: string,
     intent: sdk.NLU.IntentDefinition,
     entities: sdk.NLU.Entity[]
-  ): Promise<sdk.NLU.SlotsCollection>
+  ): Promise<sdk.NLU.SlotCollection>
 }
 
 export type IntentModel = { name: string; model: Buffer }

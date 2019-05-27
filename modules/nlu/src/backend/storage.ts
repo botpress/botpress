@@ -173,6 +173,9 @@ export default class Storage {
       await this.saveIntent(intent, obj)
     }
 
+    console.log('OBJ IS')
+    console.log(obj)
+
     return obj
   }
 

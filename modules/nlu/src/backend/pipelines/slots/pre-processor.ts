@@ -1,10 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getAllMatchingForRegex } from '../../../util'
 import { BIO, Sequence, Tag, Token } from '../../typings'
 import { tokenize } from '../language/tokenizers'
 
-export const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+
+const getAllMatchingSlots = getAllMatchingForRegex(SLOTS_REGEX)
 
 export function keepEntityTypes(text: string): string {
   return text.replace(SLOTS_REGEX, '$2')
@@ -43,13 +46,10 @@ const _generateTrainingTokens = (
     slotDefinitions.filter(slotDef => slot && slotDef.name === slot).map(slotDef => slotDef.entities)
   )
 
-  return tokenize(input, lang).map((t, idx) => {
-    let tag = BIO.OUT
-    if (slot) {
-      tag = idx === 0 ? BIO.BEGINNING : BIO.INSIDE
-    }
+  const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
-    const token = _makeToken(t, matchedEntities, start, tag, slot)
+  return tokenize(input, lang).map((t, idx) => {
+    const token = _makeToken(t, matchedEntities, start, tagToken(idx), slot)
     start += t.length + 1 // 1 is the space char, replace this by what was done in the prediction sequence
 
     return token
@@ -93,21 +93,19 @@ export const generateTrainingSequence = (
   intentName: string = '',
   contexts: string[] = []
 ): Sequence => {
-  let matches: RegExpExecArray | null
   let start = 0
   let tokens: Token[] = []
-  do {
-    matches = SLOTS_REGEX.exec(input)
-    if (matches) {
-      const sub = input.substr(start, matches.index - start - 1)
-      tokens = [
-        ...tokens,
-        ..._generateTrainingTokens(sub, lang, start),
-        ..._generateTrainingTokens(matches[1], lang, start + matches.index, matches[2], slotDefinitions)
-      ]
-      start = matches.index + matches[0].length
-    }
-  } while (matches)
+
+  tokens = getAllMatchingSlots(input).reduce((tokens, slot) => {
+    const sub = input.substr(start, slot.index - start - 1)
+
+    start = slot.index + slot[0].length
+
+    return tokens.concat([
+      ..._generateTrainingTokens(sub, lang, start),
+      ..._generateTrainingTokens(slot[1], lang, start + slot.index, slot[2], slotDefinitions)
+    ])
+  }, [])
 
   if (start !== input.length) {
     const lastingPart = input.substr(start, input.length - start)
