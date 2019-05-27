@@ -13,8 +13,6 @@ export const sendEvent = (bp: typeof sdk, botId: string, ctx: ContextMessageUpda
   const threadId = _.get(ctx, 'chat.id') || _.get(ctx, 'message.chat.id')
   const target = _.get(ctx, 'from.id') || _.get(ctx, 'message.from.id')
 
-  console.log('context', ctx)
-
   bp.events.sendEvent(
     bp.IO.Event({
       botId,

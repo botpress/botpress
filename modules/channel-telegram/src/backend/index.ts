@@ -1,6 +1,5 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-import { Router } from 'express'
 import Telegraf from 'telegraf'
 
 import { Config } from '../config'
@@ -9,10 +8,35 @@ import { setupBot, setupMiddleware } from './client'
 import { Clients } from './typings'
 
 const clients: Clients = {}
+const whMiddleware: any = {}
+let useWebhooks: boolean = true
+let whPath = ''
 
-const onServerReady = async (bp: typeof sdk) => {}
+const onServerReady = async (bp: typeof sdk) => {
+  if (useWebhooks) {
+    const router = bp.http.createRouterForBot('channel-telegram', {
+      checkAuthentication: false,
+      enableJsonBodyParser: false // telegraf webhook has its custom body parser
+    })
+
+    whPath = (await router.getPublicPath()) + '/webhook'
+
+    router.use('/webhook', (req, res, next) => {
+      const { botId } = req.params
+      if (typeof whMiddleware[botId] === 'function') {
+        whMiddleware[botId](req, res, next)
+      } else {
+        res.status(404).send({ message: `Bot "${botId}" not a Telegram bot` })
+      }
+    })
+  }
+}
+
 const onServerStarted = async (bp: typeof sdk) => {
   setupMiddleware(bp, clients)
+
+  const config = (await bp.config.getModuleConfig('channel-telegram')) as Config
+  useWebhooks = config.forceWebhook || process.CLUSTER_ENABLED
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
@@ -21,23 +45,10 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   if (config.enabled) {
     const bot = new Telegraf(config.botToken)
 
-    // TODO: && cluster enabled
-    if (process.EXTERNAL_URL) {
-      const webhookURL = process.EXTERNAL_URL + `/api/v1/bots/${botId}/mod/channel-telegram/secrets`
-      const router = bp.http.createRouterForBot('channel-telegram', {
-        checkAuthentication: false,
-        enableJsonBodyParser: false // telegraf webhook has its custom body parser
-      }) as Router
-
-      router.use((req, res, next) => {
-        console.log('===>', req.url, webhookURL)
-        next()
-      })
-
-      router.use(bot.webhookCallback('/secrets'))
-      await bot.telegram.setWebhook(webhookURL)
+    if (useWebhooks) {
+      await bot.telegram.setWebhook(whPath.replace('BOT_ID', botId))
+      whMiddleware[botId] = bot.webhookCallback('/')
     } else {
-      // Must delete webhook prior to using getUpdates()
       await bot.telegram.deleteWebhook()
       bot.startPolling()
     }
@@ -55,6 +66,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 
   client.stop()
   delete clients[botId]
+  delete whMiddleware[botId]
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
