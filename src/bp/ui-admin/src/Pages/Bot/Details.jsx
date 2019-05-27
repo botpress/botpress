@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react'
 
-import { MdInfoOutline } from 'react-icons/lib/md'
+import { MdInfoOutline } from 'react-icons/md'
 import { connect } from 'react-redux'
 
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
 import { Row, Col, Button, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import _ from 'lodash'
 
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, Input } from 'reactstrap'
-import { MdGroupAdd } from 'react-icons/lib/md'
+import { MdGroupAdd } from 'react-icons/md'
 import Select from 'react-select'
 
 import api from '../../../api'

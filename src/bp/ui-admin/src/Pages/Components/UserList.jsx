@@ -6,7 +6,7 @@ import { fetchUsers } from '../../reducers/user'
 import { fetchRoles } from '../../reducers/roles'
 import moment from 'moment'
 import LoadingSection from '../Components/LoadingSection'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/lib/md'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import GravatarImage from './GravatarImage'
 
 class UserList extends Component {

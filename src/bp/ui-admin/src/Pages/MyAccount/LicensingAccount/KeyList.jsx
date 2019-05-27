@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Table, Button, Jumbotron, Row, Col } from 'reactstrap'
 import _ from 'lodash'
-import FaFrownO from 'react-icons/lib/fa/frown-o'
-import MdVpnKey from 'react-icons/lib/md/vpn-key'
+import { FaFrownOpen } from 'react-icons/fa'
+import { MdVpnKey } from 'react-icons/md'
 import IconTooltip from '../../Components/IconTooltip'
 import SectionLayout from '../../Layouts/Section'
 import KeyListItem from '../../Components/Licensing/KeyListItem'
@@ -111,7 +111,7 @@ class KeyList extends Component {
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
             <h1>
-              <FaFrownO />
+              <FaFrownOpen />
               &nbsp;You have no keys
             </h1>
             <p>

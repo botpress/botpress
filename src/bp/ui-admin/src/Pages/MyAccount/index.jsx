@@ -2,7 +2,7 @@ import React from 'react'
 import Profile from './Profile'
 import LicensingAccount from './LicensingAccount'
 import TabLayout from '../Layouts/Tabs'
-import { MdPerson, MdVpnKey } from 'react-icons/lib/md'
+import { MdPerson, MdVpnKey } from 'react-icons/md'
 
 const MyAccount = props => {
   const title = 'My Account'
