@@ -69,12 +69,12 @@ export default class SVMClassifier {
 
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
     const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
-      .flatMap(x => x.contexts)
+      .flatMap(x => (<sdk.NLU.IntentDefinition>x).contexts)
       .uniq()
       .value()
 
     const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = intent.utterances[this.language]
+      const lowerUtterances = (intent.utterances[this.language] || [])
         .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
         .filter(x => x.trim().length) as string[]
 
@@ -153,6 +153,7 @@ export default class SVMClassifier {
         const labels = Object.keys(pairs)
         for (const label of labels) {
           const samples = pairs[label]
+          // what is this magic 4 ?
           if (samples.length >= 4) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
@@ -168,6 +169,7 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
+      // TODO use RBF kernel ?
       const svm = new this.toolkit.SVM.Trainer()
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
@@ -178,6 +180,7 @@ export default class SVMClassifier {
       })
     }
 
+    // TODO use RBF kernel
     const svm = new this.toolkit.SVM.Trainer({ kernel: 'linear', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
@@ -202,13 +205,15 @@ export default class SVMClassifier {
     intentsWTokens: {
       tokens: string[][]
       name: string
-      utterances: string[]
+      utterances: {
+        [lang: string]: string[]
+      }
       filename: string
       slots: sdk.NLU.SlotDefinition[]
       contexts: string[]
     }[]
   ): { l1Tfidf: { [context: string]: TfidfOutput }; l0Tfidf: TfidfOutput } {
-    const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentsWTokens)
+    const allContexts = _.chain(intentsWTokens)
       .flatMap(x => x.contexts)
       .uniq()
       .value()

@@ -262,7 +262,7 @@ export default class Storage {
       await Promise.all(
         models
           .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
-          .map(model => this.botGhost.deleteFile(this.modelsDir, model.fileName))
+          .map(model => this.botGhost.deleteFile(`${this.modelsDir}/${lang}`, model.fileName))
       )
     }
   }

@@ -46,6 +46,7 @@
     "no-internal-module": true,
     "no-trailing-whitespace": true,
     "no-null-keyword": true,
+    "no-floating-promises": true,
     "prefer-const": true,
     "jsdoc-format": true
   },

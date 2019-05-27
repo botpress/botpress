@@ -107,16 +107,11 @@ export default class CRFExtractor implements SlotExtractor {
   ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(text, { entities })
     const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
-    const tag = await this._tag(seq)
-    const confidence = tag.probability
-
-    // const isInsideSlot = ([tag, token]) => token && tag && (tag == BIO.INSIDE || tag == BIO.BEGINNING)
-    //const slotIsValid = ([tag, token]) => intentDef.slots.find(slotDef => slotDef.name === tag.slice(2)) !== undefined
-
+    const { probability, result: tags } = await this._tag(seq)
     // notice usage of zip here, we want to loop on tokens and tags at the same index
-    return (_.zip(seq.tokens, tag.result) as [Token, string][])
+    return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tagResult]) => {
-        if (!token || !tag || tagResult === BIO.OUT) {
+        if (!token || !tagResult || tagResult === BIO.OUT) {
           return false
         }
 
@@ -125,7 +120,11 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, confidence, intentDef.slots, entities)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
+
+        if (!slot) {
+          return slotCollection
+        }
 
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           // simply append the source if the tag is inside a slot
@@ -163,9 +162,9 @@ export default class CRFExtractor implements SlotExtractor {
   private _makeSlot(
     slotName: string,
     token: Token,
-    confidence: number,
     slotDefinitions: sdk.NLU.SlotDefinition[],
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    confidence: number
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
@@ -174,7 +173,13 @@ export default class CRFExtractor implements SlotExtractor {
         e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
       )
 
+    // TODO: we might want to build up an entity with populated data with and 'any' slot
+    if (slotDef && !slotDef.entities.includes('any') && !entity) {
+      return
+    }
+
     const value = _.get(entity, 'data.value', token.value)
+    const source = _.get(entity, 'meta.source', token.value)
 
     const slot = {
       name: slotName,

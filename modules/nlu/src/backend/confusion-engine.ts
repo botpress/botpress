@@ -28,21 +28,23 @@ export default class ConfusionEngine extends ScopedEngine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
-    await super.trainModels(intentDefs, modelHash)
+    for (const lang of this.languages) {
+      await super.trainModels(intentDefs, modelHash)
 
-    if (!this.computeConfusionOnTrain) {
-      return
+      if (!this.computeConfusionOnTrain) {
+        return
+      }
+
+      const dataset = this._definitionsToEntry(intentDefs, lang)
+      const folder = new FiveFolder<TrainingEntry>(dataset)
+
+      this.modelIdx = 0
+      this.modelName = ''
+      this.originalModelHash = modelHash
+
+      await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+      await this._processResults(folder.getResults())
     }
-
-    const dataset = this._definitionsToEntry(intentDefs)
-    const folder = new FiveFolder<TrainingEntry>(dataset)
-
-    this.modelIdx = 0
-    this.modelName = ''
-    this.originalModelHash = modelHash
-
-    await folder.fold('intents', this._trainIntents.bind(this), this._evaluateIntents.bind(this))
-    await this._processResults(folder.getResults())
   }
 
   private async _processResults(results: Result) {
@@ -55,10 +57,10 @@ export default class ConfusionEngine extends ScopedEngine {
     this.logger.debug(`Details available here: ${reportUrl}`)
   }
 
-  private _definitionsToEntry(def: sdk.NLU.IntentDefinition[]): TrainingEntry[] {
+  private _definitionsToEntry(def: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[] {
     return flatten(
       def.map(x =>
-        x.utterances.map(
+        x.utterances[lang].map(
           u =>
             ({
               definition: x,
@@ -69,25 +71,30 @@ export default class ConfusionEngine extends ScopedEngine {
     )
   }
 
-  private _entriesToDefinition(entries: TrainingEntry[]): sdk.NLU.IntentDefinition[] {
+  private _entriesToDefinition(entries: TrainingEntry[], lang): sdk.NLU.IntentDefinition[] {
     const groups = groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
     return Object.keys(groups).map(
       x =>
         ({
           ...groups[x][0].definition,
-          utterances: groups[x].map(x => x.utterance)
+          utterances: { [lang]: groups[x].map(x => x.utterance) }
         } as sdk.NLU.IntentDefinition)
     )
   }
 
-  private async _trainIntents(dataSet: TrainingEntry[]) {
-    const defs = this._entriesToDefinition(dataSet)
+  private async _trainIntents(lang: string, dataSet: TrainingEntry[]) {
+    const defs = this._entriesToDefinition(dataSet, lang)
     this.modelName = `${this.originalModelHash}-fold${this.modelIdx++}`
     await super.trainModels(defs, this.modelName)
   }
 
-  private async _evaluateIntents(trainSet: TrainingEntry[], testSet: TrainingEntry[], record: RecordCallback) {
-    const defs = this._entriesToDefinition(trainSet)
+  private async _evaluateIntents(
+    lang: string,
+    trainSet: TrainingEntry[],
+    testSet: TrainingEntry[],
+    record: RecordCallback
+  ) {
+    const defs = this._entriesToDefinition(trainSet, lang)
 
     await this.loadModels(defs, this.modelName)
     const actual = await Promise.mapSeries(testSet, (__, idx) =>

@@ -339,7 +339,9 @@ declare module 'botpress/sdk' {
 
     export interface IntentDefinition {
       name: string
-      utterances: string[]
+      utterances: {
+        [lang: string]: string[]
+      }
       filename: string
       slots: SlotDefinition[]
       contexts: string[]
@@ -1132,7 +1134,7 @@ declare module 'botpress/sdk' {
      */
     export function findEvents(
       fields: Partial<IO.StoredEvent>,
-      searchParams: EventSearchParams
+      searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
   }
 

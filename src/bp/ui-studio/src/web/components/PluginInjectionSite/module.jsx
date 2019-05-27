@@ -12,6 +12,7 @@ import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
 export default class InjectedModuleView extends React.Component {
+  _isMounted = false
   state = {
     moduleComponent: null
   }
@@ -61,6 +62,10 @@ export default class InjectedModuleView extends React.Component {
       return module && (module[componentName] || module['default'])
     }
 
+    if (!this._isMounted) {
+      return
+    }
+
     const module = viewResolve()
 
     if (!module) {
@@ -81,7 +86,12 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
   }
 
   componentDidMount() {
+    this._isMounted = true
     this.loadModule()
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   componentWillReceiveProps(nextProps) {
