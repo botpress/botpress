@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Modal, ModalHeader, ModalBody, FormGroup, Label } from 'reactstrap'
-import { MdReplay } from 'react-icons/lib/md'
+import { MdReplay } from 'react-icons/md'
 import Select from 'react-select'
 
 import api from '../../../api'

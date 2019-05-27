@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdCheck, MdClose } from 'react-icons/lib/md'
+import { MdCheck, MdClose } from 'react-icons/md'
 import api from '../../../api'
 import _ from 'lodash'
 

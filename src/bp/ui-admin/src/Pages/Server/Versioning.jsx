@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { Button, Jumbotron, Row, Col } from 'reactstrap'
-import FaSmileO from 'react-icons/lib/fa/smile-o'
+import { FaRegSmile } from 'react-icons/fa'
 import _ from 'lodash'
 
 import { fetchPendingChanges } from '../../reducers/versioning'
@@ -38,7 +38,7 @@ class Versioning extends Component {
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
             <h1>
-              <FaSmileO />
+              <FaRegSmile />
               &nbsp;You're all set
             </h1>
             <p>No changes have been made on this server yet.</p>

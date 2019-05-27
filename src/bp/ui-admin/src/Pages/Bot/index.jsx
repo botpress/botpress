@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdAndroid } from 'react-icons/lib/md'
+import { MdAndroid } from 'react-icons/md'
 
 import TabLayout from '../Layouts/Tabs'
 import Details from './Details'
