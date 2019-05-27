@@ -5,7 +5,6 @@ import axios from 'axios'
 import { HotKeys } from 'react-hotkeys'
 import { getToken } from '~/util/Auth'
 /* eslint-disable */
-import Reactstrap from 'expose-loader?Reactstrap!reactstrap'
 import ReactSelect from 'expose-loader?ReactSelect!react-select'
 import PropTypes from 'expose-loader?PropTypes!prop-types'
 import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
