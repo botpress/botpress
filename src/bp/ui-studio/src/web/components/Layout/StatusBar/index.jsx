@@ -14,6 +14,7 @@ import LangSwitcher from './LangSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
+import GuidedTour from '../GuidedTour'
 
 const COMPLETED_DURATION = 2000
 
@@ -152,6 +153,14 @@ class StatusBar extends React.Component {
               </NavLink>
             </ActionItem>
           </PermissionsChecker>
+          <ActionItem
+            onClick={this.props.onToggleGuidedTour}
+            title="Toggle Guided Tour"
+            description=""
+            className={style.right}
+          >
+            <GuidedTour />
+          </ActionItem>
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>

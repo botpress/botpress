@@ -24,7 +24,6 @@ import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import StatusBar from './StatusBar'
-import GuidedTour from './GuidedTour'
 
 class Layout extends React.Component {
   state = {
@@ -100,7 +99,6 @@ class Layout extends React.Component {
     return (
       <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
-        <GuidedTour />
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
@@ -120,7 +118,6 @@ class Layout extends React.Component {
           <StatusBar
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
-            isEmulatorOpen={this.state.emulatorOpen}
             botpressVersion={this.botpressVersion}
             emitter={this.statusBarEmitter}
             langSwitcherOpen={this.state.langSwitcherOpen}
