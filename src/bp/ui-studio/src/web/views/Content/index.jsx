@@ -13,8 +13,6 @@ import List from './List'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 
-import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 
 const style = require('./style.scss')
@@ -196,11 +194,10 @@ class ContentView extends Component {
 
   render() {
     return (
-      <ContentWrapper>
-        <PageHeader>Content Manager</PageHeader>
+      <div>
         <DocumentationProvider file="content" />
         {this.renderBody()}
-      </ContentWrapper>
+      </div>
     )
   }
 }

@@ -6,10 +6,8 @@ import { HotKeys } from 'react-hotkeys'
 import { ToastContainer } from 'react-toastify'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
-import Header from './Header'
 import Sidebar from './Sidebar'
 
-import Dock from '~/components/ChatEmulator/Dock'
 import DocumentationModal from '~/components/Layout/DocumentationModal'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Content from '~/views/Content'
@@ -26,6 +24,7 @@ import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import StatusBar from './StatusBar'
+import GuidedTour from './GuidedTour'
 
 class Layout extends React.Component {
   state = {
@@ -45,16 +44,19 @@ class Layout extends React.Component {
     })
   }
 
-  toggleEmulator = () => this.setState({ emulatorOpen: !this.state.emulatorOpen })
+  toggleEmulator = () => {
+    window.botpressWebChat.sendEvent({ type: 'toggle' })
+  }
 
   focusEmulator = e => {
     if (!isInputFocused()) {
       e.preventDefault()
-
-      this.setState({ emulatorOpen: false }, () => {
-        this.setState({ emulatorOpen: true })
-      })
+      window.botpressWebChat.sendEvent({ type: 'show' })
     }
+  }
+
+  closeEmulator = e => {
+    window.botpressWebChat.sendEvent({ type: 'hide' })
   }
 
   toggleDocs = () => {
@@ -90,17 +92,18 @@ class Layout extends React.Component {
 
     const keyHandlers = {
       'emulator-focus': this.focusEmulator,
+      cancel: this.closeEmulator,
       'docs-toggle': this.toggleDocs,
       'lang-switcher': this.toggleLangSwitcher
     }
 
     return (
-      <HotKeys handlers={keyHandlers}>
+      <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
+        <GuidedTour />
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
-            <Header />
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
               <Route exact path="/content" component={Content} />
@@ -114,7 +117,6 @@ class Layout extends React.Component {
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
-          <Dock isOpen={this.state.emulatorOpen} onToggle={this.toggleEmulator} />
           <StatusBar
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
