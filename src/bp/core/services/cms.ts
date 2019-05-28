@@ -586,7 +586,6 @@ export class CMSService implements IDisposeOnExit {
     await this.memDb(this.contentTable)
       .update({ ...body, modifiedOn: this.memDb.date.now() })
       .where({ id: contentElementId, botId })
-      .then()
 
     const updated = await this.getContentElement(botId, contentElementId)
     await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
@@ -601,16 +600,14 @@ export class CMSService implements IDisposeOnExit {
     elementId: string,
     contentTypeId: string
   ): Promise<void> {
-    await this.memDb(this.contentTable)
-      .insert({
-        ...body,
-        createdBy: 'admin',
-        createdOn: this.memDb.date.now(),
-        modifiedOn: this.memDb.date.now(),
-        id: elementId,
-        contentType: contentTypeId
-      })
-      .then()
+    await this.memDb(this.contentTable).insert({
+      ...body,
+      createdBy: 'admin',
+      createdOn: this.memDb.date.now(),
+      modifiedOn: this.memDb.date.now(),
+      id: elementId,
+      contentType: contentTypeId
+    })
 
     const created = await this.getContentElement(botId, elementId)
     await this.moduleLoader.onElementChanged(botId, 'create', created)
