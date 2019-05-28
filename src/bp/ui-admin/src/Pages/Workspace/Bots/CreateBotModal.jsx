@@ -6,7 +6,7 @@ import Select from 'react-select'
 
 import api from '../../../api'
 import { fetchBotTemplates, fetchBotCategories } from '../../../reducers/bots'
-import { FaPlusCircle } from 'react-icons/lib/fa'
+import { FaPlusCircle } from 'react-icons/fa'
 
 const defaultState = {
   botId: '',

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Input, Button } from 'reactstrap'
-import { MdDelete, MdAdd } from 'react-icons/lib/md'
+import { MdDelete, MdAdd } from 'react-icons/md'
 import api from '../../../api'
 
 let childWindow

@@ -1,7 +1,5 @@
 import React, { Component, Fragment } from 'react'
 
-import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { FaPlusCircle } from 'react-icons/lib/fa'
 import { connect } from 'react-redux'
 import {
   Jumbotron,
@@ -32,7 +30,9 @@ import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
 import { toast } from 'react-toastify'
-import { MdUnarchive } from 'react-icons/lib/md'
+import { MdUnarchive } from 'react-icons/md'
+import { IoIosArchive } from 'react-icons/io'
+import { FaPlusCircle } from 'react-icons/fa'
 
 class Bots extends Component {
   state = {
@@ -92,7 +92,7 @@ class Bots extends Component {
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
-                <IoIosBoxOutline />
+                <IoIosArchive />
                 &nbsp; This workspace has no bot, yet.
               </h1>
               <p>In Botpress, bots are always assigned to a workspace. Create your first bot to start building.</p>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, Input } from 'reactstrap'
-import { MdUnarchive } from 'react-icons/lib/md'
+import { MdUnarchive } from 'react-icons/md'
 
 import api from '../../../api'
 

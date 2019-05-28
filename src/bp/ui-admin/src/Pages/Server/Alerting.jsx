@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { IoIosBoxOutline } from 'react-icons/lib/io'
+import { IoIosArchive } from 'react-icons/io'
 import { Label, Row, Col, Jumbotron } from 'reactstrap'
 import Select from 'react-select'
 import moment from 'moment'
@@ -92,7 +92,7 @@ class Alerts extends Component {
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
             <h1>
-              <IoIosBoxOutline />
+              <IoIosArchive />
               &nbsp; Alerting is not enabled or there is no statistics.
             </h1>
             <p>Make sure that alerting is enabled in your Botpress Config.</p>
