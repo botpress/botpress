@@ -101,6 +101,7 @@ Module.prototype.require = function(mod) {
     }
   }
 
+  // @ts-ignore
   return originalRequire.apply(this, arguments)
 }
 
