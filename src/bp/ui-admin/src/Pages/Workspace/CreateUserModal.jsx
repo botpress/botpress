@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Modal, FormGroup, Input, Label, ModalHeader, ModalBody } from 'reactstrap'
-import { MdGroupAdd } from 'react-icons/lib/md'
+import { MdGroupAdd } from 'react-icons/md'
 
 import { connect } from 'react-redux'
 import { fetchRoles } from '../../reducers/roles'

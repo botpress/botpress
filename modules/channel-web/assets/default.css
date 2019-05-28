@@ -14,8 +14,8 @@ body {
 }
 
 * {
-  box-sizing: border-box;
-  outline: none;
+  box-sizing: border-box !important;
+  outline: none !important;
 }
 
 .bpw-from-user .bpw-chat-bubble {
@@ -264,6 +264,10 @@ body {
   padding: 0.5rem 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.bpw-bubble-highlight {
+  border: 2px solid #0000cd;
 }
 
 .bpw-bubble-session_reset {
@@ -703,6 +707,7 @@ body {
 .bpw-botinfo-container {
   margin: 0 auto;
   max-width: 800px;
+  width: 100%;
   text-align: center;
   color: #1e1e1e;
   overflow-y: auto;
@@ -777,12 +782,6 @@ body {
   color: black;
 }
 
-/* Fix for IE which has trouble with the max-width property */
-@media only screen and (min-width: 800px) {
-  .bpw-botinfo-container {
-    width: 800px;
-  }
-}
 /** BOT INFORMATION PAGE - END */
 
 /** TYPING ANIMATIIONS */
@@ -845,6 +844,10 @@ body {
   animation-iteration-count: 1;
 }
 
+.bpw-anim-none {
+  visibility: visible;
+}
+
 @keyframes slideInRight {
   0% {
     visibility: visible;
@@ -883,4 +886,8 @@ body {
     visibility: hidden;
     transform: translateX(100%);
   }
+}
+
+.bpw-mobx-tools {
+  visibility: hidden;
 }

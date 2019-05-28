@@ -6,10 +6,8 @@ import { HotKeys } from 'react-hotkeys'
 import { ToastContainer } from 'react-toastify'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
-import Header from './Header'
 import Sidebar from './Sidebar'
 
-import Dock from '~/components/ChatEmulator/Dock'
 import DocumentationModal from '~/components/Layout/DocumentationModal'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import Content from '~/views/Content'
@@ -45,16 +43,19 @@ class Layout extends React.Component {
     })
   }
 
-  toggleEmulator = () => this.setState({ emulatorOpen: !this.state.emulatorOpen })
+  toggleEmulator = () => {
+    window.botpressWebChat.sendEvent({ type: 'toggle' })
+  }
 
   focusEmulator = e => {
     if (!isInputFocused()) {
       e.preventDefault()
-
-      this.setState({ emulatorOpen: false }, () => {
-        this.setState({ emulatorOpen: true })
-      })
+      window.botpressWebChat.sendEvent({ type: 'show' })
     }
+  }
+
+  closeEmulator = e => {
+    window.botpressWebChat.sendEvent({ type: 'hide' })
   }
 
   toggleDocs = () => {
@@ -67,9 +68,19 @@ class Layout extends React.Component {
 
   toggleLangSwitcher = () => {
     if (!isInputFocused()) {
-      this.setState({
-        langSwitcherOpen: !this.state.langSwitcherOpen
+      const langSwitcherOpen = !this.state.langSwitcherOpen
+      this.setState({ langSwitcherOpen }, () => {
+        //lang switcher just closed
+        if (!langSwitcherOpen) {
+          this.focusMain()
+        }
       })
+    }
+  }
+
+  focusMain = () => {
+    if (this.mainEl) {
+      this.mainEl.focus()
     }
   }
 
@@ -80,17 +91,17 @@ class Layout extends React.Component {
 
     const keyHandlers = {
       'emulator-focus': this.focusEmulator,
+      cancel: this.closeEmulator,
       'docs-toggle': this.toggleDocs,
       'lang-switcher': this.toggleLangSwitcher
     }
 
     return (
-      <HotKeys handlers={keyHandlers}>
+      <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
         <div style={{ display: 'flex' }}>
           <Sidebar />
-          <main className={layout.main} id="main" tabIndex={9999}>
-            <Header />
+          <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/flows" />} />
               <Route exact path="/content" component={Content} />
@@ -104,11 +115,9 @@ class Layout extends React.Component {
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
-          <Dock isOpen={this.state.emulatorOpen} onToggle={this.toggleEmulator} />
           <StatusBar
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
-            isEmulatorOpen={this.state.emulatorOpen}
             botpressVersion={this.botpressVersion}
             emitter={this.statusBarEmitter}
             langSwitcherOpen={this.state.langSwitcherOpen}

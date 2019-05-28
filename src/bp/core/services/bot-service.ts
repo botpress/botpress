@@ -347,7 +347,7 @@ export class BotService {
     delete newBot.pipeline_status.stage_request
 
     try {
-      await this.duplicateBot(initialBot.id, newBot.id)
+      await this.duplicateBot(initialBot.id, newBot.id, true)
       await this.configProvider.setBotConfig(newBot.id, newBot)
 
       delete initialBot.pipeline_status.stage_request

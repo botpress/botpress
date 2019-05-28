@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 
-import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { FaPlusCircle } from 'react-icons/lib/fa'
+import { IoIosArchive } from 'react-icons/io'
+import { FaPlusCircle } from 'react-icons/fa'
 import { connect } from 'react-redux'
 import { Jumbotron, Row, Col, Button, Alert } from 'reactstrap'
 
@@ -76,7 +76,7 @@ class Bots extends Component {
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
-                <IoIosBoxOutline />
+                <IoIosArchive />
                 &nbsp; This workspace has no bot, yet.
               </h1>
               <p>In Botpress, bots are always assigned to a workspace.</p>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { MdInfoOutline } from 'react-icons/lib/md'
+import { MdInfoOutline } from 'react-icons/md'
 
 import { Row, Col, UncontrolledTooltip } from 'reactstrap'
 

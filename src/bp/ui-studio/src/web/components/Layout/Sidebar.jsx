@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { NavLink, withRouter } from 'react-router-dom'
 import classnames from 'classnames'
+import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { Collapse } from 'react-bootstrap'
 import { GoBeaker } from 'react-icons/go'
 import _ from 'lodash'
@@ -70,11 +71,17 @@ class Sidebar extends React.Component {
       .toLowerCase()
       .includes('/modules/nlu/')
 
+    const experimentalTooltip = (
+      <Tooltip id="experimental-tooltip">
+        This feature is <strong>experimental</strong> and is subject to change in the next version
+      </Tooltip>
+    )
+
     // TODO: Make generic menu and submenu and use them for intents / entities ui
     if (module.name === 'nlu') {
       return (
-        <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op}>
-          <li key={`menu_module_${module.name}`}>
+        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+          <li>
             <a
               onMouseOver={this.showNluMenu}
               onMouseOut={this.hideNluMenu}
@@ -112,12 +119,16 @@ class Sidebar extends React.Component {
       )
     } else {
       return (
-        <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op}>
-          <li key={`menu_module_${module.name}`}>
+        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+          <li>
             <NavLink to={path} title={module.menuText} activeClassName={style.active}>
               {moduleIcon}
               <span>{module.menuText}</span>
-              {module.experimental && <GoBeaker className={style.experimental} />}
+              {module.experimental && (
+                <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
+                  <GoBeaker className={style.experimental} />
+                </OverlayTrigger>
+              )}
             </NavLink>
           </li>
         </PermissionsChecker>
