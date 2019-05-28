@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications, MdLanguage } from 'react-icons/lib/md'
+import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications, MdLanguage } from 'react-icons/md'
 
 import Versioning from './Versioning'
 import LicenseStatus from './LicenseStatus'

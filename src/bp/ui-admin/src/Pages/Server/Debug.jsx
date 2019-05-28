@@ -11,8 +11,8 @@ import {
   FaFolder,
   FaFolderOpen,
   FaFile
-} from 'react-icons/lib/fa'
-import { MdRefresh, MdSave } from 'react-icons/lib/md'
+} from 'react-icons/fa'
+import { MdRefresh, MdSave } from 'react-icons/md'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
 import api from '../../api'
 

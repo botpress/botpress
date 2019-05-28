@@ -6,7 +6,6 @@ import { BIO, Sequence, Tag, Token } from '../../typings'
 import { tokenize } from '../language/tokenizers'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-
 const getAllMatchingSlots = getAllMatchingForRegex(SLOTS_REGEX)
 
 export function keepEntityTypes(text: string): string {
@@ -98,7 +97,6 @@ export const generateTrainingSequence = (
 
   tokens = getAllMatchingSlots(input).reduce((tokens, slot) => {
     const sub = input.substr(start, slot.index - start - 1)
-
     start = slot.index + slot[0].length
 
     return tokens.concat([

@@ -6,14 +6,11 @@ import _ from 'lodash'
 import { HotKeys } from 'react-hotkeys'
 
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
-import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 
 import Toolbar from './containers/Toolbar'
 import Diagram from './containers/Diagram'
 import SidePanel from './containers/SidePanel'
-import Topbar from './containers/Topbar'
 import SkillsBuilder from './containers/SkillsBuilder'
 import NodeProps from './containers/NodeProps'
 
@@ -88,52 +85,48 @@ class FlowBuilder extends Component {
     return (
       <HotKeys handlers={keyHandlers} focused>
         <DocumentationProvider file="flows" />
-        <ContentWrapper stretch={true} className={style.wrapper}>
-          <PageHeader className={style.header} width="100%">
-            <Topbar readOnly={readOnly} />
-          </PageHeader>
-          <div className={style.workspace}>
-            <SplitPane split="vertical" minSize={200} defaultSize={250}>
-              <div className={style.sidePanel}>
-                <SidePanel
-                  readOnly={readOnly}
-                  onCreateFlow={name => {
-                    this.diagram.createFlow(name)
-                    this.props.switchFlow(`${name}.flow.json`)
+
+        <div className={style.workspace}>
+          <SplitPane split="vertical" minSize={200} defaultSize={250}>
+            <div className={style.sidePanel}>
+              <SidePanel
+                readOnly={readOnly}
+                onCreateFlow={name => {
+                  this.diagram.createFlow(name)
+                  this.props.switchFlow(`${name}.flow.json`)
+                }}
+              />
+            </div>
+            <div className={style.diagram}>
+              {!readOnly && (
+                <Toolbar
+                  onSaveAllFlows={() => {
+                    this.diagram.saveAllFlows()
+                  }}
+                  onDelete={() => {
+                    this.diagram.deleteSelectedElements()
+                  }}
+                  onCopy={() => {
+                    this.diagram.copySelectedElementToBuffer()
+                  }}
+                  onPaste={() => {
+                    this.diagram.pasteElementFromBuffer()
                   }}
                 />
-              </div>
-              <div className={style.diagram}>
-                {!readOnly && (
-                  <Toolbar
-                    onSaveAllFlows={() => {
-                      this.diagram.saveAllFlows()
-                    }}
-                    onDelete={() => {
-                      this.diagram.deleteSelectedElements()
-                    }}
-                    onCopy={() => {
-                      this.diagram.copySelectedElementToBuffer()
-                    }}
-                    onPaste={() => {
-                      this.diagram.pasteElementFromBuffer()
-                    }}
-                  />
-                )}
-                <Diagram
-                  readOnly={readOnly}
-                  ref={el => {
-                    if (!!el) {
-                      this.diagram = el.getWrappedInstance()
-                    }
-                  }}
-                />
-              </div>
-            </SplitPane>
-            <SkillsBuilder />
-            <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
-          </div>
-        </ContentWrapper>
+              )}
+              <Diagram
+                readOnly={readOnly}
+                ref={el => {
+                  if (!!el) {
+                    this.diagram = el.getWrappedInstance()
+                  }
+                }}
+              />
+            </div>
+          </SplitPane>
+          <SkillsBuilder />
+          <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
+        </div>
       </HotKeys>
     )
   }

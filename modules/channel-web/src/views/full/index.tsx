@@ -28,28 +28,12 @@ export class WebBotpressUIInjection extends React.Component {
         overrides: {
           before_container: {
             module: 'extensions',
-            component: 'DevTools'
+            component: 'Debugger'
           }
         }
       })
 
     window.document.body.appendChild(script)
-
-    const button = document.createElement('li')
-    Object.assign(button, {
-      role: 'presentation',
-      onclick: () => window.botpressWebChat.sendEvent({ type: 'show' }),
-      innerHTML: `
-        <a role="button" href="#">
-          <span class="bp-full-screen">
-            <span class="glyphicon glyphicon-comment"></span>
-          </span>
-        </a>
-      `
-    })
-
-    const target = document.querySelector('.bp-navbar-module-buttons') || document.querySelector('.nav.navbar-nav')
-    target.appendChild(button)
   }
 
   render() {

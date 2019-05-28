@@ -9,9 +9,9 @@ import {
   UncontrolledTooltip
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
-import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/lib/md'
-import { FaCog } from 'react-icons/lib/fa'
+import { IoIosChatbubbles } from 'react-icons/io'
+import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/md'
+import { FaCog } from 'react-icons/fa'
 
 export default ({ bot, deleteBot, exportBot, permissions, history, createRevision, rollback }) => (
   <div className="bp_table-row" key={bot.id}>
@@ -22,7 +22,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
         </Button>
       </AccessControl>
       <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-        <IoIosChatbubble /> Open chat
+        <IoIosChatbubbles /> Open chat
       </Button>
       <UncontrolledButtonDropdown>
         <DropdownToggle tag="span" className="more">

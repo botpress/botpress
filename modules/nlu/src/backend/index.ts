@@ -19,6 +19,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+
   await LangProvider.initialize(globalConfig.languageSources)
 
   await registerMiddleware(bp, nluByBot)

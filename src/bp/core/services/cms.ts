@@ -2,6 +2,7 @@ import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
+import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -17,7 +18,6 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
-import { ModuleLoader } from 'core/module-loader'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -28,8 +28,9 @@ export const DefaultSearchParams: SearchParams = {
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
-  public deleteContentElements: Function = this._deleteContentElements
-  public createOrUpdateContentElement: Function = this._createOrUpdateContentElement
+  broadcastAddElement: Function = this.local__addElementToCache
+  broadcastUpdateElement: Function = this.local__updateElementFromCache
+  broadcastRemoveElements: Function = this.local__removeElementsFromCache
 
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
@@ -56,13 +57,14 @@ export class CMSService implements IDisposeOnExit {
   }
 
   async initialize() {
-    this.createOrUpdateContentElement = await this.jobService.broadcast<string>(
-      this._createOrUpdateContentElement.bind(this)
+    this.broadcastAddElement = await this.jobService.broadcast<void>(this.local__addElementToCache.bind(this))
+    this.broadcastRemoveElements = await this.jobService.broadcast<void>(this.local__removeElementsFromCache.bind(this))
+    this.broadcastUpdateElement = await this.jobService.broadcast<ContentElement>(
+      this.local__updateElementFromCache.bind(this)
     )
-    this.deleteContentElements = await this.jobService.broadcast<void>(this._deleteContentElements.bind(this))
 
     await this.prepareDb()
-    await this.loadContentTypesFromFiles()
+    await this._loadContentTypesFromFiles()
   }
 
   private async prepareDb() {
@@ -79,7 +81,7 @@ export class CMSService implements IDisposeOnExit {
     })
   }
 
-  async loadContentElementsForBot(botId: string): Promise<any[]> {
+  async loadElementsForBot(botId: string): Promise<any[]> {
     const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
     let contentElements: ContentElement[] = []
 
@@ -107,13 +109,13 @@ export class CMSService implements IDisposeOnExit {
     return elements
   }
 
-  async unloadContentElementsForBot(botId: string) {
+  async clearElementsFromCache(botId: string) {
     await this.memDb(this.contentTable)
       .where({ botId })
       .delete()
   }
 
-  private async loadContentTypesFromFiles(): Promise<void> {
+  private async _loadContentTypesFromFiles(): Promise<void> {
     const fileNames = await this.ghost.global().directoryListing(this.typesDir, '*.js')
 
     const codeFiles = await Promise.map(fileNames, async filename => {
@@ -132,7 +134,7 @@ export class CMSService implements IDisposeOnExit {
           // File to exclude
           continue
         }
-        await this.loadContentTypeFromFile(file)
+        await this._loadContentTypeFromFile(file)
         filesLoaded++
       } catch (err) {
         this.logger.attachError(err).error(`Could not load Content Type "${file}"`)
@@ -142,7 +144,7 @@ export class CMSService implements IDisposeOnExit {
     this.logger.info(`Loaded ${filesLoaded} content types`)
   }
 
-  private async loadContentTypeFromFile(fileName: string): Promise<void> {
+  private async _loadContentTypeFromFile(fileName: string): Promise<void> {
     const contentType = <ContentType>await this.sandbox.run(fileName)
 
     if (!contentType || !contentType.id) {
@@ -231,17 +233,14 @@ export class CMSService implements IDisposeOnExit {
       .then(row => (row && Number(row.count)) || 0)
   }
 
-  private async _deleteContentElements(botId: string, ids: string[]): Promise<void> {
+  async deleteContentElements(botId: string, ids: string[]): Promise<void> {
     const elements = await this.getContentElements(botId, ids)
     await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
 
-    await this.memDb(this.contentTable)
-      .where({ botId })
-      .whereIn('id', ids)
-      .del()
+    await this.broadcastRemoveElements(botId, ids)
 
     const contentTypes = _.uniq(_.map(elements, 'contentType'))
-    await Promise.mapSeries(contentTypes, contentTypeId => this.dumpDataToFile(botId, contentTypeId))
+    await Promise.mapSeries(contentTypes, contentTypeId => this._writeElementsToFile(botId, contentTypeId))
   }
 
   async getAllContentTypes(botId?: string): Promise<ContentType[]> {
@@ -270,7 +269,12 @@ export class CMSService implements IDisposeOnExit {
       .get(0)
   }
 
-  private async _createOrUpdateContentElement(
+  private _generateElementId(contentTypeId: string): string {
+    const prefix = contentTypeId.replace(/^#/, '')
+    return `${prefix}-${nanoid(6)}`
+  }
+
+  async createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
     formData: object,
@@ -307,48 +311,20 @@ export class CMSService implements IDisposeOnExit {
     const body = this.transformItemApiToDb(botId, contentElement)
 
     if (!contentElementId) {
-      contentElementId = await this._createContentElement(botId, body, contentType.id)
+      contentElementId = this._generateElementId(contentTypeId)
+      await this.broadcastAddElement(botId, body, contentElementId, contentType.id)
+      const created = await this.getContentElement(botId, contentElementId)
+
+      await this.moduleLoader.onElementChanged(botId, 'create', created)
     } else {
-      await this._updateContentElement(botId, body, contentElementId)
+      const originalElement = await this.getContentElement(botId, contentElementId)
+      const updatedElement = await this.broadcastUpdateElement(botId, body, contentElementId)
+
+      await this.moduleLoader.onElementChanged(botId, 'update', updatedElement, originalElement)
     }
 
-    await this.dumpDataToFile(botId, contentTypeId)
+    await this._writeElementsToFile(botId, contentTypeId)
     return contentElementId
-  }
-
-  private async _updateContentElement(botId: string, body: object, contentElementId: string) {
-    const original = await this.getContentElement(botId, contentElementId)
-    await this.memDb(this.contentTable)
-      .update({ ...body, modifiedOn: this.memDb.date.now() })
-      .where({ id: contentElementId, botId })
-      .then()
-
-    const updated = await this.getContentElement(botId, contentElementId)
-    await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
-  }
-
-  private async _createContentElement(botId: string, body: object, contentTypeId: string) {
-    const newElementId = this.getNewContentElementId(contentTypeId)
-    await this.memDb(this.contentTable)
-      .insert({
-        ...body,
-        createdBy: 'admin',
-        createdOn: this.memDb.date.now(),
-        modifiedOn: this.memDb.date.now(),
-        id: newElementId,
-        contentType: contentTypeId
-      })
-      .then()
-
-    const created = await this.getContentElement(botId, newElementId)
-    await this.moduleLoader.onElementChanged(botId, 'create', created)
-
-    return newElementId
-  }
-
-  private getNewContentElementId(contentTypeId: string): string {
-    const prefix = contentTypeId.replace(/^#/, '')
-    return `${prefix}-${nanoid(6)}`
   }
 
   resolveRefs = data => {
@@ -384,14 +360,15 @@ export class CMSService implements IDisposeOnExit {
     return data
   }
 
-  private async dumpDataToFile(botId: string, contentTypeId: string) {
+  private async _writeElementsToFile(botId: string, contentTypeId: string) {
     process.ASSERT_LICENSED()
     const params = { ...DefaultSearchParams, count: 10000 }
-    const items = (await this.listContentElements(botId, contentTypeId, params)).map(item =>
-      _.pick(item, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
+    const elements = (await this.listContentElements(botId, contentTypeId, params)).map(element =>
+      _.pick(element, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
     )
     const fileName = this.filesById[contentTypeId]
-    const content = JSON.stringify(items, undefined, 2)
+    const content = JSON.stringify(elements, undefined, 2)
+
     await this.ghost.forBot(botId).upsertFile(this.elementsDir, fileName, content)
   }
 
@@ -436,6 +413,7 @@ export class CMSService implements IDisposeOnExit {
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
 
     for (const contentType of this.contentTypes) {
+      // @ts-ignore
       await this.memDb(this.contentTable)
         .select('id', 'formData', 'botId')
         .where('contentType', contentType.id)
@@ -500,6 +478,7 @@ export class CMSService implements IDisposeOnExit {
 
   async translateContentProps(botId, fromLang, toLang) {
     const elements = await this.listContentElements(botId, undefined, { from: 0, count: UNLIMITED_ELEMENTS })
+
     for (const el of elements) {
       if (!fromLang) {
         // Translating a bot content from the original props
@@ -596,5 +575,49 @@ export class CMSService implements IDisposeOnExit {
     }
 
     return payloads
+  }
+
+  /**
+   * Important! Do not use directly. Needs to be broadcasted.
+   */
+  private async local__removeElementsFromCache(botId: string, elementIds: string[]): Promise<void> {
+    await this.memDb(this.contentTable)
+      .where({ botId })
+      .whereIn('id', elementIds)
+      .del()
+  }
+
+  /**
+   * Important! Do not use directly. Needs to be broadcasted.
+   */
+  private async local__updateElementFromCache(
+    botId: string,
+    body: object,
+    contentElementId: string
+  ): Promise<ContentElement> {
+    await this.memDb(this.contentTable)
+      .update({ ...body, modifiedOn: this.memDb.date.now() })
+      .where({ id: contentElementId, botId })
+
+    return this.getContentElement(botId, contentElementId)
+  }
+
+  /**
+   * Important! Do not use directly. Needs to be broadcasted.
+   */
+  private async local__addElementToCache(
+    botId: string,
+    body: object,
+    elementId: string,
+    contentTypeId: string
+  ): Promise<void> {
+    await this.memDb(this.contentTable).insert({
+      ...body,
+      createdBy: 'admin',
+      createdOn: this.memDb.date.now(),
+      modifiedOn: this.memDb.date.now(),
+      id: elementId,
+      contentType: contentTypeId
+    })
   }
 }

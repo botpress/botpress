@@ -79,3 +79,23 @@ export interface Model {
   meta: ModelMeta
   model: Buffer
 }
+
+export interface NLUDS {
+  rawText: string
+  sanitizedText: string
+  lang: string
+  includedContexts: string[]
+  slots: { [key: string]: sdk.NLU.Slot }
+  entities: sdk.NLU.Entity[]
+  intents: sdk.NLU.Intent[]
+  intent: sdk.NLU.Intent
+  tokens: string[]
+  execute: Function
+}
+
+export interface PipelineProcessManager {
+  of(ds: NLUDS): PipelineProcessManager
+  withPipeline(pipeline: Function[]): PipelineProcessManager
+  withScope(scope: any): PipelineProcessManager
+  run(): Promise<NLUDS>
+}

@@ -7,19 +7,20 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
+import { initNLUDS, PipelineManager } from './dswarpper'
 import { MIN_NB_UTTERANCES } from './pipelines/constants'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
+import { getTextWithoutEntities } from './pipelines/entities/util'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
-import { sanitize } from './pipelines/language/sanitizer'
 import { tokenize } from './pipelines/language/tokenizers'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, SlotExtractor } from './typings'
+import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUDS, SlotExtractor } from './typings'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
@@ -41,6 +42,8 @@ export default class ScopedEngine implements Engine {
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
+  private readonly pipelineManager: PipelineManager
+  private readonly pipeline = [this._detectLang, this._extractEntities, this._extractIntents, this._extractSlots]
 
   private retryPolicy = {
     interval: 100,
@@ -62,6 +65,7 @@ export default class ScopedEngine implements Engine {
     protected readonly languages: string[],
     private readonly defaultLanguage: string
   ) {
+    this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId)
     this.langDetector = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
@@ -159,7 +163,25 @@ export default class ScopedEngine implements Engine {
       await this.sync()
     }
 
-    return retry(() => this._extract(text, includedContexts), this.retryPolicy)
+    const t0 = Date.now()
+    let res: any = { errored: true }
+
+    try {
+      const ds = initNLUDS(text, includedContexts)
+
+      const runner = this.pipelineManager
+        .of(ds)
+        .withPipeline(this.pipeline)
+        .withScope(this)
+
+      res = retry(async () => await runner.run(), this.retryPolicy)
+      res.errored = false
+    } catch (error) {
+      this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
+    } finally {
+      res.ms = Date.now() - t0
+      return res as sdk.IO.EventUnderstanding
+    }
   }
 
   async checkSyncNeeded(): Promise<boolean> {
@@ -197,11 +219,11 @@ export default class ScopedEngine implements Engine {
       }
 
       const trainingSet = intents
-        .map(intent => {
-          return (intent.utterances[lang] || []).map(utterance =>
+        .map(intent =>
+          (intent.utterances[lang] || []).map(utterance =>
             generateTrainingSequence(utterance, lang, intent.slots, intent.name)
           )
-        })
+        )
         .reduce((a, b) => a.concat(b), [])
 
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
@@ -282,48 +304,42 @@ export default class ScopedEngine implements Engine {
       .digest('hex')
   }
 
-  private async _extractEntities(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
+  private async _extractEntities(ds: NLUDS): Promise<NLUDS> {
     const customEntityDefs = await this.storage.getCustomEntities()
 
     const patternEntities = await this.entityExtractor.extractPatterns(
-      text,
+      ds.rawText,
       customEntityDefs.filter(ent => ent.type === 'pattern')
     )
 
     const listEntities = await this.entityExtractor.extractLists(
-      text,
-      lang,
+      ds.rawText,
+      ds.lang,
       customEntityDefs.filter(ent => ent.type === 'list')
     )
 
-    const systemEntities = await this.systemEntityExtractor.extract(text, lang)
-    debugEntities(text, { systemEntities, patternEntities, listEntities })
-    return [...systemEntities, ...patternEntities, ...listEntities]
+    const systemEntities = await this.systemEntityExtractor.extract(ds.rawText, ds.lang)
+
+    debugEntities(ds.rawText, { systemEntities, patternEntities, listEntities })
+
+    ds.entities = [...systemEntities, ...patternEntities, ...listEntities]
+    return ds
   }
 
-  private async _extractIntents(
-    originalText: string,
-    noEntitiesText: string,
-    lang: string,
-    includedContexts: string[]
-  ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
-    const lowerText = sanitize(noEntitiesText.toLowerCase())
-    const tokens = await tokenize(lowerText, lang)
+  private async _extractIntents(ds: NLUDS): Promise<NLUDS> {
+    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText)
+    const lowerText = ds.sanitizedText.toLowerCase()
+    ds.tokens = await tokenize(lowerText, ds.lang)
 
-    const exactIntent = this._exactIntentMatchers[lang].exactMatch(
-      sanitize(originalText.toLowerCase()),
-      includedContexts
-    )
+    const exactIntent = this._exactIntentMatchers[ds.lang].exactMatch(lowerText, ds.includedContexts)
 
     if (exactIntent) {
-      return {
-        includedContexts,
-        intent: exactIntent,
-        intents: [exactIntent]
-      }
+      ds.intent = exactIntent
+      ds.intents = [exactIntent]
+      return ds
     }
 
-    const intents = await this.intentClassifiers[lang].predict(tokens, includedContexts)
+    const intents = await this.intentClassifiers[ds.lang].predict(ds.tokens, ds.includedContexts)
 
     // TODO: This is no longer relevant because of multi-context
     // We need to actually check if there's a clear winner
@@ -333,81 +349,36 @@ export default class ScopedEngine implements Engine {
     intent.matches = createIntentMatcher(intent.name)
 
     // alter ctx with the given predictions in case where no ctx were provided
-    includedContexts = _.chain(intents)
+    ds.includedContexts = _.chain(intents)
       .map(p => p.context)
       .uniq()
       .value()
 
-    debugIntents(noEntitiesText, { intents })
+    ds.intents = intents
+    ds.intent = intent
+    debugIntents(ds.sanitizedText, { intents })
 
-    return {
-      includedContexts,
-      intents,
-      intent
-    }
+    return ds
   }
 
-  private async _extractSlots(
-    text: string,
-    lang: string,
-    intent: sdk.NLU.Intent,
-    entities: sdk.NLU.Entity[]
-  ): Promise<sdk.NLU.SlotCollection> {
-    const intentDef = await this.storage.getIntent(intent.name)
-    return await this.slotExtractors[lang].extract(text, lang, intentDef, entities)
+  private async _extractSlots(ds: NLUDS): Promise<NLUDS> {
+    const intentDef = await this.storage.getIntent(ds.intent.name)
+    ds.slots = await this.slotExtractors[ds.lang].extract(ds.rawText, ds.lang, intentDef, ds.entities)
+
+    debugSlots('slots', { rawText: ds.rawText, slots: ds.slots })
+    return ds
   }
 
-  private async _extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
-    let res: any = { errored: true }
-    const t1 = Date.now()
-    try {
-      res.language = await this._detectLang(text)
-      const entities = await this._extractEntities(text, res.language)
+  private async _detectLang(ds: NLUDS): Promise<NLUDS> {
+    let lang = await this.langDetector.identify(ds.rawText)
 
-      const entitiesToReplace = _.chain(entities)
-        .filter(x => x.type === 'pattern' || x.type === 'list')
-        .orderBy(['entity.meta.start', 'entity.meta.confidence'], ['asc', 'desc'])
-        .value()
-
-      let noEntitiesText = ''
-      let cursor = 0
-
-      for (const entity of entitiesToReplace) {
-        if (entity.meta.start < cursor) {
-          continue
-        }
-
-        noEntitiesText += text.substr(cursor, entity.meta.start - cursor) + entity.name
-        cursor = entity.meta.end
-      }
-
-      noEntitiesText += text.substr(cursor, text.length - cursor)
-
-      res = { ...res, ...(await this._extractIntents(text, noEntitiesText, res.language, includedContexts)) }
-      res.entities = entities
-
-      console.log('INTENT IS')
-      console.log(res.intent.name)
-
-      res.slots = res.intent.name === 'none' ? {} : await this._extractSlots(text, res.language, res.intent, entities)
-
-      debugSlots('slots', { text, slots: res.slots })
-      res.errored = false
-    } catch (error) {
-      this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
-    } finally {
-      res.ms = Date.now() - t1
-      return res as sdk.IO.EventUnderstanding
-    }
-  }
-
-  private async _detectLang(text: string): Promise<string> {
-    let lang = await this.langDetector.identify(text)
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
       this.logger.debug(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
       lang = this.defaultLanguage
     }
 
-    return lang
+    ds.lang = lang
+
+    return ds
   }
 }

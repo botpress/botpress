@@ -1,1 +1,1 @@
-export const MIN_NB_UTTERANCES = 5
+export const MIN_NB_UTTERANCES = 3

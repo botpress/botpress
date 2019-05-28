@@ -12,15 +12,10 @@ const libraryTarget = mod => `botpress = typeof botpress === "object" ? botpress
 export function config(projectPath) {
   const packageJson = require(path.join(projectPath, 'package.json'))
 
-  const getEntryPoint = view => {
-    const isTs = fs.existsSync(path.join(projectPath, `./src/views/${view}/index.tsx`))
-    return `./src/views/${view}/index.${isTs ? 'tsx' : 'jsx'}`
-  }
-
   const full: webpack.Configuration = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
-    entry: [getEntryPoint('full')],
+    entry: ['./src/views/full/index.jsx'],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/modules/',
@@ -31,7 +26,8 @@ export function config(projectPath) {
     externals: {
       react: 'React',
       'react-dom': 'ReactDOM',
-      'react-bootstrap': 'ReactBootstrap'
+      'react-bootstrap': 'ReactBootstrap',
+      '@blueprintjs/core': 'BlueprintJsCore'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
@@ -42,7 +38,10 @@ export function config(projectPath) {
     plugins: [new CleanWebpackPlugin()],
     module: {
       rules: [
-        { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
+        {
+          test: /\.(ts|tsx)?$/,
+          loader: ['ts-loader', 'babel-loader!ts-loader']
+        },
         {
           test: /\.jsx?$/,
           use: {
@@ -50,8 +49,7 @@ export function config(projectPath) {
             options: {
               presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
-                ['@babel/plugin-proposal-decorators', { legacy: true }],
-                ['@babel/plugin-proposal-class-properties', { loose: true }],
+                '@babel/plugin-proposal-class-properties',
                 '@babel/plugin-syntax-function-bind',
                 '@babel/plugin-proposal-function-bind'
               ]
@@ -63,7 +61,6 @@ export function config(projectPath) {
           test: /\.scss$/,
           use: [
             { loader: 'style-loader' },
-            { loader: 'css-modules-typescript-loader' },
             {
               loader: 'css-loader',
               options: {
@@ -91,7 +88,7 @@ export function config(projectPath) {
     }
   }
 
-  if (process.argv.find(x => x.toLowerCase() === '--analyze-full')) {
+  if (process.argv.find(x => x.toLowerCase() === '--analyze')) {
     full.plugins.push(new BundleAnalyzerPlugin())
   }
 
@@ -100,7 +97,7 @@ export function config(projectPath) {
   }
 
   const lite: webpack.Configuration = Object.assign({}, full, {
-    entry: [getEntryPoint('lite')],
+    entry: ['./src/views/lite/index.jsx'],
     output: {
       path: path.resolve(projectPath, './assets/web'),
       publicPath: '/js/lite-modules/',
@@ -108,12 +105,12 @@ export function config(projectPath) {
       libraryTarget: 'assign',
       library: libraryTarget(packageJson.name)
     },
+    externals: {
+      react: 'React',
+      'react-dom': 'ReactDOM'
+    },
     plugins: [] // We clear the plugins here, since the cleanup is already done by the "full" view
   })
-
-  if (process.argv.find(x => x.toLowerCase() === '--analyze-lite')) {
-    lite.plugins.push(new BundleAnalyzerPlugin())
-  }
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
@@ -127,6 +124,14 @@ export function config(projectPath) {
 function writeStats(err, stats, exitOnError = true) {
   if (err || stats.hasErrors()) {
     error(stats.toString('minimal'))
+
+    // @deprecated : This warning should be removed next major version
+    console.error(`
+There was a breaking change in how module views are handled in Botpress 11.6
+Web bundles and liteViews were replaced by a more standardized method.
+
+Please check our migration guide here: https://botpress.io/docs/developers/migrate/
+`)
 
     if (exitOnError) {
       return process.exit(1)

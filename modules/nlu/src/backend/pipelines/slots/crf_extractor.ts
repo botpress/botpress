@@ -13,6 +13,7 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
+const MIN_SLOT_CONFIDENCE = 0.5
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -166,6 +167,9 @@ export default class CRFExtractor implements SlotExtractor {
     entities: sdk.NLU.Entity[],
     confidence: number
   ): sdk.NLU.Slot {
+    if (confidence < MIN_SLOT_CONFIDENCE) {
+      return
+    }
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
       slotDef &&

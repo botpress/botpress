@@ -229,6 +229,7 @@ export class BotService {
           await this.unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
+        await this.workspaceService.addBotRef(botId)
         await this.mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
@@ -285,7 +286,7 @@ export class BotService {
     await this.mountBot(destBotId)
   }
 
-  private async botExists(botId: string): Promise<boolean> {
+  public async botExists(botId: string): Promise<boolean> {
     return (await this.getBotsIds()).includes(botId)
   }
 
@@ -430,7 +431,7 @@ export class BotService {
     try {
       await this.ghostService.forBot(botId).sync()
 
-      await this.cms.loadContentElementsForBot(botId)
+      await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
       const api = await createForGlobalHooks()
@@ -450,7 +451,7 @@ export class BotService {
       return
     }
 
-    await this.cms.unloadContentElementsForBot(botId)
+    await this.cms.clearElementsFromCache(botId)
     this.moduleLoader.unloadModulesForBot(botId)
 
     const api = await createForGlobalHooks()

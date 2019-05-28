@@ -127,20 +127,23 @@ export default class SVMClassifier {
 
       // TODO refine this logic here, maybe use a density based clustering or at least cluster step should be a func of our data
       for (
-        let i = Math.min(Math.floor(nLabels / 2), l1Points.length) || 1;
-        i < Math.min(nLabels, l1Points.length);
-        i += 3
+        let i = Math.min(Math.floor(nLabels / 6), l1Points.length) || 1;
+        i < Math.max(nLabels, l1Points.length);
+        i += 1
       ) {
         const km = kmeans(data, i)
         const clusters: { [clusterId: number]: { [label: string]: number[][] } } = {}
+
         l1Points.forEach(pts => {
           const r = km.nearest([pts.coordinates])[0] as number
           clusters[r] = clusters[r] || {}
           clusters[r][pts.label] = clusters[r][pts.label] || []
           clusters[r][pts.label].push(pts.coordinates)
         })
+
         const total = _.sum(_.map(clusters, c => _.max(_.map(c, y => y.length)))) / l1Points.length
         const score = total / Math.sqrt(i)
+
         if (score >= bestScore) {
           bestScore = score
           bestCluster = clusters
@@ -181,7 +184,7 @@ export default class SVMClassifier {
     }
 
     // TODO use RBF kernel
-    const svm = new this.toolkit.SVM.Trainer({ kernel: 'linear', classifier: 'C_SVC' })
+    const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
 
@@ -272,7 +275,7 @@ export default class SVMClassifier {
           const p1 = preds[0]
 
           if (preds.length === 1) {
-            return [{ label: p1.label, l0Confidence: l0Conf, context: ctx, confidence: 100 }]
+            return [{ label: p1.label, l0Confidence: l0Conf, context: ctx, confidence: 1 }]
           }
 
           const p2 = preds[1]

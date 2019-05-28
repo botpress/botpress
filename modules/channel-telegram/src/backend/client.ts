@@ -8,31 +8,26 @@ import { Clients } from './typings'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 
-export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) {
-  const client = clients[botId]
+export const sendEvent = (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
+  // NOTE: getUpdate and setWebhook dot not return the same context mapping
+  const threadId = _.get(ctx, 'chat.id') || _.get(ctx, 'message.chat.id')
+  const target = _.get(ctx, 'from.id') || _.get(ctx, 'message.from.id')
 
-  const send = (ctx: ContextMessageUpdate, args: { type: string }) =>
-    bp.events.sendEvent(
-      bp.IO.Event({
-        botId,
-        channel: 'telegram',
-        direction: 'incoming',
-        payload: ctx.message,
-        preview: ctx.message.text,
-        threadId: ctx.chat.id.toString(),
-        target: ctx.from.id.toString(),
-        ...args
-      })
-    )
-
-  client.start(ctx => send(ctx, { type: 'start' }))
-  client.help(ctx => send(ctx, { type: 'help' }))
-  client.on('message', ctx => send(ctx, { type: 'message' }))
-  client.on('callback_query', ctx => send(ctx, { type: 'callback' }))
-  // TODO We don't support understanding and accepting more complex stuff from users such as files, audio etc
+  bp.events.sendEvent(
+    bp.IO.Event({
+      botId,
+      channel: 'telegram',
+      direction: 'incoming',
+      payload: ctx.message,
+      preview: ctx.message.text,
+      threadId: threadId && threadId.toString(),
+      target: target && target.toString(),
+      ...args
+    })
+  )
 }
 
-export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
+export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = telegram.' +
@@ -42,6 +37,20 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     name: 'telegram.sendMessages',
     order: 100
   })
+}
+
+export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) {
+  const client = clients[botId]
+
+  client.start(ctx => sendEvent(bp, botId, ctx, { type: 'start' }))
+  client.help(ctx => sendEvent(bp, botId, ctx, { type: 'help' }))
+  client.on('message', ctx => sendEvent(bp, botId, ctx, { type: 'message' }))
+  client.on('callback_query', ctx => sendEvent(bp, botId, ctx, { type: 'callback' }))
+  // TODO We don't support understanding and accepting more complex stuff from users such as files, audio etc
+}
+
+export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
+  registerMiddleware(bp, outgoingHandler)
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'telegram') {

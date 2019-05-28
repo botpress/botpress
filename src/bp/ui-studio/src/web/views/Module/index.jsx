@@ -4,9 +4,6 @@ import { connect } from 'react-redux'
 
 import _ from 'lodash'
 
-import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
-
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 class ModuleView extends React.Component {
@@ -49,7 +46,7 @@ class ModuleView extends React.Component {
     const { moduleName, componentName } = this.props.match.params
     const module = _.find(modules, { name: moduleName })
 
-    const contents = module ? (
+    return module ? (
       <InjectedModuleView
         moduleName={moduleName}
         componentName={componentName}
@@ -58,17 +55,6 @@ class ModuleView extends React.Component {
       />
     ) : (
       this.renderNotFound()
-    )
-
-    const header = module ? <span>{module && module.menuText}</span> : `Module ${moduleName} Not Found`
-
-    const stretch = _.get(module, 'moduleView.stretched')
-
-    return (
-      <ContentWrapper stretch={stretch}>
-        <PageHeader>{header}</PageHeader>
-        {contents}
-      </ContentWrapper>
     )
   }
 }

@@ -16,6 +16,7 @@ export default class ExactMatcher {
 
     const lowText = sanitize(text.toLowerCase())
     const seq = _.find(filteredDataset, s => sanitize(s.cannonical.toLowerCase()) === lowText)
+
     if (seq) {
       return {
         name: seq.intent,
