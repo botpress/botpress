@@ -286,7 +286,7 @@ export class BotService {
     await this.mountBot(destBotId)
   }
 
-  private async botExists(botId: string): Promise<boolean> {
+  public async botExists(botId: string): Promise<boolean> {
     return (await this.getBotsIds()).includes(botId)
   }
 

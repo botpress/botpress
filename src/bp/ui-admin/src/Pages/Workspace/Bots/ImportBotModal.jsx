@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import { Button, Modal, ModalHeader, ModalBody, FormGroup, FormFeedback, Label, Input } from 'reactstrap'
-import { MdGroupAdd } from 'react-icons/lib/md'
+import { MdUnarchive } from 'react-icons/lib/md'
 
 import api from '../../../api'
 
@@ -9,19 +9,23 @@ const defaultState = {
   botId: '',
   error: null,
   file: null,
-  fileValue: null
+  fileValue: null,
+  idTaken: false
 }
 
 class ImportBotModal extends Component {
   state = { ...defaultState }
 
-  isFormValid = () => {
-    return this.formEl && this.formEl.checkValidity() && this.state.fileValue != null
+  focus = () => {
+    this.IdInput && this.IdInput.focus()
   }
 
-  ImportBot = async e => {
-    e.preventDefault()
+  isFormValid = () => {
+    return this.formEl && this.formEl.checkValidity() && this.state.fileValue !== null && !this.state.idTaken
+  }
 
+  importBot = async e => {
+    e.preventDefault()
     const { botId } = this.state
 
     try {
@@ -43,7 +47,25 @@ class ImportBotModal extends Component {
       .replace(/[^a-z0-9_-]/g, '')
   }
 
-  handleBotIdChanged = e => this.setState({ botId: this.sanitizeBotId(e.target.value) })
+  checkIdAvailability = _.debounce(async botId => {
+    if (!botId) {
+      this.setState({ idTaken: false })
+      return
+    }
+    try {
+      const { data: idTaken } = await api.getSecured().get(`/admin/bots/${botId}/exists`)
+      this.setState({ idTaken })
+    } catch (error) {
+      this.setState({ error: error.message })
+    }
+  }, 500)
+
+  handleBotIdChanged = e => {
+    const botId = this.sanitizeBotId(e.target.value)
+
+    this.checkIdAvailability(botId)
+    this.setState({ botId })
+  }
 
   handleFileChanged = e => {
     const { value, files } = e.target
@@ -65,35 +87,35 @@ class ImportBotModal extends Component {
       <Modal isOpen={this.props.isOpen} toggle={this.toggle} fade={false} onOpened={this.focus}>
         <ModalHeader toggle={this.props.toggle}>Import a new bot</ModalHeader>
         <ModalBody>
-          <form onSubmit={this.ImportBot} ref={form => (this.formEl = form)}>
+          <form onSubmit={this.importBot} ref={form => (this.formEl = form)}>
             <FormGroup>
               <Label for="id">
-                <strong>Your bot ID *</strong>
-                <br />
-                <small>
-                  This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see
-                  it. Special characters are not allowed. Minimum length: 3
-                </small>
+                <strong>Bot ID</strong> {this.state.idTaken && <span className="text-danger">Already Taken</span>}
               </Label>
               <Input
-                tabIndex="2"
+                innerRef={el => (this.IdInput = el)}
+                tabIndex="-1"
                 required
                 type="text"
                 minLength={3}
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
               />
+              <small>
+                This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see
+                it. Special characters are not allowed. Minimum length: 4
+              </small>
               <FormFeedback>The bot id should have at least 4 characters.</FormFeedback>
             </FormGroup>
             <FormGroup>
               <Label for="file">
-                <strong>Bot file *</strong>
+                <strong>Bot file</strong>
               </Label>
               <Input tabIndex="1" type="file" id="file" value={this.state.file} onChange={this.handleFileChanged} />
               <FormFeedback>Zip file with the bot content.</FormFeedback>
             </FormGroup>
             <Button tabIndex="4" className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
-              <MdGroupAdd /> Import bot
+              <MdUnarchive /> Import bot
             </Button>
           </form>
           {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
