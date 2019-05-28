@@ -59,7 +59,9 @@ export class CMSService implements IDisposeOnExit {
   async initialize() {
     this.broadcastAddElement = await this.jobService.broadcast<void>(this.local__addElementToCache.bind(this))
     this.broadcastRemoveElements = await this.jobService.broadcast<void>(this.local__removeElementsFromCache.bind(this))
-    this.broadcastUpdateElement = await this.jobService.broadcast<void>(this.local__updateElementFromCache.bind(this))
+    this.broadcastUpdateElement = await this.jobService.broadcast<ContentElement>(
+      this.local__updateElementFromCache.bind(this)
+    )
 
     await this.prepareDb()
     await this._loadContentTypesFromFiles()
@@ -311,8 +313,14 @@ export class CMSService implements IDisposeOnExit {
     if (!contentElementId) {
       contentElementId = this._generateElementId(contentTypeId)
       await this.broadcastAddElement(botId, body, contentElementId, contentType.id)
+      const created = await this.getContentElement(botId, contentElementId)
+
+      await this.moduleLoader.onElementChanged(botId, 'create', created)
     } else {
-      await this.broadcastUpdateElement(botId, body, contentElementId)
+      const originalElement = await this.getContentElement(botId, contentElementId)
+      const updatedElement = await this.broadcastUpdateElement(botId, body, contentElementId)
+
+      await this.moduleLoader.onElementChanged(botId, 'update', updatedElement, originalElement)
     }
 
     await this._writeElementsToFile(botId, contentTypeId)
@@ -581,14 +589,16 @@ export class CMSService implements IDisposeOnExit {
   /**
    * Important! Do not use directly. Needs to be broadcasted.
    */
-  private async local__updateElementFromCache(botId: string, body: object, contentElementId: string) {
-    const original = await this.getContentElement(botId, contentElementId)
+  private async local__updateElementFromCache(
+    botId: string,
+    body: object,
+    contentElementId: string
+  ): Promise<ContentElement> {
     await this.memDb(this.contentTable)
       .update({ ...body, modifiedOn: this.memDb.date.now() })
       .where({ id: contentElementId, botId })
 
-    const updated = await this.getContentElement(botId, contentElementId)
-    await this.moduleLoader.onElementChanged(botId, 'update', updated, original)
+    return this.getContentElement(botId, contentElementId)
   }
 
   /**
@@ -608,8 +618,5 @@ export class CMSService implements IDisposeOnExit {
       id: elementId,
       contentType: contentTypeId
     })
-
-    const created = await this.getContentElement(botId, elementId)
-    await this.moduleLoader.onElementChanged(botId, 'create', created)
   }
 }
