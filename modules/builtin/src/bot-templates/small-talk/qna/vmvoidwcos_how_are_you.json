@@ -1,16 +1,18 @@
 {
   "id": "vmvoidwcos_how_are_you",
   "data": {
-    "questions": [
-      "How are you?",
-      "How's it going?",
-      "what's up?",
-      "how things?",
-      "how are you doing?",
-      "how are you buddy?",
-      "how are you feeling?"
-    ],
-    "answers": ["Pretty good, thank you for asking!"],
+    "questions": {
+      "en": [
+        "How are you?",
+        "How's it going?",
+        "what's up?",
+        "how things?",
+        "how are you doing?",
+        "how are you buddy?",
+        "how are you feeling?"
+      ]
+    },
+    "answers": { "en": ["Pretty good, thank you for asking!"] },
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
