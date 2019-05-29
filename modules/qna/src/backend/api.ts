@@ -8,11 +8,12 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import { QnaEntry, QnaStorage } from './qna'
+import Storage from './providers/nlu'
+import { QnaEntry } from './qna'
 import { importQuestions, prepareExport } from './transfer'
 import { QnaDefSchema } from './validation'
 
-export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>) => {
+export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
   const csvUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 
@@ -76,7 +77,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
 
     try {
       const storage = botScopedStorage.get(req.params.botId)
-      await storage.delete(req.params.id, undefined)
+      await storage.delete(req.params.id)
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
     } catch (e) {
@@ -124,13 +125,12 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, QnaStorage>)
     const uploadStatusId = nanoid()
     res.end(uploadStatusId)
 
-    updateUploadStatus(uploadStatusId, 'Deleting existing questions')
     if (yn(req.body.isReplace)) {
+      updateUploadStatus(uploadStatusId, 'Deleting existing questions')
       const questions = await storage.fetchAllQuestions()
 
-      const statusCb = processedCount =>
-        updateUploadStatus(uploadStatusId, `Deleted ${processedCount}/${questions.length} questions`)
-      await storage.delete(questions.map(({ id }) => id), statusCb)
+      await storage.delete(questions.map(({ id }) => id))
+      updateUploadStatus(uploadStatusId, 'Deleted existing questions')
     }
 
     try {
