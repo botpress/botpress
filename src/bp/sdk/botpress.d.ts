@@ -275,8 +275,13 @@ declare module 'botpress/sdk' {
     }
 
     export namespace SentencePiece {
-      export const encode: (inputText: string, modelPath: string) => string[]
-      export const decode: (tokens: string[], modelPath: string) => string
+      export interface Processor {
+        loadModel: (modelPath: string) => void
+        encode: (inputText: string) => string[]
+        decode: (pieces: string[]) => string
+      }
+
+      export const createProcessor: () => Processor
     }
   }
 
