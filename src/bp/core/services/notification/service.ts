@@ -18,7 +18,7 @@ export class NotificationsService {
     const notifications = await this.notificationsRepository.getAll(botId, { archived: false })
     await Promise.mapSeries(notifications, notification => {
       notification.archived = true
-      this.notificationsRepository.update(notification)
+      return this.notificationsRepository.update(notification)
     })
   }
 
@@ -41,7 +41,7 @@ export class NotificationsService {
     const notifications = await this.notificationsRepository.getAll(botId, { archived: false, read: false })
     await Promise.each(notifications, notification => {
       notification.read = true
-      this.notificationsRepository.update(notification)
+      return this.notificationsRepository.update(notification)
     })
   }
 

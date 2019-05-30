@@ -4,6 +4,7 @@ const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
+import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
 const MLToolkit: typeof sdk.MLToolkit = {
@@ -16,7 +17,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
     Trainer: SVMTrainer
   },
   FastText: { Model: FastTextModel },
-  Strings: { computeLevenshteinDistance, computeJaroWinklerDistance }
+  Strings: { computeLevenshteinDistance, computeJaroWinklerDistance },
+  SentencePiece: { createProcessor: processor }
 }
 
 export default MLToolkit

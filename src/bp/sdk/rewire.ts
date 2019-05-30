@@ -43,7 +43,14 @@ for (const folder of platformFolders) {
   nativeBindingsPaths.push(syspath.resolve(nativeExBaseFolder, folder))
 }
 
-const nativeExtensions = ['node_sqlite3.node', 'fse.node', 'crfsuite.node', 'fasttext.node', 'node-svm.node']
+const nativeExtensions = [
+  'node_sqlite3.node',
+  'fse.node',
+  'crfsuite.node',
+  'fasttext.node',
+  'node-svm.node',
+  'sentencepiece.node'
+]
 
 function addToNodePath(path) {
   overwritePaths(getPaths().concat(path))
@@ -101,6 +108,7 @@ const rewire = function(this: NodeRequireFunction, mod: string) {
     }
   }
 
+  // @ts-ignore
   return originalRequire.apply(this, (arguments as never) as [string])
 }
 
