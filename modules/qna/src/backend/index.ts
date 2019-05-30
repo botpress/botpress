@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import api from './api'
-import Storage from './providers/nlu'
 import { initBot, initModule } from './setup'
+import Storage from './storage'
 
 const botScopedStorage: Map<string, Storage> = new Map<string, Storage>()
 

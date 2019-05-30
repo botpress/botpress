@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import Storage, { NLU_PREFIX } from './providers/nlu'
-import NluStorage from './providers/nlu'
+import Storage, { NLU_PREFIX } from './storage'
+import NluStorage from './storage'
 
 export const initBot = async (bp: typeof sdk, botScopedStorage: Map<string, Storage>, botId: string) => {
   const config = await bp.config.getModuleConfigForBot('qna', botId)

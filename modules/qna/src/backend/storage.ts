@@ -4,7 +4,7 @@ import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { QnaEntry, QnaItem } from '../qna'
+import { QnaEntry, QnaItem } from './qna'
 
 // TODO fix reply,  answer is probably no good
 // TODO fuck batch insert its done one by one anyway
@@ -202,6 +202,7 @@ export default class Storage {
   }
 
   async getQuestion(opts): Promise<QnaItem> {
+    // TODO remove the object option it's useless
     let filename
     if (typeof opts === 'string') {
       filename = `${opts}.json`
@@ -292,25 +293,6 @@ export default class Storage {
     }
 
     await Promise.all(ids.map(deletePromise))
-  }
-
-  // TODO fix this, answer is probably no good
-  async answersOn(text) {
-    const extract = await axios.post('/mod/nlu/extract', { text }, await this.getAxiosConfig())
-    const intents = _.chain([extract.data['intent'], ...extract.data['intents']])
-      .uniqBy('name')
-      .filter(({ name }) => name.startsWith('__qna__'))
-      .orderBy(['confidence'], ['desc'])
-      .value()
-
-    return Promise.all(
-      intents.map(async ({ name, confidence }) => {
-        const {
-          data: { questions, answer }
-        } = await this.getQuestion(name.replace('__qna__', ''))
-        return { questions, answer, confidence, id: name, metadata: [] }
-      })
-    )
   }
 
   getCategories() {

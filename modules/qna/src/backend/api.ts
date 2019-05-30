@@ -8,8 +8,8 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import Storage from './providers/nlu'
 import { QnaEntry } from './qna'
+import Storage from './storage'
 import { importQuestions, prepareExport } from './transfer'
 import { QnaDefSchema } from './validation'
 
