@@ -13,7 +13,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
   },
   FastText: { Model: FastTextModel },
   Strings: { computeLevenshteinDistance, computeJaroWinklerDistance },
-  SentencePiece: { createProcessor: () => processor() }
+  SentencePiece: { createProcessor: processor }
 }
 
 export default MLToolkit
