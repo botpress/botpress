@@ -9,7 +9,7 @@ export default class Login extends Component {
     isLoading: true,
     isFirstTimeUse: false,
     email: '',
-    authStrategy: 'basic',
+    strategyType: 'basic',
     authEndpoint: null,
     password: '',
     passwordExpired: false,
@@ -22,8 +22,7 @@ export default class Login extends Component {
     this.setState({
       isLoading: false,
       isFirstTimeUse: data.payload.isFirstTimeUse,
-      authStrategy: data.payload.strategy,
-      authEndpoint: data.payload.authEndpoint
+      ...data.payload
     })
   }
 
@@ -36,10 +35,13 @@ export default class Login extends Component {
     this.setState({ error: null })
 
     try {
-      await this.props.auth.login({
-        email: email || this.state.email,
-        password: password || this.state.password
-      })
+      await this.props.auth.login(
+        {
+          email: email || this.state.email,
+          password: password || this.state.password
+        },
+        this.state.loginUrl
+      )
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         if (!this.state.email || !this.state.password) {
@@ -66,8 +68,8 @@ export default class Login extends Component {
   handleInputKeyPress = e => e.key === 'Enter' && this.login()
 
   redirectToExternalAuthProvider = () => {
-    if (this.state.authStrategy === 'saml') {
-      return (window.location = `${api.getApiPath()}/auth/saml-redirect`)
+    if (this.state.strategyType === 'saml') {
+      return (window.location = `${api.getApiPath()}/auth/redirect/saml/${this.state.strategyId}`)
     }
 
     window.location = this.state.authEndpoint
@@ -126,7 +128,7 @@ export default class Login extends Component {
       return <Redirect to="/" />
     }
 
-    if (this.state.isFirstTimeUse && this.state.authStrategy === 'basic') {
+    if (this.state.isFirstTimeUse && this.state.strategyType === 'basic') {
       return <Redirect to="/register" />
     }
 
@@ -145,7 +147,7 @@ export default class Login extends Component {
             <img className="logo" src={logo} alt="loading" />
             <Card body>
               <CardBody className="login-box">
-                {this.state.authStrategy === 'saml' ? this.renderExternal() : this.renderForm()}
+                {this.state.strategyType === 'saml' ? this.renderExternal() : this.renderForm()}
               </CardBody>
             </Card>
           </div>

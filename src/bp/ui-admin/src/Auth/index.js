@@ -25,15 +25,15 @@ export function logout() {
 }
 
 export default class BasicAuthentication {
-  login = async ({ email, password, newPassword }) => {
+  login = async ({ email, password, newPassword }, loginUrl) => {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doLogin({ email, password, newPassword })
+    await this.doLogin({ email, password, newPassword }, loginUrl)
   }
 
-  async doLogin({ email, password, newPassword }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/login', {
+  async doLogin({ email, password, newPassword }, loginUrl) {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth' + loginUrl, {
       email,
       password,
       newPassword

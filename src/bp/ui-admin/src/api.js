@@ -69,7 +69,12 @@ const overrideStripePath = process.env.REACT_APP_STRIPE_PATH
   ? `${process.env.REACT_APP_STRIPE_PATH}`
   : `https://botpress.io/stripe`
 
+let currentWorkspace = 'default'
+
 export default {
+  setWorkspace(name) {
+    currentWorkspace = name
+  },
   getApiPath() {
     return overrideApiUrl.baseURL
   },
@@ -84,7 +89,8 @@ export default {
       {
         timeout,
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'X-BP-Workspace': currentWorkspace
         },
         ...overrideApiUrl
       },

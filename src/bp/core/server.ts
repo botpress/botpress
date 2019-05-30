@@ -31,7 +31,7 @@ import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from './services/auth/auth-service'
+import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
@@ -46,7 +46,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
-export const SERVER_USER = 'server::modules'
+const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
 const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
@@ -305,7 +305,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, false, '5m', TOKEN_AUDIENCE)
+    const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
@@ -315,9 +315,9 @@ export default class HTTPServer {
   }
 
   extractExternalToken = async (req, res, next) => {
-    if (req.headers['x-bp-externalauth']) {
+    if (req.headers[EXTERNAL_AUTH_HEADER]) {
       try {
-        req.credentials = await this.decodeExternalToken(req.headers['x-bp-externalauth'])
+        req.credentials = await this.decodeExternalToken(req.headers[EXTERNAL_AUTH_HEADER])
       } catch (error) {
         return next(new InvalidExternalToken(error.message))
       }

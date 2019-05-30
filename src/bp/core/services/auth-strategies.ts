@@ -1,12 +1,12 @@
-import { AuthUser } from 'core/misc/interfaces'
+import { StrategyUser } from 'core/repositories/strategy_users'
 import { Router } from 'express'
 import { injectable } from 'inversify'
 
 export interface AuthStrategies {
   setup(router: Router)
-  getAndUpsertUser(authUser: Partial<AuthUser>): Promise<AuthUser>
-  mapFields(userProfile: any)
-  createTokenForUser(email: string): Promise<string>
+  getAndUpsertUser(authUser: Partial<StrategyUser>, allowSelfSignup: boolean): Promise<StrategyUser>
+  mapFields(userProfile: any, any: any)
+  createTokenForUser(email: string, strategy: string): Promise<string>
 }
 
 @injectable()
@@ -15,7 +15,7 @@ export class CEAuthStrategies implements AuthStrategies {
     throw new Error('Not implemented')
   }
 
-  getAndUpsertUser(authUser: Partial<AuthUser>): Promise<AuthUser> {
+  getAndUpsertUser(authUser: Partial<StrategyUser>): Promise<StrategyUser> {
     throw new Error('Not implemented')
   }
 

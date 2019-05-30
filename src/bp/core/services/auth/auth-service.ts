@@ -1,166 +1,157 @@
 import { Logger } from 'botpress/sdk'
-import { AuthStrategy, BotpressConfig } from 'core/config/botpress.config'
+import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
-import { Statistics } from 'core/stats'
+import Database from 'core/database'
+import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
+import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
-import moment from 'moment'
-import ms from 'ms'
-import nanoid from 'nanoid'
-import { charsets, PasswordPolicy } from 'password-sheriff'
 
-import { AuthUser, BasicAuthUser, CreatedUser, ExternalAuthUser, TokenUser } from '../../misc/interfaces'
+import { TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
-import { SERVER_USER } from '../../server'
 import { TYPES } from '../../types'
-import { WorkspaceService } from '../workspace-service'
+import { KeyValueStore } from '../kvs'
 
-import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
-import { generateUserToken, isSuperAdmin, saltHashPassword, validateHash } from './util'
+import StrategyBasic from './basic'
+import { generateUserToken } from './util'
 
-export const TOKEN_AUDIENCE = 'web-login'
+export const TOKEN_AUDIENCE = 'collaborators'
+export const CHAT_USERS_AUDIENCE = 'chat_users'
+export const WORKSPACE_HEADER = 'x-bp-workspace'
+export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
+export const SERVER_USER = 'server::modules'
 
-const debug = DEBUG('audit:users')
+export interface UniqueUser {
+  email: string
+  strategy: string
+}
 
 @injectable()
 export default class AuthService {
+  public strategyBasic!: StrategyBasic
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Auth')
     private logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Statistics) private stats: Statistics,
-    @inject(TYPES.WorkspaceService) private workspace: WorkspaceService
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.StrategyUsersRepository) private users: StrategyUsersRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository
   ) {}
 
-  async getResources(): Promise<Resource[]> {
-    if (process.IS_PRO_ENABLED) {
-      const resources = require('pro/services/admin/pro-resources')
-      return resources.PRO_RESOURCES
-    }
-    return []
-  }
-
-  async findUser(where: {}, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return this.workspace.findUser(where, selectFields) as Promise<AuthUser>
-  }
-
-  async findUserByEmail(email: string, selectFields?: Array<keyof AuthUser>): Promise<AuthUser | undefined> {
-    return (await this.findUser({ email }, selectFields)) as AuthUser
-  }
-
-  async checkUserAuth(email: string, password: string, newPassword?: string, ipAddress: string = '') {
-    if (email === SERVER_USER) {
-      debug('user tried to login with server user %o', { email, ipAddress })
-      throw new InvalidCredentialsError()
-    }
-
-    const user = await this.findUserByEmail(email || '', [
-      'email',
-      'password',
-      'salt',
-      'password_expired',
-      'password_expiry_date',
-      'unsuccessful_logins',
-      'locked_out',
-      'last_login_attempt'
-    ])
-
-    if (!user) {
-      debug('login failed; user does not exist %o', { email, ipAddress })
-      throw new InvalidCredentialsError()
-    }
-
-    if (!validateHash(password || '', user.password!, user.salt!)) {
-      debug('login failed; wrong password %o', { email, ipAddress })
-      this.stats.track('auth', 'login', 'fail')
-
-      await this._incrementWrongPassword(user)
-      throw new InvalidCredentialsError()
-    }
-
-    if (user.locked_out) {
-      const config = await this.configProvider.getBotpressConfig()
-      const lockoutDuration = _.get(config, 'pro.auth.options.lockoutDuration')
-
-      const lockExpired = lockoutDuration && moment().isAfter(moment(user.last_login_attempt).add(ms(lockoutDuration)))
-      if (!lockoutDuration || !lockExpired) {
-        debug('login failed; user locked out %o', { email, ipAddress })
-        throw new LockedOutError()
-      }
-    }
-
-    const isDateExpired = user.password_expiry_date && moment().isAfter(user.password_expiry_date)
-    if ((user.password_expired || isDateExpired) && !newPassword) {
-      throw new PasswordExpiredError()
-    }
-
-    return user.email
-  }
-
-  async createBasicUser(user: Partial<BasicAuthUser>): Promise<CreatedUser> {
-    const newUser = {
-      ...user
-    } as BasicAuthUser
-
-    const createdUser = await this.workspace.createUser(newUser)
-    debug('created basic user', { user: createdUser })
-
-    return {
-      password: user.password ? user.password : await this.resetPassword(user.email!),
-      user: createdUser
-    }
-  }
-
-  async createExternalUser(user: Partial<ExternalAuthUser>, provider: AuthStrategy): Promise<CreatedUser> {
-    const newUser = {
-      ...user,
-      provider
-    } as ExternalAuthUser
-
-    const result = {
-      user: await this.workspace.createUser(newUser)
-    }
-
-    debug('created external user', { user, provider })
-
-    return result
-  }
-
-  async createUser(user: Partial<BasicAuthUser> | Partial<ExternalAuthUser>): Promise<CreatedUser> {
+  async initialize() {
     const config = await this.configProvider.getBotpressConfig()
-    const strategy = _.get(config, 'pro.auth.strategy', 'basic')
+    const strategies = Object.keys(config.authStrategies)
+    const strategyTable = new StrategyUserTable()
 
-    this.stats.track('user', 'create', strategy)
-
-    if (strategy === 'basic') {
-      return this.createBasicUser(user)
-    } else {
-      return this.createExternalUser(user, strategy)
+    if (!config.authStrategies || !config.pro.globalAuthStrategies || !config.pro.globalAuthStrategies.length) {
+      await this._setDefaultStrategy()
     }
+
+    await Promise.mapSeries(strategies, async strategy => {
+      const created = await strategyTable.createStrategyTable(this.database.knex, `strategy_${strategy}`)
+      if (created) {
+        this.logger.info(`Created table for strategy ${strategy}`)
+      }
+    })
   }
 
-  async updateUser(email: string, userData: Partial<AuthUser>, updateLastLogon?: boolean) {
-    const more = updateLastLogon ? { last_logon: new Date() } : {}
-    const result = await this.workspace.updateUser(email, { ...userData, ...more })
-    debug('updated user %o', { email, attributes: userData })
-    return result
+  async isFirstUser() {
+    // TODO: maybe allow the first for different default strategy
+    const count = await this.workspaceRepo.getUniqueCollaborators()
+    return count === 0
   }
 
-  async resetPassword(email: string) {
-    const password = nanoid(15)
-    const { hash, salt } = saltHashPassword(password)
-
-    await this.workspace.updateUser(email, {
-      password: hash,
-      salt,
-      password_expired: true
+  async listStrategies() {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategies = Object.keys(config.authStrategies).map(x => {
+      const strategy = config.authStrategies[x]
+      return { id: x, ...strategy, config: this._getStrategyConfig(strategy, x) }
     })
 
-    debug('password reset %o', { email })
+    return { list: strategies, global: config.pro.globalAuthStrategies }
+  }
 
-    return password
+  async getCollaboratorsConfig() {
+    const defaultStrategy = await this.getDefaultStrategy()
+    const strategy = (await this.getStrategy(defaultStrategy)) as AuthStrategy
+
+    return this._getStrategyConfig(strategy, defaultStrategy)
+  }
+
+  async setChatUserToken(token: string, { channel, target }): Promise<void> {
+    const tokenData = await this.checkToken(token, TOKEN_AUDIENCE)
+    const expiration = (tokenData.exp && tokenData.exp / 1000) || 0
+
+    const key = `${channel}::${target}`
+    await this.kvs.setStorageWithExpiry('', key, tokenData, expiration + '')
+  }
+
+  async generateSecureToken(email: string, strategy: string, forceChatUser?: boolean) {
+    const config = await this.configProvider.getBotpressConfig()
+    const isGlobalStrategy = config.pro.globalAuthStrategies.includes(strategy)
+
+    const duration = config.jwtToken && config.jwtToken.duration
+    const audience = forceChatUser || !isGlobalStrategy ? CHAT_USERS_AUDIENCE : TOKEN_AUDIENCE
+    const isSuperAdmin = audience === TOKEN_AUDIENCE && config.superAdmins.includes({ strategy, email })
+
+    return generateUserToken(email, strategy, isSuperAdmin, duration, audience)
+  }
+
+  async getAudience(strategy: string) {
+    const config = await this.configProvider.getBotpressConfig()
+    return config.pro.globalAuthStrategies.includes(strategy) ? TOKEN_AUDIENCE : CHAT_USERS_AUDIENCE
+  }
+
+  async getStrategy(strategyId: string, configPath?: string): Promise<AuthStrategy | Partial<AuthStrategy>> {
+    const config = await this.configProvider.getBotpressConfig()
+    const strategy = config.authStrategies[strategyId]
+
+    return configPath ? _.get(strategy, configPath) : config.authStrategies[strategyId]
+  }
+
+  async findUser(email: string, strategy: string): Promise<StrategyUser | undefined> {
+    return this.users.findUser(email, strategy) as Promise<StrategyUser>
+  }
+
+  async findUserAttributes(email: string, strategy: string): Promise<any | undefined> {
+    const user = await this.users.findUser(email, strategy)
+    return user && user.attributes
+  }
+
+  async createUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser | string> {
+    if (!user.email) {
+      throw new Error('no')
+    }
+
+    const createdUser = await this.users.createUser({
+      email: user.email,
+      strategy,
+      attributes: user.attributes || {}
+    })
+
+    const strategyType = await this.getStrategy(strategy, 'type')
+    if (strategyType === 'basic') {
+      return this.strategyBasic.resetPassword(user.email, strategy)
+    }
+
+    return createdUser.result
+  }
+
+  async resetPassword(email: string, strategy: string) {
+    return this.strategyBasic.resetPassword(email, strategy)
+  }
+
+  async updateUser(email: string, strategy: string, userFields: any) {
+    return this.users.updateUser(email, strategy, userFields)
+  }
+
+  async updateAttributes(email: string, strategy: string, newAttributes: any) {
+    return this.users.updateAttributes(email, strategy, newAttributes)
   }
 
   async checkToken(token: string, audience?: string) {
@@ -171,113 +162,76 @@ export default class AuthService {
     })
   }
 
-  async refreshToken(tokenUser: TokenUser): Promise<string> {
+  async getAllStrategies() {
     const config = await this.configProvider.getBotpressConfig()
-    const duration = config.jwtToken && config.jwtToken.duration
-    return generateUserToken(tokenUser.email, tokenUser.isSuperAdmin, duration, TOKEN_AUDIENCE)
-  }
-
-  async register(email: string, password: string, ipAddress: string = ''): Promise<string> {
-    this.stats.track('auth', 'register', 'success')
-
-    const pw = saltHashPassword(password)
-    await this.createUser({
-      email,
-      password: pw.hash,
-      salt: pw.salt,
-      last_ip: ipAddress,
-      last_logon: new Date()
+    return Object.keys(config.authStrategies).map(x => {
+      const strategy = config.authStrategies[x]
+      return { id: x, ...strategy }
     })
-
-    debug('self register', { email, ipAddress })
-
-    const config = await this.configProvider.getBotpressConfig()
-    const duration = config.jwtToken && config.jwtToken.duration
-    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
   }
 
-  async login(email: string, password: string, newPassword?: string, ipAddress: string = ''): Promise<string> {
-    await this.checkUserAuth(email, password, newPassword, ipAddress)
+  async getDefaultStrategy(): Promise<string> {
     const config = await this.configProvider.getBotpressConfig()
-    this.stats.track('auth', 'login', 'success')
-
-    if (newPassword) {
-      this._validatePassword(newPassword, config)
-
-      const hash = saltHashPassword(newPassword)
-      await this.updateUser(email, {
-        password: hash.hash,
-        salt: hash.salt,
-        password_expired: false,
-        ...this._addPasswordExpiry(config)
-      })
+    if (!config.pro.globalAuthStrategies || !config.pro.globalAuthStrategies.length) {
+      throw new Error(`There must be at least one default strategy configured.`)
     }
 
-    debug('login', { email, ipAddress })
+    return _.first(config.pro.globalAuthStrategies)!
+  }
 
-    await this.updateUser(
-      email,
-      {
-        last_ip: ipAddress,
-        unsuccessful_logins: 0,
-        last_login_attempt: undefined,
-        locked_out: false
+  async getStrategyTypes() {
+    const config = await this.configProvider.getBotpressConfig()
+    if (!config.authStrategies) {
+      return []
+    }
+
+    return Object.keys(config.authStrategies).map(s => config.authStrategies[s].type)
+  }
+
+  async refreshToken(tokenUser: TokenUser): Promise<string> {
+    return this.generateSecureToken(tokenUser.email, tokenUser.strategy)
+  }
+
+  async getResources(): Promise<Resource[]> {
+    if (process.IS_PRO_ENABLED) {
+      const resources = require('pro/services/admin/pro-resources')
+      return resources.PRO_RESOURCES
+    }
+    return []
+  }
+
+  private async _setDefaultStrategy(): Promise<void> {
+    this.logger.info(`Default strategy "default" configured in Botpress Config`)
+
+    return this.configProvider.mergeBotpressConfig({
+      pro: {
+        globalAuthStrategies: ['default']
       },
-      true
-    )
-
-    const duration = config.jwtToken && config.jwtToken.duration
-    return generateUserToken(email, isSuperAdmin(email, config), duration, TOKEN_AUDIENCE)
+      authStrategies: {
+        ['default']: {
+          type: 'basic',
+          allowSelfSignup: false,
+          options: {
+            maxLoginAttempt: 0
+          } as AuthStrategyBasic
+        }
+      }
+    })
   }
 
-  private _validatePassword(password: string, config: BotpressConfig) {
-    const authOptions = _.get(config, 'pro.auth.options')
-    if (!authOptions) {
-      return
-    }
-
-    const rules: any = {}
-    if (authOptions.passwordMinLength) {
-      rules.length = { minLength: authOptions.passwordMinLength }
-    }
-
-    if (authOptions.requireComplexPassword) {
-      rules.containsAtLeast = {
-        atLeast: 3,
-        expressions: [charsets.lowerCase, charsets.upperCase, charsets.numbers, charsets.specialCharacters]
+  private _getStrategyConfig(strategy: AuthStrategy, id: string) {
+    if (strategy.type === 'saml') {
+      return {
+        strategyType: strategy.type,
+        strategyId: id
       }
     }
 
-    try {
-      const policyChecker = new PasswordPolicy(rules)
-      policyChecker.assert(password)
-    } catch (err) {
-      throw new WeakPasswordError()
-    }
-  }
-
-  private _addPasswordExpiry(config: BotpressConfig) {
-    const passwordExpiryDelay = _.get(config, 'pro.auth.options.passwordExpiryDelay')
-    if (!passwordExpiryDelay) {
-      return {}
-    }
-
     return {
-      password_expiry_date: moment()
-        .add(ms(passwordExpiryDelay))
-        .toDate()
+      loginUrl: `/login/${strategy.type}/${id}`,
+      registerUrl: `/register/${strategy.type}/${id}`,
+      strategyType: strategy.type,
+      strategyId: id
     }
-  }
-
-  private async _incrementWrongPassword(user: AuthUser) {
-    const config = await this.configProvider.getBotpressConfig()
-    const maxLoginAttempt = _.get(config, 'pro.auth.options.maxLoginAttempt')
-    const invalidLoginCount = (user.unsuccessful_logins || 0) + 1
-
-    await this.workspace.updateUser(user.email, {
-      unsuccessful_logins: invalidLoginCount,
-      last_login_attempt: new Date(),
-      ...(maxLoginAttempt && invalidLoginCount > maxLoginAttempt && { locked_out: true })
-    })
   }
 }

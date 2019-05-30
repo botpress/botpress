@@ -214,12 +214,15 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.BeforeBotImport(api, botId, tmpFolder, hookResult))
 
       if (hookResult.allowImport) {
+        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+        const pipeline = await this.workspaceService.getPipeline(workspaceId)
+
         await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
           pipeline_status: {
             current_stage: {
-              id: (await this.workspaceService.getPipeline())[0].id,
+              id: pipeline && pipeline[0].id,
               promoted_by: 'system',
               promoted_on: new Date()
             }
@@ -229,7 +232,7 @@ export class BotService {
           await this.unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
-        await this.workspaceService.addBotRef(botId)
+        await this.workspaceService.addBotRef(botId, workspaceId)
         await this.mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
@@ -245,7 +248,13 @@ export class BotService {
     if (!botConfig) {
       throw Error('bot does not exist')
     }
-    const pipeline = await this.workspaceService.getPipeline()
+
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const pipeline = await this.workspaceService.getPipeline(workspaceId)
+    if (!pipeline) {
+      return
+    }
+
     const nextStageIdx = pipeline.findIndex(s => s.id === botConfig.pipeline_status.current_stage.id) + 1
     if (nextStageIdx >= pipeline.length) {
       this.logger.debug('end of pipeline')
@@ -281,8 +290,8 @@ export class BotService {
     await Promise.all(
       botContent.map(async file => destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file)))
     )
-
-    await this.workspaceService.addBotRef(destBotId)
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(sourceBotId)
+    await this.workspaceService.addBotRef(destBotId, workspaceId)
     await this.mountBot(destBotId)
   }
 
@@ -291,10 +300,18 @@ export class BotService {
   }
 
   private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(currentConfig.id)
+    const pipeline = await this.workspaceService.getPipeline(workspaceId)
+    if (!pipeline) {
+      return
+    }
+
     const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
-    const users = await this.workspaceService.listUsers(['email', 'role'])
-    const pipeline = await this.workspaceService.getPipeline()
+
+    // TODO
+    const users = []
+    // await this.workspaceService.getWorkspaceUsers(workspaceId)
     const api = await createForGlobalHooks()
     const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
     const hookResult = {
@@ -472,9 +489,10 @@ export class BotService {
 
   public async listRevisions(botId: string): Promise<string[]> {
     const globalGhost = this.ghostService.global()
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
     let stageID = ''
-    if (await this.workspaceService.hasPipeline()) {
+    if (await this.workspaceService.hasPipeline(workspaceId)) {
       const botConfig = await this.configProvider.getBotConfig(botId)
       stageID = botConfig.pipeline_status.current_stage.id
     }
@@ -491,9 +509,10 @@ export class BotService {
   }
 
   public async createRevision(botId: string): Promise<void> {
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     let revName = botId + REV_SPLIT_CHAR + Date.now()
 
-    if (await this.workspaceService.hasPipeline()) {
+    if (await this.workspaceService.hasPipeline(workspaceId)) {
       const botConfig = await this.configProvider.getBotConfig(botId)
       revName = revName + REV_SPLIT_CHAR + botConfig.pipeline_status.current_stage.id
     }
@@ -505,6 +524,7 @@ export class BotService {
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     const revParts = revision.replace('.tgz', '').split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
       throw new VError('invalid revision')
@@ -514,7 +534,7 @@ export class BotService {
       throw new VError('cannot rollback a bot with a different Id')
     }
 
-    if (await this.workspaceService.hasPipeline()) {
+    if (await this.workspaceService.hasPipeline(workspaceId)) {
       const botConfig = await this.configProvider.getBotConfig(botId)
       if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
         throw new VError('cannot rollback a bot to a different stage')

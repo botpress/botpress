@@ -1,5 +1,4 @@
 import { Logger } from 'botpress/sdk'
-import { CreatedUser } from 'core/misc/interfaces'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -29,18 +28,12 @@ export class UsersRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const users = await this.workspaceService.listUsers([
-          'email',
-          'firstname',
-          'lastname',
-          'role',
-          'last_logon',
-          'created_on'
-        ])
+        const users = await this.workspaceService.getWorkspaceUsers(req.workspace!)
         return sendSuccess(res, 'Retrieved users', users)
       })
     )
 
+    // TODO
     router.post(
       '/',
       this.assertBotpressPro,
@@ -56,22 +49,25 @@ export class UsersRouter extends CustomRouter {
             role: Joi.string().required()
           })
         )
+
         const user = req.body
-        const alreadyExists = await this.authService.findUserByEmail(user.email, ['email'])
+        const defaultStrategy = await this.authService.getDefaultStrategy()
+        const alreadyExists = await this.authService.findUser(user.email, defaultStrategy)
 
         if (alreadyExists) {
           throw new ConflictError(`User "${user.email}" is already taken`)
         }
 
-        const createdUser: CreatedUser = await this.authService.createUser(user)
+        const tempPassword = await this.authService.createUser(user, defaultStrategy)
 
         return sendSuccess(res, 'User created successfully', {
           email: user.email,
-          tempPassword: createdUser.password
+          tempPassword
         })
       })
     )
 
+    // TODO
     router.delete(
       '/:email',
       this.needPermissions('write', this.resource),
@@ -82,31 +78,33 @@ export class UsersRouter extends CustomRouter {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
-        await this.workspaceService.deleteUser(email)
+        // await this.workspaceService.deleteUser(email)
         return sendSuccess(res, 'User deleted', {
           email
         })
       })
     )
 
+    // TODO
     router.get(
-      '/reset/:userId',
+      '/reset/:strategy/:email',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const tempPassword = await this.authService.resetPassword(req.params.userId)
+        const tempPassword = await this.authService.resetPassword(req.params.email, req.params.strategy)
         return sendSuccess(res, 'Password reseted', {
           tempPassword
         })
       })
     )
 
+    // TODO
     router.put(
       '/:email',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email } = req.params
 
-        await this.authService.updateUser(email, req.body)
+        // await this.authService.updateUser(email, req.body)
         return sendSuccess(res, 'User updated')
       })
     )

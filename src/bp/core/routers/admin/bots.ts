@@ -39,18 +39,17 @@ export class BotsRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        await this.workspaceService.assertUserExists(req.tokenUser!.email)
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
+        if (!workspace) {
+          return
+        }
 
-        const botsRefs = await this.workspaceService.getBotRefs()
+        const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
         const bots = await this.botService.findBotsByIds(botsRefs)
-        const workpace = await this.workspaceService.getWorkspace()
 
         return sendSuccess(res, 'Retrieved bots for all teams', {
           bots: bots && bots.filter(Boolean),
-          workspace: {
-            name: workpace.name,
-            pipeline: workpace.pipeline
-          }
+          workspace: _.pick(workspace, ['name', 'pipeline'])
         })
       })
     )
@@ -85,8 +84,6 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
 
-        await this.workspaceService.assertUserExists(req.tokenUser!.email)
-
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
 
@@ -97,9 +94,11 @@ export class BotsRouter extends CustomRouter {
         if (botExists) {
           this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
         } else {
+          const pipeline = await this.workspaceService.getPipeline(req.workspace!)
+
           bot.pipeline_status = {
             current_stage: {
-              id: (await this.workspaceService.getPipeline())[0].id,
+              id: pipeline![0].id,
               promoted_on: new Date(),
               promoted_by: req.tokenUser!.email
             }
@@ -110,7 +109,7 @@ export class BotsRouter extends CustomRouter {
         if (botLinked) {
           this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workpaces.json for more details`)
         } else {
-          await this.workspaceService.addBotRef(bot.id)
+          await this.workspaceService.addBotRef(bot.id, req.workspace!)
         }
 
         return sendSuccess(res, 'Added new bot', {
@@ -151,7 +150,6 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const bot = <BotConfig>req.body
-        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.updateBot(botId, bot)
 
@@ -166,7 +164,6 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        await this.workspaceService.assertUserExists(req.tokenUser!.email)
 
         await this.botService.deleteBot(botId)
         await this.workspaceService.deleteBotRef(botId)

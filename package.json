@@ -92,6 +92,7 @@
     "@types/lodash": "^4.14.116",
     "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
+    "@types/passport": "^1.0.0",
     "@types/redis": "^2.8.10",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
