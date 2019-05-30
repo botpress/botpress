@@ -7,3 +7,6 @@
 [submodule "src/bp/ml/fasttext"]
 	path = src/bp/ml/fasttext
 	url = https://github.com/botpress/node-fasttext.git
+[submodule "src/bp/ml/sentencepiece"]
+	path = src/bp/ml/sentencepiece
+	url = git@github.com:botpress/node-sentencepiece.git
