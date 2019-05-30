@@ -73,23 +73,24 @@ export default class Storage {
 
     return await Promise.all(
       qnas.map(({ id, data }) => {
-        let hasChanged = false
+        const initial = _.cloneDeep(data)
         const questions = data.questions
         const answers = data.answers
+        if (!data.category) {
+          data.category = 'global'
+        }
         if (_.isArray(questions)) {
-          hasChanged = true
           data.questions = {
             [bot.defaultLanguage]: questions
           }
         }
         if (_.isArray(answers)) {
-          hasChanged = true
           data.answers = {
             [bot.defaultLanguage]: answers
           }
         }
 
-        if (hasChanged) {
+        if (!_.isEqual(initial, data)) {
           return this.update(data, id)
         }
       })

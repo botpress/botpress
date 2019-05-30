@@ -444,7 +444,7 @@ export default class QnaAdmin extends Component {
           <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
+          {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}
         </div>
       </Well>
     )
@@ -469,7 +469,7 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
-  enabledItem = (item, id) => value => {
+  toggleEnableItem = (item, id, value) => {
     const { page, filterQuestion, filterCategory } = this.state
     const params = {
       limit: ITEMS_PER_PAGE,
