@@ -235,9 +235,9 @@ export default class Storage {
     const filteredQuestions = allQuestions.filter(q => {
       const { questions, category } = q.data
 
-      const allquestions = _.flatten(Object.keys(question).map(key => questions[key]))
       const hasMatch =
-        allquestions
+        Object.values(questions)
+          .reduce((a, b) => a.concat(b), [])
           .join('\n')
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
