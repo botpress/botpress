@@ -33,7 +33,6 @@ function stripDeprecationWrite(this: Function): boolean {
     return (arguments[2] || arguments[1])()
   }
 
-  // @ts-ignore
   return originalWrite.apply(this, (arguments as never) as [string])
 }
 

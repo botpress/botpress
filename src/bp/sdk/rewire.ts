@@ -108,7 +108,6 @@ const rewire = function(this: NodeRequireFunction, mod: string) {
     }
   }
 
-  // @ts-ignore
   return originalRequire.apply(this, (arguments as never) as [string])
 }
 
