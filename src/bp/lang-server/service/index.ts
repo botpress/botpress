@@ -7,7 +7,7 @@ import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
 
-interface ModelsForLanguage {
+interface ModelSet {
   bpeModel: AvailableModel | LoadedBPEModel
   fastTextModel: AvailableModel | LoadedFastTextModel
 }
@@ -25,7 +25,7 @@ type LoadedBPEModel = AvailableModel & {
 }
 
 export default class LanguageService {
-  private _models: Dic<ModelsForLanguage> = {}
+  private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
@@ -196,7 +196,7 @@ export default class LanguageService {
   }
 
   async vectorize(input: string, lang: string): Promise<[number[][], string[]]> {
-    const { fastTextModel, bpeModel } = this._models[lang] as ModelsForLanguage
+    const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
     if (!fastTextModel || !fastTextModel.loaded || !bpeModel || !bpeModel.loaded) {
       throw new Error(`One of FastText model or Sentencepiece bpe model for lang '${lang}' is not loaded in memory`)
     }
@@ -211,7 +211,7 @@ export default class LanguageService {
   }
 
   async vectorizeTokens(tokens: string[], lang: string): Promise<[number[][], string[]]> {
-    const { fastTextModel } = this._models[lang] as ModelsForLanguage
+    const { fastTextModel } = this._models[lang] as ModelSet
     if (!fastTextModel || !fastTextModel.loaded) {
       throw new Error(`Model for lang '${lang}' is not loaded in memory`)
     }
