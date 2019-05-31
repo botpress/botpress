@@ -1,3 +1,15 @@
+## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
+
+
+### Bug Fixes
+
+* **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
+* **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
+* **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
+* **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
+
+
+
 # [11.9.0](https://github.com/botpress/botpress/compare/v11.8.4...v11.9.0) (2019-05-15)
 
 ### Bug Fixes
