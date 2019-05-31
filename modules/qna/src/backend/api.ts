@@ -127,7 +127,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
     if (yn(req.body.isReplace)) {
       updateUploadStatus(uploadStatusId, 'Deleting existing questions')
-      const questions = await storage.fetchAllQuestions()
+      const questions = await storage.fetchQNAs()
 
       await storage.delete(questions.map(({ id }) => id))
       updateUploadStatus(uploadStatusId, 'Deleted existing questions')

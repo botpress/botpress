@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { QnaEntry } from './qna'
 import Storage, { NLU_PREFIX } from './storage'
 import NluStorage from './storage'
 
@@ -29,20 +30,31 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
     description: 'Listen for predefined questions and send canned responses.'
   })
 
-  const getAlternativeAnswer = question => {
-    const randomIndex = Math.floor(Math.random() * question.answers.length)
-    return question.answers[randomIndex]
+  const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string) => {
+    const randomIndex = Math.floor(Math.random() * qnaEntry.answers[lang].length)
+    return qnaEntry.answers[lang][randomIndex]
   }
 
-  const buildSuggestions = async (event, question, confidence, intent, renderer): Promise<sdk.IO.Suggestion> => {
+  const buildSuggestions = async (
+    event: sdk.IO.IncomingEvent,
+    qnaEntry: QnaEntry,
+    confidence,
+    intent,
+    renderer
+  ): Promise<sdk.IO.Suggestion> => {
     const payloads = []
 
-    if (question.action.includes('text')) {
+    let lang = event.nlu.language
+    if (lang === 'n/a') {
+      lang = (await bp.bots.getBotById(event.botId)).defaultLanguage
+    }
+
+    if (qnaEntry.action.includes('text')) {
       const args = {
         user: _.get(event, 'state.user') || {},
         session: _.get(event, 'state.session') || {},
         temp: _.get(event, 'state.temp') || {},
-        text: getAlternativeAnswer(question),
+        text: getAlternativeAnswer(qnaEntry, lang),
         typing: true
       }
 
@@ -56,8 +68,8 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
       payloads.push(...element)
     }
 
-    if (question.action.includes('redirect')) {
-      payloads.push({ type: 'redirect', flow: question.redirectFlow, node: question.redirectNode })
+    if (qnaEntry.action.includes('redirect')) {
+      payloads.push({ type: 'redirect', flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode })
     }
 
     return <sdk.IO.Suggestion>{
@@ -68,7 +80,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
     }
   }
 
-  const getQuestionForIntent = async (storage, intentName) => {
+  const getQuestionForIntent = async (storage: Storage, intentName) => {
     if (intentName && intentName.startsWith(NLU_PREFIX)) {
       const qnaId = intentName.substring(NLU_PREFIX.length)
       return (await storage.getQuestion(qnaId)).data
@@ -81,10 +93,10 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
     }
 
     for (const intent of event.nlu.intents) {
-      const question = await getQuestionForIntent(storage, intent.name)
-      if (question && question.enabled) {
+      const qnaEntry = await getQuestionForIntent(storage, intent.name)
+      if (qnaEntry && qnaEntry.enabled) {
         event.suggestions.push(
-          await buildSuggestions(event, question, intent.confidence, intent.name, config.textRenderer)
+          await buildSuggestions(event, qnaEntry, intent.confidence, intent.name, config.textRenderer)
         )
       }
     }
