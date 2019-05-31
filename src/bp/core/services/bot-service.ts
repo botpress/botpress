@@ -430,7 +430,7 @@ export class BotService {
     try {
       await this.ghostService.forBot(botId).sync()
 
-      await this.cms.loadContentElementsForBot(botId)
+      await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
       const api = await createForGlobalHooks()
@@ -450,7 +450,7 @@ export class BotService {
       return
     }
 
-    await this.cms.unloadContentElementsForBot(botId)
+    await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
 
     const api = await createForGlobalHooks()
