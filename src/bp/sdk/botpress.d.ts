@@ -311,6 +311,16 @@ declare module 'botpress/sdk' {
       export const createTrainer: () => Trainer
       export const createTagger: () => Tagger
     }
+
+    export namespace SentencePiece {
+      export interface Processor {
+        loadModel: (modelPath: string) => void
+        encode: (inputText: string) => string[]
+        decode: (pieces: string[]) => string
+      }
+
+      export const createProcessor: () => Processor
+    }
   }
 
   export namespace NLU {

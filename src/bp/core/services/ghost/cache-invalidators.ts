@@ -44,7 +44,7 @@ export namespace CacheInvalidators {
     }
     cache?: ObjectCache
 
-    async install(objectCache: ObjectCache) {
+    install(objectCache: ObjectCache) {
       this.cache = objectCache
 
       const foldersToWatch = [
@@ -67,14 +67,14 @@ export namespace CacheInvalidators {
       await this.watcher.stop()
     }
 
-    handle = file => {
+    handle = async file => {
       if (!this.cache) {
         return
       }
 
       const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, path.dirname(file)))
       this.cache.events.emit('invalidation', relativePath)
-      this.cache.invalidateStartingWith(relativePath)
+      await this.cache.invalidateStartingWith(relativePath)
     }
   }
 }

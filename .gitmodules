@@ -10,3 +10,6 @@
 [submodule "src/bp/ml/node-svm"]
 	path = src/bp/ml/node-svm
 	url = https://github.com/botpress/node-svm
+[submodule "src/bp/ml/sentencepiece"]
+	path = src/bp/ml/sentencepiece
+	url = git@github.com:botpress/node-sentencepiece.git
