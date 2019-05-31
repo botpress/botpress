@@ -6,11 +6,6 @@ import nanoid from 'nanoid/generate'
 
 import { QnaEntry, QnaItem } from './qna'
 
-// TODO fix reply,  answer is probably no good
-// TODO fuck batch insert its done one by one anyway
-// TODO fuck batch delete its done one by one anyway
-// TODO fix dupe check
-
 export const NLU_PREFIX = '__qna__'
 const DEFAULT_CATEGORY = 'global'
 
@@ -69,7 +64,7 @@ export default class Storage {
   // @Deprecated > 12
   async migrate11To12() {
     const bot = await this.bp.bots.getBotById(this.botId)
-    const qnas = await this.fetchAllQuestions()
+    const qnas = await this.fetchQNAs()
 
     return await Promise.all(
       qnas.map(({ id, data }) => {
@@ -101,7 +96,7 @@ export default class Storage {
   // Manual edit & save of each one is required for the intent to be created.
   async syncQnaToNlu() {
     const axiosConfig = await this.getAxiosConfig()
-    const allQuestions = await this.fetchAllQuestions()
+    const allQuestions = await this.fetchQNAs()
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
     const qnaItemsToSync = allQuestions.filter(
@@ -112,7 +107,8 @@ export default class Storage {
   }
 
   async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
-    // TODO check for dupes here !!!!!!!
+    await this.checkForDuplicatedQuestions(qnaItem.data)
+
     const axiosConfig = await this.getAxiosConfig()
     const utterances = {}
     for (const lang in qnaItem.data.questions) {
@@ -131,6 +127,8 @@ export default class Storage {
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
+    await this.checkForDuplicatedQuestions(data, id)
+
     id = id || getQuestionId(data)
     const item: QnaItem = { id, data }
 
@@ -156,7 +154,6 @@ export default class Storage {
     }
   }
 
-  // TODO fuck batch insert its done one by one anyway
   async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = getQuestionId(data)
@@ -175,16 +172,18 @@ export default class Storage {
     return ids
   }
 
-  private async checkForDuplicatedQuestions(newQuestions, editingQnaId?) {
-    let allQuestions = await this.fetchAllQuestions()
+  private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
+    let qnaItems = await this.fetchQNAs()
 
     if (editingQnaId) {
       // when updating, we remove the question from the check
-      allQuestions = allQuestions.filter(q => q.id !== editingQnaId)
+      qnaItems = qnaItems.filter(q => q.id !== editingQnaId)
     }
 
-    const questionsList = _.flatMap(allQuestions, entry => entry.data.questions)
-    const dupes = _.uniq(_.filter(questionsList, question => newQuestions.includes(question)))
+    const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
+    const dupes = _.flatMap(qnaItems, item => Object.values(item.data.questions))
+      .reduce((a, b) => a.concat(b), [])
+      .filter(q => newQuestions.includes(q))
 
     if (dupes.length) {
       throw new Error(`These questions already exists in another entry: ${dupes.join(', ')}`)
@@ -216,7 +215,7 @@ export default class Storage {
     return this.migrate_11_2_to_11_3(JSON.parse(data))
   }
 
-  async fetchAllQuestions(opts?: Paging) {
+  async fetchQNAs(opts?: Paging) {
     try {
       let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
       if (opts && opts.start && opts.count) {
@@ -231,7 +230,7 @@ export default class Storage {
   }
 
   async filterByCategoryAndQuestion(question: string, categories: string[]) {
-    const allQuestions = await this.fetchAllQuestions()
+    const allQuestions = await this.fetchQNAs()
     const filteredQuestions = allQuestions.filter(q => {
       const { questions, category } = q.data
 
@@ -263,7 +262,7 @@ export default class Storage {
     let count = 0
 
     if (!(question || categories.length)) {
-      items = await this.fetchAllQuestions({
+      items = await this.fetchQNAs({
         start: offset ? parseInt(offset) : undefined,
         count: limit ? parseInt(limit) : undefined
       })
@@ -277,7 +276,7 @@ export default class Storage {
   }
 
   async count() {
-    const questions = await this.fetchAllQuestions()
+    const questions = await this.fetchQNAs()
     return questions.length
   }
 
