@@ -4,7 +4,7 @@ import express, { Application, RequestHandler } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import ms from 'ms'
-import { isArray } from 'util'
+import { isArray, isString } from 'util'
 
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
@@ -124,13 +124,29 @@ export default async function(options: APIOptions) {
       domain: options.service.domain,
       readOnly: options.readOnly,
       languages: options.service
-        .listModels()
+        .listFastTextModels()
         .filter(x => x.loaded)
         .map(x => x.name)
     })
   })
 
   app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
+    try {
+      const input = req.body.input
+      const lang = req.body.lang || 'en'
+
+      if (!input || !isString(input)) {
+        throw new BadRequestError('Param `input` is mandatory (must be an array of strings)')
+      }
+
+      const [result, tokens] = await options.service.vectorize(input, lang)
+      res.json({ input: input, language: lang, vectors: result, tokens: tokens })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  app.post('/vectorize-tokens', waitForServiceMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
       const lang = req.body.lang || 'en'
@@ -139,7 +155,7 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.service.vectorize(tokens, lang)
+      const result = await options.service.vectorizeTokens(tokens, lang)
       res.json({ input: tokens, language: lang, vectors: result })
     } catch (err) {
       next(err)
@@ -158,7 +174,7 @@ export default async function(options: APIOptions) {
 
     res.send({
       available: options.manager.available,
-      installed: options.service.listModels().map(x => ({
+      installed: options.service.listFastTextModels().map(x => ({
         lang: x.name,
         loaded: x.loaded,
         dim: options.service.dim,
@@ -178,14 +194,14 @@ export default async function(options: APIOptions) {
   })
   router.post('/remove/:lang', (req, res, next) => {
     const { lang } = req.params
-    if (!lang || !options.service.listModels().find(x => x.name === lang)) {
+    if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
     // TODO Remove here
   })
   router.post('/load/:lang', (req, res, next) => {
     const { lang } = req.params
-    if (!lang || !options.service.listModels().find(x => x.name === lang)) {
+    if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
     // TODO Load in memory here
