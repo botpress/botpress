@@ -520,6 +520,7 @@ export default class QnaAdmin extends Component {
           {this.questionsList()}
           {this.renderPagination()}
           <FormModal
+            contentLang={this.props.contentLang}
             flows={this.state.flows}
             flowsList={this.state.flowsList}
             bp={this.props.bp}

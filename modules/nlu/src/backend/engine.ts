@@ -140,6 +140,7 @@ export default class ScopedEngine implements Engine {
       if (!loaded) {
         this.logger.debug('Retraining model')
         await this.trainModels(intents, modelHash)
+        this.logger.debug('Reloading models')
         await this.loadModels(intents, modelHash)
       }
 
@@ -191,10 +192,16 @@ export default class ScopedEngine implements Engine {
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
+  getTrainingLanguages = (intents: sdk.NLU.IntentDefinition[]) =>
+    _.chain(intents)
+      .flatMap(i => Object.keys(i.utterances).filter(lang => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES))
+      .uniq()
+      .value()
+
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
 
-    for (const lang of this.languages) {
+    for (const lang of this.getTrainingLanguages(intents)) {
       const models = await this.storage.getModelsFromHash(modelHash, lang)
 
       const intentModels = _.chain(models)
@@ -287,10 +294,12 @@ export default class ScopedEngine implements Engine {
       try {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
-        const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
-        const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
+        if (trainableIntents.length) {
+          const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
+          const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
 
-        await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
+          await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
+        }
       } catch (err) {
         this.logger.attachError(err).error('Error training NLU model')
       }
