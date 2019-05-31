@@ -115,6 +115,7 @@ export class ModuleLoader {
       initedModules[name] = await this._loadModule(module, name)
     }
 
+    // tslint:disable-next-line: no-floating-promises
     this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
     return Object.keys(initedModules)
   }

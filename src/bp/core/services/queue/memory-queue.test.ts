@@ -1,3 +1,5 @@
+// tslint:disable no-floating-promises
+
 import 'bluebird-global'
 import _ from 'lodash'
 import 'reflect-metadata'
