@@ -9,10 +9,42 @@ import _ from 'lodash'
 import { updateGlobalStyle } from '~/actions'
 import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 
+import SmartInput from '~/components/SmartInput/Input'
+
 const style = require('./toolbar.scss')
 
+const mentions = [
+  {
+    name: 'user.profile',
+    description: 'The user profile',
+    category: 'USER',
+    partial: true
+  },
+  {
+    name: 'user.profile.name',
+    description: 'The user name',
+    category: 'USER',
+    partial: false
+  },
+  {
+    name: 'user.profile.email',
+    description: 'The user email',
+    category: 'USER',
+    partial: false
+  },
+  {
+    name: 'session.slots.destination',
+    description: 'An extracted slot',
+    category: 'SESSION'
+  },
+  {
+    name: 'session.slots.arrival',
+    description: 'An extracted slot',
+    category: 'SESSION'
+  }
+]
+
 class Toolbar extends React.Component {
-  
   render() {
     const createTooltip = (name, text) => <Tooltip id={name}>{text}</Tooltip>
 
@@ -36,7 +68,8 @@ class Toolbar extends React.Component {
       })
     }
 
-    const canDelete = !!this.props.currentFlowNode && this.props.currentFlowNode.name !== this.props.currentFlow.startNode
+    const canDelete =
+      !!this.props.currentFlowNode && this.props.currentFlowNode.name !== this.props.currentFlow.startNode
 
     const noSkills = (
       <MenuItem eventKey="1" disabled={true}>
@@ -61,6 +94,8 @@ class Toolbar extends React.Component {
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
+          <SmartInput suggestions={mentions} />
+
           <Button
             className={style.btn}
             bsStyle="default"
@@ -118,24 +153,20 @@ class Toolbar extends React.Component {
 
           <div className={style.separator} />
 
-          {
-            canMakeStartNode() && (
-              <Button className={style.btn} bsStyle="default" onClick={setAsCurrentNode}>
-                <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
-                  <i className="material-icons">stars</i>
-                </OverlayTrigger>
+          {canMakeStartNode() && (
+            <Button className={style.btn} bsStyle="default" onClick={setAsCurrentNode}>
+              <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
+                <i className="material-icons">stars</i>
+              </OverlayTrigger>
             </Button>
-            )
-          }
-          {
-            canDelete && (
-              <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
-                <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
-                  <i className="material-icons">delete</i>
-                </OverlayTrigger>
+          )}
+          {canDelete && (
+            <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
+              <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
+                <i className="material-icons">delete</i>
+              </OverlayTrigger>
             </Button>
-            )
-          }
+          )}
         </div>
       </div>
     )
