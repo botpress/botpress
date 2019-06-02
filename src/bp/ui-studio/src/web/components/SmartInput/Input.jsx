@@ -4,6 +4,7 @@ import cx from 'classnames'
 import { Modifier, EditorState } from 'draft-js'
 import Editor from 'draft-js-plugins-editor'
 import { Icon, Button } from '@blueprintjs/core'
+import createSingleLinePlugin from 'draft-js-single-line-plugin'
 
 import createMentionPlugin, { defaultSuggestionsFilter } from './index'
 
@@ -59,6 +60,10 @@ export default class SimpleMentionEditor extends Component {
   render() {
     const { MentionSuggestions, decorators } = this.mentionPlugin
     const plugins = [this.mentionPlugin]
+
+    if (this.props.singleLine) {
+      plugins.push(createSingleLinePlugin())
+    }
 
     return (
       <div className={cx(style.editor, this.props.className)} onClick={this.focus}>

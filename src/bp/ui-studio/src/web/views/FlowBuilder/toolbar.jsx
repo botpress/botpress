@@ -94,7 +94,7 @@ class Toolbar extends React.Component {
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
-          <SmartInput suggestions={mentions} />
+          <SmartInput suggestions={mentions} singleLine={true} />
 
           <Button
             className={style.btn}
