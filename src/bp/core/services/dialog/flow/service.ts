@@ -1,4 +1,5 @@
 import { Flow, FlowNode, Logger } from 'botpress/sdk'
+import { ObjectCache } from 'common/object-cache'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -22,8 +23,23 @@ export class FlowService {
     @tagged('name', 'FlowService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
-  ) {}
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
+  ) {
+    this._listenForCacheInvalidation()
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', (key: string) => {
+      const matches = key.match(/\/bots\/([A-Z0-9-_]+)\/flows\//i)
+      if (matches && matches.length >= 1) {
+        const botId = matches[1]
+        if (this._allFlows.has(botId)) {
+          this._allFlows.delete(botId)
+        }
+      }
+    })
+  }
 
   async loadAll(botId: string): Promise<FlowView[]> {
     if (this._allFlows.has(botId)) {

@@ -168,11 +168,12 @@ export class ModuleResourceLoader {
       const to = path.join(dest, file)
 
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
-      const isModified = isNewFile || (await this._isModified(to))
-      if (isNewFile || !isModified) {
+      const ressourceHasChanged = await this.ressourceHasChanged(from, to)
+      const fileHasBeenManuallyUpdated = isNewFile || (await this.userHasManuallyChangedFile(to))
+      if (isNewFile || (ressourceHasChanged && !fileHasBeenManuallyUpdated)) {
         debug('adding missing file "%s"', file)
-        await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
-        await this._addHashToFile(to)
+        const contentWithHash = await this._getRessourceContentWithHash(from)
+        await this.ghost.global().upsertFile('/', to, contentWithHash)
       } else {
         debug('not copying file "%s" because it has been changed manually', file)
       }
@@ -186,12 +187,28 @@ export class ModuleResourceLoader {
       .digest('hex')
   }
 
+  private ressourceHasChanged = async (ressourceFilePath: string, destinationFilePath: string) => {
+    try {
+      const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
+      const destinationContent = await this.ghost.global().readFileAsString('/', destinationFilePath)
+      const lines = destinationContent.split(os.EOL)
+      const firstLine = lines[0]
+
+      if (firstLine.indexOf(CHECKSUM) === 0) {
+        return this._calculateHash(ressourceContent) !== firstLine.substring(CHECKSUM.length)
+      }
+    } catch (err) {
+      return true
+    }
+    return true
+  }
+
   /**
    * Checks if there is a checksum on the first line of the file,
    * and uses it to verify if there has been any manual changes in the file's content
    * @param filename
    */
-  private _isModified = async filename => {
+  private userHasManuallyChangedFile = async filename => {
     const file = await this.ghost.global().readFileAsString('/', filename)
     const lines = file.split(os.EOL)
     const firstLine = lines[0]
@@ -208,11 +225,10 @@ export class ModuleResourceLoader {
    * Calculates the hash for the file's content, then adds a comment on the first line with the result
    * @param filename
    */
-  private _addHashToFile = async filename => {
-    const fileContent = await this.ghost.global().readFileAsString('/', filename)
-    await this.ghost
-      .global()
-      .upsertFile('/', filename, `${CHECKSUM}${this._calculateHash(fileContent)}${os.EOL}${fileContent}`)
+  private _getRessourceContentWithHash = async ressourceFilePath => {
+    const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
+    const hash = this._calculateHash(ressourceContent)
+    return `${CHECKSUM}${hash}${os.EOL}${ressourceContent}`
   }
 
   @WrapErrorsWith(args => `Error in migration script "${args[0]}".`)
