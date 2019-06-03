@@ -129,8 +129,9 @@ export default class LanguageService {
   private async _loadFastTextModel(lang: string): Promise<LoadedFastTextModel> {
     const loadingAction = async (lang: string) => {
       const model = new toolkit.FastText.Model(false, true, true)
-      await model.loadFromFile(this._models[lang].fastTextModel.path)
-      return model
+      const path = this._models[lang].fastTextModel.path
+      await model.loadFromFile(path)
+      return { model, path }
     }
     const { model, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
 
@@ -146,8 +147,9 @@ export default class LanguageService {
   private async _loadBPEModel(lang: string): Promise<LoadedBPEModel> {
     const loadingAction = lang => {
       const tokenizer = toolkit.SentencePiece.createProcessor()
-      tokenizer.loadModel(this._models[lang].bpeModel.path)
-      return Promise.resolve(tokenizer)
+      const path = this._models[lang].bpeModel.path
+      tokenizer.loadModel(path)
+      return Promise.resolve({ model: tokenizer, path })
     }
 
     const { model: tokenizer, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
@@ -163,19 +165,21 @@ export default class LanguageService {
 
   private async _getRessourceConsumptionInfo(
     lang: string,
-    action: (lang: string) => Promise<MLToolkit.SentencePiece.Processor | MLToolkit.FastText.Model>
+    action: (
+      lang: string
+    ) => Promise<{ model: MLToolkit.SentencePiece.Processor | MLToolkit.FastText.Model; path: string }>
   ) {
     const usedBefore = process.memoryUsage().rss / 1024 / 1024
     const dtBefore = Date.now()
 
-    const model = await action(lang)
+    const { model, path } = await action(lang)
 
     const dtAfter = Date.now()
     const usedAfter = process.memoryUsage().rss / 1024 / 1024
     const usedDelta = Math.round(usedAfter - usedBefore)
     const dtDelta = dtAfter - dtBefore
 
-    console.log(`${typeof model} '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
+    console.log(`${path} '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
 
     return { model, usedDelta, dtDelta }
   }
