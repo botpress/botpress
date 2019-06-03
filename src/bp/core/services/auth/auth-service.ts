@@ -81,6 +81,19 @@ export default class AuthService {
     return { list: strategies, global: config.pro.globalAuthStrategies }
   }
 
+  async getAllUsers() {
+    const strategies = await this.getAllStrategies()
+
+    return _.flatMap(
+      await Promise.mapSeries(strategies, async strategy => {
+        const users = await this.users.getAllUsers(strategy.id)
+        return users.map(user => {
+          return { email: user.email, strategy: user.strategy }
+        })
+      })
+    )
+  }
+
   async getCollaboratorsConfig() {
     const config = await this.configProvider.getBotpressConfig()
     if (!config.pro.globalAuthStrategies || !config.pro.globalAuthStrategies.length) {

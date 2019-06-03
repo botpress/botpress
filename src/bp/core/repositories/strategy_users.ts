@@ -95,7 +95,7 @@ export class StrategyUsersRepository {
       })
   }
 
-  async getAllUsers(strategy: string, paging?: Paging): Promise<StrategyUser> {
+  async getAllUsers(strategy: string, paging?: Paging): Promise<StrategyUser[]> {
     let query = this.database
       .knex(this._getTableName(strategy))
       .select('*')

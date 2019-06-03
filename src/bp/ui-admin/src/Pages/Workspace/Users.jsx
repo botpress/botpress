@@ -83,6 +83,11 @@ class List extends Component {
     this.props.fetchUsers()
   }
 
+  onUserAdded = () => {
+    this.setState({ isCreateUserModalOpen: false })
+    this.props.fetchUsers()
+  }
+
   async resetPassword(user) {
     if (window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       const {
@@ -103,15 +108,21 @@ Password: ${payload.tempPassword}`
     }
   }
 
+  async removeUser(user) {
+    if (window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
+      await api.getSecured().delete(`/admin/users/workspace/${user.strategy}/${user.email}`)
+    }
+  }
+
   async deleteUser(user) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      await api.getSecured().delete(`/admin/users/${user.email}`)
+      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
     }
   }
 
   updateUser = async () => {
     const user = this.state.user
-    await api.getSecured().put(`/admin/users/${user.email}`, user)
+    await api.getSecured().put(`/admin/users/workspace/${user.strategy}/${user.email}`, user)
     this.setState({ isRoleChanged: false, isUpdateRoleModalOpen: false, user: null }, this.props.fetchUsers)
   }
 
@@ -181,6 +192,13 @@ Password: ${payload.tempPassword}`
       onClick: user => this.deleteUser(user)
     }
 
+    const removeUser = {
+      label: 'Remove from workspace',
+      type: 'link',
+      needRefresh: true,
+      onClick: user => this.removeUser(user)
+    }
+
     const changeRole = {
       label: 'Change Role',
       type: 'link',
@@ -189,7 +207,9 @@ Password: ${payload.tempPassword}`
     }
 
     const actions =
-      this.state.authStrategy === 'basic' ? [resetPassword, changeRole, deleteUser] : [changeRole, deleteUser]
+      this.state.authStrategy === 'basic'
+        ? [resetPassword, changeRole, deleteUser, removeUser]
+        : [changeRole, deleteUser, removeUser]
 
     return (
       <div>
@@ -208,6 +228,7 @@ Password: ${payload.tempPassword}`
           isOpen={this.state.isCreateUserModalOpen}
           toggleOpen={this.toggleCreateUserModalOpen}
           onUserCreated={this.onUserCreated}
+          onUserAdded={this.onUserAdded}
         />
         {this.renderEmailModal()}
         {this.renderUpdateUserModal()}

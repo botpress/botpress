@@ -127,6 +127,14 @@ export class WorkspaceService {
     await this.workspaceRepo.createEntry(user)
   }
 
+  async removeUserFromWorkspace(email: string, strategy: string, workspace: string) {
+    return this.workspaceRepo.removeUserFromWorkspace(email, strategy, workspace)
+  }
+
+  async updateUserRole(email: string, strategy: string, workspace: string, newRole: string) {
+    return this.workspaceRepo.updateUserRole(email, strategy, workspace, newRole)
+  }
+
   async findUser(email: string, strategy: string, workspace: string) {
     const list = await this.workspaceRepo.getUserWorkspaces(email, strategy)
     return list.find(x => x.workspace === workspace)

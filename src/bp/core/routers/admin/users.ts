@@ -33,7 +33,69 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    // TODO
+    router.get(
+      '/listAvailableUsers',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const allUsers = await this.authService.getAllUsers()
+        const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        const availableUsers: any[] = []
+
+        for (const user of allUsers) {
+          if (!workspaceUsers.find(x => x.email === user.email && x.strategy === user.strategy)) {
+            availableUsers.push(user)
+          }
+        }
+
+        return sendSuccess(res, 'Retrieved users', availableUsers)
+      })
+    )
+
+    router.post(
+      '/workspace',
+      this.assertBotpressPro,
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const { email, strategy, role } = req.body
+
+        const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        if (workspaceUsers.find(x => x.email === email && x.strategy === strategy)) {
+          throw new ConflictError(`User "${email}" is already a member of this workspace`)
+        }
+
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
+
+        res.sendStatus(200)
+      })
+    )
+
+    router.delete(
+      '/workspace/:strategy/:email',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const { email, strategy } = req.params
+
+        if (req.authUser!.email === email) {
+          return res.status(400).json({ message: "Sorry, you can't delete your own account." })
+        }
+
+        await this.workspaceService.removeUserFromWorkspace(email, strategy, req.workspace!)
+        return sendSuccess(res, 'User removed', { email })
+      })
+    )
+
+    router.put(
+      '/workspace/:strategy/:email',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const { email, strategy } = req.params
+        const { role } = req.body
+
+        await this.workspaceService.updateUserRole(email, strategy, req.workspace!, role)
+        return sendSuccess(res, 'User updated')
+      })
+    )
+
     router.post(
       '/',
       this.assertBotpressPro,
@@ -43,25 +105,24 @@ export class UsersRouter extends CustomRouter {
           req,
           Joi.object().keys({
             email: Joi.string()
-              .email()
               .trim()
               .required(),
-            role: Joi.string().required()
+            role: Joi.string().required(),
+            strategy: Joi.string().required()
           })
         )
-
-        const user = req.body
-        const defaultStrategy = await this.authService.getDefaultStrategy()
-        const alreadyExists = await this.authService.findUser(user.email, defaultStrategy)
+        const { email, strategy, role } = req.body
+        const alreadyExists = await this.authService.findUser(email, strategy)
 
         if (alreadyExists) {
-          throw new ConflictError(`User "${user.email}" is already taken`)
+          throw new ConflictError(`User "${email}" is already taken`)
         }
 
-        const tempPassword = await this.authService.createUser(user, defaultStrategy)
+        const tempPassword = await this.authService.createUser({ email, strategy }, strategy)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
 
         return sendSuccess(res, 'User created successfully', {
-          email: user.email,
+          email,
           tempPassword
         })
       })
@@ -94,18 +155,6 @@ export class UsersRouter extends CustomRouter {
         return sendSuccess(res, 'Password reseted', {
           tempPassword
         })
-      })
-    )
-
-    // TODO
-    router.put(
-      '/:email',
-      this.needPermissions('write', this.resource),
-      this.asyncMiddleware(async (req, res) => {
-        const { email } = req.params
-
-        // await this.authService.updateUser(email, req.body)
-        return sendSuccess(res, 'User updated')
       })
     )
   }
