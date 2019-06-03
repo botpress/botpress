@@ -193,6 +193,10 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
     return next()
   }
 
+  if (!req.workspace && req.params.botId) {
+    req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
+  }
+
   if (!email || !strategy || !req.workspace) {
     return next(new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`))
   }
@@ -207,7 +211,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       resource,
       ip: req.ip
     })
-    return next(new NotFoundError(`User "${email}" doesn't have access to workspace "${req.workspace}"`))
+    return next(new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`))
   }
 
   const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
