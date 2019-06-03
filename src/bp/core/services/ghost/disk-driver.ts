@@ -4,6 +4,7 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable } from 'inversify'
 import _ from 'lodash'
+import os from 'os'
 import path from 'path'
 import { VError } from 'verror'
 
@@ -64,8 +65,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async directoryListing(
     folder: string,
-    exclude?: string | string[],
-    includeDotFiles: boolean = false
+    options: { excludes?: string | string[]; includeDotFiles?: boolean } = { excludes: [], includeDotFiles: false }
   ): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
@@ -78,13 +78,19 @@ export default class DiskStorageDriver implements StorageDriver {
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
-    const options = { cwd: this.resolvePath(folder), dot: includeDotFiles }
-    if (exclude) {
-      options['ignore'] = exclude
+    const ghostIgnorePath = this.resolvePath('data/.ghostignore')
+    if (await fse.pathExists(ghostIgnorePath)) {
+      const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
+      options.excludes = [...ghostIgnoreFile.toString().split(os.EOL)]
+    }
+
+    const globOptions = { cwd: this.resolvePath(folder), dot: options.includeDotFiles }
+    if (options.excludes) {
+      globOptions['ignore'] = options.excludes
     }
 
     try {
-      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', globOptions, cb))
       return files.map(filePath => forceForwardSlashes(filePath))
     } catch (e) {
       return []
@@ -104,13 +110,21 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  async discoverTrackableFolders(baseDir: string): Promise<string[]> {
+  /**
+   * List files on disk that excludes ghostignore files.
+   * @param baseDir The base directory to list the files from e.g. "global/", "bots/example/"
+   * @param ghostIgnorePath The path of the .ghostignore file
+   */
+  async listTrackableFiles(baseDir: string, ghostIgnorePath: string) {
     try {
-      const allFiles = await this.directoryListing(baseDir, undefined, true)
-      const allDirectories = this._getBaseDirectories(allFiles)
-      const noghostFiles = allFiles.filter(x => path.basename(x).toLowerCase() === '.noghost')
-      const noghostDirectories = this._getBaseDirectories(noghostFiles)
-      return _.without(allDirectories, ...noghostDirectories)
+      if (await fse.pathExists(ghostIgnorePath)) {
+        const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
+        const patternsToExcludes = ghostIgnoreFile.toString().split(os.EOL)
+
+        return this.directoryListing(baseDir, { excludes: patternsToExcludes, includeDotFiles: true })
+      }
+
+      return this.directoryListing(baseDir, { includeDotFiles: true })
     } catch (err) {
       return []
     }

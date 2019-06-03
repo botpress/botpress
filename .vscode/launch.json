@@ -19,6 +19,7 @@
         "${workspaceFolder}/private-modules/*/dist",
         "!${workspaceFolder}/**/node_modules"
       ],
+      "args": ["-p"],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
