@@ -18,6 +18,7 @@ import {
   Popover
 } from 'react-bootstrap'
 import Select from 'react-select'
+import { FiAlertTriangle } from 'react-icons/fi'
 
 import classnames from 'classnames'
 import Promise from 'bluebird'
@@ -47,14 +48,11 @@ export default class QnaAdmin extends Component {
     showQnAModal: false,
     category: '',
     QnAModalType: 'create',
-    quentionsOptions: [],
     categoryOptions: [],
     filterCategory: [],
     filterQuestion: '',
     selectedQuestion: []
   }
-
-  shouldAutofocus = true
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
@@ -66,20 +64,14 @@ export default class QnaAdmin extends Component {
     })
   }
 
-  fetchData = (page = 1) => {
+  fetchData = async (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/questions', { params }).then(({ data }) => {
-      const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
-        label: (questions || []).join(','),
-        value: id
-      }))
+    const { data } = await this.props.bp.axios.get('/mod/qna/questions', { params })
 
-      this.setState({
-        items: data.items,
-        overallItemsCount: data.count,
-        page,
-        quentionsOptions
-      })
+    this.setState({
+      items: data.items,
+      overallItemsCount: data.count,
+      page
     })
   }
 
@@ -90,6 +82,12 @@ export default class QnaAdmin extends Component {
         this.setState({ categoryOptions })
       }
     })
+  }
+
+  componentDidUpdate(prevprops) {
+    if (prevprops.contentLang !== this.props.contentLang) {
+      this.filterOrFetch()
+    }
   }
 
   componentDidMount() {
@@ -351,6 +349,22 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  renderMissingTranslationsOverlay = () => {
+    return (
+      <OverlayTrigger
+        trigger={['hover', 'focus']}
+        placement="top"
+        overlay={
+          <Popover id="lang-popover">
+            <span className="text-danger">Missing translation</span>
+          </Popover>
+        }
+      >
+        <FiAlertTriangle className="text-danger" />
+      </OverlayTrigger>
+    )
+  }
+
   renderRedirectInfo(redirectFlow, redirectNode) {
     if (!redirectFlow || !redirectNode) {
       return null
@@ -379,21 +393,38 @@ export default class QnaAdmin extends Component {
       return null
     }
 
+    const questions = item.questions[this.props.contentLang] || []
+    const answers = item.answers[this.props.contentLang] || []
+
     return (
       <Well className={style.qnaItem} bsSize="small" key={id}>
         <div className={style.itemContainer}>
-          <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q:</span>
-            <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-              {item.questions[0]}
-            </a>
-            {this.renderVariationsOverlayTrigger(item.questions)}
-          </div>
-          {item.answers[0] && (
+          {!questions.length && (
+            <div className={style.itemQuestions}>
+              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
+                {this.renderMissingTranslationsOverlay()}&nbsp;
+                {id
+                  .split('_')
+                  .slice(1)
+                  .join(' ')}{' '}
+                &nbsp;
+              </a>
+            </div>
+          )}
+          {questions.length > 0 && (
+            <div className={style.itemQuestions}>
+              <span className={style.itemQuestionsTitle}>Q:</span>
+              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
+                {questions[0]}
+              </a>
+              {this.renderVariationsOverlayTrigger(questions)}
+            </div>
+          )}
+          {answers[0] && (
             <div className={style.itemAnswerContainer}>
               <span className={style.itemAnswerTitle}>A:</span>
-              <div className={style.itemAnswerText}>{item.answers[0]}</div>
-              {this.renderVariationsOverlayTrigger(item.answers)}
+              <div className={style.itemAnswerText}>{answers[0]}</div>
+              {this.renderVariationsOverlayTrigger(answers)}
             </div>
           )}
           <div className={style.itemRedirectContainer}>
@@ -413,7 +444,7 @@ export default class QnaAdmin extends Component {
           <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
+          {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}
         </div>
       </Well>
     )
@@ -438,7 +469,7 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
-  enabledItem = (item, id) => value => {
+  toggleEnableItem = (item, id, value) => {
     const { page, filterQuestion, filterCategory } = this.state
     const params = {
       limit: ITEMS_PER_PAGE,
@@ -489,6 +520,7 @@ export default class QnaAdmin extends Component {
           {this.questionsList()}
           {this.renderPagination()}
           <FormModal
+            contentLang={this.props.contentLang}
             flows={this.state.flows}
             flowsList={this.state.flowsList}
             bp={this.props.bp}

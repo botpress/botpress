@@ -4,21 +4,24 @@ import { Paging } from 'botpress/sdk'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { QnaEntry, QnaStorage } from '../qna'
+import { QnaEntry, QnaItem } from './qna'
+
+export const NLU_PREFIX = '__qna__'
+const DEFAULT_CATEGORY = 'global'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
 const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
 
-const getQuestionId = ({ questions }) =>
-  `${safeId()}_${slugify(questions[0])
+const getIntentId = id => `${NLU_PREFIX}${id}`
+
+const getQuestionId = (qna: QnaEntry) => {
+  const firstQuestion = qna.questions[Object.keys(qna.questions)[0]][0]
+  return `${safeId()}_${slugify(firstQuestion)
     .replace(/^_+/, '')
     .substring(0, 50)
     .replace(/_+$/, '')}`
-
-export const NLU_PREFIX = '__qna__'
-
-const getIntentId = id => `${NLU_PREFIX}${id}`
+}
 
 const normalizeQuestions = questions =>
   questions
@@ -30,7 +33,7 @@ const normalizeQuestions = questions =>
     )
     .filter(Boolean)
 
-export default class Storage implements QnaStorage {
+export default class Storage {
   private bp: typeof sdk
   private config
   private botId: string
@@ -54,48 +57,85 @@ export default class Storage implements QnaStorage {
   }
 
   async initialize() {
+    await this.migrate11To12()
     await this.syncQnaToNlu()
+  }
+
+  // @Deprecated > 12
+  async migrate11To12() {
+    const bot = await this.bp.bots.getBotById(this.botId)
+    const qnas = await this.fetchQNAs()
+
+    return await Promise.all(
+      qnas.map(({ id, data }) => {
+        const initial = _.cloneDeep(data)
+        const questions = data.questions
+        const answers = data.answers
+        if (!data.category) {
+          data.category = 'global'
+        }
+        if (_.isArray(questions)) {
+          data.questions = {
+            [bot.defaultLanguage]: questions
+          }
+        }
+        if (_.isArray(answers)) {
+          data.answers = {
+            [bot.defaultLanguage]: answers
+          }
+        }
+
+        if (!_.isEqual(initial, data)) {
+          return this.update(data, id)
+        }
+      })
+    )
   }
 
   // TODO Find better way to implement. When manually copying QNA, intents are not created.
   // Manual edit & save of each one is required for the intent to be created.
   async syncQnaToNlu() {
     const axiosConfig = await this.getAxiosConfig()
-    const allQuestions = await this.fetchAllQuestions()
+    const allQuestions = await this.fetchQNAs()
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
-    for (const question of allQuestions) {
-      const matchedIntent = _.find(allIntents, intent => intent.name === getIntentId(question.id).toLowerCase())
+    const qnaItemsToSync = allQuestions.filter(
+      qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
+    )
 
-      if (question.data.enabled && !matchedIntent) {
-        const intent = {
-          name: getIntentId(question.id),
-          entities: [],
-          contexts: [question.data.category || 'global'],
-          utterances: normalizeQuestions(question.data.questions)
-        }
+    return await Promise.mapSeries(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item))
+  }
 
-        await axios.post(`/mod/nlu/intents`, intent, axiosConfig)
-        this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
-      }
+  async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
+    await this.checkForDuplicatedQuestions(qnaItem.data)
+
+    const axiosConfig = await this.getAxiosConfig()
+    const utterances = {}
+    for (const lang in qnaItem.data.questions) {
+      utterances[lang] = normalizeQuestions(qnaItem.data.questions[lang])
     }
+
+    const intent = {
+      name: getIntentId(qnaItem.id),
+      entities: [],
+      contexts: [qnaItem.data.category || DEFAULT_CATEGORY],
+      utterances: utterances
+    }
+
+    await axios.post('/mod/nlu/intents', intent, axiosConfig)
+    this.bp.logger.info(`Created NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
-    const axiosConfig = await this.getAxiosConfig()
-    id = id || getQuestionId(data)
-    if (data.enabled) {
-      const intent = {
-        name: getIntentId(id),
-        entities: [],
-        contexts: [data.category || 'global'],
-        utterances: normalizeQuestions(data.questions)
-      }
+    await this.checkForDuplicatedQuestions(data, id)
 
-      await this.checkForDuplicatedQuestions(intent.utterances, id)
-      await axios.post(`/mod/nlu/intents`, intent, axiosConfig)
+    id = id || getQuestionId(data)
+    const item: QnaItem = { id, data }
+
+    if (data.enabled) {
+      await this.createNLUIntentFromQnaItem(item)
     } else {
-      await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, axiosConfig)
+      await this.deleteMatchingIntent(item.id)
     }
 
     await this.bp.ghost
@@ -105,42 +145,45 @@ export default class Storage implements QnaStorage {
     return id
   }
 
-  async insert(qna: QnaEntry | QnaEntry[], statusCb): Promise<string[]> {
+  async deleteMatchingIntent(id: string) {
+    const axiosConfig = await this.getAxiosConfig()
+    try {
+      await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, axiosConfig)
+    } catch (err) {
+      /* swallow error */
+    }
+  }
+
+  async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = getQuestionId(data)
-
+      const item: QnaItem = { id, data }
       if (data.enabled) {
-        const intent = {
-          name: getIntentId(id),
-          entities: [],
-          contexts: [data.category || 'global'],
-          utterances: normalizeQuestions(data.questions)
-        }
-
-        await this.checkForDuplicatedQuestions(intent.utterances)
-        await axios.post(`/mod/nlu/intents`, intent, await this.getAxiosConfig())
+        await this.createNLUIntentFromQnaItem(item)
       }
 
       await this.bp.ghost
         .forBot(this.botId)
-        .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
-      statusCb && statusCb(i + 1)
+        .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify(item, undefined, 2))
+
       return id
     })
 
     return ids
   }
 
-  private async checkForDuplicatedQuestions(newQuestions, editingQnaId?) {
-    let allQuestions = await this.fetchAllQuestions()
+  private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
+    let qnaItems = await this.fetchQNAs()
 
     if (editingQnaId) {
       // when updating, we remove the question from the check
-      allQuestions = allQuestions.filter(q => q.id !== editingQnaId)
+      qnaItems = qnaItems.filter(q => q.id !== editingQnaId)
     }
 
-    const questionsList = _.flatMap(allQuestions, entry => entry.data.questions)
-    const dupes = _.uniq(_.filter(questionsList, question => newQuestions.includes(question)))
+    const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
+    const dupes = _.flatMap(qnaItems, item => Object.values(item.data.questions))
+      .reduce((a, b) => a.concat(b), [])
+      .filter(q => newQuestions.includes(q))
 
     if (dupes.length) {
       throw new Error(`These questions already exists in another entry: ${dupes.join(', ')}`)
@@ -158,7 +201,8 @@ export default class Storage implements QnaStorage {
     return question
   }
 
-  async getQuestion(opts) {
+  async getQuestion(opts): Promise<QnaItem> {
+    // TODO remove the object option it's useless
     let filename
     if (typeof opts === 'string') {
       filename = `${opts}.json`
@@ -171,7 +215,7 @@ export default class Storage implements QnaStorage {
     return this.migrate_11_2_to_11_3(JSON.parse(data))
   }
 
-  async fetchAllQuestions(opts?: Paging) {
+  async fetchQNAs(opts?: Paging) {
     try {
       let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
       if (opts && opts.start && opts.count) {
@@ -185,42 +229,46 @@ export default class Storage implements QnaStorage {
     }
   }
 
-  async filterByCategoryAndQuestion({ question, categories }) {
-    const allQuestions = await this.fetchAllQuestions()
+  async filterByCategoryAndQuestion(question: string, categories: string[]) {
+    const allQuestions = await this.fetchQNAs()
     const filteredQuestions = allQuestions.filter(q => {
       const { questions, category } = q.data
 
-      const isRightId =
-        questions
+      const hasMatch =
+        Object.values(questions)
+          .reduce((a, b) => a.concat(b), [])
           .join('\n')
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
 
       if (!categories.length) {
-        return isRightId || q.id.includes(question)
+        return hasMatch || q.id.includes(question)
       }
 
       if (!question) {
         return category && categories.indexOf(category) !== -1
       }
-      return isRightId && category && categories.indexOf(category) !== -1
+      return hasMatch && category && categories.indexOf(category) !== -1
     })
 
     return filteredQuestions.reverse()
   }
 
-  async getQuestions({ question = '', categories = [] }, { limit = 50, offset = 0 }) {
-    let items = []
+  async getQuestions(
+    { question = '', categories = [] },
+    { limit = 50, offset = 0 }
+  ): Promise<{ items: QnaItem[]; count: number }> {
+    let items: QnaItem[] = []
     let count = 0
 
     if (!(question || categories.length)) {
-      items = await this.fetchAllQuestions({
+      items = await this.fetchQNAs({
         start: offset ? parseInt(offset) : undefined,
         count: limit ? parseInt(limit) : undefined
       })
       count = await this.count()
     } else {
-      const tmpQuestions = await this.filterByCategoryAndQuestion({ question, categories })
+      const tmpQuestions = await this.filterByCategoryAndQuestion(question, categories)
       items = tmpQuestions.slice(offset, offset + limit)
       count = tmpQuestions.length
     }
@@ -228,10 +276,11 @@ export default class Storage implements QnaStorage {
   }
 
   async count() {
-    const questions = await this.fetchAllQuestions()
+    const questions = await this.fetchQNAs()
     return questions.length
   }
 
+  // TODO remove batch deleter, it's done one by one anyway
   async delete(qnaId) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
     if (ids.length === 0) {
@@ -239,32 +288,11 @@ export default class Storage implements QnaStorage {
     }
 
     const deletePromise = async (id): Promise<void> => {
-      const data = await this.getQuestion(id)
-      if (data.data.enabled) {
-        await axios.delete(`/mod/nlu/intents/${getIntentId(id)}`, await this.getAxiosConfig())
-      }
+      await this.deleteMatchingIntent(id)
       return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
     }
 
     await Promise.all(ids.map(deletePromise))
-  }
-
-  async answersOn(text) {
-    const extract = await axios.post('/mod/nlu/extract', { text }, await this.getAxiosConfig())
-    const intents = _.chain([extract.data['intent'], ...extract.data['intents']])
-      .uniqBy('name')
-      .filter(({ name }) => name.startsWith('__qna__'))
-      .orderBy(['confidence'], ['desc'])
-      .value()
-
-    return Promise.all(
-      intents.map(async ({ name, confidence }) => {
-        const {
-          data: { questions, answer }
-        } = await this.getQuestion(name.replace('__qna__', ''))
-        return { questions, answer, confidence, id: name, metadata: [] }
-      })
-    )
   }
 
   getCategories() {
