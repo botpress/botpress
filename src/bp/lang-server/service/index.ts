@@ -1,4 +1,3 @@
-import { MLToolkit } from 'botpress/sdk'
 import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
 import _ from 'lodash'
@@ -7,16 +6,11 @@ import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
 
-type AvailableModel = {
-  name: string
-  path: string
-  loaded: boolean
-}
-
-type LoadedModel = AvailableModel & { model: MLToolkit.FastText.Model; sizeInMb: number }
+import { ModelSet, AvailableModel, LoadedFastTextModel, LoadedBPEModel, ModelFileInfo } from './typing'
+import { MLToolkit } from 'botpress/sdk'
 
 export default class LanguageService {
-  private _models: Dic<AvailableModel | LoadedModel> = {}
+  private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
@@ -29,13 +23,13 @@ export default class LanguageService {
     this._discoverModels()
 
     console.log(
-      `Loading languages "${this.listModels()
+      `Loading languages "${this.listFastTextModels()
         .map(x => x.name)
         .join(', ')}"`
     )
 
     for (const lang of Object.keys(this._models)) {
-      await this._loadModel(lang)
+      await this._loadModels(lang)
     }
 
     this._ready = true
@@ -45,75 +39,179 @@ export default class LanguageService {
     return this._ready
   }
 
-  listModels(): AvailableModel[] {
-    return _.values(this._models)
+  listFastTextModels = (): AvailableModel[] => {
+    return _.values(this._models).map(m => m.fastTextModel)
   }
 
   private _discoverModels() {
     if (!fs.existsSync(this.langDir)) {
-      return []
+      return
     }
 
     const files = fs.readdirSync(this.langDir)
-    return files.forEach(f => {
+
+    const filesInfo: ModelFileInfo[] = []
+
+    _.forEach(files, file => {
       // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
-      const regex = /(\w+)\.(\w+)\.(\d+)\.bin/i
-      const match = f.match(regex)
-      if (!match) {
+      const fastTextModelsRegex = /(\w+)\.(\w+)\.(\d+)\.bin/i
+      const fastTextModelsMatch = file.match(fastTextModelsRegex)
+
+      // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
+      const bpeModelsRegex = /(\w+)\.(\w+)\.bpe\.model/i
+      const bpeModelsMatch = file.match(bpeModelsRegex)
+
+      if (!!fastTextModelsMatch) {
+        const [__, domain, langCode, dim] = fastTextModelsMatch
+        filesInfo.push({ domain, langCode, dim: Number(dim), file: file })
+        return
+      }
+      if (!!bpeModelsMatch) {
+        const [__, domain, langCode, _] = bpeModelsMatch
+        filesInfo.push({ domain, langCode, file })
+      }
+    })
+
+    const modelGroups = _.groupBy(filesInfo, x => [x.domain, x.langCode])
+    _.forEach(modelGroups, modelGroup => {
+      const domain = modelGroup[0].domain
+      const langCode = modelGroup[0].langCode
+
+      const fastTextModelFileInfo = modelGroup.find(f => f.dim === this.dim)
+      const bpeModelFileInfo = modelGroup.find(f => !f.dim)
+      if (domain !== this.domain || !fastTextModelFileInfo || !bpeModelFileInfo) {
+        console.log('skipping', domain, langCode)
         return
       }
 
-      const [__, domain, langCode, dim] = match
-
-      if (Number(dim) != this.dim || this.domain !== domain) {
-        console.log('skipping', domain, dim, langCode)
-        return
-      }
-
-      this._provideLanguage(langCode, path.join(this.langDir, f))
+      this._provideLanguage(langCode, fastTextModelFileInfo.file, bpeModelFileInfo.file)
     })
   }
 
-  private _provideLanguage(lang: string, modelPath: string) {
+  private _provideLanguage(lang: string, fastTextModelName: string, bpeModelName: string) {
+    const fastTextModelPath = path.join(this.langDir, fastTextModelName)
+    const bpeModelPath = path.join(this.langDir, bpeModelName)
+
     try {
-      if (!fs.existsSync(modelPath)) {
-        throw new Error(`Model '${lang}' at location '${modelPath}' does not exist`)
+      if (!fs.existsSync(fastTextModelPath)) {
+        throw new Error(`Model '${lang}' at location '${fastTextModelPath}' does not exist`)
+      }
+      if (!fs.existsSync(bpeModelPath)) {
+        throw new Error(`Model '${lang}' at location '${bpeModelPath}' does not exist`)
       }
     } catch (err) {
-      throw new VError(`Could not find model '${lang}' at '${modelPath}'`, err)
+      throw new VError(`Could not find model '${lang}' in '${this.langDir}'`, err)
     }
 
-    this._models[lang] = {
+    const fastTextModel = {
       name: lang,
-      path: modelPath,
+      path: fastTextModelPath,
       sizeInMb: 0,
       loaded: false
     }
+
+    const bpeModel = {
+      name: lang,
+      path: bpeModelPath,
+      sizeInMb: 0,
+      loaded: false
+    }
+    this._models[lang] = { fastTextModel, bpeModel }
   }
 
   @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
-  private async _loadModel(lang: string) {
+  private async _loadModels(lang: string) {
+    const fastTextModel = await this._loadFastTextModel(lang)
+    const bpeModel = await this._loadBPEModel(lang)
+    this._models[lang] = { fastTextModel, bpeModel }
+  }
+
+  private async _loadFastTextModel(lang: string): Promise<LoadedFastTextModel> {
+    const loadingAction = async (lang: string) => {
+      const model = new toolkit.FastText.Model(false, true, true)
+      const path = this._models[lang].fastTextModel.path
+      await model.loadFromFile(path)
+      return { model, path }
+    }
+    const { model, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
+
+    const loadedModel = <LoadedFastTextModel>{
+      ...this._models[lang].fastTextModel,
+      model,
+      sizeInMb: usedDelta,
+      loaded: true
+    }
+    return loadedModel
+  }
+
+  private async _loadBPEModel(lang: string): Promise<LoadedBPEModel> {
+    const loadingAction = lang => {
+      const tokenizer = toolkit.SentencePiece.createProcessor()
+      const path = this._models[lang].bpeModel.path
+      tokenizer.loadModel(path)
+      return Promise.resolve({ model: tokenizer, path })
+    }
+
+    const { model: tokenizer, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
+
+    const loadedModel = <LoadedBPEModel>{
+      ...this._models[lang].bpeModel,
+      tokenizer,
+      sizeInMb: usedDelta,
+      loaded: true
+    }
+    return loadedModel
+  }
+
+  private async _getRessourceConsumptionInfo(
+    lang: string,
+    action: (
+      lang: string
+    ) => Promise<{ model: MLToolkit.SentencePiece.Processor | MLToolkit.FastText.Model; path: string }>
+  ) {
     const usedBefore = process.memoryUsage().rss / 1024 / 1024
     const dtBefore = Date.now()
 
-    const model = new toolkit.FastText.Model(false, true, true)
-    await model.loadFromFile(this._models[lang].path)
+    const { model, path } = await action(lang)
 
     const dtAfter = Date.now()
     const usedAfter = process.memoryUsage().rss / 1024 / 1024
     const usedDelta = Math.round(usedAfter - usedBefore)
     const dtDelta = dtAfter - dtBefore
 
-    this._models[lang] = <LoadedModel>{ ...this._models[lang], model, sizeInMb: usedDelta, loaded: true }
-    console.log(`language model '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
+    console.log(`${path} '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
+
+    return { model, usedDelta, dtDelta }
   }
 
-  async vectorize(tokens: string[], lang: string): Promise<number[][]> {
-    const _model = this._models[lang] as LoadedModel
-    if (!_model || !_model.loaded) {
+  async vectorize(input: string, lang: string): Promise<[number[][], string[]]> {
+    const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
+    if (!fastTextModel || !fastTextModel.loaded) {
+      throw new Error(`FastText model for lang '${lang}' is not loaded in memory`)
+    }
+    if (!bpeModel || !bpeModel.loaded) {
+      throw new Error(`BPE model for lang '${lang}' is not loaded in memory`)
+    }
+
+    const tokens = (bpeModel as LoadedBPEModel).tokenizer.encode(input)
+
+    const vectors = await Promise.mapSeries(tokens, token =>
+      (fastTextModel as LoadedFastTextModel).model.queryWordVectors(token.toLowerCase())
+    )
+
+    return [vectors, tokens]
+  }
+
+  async vectorizeTokens(tokens: string[], lang: string): Promise<[number[][], string[]]> {
+    const { fastTextModel } = this._models[lang] as ModelSet
+    if (!fastTextModel || !fastTextModel.loaded) {
       throw new Error(`Model for lang '${lang}' is not loaded in memory`)
     }
 
-    return Promise.mapSeries(tokens, token => _model.model.queryWordVectors(token.toLowerCase()))
+    const vectors = await Promise.mapSeries(tokens, token =>
+      (fastTextModel as LoadedFastTextModel).model.queryWordVectors(token.toLowerCase())
+    )
+
+    return [vectors, tokens]
   }
 }
