@@ -154,6 +154,7 @@ export default class AuthService {
     if (!user.email) {
       throw new Error('Missing email')
     }
+    const isFirstUser = await this.isFirstUser()
 
     await this.users.createUser({
       email: user.email,
@@ -164,9 +165,12 @@ export default class AuthService {
     })
 
     await this.workspaceService.addWorkspaceAdmin(user.email, strategy, 'default')
+    if (isFirstUser) {
+      await this.configProvider.mergeBotpressConfig({ superAdmins: [{ email: user.email, strategy }] })
+    }
   }
 
-  async createUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser | string> {
+  async createUser(user: Partial<StrategyUser>, strategy: string, workspace?: string): Promise<StrategyUser | string> {
     if (!user.email) {
       throw new Error('no')
     }
@@ -176,6 +180,10 @@ export default class AuthService {
       strategy,
       attributes: user.attributes || {}
     })
+
+    if (workspace) {
+      await this.workspaceService.addWorkspaceUser(user.email, strategy, workspace)
+    }
 
     const strategyType = await this.getStrategy(strategy, 'type')
     if (strategyType === 'basic') {

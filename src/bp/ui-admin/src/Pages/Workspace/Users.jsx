@@ -69,7 +69,7 @@ class List extends Component {
     const message = `Your botpress account is ready! 
 
       Sign-in here: ${window.location.origin}/admin/login
-      Email: ${this.state.email}
+      Email: ${createdUser.email}
       Password: ${createdUser.tempPassword}`
 
     this.setState({

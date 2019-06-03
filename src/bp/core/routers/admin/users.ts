@@ -7,7 +7,13 @@ import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import { assertBotpressPro, needPermissions, success as sendSuccess, validateBodySchema } from '../util'
+import {
+  assertBotpressPro,
+  assertSuperAdmin,
+  needPermissions,
+  success as sendSuccess,
+  validateBodySchema
+} from '../util'
 
 export class UsersRouter extends CustomRouter {
   private readonly resource = 'admin.users'
@@ -98,6 +104,7 @@ export class UsersRouter extends CustomRouter {
 
     router.post(
       '/',
+      assertSuperAdmin,
       this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
@@ -131,6 +138,7 @@ export class UsersRouter extends CustomRouter {
     // TODO
     router.delete(
       '/:email',
+      assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email } = req.params
@@ -149,6 +157,7 @@ export class UsersRouter extends CustomRouter {
     // TODO
     router.get(
       '/reset/:strategy/:email',
+      assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const tempPassword = await this.authService.resetPassword(req.params.email, req.params.strategy)

@@ -89,6 +89,8 @@ export default class BasicAuthentication {
     })
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+    await this.setupWorkspace()
+
     history.replace(HOME_ROUTE)
   }
 

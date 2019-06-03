@@ -63,17 +63,17 @@ class CreateUserModal extends Component {
     if (!this.isFormValid() || !selectedUser) {
       return
     }
-    const { email, strategy } = selectedUser.value
 
     if (selectedUser['__isNew__']) {
       const { data } = await api.getSecured().post('/admin/users', {
-        email,
+        email: selectedUser.value,
         strategy: selectedStrategy.value,
         role: this.state.role
       })
 
       this.props.onUserCreated && this.props.onUserCreated(data.payload)
     } else {
+      const { email, strategy } = selectedUser.value
       await api.getSecured().post('/admin/users/workspace', { email, strategy, role: this.state.role })
       this.props.onUserAdded && this.props.onUserAdded()
     }
@@ -88,7 +88,8 @@ class CreateUserModal extends Component {
       return
     }
 
-    return this.state.users.filter(x => x.email.includes(inputValue)).map(user => {
+    const searchString = inputValue.toLowerCase()
+    return this.state.users.filter(x => x.email.toLowerCase().includes(searchString)).map(user => {
       return { label: `${user.email} (${user.strategy})`, value: user }
     })
   }

@@ -1,12 +1,10 @@
 import { inject, injectable } from 'inversify'
-import Knex from 'knex'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
 
 export interface WorkspaceUser {
-  id?: number
   email: string
   strategy: string
   workspace: string
@@ -19,30 +17,13 @@ export class WorkspaceUsersRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async createEntry(workspaceUser: WorkspaceUser): Knex.GetOrCreateResult<WorkspaceUser> {
-    const newUser = await this.database.knex
-      .insertAndRetrieve<WorkspaceUser>(
-        this.tableName,
-        {
-          email: workspaceUser.email,
-          strategy: workspaceUser.strategy,
-          workspace: workspaceUser.workspace,
-          role: workspaceUser.role
-        },
-        ['email', 'strategy', 'workspace', 'role', 'created_at', 'updated_at']
-      )
-      .then(res => {
-        return {
-          email: res.email,
-          strategy: res.strategy,
-          workspace: res.workspace,
-          role: res.role,
-          createdOn: res['created_at'],
-          updatedOn: res['updated_at']
-        }
-      })
-
-    return { result: newUser, created: true }
+  async createEntry(workspaceUser: WorkspaceUser): Promise<void> {
+    return this.database.knex(this.tableName).insert({
+      email: workspaceUser.email,
+      strategy: workspaceUser.strategy,
+      workspace: workspaceUser.workspace,
+      role: workspaceUser.role
+    })
   }
 
   async updateUserRole(email: string, strategy: string, workspace: string, role: string): Promise<void> {

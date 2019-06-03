@@ -20,6 +20,7 @@ import MyAccount from '../Pages/MyAccount'
 import Bot from '../Pages/Bot'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
+import WorkspacePicker from '../Pages/WorkspacePicker'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -30,8 +31,12 @@ export const makeMainRoutes = () => {
 
     useEffect(() => {
       const getWorkspaces = async () => {
-        await auth.setupWorkspace()
-        setIsReady(true)
+        try {
+          await auth.setupWorkspace()
+          setIsReady(true)
+        } catch (err) {
+          window.location = '/admin/pickWorkspace'
+        }
       }
 
       getWorkspaces()
@@ -48,6 +53,7 @@ export const makeMainRoutes = () => {
           <Route path="/register/:strategy?/:workspace?" render={props => <RegisterPage auth={auth} {...props} />} />
           <Route path="/setToken" component={ExtractToken} />
           <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
+          <Route path="/pickWorkspace" render={props => <WorkspacePicker auth={auth} {...props} />} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/profile" component={MyAccount} />

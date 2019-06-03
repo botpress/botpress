@@ -117,6 +117,13 @@ export class WorkspaceService {
     }
   }
 
+  async addWorkspaceUser(email: string, strategy: string, workspaceId: string) {
+    const workspace = await this.findWorkspace(workspaceId)
+    if (workspace) {
+      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.defaultRole)
+    }
+  }
+
   async addUserToWorkspace(email: string, strategy: string, workspace: string, role: string) {
     const user = {
       email,
