@@ -1,9 +1,17 @@
 import React, { Component, Fragment } from 'react'
 
-import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { FaPlusCircle } from 'react-icons/lib/fa'
 import { connect } from 'react-redux'
-import { Jumbotron, Row, Col, Button, Alert } from 'reactstrap'
+import {
+  Jumbotron,
+  Row,
+  Col,
+  Button,
+  Alert,
+  UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownItem,
+  DropdownMenu
+} from 'reactstrap'
 
 import _ from 'lodash'
 
@@ -17,10 +25,14 @@ import LoadingSection from '../../Components/LoadingSection'
 import api from '../../../api'
 import { AccessControl } from '../../../App/AccessControl'
 import CreateBotModal from './CreateBotModal'
+import ImportBotModal from './ImportBotModal'
 import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
 import { toast } from 'react-toastify'
+import { MdUnarchive } from 'react-icons/md'
+import { IoIosArchive } from 'react-icons/io'
+import { FaPlusCircle } from 'react-icons/fa'
 
 class Bots extends Component {
   state = {
@@ -44,6 +56,10 @@ class Bots extends Component {
 
   toggleCreateBotModal = () => {
     this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+  }
+
+  toggleImportBotModal = () => {
+    this.setState({ isImportBotModalOpen: !this.state.isImportBotModalOpen })
   }
 
   async exportBot(botId) {
@@ -76,11 +92,10 @@ class Bots extends Component {
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
-                <IoIosBoxOutline />
+                <IoIosArchive />
                 &nbsp; This workspace has no bot, yet.
               </h1>
-              <p>In Botpress, bots are always assigned to a workspace.</p>
-              <p>{this.renderCreateNewBotButton(true)}</p>
+              <p>In Botpress, bots are always assigned to a workspace. Create your first bot to start building.</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -91,15 +106,22 @@ class Bots extends Component {
   renderCreateNewBotButton() {
     return (
       <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
-        <Button
-          onClick={() => this.setState({ isCreateBotModalOpen: true })}
-          outline
-          color="primary"
-          className="createbot_btn"
-        >
-          <FaPlusCircle />
-          &nbsp;Create Bot
-        </Button>
+        <UncontrolledButtonDropdown color="primary">
+          <DropdownToggle color="primary" outline caret>
+            <FaPlusCircle />
+            &nbsp;Create Bot
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem onClick={() => this.setState({ isCreateBotModalOpen: true })}>
+              <FaPlusCircle />
+              &nbsp;New bot
+            </DropdownItem>
+            <DropdownItem onClick={() => this.setState({ isImportBotModalOpen: true })}>
+              <MdUnarchive />
+              &nbsp;Import existing
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledButtonDropdown>
       </AccessControl>
     )
   }
@@ -234,6 +256,11 @@ class Bots extends Component {
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}
           toggle={this.toggleCreateBotModal}
+          onCreateBotSuccess={this.props.fetchBots}
+        />
+        <ImportBotModal
+          isOpen={this.state.isImportBotModalOpen}
+          toggle={this.toggleImportBotModal}
           onCreateBotSuccess={this.props.fetchBots}
         />
       </Fragment>

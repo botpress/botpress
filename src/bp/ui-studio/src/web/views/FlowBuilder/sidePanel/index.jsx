@@ -40,7 +40,7 @@ export default class SidePanel extends Component {
           <span>Flows</span>
           {!this.props.readOnly && (
             <button className={classnames(style.newFlow, 'pull-right')} onClick={this.createFlow}>
-              <OverlayTrigger placement="bottom" overlay={<Tooltip>Create flow</Tooltip>}>
+              <OverlayTrigger placement="bottom" overlay={<Tooltip id={'createFlow'}>Create flow</Tooltip>}>
                 <i className="material-icons">create_new_folder</i>
               </OverlayTrigger>
             </button>

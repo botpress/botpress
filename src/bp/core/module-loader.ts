@@ -9,14 +9,12 @@ import {
   Skill
 } from 'botpress/sdk'
 import { ValidationError } from 'errors'
-
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
-
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'

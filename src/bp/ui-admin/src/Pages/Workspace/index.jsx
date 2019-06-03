@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdPeople, MdAndroid, MdVerifiedUser } from 'react-icons/lib/md'
+import { MdPeople, MdAndroid, MdVerifiedUser } from 'react-icons/md'
 
 import TabLayout from '../Layouts/Tabs'
 import Bots from './Bots'

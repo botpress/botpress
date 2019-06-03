@@ -119,6 +119,16 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    router.get(
+      '/:botId/exists',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+
+        return res.send(await this.botService.botExists(<string>botId))
+      })
+    )
+
     router.post(
       '/:botId/stage',
       this.assertBotpressPro,
@@ -177,6 +187,29 @@ export class BotsRouter extends CustomRouter {
           'Content-Length': tarball.length
         })
         res.end(tarball)
+      })
+    )
+
+    router.post(
+      '/:botId/import',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        if (!req.is('application/tar+gzip')) {
+          res.status(400).send('Bot should be imported from archive')
+        }
+        const buffers: any[] = []
+        req.on('data', chunk => {
+          buffers.push(chunk)
+        })
+        req.on('end', async () => {
+          const botId = req.params.botId
+          try {
+            await this.botService.importBot(botId, Buffer.concat(buffers), false)
+            res.send('Ok')
+          } catch (error) {
+            res.status(500).send('Error while importing bot')
+          }
+        })
       })
     )
 
