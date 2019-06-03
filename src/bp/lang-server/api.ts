@@ -4,7 +4,7 @@ import express, { Application, RequestHandler } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import ms from 'ms'
-import { isArray, isString } from 'util'
+import _ from 'lodash'
 
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
@@ -133,14 +133,14 @@ export default async function(options: APIOptions) {
   app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
     try {
       const input = req.body.input
-      const lang = req.body.lang || 'en'
+      const language = req.body.lang || 'en'
 
-      if (!input || !isString(input)) {
-        throw new BadRequestError('Param `input` is mandatory (must be an array of strings)')
+      if (!input || !_.isString(input)) {
+        throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const [result, tokens] = await options.service.vectorize(input, lang)
-      res.json({ input: input, language: lang, vectors: result, tokens: tokens })
+      const [vectors, tokens] = await options.service.vectorize(input, language)
+      res.json({ input, language, vectors, tokens })
     } catch (err) {
       next(err)
     }
@@ -151,7 +151,7 @@ export default async function(options: APIOptions) {
       const tokens = req.body.tokens
       const lang = req.body.lang || 'en'
 
-      if (!tokens || !tokens.length || !isArray(tokens)) {
+      if (!tokens || !tokens.length || !_.isArray(tokens)) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 

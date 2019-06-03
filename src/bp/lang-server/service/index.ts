@@ -1,4 +1,3 @@
-import { MLToolkit } from 'botpress/sdk'
 import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
 import _ from 'lodash'
@@ -7,22 +6,8 @@ import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
 
-interface ModelSet {
-  bpeModel: AvailableModel | LoadedBPEModel
-  fastTextModel: AvailableModel | LoadedFastTextModel
-}
-
-type AvailableModel = {
-  name: string
-  path: string
-  loaded: boolean
-}
-type LoadedFastTextModel = AvailableModel & { model: MLToolkit.FastText.Model; sizeInMb: number }
-
-type LoadedBPEModel = AvailableModel & {
-  tokenizer: MLToolkit.SentencePiece.Processor
-  sizeInMb: number
-}
+import { ModelSet, AvailableModel, LoadedFastTextModel, LoadedBPEModel, ModelFileInfo } from './typing'
+import { MLToolkit } from 'botpress/sdk'
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
@@ -54,9 +39,8 @@ export default class LanguageService {
     return this._ready
   }
 
-  listFastTextModels(): AvailableModel[] {
-    const allModels = _.values(this._models)
-    return allModels.map(m => m.fastTextModel)
+  listFastTextModels = (): AvailableModel[] => {
+    return _.values(this._models).map(m => m.fastTextModel)
   }
 
   private _discoverModels() {
@@ -66,43 +50,36 @@ export default class LanguageService {
 
     const files = fs.readdirSync(this.langDir)
 
-    type modelFileInfo = {
-      domain: string
-      langCode: string
-      file: string
-      dim?: number
-    }
-    const filesInfo: modelFileInfo[] = []
+    const filesInfo: ModelFileInfo[] = []
 
-    files.forEach(f => {
+    _.forEach(files, file => {
       // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
       const fastTextModelsRegex = /(\w+)\.(\w+)\.(\d+)\.bin/i
-      const fastTextModelsMatch = f.match(fastTextModelsRegex)
+      const fastTextModelsMatch = file.match(fastTextModelsRegex)
 
       // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
       const bpeModelsRegex = /(\w+)\.(\w+)\.bpe\.model/i
-      const bpeModelsMatch = f.match(bpeModelsRegex)
+      const bpeModelsMatch = file.match(bpeModelsRegex)
 
       if (!!fastTextModelsMatch) {
         const [__, domain, langCode, dim] = fastTextModelsMatch
-        filesInfo.push({ domain, langCode, dim: Number(dim), file: f })
+        filesInfo.push({ domain, langCode, dim: Number(dim), file: file })
         return
       }
       if (!!bpeModelsMatch) {
         const [__, domain, langCode, _] = bpeModelsMatch
-        filesInfo.push({ domain, langCode, file: f })
+        filesInfo.push({ domain, langCode, file })
       }
     })
 
     const modelGroups = _.groupBy(filesInfo, x => [x.domain, x.langCode])
+    _.forEach(modelGroups, modelGroup => {
+      const domain = modelGroup[0].domain
+      const langCode = modelGroup[0].langCode
 
-    _.forEach(modelGroups, v => {
-      const domain = v[0].domain
-      const langCode = v[0].langCode
-
-      const fastTextModelFileInfo = v.find(f => f.dim === this.dim)
-      const bpeModelFileInfo = v.find(f => !f.dim)
-      if (domain != this.domain || !fastTextModelFileInfo || !bpeModelFileInfo) {
+      const fastTextModelFileInfo = modelGroup.find(f => f.dim === this.dim)
+      const bpeModelFileInfo = modelGroup.find(f => !f.dim)
+      if (domain !== this.domain || !fastTextModelFileInfo || !bpeModelFileInfo) {
         console.log('skipping', domain, langCode)
         return
       }
@@ -150,16 +127,12 @@ export default class LanguageService {
   }
 
   private async _loadFastTextModel(lang: string): Promise<LoadedFastTextModel> {
-    const usedBefore = process.memoryUsage().rss / 1024 / 1024
-    const dtBefore = Date.now()
-
-    const model = new toolkit.FastText.Model(false, true, true)
-    await model.loadFromFile(this._models[lang].fastTextModel.path)
-
-    const dtAfter = Date.now()
-    const usedAfter = process.memoryUsage().rss / 1024 / 1024
-    const usedDelta = Math.round(usedAfter - usedBefore)
-    const dtDelta = dtAfter - dtBefore
+    const loadingAction = async (lang: string) => {
+      const model = new toolkit.FastText.Model(false, true, true)
+      await model.loadFromFile(this._models[lang].fastTextModel.path)
+      return model
+    }
+    const { model, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
 
     const loadedModel = <LoadedFastTextModel>{
       ...this._models[lang].fastTextModel,
@@ -167,22 +140,17 @@ export default class LanguageService {
       sizeInMb: usedDelta,
       loaded: true
     }
-    console.log(`language model '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
-
     return loadedModel
   }
 
   private async _loadBPEModel(lang: string): Promise<LoadedBPEModel> {
-    const usedBefore = process.memoryUsage().rss / 1024 / 1024
-    const dtBefore = Date.now()
+    const loadingAction = lang => {
+      const tokenizer = toolkit.SentencePiece.createProcessor()
+      tokenizer.loadModel(this._models[lang].bpeModel.path)
+      return Promise.resolve(tokenizer)
+    }
 
-    const tokenizer = toolkit.SentencePiece.createProcessor()
-    tokenizer.loadModel(this._models[lang].bpeModel.path)
-
-    const dtAfter = Date.now()
-    const usedAfter = process.memoryUsage().rss / 1024 / 1024
-    const usedDelta = Math.round(usedAfter - usedBefore)
-    const dtDelta = dtAfter - dtBefore
+    const { model: tokenizer, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
 
     const loadedModel = <LoadedBPEModel>{
       ...this._models[lang].bpeModel,
@@ -190,15 +158,35 @@ export default class LanguageService {
       sizeInMb: usedDelta,
       loaded: true
     }
-    console.log(`bpe tonization model '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
-
     return loadedModel
+  }
+
+  private async _getRessourceConsumptionInfo(
+    lang: string,
+    action: (lang: string) => Promise<MLToolkit.SentencePiece.Processor | MLToolkit.FastText.Model>
+  ) {
+    const usedBefore = process.memoryUsage().rss / 1024 / 1024
+    const dtBefore = Date.now()
+
+    const model = await action(lang)
+
+    const dtAfter = Date.now()
+    const usedAfter = process.memoryUsage().rss / 1024 / 1024
+    const usedDelta = Math.round(usedAfter - usedBefore)
+    const dtDelta = dtAfter - dtBefore
+
+    console.log(`${typeof model} '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
+
+    return { model, usedDelta, dtDelta }
   }
 
   async vectorize(input: string, lang: string): Promise<[number[][], string[]]> {
     const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
-    if (!fastTextModel || !fastTextModel.loaded || !bpeModel || !bpeModel.loaded) {
-      throw new Error(`One of FastText model or Sentencepiece bpe model for lang '${lang}' is not loaded in memory`)
+    if (!fastTextModel || !fastTextModel.loaded) {
+      throw new Error(`FastText model for lang '${lang}' is not loaded in memory`)
+    }
+    if (!bpeModel || !bpeModel.loaded) {
+      throw new Error(`BPE model for lang '${lang}' is not loaded in memory`)
     }
 
     const tokens = (bpeModel as LoadedBPEModel).tokenizer.encode(input)
