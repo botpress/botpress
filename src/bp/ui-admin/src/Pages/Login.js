@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 import api from '../api'
+import { setActiveWorkspace } from '../Auth'
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
 export default class Login extends Component {
@@ -18,17 +19,31 @@ export default class Login extends Component {
 
   loadAuthConfig = async () => {
     const { data } = await api.getAnonymous().get('/auth/config')
+    if (!data.payload || !data.payload.length) {
+      return
+    }
+
+    const strategies = data.payload
+
+    const strategyId = this.props.match.params.strategy || strategies[0].strategyId
+    const strategyConfig = strategies.find(s => s.strategyId === strategyId)
+
+    if (!strategyConfig) {
+      return this.setState({ isLoading: false, error: 'Invalid strategy' })
+    }
 
     this.setState({
       isLoading: false,
       isFirstTimeUse: data.payload.isFirstTimeUse,
-      ...data.payload
+      ...strategyConfig
     })
   }
 
   componentDidMount() {
     this.loadAuthConfig()
     this.checkErrorMessages()
+
+    setActiveWorkspace(this.props.match.params.workspace)
   }
 
   login = async ({ email, password, showError = true } = {}) => {

@@ -3,6 +3,7 @@ import history from '../history'
 import ms from 'ms'
 
 export const TOKEN_KEY = 'bp/token'
+export const WORKSPACE_KEY = 'bp/workspace'
 const HOME_ROUTE = '/home'
 
 export function pullToken() {
@@ -13,6 +14,14 @@ export function pullToken() {
 export function setToken(token, expiresAt) {
   const ls = JSON.stringify({ token, expires: expiresAt || new Date() + ms('4h'), time: new Date() })
   localStorage.setItem(TOKEN_KEY, ls)
+}
+
+export function setActiveWorkspace(workspaceName) {
+  workspaceName ? localStorage.setItem(WORKSPACE_KEY, workspaceName) : localStorage.removeItem(WORKSPACE_KEY)
+}
+
+export function getActiveWorkspace() {
+  return localStorage.getItem(WORKSPACE_KEY)
 }
 
 export function logout() {
@@ -29,24 +38,30 @@ export default class BasicAuthentication {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doLogin({ email, password, newPassword }, loginUrl)
-  }
 
-  async doLogin({ email, password, newPassword }, loginUrl) {
     const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth' + loginUrl, {
       email,
       password,
       newPassword
     })
 
-    this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+    const { token } = data.payload
+    this.setSession({ expiresIn: 7200, idToken: token })
+
+    await this.setupWorkspace()
 
     const returnTo = history.location.query.returnTo
-    if (returnTo) {
-      window.location.replace(returnTo)
-    } else {
-      history.replace(HOME_ROUTE)
+    returnTo ? window.location.replace(returnTo) : history.replace(HOME_ROUTE)
+  }
+
+  setupWorkspace = async () => {
+    const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
+    if (!workspaces || !workspaces.length) {
+      throw new Error(`You must have access to at least one workspace to login.`)
     }
+
+    // We set either the active workspace, or the first in the list he's allowed otherwise.
+    setActiveWorkspace(getActiveWorkspace() || workspaces[0].workspace)
   }
 
   register = async ({ email, password }) => {

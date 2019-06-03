@@ -116,6 +116,15 @@ export class AuthRouter extends CustomRouter {
     )
 
     router.get(
+      '/me/workspaces',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        res.send(await this.workspaceService.getUserWorkspaces(email, strategy))
+      })
+    )
+
+    router.get(
       '/me/permissions',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {

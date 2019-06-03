@@ -77,10 +77,15 @@ export default class AuthService {
   }
 
   async getCollaboratorsConfig() {
-    const defaultStrategy = await this.getDefaultStrategy()
-    const strategy = (await this.getStrategy(defaultStrategy)) as AuthStrategy
+    const config = await this.configProvider.getBotpressConfig()
+    if (!config.pro.globalAuthStrategies || !config.pro.globalAuthStrategies.length) {
+      throw new Error(`There must be at least one global strategy configured.`)
+    }
 
-    return this._getStrategyConfig(strategy, defaultStrategy)
+    return Promise.mapSeries(config.pro.globalAuthStrategies, async strategyName => {
+      const strategy = (await this.getStrategy(strategyName)) as AuthStrategy
+      return this._getStrategyConfig(strategy, strategyName)
+    })
   }
 
   async setChatUserToken(token: string, { channel, target }): Promise<void> {

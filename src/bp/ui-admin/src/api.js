@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
-import { pullToken, logout } from './Auth'
+import { pullToken, logout, getActiveWorkspace } from './Auth'
 import { toast } from 'react-toastify'
 import * as licensing from './Auth/licensing'
 
@@ -69,12 +69,7 @@ const overrideStripePath = process.env.REACT_APP_STRIPE_PATH
   ? `${process.env.REACT_APP_STRIPE_PATH}`
   : `https://botpress.io/stripe`
 
-let currentWorkspace = 'default'
-
 export default {
-  setWorkspace(name) {
-    currentWorkspace = name
-  },
   getApiPath() {
     return overrideApiUrl.baseURL
   },
@@ -90,7 +85,7 @@ export default {
         timeout,
         headers: {
           Authorization: `Bearer ${token}`,
-          'X-BP-Workspace': currentWorkspace
+          'X-BP-Workspace': getActiveWorkspace()
         },
         ...overrideApiUrl
       },

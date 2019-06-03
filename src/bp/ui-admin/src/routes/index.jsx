@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
@@ -24,19 +24,29 @@ import Modules from '../Pages/Server/Modules'
 export const makeMainRoutes = () => {
   const auth = new Auth()
 
+  const ExtractToken = () => {
+    const [isReady, setIsReady] = useState(false)
+    auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+
+    useEffect(() => {
+      const getWorkspaces = async () => {
+        await auth.setupWorkspace()
+        setIsReady(true)
+      }
+
+      getWorkspaces()
+    })
+
+    return isReady ? <Redirect to="/" /> : null
+  }
+
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <Switch>
-          <Route path="/login" render={props => <LoginPage auth={auth} {...props} />} />
+          <Route path="/login/:strategy?/:workspace?" render={props => <LoginPage auth={auth} {...props} />} />
           <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
-          <Route
-            path="/setToken"
-            render={() => {
-              auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
-              return <Redirect to="/" />
-            }}
-          />
+          <Route path="/setToken" component={ExtractToken} />
           <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
