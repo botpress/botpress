@@ -89,7 +89,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    return this.queryProvider(lang, '/vectorize', { tokens }, 'vectors')
+    return this.queryProvider(lang, '/vectorize-tokens', { tokens }, 'vectors')
   }
 
   async tokenize(text: string, lang: string): Promise<string[]> {
