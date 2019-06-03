@@ -13,6 +13,7 @@ import { TokenUser } from '../../misc/interfaces'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { KeyValueStore } from '../kvs'
+import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
 import { generateUserToken } from './util'
@@ -40,17 +41,21 @@ export default class AuthService {
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.StrategyUsersRepository) private users: StrategyUsersRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
-    @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository
+    @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {}
 
   async initialize() {
-    const config = await this.configProvider.getBotpressConfig()
+    let config = await this.configProvider.getBotpressConfig()
+    if (!config.authStrategies || !Object.keys(config.authStrategies).length || !config.pro.globalAuthStrategies) {
+      await this._setDefaultStrategy()
+
+      // We reload the config since it had to be updated
+      config = await this.configProvider.getBotpressConfig()
+    }
+
     const strategies = Object.keys(config.authStrategies)
     const strategyTable = new StrategyUserTable()
-
-    if (!config.authStrategies || !config.pro.globalAuthStrategies || !config.pro.globalAuthStrategies.length) {
-      await this._setDefaultStrategy()
-    }
 
     await Promise.mapSeries(strategies, async strategy => {
       const created = await strategyTable.createStrategyTable(this.database.knex, `strategy_${strategy}`)
@@ -82,10 +87,12 @@ export default class AuthService {
       throw new Error(`There must be at least one global strategy configured.`)
     }
 
-    return Promise.mapSeries(config.pro.globalAuthStrategies, async strategyName => {
+    const strategies = await Promise.mapSeries(config.pro.globalAuthStrategies, async strategyName => {
       const strategy = (await this.getStrategy(strategyName)) as AuthStrategy
-      return this._getStrategyConfig(strategy, strategyName)
+      return strategy && this._getStrategyConfig(strategy, strategyName)
     })
+
+    return { strategies, isFirstUser: await this.isFirstUser() }
   }
 
   async setChatUserToken(token: string, { channel, target }): Promise<void> {
@@ -102,7 +109,9 @@ export default class AuthService {
 
     const duration = config.jwtToken && config.jwtToken.duration
     const audience = forceChatUser || !isGlobalStrategy ? CHAT_USERS_AUDIENCE : TOKEN_AUDIENCE
-    const isSuperAdmin = audience === TOKEN_AUDIENCE && config.superAdmins.includes({ strategy, email })
+
+    const isSuperAdmin =
+      audience === TOKEN_AUDIENCE && !!config.superAdmins.find(x => x.strategy === strategy && x.email === email)
 
     return generateUserToken(email, strategy, isSuperAdmin, duration, audience)
   }
@@ -126,6 +135,22 @@ export default class AuthService {
   async findUserAttributes(email: string, strategy: string): Promise<any | undefined> {
     const user = await this.users.findUser(email, strategy)
     return user && user.attributes
+  }
+
+  async createAdminUser(user: Partial<StrategyUser>, strategy: string) {
+    if (!user.email) {
+      throw new Error('Missing email')
+    }
+
+    await this.users.createUser({
+      email: user.email,
+      strategy,
+      attributes: user.attributes || {},
+      password: user.password,
+      salt: user.salt
+    })
+
+    await this.workspaceService.addWorkspaceAdmin(user.email, strategy, 'default')
   }
 
   async createUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser | string> {
@@ -169,6 +194,10 @@ export default class AuthService {
 
   async getAllStrategies() {
     const config = await this.configProvider.getBotpressConfig()
+    if (!config.authStrategies) {
+      return []
+    }
+
     return Object.keys(config.authStrategies).map(x => {
       const strategy = config.authStrategies[x]
       return { id: x, ...strategy }

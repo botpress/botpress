@@ -6,6 +6,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface WorkspaceUser {
+  id?: number
   email: string
   strategy: string
   workspace: string
@@ -80,12 +81,16 @@ export class WorkspaceUsersRepository {
       .where({ workspace })
   }
 
-  async getUniqueCollaborators() {
-    return this.database
+  async getUniqueCollaborators(strategy?: string) {
+    let query = this.database
       .knex(this.tableName)
       .groupBy(['email', 'strategy'])
       .count('* as qty')
-      .first()
-      .then(result => result.qty)
+
+    if (strategy) {
+      query = query.where({ strategy })
+    }
+
+    return query.first().then(result => (result && result.qty) || 0)
   }
 }

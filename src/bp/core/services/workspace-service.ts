@@ -110,6 +110,23 @@ export class WorkspaceService {
     return this.save(workspaces)
   }
 
+  async addWorkspaceAdmin(email: string, strategy: string, workspaceId: string) {
+    const workspace = await this.findWorkspace(workspaceId)
+    if (workspace) {
+      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.adminRole)
+    }
+  }
+
+  async addUserToWorkspace(email: string, strategy: string, workspace: string, role: string) {
+    const user = {
+      email,
+      strategy,
+      workspace,
+      role
+    }
+    await this.workspaceRepo.createEntry(user)
+  }
+
   async findUser(email: string, strategy: string, workspace: string) {
     const list = await this.workspaceRepo.getUserWorkspaces(email, strategy)
     return list.find(x => x.workspace === workspace)

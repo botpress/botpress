@@ -138,7 +138,7 @@ export default class StrategyBasic {
       }
     }
 
-    await this.authService.createUser(newUser, strategy)
+    await this.authService.createAdminUser(newUser, strategy)
 
     debug('self register', { email, ipAddress })
     return this.authService.generateSecureToken(email, strategy)

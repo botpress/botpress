@@ -7,6 +7,7 @@ import StrategyBasic from 'core/services/auth/basic'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
@@ -33,6 +34,9 @@ export class AuthRouter extends CustomRouter {
   }
 
   async setupStrategies() {
+    // Waiting until the auth service was initialized (& config updated, if required)
+    await AppLifecycle.waitFor(AppLifecycleEvents.SERVICES_READY)
+
     const strategyTypes = await this.authService.getStrategyTypes()
 
     if (process.IS_PRO_ENABLED && _.intersection(strategyTypes, ['ldap', 'saml'])) {

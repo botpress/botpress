@@ -45,7 +45,7 @@ export const makeMainRoutes = () => {
       <ConnectedRouter history={history}>
         <Switch>
           <Route path="/login/:strategy?/:workspace?" render={props => <LoginPage auth={auth} {...props} />} />
-          <Route path="/register" render={props => <RegisterPage auth={auth} {...props} />} />
+          <Route path="/register/:strategy?/:workspace?" render={props => <RegisterPage auth={auth} {...props} />} />
           <Route path="/setToken" component={ExtractToken} />
           <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
           <PrivateRoute path="/" auth={auth} component={App}>

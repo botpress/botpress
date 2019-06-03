@@ -18,15 +18,7 @@ export default class Login extends Component {
   }
 
   loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous().get('/auth/config')
-    if (!data.payload || !data.payload.length) {
-      return
-    }
-
-    const strategies = data.payload
-
-    const strategyId = this.props.match.params.strategy || strategies[0].strategyId
-    const strategyConfig = strategies.find(s => s.strategyId === strategyId)
+    const { isFirstUser, ...strategyConfig } = await this.props.auth.getStrategyConfig(this.props.match.params.strategy)
 
     if (!strategyConfig) {
       return this.setState({ isLoading: false, error: 'Invalid strategy' })
@@ -34,7 +26,7 @@ export default class Login extends Component {
 
     this.setState({
       isLoading: false,
-      isFirstTimeUse: data.payload.isFirstTimeUse,
+      isFirstTimeUse: isFirstUser,
       ...strategyConfig
     })
   }

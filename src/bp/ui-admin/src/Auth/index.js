@@ -54,6 +54,20 @@ export default class BasicAuthentication {
     returnTo ? window.location.replace(returnTo) : history.replace(HOME_ROUTE)
   }
 
+  getStrategyConfig = async userStrategy => {
+    const { data } = await api.getAnonymous().get('/auth/config')
+    if (!data.payload || !data.payload.strategies || !data.payload.strategies.length) {
+      return
+    }
+
+    const { strategies, isFirstUser } = data.payload
+
+    const strategyId = userStrategy || strategies[0].strategyId
+    const strategyConfig = strategies.find(s => s.strategyId === strategyId)
+
+    return strategyConfig && { ...strategyConfig, isFirstUser }
+  }
+
   setupWorkspace = async () => {
     const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
     if (!workspaces || !workspaces.length) {
@@ -64,15 +78,12 @@ export default class BasicAuthentication {
     setActiveWorkspace(getActiveWorkspace() || workspaces[0].workspace)
   }
 
-  register = async ({ email, password }) => {
+  register = async ({ email, password }, registerUrl) => {
     if (this.isAuthenticated()) {
       return
     }
-    await this.doRegister({ email, password })
-  }
 
-  async doRegister({ email, password }) {
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth/register', {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth' + registerUrl, {
       email,
       password
     })
