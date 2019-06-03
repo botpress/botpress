@@ -94,8 +94,7 @@ export interface NLUDS {
 }
 
 export interface PipelineProcessManager {
-  of(ds: NLUDS): PipelineProcessManager
-  withPipeline(pipeline: Function[]): PipelineProcessManager
-  withScope(scope: any): PipelineProcessManager
+  of(pipeline: Function[]): PipelineProcessManager
+  initDS(text: string, includedContexts: string[]): PipelineProcessManager
   run(): Promise<NLUDS>
 }

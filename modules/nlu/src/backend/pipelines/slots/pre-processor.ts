@@ -47,7 +47,7 @@ const _generateTrainingTokens = (
 
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
-  return tokenize(input, lang).map((t, idx) => {
+  return tokenize(lang)(input).map((t, idx) => {
     const token = _makeToken(t, matchedEntities, start, tagToken(idx), slot)
     start += t.length + 1 // 1 is the space char, replace this by what was done in the prediction sequence
 
@@ -64,7 +64,7 @@ export const generatePredictionSequence = (
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
 
-  const tokens = tokenize(input, lang).map(value => {
+  const tokens = tokenize(lang)(input).map(value => {
     const inputIdx = input.indexOf(value)
     currentIdx += inputIdx // in case of tokenization uses more than one char i.e words separated with multiple spaces
     input = input.slice(inputIdx + value.length)

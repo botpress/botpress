@@ -73,16 +73,13 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = await Promise.map(intentDefs, async intent => {
-      const lowerUtterances = (intent.utterances[this.language] || [])
-        .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
-        .filter(x => x.trim().length) as string[]
-
-      return {
-        ...intent,
-        tokens: await Promise.map(lowerUtterances, u => tokenize(u, this.language))
-      }
-    })
+    const intentsWTokens = intentDefs.map(intent => ({
+      ...intent,
+      tokens: (intent.utterances[this.language] || [])
+        .map(utterance => keepEntityTypes(sanitize(utterance.toLowerCase())))
+        .filter(utterance => utterance.trim().length)
+        .map(tokenize(this.language))
+    }))
 
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []

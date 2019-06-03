@@ -27,6 +27,6 @@ const tok = (() => {
   }
 })()
 
-export const tokenize = (input: string, lang: string): string[] => {
+export const tokenize = (lang: string) => (input: string): string[] => {
   return lang == 'ja' ? tok.get(input) : WhiteSpaceTokenizer(input)
 }
