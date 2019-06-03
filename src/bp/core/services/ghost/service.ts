@@ -195,7 +195,8 @@ export class ScopedGhostService {
   }
 
   /**
-   * Synchronize all tracked files to BP Ghost.
+   * All tracked files will be synced.
+   * All files are tracked by default, unless `.ghostignore` is used to exclude them.
    */
   async sync() {
     if (!this.useDbDriver) {
