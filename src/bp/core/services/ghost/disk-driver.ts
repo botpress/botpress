@@ -78,15 +78,17 @@ export default class DiskStorageDriver implements StorageDriver {
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
-    const ghostIgnorePath = this.resolvePath('data/.ghostignore')
-    if (await fse.pathExists(ghostIgnorePath)) {
-      const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
-      options.excludes = [...ghostIgnoreFile.toString().split(os.EOL)]
+    const ghostIgnorePatterns = await this._getGhostIgnorePatterns(this.resolvePath('data/.ghostignore'))
+    const globOptions = {
+      cwd: this.resolvePath(folder),
+      dot: options.includeDotFiles
     }
 
-    const globOptions = { cwd: this.resolvePath(folder), dot: options.includeDotFiles }
-    if (options.excludes) {
-      globOptions['ignore'] = options.excludes
+    // options.excludes can either be a string or an array of strings
+    if (Array.isArray(options.excludes)) {
+      globOptions['ignore'] = [...options.excludes, ...ghostIgnorePatterns]
+    } else {
+      globOptions['ignore'] = [options.excludes, ...ghostIgnorePatterns]
     }
 
     try {
@@ -110,26 +112,6 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  /**
-   * List files on disk that excludes ghostignore files.
-   * @param baseDir The base directory to list the files from e.g. "global/", "bots/example/"
-   * @param ghostIgnorePath The path of the .ghostignore file
-   */
-  async listTrackableFiles(baseDir: string, ghostIgnorePath: string) {
-    try {
-      if (await fse.pathExists(ghostIgnorePath)) {
-        const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
-        const patternsToExcludes = ghostIgnoreFile.toString().split(os.EOL)
-
-        return this.directoryListing(baseDir, { excludes: patternsToExcludes, includeDotFiles: true })
-      }
-
-      return this.directoryListing(baseDir, { includeDotFiles: true })
-    } catch (err) {
-      return []
-    }
-  }
-
   async absoluteDirectoryListing(destination: string) {
     try {
       const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: destination }, cb))
@@ -146,5 +128,13 @@ export default class DiskStorageDriver implements StorageDriver {
       .map(f => f.split('/')[0])
       .uniq()
       .value()
+  }
+
+  private async _getGhostIgnorePatterns(ghostIgnorePath: string): Promise<string[]> {
+    if (await fse.pathExists(ghostIgnorePath)) {
+      const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
+      return ghostIgnoreFile.toString().split(os.EOL)
+    }
+    return []
   }
 }
