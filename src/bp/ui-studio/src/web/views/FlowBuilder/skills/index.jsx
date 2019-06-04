@@ -153,6 +153,7 @@ class SkillsBuilder extends React.Component {
     const skill = this.findInstalledSkill()
     const modalClassName = style['size-' + this.state.windowSize]
     const submitName = this.props.action === 'new' ? 'Insert' : 'Save'
+    const title = this.props.action === 'new' ? 'Insert a new skill' : 'Edit a skill'
 
     return (
       <Modal
@@ -163,7 +164,9 @@ class SkillsBuilder extends React.Component {
         backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Insert a new skill | {skill && skill.name}</Modal.Title>
+          <Modal.Title>
+            {title} | {skill && skill.name}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {this.renderLoading()}
