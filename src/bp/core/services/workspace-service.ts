@@ -134,6 +134,11 @@ export class WorkspaceService {
     await this.workspaceRepo.createEntry(user)
   }
 
+  async removeUserFromAllWorkspaces(email: string, strategy: string) {
+    const allWorkspaces = await this.getUserWorkspaces(email, strategy)
+    return Promise.map(allWorkspaces, wks => this.removeUserFromWorkspace(email, strategy, wks.workspace))
+  }
+
   async removeUserFromWorkspace(email: string, strategy: string, workspace: string) {
     return this.workspaceRepo.removeUserFromWorkspace(email, strategy, workspace)
   }

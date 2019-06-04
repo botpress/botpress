@@ -74,7 +74,7 @@ class CreateUserModal extends Component {
       this.props.onUserCreated && this.props.onUserCreated(data.payload)
     } else {
       const { email, strategy } = selectedUser.value
-      await api.getSecured().post('/admin/users/workspace', { email, strategy, role: this.state.role })
+      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: this.state.role })
       this.props.onUserAdded && this.props.onUserAdded()
     }
   }

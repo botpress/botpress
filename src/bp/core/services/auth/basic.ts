@@ -38,8 +38,7 @@ export default class StrategyBasic {
 
         // If the channel & target is set, we consider that it's a chat user logging in (even if it's with admin credentials)
         if (channel && target) {
-          token = await this.authService.generateSecureToken(email, strategy, true)
-          await this.authService.setChatUserToken(token, { channel, target })
+          token = await this.authService.generateChatUserToken(email, strategy, channel, target)
         } else {
           token = await this.authService.generateSecureToken(email, strategy)
         }
@@ -88,7 +87,7 @@ export default class StrategyBasic {
     ipAddress: string = ''
   ): Promise<void> {
     await this._checkUserAuth(email, strategy, password, newPassword, ipAddress)
-    const strategyOptions = (await this.authService.getStrategy(strategy, 'options')) as AuthStrategyBasic
+    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
 
     if (newPassword) {
       this._validatePassword(newPassword, strategyOptions)
@@ -117,13 +116,7 @@ export default class StrategyBasic {
   private async _register(email: string, strategy: string, password: string, ipAddress: string = ''): Promise<string> {
     const pw = saltHashPassword(password)
 
-    const isFirstUser = await this.authService.isFirstUser()
-    if (!isFirstUser) {
-      throw new Error('Not allowed')
-    }
-
-    const alreadyExists = await this.authService.findUser(email, strategy)
-    if (alreadyExists) {
+    if (await this.authService.findUser(email, strategy)) {
       throw new ConflictError('The user already exists for that strategy.')
     }
 
@@ -138,7 +131,7 @@ export default class StrategyBasic {
       }
     }
 
-    await this.authService.createAdminUser(newUser, strategy)
+    await this.authService.createUser(newUser, strategy)
 
     debug('self register', { email, ipAddress })
     return this.authService.generateSecureToken(email, strategy)
@@ -161,7 +154,7 @@ export default class StrategyBasic {
       debug('login failed; user does not exist %o', { email, ipAddress })
       throw new InvalidCredentialsError()
     }
-    const strategyOptions = (await this.authService.getStrategy(strategy, 'options')) as AuthStrategyBasic
+    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
     if (!validateHash(password || '', user.password!, user.salt!)) {
       debug('login failed; wrong password %o', { email, ipAddress })
       // this.stats.track('auth', 'login', 'fail')

@@ -110,7 +110,7 @@ Password: ${payload.tempPassword}`
 
   async removeUser(user) {
     if (window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
-      await api.getSecured().delete(`/admin/users/workspace/${user.strategy}/${user.email}`)
+      await api.getSecured().delete(`/admin/users/workspace/remove/${user.strategy}/${user.email}`)
     }
   }
 
@@ -122,7 +122,7 @@ Password: ${payload.tempPassword}`
 
   updateUser = async () => {
     const user = this.state.user
-    await api.getSecured().put(`/admin/users/workspace/${user.strategy}/${user.email}`, user)
+    await api.getSecured().put(`/admin/users/workspace/update_role`, user)
     this.setState({ isRoleChanged: false, isUpdateRoleModalOpen: false, user: null }, this.props.fetchUsers)
   }
 

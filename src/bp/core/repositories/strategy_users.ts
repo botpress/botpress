@@ -59,6 +59,13 @@ export class StrategyUsersRepository {
       .update(updated)
   }
 
+  async deleteUser(email: string, strategy: string): Promise<void> {
+    return this.database
+      .knex(this._getTableName(strategy))
+      .where({ email, strategy })
+      .del()
+  }
+
   async getAttributes(email: string, strategy: string): Promise<any> {
     const user = await this.database
       .knex(this._getTableName(strategy))

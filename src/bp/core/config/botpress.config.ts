@@ -133,7 +133,7 @@ export type BotpressConfig = {
      * Once a user is logged on, he still needs individual access to respective workspaces
      * @default  ["default"]
      */
-    globalAuthStrategies: string[]
+    collaboratorsAuthStrategies: string[]
     /**
      * When pro features are enabled, the license key must be provided
      * @default false
@@ -272,13 +272,15 @@ export type RetentionPolicy = {
   [key: string]: string
 }
 
+export type AuthStrategyType = 'basic' | 'saml' | 'ldap'
+
 export interface AuthStrategy {
   readonly id: string
   /**
    * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
    * @default basic
    */
-  type: 'basic' | 'saml' | 'ldap'
+  type: AuthStrategyType
   /**
    * Defines custom options based on the chosen authentication strategy
    */

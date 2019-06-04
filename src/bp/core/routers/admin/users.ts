@@ -45,20 +45,13 @@ export class UsersRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const allUsers = await this.authService.getAllUsers()
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
-        const availableUsers: any[] = []
 
-        for (const user of allUsers) {
-          if (!workspaceUsers.find(x => x.email === user.email && x.strategy === user.strategy)) {
-            availableUsers.push(user)
-          }
-        }
-
-        return sendSuccess(res, 'Retrieved users', availableUsers)
+        return sendSuccess(res, 'Retrieved users', _.filter(allUsers, x => !_.find(workspaceUsers, x)))
       })
     )
 
     router.post(
-      '/workspace',
+      '/workspace/add',
       this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
@@ -76,7 +69,7 @@ export class UsersRouter extends CustomRouter {
     )
 
     router.delete(
-      '/workspace/:strategy/:email',
+      '/workspace/remove/:strategy/:email',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
@@ -91,11 +84,10 @@ export class UsersRouter extends CustomRouter {
     )
 
     router.put(
-      '/workspace/:strategy/:email',
+      '/workspace/update_role',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { email, strategy } = req.params
-        const { role } = req.body
+        const { email, strategy, role } = req.body
 
         await this.workspaceService.updateUserRole(email, strategy, req.workspace!, role)
         return sendSuccess(res, 'User updated')
@@ -135,32 +127,33 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    // TODO
     router.delete(
-      '/:email',
+      '/:strategy/:email',
       assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { email } = req.params
+        const { email, strategy } = req.params
 
         if (req.authUser!.email === email) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
-        // await this.workspaceService.deleteUser(email)
-        return sendSuccess(res, 'User deleted', {
-          email
-        })
+        await this.workspaceService.removeUserFromAllWorkspaces(email, strategy)
+        await this.authService.deleteUser(email, strategy)
+
+        return sendSuccess(res, 'User deleted', { email })
       })
     )
 
-    // TODO
     router.get(
       '/reset/:strategy/:email',
       assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const tempPassword = await this.authService.resetPassword(req.params.email, req.params.strategy)
+        const { email, strategy } = req.params
+
+        const tempPassword = await this.authService.resetPassword(email, strategy)
+
         return sendSuccess(res, 'Password reseted', {
           tempPassword
         })
