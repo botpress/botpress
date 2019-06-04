@@ -2,9 +2,8 @@ import React from 'react'
 import _ from 'lodash'
 
 import { Alert, Tabs, Tab } from 'react-bootstrap'
-
+import { Label, Input } from 'reactstrap'
 import { WithContext as ReactTags } from 'react-tag-input'
-
 import ContentPickerWidget from 'botpress/content-picker'
 
 import style from './style.scss'
@@ -191,8 +190,8 @@ export class Choice extends React.Component {
     return (
       <div className={style.content}>
         <div>
-          <label htmlFor="inputMaxRetries">Max number of retries</label>
-          <input
+          <Label htmlFor="inputMaxRetries">Max number of retries</Label>
+          <Input
             id="inputMaxRetries"
             type="number"
             name="quantity"
@@ -205,7 +204,8 @@ export class Choice extends React.Component {
         <div>
           <label htmlFor="invalidText">On invalid choice, say this before repeating question:</label>
           <div>
-            <textarea
+            <Input
+              type="textarea"
               id="invalidText"
               value={this.getInvalidText()}
               onChange={this.handleConfigTextChanged('invalidText')}
@@ -213,8 +213,8 @@ export class Choice extends React.Component {
           </div>
         </div>
         <div>
-          <label htmlFor="contentElementName">Content Element to use:</label>
-          <input
+          <Label htmlFor="contentElementName">Content Element to use:</Label>
+          <Input
             id="contentElementName"
             type="text"
             value={this.getContentElement()}
