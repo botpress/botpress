@@ -41,7 +41,7 @@ return callApi()
 
 ### Select your action
 
-Add an `oneEnter` action instruction and select the `callApi` action from the list:
+Add an `onEnter` action instruction and select the `callApi` action from the list:
 
 ![Action](assets/tutorial-call-api-action.png)
 
