@@ -112,6 +112,19 @@ function createExpressApp(options: APIOptions): Application {
   return app
 }
 
+function assertLanguage(options: APIOptions, language: any) {
+  const availableLanguages = options.service.listFastTextModels().map(x => x.name)
+  if (!language) {
+    throw new BadRequestError(`Param 'lang' is mandatory`)
+  }
+  if (!_.isString(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} must be a string`)
+  }
+  if (!availableLanguages.includes(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
+  }
+}
+
 export default async function(options: APIOptions) {
   const app = createExpressApp(options)
   const waitForServiceMw = ServiceLoadingMiddleware(options.service)
@@ -133,13 +146,16 @@ export default async function(options: APIOptions) {
   app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
     try {
       const input = req.body.input
-      const language = req.body.lang || 'en'
+
+      const language = req.body.lang
+      assertLanguage(options, language)
 
       if (!input || !_.isString(input)) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const [vectors, tokens] = await options.service.vectorize(input, language)
+      const tokens = await options.service.tokenize(input, language)
+      const vectors = await options.service.vectorize(tokens, language)
       res.json({ input, language, vectors, tokens })
     } catch (err) {
       next(err)
@@ -149,13 +165,14 @@ export default async function(options: APIOptions) {
   app.post('/vectorize-tokens', waitForServiceMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
-      const lang = req.body.lang || 'en'
+      const lang = req.body.lang
+      assertLanguage(options, lang)
 
       if (!tokens || !tokens.length || !_.isArray(tokens)) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.service.vectorizeTokens(tokens, lang)
+      const result = await options.service.vectorize(tokens, lang)
       res.json({ input: tokens, language: lang, vectors: result })
     } catch (err) {
       next(err)

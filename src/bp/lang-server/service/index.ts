@@ -184,34 +184,27 @@ export default class LanguageService {
     return { model, usedDelta, dtDelta }
   }
 
-  async vectorize(input: string, lang: string): Promise<[number[][], string[]]> {
-    const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
+  async vectorize(tokens: string[], lang: string): Promise<number[][]> {
+    const { fastTextModel } = this._models[lang] as ModelSet
     if (!fastTextModel || !fastTextModel.loaded) {
-      throw new Error(`FastText model for lang '${lang}' is not loaded in memory`)
+      throw new Error(`FastText Model for lang '${lang}' is not loaded in memory`)
     }
+
+    const vectors = await Promise.mapSeries(tokens, token =>
+      (fastTextModel as LoadedFastTextModel).model.queryWordVectors(token.toLowerCase())
+    )
+
+    return vectors
+  }
+
+  async tokenize(input: string, lang: string) {
+    const { bpeModel } = this._models[lang] as ModelSet
     if (!bpeModel || !bpeModel.loaded) {
       throw new Error(`BPE model for lang '${lang}' is not loaded in memory`)
     }
 
     const tokens = (bpeModel as LoadedBPEModel).tokenizer.encode(input)
 
-    const vectors = await Promise.mapSeries(tokens, token =>
-      (fastTextModel as LoadedFastTextModel).model.queryWordVectors(token.toLowerCase())
-    )
-
-    return [vectors, tokens]
-  }
-
-  async vectorizeTokens(tokens: string[], lang: string): Promise<[number[][], string[]]> {
-    const { fastTextModel } = this._models[lang] as ModelSet
-    if (!fastTextModel || !fastTextModel.loaded) {
-      throw new Error(`Model for lang '${lang}' is not loaded in memory`)
-    }
-
-    const vectors = await Promise.mapSeries(tokens, token =>
-      (fastTextModel as LoadedFastTextModel).model.queryWordVectors(token.toLowerCase())
-    )
-
-    return [vectors, tokens]
+    return tokens
   }
 }
