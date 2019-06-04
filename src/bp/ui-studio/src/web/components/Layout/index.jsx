@@ -24,11 +24,13 @@ import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import StatusBar from './StatusBar'
+import GuidedTour from './GuidedTour'
 
 class Layout extends React.Component {
   state = {
     emulatorOpen: false,
-    langSwitcherOpen: false
+    langSwitcherOpen: false,
+    guidedTourOpen: false
   }
 
   componentDidMount() {
@@ -45,6 +47,10 @@ class Layout extends React.Component {
 
   toggleEmulator = () => {
     window.botpressWebChat.sendEvent({ type: 'toggle' })
+  }
+
+  toggleGuidedTour = () => {
+    this.setState({ guidedTourOpen: !this.state.guidedTourOpen })
   }
 
   focusEmulator = e => {
@@ -122,7 +128,9 @@ class Layout extends React.Component {
             emitter={this.statusBarEmitter}
             langSwitcherOpen={this.state.langSwitcherOpen}
             toggleLangSwitcher={this.toggleLangSwitcher}
+            onToggleGuidedTour={this.toggleGuidedTour}
           />
+          <GuidedTour isDisplayed={this.state.guidedTourOpen} onToggle={this.toggleGuidedTour} />
         </div>
       </HotKeys>
     )
