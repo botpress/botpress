@@ -50,7 +50,7 @@ All of the above will really help you create more natural and pleasurable conver
 
 Once you’ve received some text from a chat platform and transformed that text into structured data, the next component to be involved is the Dialog Manager (or DM). The role of the DM is to determine what the bot should do or say next.
 
-Although the Dialog Manager could theoretically be implemented as a bunch of “If” and “Else” statements, this technique does not scale well in practice, because the unpredictability of natural sialogs increases the complexity of this kind of state machine exponentially.
+Although the Dialog Manager could theoretically be implemented as a bunch of “If” and “Else” statements, this technique does not scale well in practice, because the unpredictability of natural dialogs increases the complexity of this kind of state machine exponentially.
 
 Botpress solves this problem by combining an extensible Visual Flow Editor with a powerful Dialog Manager, which abstracts and eliminate the real complexity behind such State Machines.
 

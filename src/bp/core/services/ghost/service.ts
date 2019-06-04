@@ -222,7 +222,7 @@ export class ScopedGhostService {
     for (const path of paths) {
       const normalizedPath = this.normalizeFolderName(path)
       let currentFiles = await this.dbDriver.directoryListing(normalizedPath)
-      let newFiles = await this.diskDriver.directoryListing(normalizedPath)
+      let newFiles = await this.diskDriver.directoryListing(normalizedPath, undefined, true)
 
       if (path === './') {
         currentFiles = currentFiles.filter(x => !x.includes('/'))
@@ -245,7 +245,7 @@ export class ScopedGhostService {
   }
 
   public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
-    const allFiles = await this.directoryListing('./', '*.*', exludes)
+    const allFiles = await this.directoryListing('./', '*.*', exludes, true)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
