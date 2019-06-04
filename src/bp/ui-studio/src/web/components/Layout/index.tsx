@@ -26,7 +26,22 @@ import layout from './Layout.styl'
 import StatusBar from './StatusBar'
 import GuidedTour from './GuidedTour'
 
-class Layout extends React.Component {
+interface ILayoutProps {
+  viewModeChanged: any
+  viewMode: number
+  docModal: any
+  docHints: any
+  updateDocumentationModal: any
+  location: any
+}
+
+class Layout extends React.Component<ILayoutProps> {
+  private botpressVersion: string
+  private botName: string
+  private botId: string
+  private mainEl: HTMLElement
+  private statusBarEmitter: any
+
   state = {
     emulatorOpen: false,
     langSwitcherOpen: false,
@@ -41,7 +56,7 @@ class Layout extends React.Component {
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
     setImmediate(() => {
-      this.props.viewModeChanged(viewMode || 0)
+      this.props.viewModeChanged(Number(viewMode) || 0)
     })
   }
 
