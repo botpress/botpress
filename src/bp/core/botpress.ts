@@ -236,30 +236,31 @@ export class Botpress {
           Please delete them from workspaces.json to get rid of this warning. [${deleted.join(', ')}]`
       )
     }
-    // TODO
-    /*let bots = await this.botService.getBots()
 
-    const pipeline = await this.workspaceService.getPipeline('default')
-    if (pipeline.length > 4) {
-      this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
+    let bots = await this.botService.getBots()
+    let botConfigChanged = false
+
+    for (const workspace of await this.workspaceService.getWorkspaces()) {
+      const pipeline = await this.workspaceService.getPipeline(workspace.id)
+      if (pipeline && pipeline.length > 4) {
+        this.logger.warn(
+          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${
+            workspace.id
+          })`
+        )
+      }
+
+      if (await this._ensureBotConfigCorrect(bots, pipeline![0])) {
+        botConfigChanged = true
+      }
     }
 
-    // @deprecated > 11: bot will always include default pipeline stage & must have a default language
-    const botConfigChanged = await this._ensureBotConfigCorrect(bots, pipeline[0])
     if (botConfigChanged) {
       bots = await this.botService.getBots()
     }
 
-    const disabledBots = [...bots.values()]
-      .filter(b => {
-        const isStage0 = b.pipeline_status.current_stage.id === pipeline[0].id
-        const stageExist = pipeline.findIndex(s => s.id === b.pipeline_status.current_stage.id) !== -1
-        return b.disabled || ((!process.IS_PRO_ENABLED && !isStage0) || !stageExist)
-      })
-      .map(b => b.id)
-      const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
-      */
-    const botsToMount = _.without(botsRef, ...deleted)
+    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
+    const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
