@@ -84,10 +84,10 @@ export default class DiskStorageDriver implements StorageDriver {
       dot: options.includeDotFiles
     }
 
-    // options.excludes can either be a string or an array of strings
+    // options.excludes can either be a string or an array of strings or undefined
     if (Array.isArray(options.excludes)) {
       globOptions['ignore'] = [...options.excludes, ...ghostIgnorePatterns]
-    } else {
+    } else if (options.excludes) {
       globOptions['ignore'] = [options.excludes, ...ghostIgnorePatterns]
     }
 
