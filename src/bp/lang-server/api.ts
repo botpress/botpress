@@ -56,8 +56,8 @@ const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next
   next()
 }
 
-const assertValidLanguage = (service: LanguageService) => (_req, _res, next) => {
-  const language = _req.body.lang
+const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
+  const language = req.body.lang
 
   if (!language) {
     throw new BadRequestError(`Param 'lang' is mandatory`)
