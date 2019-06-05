@@ -9,14 +9,30 @@
   </body>
 
   <script>
+    // Initialize the chat widget
+    // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
-      botId: 'welcome-bot'
-      /*
-        To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property. 
-        This allows you to customize the chat on a per-bot basis.      
-      */
-      //extraStylesheet: '/assets/modules/channel-web/examples/my-theme.css'
+      botId: 'gordon'
     })
+
+    // Send a message on chat widget click
+    function sendMessageOnClick() {
+      const iframe = document.querySelector('#bp-widget')
+      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
+
+      widget.addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({
+          type: 'proactive-trigger',
+          channel: 'web',
+          payload: { text: 'fake message' }
+        })
+      })
+    }
+
+    // Make sure the widget is loaded
+    setTimeout(function() {
+      sendMessageOnClick()
+    }, 1500)
   </script>
 </html>

@@ -66,7 +66,7 @@ Use this code in your `index.html`:
     })
 
     // Send the event
-    const sendEvent = () => {
+    function sendEvent() {
       window.botpressWebChat.sendEvent({
         type: 'proactive-trigger',
         channel: 'web',
@@ -75,7 +75,9 @@ Use this code in your `index.html`:
     }
 
     // Wait for the chat to load
-    setTimeout(() => sendEvent(), 1000)
+    setTimeout(function() {
+      sendEvent()
+    }, 1000)
   </script>
 </html>
 ```
@@ -106,11 +108,11 @@ Use this code in your `index.html`:
     })
 
     // Send a message on chat widget click
-    const sendMessageOnClick = () => {
+    function sendMessageOnClick() {
       const iframe = document.querySelector('#bp-widget')
       const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
 
-      widget.addEventListener('click', () => {
+      widget.addEventListener('click', function() {
         window.botpressWebChat.sendEvent({
           type: 'proactive-trigger',
           channel: 'web',
@@ -120,7 +122,9 @@ Use this code in your `index.html`:
     }
 
     // Make sure the widget is loaded
-    setTimeout(() => sendMessageOnClick(), 1500)
+    setTimeout(function() {
+      sendMessageOnClick()
+    }, 1500)
   </script>
 </html>
 ```
