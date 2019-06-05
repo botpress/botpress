@@ -84,10 +84,6 @@ class MessagesHeader extends React.Component {
     const content = JSON.stringify(flattenMessages, null, 2)
     let blob = new Blob([content], { type: 'application/json' })
     this.fileURL = window.URL.createObjectURL(blob)
-
-    this.state = {
-      linkCopied: false
-    }
   }
 
   getLastMessageDate = messageGroups => {
@@ -121,12 +117,7 @@ class MessagesHeader extends React.Component {
           </div>
           <div className={style['message-header-icon_item']}>
             <CopyToClipboard text={window.location.href}>
-              <FiLink
-                data-tip
-                data-event="mousedown"
-                data-event-off="mouseup"
-                onClick={() => this.setState({ linkCopied: true })}
-              />
+              <FiLink data-tip data-event="mousedown" data-event-off="mouseup" />
             </CopyToClipboard>
           </div>
         </div>
