@@ -240,6 +240,12 @@ export type BotpressConfig = {
    */
   autoRevision: boolean
   eventCollector: EventCollectorConfig
+  /**
+   * Displays the "Powered by Botpress" under the webchat.
+   * Help us spread the word, enable this to show your support !
+   * @default true
+   */
+  showPoweredBy: boolean
 }
 
 export interface ExternalAuthConfig {
