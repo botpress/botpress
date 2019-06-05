@@ -1,6 +1,7 @@
 ---
-id: external-api
+id: version-11.9.2-external-api
 title: Calling an API in a Custom Action
+original_id: external-api
 ---
 
 ## Overview

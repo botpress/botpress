@@ -1,6 +1,7 @@
 ---
-id: overview
+id: version-11.9.2-overview
 title: Overview
+original_id: overview
 ---
 
 There are some concepts that you need to understand before you can build a chatbot using Botpress. On this page you will learn the most important ones and how they play together.

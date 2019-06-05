@@ -1,3 +1,34 @@
+## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
+
+
+### Bug Fixes
+
+* **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
+* **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
+* **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
+* **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
+* **qna:** remove qna file when qna is disabled ([614d66e](https://github.com/botpress/botpress/commit/614d66e))
+* **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
+
+
+### Features
+
+* **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
+
+
+
+## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
+
+
+### Bug Fixes
+
+* **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
+* **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
+* **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
+* **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
+
+
+
 # [11.9.0](https://github.com/botpress/botpress/compare/v11.8.4...v11.9.0) (2019-05-15)
 
 ### Bug Fixes
