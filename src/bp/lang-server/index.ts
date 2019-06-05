@@ -38,8 +38,8 @@ export default async function(argv: Argv) {
     limit: argv.limit,
     limitWindow: argv.limitWindow,
     readOnly: argv.readOnly,
-    service: service,
-    manager: dlManager
+    languageService: service,
+    downloadManager: dlManager
   })
 
   await dlManager.init()

@@ -13,8 +13,8 @@ import LangServer from './LangServer'
 // TODO change flag prop for for svg
 // TODO handle api/loading errors
 // TODO handle case where lang server needs a token
+// TODO add downloading data
 
-// TODO remove language
 // TODO fetch & list available languages from S3 index file + remove those already installed
 
 interface Languages {
@@ -83,7 +83,6 @@ export default () => {
               {/* TODO replace available languages by languages.available */}
               {(availableLanguages || [])
                 .filter(lang => !languages.installed.find((l: any) => l.lang == lang.code))
-                // TODO add download data
                 .map(lang => (
                   <Language
                     key={lang.code}
@@ -91,6 +90,7 @@ export default () => {
                     installed={false}
                     loaded={false}
                     allowActions={!langServerInfo.readOnly}
+                    languageSource={langSource}
                   />
                 ))}
             </div>
@@ -110,6 +110,7 @@ export default () => {
                     installed={true}
                     loaded={lang.loaded}
                     allowActions={!langServerInfo.readOnly}
+                    languageSource={langSource}
                   />
                 ))}
           </div>

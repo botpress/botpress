@@ -1,3 +1,4 @@
+import { MLToolkit } from 'botpress/sdk'
 import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
 import _ from 'lodash'
@@ -6,8 +7,7 @@ import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
 
-import { ModelSet, AvailableModel, LoadedFastTextModel, LoadedBPEModel, ModelFileInfo } from './typing'
-import { MLToolkit } from 'botpress/sdk'
+import { AvailableModel, LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
@@ -213,5 +213,15 @@ export default class LanguageService {
     )
 
     return [vectors, tokens]
+  }
+
+  // TODO we might want to add a storage service
+  remove(lang: string) {
+    fs.readdirSync(this.langDir)
+      .filter(file => file.includes(`.${lang}.`))
+      .map(file => path.join(this.langDir, file))
+      .map(fs.unlinkSync)
+
+    delete this._models[lang]
   }
 }

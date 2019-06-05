@@ -1,5 +1,8 @@
+import Axios from 'axios'
 import React, { FC } from 'react'
 import { Button } from 'reactstrap'
+
+import { LanguageSource } from './typings'
 
 interface Props {
   language: {
@@ -10,9 +13,15 @@ interface Props {
   installed: boolean
   allowActions: boolean
   loaded: boolean
+  languageSource: LanguageSource
 }
 
 const Language: FC<Props> = props => {
+  const deleteLanguage = async () => {
+    // TODO use auth token if necessary  ==> generage api client for this
+    await Axios.delete(`${props.languageSource.endpoint}/languages/${props.language.code}`)
+  }
+
   return (
     <div className='language'>
       <span>
@@ -31,7 +40,7 @@ const Language: FC<Props> = props => {
           </Button>
         )}
         {props.allowActions && props.loaded && (
-          <Button size='sm' color='primary' outline>
+          <Button size='sm' color='primary' outline onClick={deleteLanguage}>
             Remove
           </Button>
         )}
