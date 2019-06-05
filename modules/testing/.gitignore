@@ -1,0 +1,7 @@
+/bin
+/node_modules
+/dist
+/assets/web/
+/assets/config.schema.json
+botpress.d.ts
+global.d.ts

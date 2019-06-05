@@ -80,7 +80,7 @@ class Message extends Component {
   }
 
   render_unsupported() {
-    return this.render_text('*Unsupported message type*')
+    return '*Unsupported message type*'
   }
 
   render() {

@@ -1,0 +1,22 @@
+{
+  "name": "testing",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "react-icons": "^3.6.1"
+  }
+}

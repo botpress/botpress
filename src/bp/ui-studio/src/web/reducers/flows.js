@@ -293,14 +293,14 @@ reducer = reduceReducers(
   reducer,
   handleActions(
     {
-      [renameFlow]: (state, { payload }) => ({
+      [renameFlow]: (state, { payload : { targetFlow, name } }) => ({
         ...state,
         flowsByName: doRenameFlow({
-          flow: state.currentFlow,
-          name: payload,
+          flow: targetFlow,
+          name,
           flows: _.values(state.flowsByName)
         }),
-        currentFlow: payload
+        currentFlow: name
       }),
 
       [updateFlow]: (state, { payload }) => {
@@ -350,7 +350,7 @@ reducer = reduceReducers(
 
       [deleteFlow]: (state, { payload: name }) => ({
         ...state,
-        currentFlow: state.currentFlow === name ? null : state.currentFlow,
+        currentFlow: state.currentFlow === name ? 'main.flow.json' : state.currentFlow,
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
         flowsByName: _.omit(state.flowsByName, name)
       }),
@@ -465,7 +465,7 @@ reducer = reduceReducers(
         const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
         const needsUpdate = name => name === (currentNode || {}).name && payload.name
 
-        const updateCatchAllNodeName = elements =>
+        const updateNodeName = elements =>
           elements.map(element => {
             return {
               ...element,
@@ -484,18 +484,15 @@ reducer = reduceReducers(
                 if (node.id !== state.currentFlowNode) {
                   return {
                     ...node,
-                    next: node.next.map(transition => ({
-                      ...transition,
-                      node: needsUpdate(transition.node) ? payload.name : transition.node
-                    }))
+                    next: node.next && updateNodeName(node.next)
                   }
                 }
 
                 return { ...node, ...payload, lastModified: new Date() }
               }),
               catchAll: {
-                next: currentFlow.catchAll.next && updateCatchAllNodeName(currentFlow.catchAll.next),
-                onReceive: currentFlow.catchAll.onReceive && updateCatchAllNodeName(currentFlow.catchAll.onReceive)
+                ...currentFlow.catchAll,
+                next: currentFlow.catchAll.next && updateNodeName(currentFlow.catchAll.next)
               }
             }
           }

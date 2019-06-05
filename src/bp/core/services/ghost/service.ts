@@ -147,12 +147,12 @@ export class ScopedGhostService {
     this.primaryDriver = useDbDriver ? dbDriver : diskDriver
   }
 
-  private normalizeFolderName(rootFolder: string) {
+  private _normalizeFolderName(rootFolder: string) {
     return forceForwardSlashes(path.join(this.baseDir, rootFolder))
   }
 
-  private normalizeFileName(rootFolder: string, file: string) {
-    return forceForwardSlashes(path.join(this.normalizeFolderName(rootFolder), file))
+  private _normalizeFileName(rootFolder: string, file: string) {
+    return forceForwardSlashes(path.join(this._normalizeFolderName(rootFolder), file))
   }
 
   objectCacheKey = str => `string::${str}`
@@ -164,13 +164,13 @@ export class ScopedGhostService {
   }
 
   async invalidateFile(rootFolder: string, fileName: string): Promise<void> {
-    const filePath = this.normalizeFileName(rootFolder, fileName)
+    const filePath = this._normalizeFileName(rootFolder, fileName)
     await this._invalidateFile(filePath)
   }
 
   async ensureDirs(rootFolder: string, directories: string[]): Promise<void> {
     if (!this.useDbDriver) {
-      await Promise.mapSeries(directories, d => this.diskDriver.createDir(this.normalizeFileName(rootFolder, d)))
+      await Promise.mapSeries(directories, d => this.diskDriver.createDir(this._normalizeFileName(rootFolder, d)))
     }
   }
 
@@ -179,7 +179,7 @@ export class ScopedGhostService {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
-    const fileName = this.normalizeFileName(rootFolder, file)
+    const fileName = this._normalizeFileName(rootFolder, file)
 
     if (content.length > MAX_GHOST_FILE_SIZE) {
       throw new Error(`The size of the file ${fileName} is over the 20mb limit`)
@@ -194,8 +194,9 @@ export class ScopedGhostService {
     await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
-  /** All tracked directories will be synced
-   * Directories are tracked by default, unless a `.noghost` file is present in the directory
+  /**
+   * All tracked files will be synced.
+   * All files are tracked by default, unless `.ghostignore` is used to exclude them.
    */
   async sync() {
     if (!this.useDbDriver) {
@@ -203,7 +204,8 @@ export class ScopedGhostService {
       return
     }
 
-    const paths = await this.diskDriver.discoverTrackableFolders(this.normalizeFolderName('./'))
+    // Get files from disk that should be ghosted
+    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
 
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
@@ -219,36 +221,26 @@ export class ScopedGhostService {
       return
     }
 
-    for (const path of paths) {
-      const normalizedPath = this.normalizeFolderName(path)
-      let currentFiles = await this.dbDriver.directoryListing(normalizedPath)
-      let newFiles = await this.diskDriver.directoryListing(normalizedPath)
+    // Delete the ghosted files that has been deleted from disk
+    const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
+    const filesToDelete = _.difference(ghostedFiles, trackedFiles)
+    await Promise.map(filesToDelete, filePath =>
+      this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
+    )
 
-      if (path === './') {
-        currentFiles = currentFiles.filter(x => !x.includes('/'))
-        newFiles = newFiles.filter(x => !x.includes('/'))
-      }
-
-      // We delete files that have been deleted from disk
-      for (const file of _.difference(currentFiles, newFiles)) {
-        const filePath = this.normalizeFileName(path, file)
-        await this.dbDriver.deleteFile(filePath, false)
-      }
-
-      // We now update files in DB by those on the disk
-      for (const file of newFiles) {
-        const filePath = this.normalizeFileName(path, file)
-        const content = await this.diskDriver.readFile(filePath)
-        await this.dbDriver.upsertFile(filePath, content, false)
-      }
-    }
+    // Overwrite all of the ghosted files with the tracked files
+    await Promise.each(trackedFiles, async file => {
+      const filePath = this._normalizeFileName('./', file)
+      const content = await this.diskDriver.readFile(filePath)
+      await this.dbDriver.upsertFile(filePath, content, false)
+    })
   }
 
   public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
-    const allFiles = await this.directoryListing('./', '*.*', exludes)
+    const allFiles = await this.directoryListing('./', '*.*', exludes, true)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
-      const content = await this.primaryDriver.readFile(this.normalizeFileName('./', file))
+      const content = await this.primaryDriver.readFile(this._normalizeFileName('./', file))
       const outPath = path.join(directory, file)
       mkdirp.sync(path.dirname(outPath))
       await fse.writeFile(outPath, content)
@@ -307,7 +299,7 @@ export class ScopedGhostService {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
-    const fileName = this.normalizeFileName(rootFolder, file)
+    const fileName = this._normalizeFileName(rootFolder, file)
     const cacheKey = this.bufferCacheKey(fileName)
 
     if (!(await this.cache.has(cacheKey))) {
@@ -324,7 +316,7 @@ export class ScopedGhostService {
   }
 
   async readFileAsObject<T>(rootFolder: string, file: string): Promise<T> {
-    const fileName = this.normalizeFileName(rootFolder, file)
+    const fileName = this._normalizeFileName(rootFolder, file)
     const cacheKey = this.objectCacheKey(fileName)
 
     if (!(await this.cache.has(cacheKey))) {
@@ -338,7 +330,7 @@ export class ScopedGhostService {
   }
 
   async fileExists(rootFolder: string, file: string): Promise<boolean> {
-    const fileName = this.normalizeFileName(rootFolder, file)
+    const fileName = this._normalizeFileName(rootFolder, file)
     try {
       await this.primaryDriver.readFile(fileName)
       return true
@@ -352,10 +344,17 @@ export class ScopedGhostService {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
-    const fileName = this.normalizeFileName(rootFolder, file)
+    const fileName = this._normalizeFileName(rootFolder, file)
     await this.primaryDriver.deleteFile(fileName, true)
     this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
+  }
+
+  async renameFile(rootFolder: string, fromName: string, toName: string): Promise<void> {
+    const fromPath = this._normalizeFileName(rootFolder, fromName)
+    const toPath = this._normalizeFileName(rootFolder, toName)
+
+    await this.primaryDriver.moveFile(fromPath, toPath)
   }
 
   async deleteFolder(folder: string): Promise<void> {
@@ -363,19 +362,24 @@ export class ScopedGhostService {
       throw new Error(`Ghost can't read or write under this scope`)
     }
 
-    const folderName = this.normalizeFolderName(folder)
+    const folderName = this._normalizeFolderName(folder)
     await this.primaryDriver.deleteDir(folderName)
   }
 
   async directoryListing(
     rootFolder: string,
     fileEndingPattern: string = '*.*',
-    exludes?: string | string[]
+    excludes?: string | string[],
+    includeDotFiles?: boolean
   ): Promise<string[]> {
     try {
-      const files = await this.primaryDriver.directoryListing(this.normalizeFolderName(rootFolder), exludes)
+      const files = await this.primaryDriver.directoryListing(this._normalizeFolderName(rootFolder), {
+        excludes,
+        includeDotFiles
+      })
+
       return (files || []).filter(
-        minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false })
+        minimatch.filter(fileEndingPattern, { matchBase: true, nocase: true, noglobstar: false, dot: includeDotFiles })
       )
     } catch (err) {
       if (err && err.message && err.message.includes('ENOENT')) {

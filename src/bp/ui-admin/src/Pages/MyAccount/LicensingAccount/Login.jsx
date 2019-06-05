@@ -17,17 +17,22 @@ class Login extends Component {
         <Jumbotron>
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
+              <h2>Botpress Licensing</h2>
               <p>
-                Login to your botpress account to buy and manage license keys. License keys are necessary to enable
-                Professionnal Edition features like role-based access management, cluster deployement & more. For more
-                information head to <a href="https://botpress.io/pricing">our website</a>
+                To buy and manage license keys, you need to login to your botpress licensing account. If you don't have
+                a licensing account, just hit the login button below, it'll create the account for you.
+              </p>
+              <p>
+                License keys are necessary to enable Professionnal Edition features like role-based access management,
+                cluster deployement & more. For more information head to{' '}
+                <a href="https://botpress.io/pricing">botpress website</a>
               </p>
             </Col>
           </Row>
           <Row>
             <Col style={{ textAlign: 'center' }}>
-              <Button onClick={this.toggleLoginModal} color="primary" size="sm">
-                Login to botpress
+              <Button onClick={this.toggleLoginModal} color="primary">
+                Login to licensing
               </Button>
             </Col>
           </Row>

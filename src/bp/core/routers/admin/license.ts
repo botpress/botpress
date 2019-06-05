@@ -33,7 +33,7 @@ export class LicenseRouter extends CustomRouter {
 
         // Only SuperAdmins can see the details of the server's license
         const clusterFingerprint = await svc.getFingerprint('cluster_url')
-        const machineFingerprint = await svc.getFingerprint('machine_v1')
+
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
@@ -41,10 +41,10 @@ export class LicenseRouter extends CustomRouter {
 
         return sendSuccess(res, 'License status', {
           fingerprints: {
-            machine_v1: machineFingerprint,
             cluster_url: clusterFingerprint
           },
           isPro: true,
+          builtWithPro: process.IS_PRO_AVAILABLE,
           license: info,
           ...status
         })

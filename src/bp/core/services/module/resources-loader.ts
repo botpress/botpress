@@ -1,12 +1,27 @@
 import { Logger } from 'botpress/sdk'
 import crypto from 'crypto'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import os from 'os'
 import path from 'path'
 
 import { GhostService } from '../ghost/service'
 
+const debug = DEBUG('initialization')
+  .sub('modules')
+  .sub('resources')
+
 const CHECKSUM = '//CHECKSUM:'
+
+/**
+ * Files starting with a dot are disabled. This prefix means it was automatically disabled and
+ * will be automatically re-enabled when the corresponding module is enabled in the future
+ */
+const DISABLED_PREFIX = '.__'
+interface ModuleMigrationInstruction {
+  /** exact name of the files to delete (path is relative to the migration file) */
+  filesToDelete: string[]
+}
 
 /** Describes a resource that the module will export to the data folder */
 interface ResourceExportPath {
@@ -21,12 +36,24 @@ interface ResourceExportPath {
 
 export class ModuleResourceLoader {
   private exportPaths: ResourceExportPath[] = []
+  private globalPaths: string[]
+  private hookMatcher: RegExp
 
   private get modulePath(): string {
     return process.LOADED_MODULES[this.moduleName]
   }
 
-  constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {}
+  constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {
+    this.globalPaths = [`/actions/${this.moduleName}`, `/content-types/${this.moduleName}`]
+    this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}/`)
+  }
+
+  async runMigrations() {
+    const mfile = `${this.modulePath}/migrations.json`
+    if (fse.existsSync(mfile)) {
+      await this._executeMigration(mfile)
+    }
+  }
 
   async importResources() {
     this.exportPaths = [
@@ -49,6 +76,44 @@ export class ModuleResourceLoader {
     ]
 
     await this._loadModuleResources()
+  }
+
+  async enableResources() {
+    const ghost = this.ghost.global()
+
+    for (const path of this.globalPaths) {
+      const files = await ghost.directoryListing(path, undefined, undefined, true)
+      await Promise.all(
+        files
+          .filter(name => name.startsWith(DISABLED_PREFIX))
+          .map(file => ghost.renameFile(path, file, file.replace(DISABLED_PREFIX, '')))
+      )
+    }
+
+    const hooks = await ghost.directoryListing('/hooks', undefined, undefined, true)
+    await Promise.all(
+      hooks
+        .filter(f => this.hookMatcher.test(f) && path.basename(f).startsWith(DISABLED_PREFIX))
+        .map(f =>
+          ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), path.basename(f).replace(DISABLED_PREFIX, ''))
+        )
+    )
+  }
+
+  async disableResources() {
+    const ghost = this.ghost.global()
+
+    for (const path of this.globalPaths) {
+      const files = await ghost.directoryListing(path)
+      await Promise.all(files.map(file => ghost.renameFile(path, file, DISABLED_PREFIX + file)))
+    }
+
+    const hooks = await ghost.directoryListing('/hooks')
+    await Promise.all(
+      hooks
+        .filter(file => this.hookMatcher.test(file))
+        .map(f => ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), DISABLED_PREFIX + path.basename(f)))
+    )
   }
 
   private async isSymbolicLink(filePath) {
@@ -94,20 +159,23 @@ export class ModuleResourceLoader {
     }
   }
 
+  @WrapErrorsWith('Error copying module ressources')
   private async _updateOutdatedFiles(src, dest): Promise<void> {
     const files = fse.readdirSync(src)
 
     for (const file of files) {
       const from = path.join(src, file)
       const to = path.join(dest, file)
-      const isNewFile = !(await this.ghost.global().fileExists('/', to))
-      const isModified = isNewFile || (await this._isModified(to))
 
-      if (isNewFile || !isModified) {
-        await this.ghost.global().upsertFile('/', to, fse.readFileSync(from))
-        await this._addHashToFile(to)
+      const isNewFile = !(await this.ghost.global().fileExists('/', to))
+      const ressourceHasChanged = await this.ressourceHasChanged(from, to)
+      const fileHasBeenManuallyUpdated = isNewFile || (await this.userHasManuallyChangedFile(to))
+      if (isNewFile || (ressourceHasChanged && !fileHasBeenManuallyUpdated)) {
+        debug('adding missing file "%s"', file)
+        const contentWithHash = await this._getRessourceContentWithHash(from)
+        await this.ghost.global().upsertFile('/', to, contentWithHash)
       } else {
-        this.logger.debug(`File ${file} has been changed manually, skipping...`)
+        debug('not copying file "%s" because it has been changed manually', file)
       }
     }
   }
@@ -119,12 +187,28 @@ export class ModuleResourceLoader {
       .digest('hex')
   }
 
+  private ressourceHasChanged = async (ressourceFilePath: string, destinationFilePath: string) => {
+    try {
+      const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
+      const destinationContent = await this.ghost.global().readFileAsString('/', destinationFilePath)
+      const lines = destinationContent.split(os.EOL)
+      const firstLine = lines[0]
+
+      if (firstLine.indexOf(CHECKSUM) === 0) {
+        return this._calculateHash(ressourceContent) !== firstLine.substring(CHECKSUM.length)
+      }
+    } catch (err) {
+      return true
+    }
+    return true
+  }
+
   /**
    * Checks if there is a checksum on the first line of the file,
    * and uses it to verify if there has been any manual changes in the file's content
    * @param filename
    */
-  private _isModified = async filename => {
+  private userHasManuallyChangedFile = async filename => {
     const file = await this.ghost.global().readFileAsString('/', filename)
     const lines = file.split(os.EOL)
     const firstLine = lines[0]
@@ -141,10 +225,32 @@ export class ModuleResourceLoader {
    * Calculates the hash for the file's content, then adds a comment on the first line with the result
    * @param filename
    */
-  private _addHashToFile = async filename => {
-    const fileContent = await this.ghost.global().readFileAsString('/', filename)
-    await this.ghost
-      .global()
-      .upsertFile('/', filename, `${CHECKSUM}${this._calculateHash(fileContent)}${os.EOL}${fileContent}`)
+  private _getRessourceContentWithHash = async ressourceFilePath => {
+    const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
+    const hash = this._calculateHash(ressourceContent)
+    return `${CHECKSUM}${hash}${os.EOL}${ressourceContent}`
+  }
+
+  @WrapErrorsWith(args => `Error in migration script "${args[0]}".`)
+  private async _executeMigration(migrationsFile: string) {
+    const content: ModuleMigrationInstruction[] = JSON.parse(fse.readFileSync(migrationsFile, 'utf8'))
+    if (!content) {
+      throw new Error(`Expected a valid JSON object.`)
+    }
+
+    for (const migration of content) {
+      if (!Array.isArray(migration.filesToDelete)) {
+        continue
+      }
+
+      for (const fileToDelete of migration.filesToDelete) {
+        if (await this.ghost.global().fileExists('/', fileToDelete)) {
+          debug('migration deleted file "%s"', fileToDelete)
+          await this.ghost.global().deleteFile('/', fileToDelete)
+        } else {
+          debug('not deleting file "%s", reason: not found', fileToDelete)
+        }
+      }
+    }
   }
 }

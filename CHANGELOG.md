@@ -1,22 +1,76 @@
-## [11.8.4](https://github.com/botpress/botpress/compare/v11.8.3...v11.8.4) (2019-04-30)
+## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
 
 
 ### Bug Fixes
 
-* **channel-web:** added cookie fallback ([109f5f3](https://github.com/botpress/botpress/commit/109f5f3))
-* **channel-web:** starting new convo when not found ([182b2d8](https://github.com/botpress/botpress/commit/182b2d8))
-* jump to timeout node ([3a00dc7](https://github.com/botpress/botpress/commit/3a00dc7))
-* missing typing in sdk ([ff18810](https://github.com/botpress/botpress/commit/ff18810))
-* timeout fake event ([dc16c5b](https://github.com/botpress/botpress/commit/dc16c5b))
-* **nlu:** training seq to use multiple entities ([d4c1947](https://github.com/botpress/botpress/commit/d4c1947))
+* **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
+* **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
+* **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
+* **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
+* **qna:** remove qna file when qna is disabled ([614d66e](https://github.com/botpress/botpress/commit/614d66e))
+* **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
 
 
 ### Features
 
-* **dialog-engine:** set channel name dinamically ([e86ca6d](https://github.com/botpress/botpress/commit/e86ca6d))
-* **nlu:** exact intent matcher given utterance ([3b1a2fe](https://github.com/botpress/botpress/commit/3b1a2fe))
+* **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
 
 
+
+## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
+
+
+### Bug Fixes
+
+* **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
+* **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
+* **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
+* **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
+
+
+
+# [11.9.0](https://github.com/botpress/botpress/compare/v11.8.4...v11.9.0) (2019-05-15)
+
+### Bug Fixes
+
+- **core:** added red-hat binaries ([1304306](https://github.com/botpress/botpress/commit/1304306))
+- slot modal not loading when editing ([b1cc881](https://github.com/botpress/botpress/commit/b1cc881))
+- **core:** module extraction ([f2d1c9d](https://github.com/botpress/botpress/commit/f2d1c9d))
+- **core:** passing more ENV to hooks and actions ([142acb7](https://github.com/botpress/botpress/commit/142acb7))
+- **core:** unpacker fall back to move if rename fails ([7aa7e01](https://github.com/botpress/botpress/commit/7aa7e01))
+- **docker:** duckling run cmd ([6528f1f](https://github.com/botpress/botpress/commit/6528f1f))
+- **docker:** fixed user permissions ([df42b69](https://github.com/botpress/botpress/commit/df42b69))
+- **ghost:** added method to rename file & fix dir listing with dot ([9581ee0](https://github.com/botpress/botpress/commit/9581ee0))
+- **module:** added permissions for modules ([3d2d92d](https://github.com/botpress/botpress/commit/3d2d92d))
+- **modules:** disabling module resources when parent mod is disabled ([701af91](https://github.com/botpress/botpress/commit/701af91))
+- **redis:** switch from node-redis to ioredis ([9c1239d](https://github.com/botpress/botpress/commit/9c1239d))
+- **skills:** fixed slot extraction skill ([f5cd610](https://github.com/botpress/botpress/commit/f5cd610))
+- **ui-studio:** better disabled toolbar items ([42f1ac3](https://github.com/botpress/botpress/commit/42f1ac3))
+
+### Features
+
+- **admin:** white label / custom css ([1b194a7](https://github.com/botpress/botpress/commit/1b194a7))
+- **channel-web:** internationalization ([43b4ff1](https://github.com/botpress/botpress/commit/43b4ff1))
+- **code-editor:** Edit actions directly in the studio ([4e11d2d](https://github.com/botpress/botpress/commit/4e11d2d))
+- **sdk:** added method to enable or disable hooks (beta) ([39050d0](https://github.com/botpress/botpress/commit/39050d0))
+- add reset slot action ([345d90f](https://github.com/botpress/botpress/commit/345d90f))
+- conversation scenarios ([3980987](https://github.com/botpress/botpress/commit/3980987))
+
+## [11.8.4](https://github.com/botpress/botpress/compare/v11.8.3...v11.8.4) (2019-04-30)
+
+### Bug Fixes
+
+- **channel-web:** added cookie fallback ([109f5f3](https://github.com/botpress/botpress/commit/109f5f3))
+- **channel-web:** starting new convo when not found ([182b2d8](https://github.com/botpress/botpress/commit/182b2d8))
+- jump to timeout node ([3a00dc7](https://github.com/botpress/botpress/commit/3a00dc7))
+- missing typing in sdk ([ff18810](https://github.com/botpress/botpress/commit/ff18810))
+- timeout fake event ([dc16c5b](https://github.com/botpress/botpress/commit/dc16c5b))
+- **nlu:** training seq to use multiple entities ([d4c1947](https://github.com/botpress/botpress/commit/d4c1947))
+
+### Features
+
+- **dialog-engine:** set channel name dinamically ([e86ca6d](https://github.com/botpress/botpress/commit/e86ca6d))
+- **nlu:** exact intent matcher given utterance ([3b1a2fe](https://github.com/botpress/botpress/commit/3b1a2fe))
 
 ## [11.8.3](https://github.com/botpress/botpress/compare/v11.8.2...v11.8.3) (2019-04-26)
 

@@ -1,6 +1,6 @@
 # Configuration for probot-stale - https://github.com/probot/stale
 
-daysUntilStale: 60
+daysUntilStale: 180
 daysUntilClose: 30
 
 # Issues or Pull Requests with these labels will never be considered stale. Set to `[]` to disable

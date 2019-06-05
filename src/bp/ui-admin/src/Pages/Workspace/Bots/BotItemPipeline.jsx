@@ -47,29 +47,29 @@ export default ({
             <MdModeEdit />
             &nbsp;Edit in studio
           </DropdownItem>
-          <DropdownItem disabled={bot.locked} onClick={() => history.push(`/bot/${bot.id}/details`)}>
-            <FaCog />
-            &nbsp;Configs
-          </DropdownItem>
-          <DropdownItem onClick={createRevision}>
-            <MdBackup />
-            &nbsp;Create revision
-          </DropdownItem>
-          <DropdownItem onClick={rollback}>
-            <MdReplay />
-            &nbsp;Rollback
-          </DropdownItem>
+          {allowStageChange && (
+            <DropdownItem onClick={requestStageChange}>
+              <MdSkipNext />
+              &nbsp;Promote to next stage
+            </DropdownItem>
+          )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
+            <DropdownItem disabled={bot.locked} onClick={() => history.push(`/bot/${bot.id}/details`)}>
+              <FaCog />
+              &nbsp;Configs
+            </DropdownItem>
+            <DropdownItem onClick={createRevision}>
+              <MdBackup />
+              &nbsp;Create revision
+            </DropdownItem>
+            <DropdownItem onClick={rollback}>
+              <MdReplay />
+              &nbsp;Rollback
+            </DropdownItem>
             <DropdownItem onClick={exportBot}>
               <MdArchive />
               &nbsp;Export
             </DropdownItem>
-            {allowStageChange && (
-              <DropdownItem onClick={requestStageChange}>
-                <MdSkipNext />
-                &nbsp;Promote to next stage
-              </DropdownItem>
-            )}
             <DropdownItem onClick={deleteBot}>
               <MdDelete />
               &nbsp;Delete

@@ -114,6 +114,7 @@ export class Botpress {
 
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
+    await this.cleanDisabledModules()
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
@@ -131,7 +132,7 @@ export class Botpress {
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
       appSecret = nanoid(40)
-      this.configProvider.mergeBotpressConfig({ appSecret })
+      await this.configProvider.mergeBotpressConfig({ appSecret })
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
@@ -197,6 +198,11 @@ export class Botpress {
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
     const botsRef = await this.workspaceService.getBotRefs()
+
+    for (const botId of botsRef) {
+      await this.ghostService.forBot(botId).sync()
+    }
+
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
     const deleted = _.difference(botsRef, botsIds)
@@ -320,7 +326,7 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
-    this.dataRetentionService.initialize()
+    await this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = (err, hideStack?) => {
@@ -378,6 +384,13 @@ export class Botpress {
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {
     const loadedModules = await this.moduleLoader.loadModules(modules)
     this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
+  }
+
+  private async cleanDisabledModules() {
+    const config = await this.configProvider.getBotpressConfig()
+    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+
+    await this.moduleLoader.disableModuleResources(disabledModules)
   }
 
   private async startServer() {

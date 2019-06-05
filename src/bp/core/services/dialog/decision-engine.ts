@@ -129,12 +129,16 @@ export class DecisionEngine {
     }
   }
 
-  private async _sendSuggestion(reply: IO.Suggestion, sessionId, event): Promise<SendSuggestionResult> {
+  private async _sendSuggestion(
+    reply: IO.Suggestion,
+    sessionId,
+    event: IO.IncomingEvent
+  ): Promise<SendSuggestionResult> {
     const payloads = _.filter(reply.payloads, p => p.type !== 'redirect')
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
-      await this.eventEngine.replyToEvent(event, payloads)
+      await this.eventEngine.replyToEvent(event, payloads, event.id)
 
       const message: IO.DialogTurnHistory = {
         eventId: event.id,
@@ -148,7 +152,6 @@ export class DecisionEngine {
       result.executeFlows = false
       event.state.session.lastMessages.push(message)
 
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       await this.stateManager.persist(event, true)
     }
 
@@ -158,10 +161,14 @@ export class DecisionEngine {
       result.executeFlows = true
     }
 
+    if (!result.executeFlows) {
+      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+    }
+
     return result
   }
 
-  private async _sendErrorMessage(event) {
+  private async _sendErrorMessage(event: IO.Event) {
     const config = await this.configProvider.getBotConfig(event.botId)
     const element = _.get(config, 'dialog.error.args', {
       text: "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
@@ -171,6 +178,6 @@ export class DecisionEngine {
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
     const payloads = await this.cms.renderElement(contentType, element, eventDestination)
 
-    await this.eventEngine.replyToEvent(event, payloads)
+    await this.eventEngine.replyToEvent(event, payloads, event.id)
   }
 }

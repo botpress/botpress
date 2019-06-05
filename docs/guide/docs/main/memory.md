@@ -3,7 +3,63 @@ id: memory
 title: Memory
 ---
 
-In the course of a conversation, you may want to ask questions to the user, and remember his answer to use it later. There are four different kind of memories in Botpress; the difference between each of them is the duration and the scope.
+In the course of a conversation, you may want to ask questions to the user, and remember his answers to use it later.  You may also want to access the values of system parameters such as the values of the slots that were just extracted.
+
+
+## System Parameters
+When a user engages with a bot, Botpress tracks all the variables and parameters associated with that bot as the bot transitions from one state to another.  If you run the emulator you will see the tree of all the system parameters that it tracks.  
+
+You can access these system parameters from the flow builder and from within your code (including in Actions).  To do so, all you need to do to reference a parameter by prefixing the path shown in the emulator with “event.”.
+
+For example, the path shown in the emulator to the language parameter is nlu.language.  You can reference that parameter by adding “event.” to the path shown in the emulator i.e. event.nlu.language.  
+
+[NLU Language Emulator]
+
+
+In the Flow Editor you can access system parameters by bracketing them with two sets of curly brackets.  
+
+For example in a message you could say:
+
+The bot's language is {{event.nlu.language}}.  
+
+[NLU Language Message]
+
+
+You can also set variables to be the value of a system parameter as follows:
+
+[NLU Language Set Variable]
+
+
+For raw expressions or for code (such as in Actions) you don't need the curly brackets.  
+
+Here is an example of a raw expression in a transition:
+
+[NLU Language Raw Expression]
+
+
+Here is a code example:
+
+[NLU Language Code]
+
+
+In the same way as described above, it would be possible to access the values of extracted slots by copying the path from the emulator and prefixing it with "event." i.e. {{state.session.extractedSlots.food.value}} in the flow builder and state.session.extractedSlots.food.value in code. "food" is a slot that was set up intent by the bot builder.
+
+[Slot Extraction Emulator]
+
+
+As is possible in Javascript, it is also possible to access the parameters with the following systax:
+
+{{state.session.extractedSlots["food"].value}}
+
+System Parameters that do not appear in the emulator that may be useful to bot builders are:
+
+event.payload.text  - this returns the text just input by the user
+
+[??? and what else?]
+
+## Variables
+
+There are four different kind of memories in Botpress; the difference between each of them is the duration and the scope.
 
 - `user` memory is kept forever for the user it is associated with.
 - `session` memory is kept for the duration of the configured session (more on that below).
@@ -12,11 +68,38 @@ In the course of a conversation, you may want to ask questions to the user, and 
 
 ## Common Use Case
 
-Most of the time, you will rely on the `user` and `temp` type of memory. The temp memory is only alive for the duration of a flow,
+Most of the time, you will rely on the `user` and `temp` type of memory. The temp memory is only alive for the duration of a flow.
+
+## Setting and accessing variables
+
+Variables can be set up or declared either by using the Set Variable action (see Dialog Memory section below) or in code.  When using the dialog for the Set Variable action the variable is set up and assigned a value.
+
+In code the variable is declared simply using it.  For example if you type 
+
+**temp.user_name = "John"**
+
+in code, the variable temp.user_name will be created and set to the value "John".
+
+As with system parameters (see System Parameters section), variables can be accessed in the flow builder and the Set Variable dialog by bracketing the variables with double curly brackets as follows:
+
+{{temp.user_name}}
+
+[User Name Message]
+
+
+In code or raw expresssions the reference to the variable would not need the double curly brackets.
+
+For example the variable would be referenced as:
+
+temp.user_name
+
+[User Name Code]
+
+
 
 ## Dialog Memory
 
-The Dialog Memory is how your bot will remember things in the context of a conversation. The way you can store and retrieve data is by using Actions inside the flows. There are four types of memory available: **user**, **session**, **temp** and **bot**
+The Dialog Memory is how your bot will remember things in the context of a conversation. The way you can store and retrieve data is by using Actions inside the flows. There are four types of memory available: **user**, **session**, **temp** and **bot**.  The value of type in the Set Variable user interface must be set to one of these four types.
 
 You can consume a memory action just like any other action from the Botpress Flow Editor.
 
@@ -94,7 +177,7 @@ There are two different ways to edit these 4 different types of data. The most s
 
 Another common use is using actions. Actions allows you to edit these variables directly. For example, you could write `user.firstname = 'potato'` in your code file to update the user's name.
 
-Please check out the [Custom Code](./code#actions) section for more details about this.
+Please check out the [Custom Code](code#actions) section for more details about this.
 
 ## General Storage
 

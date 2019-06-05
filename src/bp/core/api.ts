@@ -21,6 +21,7 @@ import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { ScopedGhostService } from './services/ghost/service'
+import { HookService } from './services/hook/hook-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
@@ -28,7 +29,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { TYPES } from './types'
 
-const http = (httpServer: HTTPServer): typeof sdk.http => {
+const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
     createShortLink(name: string, destination: string, params?: any): void {
       httpServer.createShortLink(name, destination, params)
@@ -38,7 +39,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
     },
     createRouterForBot(routerName: string, options?: sdk.RouterOptions): any & sdk.http.RouterExtension {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
-      return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
+      return httpServer.createRouterForBot(routerName, identity, options || defaultRouterOptions)
     },
     deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
@@ -62,8 +63,8 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
-    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[]): void {
-      eventEngine.replyToEvent(eventDestination, payloads)
+    replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string): void {
+      eventEngine.replyToEvent(eventDestination, payloads, incomingEventId)
     }
   }
 }
@@ -203,6 +204,13 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
   }
 }
 
+const experimental = (hookService: HookService): typeof sdk.experimental => {
+  return {
+    disableHook: hookService.disableHook.bind(hookService),
+    enableHook: hookService.enableHook.bind(hookService)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -216,7 +224,7 @@ export class RealTimeAPI implements RealTimeAPI {
 
 @injectable()
 export class BotpressAPIProvider {
-  http: typeof sdk.http
+  http: (owner: string) => typeof sdk.http
   events: typeof sdk.events
   dialog: typeof sdk.dialog
   config: typeof sdk.config
@@ -229,6 +237,7 @@ export class BotpressAPIProvider {
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
   mlToolkit: typeof sdk.MLToolkit
+  experimental: typeof sdk.experimental
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -246,7 +255,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
-    @inject(TYPES.MediaService) mediaService: MediaService
+    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.HookService) hookService: HookService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine)
@@ -261,10 +271,11 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
+    this.experimental = experimental(hookService)
   }
 
   @Memoize()
-  async create(loggerName: string): Promise<typeof sdk> {
+  async create(loggerName: string, owner: string): Promise<typeof sdk> {
     return {
       version: '',
       RealTimePayload: RealTimePayload,
@@ -278,7 +289,7 @@ export class BotpressAPIProvider {
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
-      http: this.http,
+      http: this.http(owner),
       logger: await this.loggerProvider(loggerName),
       config: this.config,
       database: this.database,
@@ -288,25 +299,26 @@ export class BotpressAPIProvider {
       notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
-      cms: this.cms
+      cms: this.cms,
+      experimental: this.experimental
     }
   }
 }
 
 export function createForModule(moduleId: string): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`, `module.${moduleId}`)
 }
 
 export function createForGlobalHooks(): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`, 'hooks')
 }
 
 export function createForBotpress(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`)
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`, 'botpress')
 }
 
 export function createForAction(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Actions')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Actions', 'actions')
 }

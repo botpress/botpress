@@ -1,0 +1,42 @@
+.centered-container {
+  background-color: white !important;
+}
+
+.centered-container .logo {
+  content: url(/assets/custom/logo.png);
+  width: 100px !important;
+  max-width: 100px;
+}
+
+.bp-header__logo {
+  content: url(/assets/custom/logo.png);
+  width: 50px !important;
+  max-width: 50px;
+}
+
+.bp-header__logo:after {
+  content: 'BigBank';
+}
+
+.bp-header .navbar {
+  background-color: white;
+}
+
+.login-box .card-title {
+  display: inline-block;
+  color: white;
+  line-height: 0;
+}
+
+.login-box .card-title:after {
+  content: 'BigBank Bank Login';
+  font-weight: bold;
+  color: black;
+  display: block;
+}
+
+.bp-sidebar .bp-logo {
+  content: url(/assets/custom/logo.png);
+  width: 80px !important;
+  max-width: 80px;
+}

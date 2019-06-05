@@ -25,6 +25,7 @@ export class AuthRouter extends CustomRouter {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
+    // tslint:disable-next-line: no-floating-promises
     this.setupRoutes()
   }
 
@@ -81,10 +82,13 @@ export class AuthRouter extends CustomRouter {
       throw new NotFoundError(`User ${tokenUser!.email || ''} not found`)
     }
 
+    const userRole = await this.workspaceService.getRoleForUser(user.email)
+
     const userProfile = {
       ...user,
       isSuperAdmin: tokenUser!.isSuperAdmin,
-      fullName: [user!.firstname, user!.lastname].filter(Boolean).join(' ')
+      fullName: [user!.firstname, user!.lastname].filter(Boolean).join(' '),
+      permissions: userRole && userRole.rules
     }
 
     return sendSuccess(res, 'Retrieved profile successfully', userProfile)

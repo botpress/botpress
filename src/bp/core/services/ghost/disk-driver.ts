@@ -1,8 +1,10 @@
 import { forceForwardSlashes } from 'core/misc/utils'
+import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable } from 'inversify'
 import _ from 'lodash'
+import os from 'os'
 import path from 'path'
 import { VError } from 'verror'
 
@@ -48,6 +50,11 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  @WrapErrorsWith(args => `[Disk Storage Error while moving file from "${args[0]}" to  "${args[1]}".`)
+  async moveFile(fromPath: string, toPath: string): Promise<void> {
+    return fse.move(this.resolvePath(fromPath), this.resolvePath(toPath))
+  }
+
   async deleteDir(dirPath: string): Promise<void> {
     try {
       return fse.removeSync(this.resolvePath(dirPath))
@@ -58,8 +65,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async directoryListing(
     folder: string,
-    exclude?: string | string[],
-    includeDotFiles: boolean = false
+    options: { excludes?: string | string[]; includeDotFiles?: boolean } = { excludes: [], includeDotFiles: false }
   ): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
@@ -72,13 +78,23 @@ export default class DiskStorageDriver implements StorageDriver {
       throw new VError(e, `[Disk Storage] No read access to directory "${folder}"`)
     }
 
-    const options = { cwd: this.resolvePath(folder), dot: includeDotFiles }
-    if (exclude) {
-      options['ignore'] = exclude
+    const ghostIgnorePatterns = await this._getGhostIgnorePatterns(this.resolvePath('data/.ghostignore'))
+    const globOptions = {
+      cwd: this.resolvePath(folder),
+      dot: options.includeDotFiles
+    }
+
+    // options.excludes can either be a string or an array of strings or undefined
+    if (Array.isArray(options.excludes)) {
+      globOptions['ignore'] = [...options.excludes, ...ghostIgnorePatterns]
+    } else if (options.excludes) {
+      globOptions['ignore'] = [options.excludes, ...ghostIgnorePatterns]
+    } else {
+      globOptions['ignore'] = ghostIgnorePatterns
     }
 
     try {
-      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', options, cb))
+      const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', globOptions, cb))
       return files.map(filePath => forceForwardSlashes(filePath))
     } catch (e) {
       return []
@@ -93,18 +109,6 @@ export default class DiskStorageDriver implements StorageDriver {
     try {
       const content = await this.readFile(path.join(pathPrefix, 'revisions.json'))
       return JSON.parse(content.toString())
-    } catch (err) {
-      return []
-    }
-  }
-
-  async discoverTrackableFolders(baseDir: string): Promise<string[]> {
-    try {
-      const allFiles = await this.directoryListing(baseDir, undefined, true)
-      const allDirectories = this._getBaseDirectories(allFiles)
-      const noghostFiles = allFiles.filter(x => path.basename(x).toLowerCase() === '.noghost')
-      const noghostDirectories = this._getBaseDirectories(noghostFiles)
-      return _.without(allDirectories, ...noghostDirectories)
     } catch (err) {
       return []
     }
@@ -126,5 +130,13 @@ export default class DiskStorageDriver implements StorageDriver {
       .map(f => f.split('/')[0])
       .uniq()
       .value()
+  }
+
+  private async _getGhostIgnorePatterns(ghostIgnorePath: string): Promise<string[]> {
+    if (await fse.pathExists(ghostIgnorePath)) {
+      const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
+      return ghostIgnoreFile.toString().split(/\r?\n/gi)
+    }
+    return []
   }
 }

@@ -12,20 +12,7 @@ import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 const style = require('./toolbar.scss')
 
 class Toolbar extends React.Component {
-  componentDidMount() {
-    this.props.updateGlobalStyle({
-      'bp-navbar': {
-        borderBottom: 'none'
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    this.props.updateGlobalStyle({
-      'bp-navbar': {}
-    })
-  }
-
+  
   render() {
     const createTooltip = (name, text) => <Tooltip id={name}>{text}</Tooltip>
 
@@ -49,25 +36,7 @@ class Toolbar extends React.Component {
       })
     }
 
-    const promptNewFlow = () => {
-      let name = prompt('Enter the name of the new flow')
-
-      if (!name) {
-        return
-      }
-
-      name = name.replace(/\.flow\.json$/i, '')
-
-      if (/[^A-Z0-9-_\/]/i.test(name)) {
-        return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
-      }
-
-      if (_.includes(this.props.flowsNames, name + '.flow.json')) {
-        return alert('ERROR: This flow already exists')
-      }
-
-      this.props.onCreateFlow(name)
-    }
+    const canDelete = !!this.props.currentFlowNode && this.props.currentFlowNode.name !== this.props.currentFlow.startNode
 
     const noSkills = (
       <MenuItem eventKey="1" disabled={true}>
@@ -92,14 +61,6 @@ class Toolbar extends React.Component {
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
-          <Button className={style.btn} bsStyle="default" onClick={promptNewFlow}>
-            <OverlayTrigger placement="bottom" overlay={createTooltip('addFlow', 'Create new flow')}>
-              <i className="material-icons">create_new_folder</i>
-            </OverlayTrigger>
-          </Button>
-
-          <div className={style.separator} />
-
           <Button
             className={style.btn}
             bsStyle="default"
@@ -110,8 +71,6 @@ class Toolbar extends React.Component {
               <i className="material-icons">save</i>
             </OverlayTrigger>
           </Button>
-
-          <div className={style.separator} />
 
           <Button className={style.btn} bsStyle="default" disabled={!this.props.canUndo} onClick={this.props.undo}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('undo', 'Undo')}>
@@ -125,7 +84,7 @@ class Toolbar extends React.Component {
             </OverlayTrigger>
           </Button>
 
-          <Button className={style.btn} bsStyle="default" onClick={this.props.onCopy}>
+          <Button className={style.btn} bsStyle="default" disabled={!this.props.canCopy} onClick={this.props.onCopy}>
             <OverlayTrigger placement="bottom" overlay={createTooltip('copy', 'Copy')}>
               <i className="material-icons">content_copy</i>
             </OverlayTrigger>
@@ -159,17 +118,24 @@ class Toolbar extends React.Component {
 
           <div className={style.separator} />
 
-          <Button className={style.btn} bsStyle="default" disabled={!canMakeStartNode()} onClick={setAsCurrentNode}>
-            <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
-              <i className="material-icons">stars</i>
-            </OverlayTrigger>
-          </Button>
-
-          <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
-            <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
-              <i className="material-icons">delete</i>
-            </OverlayTrigger>
-          </Button>
+          {
+            canMakeStartNode() && (
+              <Button className={style.btn} bsStyle="default" onClick={setAsCurrentNode}>
+                <OverlayTrigger placement="bottom" overlay={createTooltip('makeStartNode', 'Set as Start node')}>
+                  <i className="material-icons">stars</i>
+                </OverlayTrigger>
+            </Button>
+            )
+          }
+          {
+            canDelete && (
+              <Button className={style.btn} bsStyle="default" onClick={this.props.onDelete}>
+                <OverlayTrigger placement="bottom" overlay={createTooltip('delete', 'Delete')}>
+                  <i className="material-icons">delete</i>
+                </OverlayTrigger>
+            </Button>
+            )
+          }
         </div>
       </div>
     )

@@ -37,7 +37,13 @@
 .sidebar ul li {
   font-size: 16px;
   line-height: 44px;
-  border-top: 1px solid #2d2d2d;
+
+  .experimental {
+    margin-left: 10px;
+    height: 15px;
+    color: #f9e32d;
+    font-size: 70%;
+  }
 
   a {
     text-decoration: none;
@@ -66,7 +72,7 @@
 }
 
 .active {
-  background-color: var(--c-background--dark-3);
+  background-color: $sidebar-hover-color;
   border-left: 5px solid var(--c-brand--light-1) !important;
 }
 
