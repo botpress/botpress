@@ -11,6 +11,8 @@ import classnames from 'classnames'
 import inspectorTheme from './inspectortheme'
 import JSONTree from 'react-json-tree'
 
+import ReactTooltip from 'react-tooltip'
+
 function MessageGroup(props) {
   const messages = [...props.messages]
   if (!messages) {
@@ -82,6 +84,10 @@ class MessagesHeader extends React.Component {
     const content = JSON.stringify(flattenMessages, null, 2)
     let blob = new Blob([content], { type: 'application/json' })
     this.fileURL = window.URL.createObjectURL(blob)
+
+    this.state = {
+      linkCopied: false
+    }
   }
 
   getLastMessageDate = messageGroups => {
@@ -115,10 +121,18 @@ class MessagesHeader extends React.Component {
           </div>
           <div className={style['message-header-icon_item']}>
             <CopyToClipboard text={window.location.href}>
-              <FiLink />
+              <FiLink
+                data-tip
+                data-event="mousedown"
+                data-event-off="mouseup"
+                onClick={() => this.setState({ linkCopied: true })}
+              />
             </CopyToClipboard>
           </div>
         </div>
+        <ReactTooltip delayHide={500} effect="solid">
+          <div>copied</div>
+        </ReactTooltip>
       </div>
     )
   }
