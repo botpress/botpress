@@ -26,6 +26,7 @@ export default {
     showUserAvatar: false,
     disableAnimations: false,
     hideWidget: false,
-    externalAuthToken: undefined
+    externalAuthToken: undefined,
+    showPoweredBy: window.SHOW_POWERED_BY
   }
 }

@@ -278,6 +278,7 @@ class RootStore {
     this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
+    this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
     this.api.updateUserId(this.config.userId)

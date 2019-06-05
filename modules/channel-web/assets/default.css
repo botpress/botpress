@@ -536,6 +536,12 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.bpw-powered {
+  text-align: right;
+  border-top: 1px solid #aaaaaa;
+  padding: 2px 5px 2px 0;
+}
+
 .bpw-send-button {
   position: absolute;
   right: 25px;
