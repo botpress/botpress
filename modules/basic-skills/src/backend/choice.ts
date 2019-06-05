@@ -33,12 +33,10 @@ const setup = async bp => {
 }
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  let onInvalidText = undefined
-  if (data.config.invalidText && data.config.invalidText.length) {
-    onInvalidText = data.config.invalidText
-  }
+  const hardLimit = 10
+  const maxAttempts = Math.min(data.config.nbMaxRetries, hardLimit)
 
-  const maxAttempts = data.config.nbMaxRetries
+  console.log('maxAttempts', maxAttempts, 'contenId', data.contentId, 'data', data)
 
   const nodes: sdk.SkillFlowNode[] = [
     {
@@ -73,7 +71,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       ],
       next: [
         {
-          condition: `temp['skill-choice-invalid-count'] <= ${maxAttempts}`,
+          condition: `temp['skill-choice-invalid-count'] <= Number(${maxAttempts})`,
           node: 'sorry'
         },
         { condition: 'true', node: '#' }
@@ -84,8 +82,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       onEnter: [
         {
           type: sdk.NodeActionType.RenderElement,
-          name: `#!${data.contentId}`,
-          args: { ...{ skill: 'choice' }, ...(onInvalidText ? { text: onInvalidText } : {}) }
+          name: `#!${data.invalidContentId}`
         }
       ],
       next: [{ condition: 'true', node: 'parse' }]

@@ -12,25 +12,27 @@ export class Choice extends React.Component {
   state = {
     keywords: {},
     contentId: '',
+    invalidContentId: '',
     config: {}
   }
 
   componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
-
-    if (this.props.initialData) {
-      this.setState(
-        {
-          contentId: getOrDefault('contentId', 'contentId'),
-          keywords: getOrDefault('keywords', 'keywords'),
-          config: getOrDefault('config', 'config')
-        },
-        () => this.refreshContent()
-      )
-    }
-
-    this.fetchDefaultConfig()
+    this.fetchDefaultConfig().then(res => {
+      if (this.props.initialData) {
+        this.setState(
+          {
+            contentId: getOrDefault('contentId', 'contentId'),
+            invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
+            keywords: getOrDefault('keywords', 'keywords'),
+            config: getOrDefault('config', 'config'),
+            defaultConfig: res.data
+          },
+          () => this.refreshContent()
+        )
+      }
+    })
   }
 
   async refreshContent() {
@@ -47,9 +49,11 @@ export class Choice extends React.Component {
   }
 
   updateParent = () => {
+    console.log('UPDATE')
     this.props.onDataChanged &&
       this.props.onDataChanged({
         contentId: this.state.contentId,
+        invalidContentId: this.state.invalidContentId,
         keywords: this.state.keywords,
         config: this.state.config
       })
@@ -59,8 +63,7 @@ export class Choice extends React.Component {
   }
 
   fetchDefaultConfig = async () => {
-    const res = await this.props.bp.axios.get('/mod/basic-skills/choice/config')
-    this.setState({ defaultConfig: res.data })
+    return this.props.bp.axios.get('/mod/basic-skills/choice/config')
   }
 
   onMaxRetriesChanged = event => {
@@ -186,7 +189,12 @@ export class Choice extends React.Component {
     this.setState({ config })
   }
 
+  handleInvalidContentChange = content => {
+    this.setState({ invalidContentId: content.id })
+  }
+
   renderAdvanced() {
+    console.log('state', this.state)
     return (
       <div className={style.content}>
         <div>
@@ -196,24 +204,25 @@ export class Choice extends React.Component {
             type="number"
             name="quantity"
             min="0"
-            max="1000"
+            max="10"
             value={this.getNbRetries()}
             onChange={this.onMaxRetriesChanged}
           />
         </div>
+
         <div>
-          <label htmlFor="invalidText">On invalid choice, say this before repeating question:</label>
-          <div>
-            <Input
-              type="textarea"
-              id="invalidText"
-              value={this.getInvalidText()}
-              onChange={this.handleConfigTextChanged('invalidText')}
-            />
-          </div>
+          <Label htmlFor="invalidText">On invalid choice, say this before repeating question:</Label>
+          <ContentPickerWidget
+            id="invalidContent"
+            name="invalidContent"
+            itemId={this.state.invalidContentId}
+            onChange={this.handleInvalidContentChange}
+            placeholder="Pick a reply"
+          />
         </div>
+
         <div>
-          <Label htmlFor="contentElementName">Content Element to use:</Label>
+          <Label htmlFor="contentElementName">Content Element to use (optionnal)</Label>
           <Input
             id="contentElementName"
             type="text"
