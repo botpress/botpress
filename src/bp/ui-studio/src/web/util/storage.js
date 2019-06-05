@@ -24,4 +24,10 @@ const storage = {
   }
 }
 
+/**
+ * Exposing this logic so modules & others can access it.
+ * Sometimes the browser denies access to local storage (or simply doesn't support it), so we offer a fallback
+ */
+window.BP_STORAGE = storage
+
 export default storage

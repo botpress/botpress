@@ -1,4 +1,4 @@
-import nth from 'lodash/nth'
+import last from 'lodash/last'
 import take from 'lodash/take'
 import { action, observable } from 'mobx'
 
@@ -7,6 +7,7 @@ import constants from '../core/constants'
 import { RootStore } from '.'
 
 const HISTORY_UP = 'ArrowUp'
+const SENT_HISTORY_KEY = `bp::${window.BOT_ID}::sentHistory`
 
 class ComposerStore {
   private rootStore: RootStore
@@ -15,13 +16,17 @@ class ComposerStore {
   public message: string = ''
 
   @observable
-  private _messageHistory: string[] = []
+  private _sentHistory: string[] = []
 
   @observable
-  private _historyPosition: number
+  private _sentHistoryIndex: number = 0
 
   constructor(rootStore) {
     this.rootStore = rootStore
+
+    if (window.BP_STORAGE) {
+      this._sentHistory = JSON.parse(window.BP_STORAGE.get(SENT_HISTORY_KEY) || '[]')
+    }
   }
 
   @action.bound
@@ -30,20 +35,33 @@ class ComposerStore {
   }
 
   @action.bound
-  addMessageToHistory(message: string) {
-    this._messageHistory = take([message, ...this._messageHistory], constants.HISTORY_MAX_MESSAGES)
-    this._historyPosition = constants.HISTORY_STARTING_POINT
+  addMessageToHistory(text: string) {
+    if (last(this._sentHistory) !== text) {
+      this._sentHistory.push(text)
+      this._sentHistoryIndex = 0
+
+      if (window.BP_STORAGE && this.rootStore.config.enablePersistHistory) {
+        window.BP_STORAGE.set(SENT_HISTORY_KEY, JSON.stringify(take(this._sentHistory, constants.SENT_HISTORY_SIZE)))
+      }
+    }
   }
 
   @action.bound
   recallHistory(direction: string) {
-    const position = direction === HISTORY_UP ? this._historyPosition + 1 : this._historyPosition - 1
-    const text = nth(this._messageHistory, position)
-
-    if (text) {
-      this.updateMessage(text)
-      this._historyPosition = position
+    if (!this._sentHistory.length) {
+      return
     }
+
+    let newIndex = direction === HISTORY_UP ? this._sentHistoryIndex + 1 : this._sentHistoryIndex - 1
+
+    if (newIndex < 0) {
+      newIndex = this._sentHistory.length - 1
+    } else if (newIndex >= this._sentHistory.length) {
+      newIndex = 0
+    }
+
+    this.updateMessage(this._sentHistory[newIndex])
+    this._sentHistoryIndex = newIndex
   }
 }
 
