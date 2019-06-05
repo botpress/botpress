@@ -2,6 +2,7 @@ import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
 import { ConfigProvider } from 'core/config/config-loader'
+import { ModuleLoader } from 'core/module-loader'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -42,7 +43,8 @@ export class AdminRouter extends CustomRouter {
     private ghostService: GhostService,
     configProvider: ConfigProvider,
     monitoringService: MonitoringService,
-    alertingService: AlertingService
+    alertingService: AlertingService,
+    moduleLoader: ModuleLoader
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -52,7 +54,7 @@ export class AdminRouter extends CustomRouter {
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider)
-    this.languagesRouter = new LanguagesRouter(logger)
+    this.languagesRouter = new LanguagesRouter(logger, moduleLoader)
     this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
