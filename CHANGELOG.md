@@ -1,3 +1,22 @@
+## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
+
+
+### Bug Fixes
+
+* **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
+* **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
+* **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
+* **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
+* **qna:** remove qna file when qna is disabled ([614d66e](https://github.com/botpress/botpress/commit/614d66e))
+* **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
+
+
+### Features
+
+* **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
+
+
+
 ## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
 
 
