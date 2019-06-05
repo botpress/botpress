@@ -24,7 +24,7 @@ const webConfig = {
     filename: '[name].[chunkhash].js'
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.css'],
+    extensions: ['.js', '.jsx', '.tsx', '.ts', '.css'],
     alias: {
       '~': path.resolve(__dirname, './src/web'),
       DOCS: path.resolve(__dirname, '../../../docs/guide/docs'),
@@ -100,6 +100,7 @@ const webConfig = {
 
   module: {
     rules: [
+      { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
       {
         test: /\.md$/,
         use: [
@@ -129,6 +130,7 @@ const webConfig = {
         test: /\.styl$/,
         use: [
           { loader: 'style-loader' },
+          { loader: 'css-modules-typescript-loader' },
           {
             loader: 'css-loader',
             options: {
@@ -145,6 +147,7 @@ const webConfig = {
         test: /\.scss$/,
         use: [
           { loader: 'style-loader' },
+          { loader: 'css-modules-typescript-loader' },
           {
             loader: 'css-loader',
             options: {
