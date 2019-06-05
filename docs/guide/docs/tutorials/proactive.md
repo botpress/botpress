@@ -65,18 +65,13 @@ Use this code in your `index.html`:
       botId: 'welcome-bot'
     })
 
-    // Send the event
-    function sendEvent() {
+    // Wait for the chat to load
+    setTimeout(function() {
       window.botpressWebChat.sendEvent({
         type: 'proactive-trigger',
         channel: 'web',
         payload: { text: 'fake message' }
       })
-    }
-
-    // Wait for the chat to load
-    setTimeout(function() {
-      sendEvent()
     }, 1000)
   </script>
 </html>
@@ -107,7 +102,6 @@ Use this code in your `index.html`:
       botId: 'welcome-bot'
     })
 
-    // Send a message on chat widget click
     function sendMessageOnClick() {
       const iframe = document.querySelector('#bp-widget')
       const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
