@@ -1544,7 +1544,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.6:
+classnames@^2.2.5, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
   integrity sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==
@@ -4074,7 +4074,7 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha1-mEcocL8igTL8vdhoEputEsPAKeM=
 
-prop-types@^15.5.8, prop-types@^15.6.2:
+prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -4245,6 +4245,14 @@ react-json-tree@^0.11.2:
     babel-runtime "^6.6.1"
     prop-types "^15.5.8"
     react-base16-styling "^0.5.1"
+
+react-tooltip@^3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/react-tooltip/-/react-tooltip-3.10.0.tgz#268b5ef519fd8a1369288d1f086f42c90d5da7ef"
+  integrity sha512-GGdxJvM1zSFztkTP7gCQbLTstWr1OOoMpJ5WZUGhimj0nhRY+MPz+92MpEnKmj0cftJ9Pd/M6FfSl0sfzmZWkg==
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.6.0"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"

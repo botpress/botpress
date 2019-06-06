@@ -6,6 +6,7 @@ import { MessageViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
 const CONV_PARAM_NAME = 'conversation'
+const BASE_API_PATH = '/mod/history/'
 
 export default class FullView extends React.Component {
   state = {
@@ -31,7 +32,7 @@ export default class FullView extends React.Component {
 
   getConversations = async (from, to) => {
     const ceiledToDate = moment(to).add(1, 'days')
-    const apiURL = `/mod/history/conversations?from=${from.unix()}&to=${ceiledToDate.unix()}`
+    const apiURL = `${BASE_API_PATH}/conversations?from=${from.unix()}&to=${ceiledToDate.unix()}`
     const { data } = await this.props.bp.axios.get(apiURL)
     this.setState({ conversationsInfo: data })
   }
@@ -48,13 +49,16 @@ export default class FullView extends React.Component {
     return sessionId !== this.state.currentConversation || currentConversation.count !== receivedData.messageCount
   }
 
-  getMessagesOfConversation = async sessionId => {
-    const { data } = await this.props.bp.axios.get(`/mod/history/messages/${sessionId}`)
+  getMessagesOfConversation = async (sessionId, filters) => {
+    let ressourceUrl = `${BASE_API_PATH}/messages/${sessionId}`
+    ressourceUrl += filters && filters.flag ? '?flag=true' : ''
+    const { data } = await this.props.bp.axios.get(ressourceUrl)
 
     const conversationsInfoCopy = [...this.state.conversationsInfo]
     const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
 
-    if (!desiredConvInfo || !this.hasConversationChanged(sessionId, desiredConvInfo, data)) {
+    const updateConv = filters || (desiredConvInfo && this.hasConversationChanged(sessionId, desiredConvInfo, data))
+    if (!updateConv) {
       return
     }
 
@@ -62,9 +66,9 @@ export default class FullView extends React.Component {
 
     this.setState({
       currentConversation: sessionId,
-      messageGroups: data.messageGroupsArray,
+      messageGroups: data.messageGroups,
       conversationsInfo: conversationsInfoCopy,
-      currentConversationMessageGroupsOffset: data.messageGroupsArray.length,
+      currentConversationMessageGroupsOffset: data.messageGroups.length,
       currentConversationMessageGroupsCount: data.messageGroupCount
     })
   }
@@ -81,12 +85,13 @@ export default class FullView extends React.Component {
     this.getConversations(this.state.from, moment_day)
   }
 
-  fetchMoreMessages = async () => {
-    const { data } = await this.props.bp.axios.get(
-      `/mod/history/more-messages/${this.state.currentConversation}?offset=${
-        this.state.currentConversationMessageGroupsOffset
-      }&clientCount=${this.state.currentConversationMessageGroupsCount}`
-    )
+  fetchMoreMessages = async filters => {
+    let ressourceUrl = `${BASE_API_PATH}/more-messages/${this.state.currentConversation}?offset=${
+      this.state.currentConversationMessageGroupsOffset
+    }&clientCount=${this.state.currentConversationMessageGroupsCount}`
+    ressourceUrl += filters.flag ? '&flag=true' : ''
+
+    const { data } = await this.props.bp.axios.get(ressourceUrl)
 
     let messageGroupsCopy = [...this.state.messageGroups]
     messageGroupsCopy = messageGroupsCopy.concat(data)
@@ -95,6 +100,24 @@ export default class FullView extends React.Component {
       messageGroups: messageGroupsCopy,
       currentConversationMessageGroupsOffset: messageGroupsCopy.length
     })
+  }
+
+  flagMessages = async messages => {
+    const messageGroupCpy = [...this.state.messageGroups]
+    _.forEach(messageGroupCpy, mg => {
+      mg.isFlagged = mg.isFlagged || messages.includes(mg)
+    })
+    this.setState({ messageGroups: messageGroupCpy })
+    await this.props.bp.axios.post(`${BASE_API_PATH}/flagged-messages`, messages)
+  }
+
+  unflagMessages = async messages => {
+    const messageGroupCpy = [...this.state.messageGroups]
+    _.forEach(messageGroupCpy, mg => {
+      mg.isFlagged = mg.isFlagged && !messages.includes(mg)
+    })
+    this.setState({ messageGroups: messageGroupCpy })
+    await this.props.bp.axios.delete(`${BASE_API_PATH}/flagged-messages`, { data: messages })
   }
 
   render() {
@@ -116,9 +139,12 @@ export default class FullView extends React.Component {
         />
         <MessageViewer
           isThereStillMessagesLeft={isThereStillMessagesLeftToFetch}
-          fetchNewMessages={() => this.fetchMoreMessages()}
+          fetchNewMessages={f => this.fetchMoreMessages(f)}
           conversation={this.state.currentConversation}
           messageGroups={this.state.messageGroups}
+          flagMessages={m => this.flagMessages(m)}
+          unflagMessages={m => this.unflagMessages(m)}
+          updateConversationWithFilters={f => this.getMessagesOfConversation(this.state.currentConversation, f)}
         />
       </div>
     )

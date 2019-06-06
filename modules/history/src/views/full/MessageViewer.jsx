@@ -1,66 +1,14 @@
 import React from 'react'
 import style from './style.scss'
 
-import { GoX } from 'react-icons/go'
-import { MdFileDownload, MdSearch } from 'react-icons/md'
-import { FiLink } from 'react-icons/fi'
-
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-
 import classnames from 'classnames'
-import inspectorTheme from './inspectortheme'
-import JSONTree from 'react-json-tree'
+import { MessageGroup } from './MessageGroup'
+import { MessagesHeader } from './MessagesHeader'
+import { MessageInspector } from './MessageInspector'
+
+import { IoMdFlag } from 'react-icons/io'
 
 import ReactTooltip from 'react-tooltip'
-
-function MessageGroup(props) {
-  const messages = [...props.messages]
-  if (!messages) {
-    return null
-  }
-
-  const userMessageIndex = messages.findIndex(m => m.direction === 'incoming')
-  const userMessage = messages[userMessageIndex]
-  if (userMessage) {
-    messages.splice(userMessageIndex, 1)
-  }
-
-  return (
-    <div className={style['message-group']}>
-      <div className={style['message-group-header']}>
-        {userMessage && userMessage.decision && (
-          <div className={style['message-group-explanation']}>
-            <div className={style['message-group-confidence']}>{`${Math.round(userMessage.decision.confidence * 10000) /
-              100}% decision:`}</div>
-            <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
-          </div>
-        )}
-        <div className={style['message-inspect']} onClick={() => props.focusMessage(userMessage)}>
-          <MdSearch />
-        </div>
-      </div>
-      <div className={style['message-sender']}>User:</div>
-      {userMessage && (
-        <div className={classnames(style['message-elements'], style['message-incomming'])}>{userMessage.preview}</div>
-      )}
-      <div className={style['message-sender']}>Bot:</div>
-      {messages.map(m => {
-        return (
-          <div
-            className={classnames(
-              style['message-elements'],
-              m.direction === 'outgoing' ? style['message-outgoing'] : style['message-incomming']
-            )}
-            key={`${m.id}: ${m.direction}`}
-            value={m.id}
-          >
-            {m.preview}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 function NoConversationSelected() {
   return (
@@ -76,84 +24,157 @@ function NoConversationSelected() {
   )
 }
 
-class MessagesHeader extends React.Component {
-  constructor(props) {
-    super(props)
-
-    const flattenMessages = props.messageGroups.flat()
-    const content = JSON.stringify(flattenMessages, null, 2)
-    let blob = new Blob([content], { type: 'application/json' })
-    this.fileURL = window.URL.createObjectURL(blob)
+class MessagesTaskBar extends React.Component {
+  state = {
+    filters: {
+      flag: false
+    },
+    currentConv: null
   }
 
-  getLastMessageDate = messageGroups => {
-    const messages = messageGroups.flat()
-    const maxDateMessage = _.maxBy(messages, m => m.createdOn)
-    return new Date(maxDateMessage.createdOn)
+  componentDidUpdate() {
+    if (this.props.currentConv !== this.state.currentConv) {
+      this.setState({ currentConv: this.props.currentConv, filters: { flag: false } })
+    }
+  }
+
+  toggleFlagFilter() {
+    this.state.filters.flag = !this.state.filters.flag
+    this.props.updateFilters(this.state.filters)
   }
 
   render() {
     return (
-      <div className={style['message-header']}>
-        {this.props.conversation && (
-          <div>
-            <div className={style['message-title']}>Conversation {this.props.conversation}</div>
-            <div className={style['message-lastdate']}>
-              Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
+      <div className={style.messageTaskBar}>
+        {!this.props.useAsFilter && (
+          <div className={style.messageTaskBarFilter}>
+            <div>
+              <IoMdFlag
+                className={style.messageTaskBarFlagIcon}
+                data-tip
+                data-for="flag"
+                onClick={() => this.props.flag()}
+              />
+              <ReactTooltip id="flag" effect="solid">
+                <div>Mark selected messages as not good</div>
+              </ReactTooltip>
+            </div>
+            <div>
+              <IoMdFlag
+                className={style.messageTaskBarUnflagIcon}
+                data-tip
+                data-for="unflag"
+                onClick={() => this.props.unflag()}
+              />
+              <ReactTooltip id="unflag" effect="solid">
+                <div>Unflag Selected messages</div>
+              </ReactTooltip>
             </div>
           </div>
         )}
-        <div className={style['message-header-icons']}>
-          <div className={style['message-header-icon_item']}>
-            <a
-              href={this.fileURL}
-              download="message_history"
-              style={{
-                color: '#233abc'
-              }}
-            >
-              <MdFileDownload />
-            </a>
+        {this.props.useAsFilter && (
+          <div>
+            <span>Display only flagged messages:</span>
+            <input type="checkbox" checked={this.state.filters.flag} onChange={() => this.toggleFlagFilter()} />
           </div>
-          <div className={style['message-header-icon_item']}>
-            <CopyToClipboard text={window.location.href}>
-              <FiLink data-tip data-event="mousedown" data-event-off="mouseup" />
-            </CopyToClipboard>
-          </div>
-        </div>
-        <ReactTooltip delayHide={500} effect="solid">
-          <div>copied</div>
-        </ReactTooltip>
+        )}
       </div>
     )
   }
 }
 
-function MessageInspector(props) {
-  return (
-    <div
-      className={classnames(style['message-inspector'], {
-        [style['message-inspector-hidden']]: props.inspectorIsShown
-      })}
-    >
-      <div className={style['quit-inspector']} onClick={props.closeInspector}>
-        <GoX />
-      </div>
-      {props.currentlyFocusedMessage && (
-        <JSONTree theme={inspectorTheme} data={props.currentlyFocusedMessage} invertTheme={false} hideRoot={true} />
-      )}
-    </div>
-  )
-}
-
 export class MessageViewer extends React.Component {
   state = {
     inspectorIsShown: false,
-    currentlyFocusedMessage: null
+    currentlyFocusedMessage: null,
+    areMessagesSelected: false,
+    areAllMessagesSelected: false,
+    filters: { flag: false },
+    selectedGroups: [],
+    currentConversation: null
+  }
+
+  componentDidUpdate() {
+    if (this.props.conversation !== this.state.currentConversation) {
+      this.unselectAll()
+      this.setState({ currentConversation: this.props.conversation })
+    }
+  }
+
+  handleSelection(isSelected, group) {
+    let currentSelectedLength = this.state.selectedGroups.length
+    if (isSelected) {
+      currentSelectedLength += 1
+      this.selectMessage(group)
+    } else {
+      currentSelectedLength -= 1
+      this.unselectMessage(group)
+    }
+    this.setState({
+      areMessagesSelected: currentSelectedLength >= 0,
+      areAllMessagesSelected: currentSelectedLength >= this.props.messageGroups.length
+    })
+  }
+
+  selectMessage(group) {
+    const selectedGroupsCpy = [...this.state.selectedGroups]
+    selectedGroupsCpy.push(group)
+    this.setState({ selectedGroups: selectedGroupsCpy })
+  }
+
+  unselectMessage(message) {
+    const selectedGroupsCpy = [...this.state.selectedGroups]
+    const idx = selectedGroupsCpy.indexOf(message)
+    if (idx !== -1) {
+      selectedGroupsCpy.splice(idx, 1)
+    }
+    this.setState({ selectedGroups: selectedGroupsCpy })
+  }
+
+  unselectAll() {
+    this.setState({ selectedGroups: [], areMessagesSelected: false, areAllMessagesSelected: false })
+  }
+
+  selectAll() {
+    this.setState({
+      selectedGroups: [...this.props.messageGroups],
+      areMessagesSelected: true,
+      areAllMessagesSelected: true
+    })
+  }
+
+  handleSelectAll() {
+    if (this.state.areAllMessagesSelected) {
+      this.unselectAll()
+    } else {
+      this.selectAll()
+    }
+  }
+
+  async flagSelectedMessages() {
+    await this.props.flagMessages(this.state.selectedGroups)
+    this.unSelectAndUpdate()
+  }
+
+  async unflagSelectedMessages() {
+    await this.props.unflagMessages(this.state.selectedGroups)
+    this.unSelectAndUpdate()
+  }
+
+  unSelectAndUpdate() {
+    this.unselectAll()
+    if (this.state.filters) {
+      this.updateFilters(this.state.filters)
+    }
+  }
+
+  updateFilters(f) {
+    this.setState({ filters: f })
+    this.props.updateConversationWithFilters(f)
   }
 
   render() {
-    if (!this.props.conversation || !this.props.messageGroups.length) {
+    if (!this.props.conversation) {
       return <NoConversationSelected />
     }
     return (
@@ -164,19 +185,38 @@ export class MessageViewer extends React.Component {
             this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
           )}
         >
-          <MessagesHeader conversation={this.props.conversation} messageGroups={this.props.messageGroups} />
-          {this.props.messageGroups &&
-            this.props.messageGroups.map(group => {
-              return (
-                <MessageGroup
-                  key={group[0].id}
-                  messages={group}
-                  focusMessage={m => this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })}
-                />
-              )
-            })}
+          <MessagesHeader conversation={this.state.currentConversation} messageGroups={this.props.messageGroups} />
+          <MessagesTaskBar
+            ref="taskBar"
+            useAsFilter={!this.state.areMessagesSelected}
+            flag={() => this.flagSelectedMessages()}
+            unflag={() => this.unflagSelectedMessages()}
+            updateFilters={f => this.updateFilters(f)}
+            currentConv={this.state.currentConversation}
+          />
+          {!!this.props.messageGroups.length && (
+            <div>
+              select all:
+              <input
+                type="checkbox"
+                checked={this.state.areAllMessagesSelected}
+                onChange={() => this.handleSelectAll()}
+              />
+              {this.props.messageGroups.map(group => {
+                return (
+                  <MessageGroup
+                    key={group.userMessage.id}
+                    group={group}
+                    focusMessage={m => this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })}
+                    isSelected={this.state.selectedGroups.includes(group)}
+                    handleSelection={(isSelected, m) => this.handleSelection(isSelected, m)}
+                  />
+                )
+              })}
+            </div>
+          )}
           {this.props.isThereStillMessagesLeft && (
-            <div className={style['fetch-more']} onClick={this.props.fetchNewMessages}>
+            <div className={style['fetch-more']} onClick={() => this.props.fetchNewMessages(this.state.filters)}>
               Load More...
             </div>
           )}

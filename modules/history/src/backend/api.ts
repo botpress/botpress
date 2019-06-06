@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
-import moment from 'moment'
 
 import Database from './db'
+
+import { QueryFilters } from './typings'
 
 const N_MESSAGE_GROUPS_READ = 10
 
@@ -20,30 +20,37 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.get('/messages/:convId', async (req, res) => {
     const convId = req.params.convId
-    const messageGroupsArray = await prepareMessagesRessource(db, convId, 0)
+    const { flag } = req.query
+
+    const filters: QueryFilters = { flag: flag === 'true' }
+    const messageGroups = await db.getMessagesOfConversation(convId, N_MESSAGE_GROUPS_READ, 0, filters)
     const messageCount = await db.getConversationMessageCount(convId)
-    const messageGroupCount = await db.getConversationMessageGroupCount(convId)
-    res.send({ messageGroupsArray, messageCount, messageGroupCount })
+    const messageGroupCount = await db.getConversationMessageGroupCount(convId, filters)
+
+    res.send({ messageGroups, messageCount, messageGroupCount })
   })
 
   router.get('/more-messages/:convId', async (req, res) => {
     const convId = req.params.convId
-    const { offset, clientCount } = req.query
+    const { offset, clientCount, flag } = req.query
 
-    const actualCount = await db.getConversationMessageGroupCount(convId)
+    const filters: QueryFilters = { flag: flag === 'true' }
+    const actualCount = await db.getConversationMessageGroupCount(convId, filters)
     const unsyncOffset = Number(offset) + Math.max(actualCount - clientCount, 0)
 
-    const messageGroupsArray = await prepareMessagesRessource(db, convId, unsyncOffset)
-    res.send(messageGroupsArray)
+    const messageGroups = await db.getMessagesOfConversation(convId, N_MESSAGE_GROUPS_READ, unsyncOffset, filters)
+    res.send(messageGroups)
   })
-}
 
-async function prepareMessagesRessource(db, convId, offset) {
-  const messages = await db.getMessagesOfConversation(convId, N_MESSAGE_GROUPS_READ, offset)
+  router.post('/flagged-messages', async (req, res) => {
+    const messageGroups = req.body
+    await db.flagMessages(messageGroups)
+    res.sendStatus(201)
+  })
 
-  const messageGroupKeyBuild = (msg: sdk.IO.Event) =>
-    msg.direction === 'incoming' ? msg.id : (msg as sdk.IO.OutgoingEvent).incomingEventId
-  const messageGroups = _.groupBy(messages, messageGroupKeyBuild)
-
-  return _.sortBy(_.values(messageGroups), mg => moment(mg[0].createdOn).unix()).reverse()
+  router.delete('/flagged-messages', async (req, res) => {
+    const messageGroups = req.body
+    await db.unflagMessages(messageGroups)
+    res.sendStatus(201)
+  })
 }

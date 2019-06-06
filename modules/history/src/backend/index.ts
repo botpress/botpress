@@ -8,6 +8,7 @@ const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
   const db = new Database(bp)
+  db.initialize()
   api(bp, db)
 }
 
@@ -18,7 +19,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'history',
     fullName: 'History',
     homepage: 'https://botpress.io',
-    menuIcon: 'history'
+    menuIcon: 'history',
+    experimental: true
   }
 }
 

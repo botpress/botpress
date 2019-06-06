@@ -1,7 +1,13 @@
+import moment from 'moment'
+import _ from 'lodash'
+import { Dictionary } from 'lodash'
+
 import * as sdk from 'botpress/sdk'
 
-import moment from 'moment'
-import { isNullOrUndefined } from 'util'
+import { QueryFilters, MessageGroup, ConversationInfo } from './typings'
+
+const FLAGS_TABLE_NAME = 'history_flags'
+const EVENTS_TABLE_NAME = 'events'
 
 export default class HistoryDb {
   knex: any
@@ -10,11 +16,36 @@ export default class HistoryDb {
     this.knex = bp.database
   }
 
-  getDistinctConversations = async (botId: string, from?: number, to?: number) => {
+  initialize = async () => {
+    this.knex.createTableIfNotExists(FLAGS_TABLE_NAME, table => {
+      table.string('flaggedMessageId').primary()
+    })
+  }
+
+  flagMessages = async (messages: MessageGroup[]) => {
+    let newRows = messages.map(m => ({ flaggedMessageId: m.userMessage.id }))
+    const currentRows = await this.knex
+      .select()
+      .from(FLAGS_TABLE_NAME)
+      .whereIn('flaggedMessageId', newRows.map(m => m.flaggedMessageId))
+      .then(rows => rows.map(r => r.flaggedMessageId))
+
+    newRows = newRows.filter(r => !currentRows.includes(r.flaggedMessageId))
+    await this.knex.batchInsert(FLAGS_TABLE_NAME, newRows, 30)
+  }
+
+  unflagMessages = async (messages: MessageGroup[]) => {
+    await this.knex
+      .del()
+      .from(FLAGS_TABLE_NAME)
+      .whereIn('flaggedMessageId', messages.map(m => m.userMessage.id))
+  }
+
+  async getDistinctConversations(botId: string, from?: number, to?: number): Promise<ConversationInfo[]> {
     const query = this.knex
       .select()
       .distinct('sessionId')
-      .from('events')
+      .from(EVENTS_TABLE_NAME)
       .whereNotNull('sessionId')
       .andWhere({ botId })
 
@@ -30,41 +61,74 @@ export default class HistoryDb {
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.sessionId)
 
-    const buildConversationInfo = async c => ({ id: c, count: await this.getConversationMessageCount(c) })
+    const buildConversationInfo = async (c: string) => ({ id: c, count: await this.getConversationMessageCount(c) })
     return Promise.all(uniqueConversations.map(buildConversationInfo))
   }
 
-  getMessagesOfConversation = async (sessionId, count, offset) => {
-    const incomingMessages: sdk.IO.Event[] = await this.knex
-      .select('event')
-      .orderBy('createdOn', 'desc')
-      .where({ sessionId, direction: 'incoming' })
-      .from('events')
-      .offset(offset)
-      .limit(count)
-      .then(rows => rows.map(r => this.knex.json.get(r.event)))
+  getMessagesOfConversation = async (
+    sessionId: string,
+    count: number,
+    offset: number,
+    filters: QueryFilters
+  ): Promise<MessageGroup[]> => {
+    const incomingMessagesQuery = this.knex.select('event', 'flaggedMessageId').from(EVENTS_TABLE_NAME)
+    this._leftJoinFlagTable(incomingMessagesQuery)
+    incomingMessagesQuery.orderBy('createdOn', 'desc').where({ sessionId, direction: 'incoming' })
 
-    const messages = await this.knex('events')
-      .whereIn('incomingEventId', incomingMessages.map(x => x.id))
-      .then(rows => rows.map(r => this.knex.json.get(r.event)))
+    if (filters && filters.flag) {
+      this._whereFlagged(incomingMessagesQuery)
+    }
 
-    return messages
+    const incomingMessageRows: any[] = await incomingMessagesQuery.offset(offset).limit(count)
+
+    const messageGroupsMap: Dictionary<MessageGroup> = {}
+    _.forEach(incomingMessageRows, r => {
+      const userMessage: sdk.IO.IncomingEvent = this.knex.json.get(r.event)
+      messageGroupsMap[userMessage.id] = {
+        isFlagged: !!r.flaggedMessageId,
+        userMessage,
+        botMessages: []
+      }
+    })
+
+    const outgoingMessagesRows = await this.knex(EVENTS_TABLE_NAME)
+      .whereIn('incomingEventId', _.keys(messageGroupsMap))
+      .andWhere('direction', 'outgoing')
+
+    _.forEach(outgoingMessagesRows, r => {
+      messageGroupsMap[r.incomingEventId].botMessages.push(this.knex.json.get(r.event))
+    })
+
+    const messageGroups = _.values(messageGroupsMap)
+
+    return _.sortBy(messageGroups, (mg: MessageGroup) => moment(mg.userMessage.createdOn).unix()).reverse()
   }
 
-  getConversationMessageCount = async (sessionId: string) => {
+  async getConversationMessageCount(sessionId: string): Promise<number> {
     return this._getMessageCountWhere({ sessionId })
   }
 
-  getConversationMessageGroupCount = async (sessionId: string) => {
-    return this._getMessageCountWhere({ sessionId, direction: 'incoming' })
+  getConversationMessageGroupCount = async (sessionId: string, filters: QueryFilters) => {
+    return this._getMessageCountWhere({ sessionId, direction: 'incoming' }, filters)
   }
 
-  private async _getMessageCountWhere(whereParams) {
-    const messageCountObject = await this.knex
-      .from('events')
-      .count()
-      .where(whereParams)
+  private async _getMessageCountWhere(whereParams, filters?: QueryFilters) {
+    const messageCountQuery = this.knex.from(EVENTS_TABLE_NAME)
+    this._leftJoinFlagTable(messageCountQuery)
 
+    if (filters && filters.flag) {
+      this._whereFlagged(messageCountQuery)
+    }
+
+    const messageCountObject = await messageCountQuery.count().where(whereParams)
     return messageCountObject.pop()['count(*)']
+  }
+
+  private _leftJoinFlagTable(query: any) {
+    query.leftJoin(FLAGS_TABLE_NAME, `${EVENTS_TABLE_NAME}.incomingEventId`, `${FLAGS_TABLE_NAME}.flaggedMessageId`)
+  }
+
+  private _whereFlagged(query: any) {
+    query.whereNotNull(`${FLAGS_TABLE_NAME}.flaggedMessageId`)
   }
 }
