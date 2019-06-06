@@ -1,6 +1,7 @@
-import { IO, Logger } from 'botpress/sdk'
+import { BotConfig, IO, Logger } from 'botpress/sdk'
+import { createExpiry } from 'core/misc/expiry'
 import { SessionRepository } from 'core/repositories'
-import { Event, IOEvent } from 'core/sdk/impl'
+import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -13,6 +14,9 @@ import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'
 import { SessionIdFactory } from './session/id-factory'
+
+const debug = DEBUG('janitor')
+const dialogDebug = debug.sub('dialog')
 
 @injectable()
 export class DialogJanitor extends Janitor {
@@ -39,7 +43,8 @@ export class DialogJanitor extends Janitor {
   }
 
   protected async runTask(): Promise<void> {
-    // Bot config can change at runtime
+    dialogDebug('Running task')
+
     const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
 
@@ -48,41 +53,53 @@ export class DialogJanitor extends Janitor {
 
       const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
       if (sessionsIds.length > 0) {
-        this.logger.forBot(botId).debug(`🔎 Found inactive sessions: ${sessionsIds.join(', ')}`)
+        dialogDebug.forBot(botId, '🔎 Found stale sessions', sessionsIds)
+
+        await Promise.mapSeries(sessionsIds, sessionId =>
+          this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
+        )
       }
-
-      await Promise.mapSeries(sessionsIds, async id => {
-        try {
-          const channel = SessionIdFactory.createChannelFromId(id)
-          const target = SessionIdFactory.createTargetFromId(id)
-          const threadId = SessionIdFactory.createThreadIdFromId(id)
-          const session = await this.sessionRepo.get(id)
-
-          // This event only exists so that processTimeout can call processEvent
-          const fakeEvent = Event({
-            type: 'timeout',
-            channel: channel,
-            target: target,
-            threadId: threadId,
-            direction: 'incoming',
-            payload: '',
-            botId: botId
-          }) as IO.IncomingEvent
-
-          fakeEvent.state.context = session.context as IO.DialogContext
-          fakeEvent.state.session = session.session_data as IO.CurrentSession
-
-          await this.dialogEngine.processTimeout(botId, id, fakeEvent)
-        } catch (err) {
-          // We delete the session in both cases
-        } finally {
-          const session = await this.sessionRepo.get(id)
-          session.context = undefined
-          session.temp_data = undefined
-          session.context_expiry = undefined
-          await this.sessionRepo.update(session)
-        }
-      })
     })
+  }
+
+  private async _processSessionTimeout(sessionId: string, botId: string, botConfig: BotConfig) {
+    dialogDebug.forBot(botId, 'Processing timeout', sessionId)
+
+    try {
+      const channel = SessionIdFactory.createChannelFromId(sessionId)
+      const target = SessionIdFactory.createTargetFromId(sessionId)
+      const threadId = SessionIdFactory.createThreadIdFromId(sessionId)
+      const session = await this.sessionRepo.get(sessionId)
+
+      // This event only exists so that processTimeout can call processEvent
+      const fakeEvent = Event({
+        type: 'timeout',
+        channel: channel,
+        target: target,
+        threadId: threadId,
+        direction: 'incoming',
+        payload: '',
+        botId: botId
+      }) as IO.IncomingEvent
+
+      fakeEvent.state.context = session.context as IO.DialogContext
+      fakeEvent.state.session = session.session_data as IO.CurrentSession
+
+      await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+    } catch (err) {
+      // We delete the session in both cases
+    } finally {
+      const botpressConfig = await this.getBotpresConfig()
+      const expiry = createExpiry(botConfig!, botpressConfig)
+      const session = await this.sessionRepo.get(sessionId)
+
+      session.context = undefined
+      session.temp_data = undefined
+      session.context_expiry = expiry.context
+
+      await this.sessionRepo.update(session)
+
+      dialogDebug.forBot(botId, `New expiry set for ${session.context_expiry}`, sessionId)
+    }
   }
 }
