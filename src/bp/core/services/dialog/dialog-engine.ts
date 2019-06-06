@@ -57,7 +57,7 @@ export class DialogEngine {
     const instruction = queue.dequeue()
     // End session if there are no more instructions in the queue
     if (!instruction) {
-      this._logDebug(event.botId, event.target, 'ending flow')
+      this._debug(event.botId, event.target, 'ending flow')
       event.state.context = {}
       event.state.temp = {}
       return event
@@ -72,7 +72,7 @@ export class DialogEngine {
         return this.processEvent(sessionId, event)
       } else if (result.followUpAction === 'wait') {
         // We don't call processEvent, because we want to wait for the next event
-        this._logDebug(event.botId, event.target, 'waiting until next event')
+        this._debug(event.botId, event.target, 'waiting until next event')
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
         // We reset the queue when we transition to another node.
@@ -105,7 +105,7 @@ export class DialogEngine {
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
-    this._logDebug(event.botId, event.target, 'processing timeout')
+    this._debug(event.botId, event.target, 'processing timeout')
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
@@ -179,7 +179,7 @@ export class DialogEngine {
       currentFlow: defaultFlow.name
     }
 
-    this._logDebug(event.botId, event.target, 'init new context', { ...event.state.context })
+    this._debug(event.botId, event.target, 'init new context', { ...event.state.context })
     return event.state.context
   }
 
@@ -251,7 +251,7 @@ export class DialogEngine {
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
       delete event.state.context
-      this._logDebug(event.botId, event.target, 'ending flow')
+      this._debug(event.botId, event.target, 'ending flow')
       return event
     } else {
       // Transition to the target node in the current flow
@@ -332,7 +332,12 @@ export class DialogEngine {
       )
   }
 
-  private _logDebug(botId: string, target: string, action: string, args?: any) {
+  private _exitingSubflow(event) {
+    const { currentFlow, currentNode, previousFlow, previousNode } = event.state.context
+    return previousFlow === currentFlow && previousNode === currentNode
+  }
+
+  private _debug(botId: string, target: string, action: string, args?: any) {
     if (args) {
       debug.forBot(botId, `[${target}] ${action} %o`, args)
     } else {
@@ -340,20 +345,15 @@ export class DialogEngine {
     }
   }
 
-  private _exitingSubflow(event) {
-    const { currentFlow, currentNode, previousFlow, previousNode } = event.state.context
-    return previousFlow === currentFlow && previousNode === currentNode
-  }
-
   private _logExitFlow(botId, target, currentFlow, currentNode, previousFlow, previousNode) {
-    this._logDebug(botId, target, `transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
+    this._debug(botId, target, `transit (${currentFlow}) [${currentNode}] << (${previousFlow}) [${previousNode}]`)
   }
 
   private _logEnterFlow(botId, target, currentFlow, currentNode, previousFlow, previousNode) {
-    this._logDebug(botId, target, `transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
+    this._debug(botId, target, `transit (${previousFlow}) [${previousNode}] >> (${currentFlow}) [${currentNode}]`)
   }
 
   private _logTransition(botId, target, currentFlow, currentNode, transitionTo) {
-    this._logDebug(botId, target, `transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
+    this._debug(botId, target, `transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
   }
 }
