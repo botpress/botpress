@@ -38,7 +38,7 @@ export default class PatternExtractor {
   ): Promise<sdk.NLU.Entity[]> {
     const values = await Promise.all(
       [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x, ds.lang)).map(sanitize)
+        (await this.languageProvider.tokenize(x, ds.language)).map(sanitize)
       )
     )
     const findings: sdk.NLU.Entity[] = []
@@ -56,7 +56,7 @@ export default class PatternExtractor {
         const occ = val.join('+')
         if (val.length > 1) {
           const text = ds.lowerText.substr(cur + partOfPhrase.length)
-          const _tokens = (await this.languageProvider.tokenize(text, ds.lang)).map(sanitize)
+          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize)
           while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
             partOfPhrase += '+' + _tokens.shift()
           }
@@ -96,7 +96,7 @@ export default class PatternExtractor {
 
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
         debugLists('found list entity', {
-          lang: ds.lang,
+          lang: ds.language,
           occurence: occurence.name,
           input: ds.lowerText,
           extracted,

@@ -316,9 +316,6 @@ export default class ScopedEngine implements Engine {
         if (trainableIntents.length) {
           const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
           const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
-
-          console.log('slottagger models ares', slotTaggerModels)
-
           await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
         }
       } catch (err) {
@@ -340,7 +337,7 @@ export default class ScopedEngine implements Engine {
       customEntityDefs.filter(ent => ent.type === 'list')
     )
 
-    const systemEntities = await this.systemEntityExtractor.extract(ds.lowerText, ds.lang)
+    const systemEntities = await this.systemEntityExtractor.extract(ds.lowerText, ds.language)
 
     debugEntities(ds.rawText, { systemEntities, patternEntities, listEntities })
 
@@ -349,7 +346,7 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractIntents = async (ds: NLUDS): Promise<NLUDS> => {
-    const exactIntent = this._exactIntentMatchers[ds.lang].exactMatch(ds.sanitizedText, ds.includedContexts)
+    const exactIntent = this._exactIntentMatchers[ds.language].exactMatch(ds.sanitizedText, ds.includedContexts)
 
     if (exactIntent) {
       ds.intent = exactIntent
@@ -357,7 +354,7 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.lang].predict(ds.tokens, ds.includedContexts)
+    const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
 
     // TODO: This is no longer relevant because of multi-context
     // We need to actually check if there's a clear winner
@@ -386,13 +383,20 @@ export default class ScopedEngine implements Engine {
 
   private _tokenize = async (ds: NLUDS): Promise<NLUDS> => {
     ds.lowerText = sanitize(ds.rawText).toLowerCase()
-    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.lang)).map(sanitize)
+    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
     return ds
   }
 
   private _extractSlots = async (ds: NLUDS): Promise<NLUDS> => {
     const intentDef = await this.storage.getIntent(ds.intent.name)
-    ds.slots = await this.slotExtractors[ds.lang].extract(ds.lowerText, ds.lang, intentDef, ds.entities, ds.tokens)
+    ds.slots = await this.slotExtractors[ds.language].extract(
+      ds.lowerText,
+      ds.language,
+      intentDef,
+      ds.entities,
+      ds.tokens
+    )
+
     debugSlots('slots', { rawText: ds.rawText, slots: ds.slots })
     return ds
   }
@@ -405,7 +409,7 @@ export default class ScopedEngine implements Engine {
       lang = this.defaultLanguage
     }
 
-    ds.lang = lang
+    ds.language = lang
     return ds
   }
 

@@ -85,7 +85,7 @@ export interface NLUDS {
   rawText: string
   sanitizedText: string
   lowerText: string
-  lang: string
+  language: string
   includedContexts: string[]
   slots: { [key: string]: sdk.NLU.Slot }
   entities: sdk.NLU.Entity[]
