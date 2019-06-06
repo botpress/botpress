@@ -57,6 +57,24 @@ const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next
   next()
 }
 
+const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
+  const language = req.body.lang
+
+  if (!language) {
+    throw new BadRequestError(`Param 'lang' is mandatory`)
+  }
+  if (!_.isString(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} must be a string`)
+  }
+
+  const availableLanguages = service.listFastTextModels().map(x => x.name)
+  if (!availableLanguages.includes(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
+  }
+
+  next()
+}
+
 const DisabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, next) => {
   if (readonly) {
     throw new UnauthorizedError('API server is running in read-only mode')
@@ -116,10 +134,11 @@ function createExpressApp(options: APIOptions): Application {
 export default async function(options: APIOptions) {
   const app = createExpressApp(options)
 
-  // TODO we might want to set a cors policy here
+  // TODO we might want to set a special cors policy here ?
   app.use(cors())
 
   const waitForServiceMw = ServiceLoadingMiddleware(options.languageService)
+  const validateLanguageMw = assertValidLanguage(options.languageService)
 
   app.get('/info', (req, res, next) => {
     res.send({
@@ -135,32 +154,33 @@ export default async function(options: APIOptions) {
     })
   })
 
-  app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
+  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const input = req.body.input
-      const language = req.body.lang || 'en'
+      const language = req.body.lang
 
       if (!input || !_.isString(input)) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const [vectors, tokens] = await options.languageService.vectorize(input, language)
+      const tokens = await options.languageService.tokenize(input, language)
+      const vectors = await options.languageService.vectorize(tokens, language)
       res.json({ input, language, vectors, tokens })
     } catch (err) {
       next(err)
     }
   })
 
-  app.post('/vectorize-tokens', waitForServiceMw, async (req, res, next) => {
+  app.post('/vectorize-tokens', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
-      const lang = req.body.lang || 'en'
+      const lang = req.body.lang
 
       if (!tokens || !tokens.length || !_.isArray(tokens)) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.languageService.vectorizeTokens(tokens, lang)
+      const result = await options.languageService.vectorize(tokens, lang)
       res.json({ input: tokens, language: lang, vectors: result })
     } catch (err) {
       next(err)
@@ -170,29 +190,31 @@ export default async function(options: APIOptions) {
   const router = express.Router({ mergeParams: true })
   router.get('/', (req, res, next) => {
     const downloading = options.downloadManager.inProgress.map(x => ({
-      status: x.getStatus(),
       lang: x.lang,
-      id: x.id,
-      downloadedSize: x.downloadedSize,
-      fileSize: x.fileSize
+      progress: {
+        status: x.getStatus(),
+        downloadId: x.id,
+        size: x.downloadSizeProgress
+      }
     }))
 
-    // TODO change this so we can send only the ones in the appropriate dimensions, simple .filter on   dim: number & domain: string
     res.send({
-      available: options.downloadManager.available,
+      available: options.downloadManager.downloadableLanguages,
+      // double check this one
       installed: options.languageService.listFastTextModels().map(x => ({
         lang: x.name,
         loaded: x.loaded
+        // TODO add fileSize
       })),
       downloading
     })
   })
 
-  router.post('/install/:lang', (req, res, next) => {
+  router.post('/:lang', async (req, res, next) => {
     const { lang } = req.params
     try {
-      options.downloadManager.download(lang)
-      res.status(200).send({ success: true })
+      const downloadId = await options.downloadManager.download(lang)
+      res.status(200).send({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
     }

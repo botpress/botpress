@@ -1,6 +1,6 @@
 import Axios from 'axios'
-import React, { FC } from 'react'
-import { Button } from 'reactstrap'
+import React, { FC, SFC } from 'react'
+import { Button, Progress } from 'reactstrap'
 
 import { LanguageSource } from './typings'
 
@@ -9,11 +9,18 @@ interface Props {
     code: string
     flag: string
     name: string
+    size?: number
   }
   installed: boolean
   allowActions: boolean
   loaded: boolean
   languageSource: LanguageSource
+  downloadProgress?: any
+}
+
+const DownloadProgress: SFC<{ current: number; total: number }> = props => {
+  const value = Math.round((props.current / props.total) * 100)
+  return <Progress value={value}>{value}</Progress>
 }
 
 const Language: FC<Props> = props => {
@@ -22,20 +29,33 @@ const Language: FC<Props> = props => {
     await Axios.delete(`${props.languageSource.endpoint}/languages/${props.language.code}`)
   }
 
+  const installLanguage = async () => {
+    // TODO use auth token if necessary  ==> generage api client for this
+    await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}`)
+  }
+
+  const loadLanguage = async () => {
+    // TODO use auth token if necessary  ==> generage api client for this
+    await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}/load`)
+  }
+
   return (
     <div className='language'>
-      <span>
+      <div>
         <img src={props.language.flag} alt={props.language.code} />
         <span>{props.language.name}</span>
-      </span>
-      <span>
-        {props.allowActions && !props.installed && (
-          <Button size='sm' color='primary' outline>
+      </div>
+      <div className='action'>
+        {props.downloadProgress && (
+          <DownloadProgress current={props.downloadProgress.progress.size} total={props.language.size!} />
+        )}
+        {props.allowActions && !props.downloadProgress && !props.installed && (
+          <Button size='sm' color='primary' outline onClick={installLanguage}>
             Install
           </Button>
         )}
         {props.allowActions && props.installed && !props.loaded && (
-          <Button size='sm' color='primary' outline>
+          <Button size='sm' color='primary' outline onClick={loadLanguage}>
             Load
           </Button>
         )}
@@ -44,7 +64,7 @@ const Language: FC<Props> = props => {
             Remove
           </Button>
         )}
-      </span>
+      </div>
     </div>
   )
 }
