@@ -33,6 +33,7 @@ export class PipelineManager implements PipelineProcessManager {
 export const initNLUDS = (text: string, includedContexts: string[]): NLUDS => {
   return {
     rawText: text,
+    lowerText: '',
     includedContexts: includedContexts,
     lang: '',
     entities: [],

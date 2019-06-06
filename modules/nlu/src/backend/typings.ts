@@ -43,7 +43,8 @@ export interface SlotExtractor {
     input: string,
     lang: string,
     intent: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    tokens: string[]
   ): Promise<sdk.NLU.SlotCollection>
 }
 
@@ -83,6 +84,7 @@ export interface Model {
 export interface NLUDS {
   rawText: string
   sanitizedText: string
+  lowerText: string
   lang: string
   includedContexts: string[]
   slots: { [key: string]: sdk.NLU.Slot }

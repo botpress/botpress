@@ -3,8 +3,8 @@ import { BadRequestError, NotReadyError, UnauthorizedError } from 'core/routers/
 import express, { Application, RequestHandler } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import ms from 'ms'
 import _ from 'lodash'
+import ms from 'ms'
 
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
@@ -130,7 +130,7 @@ export default async function(options: APIOptions) {
     })
   })
 
-  app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
+  app.post('/tokenize', waitForServiceMw, async (req, res, next) => {
     try {
       const input = req.body.input
       const language = req.body.lang || 'en'
@@ -139,14 +139,15 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const [vectors, tokens] = await options.service.vectorize(input, language)
-      res.json({ input, language, vectors, tokens })
+      const tokens = await options.service.tokenize(input, language)
+
+      res.json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
   })
 
-  app.post('/vectorize-tokens', waitForServiceMw, async (req, res, next) => {
+  app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
       const lang = req.body.lang || 'en'
@@ -155,8 +156,8 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.service.vectorizeTokens(tokens, lang)
-      res.json({ input: tokens, language: lang, vectors: result })
+      const result = await options.service.vectorize(tokens, lang)
+      res.json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
     }

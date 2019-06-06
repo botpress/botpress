@@ -4,11 +4,11 @@ import math from 'mathjs'
 import kmeans from 'ml-kmeans'
 import { VError } from 'verror'
 
+import { LanguageProvider } from '../../language-provider'
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import FTWordVecFeaturizer from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
-import { tokenize } from '../language/tokenizers'
 import { keepEntityTypes } from '../slots/pre-processor'
 
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
@@ -22,7 +22,11 @@ export default class SVMClassifier {
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
   private l0Tfidf: _.Dictionary<number>
   private l1Tfidf: { [context: string]: _.Dictionary<number> }
-  constructor(private toolkit: typeof sdk.MLToolkit, private language: string) {}
+  constructor(
+    private toolkit: typeof sdk.MLToolkit,
+    private language: string,
+    private languageProvider: LanguageProvider
+  ) {}
 
   private teardownModels() {
     this.l0Predictor = undefined
@@ -73,13 +77,17 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = intentDefs.map(intent => ({
-      ...intent,
-      tokens: (intent.utterances[this.language] || [])
-        .map(utterance => keepEntityTypes(sanitize(utterance.toLowerCase())))
-        .filter(utterance => utterance.trim().length)
-        .map(tokenize(this.language))
-    }))
+    const intentsWTokens = await Promise.all(
+      intentDefs.map(async intent => ({
+        ...intent,
+        tokens: await Promise.all(
+          (intent.utterances[this.language] || [])
+            .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+            .filter(x => x.trim().length)
+            .map(async utterance => await this.languageProvider.tokenize(utterance, this.language))
+        )
+      }))
+    )
 
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
@@ -92,11 +100,18 @@ export default class SVMClassifier {
       for (const { name: intentName, tokens } of intents) {
         for (const utteranceTokens of tokens) {
           if (utteranceTokens.length) {
-            const l0Vec = await FTWordVecFeaturizer.getFeatures(this.language, utteranceTokens, l0Tfidf[context])
+            const l0Vec = await FTWordVecFeaturizer.getFeatures(
+              this.language,
+              utteranceTokens,
+              l0Tfidf[context],
+              this.languageProvider
+            )
+
             const l1Vec = await FTWordVecFeaturizer.getFeatures(
               this.language,
               utteranceTokens,
-              l1Tfidf[context][intentName]
+              l1Tfidf[context][intentName],
+              this.languageProvider
             )
 
             l0Points.push({
@@ -247,7 +262,7 @@ export default class SVMClassifier {
 
     const input = tokens.join(' ')
 
-    const l0Vec = await FTWordVecFeaturizer.getFeatures(this.language, tokens, this.l0Tfidf)
+    const l0Vec = await FTWordVecFeaturizer.getFeatures(this.language, tokens, this.l0Tfidf, this.languageProvider)
     const l0Features = [...l0Vec, tokens.length]
     const l0 = await this.l0Predictor.predict(l0Features)
 
@@ -260,7 +275,12 @@ export default class SVMClassifier {
 
       const predictions = _.flatten(
         await Promise.map(includedContexts, async ctx => {
-          const l1Vec = await FTWordVecFeaturizer.getFeatures(this.language, tokens, this.l1Tfidf[ctx])
+          const l1Vec = await FTWordVecFeaturizer.getFeatures(
+            this.language,
+            tokens,
+            this.l1Tfidf[ctx],
+            this.languageProvider
+          )
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
           const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)

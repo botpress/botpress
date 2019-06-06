@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as numjs from 'numjs'
 
-import LangProvider from '../../language-provider'
+import { LanguageProvider } from '../../language-provider'
 
 const debug = DEBUG('nlu')
   .sub('intents')
@@ -11,10 +11,14 @@ type Token = string
 type Document = Token[]
 
 export default class FTWordVecFeaturizer {
-  public static async getFeatures(lang: string, doc: Document, docTfidf: _.Dictionary<number>): Promise<number[]> {
+  public static async getFeatures(
+    lang: string,
+    doc: Document,
+    docTfidf: _.Dictionary<number>,
+    langProvider: LanguageProvider
+  ): Promise<number[]> {
     const defaultWordWeight = docTfidf['__avg__'] || 1
-
-    const vecs = await LangProvider.vectorize(doc, lang)
+    const vecs = await langProvider.vectorize(doc, lang)
 
     debug(`get for '${lang}'`, { doc, gotten: vecs.map(x => x.length) })
 

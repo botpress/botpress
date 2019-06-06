@@ -27,12 +27,14 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
   }
 
-  async initialize(sources: LanguageSource[]) {
+  async initialize(sources: LanguageSource[]): Promise<LanguageProvider> {
     await Promise.mapSeries(sources, async source => {
       const headers = {}
+
       if (source.authToken) {
         headers['authorization'] = 'bearer ' + source.authToken
       }
+
       const client = Axios.create({ baseURL: source.endpoint, headers })
       await retry(async () => {
         const { data } = await client.get('/info')
@@ -43,10 +45,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }, this.discoveryRetryPolicy)
     })
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
+
+    return this
   }
 
   private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {
     const providers = this.langs[lang]
+
     if (!providers) {
       throw new Error(`Language "${lang}" is not supported by the configured language sources`)
     }
@@ -63,9 +68,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       try {
         const { data } = await provider.client.post(path, { ...body, lang })
+
         if (data && data[returnProperty]) {
           return data[returnProperty] as T
         }
+
         return data
       } catch (err) {
         provider.disabledUntil = moment()
@@ -89,7 +96,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    return this.queryProvider(lang, '/vectorize-tokens', { tokens }, 'vectors')
+    return this.queryProvider(lang, '/vectorize', { tokens }, 'vectors')
   }
 
   async tokenize(text: string, lang: string): Promise<string[]> {
@@ -97,9 +104,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    return this.queryProvider(lang, '/tokenize', { text }, 'tokens')
+    return this.queryProvider(lang, '/tokenize', { input: text }, 'tokens')
   }
 }
 
-const Provider = new RemoteLanguageProvider()
-export default Provider
+export default new RemoteLanguageProvider()

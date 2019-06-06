@@ -12,16 +12,13 @@ import Storage from './storage'
 import { EngineByBot } from './typings'
 
 const nluByBot: EngineByBot = {}
+let langProvider
 
 const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
-
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
-
-  await LangProvider.initialize(globalConfig.languageSources)
-
+  langProvider = await LangProvider.initialize(globalConfig.languageSources)
   await registerMiddleware(bp, nluByBot)
 }
 
@@ -38,7 +35,8 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     moduleBotConfig,
     bp.MLToolkit,
     bot.languages,
-    bot.defaultLanguage
+    bot.defaultLanguage,
+    langProvider
   )
   await scoped.init()
   nluByBot[botId] = scoped
