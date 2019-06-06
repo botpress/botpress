@@ -152,7 +152,7 @@ export class DecisionEngine {
       result.executeFlows = false
       event.state.session.lastMessages.push(message)
 
-      await this.stateManager.persist(event, true)
+      await this.stateManager.persist(event, false)
     }
 
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')
