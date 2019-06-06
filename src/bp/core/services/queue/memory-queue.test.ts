@@ -39,7 +39,7 @@ describe('Lite Queues', () => {
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
+      queue.enqueue({ ...stubEvent, id: i.toString() })
     }
 
     while (!queue.isEmpty()) {
@@ -156,15 +156,21 @@ describe('Lite Queues', () => {
       }
     })
 
+    // Enqueue jobs that takes ~ 1ms to execute
     for (let i = 0; i < 10; i++) {
       queue.enqueue({ ...stubEvent, id: i.toString(), target: 'a' })
     }
+
+    // Cancel remaining jobs for target a
     queue.cancelAll({ ...stubEvent, target: 'a' })
+
+    // Enqueue jobs for target b
     for (let i = 10; i < 20; i++) {
       queue.enqueue({ ...stubEvent, id: i.toString(), target: 'b' })
     }
 
-    await Promise.delay(25)
+    // Make sure all jobs are executed
+    await Promise.delay(500)
 
     expect(userListA.length).toBeLessThan(10)
     expect(userListB.length).toEqual(10)
