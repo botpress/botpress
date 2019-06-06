@@ -1,9 +1,11 @@
-import { IO, Logger } from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
+import { createForGlobalHooks } from 'core/api'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
+import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
 import { FlowError, ProcessingError } from './errors'
@@ -21,8 +23,8 @@ export class DialogEngine {
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
-    @inject(TYPES.Logger) private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
   ) {}
 
@@ -104,6 +106,10 @@ export class DialogEngine {
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
     this._logDebug(event.botId, event.target, 'processing timeout')
+
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
+
     await this._loadFlows(botId)
 
     // This is the only place we dont want to catch node or flow not found errors
