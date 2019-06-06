@@ -35,6 +35,9 @@ class ViewStore {
   private _showBotInfo = false
 
   @observable
+  public isPoweredByDisplayed = true
+
+  @observable
   public focusedArea = observable.box('input')
 
   /** These buttons are displayed in the header, and can point to actions on your custom components */
@@ -179,6 +182,16 @@ class ViewStore {
   @action.bound
   setLoadingCompleted() {
     this._isLoading = false
+  }
+
+  @action.bound
+  showPoweredBy() {
+    this.isPoweredByDisplayed = true
+  }
+
+  @action.bound
+  hidePoweredBy() {
+    this.isPoweredByDisplayed = false
   }
 
   @action.bound

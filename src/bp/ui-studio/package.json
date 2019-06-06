@@ -54,6 +54,11 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.133",
+    "@types/node": "^12.0.4",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-router-dom": "^4.3.3",
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -70,6 +75,7 @@
     "copy-webpack-plugin": "^4.5.1",
     "cross-env": "^5.2.0",
     "css-loader": "^0.28.11",
+    "css-modules-typescript-loader": "^2.0.3",
     "expose-loader": "^0.7.1",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
@@ -82,8 +88,9 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "thread-loader": "^1.1.5",
+    "ts-loader": "^6.0.2",
     "uglifyjs-webpack-plugin": "^1.2.5",
-    "webpack": "^4.32.2",
+    "webpack": "4.20.2",
     "webpack-node-externals": "^1.7.2"
   },
   "engines": {

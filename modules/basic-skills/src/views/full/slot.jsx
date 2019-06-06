@@ -39,7 +39,8 @@ export class Slot extends React.Component {
         selectedIntentOption: { value: data.intent, label: data.intent },
         selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
-        notFoundElement: data.notFoundElement
+        notFoundElement: data.notFoundElement,
+        maxRetryAttempts: Number(data.retryAttempts) || 3
       })
     }
   }
