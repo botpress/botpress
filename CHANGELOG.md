@@ -1,3 +1,14 @@
+## [11.9.3](https://github.com/botpress/botpress/compare/v11.9.2...v11.9.3) (2019-06-06)
+
+
+### Bug Fixes
+
+* **basic-skills:** synthax error ([04a32e4](https://github.com/botpress/botpress/commit/04a32e4))
+* **core:** removed machineV1 fingerprint ([b69ea15](https://github.com/botpress/botpress/commit/b69ea15))
+* **pro:** licensing on openshift ([a6ae4ff](https://github.com/botpress/botpress/commit/a6ae4ff))
+
+
+
 ## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
 
 
