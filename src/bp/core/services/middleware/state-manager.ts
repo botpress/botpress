@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { createExpiry } from 'core/misc/expiry'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import moment from 'moment'
-import ms from 'ms'
 
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
@@ -53,37 +52,22 @@ export class StateManager {
       session.lastMessages = _.takeRight(session.lastMessages, this.LAST_MESSAGES_HISTORY_COUNT)
     }
 
-    const expiryDates = await this.getExpiryDates(event.botId)
+    const botConfig = await this.configProvider.getBotConfig(event.botId)
+    const botpressConfig = await this.getBotpresConfig()
+
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
+    const expiry = createExpiry(botConfig, botpressConfig)
 
     dialogSession.session_data = session || {}
-    dialogSession.session_expiry = expiryDates.session
+    dialogSession.session_expiry = expiry.session
 
     if (!ignoreContext) {
       dialogSession.context = context || {}
       dialogSession.temp_data = temp || {}
-      dialogSession.context_expiry = expiryDates.context
+      dialogSession.context_expiry = expiry.context
     }
 
     await this.sessionRepo.update(dialogSession)
-  }
-
-  private async getExpiryDates(botId: string) {
-    const botpressConfig = await this.getBotpresConfig()
-    const botConfig = await this.configProvider.getBotConfig(botId)
-
-    const { timeoutInterval, sessionTimeoutInterval } = botpressConfig.dialog
-    const contextExpireDate = ms(_.get(botConfig, 'dialog.timeoutInterval') || timeoutInterval)
-    const sessionExpireDate = ms(_.get(botConfig, 'dialog.sessionTimeoutInterval') || sessionTimeoutInterval)
-
-    return {
-      context: moment()
-        .add(contextExpireDate, 'ms')
-        .toDate(),
-      session: moment()
-        .add(sessionExpireDate, 'ms')
-        .toDate()
-    }
   }
 
   @Memoize
