@@ -2,24 +2,21 @@ import React from 'react'
 import Tour from 'reactour'
 import storage from '../../util/storage'
 import { Button } from '@blueprintjs/core'
-import { GoMortarBoard } from 'react-icons/go'
 
 // Change this key to display the tour the next time a user opens Botpress
 const TOUR_KEY = 'guidedTour11_9_0'
 
 export default class GuidedTour extends React.Component {
-  state = {
-    isDisplayed: false
-  }
-
   componentDidMount() {
     if (!storage.get(TOUR_KEY)) {
       storage.set(TOUR_KEY, true)
-      this.setState({ isDisplayed: true })
+      this.props.onToggle()
     }
   }
 
-  toggle = () => this.setState({ isDisplayed: !this.state.isDisplayed })
+  componentDidCatch(error) {
+    console.log('Error while processing guided tour', error)
+  }
 
   render() {
     const steps = [
@@ -38,15 +35,12 @@ export default class GuidedTour extends React.Component {
     ]
 
     return (
-      <div onClick={this.toggle}>
-        <GoMortarBoard />
-        <Tour
-          steps={steps}
-          isOpen={this.state.isDisplayed}
-          onRequestClose={this.toggle}
-          lastStepNextButton={<Button>Let's get to work!</Button>}
-        />
-      </div>
+      <Tour
+        steps={steps}
+        isOpen={this.props.isDisplayed}
+        onRequestClose={this.props.onToggle}
+        lastStepNextButton={<Button>Let's get to work!</Button>}
+      />
     )
   }
 }

@@ -3,9 +3,10 @@ import * as sdk from 'botpress/sdk'
 import { flatMap, flatten } from 'lodash'
 import _ from 'lodash'
 
+import { LanguageProvider } from '../../language-provider'
 import { extractPattern } from '../../tools/patterns-utils'
+import { NLUDS } from '../../typings'
 import { sanitize } from '../language/sanitizer'
-import { tokenize } from '../language/tokenizers'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
@@ -14,35 +15,37 @@ const MIN_LENGTH_FUZZY_MATCH = 4
 const MIN_CONFIDENCE = 0.65
 
 export default class PatternExtractor {
-  constructor(private toolkit: typeof sdk.MLToolkit) {}
+  constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
 
-  async extractLists(input: string, lang: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
+  async extractLists(ds: NLUDS, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     const entities = flatten(
       flatten(
         await Promise.mapSeries(entityDefs, async entityDef => {
           return await Promise.mapSeries(entityDef.occurences || [], occurence =>
-            this._extractEntitiesFromOccurence(input, lang, occurence, entityDef)
+            this._extractEntitiesFromOccurence(ds, occurence, entityDef)
           )
         })
       )
     )
+
     return _.orderBy(entities, ['meta.confidence'], ['desc'])
   }
 
   protected async _extractEntitiesFromOccurence(
-    input: string,
-    lang: string,
+    ds: NLUDS,
     occurence: sdk.NLU.EntityDefOccurence,
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
-    const tokens = await tokenize(input, lang)
-    const values = await Promise.mapSeries([occurence.name, ...occurence.synonyms], async v => await tokenize(v, lang))
-
+    const values = await Promise.all(
+      [occurence.name, ...occurence.synonyms].map(async x =>
+        (await this.languageProvider.tokenize(x, ds.language)).map(sanitize)
+      )
+    )
     const findings: sdk.NLU.Entity[] = []
 
     let cur = 0
-    for (const tok of tokens) {
-      cur = cur + input.substr(cur).indexOf(tok)
+    for (const tok of ds.tokens) {
+      cur = cur + ds.lowerText.substr(cur).indexOf(tok)
 
       let highest = 0
       let extracted = ''
@@ -52,7 +55,8 @@ export default class PatternExtractor {
         let partOfPhrase = tok
         const occ = val.join('+')
         if (val.length > 1) {
-          const _tokens = await tokenize(input.substr(cur + partOfPhrase.length), lang)
+          const text = ds.lowerText.substr(cur + partOfPhrase.length)
+          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize)
           while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
             partOfPhrase += '+' + _tokens.shift()
           }
@@ -80,7 +84,7 @@ export default class PatternExtractor {
         if (distance > highest || (distance === highest && extracted.length < occ.length)) {
           extracted = occ
           highest = distance
-          source = input.substr(cur, partOfPhrase.length)
+          source = ds.lowerText.substr(cur, partOfPhrase.length)
         }
       }
 
@@ -92,9 +96,9 @@ export default class PatternExtractor {
 
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
         debugLists('found list entity', {
-          lang,
+          lang: ds.language,
           occurence: occurence.name,
-          input,
+          input: ds.lowerText,
           extracted,
           confidence: highest,
           source

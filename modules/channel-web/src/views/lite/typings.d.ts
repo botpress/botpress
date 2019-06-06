@@ -12,6 +12,7 @@ declare global {
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
+    SHOW_POWERED_BY: boolean
     botpress: {
       [moduleName: string]: any
     }
@@ -143,6 +144,7 @@ export type Config = {
   startNewConvoOnTimeout: boolean
   containerWidth?: string | number
   layoutWidth?: string | number
+  showPoweredBy: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

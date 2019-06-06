@@ -24,11 +24,28 @@ import { isInputFocused } from '~/keyboardShortcuts'
 
 import layout from './Layout.styl'
 import StatusBar from './StatusBar'
+import GuidedTour from './GuidedTour'
 
-class Layout extends React.Component {
+interface ILayoutProps {
+  viewModeChanged: any
+  viewMode: number
+  docModal: any
+  docHints: any
+  updateDocumentationModal: any
+  location: any
+}
+
+class Layout extends React.Component<ILayoutProps> {
+  private botpressVersion: string
+  private botName: string
+  private botId: string
+  private mainEl: HTMLElement
+  private statusBarEmitter: any
+
   state = {
     emulatorOpen: false,
-    langSwitcherOpen: false
+    langSwitcherOpen: false,
+    guidedTourOpen: false
   }
 
   componentDidMount() {
@@ -39,12 +56,16 @@ class Layout extends React.Component {
     const viewMode = this.props.location.query && this.props.location.query.viewMode
 
     setImmediate(() => {
-      this.props.viewModeChanged(viewMode || 0)
+      this.props.viewModeChanged(Number(viewMode) || 0)
     })
   }
 
   toggleEmulator = () => {
     window.botpressWebChat.sendEvent({ type: 'toggle' })
+  }
+
+  toggleGuidedTour = () => {
+    this.setState({ guidedTourOpen: !this.state.guidedTourOpen })
   }
 
   focusEmulator = e => {
@@ -122,7 +143,9 @@ class Layout extends React.Component {
             emitter={this.statusBarEmitter}
             langSwitcherOpen={this.state.langSwitcherOpen}
             toggleLangSwitcher={this.toggleLangSwitcher}
+            onToggleGuidedTour={this.toggleGuidedTour}
           />
+          <GuidedTour isDisplayed={this.state.guidedTourOpen} onToggle={this.toggleGuidedTour} />
         </div>
       </HotKeys>
     )

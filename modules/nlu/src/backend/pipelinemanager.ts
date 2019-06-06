@@ -5,30 +5,25 @@ export class PipelineManager implements PipelineProcessManager {
   private _scope: any
   private _pipeline: Function[]
 
-  private _reducer = async (ds: Promise<NLUDS>, fn: Function): Promise<NLUDS> => fn.call(this._scope, await ds)
+  private _reducer = async (ds: Promise<NLUDS>, fn: Function): Promise<NLUDS> => fn(await ds)
 
-  public of(ds: NLUDS): PipelineProcessManager {
-    this._nluds = ds
-    return this
-  }
-
-  public withPipeline(pipeline: Function[]): PipelineProcessManager {
+  public of(pipeline: Function[]): PipelineProcessManager {
     this._pipeline = pipeline
     return this
   }
 
-  public withScope(scope: any): PipelineProcessManager {
-    this._scope = scope
+  public initDS(text: string, includedContexts: string[]): PipelineProcessManager {
+    this._nluds = initNLUDS(text, includedContexts)
     return this
   }
 
   public async run(): Promise<NLUDS> {
     if (!this._nluds) {
-      throw new Error('You must initialize the pipeline manager before runinng it')
+      throw new Error('You must add a NLUDS to the pipeline manager before runinng it')
     }
 
-    if (!this._scope) {
-      throw new Error('You must add a scope to the pipeline manager before running it')
+    if (!this._pipeline) {
+      throw new Error('You must add a pipeline to the pipeline manager before runinng it')
     }
 
     return await this._pipeline.reduce(this._reducer, Promise.resolve(this._nluds))
@@ -38,8 +33,9 @@ export class PipelineManager implements PipelineProcessManager {
 export const initNLUDS = (text: string, includedContexts: string[]): NLUDS => {
   return {
     rawText: text,
+    lowerText: '',
     includedContexts: includedContexts,
-    lang: '',
+    language: '',
     entities: [],
     intents: [],
     intent: undefined,

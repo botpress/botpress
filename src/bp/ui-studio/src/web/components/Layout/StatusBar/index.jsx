@@ -14,7 +14,7 @@ import LangSwitcher from './LangSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
-import GuidedTour from '../GuidedTour'
+import { GoMortarBoard } from 'react-icons/go'
 
 const COMPLETED_DURATION = 2000
 
@@ -159,7 +159,7 @@ class StatusBar extends React.Component {
             description=""
             className={style.right}
           >
-            <GuidedTour />
+            <GoMortarBoard />
           </ActionItem>
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>

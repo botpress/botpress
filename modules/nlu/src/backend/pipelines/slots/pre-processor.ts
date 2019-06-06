@@ -2,8 +2,9 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { getAllMatchingForRegex } from '../../../util'
+import { LanguageProvider } from '../../language-provider'
 import { BIO, Sequence, Tag, Token } from '../../typings'
-import { tokenize } from '../language/tokenizers'
+import { sanitize } from '../language/sanitizer'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 const getAllMatchingSlots = getAllMatchingForRegex(SLOTS_REGEX)
@@ -16,55 +17,52 @@ export function keepEntityValues(text: string): string {
   return text.replace(SLOTS_REGEX, '$1')
 }
 
-const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token => {
-  const token = {
+const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
+  ({
     value,
     matchedEntities,
     start,
-    end: start + value.length
-  } as Token
-
-  if (tag) {
-    token.tag = <Tag>tag
-  }
-  if (slot) {
-    token.slot = slot
-  }
-  return token
-}
+    end: start + value.length,
+    tag,
+    slot
+  } as Token)
 
 // TODO use the same algorithm as in the prediction sequence
-const _generateTrainingTokens = (
+const _generateTrainingTokens = languageProvider => async (
   input: string,
   lang: string,
   start: number,
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
-): Token[] => {
+): Promise<Token[]> => {
   const matchedEntities = _.flatten(
     slotDefinitions.filter(slotDef => slot && slotDef.name === slot).map(slotDef => slotDef.entities)
   )
 
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
-  return tokenize(input, lang).map((t, idx) => {
-    const token = _makeToken(t, matchedEntities, start, tagToken(idx), slot)
-    start += t.length + 1 // 1 is the space char, replace this by what was done in the prediction sequence
-
-    return token
-  })
+  return (await languageProvider.tokenize(input, lang))
+    .map(sanitize)
+    .filter(x => !!x)
+    .map((t, idx) => {
+      const token = _makeToken(t, matchedEntities, start, tagToken(idx), slot)
+      start += t.length
+      return token
+    })
 }
 
-export const generatePredictionSequence = (
+export const generatePredictionSequence = async (
   input: string,
   lang: string,
   intentName: string,
-  entities: sdk.NLU.Entity[]
-): Sequence => {
+  entities: sdk.NLU.Entity[],
+  tokens: string[],
+  languageProvider: LanguageProvider
+): Promise<Sequence> => {
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
 
-  const tokens = tokenize(input, lang).map(value => {
+  const taggedTokens = tokens.map(value => {
     const inputIdx = input.indexOf(value)
     currentIdx += inputIdx // in case of tokenization uses more than one char i.e words separated with multiple spaces
     input = input.slice(inputIdx + value.length)
@@ -81,33 +79,41 @@ export const generatePredictionSequence = (
   return {
     intent: intentName,
     cannonical,
-    tokens
+    tokens: taggedTokens
   }
 }
 
-export const generateTrainingSequence = (
+//I don't like the async reduce, we might want to refactor this when merging logic
+//I also don't like that the lang provider is passed a parametter, we chould make as a class
+export const generateTrainingSequence = (langProvider: LanguageProvider) => async (
   input: string,
   lang: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
   intentName: string = '',
   contexts: string[] = []
-): Sequence => {
+): Promise<Sequence> => {
   let start = 0
   let tokens: Token[] = []
+  let matches: RegExpExecArray | null
+  const genToken = _generateTrainingTokens(langProvider)
 
-  tokens = getAllMatchingSlots(input).reduce((tokens, slot) => {
-    const sub = input.substr(start, slot.index - start - 1)
-    start = slot.index + slot[0].length
+  do {
+    matches = SLOTS_REGEX.exec(input)
 
-    return tokens.concat([
-      ..._generateTrainingTokens(sub, lang, start),
-      ..._generateTrainingTokens(slot[1], lang, start + slot.index, slot[2], slotDefinitions)
-    ])
-  }, [])
+    if (matches) {
+      const sub = input.substr(start, matches.index - start - 1)
+      tokens = [
+        ...tokens,
+        ...(await genToken(sub, lang, start)),
+        ...(await genToken(matches[1], lang, start + matches.index, matches[2], slotDefinitions))
+      ]
+      start = matches.index + matches[0].length
+    }
+  } while (matches)
 
   if (start !== input.length) {
     const lastingPart = input.substr(start, input.length - start)
-    tokens = [...tokens, ..._generateTrainingTokens(lastingPart, lang, start)]
+    tokens = [...tokens, ...(await genToken(lastingPart, lang, start))]
   }
 
   return {

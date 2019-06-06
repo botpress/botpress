@@ -11,6 +11,8 @@ import classnames from 'classnames'
 import inspectorTheme from './inspectortheme'
 import JSONTree from 'react-json-tree'
 
+import ReactTooltip from 'react-tooltip'
+
 function MessageGroup(props) {
   const messages = [...props.messages]
   if (!messages) {
@@ -26,15 +28,13 @@ function MessageGroup(props) {
   return (
     <div className={style['message-group']}>
       <div className={style['message-group-header']}>
-        {userMessage &&
-          userMessage.decision && (
-            <div className={style['message-group-explanation']}>
-              <div className={style['message-group-confidence']}>{`${Math.round(
-                userMessage.decision.confidence * 10000
-              ) / 100}% decision:`}</div>
-              <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
-            </div>
-          )}
+        {userMessage && userMessage.decision && (
+          <div className={style['message-group-explanation']}>
+            <div className={style['message-group-confidence']}>{`${Math.round(userMessage.decision.confidence * 10000) /
+              100}% decision:`}</div>
+            <div className={style['message-group-decision']}>{` ${userMessage.decision.sourceDetails}`}</div>
+          </div>
+        )}
         <div className={style['message-inspect']} onClick={() => props.focusMessage(userMessage)}>
           <MdSearch />
         </div>
@@ -81,7 +81,7 @@ class MessagesHeader extends React.Component {
     super(props)
 
     const flattenMessages = props.messageGroups.flat()
-    const content = JSON.stringify(flattenMessages)
+    const content = JSON.stringify(flattenMessages, null, 2)
     let blob = new Blob([content], { type: 'application/json' })
     this.fileURL = window.URL.createObjectURL(blob)
   }
@@ -117,10 +117,13 @@ class MessagesHeader extends React.Component {
           </div>
           <div className={style['message-header-icon_item']}>
             <CopyToClipboard text={window.location.href}>
-              <FiLink />
+              <FiLink data-tip data-event="mousedown" data-event-off="mouseup" />
             </CopyToClipboard>
           </div>
         </div>
+        <ReactTooltip delayHide={500} effect="solid">
+          <div>copied</div>
+        </ReactTooltip>
       </div>
     )
   }

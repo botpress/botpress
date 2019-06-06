@@ -9,6 +9,7 @@ import BotInfo from './common/BotInfo'
 import MessageList from './messages/MessageList'
 import Composer from './Composer'
 import ConversationList from './ConversationList'
+import Footer from './Footer'
 import Header from './Header'
 import * as Keyboard from './Keyboard'
 import OverridableComponent from './OverridableComponent'
@@ -44,6 +45,7 @@ class Container extends React.Component<ContainerProps> {
           <Header />
           {this.renderBody()}
           <OverridableComponent name={'below_conversation'} original={null} />
+          {this.props.isPoweredByDisplayed && <Footer />}
         </div>
       </React.Fragment>
     )
@@ -57,6 +59,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isFullscreen: store.view.isFullscreen,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
+  isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
   botName: store.botName
 }))(injectIntl(observer(Container)))
@@ -71,4 +74,5 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'isBotInfoDisplayed'
     | 'sideTransition'
     | 'dimensions'
+    | 'isPoweredByDisplayed'
   >

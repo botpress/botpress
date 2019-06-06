@@ -4,6 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
+import { LanguageProvider } from '../../language-provider'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
@@ -37,7 +38,7 @@ export default class CRFExtractor implements SlotExtractor {
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
 
-  constructor(private toolkit: typeof sdk.MLToolkit) {}
+  constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
 
   async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
     // load language model
@@ -104,11 +105,13 @@ export default class CRFExtractor implements SlotExtractor {
     text: string,
     lang: string,
     intentDef: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    tokens: string[]
   ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(text, { entities })
-    const seq = generatePredictionSequence(text, lang, intentDef.name, entities)
+    const seq = await generatePredictionSequence(text, lang, intentDef.name, entities, tokens, this.languageProvider)
     const { probability, result: tags } = await this._tag(seq)
+
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
       .filter(([token, tagResult]) => {
@@ -241,12 +244,7 @@ export default class CRFExtractor implements SlotExtractor {
     const ft = new this.toolkit.FastText.Model()
 
     const trainContent = samples.reduce((corpus, seq) => {
-      const cannonicSentence = seq.tokens
-        .map(s => {
-          if (s.tag === BIO.OUT) return s.value
-          else return s.slot
-        })
-        .join(' ')
+      const cannonicSentence = seq.tokens.map(s => (s.tag === BIO.OUT ? s.value : s.slot)).join(' ')
       return `${corpus}${cannonicSentence}\n`
     }, '')
 

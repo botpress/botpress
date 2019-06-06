@@ -43,7 +43,8 @@ export interface SlotExtractor {
     input: string,
     lang: string,
     intent: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    tokens: string[]
   ): Promise<sdk.NLU.SlotCollection>
 }
 
@@ -83,7 +84,8 @@ export interface Model {
 export interface NLUDS {
   rawText: string
   sanitizedText: string
-  lang: string
+  lowerText: string
+  language: string
   includedContexts: string[]
   slots: { [key: string]: sdk.NLU.Slot }
   entities: sdk.NLU.Entity[]
@@ -94,8 +96,7 @@ export interface NLUDS {
 }
 
 export interface PipelineProcessManager {
-  of(ds: NLUDS): PipelineProcessManager
-  withPipeline(pipeline: Function[]): PipelineProcessManager
-  withScope(scope: any): PipelineProcessManager
+  of(pipeline: Function[]): PipelineProcessManager
+  initDS(text: string, includedContexts: string[]): PipelineProcessManager
   run(): Promise<NLUDS>
 }

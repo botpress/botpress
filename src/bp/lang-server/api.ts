@@ -154,7 +154,7 @@ export default async function(options: APIOptions) {
     })
   })
 
-  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
+  app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const input = req.body.input
       const language = req.body.lang
@@ -164,14 +164,14 @@ export default async function(options: APIOptions) {
       }
 
       const tokens = await options.languageService.tokenize(input, language)
-      const vectors = await options.languageService.vectorize(tokens, language)
-      res.json({ input, language, vectors, tokens })
+
+      res.json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
   })
 
-  app.post('/vectorize-tokens', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
+  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
       const lang = req.body.lang
@@ -181,7 +181,7 @@ export default async function(options: APIOptions) {
       }
 
       const result = await options.languageService.vectorize(tokens, lang)
-      res.json({ input: tokens, language: lang, vectors: result })
+      res.json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
     }
