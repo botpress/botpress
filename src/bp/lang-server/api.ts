@@ -56,6 +56,24 @@ const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next
   next()
 }
 
+const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
+  const language = req.body.lang
+
+  if (!language) {
+    throw new BadRequestError(`Param 'lang' is mandatory`)
+  }
+  if (!_.isString(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} must be a string`)
+  }
+
+  const availableLanguages = service.listFastTextModels().map(x => x.name)
+  if (!availableLanguages.includes(language)) {
+    throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
+  }
+
+  next()
+}
+
 const DisabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, next) => {
   if (readonly) {
     throw new UnauthorizedError('API server is running in read-only mode')
@@ -115,6 +133,7 @@ function createExpressApp(options: APIOptions): Application {
 export default async function(options: APIOptions) {
   const app = createExpressApp(options)
   const waitForServiceMw = ServiceLoadingMiddleware(options.service)
+  const validateLanguageMw = assertValidLanguage(options.service)
 
   app.get('/info', (req, res, next) => {
     res.send({
@@ -130,10 +149,10 @@ export default async function(options: APIOptions) {
     })
   })
 
-  app.post('/tokenize', waitForServiceMw, async (req, res, next) => {
+  app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const input = req.body.input
-      const language = req.body.lang || 'en'
+      const language = req.body.lang
 
       if (!input || !_.isString(input)) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
@@ -147,10 +166,10 @@ export default async function(options: APIOptions) {
     }
   })
 
-  app.post('/vectorize', waitForServiceMw, async (req, res, next) => {
+  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
     try {
       const tokens = req.body.tokens
-      const lang = req.body.lang || 'en'
+      const lang = req.body.lang
 
       if (!tokens || !tokens.length || !_.isArray(tokens)) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')

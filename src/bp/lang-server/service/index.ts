@@ -209,10 +209,7 @@ export default class LanguageService {
   async tokenize(input: string, lang: string): Promise<string[]> {
     const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
     if (!fastTextModel || !fastTextModel.loaded) {
-      throw new Error(`FastText model for lang '${lang}' is not loaded in memory`)
-    }
-    if (!bpeModel || !bpeModel.loaded) {
-      throw new Error(`BPE model for lang '${lang}' is not loaded in memory`)
+      throw new Error(`FastText Model for lang '${lang}' is not loaded in memory`)
     }
 
     return await (bpeModel as LoadedBPEModel).tokenizer.encode(input).map(_.toLower)

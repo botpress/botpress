@@ -11,36 +11,6 @@ import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 10
 
-// TODO: new files architecture for multi-lang training
-/* models/
-      en/
-        contexts/
-          000abc.svm.bin
-          000abc.svm.confusion.json
-        intents/
-          000abc.svm.bin
-          000abc.svm.confusion.json
-          000bcd.svm.bin
-          000ehg.svm.bin
-        slots/
-          000abc.crf.bin
-          000abc.crf.confusion.json
-        generic/
-          000abc.skipgram.bin
-*/
-
-/*
-  imported_models: {
-    contexts_svm: hash
-    intents_svm: [hashes]
-    slots_crf: hash
-    generic_skipgram: hash
-  },
-  models: {
-    hash: { language, trained_on, imported_on, train_elasped, confusion_available }
-  }
-*/
-
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 
@@ -51,7 +21,12 @@ export default class Storage {
   private readonly modelsDir: string = './models'
   private readonly config: Config
 
-  constructor(config: Config, private readonly botId: string) {
+  constructor(
+    config: Config,
+    private readonly botId: string,
+    private readonly defaultLanguage: string,
+    private readonly languages: string[]
+  ) {
     this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
     this.globalGhost = Storage.ghostProvider()
@@ -135,33 +110,35 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const propertiesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
-    let properties: any = {}
+    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
 
     try {
-      properties = JSON.parse(propertiesContent)
+      const content = JSON.parse(jsonContent)
+      return this._migrate_intentDef_11_12(intent, filename, content)
     } catch (err) {
-      throw new Error(
-        `Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}" in file "${filename}"`
-      )
+      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${jsonContent}" in file "${filename}"`)
     }
+  }
 
-    const obj = {
-      name: intent,
-      filename: filename,
-      contexts: ['global'], // @deprecated remove in bp > 11
-      ...properties
-    }
-
-    // @deprecated remove in bp > 11
+  /**
+   * @deprecated > 12
+   * Graceful migration
+   */
+  private async _migrate_intentDef_11_12(
+    intentName: string,
+    filename: string,
+    oldIntent: any
+  ): Promise<sdk.NLU.IntentDefinition> {
     let hasChange = false
-    if (!properties.utterances) {
-      await this._legacyAppendIntentUtterances(obj, intent)
-      hasChange = true
+    const intentDef = {
+      name: intentName,
+      filename: filename,
+      contexts: ['global'],
+      ...oldIntent
     }
 
-    // @deprecated > 11 graceful migration
-    for (const slot of obj.slots || []) {
+    // add slots
+    for (const slot of intentDef.slots || []) {
       if (!slot.entities && slot.entity) {
         slot.entities = [slot.entity]
         delete slot.entity
@@ -169,24 +146,25 @@ export default class Storage {
       }
     }
 
-    if (hasChange) {
-      await this.saveIntent(intent, obj)
+    // add multilang utterances
+    if (_.isArray(intentDef.utterances)) {
+      hasChange = true
+      const getTranslatedUtterances = lang => (lang === this.defaultLanguage ? intentDef.utterances : [])
+
+      intentDef.utterances = this.languages.reduce(
+        (utt, lang) => ({
+          ...utt,
+          [lang]: getTranslatedUtterances(lang)
+        }),
+        {}
+      )
     }
 
-    return obj
-  }
+    if (hasChange) {
+      await this.saveIntent(intentName, intentDef)
+    }
 
-  /** @deprecated remove in 12.0+
-   * utterances used to be defined in a separate .txt file
-   * this is not the case anymore since 11.2
-   * we added this method for backward compatibility
-   */
-  private async _legacyAppendIntentUtterances(intent: any, intentName: string) {
-    const filename = `${intentName}.utterances.txt`
-
-    const utterancesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
-    intent.utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
-    await this.botGhost.deleteFile(this.intentsDir, filename)
+    return intentDef
   }
 
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
