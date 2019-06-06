@@ -72,7 +72,7 @@ export default () => {
             <Alert color='warning'>Langauges cannot be edited as Language server is read only</Alert>
           )}
           {/* TODO we might want to extract languages in a component ? */}
-          {languages && languages.available.length && !langServerInfo.readOnly && (
+          {languages && languages.available.length > 0 && !langServerInfo.readOnly && (
             <div className='languages-list'>
               {/* TODO add a select when we have too many languages */}
               <h4>Add Languages</h4>

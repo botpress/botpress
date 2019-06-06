@@ -200,12 +200,7 @@ export default async function(options: APIOptions) {
 
     res.send({
       available: options.downloadManager.downloadableLanguages,
-      // double check this one
-      installed: options.languageService.listFastTextModels().map(x => ({
-        lang: x.name,
-        loaded: x.loaded
-        // TODO add fileSize
-      })),
+      installed: options.languageService.getModels(),
       downloading
     })
   })

@@ -20,7 +20,7 @@ interface Props {
 
 const DownloadProgress: SFC<{ current: number; total: number }> = props => {
   const value = Math.round((props.current / props.total) * 100)
-  return <Progress value={value}>{value}</Progress>
+  return <Progress value={value}>{value} %</Progress>
 }
 
 const Language: FC<Props> = props => {

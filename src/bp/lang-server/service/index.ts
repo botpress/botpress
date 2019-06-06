@@ -16,12 +16,12 @@ export default class LanguageService {
   private _cache
 
   // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
-  private readonly FAST_TEXT_MODEL_REGEX = /(\w+)\.(\w+)\.(\d+)\.bin/i
+  private readonly FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 
   // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
-  private readonly BPE_MODEL_REGEX = /(\w+)\.(\w+)\.bpe\.model/i
+  private readonly BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
-  //This equals to 24H
+  // This equals to 24H
   private readonly _maxAgeCacheInMS = 86400000
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
@@ -77,25 +77,6 @@ export default class LanguageService {
     }
 
     models[langCode] = this._getPairModels(langCode, fastTextModelFileInfo.file, bpeModelFileInfo.file)
-  }
-
-  private _getModels(): Dic<ModelSet> {
-    if (!fs.existsSync(this.langDir)) {
-      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
-    }
-
-    const files = fs.readdirSync(this.langDir)
-    const models: Dic<ModelSet> = {}
-    const _scopedAddPairModelToModels = this._addPairModelToModels(models)
-
-    _.chain(files)
-      .map(this._getModelInfoFromFile)
-      .reject(_.isEmpty)
-      .groupBy(model => [model.domain, model.langCode])
-      .forEach(_scopedAddPairModelToModels)
-      .value()
-
-    return models
   }
 
   private _getPairModels(lang: string, fastTextModelName: string, bpeModelName: string) {
@@ -222,6 +203,36 @@ export default class LanguageService {
     }
 
     return await Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
+  }
+
+  getModels() {
+    const models = this._getModels()
+    return Object.keys(models).map(lang => {
+      const loaded = this._models[lang] && this._models[lang].bpeModel.loaded && this._models[lang].fastTextModel.loaded
+      return {
+        lang,
+        loaded
+      }
+    })
+  }
+
+  private _getModels(): Dic<ModelSet> {
+    if (!fs.existsSync(this.langDir)) {
+      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
+    }
+
+    const files = fs.readdirSync(this.langDir)
+    const models: Dic<ModelSet> = {}
+    const _scopedAddPairModelToModels = this._addPairModelToModels(models)
+
+    _.chain(files)
+      .map(this._getModelInfoFromFile)
+      .reject(_.isEmpty)
+      .groupBy(model => [model.domain, model.langCode])
+      .forEach(_scopedAddPairModelToModels)
+      .value()
+
+    return models
   }
 
   // TODO we might want to add a storage service
