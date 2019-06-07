@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as numjs from 'numjs'
 
-import { LanguageProvider } from '../../language-provider'
+import { LanguageProvider } from '../../typings'
 
 const debug = DEBUG('nlu')
   .sub('intents')

@@ -25,7 +25,7 @@ const debug = DEBUG('api')
 const debugAuth = debug.sub('auth')
 const debugRequest = debug.sub('request')
 
-const AuthMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
+const authMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
   const header = (req.header('authorization') || '').trim()
   const split = header.indexOf(' ')
 
@@ -124,8 +124,8 @@ function createExpressApp(options: APIOptions): Application {
     )
   }
 
-  if (options.authToken && options.authToken.length >= 1) {
-    app.use(AuthMiddleware(options.authToken))
+  if (options.authToken && options.authToken.length) {
+    app.use(authMiddleware(options.authToken))
   }
 
   return app
@@ -244,6 +244,7 @@ export default async function(options: APIOptions) {
   app.use('/languages', DisabledReadonlyMiddleware(options.readOnly), router)
 
   const httpServer = createServer(app)
+
   await Promise.fromCallback(callback => {
     httpServer.listen(options.port, options.host, undefined, callback)
   })

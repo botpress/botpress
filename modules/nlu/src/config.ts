@@ -1,3 +1,5 @@
+import { FastTextOverrides, LanguageSource } from './backend/typings'
+
 export interface Config {
   /**
    * The minimum confidence required (in %) for an intent to match
@@ -51,17 +53,4 @@ export interface Config {
    * @default {}
    */
   fastTextOverrides?: FastTextOverrides
-}
-
-export interface FastTextOverrides {
-  learningRate?: number
-  epoch?: number
-  wordNgrams?: number
-}
-
-export interface LanguageSource {
-  /** The endpoint URL of the source */
-  endpoint: string
-  /** The authentication token, if required by the source */
-  authToken?: string
 }

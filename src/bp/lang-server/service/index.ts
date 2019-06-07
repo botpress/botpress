@@ -35,7 +35,7 @@ export default class LanguageService {
     })
 
     this._models = this._getModels()
-    this._logLoadingModels()
+    console.log(`Loading languages "${Object.keys(this._models).join(', ')}"`)
     await Promise.all(Object.keys(this._models).map(this._loadModels.bind(this)))
 
     this._ready = true
@@ -63,8 +63,6 @@ export default class LanguageService {
     this._models[lang] = { fastTextModel, bpeModel }
   }
 
-  private _logLoadingModels = () => console.log(`Loading languages "${Object.keys(this._models).join(', ')}"`)
-
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
     const [__, domain, langCode, dim] = regexMatch
     return isFastText ? { domain, langCode, dim: Number(dim), file: file } : { domain, langCode, file }
@@ -72,13 +70,16 @@ export default class LanguageService {
 
   private _getModelInfoFromFile = (file: string): ModelFileInfo => {
     const fastTextModelsMatch = file.match(this.FAST_TEXT_MODEL_REGEX)
-    const bpeModelsMatch = file.match(this.BPE_MODEL_REGEX)
+    if (fastTextModelsMatch) {
+      return this._getFileInfo(fastTextModelsMatch, true, file)
+    }
 
-    return !!fastTextModelsMatch
-      ? this._getFileInfo(fastTextModelsMatch, true, file)
-      : !!bpeModelsMatch
-      ? this._getFileInfo(bpeModelsMatch, false, file)
-      : ({} as ModelFileInfo)
+    const bpeModelsMatch = file.match(this.BPE_MODEL_REGEX)
+    if (bpeModelsMatch) {
+      return this._getFileInfo(bpeModelsMatch, false, file)
+    }
+
+    return {} as ModelFileInfo
   }
 
   private _addPairModelToModels = (models: Dic<ModelSet>) => (modelGroup: ModelFileInfo[]) => {
