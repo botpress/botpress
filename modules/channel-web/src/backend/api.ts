@@ -1,6 +1,6 @@
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
+import crypto from 'crypto'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -314,23 +314,44 @@ export default async (bp: typeof sdk, db: Database) => {
     res.send({ convoId })
   })
 
-  router.get('/:userId/reference', async (req, res) => {
+  router.post('/conversations/:userId/:conversationId/reference/:reference', async (req, res) => {
     try {
-      const {
-        params: { userId },
-        query: { ref: webchatUrlQuery }
-      } = req
+      const { botId, userId, conversationId, reference } = req.params
+      await bp.users.getOrCreateUser('web', userId)
 
-      // FIXME
-      // const state = await bp.dialogEngine.stateManager.getState(userId)
-      // const newState = { ...state, webchatUrlQuery }
+      if (typeof reference !== 'string' || !reference.length || reference.indexOf('=') === -1) {
+        throw new Error('Invalid reference')
+      }
 
-      // FIXME
-      // await bp.dialogEngine.stateManager.setState(userId, newState)
+      const message = reference.slice(0, reference.lastIndexOf('='))
+      const signature = reference.slice(reference.lastIndexOf('=') + 1)
 
-      res.status(200)
+      const verifySignature = await bp.security.getMessageSignature(message)
+      if (verifySignature !== signature) {
+        throw new Error('Bad reference signature')
+      }
+
+      const payload = {
+        text: message,
+        signature: signature,
+        type: 'session_reference'
+      }
+
+      const event = bp.IO.Event({
+        botId,
+        channel: 'web',
+        direction: 'incoming',
+        target: userId,
+        threadId: conversationId,
+        type: payload.type,
+        payload,
+        credentials: req.credentials
+      })
+
+      await bp.events.sendEvent(event)
+      res.sendStatus(200)
     } catch (error) {
-      res.status(500)
+      res.status(500).send({ message: error.message })
     }
   })
 
