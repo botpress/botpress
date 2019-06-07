@@ -4,7 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import { LanguageProvider } from '../../language-provider'
+import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'

@@ -1,3 +1,4 @@
+import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
 export const BIO = {
@@ -98,4 +99,26 @@ export interface PipelineProcessManager {
   of(pipeline: Function[]): PipelineProcessManager
   initDS(text: string, includedContexts: string[]): PipelineProcessManager
   run(): Promise<NLUDS>
+}
+
+export interface LangsGateway {
+  [lang: string]: { source: LanguageSource; client: AxiosInstance; errors: number; disabledUntil?: Date }[]
+}
+
+export interface LanguageProvider {
+  vectorize(tokens: string[], lang: string): Promise<number[][]>
+  tokenize(text: string, lang: string): Promise<string[]>
+}
+
+export interface FastTextOverrides {
+  learningRate?: number
+  epoch?: number
+  wordNgrams?: number
+}
+
+export interface LanguageSource {
+  /** The endpoint URL of the source */
+  endpoint: string
+  /** The authentication token, if required by the source */
+  authToken?: string
 }

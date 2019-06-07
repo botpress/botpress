@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { LanguageProvider } from '../../language-provider'
+import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
@@ -55,7 +55,7 @@ export const generatePredictionSequence = async (
   entities: sdk.NLU.Entity[],
   tokens: string[]
 ): Promise<Sequence> => {
-  const cannonical = input // we generate a copy here since input is mutating
+  const cannonical = Object.assign('', input) // we generate a copy here since input is mutating
   let currentIdx = 0
 
   const taggedTokens = tokens.map(value => {
@@ -92,6 +92,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let tokens: Token[] = []
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
+  const cannonical = Object.assign('', input)
 
   do {
     matches = SLOTS_REGEX.exec(input)
@@ -114,7 +115,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
 
   return {
     intent: intentName,
-    cannonical: input,
+    cannonical,
     tokens,
     contexts
   }

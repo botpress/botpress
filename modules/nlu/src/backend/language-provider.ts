@@ -1,15 +1,10 @@
-import Axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import moment from 'moment'
 
-import { LanguageSource } from '../config'
+import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
-
-export interface LanguageProvider {
-  vectorize(tokens: string[], lang: string): Promise<number[][]>
-  tokenize(text: string, lang: string): Promise<string[]>
-}
 
 export class RemoteLanguageProvider implements LanguageProvider {
   private discoveryRetryPolicy = {
@@ -19,9 +14,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     max_tries: 5
   }
 
-  private langs: {
-    [lang: string]: { source: LanguageSource; client: AxiosInstance; errors: number; disabledUntil?: Date }[]
-  } = {}
+  private langs: LangsGateway = {}
 
   private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
@@ -35,15 +28,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
         headers['authorization'] = 'bearer ' + source.authToken
       }
 
-      const client = Axios.create({ baseURL: source.endpoint, headers })
+      const client = axios.create({ baseURL: source.endpoint, headers })
+
       await retry(async () => {
         const { data } = await client.get('/info')
+
         if (!data.ready) {
           throw new Error('Language source is not ready')
         }
+
         data.languages.forEach(x => this.addProvider(x, source, client))
       }, this.discoveryRetryPolicy)
     })
+
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
     return this
