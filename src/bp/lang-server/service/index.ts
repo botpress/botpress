@@ -21,7 +21,7 @@ export default class LanguageService {
   // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
   private readonly BPE_MODEL_REGEX = /(\w+)\.(\w+)\.bpe\.model/i
 
-  //This equals to 24H
+  // This equals to 24H
   private readonly _maxAgeCacheInMS = 86400000
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}

@@ -22,6 +22,7 @@ export default class SVMClassifier {
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
   private l0Tfidf: _.Dictionary<number>
   private l1Tfidf: { [context: string]: _.Dictionary<number> }
+
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private language: string,

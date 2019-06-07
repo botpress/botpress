@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { BIO } from '../../typings'
 
@@ -7,7 +8,20 @@ import { generatePredictionSequence, generateTrainingSequence } from './pre-proc
 const AN_ENTITY = 'person'
 const OTHER_ENTITY = 'animal'
 
-/*
+const languageProvider = {
+  vectorize: function(tokens: string[], lang: string): Promise<number[][]> {
+    const vectors = [[1, 2, 3]]
+    return Promise.resolve(vectors)
+  },
+  tokenize: function(text: string, lang: string): Promise<string[]> {
+    //This is a white space tokenizer only working for tests written in english
+    const res = text.split(' ').filter(_.identity)
+    return Promise.resolve(res)
+  }
+}
+
+const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
+
 describe('Preprocessing', () => {
   test('generate training seq', async () => {
     const slotDef = [
@@ -21,7 +35,7 @@ describe('Preprocessing', () => {
       }
     ]
 
-    const trainingSeq = await generateTrainingSequence(
+    const trainingSeq = await scopedGenerateTrainingSequence(
       `hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
       'en',
       slotDef
@@ -94,13 +108,11 @@ describe('Preprocessing', () => {
       }
     ] as sdk.NLU.Entity[]
 
+    const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
+    const tokens = await languageProvider.tokenize(input, 'en')
+
     // some extra spaces on purpose here
-    const testingSeq = await generatePredictionSequence(
-      'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com',
-      'en',
-      'a name',
-      entities
-    )
+    const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
 
     const entityTokens = testingSeq.tokens.filter(t => t.matchedEntities.length)
     expect(entityTokens.length).toEqual(3)
@@ -114,4 +126,3 @@ describe('Preprocessing', () => {
     expect(testingSeq.tokens[0].matchedEntities).toEqual([])
   })
 })
-*/

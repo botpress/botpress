@@ -41,6 +41,7 @@ export default class PatternExtractor {
         (await this.languageProvider.tokenize(x, ds.language)).map(sanitize)
       )
     )
+
     const findings: sdk.NLU.Entity[] = []
 
     let cur = 0
@@ -54,9 +55,11 @@ export default class PatternExtractor {
       for (const val of values) {
         let partOfPhrase = tok
         const occ = val.join('+')
+
         if (val.length > 1) {
           const text = ds.lowerText.substr(cur + partOfPhrase.length)
           const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize)
+
           while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
             partOfPhrase += '+' + _tokens.shift()
           }

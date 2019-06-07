@@ -1,13 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getAllMatchingForRegex } from '../../../util'
 import { LanguageProvider } from '../../language-provider'
-import { BIO, Sequence, Tag, Token } from '../../typings'
+import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-const getAllMatchingSlots = getAllMatchingForRegex(SLOTS_REGEX)
 
 export function keepEntityTypes(text: string): string {
   return text.replace(SLOTS_REGEX, '$2')
@@ -53,11 +51,9 @@ const _generateTrainingTokens = languageProvider => async (
 
 export const generatePredictionSequence = async (
   input: string,
-  lang: string,
   intentName: string,
   entities: sdk.NLU.Entity[],
-  tokens: string[],
-  languageProvider: LanguageProvider
+  tokens: string[]
 ): Promise<Sequence> => {
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0

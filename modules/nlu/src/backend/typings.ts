@@ -92,7 +92,6 @@ export interface NLUDS {
   intents: sdk.NLU.Intent[]
   intent: sdk.NLU.Intent
   tokens: string[]
-  execute: Function
 }
 
 export interface PipelineProcessManager {
