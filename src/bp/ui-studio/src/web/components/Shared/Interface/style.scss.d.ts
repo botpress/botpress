@@ -3,8 +3,10 @@
 interface CssExports {
   'action_button': string;
   'action_disabled': string;
+  'active': string;
   'container': string;
   'infoTooltip': string;
+  'itemList': string;
   'searchBar': string;
   'sidebar': string;
   'sidebar_hidden': string;

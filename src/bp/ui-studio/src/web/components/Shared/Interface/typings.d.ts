@@ -31,6 +31,26 @@ export interface InfoTooltipProps {
   position: Position
 }
 
+export interface ItemListProps {
+  items: Item[]
+  actions: ItemAction[]
+  onElementClicked: (item: Item) => void
+}
+
+interface ItemAction {
+  /** Text displayed when the cursor is over the button */
+  tooltip: string
+  /** The name of the icon to use. Can also be a JSX element */
+  icon: IconName | MaybeElement
+  /** The action called when the specific action is clicked */
+  onClick: (item: Item) => void
+}
+
+interface Item {
+  label: string
+  value: any
+}
+
 export interface SectionProps {
   /** When true, the content of the section is displayed by default */
   expanded: boolean

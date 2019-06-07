@@ -19,6 +19,7 @@ import style from './style.scss'
 import {
   ContainerProps,
   InfoTooltipProps,
+  ItemListProps,
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
@@ -86,6 +87,31 @@ export const SearchBar = (props: SearchBarProps) => {
         <InputGroup placeholder={props.placeholder || 'Search'} value={text} onChange={handleTextChanged} />
         <Button icon="search" className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
       </ControlGroup>
+    </div>
+  )
+}
+
+export const ItemList = (props: ItemListProps) => {
+  return (
+    <div className={style.itemList}>
+      <ul>
+        {props.items &&
+          props.items.map((item, idx) => (
+            <li key={idx}>
+              <div style={{ width: '80%' }} onClick={() => props.onElementClicked && props.onElementClicked(item)}>
+                {item.label}
+              </div>
+              <div style={{ marginLeft: 'auto ' }}>
+                {props.actions &&
+                  props.actions.map(action => (
+                    <Tooltip key={idx + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                    </Tooltip>
+                  ))}
+              </div>
+            </li>
+          ))}
+      </ul>
     </div>
   )
 }
