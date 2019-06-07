@@ -36,6 +36,8 @@ export interface SectionProps {
   expanded: boolean
   /** The label to display as the section header */
   label: string
+  /** When true, the caret icon is not displayed before the section label */
+  hideCaret: boolean
   /** An array of actions that can be executed by the user */
   actions: SectionAction[]
   readonly children: React.ReactChildren

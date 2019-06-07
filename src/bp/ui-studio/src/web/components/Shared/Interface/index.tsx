@@ -48,7 +48,10 @@ export const Section = (props: SectionProps) => {
   return (
     <React.Fragment>
       <div className={style.sidebar_section} onClick={() => setOpen(!isOpen)}>
-        <strong>{props.label || ''}</strong>
+        <strong>
+          {!props.hideCaret && <Icon icon={isOpen ? 'caret-down' : 'caret-right'} />}
+          {props.label || ''}
+        </strong>
         <ButtonGroup minimal={true} onClick={e => e.stopPropagation()}>
           {props.actions && props.actions.map((action, idx) => SectionAction(action, idx))}
         </ButtonGroup>
