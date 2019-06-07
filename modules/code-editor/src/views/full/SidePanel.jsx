@@ -66,7 +66,7 @@ export default class SidePanel extends React.Component {
       {
         label: 'New',
         icon: <FiFilePlus />,
-        items: [{ label: 'Action', icon: 'new-text-box', tooltip: 'ACTION', onClick: this.props.createFilePrompt }]
+        items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
       }
     ]
     const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]

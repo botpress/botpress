@@ -3,10 +3,10 @@
 interface CssExports {
   'action_button': string;
   'action_disabled': string;
-  'actions': string;
   'container': string;
   'infoTooltip': string;
   'sidebar': string;
+  'sidebar_hidden': string;
   'sidebar_section': string;
   'splashScreen': string;
 }

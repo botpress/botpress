@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Collapse, Icon, Popover, Position, Tooltip } from '@blueprintjs/core'
-
+import classnames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
 import SplitPane from 'react-split-pane'
@@ -34,7 +34,7 @@ export const Container = (props: ContainerProps) => {
   })
 
   return (
-    <div className={style.container}>
+    <div className={classnames(style.container, { [style.sidebar_hidden]: !sidebarVisible })}>
       <SplitPane split="vertical" defaultSize={width} size={sidebarVisible ? width : 0}>
         {props.children}
       </SplitPane>
