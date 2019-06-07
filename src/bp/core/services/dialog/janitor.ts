@@ -42,10 +42,11 @@ export class DialogJanitor extends Janitor {
     return config.dialog.janitorInterval
   }
 
-  // This task does two things:
-  // 1) Deletes the sessions that are expired.
-  // 2) Reset the contexts of the sessions that are stale.
-  // Both have different expiry, session_expiry and context_expiry
+  /**
+   * Deletes the sessions that are expired and
+   * reset the contexts of the sessions that are stale.
+   * These actions are executed based on two expiries: session_expiry and context_expiry.
+   */
   protected async runTask(): Promise<void> {
     dialogDebug('Running task')
 
@@ -76,7 +77,7 @@ export class DialogJanitor extends Janitor {
       const session = await this.sessionRepo.get(sessionId)
 
       // Don't process the timeout when the context is empty.
-      // This means the conversation is not stale.
+      // This means the conversation has not began.
       if (_.isEmpty(session.context)) {
         dialogDebug.forBot(botId, 'Skipping. No changes in context', sessionId)
         return
