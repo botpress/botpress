@@ -160,7 +160,7 @@ export class DialogEngine {
     }
 
     if (!timeoutNode || !timeoutFlow) {
-      throw new Error(`Could not find any timeout node for session "${sessionId}"`)
+      throw new Error(`Could not find any timeout node or flow for session "${sessionId}"`)
     }
 
     event.state.context.currentNode = timeoutNode.name
@@ -168,7 +168,7 @@ export class DialogEngine {
     event.state.context.queue = undefined
     event.state.context.hasJumped = true
 
-    return await this.processEvent(sessionId, event)
+    return this.processEvent(sessionId, event)
   }
 
   private initializeContext(event) {

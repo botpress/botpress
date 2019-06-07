@@ -48,18 +48,17 @@ export class DialogJanitor extends Janitor {
     const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
 
-    await Promise.mapSeries(botsIds, async botId => {
+    for (const botId of botsIds) {
       await this.sessionRepo.deleteExpiredSessions(botId)
-
       const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
+
       if (sessionsIds.length > 0) {
         dialogDebug.forBot(botId, '🔎 Found stale sessions', sessionsIds)
-
-        await Promise.mapSeries(sessionsIds, sessionId =>
-          this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
-        )
+        for (const sessionId of sessionsIds) {
+          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
+        }
       }
-    })
+    }
   }
 
   private async _processSessionTimeout(sessionId: string, botId: string, botConfig: BotConfig) {
@@ -70,6 +69,12 @@ export class DialogJanitor extends Janitor {
       const target = SessionIdFactory.createTargetFromId(sessionId)
       const threadId = SessionIdFactory.createThreadIdFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
+
+      // Don't process the timeout when the context is empty.
+      // This means the conversation is not stale.
+      if (_.isEmpty(session.context)) {
+        return
+      }
 
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
@@ -87,15 +92,16 @@ export class DialogJanitor extends Janitor {
 
       await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
     } catch (err) {
-      // We delete the session in both cases
+      this.logger.error(`Could not process the timeout event. ${err.message}`)
     } finally {
       const botpressConfig = await this.getBotpresConfig()
       const expiry = createExpiry(botConfig!, botpressConfig)
       const session = await this.sessionRepo.get(sessionId)
 
-      session.context = undefined
-      session.temp_data = undefined
+      session.context = {}
+      session.temp_data = {}
       session.context_expiry = expiry.context
+      session.session_expiry = expiry.session
 
       await this.sessionRepo.update(session)
 

@@ -11,12 +11,9 @@ import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { KeyValueStore } from '../kvs'
 
-import { EventEngine } from './event-engine'
-
 @injectable()
 export class StateManager {
   constructor(
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.UserRepository) private userRepo: UserRepository,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
@@ -57,6 +54,7 @@ export class StateManager {
 
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
     const expiry = createExpiry(botConfig, botpressConfig)
+    console.log('expiry', expiry, 'ignoreContext', ignoreContext)
 
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session
