@@ -1283,6 +1283,18 @@ declare module 'botpress/sdk' {
   }
 
   /**
+   * Utility security-related features offered to developers
+   * to create more secure extensions.
+   */
+  export namespace security {
+    /**
+     * Creates a message signature, which can be used as proof that the message was created on Botpress backend
+     * You can call this method twice to verify the authenticity of a message
+     */
+    export function getMessageSignature(message: string): Promise<string>
+  }
+
+  /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace
    */
