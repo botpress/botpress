@@ -57,11 +57,12 @@ export class StateManager {
 
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session
+    dialogSession.context_expiry = expiry.context
 
+    // TODO: Document what is the use-case for this block
     if (!ignoreContext) {
       dialogSession.context = context || {}
       dialogSession.temp_data = temp || {}
-      dialogSession.context_expiry = expiry.context
     }
 
     await this.sessionRepo.update(dialogSession)
