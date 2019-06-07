@@ -42,7 +42,7 @@ const LanguageManagement: FC<Props> = props => {
   }
 
   const downloadables = (languages.available || []).filter(
-    lang => !languages.installed.find((l: any) => l.lang == lang.code)
+    lang => !languages.installed.find((l: any) => l.lang === lang.code)
   )
 
   const installed = languages.installed.map(x => ({
