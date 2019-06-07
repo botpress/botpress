@@ -17,14 +17,14 @@ export type DialogExpiry = {
  * @param botpressConfig Botpress configuration file i.e. botpress.config.json
  */
 export function createExpiry(botConfig: BotConfig, botpressConfig: BotpressConfig): DialogExpiry {
-  const contentTimeout = ms(_.get(botConfig, 'dialog.timeoutInterval', botpressConfig.dialog.timeoutInterval))
+  const contextTimeout = ms(_.get(botConfig, 'dialog.timeoutInterval', botpressConfig.dialog.timeoutInterval))
   const sessionTimeout = ms(
     _.get(botConfig, 'dialog.sessionTimeoutInterval', botpressConfig.dialog.sessionTimeoutInterval)
   )
 
   return {
     context: moment()
-      .add(contentTimeout, 'ms')
+      .add(contextTimeout, 'ms')
       .toDate(),
     session: moment()
       .add(sessionTimeout, 'ms')

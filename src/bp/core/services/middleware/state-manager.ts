@@ -54,7 +54,6 @@ export class StateManager {
 
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
     const expiry = createExpiry(botConfig, botpressConfig)
-    console.log('expiry', expiry, 'ignoreContext', ignoreContext)
 
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session
