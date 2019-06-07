@@ -39,7 +39,7 @@ describe('Lite Queues', () => {
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i.toString() })
+      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
     }
 
     while (!queue.isEmpty()) {
@@ -59,7 +59,7 @@ describe('Lite Queues', () => {
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i.toString() })
+      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
     }
 
     while (!queue.isEmpty()) {
@@ -170,7 +170,7 @@ describe('Lite Queues', () => {
     }
 
     // Make sure all jobs are executed
-    await Promise.delay(500)
+    await Promise.delay(100)
 
     expect(userListA.length).toBeLessThan(10)
     expect(userListB.length).toEqual(10)
