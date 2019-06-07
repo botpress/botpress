@@ -65,7 +65,7 @@ const Language: FC<Props> = props => {
             Load
           </Button>
         )}
-        {props.allowActions && props.loaded && (
+        {props.allowActions && props.installed && (
           <Button size='sm' color='primary' outline onClick={deleteLanguage}>
             Remove
           </Button>
