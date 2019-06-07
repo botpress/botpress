@@ -1,4 +1,15 @@
-import { Button, ButtonGroup, Collapse, Icon, Popover, Position, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  ButtonGroup,
+  Classes,
+  Collapse,
+  ControlGroup,
+  Icon,
+  InputGroup,
+  Popover,
+  Position,
+  Tooltip
+} from '@blueprintjs/core'
 import classnames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
@@ -9,6 +20,7 @@ import {
   ContainerProps,
   InfoTooltipProps,
   KeyboardShortcutsProps,
+  SearchBarProps,
   SectionAction,
   SectionProps,
   SplashScreenProps
@@ -58,6 +70,23 @@ export const Section = (props: SectionProps) => {
       </div>
       <Collapse isOpen={isOpen}>{props.children}</Collapse>
     </React.Fragment>
+  )
+}
+
+export const SearchBar = (props: SearchBarProps) => {
+  const [text, setText] = useState('')
+  const handleTextChanged = e => {
+    setText(e.target.value)
+    props.onChange && props.onChange(e.target.value)
+  }
+
+  return (
+    <div className={style.searchBar}>
+      <ControlGroup fill={true}>
+        <InputGroup placeholder={props.placeholder || 'Search'} value={text} onChange={handleTextChanged} />
+        <Button icon="search" className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
+      </ControlGroup>
+    </div>
   )
 }
 

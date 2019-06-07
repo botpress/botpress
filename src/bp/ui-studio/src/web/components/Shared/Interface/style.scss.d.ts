@@ -5,6 +5,7 @@ interface CssExports {
   'action_disabled': string;
   'container': string;
   'infoTooltip': string;
+  'searchBar': string;
   'sidebar': string;
   'sidebar_hidden': string;
   'sidebar_section': string;

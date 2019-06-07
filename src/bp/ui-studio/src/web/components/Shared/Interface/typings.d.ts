@@ -66,3 +66,12 @@ export interface KeyboardShortcutsProps {
    */
   keys: string[]
 }
+
+export interface SearchBarProps {
+  /** Text to display when there's no input value */
+  placeholder: string
+  /** This is called whenever the text in the input changes */
+  onChange: (text: string) => void
+  /** This is called when the user clicks on the search icon */
+  onClick: (e: React.MouseEvent) => void
+}
