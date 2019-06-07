@@ -168,6 +168,7 @@ export class DialogEngine {
   private initializeContext(event) {
     const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
+    event.state.history.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {
       currentNode: startNode.name,
       currentFlow: defaultFlow.name
@@ -184,6 +185,7 @@ export class DialogEngine {
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
       const startNode = this._findNode(event.botId, flow, flow.startNode)
+      event.state.history.push({ flow: flow.name, node: startNode.name })
 
       context = {
         currentFlow: flow.name,
@@ -226,6 +228,8 @@ export class DialogEngine {
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
       const queue = builder.onlyTransitions().build()
 
+      event.state.history.push({ flow: parentFlow.name, node: parentNode.name })
+
       context = {
         ...context,
         currentNode: parentNode.name,
@@ -256,6 +260,7 @@ export class DialogEngine {
       if (isInSkill) {
         context = { ...context, currentNode: transitionTo }
       } else {
+        event.state.history.push({ flow: context.currentFlow, node: transitionTo })
         context = { ...context, previousNode: context.currentNode, currentNode: transitionTo }
       }
     }

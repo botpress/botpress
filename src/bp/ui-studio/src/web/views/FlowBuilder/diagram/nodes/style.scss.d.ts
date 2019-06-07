@@ -3,6 +3,7 @@
 interface CssExports {
   'endPort': string;
   'fn': string;
+  'highlightedNode': string;
   'item': string;
   'label': string;
   'missingConnection': string;

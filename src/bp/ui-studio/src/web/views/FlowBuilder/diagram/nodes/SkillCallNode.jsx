@@ -21,7 +21,9 @@ export class SkillCallNodeWidget extends React.Component {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
 
-    const className = classnames(style['skill-call-node'], style['node-container'])
+    const className = classnames(style['skill-call-node'], style['node-container'], {
+      [style.highlightedNode]: node.isHighlighted
+    })
 
     return (
       <div className={className}>
@@ -62,10 +64,10 @@ export class SkillCallNodeWidget extends React.Component {
 }
 
 export class SkillCallNodeModel extends NodeModel {
-  constructor({ id, x, y, name, skill, next = [], isStartNode = false }) {
+  constructor({ id, x, y, name, skill, next = [], isStartNode = false, isHighlighted = false }) {
     super('skill-call', id)
 
-    this.setData({ name, next, isStartNode, skill })
+    this.setData({ name, next, isStartNode, skill, isHighlighted })
 
     if (x) {
       this.x = x
@@ -93,8 +95,9 @@ export class SkillCallNodeModel extends NodeModel {
     return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
   }
 
-  setData({ name, next = [], isStartNode, skill }) {
+  setData({ name, next = [], isStartNode, skill, isHighlighted }) {
     this.isStartNode = isStartNode
+    this.isHighlighted = isHighlighted
     const inNodeType = isStartNode ? 'start' : 'normal'
 
     if (!this.ports['in']) {
