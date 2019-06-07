@@ -72,7 +72,7 @@ const LanguageManagement: FC<Props> = props => {
       )}
       <div className='languages-list'>
         <h4>Installed Languages</h4>
-        {installed.length === 0 && <div>lol</div>}
+        {installed.length === 0 && <p>No languages yet</p>}
         {installed.map(lang => (
           <Language
             key={lang.code}

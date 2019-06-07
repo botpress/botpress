@@ -9,7 +9,6 @@ import { LangServerInfo, LanguageSource } from './typings'
 import LanguageManagement from './LanguageManagement'
 import LangServer from './LangServer'
 
-// TODO handle api/loading errors
 // TODO handle case where lang server needs a token
 
 const fetchLangSource = async (setLangSource: Function) => {
