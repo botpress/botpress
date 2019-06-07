@@ -9,7 +9,7 @@ const baseAction = `
    */
     const myAction = async (name, value) => {
 
-    
+
     }
 
   return myAction(args.name, args.value)
