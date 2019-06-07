@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
+import { getAllMatchingForRegex } from '../../../util'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
@@ -13,6 +14,11 @@ export function keepEntityTypes(text: string): string {
 
 export function keepEntityValues(text: string): string {
   return text.replace(SLOTS_REGEX, '$1')
+}
+
+const _removeEntityNotations = (text: string): string => {
+  const matches = getAllMatchingForRegex(SLOTS_REGEX)(text)
+  return matches.reduce((acc, curr) => acc.replace(curr[0], curr[1]), text)
 }
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
@@ -55,7 +61,7 @@ export const generatePredictionSequence = async (
   entities: sdk.NLU.Entity[],
   tokens: string[]
 ): Promise<Sequence> => {
-  const cannonical = Object.assign('', input) // we generate a copy here since input is mutating
+  const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
 
   const taggedTokens = tokens.map(value => {
@@ -92,7 +98,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let tokens: Token[] = []
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = Object.assign('', input)
+  const cannonical = _removeEntityNotations(input)
 
   do {
     matches = SLOTS_REGEX.exec(input)

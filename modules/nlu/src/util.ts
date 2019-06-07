@@ -7,7 +7,7 @@ export const sanitizeFilenameNoExt = name =>
     .replace(ID_REGEX, '_')
 
 export const getAllMatchingForRegex = (regex: RegExp) => (input: string): RegExpExecArray[] => {
-  const results = []
+  const results: any[] = []
   let matches: RegExpExecArray | null
 
   do {

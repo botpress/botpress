@@ -209,7 +209,7 @@ export default async function(options: APIOptions) {
     const { lang } = req.params
     try {
       options.manager.download(lang)
-      res.status(200).send({ success: true })
+      res.sendStatus(200)
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
     }

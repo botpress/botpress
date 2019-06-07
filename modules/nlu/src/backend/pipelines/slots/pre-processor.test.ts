@@ -43,7 +43,7 @@ describe('Preprocessing', () => {
 
     expect(trainingSeq.cannonical).toEqual('hello my name is Jacob Jacobson and your name is Paul')
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
-    expect(trainingSeq.tokens[0].slot).toBeUndefined()
+    expect(trainingSeq.tokens[0].slot).toEqual('')
     expect(trainingSeq.tokens[0].matchedEntities).toEqual([])
     expect(trainingSeq.tokens[0].tag).toEqual(BIO.OUT)
     expect(trainingSeq.tokens[0].value).toEqual('hello')
