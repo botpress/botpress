@@ -1,0 +1,108 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.container :global(.Resizer.vertical) {
+  width: 11px;
+  margin: 0 -5px;
+  border-left: 5px solid rgba(255, 255, 255, 0);
+  border-right: 5px solid rgba(255, 255, 255, 0);
+  box-sizing: border-box;
+  background: #999;
+  opacity: 0.5;
+  z-index: 1;
+  background-clip: padding-box;
+  cursor: col-resize;
+
+  &:hover {
+    -webkit-transition: all 2s ease;
+    transition: all 2s ease;
+    border-left: 5px solid rgba(0, 0, 0, 0.5);
+    border-right: 5px solid rgba(0, 0, 0, 0.5);
+  }
+}
+
+.container :global(.SplitPane) {
+  height: calc(100vh);
+}
+
+.sidebar {
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar_section {
+  width: 100%;
+  height: 30px;
+  padding: 2px 5px;
+  color: #333333;
+  background: #cccccc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+
+  .action_button {
+    cursor: pointer;
+    color: #333333;
+    vertical-align: middle;
+    margin-left: 5px;
+
+    &:hover {
+      color: #888;
+    }
+  }
+  .action_disabled {
+    &:hover {
+      color: #333333;
+    }
+  }
+  .actions {
+    width: 200px;
+    align-self: right;
+  }
+}
+
+.splashScreen {
+  height: 100%;
+  background: #fff;
+  color: #444;
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    font-size: 250px;
+    margin-bottom: -50px;
+  }
+
+  > div {
+    width: 50%;
+    text-align: center;
+    font-size: 16px;
+    padding-bottom: 100px;
+
+    p:first-of-type {
+      margin-bottom: 20px;
+    }
+
+    kbd {
+      color: #333;
+      background: #ddd;
+    }
+  }
+}
+
+.infoTooltip {
+  font-size: 14px;
+  vertical-align: middle;
+  opacity: 0.5;
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+  }
+}

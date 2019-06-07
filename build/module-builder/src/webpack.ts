@@ -32,7 +32,10 @@ export function config(projectPath) {
       react: 'React',
       'react-dom': 'ReactDOM',
       'react-bootstrap': 'ReactBootstrap',
-      '@blueprintjs/core': 'BlueprintJsCore'
+      '@blueprintjs/core': 'BlueprintJsCore',
+      'botpress/ui': 'BotpressUI',
+      'botpress/content-picker': 'BotpressContentPicker',
+      'botpress/documentation': 'DocumentationProvider'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]

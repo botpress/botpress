@@ -7,10 +7,13 @@ import { buildTree } from './utils/tree'
 const style = merge({}, defaultTheme, {
   tree: {
     base: {
+      color: '#111',
+      backgroundColor: 'transparent',
       padding: '10px'
     },
     node: {
       activeLink: {
+        background: 'transparent',
         fontWeight: 'bold'
       },
       toggle: {
@@ -20,6 +23,11 @@ const style = merge({}, defaultTheme, {
         },
         height: 10,
         width: 10
+      },
+      header: {
+        base: {
+          color: '#1e1e1e'
+        }
       }
     }
   }
