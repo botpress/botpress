@@ -123,9 +123,9 @@ const payload = {
 
 ## Creating a Custom Component
 
-We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here.
+We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here. The Debugger is also implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/next/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look on how it was implemented.
 
-Custom components leverages the `custom` payload type, which is
+Custom components leverages the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
 
 1. Create a module (we have [example templates here](https://github.com/botpress/botpress/tree/master/examples/module-templates))
 2. Develop your component
@@ -147,18 +147,58 @@ payload: {
 
 There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed informations, and/or to pursue interactions.
 
-| Property      | Description                                                                    |
-| ------------- | ------------------------------------------------------------------------------ |
-| ...props      | The payload properties are available on the root object (this.props.)          |
-| onSendData    | This method can be used to send a payload to the bot on the behalf of the user |
-| onFileUpload  | Instead of sending an event, this will upload the specified file               |
-| sentOn        | This is the timestamp of the message.                                          |
-| isLastGroup   | Indicates if your component is part of the group of messages sent by the bot   |
-| isLastOfGroup | Indicates if your component is the last message in its group                   |
-| keyboard      | This object allows you to manipulate the keyboard (more below)                 |
-| wrapped       | Represent any child components (more below)                                    |
+| Property        | Description                                                                    |
+| --------------- | ------------------------------------------------------------------------------ |
+| ...props        | The payload properties are available on the root object (this.props.)          |
+| onSendData      | This method can be used to send a payload to the bot on the behalf of the user |
+| onFileUpload    | Instead of sending an event, this will upload the specified file               |
+| sentOn          | This is the timestamp of the message.                                          |
+| isLastGroup     | Indicates if your component is part of the group of messages sent by the bot   |
+| isLastOfGroup   | Indicates if your component is the last message in its group                   |
+| keyboard        | This object allows you to manipulate the keyboard (more below)                 |
+| wrapped         | Represent any child components (more below)                                    |
+| incomingEventId | The ID of the incoming event which was processed                               |
+| store           | Grants access to the MOBX store of Channel Web (more on that below)            |
 
 > isLastGroup and isLastOfGroup can be combined to let your component know if the current message is the last one the user is seeing. This can be used, for example, to display feedback buttons, a login form or anything else, that will disappear when the user continues the discussion.
+
+#### The Store
+
+The store orchestrate everything happening on the webchat: whether those buttons are displayed, which page is currently displayed, how to handle configuration changes, etc. This means that your component has a lot of flexibility. Here's a sample of the methods that you can use [click here to see all of them](https://github.com/botpress/botpress/tree/master/modules/channel-web/src/views/lite/store):
+
+- Hide or Show the chat
+- Add or Remove header buttons
+- Change the size of the chat window
+- Send messages or payloads
+- Create a new conversation
+- Update any configuration option
+- Set a wrapper which will wrap every single message (more on that below)
+
+Basically, anything you can do while clicking on the UI can be done by your component.
+
+#### Injecting your components
+
+Some components can be replaced by your own. There are also some placeholders which doesn't have any components, but you can inject yours. When you inject a component, it will receive the original component, so you can just wrap it or change it completely. If there's a problem with your component, it will be replaced by the original one.
+
+| Location           | Description                                                        |
+| ------------------ | ------------------------------------------------------------------ |
+| below_conversation | This component would be displayed just below the composer          |
+| before_container   | This is displayed before the chat container (the debugger uses it) |
+| composer           | This allows you to replace the zone where the user is typing       |
+
+How to configure them:
+
+```js
+window.botpressWebChat.init({
+...
+  overrides: {
+    before_container: {
+      module: 'extensions',
+      component: 'Debugger'
+    }
+  }
+})
+```
 
 #### Wrappers
 

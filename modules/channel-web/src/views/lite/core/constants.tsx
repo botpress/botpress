@@ -10,6 +10,7 @@ export default {
   TIME_BETWEEN_DATES: 10,
   DEFAULT_LAYOUT_WIDTH: 360,
   DEFAULT_CONTAINER_WIDTH: 360,
+  SENT_HISTORY_SIZE: 20,
   /** The default configuration when starting the chat */
   DEFAULT_CONFIG: {
     userId: undefined,
@@ -26,6 +27,8 @@ export default {
     showUserAvatar: false,
     disableAnimations: false,
     hideWidget: false,
-    externalAuthToken: undefined
+    externalAuthToken: undefined,
+    showPoweredBy: window.SHOW_POWERED_BY,
+    enablePersistHistory: true
   }
 }

@@ -1,5 +1,4 @@
 $status-bar-height: 24px;
-$toolbar-bar-height: 42px;
 
 .workspace {
   position: relative !important;
@@ -60,7 +59,7 @@ $toolbar-bar-height: 42px;
 
 .diagram {
   width: 100%;
-  height: calc(100% - #{$toolbar-bar-height});
+  height: calc(100%);
 }
 
 .sidePanel {
@@ -74,7 +73,7 @@ $toolbar-bar-height: 42px;
 
 .diagram :global(.storm-diagrams-canvas) {
   width: 100%;
-  height: calc(100% - #{$toolbar-bar-height});
+  height: calc(100%);
   background: url('/assets/ui-studio/public/img/grid.png') repeat;
 }
 

@@ -25,6 +25,7 @@ export class WebBotpressUIInjection extends React.Component {
         botId: window.BOT_ID,
         sendUsageStats: window.SEND_USAGE_STATS,
         disableAnimations: true,
+        showPoweredBy: false,
         overrides: {
           before_container: {
             module: 'extensions',

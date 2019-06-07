@@ -178,6 +178,8 @@ export class BotsRouter extends CustomRouter {
           return res.sendStatus(404)
         }
 
+        const config = await this.configProvider.getBotpressConfig()
+
         const data = this.studioParams(botId)
         const liteEnv = `
               // Lite Views Specific
@@ -201,6 +203,7 @@ export class BotsRouter extends CustomRouter {
               window.BP_BASE_PATH = "/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
+              window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End
