@@ -45,8 +45,25 @@ export default class LanguageService {
     return this._ready
   }
 
+  async loadModel(lang: string) {
+    if (!this._models[lang]) {
+      this._models = {
+        ...this._getModels(),
+        ...this._models
+      }
+    }
+
+    this._loadModels(lang)
+  }
+
+  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
+  private async _loadModels(lang: string) {
+    const fastTextModel = await this._loadFastTextModel(lang)
+    const bpeModel = await this._loadBPEModel(lang)
+    this._models[lang] = { fastTextModel, bpeModel }
+  }
+
   private _logLoadingModels = () => console.log(`Loading languages "${Object.keys(this._models).join(', ')}"`)
-  public listFastTextModels = (): AvailableModel[] => _.values(this._models).map(model => model.fastTextModel)
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
     const [__, domain, langCode, dim] = regexMatch
@@ -108,13 +125,6 @@ export default class LanguageService {
     }
 
     return { fastTextModel, bpeModel }
-  }
-
-  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
-  private async _loadModels(lang: string) {
-    const fastTextModel = await this._loadFastTextModel(lang)
-    const bpeModel = await this._loadBPEModel(lang)
-    this._models[lang] = { fastTextModel, bpeModel }
   }
 
   private async _loadFastTextModel(lang: string): Promise<LoadedFastTextModel> {
@@ -234,7 +244,6 @@ export default class LanguageService {
     return models
   }
 
-  // TODO we might want to add a storage service
   remove(lang: string) {
     fs.readdirSync(this.langDir)
       .filter(file => file.includes(`.${lang}.`))

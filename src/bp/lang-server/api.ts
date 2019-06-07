@@ -17,8 +17,8 @@ export type APIOptions = {
   limitWindow: string
   limit: number
   languageService: LanguageService
-  readOnly: boolean
   downloadManager: DownloadManager
+  readOnly: boolean
 }
 
 const debug = DEBUG('api')
@@ -67,7 +67,7 @@ const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
     throw new BadRequestError(`Param 'lang': ${language} must be a string`)
   }
 
-  const availableLanguages = service.listFastTextModels().map(x => x.name)
+  const availableLanguages = service.getModels().map(x => x.lang)
   if (!availableLanguages.includes(language)) {
     throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
   }
@@ -146,11 +146,7 @@ export default async function(options: APIOptions) {
       ready: options.languageService.isReady(),
       dimentions: options.languageService.dim,
       domain: options.languageService.domain,
-      readOnly: options.readOnly,
-      languages: options.languageService
-        .listFastTextModels()
-        .filter(x => x.loaded)
-        .map(x => x.name)
+      readOnly: options.readOnly
     })
   })
 
@@ -217,7 +213,7 @@ export default async function(options: APIOptions) {
 
   router.delete('/:lang', async (req, res, next) => {
     const { lang } = req.params
-    if (!lang || !options.languageService.listFastTextModels().find(x => x.name === lang)) {
+    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
 
@@ -225,12 +221,18 @@ export default async function(options: APIOptions) {
     res.end()
   })
 
-  router.post('/load/:lang', (req, res, next) => {
+  router.post('/:lang/load', async (req, res) => {
     const { lang } = req.params
-    if (!lang || !options.languageService.listFastTextModels().find(x => x.name === lang)) {
+
+    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
-    // TODO Load in memory here
+
+    try {
+      await options.languageService.loadModel(lang)
+    } catch (err) {
+      res.status(500).send({ success: false, message: err.message })
+    }
   })
 
   router.post('/cancel/:id', (req, res, next) => {

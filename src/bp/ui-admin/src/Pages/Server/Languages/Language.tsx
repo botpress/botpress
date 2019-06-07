@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import React, { FC, SFC } from 'react'
+import React, { FC, SFC, useState } from 'react'
 import { Button, Progress } from 'reactstrap'
 
 import { LanguageSource } from './typings'
@@ -28,6 +28,8 @@ const DownloadProgress: SFC<{ current: number; total: number }> = props => {
 }
 
 const Language: FC<Props> = props => {
+  const [modelLoading, setLoading] = useState(false)
+
   const deleteLanguage = async () => {
     // TODO use auth token if necessary  ==> generage api client for this
     await Axios.delete(`${props.languageSource.endpoint}/languages/${props.language.code}`)
@@ -40,7 +42,14 @@ const Language: FC<Props> = props => {
 
   const loadLanguage = async () => {
     // TODO use auth token if necessary  ==> generage api client for this
-    await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}/load`)
+    setLoading(true)
+    try {
+      await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}/load`)
+    } catch (err) {
+      console.log('error loading model')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -61,8 +70,8 @@ const Language: FC<Props> = props => {
           </Button>
         )}
         {props.allowActions && props.installed && !props.loaded && (
-          <Button size='sm' color='primary' outline onClick={loadLanguage}>
-            Load
+          <Button disabled={modelLoading} size='sm' color='primary' outline onClick={loadLanguage}>
+            {modelLoading ? 'loading' : 'Load'}
           </Button>
         )}
         {props.allowActions && props.installed && (
