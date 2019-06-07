@@ -1125,6 +1125,7 @@ declare module 'botpress/sdk' {
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
+    export function getAttributes(): Promise<any>
   }
 
   /**

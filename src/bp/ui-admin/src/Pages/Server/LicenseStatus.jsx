@@ -175,9 +175,30 @@ class LicenseStatus extends React.Component {
     )
   }
 
+  renderUnofficialBuild = () => {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
+            <h4>Unofficial Botpress Build</h4>
+            <p>
+              We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress
+              Professional extensions. Make you use an <strong>official botpress binary or docker image</strong>. You
+              won't be able to activate <strong>Pro</strong> otherwise.
+            </p>
+          </Col>
+        </Row>
+      </Jumbotron>
+    )
+  }
+
   renderBody() {
     if (this.state.waitingForReboot) {
       return this.renderReboot()
+    }
+
+    if (this.props.licensing && !this.props.licensing.builtWithPro) {
+      return this.renderUnofficialBuild()
     }
 
     if (this.props.licensing && !this.props.licensing.isPro) {
