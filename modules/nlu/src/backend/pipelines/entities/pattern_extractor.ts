@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import { flatMap, flatten } from 'lodash'
 import _ from 'lodash'
 
-import { LanguageProvider } from '../../language-provider'
 import { extractPattern } from '../../tools/patterns-utils'
+import { LanguageProvider } from '../../typings'
 import { NLUDS } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
