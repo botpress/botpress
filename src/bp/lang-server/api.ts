@@ -146,7 +146,8 @@ export default async function(options: APIOptions) {
       ready: options.languageService.isReady(),
       dimentions: options.languageService.dim,
       domain: options.languageService.domain,
-      readOnly: options.readOnly
+      readOnly: options.readOnly,
+      languages: options.languageService.getModels().filter(x => x.loaded)
     })
   })
 
