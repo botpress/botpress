@@ -213,7 +213,7 @@ try {
         },
         metadataLocation: {
           description: 'location of the available models to download',
-          default: 'https://s3.amazonaws.com/botpress-binaries/tools/metadata2.json'
+          default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
         },
         dim: {
           default: 300,

@@ -20,7 +20,11 @@ interface Props {
 
 const DownloadProgress: SFC<{ current: number; total: number }> = props => {
   const value = Math.round((props.current / props.total) * 100)
-  return <Progress value={value}>{value} %</Progress>
+  return (
+    <Progress animated value={value}>
+      {value > 10 && `${value}%`}
+    </Progress>
+  )
 }
 
 const Language: FC<Props> = props => {
@@ -42,7 +46,9 @@ const Language: FC<Props> = props => {
   return (
     <div className='language'>
       <div>
-        <img src={props.language.flag} alt={props.language.code} />
+        <div className='flag'>
+          <img src={props.language.flag} alt={props.language.code} />
+        </div>
         <span>{props.language.name}</span>
       </div>
       <div className='action'>

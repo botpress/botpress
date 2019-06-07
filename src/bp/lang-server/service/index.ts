@@ -72,7 +72,6 @@ export default class LanguageService {
     const bpeModelFileInfo = modelGroup.find(f => !f.dim)
 
     if (domain !== this.domain || !fastTextModelFileInfo || !bpeModelFileInfo) {
-      console.log('skipping', domain, langCode)
       return
     }
 
