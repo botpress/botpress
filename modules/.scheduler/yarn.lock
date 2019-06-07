@@ -1297,7 +1297,7 @@ browserslist@^4.1.0:
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.1.1.tgz#328eb4ff1215b12df6589e9ab82f8adaa4fc8cd6"
   integrity sha512-VBorw+tgpOtZ1BYhrVSVTzTt/3+vSE3eFUh0N2GCFK1HffceOaf32YS/bs6WiFhjDAblAFrx85jMy3BG9fBK2Q==
   dependencies:
-    caniuse-lite "^1.0.30000884"
+    caniuse-lite "^1.0.30000963"
     electron-to-chromium "^1.3.62"
     node-releases "^1.0.0-alpha.11"
 
@@ -1387,10 +1387,10 @@ camelcase@^4.1.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
   integrity sha1-1UVjW+HjPFQmScaRc+Xeas+uNN0=
 
-caniuse-lite@^1.0.30000884:
-  version "1.0.30000888"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000888.tgz#22edb50d91dd70612b5898e3b36f460600c6492f"
-  integrity sha512-vftg+5p/lPsQGpnhSo/yBuYL36ai/cyjLvU3dOPJY1kkKrekLWIy8SLm+wzjX0hpCUdFTasC4/ZT7uqw4rKOnQ==
+caniuse-lite@^1.0.30000963:
+  version "1.0.30000967"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000967.tgz#a5039577806fccee80a04aaafb2c0890b1ee2f73"
+  integrity sha512-rUBIbap+VJfxTzrM4akJ00lkvVb5/n5v3EGXfWzSH5zT8aJmGzjA8HWhJ4U6kCpzxozUSnB+yvAYDRPY6mRpgQ==
 
 caseless@~0.12.0:
   version "0.12.0"
