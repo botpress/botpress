@@ -2,7 +2,7 @@ import React from 'react'
 
 import Select from 'react-select'
 import { Button, Modal, FormControl } from 'react-bootstrap'
-import { sanitizeFilenameNoExt } from '../../../util.ts'
+import { sanitizeFilenameNoExt } from '../../../util'
 
 const AVAILABLE_TYPES = [
   {

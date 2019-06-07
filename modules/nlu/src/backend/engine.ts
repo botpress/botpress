@@ -7,7 +7,6 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import { LanguageProvider } from './language-provider'
 import { PipelineManager } from './pipelinemanager'
 import { MIN_NB_UTTERANCES } from './pipelines/constants'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
@@ -21,6 +20,7 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
+import { LanguageProvider } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -371,6 +371,7 @@ export default class ScopedEngine implements Engine {
 
     ds.intents = intents
     ds.intent = intent
+
     debugIntents(ds.sanitizedText, { intents })
 
     return ds
@@ -389,6 +390,7 @@ export default class ScopedEngine implements Engine {
 
   private _extractSlots = async (ds: NLUDS): Promise<NLUDS> => {
     const intentDef = await this.storage.getIntent(ds.intent.name)
+
     ds.slots = await this.slotExtractors[ds.language].extract(
       ds.lowerText,
       ds.language,

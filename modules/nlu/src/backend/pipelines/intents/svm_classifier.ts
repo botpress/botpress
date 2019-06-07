@@ -4,13 +4,13 @@ import math from 'mathjs'
 import kmeans from 'ml-kmeans'
 import { VError } from 'verror'
 
-import { LanguageProvider } from '../../language-provider'
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import FTWordVecFeaturizer from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
+import { LanguageProvider } from './../../typings'
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
 
 const debug = DEBUG('nlu').sub('intents')
@@ -22,6 +22,7 @@ export default class SVMClassifier {
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
   private l0Tfidf: _.Dictionary<number>
   private l1Tfidf: { [context: string]: _.Dictionary<number> }
+
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private language: string,
@@ -184,7 +185,6 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
-      // TODO use RBF kernel ?
       const svm = new this.toolkit.SVM.Trainer()
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
@@ -195,7 +195,6 @@ export default class SVMClassifier {
       })
     }
 
-    // TODO use RBF kernel
     const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()

@@ -1,13 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getAllMatchingForRegex } from '../../../util'
-import { LanguageProvider } from '../../language-provider'
-import { BIO, Sequence, Tag, Token } from '../../typings'
+import { LanguageProvider } from '../../typings'
+import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
+import { getAllMatchingForRegex } from '../../../util'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-const getAllMatchingSlots = getAllMatchingForRegex(SLOTS_REGEX)
 
 export function keepEntityTypes(text: string): string {
   return text.replace(SLOTS_REGEX, '$2')
@@ -15,6 +14,11 @@ export function keepEntityTypes(text: string): string {
 
 export function keepEntityValues(text: string): string {
   return text.replace(SLOTS_REGEX, '$1')
+}
+
+const _removeEntityNotations = (text: string): string => {
+  const matches = getAllMatchingForRegex(SLOTS_REGEX)(text)
+  return matches.reduce((acc, curr) => acc.replace(curr[0], curr[1]), text)
 }
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
@@ -53,11 +57,9 @@ const _generateTrainingTokens = languageProvider => async (
 
 export const generatePredictionSequence = async (
   input: string,
-  lang: string,
   intentName: string,
   entities: sdk.NLU.Entity[],
-  tokens: string[],
-  languageProvider: LanguageProvider
+  tokens: string[]
 ): Promise<Sequence> => {
   const cannonical = input // we generate a copy here since input is mutating
   let currentIdx = 0
@@ -96,6 +98,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let tokens: Token[] = []
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
+  const cannonical = _removeEntityNotations(input)
 
   do {
     matches = SLOTS_REGEX.exec(input)
@@ -118,7 +121,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
 
   return {
     intent: intentName,
-    cannonical: input,
+    cannonical,
     tokens,
     contexts
   }

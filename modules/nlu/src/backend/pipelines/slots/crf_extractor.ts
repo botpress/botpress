@@ -4,7 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import { LanguageProvider } from '../../language-provider'
+import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
@@ -109,7 +109,7 @@ export default class CRFExtractor implements SlotExtractor {
     tokens: string[]
   ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(text, { entities })
-    const seq = await generatePredictionSequence(text, lang, intentDef.name, entities, tokens, this.languageProvider)
+    const seq = await generatePredictionSequence(text, intentDef.name, entities, tokens)
     const { probability, result: tags } = await this._tag(seq)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index

@@ -1,9 +1,10 @@
+import * as sdk from 'botpress/sdk'
+
 import { NLUDS, PipelineProcessManager } from './typings'
 
 export class PipelineManager implements PipelineProcessManager {
-  private _nluds: NLUDS
-  private _scope: any
-  private _pipeline: Function[]
+  private _nluds: NLUDS = {} as NLUDS
+  private _pipeline: Function[] = [] as Function[]
 
   private _reducer = async (ds: Promise<NLUDS>, fn: Function): Promise<NLUDS> => fn(await ds)
 
@@ -38,10 +39,9 @@ export const initNLUDS = (text: string, includedContexts: string[]): NLUDS => {
     language: '',
     entities: [],
     intents: [],
-    intent: undefined,
+    intent: {} as sdk.NLU.Intent,
     sanitizedText: '',
     tokens: [],
-    slots: {},
-    execute: undefined
+    slots: {}
   }
 }

@@ -24,7 +24,7 @@ const debug = DEBUG('api')
 const debugAuth = debug.sub('auth')
 const debugRequest = debug.sub('request')
 
-const AuthMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
+const authMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
   const header = (req.header('authorization') || '').trim()
   const split = header.indexOf(' ')
 
@@ -123,8 +123,8 @@ function createExpressApp(options: APIOptions): Application {
     )
   }
 
-  if (options.authToken && options.authToken.length >= 1) {
-    app.use(AuthMiddleware(options.authToken))
+  if (options.authToken && options.authToken.length) {
+    app.use(authMiddleware(options.authToken))
   }
 
   return app
@@ -183,6 +183,7 @@ export default async function(options: APIOptions) {
   })
 
   const router = express.Router({ mergeParams: true })
+
   router.get('/list', (req, res, next) => {
     const items = options.manager.inProgress.map(x => ({
       status: x.getStatus(),
@@ -203,15 +204,17 @@ export default async function(options: APIOptions) {
       in_progress: items
     })
   })
+
   router.post('/install/:lang', (req, res, next) => {
     const { lang } = req.params
     try {
       options.manager.download(lang)
-      res.status(200).send({ success: true })
+      res.sendStatus(200)
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
     }
   })
+
   router.post('/remove/:lang', (req, res, next) => {
     const { lang } = req.params
     if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
@@ -219,6 +222,7 @@ export default async function(options: APIOptions) {
     }
     // TODO Remove here
   })
+
   router.post('/load/:lang', (req, res, next) => {
     const { lang } = req.params
     if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
@@ -226,14 +230,17 @@ export default async function(options: APIOptions) {
     }
     // TODO Load in memory here
   })
+
   router.post('/cancel/:id', (req, res, next) => {
     const { id } = req.params
     options.manager.cancelAndRemove(id)
-    res.status(200).send({ success: true })
+    res.sendStatus(200)
   })
+
   app.use('/models', DisabledReadonlyMiddleware(options.readOnly), router)
 
   const httpServer = createServer(app)
+
   await Promise.fromCallback(callback => {
     httpServer.listen(options.port, options.host, undefined, callback)
   })

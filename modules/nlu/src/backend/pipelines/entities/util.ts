@@ -8,15 +8,13 @@ export const getTextWithoutEntities = (entities: sdk.NLU.Entity[], text: string)
   _.chain(entities)
     .filter(entity => entity.type === 'pattern' || entity.type === 'list')
     .orderBy(['entity.meta.start', 'entity.meta.confidence'], ['asc', 'desc'])
-    .value()
     .forEach(entity => {
       if (entity.meta.start >= cursor) {
         noEntitiesText += text.substr(cursor, entity.meta.start - cursor) + entity.name
         cursor = entity.meta.end
       }
     })
+    .value()
 
-  noEntitiesText += text.substr(cursor, text.length - cursor)
-
-  return noEntitiesText
+  return noEntitiesText + text.substr(cursor, text.length - cursor)
 }
