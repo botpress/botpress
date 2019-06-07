@@ -62,8 +62,14 @@ export default class SidePanel extends React.Component {
   }
 
   render() {
-    const actions = [{ label: 'New action', icon: <FiFilePlus />, onClick: this.props.createFilePrompt }]
-    const editingActions = [{ label: 'Save changes', icon: <FiSave />, onClick: this.props.onSaveClicked }]
+    const actions = [
+      {
+        label: 'New',
+        icon: <FiFilePlus />,
+        items: [{ label: 'Action', icon: 'new-text-box', tooltip: 'ACTION', onClick: this.props.createFilePrompt }]
+      }
+    ]
+    const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]
     return (
       <Sidebar>
         {this.props.isEditing && (

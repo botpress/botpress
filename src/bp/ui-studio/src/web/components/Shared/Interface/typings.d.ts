@@ -1,5 +1,5 @@
 import React from 'react'
-import { Position } from '@blueprintjs/core'
+import { Position, IconName, MaybeElement } from '@blueprintjs/core'
 
 export interface ContainerProps {
   /**
@@ -17,8 +17,8 @@ export interface ContainerProps {
 export interface SplashScreenProps {
   title: string
   description: string
-  /** Supply either a function or an element which will render the button */
-  icon: Function | JSX.Element
+  /** The name of the icon to use. Can also be a JSX element */
+  icon: IconName | MaybeElement
   readonly children: React.ReactChildren
 }
 
@@ -44,10 +44,14 @@ export interface SectionProps {
 interface SectionAction {
   /** This text will be displayed when the mouse is over the icon */
   label: string
+  /** Text displayed when the cursor is over the button */
+  tooltip: string
   /** When true, the button is still visible but the click event is discarded */
   disabled: boolean
-  /** Supply either a function or an element which will render the button */
-  icon: Function | JSX.Element
+  /** The name of the icon to use. Can also be a JSX element */
+  icon: IconName | MaybeElement
+  /** One or multiple items displayed as childs of that element */
+  items: SectionAction | SectionAction[]
   /** The function called when the action is clicked */
   onClick: (e: React.MouseEvent) => void
 }

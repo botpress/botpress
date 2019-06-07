@@ -1,5 +1,5 @@
-import { Collapse, Position, Tooltip } from '@blueprintjs/core'
-import classnames from 'classnames'
+import { Button, ButtonGroup, Collapse, Icon, Popover, Position, Tooltip } from '@blueprintjs/core'
+
 import React, { useEffect, useState } from 'react'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
 import SplitPane from 'react-split-pane'
@@ -13,6 +13,8 @@ import {
   SectionProps,
   SplashScreenProps
 } from './typings'
+
+import { buildMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
   const [sidebarVisible, setSidebarVisible] = useState(!props.sidebarHidden)
@@ -47,7 +49,9 @@ export const Section = (props: SectionProps) => {
     <React.Fragment>
       <div className={style.sidebar_section} onClick={() => setOpen(!isOpen)}>
         <strong>{props.label || ''}</strong>
-        <div>{props.actions && props.actions.map((action, idx) => SectionAction(action, idx))}</div>
+        <ButtonGroup minimal={true} onClick={e => e.stopPropagation()}>
+          {props.actions && props.actions.map((action, idx) => SectionAction(action, idx))}
+        </ButtonGroup>
       </div>
       <Collapse isOpen={isOpen}>{props.children}</Collapse>
     </React.Fragment>
@@ -80,11 +84,10 @@ export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
 }
 
 export const SplashScreen = (props: SplashScreenProps) => {
-  const Icon: any = props.icon
   return (
     <div className={style.splashScreen}>
       <div>
-        {typeof Icon === 'function' ? <Icon /> : Icon}
+        <Icon icon={props.icon} />
         <h1>{props.title || ''}</h1>
         <p>{props.description || ''}</p>
         {props.children}
@@ -104,18 +107,19 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
 )
 
 const SectionAction = (action: SectionAction, idx: number) => {
-  const Icon: any = action.icon
+  if (action.items) {
+    return (
+      <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+        <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
+          <Button icon={action.icon} text={action.label} />
+        </Popover>
+      </Tooltip>
+    )
+  }
+
   return (
-    <Tooltip key={idx} content={action.label} position={Position.BOTTOM}>
-      <a
-        className={classnames(style.action_button, { [style.action_disabled]: action.disabled })}
-        onClick={e => {
-          e.stopPropagation()
-          !action.disabled && action.onClick(e)
-        }}
-      >
-        {typeof Icon === 'function' ? <Icon /> : Icon}
-      </a>
+    <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+      <Button icon={action.icon} text={action.label} />
     </Tooltip>
   )
 }
