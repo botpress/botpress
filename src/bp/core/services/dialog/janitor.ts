@@ -42,6 +42,10 @@ export class DialogJanitor extends Janitor {
     return config.dialog.janitorInterval
   }
 
+  // This task does two things:
+  // 1) Deletes the sessions that are expired.
+  // 2) Reset the contexts of the sessions that are stale.
+  // Both have different expiry, session_expiry and context_expiry
   protected async runTask(): Promise<void> {
     dialogDebug('Running task')
 
@@ -49,11 +53,12 @@ export class DialogJanitor extends Janitor {
     const botsIds = Array.from(botsConfigs.keys())
 
     for (const botId of botsIds) {
+      dialogDebug.forBot(botId, 'Deleting expired sessions')
       await this.sessionRepo.deleteExpiredSessions(botId)
       const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
 
       if (sessionsIds.length > 0) {
-        dialogDebug.forBot(botId, '🔎 Found stale sessions', sessionsIds)
+        dialogDebug.forBot(botId, 'Found stale contexts', sessionsIds)
         for (const sessionId of sessionsIds) {
           await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
         }
@@ -73,6 +78,7 @@ export class DialogJanitor extends Janitor {
       // Don't process the timeout when the context is empty.
       // This means the conversation is not stale.
       if (_.isEmpty(session.context)) {
+        dialogDebug.forBot(botId, 'Skipping. No changes in context', sessionId)
         return
       }
 
@@ -91,12 +97,9 @@ export class DialogJanitor extends Janitor {
       fakeEvent.state.session = session.session_data as IO.CurrentSession
 
       await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
-    } catch (err) {
-      this.logger.error(`Could not process the timeout event. ${err.message}`)
-    } finally {
+
       const botpressConfig = await this.getBotpresConfig()
       const expiry = createExpiry(botConfig!, botpressConfig)
-      const session = await this.sessionRepo.get(sessionId)
 
       session.context = {}
       session.temp_data = {}
@@ -106,6 +109,8 @@ export class DialogJanitor extends Janitor {
       await this.sessionRepo.update(session)
 
       dialogDebug.forBot(botId, `New expiry set for ${session.context_expiry}`, sessionId)
+    } catch (err) {
+      this.logger.error(`Could not process the timeout event. ${err.message}`)
     }
   }
 }
