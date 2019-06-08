@@ -11,7 +11,8 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import classnames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { HotKeys } from 'react-hotkeys'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
 import SplitPane from 'react-split-pane'
 
@@ -31,27 +32,24 @@ import { buildMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
   const [sidebarVisible, setSidebarVisible] = useState(!props.sidebarHidden)
+  const width = props.sidebarWidth ? props.sidebarWidth : 300
 
-  const handleToggleShortcut = e => {
-    e.ctrlKey && e.key === 'b' && setSidebarVisible(!sidebarVisible)
+  const toggleSidebar = () => setSidebarVisible(!sidebarVisible)
+  window.toggleSidebar = toggleSidebar
+
+  const keyHandlers = {
+    'toggle-sidebar': toggleSidebar,
+    ...(props.keyHandlers || {})
   }
 
-  const width = props.sidebarWidth ? props.sidebarWidth : 300
-  window.toggleSidebar = () => setSidebarVisible(!sidebarVisible)
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleToggleShortcut)
-    return function cleanup() {
-      document.removeEventListener('keydown', handleToggleShortcut)
-    }
-  })
-
   return (
-    <div className={classnames(style.container, { [style.sidebar_hidden]: !sidebarVisible })}>
-      <SplitPane split="vertical" defaultSize={width} size={sidebarVisible ? width : 0}>
-        {props.children}
-      </SplitPane>
-    </div>
+    <HotKeys handlers={keyHandlers} focused style={{ width: '100%', height: '100%' }}>
+      <div className={classnames(style.container, { [style.sidebar_hidden]: !sidebarVisible })}>
+        <SplitPane split="vertical" defaultSize={width} size={sidebarVisible ? width : 0}>
+          {props.children}
+        </SplitPane>
+      </div>
+    </HotKeys>
   )
 }
 

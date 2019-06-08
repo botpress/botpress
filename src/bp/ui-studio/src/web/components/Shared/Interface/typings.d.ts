@@ -11,6 +11,10 @@ export interface ContainerProps {
    * Sets the default state of the sidebar. When not visible, the width is set to 0px, but can be expanded manually
    */
   sidebarHidden: boolean
+  /** Keybord shortcut handlers. Keys must be defined in keyboardShortcuts.js */
+  keyHandlers?: {
+    [key: string]: (keyEvent?: KeyboardEvent) => void
+  }
   readonly children: React.ReactChildren
 }
 
