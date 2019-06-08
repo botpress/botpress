@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@botpress/util-roles": "^10.36.1",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "bluebird": "^3.5.3",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
