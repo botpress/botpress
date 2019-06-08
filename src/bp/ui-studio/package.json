@@ -3,7 +3,7 @@
   "version": "11.0.0",
   "author": "Botpress",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.5.3",
     "bootstrap": "3.4.1",

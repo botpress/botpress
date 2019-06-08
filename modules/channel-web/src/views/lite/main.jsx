@@ -39,7 +39,7 @@ export default class Web extends React.Component {
     super(props)
 
     initializeAnalytics()
-    const { options } = queryString.parse(location.search)
+    const { options, ref } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
     if (config.overrides) {
@@ -63,7 +63,8 @@ export default class Web extends React.Component {
       isButtonHidden: config.hideWidget,
       isTransitioning: false,
       messageHistory: [],
-      historyPosition: HISTORY_STARTING_POINT
+      historyPosition: HISTORY_STARTING_POINT,
+      reference: ref
     }
 
     this.axios = this.props.bp.axios
@@ -101,6 +102,7 @@ export default class Web extends React.Component {
   async initialize() {
     await this.setUserId()
     await this.fetchData()
+    await this.setReference()
 
     this.handleSwitchView('widget')
     this.setState({ loading: false })
@@ -250,6 +252,23 @@ export default class Web extends React.Component {
         reject()
       }, 300000)
     })
+  }
+
+  setReference = async () => {
+    if (typeof this.state.reference !== 'string') {
+      return
+    }
+
+    try {
+      const convoId = this.state.currentConversationId
+      await this.axios.post(
+        `/conversations/${this.userId}/${convoId}/reference/${this.state.reference}`,
+        {},
+        this.axiosConfig
+      )
+    } catch (err) {
+      console.log('Invalid reference ' + this.state.reference)
+    }
   }
 
   handleIframeApi = ({ data: { action, payload } }) => {

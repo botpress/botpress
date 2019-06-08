@@ -156,7 +156,7 @@ A common operation here is to tell Botpress to ignore the event and not process 
 Here is an example:
 
 ```js
-const messageTypesToDiscard = ['session_reset', 'typing', 'visit']
+const messageTypesToDiscard = ['session_reset', 'typing', 'visit', 'session_reference']
 
 if (messageTypesToDiscard.includes(event.type)) {
   event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)

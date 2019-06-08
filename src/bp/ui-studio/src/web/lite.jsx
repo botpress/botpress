@@ -5,20 +5,19 @@ import { connect } from 'react-redux'
 import { Provider } from 'react-redux'
 import queryString from 'query-string'
 import axios from 'axios'
-import { parseBotId } from './util'
 
 import store from './store'
 import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
-import { getToken, getUniqueVisitorId } from '~/util/Auth'
+import { getToken } from '~/util/Auth'
 
 const token = getToken()
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
 }
 
-const { m, v, ref } = queryString.parse(location.search)
+const { m, v } = queryString.parse(location.search)
 
 const alternateModuleNames = {
   'platform-webchat': 'channel-web'
@@ -28,18 +27,6 @@ const moduleName = alternateModuleNames[m] || m
 class LiteView extends React.Component {
   componentDidMount() {
     this.props.fetchModules()
-    this.sendQueries()
-  }
-
-  sendQueries() {
-    if (!ref) {
-      return
-    }
-
-    const userId = window.__BP_VISITOR_ID || getUniqueVisitorId()
-
-    // TODO: why don't we have module-specific code inside of that module?
-    axios.get(`/api/botpress-platform-webchat/${userId}/reference?ref=${ref}`)
   }
 
   render() {
