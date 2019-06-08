@@ -39,13 +39,14 @@ describe('Lite Queues', () => {
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
+      queue.enqueue({ ...stubEvent, id: i.toString() })
     }
 
     while (!queue.isEmpty()) {
       await Promise.delay(1)
     }
 
+    await Promise.delay(10) // Give time for subscription to be consumed
     expect(order.length).toEqual(10)
     expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => n.toString()))
   })
@@ -54,20 +55,19 @@ describe('Lite Queues', () => {
     const order: string[] = []
 
     queue.subscribe(async event => {
-      await Promise.delay(1) // Async processing
+      await Promise.delay(Math.random() * 5) // Async processing
       order.push(event.id.toString())
     })
 
     for (let i = 0; i < 10; i++) {
-      queue.enqueue({ ...stubEvent, id: i.toString() }, 1)
+      queue.enqueue({ ...stubEvent, id: i.toString() })
     }
 
     while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
 
-    await Promise.delay(1)
-
+    await Promise.delay(20) // Give time for subscription to be consumed
     expect(order).toHaveLength(10)
     expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(x => x.toString()))
   })
@@ -91,8 +91,8 @@ describe('Lite Queues', () => {
     while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
-    await Promise.delay(5)
 
+    await Promise.delay(5)
     expect(logger.warn).toHaveBeenCalled() // Failed
     expect(logger.error).not.toHaveBeenCalled() // But not dropped
     expect(order.length).toEqual(1)
@@ -137,8 +137,8 @@ describe('Lite Queues', () => {
     while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
-    await Promise.delay(5)
 
+    await Promise.delay(5)
     expect(order).toHaveLength(3)
     expect(order).toEqual([1, 2, 3].map(x => x.toString()))
   })
@@ -169,9 +169,7 @@ describe('Lite Queues', () => {
       queue.enqueue({ ...stubEvent, id: i.toString(), target: 'b' })
     }
 
-    // Make sure all jobs are executed
-    await Promise.delay(100)
-
+    await Promise.delay(50) // Make sure all jobs are executed
     expect(userListA.length).toBeLessThan(10)
     expect(userListB.length).toEqual(10)
     expect(userListB).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19].map(x => x.toString()))
