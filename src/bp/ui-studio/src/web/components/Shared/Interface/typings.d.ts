@@ -52,8 +52,8 @@ interface Item {
 }
 
 export interface SectionProps {
-  /** When true, the content of the section is displayed by default */
-  expanded: boolean
+  /** When true, the content of the section is hidden by default */
+  collapsed: boolean
   /** The label to display as the section header */
   label: string
   /** When true, the caret icon is not displayed before the section label */

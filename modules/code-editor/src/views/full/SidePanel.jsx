@@ -73,12 +73,12 @@ export default class SidePanel extends React.Component {
     return (
       <Sidebar>
         {this.props.isEditing && (
-          <Section label={'Currently editing'} expanded={true} actions={editingActions}>
+          <Section label={'Currently editing'} actions={editingActions}>
             {this.renderEditing()}
           </Section>
         )}
 
-        <Section label={'Actions'} expanded={true} actions={actions}>
+        <Section label={'Actions'} actions={actions}>
           <FileNavigator files={this.props.files} onFileSelected={this.props.handleFileChanged} />
         </Section>
       </Sidebar>

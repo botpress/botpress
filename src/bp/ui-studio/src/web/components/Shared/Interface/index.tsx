@@ -56,7 +56,7 @@ export const Container = (props: ContainerProps) => {
 }
 
 export const Section = (props: SectionProps) => {
-  const [isOpen, setOpen] = useState(props.expanded)
+  const [isOpen, setOpen] = useState(!props.collapsed)
 
   return (
     <React.Fragment>
@@ -177,7 +177,11 @@ const SectionAction = (action: SectionAction, idx: number) => {
 
   return (
     <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
-      <Button icon={action.icon} text={action.label} />
+      <Button
+        icon={action.icon}
+        text={action.label}
+        onClick={e => !action.disabled && action.onClick && action.onClick(e)}
+      />
     </Tooltip>
   )
 }
