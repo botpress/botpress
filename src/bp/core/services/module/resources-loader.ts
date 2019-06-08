@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import os from 'os'
-import path from 'path'
+import path, { dirname } from 'path'
 
 import { GhostService } from '../ghost/service'
 
@@ -163,9 +163,38 @@ export class ModuleResourceLoader {
   private async _updateOutdatedFiles(src, dest): Promise<void> {
     const files = fse.readdirSync(src)
 
+    const allGhostedFiles = await this.ghost.global().directoryListing('/', undefined, [], true)
+    const getNormalizedDir = fullPath => path.dirname(fullPath.replace(/^\//, ''))
+    const getNakedFileName = file =>
+      path
+        .basename(file)
+        .replace(/^\.__/, '')
+        .replace(/^\.?(\d+_)?/, '')
+
     for (const file of files) {
       const from = path.join(src, file)
-      const to = path.join(dest, file)
+      let to = path.join(dest, file)
+
+      /** We're looking into the files we already have if there's a file
+       * that has the same "name" if we excluded operational renamings such as
+       * '.__' for disabled file or numbers prefix for re-ordering.
+       * These operational renamings should not change the fact that they are the same file.
+       *
+       * This is important because imagine this scenario...
+       * A module exposes the hook: "/hooks/on_server_started/my_module/something_we_dont_want.js"
+       * The developer renames it to ".something_we_dont_want.js" in his installation because he doesn't want that behavior
+       * Upon starting the server, we will again copy it, re-enabling the feature we just disabled!
+       */
+      const matched = allGhostedFiles.find(ghosted => {
+        if (getNormalizedDir(ghosted) === getNormalizedDir(to)) {
+          const normalizedFrom = getNakedFileName(file)
+          const normalizedTo = getNakedFileName(path.basename(ghosted))
+          return normalizedFrom === normalizedTo
+        }
+        return false
+      })
+
+      to = matched || to
 
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
       const ressourceHasChanged = await this.ressourceHasChanged(from, to)
@@ -174,8 +203,10 @@ export class ModuleResourceLoader {
         debug('adding missing file "%s"', file)
         const contentWithHash = await this._getRessourceContentWithHash(from)
         await this.ghost.global().upsertFile('/', to, contentWithHash)
-      } else {
+      } else if (fileHasBeenManuallyUpdated) {
         debug('not copying file "%s" because it has been changed manually', file)
+      } else {
+        debug('not copying file "%s" because already using latest version', file)
       }
     }
   }
