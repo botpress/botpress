@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import os from 'os'
-import path, { dirname } from 'path'
+import path from 'path'
 
 import { GhostService } from '../ghost/service'
 
