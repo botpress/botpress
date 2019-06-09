@@ -9,7 +9,7 @@ import _ from 'lodash'
 import { updateGlobalStyle } from '~/actions'
 import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 
-import SmartInput from '~/components/SmartInput/Input'
+import SmartInput from '~/components/SmartInput'
 
 const style = require('./toolbar.scss')
 

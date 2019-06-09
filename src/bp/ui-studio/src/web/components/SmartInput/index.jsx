@@ -1,178 +1,84 @@
-import decorateComponentWithProps from 'decorate-component-with-props'
-import { Map } from 'immutable'
+import * as React from 'react'
+import { Component } from 'react'
+import cx from 'classnames'
+import { Modifier, EditorState } from 'draft-js'
+import Editor from 'draft-js-plugins-editor'
+import { Button } from '@blueprintjs/core'
+import createSingleLinePlugin from 'draft-js-single-line-plugin'
 
-import Mention from './Mention.jsx'
-import MentionSuggestions from './MentionSuggestions' // eslint-disable-line import/no-named-as-default
-import MentionSuggestionsPortal from './MentionSuggestionsPortal'
-import defaultRegExp from './defaultRegExp'
-import mentionStrategy from './mentionStrategy'
-import mentionSuggestionsStrategy from './mentionSuggestionsStrategy'
-import suggestionsFilter from './utils/defaultSuggestionsFilter'
-import defaultPositionSuggestions from './utils/positionSuggestions'
-
-export { default as MentionSuggestions } from './MentionSuggestions'
+import createMentionPlugin, { defaultSuggestionsFilter } from './Base'
 
 import style from './styles.scss'
 
-export const defaultTheme = {
-  // CSS class for mention text
-  mention: style.mention,
-  // CSS class for suggestions component
-  mentionSuggestions: style.mentionSuggestions,
-  // CSS classes for an entry in the suggestions component
-  mentionSuggestionsEntry: style.mentionSuggestionsEntry,
-  mentionSuggestionsEntryFocused: style.mentionSuggestionsEntryFocused,
-  mentionSuggestionsEntryText: style.mentionSuggestionsEntryText,
-  mentionSuggestionsEntryAvatar: style.mentionSuggestionsEntryAvatar
-}
-
-const HandleSpan = props => {
-  return (
-    <span className={style.mention} data-offset-key={props.offsetKey}>
-      {props.children}
-    </span>
-  )
-}
-
-const HANDLE_REGEX = /{{[A-Za-z0-9_\\.-]+}}/g
-
-function handleStrategy(contentBlock, callback, contentState) {
-  findWithRegex(HANDLE_REGEX, contentBlock, callback)
-}
-
-function findWithRegex(regex, contentBlock, callback) {
-  const text = contentBlock.getText()
-  let matchArr, start
-  while ((matchArr = regex.exec(text)) !== null) {
-    start = matchArr.index
-    callback(start, start + matchArr[0].length)
+export default class SmartInput extends Component {
+  mentionPlugin
+  editor
+  state = {
+    editorState: EditorState.createEmpty(),
+    suggestions: []
   }
-}
-
-export default (config = {}) => {
-  const callbacks = {
-    keyBindingFn: undefined,
-    handleKeyCommand: undefined,
-    onDownArrow: undefined,
-    onUpArrow: undefined,
-    onTab: undefined,
-    onEscape: undefined,
-    handleReturn: undefined,
-    onChange: undefined
+  mentionOptions = {
+    mentionTrigger: '{',
+    mentionRegExp: '{?[\\d\\w\\.]*}{0,2}',
+    entityMutability: 'MUTABLE'
   }
 
-  const ariaProps = {
-    ariaHasPopup: 'false',
-    ariaExpanded: false,
-    ariaOwneeID: undefined,
-    ariaActiveDescendantID: undefined
+  constructor(props) {
+    super(props)
+    this.mentionPlugin = createMentionPlugin({
+      ...this.mentionOptions
+    })
   }
 
-  let searches = Map()
-  let escapedSearch
-  let clientRectFunctions = Map()
-  let isOpened
+  onChange = editorState => {
+    this.setState({
+      editorState
+    })
+  }
 
-  const store = {
-    getEditorState: undefined,
-    setEditorState: undefined,
-    getPortalClientRect: offsetKey => clientRectFunctions.get(offsetKey)(),
-    getAllSearches: () => searches,
-    isEscaped: offsetKey => escapedSearch === offsetKey,
-    escapeSearch: offsetKey => {
-      escapedSearch = offsetKey
-    },
+  onSearchChange = ({ value }) => {
+    this.setState({
+      suggestions: defaultSuggestionsFilter(value, this.props.suggestions)
+    })
+  }
 
-    resetEscapedSearch: () => {
-      escapedSearch = undefined
-    },
+  focus = e => {
+    this.editor.focus()
+  }
 
-    register: offsetKey => {
-      searches = searches.set(offsetKey, offsetKey)
-    },
+  insertVariable = e => {
+    setTimeout(() => {
+      const state = this.state.editorState
+      const content = state.getCurrentContent()
+      const newContent = Modifier.insertText(content, content.getSelectionAfter(), '{{')
 
-    updatePortalClientRect: (offsetKey, func) => {
-      clientRectFunctions = clientRectFunctions.set(offsetKey, func)
-    },
+      const newEditorState = EditorState.push(state, newContent, 'insert-characters')
+      this.setState({ editorState: EditorState.forceSelection(newEditorState, newContent.getSelectionAfter()) })
+    }, 100) // To allow the component to be focused first
+  }
 
-    unregister: offsetKey => {
-      searches = searches.delete(offsetKey)
-      clientRectFunctions = clientRectFunctions.delete(offsetKey)
-    },
+  render() {
+    const { MentionSuggestions, decorators } = this.mentionPlugin
+    const plugins = [this.mentionPlugin]
 
-    getIsOpened: () => isOpened,
-    setIsOpened: nextIsOpened => {
-      isOpened = nextIsOpened
+    if (this.props.singleLine) {
+      plugins.push(createSingleLinePlugin())
     }
-  }
 
-  // Styles are overwritten instead of merged as merging causes a lot of confusion.
-  //
-  // Why? Because when merging a developer needs to know all of the underlying
-  // styles which needs a deep dive into the code. Merging also makes it prone to
-  // errors when upgrading as basically every styling change would become a major
-  // breaking change. 1px of an increased padding can break a whole layout.
-  const {
-    mentionPrefix = '',
-    theme = defaultTheme,
-    positionSuggestions = defaultPositionSuggestions,
-    mentionComponent,
-    mentionSuggestionsComponent = MentionSuggestions,
-    entityMutability = 'SEGMENTED',
-    mentionTrigger = '@',
-    mentionRegExp = defaultRegExp,
-    supportWhitespace = false
-  } = config
-  const mentionSearchProps = {
-    ariaProps,
-    callbacks,
-    theme,
-    store,
-    entityMutability,
-    positionSuggestions,
-    mentionTrigger,
-    mentionPrefix
-  }
-  return {
-    MentionSuggestions: decorateComponentWithProps(mentionSuggestionsComponent, mentionSearchProps),
-    decorators: [
-      {
-        strategy: handleStrategy,
-        component: HandleSpan
-      },
-      {
-        strategy: mentionStrategy(mentionTrigger),
-        component: decorateComponentWithProps(Mention, { theme, mentionComponent })
-      },
-      {
-        strategy: mentionSuggestionsStrategy(mentionTrigger, supportWhitespace, mentionRegExp),
-        component: decorateComponentWithProps(MentionSuggestionsPortal, { store })
-      }
-    ],
-    getAccessibilityProps: () => ({
-      role: 'combobox',
-      ariaAutoComplete: 'list',
-      ariaHasPopup: ariaProps.ariaHasPopup,
-      ariaExpanded: ariaProps.ariaExpanded,
-      ariaActiveDescendantID: ariaProps.ariaActiveDescendantID,
-      ariaOwneeID: ariaProps.ariaOwneeID
-    }),
-
-    initialize: ({ getEditorState, setEditorState }) => {
-      store.getEditorState = getEditorState
-      store.setEditorState = setEditorState
-    },
-
-    onDownArrow: keyboardEvent => callbacks.onDownArrow && callbacks.onDownArrow(keyboardEvent),
-    onTab: keyboardEvent => callbacks.onTab && callbacks.onTab(keyboardEvent),
-    onUpArrow: keyboardEvent => callbacks.onUpArrow && callbacks.onUpArrow(keyboardEvent),
-    onEscape: keyboardEvent => callbacks.onEscape && callbacks.onEscape(keyboardEvent),
-    handleReturn: keyboardEvent => callbacks.handleReturn && callbacks.handleReturn(keyboardEvent),
-    onChange: editorState => {
-      if (callbacks.onChange) return callbacks.onChange(editorState)
-      return editorState
-    }
+    return (
+      <div className={cx(style.editor, this.props.className)} onClick={this.focus}>
+        <Editor
+          stripPastedStyles={true}
+          editorState={this.state.editorState}
+          onChange={this.onChange}
+          plugins={plugins}
+          ref={element => (this.editor = element)}
+        />
+        <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
+        <div className={style.insertBtn}>
+          <Button minimal={true} small={true} icon="code" text={undefined} onClick={this.insertVariable} />
+        </div>
+      </div>
+    )
   }
 }
-
-export const defaultSuggestionsFilter = suggestionsFilter
