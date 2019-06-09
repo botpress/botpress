@@ -8,6 +8,7 @@ import { getToken } from '~/util/Auth'
 import ReactSelect from 'expose-loader?ReactSelect!react-select'
 import PropTypes from 'expose-loader?PropTypes!prop-types'
 import ReactBootstrap from 'expose-loader?ReactBootstrap!react-bootstrap'
+import Reactstrap from 'expose-loader?Reactstrap!reactstrap' // TODO Remove me once we migrated to blueprint
 import ContentPickerWidget from 'expose-loader?BotpressContentPicker!~/components/Content/Select/Widget'
 import ElementsList from 'expose-loader?ElementsList!~/components/Shared/ElementsList'
 import { Provider } from 'react-redux'
