@@ -2,14 +2,14 @@ import find from 'lodash/find'
 
 const addNode = (tree, folders, flowDesc, data) => {
   for (const folderDesc of folders) {
-    let folder = find(tree.children, folderDesc)
+    let folder = find(tree.childNodes, folderDesc)
     if (!folder) {
-      folder = { ...folderDesc, parent: tree, children: [] }
-      tree.children.push(folder)
+      folder = { ...folderDesc, parent: tree, childNodes: [] }
+      tree.childNodes.push(folder)
     }
     tree = folder
   }
-  tree.children.push({ ...flowDesc, parent: tree, ...data })
+  tree.childNodes.push({ ...flowDesc, parent: tree, ...data })
 }
 
 export const splitPath = location => {
@@ -21,17 +21,17 @@ export const splitPath = location => {
 
   for (const folder of fileFolders) {
     currentPath.push(folder)
-    folders.push({ type: 'folder', name: folder, fullPath: currentPath.join('/') })
+    folders.push({ icon: 'folder-close', label: folder, fullPath: currentPath.join('/') })
   }
   currentPath.push(filename)
   return {
     folders,
-    location: { type: 'file', name: filename, fullPath: currentPath.join('/') }
+    location: { icon: 'document', label: filename, fullPath: currentPath.join('/') }
   }
 }
 
 export const buildTree = files => {
-  const tree = { type: 'root', fullPath: '', name: '<root>', children: [] }
+  const tree = { type: 'root', fullPath: '', label: '<root>', childNodes: [] }
   files.forEach(fileData => {
     const { folders, location } = splitPath(fileData.location)
     addNode(tree, folders, location, {
@@ -39,5 +39,5 @@ export const buildTree = files => {
     })
   })
 
-  return tree.children
+  return tree.childNodes
 }

@@ -1,3 +1,4 @@
+import { Container } from 'botpress/ui'
 import Editor from './Editor'
 
 import { baseAction } from './utils/templates'
@@ -88,13 +89,14 @@ export default class CodeEditor extends React.Component {
 
   render() {
     return (
-      <div style={{ display: 'flex', background: '#21252B' }}>
+      <Container>
         <SidePanel
           errors={this.state.errors}
           isEditing={this.state.isEditing}
           files={this.state.files}
           handleFileChanged={this.handleFileChanged}
           createFilePrompt={this.createFilePrompt}
+          onSaveClicked={this.saveChanges}
         />
         {this.state.selectedFile && (
           <Editor
@@ -108,7 +110,7 @@ export default class CodeEditor extends React.Component {
           />
         )}
         {!this.state.selectedFile && <SplashScreen />}
-      </div>
+      </Container>
     )
   }
 }

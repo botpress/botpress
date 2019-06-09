@@ -15,5 +15,6 @@ declare global {
     botpress: {
       [moduleName: string]: any
     }
+    toggleSidePanel: () => void
   }
 }

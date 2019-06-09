@@ -39,7 +39,7 @@ export default class Editor extends React.Component {
       typeRoots: ['types']
     })
 
-    this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-dark' })
+    this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
     this.editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N,

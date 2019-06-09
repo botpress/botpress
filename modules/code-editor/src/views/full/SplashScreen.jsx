@@ -2,40 +2,17 @@ import React from 'react'
 
 import { MdCode } from 'react-icons/md'
 
-import { ACTION_KEY } from './utils/hotkey'
-import style from './style.scss'
+import { SplashScreen, KeyboardShortcut } from 'botpress/ui'
 
 export default () => (
-  <div className={style.splashScreen}>
-    <div>
-      <MdCode />
-      <h1>Code Editor</h1>
-      <p>
-        Code editor allows you to create and edit actions without leaving botpress studio. It features typings and
-        intelligent code completion.
-      </p>
-      <p>
-        Save file&nbsp;
-        <kbd>{ACTION_KEY}</kbd>
-        &nbsp;+&nbsp;
-        <kbd>s</kbd>
-      </p>
-      <p>
-        New file&nbsp;
-        <kbd>{ACTION_KEY}</kbd>
-        &nbsp;+&nbsp;
-        <kbd>alt</kbd>
-        &nbsp;+&nbsp;
-        <kbd>n</kbd>
-      </p>
-      <p>
-        Command Palette&nbsp;
-        <kbd>{ACTION_KEY}</kbd>
-        &nbsp;+&nbsp;
-        <kbd>shift</kbd>
-        &nbsp;+&nbsp;
-        <kbd>p</kbd>
-      </p>
-    </div>
-  </div>
+  <SplashScreen
+    icon={<MdCode />}
+    title={'Code Editor'}
+    description="Code editor allows you to create and edit actions without leaving botpress studio. It features typings and
+    intelligent code completion."
+  >
+    <KeyboardShortcut label="Save file" keys={['ACTION', 's']} />
+    <KeyboardShortcut label="New file" keys={['ACTION', 'alt', 'n']} />
+    <KeyboardShortcut label="Command Palette" keys={['ACTION', 'shift', 'p']} />
+  </SplashScreen>
 )

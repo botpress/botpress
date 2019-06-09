@@ -43,6 +43,7 @@
     "react-toastify": "^3.3.3",
     "react-treebeard": "^2.1.0",
     "reactour": "^1.15.0",
+    "reactstrap": "^8.0.0",
     "reduce-reducers": "^0.1.2",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
