@@ -29,3 +29,18 @@ const renderMenuItem = element => {
     </MenuItem>
   )
 }
+
+export const prepareKeyBindings = keyBindings => {
+  if (!keyBindings) {
+    return { keys: {}, handlers: {} }
+  }
+
+  return Object.keys(keyBindings).reduce(
+    (obj, id) => {
+      obj.keys[id] = keyBindings[id].keys
+      obj.handlers[id] = keyBindings[id].handler
+      return obj
+    },
+    { keys: {}, handlers: {} }
+  )
+}

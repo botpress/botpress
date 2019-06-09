@@ -55,9 +55,9 @@ export default class FileNavigator extends React.Component<any, any> {
   private handleNodeClick = (nodeData: ITreeNode) => {
     const originallySelected = nodeData.isSelected
 
-    this.forEachNode(this.state.nodes, n => (n.isSelected = false))
+    this.traverseTree(this.state.nodes, n => (n.isSelected = false))
 
-    nodeData.isSelected = originallySelected == null ? true : !originallySelected
+    nodeData.isSelected = originallySelected !== null
 
     this.props.onFileSelected && this.props.onFileSelected(nodeData.data)
     this.setState(this.state)
@@ -73,14 +73,14 @@ export default class FileNavigator extends React.Component<any, any> {
     this.setState(this.state)
   }
 
-  private forEachNode(nodes: ITreeNode[], callback: (node: ITreeNode) => void) {
+  private traverseTree(nodes: ITreeNode[], callback: (node: ITreeNode) => void) {
     if (nodes == null) {
       return
     }
 
     for (const node of nodes) {
       callback(node)
-      this.forEachNode(node.childNodes, callback)
+      this.traverseTree(node.childNodes, callback)
     }
   }
 

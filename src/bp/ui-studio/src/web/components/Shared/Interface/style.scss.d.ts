@@ -8,9 +8,9 @@ interface CssExports {
   'infoTooltip': string;
   'itemList': string;
   'searchBar': string;
-  'sidebar': string;
-  'sidebar_hidden': string;
-  'sidebar_section': string;
+  'sidePanel': string;
+  'sidePanel_hidden': string;
+  'sidePanel_section': string;
   'splashScreen': string;
 }
 declare var cssExports: CssExports;

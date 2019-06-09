@@ -2,12 +2,12 @@ import React from 'react'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import { FiFilePlus, FiSave } from 'react-icons/fi'
 import { Collapse } from 'react-bootstrap'
-import { Section, Sidebar } from 'botpress/ui'
+import { SidePanel, SidePanelSection } from 'botpress/ui'
 import FileNavigator from './FileNavigator'
 import style from './style.scss'
 import { ACTION_KEY } from './utils/hotkey'
 
-export default class SidePanel extends React.Component {
+export default class PanelContent extends React.Component {
   state = {
     showErrors: false
   }
@@ -71,17 +71,17 @@ export default class SidePanel extends React.Component {
     ]
     const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]
     return (
-      <Sidebar>
+      <SidePanel>
         {this.props.isEditing && (
-          <Section label={'Currently editing'} actions={editingActions}>
+          <SidePanelSection label={'Currently editing'} actions={editingActions}>
             {this.renderEditing()}
-          </Section>
+          </SidePanelSection>
         )}
 
-        <Section label={'Actions'} actions={actions}>
+        <SidePanelSection label={'Actions'} actions={actions}>
           <FileNavigator files={this.props.files} onFileSelected={this.props.handleFileChanged} />
-        </Section>
-      </Sidebar>
+        </SidePanelSection>
+      </SidePanel>
     )
   }
 }

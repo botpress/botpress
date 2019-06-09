@@ -28,24 +28,26 @@ import {
   SplashScreenProps
 } from './typings'
 
-import { buildMenu } from './utils'
+import { buildMenu, prepareKeyBindings } from './utils'
 
 export const Container = (props: ContainerProps) => {
-  const [sidebarVisible, setSidebarVisible] = useState(!props.sidebarHidden)
-  const width = props.sidebarWidth ? props.sidebarWidth : 300
+  const [sidePanelVisible, setSidePanelVisible] = useState(!props.sidePanelHidden)
+  const width = props.sidePanelWidth ? props.sidePanelWidth : 300
 
-  const toggleSidebar = () => setSidebarVisible(!sidebarVisible)
-  window.toggleSidebar = toggleSidebar
+  const toggleSidePanel = () => setSidePanelVisible(!sidePanelVisible)
+  window.toggleSidePanel = toggleSidePanel
 
-  const keyHandlers = {
-    'toggle-sidebar': toggleSidebar,
-    ...(props.keyHandlers || {})
-  }
+  const { keys, handlers } = prepareKeyBindings(props.keyBindings)
 
   return (
-    <HotKeys handlers={keyHandlers} focused style={{ width: '100%', height: '100%' }}>
-      <div className={classnames(style.container, { [style.sidebar_hidden]: !sidebarVisible })}>
-        <SplitPane split="vertical" defaultSize={width} size={sidebarVisible ? width : 0}>
+    <HotKeys
+      handlers={{ ...(handlers || {}), 'toggle-sidepanel': toggleSidePanel }}
+      keyMap={keys || {}}
+      focused
+      style={{ width: '100%', height: '100%' }}
+    >
+      <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
+        <SplitPane split="vertical" defaultSize={width} size={sidePanelVisible ? width : 0}>
           {props.children}
         </SplitPane>
       </div>
@@ -53,12 +55,12 @@ export const Container = (props: ContainerProps) => {
   )
 }
 
-export const Section = (props: SectionProps) => {
+export const SidePanelSection = (props: SectionProps) => {
   const [isOpen, setOpen] = useState(!props.collapsed)
 
   return (
     <React.Fragment>
-      <div className={style.sidebar_section} onClick={() => setOpen(!isOpen)}>
+      <div className={style.sidePanel_section} onClick={() => setOpen(!isOpen)}>
         <strong>
           {!props.hideCaret && <Icon icon={isOpen ? 'caret-down' : 'caret-right'} />}
           {props.label || ''}
@@ -115,7 +117,7 @@ export const ItemList = (props: ItemListProps) => {
 }
 
 export const PaddedContent = props => <div style={{ padding: '5px' }}>{props.children}</div>
-export const Sidebar = props => <div className={style.sidebar}>{props.children}</div>
+export const SidePanel = props => <div className={style.sidePanel}>{props.children}</div>
 
 export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
   const ACTION_KEY = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'cmd' : 'ctrl'
@@ -127,12 +129,12 @@ export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
         props.keys.map((key, idx) => {
           const realKey = key === 'ACTION' ? ACTION_KEY : key
           return idx > 0 ? (
-            <span key={idx}>
+            <span key={realKey}>
               &nbsp;+&nbsp;
               <kbd>{realKey}</kbd>
             </span>
           ) : (
-            <kbd key={idx}>{realKey}</kbd>
+            <kbd key={realKey}>{realKey}</kbd>
           )
         })}
     </p>

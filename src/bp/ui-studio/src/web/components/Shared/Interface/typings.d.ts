@@ -6,16 +6,23 @@ export interface ContainerProps {
    * Change the default width of the sidebar (in pixels)
    * @default 300
    */
-  sidebarWidth?: number
+  sidePanelWidth?: number
   /**
    * Sets the default state of the sidebar. When not visible, the width is set to 0px, but can be expanded manually
    */
-  sidebarHidden: boolean
-  /** Keybord shortcut handlers. Keys must be defined in keyboardShortcuts.js */
-  keyHandlers?: {
-    [key: string]: (keyEvent?: KeyboardEvent) => void
-  }
+  sidePanelHidden: boolean
+  /** Custom key bindings.   */
+  keyBindings: KeyBindings[]
   readonly children: React.ReactChildren
+}
+
+export interface KeyBindings {
+  [id: string]: {
+    /** The combination of keys to trigger that handler, for ex: ctrl+b, ctrl+alt+z, esc */
+    keys: string
+    /** The handler which is executed when those keys are pressed */
+    handler: (keyEvent?: KeyboardEvent) => void
+  }
 }
 
 export interface SplashScreenProps {

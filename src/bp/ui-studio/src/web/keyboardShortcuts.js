@@ -17,7 +17,7 @@ export const keyMap = {
   'emulator-focus': `e`,
   'docs-toggle': `${navigationKey}+h`,
   'lang-switcher': `${navigationKey}+l`,
-  'toggle-sidebar': `ctrl+b`,
+  'toggle-sidepanel': `ctrl+b`,
   cancel: 'esc'
 }
 

@@ -28,19 +28,19 @@
   height: calc(100vh);
 }
 
-.sidebar {
+.sidePanel {
   background-color: #ffffff;
   width: 100%;
   height: 100%;
 }
 
-.sidebar_hidden {
-  .sidebar {
+.sidePanel_hidden {
+  .sidePanel {
     display: none;
   }
 }
 
-.sidebar_section {
+.sidePanel_section {
   width: 100%;
   height: 30px;
   padding: 2px 5px;
