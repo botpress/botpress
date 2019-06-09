@@ -5,6 +5,7 @@ interface CssExports {
   'action_disabled': string;
   'active': string;
   'container': string;
+  'fullsize': string;
   'infoTooltip': string;
   'itemList': string;
   'searchBar': string;

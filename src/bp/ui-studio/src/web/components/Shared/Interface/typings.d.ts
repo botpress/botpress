@@ -19,7 +19,7 @@ export interface ContainerProps {
   keyHandlers: {
     [id: string]: (keyEvent?: KeyboardEvent) => void
   }
-  readonly children: React.ReactChildren
+  readonly children: React.ReactNode
 }
 
 export interface SplashScreenProps {
@@ -27,7 +27,7 @@ export interface SplashScreenProps {
   description: string
   /** The name of the icon to use. Can also be a JSX element */
   icon: IconName | MaybeElement
-  readonly children: React.ReactChildren
+  readonly children: React.ReactNode
 }
 
 export interface InfoTooltipProps {
@@ -68,7 +68,7 @@ export interface SectionProps {
   hideCaret: boolean
   /** An array of actions that can be executed by the user */
   actions: SectionAction[]
-  readonly children: React.ReactChildren
+  readonly children: React.ReactNode
 }
 
 interface SectionAction {
