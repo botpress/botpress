@@ -10,13 +10,13 @@ export interface ContainerProps {
   /**
    * Sets the default state of the sidebar. When not visible, the width is set to 0px, but can be expanded manually
    */
-  sidePanelHidden: boolean
+  sidePanelHidden?: boolean
   /** Register a new combination of keyboard shortcuts for your container, for ex: ctrl+b, ctrl+alt+z, esc */
-  keyMap: {
+  keyMap?: {
     [id: string]: string
   }
   /** Add handlers for existing combinations in keyboardShortcuts.js, or create custom ones in combination to keyMap  */
-  keyHandlers: {
+  keyHandlers?: {
     [id: string]: (keyEvent?: KeyboardEvent) => void
   }
   readonly children: React.ReactNode
@@ -24,9 +24,9 @@ export interface ContainerProps {
 
 export interface SplashScreenProps {
   title: string
-  description: string
+  description?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon: IconName | MaybeElement
+  icon?: IconName | MaybeElement
   readonly children: React.ReactNode
 }
 
@@ -41,13 +41,13 @@ export interface InfoTooltipProps {
 
 export interface ItemListProps {
   items: Item[]
-  actions: ItemAction[]
+  actions?: ItemAction[]
   onElementClicked: (item: Item) => void
 }
 
 interface ItemAction {
   /** Text displayed when the cursor is over the button */
-  tooltip: string
+  tooltip?: string
   /** The name of the icon to use. Can also be a JSX element */
   icon: IconName | MaybeElement
   /** The action called when the specific action is clicked */
@@ -61,13 +61,13 @@ interface Item {
 
 export interface SectionProps {
   /** When true, the content of the section is hidden by default */
-  collapsed: boolean
+  collapsed?: boolean
   /** The label to display as the section header */
   label: string
   /** When true, the caret icon is not displayed before the section label */
-  hideCaret: boolean
+  hideCaret?: boolean
   /** An array of actions that can be executed by the user */
-  actions: SectionAction[]
+  actions?: SectionAction[]
   readonly children: React.ReactNode
 }
 
@@ -75,13 +75,13 @@ interface SectionAction {
   /** This text will be displayed when the mouse is over the icon */
   label: string
   /** Text displayed when the cursor is over the button */
-  tooltip: string
+  tooltip?: string
   /** When true, the button is still visible but the click event is discarded */
-  disabled: boolean
+  disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
   icon: IconName | MaybeElement
   /** One or multiple items displayed as childs of that element */
-  items: SectionAction | SectionAction[]
+  items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */
   onClick: (e: React.MouseEvent) => void
 }
@@ -97,9 +97,9 @@ export interface KeyboardShortcutsProps {
 
 export interface SearchBarProps {
   /** Text to display when there's no input value */
-  placeholder: string
+  placeholder?: string
   /** This is called whenever the text in the input changes */
-  onChange: (text: string) => void
+  onChange?: (text: string) => void
   /** This is called when the user clicks on the search icon */
-  onClick: (e: React.MouseEvent) => void
+  onClick?: (e: React.MouseEvent) => void
 }
