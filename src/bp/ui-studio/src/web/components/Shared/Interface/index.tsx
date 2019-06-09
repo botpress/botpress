@@ -28,7 +28,7 @@ import {
   SplashScreenProps
 } from './typings'
 
-import { buildMenu, prepareKeyBindings } from './utils'
+import { buildMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
   const [sidePanelVisible, setSidePanelVisible] = useState(!props.sidePanelHidden)
@@ -37,15 +37,13 @@ export const Container = (props: ContainerProps) => {
   const toggleSidePanel = () => setSidePanelVisible(!sidePanelVisible)
   window.toggleSidePanel = toggleSidePanel
 
-  const { keys, handlers } = prepareKeyBindings(props.keyBindings)
+  const keyHandlers = {
+    'toggle-sidepanel': toggleSidePanel,
+    ...(props.keyHandlers || {})
+  }
 
   return (
-    <HotKeys
-      handlers={{ ...(handlers || {}), 'toggle-sidepanel': toggleSidePanel }}
-      keyMap={keys || {}}
-      focused
-      style={{ width: '100%', height: '100%' }}
-    >
+    <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} focused style={{ width: '100%', height: '100%' }}>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
         <SplitPane split="vertical" defaultSize={width} size={sidePanelVisible ? width : 0}>
           {props.children}

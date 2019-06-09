@@ -11,18 +11,15 @@ export interface ContainerProps {
    * Sets the default state of the sidebar. When not visible, the width is set to 0px, but can be expanded manually
    */
   sidePanelHidden: boolean
-  /** Custom key bindings.   */
-  keyBindings: KeyBindings[]
-  readonly children: React.ReactChildren
-}
-
-export interface KeyBindings {
-  [id: string]: {
-    /** The combination of keys to trigger that handler, for ex: ctrl+b, ctrl+alt+z, esc */
-    keys: string
-    /** The handler which is executed when those keys are pressed */
-    handler: (keyEvent?: KeyboardEvent) => void
+  /** Register a new combination of keyboard shortcuts for your container, for ex: ctrl+b, ctrl+alt+z, esc */
+  keyMap: {
+    [id: string]: string
   }
+  /** Add handlers for existing combinations in keyboardShortcuts.js, or create custom ones in combination to keyMap  */
+  keyHandlers: {
+    [id: string]: (keyEvent?: KeyboardEvent) => void
+  }
+  readonly children: React.ReactChildren
 }
 
 export interface SplashScreenProps {
