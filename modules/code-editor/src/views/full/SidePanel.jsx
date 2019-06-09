@@ -1,13 +1,13 @@
 import React from 'react'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
-import { FiFilePlus } from 'react-icons/fi'
-import { OverlayTrigger, Tooltip, Collapse } from 'react-bootstrap'
-
+import { FiFilePlus, FiSave } from 'react-icons/fi'
+import { Collapse } from 'react-bootstrap'
+import { SidePanel, SidePanelSection } from 'botpress/ui'
 import FileNavigator from './FileNavigator'
 import style from './style.scss'
 import { ACTION_KEY } from './utils/hotkey'
 
-export default class SidePanel extends React.Component {
+export default class PanelContent extends React.Component {
   state = {
     showErrors: false
   }
@@ -62,24 +62,26 @@ export default class SidePanel extends React.Component {
   }
 
   render() {
+    const actions = [
+      {
+        label: 'New',
+        icon: <FiFilePlus />,
+        items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
+      }
+    ]
+    const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]
     return (
-      <div className={style.sidePanel}>
-        <div className={style.section}>
-          <strong>Actions</strong>
-          <div>
-            <OverlayTrigger placement="top" overlay={<Tooltip>New action</Tooltip>}>
-              <a className={style.btn} onClick={this.props.createFilePrompt}>
-                <FiFilePlus />
-              </a>
-            </OverlayTrigger>
-          </div>
-        </div>
-        {this.props.isEditing ? (
-          this.renderEditing()
-        ) : (
-          <FileNavigator files={this.props.files} onFileSelected={this.props.handleFileChanged} />
+      <SidePanel>
+        {this.props.isEditing && (
+          <SidePanelSection label={'Currently editing'} actions={editingActions}>
+            {this.renderEditing()}
+          </SidePanelSection>
         )}
-      </div>
+
+        <SidePanelSection label={'Actions'} actions={actions}>
+          <FileNavigator files={this.props.files} onFileSelected={this.props.handleFileChanged} />
+        </SidePanelSection>
+      </SidePanel>
     )
   }
 }
