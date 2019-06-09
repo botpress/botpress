@@ -4,6 +4,24 @@
   border: 1px solid #ddd;
   padding: 5px;
   background: white;
+
+  .insertBtn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: inline-block;
+
+    span[icon] {
+      transition: opacity 0.1s ease-in-out;
+      opacity: 0;
+    }
+  }
+
+  &:hover {
+    .insertBtn span[icon] {
+      opacity: 0.5;
+    }
+  }
 }
 
 .mentionSuggestions {
@@ -83,12 +101,4 @@
 
 .mention {
   background-color: #cce7ff;
-}
-
-.insertBtn {
-  position: absolute;
-  right: 5px;
-  top: 3px;
-  display: inline-block;
-  color: #999;
 }

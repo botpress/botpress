@@ -9,40 +9,7 @@ import _ from 'lodash'
 import { updateGlobalStyle } from '~/actions'
 import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 
-import SmartInput from '~/components/SmartInput'
-
 const style = require('./toolbar.scss')
-
-const mentions = [
-  {
-    name: 'user.profile',
-    description: 'The user profile',
-    category: 'USER',
-    partial: true
-  },
-  {
-    name: 'user.profile.name',
-    description: 'The user name',
-    category: 'USER',
-    partial: false
-  },
-  {
-    name: 'user.profile.email',
-    description: 'The user email',
-    category: 'USER',
-    partial: false
-  },
-  {
-    name: 'session.slots.destination',
-    description: 'An extracted slot',
-    category: 'SESSION'
-  },
-  {
-    name: 'session.slots.arrival',
-    description: 'An extracted slot',
-    category: 'SESSION'
-  }
-]
 
 class Toolbar extends React.Component {
   render() {
@@ -94,8 +61,6 @@ class Toolbar extends React.Component {
     return (
       <div className={style.wrapper}>
         <div className={style.toolbar}>
-          <SmartInput suggestions={mentions} singleLine={true} />
-
           <Button
             className={style.btn}
             bsStyle="default"

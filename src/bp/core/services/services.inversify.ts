@@ -14,6 +14,7 @@ import { CMSService } from './cms'
 import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
+import { HintsService } from './hints'
 import { HookService } from './hook/hook-service'
 import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
@@ -75,6 +76,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<HookService>(TYPES.HookService)
     .to(HookService)
+    .inSingletonScope()
+
+  bind<HintsService>(TYPES.HintsService)
+    .to(HintsService)
     .inSingletonScope()
 
   bind<EventEngine>(TYPES.EventEngine)
