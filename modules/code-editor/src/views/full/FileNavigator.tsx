@@ -10,15 +10,13 @@ export default class FileNavigator extends React.Component<any, any> {
     nodes: []
   }
 
-  componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.refreshNodes()
+  async componentDidMount() {
+    await this.refreshNodes()
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (prevProps.files !== this.props.files && this.props.files) {
-      // tslint:disable-next-line: no-floating-promises
-      this.refreshNodes()
+      await this.refreshNodes()
     }
   }
 

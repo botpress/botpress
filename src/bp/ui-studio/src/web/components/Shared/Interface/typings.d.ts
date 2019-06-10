@@ -1,6 +1,39 @@
 import React from 'react'
 import { Position, IconName, MaybeElement } from '@blueprintjs/core'
 
+declare module 'botpress/ui' {
+  export function Container(props: ContainerProps): JSX.Element
+  export function SidePanelSection(props: SidePanelSectionProps): JSX.Element
+
+  export function SearchBar(props: SearchBarProps): JSX.Element
+  export function ItemList(props: ItemListProps): JSX.Element
+  export function KeyboardShortcut(props: KeyboardShortcutsProps): JSX.Element
+  export function SplashScreen(props: SplashScreenProps): JSX.Element
+  export function SidePanel(props: SidePanelProps): JSX.Element
+  export function InfoTooltip(props: InfoTooltipProps): JSX.Element
+  export function SectionAction()
+}
+
+// TODO: Find the best location for this piece of code. I've added it here so modules importing botpress/ui have access to window.*
+declare global {
+  interface Window {
+    __BP_VISITOR_ID: string
+    botpressWebChat: any
+    BOT_API_PATH: string
+    API_PATH: string
+    BOTPRESS_VERSION: string
+    BOT_NAME: string
+    BOT_ID: string
+    BP_BASE_PATH: string
+    SEND_USAGE_STATS: boolean
+    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
+    botpress: {
+      [moduleName: string]: any
+    }
+    toggleSidePanel: () => void
+  }
+}
+
 export interface ContainerProps {
   /**
    * Change the default width of the sidebar (in pixels)
@@ -37,6 +70,10 @@ export interface InfoTooltipProps {
   icon?: 'info' | 'help'
   /** Where the tooltip will be directed. By default, it's right */
   position: Position
+}
+
+export interface SidePanelProps {
+  readonly children: React.ReactNode
 }
 
 export interface ItemListProps {
@@ -87,7 +124,7 @@ interface SectionAction {
   /** When true, the button is still visible but the click event is discarded */
   disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement | undefined
+  icon?: IconName | MaybeElement | undefined | string
   /** One or multiple items displayed as childs of that element */
   items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */

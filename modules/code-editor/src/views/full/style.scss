@@ -15,8 +15,10 @@
     cursor: pointer;
     color: #b1b1b1;
     vertical-align: middle;
+    float: right;
+
     &:hover {
-      color: #fff;
+      color: #000;
     }
   }
 }

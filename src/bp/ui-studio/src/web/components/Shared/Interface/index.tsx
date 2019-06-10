@@ -25,6 +25,7 @@ import {
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
+  SidePanelProps,
   SidePanelSectionProps,
   SplashScreenProps
 } from './typings'
@@ -120,7 +121,7 @@ export const ItemList = (props: ItemListProps) => {
 }
 
 export const PaddedContent = props => <div style={{ padding: '5px' }}>{props.children}</div>
-export const SidePanel = props => <div className={style.sidePanel}>{props.children}</div>
+export const SidePanel = (props: SidePanelProps) => <div className={style.sidePanel}>{props.children}</div>
 
 export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
   const ACTION_KEY = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'cmd' : 'ctrl'
