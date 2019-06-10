@@ -1,24 +1,28 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import classnames from 'classnames'
 import Promise from 'bluebird'
+import classnames from 'classnames'
 import _ from 'lodash'
-
-import { Grid, Row, Col, Alert } from 'react-bootstrap'
-
-import Sidebar from './Sidebar'
-import { fetchContentCategories, fetchContentItems, upsertContentItem, deleteContentItems } from '~/actions'
-
-import List from './List'
-import DocumentationProvider from '~/components/Util/DocumentationProvider'
+import React, { Component } from 'react'
+import { Alert } from 'react-bootstrap'
+import { connect } from 'react-redux'
+import { RouteComponentProps } from 'react-router'
+import { deleteContentItems, fetchContentCategories, fetchContentItems, upsertContentItem } from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
-
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
+import { Container } from '~/components/Shared/Interface'
+import DocumentationProvider from '~/components/Util/DocumentationProvider'
+import { RootReducer } from '~reducers'
+import { UserReducer } from '~reducers/user'
 
-const style = require('./style.scss')
+import style from './style.scss'
+import List from './List'
+import Sidebar from './Sidebar'
 
-class ContentView extends Component {
+class ContentView extends Component<Props, State> {
+  private canRead = false
+  private canEdit = false
+
   state = {
+    searchQuery: null,
     showModal: false,
     modifyId: null,
     selectedId: 'all',
@@ -124,7 +128,7 @@ class ContentView extends Component {
     setImmediate(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
-  renderBody() {
+  render() {
     const { selectedId = 'all', contentToEdit } = this.state
     const categories = this.props.categories || []
     const selectedCategory = _.find(categories, { id: this.currentContentType() })
@@ -146,36 +150,28 @@ class ContentView extends Component {
     }
 
     return (
-      <div>
-        <Grid className={classNames}>
-          <Row>
-            <Col xs={2}>
-              <Sidebar
-                readOnly={!this.canEdit}
-                categories={categories}
-                selectedId={selectedId}
-                handleAdd={this.handleCreateNew}
-                handleCategorySelected={this.handleCategorySelected}
-              />
-            </Col>
-            <Col xs={10}>
-              <List
-                readOnly={!this.canEdit}
-                count={
-                  this.state.selectedId === 'all'
-                    ? _.sumBy(categories, 'count') || 0
-                    : _.find(categories, { id: this.state.selectedId }).count
-                }
-                contentItems={this.props.contentItems || []}
-                handleRefresh={this.handleRefresh}
-                handleEdit={this.handleModalShowForEdit}
-                handleDeleteSelected={this.handleDeleteSelected}
-                handleClone={this.handleClone}
-                handleSearch={this.handleSearch}
-              />
-            </Col>
-          </Row>
-        </Grid>
+      <Container>
+        <Sidebar
+          readOnly={!this.canEdit}
+          categories={categories}
+          selectedId={selectedId}
+          handleAdd={this.handleCreateNew}
+          handleCategorySelected={this.handleCategorySelected}
+        />
+        <List
+          readOnly={!this.canEdit}
+          count={
+            this.state.selectedId === 'all'
+              ? _.sumBy(categories, 'count') || 0
+              : _.find(categories, { id: this.state.selectedId }).count
+          }
+          contentItems={this.props.contentItems || []}
+          handleRefresh={this.handleRefresh}
+          handleEdit={this.handleModalShowForEdit}
+          handleDeleteSelected={this.handleDeleteSelected}
+          handleClone={this.handleClone}
+          handleSearch={this.handleSearch}
+        />
         {this.canEdit && (
           <CreateOrEditModal
             show={this.state.showModal}
@@ -188,21 +184,13 @@ class ContentView extends Component {
             handleClose={this.handleCloseModal}
           />
         )}
-      </div>
-    )
-  }
-
-  render() {
-    return (
-      <div>
         <DocumentationProvider file="content" />
-        {this.renderBody()}
-      </div>
+      </Container>
     )
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   categories: state.content.categories,
   contentItems: state.content.currentItems,
   user: state.user
@@ -219,3 +207,21 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ContentView)
+
+type Props = {
+  fetchContentCategories: Function
+  fetchContentItems: Function
+  upsertContentItem: Function
+  deleteContentItems: Function
+  categories: any
+  contentItems: any
+  user: UserReducer
+} & RouteComponentProps
+
+interface State {
+  searchQuery: object
+  showModal: boolean
+  contentToEdit: object
+  modifyId: string
+  selectedId: string
+}

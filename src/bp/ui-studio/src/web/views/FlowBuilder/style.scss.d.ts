@@ -2,9 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'diagram': string;
-  'diagramContainer': string;
-  'sidePanel': string;
-  'workspace': string;
   'wrapper': string;
 }
 declare var cssExports: CssExports;

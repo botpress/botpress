@@ -41,24 +41,30 @@ export interface InfoTooltipProps {
 
 export interface ItemListProps {
   items: Item[]
+  /** This is called whenever any element of the list is clicked */
   onElementClicked?: (item: Item) => void
+}
+
+interface Item {
+  label: string
+  /** This can be used when executing actions on the items */
+  value: any
+  icon?: IconName | MaybeElement
+  /** When the element is selected, it is displayed in bold in the list */
+  selected: boolean
+  /** These actions are displayed at the end of the component when the mouse is over the element */
+  actions?: ItemAction[]
+  /** Context menu displayed when the element is right-clicked */
+  contextMenu?: SectionAction[]
 }
 
 interface ItemAction {
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon: IconName | MaybeElement
+  icon?: IconName | MaybeElement
   /** The action called when the specific action is clicked */
-  onClick: (item: Item) => void
-}
-
-interface Item {
-  label: string
-  value: any
-  selected: boolean
-  count: number
-  actions?: ItemAction[]
+  onClick?: (item: Item) => void
 }
 
 export interface SidePanelSectionProps {
@@ -75,7 +81,7 @@ export interface SidePanelSectionProps {
 
 interface SectionAction {
   /** This text will be displayed when the mouse is over the icon */
-  label: string
+  label?: string
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** When true, the button is still visible but the click event is discarded */

@@ -29,7 +29,7 @@ import {
   SplashScreenProps
 } from './typings'
 
-import { buildMenu } from './utils'
+import { buildMenu, showContextMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
   const [sidePanelVisible, setSidePanelVisible] = useState(!props.sidePanelHidden)
@@ -39,8 +39,8 @@ export const Container = (props: ContainerProps) => {
   window.toggleSidePanel = toggleSidePanel
 
   const keyHandlers = {
-    'toggle-sidepanel': toggleSidePanel,
-    ...(props.keyHandlers || {})
+    ...(props.keyHandlers || {}),
+    'toggle-sidepanel': toggleSidePanel
   }
 
   const childs = React.Children.toArray(props.children)
@@ -96,16 +96,19 @@ export const ItemList = (props: ItemListProps) => {
   return (
     <div className={style.itemList}>
       {props.items &&
-        props.items.map((item, idx) => (
-          <div key={idx} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
-            <div className={style.label} onClick={() => props.onElementClicked && props.onElementClicked(item)}>
-              {item.label}
+        props.items.map(item => (
+          <div key={item.label} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+            <div
+              className={style.label}
+              onClick={() => props.onElementClicked && props.onElementClicked(item)}
+              onContextMenu={e => showContextMenu(e, item.contextMenu)}
+            >
+              {item.icon && <Icon icon={item.icon} />} {item.label}
             </div>
             <div className={style.right}>
-              {!!item.count && <div style={{ display: 'inline-block', marginRight: 10 }}>({item.count})</div>}
               {item.actions &&
                 item.actions.map(action => (
-                  <Tooltip key={idx + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                  <Tooltip key={item.label + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
                     <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
                   </Tooltip>
                 ))}
@@ -167,7 +170,7 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
 const SectionAction = (action: SectionAction, idx: number) => {
   if (action.items) {
     return (
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.BOTTOM}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -176,7 +179,7 @@ const SectionAction = (action: SectionAction, idx: number) => {
   }
 
   return (
-    <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.BOTTOM}>
+    <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
       <Button
         icon={action.icon}
         text={action.label}

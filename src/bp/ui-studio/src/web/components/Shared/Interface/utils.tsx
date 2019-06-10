@@ -1,4 +1,4 @@
-import { Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
+import { ContextMenu, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
 import _ from 'lodash'
 import React from 'react'
 
@@ -28,4 +28,11 @@ const renderMenuItem = element => {
       {element.items && buildMenuItems(element.items)}
     </MenuItem>
   )
+}
+
+export const showContextMenu = (e: React.MouseEvent<HTMLDivElement>, contextMenu) => {
+  if (contextMenu) {
+    e.preventDefault()
+    ContextMenu.show(buildMenu(contextMenu), { left: e.clientX, top: e.clientY })
+  }
 }
