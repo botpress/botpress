@@ -1,11 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { RealTimePayload } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
+import RealtimeService from '../realtime'
 
 import FileBasedProviders from './file-based'
 import BaseProvider from './file-based'
@@ -21,9 +23,12 @@ export interface FileBasedHintProvider {
 export interface Hint {
   scope: 'inputs'
   name: string
-  category: string
-  description: string
+  source: string
+  category: 'VARIABLES'
   partial: boolean
+  description?: string
+  location?: string
+  parentObject?: string
 }
 
 const stringFilePrefix = 'string::data/'
@@ -37,18 +42,21 @@ export class HintsService {
     @tagged('name', 'HintsService')
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
   ) {
     this._listenForCacheInvalidation()
   }
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
+      await Promise.delay(100) // We let invalidation happens first
       if (!key.startsWith(stringFilePrefix)) {
         return
       }
       const filePath = key.substr(stringFilePrefix.length)
       this.hints[filePath] = await this.indexFile(filePath)
+      this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
     })
   }
 
@@ -64,15 +72,20 @@ export class HintsService {
           return []
         }
 
-        if (filePath.startsWith('global/')) {
-          const [, file] = filePath.match(/global\/(.+)/i)!
-          content = content || (await this.ghost.global().readFileAsString('/', file))
-        } else {
-          const [, botId, file] = filePath.match(/bots\/(.+?)\/(.+)/i)!
-          content = content || (await this.ghost.forBot(botId).readFileAsString('/', file))
+        try {
+          if (filePath.startsWith('global/')) {
+            const [, file] = filePath.match(/global\/(.+)/i)!
+            content = content || (await this.ghost.global().readFileAsString('/', file))
+          } else {
+            const [, botId, file] = filePath.match(/bots\/(.+?)\/(.+)/i)!
+            content = content || (await this.ghost.forBot(botId).readFileAsString('/', file))
+          }
+        } catch (err) {
+          // May happens if file deleted, renamed etc
+          return []
         }
 
-        return provider.indexFile(filePath, content) as Hint[]
+        return provider.indexFile(filePath, content || '') as Hint[]
       })
     )
   }

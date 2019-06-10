@@ -367,7 +367,7 @@ export class Botpress {
     }
 
     // tslint:disable-next-line: no-floating-promises
-    this.hintsService.refreshAll() // We index in the background
+    this.hintsService.refreshAll()
 
     await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }

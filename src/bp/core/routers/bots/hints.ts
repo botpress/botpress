@@ -30,8 +30,8 @@ export class HintsRouter extends CustomRouter {
       this._needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const inputHints = this.hintsService.getHintsForBot(botId).map(x => ({ ...x, botId }))
-        res.send({ inputs: inputHints })
+        const allHints = this.hintsService.getHintsForBot(botId)
+        res.send({ inputs: allHints.filter(x => x.scope === 'inputs') })
       })
     )
   }

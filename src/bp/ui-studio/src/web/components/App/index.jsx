@@ -50,6 +50,10 @@ class App extends Component {
     EventBus.default.on('notifications.new', notification => {
       this.props.addNotifications([notification])
     })
+
+    EventBus.default.on('hints.updated', () => {
+      this.props.refreshHints()
+    })
   }
 
   render() {
