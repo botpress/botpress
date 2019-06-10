@@ -64,8 +64,7 @@ export default class PanelContent extends React.Component {
   render() {
     const actions = [
       {
-        label: 'New',
-        icon: <FiFilePlus />,
+        icon: 'add',
         items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
       }
     ]
