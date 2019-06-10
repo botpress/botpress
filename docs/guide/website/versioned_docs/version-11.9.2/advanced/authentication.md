@@ -1,6 +1,7 @@
 ---
-id: authentication
+id: version-11.9.2-authentication
 title: Authentication
+original_id: authentication
 ---
 
 There's two different types of authentication, and different methods for each:

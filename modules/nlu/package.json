@@ -22,7 +22,7 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
