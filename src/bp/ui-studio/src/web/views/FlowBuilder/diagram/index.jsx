@@ -45,6 +45,8 @@ export default class FlowBuilder extends Component {
       this.highlightedNodeName = node
 
       if (!flow || !node) {
+        // Refreshing the model anyway, to remove the highlight if node is undefined
+        this.setModel()
         return
       }
 
@@ -55,7 +57,7 @@ export default class FlowBuilder extends Component {
           this.setModel()
         }
       } catch (err) {
-        console.log('Error', err)
+        console.error('Error when switching flow or refreshing', err)
       }
     }
   }

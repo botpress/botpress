@@ -40,7 +40,7 @@ export class StateManager {
     state.session = (session && session.session_data) || { lastMessages: [] }
     state.temp = (session && session.temp_data) || {}
     state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
-    state.history = []
+    state.__stacktrace = []
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {

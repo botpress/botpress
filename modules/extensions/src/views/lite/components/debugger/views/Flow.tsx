@@ -5,39 +5,44 @@ import style from '../style.scss'
 
 export class Flow extends React.Component<any, State> {
   state = {
-    history: [],
-    historyPosition: 0
+    stacktrace: [],
+    stacktraceOffset: 0
   }
 
   componentDidMount() {
-    this.setState({ history: this.props.history, historyPosition: -1 })
+    this.setState({ stacktrace: this.props.stacktrace, stacktraceOffset: -1 })
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.history !== this.props.history) {
-      this.setState({ history: this.props.history, historyPosition: -1 })
+    if (prevProps.stacktrace !== this.props.stacktrace) {
+      this.setState({ stacktrace: this.props.stacktrace, stacktraceOffset: -1 })
+      this.highlightNode()
     }
   }
 
-  showNode = isUp => {
-    const { history, historyPosition } = this.state
+  highlightNode(flow?: string, node?: string) {
+    // @ts-ignore
+    window.parent && window.parent.highlightNode && window.parent.highlightNode(flow, node)
+  }
+
+  moveStacktrace = moveForward => {
+    const { stacktrace, stacktraceOffset } = this.state
     try {
-      let newIndex = isUp ? historyPosition + 1 : historyPosition - 1
+      let newIndex = moveForward ? stacktraceOffset + 1 : stacktraceOffset - 1
       if (newIndex < 0) {
-        newIndex = history.length - 1
-      } else if (newIndex >= history.length) {
+        newIndex = stacktrace.length - 1
+      } else if (newIndex >= stacktrace.length) {
         newIndex = 0
       }
 
-      const current = history[newIndex]
+      const current = stacktrace[newIndex]
 
       if (current) {
-        // @ts-ignore
-        window.parent.highlightNode(current.flow, current.node)
-        this.setState({ historyPosition: newIndex })
+        this.highlightNode(current.flow, current.node)
+        this.setState({ stacktraceOffset: newIndex })
       }
     } catch (err) {
-      console.log(err)
+      console.error('Error while tring to show node', err)
     }
   }
 
@@ -47,23 +52,23 @@ export class Flow extends React.Component<any, State> {
         <H5>Flow Nodes History</H5>
         <p>
           This feature allows you to see by which nodes the user traveled to get those answers. It is still experimental
-          and subject to change{' '}
+          and subject to change
         </p>
-        <Button onClick={() => this.showNode(false)} disabled={this.state.historyPosition <= 0}>
+        <Button onClick={() => this.moveStacktrace(false)} disabled={this.state.stacktraceOffset <= 0}>
           Previous
-        </Button>{' '}
+        </Button>
         <Button
-          onClick={() => this.showNode(true)}
-          disabled={this.state.historyPosition + 1 === this.state.history.length}
+          onClick={() => this.moveStacktrace(true)}
+          disabled={this.state.stacktraceOffset + 1 === this.state.stacktrace.length}
         >
-          {this.state.historyPosition === -1 ? 'First node' : 'Next'}
+          Next
         </Button>
         <ol>
-          {this.state.history.map((entry, idx) => {
+          {this.state.stacktrace.map((entry, idx) => {
             const flowName = entry.flow && entry.flow.replace('.flow.json', '')
             return (
               <li key={idx}>
-                {this.state.historyPosition === idx ? (
+                {this.state.stacktraceOffset === idx ? (
                   <strong>
                     {flowName} / {entry.node}
                   </strong>
@@ -82,6 +87,6 @@ export class Flow extends React.Component<any, State> {
 }
 
 interface State {
-  history: any
-  historyPosition: number
+  stacktrace: any
+  stacktraceOffset: number
 }
