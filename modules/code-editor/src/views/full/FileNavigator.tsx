@@ -35,6 +35,7 @@ export default class FileNavigator extends React.Component<any, any> {
     if (actionsBot) {
       nodes.push({
         label: `${window['BOT_NAME']} (bot)`,
+        icon: 'folder-close',
         hasCaret: true,
         isExpanded: true,
         childNodes: buildTree(this.props.files.actionsBot)
@@ -44,6 +45,7 @@ export default class FileNavigator extends React.Component<any, any> {
     if (actionsGlobal) {
       nodes.push({
         label: 'Global',
+        icon: 'folder-close',
         isExpanded: true,
         childNodes: buildTree(this.props.files.actionsGlobal)
       })

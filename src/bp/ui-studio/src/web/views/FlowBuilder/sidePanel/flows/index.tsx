@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 
 import { buildFlowsTree } from './util'
 
-export const FOLDER_ICON = 'folder'
+export const FOLDER_ICON = 'folder-close'
 export const DIRTY_ICON = 'clean'
 export const FLOW_ICON = 'document'
 
