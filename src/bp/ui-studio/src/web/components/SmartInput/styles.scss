@@ -1,5 +1,12 @@
 .editor {
+  :global(.public-DraftEditorPlaceholder-root) {
+    display: inline;
+    position: absolute;
+    color: #888;
+  }
+
   cursor: text;
+  position: relative;
   box-sizing: border-box;
   border: 1px solid #ddd;
   padding: 5px;
@@ -7,8 +14,8 @@
 
   .insertBtn {
     position: absolute;
-    right: 12px;
-    top: 12px;
+    right: 6px;
+    top: 3px;
     display: inline-block;
 
     span[icon] {

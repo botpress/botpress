@@ -17,6 +17,7 @@ interface Props {
   className?: string
   singleLine: boolean
   value: string
+  placeholder?: string
   onChange: (value: string) => void
 }
 
@@ -94,6 +95,7 @@ class SmartInput extends Component<Props & { hints: any[] }> {
       <div className={cx(style.editor, this.props.className)} onClick={this.focus}>
         <Editor
           stripPastedStyles={true}
+          placeholder={this.props.placeholder}
           editorState={this.state.editorState}
           onChange={this.onChange}
           plugins={plugins}
