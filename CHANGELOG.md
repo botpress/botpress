@@ -3,6 +3,27 @@
 
 ### Bug Fixes
 
+* expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
+* Expose getAttributes from UserRepository ([10fb6ef](https://github.com/botpress/botpress/commit/10fb6ef))
+* Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
+* **core:** resources-loader doesn't over-create files ([38ae8d7](https://github.com/botpress/botpress/commit/38ae8d7))
+* **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
+* **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
+
+
+### Features
+
+* **channel-web:** configurable messages history ([d52d455](https://github.com/botpress/botpress/commit/d52d455))
+* **core:** added security namespace ([e5eb2e4](https://github.com/botpress/botpress/commit/e5eb2e4))
+* **web:** added ability to create trusted reference ([14d8cb6](https://github.com/botpress/botpress/commit/14d8cb6))
+
+
+
+## [11.9.4](https://github.com/botpress/botpress/compare/v11.9.3...v11.9.4) (2019-06-10)
+
+
+### Bug Fixes
+
 * **core:** expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
 * **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
 * **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
