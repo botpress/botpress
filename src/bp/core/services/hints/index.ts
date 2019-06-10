@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { startsWithI } from 'core/misc/utils'
 import { RealTimePayload } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -31,10 +32,14 @@ export interface Hint {
   parentObject?: string
 }
 
-const stringFilePrefix = 'string::data/'
+const invalidationFilePrefix = 'string::data/'
 
 @injectable()
 export class HintsService {
+  // We store hints per key because we want to:
+  // 1) do partial updates to hints when updading a single file
+  // 2) cherry-pick only the files that belong to a certain bot
+  // The key always starts with "global/" or "bots/botId/"
   hints: { [key: string]: Hint[] } = {}
 
   constructor(
@@ -50,11 +55,14 @@ export class HintsService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
-      await Promise.delay(100) // We let invalidation happens first
-      if (!key.startsWith(stringFilePrefix)) {
+      if (!key.startsWith(invalidationFilePrefix)) {
         return
       }
-      const filePath = key.substr(stringFilePrefix.length)
+
+      // We let invalidation happens first
+      // This is necessary because the ghost relies on the cache when reading file content
+      await Promise.delay(100)
+      const filePath = key.substr(invalidationFilePrefix.length)
       this.hints[filePath] = await this.indexFile(filePath)
       this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
     })
@@ -105,16 +113,10 @@ export class HintsService {
   }
 
   getHintsForBot(botId: string): Hint[] {
-    return _.uniqBy(
-      _.flatten(
-        Object.keys(this.hints).map(key => {
-          if (key.startsWith('global/') || key.startsWith('bots/' + botId)) {
-            return this.hints[key]
-          }
-          return []
-        })
-      ),
-      'name'
-    )
+    return _.chain(this.hints)
+      .filter((_v, key) => startsWithI(key, 'global/') || startsWithI(key, `bots/${botId}/`))
+      .flatten()
+      .uniqBy('name')
+      .value()
   }
 }

@@ -1,30 +1,35 @@
 import { FileBasedHintProvider, Hint } from '..'
 
-const REGEXES = [
-  /event.state.(temp|session|user|bot).([A-Z0-9_]+?) =/gi, //
-  /(temp|session|user|bot).([A-Z0-9_]+?) =/gi //
+const USER_VARIABLE_REGEX = [
+  /event.state.(temp|session|user|bot).([A-Z0-9_]+?)\s?=/gi,
+  /(temp|session|user|bot).([A-Z0-9_]+?)\s?=/gi
 ]
+
+const MIN_VARIABLE_LENGTH = 3
 
 // We ignore automatically generated files from modules
 // So we just index files created by the users
-const IGNORE_CONTENT_PATTERN = /\/\/CHECKSUM:/i
+const COPIED_FILE_REGEX = /\/\/CHECKSUM:/i
 
 export default class ActionVariablesProvider implements FileBasedHintProvider {
   readonly filePattern = ['bots/*/actions/**/*.js', 'global/actions/**/*.js']
   readonly readFile = true
 
   indexFile(filePath: string, content: string): Hint[] {
-    if (IGNORE_CONTENT_PATTERN.test(content)) {
+    return this.extractUserDefinedVariables(content, filePath)
+  }
+
+  private extractUserDefinedVariables(content: string, filePath: string) {
+    if (COPIED_FILE_REGEX.test(content)) {
       return []
     }
 
     const hints: Hint[] = []
-
-    for (const regex of REGEXES) {
+    for (const regex of USER_VARIABLE_REGEX) {
       let matches: RegExpExecArray | null
       do {
         matches = regex.exec(content)
-        if (matches && matches[2].length >= 3) {
+        if (matches && matches[2].length >= MIN_VARIABLE_LENGTH) {
           hints.push({
             category: 'VARIABLES',
             description: '',

@@ -13,37 +13,44 @@ import store from '~/store'
 import style from './styles.scss'
 import createMentionPlugin, { defaultSuggestionsFilter } from './Base'
 
-interface Props {
+interface ExposedProps {
   className?: string
+  placeholder?: string
   singleLine: boolean
   value: string
-  placeholder?: string
   onChange: (value: string) => void
 }
 
-class SmartInput extends Component<Props & { hints: any[] }> {
-  valueAsText = ''
+type ConnectedProps = ExposedProps & { hints: any[] }
+
+interface State {
+  beforeContentStateText?: string
+  currentContentStateText: string
+  editorState: EditorState
+  suggestions: any[]
+}
+
+class SmartInput extends Component<ConnectedProps, State> {
+  valueAsText = '' // A local cache of what the last text value of the input was for performance reasons
+  editor: any
 
   mentionOptions = {
-    mentionTrigger: '{',
-    mentionRegExp: '{?[\\d\\w\\.]*}{0,2}',
-    entityMutability: 'MUTABLE'
+    mentionTrigger: '{', // The character that will trigger the auto-complete to show up
+    mentionRegExp: '{?[\\d\\w\\.]*}{0,2}', // Combined with mentionTrigger's "{", this looks for "{{something.like.this}}"
+    entityMutability: 'MUTABLE' // Mutable means the user will be able to delete and add characters to this entity once tagged
   }
 
-  mentionPlugin = createMentionPlugin({
-    ...this.mentionOptions
-  })
+  mentionPlugin = createMentionPlugin(this.mentionOptions)
 
-  editor
-
-  state = {
-    contentStateText: '',
+  state: State = {
+    beforeContentStateText: null,
+    currentContentStateText: '',
     editorState: EditorState.createEmpty(),
     suggestions: []
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (props.value && props.value !== state.contentStateText && props.value !== state.beforeContentStateText) {
+  static getDerivedStateFromProps(props: ConnectedProps, state: State) {
+    if (props.value && props.value !== state.currentContentStateText && props.value !== state.beforeContentStateText) {
       return {
         contentStateText: props.value,
         editorState: EditorState.createWithContent(ContentState.createFromText(props.value))
@@ -53,13 +60,16 @@ class SmartInput extends Component<Props & { hints: any[] }> {
     return null
   }
 
-  onChange = editorState => {
+  onChange = (editorState: EditorState) => {
     const text = editorState.getCurrentContent().getPlainText()
     const shouldUpdate = text !== this.valueAsText
     this.valueAsText = text
-    this.setState({ editorState, contentStateText: text, beforeContentStateText: this.state.contentStateText }, () => {
-      shouldUpdate && this.props.onChange && this.props.onChange(text)
-    })
+    this.setState(
+      { editorState, currentContentStateText: text, beforeContentStateText: this.state.currentContentStateText },
+      () => {
+        shouldUpdate && this.props.onChange && this.props.onChange(text)
+      }
+    )
   }
 
   onSearchChange = ({ value }) => {
@@ -68,19 +78,18 @@ class SmartInput extends Component<Props & { hints: any[] }> {
     })
   }
 
-  focus = e => {
-    this.editor.focus()
-  }
+  focus = () => this.editor.focus()
 
-  insertVariable = e => {
+  insertVariable = () => {
+    // Intentional delay to allow the component to be focused before editing the state
+    // There seems to be no simple way of working around this
     setTimeout(() => {
       const state = this.state.editorState
       const content = state.getCurrentContent()
       const newContent = Modifier.insertText(content, content.getSelectionAfter(), '{{')
-
       const newEditorState = EditorState.push(state, newContent, 'insert-characters')
       this.setState({ editorState: EditorState.forceSelection(newEditorState, newContent.getSelectionAfter()) })
-    }, 100) // To allow the component to be focused first
+    }, 100)
   }
 
   render() {
@@ -99,7 +108,7 @@ class SmartInput extends Component<Props & { hints: any[] }> {
           editorState={this.state.editorState}
           onChange={this.onChange}
           plugins={plugins}
-          ref={element => (this.editor = element)}
+          ref={el => (this.editor = el)}
         />
         <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
         <div className={style.insertBtn}>
@@ -118,4 +127,4 @@ const ConnectedSmartInput = connect(
 )(SmartInput)
 
 // Passing store explicitly since this component may be imported from another botpress-module
-export default (props: Props) => <ConnectedSmartInput {...props} store={store} />
+export default (props: ExposedProps) => <ConnectedSmartInput {...props} store={store} />

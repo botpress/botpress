@@ -15,7 +15,6 @@ const defaultSuggestionsFilter = (searchValue, suggestions) => {
 
   if (filteredSuggestions.length >= 5) {
     // We removed nested object suggestions when there's too many choices to display
-
     filteredSuggestions = filteredSuggestions.filter(
       x =>
         !filteredSuggestions.find(

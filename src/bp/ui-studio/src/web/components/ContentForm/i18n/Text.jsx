@@ -12,7 +12,7 @@ export default class Text extends I18nManager {
           {this.props.schema.title} {this.props.required && '*'}
         </strong>
         <SmartInput
-          singleLine={this.props.uiSchema.$subtype === 'textarea' ? false : true}
+          singleLine={this.props.uiSchema.$subtype !== 'textarea'}
           value={this.props.formData}
           onChange={this.handleOnChange}
           placeholder={this.state.placeholder || ''}
