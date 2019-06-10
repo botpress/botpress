@@ -81,19 +81,15 @@
   color: #555;
 }
 
-.mentionSuggestionsEntry {
-  padding: 7px 10px 3px 10px;
-  transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
-
-  &:active {
-    background-color: #cce7ff;
-  }
-}
-
+.mentionSuggestionsEntry,
 .mentionSuggestionsEntryFocused {
   padding: 7px 10px 3px 10px;
   transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
-  background-color: #e6f3ff;
+
+  &:active,
+  &.mentionSuggestionsEntryFocused {
+    background-color: #cce7ff;
+  }
 }
 
 .mentionSuggestionsEntryText {

@@ -11,6 +11,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import classnames from 'classnames'
+import _ from 'lodash'
 import React, { useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
@@ -42,11 +43,13 @@ export const Container = (props: ContainerProps) => {
     ...(props.keyHandlers || {})
   }
 
+  const childs = React.Children.toArray(props.children)
   return (
-    <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} focused style={{ width: '100%', height: '100%' }}>
+    <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
         <SplitPane split="vertical" defaultSize={width} size={sidePanelVisible ? width : 0}>
-          {props.children}
+          {childs[0]}
+          <div className={style.fullsize}>{childs.slice(1)}</div>
         </SplitPane>
       </div>
     </HotKeys>
