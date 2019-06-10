@@ -1,13 +1,14 @@
-import React from 'react'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
-import { FiFilePlus, FiSave } from 'react-icons/fi'
-import { Collapse } from 'react-bootstrap'
+import { Collapse } from '@blueprintjs/core'
 import { SidePanel, SidePanelSection } from 'botpress/ui'
-import FileNavigator from './FileNavigator'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import React from 'react'
+import { FiSave } from 'react-icons/fi'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import style from './style.scss'
 import { ACTION_KEY } from './utils/hotkey'
+import FileNavigator from './FileNavigator'
 
-export default class PanelContent extends React.Component {
+export default class PanelContent extends React.Component<Props> {
   state = {
     showErrors: false
   }
@@ -46,7 +47,7 @@ export default class PanelContent extends React.Component {
           {!this.state.showErrors && <MdExpandMore />}
           View details
         </span>
-        <Collapse in={this.state.showErrors} timeout={50}>
+        <Collapse isOpen={this.state.showErrors}>
           <div style={{ paddingLeft: 15 }}>
             {errors.map(x => (
               <div style={{ marginBottom: 10 }}>
@@ -64,11 +65,11 @@ export default class PanelContent extends React.Component {
   render() {
     const actions = [
       {
-        label: 'New',
-        icon: <FiFilePlus />,
+        icon: 'add',
         items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
       }
     ]
+
     const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]
     return (
       <SidePanel>
@@ -85,3 +86,15 @@ export default class PanelContent extends React.Component {
     )
   }
 }
+
+interface Props {
+  isEditing: boolean
+
+  files: any
+  errors: monaco.editor.IMarker[]
+  handleFileChanged: any
+  createFilePrompt: any
+  onSaveClicked: () => void
+}
+
+interface Error {}

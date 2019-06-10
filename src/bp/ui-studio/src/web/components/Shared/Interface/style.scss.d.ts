@@ -7,7 +7,11 @@ interface CssExports {
   'container': string;
   'fullsize': string;
   'infoTooltip': string;
+  'item': string;
   'itemList': string;
+  'itemListSelected': string;
+  'label': string;
+  'right': string;
   'searchBar': string;
   'sidePanel': string;
   'sidePanel_hidden': string;

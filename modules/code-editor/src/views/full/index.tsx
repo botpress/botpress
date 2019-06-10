@@ -1,14 +1,18 @@
 import { Container } from 'botpress/ui'
-import Editor from './Editor'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import React from 'react'
+
+import { EditableFile } from '../../backend/typings'
 
 import { baseAction } from './utils/templates'
-import SplashScreen from './SplashScreen'
+import Editor from './Editor'
 import SidePanel from './SidePanel'
-
+import SplashScreen from './SplashScreen'
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
-export default class CodeEditor extends React.Component {
+export default class CodeEditor extends React.Component<Props, State> {
   state = {
+    errors: undefined,
     files: undefined,
     isEditing: false,
     editedContent: undefined,
@@ -16,6 +20,7 @@ export default class CodeEditor extends React.Component {
   }
 
   componentDidMount() {
+    // tslint:disable-next-line: no-floating-promises
     this.initialize()
     document.addEventListener('keydown', this.createNewFileShortcut)
   }
@@ -73,7 +78,7 @@ export default class CodeEditor extends React.Component {
     this.setState({ isEditing: false, editedContent: undefined }, this.initialize)
   }
 
-  handleFileChanged = selectedFile => this.setState({ isEditing: false, askConfirmDiscard: false, selectedFile })
+  handleFileChanged = selectedFile => this.setState({ isEditing: false, selectedFile })
   handleContentChanged = editedContent => this.setState({ isEditing: true, editedContent })
   handleProblemsChanged = errors => this.setState({ errors })
 
@@ -113,4 +118,16 @@ export default class CodeEditor extends React.Component {
       </Container>
     )
   }
+}
+
+interface Props {
+  bp: any
+}
+
+interface State {
+  files: EditableFile[]
+  selectedFile: EditableFile
+  isEditing: boolean
+  editedContent: string
+  errors: monaco.editor.IMarker[]
 }

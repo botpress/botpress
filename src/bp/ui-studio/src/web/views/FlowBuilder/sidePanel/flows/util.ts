@@ -1,15 +1,17 @@
 import find from 'lodash/find'
 
+import { FLOW_ICON, FOLDER_ICON } from '.'
+
 const addNode = (tree, folders, flowDesc, data) => {
   for (const folderDesc of folders) {
-    let folder = find(tree.children, folderDesc)
+    let folder = find(tree.childNodes, folderDesc)
     if (!folder) {
-      folder = { ...folderDesc, parent: tree, children: [] }
-      tree.children.push(folder)
+      folder = { ...folderDesc, parent: tree, childNodes: [] }
+      tree.childNodes.push(folder)
     }
     tree = folder
   }
-  tree.children.push({ ...flowDesc, parent: tree, ...data })
+  tree.childNodes.push({ ...flowDesc, parent: tree, ...data })
 }
 
 const compareNodes = (a, b) => {
@@ -24,11 +26,11 @@ const compareNodes = (a, b) => {
 }
 
 const sortChildren = tree => {
-  if (!tree.children) {
+  if (!tree.childNodes) {
     return
   }
-  tree.children.sort(compareNodes)
-  tree.children.forEach(sortChildren)
+  tree.childNodes.sort(compareNodes)
+  tree.childNodes.forEach(sortChildren)
 }
 
 export const getUniqueId = node => `${node.type}:${node.fullPath}`
@@ -39,27 +41,27 @@ export const splitFlowPath = flow => {
   const flowFolders = flowPath.slice(0, flowPath.length - 1)
   const folders = []
   const currentPath = []
+
   for (const folder of flowFolders) {
     currentPath.push(folder)
-    folders.push({ type: 'folder', name: folder, fullPath: currentPath.join('/') })
+    folders.push({ icon: FOLDER_ICON, label: folder, fullPath: currentPath.join('/') })
   }
+
   currentPath.push(flowName)
   return {
     folders,
-    flow: { type: 'file', name: flowName, fullPath: currentPath.join('/') }
+    flow: { icon: FLOW_ICON, label: flowName, fullPath: currentPath.join('/') } // document, exchange, search-around
   }
 }
 
 export const buildFlowsTree = flows => {
-  const tree = { type: 'root', fullPath: '', name: '<root>', children: [] }
+  const tree = { icon: 'root', fullPath: '', label: '<root>', childNodes: [] }
   flows.forEach(flowData => {
     const { folders, flow } = splitFlowPath(flowData.name)
-    addNode(tree, folders, flow, {
-      data: flowData
-    })
+    addNode(tree, folders, flow, { nodeData: flowData })
   })
 
   sortChildren(tree)
 
-  return tree.children
+  return tree.childNodes
 }
