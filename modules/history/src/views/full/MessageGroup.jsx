@@ -5,10 +5,6 @@ import { IoMdFlag } from 'react-icons/io'
 import classnames from 'classnames'
 
 export class MessageGroup extends React.Component {
-  // state = {
-  //   isSelected: false
-  // }
-
   componentWillUnmount() {
     this.props.handleSelection(false, this.props.group.userMessage)
   }

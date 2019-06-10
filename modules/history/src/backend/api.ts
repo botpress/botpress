@@ -13,7 +13,10 @@ export default async (bp: typeof sdk, db: Database) => {
     const { botId } = req.params
     const { from, to } = req.query
 
-    const conversationsInfo = await db.getDistinctConversations(botId, from, to)
+    const conversations: string[] = await db.getDistinctConversations(botId, from, to)
+
+    const buildConversationInfo = async (c: string) => ({ id: c, count: await db.getConversationMessageCount(c) })
+    const conversationsInfo = await Promise.all(conversations.map(buildConversationInfo))
 
     res.send(conversationsInfo)
   })

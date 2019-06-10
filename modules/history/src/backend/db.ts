@@ -41,7 +41,7 @@ export default class HistoryDb {
       .whereIn('flaggedMessageId', messages.map(m => m.userMessage.id))
   }
 
-  async getDistinctConversations(botId: string, from?: number, to?: number): Promise<ConversationInfo[]> {
+  async getDistinctConversations(botId: string, from?: number, to?: number): Promise<string[]> {
     const query = this.knex
       .select()
       .distinct('sessionId')
@@ -61,8 +61,7 @@ export default class HistoryDb {
     const queryResults = await query
     const uniqueConversations: string[] = queryResults.map(x => x.sessionId)
 
-    const buildConversationInfo = async (c: string) => ({ id: c, count: await this.getConversationMessageCount(c) })
-    return Promise.all(uniqueConversations.map(buildConversationInfo))
+    return uniqueConversations
   }
 
   getMessagesOfConversation = async (
