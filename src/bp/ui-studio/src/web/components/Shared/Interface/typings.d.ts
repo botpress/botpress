@@ -41,8 +41,7 @@ export interface InfoTooltipProps {
 
 export interface ItemListProps {
   items: Item[]
-  actions?: ItemAction[]
-  onElementClicked: (item: Item) => void
+  onElementClicked?: (item: Item) => void
 }
 
 interface ItemAction {
@@ -57,9 +56,12 @@ interface ItemAction {
 interface Item {
   label: string
   value: any
+  selected: boolean
+  count: number
+  actions?: ItemAction[]
 }
 
-export interface SectionProps {
+export interface SidePanelSectionProps {
   /** When true, the content of the section is hidden by default */
   collapsed?: boolean
   /** The label to display as the section header */
@@ -79,11 +81,11 @@ interface SectionAction {
   /** When true, the button is still visible but the click event is discarded */
   disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
-  icon: IconName | MaybeElement
+  icon?: IconName | MaybeElement | undefined
   /** One or multiple items displayed as childs of that element */
   items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */
-  onClick: (e: React.MouseEvent) => void
+  onClick?: (e: React.MouseEvent) => void
 }
 
 export interface KeyboardShortcutsProps {

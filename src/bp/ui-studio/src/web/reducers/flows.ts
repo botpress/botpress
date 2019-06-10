@@ -34,6 +34,12 @@ import {
   updateSkill
 } from '~/actions'
 
+export interface FlowReducer {
+  currentFlow: any
+  showFlowNodeProps: boolean
+  dirtyFlows: string[]
+}
+
 const MAX_UNDO_STACK_SIZE = 25
 const MIN_HISTORY_RECORD_INTERVAL = 500
 
@@ -124,6 +130,7 @@ const createSnapshot = state => ({
 })
 
 const recordHistory = state => {
+  // @ts-ignore
   if (!state.currentSnapshot || new Date() - state.currentSnapshot.createdAt < MIN_HISTORY_RECORD_INTERVAL) {
     return { ...state, currentSnapshot: createSnapshot(state) }
   }
@@ -293,7 +300,7 @@ reducer = reduceReducers(
   reducer,
   handleActions(
     {
-      [renameFlow]: (state, { payload : { targetFlow, name } }) => ({
+      [renameFlow]: (state, { payload: { targetFlow, name } }) => ({
         ...state,
         flowsByName: doRenameFlow({
           flow: targetFlow,

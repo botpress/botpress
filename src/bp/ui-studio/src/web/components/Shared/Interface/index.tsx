@@ -25,7 +25,7 @@ import {
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
-  SectionProps,
+  SidePanelSectionProps,
   SplashScreenProps
 } from './typings'
 
@@ -56,7 +56,7 @@ export const Container = (props: ContainerProps) => {
   )
 }
 
-export const SidePanelSection = (props: SectionProps) => {
+export const SidePanelSection = (props: SidePanelSectionProps) => {
   const [isOpen, setOpen] = useState(!props.collapsed)
 
   return (
@@ -95,24 +95,23 @@ export const SearchBar = (props: SearchBarProps) => {
 export const ItemList = (props: ItemListProps) => {
   return (
     <div className={style.itemList}>
-      <ul>
-        {props.items &&
-          props.items.map((item, idx) => (
-            <li key={idx}>
-              <div style={{ width: '80%' }} onClick={() => props.onElementClicked && props.onElementClicked(item)}>
-                {item.label}
-              </div>
-              <div style={{ marginLeft: 'auto ' }}>
-                {props.actions &&
-                  props.actions.map(action => (
-                    <Tooltip key={idx + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
-                    </Tooltip>
-                  ))}
-              </div>
-            </li>
-          ))}
-      </ul>
+      {props.items &&
+        props.items.map((item, idx) => (
+          <div key={idx} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+            <div className={style.label} onClick={() => props.onElementClicked && props.onElementClicked(item)}>
+              {item.label}
+            </div>
+            <div className={style.right}>
+              {!!item.count && <div style={{ display: 'inline-block', marginRight: 10 }}>({item.count})</div>}
+              {item.actions &&
+                item.actions.map(action => (
+                  <Tooltip key={idx + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                    <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                  </Tooltip>
+                ))}
+            </div>
+          </div>
+        ))}
     </div>
   )
 }
@@ -168,7 +167,7 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
 const SectionAction = (action: SectionAction, idx: number) => {
   if (action.items) {
     return (
-      <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.BOTTOM}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -177,7 +176,7 @@ const SectionAction = (action: SectionAction, idx: number) => {
   }
 
   return (
-    <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+    <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.BOTTOM}>
       <Button
         icon={action.icon}
         text={action.label}
