@@ -28,7 +28,8 @@
   border: 1px solid #eee;
   margin-top: 0.4em;
   position: absolute;
-  min-width: 220px;
+  min-width: 400px;
+  width: 400px;
   max-width: 600px;
   background: #fff;
   cursor: pointer;
@@ -51,11 +52,11 @@
   font-weight: bold;
 }
 
-.mentionSuggestions .suggestion-type.session {
+.mentionSuggestions .suggestion-type.variables {
   background: pink;
 }
 
-.mentionSuggestions .suggestion-type.user {
+.mentionSuggestions .suggestion-type.properties {
   background: greenyellow;
 }
 

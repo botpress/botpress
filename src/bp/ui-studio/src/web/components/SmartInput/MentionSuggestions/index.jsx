@@ -21,14 +21,20 @@ const defaultEntryComponent = props => {
     searchValue, // eslint-disable-line no-unused-vars
     ...parentProps
   } = props
-  const { category = 'USER', value } = mention
-  const description = isFocused && mention.description && <div className={style.description}>{mention.description}</div>
+  const { category = 'VARIABLES', value } = mention
 
   return (
     <div {...parentProps}>
       <Category category={category} />
       <span className={cx(style.variable, { [style.focused]: isFocused })}>{mention.name}</span>
-      {description}
+
+      {isFocused && (
+        <div className={style.info}>
+          <div className={style.description}>{mention.description}</div>
+          <div className={style.source}>{mention.source}</div>
+          <div className={style.location}>{mention.location}</div>
+        </div>
+      )}
     </div>
   )
 }

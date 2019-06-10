@@ -9,8 +9,8 @@ import { GhostService } from '..'
 import { TYPES } from '../../types'
 import RealtimeService from '../realtime'
 
+import BaseProvider from './base-provider'
 import FileBasedProviders from './file-based'
-import BaseProvider from './file-based'
 
 const debug = DEBUG('hints')
 
@@ -92,7 +92,7 @@ export class HintsService {
 
   async refreshAll(): Promise<void> {
     const hints = {}
-    hints['base'] = BaseProvider
+    hints['global/base'] = BaseProvider
 
     const files = [
       ...(await this.ghost.global().directoryListing('/')).map(x => 'global/' + x),
