@@ -54,24 +54,24 @@ export default class FileNavigator extends React.Component<any, any> {
     this.setState({ nodes })
   }
 
-  private handleNodeClick = (nodeData: ITreeNode) => {
-    const originallySelected = nodeData.isSelected
+  private handleNodeClick = (node: ITreeNode) => {
+    const originallySelected = node.isSelected
 
     this.traverseTree(this.state.nodes, n => (n.isSelected = false))
 
-    nodeData.isSelected = originallySelected !== null
+    node.isSelected = originallySelected !== null
 
-    this.props.onFileSelected && this.props.onFileSelected(nodeData.data)
+    this.props.onFileSelected && this.props.onFileSelected(node.nodeData)
     this.setState(this.state)
   }
 
-  private handleNodeCollapse = (nodeData: ITreeNode) => {
-    nodeData.isExpanded = false
+  private handleNodeCollapse = (node: ITreeNode) => {
+    node.isExpanded = false
     this.setState(this.state)
   }
 
-  private handleNodeExpand = (nodeData: ITreeNode) => {
-    nodeData.isExpanded = true
+  private handleNodeExpand = (node: ITreeNode) => {
+    node.isExpanded = true
     this.setState(this.state)
   }
 

@@ -34,9 +34,7 @@ export const buildTree = files => {
   const tree = { type: 'root', fullPath: '', label: '<root>', childNodes: [] }
   files.forEach(fileData => {
     const { folders, location } = splitPath(fileData.location)
-    addNode(tree, folders, location, {
-      data: fileData
-    })
+    addNode(tree, folders, location, { nodeData: fileData })
   })
 
   return tree.childNodes
