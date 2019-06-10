@@ -54,6 +54,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   }
 
+  router.get('/currentModelHash', async (req, res) => {
+    const engine = nlus[req.params.botId] as ScopedEngine
+    const intents = await engine.storage.getIntents()
+    const modelHash = await engine.getModelHash(intents)
+    res.send(modelHash)
+  })
+
   router.get('/confusion/:modelHash', async (req, res) => {
     try {
       const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)

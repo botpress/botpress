@@ -15,6 +15,7 @@ import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
+import NluPerformanceStatus from '~/components/Confusion'
 
 const COMPLETED_DURATION = 2000
 
@@ -145,6 +146,9 @@ class StatusBar extends React.Component {
           </ActionItem>
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
+          </ActionItem>
+          <ActionItem title="NLU Performance Status" description="View F1 score" className={style.right}>
+            <NluPerformanceStatus />
           </ActionItem>
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
