@@ -1,5 +1,4 @@
 import 'bluebird-global'
-import getos from 'getos'
 import os from 'os'
 
 class Distro implements OSDistribution {
@@ -30,12 +29,24 @@ class Distro implements OSDistribution {
 }
 
 export default async function(): Promise<typeof process.distro> {
-  const obj = (await Promise.fromCallback(cb => getos(cb)).catch(_err => ({
-    os: os.platform(),
-    dist: 'default',
-    codename: 'N/A',
-    release: 'N/A'
-  }))) as typeof process.distro
+  if (process.core_env.BP_IS_DOCKER) {
+    return new Distro({
+      os: 'linux',
+      codename: 'beaver',
+      release: '18.04',
+      dist: 'ubuntu'
+    })
+  }
+
+  const getos = require('getos')
+  const obj = (await Promise.fromCallback(getos)
+    .timeout(1000)
+    .catch(_err => ({
+      os: os.platform(),
+      dist: 'default',
+      codename: 'N/A',
+      release: 'N/A'
+    }))) as typeof process.distro
 
   return new Distro(obj)
 }

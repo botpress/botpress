@@ -77,6 +77,8 @@ export default class Storage implements QnaStorage {
 
         await axios.post(`/mod/nlu/intents`, intent, axiosConfig)
         this.bp.logger.info(`Created NLU intent for QNA ${question.id}`)
+      } else if (!question.data.enabled && matchedIntent) {
+        await this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${question.id}.json`)
       }
     }
   }

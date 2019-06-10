@@ -472,7 +472,7 @@ reducer = reduceReducers(
         const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
         const needsUpdate = name => name === (currentNode || {}).name && payload.name
 
-        const updateCatchAllNodeName = elements =>
+        const updateNodeName = elements =>
           elements.map(element => {
             return {
               ...element,
@@ -491,18 +491,15 @@ reducer = reduceReducers(
                 if (node.id !== state.currentFlowNode) {
                   return {
                     ...node,
-                    next: node.next.map(transition => ({
-                      ...transition,
-                      node: needsUpdate(transition.node) ? payload.name : transition.node
-                    }))
+                    next: node.next && updateNodeName(node.next)
                   }
                 }
 
                 return { ...node, ...payload, lastModified: new Date() }
               }),
               catchAll: {
-                next: currentFlow.catchAll.next && updateCatchAllNodeName(currentFlow.catchAll.next),
-                onReceive: currentFlow.catchAll.onReceive && updateCatchAllNodeName(currentFlow.catchAll.onReceive)
+                ...currentFlow.catchAll,
+                next: currentFlow.catchAll.next && updateNodeName(currentFlow.catchAll.next)
               }
             }
           }
