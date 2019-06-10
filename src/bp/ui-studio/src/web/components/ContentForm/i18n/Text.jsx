@@ -1,23 +1,20 @@
 import React from 'react'
-import { FormControl } from 'react-bootstrap'
+
+import SmartInput from '~/components/SmartInput'
 
 import I18nManager from './I18nManager'
 
 export default class Text extends I18nManager {
-  handleTextChanged = event => {
-    this.handleOnChange(event.target.value)
-  }
-
   render() {
     return this.renderWrapped(
       <div style={{ width: '100%' }}>
         <strong>
           {this.props.schema.title} {this.props.required && '*'}
         </strong>
-        <FormControl
-          componentClass={this.props.uiSchema.$subtype === 'textarea' ? 'textarea' : 'input'}
+        <SmartInput
+          singleLine={this.props.uiSchema.$subtype === 'textarea' ? false : true}
           value={this.props.formData}
-          onChange={this.handleTextChanged}
+          onChange={this.handleOnChange}
           placeholder={this.state.placeholder || ''}
         />
       </div>
