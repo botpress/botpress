@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import { FileBasedHintProvider, Hint } from '..'
 
 export default class NLUProvider implements FileBasedHintProvider {
@@ -5,6 +7,48 @@ export default class NLUProvider implements FileBasedHintProvider {
   readonly readFile = true
 
   indexFile(filePath: string, content: string): Hint[] {
-    return []
+    try {
+      const intent = JSON.parse(content)
+      return _.flatten(
+        intent.slots.map(x =>
+          [
+            {
+              description: 'An extracted slot',
+              name: `session.extractedSlots.${x.name}`,
+              partial: true
+            },
+            {
+              description: 'The value of the extracted slot',
+              name: `session.extractedSlots.${x.name}.value`,
+              partial: false
+            },
+            {
+              description: 'The entity associated to the extracted slot',
+              name: `session.extractedSlots.${x.name}.entity`,
+              partial: true
+            },
+            {
+              description: 'The name of the entity used to extract the slot',
+              name: `session.extractedSlots.${x.name}.entity.name`,
+              partial: false
+            },
+            {
+              description: 'The type of the entity used to extract the slot',
+              name: `session.extractedSlots.${x.name}.entity.type`,
+              partial: false
+            }
+          ].map(hint => ({
+            ...hint,
+            category: 'VARIABLES',
+            source: 'Extracted from intents',
+            location: 'File: ' + filePath,
+            parentObject: 'event.state',
+            scope: 'inputs'
+          }))
+        )
+      )
+    } catch (err) {
+      return []
+    }
   }
 }
