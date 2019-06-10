@@ -1,6 +1,5 @@
 import React from 'react'
 
-// @ts-ignore
 import { Classes, ITreeNode, Tree } from '@blueprintjs/core'
 
 import { buildTree } from './utils/tree'
@@ -11,15 +10,13 @@ export default class FileNavigator extends React.Component<any, any> {
     nodes: []
   }
 
-  componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.refreshNodes()
+  async componentDidMount() {
+    await this.refreshNodes()
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (prevProps.files !== this.props.files && this.props.files) {
-      // tslint:disable-next-line: no-floating-promises
-      this.refreshNodes()
+      await this.refreshNodes()
     }
   }
 
@@ -35,6 +32,7 @@ export default class FileNavigator extends React.Component<any, any> {
     if (actionsBot) {
       nodes.push({
         label: `${window['BOT_NAME']} (bot)`,
+        icon: 'folder-close',
         hasCaret: true,
         isExpanded: true,
         childNodes: buildTree(this.props.files.actionsBot)
@@ -44,6 +42,7 @@ export default class FileNavigator extends React.Component<any, any> {
     if (actionsGlobal) {
       nodes.push({
         label: 'Global',
+        icon: 'folder-close',
         isExpanded: true,
         childNodes: buildTree(this.props.files.actionsGlobal)
       })
@@ -52,24 +51,24 @@ export default class FileNavigator extends React.Component<any, any> {
     this.setState({ nodes })
   }
 
-  private handleNodeClick = (nodeData: ITreeNode) => {
-    const originallySelected = nodeData.isSelected
+  private handleNodeClick = (node: ITreeNode) => {
+    const originallySelected = node.isSelected
 
     this.traverseTree(this.state.nodes, n => (n.isSelected = false))
 
-    nodeData.isSelected = originallySelected !== null
+    node.isSelected = originallySelected !== null
 
-    this.props.onFileSelected && this.props.onFileSelected(nodeData.data)
+    this.props.onFileSelected && this.props.onFileSelected(node.nodeData)
     this.setState(this.state)
   }
 
-  private handleNodeCollapse = (nodeData: ITreeNode) => {
-    nodeData.isExpanded = false
+  private handleNodeCollapse = (node: ITreeNode) => {
+    node.isExpanded = false
     this.setState(this.state)
   }
 
-  private handleNodeExpand = (nodeData: ITreeNode) => {
-    nodeData.isExpanded = true
+  private handleNodeExpand = (node: ITreeNode) => {
+    node.isExpanded = true
     this.setState(this.state)
   }
 

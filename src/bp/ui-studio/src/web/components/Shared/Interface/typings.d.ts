@@ -1,6 +1,39 @@
 import React from 'react'
 import { Position, IconName, MaybeElement } from '@blueprintjs/core'
 
+declare module 'botpress/ui' {
+  export function Container(props: ContainerProps): JSX.Element
+  export function SidePanelSection(props: SidePanelSectionProps): JSX.Element
+
+  export function SearchBar(props: SearchBarProps): JSX.Element
+  export function ItemList(props: ItemListProps): JSX.Element
+  export function KeyboardShortcut(props: KeyboardShortcutsProps): JSX.Element
+  export function SplashScreen(props: SplashScreenProps): JSX.Element
+  export function SidePanel(props: SidePanelProps): JSX.Element
+  export function InfoTooltip(props: InfoTooltipProps): JSX.Element
+  export function SectionAction()
+}
+
+// TODO: Find the best location for this piece of code. I've added it here so modules importing botpress/ui have access to window.*
+declare global {
+  interface Window {
+    __BP_VISITOR_ID: string
+    botpressWebChat: any
+    BOT_API_PATH: string
+    API_PATH: string
+    BOTPRESS_VERSION: string
+    BOT_NAME: string
+    BOT_ID: string
+    BP_BASE_PATH: string
+    SEND_USAGE_STATS: boolean
+    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
+    botpress: {
+      [moduleName: string]: any
+    }
+    toggleSidePanel: () => void
+  }
+}
+
 export interface ContainerProps {
   /**
    * Change the default width of the sidebar (in pixels)
@@ -39,27 +72,39 @@ export interface InfoTooltipProps {
   position: Position
 }
 
+export interface SidePanelProps {
+  readonly children: React.ReactNode
+}
+
 export interface ItemListProps {
   items: Item[]
+  /** This is called whenever any element of the list is clicked */
+  onElementClicked?: (item: Item) => void
+}
+
+interface Item {
+  label: string
+  /** This can be used when executing actions on the items */
+  value: any
+  icon?: IconName | MaybeElement
+  /** When the element is selected, it is displayed in bold in the list */
+  selected: boolean
+  /** These actions are displayed at the end of the component when the mouse is over the element */
   actions?: ItemAction[]
-  onElementClicked: (item: Item) => void
+  /** Context menu displayed when the element is right-clicked */
+  contextMenu?: SectionAction[]
 }
 
 interface ItemAction {
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon: IconName | MaybeElement
+  icon?: IconName | MaybeElement
   /** The action called when the specific action is clicked */
-  onClick: (item: Item) => void
+  onClick?: (item: Item) => void
 }
 
-interface Item {
-  label: string
-  value: any
-}
-
-export interface SectionProps {
+export interface SidePanelSectionProps {
   /** When true, the content of the section is hidden by default */
   collapsed?: boolean
   /** The label to display as the section header */
@@ -73,17 +118,17 @@ export interface SectionProps {
 
 interface SectionAction {
   /** This text will be displayed when the mouse is over the icon */
-  label: string
+  label?: string
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** When true, the button is still visible but the click event is discarded */
   disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
-  icon: IconName | MaybeElement
+  icon?: IconName | MaybeElement | undefined | string
   /** One or multiple items displayed as childs of that element */
   items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */
-  onClick: (e: React.MouseEvent) => void
+  onClick?: (e: React.MouseEvent) => void
 }
 
 export interface KeyboardShortcutsProps {

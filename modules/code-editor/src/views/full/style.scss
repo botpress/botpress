@@ -15,8 +15,10 @@
     cursor: pointer;
     color: #b1b1b1;
     vertical-align: middle;
+    float: right;
+
     &:hover {
-      color: #fff;
+      color: #000;
     }
   }
 }
@@ -43,8 +45,4 @@
 
 .sidePanel {
   width: 400px;
-}
-
-:global(.bp3-tree-node-caret-none) {
-  min-width: 0px !important;
 }

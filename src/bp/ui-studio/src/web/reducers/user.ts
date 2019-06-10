@@ -4,7 +4,14 @@ import { userReceived } from '~/actions'
 
 const defaultState = {}
 
-const reducer = handleActions(
+export interface UserReducer {
+  email: string
+  fullName: string
+  isSuperAdmin: boolean
+  permissions: any
+}
+
+const reducer = handleActions<UserReducer, string>(
   {
     [userReceived]: (state, { payload }) => ({ ...state, ...payload })
   },

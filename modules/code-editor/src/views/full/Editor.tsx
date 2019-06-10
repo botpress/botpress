@@ -1,18 +1,22 @@
-import React from 'react'
+import { Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { MdClose } from 'react-icons/md'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { wrapper } from './utils/actions'
+import React from 'react'
+
+import { EditableFile } from '../../backend/typings'
 
 import style from './style.scss'
+import { wrapper } from './utils/actions'
 
-export default class Editor extends React.Component {
-  componentDidMount() {
+export default class Editor extends React.Component<Props> {
+  private editor
+  private editorContainer
+
+  async componentDidMount() {
     this.setupEditor()
-    this.loadTypings()
+    await this.loadTypings()
 
     if (this.props.selectedFile) {
-      this.loadFile(this.props.selectedFile)
+      await this.loadFile(this.props.selectedFile)
     }
   }
 
@@ -20,19 +24,19 @@ export default class Editor extends React.Component {
     this.editor && this.editor.dispose()
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (this.props.selectedFile === prevProps.selectedFile) {
       return
     }
 
     if (this.props.selectedFile) {
-      this.loadFile(this.props.selectedFile)
+      await this.loadFile(this.props.selectedFile)
     }
   }
 
   setupEditor() {
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      target: monaco.languages.typescript.ScriptTarget.ES6,
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
       module: monaco.languages.typescript.ModuleKind.CommonJS,
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       allowJs: true,
@@ -53,11 +57,11 @@ export default class Editor extends React.Component {
     this.editor.onDidChangeModelDecorations(this.handleDecorationChanged)
   }
 
-  loadFile(selectedFile, noWrapper) {
+  loadFile(selectedFile: EditableFile, noWrapper?: boolean) {
     const { content, location } = selectedFile
-    const uri = 'bp://files/' + location.replace('.js', '.ts')
+    const uri = monaco.Uri.parse('bp://files/' + location.replace('.js', '.ts'))
 
-    let oldModel = monaco.editor.getModel(uri)
+    const oldModel = monaco.editor.getModel(uri)
     if (oldModel) {
       oldModel.dispose()
     }
@@ -98,11 +102,9 @@ export default class Editor extends React.Component {
             <span>{this.props.selectedFile.name}</span>
 
             <div>
-              <OverlayTrigger placement="top" overlay={<Tooltip>Discard</Tooltip>}>
-                <a className={style.btn} onClick={this.props.onDiscardChanges}>
-                  <MdClose />
-                </a>
-              </OverlayTrigger>
+              <Tooltip content="Discard" position={Position.RIGHT}>
+                <Icon icon="delete" iconSize={10} className={style.btn} onClick={this.props.onDiscardChanges} />
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -110,4 +112,14 @@ export default class Editor extends React.Component {
       </div>
     )
   }
+}
+
+interface Props {
+  onContentChanged: (code: string) => void
+  onDiscardChanges: () => void
+  onCreateNewClicked: () => void
+  onProblemsChanged: (markers: monaco.editor.IMarker[]) => void
+  onSaveClicked: () => void
+  selectedFile: EditableFile
+  bp: any
 }

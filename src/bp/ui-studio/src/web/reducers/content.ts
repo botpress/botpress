@@ -1,13 +1,8 @@
-import { handleActions } from 'redux-actions'
 import _ from 'lodash'
+import { handleActions } from 'redux-actions'
 
-import {
-  receiveContentCategories,
-  receiveContentItems,
-  receiveContentItem,
-  receiveContentItemsCount,
-  receiveContentSchema
-} from '~/actions'
+import { receiveContentCategories, receiveContentItem, receiveContentItems, receiveContentItemsCount } from '~/actions'
+import { SkillCallNodeModel } from '~views/FlowBuilder/diagram/nodes/SkillCallNode'
 
 const defaultState = {
   categories: null,
@@ -43,3 +38,8 @@ export default handleActions(
   },
   defaultState
 )
+
+export interface ContentReducer {
+  categories: any
+  currentItems: any
+}

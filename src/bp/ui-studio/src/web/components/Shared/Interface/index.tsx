@@ -25,11 +25,12 @@ import {
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
-  SectionProps,
+  SidePanelProps,
+  SidePanelSectionProps,
   SplashScreenProps
 } from './typings'
 
-import { buildMenu } from './utils'
+import { buildMenu, showContextMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
   const [sidePanelVisible, setSidePanelVisible] = useState(!props.sidePanelHidden)
@@ -39,8 +40,8 @@ export const Container = (props: ContainerProps) => {
   window.toggleSidePanel = toggleSidePanel
 
   const keyHandlers = {
-    'toggle-sidepanel': toggleSidePanel,
-    ...(props.keyHandlers || {})
+    ...(props.keyHandlers || {}),
+    'toggle-sidepanel': toggleSidePanel
   }
 
   const childs = React.Children.toArray(props.children)
@@ -56,7 +57,7 @@ export const Container = (props: ContainerProps) => {
   )
 }
 
-export const SidePanelSection = (props: SectionProps) => {
+export const SidePanelSection = (props: SidePanelSectionProps) => {
   const [isOpen, setOpen] = useState(!props.collapsed)
 
   return (
@@ -95,30 +96,32 @@ export const SearchBar = (props: SearchBarProps) => {
 export const ItemList = (props: ItemListProps) => {
   return (
     <div className={style.itemList}>
-      <ul>
-        {props.items &&
-          props.items.map((item, idx) => (
-            <li key={idx}>
-              <div style={{ width: '80%' }} onClick={() => props.onElementClicked && props.onElementClicked(item)}>
-                {item.label}
-              </div>
-              <div style={{ marginLeft: 'auto ' }}>
-                {props.actions &&
-                  props.actions.map(action => (
-                    <Tooltip key={idx + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
-                    </Tooltip>
-                  ))}
-              </div>
-            </li>
-          ))}
-      </ul>
+      {props.items &&
+        props.items.map(item => (
+          <div key={item.label} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+            <div
+              className={style.label}
+              onClick={() => props.onElementClicked && props.onElementClicked(item)}
+              onContextMenu={e => showContextMenu(e, item.contextMenu)}
+            >
+              {item.icon && <Icon icon={item.icon} />} {item.label}
+            </div>
+            <div className={style.right}>
+              {item.actions &&
+                item.actions.map(action => (
+                  <Tooltip key={item.label + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                    <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                  </Tooltip>
+                ))}
+            </div>
+          </div>
+        ))}
     </div>
   )
 }
 
 export const PaddedContent = props => <div style={{ padding: '5px' }}>{props.children}</div>
-export const SidePanel = props => <div className={style.sidePanel}>{props.children}</div>
+export const SidePanel = (props: SidePanelProps) => <div className={style.sidePanel}>{props.children}</div>
 
 export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
   const ACTION_KEY = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'cmd' : 'ctrl'
@@ -168,7 +171,7 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
 const SectionAction = (action: SectionAction, idx: number) => {
   if (action.items) {
     return (
-      <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -177,7 +180,7 @@ const SectionAction = (action: SectionAction, idx: number) => {
   }
 
   return (
-    <Tooltip key={idx} content={action.tooltip} position={Position.BOTTOM}>
+    <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
       <Button
         icon={action.icon}
         text={action.label}
