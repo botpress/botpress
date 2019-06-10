@@ -9,37 +9,6 @@ import SmartInput from '~/components/SmartInput'
 
 const style = require('./parameters.scss')
 
-const mentions = [
-  {
-    name: 'user.profile',
-    description: 'The user profile',
-    category: 'USER',
-    partial: true
-  },
-  {
-    name: 'user.profile.name',
-    description: 'The user name',
-    category: 'USER',
-    partial: false
-  },
-  {
-    name: 'user.profile.email',
-    description: 'The user email',
-    category: 'USER',
-    partial: false
-  },
-  {
-    name: 'session.slots.destination',
-    description: 'An extracted slot',
-    category: 'SESSION'
-  },
-  {
-    name: 'session.slots.arrival',
-    description: 'An extracted slot',
-    category: 'SESSION'
-  }
-]
-
 export default class ParametersTable extends Component {
   constructor(props) {
     super(props)
@@ -158,12 +127,7 @@ export default class ParametersTable extends Component {
             <input type="text" disabled={!!definition.required} value={paramName} onChange={editKey} />
           </td>
           <td>
-            <SmartInput
-              suggestions={mentions}
-              singleLine={true}
-              value={paramValue || definition.default}
-              onChange={editValue}
-            />
+            <SmartInput singleLine={true} value={paramValue || definition.default} onChange={editValue} />
           </td>
         </tr>
       )
