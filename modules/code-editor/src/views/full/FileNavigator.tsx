@@ -1,6 +1,5 @@
 import React from 'react'
 
-// @ts-ignore
 import { Classes, ITreeNode, Tree } from '@blueprintjs/core'
 
 import { buildTree } from './utils/tree'
