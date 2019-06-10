@@ -5,18 +5,15 @@ title: Release Notes
 
 ## Features
 
-* Add option to white-label the admin panel on Pro edition.
-* **(beta)** Code Editor Module allows you to create / edit your actions and hooks directly from the UI. It make uses of Typescript typings and Monaco IntelliSense.
-* **(beta)** Testing Module allows you to create scenarios which are test cases for a conversation with your bot.
-* Added a new action to clear an extracted slot.
+- Added configuration to display the number of messages in the history
+- Added security namespace
+- Added the ability to create trusted reference for channel-web
 
-## UX
-* Toolbar enhancements in flow editor.
-* Several UI improvements.
+## Bug fixes
 
-## Docs
-* Added documentation for Slot skill.
-* Clarified the proactive message documentation.
+- Expose user.getAttributes in SDK
+- Prevent resources-loader to over-create files
+- Fixed memory queue tests
 
 ## Changelog
 
