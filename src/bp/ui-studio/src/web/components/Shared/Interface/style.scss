@@ -120,7 +120,8 @@ $status-bar-height: 24px;
 .itemList {
   position: relative;
   overflow-y: auto;
-  height: calc(100vh - #{$status-bar-height});
+  //TODO: fix scrollbar
+  //height: calc(100vh - #{$status-bar-height});
   padding: 3px 0 3px 0;
 
   .item {

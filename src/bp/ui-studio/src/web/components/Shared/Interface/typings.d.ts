@@ -11,7 +11,8 @@ declare module 'botpress/ui' {
   export function SplashScreen(props: SplashScreenProps): JSX.Element
   export function SidePanel(props: SidePanelProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
-  export function SectionAction()
+
+  export const { Item, ItemAction, SectionAction }
 }
 
 // TODO: Find the best location for this piece of code. I've added it here so modules importing botpress/ui have access to window.*
@@ -59,7 +60,7 @@ export interface SplashScreenProps {
   title: string
   description?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement
+  icon?: IconName | MaybeElement | string
   readonly children: React.ReactNode
 }
 
@@ -69,7 +70,7 @@ export interface InfoTooltipProps {
   /** The icon to display. By default it will use info */
   icon?: 'info' | 'help'
   /** Where the tooltip will be directed. By default, it's right */
-  position: Position
+  position?: Position
 }
 
 export interface SidePanelProps {
@@ -86,7 +87,7 @@ interface Item {
   label: string
   /** This can be used when executing actions on the items */
   value: any
-  icon?: IconName | MaybeElement
+  icon?: IconName | MaybeElement | string
   /** When the element is selected, it is displayed in bold in the list */
   selected: boolean
   /** These actions are displayed at the end of the component when the mouse is over the element */
@@ -99,7 +100,7 @@ interface ItemAction {
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement
+  icon?: IconName | MaybeElement | string
   /** The action called when the specific action is clicked */
   onClick?: (item: Item) => void
 }
@@ -121,10 +122,12 @@ interface SectionAction {
   label?: string
   /** Text displayed when the cursor is over the button */
   tooltip?: string
+  /** Type "divider" is special and adds a separator in the menu */
+  type?: string
   /** When true, the button is still visible but the click event is discarded */
   disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement | undefined | string
+  icon?: IconName | MaybeElement | string
   /** One or multiple items displayed as childs of that element */
   items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */
