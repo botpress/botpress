@@ -51,7 +51,7 @@ const authMiddleware: (token: string) => RequestHandler = (token: string) => (re
 }
 
 const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
-  if (!service.isReady()) {
+  if (!service.isReady) {
     throw new NotReadyError('language')
   }
   next()
@@ -143,7 +143,7 @@ export default async function(options: APIOptions) {
   app.get('/info', (req, res, next) => {
     res.send({
       version: '1',
-      ready: options.languageService.isReady(),
+      ready: options.languageService.isReady,
       dimentions: options.languageService.dim,
       domain: options.languageService.domain,
       readOnly: options.readOnly,

@@ -5,7 +5,7 @@ import _ from 'lodash'
 
 import { extractPattern } from '../../tools/patterns-utils'
 import { LanguageProvider } from '../../typings'
-import { NLUDS } from '../../typings'
+import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
 const debug = DEBUG('nlu').sub('entities')
@@ -17,7 +17,7 @@ const MIN_CONFIDENCE = 0.65
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
 
-  async extractLists(ds: NLUDS, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
+  async extractLists(ds: NLUStructure, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     const entities = flatten(
       flatten(
         await Promise.mapSeries(entityDefs, async entityDef => {
@@ -32,7 +32,7 @@ export default class PatternExtractor {
   }
 
   protected async _extractEntitiesFromOccurence(
-    ds: NLUDS,
+    ds: NLUStructure,
     occurence: sdk.NLU.EntityDefOccurence,
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {

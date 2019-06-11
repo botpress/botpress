@@ -82,7 +82,7 @@ export interface Model {
   model: Buffer
 }
 
-export interface NLUDS {
+export interface NLUStructure {
   rawText: string
   sanitizedText: string
   lowerText: string
@@ -98,7 +98,7 @@ export interface NLUDS {
 export interface PipelineProcessManager {
   of(pipeline: Function[]): PipelineProcessManager
   initDS(text: string, includedContexts: string[]): PipelineProcessManager
-  run(): Promise<NLUDS>
+  run(): Promise<NLUStructure>
 }
 
 export interface LangsGateway {
