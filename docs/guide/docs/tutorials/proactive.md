@@ -38,11 +38,126 @@ if (event.type === 'proactive-trigger') {
 
 > **Tip**: Use `event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)` to tell the dialog engine to skip the event processing. This is useful when your event is not a user message.
 
-## Make the bot speak first
+## Common use cases
 
-One of the most popular use-case for proactive messages is to trigger the first message of the bot.
+### Send message on page load
 
-Copy and paste the following snippet in your hook:
+This will send an event everytime the page is loaded.
+
+Use this code in your `index.html`:
+
+```html
+<html>
+  <head>
+    <title>Embedded Webchat</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    This is an example of embedded webchat
+  </body>
+
+  <script>
+    // Initialize the chat widget
+    // Change the `botId` with the Id of the bot that should respond to the chat
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'welcome-bot'
+    })
+
+    // Wait for the chat to load
+    setTimeout(function() {
+      window.botpressWebChat.sendEvent({
+        type: 'proactive-trigger',
+        channel: 'web',
+        payload: { text: 'fake message' }
+      })
+    }, 1000)
+  </script>
+</html>
+```
+
+### Send message on chat widget click
+
+This will send an event only when the user clicks on the chat widget.
+
+Use this code in your `index.html`:
+
+```html
+<html>
+  <head>
+    <title>Embedded Webchat</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    This is an example of embedded webchat
+  </body>
+
+  <script>
+    // Initialize the chat widget
+    // Change the `botId` with the Id of the bot that should respond to the chat
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'welcome-bot'
+    })
+
+    function sendMessageOnClick() {
+      const iframe = document.querySelector('#bp-widget')
+      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
+
+      widget.addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({
+          type: 'proactive-trigger',
+          channel: 'web',
+          payload: { text: 'fake message' }
+        })
+      })
+    }
+
+    // Make sure the widget is loaded
+    setTimeout(function() {
+      sendMessageOnClick()
+    }, 1500)
+  </script>
+</html>
+```
+
+### Send custom content on proactive event
+
+You can intercept a proactive trigger to send custom content. This could be used to send reminders, display a welcome message or ask for feedback.
+
+- Make sure that you've sent an event from your webpage. See the examples above.
+- Use this in your `before_incoming_middleware` hook:
+
+```js
+// Catch the event
+if (event.type === 'proactive-trigger') {
+  const eventDestination = {
+    channel: event.channel,
+    target: event.target,
+    botId: event.botId,
+    threadId: event.threadId
+  }
+
+  // Skip event processing
+  event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+
+  // Make the bot respond with custom content instead
+  bp.cms.renderElement('builtin_text', { text: "I'm so proactive!", typing: true }, eventDestination).then(payloads => {
+    bp.events.replyToEvent(event, payloads)
+  })
+}
+```
+
+Here we're using the [replyToEvent](https://botpress.io/reference/modules/_botpress_sdk_.events.html#replytoevent) function from the SDK to reply to the current event and [renderElement](https://botpress.io/reference/modules/_botpress_sdk_.cms.html#renderelement) to render our custom content.
+
+### Send proactive only to new users
+
+When you want to respond only to new users, you have to check if their session is new. We can do that by looking at the session's last messages.
+
+- Make sure that you've sent an event from your webpage. See the examples above.
+- Use this code in your `before_incoming_middleware` hook:
 
 ```js
 if (event.type === 'proactive-trigger') {
@@ -54,26 +169,3 @@ if (event.type === 'proactive-trigger') {
   }
 }
 ```
-
-## Send custom content on a proactive event
-
-You can intercept a proactive trigger to send custom content. This could be used to send reminders, suggest that they buy the product or ask for feedback.
-
-```js
-if (event.type === 'proactive-trigger') {
-  const eventDestination = {
-    channel: event.channel,
-    target: event.target,
-    botId: event.botId,
-    threadId: event.threadId
-  }
-
-  event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
-
-  bp.cms.renderElement('builtin_text', { text: "I'm so proactive!", typing: true }, eventDestination).then(payloads => {
-    bp.events.replyToEvent(event, payloads)
-  })
-}
-```
-
-Here we're using the [replyToEvent](https://botpress.io/reference/modules/_botpress_sdk_.events.html#replytoevent) function from the SDK to reply to the current event and [renderElement](https://botpress.io/reference/modules/_botpress_sdk_.cms.html#renderelement) to render our custom content.

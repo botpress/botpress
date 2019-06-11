@@ -10,7 +10,6 @@ interface CssExports {
   'container': string;
   'main': string;
   'main-content': string;
-  'main-header': string;
   'sidebar': string;
   'sidebar-tabs': string;
 }

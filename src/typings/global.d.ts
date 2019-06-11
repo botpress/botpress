@@ -30,6 +30,7 @@ declare namespace NodeJS {
     LOADED_MODULES: { [module: string]: string }
     pkg: any
     IS_LICENSED: boolean
+    IS_PRO_AVAILABLE: boolean
     IS_PRO_ENABLED: boolean
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
@@ -73,7 +74,12 @@ declare type BotpressEnvironementVariables = {
    * Overrides the auto-computed `process.APP_DATA_PATH` path
    * @see Process.APP_DATA_PATH
    */
+
   readonly APP_DATA_PATH?: string
+  /**
+   * Truthy if running the official Botpress docker image
+   */
+  readonly BP_IS_DOCKER?: boolean
 }
 
 interface IDebug {

@@ -8,6 +8,7 @@ import Settings from './settings'
 import style from './style.scss'
 import { Decision } from './views/Decision'
 import { Entities } from './views/Entities'
+import { Flow } from './views/Flow'
 import { Inspector } from './views/Inspector'
 import { Intents } from './views/Intents'
 import { Slots } from './views/Slots'
@@ -21,7 +22,7 @@ export const updater = { callback: undefined }
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
 
-export class Debugger extends React.Component<DevToolProps, DevToolState> {
+export class Debugger extends React.Component<Props, State> {
   state = {
     event: undefined,
     showEventNotFound: false,
@@ -123,6 +124,7 @@ export class Debugger extends React.Component<DevToolProps, DevToolState> {
             <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
               <Tab id="basic" title="Summary" panel={this.renderSummary()} />
               <Tab id="advanced" title="View payload" panel={<Inspector data={this.state.event} />} />
+              <Tab id="flow" title="Debug flow" panel={<Flow stacktrace={this.state.event.state.__stacktrace} />} />
             </Tabs>
           </div>
         )}
@@ -131,11 +133,11 @@ export class Debugger extends React.Component<DevToolProps, DevToolState> {
   }
 }
 
-interface DevToolProps {
+interface Props {
   store: any
 }
 
-interface DevToolState {
+interface State {
   event: any
   selectedTabId: string
   visible: boolean
