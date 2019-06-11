@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
 import { AuthRole, Pipeline, Workspace } from 'core/misc/interfaces'
+import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUser, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -34,7 +35,8 @@ export class WorkspaceService {
     @tagged('name', 'WorkspaceService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository
+    @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
+    @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository
   ) {}
 
   async initialize(): Promise<void> {
@@ -158,6 +160,20 @@ export class WorkspaceService {
 
   async getWorkspaceUsers(workspace: string) {
     return this.workspaceRepo.getWorkspaceUsers(workspace)
+  }
+
+  async getWorkspaceUsersAttributes(workspace: string, filteredAttributes?: string[]): Promise<StrategyUser[]> {
+    const users = await this.workspaceRepo.getWorkspaceUsers(workspace)
+
+    return _.flatten(
+      await Promise.map(_.uniq(_.map(users, 'strategy')), strategy => {
+        return this.usersRepo.getMultipleUserAttributes(
+          users.filter(x => x.strategy === strategy).map(x => x.email),
+          strategy,
+          filteredAttributes
+        )
+      })
+    )
   }
 
   async getUniqueCollaborators(): Promise<number> {

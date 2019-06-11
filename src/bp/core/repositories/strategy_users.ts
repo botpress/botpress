@@ -77,6 +77,21 @@ export class StrategyUsersRepository {
     return this.database.knex.json.get(user.attributes)
   }
 
+  async getMultipleUserAttributes(
+    emails: string[],
+    strategy: string,
+    filteredAttributes?: string[]
+  ): Promise<StrategyUser[]> {
+    const users = await this.database.knex(this._getTableName(strategy)).whereIn('email', emails)
+    const json = this.database.knex.json
+
+    return users.map(user => ({
+      strategy,
+      email: user.email,
+      attributes: filteredAttributes ? _.pick(json.get(user.attributes), filteredAttributes) : json.get(user.attributes)
+    }))
+  }
+
   async updateAttributes(email: string, strategy: string, attributes: any): Promise<void> {
     const originalAttributes = await this.getAttributes(email, strategy)
 

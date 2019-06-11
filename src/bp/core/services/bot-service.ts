@@ -309,9 +309,9 @@ export class BotService {
     const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
 
-    // TODO
-    const users = []
-    // await this.workspaceService.getWorkspaceUsers(workspaceId)
+    const attributes = ['last_logon', 'firstname', 'lastname']
+    const users = await this.workspaceService.getWorkspaceUsersAttributes(workspaceId, attributes)
+
     const api = await createForGlobalHooks()
     const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
     const hookResult = {

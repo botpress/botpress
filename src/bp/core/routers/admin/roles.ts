@@ -21,7 +21,7 @@ export class RolesRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
         sendSuccess(res, 'Roles retrieved', {
-          roles: workspace && workspace.roles
+          roles: (workspace && workspace.roles) || []
         })
       })
     )

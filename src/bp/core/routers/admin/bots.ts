@@ -41,7 +41,7 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
         if (!workspace) {
-          return
+          return res.sendStatus(404)
         }
 
         const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
