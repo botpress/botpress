@@ -103,6 +103,17 @@ declare module 'botpress/sdk' {
       element: ContentElement,
       oldElement?: ContentElement
     ) => void
+    /** When dryRun is set, changes aren't executed on the files */
+    onMigrationRequest?: (bp: typeof import('botpress/sdk'), dryRun?: boolean) => MigrationStatus
+  }
+
+  /**
+   * This is returned by the module migration feature. It warns if changes needs to be done to configuration or files.
+   * Database migration isn't included here, it's handled by the core directly.
+   */
+  export interface MigrationStatus {
+    hasConfigChanges: boolean
+    hasFileChanges: boolean
   }
 
   /**

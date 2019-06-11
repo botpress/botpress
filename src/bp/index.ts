@@ -67,6 +67,11 @@ try {
           description: 'Whether you want to run in production mode or not',
           default: false,
           type: 'boolean'
+        },
+        autoMigrate: {
+          description: 'This will prevent Botpress from modifying content after an update without notifying you',
+          default: false,
+          type: 'boolean'
         }
       },
       argv => {
@@ -76,6 +81,9 @@ try {
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
           defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
         }
+
+        process.AUTO_MIGRATE =
+          process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.IS_LICENSED = true

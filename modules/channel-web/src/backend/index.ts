@@ -1,6 +1,8 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
+import Migration from '../migrations'
+
 import api from './api'
 import WebchatDatabase from './db'
 import socket from './socket'
@@ -20,10 +22,16 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('channel-web')
 }
 
+const onMigrationRequest = async (bp: typeof sdk, dryRun?: boolean) => {
+  const migration = new Migration()
+  return migration.execute(dryRun)
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
+  onMigrationRequest,
   definition: {
     name: 'channel-web',
     menuIcon: 'chrome_reader_mode',

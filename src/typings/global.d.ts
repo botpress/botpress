@@ -32,6 +32,7 @@ declare namespace NodeJS {
     core_env: BotpressEnvironementVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
+    AUTO_MIGRATE: boolean
   }
 }
 

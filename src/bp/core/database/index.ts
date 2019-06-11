@@ -34,8 +34,6 @@ export default class Database {
       }
       this.tables.push(table)
     })
-
-    await this._runCoreMigrations()
   }
 
   async seedForTests() {
@@ -84,20 +82,20 @@ export default class Database {
     await this.bootstrap()
   }
 
-  private async _runCoreMigrations(): Promise<void> {
+  public async runCoreMigrations(dryRun?: boolean): Promise<number> {
     const dir = path.resolve(__dirname, './migrations')
     if (!fs.existsSync(dir)) {
-      return
+      return 0
     }
 
-    await this._runMigrations(dir, 'core')
+    return this._runMigrations(dir, 'core', dryRun)
   }
 
-  async runModuleMigrations(dbMigrationsDir: string[]): Promise<void> {
-    return this._runMigrations(dbMigrationsDir, 'module')
+  async runModuleMigrations(dbMigrationsDir: string[], dryRun?: boolean): Promise<number> {
+    return this._runMigrations(dbMigrationsDir, 'module', dryRun)
   }
 
-  private async _runMigrations(directory: string | string[], migrationType: string): Promise<void> {
+  private async _runMigrations(directory: string | string[], migrationType: string, dryRun?: boolean): Promise<number> {
     const migrationConfig = {
       directory,
       tableName: migrationType === 'core' ? 'knex_core_migrations' : 'knex_module_migrations',
@@ -106,9 +104,11 @@ export default class Database {
 
     // Status represents the negative number of migrations that needs to be executed
     const status = await this.knex.migrate.status(migrationConfig)
-    if (status < 0) {
+    if (!dryRun && status < 0) {
       await this.knex.migrate.latest(migrationConfig)
       this.logger.debug(`Executed ${-status} ${migrationType} migrations`)
     }
+
+    return Math.abs(status)
   }
 }

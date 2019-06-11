@@ -31,6 +31,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onModuleUnmount: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
   onElementChanged: joi.func().optional(),
+  onMigrationRequest: joi.func().optional(),
   skills: joi.array().optional(),
   botTemplates: joi.array().optional(),
   definition: joi.object().keys({
@@ -61,7 +62,7 @@ const MODULE_SCHEMA = joi.object().keys({
 export class ModuleLoader {
   private entryPoints = new Map<string, ModuleEntryPoint>()
   private _configReader?: ConfigReader
-  private _dbMigrationDirs: string[] = []
+  public dbMigrationDirs: string[] = []
 
   constructor(
     @inject(TYPES.Logger)
@@ -118,10 +119,6 @@ export class ModuleLoader {
       initedModules[name] = await this._loadModule(module, name)
     }
 
-    if (this._dbMigrationDirs.length) {
-      await this.database.runModuleMigrations(this._dbMigrationDirs)
-    }
-
     // tslint:disable-next-line: no-floating-promises
     this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
     return Object.keys(initedModules)
@@ -167,9 +164,9 @@ export class ModuleLoader {
       await resourceLoader.runMigrations()
       await resourceLoader.importResources()
 
-      const dbMigrationsDir = await resourceLoader.getDbMigrationsDir()
-      if (dbMigrationsDir) {
-        this._dbMigrationDirs.push(dbMigrationsDir)
+      const migrationDirs = await resourceLoader.getDbMigrationsDir()
+      if (migrationDirs) {
+        this.dbMigrationDirs.push(migrationDirs)
       }
     } catch (err) {
       this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
@@ -177,6 +174,16 @@ export class ModuleLoader {
     }
 
     return true
+  }
+
+  public async modulesMigrationRequest(dryRun?: boolean) {
+    const modules = this.getLoadedModules()
+
+    return Promise.map(modules, async module => {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      return entryPoint.onMigrationRequest && entryPoint.onMigrationRequest(api, dryRun)
+    })
   }
 
   private async _unloadModule(moduleLocation: string, moduleName: string) {

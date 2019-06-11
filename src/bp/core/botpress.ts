@@ -35,6 +35,7 @@ import { LogsJanitor } from './services/logs/janitor'
 import { EventCollector } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
+import { MigrationService } from './services/migration'
 import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
@@ -56,6 +57,7 @@ export class Botpress {
   version: string
   config!: BotpressConfig | undefined
   api!: typeof sdk
+  private _isFirstRun = false
 
   constructor(
     @inject(TYPES.Statistics) private stats: Statistics,
@@ -86,7 +88,8 @@ export class Botpress {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.MigrationService) private migrationService: MigrationService
   ) {
     this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -136,6 +139,9 @@ export class Botpress {
       appSecret = nanoid(40)
       await this.configProvider.mergeBotpressConfig({ appSecret })
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
+
+      // If it's the first run, we execute migrations even if the flag is not set.
+      this._isFirstRun = true
     }
 
     process.APP_SECRET = appSecret
@@ -222,16 +228,10 @@ export class Botpress {
       )
     }
 
-    let bots = await this.botService.getBots()
+    const bots = await this.botService.getBots()
     const pipeline = await this.workspaceService.getPipeline()
     if (pipeline.length > 4) {
       this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
-    }
-
-    // @deprecated > 11: bot will always include default pipeline stage & must have a default language
-    const botConfigChanged = await this._ensureBotConfigCorrect(bots, pipeline[0])
-    if (botConfigChanged) {
-      bots = await this.botService.getBots()
     }
 
     const disabledBots = [...bots.values()]
@@ -252,42 +252,9 @@ export class Botpress {
     await this.ghostService.global().sync()
   }
 
-  // @deprecated > 11: bot will always include default pipeline stage
-  private async _ensureBotConfigCorrect(bots: Map<string, BotConfig>, stage: sdk.Stage): Promise<Boolean> {
-    let hasChanges = false
-    await Promise.mapSeries(bots.values(), async bot => {
-      const updatedConfig: any = {}
-
-      if (!bot.defaultLanguage) {
-        this.logger.warn(
-          `Bot "${
-            bot.id
-          }" doesn't have a default language, which is now required, go to your admin console to fix this issue.`
-        )
-        updatedConfig.disabled = true
-      }
-
-      if (!bot.pipeline_status) {
-        updatedConfig.locked = false
-        updatedConfig.pipeline_status = {
-          current_stage: {
-            id: stage.id,
-            promoted_by: 'system',
-            promoted_on: new Date()
-          }
-        }
-      }
-
-      if (Object.getOwnPropertyNames(updatedConfig).length) {
-        hasChanges = true
-        await this.configProvider.mergeBotConfig(bot.id, updatedConfig)
-      }
-    })
-
-    return hasChanges
-  }
-
   private async initializeServices() {
+    await this.migrationService.executeMigrations(this._isFirstRun)
+
     await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
     this.loggerDbPersister.start()
 
