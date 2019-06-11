@@ -109,16 +109,6 @@ export default class NluPerformanceStatus extends React.Component {
   }
 
   render() {
-    return (
-      <FaThLarge
-        onClick={this.calculateConfusion}
-        className={classNames(
-          { [style.gray]: this.state.health === 'gray' },
-          { [style.green]: this.state.health === 'green' },
-          { [style.red]: this.state.health === 'red' },
-          { [style.yellow]: this.state.health === 'yellow' }
-        )}
-      />
-    )
+    return <FaThLarge onClick={this.calculateConfusion} className={style[this.state.health]} />
   }
 }
