@@ -253,14 +253,14 @@ export class Botpress {
   }
 
   private async initializeServices() {
-    await this.migrationService.executeMigrations(this._isFirstRun)
-
     await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
     this.loggerDbPersister.start()
 
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
     await this.workspaceService.initialize()
+    await this.migrationService.executeMigrations(this._isFirstRun)
+
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
 
