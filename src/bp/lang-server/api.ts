@@ -242,7 +242,7 @@ export default async function(options: APIOptions) {
     res.status(200).send({ success: true })
   })
 
-  app.use('/languages', router)
+  app.use('/languages', waitForServiceMw, router)
 
   const httpServer = createServer(app)
 
