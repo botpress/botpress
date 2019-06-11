@@ -21,7 +21,11 @@ export default props => (
     }
   >
     <div
-      className={classNames({ [style.clickable]: !props.notclickable }, style.item, props.className)}
+      className={classNames(
+        { [style.clickable]: !props.notclickable || props.notclickable === 'false' },
+        style.item,
+        props.className
+      )}
       {..._.omit(props, ['title', 'description', 'children', 'className'])}
     >
       {props.children}

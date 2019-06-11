@@ -18,12 +18,17 @@ export default class ConfusionEngine extends ScopedEngine {
   private modelName: string = ''
   private modelIdx: number = 0
   private originalModelHash: string = ''
+  private confusionStatus: 'busy' | 'sleep'
 
   /** Toggles computing Confusion Matrices on training */
   public computeConfusionOnTrain: boolean = false
 
   async init(): Promise<void> {
     await super.init()
+  }
+
+  public getConfusionStatus() {
+    return this.confusionStatus
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
@@ -40,7 +45,10 @@ export default class ConfusionEngine extends ScopedEngine {
     this.modelName = ''
     this.originalModelHash = modelHash
 
+    this.confusionStatus = 'busy'
     await folder.fold('intents', this._trainIntents.bind(this), this._evaluateIntents.bind(this))
+    this.confusionStatus = 'sleep'
+
     await this._processResults(folder.getResults())
   }
 

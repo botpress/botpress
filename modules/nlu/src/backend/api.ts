@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import ms from 'ms'
+import _ from 'lodash'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
-import _ from 'lodash'
 
 const SYNC_INTERVAL_MS = ms('15s')
 
@@ -62,11 +62,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/confusion/:modelHash', async (req, res) => {
+    const engine = nlus[req.params.botId] as ConfusionEngine
+    const workStatus = engine.getConfusionStatus()
     try {
-      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)
-      res.send(matrix)
+      const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash)
+      res.send({ matrix, workStatus })
     } catch (err) {
-      res.send(404)
+      res.send({ matrix: undefined, workStatus })
     }
   })
 

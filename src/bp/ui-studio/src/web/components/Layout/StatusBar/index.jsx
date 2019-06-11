@@ -26,8 +26,11 @@ class StatusBar extends React.Component {
     keepBlueUntil: undefined,
     inProgress: [],
     messages: [],
-    f1score: null,
-    nluFetching: false
+    nluStatus: {
+      f1score: null,
+      unsynced: false,
+      computing: false
+    }
   }
 
   constructor(props) {
@@ -42,6 +45,12 @@ class StatusBar extends React.Component {
       const messages = this.state.messages.filter(x => x.type !== event.type)
       const newMessage = { ...event, ts: Date.now() }
       this.setState({ messages: [...messages, newMessage] })
+    }
+
+    if (event.name === 'train') {
+      const nluStatusCpy = { ...this.state.nluStatus }
+      nluStatusCpy.unsynced = true
+      this.setState({ nluStatus: nluStatusCpy })
     }
 
     if (event.name === 'done' || event.working === false) {
@@ -131,8 +140,8 @@ class StatusBar extends React.Component {
     )
   }
 
-  updateNluStatus = status => {
-    this.setState({ f1score: status.f1score, nluFetching: status.fetching })
+  updateNluStatus = nluStatus => {
+    this.setState({ nluStatus })
   }
 
   render() {
@@ -155,11 +164,13 @@ class StatusBar extends React.Component {
           </ActionItem>
           <ActionItem
             title="NLU Performance Status"
-            description={this.state.f1score ? `f1: ${this.state.f1score}` : 'currently no f1 to display'}
-            notclickable={this.state.nluFetching}
+            description={
+              this.state.nluStatus.f1score ? `f1: ${this.state.nluStatus.f1score}` : 'currently no f1 to display'
+            }
+            notclickable={this.state.nluStatus.computing.toString()}
             className={style.right}
           >
-            <NluPerformanceStatus updateNluStatus={this.updateNluStatus} />
+            <NluPerformanceStatus unsynced={this.state.nluStatus.unsynced} updateNluStatus={this.updateNluStatus} />
           </ActionItem>
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>

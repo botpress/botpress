@@ -5,14 +5,15 @@ import axios from 'axios'
 import style from './style.scss'
 
 export default class NluPerformanceStatus extends React.Component {
-  FETCH_TIME_INTERVAL = 500 // 2Hz
-
   state = {
-    status: 'unsync',
-    botId: null
+    health: 'gray',
+    botId: undefined
   }
-  waitingForConfusion = false
-  timer = null
+  status = {
+    f1score: null,
+    unsynced: false,
+    computing: false
+  }
 
   componentDidMount() {
     const url = new URL(window.location.href)
@@ -20,81 +21,91 @@ export default class NluPerformanceStatus extends React.Component {
     const botId = pathElements[2]
     this.setState({ botId })
 
-    this.setupHttpHandlers()
-
-    this.timer = setInterval(() => this.fetchConfusionStatus(this.state.botId), this.FETCH_TIME_INTERVAL)
+    this.fetchConfusion(botId)
   }
 
-  setupHttpHandlers() {
-    this.client = axios.create()
-    // this.client.interceptors.response.use(
-    //   response => response,
-    //   error => {
-    //     return Promise.reject(error)
-    //   }
-    // )
+  componentDidUpdate() {
+    if (this.props.unsynced !== this.status.unsynced) {
+      this.status.unsynced = this.props.unsynced
+      this.setState({ health: 'gray' })
+    }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.timer)
+  fetchConfusion = async (botId, modelHash) => {
+    const { matrix, workStatus } = await this.getConfusionMatrix(botId, modelHash)
+
+    if (workStatus === 'busy') {
+      this.setState({ health: 'gray' })
+
+      this.status.f1score = null
+      this.status.unsynced = true
+      this.status.computing = true
+    } else {
+      const { f1, health } = this.extractHealthFromMatrix(matrix)
+      this.setState({ health })
+
+      this.status.f1score = f1
+      this.status.unsynced = !matrix
+      this.status.computing = false
+    }
+    this.props.updateNluStatus(this.status)
   }
 
-  fetchConfusionStatus = async botId => {
-    const confusionMatrix = await this.getConfusionMatrix(botId)
-    const { f1, status } = this.extractStatusFromMatrix(confusionMatrix)
-    this.props.updateNluStatus({ f1score: f1, fetching: false })
-    this.setState({ botId, status })
-  }
+  getConfusionMatrix = async (botId, modelHash) => {
+    const baseUrl = this.buildNluApiBasePath(botId)
 
-  getConfusionMatrix = async botId => {
-    const baseUrl = this.buildNluApiBasePath(this.state.botId)
-    const modelHashResponse = await this.client.get(`${baseUrl}/currentModelHash`)
+    if (!modelHash) {
+      const modelHashResponse = await axios.get(`${baseUrl}/currentModelHash`)
+      modelHash = modelHashResponse.data
+    }
 
-    return this.client
-      .get(`${baseUrl}/confusion/${modelHashResponse.data}`)
+    return axios
+      .get(`${baseUrl}/confusion/${modelHash}`)
       .then(confusionMatrixResponse => {
         return confusionMatrixResponse.data
       })
       .catch(err => {
-        return undefined
+        return { matrix: undefined, workStatus: 'sleep' }
       })
   }
 
-  extractStatusFromMatrix(matrix) {
+  extractHealthFromMatrix(matrix) {
     if (!matrix) {
-      return { f1: null, status: 'unsync' }
+      return { f1: null, health: 'gray' }
     }
 
     const f1 = matrix.intents.all.f1
     if (f1 < 0.5) {
-      return { f1, status: 'red' }
+      return { f1, health: 'red' }
     }
 
     if (f1 > 0.85) {
-      return { f1, status: 'green' }
+      return { f1, health: 'green' }
     }
 
-    return { f1, status: 'yellow' }
+    return { f1, health: 'yellow' }
   }
 
   calculateConfusion = async () => {
-    if (!this.waitingForConfusion) {
-      this.waitingForConfusion = true
+    const { workStatus } = await this.getConfusionMatrix(this.state.botId)
+    this.status.computing = this.status.computing || workStatus === 'busy'
 
-      clearInterval(this.timer)
-      this.props.updateNluStatus({ f1score: null, fetching: true })
-      this.setState({ status: 'unsync' })
+    if (!this.status.computing) {
+      this.status.computing = true
+      this.props.updateNluStatus(this.status)
+      this.setState({ health: 'gray' })
 
       const baseUrl = this.buildNluApiBasePath(this.state.botId)
-      this.client.post(`${baseUrl}/confusion`).then(() => {
-        this.waitingForConfusion = false
-        this.timer = setInterval(() => this.fetchConfusionStatus(this.state.botId), this.FETCH_TIME_INTERVAL)
+      axios.post(`${baseUrl}/confusion`).then(res => {
+        this.status.computing = false
+        this.props.updateNluStatus(this.status)
+        this.fetchConfusion(this.state.botId, res.data.modelHash)
       })
     }
   }
 
   buildNluApiBasePath(botId) {
-    return `/api/v1/bots/${this.state.botId}/mod/nlu`
+    return `/api/v1/bots/${botId}/mod/nlu`
   }
 
   render() {
@@ -102,10 +113,10 @@ export default class NluPerformanceStatus extends React.Component {
       <FaThLarge
         onClick={this.calculateConfusion}
         className={classNames(
-          { [style.gray]: this.state.status === 'unsync' },
-          { [style.green]: this.state.status === 'green' },
-          { [style.red]: this.state.status === 'yellow' },
-          { [style.yellow]: this.state.status === 'red' }
+          { [style.gray]: this.state.health === 'gray' },
+          { [style.green]: this.state.health === 'green' },
+          { [style.red]: this.state.health === 'red' },
+          { [style.yellow]: this.state.health === 'yellow' }
         )}
       />
     )
