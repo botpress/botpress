@@ -111,12 +111,11 @@ export class BotService {
   }
 
   async getBotsIds(): Promise<string[]> {
-    if (this._botIds) {
-      return this._botIds
+    if (!this._botIds) {
+      this._botIds = (await this.ghostService.bots().directoryListing('/', BOT_CONFIG_FILENAME)).map(path.dirname)
     }
 
-    const bots = await this.ghostService.bots().directoryListing('/', BOT_CONFIG_FILENAME)
-    return (this._botIds = _.map(bots, x => path.dirname(x)))
+    return this._botIds
   }
 
   async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {

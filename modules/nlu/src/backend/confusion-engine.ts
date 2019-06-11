@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { flatten, groupBy } from 'lodash'
+import path from 'path'
 
 import ScopedEngine from './engine'
 import { keepEntityValues } from './pipelines/slots/pre-processor'
@@ -43,13 +44,14 @@ export default class ConfusionEngine extends ScopedEngine {
       this.originalModelHash = modelHash
 
       await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
-      await this._processResults(folder.getResults())
+      await this._processResults(folder.getResults(), lang)
     }
   }
 
-  private async _processResults(results: Result) {
+  private async _processResults(results: Result, lang: string) {
+    const buildVersion = require(path.join(__dirname, '../../../../metadata.json')).build_version
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
-    await this.storage.saveConfusionMatrix(this.originalModelHash, results)
+    await this.storage.saveConfusionMatrix({ modelHash: this.originalModelHash, lang, results, buildVersion })
 
     const intents = results['intents']
     this.logger.debug('=== Confusion Matrix ===')

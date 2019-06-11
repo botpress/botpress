@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
+import path from 'path'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
@@ -54,9 +55,26 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   }
 
-  router.get('/confusion/:modelHash', async (req, res) => {
+  router.get('/confusion', async (req, res) => {
     try {
-      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)
+      const botId = req.params.botId
+      const confusions = await (nlus[botId] as ScopedEngine).storage.getAllConfusionMatrix()
+      res.send({ botId, confusions })
+    } catch (err) {
+      res.sendStatus(401)
+    }
+  })
+
+  router.get('/confusion/:modelHash/:lang', async (req, res) => {
+    try {
+      const buildVersion = require(path.join(__dirname, '../../../../metadata.json'))
+
+      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(
+        req.params.modelHash,
+        buildVersion.build_version,
+        req.params.lang
+      )
+
       res.send(matrix)
     } catch (err) {
       res.sendStatus(401)

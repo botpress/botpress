@@ -69,16 +69,45 @@ export default class Storage {
     return this.saveIntent(intentName, merged)
   }
 
-  async saveConfusionMatrix(modelHash: string, results: Result) {
+  async saveConfusionMatrix({
+    modelHash,
+    lang,
+    results,
+    buildVersion
+  }: {
+    modelHash: string
+    lang: string
+    results: Result
+    buildVersion: string
+  }) {
     await this.botGhost.upsertFile(
-      this.modelsDir,
-      `confusion__${modelHash}.json`,
+      `${this.modelsDir}/${lang}`,
+      `confusion__${modelHash}__${buildVersion}.json`,
       JSON.stringify(results, undefined, 2)
     )
   }
 
-  async getConfusionMatrix(modelHash: string): Promise<Result> {
-    return this.botGhost.readFileAsObject<Result>(this.modelsDir, `confusion__${modelHash}.json`)
+  getAllConfusionMatrix = async (): Promise<{ lang: string; matrix: Result }[]> =>
+    await Promise.all(
+      (await this.botGhost.directoryListing(this.modelsDir, '*.json')).map(async path => {
+        const pathParts = path.split('/')
+        const fileParts = pathParts[1].split('__')
+
+        return {
+          date: fileParts[3].split('.')[0],
+          version: fileParts[2],
+          hash: fileParts[1],
+          lang: pathParts[0],
+          matrix: await this.botGhost.readFileAsObject<Result>(`${this.modelsDir}/${pathParts[0]}`, pathParts[1])
+        }
+      })
+    )
+
+  async getConfusionMatrix(modelHash: string, buildVersion: string, lang: string): Promise<Result> {
+    return await this.botGhost.readFileAsObject<Result>(
+      `${this.modelsDir}/${lang}`,
+      `confusion__${modelHash}__${buildVersion}.json`
+    )
   }
 
   async deleteIntent(intent) {
