@@ -1,3 +1,4 @@
+import { Spinner } from '@blueprintjs/core'
 import React, { FC, useEffect, useState } from 'react'
 
 import { getLanguageSourceClient } from './api'
@@ -39,7 +40,7 @@ const LanguageManagement: FC<Props> = props => {
   })
 
   if (!languages) {
-    return ''
+    return <Spinner size={30} />
   }
 
   const downloadables = (languages.available || []).filter(
