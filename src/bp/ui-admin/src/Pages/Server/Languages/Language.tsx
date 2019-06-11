@@ -1,7 +1,7 @@
-import Axios from 'axios'
 import React, { FC, SFC, useState } from 'react'
 import { Button, Progress } from 'reactstrap'
 
+import { getLanguageSourceClient } from './api'
 import { LanguageSource } from './typings'
 
 interface Props {
@@ -30,21 +30,20 @@ const DownloadProgress: SFC<{ current: number; total: number }> = props => {
 const Language: FC<Props> = props => {
   const [modelLoading, setLoading] = useState(false)
 
+  const client = getLanguageSourceClient(props.languageSource)
+
   const deleteLanguage = async () => {
-    // TODO use auth token if necessary  ==> generage api client for this
-    await Axios.delete(`${props.languageSource.endpoint}/languages/${props.language.code}`)
+    await client.delete(`/languages/${props.language.code}`)
   }
 
   const installLanguage = async () => {
-    // TODO use auth token if necessary  ==> generage api client for this
-    await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}`)
+    await client.post(`/languages/${props.language.code}`)
   }
 
   const loadLanguage = async () => {
-    // TODO use auth token if necessary  ==> generage api client for this
     setLoading(true)
     try {
-      await Axios.post(`${props.languageSource.endpoint}/languages/${props.language.code}/load`)
+      await client.post(`/languages/${props.language.code}/load`)
     } catch (err) {
       console.log('error loading model')
     } finally {

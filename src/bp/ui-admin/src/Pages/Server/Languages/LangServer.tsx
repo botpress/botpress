@@ -7,6 +7,7 @@ interface Props {
   langServer: LangServerInfo
 }
 
+// TODO display somthing better than this
 const LangServer: FC<Props> = props => {
   return <div>Using lang server at {props.source.endpoint}</div>
 }

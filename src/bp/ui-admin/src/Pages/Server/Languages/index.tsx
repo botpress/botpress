@@ -1,15 +1,13 @@
-import Axios from 'axios'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { Alert } from 'reactstrap'
 
 import api from '../../../api'
 
+import { getLanguageSourceClient } from './api'
 import { LangServerInfo, LanguageSource } from './typings'
 import LanguageManagement from './LanguageManagement'
 import LangServer from './LangServer'
-
-// TODO handle case where lang server needs a token
 
 const fetchLangSource = async (setLangSource: Function) => {
   const { data } = (await api.getSecured().get('/admin/languages/sources')) as {
@@ -22,10 +20,8 @@ const fetchLangSource = async (setLangSource: Function) => {
 }
 
 const fetchLangServerInfo = async (langSource: LanguageSource, setLangServerInfo: Function) => {
-  // TODO use langsource token if defined
-  const { data: langServerInfo } = (await Axios.get(`${langSource.endpoint}/info`)) as {
-    data: LangServerInfo
-  }
+  const client = getLanguageSourceClient(langSource)
+  const { data: langServerInfo } = (await client.get('/info')) as { data: LangServerInfo }
 
   setLangServerInfo(langServerInfo)
 }

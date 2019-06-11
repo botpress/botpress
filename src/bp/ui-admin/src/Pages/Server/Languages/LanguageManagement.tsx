@@ -1,6 +1,6 @@
-import Axios from 'axios'
 import React, { FC, useEffect, useState } from 'react'
 
+import { getLanguageSourceClient } from './api'
 import { LanguageSource } from './typings'
 import Language from './Language'
 
@@ -12,8 +12,8 @@ interface LanguageData {
 }
 
 const fetchLanguages = async (langSource: LanguageSource, setLanguages: Function) => {
-  // TODO use langsource token if defined
-  const { data } = (await Axios.get(`${langSource.endpoint}/languages`)) as { data: LanguageData }
+  const client = getLanguageSourceClient(langSource)
+  const { data } = (await client.get('/languages')) as { data: LanguageData }
   setLanguages(data)
 }
 
@@ -32,6 +32,7 @@ const LanguageManagement: FC<Props> = props => {
     init()
   }, [])
 
+  // TODO extract this as a custom hook
   useEffect(() => {
     const id = setInterval(fetchLanguages.bind({}, props.languageSource!, setLanguages), 2000)
     return () => clearInterval(id)
@@ -52,7 +53,6 @@ const LanguageManagement: FC<Props> = props => {
 
   return (
     <div>
-      {/* TODO we might want to extract languages in a component ? */}
       {languages && languages.available.length > 0 && !props.readOnly && (
         <div className='languages-list'>
           {/* TODO add a select when we have too many languages */}
