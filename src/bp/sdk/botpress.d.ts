@@ -500,6 +500,11 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
+      /**
+       * EXPERIMENTAL
+       * This includes all the flow/nodes which were traversed for the current event
+       */
+      __stacktrace: JumpPoint[]
     }
 
     export interface JumpPoint {
