@@ -174,7 +174,7 @@ export class ScopedGhostService {
     }
   }
 
-  async upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void> {
+  async upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision = true): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
@@ -185,7 +185,7 @@ export class ScopedGhostService {
       throw new Error(`The size of the file ${fileName} is over the 20mb limit`)
     }
 
-    await this.primaryDriver.upsertFile(fileName, content, true)
+    await this.primaryDriver.upsertFile(fileName, content, recordRevision)
     this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }
