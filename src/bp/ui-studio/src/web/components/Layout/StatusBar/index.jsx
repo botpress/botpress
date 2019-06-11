@@ -25,7 +25,9 @@ class StatusBar extends React.Component {
   state = {
     keepBlueUntil: undefined,
     inProgress: [],
-    messages: []
+    messages: [],
+    f1score: null,
+    nluFetching: false
   }
 
   constructor(props) {
@@ -129,6 +131,10 @@ class StatusBar extends React.Component {
     )
   }
 
+  updateNluStatus = status => {
+    this.setState({ f1score: status.f1score, nluFetching: status.fetching })
+  }
+
   render() {
     return (
       <footer ref={this.progressContainerRef} className={style.statusBar}>
@@ -147,8 +153,13 @@ class StatusBar extends React.Component {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
-          <ActionItem title="NLU Performance Status" description="View F1 score" className={style.right}>
-            <NluPerformanceStatus />
+          <ActionItem
+            title="NLU Performance Status"
+            description={this.state.f1score ? `f1: ${this.state.f1score}` : 'currently no f1 to display'}
+            notclickable={this.state.nluFetching}
+            className={style.right}
+          >
+            <NluPerformanceStatus updateNluStatus={this.updateNluStatus} />
           </ActionItem>
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>

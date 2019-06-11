@@ -66,7 +66,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)
       res.send(matrix)
     } catch (err) {
-      res.sendStatus(401)
+      res.send(404)
     }
   })
 
