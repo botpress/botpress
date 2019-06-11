@@ -13,6 +13,7 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     SHOW_POWERED_BY: boolean
+    BP_STORAGE: any
     botpress: {
       [moduleName: string]: any
     }
@@ -145,6 +146,8 @@ export type Config = {
   containerWidth?: string | number
   layoutWidth?: string | number
   showPoweredBy: boolean
+  /** When enabled, sent messages are persisted to local storage (recall previous messages)  */
+  enablePersistHistory: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

@@ -7,6 +7,7 @@ const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
+const fs = require('fs')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
@@ -63,4 +64,17 @@ gulp.task('changelog', () => {
     .src('CHANGELOG.md')
     .pipe(changelog(changelogOts, context, gitRawCommitsOpts, commitsParserOpts, changelogWriterOpts))
     .pipe(gulp.dest('./'))
+})
+
+gulp.task('migrate:make', () => {
+  const index = process.argv.findIndex(x => x.toLowerCase() === '--name')
+  if (index === -1) {
+    return Promise.reject('Please use the --name argument and provide a meaningful migration name')
+  }
+
+  const name = Date.now() + '_' + process.argv[index + 1]
+  const template = fs.readFileSync('src/bp/core/database/migrations/template.ts')
+  fs.writeFileSync(`src/bp/core/database/migrations/${name}.ts`, template)
+
+  return Promise.resolve()
 })

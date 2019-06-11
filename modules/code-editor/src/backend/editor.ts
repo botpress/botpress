@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
@@ -28,7 +29,7 @@ export default class Editor {
     }
   }
 
-  async _validateMetadata({ name, botId, type }: Partial<EditableFile>) {
+  _validateMetadata({ name, botId, type }: Partial<EditableFile>) {
     if (!botId || !botId.length) {
       if (!this._config.allowGlobal) {
         throw new Error(`Global files are restricted, please check your configuration`)
