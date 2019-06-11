@@ -56,7 +56,7 @@ export class ModuleResourceLoader {
   }
 
   getDbMigrationsDir(): string | undefined {
-    const dir = path.resolve(`${this.modulePath}/dist/migrations`)
+    const dir = path.resolve(`${this.modulePath}/dist/migrations/db`)
 
     if (fse.existsSync(dir)) {
       return dir
