@@ -1,5 +1,5 @@
+import { Button, ProgressBar } from '@blueprintjs/core'
 import React, { FC, SFC, useState } from 'react'
-import { Button, Progress } from 'reactstrap'
 
 import { getLanguageSourceClient } from './api'
 import { LanguageSource } from './typings'
@@ -19,12 +19,8 @@ interface Props {
 }
 
 const DownloadProgress: SFC<{ current: number; total: number }> = props => {
-  const value = Math.round((props.current / props.total) * 100)
-  return (
-    <Progress animated value={value}>
-      {value > 10 && `${value}%`}
-    </Progress>
-  )
+  const value = props.current / props.total
+  return <ProgressBar value={value} />
 }
 
 const Language: FC<Props> = props => {
@@ -64,19 +60,15 @@ const Language: FC<Props> = props => {
           <DownloadProgress current={props.downloadProgress.progress.size} total={props.language.size!} />
         )}
         {props.allowActions && !props.downloadProgress && !props.installed && (
-          <Button size='sm' color='primary' outline onClick={installLanguage}>
-            Install
-          </Button>
+          <Button small onClick={installLanguage} minimal icon='import' />
         )}
         {props.allowActions && props.installed && !props.loaded && (
-          <Button disabled={modelLoading} size='sm' color='primary' outline onClick={loadLanguage}>
+          <Button disabled={modelLoading} minimal icon='updated' onClick={loadLanguage}>
             {modelLoading ? 'loading' : 'Load'}
           </Button>
         )}
         {props.allowActions && props.installed && (
-          <Button size='sm' color='primary' outline onClick={deleteLanguage}>
-            Remove
-          </Button>
+          <Button disabled={modelLoading} icon='cross' minimal onClick={deleteLanguage} />
         )}
       </div>
     </div>
