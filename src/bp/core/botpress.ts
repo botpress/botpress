@@ -262,7 +262,7 @@ export class Botpress {
 
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
-    await this.eventCollector.initialize(this.config!, this.database)
+    await this.eventCollector.initialize(this.database)
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)

@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { KnexExtension } from 'common/knex'
-import { BotpressConfig } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
@@ -31,11 +31,12 @@ export class EventCollector {
     @inject(TYPES.Logger)
     @tagged('name', 'EventCollector')
     private logger: sdk.Logger,
-    @inject(TYPES.EventRepository) private eventRepo: EventRepository
+    @inject(TYPES.EventRepository) private eventRepo: EventRepository,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
-  async initialize(botpressConfig: BotpressConfig, database: Database) {
-    const config = botpressConfig.eventCollector
+  async initialize(database: Database) {
+    const config = (await this.configProvider.getBotpressConfig()).eventCollector
     if (!config || !config.enabled) {
       return
     }
