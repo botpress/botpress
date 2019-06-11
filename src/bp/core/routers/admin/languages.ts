@@ -30,9 +30,14 @@ export class LanguagesRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const config = await this.moduleLoader.configReader.getGlobal('nlu')
         const langSource = config.languageSources[0]
+        const headers = {}
 
-        // TODO use token
-        const { data } = await Axios.get(`${langSource.endpoint}/languages`)
+        if (langSource.authToken) {
+          headers['authorization'] = 'bearer ' + langSource.authToken
+        }
+
+        const client = Axios.create({ baseURL: langSource.endpoint, headers })
+        const { data } = await client.get('/languages')
 
         res.send({
           languages: data.installed
