@@ -202,7 +202,7 @@ export default async function(options: APIOptions) {
     })
   })
 
-  router.post('/:lang', async (req, res, next) => {
+  router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res, next) => {
     const { lang } = req.params
     try {
       const downloadId = await options.downloadManager.download(lang)
@@ -212,7 +212,7 @@ export default async function(options: APIOptions) {
     }
   })
 
-  router.delete('/:lang', async (req, res, next) => {
+  router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res, next) => {
     const { lang } = req.params
     if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
@@ -222,7 +222,7 @@ export default async function(options: APIOptions) {
     res.end()
   })
 
-  router.post('/:lang/load', async (req, res) => {
+  router.post('/:lang/load', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
 
     if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
@@ -236,13 +236,13 @@ export default async function(options: APIOptions) {
     }
   })
 
-  router.post('/cancel/:id', (req, res, next) => {
+  router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res, next) => {
     const { id } = req.params
     options.downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
   })
 
-  app.use('/languages', DisabledReadonlyMiddleware(options.readOnly), router)
+  app.use('/languages', router)
 
   const httpServer = createServer(app)
 

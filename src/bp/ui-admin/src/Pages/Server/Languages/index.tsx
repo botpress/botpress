@@ -1,6 +1,6 @@
+import { Callout } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { Alert } from 'reactstrap'
 
 import api from '../../../api'
 
@@ -42,12 +42,12 @@ export default () => {
   if (langSource && langServerInfo) {
     return (
       <div className='languages-grid'>
-        {langServerInfo.readOnly && (
-          <div>
-            <Alert color='warning'>Languages cannot be edited as Language server is read only</Alert>
-          </div>
-        )}
-        <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
+        <div>
+          {langServerInfo.readOnly && (
+            <Callout intent='warning'>Languages cannot be edited as Language Server is read only</Callout>
+          )}
+          <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
+        </div>
         <LangServer source={langSource} langServer={langServerInfo} />
       </div>
     )

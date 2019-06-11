@@ -39,7 +39,7 @@ const LanguageManagement: FC<Props> = props => {
   })
 
   if (!languages) {
-    return <div>loading</div>
+    return ''
   }
 
   const downloadables = (languages.available || []).filter(
@@ -52,7 +52,7 @@ const LanguageManagement: FC<Props> = props => {
   }))
 
   return (
-    <div>
+    <React.Fragment>
       {languages && languages.available.length > 0 && !props.readOnly && (
         <div className='languages-list'>
           {/* TODO add a select when we have too many languages */}
@@ -84,7 +84,7 @@ const LanguageManagement: FC<Props> = props => {
           />
         ))}
       </div>
-    </div>
+    </React.Fragment>
   )
 }
 
