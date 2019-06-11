@@ -38,7 +38,7 @@ class MessagesTaskBar extends React.Component {
     }
   }
 
-  toggleFlagFilter() {
+  toggleFlagFilter = () => {
     this.state.filters.flag = !this.state.filters.flag
     this.props.updateFilters(this.state.filters)
   }
@@ -49,12 +49,7 @@ class MessagesTaskBar extends React.Component {
         {!this.props.useAsFilter && (
           <div className={style.messageTaskBarFilter}>
             <div>
-              <IoMdFlag
-                className={style.messageTaskBarFlagIcon}
-                data-tip
-                data-for="flag"
-                onClick={() => this.props.flag()}
-              />
+              <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
               <ReactTooltip id="flag" effect="solid">
                 <div>Mark selected messages as not good</div>
               </ReactTooltip>
@@ -64,7 +59,7 @@ class MessagesTaskBar extends React.Component {
                 className={style.messageTaskBarUnflagIcon}
                 data-tip
                 data-for="unflag"
-                onClick={() => this.props.unflag()}
+                onClick={this.props.unflag}
               />
               <ReactTooltip id="unflag" effect="solid">
                 <div>Unflag Selected messages</div>
@@ -75,7 +70,7 @@ class MessagesTaskBar extends React.Component {
         {this.props.useAsFilter && (
           <div>
             <span>Display only flagged messages:</span>
-            <input type="checkbox" checked={this.state.filters.flag} onChange={() => this.toggleFlagFilter()} />
+            <input type="checkbox" checked={this.state.filters.flag} onChange={this.toggleFlagFilter} />
           </div>
         )}
       </div>
@@ -86,7 +81,7 @@ class MessagesTaskBar extends React.Component {
 export class MessageViewer extends React.Component {
   state = {
     inspectorIsShown: false,
-    currentlyFocusedMessage: null,
+    focusedMessage: null,
     areMessagesSelected: false,
     areAllMessagesSelected: false,
     filters: { flag: false },
@@ -101,7 +96,7 @@ export class MessageViewer extends React.Component {
     }
   }
 
-  handleSelection(isSelected, group) {
+  handleSelection = (isSelected, group) => {
     let currentSelectedLength = this.state.selectedGroups.length
     if (isSelected) {
       currentSelectedLength += 1
@@ -111,7 +106,7 @@ export class MessageViewer extends React.Component {
       this.unselectMessage(group)
     }
     this.setState({
-      areMessagesSelected: currentSelectedLength >= 0,
+      areMessagesSelected: currentSelectedLength > 0,
       areAllMessagesSelected: currentSelectedLength >= this.props.messageGroups.length
     })
   }
@@ -143,7 +138,7 @@ export class MessageViewer extends React.Component {
     })
   }
 
-  handleSelectAll() {
+  handleSelectAll = () => {
     if (this.state.areAllMessagesSelected) {
       this.unselectAll()
     } else {
@@ -151,12 +146,12 @@ export class MessageViewer extends React.Component {
     }
   }
 
-  async flagSelectedMessages() {
+  flagSelectedMessages = async () => {
     await this.props.flagMessages(this.state.selectedGroups)
     this.unSelectAndUpdate()
   }
 
-  async unflagSelectedMessages() {
+  unflagSelectedMessages = async () => {
     await this.props.unflagMessages(this.state.selectedGroups)
     this.unSelectAndUpdate()
   }
@@ -168,7 +163,7 @@ export class MessageViewer extends React.Component {
     }
   }
 
-  updateFilters(f) {
+  updateFilters = f => {
     this.setState({ filters: f })
     this.props.updateConversationWithFilters(f)
   }
@@ -189,27 +184,23 @@ export class MessageViewer extends React.Component {
           <MessagesTaskBar
             ref="taskBar"
             useAsFilter={!this.state.areMessagesSelected}
-            flag={() => this.flagSelectedMessages()}
-            unflag={() => this.unflagSelectedMessages()}
-            updateFilters={f => this.updateFilters(f)}
+            flag={this.flagSelectedMessages}
+            unflag={this.unflagSelectedMessages}
+            updateFilters={this.updateFilters}
             currentConv={this.state.currentConversation}
           />
           {!!this.props.messageGroups.length && (
             <div>
               select all:
-              <input
-                type="checkbox"
-                checked={this.state.areAllMessagesSelected}
-                onChange={() => this.handleSelectAll()}
-              />
+              <input type="checkbox" checked={this.state.areAllMessagesSelected} onChange={this.handleSelectAll} />
               {this.props.messageGroups.map(group => {
                 return (
                   <MessageGroup
                     key={group.userMessage.id}
                     group={group}
-                    focusMessage={m => this.setState({ currentlyFocusedMessage: m, inspectorIsShown: true })}
+                    focusMessage={focusedMessage => this.setState({ focusedMessage, inspectorIsShown: true })}
                     isSelected={this.state.selectedGroups.includes(group)}
-                    handleSelection={(isSelected, m) => this.handleSelection(isSelected, m)}
+                    handleSelection={this.handleSelection}
                   />
                 )
               })}
@@ -222,7 +213,7 @@ export class MessageViewer extends React.Component {
           )}
         </div>
         <MessageInspector
-          currentlyFocusedMessage={this.state.currentlyFocusedMessage}
+          focusedMessage={this.state.focusedMessage}
           closeInspector={() => this.setState({ inspectorIsShown: false })}
         />
       </div>

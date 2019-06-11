@@ -22,15 +22,17 @@ export default class HistoryDb {
     })
   }
 
-  flagMessages = async (messages: MessageGroup[]) => {
-    let newRows = messages.map(m => ({ flaggedMessageId: m.userMessage.id }))
-    const currentRows = await this.knex
+  flagMessages = async (messageIds: string[]) => {
+    const existingRows = await this.knex
       .select()
       .from(FLAGS_TABLE_NAME)
-      .whereIn('flaggedMessageId', newRows.map(m => m.flaggedMessageId))
+      .whereIn('flaggedMessageId', messageIds)
       .then(rows => rows.map(r => r.flaggedMessageId))
 
-    newRows = newRows.filter(r => !currentRows.includes(r.flaggedMessageId))
+    const newRows = messageIds
+      .filter(msgId => !existingRows.includes(msgId))
+      .map(msgId => ({ flaggedMessageId: msgId }))
+
     await this.knex.batchInsert(FLAGS_TABLE_NAME, newRows, 30)
   }
 
@@ -70,12 +72,15 @@ export default class HistoryDb {
     offset: number,
     filters: QueryFilters
   ): Promise<MessageGroup[]> => {
-    const incomingMessagesQuery = this.knex.select('event', 'flaggedMessageId').from(EVENTS_TABLE_NAME)
-    this._leftJoinFlagTable(incomingMessagesQuery)
-    incomingMessagesQuery.orderBy('createdOn', 'desc').where({ sessionId, direction: 'incoming' })
+    const incomingMessagesQuery = this.knex
+      .select('event', 'flaggedMessageId')
+      .from(EVENTS_TABLE_NAME)
+      .leftJoin(FLAGS_TABLE_NAME, `${EVENTS_TABLE_NAME}.incomingEventId`, `${FLAGS_TABLE_NAME}.flaggedMessageId`)
+      .orderBy('createdOn', 'desc')
+      .where({ sessionId, direction: 'incoming' })
 
     if (filters && filters.flag) {
-      this._whereFlagged(incomingMessagesQuery)
+      incomingMessagesQuery.whereNotNull(`${FLAGS_TABLE_NAME}.flaggedMessageId`)
     }
 
     const incomingMessageRows: any[] = await incomingMessagesQuery.offset(offset).limit(count)
@@ -92,7 +97,7 @@ export default class HistoryDb {
 
     const outgoingMessagesRows = await this.knex(EVENTS_TABLE_NAME)
       .whereIn('incomingEventId', _.keys(messageGroupsMap))
-      .andWhere('direction', 'outgoing')
+      .andWhere({ direction: 'outgoing' })
 
     _.forEach(outgoingMessagesRows, r => {
       messageGroupsMap[r.incomingEventId].botMessages.push(this.knex.json.get(r.event))
@@ -112,22 +117,15 @@ export default class HistoryDb {
   }
 
   private async _getMessageCountWhere(whereParams, filters?: QueryFilters) {
-    const messageCountQuery = this.knex.from(EVENTS_TABLE_NAME)
-    this._leftJoinFlagTable(messageCountQuery)
+    const messageCountQuery = this.knex
+      .from(EVENTS_TABLE_NAME)
+      .leftJoin(FLAGS_TABLE_NAME, `${EVENTS_TABLE_NAME}.incomingEventId`, `${FLAGS_TABLE_NAME}.flaggedMessageId`)
 
     if (filters && filters.flag) {
-      this._whereFlagged(messageCountQuery)
+      messageCountQuery.whereNotNull(`${FLAGS_TABLE_NAME}.flaggedMessageId`)
     }
 
     const messageCountObject = await messageCountQuery.count().where(whereParams)
     return messageCountObject.pop()['count(*)']
-  }
-
-  private _leftJoinFlagTable(query: any) {
-    query.leftJoin(FLAGS_TABLE_NAME, `${EVENTS_TABLE_NAME}.incomingEventId`, `${FLAGS_TABLE_NAME}.flaggedMessageId`)
-  }
-
-  private _whereFlagged(query: any) {
-    query.whereNotNull(`${FLAGS_TABLE_NAME}.flaggedMessageId`)
   }
 }

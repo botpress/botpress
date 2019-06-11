@@ -17,8 +17,8 @@ export function MessageInspector(props) {
       <div className={style['quit-inspector']} onClick={props.closeInspector}>
         <GoX />
       </div>
-      {props.currentlyFocusedMessage && (
-        <JSONTree theme={inspectorTheme} data={props.currentlyFocusedMessage} invertTheme={false} hideRoot={true} />
+      {props.focusedMessage && (
+        <JSONTree theme={inspectorTheme} data={props.focusedMessage} invertTheme={false} hideRoot={true} />
       )}
     </div>
   )

@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import Database from './db'
-
-import { QueryFilters } from './typings'
+import { QueryFilters, MessageGroup } from './typings'
 
 const N_MESSAGE_GROUPS_READ = 10
 
@@ -46,8 +45,9 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   router.post('/flagged-messages', async (req, res) => {
-    const messageGroups = req.body
-    await db.flagMessages(messageGroups)
+    const messageGroups: MessageGroup[] = req.body
+    const messageIds = messageGroups.map(m => m.userMessage.id)
+    await db.flagMessages(messageIds)
     res.sendStatus(201)
   })
 
