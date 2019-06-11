@@ -15,6 +15,7 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { createForModule } from './api' // TODO
+import Database from './database'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'
@@ -60,12 +61,14 @@ const MODULE_SCHEMA = joi.object().keys({
 export class ModuleLoader {
   private entryPoints = new Map<string, ModuleEntryPoint>()
   private _configReader?: ConfigReader
+  private _dbMigrationDirs: string[] = []
 
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.Database) private database: Database
   ) {}
 
   public get configReader() {
@@ -115,6 +118,10 @@ export class ModuleLoader {
       initedModules[name] = await this._loadModule(module, name)
     }
 
+    if (this._dbMigrationDirs.length) {
+      await this.database.runModuleMigrations(this._dbMigrationDirs)
+    }
+
     // tslint:disable-next-line: no-floating-promises
     this.callModulesOnReady(modules, initedModules) // Floating promise here is on purpose, we are doing this in background
     return Object.keys(initedModules)
@@ -159,6 +166,11 @@ export class ModuleLoader {
       await resourceLoader.enableResources()
       await resourceLoader.runMigrations()
       await resourceLoader.importResources()
+
+      const dbMigrationsDir = await resourceLoader.getDbMigrationsDir()
+      if (dbMigrationsDir) {
+        this._dbMigrationDirs.push(dbMigrationsDir)
+      }
     } catch (err) {
       this.logger.attachError(err).error(`Error in module "${name}" onServerStarted`)
       return false

@@ -1,4 +1,5 @@
 export * from './channel_users'
 export * from './metadata'
-export * from './migrations'
+export * from './migrations_core'
+export * from './migrations_modules'
 export * from './data_retention'

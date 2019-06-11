@@ -1,6 +1,6 @@
 import { Table } from 'core/database/interfaces'
 
-export class MigrationsTable extends Table {
+export class MigrationsCore extends Table {
   name: string = 'knex_core_migrations'
 
   async bootstrap() {
@@ -17,7 +17,7 @@ export class MigrationsTable extends Table {
     const hasIncorrectColumn = await this.knex.schema.hasColumn(this.name, 'migrated_time')
 
     if (hasIncorrectColumn) {
-      await this.knex.schema.alterTable('knex_core_migrations', function (table) {
+      await this.knex.schema.alterTable('knex_core_migrations', function(table) {
         table.renameColumn('migrated_time', 'migration_time')
       })
     }

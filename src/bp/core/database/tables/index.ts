@@ -12,10 +12,17 @@ import {
   NotificationsTable
 } from './bot-specific'
 
-import { ChannelUsersTable, DataRetentionTable, MigrationsTable, ServerMetadataTable } from './server-wide'
+import {
+  ChannelUsersTable,
+  DataRetentionTable,
+  MigrationsCore,
+  MigrationsModules,
+  ServerMetadataTable
+} from './server-wide'
 
 const tables: (typeof Table)[] = [
-  MigrationsTable,
+  MigrationsCore,
+  MigrationsModules,
   ServerMetadataTable,
   ChannelUsersTable,
 
