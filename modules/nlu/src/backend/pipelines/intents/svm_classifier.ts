@@ -17,6 +17,10 @@ const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
 const debugPredict = debug.sub('predict')
 
+// We might want to compute this as a function of the number of samples in each cluster
+// As this depends on the dataset size and distribution
+const MIN_CLUSTER_SAMPLES = 3
+
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
@@ -169,8 +173,7 @@ export default class SVMClassifier {
         const labels = Object.keys(pairs)
         for (const label of labels) {
           const samples = pairs[label]
-          // what is this magic 4 ?
-          if (samples.length >= 4) {
+          if (samples.length >= MIN_CLUSTER_SAMPLES) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
             l1Points
@@ -288,24 +291,24 @@ export default class SVMClassifier {
             return []
           }
 
-          const p1 = preds[0]
+          const firstBest = preds[0]
 
           if (preds.length === 1) {
-            return [{ label: p1.label, l0Confidence: l0Conf, context: ctx, confidence: 1 }]
+            return [{ label: firstBest.label, l0Confidence: l0Conf, context: ctx, confidence: 1 }]
           }
 
-          const p2 = preds[1]
+          const secondBest = preds[1]
           // because we want a lognormal distribution
           const std = math.std(preds.map(x => Math.log(x.confidence)))
-          let p1Conf = GetZPercent((Math.log(p1.confidence) - Math.log(p2.confidence)) / std)
+          let p1Conf = GetZPercent((Math.log(firstBest.confidence) - Math.log(secondBest.confidence)) / std)
 
           if (isNaN(p1Conf)) {
             p1Conf = 0.5
           }
 
           return [
-            { label: p1.label, l0Confidence: l0Conf, context: ctx, confidence: l0Conf * p1Conf },
-            { label: p2.label, l0Confidence: l0Conf, context: ctx, confidence: l0Conf * (1 - p1Conf) }
+            { label: firstBest.label, l0Confidence: l0Conf, context: ctx, confidence: l0Conf * p1Conf },
+            { label: secondBest.label, l0Confidence: l0Conf, context: ctx, confidence: l0Conf * (1 - p1Conf) }
           ]
         })
       )

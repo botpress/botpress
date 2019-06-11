@@ -27,7 +27,7 @@ import {
   LanguageIdentifier,
   Model,
   MODEL_TYPES,
-  NLUDS,
+  NLUStructure,
   Sequence,
   SlotExtractor
 } from './typings'
@@ -54,7 +54,7 @@ export default class ScopedEngine implements Engine {
   private readonly pipelineManager: PipelineManager
   private scopedGenerateTrainingSequence: Function
 
-  //move this in a functionnal util file?
+  // move this in a functionnal util file?
   private readonly flatMapIdentityReducer = (a, b) => a.concat(b)
 
   private retryPolicy = {
@@ -324,7 +324,7 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  private _extractEntities = async (ds: NLUDS): Promise<NLUDS> => {
+  private _extractEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
     const customEntityDefs = await this.storage.getCustomEntities()
 
     const patternEntities = await this.entityExtractor.extractPatterns(
@@ -345,7 +345,7 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
-  private _extractIntents = async (ds: NLUDS): Promise<NLUDS> => {
+  private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactIntent = this._exactIntentMatchers[ds.language].exactMatch(ds.sanitizedText, ds.includedContexts)
 
     if (exactIntent) {
@@ -377,18 +377,18 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
-  private _setTextWithoutEntities = async (ds: NLUDS): Promise<NLUDS> => {
+  private _setTextWithoutEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
     ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText).toLowerCase()
     return ds
   }
 
-  private _tokenize = async (ds: NLUDS): Promise<NLUDS> => {
+  private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
     ds.lowerText = sanitize(ds.rawText).toLowerCase()
     ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
     return ds
   }
 
-  private _extractSlots = async (ds: NLUDS): Promise<NLUDS> => {
+  private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
     const intentDef = await this.storage.getIntent(ds.intent.name)
 
     ds.slots = await this.slotExtractors[ds.language].extract(
@@ -403,7 +403,7 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
-  private _detectLang = async (ds: NLUDS): Promise<NLUDS> => {
+  private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
     let lang = await this.langDetector.identify(ds.rawText)
 
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {

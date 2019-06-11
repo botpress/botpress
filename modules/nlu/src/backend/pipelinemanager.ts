@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 
-import { NLUDS, PipelineProcessManager } from './typings'
+import { NLUStructure, PipelineProcessManager } from './typings'
 
 export class PipelineManager implements PipelineProcessManager {
-  private _nluds: NLUDS = {} as NLUDS
+  private _nluds: NLUStructure = {} as NLUStructure
   private _pipeline: Function[] = [] as Function[]
 
-  private _reducer = async (ds: Promise<NLUDS>, fn: Function): Promise<NLUDS> => fn(await ds)
+  private _reducer = async (ds: Promise<NLUStructure>, fn: Function): Promise<NLUStructure> => fn(await ds)
 
   public of(pipeline: Function[]): PipelineProcessManager {
     this._pipeline = pipeline
@@ -18,7 +18,7 @@ export class PipelineManager implements PipelineProcessManager {
     return this
   }
 
-  public async run(): Promise<NLUDS> {
+  public async run(): Promise<NLUStructure> {
     if (!this._nluds) {
       throw new Error('You must add a NLUDS to the pipeline manager before runinng it')
     }
@@ -31,7 +31,7 @@ export class PipelineManager implements PipelineProcessManager {
   }
 }
 
-export const initNLUDS = (text: string, includedContexts: string[]): NLUDS => {
+export const initNLUDS = (text: string, includedContexts: string[]): NLUStructure => {
   return {
     rawText: text,
     lowerText: '',
