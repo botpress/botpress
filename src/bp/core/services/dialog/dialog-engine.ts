@@ -8,7 +8,7 @@ import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowView } from '.'
-import { FlowError, ProcessingError } from './errors'
+import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
@@ -160,7 +160,7 @@ export class DialogEngine {
     }
 
     if (!timeoutNode || !timeoutFlow) {
-      throw new Error(`Could not find any timeout node or flow for session "${sessionId}"`)
+      throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
     }
 
     event.state.context.currentNode = timeoutNode.name
