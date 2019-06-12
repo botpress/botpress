@@ -1,30 +1,25 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import { HotKeys } from 'react-hotkeys'
-
+import { connect } from 'react-redux'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-import { Route, Switch, Redirect } from 'react-router-dom'
-
-import Sidebar from './Sidebar'
-
-import DocumentationModal from '~/components/Layout/DocumentationModal'
+import { bindActionCreators } from 'redux'
+import { updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
+import DocumentationModal from '~/components/Layout/DocumentationModal'
+import PluginInjectionSite from '~/components/PluginInjectionSite'
+import BackendToast from '~/components/Util/BackendToast'
+import { isInputFocused } from '~/keyboardShortcuts'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
+import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
-import Logs from '~/views/Logs'
-import BackendToast from '~/components/Util/BackendToast'
 
-import PluginInjectionSite from '~/components/PluginInjectionSite'
-
-import { viewModeChanged, updateDocumentationModal } from '~/actions'
-import { isInputFocused } from '~/keyboardShortcuts'
-
-import layout from './Layout.styl'
-import StatusBar from './StatusBar'
 import GuidedTour from './GuidedTour'
+import layout from './Layout.styl'
+import Sidebar from './Sidebar'
+import StatusBar from './StatusBar'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -91,7 +86,7 @@ class Layout extends React.Component<ILayoutProps> {
     if (!isInputFocused()) {
       const langSwitcherOpen = !this.state.langSwitcherOpen
       this.setState({ langSwitcherOpen }, () => {
-        //lang switcher just closed
+        // lang switcher just closed
         if (!langSwitcherOpen) {
           this.focusMain()
         }

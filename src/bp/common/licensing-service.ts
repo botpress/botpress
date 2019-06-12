@@ -7,6 +7,7 @@ export default interface LicensingService {
   getLicenseInfo(licenseKey?: string): Promise<LicenseInfo>
   getLicenseKey(): Promise<string>
   getFingerprint(fingerprintType: FingerprintType): Promise<string>
+  auditLicensing(auditToken: string): Promise<LicenseAudit | undefined>
 }
 
 export interface LicenseStatus {
@@ -40,6 +41,14 @@ export interface LicenseInfo {
   paidUntil: Date
   versions: string
   support: SupportType
+  auditToken: string
   limits: Limit[]
   manualRefresh: boolean
+}
+
+export interface LicenseAudit {
+  botIds?: string[]
+  showPoweredBy?: boolean
+  superAdminsCount: number
+  collaboratorsCount: number
 }

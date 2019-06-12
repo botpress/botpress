@@ -23,7 +23,9 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "classnames": "^2.2.6",
+    "react-select": "^1.2.1",
+    "axios": "^0.18.1",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "csv-parse": "^2.5.0",
