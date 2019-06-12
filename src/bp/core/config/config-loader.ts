@@ -1,4 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
+import { stringify } from 'core/misc/utils'
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -46,7 +47,8 @@ export class ConfigProvider {
     this._botpressConfigCache = undefined
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
-    await this.ghostService.global().upsertFile('/', 'botpress.config.json', JSON.stringify(config, undefined, 2))
+
+    await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config), false)
   }
 
   async invalidateBotpressConfig(): Promise<void> {
@@ -59,7 +61,7 @@ export class ConfigProvider {
   }
 
   async setBotConfig(botId: string, config: BotConfig) {
-    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
+    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config), false)
   }
 
   async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
@@ -85,7 +87,7 @@ export class ConfigProvider {
         version: process.BOTPRESS_VERSION
       }
 
-      await fse.writeFileSync(botpressConfig, JSON.stringify(config, undefined, 2))
+      await fse.writeFileSync(botpressConfig, stringify(config))
     }
   }
 

@@ -619,8 +619,10 @@ declare module 'botpress/sdk' {
      * Insert or Update the file at the specified location
      * @param rootFolder - Folder relative to the scoped parent
      * @param file - The name of the file
+     * @param content - The content of the file
+     * @param recordRevision - Whether or not to record a revision @default true
      */
-    upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
+    upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision?: boolean): Promise<void>
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>

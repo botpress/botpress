@@ -15,7 +15,7 @@ export default async (bp: typeof sdk) => {
   debug('start copying missing pretrained models', missing)
   for (const model of missing) {
     const data = fs.readFileSync(path.join(pretrainedPath, model))
-    await globalGhost.upsertFile('./models', model, data)
+    await globalGhost.upsertFile('./models', model, data, false)
   }
   debug('end copy missing pretrained models')
 }
