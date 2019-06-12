@@ -15,7 +15,7 @@ import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
-import NluPerformanceStatus from './Confusion'
+import NluPerformanceStatus from './NluPerformanceStatus'
 
 const COMPLETED_DURATION = 2000
 

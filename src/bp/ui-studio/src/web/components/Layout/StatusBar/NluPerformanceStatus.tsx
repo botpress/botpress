@@ -3,8 +3,8 @@ import axios from 'axios'
 import React from 'react'
 import { FaThLarge } from 'react-icons/fa'
 
-import ActionItem from '../ActionItem'
-import style from '../StatusBar.styl'
+import ActionItem from './ActionItem'
+import style from './StatusBar.styl'
 
 const GREEM_LOWER_BOUND = 0.85
 const RED_UPPER_BOUND = 0.5
