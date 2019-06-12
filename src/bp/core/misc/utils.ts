@@ -57,3 +57,6 @@ export const safeStringify = (obj: any, spaces?: number) => JSON.stringify(obj, 
 export const forceForwardSlashes = path => path.replace(/\\/g, '/')
 
 export const getCacheKeyInMinutes = (minutes: number = 1) => Math.round(new Date().getTime() / 1000 / 60 / minutes)
+
+/** Case-insensitive "startsWith" */
+export const startsWithI = (a: string, b: string) => a.toLowerCase().startsWith(b.toLowerCase())

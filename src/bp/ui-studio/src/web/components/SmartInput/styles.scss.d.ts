@@ -10,10 +10,10 @@ interface CssExports {
   'mentionSuggestionsEntry': string;
   'mentionSuggestionsEntryFocused': string;
   'mentionSuggestionsEntryText': string;
-  'session': string;
+  'properties': string;
   'suggestion-type': string;
-  'user': string;
   'variable': string;
+  'variables': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

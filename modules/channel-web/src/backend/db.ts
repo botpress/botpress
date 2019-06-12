@@ -45,7 +45,7 @@ export default class WebchatDb {
         return this.knex.createTableIfNotExists('web_messages', function(table) {
           table.string('id').primary()
           table.integer('conversationId')
-          table.string('incomingEventId')
+          // table.string('incomingEventId')
           table.string('userId')
           table.string('message_type') // @ deprecated Remove in a future release (11.9)
           table.text('message_text') // @ deprecated Remove in a future release (11.9)
