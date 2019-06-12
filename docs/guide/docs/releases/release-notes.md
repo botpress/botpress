@@ -5,15 +5,16 @@ title: Release Notes
 
 ## Features
 
-- Added configuration to display the number of messages in the history
-- Added security namespace
-- Added the ability to create trusted reference for channel-web
+- Configurable history length in channel web
+- Add security namespace
+- Add option to create trusted reference in channel web
 
-## Bug fixes
+## Bug Fixes
 
-- Expose user.getAttributes in SDK
-- Prevent resources-loader to over-create files
-- Fixed memory queue tests
+- Fix before session timeout not being executed
+- Fix context expiry that only worked one time
+- Fix an issue where renamed files were duplicated in the ghost
+- Fix issue where config files caused the ghost to always be dirty
 
 ## Changelog
 
