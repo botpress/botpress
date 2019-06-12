@@ -1,10 +1,10 @@
-import { connect } from 'react-redux'
 import _ from 'lodash'
+import { connect } from 'react-redux'
 
-import { setDiagramAction, updateFlow, flowEditorRedo, flowEditorUndo, buildNewSkill } from '~/actions'
-import { getCurrentFlow, getCurrentFlowNode, getDirtyFlows, canFlowUndo, canFlowRedo } from '~/reducers'
+import { buildNewSkill, flowEditorRedo, flowEditorUndo, setDiagramAction, updateFlow } from '~/actions'
+import { canFlowRedo, canFlowUndo, getCurrentFlow, getCurrentFlowNode, getDirtyFlows } from '~/reducers'
 
-import Toolbar from '../toolbar.jsx'
+import Toolbar from '../toolbar'
 
 const mapStateToProps = state => ({
   flowsNames: _.keys(state.flows.flowsByName),
@@ -27,6 +27,9 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-const ConnectedToolbar = connect(mapStateToProps, mapDispatchToProps)(Toolbar)
+const ConnectedToolbar = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Toolbar)
 
 export default ConnectedToolbar
