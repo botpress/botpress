@@ -1,4 +1,4 @@
-import Axios from 'axios'
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { ModuleLoader } from 'core/module-loader'
 import { Router } from 'express'
@@ -36,8 +36,7 @@ export class LanguagesRouter extends CustomRouter {
           headers['authorization'] = 'bearer ' + langSource.authToken
         }
 
-        const client = Axios.create({ baseURL: langSource.endpoint, headers })
-        const { data } = await client.get('/languages')
+        const { data } = await axios.get(`${langSource.endpoint}/languages`, { headers })
 
         res.send({
           languages: data.installed

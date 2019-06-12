@@ -50,7 +50,7 @@ const authMiddleware: (token: string) => RequestHandler = (token: string) => (re
   next()
 }
 
-const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
+const serviceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
   if (!service.isReady) {
     throw new NotReadyError('language')
   }
@@ -137,7 +137,7 @@ export default async function(options: APIOptions) {
   // TODO we might want to set a special cors policy here ?
   app.use(cors())
 
-  const waitForServiceMw = ServiceLoadingMiddleware(options.languageService)
+  const waitForServiceMw = serviceLoadingMiddleware(options.languageService)
   const validateLanguageMw = assertValidLanguage(options.languageService)
 
   app.get('/info', (req, res, next) => {
@@ -185,7 +185,7 @@ export default async function(options: APIOptions) {
   })
 
   const router = express.Router({ mergeParams: true })
-  router.get('/', (req, res, next) => {
+  router.get('/', (req, res) => {
     const downloading = options.downloadManager.inProgress.map(x => ({
       lang: x.lang,
       progress: {
@@ -202,17 +202,17 @@ export default async function(options: APIOptions) {
     })
   })
 
-  router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res, next) => {
+  router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
     try {
       const downloadId = await options.downloadManager.download(lang)
-      res.status(200).send({ success: true, downloadId })
+      res.json({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
     }
   })
 
-  router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res, next) => {
+  router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
     if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
@@ -236,7 +236,7 @@ export default async function(options: APIOptions) {
     }
   })
 
-  router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res, next) => {
+  router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res) => {
     const { id } = req.params
     options.downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
