@@ -60,7 +60,7 @@ export interface SplashScreenProps {
   title: string
   description?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement | string
+  icon?: IconName | MaybeElement
   readonly children: React.ReactNode
 }
 
@@ -87,7 +87,7 @@ interface Item {
   label: string
   /** This can be used when executing actions on the items */
   value: any
-  icon?: IconName | MaybeElement | string
+  icon?: IconName | MaybeElement
   /** When the element is selected, it is displayed in bold in the list */
   selected: boolean
   /** These actions are displayed at the end of the component when the mouse is over the element */
@@ -100,7 +100,7 @@ interface ItemAction {
   /** Text displayed when the cursor is over the button */
   tooltip?: string
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement | string
+  icon?: IconName | MaybeElement
   /** The action called when the specific action is clicked */
   onClick?: (item: Item) => void
 }
@@ -127,7 +127,7 @@ interface SectionAction {
   /** When true, the button is still visible but the click event is discarded */
   disabled?: boolean
   /** The name of the icon to use. Can also be a JSX element */
-  icon?: IconName | MaybeElement | string
+  icon?: IconName | MaybeElement
   /** One or multiple items displayed as childs of that element */
   items?: SectionAction | SectionAction[]
   /** The function called when the action is clicked */

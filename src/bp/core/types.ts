@@ -23,6 +23,7 @@ const TYPES = {
   IncomingQueue: Symbol.for('IncomingQueue'),
   OutgoingQueue: Symbol.for('OutgoingQueue'),
   HookService: Symbol.for('HookService'),
+  HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
