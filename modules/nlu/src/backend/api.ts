@@ -9,7 +9,7 @@ import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
-const SYNC_INTERVAL_MS = ms('1s')
+const SYNC_INTERVAL_MS = ms('5s')
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')

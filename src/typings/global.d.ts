@@ -76,6 +76,7 @@ declare type BotpressEnvironementVariables = {
    */
 
   readonly APP_DATA_PATH?: string
+
   /**
    * Truthy if running the official Botpress docker image
    */

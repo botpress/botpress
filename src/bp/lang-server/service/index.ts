@@ -41,7 +41,7 @@ export default class LanguageService {
     this._ready = true
   }
 
-  isReady(): boolean {
+  get isReady(): boolean {
     return this._ready
   }
 

@@ -6,7 +6,6 @@ import moment from 'moment'
 
 import _ from 'lodash'
 
-import LoadingSection from '../Components/LoadingSection'
 import api from '../../api'
 
 class Confusion extends Component {
@@ -41,9 +40,11 @@ class Confusion extends Component {
 
   triggerCompute = async () => {
     this.setState({ isComputing: true })
+
     await Promise.all((await this.getAllBotIds()).map(await this.triggerComputeConfusionForBot))
-    await this.getAllConfusions()
+    this.addConfusionToState(await this.getAllConfusions())
     this.initLabels()
+
     this.setState({ isComputing: false })
   }
 
