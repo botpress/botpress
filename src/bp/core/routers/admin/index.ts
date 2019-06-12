@@ -81,6 +81,13 @@ export class AdminRouter extends CustomRouter {
       res.send(license)
     })
 
+    this.router.get(
+      '/audit',
+      this.asyncMiddleware(async (req, res) => {
+        res.send(await this.licenseService.auditLicensing(req.headers['x-bp-audit'] as string))
+      })
+    )
+
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)

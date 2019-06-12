@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:3000
+@email = admin
+@password = 123456
+
+### Login on the Admin UI
+# @name login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}&password={{password}}
+
+@authToken = {{login.response.body.payload.token}}
+
+### Login as Chat User
+POST {{baseUrl}}/api/v1/auth/chatusers/login/default
+Content-Type: application/json
+
+{
+  "email": "admin2",
+  "password": "123456",
+  "channel": "web",
+  "target": "dUpMFkpBu6Z6_ZpX26n63",
+  "threadId": 1
+}
+
+### Login as admin
+POST {{baseUrl}}/api/v1/auth/login/basic/default
+Content-Type: application/json
+
+{
+  "email": "admin",
+  "password": "123456",
+    "channel": "web",
+    "target": "dUpMFkpBu6Z6_ZpX26n63"
+}
+
+### Fetch user worksaces
+POST {{baseUrl}}/api/v1/auth/login/basic/default
+Content-Type: application/json
+
+{
+  "email": "admin2",
+  "password": "123456",
+  "chatUser": {
+    "channel": "web",
+    "target": "dUpMFkpBu6Z6_ZpX26n63",
+    "threadId": 1
+  }
+}
+
+### Register as admin
+POST {{baseUrl}}/api/v1/auth/register/default
+Content-Type: application/json
+
+{
+  "email": "admin2",
+  "password": "123456",
+  "channel": "web",
+  "target": "dUpMFkpBu6Z6_ZpX26n63",
+  "threadId": 1
+}
+
+### List All Bots
+GET {{baseUrl}}/api/v1/auth/register/default
+Authorization: Bearer {{authToken}}
+
+### Audit 
+GET {{baseUrl}}/api/v1/admin/audit
+Content-Type: application/json
+X-BP-Audit: abc

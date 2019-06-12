@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "target": "es5",
+    "lib": ["es7", "dom"],
+    "jsx": "react",
+    "typeRoots": ["../../node_modules/@types"],
+    "baseUrl": "./",
+    "paths": {
+      "botpress/ui": ["../../../../src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts"],
+      "botpress/sdk": ["../botpress.d.ts"]
+    }
+  }
+}

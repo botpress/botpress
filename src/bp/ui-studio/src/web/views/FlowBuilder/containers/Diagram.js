@@ -14,6 +14,7 @@ import {
   pasteFlowNode,
   createFlow,
   updateFlow,
+  switchFlow,
   insertNewSkillNode
 } from '~/actions'
 
@@ -36,11 +37,17 @@ const mapDispatchToProps = {
   removeFlowNode,
   createFlow,
   updateFlowNode,
+  switchFlow,
   updateFlow,
   copyFlowNode,
   pasteFlowNode,
   insertNewSkillNode
 }
 
-const ConnectedDiagram = connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)
+const ConnectedDiagram = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  null,
+  { withRef: true }
+)(Diagram)
 export default ConnectedDiagram

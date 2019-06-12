@@ -31,6 +31,7 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { ProcessingError } from './services/dialog/errors'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
+import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
 import { EventCollector } from './services/middleware/event-collector'
@@ -69,6 +70,7 @@ export class Botpress {
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.HintsService) private hintsService: HintsService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
@@ -383,6 +385,9 @@ export class Botpress {
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()
     }
+
+    // tslint:disable-next-line: no-floating-promises
+    this.hintsService.refreshAll()
 
     await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }

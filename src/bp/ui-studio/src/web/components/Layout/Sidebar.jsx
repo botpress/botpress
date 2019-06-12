@@ -51,6 +51,8 @@ class Sidebar extends React.Component {
   showNluMenu = () => this.setState({ nluCollapseOpen: true })
   hideNluMenu = () => this.setState({ nluCollapseOpen: false })
 
+  handleMenuItemClicked = () => window.toggleSidebar && window.toggleSidebar()
+
   renderModuleItem = module => {
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
@@ -98,6 +100,7 @@ class Sidebar extends React.Component {
                     activeClassName={style.active}
                     title={module.menuText}
                     className={style.mainMenu__link}
+                    onClick={this.handleMenuItemClicked}
                   >
                     <span>Entities</span>
                   </NavLink>
@@ -108,6 +111,7 @@ class Sidebar extends React.Component {
                     to={intentsPath}
                     title={module.menuText}
                     className={style.mainMenu__link}
+                    onClick={this.handleMenuItemClicked}
                   >
                     <span>Intents</span>
                   </NavLink>
@@ -121,7 +125,12 @@ class Sidebar extends React.Component {
       return (
         <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
           <li>
-            <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+            <NavLink
+              to={path}
+              title={module.menuText}
+              activeClassName={style.active}
+              onClick={this.handleMenuItemClicked}
+            >
               {moduleIcon}
               <span>{module.menuText}</span>
               {module.experimental && (
@@ -139,7 +148,7 @@ class Sidebar extends React.Component {
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
     <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
       <li key={path}>
-        <NavLink to={path} title={name} activeClassName={style.active}>
+        <NavLink to={path} title={name} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
             {icon}
           </i>

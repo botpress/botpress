@@ -225,5 +225,13 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
     )
 }
 
-//Language
+// Language
 export const changeContentLanguage = createAction('LANGUAGE/CONTENT_LANGUAGE', contentLang => ({ contentLang }))
+
+// Hints
+export const hintsReceived = createAction('HINTS/RECEIVED')
+export const refreshHints = () => dispatch => {
+  axios.get(`${window.BOT_API_PATH}/hints`).then(res => {
+    dispatch(hintsReceived(res.data))
+  })
+}

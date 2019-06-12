@@ -127,6 +127,15 @@ h5 {
 }
 
 .textFields {
+  display: inline-block;
   width: 50% !important;
   margin-top: 3px;
+
+  &:global(.form-control) {
+    margin: 0;
+    display: inline-block;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-radius: unset;
+  }
 }
