@@ -2,6 +2,7 @@ import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthRole, AuthUser, BasicAuthUser, ExternalAuthUser, Pipeline, Workspace } from 'core/misc/interfaces'
+import { stringify } from 'core/misc/utils'
 import { Statistics } from 'core/stats'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -70,7 +71,7 @@ export class WorkspaceService {
   }
 
   async save(workspace: Workspace) {
-    await this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify([workspace], undefined, 2))
+    await this.ghost.global().upsertFile('/', `workspaces.json`, stringify([workspace]), false)
   }
 
   async addBotRef(botId: string): Promise<void> {

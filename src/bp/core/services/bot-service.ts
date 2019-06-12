@@ -3,6 +3,7 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
 import { listDir } from 'core/misc/list-dir'
+import { stringify } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -393,7 +394,7 @@ export class BotService {
         }
 
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
-        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
+        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, stringify(mergedConfigs), false)
         await scopedGhost.upsertFiles('/', files)
 
         return mergedConfigs
