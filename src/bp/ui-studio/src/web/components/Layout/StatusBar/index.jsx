@@ -15,7 +15,7 @@ import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
-import NluPerformanceStatus from '~/components/Confusion'
+import NluPerformanceStatus from './Confusion'
 
 const COMPLETED_DURATION = 2000
 
@@ -26,11 +26,7 @@ class StatusBar extends React.Component {
     keepBlueUntil: undefined,
     inProgress: [],
     messages: [],
-    nluStatus: {
-      f1score: null,
-      synced: true,
-      computing: false
-    }
+    nluSynced: true
   }
 
   constructor(props) {
@@ -48,11 +44,7 @@ class StatusBar extends React.Component {
     }
 
     if (event.name === 'train') {
-      const nluStatus = {
-        ...this.state.nluStatus,
-        synced: false
-      }
-      this.setState({ nluStatus })
+      this.setState({ nluSynced: false })
     }
 
     if (event.name === 'done' || event.working === false) {
@@ -142,10 +134,6 @@ class StatusBar extends React.Component {
     )
   }
 
-  updateNluStatus = nluStatus => {
-    this.setState({ nluStatus })
-  }
-
   render() {
     return (
       <footer ref={this.progressContainerRef} className={style.statusBar}>
@@ -164,16 +152,10 @@ class StatusBar extends React.Component {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
-          <ActionItem
-            title="NLU Performance Status"
-            description={
-              this.state.nluStatus.f1score ? `f1: ${this.state.nluStatus.f1score}` : 'currently no f1 to display'
-            }
-            disabled={this.state.nluStatus.computing}
-            className={style.right}
-          >
-            <NluPerformanceStatus synced={this.state.nluStatus.synced} updateNluStatus={this.updateNluStatus} />
-          </ActionItem>
+          <NluPerformanceStatus
+            updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
+            synced={this.state.nluSynced}
+          />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
               <NavLink to={'/logs'}>

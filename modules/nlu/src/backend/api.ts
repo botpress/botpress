@@ -57,8 +57,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   router.get('/currentModelHash', async (req, res) => {
     const engine = nlus[req.params.botId] as ScopedEngine
     if (engine.modelHash) {
-      res.send(engine.modelHash)
-      return
+      return res.send(engine.modelHash)
     }
     const intents = await engine.storage.getIntents()
     const modelHash = await engine.computeModelHash(intents)
@@ -72,6 +71,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash)
       res.send({ matrix, confusionComputing })
     } catch (err) {
+      bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}. It may not exist`)
       res.send({ confusionComputing })
     }
   })
