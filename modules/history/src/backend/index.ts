@@ -18,6 +18,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'history',
     fullName: 'History',
+    menuText: 'History',
     homepage: 'https://botpress.io',
     menuIcon: 'history',
     experimental: true
