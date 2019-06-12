@@ -5,7 +5,7 @@ const { Debug: _Debug } = require('./debug.ts')
 global.DEBUG = _Debug
 
 if (!process.core_env) {
-  process.core_env = process.env
+  process.core_env = process.env as BotpressEnvironementVariables
 }
 
 if (!process.BOTPRESS_EVENTS) {

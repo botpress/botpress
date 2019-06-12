@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import SectionLayout from '../Layouts/Section'
-
+import Details from './details'
 import moment from 'moment'
 
 import _ from 'lodash'
@@ -51,9 +51,9 @@ class Confusion extends Component {
   addConfusionToState = confusions => this.setState({ confusions })
 
   initLabels = () => {
-    this.setState({ select: Array(this.getIntersectionProperties.length).fill('') })
+    this.setState({ select: Array(this.getAllPropertiesFromConfusions().length).fill('') })
 
-    this.getIntersectionProperties()
+    this.getAllPropertiesFromConfusions()
       .map(uniqProp => uniqProp[0])
       .forEach(this.setSelect)
   }
@@ -65,11 +65,10 @@ class Confusion extends Component {
 
   pickGroupingAttributes = obj => Object.values(_.pick(obj, ['lang', 'version', 'date']))
 
-  getIntersectionProperties = () =>
+  getAllPropertiesFromConfusions = () =>
     _.chain(this.state.confusions || [])
       .map(conf => conf.confusions.map(this.pickGroupingAttributes))
-      .unzip()
-      .map(row => row.reduce((a, b) => (_.isEmpty(a) ? b : _.intersection(a, b)), []))
+      .reduce((a, b) => a.concat(b), [])
       .unzip()
       .map(_.uniq)
       .value()
@@ -80,7 +79,7 @@ class Confusion extends Component {
         {this.state.isComputing ? 'Computing...' : 'Click here to fetch all'}
       </button>
 
-      {this.getIntersectionProperties().map((field, i) => (
+      {this.getAllPropertiesFromConfusions().map((field, i) => (
         <select key={'select' + i} value={this.state.select[i]} onChange={this.selectChangeFromFrontEnd(i)}>
           {field.map(val => (
             <option key={val} value={val}>
@@ -91,22 +90,18 @@ class Confusion extends Component {
       ))}
 
       {(this.state.confusions || []).map(confusion => (
-        <div key={'conf-' + confusion.botId}>
+        <div key={`conf-${confusion.botId}`}>
           <h3>{confusion.botId}</h3>
           {confusion.confusions
             .filter(data => _.isEmpty(_.difference(this.pickGroupingAttributes(data), this.state.select)))
             .map((data, i) => (
               <div key={data.hash + i}>
                 <span>
-                  {data.lang} - {data.version} - {this.getDateFromTimestamp(data.date)}
+                  {data.lang} - {data.version} - {this.getDateFromTimestamp(data.date)} -
+                  {data.matrix.intents.all.f1.toFixed(2)}
                 </span>
-                <div>
-                  {Object.entries(data.matrix.intents).map(([name, value]) => (
-                    <div key={name}>
-                      {name}: {value.f1.toFixed(2)}
-                    </div>
-                  ))}
-                </div>
+
+                <Details data={data.matrix.intents} />
               </div>
             ))}
         </div>
