@@ -16,10 +16,10 @@ export default class LanguageService {
   private _cache
 
   // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
-  private readonly FAST_TEXT_MODEL_REGEX = /(\w+)\.(\w+)\.(\d+)\.bin/i
+  private readonly FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 
   // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
-  private readonly BPE_MODEL_REGEX = /(\w+)\.(\w+)\.bpe\.model/i
+  private readonly BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
   // This equals to 24H
   private readonly _maxAgeCacheInMS = 86400000
@@ -45,7 +45,23 @@ export default class LanguageService {
     return this._ready
   }
 
-  public listFastTextModels = (): AvailableModel[] => _.values(this._models).map(model => model.fastTextModel)
+  async loadModel(lang: string) {
+    if (!this._models[lang]) {
+      this._models = {
+        ...this._getModels(),
+        ...this._models
+      }
+    }
+
+    this._loadModels(lang)
+  }
+
+  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
+  private async _loadModels(lang: string) {
+    const fastTextModel = await this._loadFastTextModel(lang)
+    const bpeModel = await this._loadBPEModel(lang)
+    this._models[lang] = { fastTextModel, bpeModel }
+  }
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
     const [__, domain, langCode, dim] = regexMatch
@@ -74,30 +90,10 @@ export default class LanguageService {
     const bpeModelFileInfo = modelGroup.find(f => !f.dim)
 
     if (domain !== this.domain || !fastTextModelFileInfo || !bpeModelFileInfo) {
-      console.log('skipping', domain, langCode)
       return
     }
 
     models[langCode] = this._getPairModels(langCode, fastTextModelFileInfo.file, bpeModelFileInfo.file)
-  }
-
-  private _getModels(): Dic<ModelSet> {
-    if (!fs.existsSync(this.langDir)) {
-      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
-    }
-
-    const files = fs.readdirSync(this.langDir)
-    const models: Dic<ModelSet> = {}
-    const _scopedAddPairModelToModels = this._addPairModelToModels(models)
-
-    _.chain(files)
-      .map(this._getModelInfoFromFile)
-      .reject(_.isEmpty)
-      .groupBy(model => [model.domain, model.langCode])
-      .forEach(_scopedAddPairModelToModels)
-      .value()
-
-    return models
   }
 
   private _getPairModels(lang: string, fastTextModelName: string, bpeModelName: string) {
@@ -130,13 +126,6 @@ export default class LanguageService {
     }
 
     return { fastTextModel, bpeModel }
-  }
-
-  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
-  private async _loadModels(lang: string) {
-    const fastTextModel = await this._loadFastTextModel(lang)
-    const bpeModel = await this._loadBPEModel(lang)
-    this._models[lang] = { fastTextModel, bpeModel }
   }
 
   private async _loadFastTextModel(lang: string): Promise<LoadedFastTextModel> {
@@ -224,5 +213,44 @@ export default class LanguageService {
     }
 
     return await Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
+  }
+
+  getModels() {
+    const models = this._getModels()
+    return Object.keys(models).map(lang => {
+      const loaded = this._models[lang] && this._models[lang].bpeModel.loaded && this._models[lang].fastTextModel.loaded
+      return {
+        lang,
+        loaded
+      }
+    })
+  }
+
+  private _getModels(): Dic<ModelSet> {
+    if (!fs.existsSync(this.langDir)) {
+      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
+    }
+
+    const files = fs.readdirSync(this.langDir)
+    const models: Dic<ModelSet> = {}
+    const _scopedAddPairModelToModels = this._addPairModelToModels(models)
+
+    _.chain(files)
+      .map(this._getModelInfoFromFile)
+      .reject(_.isEmpty)
+      .groupBy(model => [model.domain, model.langCode])
+      .forEach(_scopedAddPairModelToModels)
+      .value()
+
+    return models
+  }
+
+  remove(lang: string) {
+    fs.readdirSync(this.langDir)
+      .filter(file => file.includes(`.${lang}.`))
+      .map(file => path.join(this.langDir, file))
+      .map(fs.unlinkSync)
+
+    delete this._models[lang]
   }
 }

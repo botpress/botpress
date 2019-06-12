@@ -37,7 +37,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
           throw new Error('Language source is not ready')
         }
 
-        data.languages.forEach(x => this.addProvider(x, source, client))
+        data.languages.forEach(x => this.addProvider(x.lang, source, client))
       }, this.discoveryRetryPolicy)
     })
 

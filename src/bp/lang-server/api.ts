@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import { BadRequestError, NotReadyError, UnauthorizedError } from 'core/routers/errors'
+import cors from 'cors'
 import express, { Application, RequestHandler } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
@@ -15,9 +16,9 @@ export type APIOptions = {
   authToken?: string
   limitWindow: string
   limit: number
-  service: LanguageService
+  languageService: LanguageService
+  downloadManager: DownloadManager
   readOnly: boolean
-  manager: DownloadManager
 }
 
 const debug = DEBUG('api')
@@ -49,7 +50,7 @@ const authMiddleware: (token: string) => RequestHandler = (token: string) => (re
   next()
 }
 
-const ServiceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
+const serviceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
   if (!service.isReady) {
     throw new NotReadyError('language')
   }
@@ -66,7 +67,7 @@ const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
     throw new BadRequestError(`Param 'lang': ${language} must be a string`)
   }
 
-  const availableLanguages = service.listFastTextModels().map(x => x.name)
+  const availableLanguages = service.getModels().map(x => x.lang)
   if (!availableLanguages.includes(language)) {
     throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
   }
@@ -132,20 +133,21 @@ function createExpressApp(options: APIOptions): Application {
 
 export default async function(options: APIOptions) {
   const app = createExpressApp(options)
-  const waitForServiceMw = ServiceLoadingMiddleware(options.service)
-  const validateLanguageMw = assertValidLanguage(options.service)
+
+  // TODO we might want to set a special cors policy here ?
+  app.use(cors())
+
+  const waitForServiceMw = serviceLoadingMiddleware(options.languageService)
+  const validateLanguageMw = assertValidLanguage(options.languageService)
 
   app.get('/info', (req, res, next) => {
     res.send({
       version: '1',
-      ready: options.service.isReady,
-      dimentions: options.service.dim,
-      domain: options.service.domain,
+      ready: options.languageService.isReady,
+      dimentions: options.languageService.dim,
+      domain: options.languageService.domain,
       readOnly: options.readOnly,
-      languages: options.service
-        .listFastTextModels()
-        .filter(x => x.loaded)
-        .map(x => x.name)
+      languages: options.languageService.getModels().filter(x => x.loaded)
     })
   })
 
@@ -158,7 +160,7 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const tokens = await options.service.tokenize(input, language)
+      const tokens = await options.languageService.tokenize(input, language)
 
       res.json({ input, language, tokens })
     } catch (err) {
@@ -175,7 +177,7 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.service.vectorize(tokens, lang)
+      const result = await options.languageService.vectorize(tokens, lang)
       res.json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
@@ -183,61 +185,64 @@ export default async function(options: APIOptions) {
   })
 
   const router = express.Router({ mergeParams: true })
-
-  router.get('/list', (req, res, next) => {
-    const items = options.manager.inProgress.map(x => ({
-      status: x.getStatus(),
+  router.get('/', (req, res) => {
+    const downloading = options.downloadManager.inProgress.map(x => ({
       lang: x.lang,
-      id: x.id,
-      downloadedSize: x.downloadedSize,
-      fileSize: x.fileSize
+      progress: {
+        status: x.getStatus(),
+        downloadId: x.id,
+        size: x.downloadSizeProgress
+      }
     }))
 
     res.send({
-      available: options.manager.available,
-      installed: options.service.listFastTextModels().map(x => ({
-        lang: x.name,
-        loaded: x.loaded,
-        dim: options.service.dim,
-        domain: options.service.domain
-      })),
-      in_progress: items
+      available: options.downloadManager.downloadableLanguages,
+      installed: options.languageService.getModels(),
+      downloading
     })
   })
 
-  router.post('/install/:lang', (req, res, next) => {
+  router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
     try {
-      options.manager.download(lang)
-      res.sendStatus(200)
+      const downloadId = await options.downloadManager.download(lang)
+      res.json({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
     }
   })
 
-  router.post('/remove/:lang', (req, res, next) => {
+  router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
-    if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
+    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
-    // TODO Remove here
+
+    await options.languageService.remove(lang)
+    res.end()
   })
 
-  router.post('/load/:lang', (req, res, next) => {
+  router.post('/:lang/load', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
-    if (!lang || !options.service.listFastTextModels().find(x => x.name === lang)) {
+
+    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
-    // TODO Load in memory here
+
+    try {
+      await options.languageService.loadModel(lang)
+    } catch (err) {
+      res.status(500).send({ success: false, message: err.message })
+    }
   })
 
-  router.post('/cancel/:id', (req, res, next) => {
+  router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res) => {
     const { id } = req.params
-    options.manager.cancelAndRemove(id)
-    res.sendStatus(200)
+    options.downloadManager.cancelAndRemove(id)
+    res.status(200).send({ success: true })
   })
 
-  app.use('/models', DisabledReadonlyMiddleware(options.readOnly), router)
+  app.use('/languages', waitForServiceMw, router)
 
   const httpServer = createServer(app)
 

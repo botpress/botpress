@@ -24,7 +24,7 @@
       "check-separator",
       "check-type"
     ],
-    "linebreak-style": [true, "CRLF"],
+    "linebreak-style": [true, "LF"],
     "eofline": true,
     "typedef-whitespace": [
       true,

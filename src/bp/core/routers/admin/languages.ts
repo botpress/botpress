@@ -1,13 +1,13 @@
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
+import { ModuleLoader } from 'core/module-loader'
 import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { BadRequestError } from '../errors'
-import { success as sendSuccess } from '../util'
 
 export class LanguagesRouter extends CustomRouter {
-  constructor(logger: Logger) {
+  constructor(logger: Logger, private moduleLoader: ModuleLoader) {
     super('Languages', logger, Router({ mergeParams: true }))
     this.setupRoutes()
   }
@@ -15,18 +15,36 @@ export class LanguagesRouter extends CustomRouter {
   setupRoutes() {
     const router = this.router
 
-    // TODO Move LanguageSources from NLU Module to Here
-
-    // GET /sources
-    // GET /:source
-    // POST /:source/remove/:lang
-    // POST /:source/download/:lang
-    // POST /:source/load/:lang
+    router.get(
+      '/sources',
+      this.asyncMiddleware(async (req, res) => {
+        const config = await this.moduleLoader.configReader.getGlobal('nlu')
+        res.json({
+          languageSources: config.languageSources
+        })
+      })
+    )
 
     router.get(
-      '/status',
+      '/available',
       this.asyncMiddleware(async (req, res) => {
-        return sendSuccess(res, 'License status', {})
+        const config = await this.moduleLoader.configReader.getGlobal('nlu')
+        const langSource = config.languageSources[0]
+        const headers = {}
+
+        if (langSource.authToken) {
+          headers['authorization'] = 'bearer ' + langSource.authToken
+        }
+
+        const { data } = await axios.get(`${langSource.endpoint}/languages`, { headers })
+
+        res.send({
+          languages: data.installed
+            .filter(x => x.loaded)
+            .map(x => ({
+              ...data.available.find(l => l.code === x.lang)
+            }))
+        })
       })
     )
   }
