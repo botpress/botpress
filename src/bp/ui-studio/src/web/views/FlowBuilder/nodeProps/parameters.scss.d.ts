@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'invalid': string;
+  'key': string;
   'keyTip': string;
   'mandatory': string;
   'table': string;

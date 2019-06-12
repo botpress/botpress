@@ -1,6 +1,7 @@
 import React from 'react'
 import Form from 'react-jsonschema-form'
-import BaseInput from 'react-jsonschema-form/lib/components/widgets/BaseInput'
+
+import SmartInput from '~/components/SmartInput'
 
 import RefWidget from './RefWidget'
 import UploadWidget from './UploadWidget'
@@ -12,6 +13,7 @@ import withLanguage from '../Util/withLanguage'
 
 const CustomBaseInput = props => {
   const { type, $subtype } = props.schema
+
   if (type === 'string') {
     if ($subtype === 'ref') {
       return <RefWidget {...props} />
@@ -21,7 +23,8 @@ const CustomBaseInput = props => {
       return <FlowPickWidget {...props} />
     }
   }
-  return <BaseInput {...props} />
+
+  return <SmartInput {...props} singleLine={true} />
 }
 
 const widgets = {
