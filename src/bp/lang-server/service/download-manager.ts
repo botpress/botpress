@@ -1,130 +1,44 @@
-import axios, { CancelTokenSource } from 'axios'
+import Axios from 'axios'
 import fse from 'fs-extra'
 import ms from 'ms'
-import path from 'path'
-import { Readable } from 'stream'
-import { isArray } from 'util'
 
-const debug = DEBUG('manager')
+import ModelDownload from './model-download'
 
-export type DownloadStatus = 'pending' | 'downloading' | 'loading' | 'errored' | 'done'
+type ModelType = 'bpe' | 'embeddings'
 
-export class ModelDownload {
-  public readonly tempPath: string
-  public readonly finalPath: string
-  public readonly id: string = Date.now().toString()
+const debug = DEBUG('download')
 
-  public fileSize: number = 0
-  public downloadedSize: number = 0
-
-  private status: DownloadStatus = 'pending'
-  private message: string = ''
-  private readonly cancelToken: CancelTokenSource = axios.CancelToken.source()
-
-  constructor(
-    public readonly lang: string,
-    public readonly remoteUrl: string,
-    public readonly dim: number,
-    public readonly domain: string,
-    public readonly destDir: string
-  ) {
-    const fileName = `${domain}.${lang}.${dim}.bin`
-    this.tempPath = path.resolve(destDir, fileName + '.tmp')
-    this.finalPath = path.resolve(destDir, fileName)
-  }
-
-  async start() {
-    if (this.status !== 'pending') {
-      throw new Error("Can't restart download")
-    }
-
-    debug('starting download for ' + this.lang)
-
-    const { data, headers } = await axios.get(this.remoteUrl, {
-      responseType: 'stream',
-      cancelToken: this.cancelToken.token
-    })
-
-    this.status = 'downloading'
-    this.fileSize = parseInt(headers['content-length'])
-    this.downloadedSize = 0
-
-    const stream = data as Readable
-    stream.pipe(fse.createWriteStream(this.tempPath))
-    stream.on('error', err => {
-      debug('model download failed', { lang: this.lang, error: err.message })
-      this.status = 'errored'
-      this.message = 'Error: ' + err.message
-    })
-    stream.on('data', chunk => (this.downloadedSize += chunk.length))
-    stream.on('end', () => this._onFinishedDownloading())
-  }
-
-  async _onFinishedDownloading() {
-    if (this.downloadedSize !== this.fileSize) {
-      // Download is incomplete
-      this.status = 'errored'
-      this.message = 'Download incomplete or file is corrupted'
-      return this._discardTemporaryFile()
-    }
-
-    try {
-      await this._makeModelAvailable()
-      this.status = 'done'
-      this.message = ''
-    } catch (err) {
-      this.status = 'errored'
-      this.message = 'Error moving downloaded model: ' + err.message
-      this._discardTemporaryFile()
-    }
-  }
-
-  private _discardTemporaryFile() {
-    if (fse.existsSync(this.tempPath)) {
-      fse.unlinkSync(this.tempPath)
-    }
-    debug(`deleting model %o`, { path: this.tempPath, lang: this.lang })
-  }
-
-  private async _makeModelAvailable() {
-    if (fse.existsSync(this.finalPath)) {
-      debug('removing existing model at %s', this.finalPath)
-      fse.unlinkSync(this.finalPath)
-    }
-
-    try {
-      await Promise.fromCallback(cb => fse.rename(this.tempPath, this.finalPath, cb))
-    } catch (err) {
-      debug('could not rename downloaded file %s', this.finalPath)
-      await Promise.fromCallback(cb => fse.move(this.tempPath, this.finalPath, cb))
-    }
-  }
-
-  cancel() {
-    if (this.status === 'downloading') {
-      this.cancelToken.cancel()
-      this.status = 'errored'
-      this.message = 'Cancelled'
-    }
-  }
-
-  public getStatus(): { status: DownloadStatus; message: string } {
-    return { status: this.status, message: this.message }
-  }
+export interface DownloadableModel {
+  type: ModelType
+  remoteUrl: string
+  language: string
+  size: number
+  dim?: number
+  domain?: string
 }
 
-export interface AvailableModel {
-  remoteUrl: string
-  lang: string
-  dim: number
-  domain: string
+interface Language {
+  code: string
+  name: string
+  flag: string
+}
+
+interface Meta {
+  languages: {
+    [code: string]: Language
+  }
+  bpe: {
+    [code: string]: DownloadableModel
+  }
+  embeddings: DownloadableModel[]
 }
 
 export default class DownloadManager {
   public inProgress: ModelDownload[] = []
-  public available: AvailableModel[] = []
+  public available: DownloadableModel[] = []
 
   private _refreshTimer?: NodeJS.Timeout
+  private meta: Meta | undefined
 
   constructor(
     public readonly dim: number,
@@ -144,32 +58,63 @@ export default class DownloadManager {
 
   async refreshMeta() {
     try {
-      const { data } = await axios.get(this.metaUrl)
-      if (data && isArray(data)) {
-        this.available = data
-      }
+      const { data } = (await Axios.get(this.metaUrl)) as { data: Meta }
+      this.meta = data
     } catch (err) {
       debug('Error fecthing models', { url: this.metaUrl, message: err.message })
     }
   }
 
-  cancelAndRemove(id: string) {
-    const progress = this.inProgress.find(x => x.id !== id)
-    if (progress && progress.getStatus().status === 'downloading') {
-      progress.cancel()
+  get downloadableLanguages() {
+    if (!this.meta) {
+      throw new Error('Meta not initialized yet')
     }
 
+    return this.meta.embeddings
+      .filter(mod => mod.dim === this.dim && mod.domain === this.domain)
+      .map(mod => {
+        return {
+          ...this.meta!.languages[mod.language],
+          size: mod.size + this.meta!.bpe[mod.language].size
+        }
+      })
+  }
+
+  getEmbeddingModel(lang: string) {
+    if (!this.meta) {
+      throw new Error('Meta not initialized yet')
+    }
+
+    return this.meta.embeddings.find(mod => {
+      return mod.dim === this.dim && mod.domain === this.domain && mod.language === lang
+    })
+  }
+
+  cancelAndRemove(id: string) {
+    const activeDownload = this.inProgress.find(x => x.id !== id)
+    if (activeDownload && activeDownload.getStatus().status === 'downloading') {
+      activeDownload.cancel()
+    }
+
+    this.remove(id)
+  }
+
+  private remove(id: string) {
     this.inProgress = this.inProgress.filter(x => x.id !== id)
   }
 
-  download(lang: string) {
-    const model = this.available.find(x => x.lang === lang && x.dim === this.dim && x.domain === this.domain)
-    if (!model) {
+  async download(lang: string) {
+    if (!this.downloadableLanguages.find(l => lang === l.code)) {
       throw new Error(`Could not find model of dimention "${this.dim}" in domain "${this.domain}" for lang "${lang}"`)
     }
 
-    const dl = new ModelDownload(model.lang, model.remoteUrl, model.dim, model.domain, this.destDir)
+    const embedding = this.getEmbeddingModel(lang)
+    const bpe = this.meta!.bpe[lang]
+
+    const dl = new ModelDownload([bpe, embedding!], this.destDir)
+    await dl.start(this.remove.bind(this, dl.id))
     this.inProgress.push(dl)
-    dl.start()
+
+    return dl.id
   }
 }

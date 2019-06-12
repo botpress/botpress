@@ -1,14 +1,15 @@
 import React from 'react'
-import { MdCompareArrows, MdCopyright, MdMultilineChart, MdNotifications, MdLanguage } from 'react-icons/md'
+import { MdCompareArrows, MdCopyright, MdLanguage, MdMultilineChart, MdNotifications } from 'react-icons/md'
 
-import Versioning from './Versioning'
-import LicenseStatus from './LicenseStatus'
 import TabLayout from '../Layouts/Tabs'
-import Monitoring from './Monitoring'
+
 import Alerting from './Alerting'
 import Languages from './Languages'
+import LicenseStatus from './LicenseStatus'
+import Monitoring from './Monitoring'
+import Versioning from './Versioning'
 
-const Server = props => {
+const Server = (props: any) => {
   const title = 'Server'
   const tabs = [
     {
