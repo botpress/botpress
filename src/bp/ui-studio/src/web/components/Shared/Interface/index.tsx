@@ -12,7 +12,7 @@ import {
 } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
 import SplitPane from 'react-split-pane'
@@ -25,14 +25,13 @@ import {
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
-  SidePanelProps,
   SidePanelSectionProps,
   SplashScreenProps
 } from './typings'
 
 import { buildMenu, showContextMenu } from './utils'
 
-export const Container = (props: ContainerProps) => {
+export const Container: FC<ContainerProps> = props => {
   const [sidePanelVisible, setSidePanelVisible] = useState(!props.sidePanelHidden)
   const width = props.sidePanelWidth ? props.sidePanelWidth : 300
 
@@ -57,7 +56,7 @@ export const Container = (props: ContainerProps) => {
   )
 }
 
-export const SidePanelSection = (props: SidePanelSectionProps) => {
+export const SidePanelSection: FC<SidePanelSectionProps> = props => {
   const [isOpen, setOpen] = useState(!props.collapsed)
 
   return (
@@ -76,7 +75,7 @@ export const SidePanelSection = (props: SidePanelSectionProps) => {
   )
 }
 
-export const SearchBar = (props: SearchBarProps) => {
+export const SearchBar: FC<SearchBarProps> = props => {
   const [text, setText] = useState('')
   const handleTextChanged = e => {
     setText(e.target.value)
@@ -93,7 +92,7 @@ export const SearchBar = (props: SearchBarProps) => {
   )
 }
 
-export const ItemList = (props: ItemListProps) => {
+export const ItemList: FC<ItemListProps> = props => {
   return (
     <div className={style.itemList}>
       {props.items &&
@@ -120,10 +119,10 @@ export const ItemList = (props: ItemListProps) => {
   )
 }
 
-export const PaddedContent = props => <div style={{ padding: '5px' }}>{props.children}</div>
-export const SidePanel = (props: SidePanelProps) => <div className={style.sidePanel}>{props.children}</div>
+export const PaddedContent: FC = props => <div style={{ padding: '5px' }}>{props.children}</div>
+export const SidePanel: FC = props => <div className={style.sidePanel}>{props.children}</div>
 
-export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
+export const KeyboardShortcut: FC<KeyboardShortcutsProps> = props => {
   const ACTION_KEY = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'cmd' : 'ctrl'
   return (
     <p>
@@ -145,7 +144,7 @@ export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
   )
 }
 
-export const SplashScreen = (props: SplashScreenProps) => {
+export const SplashScreen: FC<SplashScreenProps> = props => {
   return (
     <div className={style.splashScreen}>
       <div>
@@ -158,7 +157,7 @@ export const SplashScreen = (props: SplashScreenProps) => {
   )
 }
 
-export const InfoTooltip = (props: InfoTooltipProps) => (
+export const InfoTooltip: FC<InfoTooltipProps> = props => (
   <Tooltip content={props.text} position={props.position || Position.RIGHT}>
     {props.icon === 'help' ? (
       <MdHelpOutline className={style.infoTooltip} />
