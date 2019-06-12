@@ -28,7 +28,7 @@ class StatusBar extends React.Component {
     messages: [],
     nluStatus: {
       f1score: null,
-      unsynced: false,
+      synced: true,
       computing: false
     }
   }
@@ -48,9 +48,11 @@ class StatusBar extends React.Component {
     }
 
     if (event.name === 'train') {
-      const nluStatusCpy = { ...this.state.nluStatus }
-      nluStatusCpy.unsynced = true
-      this.setState({ nluStatus: nluStatusCpy })
+      const nluStatus = {
+        ...this.state.nluStatus,
+        synced: false
+      }
+      this.setState({ nluStatus })
     }
 
     if (event.name === 'done' || event.working === false) {
@@ -167,10 +169,10 @@ class StatusBar extends React.Component {
             description={
               this.state.nluStatus.f1score ? `f1: ${this.state.nluStatus.f1score}` : 'currently no f1 to display'
             }
-            notclickable={this.state.nluStatus.computing.toString()}
+            disabled={this.state.nluStatus.computing}
             className={style.right}
           >
-            <NluPerformanceStatus unsynced={this.state.nluStatus.unsynced} updateNluStatus={this.updateNluStatus} />
+            <NluPerformanceStatus synced={this.state.nluStatus.synced} updateNluStatus={this.updateNluStatus} />
           </ActionItem>
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
