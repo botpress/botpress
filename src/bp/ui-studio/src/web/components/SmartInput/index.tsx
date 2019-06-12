@@ -53,7 +53,7 @@ class SmartInput extends Component<ConnectedProps, State> {
     if (props.value && props.value !== state.currentContentStateText && props.value !== state.beforeContentStateText) {
       return {
         contentStateText: props.value,
-        editorState: EditorState.createWithContent(ContentState.createFromText(props.value))
+        editorState: EditorState.createWithContent(ContentState.createFromText(props.value.toString()))
       }
     }
 
