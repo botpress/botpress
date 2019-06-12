@@ -10,6 +10,7 @@ import { TYPES } from '../../types'
 
 import { FileRevision, StorageDriver } from '.'
 
+// TODO: Create a janitor that clears deleted files
 @injectable()
 export default class DBStorageDriver implements StorageDriver {
   constructor(@inject(TYPES.Database) private database: Database) {}
@@ -117,12 +118,10 @@ export default class DBStorageDriver implements StorageDriver {
 
   async deleteDir(dirPath: string): Promise<void> {
     try {
-      // TODO: Consider soft-delete however you wont be able to create a bot with the
-      // same name as a bot that has been soft deleted until its completely gone from the DB.
       await this.database
         .knex('srv_ghost_files')
         .where('file_path', 'like', `${dirPath}%`)
-        .del()
+        .update({ deleted: true })
     } catch (e) {
       throw new VError(e, `[DB Storage] Error deleting folder "${dirPath}"`)
     }
