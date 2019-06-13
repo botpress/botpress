@@ -10,7 +10,7 @@ const GREEM_LOWER_BOUND = 0.85
 const RED_UPPER_BOUND = 0.5
 
 interface MatrixInfo {
-  matrix: any
+  matrix: any | undefined
   confusionComputing: boolean
 }
 
@@ -31,6 +31,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     synced: true,
     computing: false
   }
+  computationMutex = false // not in the state because it needs to be updated in sync
 
   componentDidMount() {
     // tslint:disable-next-line: no-floating-promises
@@ -53,43 +54,44 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
   getConfusionMatrix: (modelHash?: string) => Promise<MatrixInfo> = async (modelHash?) => {
     if (!modelHash) {
-      const modelHashResponse = await axios.get(`${window.BOT_API_PATH}/mod/nlu/currentModelHash`)
-      modelHash = modelHashResponse.data
+      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/currentModelHash`)
+      modelHash = data
     }
 
     try {
-      const confusionMatrixResponse = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}`)
-      return confusionMatrixResponse.data as MatrixInfo
+      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}`)
+      return data as MatrixInfo
     } catch {
-      return { matrix: undefined, confusionComputing: false }
+      return { confusionComputing: false } as MatrixInfo
     }
   }
 
-  extractF1FromMatrix(matrix): number {
+  extractF1FromMatrix(matrix): number | undefined {
     if (!matrix || !matrix.intents || !matrix.intents.all) {
-      return undefined
+      return
     }
     return matrix.intents.all.f1
   }
 
-  computationMutex = false // not in the state because it needs to be updated in sync
   calculateConfusion = async () => {
     const { confusionComputing } = await this.getConfusionMatrix()
     this.computationMutex = this.computationMutex || confusionComputing
 
-    if (!this.computationMutex) {
-      this.computationMutex = true
-      this.setState({ f1: undefined, computing: true })
-
-      const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`)
-
-      this.computationMutex = false
-      this.setState({ computing: false })
-      await this.fetchConfusion(response.data.modelHash)
+    if (this.computationMutex) {
+      return
     }
+
+    this.computationMutex = true
+    this.setState({ f1: undefined, computing: true })
+
+    const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`)
+
+    this.computationMutex = false
+    this.setState({ computing: false })
+    await this.fetchConfusion(response.data.modelHash)
   }
 
-  mapF1ToColor(f1: number) {
+  mapF1ToColor(f1: number | undefined) {
     if (!f1) {
       return Colors.WHITE
     }
@@ -105,8 +107,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   render() {
     return (
       <ActionItem
-        // tslint:disable-next-line: quotemark
-        title="NLU Performance Status"
+        title={'NLU Performance Status'}
         description={this.state.f1 ? `f1: ${this.state.f1}` : 'currently no f1 to display'}
         disabled={this.state.computing}
         className={style.right}
