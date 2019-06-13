@@ -8,13 +8,13 @@ import _ from 'lodash'
 
 import api from '../../api'
 
-const allFilterFields = ['lang', 'version', 'date']
+const allFilterFields = ['lang', 'nluVersion']
 
 class Confusion extends Component {
   state = {
     confusions: [],
     botIds: [],
-    select: ['', '', ''],
+    select: ['', ''],
     isComputing: false
   }
 
@@ -62,7 +62,7 @@ class Confusion extends Component {
       .map(uniqProp => uniqProp[0])
       .forEach(this.setSelect)
 
-  getValueForAttributes = attribute => obj => Object.values(_.pick(obj, attribute))
+  getValueForAttributes = attributes => obj => Object.values(_.pick(obj, attributes))
 
   getAttributesFromAllConfusions = attributes =>
     _.chain(this.state.confusions || [])
@@ -73,8 +73,7 @@ class Confusion extends Component {
       .value()
 
   langSelectValues = () => this.getAttributesFromAllConfusions(['lang'])[0] || []
-  versionSelectValues = () => this.getAttributesFromAllConfusions(['version'])[0] || []
-  dateSelectValues = () => this.getAttributesFromAllConfusions(['date'])[0] || []
+  nluSelectValues = () => this.getAttributesFromAllConfusions(['nluVersion'])[0] || []
 
   renderConfusions = () => (
     <div className="bp_table bot_views compact_view">
@@ -93,15 +92,7 @@ class Confusion extends Component {
       </select>
 
       <select key={'select-version'} value={this.state.select[1]} onChange={this.selectChangeFromFrontEnd(1)}>
-        {this.versionSelectValues().map(val => (
-          <option key={val} value={val}>
-            {val}
-          </option>
-        ))}
-      </select>
-
-      <select key={'select-date'} value={this.state.select[2]} onChange={this.selectChangeFromFrontEnd(2)}>
-        {this.dateSelectValues().map(val => (
+        {this.nluSelectValues().map(val => (
           <option key={val} value={val}>
             {val}
           </option>
@@ -118,8 +109,7 @@ class Confusion extends Component {
             .map((data, i) => (
               <div key={data.hash + i}>
                 <span>
-                  {data.lang} - {data.version} - {this.getDateFromTimestamp(data.date)} -
-                  {data.matrix.intents.all.f1.toFixed(2)}
+                  {data.lang} - {data.nluVersion} - {data.matrix.intents.all.f1.toFixed(2)}
                 </span>
 
                 <Details data={data.matrix.intents} />

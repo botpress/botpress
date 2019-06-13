@@ -73,38 +73,30 @@ export default class Storage {
     modelHash,
     lang,
     results,
-    buildVersion,
-    includeBuildVersion
+    nluVersion,
+    includeNLUVersion
   }: {
     modelHash: string
     lang: string
     results: Result
-    buildVersion: string
-    includeBuildVersion: boolean
+    nluVersion: string
+    includeNLUVersion: boolean
   }) {
-    const fileName = includeBuildVersion
-      ? `confusion__${modelHash}__${buildVersion}.json`
-      : `confusion__${modelHash}.json`
-
-    await this.botGhost.upsertFile(
-      `${this.modelsDir}/${lang}`,
-      `confusion__${modelHash}__${buildVersion}.json`,
-      JSON.stringify(results, undefined, 2)
-    )
+    const fileName = includeNLUVersion ? `confusion__${modelHash}__${nluVersion}.json` : `confusion__${modelHash}.json`
+    await this.botGhost.upsertFile(`${this.modelsDir}/${lang}`, `${fileName}`, JSON.stringify(results, undefined, 2))
   }
 
   getAllConfusionMatrix = async (): Promise<{ lang: string; matrix: Result }[]> =>
     await Promise.all(
       (await this.botGhost.directoryListing(this.modelsDir, '*.json')).map(async path => {
-        const pathParts = path.split('/')
-        const fileParts = pathParts[1].split('__')
+        const [lang, file] = path.split('/')
+        const [_, hash, rest] = file.split('__')
 
         return {
-          date: fileParts[3].split('.')[0],
-          version: fileParts[2],
-          hash: fileParts[1],
-          lang: pathParts[0],
-          matrix: await this.botGhost.readFileAsObject<Result>(`${this.modelsDir}/${pathParts[0]}`, pathParts[1])
+          nluVersion: rest.split('.')[0],
+          hash: hash,
+          lang,
+          matrix: await this.botGhost.readFileAsObject<Result>(`${this.modelsDir}/${lang}`, file)
         }
       })
     )

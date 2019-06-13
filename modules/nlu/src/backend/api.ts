@@ -65,22 +65,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  router.get('/confusion/:modelHash/:lang', async (req, res) => {
-    try {
-      const buildVersion = require(path.join(__dirname, '../../../../metadata.json'))
-
-      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(
-        req.params.modelHash,
-        buildVersion.build_version,
-        req.params.lang
-      )
-
-      res.send(matrix)
-    } catch (err) {
-      res.sendStatus(500)
-    }
-  })
-
   router.post('/confusion', async (req, res) => {
     try {
       const botEngine = nlus[req.params.botId] as ScopedEngine
