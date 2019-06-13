@@ -51,11 +51,9 @@ class Confusion extends Component {
   addConfusionToState = confusions => this.setState({ confusions })
 
   initLabels = () => {
-    this.setState({ select: Array(this.getAllPropertiesFromConfusions().length).fill('') })
-
-    this.getAllPropertiesFromConfusions()
-      .map(uniqProp => uniqProp[0])
-      .forEach(this.setSelect)
+    const props = this.getAllPropertiesFromConfusions()
+    this.setState({ select: Array(props.length).fill('') })
+    props.map(uniqProp => uniqProp[0]).forEach(this.setSelect)
   }
 
   componentDidMount = async () => {
@@ -68,7 +66,7 @@ class Confusion extends Component {
   getAllPropertiesFromConfusions = () =>
     _.chain(this.state.confusions || [])
       .map(conf => conf.confusions.map(this.pickGroupingAttributes))
-      .reduce((a, b) => a.concat(b), [])
+      .flatten()
       .unzip()
       .map(_.uniq)
       .value()
