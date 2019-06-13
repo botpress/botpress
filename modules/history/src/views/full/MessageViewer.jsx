@@ -48,23 +48,20 @@ class MessagesTaskBar extends React.Component {
       <div className={style.messageTaskBar}>
         {!this.props.useAsFilter && (
           <div className={style.messageTaskBarFilter}>
-            <div>
-              <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
-              <ReactTooltip id="flag" effect="solid">
-                <div>Mark selected messages as not good</div>
-              </ReactTooltip>
-            </div>
-            <div>
-              <IoMdFlag
-                className={style.messageTaskBarUnflagIcon}
-                data-tip
-                data-for="unflag"
-                onClick={this.props.unflag}
-              />
-              <ReactTooltip id="unflag" effect="solid">
-                <div>Unflag Selected messages</div>
-              </ReactTooltip>
-            </div>
+            <div>{this.props.selectedCount} selected messages</div>
+            <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
+            <ReactTooltip id="flag" effect="solid">
+              <div>Mark selected messages as not good</div>
+            </ReactTooltip>
+            <IoMdFlag
+              className={style.messageTaskBarUnflagIcon}
+              data-tip
+              data-for="unflag"
+              onClick={this.props.unflag}
+            />
+            <ReactTooltip id="unflag" effect="solid">
+              <div>Unflag Selected messages</div>
+            </ReactTooltip>
           </div>
         )}
         {this.props.useAsFilter && (
@@ -183,6 +180,7 @@ export class MessageViewer extends React.Component {
           <MessagesHeader conversation={this.state.currentConversation} messageGroups={this.props.messageGroups} />
           <MessagesTaskBar
             ref="taskBar"
+            selectedCount={this.state.selectedGroups.length}
             useAsFilter={!this.state.areMessagesSelected}
             flag={this.flagSelectedMessages}
             unflag={this.unflagSelectedMessages}
