@@ -316,11 +316,17 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post('/conversations/:userId/:conversationId/reference/:reference', async (req, res) => {
     try {
-      const { botId, userId, conversationId, reference } = req.params
+      const { botId, userId, reference } = req.params
+      let { conversationId } = req.params
+
       await bp.users.getOrCreateUser('web', userId)
 
       if (typeof reference !== 'string' || !reference.length || reference.indexOf('=') === -1) {
         throw new Error('Invalid reference')
+      }
+
+      if (!conversationId || conversationId == 'null') {
+        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
       const message = reference.slice(0, reference.lastIndexOf('='))
