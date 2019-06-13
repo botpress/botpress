@@ -1,6 +1,7 @@
 ---
-id: release-notes
+id: version-11.9.4-release-notes
 title: Release Notes
+original_id: release-notes
 ---
 
 ## Features

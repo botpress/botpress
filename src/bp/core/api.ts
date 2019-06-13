@@ -10,6 +10,7 @@ import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
+import { getMessageSignature } from './misc/security'
 import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
@@ -165,6 +166,12 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
   }
 }
 
+const security = (): typeof sdk.security => {
+  return {
+    getMessageSignature: getMessageSignature
+  }
+}
+
 const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
     forBot(botId: string): ScopedGhostService {
@@ -239,6 +246,7 @@ export class BotpressAPIProvider {
   cms: typeof sdk.cms
   mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
+  security: typeof sdk.security
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -273,6 +281,7 @@ export class BotpressAPIProvider {
     this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
+    this.security = security()
   }
 
   @Memoize()
@@ -301,6 +310,7 @@ export class BotpressAPIProvider {
       ghost: this.ghost,
       bots: this.bots,
       cms: this.cms,
+      security: this.security,
       experimental: this.experimental
     }
   }

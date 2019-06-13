@@ -61,7 +61,8 @@ export default class Storage {
     await this.botGhost.upsertFile(
       this.modelsDir,
       `confusion__${modelHash}.json`,
-      JSON.stringify(results, undefined, 2)
+      JSON.stringify(results, undefined, 2),
+      false
     )
   }
 
@@ -205,7 +206,7 @@ export default class Storage {
   private async _persistModel(model: Model) {
     // TODO Ghost to support streams?
     const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
-    return this.botGhost.upsertFile(this.modelsDir, modelName, model.model)
+    return this.botGhost.upsertFile(this.modelsDir, modelName, model.model, false)
   }
 
   private async _cleanupModels(): Promise<void> {
