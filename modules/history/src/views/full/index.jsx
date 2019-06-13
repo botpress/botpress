@@ -48,13 +48,16 @@ export default class FullView extends React.Component {
     return sessionId !== this.state.currentConversation || currentConversation.count !== receivedData.messageCount
   }
 
-  getMessagesOfConversation = async sessionId => {
-    const { data } = await this.props.bp.axios.get(`/mod/history/messages/${sessionId}`)
+  getMessagesOfConversation = async (sessionId, filters) => {
+    const ressourceUrl = `/mod/history/messages/${sessionId}`
+    const flag = filters && filters.flag
+    const { data } = await this.props.bp.axios.get(ressourceUrl, { params: { flag } })
 
     const conversationsInfoCopy = [...this.state.conversationsInfo]
     const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
 
-    if (!desiredConvInfo || !this.hasConversationChanged(sessionId, desiredConvInfo, data)) {
+    const updateConv = filters || (desiredConvInfo && this.hasConversationChanged(sessionId, desiredConvInfo, data))
+    if (!updateConv) {
       return
     }
 
@@ -62,31 +65,31 @@ export default class FullView extends React.Component {
 
     this.setState({
       currentConversation: sessionId,
-      messageGroups: data.messageGroupsArray,
+      messageGroups: data.messageGroups,
       conversationsInfo: conversationsInfoCopy,
-      currentConversationMessageGroupsOffset: data.messageGroupsArray.length,
+      currentConversationMessageGroupsOffset: data.messageGroups.length,
       currentConversationMessageGroupsCount: data.messageGroupCount
     })
   }
 
-  handleFromChange(day) {
+  handleFromChange = day => {
     const moment_day = moment(day).startOf('day')
     this.setState({ from: moment_day })
     this.getConversations(moment_day, this.state.to)
   }
 
-  handleToChange(day) {
+  handleToChange = day => {
     const moment_day = moment(day).startOf('day')
     this.setState({ to: moment_day })
     this.getConversations(this.state.from, moment_day)
   }
 
-  fetchMoreMessages = async () => {
-    const { data } = await this.props.bp.axios.get(
-      `/mod/history/more-messages/${this.state.currentConversation}?offset=${
-        this.state.currentConversationMessageGroupsOffset
-      }&clientCount=${this.state.currentConversationMessageGroupsCount}`
-    )
+  fetchMoreMessages = async filters => {
+    const ressourceUrl = `/mod/history/more-messages/${this.state.currentConversation}`
+    const offset = this.state.currentConversationMessageGroupsOffset
+    const clientCount = this.state.currentConversationMessageGroupsCount
+    const flag = filters && filters.flag
+    const { data } = await this.props.bp.axios.get(ressourceUrl, { params: { offset, clientCount, flag } })
 
     let messageGroupsCopy = [...this.state.messageGroups]
     messageGroupsCopy = messageGroupsCopy.concat(data)
@@ -95,6 +98,24 @@ export default class FullView extends React.Component {
       messageGroups: messageGroupsCopy,
       currentConversationMessageGroupsOffset: messageGroupsCopy.length
     })
+  }
+
+  flagMessages = async messages => {
+    const messageGroupCpy = [...this.state.messageGroups]
+    _.forEach(messageGroupCpy, mg => {
+      mg.isFlagged = mg.isFlagged || messages.includes(mg)
+    })
+    this.setState({ messageGroups: messageGroupCpy })
+    await this.props.bp.axios.post('/mod/history/flagged-messages', messages)
+  }
+
+  unflagMessages = async messages => {
+    const messageGroupCpy = [...this.state.messageGroups]
+    _.forEach(messageGroupCpy, mg => {
+      mg.isFlagged = mg.isFlagged && !messages.includes(mg)
+    })
+    this.setState({ messageGroups: messageGroupCpy })
+    await this.props.bp.axios.delete('/mod/history/flagged-messages', { data: messages })
   }
 
   render() {
@@ -107,18 +128,21 @@ export default class FullView extends React.Component {
       <div className={style['history-component']}>
         <ConversationPicker
           conversations={this.state.conversationsInfo}
-          onConversationChanged={sessionId => this.selectConversation(sessionId)}
-          handleFromChange={day => this.handleFromChange(day)}
-          handleToChange={day => this.handleToChange(day)}
+          onConversationChanged={this.selectConversation}
+          handleFromChange={this.handleFromChange}
+          handleToChange={this.handleToChange}
           defaultFrom={this.state.from.toDate()}
           defaultTo={this.state.to.toDate()}
           refresh={() => this.getConversations(this.state.from, this.state.to)}
         />
         <MessageViewer
           isThereStillMessagesLeft={isThereStillMessagesLeftToFetch}
-          fetchNewMessages={() => this.fetchMoreMessages()}
+          fetchNewMessages={this.fetchMoreMessages}
           conversation={this.state.currentConversation}
           messageGroups={this.state.messageGroups}
+          flagMessages={this.flagMessages}
+          unflagMessages={this.unflagMessages}
+          updateConversationWithFilters={f => this.getMessagesOfConversation(this.state.currentConversation, f)}
         />
       </div>
     )

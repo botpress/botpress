@@ -4,6 +4,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 import { FiSave } from 'react-icons/fi'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+
 import style from './style.scss'
 import { ACTION_KEY } from './utils/hotkey'
 import FileNavigator from './FileNavigator'

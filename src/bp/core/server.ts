@@ -24,6 +24,7 @@ import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
@@ -39,6 +40,7 @@ import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
+import { HintsService } from './services/hints'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
@@ -76,6 +78,7 @@ export default class HTTPServer {
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
+  private hintsRouter!: HintsRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -92,6 +95,7 @@ export default class HTTPServer {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
+    @inject(TYPES.HintsService) private hintsService: HintsService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
@@ -162,12 +166,15 @@ export default class HTTPServer {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
+    this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
 
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
       this.isBotpressReady = true
     })
+
+    this.botsRouter.router.use('/hints', this.hintsRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)

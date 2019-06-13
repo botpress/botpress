@@ -10,9 +10,10 @@ import notifications from './notifications'
 import bots from './bots'
 import bot from './bot'
 import language from './language'
+import hints from './hints'
 export * from './selectors'
 
-const bpApp = combineReducers({ bots, content, flows, ui, user, bot, modules, notifications, skills, language })
+const bpApp = combineReducers({ bots, content, flows, ui, user, bot, modules, notifications, skills, language, hints })
 export default bpApp
 
 export interface RootReducer {

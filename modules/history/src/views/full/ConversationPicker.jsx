@@ -53,7 +53,7 @@ export class ConversationPicker extends React.Component {
             defaultTo={this.props.defaultTo}
           />
         )}
-        <div>
+        <div className={style.conversationsList}>
           {this.props.conversations.map(conv => {
             const convId = conv.id
             const lastCharIndex = Math.min(convId.indexOf('::') + 6, convId.length)

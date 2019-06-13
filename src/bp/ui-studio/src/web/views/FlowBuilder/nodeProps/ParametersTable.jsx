@@ -5,6 +5,8 @@ import { Table } from 'react-bootstrap'
 import classnames from 'classnames'
 import _ from 'lodash'
 
+import SmartInput from '~/components/SmartInput'
+
 const style = require('./parameters.scss')
 
 export default class ParametersTable extends Component {
@@ -75,8 +77,8 @@ export default class ParametersTable extends Component {
         this.onChanged()
       }
 
-      const editValue = evt => {
-        if (evt.target.value !== '') {
+      const editValue = value => {
+        if (value !== '') {
           regenerateEmptyRowIfNeeded()
         } else {
           if (this.state.arguments[id].key === '') {
@@ -85,7 +87,7 @@ export default class ParametersTable extends Component {
         }
 
         this.setState({
-          arguments: { ...args, [id]: { value: evt.target.value, key: args[id].key } }
+          arguments: { ...args, [id]: { value: value, key: args[id].key } }
         })
 
         this.onChanged()
@@ -116,7 +118,7 @@ export default class ParametersTable extends Component {
         </OverlayTrigger>
       )
 
-      const keyClass = classnames({ [style.invalid]: !isKeyValid, [style.mandatory]: definition.required })
+      const keyClass = classnames(style.key, { [style.invalid]: !isKeyValid, [style.mandatory]: definition.required })
 
       return (
         <tr key={id}>
@@ -125,7 +127,7 @@ export default class ParametersTable extends Component {
             <input type="text" disabled={!!definition.required} value={paramName} onChange={editKey} />
           </td>
           <td>
-            <input type="text" placeholder={definition.default} value={paramValue} onChange={editValue} />
+            <SmartInput singleLine={true} value={paramValue} placeholder={definition.default} onChange={editValue} />
           </td>
         </tr>
       )

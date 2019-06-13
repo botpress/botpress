@@ -10,6 +10,7 @@ interface CssExports {
   'conversations-sessionId': string;
   'conversations-text': string;
   'conversations-titlebar': string;
+  'conversationsList': string;
   'daypicker-item': string;
   'fetch-more': string;
   'history-component': string;
@@ -18,6 +19,7 @@ interface CssExports {
   'message-group-confidence': string;
   'message-group-decision': string;
   'message-group-explanation': string;
+  'message-group-flag': string;
   'message-group-header': string;
   'message-header': string;
   'message-header-icon_item': string;
@@ -34,6 +36,10 @@ interface CssExports {
   'message-sender': string;
   'message-title': string;
   'message-viewer': string;
+  'messageTaskBar': string;
+  'messageTaskBarFilter': string;
+  'messageTaskBarFlagIcon': string;
+  'messageTaskBarUnflagIcon': string;
   'no-conv': string;
   'query-options': string;
   'query-options-daypick': string;
