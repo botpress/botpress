@@ -1,5 +1,5 @@
-import { Collapse, Icon } from '@blueprintjs/core'
-import { SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
+import { Collapse } from '@blueprintjs/core'
+import { SidePanel, SidePanelSection } from 'botpress/ui'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 import { FiSave } from 'react-icons/fi'
@@ -64,10 +64,10 @@ export default class PanelContent extends React.Component<Props> {
   }
 
   render() {
-    const actions: SectionAction[] = [
+    const actions = [
       {
-        icon: <Icon icon="add" />,
-        items: [{ label: 'Action', icon: <Icon icon="new-text-box" />, onClick: this.props.createFilePrompt }]
+        icon: 'add',
+        items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
       }
     ]
 
