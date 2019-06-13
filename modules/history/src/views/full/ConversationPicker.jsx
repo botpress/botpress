@@ -7,9 +7,13 @@ import { TiRefresh } from 'react-icons/ti'
 import { FaFilter } from 'react-icons/fa'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 
+import { Icon } from '@blueprintjs/core'
+
+import { SidePanelSection } from 'botpress/ui'
+
 function QueryOptions(props) {
   return (
-    <div className={style['query-options']}>
+    <div>
       <div className={style['query-options-daypick']}>
         <div className={style['query-options-from_to']}>from:</div>
         <div className={style['daypicker-item']}>
@@ -27,49 +31,50 @@ function QueryOptions(props) {
 }
 
 export class ConversationPicker extends React.Component {
-  state = {
-    displayQueryOptions: false
-  }
-
-  toggleFilters() {
-    this.setState({ displayQueryOptions: !this.state.displayQueryOptions })
+  renderFilterBar = () => {
+    return (
+      <div>
+        <div className={style['conversations-icons']}>
+          <TiRefresh className={style['conversations-refresh']} onClick={this.props.refresh} />
+        </div>{' '}
+      </div>
+    )
   }
 
   render() {
+    const actions = [
+      {
+        icon: <Icon icon="refresh" />,
+        onClick: this.props.refresh
+      }
+    ]
     return (
-      <div className={style['conversations']}>
-        <div className={style['conversations-titlebar']}>
-          <div>Conversations</div>
-          <div className={style['conversations-icons']}>
-            <FaFilter className={style['conversations-filter']} onClick={() => this.toggleFilters()} />
-            <TiRefresh className={style['conversations-refresh']} onClick={this.props.refresh} />
+      <div style={{ height: '100%' }}>
+        <SidePanelSection label={'Conversations'} actions={actions}>
+          <div className={style.conversationsContainer}>
+            <QueryOptions
+              handleFromChange={this.props.handleFromChange}
+              handleToChange={this.props.handleToChange}
+              defaultFrom={this.props.defaultFrom}
+              defaultTo={this.props.defaultTo}
+            />
+            {this.props.conversations.map(conv => {
+              const convId = conv.id
+              const lastCharIndex = Math.min(convId.indexOf('::') + 6, convId.length)
+              const convDisplayName = `${convId.substr(0, lastCharIndex)}...`
+              return (
+                <div
+                  key={conv.id}
+                  className={style['conversations-entry']}
+                  onClick={() => this.props.onConversationChanged(conv.id)}
+                >
+                  <span className={style['conversations-sessionId']}>{convDisplayName}</span>
+                  <span className={style['conversations-count']}>({conv.count})</span>
+                </div>
+              )
+            })}
           </div>
-        </div>
-        {this.state.displayQueryOptions && (
-          <QueryOptions
-            handleFromChange={this.props.handleFromChange}
-            handleToChange={this.props.handleToChange}
-            defaultFrom={this.props.defaultFrom}
-            defaultTo={this.props.defaultTo}
-          />
-        )}
-        <div className={style.conversationsList}>
-          {this.props.conversations.map(conv => {
-            const convId = conv.id
-            const lastCharIndex = Math.min(convId.indexOf('::') + 6, convId.length)
-            const convDisplayName = `${convId.substr(0, lastCharIndex)}...`
-            return (
-              <div
-                key={conv.id}
-                className={style['conversations-entry']}
-                onClick={() => this.props.onConversationChanged(conv.id)}
-              >
-                <span className={style['conversations-sessionId']}>{convDisplayName}</span>
-                <span className={style['conversations-count']}>({conv.count})</span>
-              </div>
-            )
-          })}
-        </div>
+        </SidePanelSection>
       </div>
     )
   }

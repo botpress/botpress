@@ -5,6 +5,8 @@ import moment from 'moment'
 import { MessageViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
+import { Container, SidePanel } from 'botpress/ui'
+
 const CONV_PARAM_NAME = 'conversation'
 
 export default class FullView extends React.Component {
@@ -125,16 +127,18 @@ export default class FullView extends React.Component {
     const isThereStillMessagesLeftToFetch =
       this.state.currentConversationMessageGroupsOffset !== this.state.currentConversationMessageGroupsCount
     return (
-      <div className={style['history-component']}>
-        <ConversationPicker
-          conversations={this.state.conversationsInfo}
-          onConversationChanged={this.selectConversation}
-          handleFromChange={this.handleFromChange}
-          handleToChange={this.handleToChange}
-          defaultFrom={this.state.from.toDate()}
-          defaultTo={this.state.to.toDate()}
-          refresh={() => this.getConversations(this.state.from, this.state.to)}
-        />
+      <Container>
+        <SidePanel>
+          <ConversationPicker
+            conversations={this.state.conversationsInfo}
+            onConversationChanged={this.selectConversation}
+            handleFromChange={this.handleFromChange}
+            handleToChange={this.handleToChange}
+            defaultFrom={this.state.from.toDate()}
+            defaultTo={this.state.to.toDate()}
+            refresh={() => this.getConversations(this.state.from, this.state.to)}
+          />
+        </SidePanel>
         <MessageViewer
           isThereStillMessagesLeft={isThereStillMessagesLeftToFetch}
           fetchNewMessages={this.fetchMoreMessages}
@@ -144,7 +148,7 @@ export default class FullView extends React.Component {
           unflagMessages={this.unflagMessages}
           updateConversationWithFilters={f => this.getMessagesOfConversation(this.state.currentConversation, f)}
         />
-      </div>
+      </Container>
     )
   }
 }

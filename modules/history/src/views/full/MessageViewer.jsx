@@ -10,17 +10,17 @@ import { IoMdFlag } from 'react-icons/io'
 
 import ReactTooltip from 'react-tooltip'
 
+import { SplashScreen } from 'botpress/ui'
+import { Icon } from '@blueprintjs/core'
+
 function NoConversationSelected() {
   return (
-    <div className={style['message-list']}>
-      <div className={style['no-conv']}>
-        <h3>No conversations selected</h3>
-        <p>
-          Please select a conversation on the left pane to see a message history. If there are no conversations
-          available, try talking to your bot and refresh conversations by clicking on the round arrow
-        </p>
-      </div>
-    </div>
+    <SplashScreen
+      icon={<Icon className={style.noConvIcon} iconSize={80} icon="history" />}
+      title={'Message history'}
+      description="There is currently no conversation selected. Please select a conversation on the left pane to see a message history. If there are no conversations
+    available, try talking to your bot and refresh conversations by clicking on the round arrow"
+    />
   )
 }
 
