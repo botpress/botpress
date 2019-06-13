@@ -14,6 +14,15 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
+  router.get('/config', async (req, res) => {
+    try {
+      res.send({ isGlobalAllowed: await editorByBot[req.params.botId].isGlobalAllowed() })
+    } catch (err) {
+      bp.logger.attachError(err).error('Error fetching config')
+      res.sendStatus(500)
+    }
+  })
+
   router.post('/save', async (req, res) => {
     try {
       await editorByBot[req.params.botId].saveFile(req.body)

@@ -1,19 +1,23 @@
-import React, { Component } from 'react'
-import classnames from 'classnames'
+import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import moment from 'moment'
+import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { Button, Glyphicon, FormGroup, FormControl } from 'react-bootstrap'
-import style from './style.scss'
-import withLanguage from '../../../components/Util/withLanguage'
+import { Toolbar } from '~/components/Shared/Interface'
 
-class ListView extends Component {
+import withLanguage from '~/components/Util/withLanguage'
+
+class ListView extends Component<Props, State> {
+  private debouncedHandleSearch
+
   state = {
+    searchTerm: '',
     checkedIds: [],
     allChecked: false,
     pageSize: 10,
     pages: 0,
+    page: 0,
     filters: [],
     sortOrder: []
   }
@@ -37,9 +41,7 @@ class ListView extends Component {
   }
 
   handleAllCheckedChanged = () => {
-    this.setState({
-      allChecked: !this.state.allChecked
-    })
+    this.setState({ allChecked: !this.state.allChecked })
 
     setImmediate(() => {
       const ids = []
@@ -50,86 +52,29 @@ class ListView extends Component {
         })
       }
 
-      this.setState({
-        checkedIds: ids
-      })
+      this.setState({ checkedIds: ids })
     })
   }
 
   handleDeleteSelected = () => {
     if (window.confirm(`Do you really want to delete ${this.state.checkedIds.length} items?`)) {
       this.props.handleDeleteSelected(this.state.checkedIds)
-
-      this.setState({
-        checkedIds: [],
-        allChecked: false
-      })
+      this.setState({ checkedIds: [], allChecked: false })
     }
   }
 
   handleCloneSelected = () => {
     this.props.handleClone(this.state.checkedIds)
-
-    this.setState({
-      checkedIds: [],
-      allChecked: false
-    })
+    this.setState({ checkedIds: [], allChecked: false })
   }
 
   handleSearchChanged = event => {
-    this.setState({
-      searchTerm: event.target.value
-    })
-
+    this.setState({ searchTerm: event.target.value })
     this.debouncedHandleSearch && this.debouncedHandleSearch()
   }
 
-  renderActionButtons() {
-    return (
-      <span>
-        <Button onClick={this.props.handleRefresh} title="Refresh">
-          <i className="material-icons">refresh</i>
-        </Button>
-        {!this.props.readOnly && (
-          <Button
-            onClick={this.handleDeleteSelected}
-            disabled={_.isEmpty(this.state.checkedIds)}
-            title="Delete selected"
-          >
-            <i className="material-icons">delete</i>
-          </Button>
-        )}
-        {!this.props.readOnly && (
-          <Button onClick={this.handleCloneSelected} disabled={_.isEmpty(this.state.checkedIds)} title="Clone selected">
-            <i className="material-icons">filter_none</i>
-          </Button>
-        )}
-      </span>
-    )
-  }
-
-  renderHeader() {
-    const leftCls = classnames('pull-left', style.left)
-    return (
-      <div className={style.header}>
-        <div className={leftCls}>
-          {this.renderActionButtons()}
-          {this.renderSearchBar()}
-        </div>
-      </div>
-    )
-  }
-
-  renderSearchBar() {
-    return (
-      <FormGroup className={style.search}>
-        <FormControl type="text" placeholder="Search" value={this.state.search} onChange={this.handleSearchChanged} />
-      </FormGroup>
-    )
-  }
-
   launchSearch = () => {
-    const searchQuery = {
+    const searchQuery: SearchQuery = {
       from: this.state.page * this.state.pageSize,
       count: this.state.pageSize,
       sortOrder: this.state.sortOrder,
@@ -190,17 +135,12 @@ class ListView extends Component {
   getTableColumns() {
     return [
       {
-        Header: x => {
+        Header: () => {
           return (
             <input
               type="checkbox"
               className="checkbox"
-              checked={this.state.allChecked === 1}
-              ref={input => {
-                if (input) {
-                  input.indeterminate = this.state.allChecked === 2
-                }
-              }}
+              checked={this.state.allChecked}
               onChange={() => this.handleAllCheckedChanged()}
             />
           )
@@ -256,11 +196,7 @@ class ListView extends Component {
         width: 150
       },
       {
-        Cell: !this.props.readOnly && (
-          <Button bsSize="xs">
-            <Glyphicon glyph="pencil" />
-          </Button>
-        ),
+        Cell: !this.props.readOnly && <Button small={true} icon="edit" />,
         filterable: false,
         width: 45
       }
@@ -292,14 +228,75 @@ class ListView extends Component {
   }
 
   render() {
-    const classNames = classnames('bp-list', style.list)
-
     return (
-      <div className={classNames}>
-        {this.renderHeader()}
-        {this.renderTable()}
+      <div>
+        <Toolbar>
+          <Tooltip content="Refresh" position={Position.BOTTOM}>
+            <AnchorButton icon="refresh" onClick={this.props.handleRefresh} />
+          </Tooltip>
+
+          <Divider />
+          {!this.props.readOnly && (
+            <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
+              <AnchorButton
+                icon="trash"
+                disabled={_.isEmpty(this.state.checkedIds)}
+                onClick={this.handleDeleteSelected}
+              />
+            </Tooltip>
+          )}
+
+          {!this.props.readOnly && (
+            <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
+              <AnchorButton
+                icon="duplicate"
+                disabled={_.isEmpty(this.state.checkedIds)}
+                onClick={this.handleCloneSelected}
+              />
+            </Tooltip>
+          )}
+          <Divider />
+          <InputGroup
+            style={{ marginTop: 3, width: 250 }}
+            placeholder="Search content"
+            small={true}
+            value={this.state.searchTerm}
+            onChange={this.handleSearchChanged}
+          />
+        </Toolbar>
+        <div style={{ padding: 5 }}>{this.renderTable()}</div>
       </div>
     )
   }
 }
 export default withLanguage(ListView)
+
+interface Props {
+  count: number
+  contentItems: any
+  readOnly: boolean
+  contentLang: string
+  handleSearch: (query: SearchQuery) => void
+  handleDeleteSelected: (ids: string[]) => void
+  handleClone: (ids: string[]) => void
+  handleRefresh: () => void
+  handleEdit: (id: string, contentType: any) => void
+}
+
+interface State {
+  page: number
+  pageSize: number
+  allChecked: boolean
+  checkedIds: string[]
+  searchTerm: string
+  sortOrder: any
+  filters: any
+}
+
+interface SearchQuery {
+  from: number
+  count: number
+  sortOrder: any
+  filters: any
+  searchTerm: string
+}

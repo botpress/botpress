@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import ms from 'ms'
+import _ from 'lodash'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
-import _ from 'lodash'
 
 const SYNC_INTERVAL_MS = ms('15s')
 
@@ -54,12 +54,25 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   }
 
+  router.get('/currentModelHash', async (req, res) => {
+    const engine = nlus[req.params.botId] as ScopedEngine
+    if (engine.modelHash) {
+      return res.send(engine.modelHash)
+    }
+    const intents = await engine.storage.getIntents()
+    const modelHash = await engine.computeModelHash(intents)
+    res.send(modelHash)
+  })
+
   router.get('/confusion/:modelHash', async (req, res) => {
+    const engine = nlus[req.params.botId] as ConfusionEngine
+    const confusionComputing = engine.confusionComputing
     try {
-      const matrix = await (nlus[req.params.botId] as ScopedEngine).storage.getConfusionMatrix(req.params.modelHash)
-      res.send(matrix)
+      const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash)
+      res.send({ matrix, confusionComputing })
     } catch (err) {
-      res.sendStatus(401)
+      bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}. It may not exist`)
+      res.send({ confusionComputing })
     }
   })
 

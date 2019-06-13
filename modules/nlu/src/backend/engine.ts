@@ -108,7 +108,7 @@ export default class ScopedEngine implements Engine {
     try {
       this._isSyncing = true
       const intents = await this.getIntents()
-      const modelHash = this._getModelHash(intents)
+      const modelHash = this.computeModelHash(intents)
       let loaded = false
 
       if (!forceRetrain && (await this.storage.modelExists(modelHash))) {
@@ -151,7 +151,7 @@ export default class ScopedEngine implements Engine {
 
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
-    const modelHash = this._getModelHash(intents)
+    const modelHash = this.computeModelHash(intents)
 
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
@@ -277,7 +277,11 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  private _getModelHash(intents: sdk.NLU.IntentDefinition[]) {
+  public get modelHash() {
+    return this._currentModelHash
+  }
+
+  public computeModelHash(intents: sdk.NLU.IntentDefinition[]) {
     return crypto
       .createHash('md5')
       .update(JSON.stringify(intents))

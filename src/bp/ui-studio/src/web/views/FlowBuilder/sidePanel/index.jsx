@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import reject from 'lodash/reject'
 
-import FlowsList from './flows'
+import FlowsList from './FlowsList'
 import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 
 export default class PanelContent extends Component {

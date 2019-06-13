@@ -6,7 +6,7 @@ export interface TypingDefinitions {
   [file: string]: string
 }
 
-export type FileType = 'action'
+export type FileType = 'action' | 'hook'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */
@@ -18,4 +18,5 @@ export interface EditableFile {
   location: string
   /** If not set, the file is considered global */
   botId?: string
+  hookType?: string
 }
