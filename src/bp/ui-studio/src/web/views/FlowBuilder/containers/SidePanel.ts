@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom'
 import { deleteFlow, duplicateFlow, renameFlow } from '~/actions'
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
-import SidePanel from '../SidePanel'
+import SidePanel from '../sidePanel'
 
 const mapStateToProps = (state, ownProps) => ({
   currentFlow: getCurrentFlow(state),
