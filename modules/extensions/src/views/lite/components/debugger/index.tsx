@@ -39,7 +39,7 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.addHeaderButton({
       id: 'toggleDev',
       label: 'Show Debugger',
-      icon: <MdBugReport />,
+      icon: <MdBugReport size={18} />,
       onClick: this.toggleDebugger
     })
 
