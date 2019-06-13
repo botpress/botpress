@@ -16,8 +16,6 @@ export type APIOptions = {
   authToken?: string
   limitWindow: string
   limit: number
-  languageService: LanguageService
-  downloadManager: DownloadManager
   readOnly: boolean
 }
 
@@ -131,23 +129,23 @@ function createExpressApp(options: APIOptions): Application {
   return app
 }
 
-export default async function(options: APIOptions) {
+export default async function(options: APIOptions, languageService: LanguageService, downloadManager: DownloadManager) {
   const app = createExpressApp(options)
 
-  // TODO we might want to set a special cors policy here ?
+  // TODO we might want to set a special cors
   app.use(cors())
 
-  const waitForServiceMw = serviceLoadingMiddleware(options.languageService)
-  const validateLanguageMw = assertValidLanguage(options.languageService)
+  const waitForServiceMw = serviceLoadingMiddleware(languageService)
+  const validateLanguageMw = assertValidLanguage(languageService)
 
-  app.get('/info', (req, res, next) => {
+  app.get('/info', (req, res) => {
     res.send({
       version: '1',
-      ready: options.languageService.isReady,
-      dimentions: options.languageService.dim,
-      domain: options.languageService.domain,
+      ready: languageService.isReady,
+      dimentions: languageService.dim,
+      domain: languageService.domain,
       readOnly: options.readOnly,
-      languages: options.languageService.getModels().filter(x => x.loaded)
+      languages: languageService.getModels().filter(x => x.loaded) // TODO remove this from info and make clients use /languages route
     })
   })
 
@@ -160,7 +158,7 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
       }
 
-      const tokens = await options.languageService.tokenize(input, language)
+      const tokens = await languageService.tokenize(input, language)
 
       res.json({ input, language, tokens })
     } catch (err) {
@@ -177,7 +175,7 @@ export default async function(options: APIOptions) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
       }
 
-      const result = await options.languageService.vectorize(tokens, lang)
+      const result = await languageService.vectorize(tokens, lang)
       res.json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
@@ -186,7 +184,7 @@ export default async function(options: APIOptions) {
 
   const router = express.Router({ mergeParams: true })
   router.get('/', (req, res) => {
-    const downloading = options.downloadManager.inProgress.map(x => ({
+    const downloading = downloadManager.inProgress.map(x => ({
       lang: x.lang,
       progress: {
         status: x.getStatus(),
@@ -196,8 +194,8 @@ export default async function(options: APIOptions) {
     }))
 
     res.send({
-      available: options.downloadManager.downloadableLanguages,
-      installed: options.languageService.getModels(),
+      available: downloadManager.downloadableLanguages,
+      installed: languageService.getModels(),
       downloading
     })
   })
@@ -205,7 +203,7 @@ export default async function(options: APIOptions) {
   router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
     try {
-      const downloadId = await options.downloadManager.download(lang)
+      const downloadId = await downloadManager.download(lang)
       res.json({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
@@ -214,23 +212,23 @@ export default async function(options: APIOptions) {
 
   router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
-    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
+    if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
 
-    await options.languageService.remove(lang)
+    await languageService.remove(lang)
     res.end()
   })
 
   router.post('/:lang/load', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
     const { lang } = req.params
 
-    if (!lang || !options.languageService.getModels().find(x => x.lang === lang)) {
+    if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
     }
 
     try {
-      await options.languageService.loadModel(lang)
+      await languageService.loadModel(lang)
     } catch (err) {
       res.status(500).send({ success: false, message: err.message })
     }
@@ -238,7 +236,7 @@ export default async function(options: APIOptions) {
 
   router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res) => {
     const { id } = req.params
-    options.downloadManager.cancelAndRemove(id)
+    downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
   })
 

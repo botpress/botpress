@@ -47,7 +47,7 @@ export default class DownloadManager {
     public readonly metaUrl: string
   ) {}
 
-  async init() {
+  async initialize() {
     fse.ensureDirSync(this.destDir)
     if (this._refreshTimer) {
       clearInterval(this._refreshTimer)
