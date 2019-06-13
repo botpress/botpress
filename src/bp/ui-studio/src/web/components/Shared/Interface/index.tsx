@@ -70,7 +70,9 @@ export const SidePanelSection: FC<SidePanelSectionProps> = props => {
           {props.actions && props.actions.map((action, idx) => SectionAction(action, idx))}
         </ButtonGroup>
       </div>
-      <Collapse isOpen={isOpen}>{props.children}</Collapse>
+      <Collapse isOpen={isOpen} keepChildrenMounted={true}>
+        {props.children}
+      </Collapse>
     </React.Fragment>
   )
 }
@@ -179,12 +181,14 @@ const SectionAction = (action: SectionAction, idx: number) => {
   }
 
   return (
-    <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-      <Button
-        icon={action.icon}
-        text={action.label}
-        onClick={e => !action.disabled && action.onClick && action.onClick(e)}
-      />
-    </Tooltip>
+    <Popover disabled={!action.popover} content={action.popover}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+        <Button
+          icon={action.icon}
+          text={action.label}
+          onClick={e => !action.disabled && action.onClick && action.onClick(e)}
+        />
+      </Tooltip>
+    </Popover>
   )
 }
