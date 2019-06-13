@@ -31,7 +31,7 @@ class MessageList extends Component {
       } catch (err) {
         // Discard the error
       }
-    }, 0)
+    }, 50)
   }
 
   handleKeyDown = e => {
