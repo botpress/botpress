@@ -15,7 +15,7 @@ import { UserReducer } from '~reducers/user'
 
 import style from './style.scss'
 import List from './List'
-import Sidebar from './Sidebar'
+import Sidebar from './SideBar'
 
 class ContentView extends Component<Props, State> {
   private canRead = false
