@@ -21,6 +21,7 @@ import style from './style.scss'
 import {
   ContainerProps,
   ItemListProps,
+  InfoTooltipProps,
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
