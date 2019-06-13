@@ -4,23 +4,16 @@
   margin: 0 auto;
 }
 
-.noConvIcon {
-  margin-bottom: 3em;
+.datepicker > span {
+  width: 100%;
 }
 
-.query-options {
-  color: #c1c0c6;
-  padding: 2%;
+.datepicker > span > div > div {
+  width: 50%;
+}
 
-  &-daypick {
-    display: flex;
-    padding-bottom: 3%;
-  }
-
-  &-from_to {
-    margin: 0;
-    width: 4em;
-  }
+.noConvIcon {
+  margin-bottom: 3em;
 }
 
 .daypicker-item {
@@ -77,6 +70,8 @@
     cursor: pointer;
     padding-left: 1rem;
     padding-top: 1rem;
+    overflow-x: hidden;
+    display: flex;
 
     color: #c1c0c6;
 
@@ -95,7 +90,7 @@
 
   &-count {
     font-size: 1em;
-    padding: 1rem;
+    padding-left: 1rem;
   }
 }
 

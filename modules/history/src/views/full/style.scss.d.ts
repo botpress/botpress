@@ -12,6 +12,7 @@ interface CssExports {
   'conversations-titlebar': string;
   'conversationsContainer': string;
   'conversationsList': string;
+  'datepicker': string;
   'daypicker-item': string;
   'fetch-more': string;
   'message-elements': string;
@@ -41,9 +42,6 @@ interface CssExports {
   'messageTaskBarFlagIcon': string;
   'messageTaskBarUnflagIcon': string;
   'noConvIcon': string;
-  'query-options': string;
-  'query-options-daypick': string;
-  'query-options-from_to': string;
   'quit-inspector': string;
 }
 declare var cssExports: CssExports;
