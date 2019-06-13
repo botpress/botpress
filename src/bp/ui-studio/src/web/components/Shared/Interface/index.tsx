@@ -157,12 +157,6 @@ export const SplashScreen = (props: SplashScreenProps) => {
   )
 }
 
-      <MdHelpOutline className={style.infoTooltip} />
-      <MdInfoOutline className={style.infoTooltip} />
-    )}
-  </Tooltip>
-)
-
 const SectionAction = (action: SectionAction, idx: number) => {
   if (action.items) {
     return (
@@ -184,3 +178,13 @@ const SectionAction = (action: SectionAction, idx: number) => {
     </Tooltip>
   )
 }
+
+export const InfoTooltip = (props: InfoTooltipProps) => (
+  <Tooltip content={props.text} position={props.position || Position.RIGHT}>
+    {props.icon === 'help' ? (
+      <MdHelpOutline className={style.infoTooltip} />
+    ) : (
+      <MdInfoOutline className={style.infoTooltip} />
+    )}
+  </Tooltip>
+)
