@@ -73,13 +73,19 @@ export default class Storage {
     modelHash,
     lang,
     results,
-    buildVersion
+    buildVersion,
+    includeBuildVersion
   }: {
     modelHash: string
     lang: string
     results: Result
     buildVersion: string
+    includeBuildVersion: boolean
   }) {
+    const fileName = includeBuildVersion
+      ? `confusion__${modelHash}__${buildVersion}.json`
+      : `confusion__${modelHash}.json`
+
     await this.botGhost.upsertFile(
       `${this.modelsDir}/${lang}`,
       `confusion__${modelHash}__${buildVersion}.json`,

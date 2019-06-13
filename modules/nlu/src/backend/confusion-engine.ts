@@ -49,9 +49,17 @@ export default class ConfusionEngine extends ScopedEngine {
   }
 
   private async _processResults(results: Result, lang: string) {
-    const buildVersion = require(path.join(__dirname, '../../../../metadata.json')).build_version
+    const includeBuildVersion = process.IS_PRODUCTION || !!process.pkg
+    const buildVersion = require(path.join(__dirname, '../package.json')).version
+
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
-    await this.storage.saveConfusionMatrix({ modelHash: this.originalModelHash, lang, results, buildVersion })
+    await this.storage.saveConfusionMatrix({
+      modelHash: this.originalModelHash,
+      lang,
+      results,
+      buildVersion,
+      includeBuildVersion
+    })
 
     const intents = results['intents']
     this.logger.debug('=== Confusion Matrix ===')

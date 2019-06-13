@@ -5,7 +5,7 @@ import { getColorByPercent } from './gradient'
 
 import './styles.css'
 
-function Cell(props) {
+const Cell = props => {
   let { scoreInPercent, scoreInAbsolute } = props
   let cls = 'none'
   let style = {}
@@ -28,7 +28,7 @@ function Cell(props) {
   )
 }
 
-function MatrixComponent(props) {
+const MatrixComponent = props => {
   let matrix = props.matrix
   matrix = { ...matrix }
   delete matrix.all
@@ -143,7 +143,7 @@ function MatrixComponent(props) {
   )
 }
 
-function Details(data) {
+const Details = data => {
   return (
     <div>
       <div className="App">

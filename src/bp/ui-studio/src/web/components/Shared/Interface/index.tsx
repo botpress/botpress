@@ -20,8 +20,8 @@ import SplitPane from 'react-split-pane'
 import style from './style.scss'
 import {
   ContainerProps,
-  ItemListProps,
   InfoTooltipProps,
+  ItemListProps,
   KeyboardShortcutsProps,
   SearchBarProps,
   SectionAction,
