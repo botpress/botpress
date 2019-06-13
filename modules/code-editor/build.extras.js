@@ -1,3 +1,3 @@
 module.exports = {
-  copyFiles: ['src/botpress.d.ts']
+  copyFiles: ['src/botpress.d.ts', 'src/typings/node.d.ts']
 }
