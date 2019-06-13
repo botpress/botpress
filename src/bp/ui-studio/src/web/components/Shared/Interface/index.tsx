@@ -47,7 +47,7 @@ export const Container: FC<ContainerProps> = props => {
   return (
     <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
-        <SplitPane split="vertical" defaultSize={width} size={sidePanelVisible ? width : 0}>
+        <SplitPane split={'vertical'} defaultSize={width} size={sidePanelVisible ? width : 0}>
           {childs[0]}
           <div className={style.fullsize}>{childs.slice(1)}</div>
         </SplitPane>
@@ -88,7 +88,7 @@ export const SearchBar: FC<SearchBarProps> = props => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup placeholder={props.placeholder || 'Search'} value={text} onChange={handleTextChanged} />
-        <Button icon="search" className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
+        <Button icon={'search'} className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
       </ControlGroup>
     </div>
   )
@@ -99,7 +99,10 @@ export const ItemList: FC<ItemListProps> = props => {
     <div className={style.itemList}>
       {props.items &&
         props.items.map(item => (
-          <div key={item.label} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+          <div
+            key={item.key ? item.key : item.label}
+            className={classnames(style.item, { [style.itemListSelected]: item.selected })}
+          >
             <div
               className={style.label}
               onClick={() => props.onElementClicked && props.onElementClicked(item)}

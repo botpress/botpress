@@ -10,17 +10,17 @@ import { IoMdFlag } from 'react-icons/io'
 
 import ReactTooltip from 'react-tooltip'
 
+import { SplashScreen } from 'botpress/ui'
+import { Icon } from '@blueprintjs/core'
+
 function NoConversationSelected() {
   return (
-    <div className={style['message-list']}>
-      <div className={style['no-conv']}>
-        <h3>No conversations selected</h3>
-        <p>
-          Please select a conversation on the left pane to see a message history. If there are no conversations
-          available, try talking to your bot and refresh conversations by clicking on the round arrow
-        </p>
-      </div>
-    </div>
+    <SplashScreen
+      icon={<Icon className={style.noConvIcon} iconSize={80} icon="history" />}
+      title={'Message history'}
+      description="There is currently no conversation selected. Please select a conversation on the left pane to see a message history. If there are no conversations
+    available, try talking to your bot and refresh conversations by clicking on the round arrow"
+    />
   )
 }
 
@@ -48,23 +48,20 @@ class MessagesTaskBar extends React.Component {
       <div className={style.messageTaskBar}>
         {!this.props.useAsFilter && (
           <div className={style.messageTaskBarFilter}>
-            <div>
-              <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
-              <ReactTooltip id="flag" effect="solid">
-                <div>Mark selected messages as not good</div>
-              </ReactTooltip>
-            </div>
-            <div>
-              <IoMdFlag
-                className={style.messageTaskBarUnflagIcon}
-                data-tip
-                data-for="unflag"
-                onClick={this.props.unflag}
-              />
-              <ReactTooltip id="unflag" effect="solid">
-                <div>Unflag Selected messages</div>
-              </ReactTooltip>
-            </div>
+            <div>{this.props.selectedCount} selected messages</div>
+            <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
+            <ReactTooltip id="flag" effect="solid">
+              <div>Mark selected messages as not good</div>
+            </ReactTooltip>
+            <IoMdFlag
+              className={style.messageTaskBarUnflagIcon}
+              data-tip
+              data-for="unflag"
+              onClick={this.props.unflag}
+            />
+            <ReactTooltip id="unflag" effect="solid">
+              <div>Unflag Selected messages</div>
+            </ReactTooltip>
           </div>
         )}
         {this.props.useAsFilter && (
@@ -183,6 +180,7 @@ export class MessageViewer extends React.Component {
           <MessagesHeader conversation={this.state.currentConversation} messageGroups={this.props.messageGroups} />
           <MessagesTaskBar
             ref="taskBar"
+            selectedCount={this.state.selectedGroups.length}
             useAsFilter={!this.state.areMessagesSelected}
             flag={this.flagSelectedMessages}
             unflag={this.unflagSelectedMessages}

@@ -5,16 +5,16 @@ import moment from 'moment'
 import { MessageViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
+import { Container, SidePanel } from 'botpress/ui'
+
 const CONV_PARAM_NAME = 'conversation'
 
 export default class FullView extends React.Component {
   state = {
     conversationsInfo: [],
     messageGroups: [],
-    to: moment().startOf('day'),
-    from: moment()
-      .startOf('day')
-      .subtract(30, 'days'),
+    to: undefined,
+    from: undefined,
     currentConversation: null,
     currentConversationMessageGroupsOffset: 0,
     currentConversationMessageGroupsCount: 0
@@ -29,10 +29,21 @@ export default class FullView extends React.Component {
     }
   }
 
+  handleDateChange = dateRange => {
+    const [from, to] = dateRange.map(date => (date ? moment(date) : undefined))
+    this.setState({ from, to })
+    this.getConversations(from, to)
+  }
+
   getConversations = async (from, to) => {
     const ceiledToDate = moment(to).add(1, 'days')
-    const apiURL = `/mod/history/conversations?from=${from.unix()}&to=${ceiledToDate.unix()}`
-    const { data } = await this.props.bp.axios.get(apiURL)
+    const apiURL = `/mod/history/conversations`
+
+    const bothAreDefined = !!from && !!to
+    const params = bothAreDefined ? { from: from.unix(), to: ceiledToDate.unix() } : undefined
+
+    const { data } = await this.props.bp.axios.get(apiURL, { params })
+
     this.setState({ conversationsInfo: data })
   }
 
@@ -70,18 +81,6 @@ export default class FullView extends React.Component {
       currentConversationMessageGroupsOffset: data.messageGroups.length,
       currentConversationMessageGroupsCount: data.messageGroupCount
     })
-  }
-
-  handleFromChange = day => {
-    const moment_day = moment(day).startOf('day')
-    this.setState({ from: moment_day })
-    this.getConversations(moment_day, this.state.to)
-  }
-
-  handleToChange = day => {
-    const moment_day = moment(day).startOf('day')
-    this.setState({ to: moment_day })
-    this.getConversations(this.state.from, moment_day)
   }
 
   fetchMoreMessages = async filters => {
@@ -125,16 +124,17 @@ export default class FullView extends React.Component {
     const isThereStillMessagesLeftToFetch =
       this.state.currentConversationMessageGroupsOffset !== this.state.currentConversationMessageGroupsCount
     return (
-      <div className={style['history-component']}>
-        <ConversationPicker
-          conversations={this.state.conversationsInfo}
-          onConversationChanged={this.selectConversation}
-          handleFromChange={this.handleFromChange}
-          handleToChange={this.handleToChange}
-          defaultFrom={this.state.from.toDate()}
-          defaultTo={this.state.to.toDate()}
-          refresh={() => this.getConversations(this.state.from, this.state.to)}
-        />
+      <Container>
+        <SidePanel>
+          <ConversationPicker
+            conversations={this.state.conversationsInfo}
+            onConversationChanged={this.selectConversation}
+            handleDateChange={this.handleDateChange}
+            from={this.state.from && this.state.from.toDate()}
+            to={this.state.to && this.state.to.toDate()}
+            refresh={() => this.getConversations(this.state.from, this.state.to)}
+          />
+        </SidePanel>
         <MessageViewer
           isThereStillMessagesLeft={isThereStillMessagesLeftToFetch}
           fetchNewMessages={this.fetchMoreMessages}
@@ -144,7 +144,7 @@ export default class FullView extends React.Component {
           unflagMessages={this.unflagMessages}
           updateConversationWithFilters={f => this.getMessagesOfConversation(this.state.currentConversation, f)}
         />
-      </div>
+      </Container>
     )
   }
 }
