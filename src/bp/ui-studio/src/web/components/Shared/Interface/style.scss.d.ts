@@ -17,6 +17,7 @@ interface CssExports {
   'sidePanel_hidden': string;
   'sidePanel_section': string;
   'splashScreen': string;
+  'toolbar': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

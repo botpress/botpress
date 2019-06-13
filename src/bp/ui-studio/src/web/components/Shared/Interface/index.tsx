@@ -192,3 +192,11 @@ const SectionAction = (action: SectionAction, idx: number) => {
     </Popover>
   )
 }
+
+export const Toolbar = props => {
+  return (
+    <div className={style.toolbar}>
+      <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
+    </div>
+  )
+}
