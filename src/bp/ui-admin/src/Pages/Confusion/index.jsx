@@ -79,8 +79,10 @@ class Confusion extends Component {
   renderConfusions = () => (
     <div className="bp_table bot_views compact_view">
       <button onClick={this.triggerCompute}>
-        {this.state.isComputing ? 'Computing...' : 'Compute matrices for current build'}
+        {this.state.isComputing ? 'Computing...' : 'Compute matrices for version:'}
       </button>
+
+      <input type="text" value={this.state.version} onChange={this.versionChange} />
 
       <br />
 
@@ -100,8 +102,6 @@ class Confusion extends Component {
         ))}
       </select>
 
-      <input type="text" value={this.state.version} onChange={this.versionChange} />
-
       {(this.state.confusions || []).map(confusion => (
         <div key={`conf-${confusion.botId}`}>
           <h3>{confusion.botId}</h3>
@@ -112,7 +112,7 @@ class Confusion extends Component {
             .map((data, i) => (
               <div key={data.hash + i}>
                 <span>
-                  {data.lang} - {data.nluVersion} - {data.matrix.intents.all.f1.toFixed(2)}
+                  {data.lang} - {data.matrix.intents.all.f1.toFixed(2)}
                 </span>
 
                 <Details data={data.matrix.intents} />
