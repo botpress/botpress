@@ -5,7 +5,7 @@ import React from 'react'
 import { EditableFile } from '../../backend/typings'
 
 import style from './style.scss'
-import { wrapper } from './utils/actions'
+import { wrapper } from './utils/wrapper'
 
 export default class Editor extends React.Component<Props> {
   private editor
@@ -45,9 +45,8 @@ export default class Editor extends React.Component<Props> {
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
-    this.editor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N,
-      this.props.onCreateNewClicked
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, () =>
+      this.props.onCreateNewClicked('action')
     )
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>
       this.editor.trigger('', 'editor.action.quickCommand')
@@ -58,7 +57,7 @@ export default class Editor extends React.Component<Props> {
   }
 
   loadFile(selectedFile: EditableFile, noWrapper?: boolean) {
-    const { content, location } = selectedFile
+    const { content, location, type, hookType } = selectedFile
     const uri = monaco.Uri.parse('bp://files/' + location.replace('.js', '.ts'))
 
     const oldModel = monaco.editor.getModel(uri)
@@ -66,7 +65,7 @@ export default class Editor extends React.Component<Props> {
       oldModel.dispose()
     }
 
-    const fileContent = noWrapper ? content : wrapper.add(content)
+    const fileContent = noWrapper ? content : wrapper.add(content, type, hookType)
     const model = monaco.editor.createModel(fileContent, 'typescript', uri)
 
     this.editor && this.editor.setModel(model)
@@ -117,7 +116,7 @@ export default class Editor extends React.Component<Props> {
 interface Props {
   onContentChanged: (code: string) => void
   onDiscardChanges: () => void
-  onCreateNewClicked: () => void
+  onCreateNewClicked: (type: string) => void
   onProblemsChanged: (markers: monaco.editor.IMarker[]) => void
   onSaveClicked: () => void
   selectedFile: EditableFile
