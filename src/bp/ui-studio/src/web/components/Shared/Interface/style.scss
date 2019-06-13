@@ -54,6 +54,8 @@ $status-bar-height: 24px;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
 
   .action_button {
     cursor: pointer;
@@ -141,6 +143,7 @@ $status-bar-height: 24px;
     .label {
       padding: 3px 7px;
       flex: 2 1 auto;
+      white-space: nowrap;
     }
 
     .right {

@@ -2,16 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'conversations': string;
-  'conversations-count': string;
-  'conversations-entry': string;
-  'conversations-filter': string;
-  'conversations-icons': string;
-  'conversations-refresh': string;
-  'conversations-sessionId': string;
-  'conversations-text': string;
-  'conversations-titlebar': string;
-  'conversationsContainer': string;
-  'conversationsList': string;
   'datepicker': string;
   'daypicker-item': string;
   'fetch-more': string;

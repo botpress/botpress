@@ -32,22 +32,13 @@ export class ConversationPicker extends React.Component {
     selectedConvId: undefined
   }
 
-  renderFilterBar = () => {
-    return (
-      <div>
-        <div className={style['conversations-icons']}>
-          <TiRefresh className={style['conversations-refresh']} onClick={this.props.refresh} />
-        </div>{' '}
-      </div>
-    )
-  }
-
   mapConversationToListItem = conv => {
     const convId = conv.id
     const lastCharIndex = Math.min(convId.indexOf('::') + 18, convId.length)
     const convDisplayName = `${convId.substr(0, lastCharIndex)}... (${conv.count})`
 
     return {
+      key: convId,
       label: convDisplayName,
       value: conv,
       selected: convId === this.state.selectedConvId
@@ -69,7 +60,7 @@ export class ConversationPicker extends React.Component {
     return (
       <div style={{ height: '100%' }}>
         <SidePanelSection label={'Conversations'} actions={actions}>
-          <div className={style.conversationsContainer}>
+          <div className={style.conversations}>
             <QueryOptions handleDateChange={this.props.handleDateChange} from={this.props.from} to={this.props.to} />
             <ItemList
               items={this.props.conversations.map(this.mapConversationToListItem)}

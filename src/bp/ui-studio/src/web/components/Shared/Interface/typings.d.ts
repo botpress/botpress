@@ -94,6 +94,8 @@ interface Item {
   actions?: ItemAction[]
   /** Context menu displayed when the element is right-clicked */
   contextMenu?: SectionAction[]
+  /** Unique key used by React. If null, label is used */
+  key?: any
 }
 
 interface ItemAction {

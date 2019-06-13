@@ -21,77 +21,8 @@
 }
 
 .conversations {
-  width: 20%;
-  height: 100%;
-  background-color: #37373f;
-  overflow: hidden;
-
-  &Container {
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-  }
-
-  &List {
-    height: calc(100% - 30px);
-  }
-
-  &-icons {
-    margin-left: auto;
-  }
-
-  &-refresh {
-    color: #171718;
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 2rem;
-  }
-
-  &-filter {
-    color: #171718;
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 1rem;
-  }
-
-  &-titlebar {
-    background-color: #676767;
-    font-size: 2em;
-    color: #c1c0c6;
-    display: flex;
-    padding: 2%;
-    height: 60px;
-
-    @media (max-width: 1300px) {
-      display: block;
-    }
-  }
-
-  &-entry {
-    cursor: pointer;
-    padding-left: 1rem;
-    padding-top: 1rem;
-    overflow-x: hidden;
-    display: flex;
-
-    color: #c1c0c6;
-
-    &:hover {
-      background-color: #e7e7e7;
-    }
-  }
-
-  &-text {
-    font-size: 1.5em;
-  }
-
-  &-sessionId {
-    font-size: 1.2em;
-  }
-
-  &-count {
-    font-size: 1em;
-    padding-left: 1rem;
-  }
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 
 .message {
