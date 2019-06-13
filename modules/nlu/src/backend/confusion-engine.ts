@@ -28,7 +28,11 @@ export default class ConfusionEngine extends ScopedEngine {
     await super.init()
   }
 
-  protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+  protected async trainModels(
+    intentDefs: sdk.NLU.IntentDefinition[],
+    modelHash: string,
+    confusionVersion: string = undefined
+  ) {
     for (const lang of this.languages) {
       await super.trainModels(intentDefs, modelHash)
 
@@ -44,22 +48,18 @@ export default class ConfusionEngine extends ScopedEngine {
       this.originalModelHash = modelHash
 
       await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
-      await this._processResults(folder.getResults(), lang)
+      await this._processResults(folder.getResults(), lang, confusionVersion)
     }
   }
 
-  private async _processResults(results: Result, lang: string) {
-    const includeNLUVersion = !(process.IS_PRODUCTION || !!process.pkg)
-    const nluVersion = require(path.join(__dirname, '../../package.json')).version.replace(/\./g, '-')
-
+  private async _processResults(results: Result, lang: string, confusionVersion: string = undefined) {
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
 
     await this.storage.saveConfusionMatrix({
       modelHash: this.originalModelHash,
       lang,
       results,
-      nluVersion,
-      includeNLUVersion
+      confusionVersion
     })
 
     const intents = results['intents']

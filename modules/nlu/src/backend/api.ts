@@ -8,6 +8,7 @@ import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
+import { URLSearchParams } from 'url'
 
 const SYNC_INTERVAL_MS = ms('5s')
 
@@ -29,7 +30,11 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }, SYNC_INTERVAL_MS)
   }
 
-  const syncNLU = async (botEngine: ScopedEngine, confusionMode: boolean = false): Promise<string> => {
+  const syncNLU = async (
+    botEngine: ScopedEngine,
+    confusionMode: boolean = false,
+    confusionVersion = undefined
+  ): Promise<string> => {
     const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
 
@@ -38,7 +43,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      return await botEngine.sync(confusionMode)
+      return await botEngine.sync(confusionMode, confusionVersion)
     } catch (e) {
       bp.realtime.sendPayload(
         bp.RealTimePayload.forAdmins('toast.nlu-sync', {
@@ -65,10 +70,10 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  router.post('/confusion', async (req, res) => {
+  router.post('/confusion/:version', async (req, res) => {
     try {
       const botEngine = nlus[req.params.botId] as ScopedEngine
-      const modelHash = await syncNLU(botEngine, true)
+      const modelHash = await syncNLU(botEngine, true, req.params.version)
       res.send({ modelHash })
     } catch (err) {
       res.status(400).send('Could not train confusion matrix')

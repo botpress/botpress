@@ -15,7 +15,8 @@ class Confusion extends Component {
     confusions: [],
     botIds: [],
     select: ['', ''],
-    isComputing: false
+    isComputing: false,
+    version: ''
   }
 
   componentDidMount = async () => {
@@ -23,7 +24,7 @@ class Confusion extends Component {
     this.initLabels()
   }
 
-  getDateFromTimestamp = timestamp => moment(parseInt(timestamp, 10)).format('LLL')
+  versionChange = event => this.setState({ version: event.target.value })
 
   setSelect = (value, index) =>
     this.setState({ select: [...this.state.select.slice(0, index), value, ...this.state.select.slice(index + 1)] })
@@ -41,7 +42,7 @@ class Confusion extends Component {
   fetchConfusionForBot = async botId => (await api.getSecured().get(`/bots/${botId}/mod/nlu/confusion`)).data
 
   triggerComputeConfusionForBot = async botId =>
-    (await api.getSecured({ timeout: 999999999 }).post(`/bots/${botId}/mod/nlu/confusion`)).data
+    (await api.getSecured({ timeout: 999999999 }).post(`/bots/${botId}/mod/nlu/confusion/${this.state.version}`)).data
 
   getAllConfusions = async () => await Promise.all((await this.getAllBotIds()).map(await this.fetchConfusionForBot))
 
@@ -73,7 +74,7 @@ class Confusion extends Component {
       .value()
 
   langSelectValues = () => this.getAttributesFromAllConfusions(['lang'])[0] || []
-  nluSelectValues = () => this.getAttributesFromAllConfusions(['nluVersion'])[0] || []
+  versionSelectValues = () => this.getAttributesFromAllConfusions(['version'])[0] || []
 
   renderConfusions = () => (
     <div className="bp_table bot_views compact_view">
@@ -92,12 +93,14 @@ class Confusion extends Component {
       </select>
 
       <select key={'select-version'} value={this.state.select[1]} onChange={this.selectChangeFromFrontEnd(1)}>
-        {this.nluSelectValues().map(val => (
+        {this.versionSelectValues().map(val => (
           <option key={val} value={val}>
             {val}
           </option>
         ))}
       </select>
+
+      <input type="text" value={this.state.version} onChange={this.versionChange} />
 
       {(this.state.confusions || []).map(confusion => (
         <div key={`conf-${confusion.botId}`}>

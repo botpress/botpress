@@ -73,16 +73,14 @@ export default class Storage {
     modelHash,
     lang,
     results,
-    nluVersion,
-    includeNLUVersion
+    confusionVersion
   }: {
     modelHash: string
     lang: string
     results: Result
-    nluVersion: string
-    includeNLUVersion: boolean
+    confusionVersion: string
   }) {
-    const fileName = includeNLUVersion ? `confusion__${modelHash}__${nluVersion}.json` : `confusion__${modelHash}.json`
+    const fileName = `confusion__${modelHash}__${confusionVersion}.json`
     await this.botGhost.upsertFile(`${this.modelsDir}/${lang}`, `${fileName}`, JSON.stringify(results, undefined, 2))
   }
 
@@ -93,7 +91,7 @@ export default class Storage {
         const [_, hash, rest] = file.split('__')
 
         return {
-          nluVersion: rest.split('.')[0],
+          version: rest.split('.')[0],
           hash: hash,
           lang,
           matrix: await this.botGhost.readFileAsObject<Result>(`${this.modelsDir}/${lang}`, file)

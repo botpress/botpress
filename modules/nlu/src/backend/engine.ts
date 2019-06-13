@@ -126,7 +126,7 @@ export default class ScopedEngine implements Engine {
   /**
    * @return The trained model hash
    */
-  async sync(forceRetrain: boolean = false): Promise<string> {
+  async sync(forceRetrain: boolean = false, confusionVersion = undefined): Promise<string> {
     if (this._isSyncing) {
       this._isSyncingTwice = true
       return
@@ -153,7 +153,7 @@ export default class ScopedEngine implements Engine {
 
       if (!loaded) {
         this.logger.debug('Retraining model')
-        await this.trainModels(intents, modelHash)
+        await this.trainModels(intents, modelHash, confusionVersion)
 
         this.logger.debug('Reloading models')
         await this.loadModels(intents, modelHash)
@@ -306,7 +306,7 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
+  protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO use the same data structure to train intent and slot models
     // TODO generate single training set here and filter
     for (const lang of this.languages) {
