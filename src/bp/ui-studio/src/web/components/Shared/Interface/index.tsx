@@ -29,7 +29,6 @@ import {
   SidePanelSectionProps,
   SplashScreenProps
 } from './typings'
-
 import { buildMenu, showContextMenu } from './utils'
 
 export const Container = (props: ContainerProps) => {
@@ -48,7 +47,7 @@ export const Container = (props: ContainerProps) => {
   return (
     <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
-        <SplitPane split="vertical" defaultSize={width} size={sidePanelVisible ? width : 0}>
+        <SplitPane split={'vertical'} defaultSize={width} size={sidePanelVisible ? width : 0}>
           {childs[0]}
           <div className={style.fullsize}>{childs.slice(1)}</div>
         </SplitPane>
@@ -89,7 +88,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup placeholder={props.placeholder || 'Search'} value={text} onChange={handleTextChanged} />
-        <Button icon="search" className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
+        <Button icon={'search'} className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
       </ControlGroup>
     </div>
   )
