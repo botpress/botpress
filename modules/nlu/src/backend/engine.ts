@@ -135,7 +135,7 @@ export default class ScopedEngine implements Engine {
     try {
       this._isSyncing = true
       const intents = await this.getIntents()
-      const modelHash = this._getModelHash(intents)
+      const modelHash = this.computeModelHash(intents)
       let loaded = false
 
       const modelsExists = this.languages
@@ -202,7 +202,7 @@ export default class ScopedEngine implements Engine {
 
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
-    const modelHash = this._getModelHash(intents)
+    const modelHash = this.computeModelHash(intents)
 
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
@@ -322,6 +322,17 @@ export default class ScopedEngine implements Engine {
         this.logger.attachError(err).error('Error training NLU model')
       }
     }
+  }
+
+  public get modelHash() {
+    return this._currentModelHash
+  }
+
+  public computeModelHash(intents: sdk.NLU.IntentDefinition[]) {
+    return crypto
+      .createHash('md5')
+      .update(JSON.stringify(intents))
+      .digest('hex')
   }
 
   private _extractEntities = async (ds: NLUStructure): Promise<NLUStructure> => {

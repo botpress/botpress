@@ -1,88 +1,151 @@
-import { Collapse } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import { SidePanel, SidePanelSection } from 'botpress/ui'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
-import { FiSave } from 'react-icons/fi'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 
-import style from './style.scss'
-import { ACTION_KEY } from './utils/hotkey'
+import { EditableFile } from '../../backend/typings'
+import { HOOK_SIGNATURES } from '../../typings/hooks'
+
+import FileStatus from './components/FileStatus'
 import FileNavigator from './FileNavigator'
 
 export default class PanelContent extends React.Component<Props> {
+  private expandedNodes = {}
+
   state = {
-    showErrors: false
+    actionFiles: [],
+    hookFiles: []
   }
 
-  toggleShowError = () => {
-    this.setState({
-      showErrors: !this.state.showErrors
-    })
+  componentDidMount() {
+    this.updateFolders()
   }
 
-  renderEditing = () => {
-    const { errors } = this.props
-    if (!errors || !errors.length) {
-      return (
-        <div style={{ padding: '5px' }}>
-          <small>
-            Tip: Use {ACTION_KEY}
-            +S to save your file
-          </small>
-        </div>
-      )
+  componentDidUpdate(prevProps) {
+    if (prevProps.files !== this.props.files) {
+      this.updateFolders()
+    }
+  }
+
+  updateFolders() {
+    if (!this.props.files) {
+      return
+    }
+
+    const { actionsBot, actionsGlobal, hooksGlobal } = this.props.files
+
+    const actionFiles = []
+    actionsBot && actionFiles.push({ label: `Bot (${window['BOT_NAME']})`, files: actionsBot })
+    actionsGlobal && actionFiles.push({ label: 'Global', files: actionsGlobal })
+
+    const hookFiles = [hooksGlobal && { label: 'Global', files: hooksGlobal }]
+
+    this.setState({ actionFiles, hookFiles })
+  }
+
+  updateNodeState = (id: string, isExpanded: boolean) => {
+    if (isExpanded) {
+      this.expandedNodes[id] = true
+    } else {
+      delete this.expandedNodes[id]
+    }
+  }
+
+  renderSectionActions() {
+    const items = [
+      {
+        label: 'Action - Bot',
+        icon: <Icon icon="new-text-box" />,
+        onClick: () => this.props.createFilePrompt('action', false)
+      }
+    ]
+
+    if (this.props.isGlobalAllowed) {
+      items.push({
+        label: 'Action - Global',
+        icon: <Icon icon="new-text-box" />,
+        onClick: () => this.props.createFilePrompt('action', true)
+      })
     }
 
     return (
-      <div className={style.status}>
-        {/* TODO improve this */}
-        <strong>Warning</strong>
-        <br />
-        There are {errors.length} errors in your file.
-        <br />
-        Please make sure to fix them before saving.
-        <br />
-        <br />
-        <span onClick={this.toggleShowError} style={{ cursor: 'pointer' }}>
-          {this.state.showErrors && <MdExpandLess />}
-          {!this.state.showErrors && <MdExpandMore />}
-          View details
-        </span>
-        <Collapse isOpen={this.state.showErrors}>
-          <div style={{ paddingLeft: 15 }}>
-            {errors.map(x => (
-              <div style={{ marginBottom: 10 }}>
-                Line <strong>{x.startLineNumber}</strong>
-                <br />
-                {x.message}
-              </div>
-            ))}
-          </div>
-        </Collapse>
-      </div>
+      <SidePanelSection label={'Actions'} actions={[{ icon: <Icon icon="add" />, items }]}>
+        <FileNavigator
+          files={this.state.actionFiles}
+          expandedNodes={this.expandedNodes}
+          onNodeStateChanged={this.updateNodeState}
+          onFileSelected={this.props.handleFileChanged}
+        />
+      </SidePanelSection>
+    )
+  }
+
+  renderSectionHooks() {
+    const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
+      id: hookType,
+      label: hookType
+        .split('_')
+        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
+        .join(' '),
+      onClick: () => this.props.createFilePrompt('hook', true, hookType)
+    }))
+
+    const actions = [
+      {
+        icon: <Icon icon="add" />,
+        items: [
+          {
+            label: 'Event Hooks',
+            items: hooks.filter(x =>
+              [
+                'before_incoming_middleware',
+                'after_incoming_middleware',
+                'before_outgoing_middleware',
+                'after_event_processed',
+                'before_suggestions_election',
+                'before_session_timeout'
+              ].includes(x.id)
+            )
+          },
+          {
+            label: 'Bot Hooks',
+            items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
+          },
+          {
+            label: 'Pipeline Hooks',
+            items: hooks.filter(x =>
+              ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
+            )
+          }
+        ]
+      }
+    ]
+
+    return (
+      <SidePanelSection label={'Hooks'} actions={actions}>
+        <FileNavigator
+          files={this.state.hookFiles}
+          expandedNodes={this.expandedNodes}
+          onNodeStateChanged={this.updateNodeState}
+          onFileSelected={this.props.handleFileChanged}
+        />
+      </SidePanelSection>
     )
   }
 
   render() {
-    const actions = [
-      {
-        icon: 'add',
-        items: [{ label: 'Action', icon: 'new-text-box', onClick: this.props.createFilePrompt }]
-      }
-    ]
-
-    const editingActions = [{ label: 'Save', icon: <FiSave />, onClick: this.props.onSaveClicked }]
     return (
       <SidePanel>
         {this.props.isEditing && (
-          <SidePanelSection label={'Currently editing'} actions={editingActions}>
-            {this.renderEditing()}
-          </SidePanelSection>
+          <FileStatus
+            errors={this.props.errors}
+            onSaveClicked={this.props.onSaveClicked}
+            discardChanges={this.props.discardChanges}
+          />
         )}
 
-        <SidePanelSection label={'Actions'} actions={actions}>
-          <FileNavigator files={this.props.files} onFileSelected={this.props.handleFileChanged} />
-        </SidePanelSection>
+        {!this.props.isEditing && this.renderSectionActions()}
+        {!this.props.isEditing && this.props.isGlobalAllowed && this.renderSectionHooks()}
       </SidePanel>
     )
   }
@@ -90,12 +153,11 @@ export default class PanelContent extends React.Component<Props> {
 
 interface Props {
   isEditing: boolean
-
+  isGlobalAllowed: boolean
   files: any
   errors: monaco.editor.IMarker[]
-  handleFileChanged: any
-  createFilePrompt: any
+  handleFileChanged: (file: EditableFile) => void
+  discardChanges: () => void
+  createFilePrompt: (type: string, isGlobal?: boolean, hookType?: string) => void
   onSaveClicked: () => void
 }
-
-interface Error {}

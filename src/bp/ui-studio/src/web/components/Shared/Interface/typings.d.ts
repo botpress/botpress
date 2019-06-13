@@ -122,6 +122,8 @@ interface SectionAction {
   label?: string
   /** Text displayed when the cursor is over the button */
   tooltip?: string
+  /** Any JSX element to be displayed when the button is clicked (for ex: filters)  */
+  popover?: JSX.Element
   /** Type "divider" is special and adds a separator in the menu */
   type?: string
   /** When true, the button is still visible but the click event is discarded */
