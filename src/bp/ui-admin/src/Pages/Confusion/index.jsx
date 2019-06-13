@@ -76,9 +76,10 @@ class Confusion extends Component {
   renderConfusions = () => (
     <div className="bp_table bot_views compact_view">
       <button onClick={this.triggerCompute}>
-        {this.state.isComputing ? 'Computing...' : 'Click here to fetch all'}
+        {this.state.isComputing ? 'Computing...' : 'Compute matrices for current build'}
       </button>
 
+      <br />
       {this.getAllPropertiesFromConfusions().map((field, i) => (
         <select key={'select' + i} value={this.state.select[i]} onChange={this.selectChangeFromFrontEnd(i)}>
           {field.map(val => (
