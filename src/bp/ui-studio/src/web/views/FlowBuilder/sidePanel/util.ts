@@ -1,6 +1,6 @@
 import find from 'lodash/find'
 
-import { FLOW_ICON, FOLDER_ICON } from '.'
+import { FLOW_ICON, FOLDER_ICON } from './FlowsList'
 
 const addNode = (tree, folders, flowDesc, data) => {
   for (const folderDesc of folders) {
