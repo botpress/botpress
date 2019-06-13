@@ -15,4 +15,13 @@ const baseAction = `
   return myAction(args.name, args.value)
 `
 
-export { baseAction }
+const baseHook = `
+  async function hook() {
+
+
+  }
+
+return hook()
+`
+
+export { baseAction, baseHook }

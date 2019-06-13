@@ -2,12 +2,12 @@ import { Container } from 'botpress/ui'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 
-import { EditableFile } from '../../backend/typings'
+import { EditableFile, FileType } from '../../backend/typings'
 
-import { baseAction } from './utils/templates'
+import SplashScreen from './components/SplashScreen'
+import { baseAction, baseHook } from './utils/templates'
 import Editor from './Editor'
 import SidePanel from './SidePanel'
-import SplashScreen from './SplashScreen'
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
 export default class CodeEditor extends React.Component<Props, State> {
@@ -16,7 +16,8 @@ export default class CodeEditor extends React.Component<Props, State> {
     files: undefined,
     isEditing: false,
     editedContent: undefined,
-    selectedFile: undefined
+    selectedFile: undefined,
+    isGlobalAllowed: false
   }
 
   componentDidMount() {
@@ -32,17 +33,18 @@ export default class CodeEditor extends React.Component<Props, State> {
   createNewFileShortcut = e => {
     // The editor normally handles keybindings, so this one is only active while it is closed
     if (e.ctrlKey && e.altKey && e.key === 'n' && !this.state.selectedFile) {
-      this.createFilePrompt()
+      this.createFilePrompt('action')
     }
   }
 
   async initialize() {
     const { data: files } = await this.props.bp.axios.get('/mod/code-editor/files')
-    this.setState({ files })
+    const { data: config } = await this.props.bp.axios.get('/mod/code-editor/config')
+    this.setState({ files, ...config })
   }
 
-  createFilePrompt = () => {
-    let name = window.prompt('Choose the name of your action. No special chars. Use camel case')
+  createFilePrompt = (type: FileType, isGlobal?: boolean, hookType?: string) => {
+    let name = window.prompt(`Choose the name of your ${type}. No special chars. Use camel case`)
     if (!name) {
       return
     }
@@ -58,9 +60,10 @@ export default class CodeEditor extends React.Component<Props, State> {
       selectedFile: {
         name,
         location: name,
-        content: baseAction,
-        type: 'action',
-        botId: window.BOT_ID
+        content: type === 'action' ? baseAction : baseHook,
+        type,
+        hookType,
+        botId: isGlobal ? undefined : window.BOT_ID
       }
     })
   }
@@ -101,7 +104,9 @@ export default class CodeEditor extends React.Component<Props, State> {
           files={this.state.files}
           handleFileChanged={this.handleFileChanged}
           createFilePrompt={this.createFilePrompt}
+          discardChanges={this.handleDiscardChanges}
           onSaveClicked={this.saveChanges}
+          isGlobalAllowed={this.state.isGlobalAllowed}
         />
         {this.state.selectedFile && (
           <Editor
