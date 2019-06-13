@@ -85,7 +85,7 @@ const Toolbar = props => {
         <Divider />
 
         <Tooltip content="Insert New Node (ctrl+a)" position={Position.BOTTOM}>
-          <AnchorButton icon="add" active={isInsertNodeMode} onClick={toggleInsertMode('insert_node')} />
+          <AnchorButton icon="insert" active={isInsertNodeMode} onClick={toggleInsertMode('insert_node')} />
         </Tooltip>
 
         <SkillDropdown {...props} />
