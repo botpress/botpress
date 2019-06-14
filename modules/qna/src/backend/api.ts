@@ -46,7 +46,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   router.get('/questions/:id', async (req, res) => {
     try {
       const storage = botScopedStorage.get(req.params.botId)
-      const question = await storage.getQuestion(req.params.id)
+      const question = await storage.getQnaItem(req.params.id)
       res.send(question)
     } catch (e) {
       sendToastError('Fetch', e.message)
@@ -93,6 +93,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     res.send({ categories })
   })
 
+  // TODO make sure that this works properly
   router.get('/export/:format', async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
     const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
@@ -117,6 +118,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
   })
 
+  // TODO make sure that this works properly
   const upload = multer()
   router.post('/import/csv', upload.single('csv'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)

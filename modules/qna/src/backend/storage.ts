@@ -15,7 +15,7 @@ const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
 
 const getIntentId = id => `${NLU_PREFIX}${id}`
 
-const getQuestionId = (qna: QnaEntry) => {
+const makeID = (qna: QnaEntry) => {
   const firstQuestion = qna.questions[Object.keys(qna.questions)[0]][0]
   return `${safeId()}_${slugify(firstQuestion)
     .replace(/^_+/, '')
@@ -103,12 +103,13 @@ export default class Storage {
       qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
     )
 
-    return await Promise.mapSeries(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item))
+    return await Promise.mapSeries(qnaItemsToSync, async item => {
+      await this.checkForDuplicatedQuestions(item.data)
+      await this.createNLUIntentFromQnaItem(item)
+    })
   }
 
-  async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
-    await this.checkForDuplicatedQuestions(qnaItem.data)
-
+  private async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const utterances = {}
     for (const lang in qnaItem.data.questions) {
@@ -129,7 +130,7 @@ export default class Storage {
   async update(data: QnaEntry, id: string): Promise<string> {
     await this.checkForDuplicatedQuestions(data, id)
 
-    id = id || getQuestionId(data)
+    id = id || makeID(data)
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
@@ -156,7 +157,7 @@ export default class Storage {
 
   async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
-      const id = getQuestionId(data)
+      const id = makeID(data)
       const item: QnaItem = { id, data }
       if (data.enabled) {
         await this.createNLUIntentFromQnaItem(item)
@@ -173,12 +174,7 @@ export default class Storage {
   }
 
   private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
-    let qnaItems = await this.fetchQNAs()
-
-    if (editingQnaId) {
-      // when updating, we remove the question from the check
-      qnaItems = qnaItems.filter(q => q.id !== editingQnaId)
-    }
+    const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id != editingQnaId)
 
     const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
     const dupes = _.flatMap(qnaItems, item => Object.values(item.data.questions))
@@ -201,15 +197,9 @@ export default class Storage {
     return question
   }
 
-  async getQuestion(opts): Promise<QnaItem> {
-    // TODO remove the object option it's useless
-    let filename
-    if (typeof opts === 'string') {
-      filename = `${opts}.json`
-    } else {
-      // opts object
-      filename = opts.filename
-    }
+  async getQnaItem(id: string): Promise<QnaItem> {
+    const filename = `${id}.json`
+
     const data = await this.bp.ghost.forBot(this.botId).readFileAsString(this.config.qnaDir, filename)
 
     return this.migrate_11_2_to_11_3(JSON.parse(data))
@@ -222,7 +212,7 @@ export default class Storage {
         questions = questions.slice(opts.start, opts.start + opts.count)
       }
 
-      return Promise.map(questions, question => this.getQuestion({ filename: question }))
+      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace('.json', '')))
     } catch (err) {
       this.bp.logger.warn(`Error while reading questions. ${err}`)
       return []

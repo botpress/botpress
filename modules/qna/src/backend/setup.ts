@@ -83,7 +83,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
   const getQuestionForIntent = async (storage: Storage, intentName) => {
     if (intentName && intentName.startsWith(NLU_PREFIX)) {
       const qnaId = intentName.substring(NLU_PREFIX.length)
-      return (await storage.getQuestion(qnaId)).data
+      return (await storage.getQnaItem(qnaId)).data
     }
   }
 
