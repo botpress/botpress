@@ -1,6 +1,6 @@
 ---
 id: authentication
-title: Authentication
+title: Authentication Methods
 ---
 
 There's two different types of authentication, and different methods for each:

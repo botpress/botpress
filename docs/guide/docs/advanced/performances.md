@@ -1,6 +1,6 @@
 ---
 id: performances
-title: Hardware & Performances
+title: Performances
 ---
 
 ## Hardware Requirements
