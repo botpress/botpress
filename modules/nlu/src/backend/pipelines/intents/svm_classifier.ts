@@ -89,7 +89,7 @@ export default class SVMClassifier {
           (intent.utterances[this.language] || [])
             .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
             .filter(x => x.trim().length)
-            .map(async utterance => await this.languageProvider.tokenize(utterance, this.language))
+            .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
         )
       }))
     )

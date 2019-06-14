@@ -74,6 +74,7 @@ declare type BotpressEnvironementVariables = {
    * Overrides the auto-computed `process.APP_DATA_PATH` path
    * @see Process.APP_DATA_PATH
    */
+
   readonly APP_DATA_PATH?: string
 
   /**

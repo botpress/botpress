@@ -1,5 +1,6 @@
 import { Colors } from '@blueprintjs/core'
 import axios from 'axios'
+import _ from 'lodash'
 import React from 'react'
 import { FaThLarge } from 'react-icons/fa'
 
@@ -16,6 +17,7 @@ interface MatrixInfo {
 
 interface Props {
   synced: boolean
+  contentLang: string
   updateSyncStatus: (synced: boolean) => void
 }
 
@@ -38,9 +40,13 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     this.fetchConfusion()
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.synced && this.state.synced) {
       this.setState({ f1: undefined, synced: false })
+    }
+
+    if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
+      this.fetchConfusion()
     }
   }
 
@@ -59,7 +65,9 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     try {
-      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}`)
+      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}/studio`, {
+        params: { lang: this.props.contentLang }
+      })
       return data as MatrixInfo
     } catch {
       return { confusionComputing: false } as MatrixInfo
@@ -70,7 +78,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     if (!matrix || !matrix.intents || !matrix.intents.all) {
       return
     }
-    return matrix.intents.all.f1
+    return _.round(matrix.intents.all.f1, 2)
   }
 
   calculateConfusion = async () => {
@@ -84,7 +92,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     this.computationMutex = true
     this.setState({ f1: undefined, computing: true })
 
-    const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`)
+    const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`, { version: 'studio' })
 
     this.computationMutex = false
     this.setState({ computing: false })

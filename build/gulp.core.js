@@ -14,9 +14,11 @@ const maybeFetchPro = () => {
 }
 
 const writeMetadata = () => {
+  const version = require(path.join(__dirname, '../package.json')).version
   const metadata = JSON.stringify(
     {
-      version: require(path.join(__dirname, '../package.json')).version
+      version,
+      build_version: `${version}__${Date.now()}`
     },
     null,
     2
