@@ -6,12 +6,10 @@ import { MessageGroup } from './MessageGroup'
 import { MessagesHeader } from './MessagesHeader'
 import { MessageInspector } from './MessageInspector'
 
-import { IoMdFlag } from 'react-icons/io'
-
-import ReactTooltip from 'react-tooltip'
-
 import { SplashScreen } from 'botpress/ui'
 import { Icon } from '@blueprintjs/core'
+
+import { MessageTaskBar } from './MessageTaskBar'
 
 function NoConversationSelected() {
   return (
@@ -22,57 +20,6 @@ function NoConversationSelected() {
     available, try talking to your bot and refresh conversations by clicking on the round arrow"
     />
   )
-}
-
-class MessagesTaskBar extends React.Component {
-  state = {
-    filters: {
-      flag: false
-    },
-    currentConv: null
-  }
-
-  componentDidUpdate() {
-    if (this.props.currentConv !== this.state.currentConv) {
-      this.setState({ currentConv: this.props.currentConv, filters: { flag: false } })
-    }
-  }
-
-  toggleFlagFilter = () => {
-    this.state.filters.flag = !this.state.filters.flag
-    this.props.updateFilters(this.state.filters)
-  }
-
-  render() {
-    return (
-      <div className={style.messageTaskBar}>
-        {!this.props.useAsFilter && (
-          <div className={style.messageTaskBarFilter}>
-            <div>{this.props.selectedCount} selected messages</div>
-            <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for="flag" onClick={this.props.flag} />
-            <ReactTooltip id="flag" effect="solid">
-              <div>Mark selected messages as not good</div>
-            </ReactTooltip>
-            <IoMdFlag
-              className={style.messageTaskBarUnflagIcon}
-              data-tip
-              data-for="unflag"
-              onClick={this.props.unflag}
-            />
-            <ReactTooltip id="unflag" effect="solid">
-              <div>Unflag Selected messages</div>
-            </ReactTooltip>
-          </div>
-        )}
-        {this.props.useAsFilter && (
-          <div>
-            <span>Display only flagged messages:</span>
-            <input type="checkbox" checked={this.state.filters.flag} onChange={this.toggleFlagFilter} />
-          </div>
-        )}
-      </div>
-    )
-  }
 }
 
 export class MessageViewer extends React.Component {
@@ -178,8 +125,7 @@ export class MessageViewer extends React.Component {
           )}
         >
           <MessagesHeader conversation={this.state.currentConversation} messageGroups={this.props.messageGroups} />
-          <MessagesTaskBar
-            ref="taskBar"
+          <MessageTaskBar
             selectedCount={this.state.selectedGroups.length}
             useAsFilter={!this.state.areMessagesSelected}
             flag={this.flagSelectedMessages}
