@@ -194,12 +194,6 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  private _getModelHash = (intents: sdk.NLU.IntentDefinition[]) =>
-    crypto
-      .createHash('md5')
-      .update(JSON.stringify(intents))
-      .digest('hex')
-
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
     const modelHash = this.computeModelHash(intents)
