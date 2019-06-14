@@ -7,8 +7,8 @@ import { FaThLarge } from 'react-icons/fa'
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
 
-const GREEM_LOWER_BOUND = 0.85
-const RED_UPPER_BOUND = 0.5
+const GREEM_LOWER_BOUND = 85
+const RED_UPPER_BOUND = 50
 
 interface MatrixInfo {
   matrix: any | undefined
@@ -74,11 +74,10 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
   }
 
-  extractF1FromMatrix(matrix): number | undefined {
-    if (!matrix || !matrix.intents || !matrix.intents.all) {
-      return
-    }
-    return _.round(matrix.intents.all.f1, 2)
+  extractF1FromMatrix(matrix: any): number | undefined {
+    const f1 = _.get(matrix, 'intents.all.f1')
+
+    return f1 ? Math.round(f1 * 100) : undefined
   }
 
   calculateConfusion = async () => {
@@ -115,8 +114,12 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   render() {
     return (
       <ActionItem
-        title={'NLU Performance Status'}
-        description={this.state.f1 ? `f1: ${this.state.f1}` : 'currently no f1 to display'}
+        title={'NLU performance'}
+        description={
+          this.state.f1
+            ? `Overall score: ${this.state.f1} %`
+            : 'No score to show, click to start NLU performance analysis'
+        }
         disabled={this.state.computing}
         className={style.right}
         onClick={this.calculateConfusion}
