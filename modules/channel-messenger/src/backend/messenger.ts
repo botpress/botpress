@@ -161,6 +161,7 @@ export class MessengerService {
         continue
       }
       if (!messages) {
+         debugMessages('incoming event without messaging entry')
          return
        }
       for (const webhookEvent of messages) {
