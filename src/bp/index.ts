@@ -216,13 +216,13 @@ try {
           default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
         },
         dim: {
-          default: 300,
+          default: 100,
           description: '(filter=dim) the dimentions of language to provide. files are named "domain.lang.dim.bin"'
         },
         domain: {
           description:
             '(filter=domain) the domain the embeddings were trained on. files are named "domain.lang.dim.bin"',
-          default: 'generic'
+          default: 'bp'
         }
       },
       argv => {
