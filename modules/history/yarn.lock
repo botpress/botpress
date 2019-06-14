@@ -810,6 +810,16 @@
     resize-observer-polyfill "^1.5.0"
     tslib "^1.9.0"
 
+"@blueprintjs/datetime@^3.9.1":
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.9.1.tgz#050fabe0e0e3e081288400fd253f4d2dcac3435d"
+  integrity sha512-mMGeYcF6e/d6UgYo/svamv5HNPHodITj+Cm30UKaqTx0cYiCcTqs3XlOZNhA3d4r28NNsrjkZSA1pP4YbfSl0w==
+  dependencies:
+    "@blueprintjs/core" "^3.15.1"
+    classnames "^2.2"
+    react-day-picker "^7.3.0"
+    tslib "^1.9.0"
+
 "@blueprintjs/icons@^3.8.0":
   version "3.9.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.9.0.tgz#173f70b0d6a573d2a97066c54b4d110ffadeee51"
