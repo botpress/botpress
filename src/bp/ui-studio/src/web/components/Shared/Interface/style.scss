@@ -7,7 +7,6 @@ $status-bar-height: 24px;
 
 .fullsize {
   height: calc(100vh - #{$status-bar-height});
-  overflow-y: auto;
 }
 
 .container :global(.Resizer.vertical) {
@@ -178,4 +177,5 @@ $status-bar-height: 24px;
   border-bottom: 1px solid #e0e0e0;
   background: #fafafa;
   padding: 2px 0 3px 15px;
+  display: flex;
 }

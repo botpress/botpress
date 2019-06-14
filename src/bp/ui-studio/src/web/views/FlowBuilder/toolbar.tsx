@@ -10,7 +10,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import _ from 'lodash'
-import React from 'react'
+import React, { Fragment } from 'react'
 import PermissionsChecker from '~/components/Layout/PermissionsChecker'
 import { Toolbar } from '~/components/Shared/Interface'
 
@@ -51,55 +51,57 @@ const FlowToolbar = props => {
 
   return (
     <Toolbar>
-      <Tooltip content="Save all (ctrl+s)" position={Position.BOTTOM}>
-        <AnchorButton
-          icon="floppy-disk"
-          disabled={window.BOTPRESS_FLOW_EDITOR_DISABLED || !hasUnsavedChanges}
-          onClick={() => props.onSaveAllFlows && props.onSaveAllFlows()}
-        />
-      </Tooltip>
-
-      <Divider />
-
-      <Tooltip content="Undo" position={Position.BOTTOM}>
-        <AnchorButton icon="undo" disabled={!props.canUndo} onClick={props.undo} />
-      </Tooltip>
-
-      <Tooltip content="Redo" position={Position.BOTTOM}>
-        <AnchorButton icon="redo" disabled={!props.canRedo} onClick={props.redo} />
-      </Tooltip>
-
-      <Divider />
-
-      <Tooltip content="Copy" position={Position.BOTTOM}>
-        <AnchorButton icon="duplicate" disabled={!canCopy} onClick={props.onCopy} />
-      </Tooltip>
-
-      <Tooltip content="Paste" position={Position.BOTTOM}>
-        <AnchorButton icon="clipboard" disabled={!props.canPasteNode} onClick={props.onPaste} />
-      </Tooltip>
-
-      <Divider />
-
-      <Tooltip content="Insert New Node (ctrl+a)" position={Position.BOTTOM}>
-        <AnchorButton icon="insert" active={isInsertNodeMode} onClick={toggleInsertMode('insert_node')} />
-      </Tooltip>
-
-      <SkillDropdown {...props} />
-
-      <Divider />
-
-      {canMakeStartNode() && (
-        <Tooltip content="Set as Start node" position={Position.BOTTOM}>
-          <AnchorButton icon="star" onClick={setAsCurrentNode} />
+      <Fragment>
+        <Tooltip content="Save all (ctrl+s)" position={Position.BOTTOM}>
+          <AnchorButton
+            icon="floppy-disk"
+            disabled={window.BOTPRESS_FLOW_EDITOR_DISABLED || !hasUnsavedChanges}
+            onClick={() => props.onSaveAllFlows && props.onSaveAllFlows()}
+          />
         </Tooltip>
-      )}
 
-      {canDelete && (
-        <Tooltip content="Delete" position={Position.BOTTOM}>
-          <AnchorButton icon="trash" onClick={props.onDelete} />
+        <Divider />
+
+        <Tooltip content="Undo" position={Position.BOTTOM}>
+          <AnchorButton icon="undo" disabled={!props.canUndo} onClick={props.undo} />
         </Tooltip>
-      )}
+
+        <Tooltip content="Redo" position={Position.BOTTOM}>
+          <AnchorButton icon="redo" disabled={!props.canRedo} onClick={props.redo} />
+        </Tooltip>
+
+        <Divider />
+
+        <Tooltip content="Copy" position={Position.BOTTOM}>
+          <AnchorButton icon="duplicate" disabled={!canCopy} onClick={props.onCopy} />
+        </Tooltip>
+
+        <Tooltip content="Paste" position={Position.BOTTOM}>
+          <AnchorButton icon="clipboard" disabled={!props.canPasteNode} onClick={props.onPaste} />
+        </Tooltip>
+
+        <Divider />
+
+        <Tooltip content="Insert New Node (ctrl+a)" position={Position.BOTTOM}>
+          <AnchorButton icon="insert" active={isInsertNodeMode} onClick={toggleInsertMode('insert_node')} />
+        </Tooltip>
+
+        <SkillDropdown {...props} />
+
+        <Divider />
+
+        {canMakeStartNode() && (
+          <Tooltip content="Set as Start node" position={Position.BOTTOM}>
+            <AnchorButton icon="star" onClick={setAsCurrentNode} />
+          </Tooltip>
+        )}
+
+        {canDelete && (
+          <Tooltip content="Delete" position={Position.BOTTOM}>
+            <AnchorButton icon="trash" onClick={props.onDelete} />
+          </Tooltip>
+        )}
+      </Fragment>
     </Toolbar>
   )
 }

@@ -3,7 +3,8 @@
 interface CssExports {
   'conversations': string;
   'datepicker': string;
-  'daypicker-item': string;
+  'displayFlagCheckbox': string;
+  'downloadCopy': string;
   'fetch-more': string;
   'message-elements': string;
   'message-group': string;
@@ -12,9 +13,6 @@ interface CssExports {
   'message-group-explanation': string;
   'message-group-flag': string;
   'message-group-header': string;
-  'message-header': string;
-  'message-header-icon_item': string;
-  'message-header-icons': string;
   'message-incomming': string;
   'message-inspect': string;
   'message-inspector': string;
@@ -27,12 +25,10 @@ interface CssExports {
   'message-sender': string;
   'message-title': string;
   'message-viewer': string;
-  'messageTaskBar': string;
-  'messageTaskBarFilter': string;
-  'messageTaskBarFlagIcon': string;
-  'messageTaskBarUnflagIcon': string;
   'noConvIcon': string;
   'quit-inspector': string;
+  'taskBarLabel': string;
+  'taskBarText': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

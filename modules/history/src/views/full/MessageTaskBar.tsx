@@ -1,8 +1,13 @@
-import React from 'react'
-import { IoMdFlag } from 'react-icons/io'
-import ReactTooltip from 'react-tooltip'
+import { Divider, Icon } from '@blueprintjs/core'
+import { AnchorButton, Colors, Position, Tooltip } from '@blueprintjs/core'
+import { Toolbar } from 'botpress/ui'
+import React, { Fragment } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+
+import { MessageGroup } from '../../typings'
 
 import style from './style.scss'
+import { MessageDownload } from './MessageDownload'
 
 interface Filters {
   flag: boolean
@@ -15,11 +20,13 @@ interface Props {
   selectedCount: number
   flag: () => void
   unflag: () => void
+  messageGroups: MessageGroup[]
 }
 
 interface State {
   filters: Filters
   currentConv: string
+  showCopiedTooltip: boolean
 }
 
 export class MessageTaskBar extends React.Component<Props, State> {
@@ -27,7 +34,8 @@ export class MessageTaskBar extends React.Component<Props, State> {
     filters: {
       flag: false
     },
-    currentConv: undefined
+    currentConv: undefined,
+    showCopiedTooltip: false
   }
 
   componentDidUpdate() {
@@ -41,34 +49,68 @@ export class MessageTaskBar extends React.Component<Props, State> {
     this.props.updateFilters(this.state.filters)
   }
 
-  render() {
+  renderFilters() {
     return (
-      <div className={style.messageTaskBar}>
-        {!this.props.useAsFilter && (
-          <div className={style.messageTaskBarFilter}>
-            <div>{this.props.selectedCount} selected messages</div>
-            <IoMdFlag className={style.messageTaskBarFlagIcon} data-tip data-for={'flag'} onClick={this.props.flag} />
-            <ReactTooltip id={'flag'} effect={'solid'}>
-              <div>Mark selected messages as not good</div>
-            </ReactTooltip>
-            <IoMdFlag
-              className={style.messageTaskBarUnflagIcon}
-              data-tip
-              data-for={'unflag'}
-              onClick={this.props.unflag}
-            />
-            <ReactTooltip id={'unflag'} effect={'solid'}>
-              <div>Unflag Selected messages</div>
-            </ReactTooltip>
-          </div>
-        )}
-        {this.props.useAsFilter && (
-          <div>
-            <span>Display only flagged messages:</span>
-            <input type={'checkbox'} checked={this.state.filters.flag} onChange={this.toggleFlagFilter} />
-          </div>
-        )}
-      </div>
+      <Toolbar>
+        <Fragment>
+          <div className={style.taskBarText}>{this.props.selectedCount} selected messages</div>
+
+          <Divider />
+
+          <Tooltip content={'Mark selected messages as not good'} position={Position.BOTTOM}>
+            <AnchorButton data-tip data-for={'flag'} onClick={this.props.flag}>
+              <Icon icon={'flag'} color={Colors.BLACK} />
+            </AnchorButton>
+          </Tooltip>
+
+          <Tooltip content={'Unflag Selected messages'} position={Position.BOTTOM}>
+            <AnchorButton>
+              <Icon icon={'flag'} color={Colors.GRAY1} onClick={this.props.unflag} />
+            </AnchorButton>
+          </Tooltip>
+        </Fragment>
+      </Toolbar>
     )
+  }
+
+  copyLink = e => {
+    console.log(e)
+    this.setState({ showCopiedTooltip: true })
+    setTimeout(() => this.setState({ showCopiedTooltip: false }), 600)
+  }
+
+  renderActions() {
+    return (
+      <Toolbar>
+        <label className={style.taskBarText}>
+          <span className={style.taskBarLabel}>Display only flagged messages:</span>
+          <input
+            style={{ margin: 0 }}
+            id={'displayFlagCheckbox'}
+            className={style.displayFlagCheckbox}
+            type={'checkbox'}
+            checked={this.state.filters.flag}
+            onChange={this.toggleFlagFilter}
+          />
+        </label>
+
+        <div key={'download-copy'} className={style.downloadCopy}>
+          <MessageDownload messageGroups={this.props.messageGroups} />
+          <Tooltip content={'copied!'} isOpen={this.state.showCopiedTooltip} position={Position.BOTTOM}>
+            <CopyToClipboard text={window.location.href}>
+              <AnchorButton icon={'link'} onClick={this.copyLink} />
+            </CopyToClipboard>
+          </Tooltip>
+        </div>
+      </Toolbar>
+    )
+  }
+
+  render() {
+    if (!this.props.useAsFilter) {
+      return this.renderFilters()
+    } else {
+      return this.renderActions()
+    }
   }
 }

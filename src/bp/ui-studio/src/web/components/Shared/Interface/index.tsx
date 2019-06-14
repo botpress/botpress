@@ -98,28 +98,28 @@ export const ItemList: FC<ItemListProps> = props => {
   return (
     <div className={style.itemList}>
       {props.items &&
-        props.items.map(item => (
-          <div
-            key={item.key ? item.key : item.label}
-            className={classnames(style.item, { [style.itemListSelected]: item.selected })}
-          >
-            <div
-              className={style.label}
-              onClick={() => props.onElementClicked && props.onElementClicked(item)}
-              onContextMenu={e => showContextMenu(e, item.contextMenu)}
-            >
-              {item.icon && <Icon icon={item.icon} />} {item.label}
+        props.items.map(item => {
+          const key = item.key ? item.key : item.label
+          return (
+            <div key={key} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+              <div
+                className={style.label}
+                onClick={() => props.onElementClicked && props.onElementClicked(item)}
+                onContextMenu={e => showContextMenu(e, item.contextMenu)}
+              >
+                {item.icon && <Icon icon={item.icon} />} {item.label}
+              </div>
+              <div className={style.right}>
+                {item.actions &&
+                  item.actions.map(action => (
+                    <Tooltip key={key + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                    </Tooltip>
+                  ))}
+              </div>
             </div>
-            <div className={style.right}>
-              {item.actions &&
-                item.actions.map(action => (
-                  <Tooltip key={item.label + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                    <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
-                  </Tooltip>
-                ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
     </div>
   )
 }
@@ -173,9 +173,10 @@ export const InfoTooltip: FC<InfoTooltipProps> = props => (
 )
 
 const SectionAction = (action: SectionAction, idx: number) => {
+  const toolTipPos = action.tooltipPosition ? action.tooltipPosition : Position.RIGHT
   if (action.items) {
     return (
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={toolTipPos}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -185,7 +186,7 @@ const SectionAction = (action: SectionAction, idx: number) => {
 
   return (
     <Popover disabled={!action.popover} content={action.popover}>
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={toolTipPos}>
         <Button
           icon={action.icon}
           text={action.label}
@@ -197,9 +198,14 @@ const SectionAction = (action: SectionAction, idx: number) => {
 }
 
 export const Toolbar = props => {
+  const children: JSX.Element[] = props.children && !props.children.length ? [props.children] : props.children
   return (
     <div className={style.toolbar}>
-      <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
+      {children.map(c => (
+        <ButtonGroup key={c.key} className={c.props.className} vertical={false} minimal={true}>
+          {c}
+        </ButtonGroup>
+      ))}
     </div>
   )
 }
