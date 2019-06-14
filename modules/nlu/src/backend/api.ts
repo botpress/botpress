@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      return await botEngine.sync(confusionMode, confusionVersion)
+      return await botEngine.trainOrLoad(confusionMode, confusionVersion)
     } catch (e) {
       bp.realtime.sendPayload(
         bp.RealTimePayload.forAdmins('toast.nlu-sync', {

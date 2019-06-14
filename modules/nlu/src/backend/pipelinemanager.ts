@@ -36,6 +36,7 @@ export const initNLUDS = (text: string, includedContexts: string[]): NLUStructur
     rawText: text,
     lowerText: '',
     includedContexts: includedContexts,
+    detectedLanguage: '',
     language: '',
     entities: [],
     intents: [],

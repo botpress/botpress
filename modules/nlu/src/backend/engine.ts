@@ -47,7 +47,7 @@ export default class ScopedEngine implements Engine {
   private _currentModelHash: string
   private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
   private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
-  private readonly langDetector: LanguageIdentifier
+  private readonly langIdentifier: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
@@ -81,7 +81,7 @@ export default class ScopedEngine implements Engine {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId, defaultLanguage, languages)
-    this.langDetector = new FastTextLanguageId(toolkit, this.logger)
+    this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
@@ -103,7 +103,7 @@ export default class ScopedEngine implements Engine {
     }
 
     if (this.config.preloadModels) {
-      this.sync()
+      this.trainOrLoad()
     }
 
     if (!isNaN(this._autoTrainInterval) && this._autoTrainInterval >= 5000) {
@@ -113,7 +113,7 @@ export default class ScopedEngine implements Engine {
       this._autoTrainTimer = setInterval(async () => {
         if (this._preloaded && (await this.checkSyncNeeded())) {
           // Sync only if the model has been already loaded
-          this.sync()
+          this.trainOrLoad()
         }
       }, this._autoTrainInterval)
     }
@@ -126,7 +126,7 @@ export default class ScopedEngine implements Engine {
   /**
    * @return The trained model hash
    */
-  async sync(forceRetrain: boolean = false, confusionVersion = undefined): Promise<string> {
+  async trainOrLoad(forceRetrain: boolean = false, confusionVersion = undefined): Promise<string> {
     if (this._isSyncing) {
       this._isSyncingTwice = true
       return
@@ -167,7 +167,7 @@ export default class ScopedEngine implements Engine {
       this._isSyncing = false
       if (this._isSyncingTwice) {
         this._isSyncingTwice = false
-        return this.sync() // This floating promise is voluntary
+        return this.trainOrLoad() // This floating promise is voluntary
       }
     }
 
@@ -176,7 +176,7 @@ export default class ScopedEngine implements Engine {
 
   async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
-      await this.sync()
+      await this.trainOrLoad()
     }
 
     const t0 = Date.now()
@@ -409,7 +409,8 @@ export default class ScopedEngine implements Engine {
   }
 
   private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
-    let lang = await this.langDetector.identify(ds.rawText)
+    let lang = await this.langIdentifier.identify(ds.rawText)
+    ds.detectedLanguage = lang
 
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
       this.logger.debug(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)

@@ -28,7 +28,7 @@ export interface Sequence {
 export type EngineByBot = { [botId: string]: Engine }
 
 export interface Engine {
-  sync(forceRetrain: boolean): Promise<string>
+  trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
   extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
 }
@@ -86,6 +86,7 @@ export interface NLUStructure {
   rawText: string
   sanitizedText: string
   lowerText: string
+  detectedLanguage: string
   language: string
   includedContexts: string[]
   slots: { [key: string]: sdk.NLU.Slot }
