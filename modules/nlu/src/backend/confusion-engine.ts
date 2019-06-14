@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { flatten, groupBy } from 'lodash'
-import path from 'path'
 
 import ScopedEngine from './engine'
 import { keepEntityValues } from './pipelines/slots/pre-processor'
