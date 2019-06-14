@@ -21,7 +21,6 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
-    "@blueprintjs/datetime": "^3.9.1",
     "axios": "^0.18.1",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
