@@ -71,11 +71,17 @@ function renderMessenger(data) {
     }))
   }
 
-  return [
-    {
+  const events = []
+
+  if (data.typing) {
+    events.push({
       type: 'typing',
       value: data.typing
-    },
+    })
+  }
+  
+  return [
+    ...events,
     {
       attachment: {
         type: 'template',
