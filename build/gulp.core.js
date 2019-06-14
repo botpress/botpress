@@ -14,9 +14,11 @@ const maybeFetchPro = () => {
 }
 
 const writeMetadata = () => {
+  const version = require(path.join(__dirname, '../package.json')).version
   const metadata = JSON.stringify(
     {
-      version: require(path.join(__dirname, '../package.json')).version
+      version,
+      build_version: `${version}__${Date.now()}`
     },
     null,
     2
@@ -62,8 +64,20 @@ const copyBinaries = () => {
   return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
 }
 
+const copyJs = () => {
+  return gulp.src('src/bp/ml/svm-js/**/*.*').pipe(gulp.dest('./out/bp/ml/svm-js'))
+}
+
 const build = () => {
-  return gulp.series([maybeFetchPro, writeMetadata, compileTypescript, buildSchemas, createOutputDirs, copyBinaries])
+  return gulp.series([
+    maybeFetchPro,
+    writeMetadata,
+    compileTypescript,
+    buildSchemas,
+    createOutputDirs,
+    copyJs,
+    copyBinaries
+  ])
 }
 
 module.exports = {

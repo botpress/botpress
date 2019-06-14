@@ -4,6 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
+import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
@@ -13,6 +14,7 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
+const MIN_SLOT_CONFIDENCE = 0.5
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -36,7 +38,7 @@ export default class CRFExtractor implements SlotExtractor {
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel
 
-  constructor(private toolkit: typeof sdk.MLToolkit) {}
+  constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
 
   async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
     // load language model
@@ -47,7 +49,6 @@ export default class CRFExtractor implements SlotExtractor {
     await ft.loadFromFile(ftModelFn)
     this._ft = ft
     this._ftModelFn = ftModelFn
-
     // load kmeans (retrain because there is no simple way to store it)
     await this._trainKmeans(traingingSet)
 
@@ -102,31 +103,36 @@ export default class CRFExtractor implements SlotExtractor {
    */
   async extract(
     text: string,
+    lang: string,
     intentDef: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[]
-  ): Promise<sdk.NLU.SlotsCollection> {
+    entities: sdk.NLU.Entity[],
+    tokens: string[]
+  ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(text, { entities })
-    const seq = generatePredictionSequence(text, intentDef.name, entities)
-    const tags = await this._tag(seq)
+    const seq = await generatePredictionSequence(text, intentDef.name, entities, tokens)
+    const { probability, result: tags } = await this._tag(seq)
+
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
-      .filter(([token, tag]) => {
-        if (!token || !tag || tag === BIO.OUT) {
+      .filter(([token, tagResult]) => {
+        if (!token || !tagResult || tagResult === BIO.OUT) {
           return false
         }
 
-        const slotName = tag.slice(2)
+        const slotName = tagResult.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
+        const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
+
+        if (!slot) {
+          return slotCollection
+        }
+
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
-          // prevent cases where entity has multiple tokens e.g. "4 months months"
-          if (!slot.entity || token.end > slot.entity.meta.end) {
-            // simply append the source if the tag is inside a slot
-            slotCollection[slotName].source += ` ${token.value}`
-          }
+          // simply append the source if the tag is inside a slot
+          slotCollection[slotName].source += ` ${token.value}`
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
@@ -143,26 +149,30 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // this is made "protected" to facilitate model validation
-  async _tag(seq: Sequence): Promise<string[]> {
+  async _tag(seq: Sequence): Promise<{ probability: number; result: string[] }> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
     const inputVectors: string[][] = []
+
     for (let i = 0; i < seq.tokens.length; i++) {
       const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
-
       inputVectors.push(featureVec)
     }
 
-    return this._tagger.tag(inputVectors).result
+    return this._tagger.tag(inputVectors)
   }
 
   private _makeSlot(
     slotName: string,
     token: Token,
     slotDefinitions: sdk.NLU.SlotDefinition[],
-    entities: sdk.NLU.Entity[]
+    entities: sdk.NLU.Entity[],
+    confidence: number
   ): sdk.NLU.Slot {
+    if (confidence < MIN_SLOT_CONFIDENCE) {
+      return
+    }
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
       slotDef &&
@@ -170,13 +180,18 @@ export default class CRFExtractor implements SlotExtractor {
         e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
       )
 
+    // TODO: we might want to build up an entity with populated data with and 'any' slot
+    if (slotDef && !slotDef.entities.includes('any') && !entity) {
+      return
+    }
+
     const value = _.get(entity, 'data.value', token.value)
     const source = _.get(entity, 'meta.source', token.value)
 
     const slot = {
       name: slotName,
       value,
-      source
+      confidence
     } as sdk.NLU.Slot
 
     if (entity) {
@@ -229,12 +244,7 @@ export default class CRFExtractor implements SlotExtractor {
     const ft = new this.toolkit.FastText.Model()
 
     const trainContent = samples.reduce((corpus, seq) => {
-      const cannonicSentence = seq.tokens
-        .map(s => {
-          if (s.tag === BIO.OUT) return s.value
-          else return s.slot
-        })
-        .join(' ')
+      const cannonicSentence = seq.tokens.map(s => (s.tag === BIO.OUT ? s.value : s.slot)).join(' ')
       return `${corpus}${cannonicSentence}\n`
     }, '')
 

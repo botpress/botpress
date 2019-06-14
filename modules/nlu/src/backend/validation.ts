@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-export const ID_REGEX = /^[a-zA-Z0-9]+[A-Z0-9_-]{2,}$/i
+import { ID_REGEX } from './../util'
 
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
@@ -15,9 +15,9 @@ export const SlotsCreateSchema = Joi.object().keys({
 
 export const IntentDefCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
-  utterances: Joi.array()
-    .items(Joi.string())
-    .default([]),
+  utterances: Joi.object()
+    .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({}),
   slots: Joi.array()
     .items(SlotsCreateSchema)
     .default([]),
@@ -33,7 +33,7 @@ const EntityDefOccurenceSchema = Joi.object().keys({
 
 export const EntityDefCreateSchema = Joi.object().keys({
   id: Joi.string()
-    .regex(ID_REGEX)
+    .regex(ID_REGEX, { invert: true })
     .required(),
   name: Joi.string().required(),
   type: Joi.string()

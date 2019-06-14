@@ -1,13 +1,14 @@
 import { Colors } from '@blueprintjs/core'
 import axios from 'axios'
+import _ from 'lodash'
 import React from 'react'
 import { FaThLarge } from 'react-icons/fa'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
 
-const GREEM_LOWER_BOUND = 0.85
-const RED_UPPER_BOUND = 0.5
+const GREEM_LOWER_BOUND = 85
+const RED_UPPER_BOUND = 50
 
 interface MatrixInfo {
   matrix: any | undefined
@@ -16,6 +17,7 @@ interface MatrixInfo {
 
 interface Props {
   synced: boolean
+  contentLang: string
   updateSyncStatus: (synced: boolean) => void
 }
 
@@ -38,9 +40,13 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     this.fetchConfusion()
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.synced && this.state.synced) {
       this.setState({ f1: undefined, synced: false })
+    }
+
+    if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
+      this.fetchConfusion()
     }
   }
 
@@ -59,18 +65,19 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     try {
-      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}`)
+      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/confusion/${modelHash}/studio`, {
+        params: { lang: this.props.contentLang }
+      })
       return data as MatrixInfo
     } catch {
       return { confusionComputing: false } as MatrixInfo
     }
   }
 
-  extractF1FromMatrix(matrix): number | undefined {
-    if (!matrix || !matrix.intents || !matrix.intents.all) {
-      return
-    }
-    return matrix.intents.all.f1
+  extractF1FromMatrix(matrix: any): number | undefined {
+    const f1 = _.get(matrix, 'intents.all.f1')
+
+    return f1 ? Math.round(f1 * 100) : undefined
   }
 
   calculateConfusion = async () => {
@@ -84,7 +91,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     this.computationMutex = true
     this.setState({ f1: undefined, computing: true })
 
-    const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`)
+    const response = await axios.post(`${window.BOT_API_PATH}/mod/nlu/confusion`, { version: 'studio' })
 
     this.computationMutex = false
     this.setState({ computing: false })
@@ -107,8 +114,12 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   render() {
     return (
       <ActionItem
-        title={'NLU Performance Status'}
-        description={this.state.f1 ? `f1: ${this.state.f1}` : 'currently no f1 to display'}
+        title={'NLU performance'}
+        description={
+          this.state.f1
+            ? `Overall score: ${this.state.f1} %`
+            : 'No score to show, click to start NLU performance analysis'
+        }
         disabled={this.state.computing}
         className={style.right}
         onClick={this.calculateConfusion}

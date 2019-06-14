@@ -1,14 +1,12 @@
 {
   "id": "pgedex03mc_where_do_monkeys_live",
   "data": {
-    "answers": [
-      "Most monkey species can be found in the tropical rain forests of Asia, Africa, Europe and Central and South America."
-    ],
-    "questions": [
-      "Where do monkeys live?",
-      "Where can I find monkeys?",
-      "Whats their habitat?"
-    ],
+    "answers": {
+      "en": [
+        "Most monkey species can be found in the tropical rain forests of Asia, Africa, Europe and Central and South America."
+      ]
+    },
+    "questions": { "en": ["Where do monkeys live?", "Where can I find monkeys?", "Whats their habitat?"] },
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

@@ -4,6 +4,13 @@ import ReactDOM from 'expose-loader?ReactDOM!react-dom'
 import axios from 'axios'
 import { HotKeys } from 'react-hotkeys'
 import { getToken } from '~/util/Auth'
+import { Provider } from 'react-redux'
+
+import store from './store'
+import { keyMap } from './keyboardShortcuts'
+
+// Required to fix outline issue
+import './style.scss'
 /* eslint-disable */
 import 'expose-loader?ReactSelect!react-select'
 import 'expose-loader?PropTypes!prop-types'
@@ -12,19 +19,12 @@ import 'expose-loader?Reactstrap!reactstrap' // TODO Remove me once we migrated 
 import 'expose-loader?BotpressContentPicker!~/components/Content/Select/Widget'
 import 'expose-loader?SmartInput!~/components/SmartInput'
 import 'expose-loader?ElementsList!~/components/Shared/ElementsList'
-import { Provider } from 'react-redux'
 import 'expose-loader?SelectActionDropdown!~/views/FlowBuilder/nodeProps/SelectActionDropdown'
 import 'expose-loader?BotpressTooltip!~/components/Shared/Tooltip'
 import 'expose-loader?BotpressUI!~/components/Shared/Interface'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 /* eslint-enable */
-
-import store from './store'
-import { keyMap } from './keyboardShortcuts'
-
-// Required to fix outline issue
-import './style.scss'
 
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')

@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { flatten, groupBy } from 'lodash'
 
 import ScopedEngine from './engine'
+import { keepEntityValues } from './pipelines/slots/pre-processor'
 import { FiveFolder, RecordCallback, Result } from './tools/five-fold'
 
 type TrainingEntry = {
@@ -31,30 +32,42 @@ export default class ConfusionEngine extends ScopedEngine {
     return this._confusionComputing
   }
 
-  protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string) {
-    await super.trainModels(intentDefs, modelHash)
+  protected async trainModels(
+    intentDefs: sdk.NLU.IntentDefinition[],
+    modelHash: string,
+    confusionVersion: string = undefined
+  ) {
+    for (const lang of this.languages) {
+      await super.trainModels(intentDefs, modelHash)
 
-    if (!this.computeConfusionOnTrain) {
-      return
+      if (!this.computeConfusionOnTrain) {
+        return
+      }
+
+      const dataset = this._definitionsToEntry(intentDefs, lang)
+      const folder = new FiveFolder<TrainingEntry>(dataset)
+
+      this.modelIdx = 0
+      this.modelName = ''
+      this.originalModelHash = modelHash
+
+      this._confusionComputing = true
+      await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+      this._confusionComputing = false
+
+      await this._processResults(folder.getResults(), lang, confusionVersion)
     }
-
-    const dataset = this._definitionsToEntry(intentDefs)
-    const folder = new FiveFolder<TrainingEntry>(dataset)
-
-    this.modelIdx = 0
-    this.modelName = ''
-    this.originalModelHash = modelHash
-
-    this._confusionComputing = true
-    await folder.fold('intents', this._trainIntents.bind(this), this._evaluateIntents.bind(this))
-    this._confusionComputing = false
-
-    await this._processResults(folder.getResults())
   }
 
-  private async _processResults(results: Result) {
+  private async _processResults(results: Result, lang: string, confusionVersion: string = undefined) {
     const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
-    await this.storage.saveConfusionMatrix(this.originalModelHash, results)
+
+    await this.storage.saveConfusionMatrix({
+      modelHash: this.originalModelHash,
+      lang,
+      results,
+      confusionVersion
+    })
 
     const intents = results['intents']
     this.logger.debug('=== Confusion Matrix ===')
@@ -62,10 +75,10 @@ export default class ConfusionEngine extends ScopedEngine {
     this.logger.debug(`Details available here: ${reportUrl}`)
   }
 
-  private _definitionsToEntry(def: sdk.NLU.IntentDefinition[]): TrainingEntry[] {
+  private _definitionsToEntry(def: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[] {
     return flatten(
       def.map(x =>
-        x.utterances.map(
+        x.utterances[lang].map(
           u =>
             ({
               definition: x,
@@ -76,32 +89,36 @@ export default class ConfusionEngine extends ScopedEngine {
     )
   }
 
-  private _entriesToDefinition(entries: TrainingEntry[]): sdk.NLU.IntentDefinition[] {
+  private _entriesToDefinition(entries: TrainingEntry[], lang): sdk.NLU.IntentDefinition[] {
     const groups = groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
     return Object.keys(groups).map(
       x =>
         ({
           ...groups[x][0].definition,
-          utterances: groups[x].map(x => x.utterance)
+          utterances: { [lang]: groups[x].map(x => x.utterance) }
         } as sdk.NLU.IntentDefinition)
     )
   }
 
-  private async _trainIntents(dataSet: TrainingEntry[]) {
-    const defs = this._entriesToDefinition(dataSet)
+  private async _trainIntents(lang: string, dataSet: TrainingEntry[]) {
+    const defs = this._entriesToDefinition(dataSet, lang)
     this.modelName = `${this.originalModelHash}-fold${this.modelIdx++}`
     await super.trainModels(defs, this.modelName)
   }
 
-  private async _evaluateIntents(dataSet: TrainingEntry[], record: RecordCallback) {
-    const defs = this._entriesToDefinition(dataSet)
-
-    await this.loadModels(defs, this.originalModelHash)
-    const expected = await Promise.mapSeries(dataSet, (__, idx) => this.extract(dataSet[idx].utterance, []))
+  private async _evaluateIntents(
+    lang: string,
+    trainSet: TrainingEntry[],
+    testSet: TrainingEntry[],
+    record: RecordCallback
+  ) {
+    const defs = this._entriesToDefinition(trainSet, lang)
 
     await this.loadModels(defs, this.modelName)
-    const actual = await Promise.mapSeries(dataSet, (__, idx) => this.extract(dataSet[idx].utterance, []))
+    const actual = await Promise.mapSeries(testSet, (__, idx) =>
+      this.extract(keepEntityValues(testSet[idx].utterance), [])
+    )
 
-    dataSet.forEach((__, idx) => record(expected[idx].intent.name, actual[idx].intent.name))
+    testSet.forEach((__, idx) => record(testSet[idx].definition.name, actual[idx].intent.name))
   }
 }

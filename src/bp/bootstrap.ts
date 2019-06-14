@@ -10,6 +10,7 @@ import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
+import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { FatalError } from './errors'
@@ -25,6 +26,21 @@ async function start() {
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
   }
+
+  if (!fs.existsSync(process.APP_DATA_PATH)) {
+    try {
+      fs.mkdirSync(process.APP_DATA_PATH)
+    } catch (err) {
+      logger.attachError(err).error(
+        `Could not find/create APP_DATA folder "${process.APP_DATA_PATH}".
+Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
+This is a fatal error, process will exit.`
+      )
+      process.exit(1)
+    }
+  }
+
+  logger.info(`App Data Dir: "${process.APP_DATA_PATH}"`)
 
   const modules: sdk.ModuleEntryPoint[] = []
 

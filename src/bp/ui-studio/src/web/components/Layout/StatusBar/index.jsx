@@ -153,6 +153,7 @@ class StatusBar extends React.Component {
             <NotificationHub />
           </ActionItem>
           <NluPerformanceStatus
+            contentLang={this.props.contentLang}
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
           />
@@ -199,7 +200,8 @@ class StatusBar extends React.Component {
 const mapStateToProps = state => ({
   user: state.user,
   botInfo: state.bot,
-  docHints: state.ui.docHints
+  docHints: state.ui.docHints,
+  contentLang: state.language.contentLang
 })
 
 export default connect(

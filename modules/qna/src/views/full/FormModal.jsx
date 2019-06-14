@@ -16,8 +16,8 @@ const ACTIONS = {
 export default class FormModal extends Component {
   defaultState = {
     item: {
-      answers: [],
-      questions: [],
+      answers: {},
+      questions: {},
       redirectFlow: '',
       redirectNode: '',
       action: ACTIONS.TEXT,
@@ -39,7 +39,7 @@ export default class FormModal extends Component {
 
   state = this.defaultState
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     const { id } = this.props
     if (prevProps.id === id) {
       return
@@ -47,12 +47,15 @@ export default class FormModal extends Component {
     if (!id) {
       return this.setState(this.defaultState)
     }
-    this.props.bp.axios.get(`/mod/qna/questions/${id}`).then(({ data: { data: item } }) => {
-      this.setState({
-        item,
-        isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
-        isText: [ACTIONS.TEXT, ACTIONS.TEXT_REDIRECT].includes(item.action)
-      })
+
+    const {
+      data: { data: item }
+    } = await this.props.bp.axios.get(`/mod/qna/questions/${id}`)
+
+    this.setState({
+      item,
+      isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
+      isText: [ACTIONS.TEXT, ACTIONS.TEXT_REDIRECT].includes(item.action)
     })
   }
 
@@ -61,10 +64,11 @@ export default class FormModal extends Component {
     this.setState(this.defaultState)
   }
 
-  changeItemProperty = (key, value) => {
+  changeItemProperty = (keyPath, value) => {
     const { item } = this.state
 
-    this.setState({ item: { ...item, [key]: value } })
+    _.set(item, keyPath, value)
+    this.setState(item)
   }
 
   handleSelect = key => selectedOption =>
@@ -82,8 +86,8 @@ export default class FormModal extends Component {
   validateForm() {
     const { item, isText, isRedirect } = this.state
     const invalidFields = {
-      questions: !item.questions.length || !item.questions[0].length,
-      answer: isText && (!item.answers.length || !item.answers[0].length),
+      questions: !this.itemQuestions.length || !this.itemQuestions[0].length,
+      answer: isText && (!this.itemAnswers.length || !this.itemAnswers[0].length),
       checkbox: !(isText || isRedirect),
       redirectFlow: isRedirect && !item.redirectFlow,
       redirectNode: isRedirect && !item.redirectNode
@@ -95,8 +99,7 @@ export default class FormModal extends Component {
   }
 
   isQuestionDuplicated() {
-    const item = this.state.item
-    const questions = this.trimItemQuestions(item.questions)
+    const questions = this.trimItemQuestions(this.itemQuestions)
 
     return _.some(questions, (value, index) => _.includes(questions, value, Number(index) + 1))
   }
@@ -105,9 +108,9 @@ export default class FormModal extends Component {
     return questions.map(q => q.trim()).filter(q => q !== '')
   }
 
-  onCreate = async questions => {
+  onCreate = async qnaItem => {
     try {
-      await this.props.bp.axios.post('/mod/qna/questions', { ...this.state.item, questions })
+      await this.props.bp.axios.post('/mod/qna/questions', qnaItem)
 
       this.props.fetchData()
       this.closeAndClear()
@@ -116,20 +119,16 @@ export default class FormModal extends Component {
     }
   }
 
-  onEdit = async questions => {
+  onEdit = async qnaItem => {
     const {
       page,
       filters: { question, categories }
     } = this.props
 
     try {
-      const { data } = await this.props.bp.axios.put(
-        `/mod/qna/questions/${this.props.id}`,
-        { ...this.state.item, questions },
-        {
-          params: { ...page, question, categories: categories.map(({ value }) => value) }
-        }
-      )
+      const { data } = await this.props.bp.axios.put(`/mod/qna/questions/${this.props.id}`, qnaItem, {
+        params: { ...page, question, categories: categories.map(({ value }) => value) }
+      })
 
       this.props.updateQuestion(data)
       this.closeAndClear()
@@ -140,6 +139,8 @@ export default class FormModal extends Component {
 
   alertMessage() {
     const hasInvalidInputs = Object.values(this.state.invalidFields).find(Boolean)
+    const missingTranslations =
+      this.props.modalType === 'edit' && (!this.itemAnswers.length || !this.itemQuestions.length)
 
     return (
       <div>
@@ -147,6 +148,7 @@ export default class FormModal extends Component {
         {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
         {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
         {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
+        {missingTranslations && <Alert bsStyle="danger">Missing translations</Alert>}
       </div>
     )
   }
@@ -157,31 +159,47 @@ export default class FormModal extends Component {
       return
     }
 
-    const item = this.state.item
-    const questions = this.trimItemQuestions(item.questions)
+    const itemToSend = { ...this.state.item }
+    itemToSend.questions = {
+      ...itemToSend.questions,
+      ...{ [this.props.contentLang]: this.trimItemQuestions(this.itemQuestions) }
+    }
 
-    this.props.modalType === 'edit' ? this.onEdit(questions) : this.onCreate(questions)
+    this.props.modalType === 'edit' ? this.onEdit(itemToSend) : this.onCreate(itemToSend)
+  }
+
+  get itemAnswers() {
+    return this.state.item.answers[this.props.contentLang] || []
+  }
+
+  get itemQuestions() {
+    return this.state.item.questions[this.props.contentLang] || []
   }
 
   createAnswer = answer => {
-    const answers = [...this.state.item.answers, answer]
-    this.changeItemProperty('answers', answers)
+    const answers = [...this.itemAnswers, answer]
+
+    this.changeItemProperty(`answers.${this.props.contentLang}`, answers)
   }
 
   updateAnswer = (answer, index) => {
-    const answers = this.state.item.answers
+    const answers = this.itemAnswers
     if (answers[index]) {
       answers[index] = answer
-      this.changeItemProperty('answers', answers)
+      this.changeItemProperty(`answers.${this.props.contentLang}`, answers)
     }
   }
 
   deleteAnswer = index => {
-    const answers = this.state.item.answers
+    const answers = this.itemAnswers
     if (answers[index]) {
       answers.splice(index, 1)
-      this.changeItemProperty('answers', answers)
+      this.changeItemProperty(`answers.${this.props.contentLang}`, answers)
     }
+  }
+
+  updateQuestions = event => {
+    this.changeItemProperty(`questions.${this.props.contentLang}`, event.target.value.split(/\n/))
   }
 
   render() {
@@ -231,8 +249,8 @@ export default class FormModal extends Component {
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
                 })}
-                value={(this.state.item.questions || []).join('\n')}
-                onChange={event => this.changeItemProperty('questions', event.target.value.split(/\n/))}
+                value={this.itemQuestions.join('\n')}
+                onChange={this.updateQuestions}
                 componentClass="textarea"
               />
             </div>
@@ -252,7 +270,7 @@ export default class FormModal extends Component {
 
                 <ElementsList
                   placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
-                  elements={this.state.item.answers}
+                  elements={this.itemAnswers}
                   allowMultiline={true}
                   onInvalid={this.state.invalidFields.answer}
                   onCreate={this.createAnswer}
