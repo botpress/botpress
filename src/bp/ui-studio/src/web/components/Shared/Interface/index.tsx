@@ -99,7 +99,10 @@ export const ItemList = (props: ItemListProps) => {
     <div className={style.itemList}>
       {props.items &&
         props.items.map(item => (
-          <div key={item.label} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+          <div
+            key={item.key ? item.key : item.label}
+            className={classnames(style.item, { [style.itemListSelected]: item.selected })}
+          >
             <div
               className={style.label}
               onClick={() => props.onElementClicked && props.onElementClicked(item)}
