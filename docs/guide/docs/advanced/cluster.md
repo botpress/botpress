@@ -1,6 +1,6 @@
 ---
 id: cluster
-title: Server Cluster
+title: Clustering
 ---
 
 ## Requirements

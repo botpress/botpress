@@ -11,41 +11,36 @@
       "main/nlu",
       "main/emulator"
     ],
-    "Advanced Concepts": [
+    "Advanced Guides": [
       "advanced/configuration",
       "advanced/debug",
-      "advanced/webchat-extending",
-      "advanced/custom-module",
-      "advanced/analytics",
       "advanced/i18n",
       "advanced/authentication",
+      "advanced/custom-module",
+      "advanced/analytics",
       "advanced/performances",
-      {
-        "type": "subcategory",
-        "label": "Version Management",
-        "ids": ["advanced/pipelines", "advanced/versions"]
-      },
-      {
-        "type": "subcategory",
-        "label": "Hosting & High Availability",
-        "ids": ["advanced/architecture", "advanced/hosting", "advanced/cluster", "advanced/monitoring"]
-      }
+      "advanced/pipelines",
+      "advanced/versions",
+      "advanced/architecture",
+      "advanced/hosting",
+      "advanced/cluster",
+      "advanced/monitoring"
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
-      "tutorials/skill-call-api",
-      "tutorials/skill-slot",
       "tutorials/proactive",
+      "tutorials/skill-slot",
+      "tutorials/skill-call-api",
+      "tutorials/external-api",
+      "tutorials/shortlinks",
       "tutorials/existing-backend",
       "tutorials/database",
+      "tutorials/timeouts",
       "tutorials/hitl",
       "tutorials/jump-to",
       "tutorials/interbot",
-      "tutorials/shortlinks",
-      "tutorials/timeouts",
-      "tutorials/external-api",
-      "tutorials/chat-3rd-party-OAuth",
       "tutorials/contextual-faq",
+      "tutorials/chat-3rd-party-OAuth",
       "tutorials/listen-file-changes"
     ],
     "Pro Edition": ["pro/about-pro", "pro/licensing"],
