@@ -61,6 +61,8 @@ export const forceForwardSlashes = path => path.replace(/\\/g, '/')
 export const getCacheKeyInMinutes = (minutes: number = 1) => Math.round(new Date().getTime() / 1000 / 60 / minutes)
 
 export const asBytes = (size: string) => {
+  if (typeof size === 'number') return size
+
   size = typeof size === 'string' ? size : '0'
 
   const matches = size
