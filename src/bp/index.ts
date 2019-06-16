@@ -81,7 +81,7 @@ try {
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
 
-        process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || process.pkg
+        process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
         if (process.IS_PRO_AVAILABLE) {
