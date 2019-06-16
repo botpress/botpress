@@ -19,8 +19,6 @@ export default class MemoryObjectCache implements ObjectCache {
       length: (n, key) => {
         if (key.startsWith('buffer::')) {
           return n.length
-        } else if (key.startsWith('string::')) {
-          return n.length * 2 // each char is 2 bytes in ECMAScript
         }
 
         return 500 // Assuming 500 bytes per objects, this is kind of random

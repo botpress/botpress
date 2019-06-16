@@ -155,7 +155,7 @@ export class ScopedGhostService {
     return forceForwardSlashes(path.join(this._normalizeFolderName(rootFolder), file))
   }
 
-  objectCacheKey = str => `string::${str}`
+  objectCacheKey = str => `object::${str}`
   bufferCacheKey = str => `buffer::${str}`
 
   private async _invalidateFile(fileName: string) {
