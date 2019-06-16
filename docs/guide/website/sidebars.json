@@ -48,7 +48,7 @@
       "tutorials/contextual-faq",
       "tutorials/listen-file-changes"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing"],
+    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"],
     "Release Notes": ["releases/release-notes", "releases/migrate"]
   }
 }
