@@ -1,7 +1,7 @@
 import { ListenHandle, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
-import { forceForwardSlashes } from 'core/misc/utils'
+import { asBytes, forceForwardSlashes } from 'core/misc/utils'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -19,7 +19,7 @@ import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-const MAX_GHOST_FILE_SIZE = 20 * 1024 * 1024 // 20 Mb
+const MAX_GHOST_FILE_SIZE = asBytes('20mb')
 
 @injectable()
 export class GhostService {
