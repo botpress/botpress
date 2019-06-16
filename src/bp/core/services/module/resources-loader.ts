@@ -64,7 +64,7 @@ export class ModuleResourceLoader {
       },
       {
         src: `${this.modulePath}/assets`,
-        dest: `/assets/modules/${this.moduleName}`,
+        dest: `/data/assets/modules/${this.moduleName}`,
         ignoreChecksum: true
       },
       {
