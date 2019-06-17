@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getAllMatchingForRegex } from '../../../util'
 import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
-import { getAllMatchingForRegex } from '../../../util'
 
 const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
@@ -16,10 +16,8 @@ export function keepEntityValues(text: string): string {
   return text.replace(SLOTS_REGEX, '$1')
 }
 
-const _removeEntityNotations = (text: string): string => {
-  const matches = getAllMatchingForRegex(SLOTS_REGEX)(text)
-  return matches.reduce((acc, curr) => acc.replace(curr[0], curr[1]), text)
-}
+const _removeEntityNotations = (text: string): string =>
+  getAllMatchingForRegex(SLOTS_REGEX)(text).reduce((acc, curr) => acc.replace(curr[0], curr[1]), text)
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
   ({

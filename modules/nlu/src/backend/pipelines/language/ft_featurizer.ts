@@ -20,8 +20,6 @@ export default class FTWordVecFeaturizer {
     const defaultWordWeight = docTfidf['__avg__'] || 1
     const vecs = await langProvider.vectorize(doc, lang)
 
-    debug(`get for '${lang}'`, { doc, gotten: vecs.map(x => x.length) })
-
     if (!vecs.length) {
       throw new Error(`Could not get sentence vectors (empty result)`)
     }
@@ -30,10 +28,12 @@ export default class FTWordVecFeaturizer {
     // See https://github.com/facebookresearch/fastText/blob/26bcbfc6b288396bd189691768b8c29086c0dab7/src/fasttext.cc#L486s
     const sentenceVec = numjs.zeros(vecs[0].length)
     let totalWeight = 0
+
     vecs.forEach((arr, i) => {
       let sum = 0
       arr.forEach(x => (sum += x * x))
       const norm = Math.sqrt(sum)
+
       if (norm > 0) {
         const weight = docTfidf[doc[i]] || defaultWordWeight
         totalWeight += weight
@@ -42,7 +42,10 @@ export default class FTWordVecFeaturizer {
       }
     })
 
-    sentenceVec.divide(totalWeight, false)
-    return sentenceVec.tolist() as number[]
+    const res = sentenceVec.divide(totalWeight, false).tolist()
+
+    debug(`get for '${lang}'`, { doc, vecs, res, docTfidf })
+
+    return res as number[]
   }
 }
