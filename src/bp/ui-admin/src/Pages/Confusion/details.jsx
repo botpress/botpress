@@ -1,8 +1,8 @@
+import { Position, Tooltip } from '@blueprintjs/core'
 import * as React from 'react'
-import ReactTooltip from 'react-tooltip'
 import _ from 'lodash'
-import { getColorByPercent } from './gradient'
 
+import { getColorByPercent } from './gradient'
 import './styles.css'
 
 const Cell = props => {
@@ -60,75 +60,77 @@ const MatrixComponent = props => {
 
     const noneConfusions = v.confusions.none || 0
 
-    const body = (
-      <React.Fragment>
-        <a data-tip data-for={'cls-' + key}>
-          {v.f1.toFixed(1)}
-        </a>
-        <ReactTooltip id={'cls-' + key} effect="solid">
-          <h3>{key}</h3>
-          <ul>
+    const toolTipContent = (
+      <div>
+        <h3>{key}</h3>
+        <ul>
+          <li>
+            <strong>F1: </strong>
+            {v.f1.toFixed(2)}
+          </li>
+          <li>
+            <strong>Precision: </strong>
+            {v.precision.toFixed(2)}
+          </li>
+          <li>
+            <strong>Recall: </strong>
+            {v.recall.toFixed(2)}
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <strong>False Positives: </strong>
+            {v.fp}
+          </li>
+          <li>
+            <strong>False Negatives: </strong>
+            {v.fn - noneConfusions}
+          </li>
+          {noneConfusions ? (
             <li>
-              <strong>F1: </strong>
-              {v.f1.toFixed(2)}
+              <strong>Not found (none):</strong> {noneConfusions}
             </li>
-            <li>
-              <strong>Precision: </strong>
-              {v.precision.toFixed(2)}
-            </li>
-            <li>
-              <strong>Recall: </strong>
-              {v.recall.toFixed(2)}
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <strong>False Positives: </strong>
-              {v.fp}
-            </li>
-            <li>
-              <strong>False Negatives: </strong>
-              {v.fn - noneConfusions}
-            </li>
-            {noneConfusions ? (
-              <li>
-                <strong>Not found (none):</strong> {noneConfusions}
-              </li>
-            ) : null}
-          </ul>
-        </ReactTooltip>
-      </React.Fragment>
+          ) : null}
+        </ul>
+      </div>
     )
 
     cols[idxByName[key]] = (
       <Cell className="identity" scoreInPercent={v.f1 || 0}>
-        {body}
+        <Tooltip content={toolTipContent} position={Position.RIGHT}>
+          <a data-tip data-for={'cls-' + key}>
+            {v.f1.toFixed(1)}
+          </a>
+        </Tooltip>
       </Cell>
     )
 
-    for (let cls of Object.keys(v.confusions || []).filter(x => x !== 'none')) {
+    for (const cls of Object.keys(v.confusions || []).filter(x => x !== 'none')) {
       if (idxByName[cls] > idxByName[key]) {
         continue
       }
 
       const tipKey = `cls-${key}--vs--${cls}`
-      let nConfusions = (v.confusions || [])[cls] + ((matrix[cls].confusions || {})[key] || 0)
+      const nConfusions = (v.confusions || [])[cls] + ((matrix[cls].confusions || {})[key] || 0)
 
-      const body = (
-        <React.Fragment>
-          <a data-tip data-for={tipKey}>
-            {nConfusions}
-          </a>
-          <ReactTooltip id={tipKey} effect="solid">
-            <h3>{key}</h3>
-            <p>
-              The model got confused <strong>{nConfusions}</strong> times with the <strong>{cls}</strong> intent.
-            </p>
-          </ReactTooltip>
-        </React.Fragment>
+      const content = (
+        <div>
+          <h3>{key}</h3>
+          <p>
+            The model got confused <strong>{nConfusions}</strong> times with the <strong>{cls}</strong> intent.
+          </p>
+        </div>
       )
 
-      cols[idxByName[cls]] = <Cell scoreInAbsolute={nConfusions}>{body}</Cell>
+      cols[idxByName[cls]] = (
+        <Cell scoreInAbsolute={nConfusions}>
+          <Tooltip content={content}>
+            <a data-tip data-for={tipKey}>
+              {nConfusions}
+            </a>
+          </Tooltip>
+        </Cell>
+      )
     }
 
     return <tr>{cols}</tr>
