@@ -6,6 +6,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _, { Partial } from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
@@ -55,6 +56,7 @@ export class Botpress {
   version: string
   config!: BotpressConfig | undefined
   api!: typeof sdk
+  _heartbeatTimer?: NodeJS.Timeout
 
   constructor(
     @inject(TYPES.Statistics) private stats: Statistics,
@@ -100,6 +102,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+    this.trackHeartbeat()
 
     setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
@@ -415,5 +418,28 @@ Node: ${err.nodeName}`
       'start',
       `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}`
     )
+  }
+
+  private trackHeartbeat() {
+    if (this._heartbeatTimer) {
+      clearInterval(this._heartbeatTimer)
+    }
+
+    this._heartbeatTimer = setInterval(async () => {
+      let nbBots = 'N/A'
+      let nbCollabs = 'N/A'
+      try {
+        nbBots = (await this.botService.getBotsIds()).length.toString()
+        nbCollabs = (await this.workspaceService.listUsers()).length.toString()
+      } finally {
+        this.stats.track(
+          'server',
+          'heartbeat',
+          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${
+            process.IS_LICENSED
+          }, bots: ${nbBots}, collaborators: ${nbCollabs}`
+        )
+      }
+    }, ms('2m'))
   }
 }
