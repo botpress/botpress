@@ -3,7 +3,6 @@
 interface CssExports {
   'conversations': string;
   'datepicker': string;
-  'displayFlagCheckbox': string;
   'downloadCopy': string;
   'fetch-more': string;
   'message-elements': string;
@@ -27,7 +26,6 @@ interface CssExports {
   'message-viewer': string;
   'noConvIcon': string;
   'quit-inspector': string;
-  'taskBarLabel': string;
   'taskBarText': string;
 }
 declare var cssExports: CssExports;

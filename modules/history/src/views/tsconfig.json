@@ -4,7 +4,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "target": "es5",
-    "lib": ["es7", "dom"],
+    "lib": ["es7", "dom", "esnext"],
     "jsx": "react",
     "typeRoots": ["../../node_modules/@types"],
     "baseUrl": "./",

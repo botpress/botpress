@@ -1,5 +1,4 @@
-import { Divider, Icon } from '@blueprintjs/core'
-import { AnchorButton, Colors, Position, Tooltip } from '@blueprintjs/core'
+import { AnchorButton, Checkbox, Colors, Divider, Icon, Position, Tooltip, Alignment, Text } from '@blueprintjs/core'
 import { Toolbar } from 'botpress/ui'
 import React, { Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -24,36 +23,35 @@ interface Props {
 }
 
 interface State {
-  filters: Filters
   currentConv: string
   showCopiedTooltip: boolean
 }
 
 export class MessageTaskBar extends React.Component<Props, State> {
   state = {
-    filters: {
-      flag: false
-    },
     currentConv: undefined,
     showCopiedTooltip: false
+  }
+  filters: Filters = {
+    flag: false
   }
 
   componentDidUpdate() {
     if (this.props.currentConv !== this.state.currentConv) {
-      this.setState({ currentConv: this.props.currentConv, filters: { flag: false } })
+      this.setState({ currentConv: this.props.currentConv })
     }
   }
 
   toggleFlagFilter = () => {
-    this.state.filters.flag = !this.state.filters.flag
-    this.props.updateFilters(this.state.filters)
+    this.filters.flag = !this.filters.flag
+    this.props.updateFilters(this.filters)
   }
 
   renderFilters() {
     return (
       <Toolbar>
         <Fragment>
-          <div className={style.taskBarText}>{this.props.selectedCount} selected messages</div>
+          <Text className={style.taskBarText}>{this.props.selectedCount} selected messages</Text>
 
           <Divider />
 
@@ -73,8 +71,7 @@ export class MessageTaskBar extends React.Component<Props, State> {
     )
   }
 
-  copyLink = e => {
-    console.log(e)
+  copyLink = () => {
     this.setState({ showCopiedTooltip: true })
     setTimeout(() => this.setState({ showCopiedTooltip: false }), 600)
   }
@@ -82,17 +79,13 @@ export class MessageTaskBar extends React.Component<Props, State> {
   renderActions() {
     return (
       <Toolbar>
-        <label className={style.taskBarText}>
-          <span className={style.taskBarLabel}>Display only flagged messages:</span>
-          <input
-            style={{ margin: 0 }}
-            id={'displayFlagCheckbox'}
-            className={style.displayFlagCheckbox}
-            type={'checkbox'}
-            checked={this.state.filters.flag}
-            onChange={this.toggleFlagFilter}
-          />
-        </label>
+        <Checkbox
+          inline
+          label={'Display only flagged messages:'}
+          alignIndicator={Alignment.RIGHT}
+          checked={this.filters.flag}
+          onChange={this.toggleFlagFilter}
+        />
 
         <div key={'download-copy'} className={style.downloadCopy}>
           <MessageDownload messageGroups={this.props.messageGroups} />

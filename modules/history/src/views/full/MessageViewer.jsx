@@ -119,7 +119,7 @@ export class MessageViewer extends React.Component {
   renderHeader() {
     return (
       this.state.currentConversation && (
-        <div>
+        <React.Fragment>
           <div className={style['message-title']}>Conversation {this.state.currentConversation}</div>
           {!!this.props.messageGroups.length && (
             <div className={style['message-lastdate']}>
@@ -129,7 +129,7 @@ export class MessageViewer extends React.Component {
           {!this.props.messageGroups.length && (
             <div className={style['message-lastdate']}>No messages with current filters</div>
           )}
-        </div>
+        </React.Fragment>
       )
     )
   }
