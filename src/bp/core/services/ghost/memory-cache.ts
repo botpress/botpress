@@ -16,12 +16,14 @@ export default class MemoryObjectCache implements ObjectCache {
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
     this.cache = LRU({
       max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
-      length: (n, key) => {
-        if (key.startsWith('buffer::')) {
-          return n.length
+      length: obj => {
+        if (Buffer.isBuffer(obj)) {
+          return obj.length
+        } else if (typeof obj === 'string') {
+          return obj.length * 2 // chars are 2 bytes in ECMAScript
         }
 
-        return 500 // Assuming 500 bytes per objects, this is kind of random
+        return 1024 // Assuming 1kb per object, this is kind of random
       }
     })
 
