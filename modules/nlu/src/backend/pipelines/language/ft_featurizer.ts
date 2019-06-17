@@ -1,5 +1,6 @@
 import _ from 'lodash'
 
+import { computeNorm, scalarDivide, vectorAdd } from '../../tools/math'
 import { LanguageProvider } from '../../typings'
 
 const debug = DEBUG('nlu')
@@ -17,7 +18,7 @@ export const getSentenceFeatures = async (
 ): Promise<number[]> => {
   const vecs = await langProvider.vectorize(doc, lang)
 
-  debug(`get for '${lang}'`, { doc, gotten: vecs.map(x => x.length) })
+  debug(`get for '${lang}'`, { doc, got: vecs.map(x => x.length) })
 
   if (!vecs.length) {
     throw new Error(`Could not get sentence vectors (empty result)`)
@@ -38,21 +39,9 @@ export function computeSentenceEmbedding(wordVectors: number[][], doc: Document,
       const weight = docTfidf[doc[i]] || defaultWordWeight
       totalWeight += weight
       const weightedVec = scalarDivide(vec, norm / weight)
-      sentenceVec = vecAdd(sentenceVec, weightedVec)
+      sentenceVec = vectorAdd(sentenceVec, weightedVec)
     }
   })
 
   return scalarDivide(sentenceVec, totalWeight)
-}
-
-function computeNorm(vec: number[]): number {
-  return Math.sqrt(vec.reduce((acc, next) => acc + Math.pow(next, 2), 0))
-}
-
-function vecAdd(vec1: number[], vec2: number[]): number[] {
-  return _.zip(vec1, vec2).map(([x, y]) => x + y)
-}
-
-function scalarDivide(vec: number[], divider: number): number[] {
-  return vec.map(x => x / divider)
 }
