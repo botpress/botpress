@@ -52,8 +52,11 @@ export default class ConfusionEngine extends ScopedEngine {
       this.originalModelHash = modelHash
 
       this._confusionComputing = true
-      await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
-      this._confusionComputing = false
+      try {
+        await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+      } finally {
+        this._confusionComputing = false
+      }
 
       await this._processResults(folder.getResults(), lang, confusionVersion)
     }
