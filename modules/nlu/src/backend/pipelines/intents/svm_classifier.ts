@@ -188,7 +188,7 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
-      const svm = new this.toolkit.SVM.Trainer()
+      const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
 
