@@ -425,12 +425,21 @@ Node: ${err.nodeName}`
       clearInterval(this._heartbeatTimer)
     }
 
-    this._heartbeatTimer = setInterval(() => {
-      this.stats.track(
-        'server',
-        'heartbeat',
-        `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}`
-      )
+    this._heartbeatTimer = setInterval(async () => {
+      let nbBots = 'N/A'
+      let nbCollabs = 'N/A'
+      try {
+        nbBots = (await this.botService.getBotsIds()).length.toString()
+        nbCollabs = (await this.workspaceService.listUsers()).length.toString()
+      } finally {
+        this.stats.track(
+          'server',
+          'heartbeat',
+          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${
+            process.IS_LICENSED
+          }, bots: ${nbBots}, collaborators: ${nbCollabs}`
+        )
+      }
     }, ms('2m'))
   }
 }
