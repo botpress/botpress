@@ -45,11 +45,32 @@ function renderMessenger(data) {
   ]
 }
 
+function renderTelegram(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'image',
+      url: url.resolve(data.BOT_URL, data.image)
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)
+  } else if (channel === 'telegram') {
+    return renderTelegram(data)
   }
 
   return [] // TODO Handle channel not supported
