@@ -308,7 +308,9 @@ export default class ScopedEngine implements Engine {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
         if (trainableIntents.length) {
+          console.log('BeforeTraining', modelHash, new Date())
           const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
+          console.log('AfterTraining', modelHash, new Date())
           const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
           await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
         }

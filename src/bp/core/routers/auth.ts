@@ -78,7 +78,8 @@ export class AuthRouter extends CustomRouter {
         const userRole = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
 
         const userProfile = {
-          ...user,
+          firstname,
+          lastname,
           email,
           isSuperAdmin,
           fullName: [firstname, lastname].filter(Boolean).join(' '),

@@ -16,11 +16,12 @@ const migration: Migration = {
     const botService = container.get<BotService>(TYPES.BotService)
     const workspaceService = container.get<WorkspaceService>(TYPES.WorkspaceService)
 
-    const pipeline = await workspaceService.getPipeline()
     const bots = await botService.getBots()
 
     await Promise.mapSeries(bots.values(), async bot => {
       const updatedConfig: any = {}
+      const workspace = await workspaceService.getBotWorkspaceId(bot.id)
+      const pipeline = await workspaceService.findWorkspace(workspace)
 
       if (!bot.defaultLanguage) {
         bp.logger.warn(
@@ -31,7 +32,7 @@ const migration: Migration = {
         updatedConfig.disabled = true
       }
 
-      if (!bot.pipeline_status) {
+      if (!bot.pipeline_status && pipeline) {
         updatedConfig.locked = false
         updatedConfig.pipeline_status = {
           current_stage: {

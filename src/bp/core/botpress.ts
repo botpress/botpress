@@ -243,8 +243,7 @@ export class Botpress {
       )
     }
 
-    let bots = await this.botService.getBots()
-    let botConfigChanged = false
+    const bots = await this.botService.getBots()
 
     for (const workspace of await this.workspaceService.getWorkspaces()) {
       const pipeline = await this.workspaceService.getPipeline(workspace.id)
@@ -255,14 +254,6 @@ export class Botpress {
           })`
         )
       }
-
-      if (await this._ensureBotConfigCorrect(bots, pipeline![0])) {
-        botConfigChanged = true
-      }
-    }
-
-    if (botConfigChanged) {
-      bots = await this.botService.getBots()
     }
 
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
@@ -286,7 +277,7 @@ export class Botpress {
     await this.authService.initialize()
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
-    await this.eventCollector.initialize(this.config!, this.database)
+    await this.eventCollector.initialize(this.database)
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)

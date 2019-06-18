@@ -1,5 +1,4 @@
 import { Paging } from 'botpress/sdk'
-
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'

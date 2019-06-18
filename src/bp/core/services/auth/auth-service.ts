@@ -49,17 +49,7 @@ export default class AuthService {
   ) {}
 
   async initialize() {
-    let config = await this.configProvider.getBotpressConfig()
-    const hasAuthStrategy = config.authStrategies && Object.keys(config.authStrategies).length
-    const hasCollabStrategy = config.pro.collaboratorsAuthStrategies && config.pro.collaboratorsAuthStrategies.length
-
-    if (!hasAuthStrategy || !hasCollabStrategy) {
-      await this._setDefaultStrategy()
-
-      // We reload the config since it had to be updated
-      config = await this.configProvider.getBotpressConfig()
-    }
-
+    const config = await this.configProvider.getBotpressConfig()
     const strategyTable = new StrategyUserTable()
 
     return Promise.map(Object.keys(config.authStrategies), async strategy => {
@@ -214,25 +204,6 @@ export default class AuthService {
 
     await this.configProvider.mergeBotpressConfig({ superAdmins: [{ email: user.email, strategy }] })
     return createdUser.result
-  }
-
-  private async _setDefaultStrategy(): Promise<void> {
-    this.logger.info(`Default strategy "default" configured in Botpress Config`)
-
-    return this.configProvider.mergeBotpressConfig({
-      pro: {
-        collaboratorsAuthStrategies: ['default']
-      },
-      authStrategies: {
-        default: {
-          type: 'basic',
-          allowSelfSignup: false,
-          options: {
-            maxLoginAttempt: 0
-          } as AuthStrategyBasic
-        }
-      }
-    })
   }
 
   private _getStrategyConfig(strategy: AuthStrategy, id: string): AuthStrategyConfig {
