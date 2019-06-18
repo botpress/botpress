@@ -1,5 +1,5 @@
+import { IconName, MaybeElement, Position } from '@blueprintjs/core'
 import React from 'react'
-import { Position, IconName, MaybeElement } from '@blueprintjs/core'
 
 declare module 'botpress/ui' {
   export function Container(props: ContainerProps): JSX.Element
@@ -10,6 +10,9 @@ declare module 'botpress/ui' {
   export function KeyboardShortcut(props: KeyboardShortcutsProps): JSX.Element
   export function SplashScreen(props: SplashScreenProps): JSX.Element
   export function SidePanel(props: SidePanelProps): JSX.Element
+  export function Toolbar(props: ToolbarProps): JSX.Element
+  export function LeftToolbarButtons(props: ToolbarButtonsProps): JSX.Element
+  export function RightToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
 
   export const { Item, ItemAction, SectionAction }
@@ -154,4 +157,14 @@ export interface SearchBarProps {
   onChange?: (text: string) => void
   /** This is called when the user clicks on the search icon */
   onClick?: (e: React.MouseEvent) => void
+}
+
+export interface ToolbarProps {
+  /** Button Groups of Toolbar */
+  children?: React.ReactElement<ToolbarButtonsProps> | React.ReactElement<ToolbarButtonsProps>[]
+}
+
+export interface ToolbarButtonsProps {
+  /** Elements of the button group */
+  children?: JSX.Element | JSX.Element[]
 }

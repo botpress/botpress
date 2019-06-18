@@ -1,7 +1,10 @@
 .fetch-more {
-  cursor: pointer;
   width: fit-content;
   margin: 0 auto;
+}
+
+.filtersCheckbox {
+  margin: auto 0 auto 0;
 }
 
 .datepicker > span {
@@ -16,39 +19,22 @@
   margin-bottom: 3em;
 }
 
-.daypicker-item {
-  color: black;
-}
-
 .conversations {
   height: calc(100vh - 60px);
   overflow-y: auto;
 }
 
+.downloadCopy {
+  padding-right: 5px;
+  display: flex;
+}
+
+.taskBarText {
+  vertical-align: middle;
+  line-height: 30px;
+}
+
 .message {
-  &-header {
-    display: flex;
-    margin-bottom: 1%;
-
-    &-icons {
-      margin-left: auto;
-      margin-right: 1%;
-      display: flex;
-      vertical-align: middle;
-      width: fit-content;
-
-      :last-child {
-        padding-left: 15%;
-      }
-    }
-
-    &-icon_item {
-      cursor: pointer;
-      color: #233abc;
-      font-size: 3em;
-    }
-  }
-
   &-viewer {
     height: 100%;
     overflow: hidden;
@@ -158,26 +144,4 @@
   position: absolute;
   cursor: pointer;
   color: #434343;
-}
-
-.messageTaskBar {
-  background-color: #a1a1a1;
-  width: 60%;
-  margin-bottom: 2%;
-
-  &Filter {
-    display: flex;
-  }
-
-  &FlagIcon {
-    width: fit-content;
-    cursor: pointer;
-    margin-left: auto;
-  }
-
-  &UnflagIcon {
-    width: fit-content;
-    cursor: pointer;
-    color: #c1c0c6;
-  }
 }

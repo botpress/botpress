@@ -1,8 +1,5 @@
 import React from 'react'
 import style from './style.scss'
-
-import { TiRefresh } from 'react-icons/ti'
-
 import { Icon, Position } from '@blueprintjs/core'
 import { DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
@@ -54,7 +51,8 @@ export class ConversationPicker extends React.Component {
     const actions = [
       {
         icon: <Icon icon="refresh" />,
-        onClick: this.props.refresh
+        onClick: this.props.refresh,
+        tooltip: 'refresh conversations'
       }
     ]
     return (

@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
+import { MessageGroup, QueryFilters } from '../typings'
+
 import Database from './db'
-import { QueryFilters, MessageGroup } from './typings'
 
 const N_MESSAGE_GROUPS_READ = 10
 
