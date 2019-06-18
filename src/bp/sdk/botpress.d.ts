@@ -958,6 +958,20 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export interface MigrationResult {
+    success: boolean
+    message?: string
+  }
+
+  export interface ModuleMigration {
+    info: {
+      description: string
+      type: 'database' | 'config' | 'content'
+    }
+    up: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+    down?: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+  }
+
   /**
    * Simple interface to use when paging is required
    */
