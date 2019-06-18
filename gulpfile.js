@@ -44,6 +44,12 @@ gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
 // Example: yarn cmd dev:module --public nlu or yarn cmd dev:module --private bank
 gulp.task('dev:module', gulp.series([modules.cleanModuleAssets, modules.createModuleSymlink]))
 
+/**
+ * Example: yarn cmd create:migration --target core --ver 13.0.0 --title "some config update"
+ * target can either be "core" or the name of any module
+ */
+gulp.task('create:migration', core.createMigration)
+
 gulp.task('changelog', () => {
   // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages
   const changelogOts = {

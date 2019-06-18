@@ -2,15 +2,15 @@ import * as sdk from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { BotService } from 'core/services/bot-service'
-import { Migration, MigrationType } from 'core/services/migration'
+import { Migration } from 'core/services/migration'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { TYPES } from 'core/types'
 import { Container } from 'inversify'
 
-export const migration: Migration = {
+const migration: Migration = {
   info: {
-    description: 'Some test random',
-    type: 'database' as MigrationType
+    description: 'Bots requires a default language',
+    type: 'config'
   },
   up: async (bp: typeof sdk, configProvider: ConfigProvider, database: Database, container: Container) => {
     const botService = container.get<BotService>(TYPES.BotService)
@@ -47,7 +47,7 @@ export const migration: Migration = {
       }
     })
 
-    return { success: 'Some test random reated successfully' }
+    return { success: true, message: 'Bot configuration updated' }
   }
 }
 

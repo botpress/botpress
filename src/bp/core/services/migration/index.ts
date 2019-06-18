@@ -5,13 +5,17 @@ import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import center from 'core/logger/center'
 import { TYPES } from 'core/types'
+import fs from 'fs'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
 import path from 'path'
 import semver from 'semver'
 
 import { container } from '../../app.inversify'
+
+const debug = DEBUG('migration')
 
 const types = {
   database: 'Database Changes',
@@ -22,23 +26,32 @@ const types = {
 @injectable()
 export class MigrationService {
   /** This is the declared version in the configuration file */
-  private configVersion: string
+  private configVersion!: string
   /** This is the actual running version (package.json) */
   private currentVersion: string
-  private loadedMigrations: { [filename: string]: Migration } = {}
+  private loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
+  private completedMigrationsDir: string
 
   constructor(
     @tagged('name', 'Migration')
     @inject(TYPES.Logger)
     private logger: sdk.Logger,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.ConfigProvider) private config: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
-    this.configVersion = process.BOTPRESS_VERSION
-    this.currentVersion = '12.2.0'
+    this.currentVersion = process.BOTPRESS_VERSION
+    this.completedMigrationsDir = path.resolve(process.PROJECT_LOCATION, `data/migrations`)
   }
 
   async initialize() {
+    this.configVersion = (await this.configProvider.getBotpressConfig()).version
+    debug(`Migration Check: %o`, { configVersion: this.configVersion, currentVersion: this.currentVersion })
+
+    if (process.env.IGNORE_MIGRATION) {
+      debug(`Skipping Migrations`)
+      return
+    }
+
     const missingMigrations = [...this._getMissingCoreMigrations(), ...this._getMissingModuleMigrations()]
     if (!missingMigrations.length) {
       return
@@ -48,7 +61,9 @@ export class MigrationService {
     this._displayStatus()
 
     if (!process.AUTO_MIGRATE) {
-      await this.logger.error(`Please start Botpress with the flag --auto-migrate once you have a backup of your data.`)
+      await this.logger.error(
+        `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
+      )
       process.exit(1)
     } else {
       await this.execute()
@@ -56,10 +71,7 @@ export class MigrationService {
   }
 
   private _displayStatus() {
-    const migrations = Object.keys(this.loadedMigrations).map(filename => {
-      const details = this.loadedMigrations[filename]
-      return { type: details.info.type, description: details.info.description }
-    })
+    const migrations = Object.keys(this.loadedMigrations).map(filename => this.loadedMigrations[filename].info)
 
     this.logger.warn(chalk`========================================
 {bold ${center(`Migration Required`, 40)}}
@@ -69,9 +81,11 @@ export class MigrationService {
 
     Object.keys(types).map(type => {
       this.logger.warn(chalk`{bold ${types[type]}}`)
-      const rows = migrations.filter(x => x.type === type).map(x => this.logger.warn(`- ${x.description}`))
+      const filtered = migrations.filter(x => x.type === type)
 
-      if (!rows.length) {
+      if (filtered.length) {
+        filtered.map(x => this.logger.warn(`- ${x.description}`))
+      } else {
         this.logger.warn(`- None`)
       }
     })
@@ -85,14 +99,39 @@ export class MigrationService {
 {bold ${center(`Executing ${migrationCount.toString()} migrations`, 40)}}
 ========================================`)
 
+    const completed = this._getCompletedMigrations()
+    let hasFailures = false
+
     await Promise.mapSeries(Object.keys(this.loadedMigrations), async file => {
+      if (completed.includes(file)) {
+        return this.logger.info(`Skipping already migrated file "${file}"`)
+      }
+
       this.logger.info(`Running ${file}`)
-      const result = await this.loadedMigrations[file].up(api, this.config, this.database, container)
-      result && (await this.logger.info(`- ${result}`))
+
+      const result = await this.loadedMigrations[file].up(api, this.configProvider, this.database, container)
+      if (result.success) {
+        this._saveCompletedMigration(file, result)
+        await this.logger.info(`- ${result.message || 'Success'}`)
+      } else {
+        hasFailures = true
+        await this.logger.error(`- ${result.message || 'Failure'}`)
+      }
     })
 
-    this.logger.info(`Migrations completed successfully! `)
-    // Upgrade version
+    if (!hasFailures) {
+      await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
+      this.logger.info(`Migrations completed successfully! `)
+    }
+  }
+
+  private _getCompletedMigrations(): string[] {
+    return fs.readdirSync(this.completedMigrationsDir)
+  }
+
+  private _saveCompletedMigration(filename: string, result: sdk.MigrationResult) {
+    mkdirp.sync(this.completedMigrationsDir)
+    fs.writeFileSync(path.resolve(`${this.completedMigrationsDir}/${filename}`), JSON.stringify(result, undefined, 2))
   }
 
   private _loadMigrations = (fileList: MigrationFile[]) =>
@@ -114,14 +153,14 @@ export class MigrationService {
 
   private _getMigrations(rootPath: string): MigrationFile[] {
     return _.orderBy(
-      glob.sync('**/*.js', { cwd: rootPath }).map(filename => {
-        const [rawVersion, timestamp, title] = filename.split('-')
+      glob.sync('**/*.js', { cwd: rootPath }).map(filepath => {
+        const [rawVersion, timestamp, title] = path.basename(filepath).split('-')
         return {
-          filename,
-          version: semver.valid(rawVersion),
-          title: title.replace('.js', ''),
+          filename: path.basename(filepath),
+          version: semver.valid(rawVersion.replace(/_/g, '.')),
+          title: (title || '').replace('.js', ''),
           date: Number(timestamp),
-          location: path.join(rootPath, filename)
+          location: path.join(rootPath, filepath)
         }
       }),
       'date'
@@ -140,17 +179,16 @@ interface MigrationFile {
   title: string
 }
 
-export interface MigrationResult {
-  success?: string
-  failure?: string
-}
-
-export type MigrationType = 'database' | 'config' | 'content'
 export interface Migration {
   info: {
     description: string
-    type: MigrationType
+    type: 'database' | 'config' | 'content'
   }
-  up: (bp: typeof sdk, config: ConfigProvider, database: Database, inversify: Container) => Promise<MigrationResult>
-  down?: (bp: typeof sdk, config: ConfigProvider, database: Database, inversify: Container) => Promise<MigrationResult>
+  up: (bp: typeof sdk, config: ConfigProvider, database: Database, inversify: Container) => Promise<sdk.MigrationResult>
+  down?: (
+    bp: typeof sdk,
+    config: ConfigProvider,
+    database: Database,
+    inversify: Container
+  ) => Promise<sdk.MigrationResult>
 }

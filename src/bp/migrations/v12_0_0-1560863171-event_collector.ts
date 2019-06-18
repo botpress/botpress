@@ -1,16 +1,16 @@
 import * as sdk from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
-import { Migration, MigrationType } from 'core/services/migration'
+import { Migration } from 'core/services/migration'
 
-export const migration: Migration = {
+const migration: Migration = {
   info: {
     description: 'Adding eventCollector configuration to Botpress Config',
-    type: 'config' as MigrationType
+    type: 'config'
   },
-  up: async (bp: typeof sdk, configProvider: ConfigProvider) => {
+  up: async (bp: typeof sdk, configProvider: ConfigProvider): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
     if (config.eventCollector) {
-      return { success: `Event Collector configuration already exists, skipping...` }
+      return { success: true, message: `Event Collector configuration already exists, skipping...` }
     }
 
     await configProvider.mergeBotpressConfig({
@@ -21,7 +21,7 @@ export const migration: Migration = {
         ignoredEventTypes: ['visit', 'typing']
       }
     })
-    return { success: 'Configuration updated successfully' }
+    return { success: true, message: 'Configuration updated successfully' }
   }
 }
 

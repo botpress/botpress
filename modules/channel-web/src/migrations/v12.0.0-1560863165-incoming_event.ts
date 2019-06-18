@@ -1,13 +1,13 @@
 import * as sdk from 'botpress/sdk'
 
-export const migration = {
+const migration = {
   info: {
     description: `Adds incomingEventId to the table web_messages`,
     type: 'database'
   },
   up: async (bp: typeof sdk) => {
     if (await bp.database.schema.hasColumn('web_messages', 'incomingEventId')) {
-      return { success: 'Column incomingEventId already exists, skipping...' }
+      return { success: true, message: 'Column incomingEventId already exists, skipping...' }
     }
 
     try {
@@ -15,9 +15,9 @@ export const migration = {
         table.string('incomingEventId')
       })
 
-      return { success: 'Field created successfully' }
+      return { success: true, message: 'Field created successfully' }
     } catch (error) {
-      return { failure: error.message }
+      return { success: false, message: error.message }
     }
   }
 }
