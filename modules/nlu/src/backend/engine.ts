@@ -52,7 +52,13 @@ export default class ScopedEngine implements Engine {
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
-  private scopedGenerateTrainingSequence: Function
+  private scopedGenerateTrainingSequence: (
+    input: string,
+    lang: string,
+    slotDefinitions: sdk.NLU.SlotDefinition[],
+    intentName: string,
+    contexts: string[]
+  ) => Promise<Sequence>
 
   // move this in a functionnal util file?
   private readonly flatMapIdentityReducer = (a, b) => a.concat(b)
@@ -221,7 +227,8 @@ export default class ScopedEngine implements Engine {
   ): Promise<Sequence[]> =>
     Promise.all(
       (intent.utterances[lang] || []).map(
-        async utterance => await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name)
+        async utterance =>
+          await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
       )
     )
 
