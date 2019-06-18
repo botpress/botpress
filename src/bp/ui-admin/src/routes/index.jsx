@@ -14,6 +14,7 @@ import PrivateRoute from './PrivateRoute'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
 
+import Confusion from './../Pages/Confusion'
 import Server from '../Pages/Server'
 import Workspace from '../Pages/Workspace'
 import MyAccount from '../Pages/MyAccount'
@@ -21,6 +22,7 @@ import Bot from '../Pages/Bot'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 import WorkspacePicker from '../Pages/WorkspacePicker'
+import Details from '../Pages/Confusion/details'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -57,6 +59,7 @@ export const makeMainRoutes = () => {
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/profile" component={MyAccount} />
+              <Route path="/confusion" component={Confusion} />
               <Route path="/workspace" component={Workspace} />
               <Route path="/server" component={Server} />
               <Route path="/bot" component={Bot} />

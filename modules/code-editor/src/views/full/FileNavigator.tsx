@@ -1,10 +1,11 @@
+import { Classes, ITreeNode, Tree } from '@blueprintjs/core'
 import React from 'react'
 
-import { Classes, ITreeNode, Tree } from '@blueprintjs/core'
+import { EditableFile } from '../../backend/typings'
 
 import { buildTree } from './utils/tree'
 
-export default class FileNavigator extends React.Component<any, any> {
+export default class FileNavigator extends React.Component<Props, State> {
   state = {
     files: undefined,
     nodes: []
@@ -25,51 +26,44 @@ export default class FileNavigator extends React.Component<any, any> {
       return
     }
 
-    const { actionsGlobal, actionsBot } = this.props.files
-
-    const nodes = []
-
-    if (actionsBot) {
-      nodes.push({
-        label: `${window['BOT_NAME']} (bot)`,
-        icon: 'folder-close',
-        hasCaret: true,
-        isExpanded: true,
-        childNodes: buildTree(this.props.files.actionsBot)
-      })
-    }
-
-    if (actionsGlobal) {
-      nodes.push({
-        label: 'Global',
-        icon: 'folder-close',
-        isExpanded: true,
-        childNodes: buildTree(this.props.files.actionsGlobal)
-      })
-    }
+    const nodes: ITreeNode[] = this.props.files.map(dir => ({
+      id: dir.label,
+      label: dir.label,
+      icon: 'folder-close',
+      hasCaret: true,
+      isExpanded: true,
+      childNodes: buildTree(dir.files, this.props.expandedNodes)
+    }))
 
     this.setState({ nodes })
   }
 
   private handleNodeClick = (node: ITreeNode) => {
     const originallySelected = node.isSelected
-
     this.traverseTree(this.state.nodes, n => (n.isSelected = false))
-
     node.isSelected = originallySelected !== null
 
-    this.props.onFileSelected && this.props.onFileSelected(node.nodeData)
-    this.setState(this.state)
+    // If nodeData is set, it's a file, otherwise a folder
+    if (node.nodeData) {
+      this.props.onFileSelected && this.props.onFileSelected(node.nodeData as EditableFile)
+      this.forceUpdate()
+    } else {
+      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
+    }
   }
 
   private handleNodeCollapse = (node: ITreeNode) => {
+    this.props.onNodeStateChanged(node.id as string, false)
     node.isExpanded = false
-    this.setState(this.state)
+
+    this.forceUpdate()
   }
 
   private handleNodeExpand = (node: ITreeNode) => {
+    this.props.onNodeStateChanged(node.id as string, true)
     node.isExpanded = true
-    this.setState(this.state)
+
+    this.forceUpdate()
   }
 
   private traverseTree(nodes: ITreeNode[], callback: (node: ITreeNode) => void) {
@@ -98,4 +92,15 @@ export default class FileNavigator extends React.Component<any, any> {
       />
     )
   }
+}
+
+interface Props {
+  files: any
+  onFileSelected: (file: EditableFile) => void
+  onNodeStateChanged: (id: string, isExpanded: boolean) => void
+  expandedNodes: object
+}
+
+interface State {
+  nodes: ITreeNode[]
 }

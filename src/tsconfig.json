@@ -22,6 +22,8 @@
     "../out",
     "**/node_modules/**/*.(ts|js)",
     "**/static/**/*.(js|ts)",
+    "**/ml/svm-js/**/*.*",
+    "**/ui-admin/**/*",
     "bp/ui-studio/**"
   ]
 }

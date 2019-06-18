@@ -123,7 +123,7 @@ export class IntentsComponent extends React.Component {
               <div onClick={() => this.setCurrentIntent(el.name)} className={style.entityText}>
                 {el.name}
                 &nbsp;(
-                {_.get(el, 'utterances.length', 0)})
+                {_.get(el, `utterances.${this.props.contentLang}.length`, 0)})
               </div>
               <a onClick={this.deleteIntent.bind(this, el.name)}>
                 <Glyphicon glyph="trash" className={style.deleteEntity} />
@@ -172,6 +172,7 @@ export class IntentsComponent extends React.Component {
                 router={this.props.router}
                 axios={this.props.bp.axios}
                 reloadIntents={this.fetchIntents}
+                contentLang={this.props.contentLang}
               />
             </div>
           </div>

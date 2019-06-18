@@ -9,12 +9,18 @@ declare namespace NodeJS {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
     require: ExtraRequire
+    rewire: (name: string) => string
   }
 
   export interface Process {
     VERBOSITY_LEVEL: number
     IS_PRODUCTION: boolean
     APP_SECRET: string
+    /**
+     * Path to the global APP DATA folder, shared across all installations of Botpress Server
+     * Use this folder to store stuff you'd like to cache, like NLU language models etc
+     */
+    APP_DATA_PATH: string
     HOST: string
     PORT: number
     PROXY?: string
@@ -65,6 +71,13 @@ declare type BotpressEnvironementVariables = {
   readonly DEBUG?: string
 
   /**
+   * Overrides the auto-computed `process.APP_DATA_PATH` path
+   * @see Process.APP_DATA_PATH
+   */
+
+  readonly APP_DATA_PATH?: string
+
+  /**
    * Truthy if running the official Botpress docker image
    */
   readonly BP_IS_DOCKER?: boolean
@@ -97,4 +110,8 @@ declare interface OSDistribution {
   codename: string
   /** The release number, for example 18.04 */
   release: string
+}
+
+declare interface Dic<T> {
+  [Key: string]: T
 }

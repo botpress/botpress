@@ -46,8 +46,8 @@ export class FiveFolder<T> {
 
   async fold(
     suiteName: string,
-    trainFn: ((trainSet: T[]) => Promise<void>),
-    evaluateFn: ((testSet: T[], record: RecordCallback) => Promise<void>)
+    trainFn: (trainSet: T[]) => Promise<void>,
+    evaluateFn: (trainSet: T[], testSet: T[], record: RecordCallback) => Promise<void>
   ) {
     this.results[suiteName] = {
       fp: new Proxy({}, ZeroProxy),
@@ -62,7 +62,7 @@ export class FiveFolder<T> {
     await Promise.mapSeries(chunks, async testSet => {
       const trainSet = _.flatten(chunks.filter(c => c !== testSet))
       await trainFn([...trainSet])
-      await evaluateFn([...testSet], this._record(suiteName))
+      await evaluateFn([...trainSet], [...testSet], this._record(suiteName))
     })
   }
 

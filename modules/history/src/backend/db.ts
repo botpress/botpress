@@ -1,10 +1,10 @@
-import moment from 'moment'
 import _ from 'lodash'
 import { Dictionary } from 'lodash'
+import moment from 'moment'
 
 import * as sdk from 'botpress/sdk'
 
-import { QueryFilters, MessageGroup, ConversationInfo } from './typings'
+import { MessageGroup, QueryFilters } from '../typings'
 
 const FLAGS_TABLE_NAME = 'history_flags'
 const EVENTS_TABLE_NAME = 'events'

@@ -15,6 +15,7 @@ import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
+import NluPerformanceStatus from './NluPerformanceStatus'
 
 const COMPLETED_DURATION = 2000
 
@@ -24,7 +25,8 @@ class StatusBar extends React.Component {
   state = {
     keepBlueUntil: undefined,
     inProgress: [],
-    messages: []
+    messages: [],
+    nluSynced: true
   }
 
   constructor(props) {
@@ -39,6 +41,10 @@ class StatusBar extends React.Component {
       const messages = this.state.messages.filter(x => x.type !== event.type)
       const newMessage = { ...event, ts: Date.now() }
       this.setState({ messages: [...messages, newMessage] })
+    }
+
+    if (event.name === 'train') {
+      this.setState({ nluSynced: false })
     }
 
     if (event.name === 'done' || event.working === false) {
@@ -146,6 +152,11 @@ class StatusBar extends React.Component {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
+          <NluPerformanceStatus
+            contentLang={this.props.contentLang}
+            updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
+            synced={this.state.nluSynced}
+          />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
               <NavLink to={'/logs'}>
@@ -189,7 +200,8 @@ class StatusBar extends React.Component {
 const mapStateToProps = state => ({
   user: state.user,
   botInfo: state.bot,
-  docHints: state.ui.docHints
+  docHints: state.ui.docHints,
+  contentLang: state.language.contentLang
 })
 
 export default connect(

@@ -4,33 +4,48 @@ import * as sdk from 'botpress/sdk'
 import { Config } from '../config'
 
 import api from './api'
-import { registerMiddleware } from './middleware'
-
 import ConfusionEngine from './confusion-engine'
-import models from './models'
+import LangProvider from './language-provider'
+import { registerMiddleware } from './middleware'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
 import { EngineByBot } from './typings'
 
 const nluByBot: EngineByBot = {}
+let langProvider
 
 const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
-
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
-
+  try {
+    langProvider = await LangProvider.initialize(globalConfig.languageSources)
+  } catch (e) {
+    if (e.failure && e.failure.code === 'ECONNREFUSED') {
+      bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)
+      process.exit()
+    }
+    throw e
+  }
   await registerMiddleware(bp, nluByBot)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, nluByBot)
-  await models(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
-  const scoped = new ConfusionEngine(bp.logger, botId, moduleBotConfig, bp.MLToolkit)
+  const bot = await bp.bots.getBotById(botId)
+  const scoped = new ConfusionEngine(
+    bp.logger,
+    botId,
+    moduleBotConfig,
+    bp.MLToolkit,
+    bot.languages,
+    bot.defaultLanguage,
+    langProvider
+  )
   await scoped.init()
   nluByBot[botId] = scoped
 }

@@ -1,75 +1,71 @@
 import React from 'react'
 import style from './style.scss'
+import { Icon, Position } from '@blueprintjs/core'
+import { DateRangeInput } from '@blueprintjs/datetime'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
-import 'react-day-picker/lib/style.css'
-
-import { TiRefresh } from 'react-icons/ti'
-import { FaFilter } from 'react-icons/fa'
-import DayPickerInput from 'react-day-picker/DayPickerInput'
+import { SidePanelSection, ItemList } from 'botpress/ui'
 
 function QueryOptions(props) {
   return (
-    <div className={style['query-options']}>
-      <div className={style['query-options-daypick']}>
-        <div className={style['query-options-from_to']}>from:</div>
-        <div className={style['daypicker-item']}>
-          <DayPickerInput value={props.defaultFrom} onDayChange={props.handleFromChange} />
-        </div>
-      </div>
-      <div className={style['query-options-daypick']}>
-        <div className={style['query-options-from_to']}>to:</div>
-        <div className={style['daypicker-item']}>
-          <DayPickerInput value={props.defaultTo} onDayChange={props.handleToChange} />
-        </div>
-      </div>
+    <div style={{ margin: '1em' }}>
+      <DateRangeInput
+        className={style.datepicker}
+        popoverProps={{ position: Position.BOTTOM_RIGHT }}
+        formatDate={date => date.toLocaleDateString()}
+        onChange={props.handleDateChange}
+        value={[props.from, props.to]}
+        parseDate={str => (str ? new Date(str) : new Date())}
+        shortcuts={false}
+        closeOnSelection={true}
+        allowSingleDayRange={true}
+      />
     </div>
   )
 }
 
 export class ConversationPicker extends React.Component {
   state = {
-    displayQueryOptions: false
+    selectedConvId: undefined
   }
 
-  toggleFilters() {
-    this.setState({ displayQueryOptions: !this.state.displayQueryOptions })
+  mapConversationToListItem = conv => {
+    const convId = conv.id
+    const lastCharIndex = Math.min(convId.indexOf('::') + 18, convId.length)
+    const convDisplayName = `${convId.substr(0, lastCharIndex)}... (${conv.count})`
+
+    return {
+      key: convId,
+      label: convDisplayName,
+      value: conv,
+      selected: convId === this.state.selectedConvId
+    }
+  }
+
+  updateConversation = convUiItem => {
+    this.setState({ selectedConvId: convUiItem.value.id })
+    this.props.onConversationChanged(convUiItem.value.id)
   }
 
   render() {
+    const actions = [
+      {
+        icon: <Icon icon="refresh" />,
+        onClick: this.props.refresh,
+        tooltip: 'refresh conversations'
+      }
+    ]
     return (
-      <div className={style['conversations']}>
-        <div className={style['conversations-titlebar']}>
-          <div>Conversations</div>
-          <div className={style['conversations-icons']}>
-            <FaFilter className={style['conversations-filter']} onClick={() => this.toggleFilters()} />
-            <TiRefresh className={style['conversations-refresh']} onClick={this.props.refresh} />
+      <div style={{ height: '100%' }}>
+        <SidePanelSection label={'Conversations'} actions={actions}>
+          <div className={style.conversations}>
+            <QueryOptions handleDateChange={this.props.handleDateChange} from={this.props.from} to={this.props.to} />
+            <ItemList
+              items={this.props.conversations.map(this.mapConversationToListItem)}
+              onElementClicked={this.updateConversation}
+            />
           </div>
-        </div>
-        {this.state.displayQueryOptions && (
-          <QueryOptions
-            handleFromChange={this.props.handleFromChange}
-            handleToChange={this.props.handleToChange}
-            defaultFrom={this.props.defaultFrom}
-            defaultTo={this.props.defaultTo}
-          />
-        )}
-        <div className={style.conversationsList}>
-          {this.props.conversations.map(conv => {
-            const convId = conv.id
-            const lastCharIndex = Math.min(convId.indexOf('::') + 6, convId.length)
-            const convDisplayName = `${convId.substr(0, lastCharIndex)}...`
-            return (
-              <div
-                key={conv.id}
-                className={style['conversations-entry']}
-                onClick={() => this.props.onConversationChanged(conv.id)}
-              >
-                <span className={style['conversations-sessionId']}>{convDisplayName}</span>
-                <span className={style['conversations-count']}>({conv.count})</span>
-              </div>
-            )
-          })}
-        </div>
+        </SidePanelSection>
       </div>
     )
   }

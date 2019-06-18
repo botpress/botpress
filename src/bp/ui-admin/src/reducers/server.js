@@ -21,11 +21,11 @@ export default (state = initialState, action) => {
 
 export const fetchLanguages = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/bots/languages')
+    const { data } = await api.getSecured().get('/admin/languages/available')
 
     dispatch({
       type: FETCH_LANGUAGES_RECEIVED,
-      languages: data
+      languages: data.languages
     })
   }
 }

@@ -29,6 +29,15 @@ export class BadRequestError extends ResponseError {
   }
 }
 
+export class NotReadyError extends ResponseError {
+  type = 'NotReadyError'
+
+  constructor(service: string) {
+    super(`Service Not Ready: ${service}`, 400, 'BP_0140')
+    this.skipLogging = true
+  }
+}
+
 export class UnauthorizedError extends ResponseError {
   type = 'UnauthorizedError'
 

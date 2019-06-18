@@ -1,8 +1,10 @@
+import { FastTextOverrides, LanguageSource } from './backend/typings'
+
 export interface Config {
   /**
    * The minimum confidence required (in %) for an intent to match
    * Set to '0' to always match
-   * @default 0.7
+   * @default 0.5
    */
   confidenceTreshold: number
 
@@ -40,15 +42,15 @@ export interface Config {
   languageModel: string
 
   /**
+   * The list of sources to load languages from
+   * @default [{ "endpoint": "https://lang-01.botpress.io" }]
+   */
+  languageSources: LanguageSource[]
+
+  /**
    * Fine-tuning of the fastText classifier parameters
    * WARNING: For advanced users only
    * @default {}
    */
   fastTextOverrides?: FastTextOverrides
-}
-
-export interface FastTextOverrides {
-  learningRate?: number
-  epoch?: number
-  wordNgrams?: number
 }

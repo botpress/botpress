@@ -1,40 +1,55 @@
+import { ITreeNode } from '@blueprintjs/core'
 import find from 'lodash/find'
 
-const addNode = (tree, folders, flowDesc, data) => {
+import { EditableFile } from '../../../backend/typings'
+
+const FOLDER_ICON = 'folder-close'
+const DOCUMENT_ICON = 'document'
+
+const addNode = (tree: ITreeNode, folders: ITreeNode[], file, data: any) => {
   for (const folderDesc of folders) {
-    let folder = find(tree.childNodes, folderDesc)
+    let folder = find(tree.childNodes, folderDesc) as ITreeNode | undefined
     if (!folder) {
-      folder = { ...folderDesc, parent: tree, childNodes: [] }
+      folder = { ...folderDesc, childNodes: [] }
       tree.childNodes.push(folder)
     }
     tree = folder
   }
-  tree.childNodes.push({ ...flowDesc, parent: tree, ...data })
+
+  tree.childNodes.push({ ...file, ...data })
 }
 
-export const splitPath = location => {
+export const splitPath = (location: string, expandedNodeIds: object) => {
   const paths = location.split('/')
   const filename = paths[paths.length - 1]
   const fileFolders = paths.slice(0, paths.length - 1)
-  const folders = []
+  const folders: ITreeNode[] = []
   const currentPath = []
 
   for (const folder of fileFolders) {
     currentPath.push(folder)
-    folders.push({ icon: 'folder-close', label: folder, fullPath: currentPath.join('/') })
+
+    const id = currentPath.join('/')
+    folders.push({ id, icon: FOLDER_ICON, label: folder, isExpanded: expandedNodeIds[id] })
   }
+
   currentPath.push(filename)
   return {
     folders,
-    location: { icon: 'document', label: filename, fullPath: currentPath.join('/') }
+    file: {
+      id: currentPath.join('/'),
+      icon: DOCUMENT_ICON,
+      label: filename
+    }
   }
 }
 
-export const buildTree = files => {
-  const tree = { type: 'root', fullPath: '', label: '<root>', childNodes: [] }
+export const buildTree = (files: EditableFile[], expandedNodeIds: object) => {
+  const tree: ITreeNode = { id: 'root', label: '<root>', childNodes: [] }
+
   files.forEach(fileData => {
-    const { folders, location } = splitPath(fileData.location)
-    addNode(tree, folders, location, { nodeData: fileData })
+    const { folders, file } = splitPath(fileData.location, expandedNodeIds)
+    addNode(tree, folders, file, { nodeData: fileData })
   })
 
   return tree.childNodes

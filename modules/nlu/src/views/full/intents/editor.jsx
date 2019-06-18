@@ -26,30 +26,22 @@ export default class IntentsEditor extends React.Component {
 
   componentDidMount() {
     this.initiateStateFromProps(this.props)
-
-    if (this.props.router) {
-      this.props.router.registerTransitionHook(this.onBeforeLeave)
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.router) {
-      this.props.router.unregisterTransitionHook(this.onBeforeLeave)
-    }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.intent !== this.props.intent) {
+    if (nextProps.intent !== this.props.intent || nextProps.contentLang !== this.props.contentLang) {
       this.initiateStateFromProps(nextProps)
     }
   }
 
   initiateStateFromProps(props) {
-    const { utterances, slots, contexts } = (props && props.intent) || {
-      utterances: [],
+    const { slots, contexts } = (props && props.intent) || {
       slots: [],
       contexts
     }
+
+    const utterances = (props && props.intent && props.intent.utterances[props.contentLang]) || []
+
     const availableContexts = props.contexts
     const expanded = this.expandCanonicalUtterances(utterances)
 
@@ -84,10 +76,14 @@ export default class IntentsEditor extends React.Component {
     })
   }
 
+  // TODO replace this by new route intent/:id/utterances
   saveIntent = async () => {
     await this.props.axios.post(`/mod/nlu/intents`, {
       name: this.props.intent.name,
-      utterances: this.getCanonicalUtterances(this.state.utterances),
+      utterances: {
+        ...this.props.intent.utterances,
+        [this.props.contentLang]: this.getCanonicalUtterances(this.state.utterances)
+      },
       slots: this.state.slots,
       contexts: this.state.contexts
     })

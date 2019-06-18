@@ -1,3 +1,4 @@
+import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
 export const BIO = {
@@ -27,7 +28,7 @@ export interface Sequence {
 export type EngineByBot = { [botId: string]: Engine }
 
 export interface Engine {
-  sync(forceRetrain: boolean): Promise<string>
+  trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
   extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
 }
@@ -39,7 +40,13 @@ export interface EntityExtractor {
 export interface SlotExtractor {
   load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
   train(trainingSet: Sequence[]): Promise<{ language: Buffer | undefined; crf: Buffer | undefined }>
-  extract(input: string, intent: sdk.NLU.IntentDefinition, entities: sdk.NLU.Entity[]): Promise<sdk.NLU.SlotsCollection>
+  extract(
+    input: string,
+    lang: string,
+    intent: sdk.NLU.IntentDefinition,
+    entities: sdk.NLU.Entity[],
+    tokens: string[]
+  ): Promise<sdk.NLU.SlotCollection>
 }
 
 export type IntentModel = { name: string; model: Buffer }
@@ -55,7 +62,7 @@ export interface LanguageIdentifier {
 }
 
 export const MODEL_TYPES = {
-  INTENT: 'intent',
+  INTENT: ['intent-l0', 'intent-l1', 'intent-tfidf', 'vocab'],
   SLOT_LANG: 'slot-language-model',
   SLOT_CRF: 'slot-crf',
   INTENT_LM: 'intent-lm'
@@ -73,4 +80,46 @@ export interface ModelMeta {
 export interface Model {
   meta: ModelMeta
   model: Buffer
+}
+
+export interface NLUStructure {
+  rawText: string
+  sanitizedText: string
+  lowerText: string
+  detectedLanguage: string
+  language: string
+  includedContexts: string[]
+  slots: { [key: string]: sdk.NLU.Slot }
+  entities: sdk.NLU.Entity[]
+  intents: sdk.NLU.Intent[]
+  intent: sdk.NLU.Intent
+  tokens: string[]
+}
+
+export interface PipelineProcessManager {
+  of(pipeline: Function[]): PipelineProcessManager
+  initDS(text: string, includedContexts: string[]): PipelineProcessManager
+  run(): Promise<NLUStructure>
+}
+
+export interface LangsGateway {
+  [lang: string]: { source: LanguageSource; client: AxiosInstance; errors: number; disabledUntil?: Date }[]
+}
+
+export interface LanguageProvider {
+  vectorize(tokens: string[], lang: string): Promise<number[][]>
+  tokenize(text: string, lang: string): Promise<string[]>
+}
+
+export interface FastTextOverrides {
+  learningRate?: number
+  epoch?: number
+  wordNgrams?: number
+}
+
+export interface LanguageSource {
+  /** The endpoint URL of the source */
+  endpoint: string
+  /** The authentication token, if required by the source */
+  authToken?: string
 }

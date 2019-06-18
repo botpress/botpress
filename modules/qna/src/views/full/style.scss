@@ -150,6 +150,8 @@ $elementHeight: 40px;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 13px;
+  align-items: center;
+  min-height: 70px;
 
   &:hover {
     .itemActionDelete {
@@ -195,8 +197,8 @@ $elementHeight: 40px;
   display: flex;
   flex: 1 1 25%;
   justify-content: flex-end;
-  align-items: flex-start;
-  padding-top: 15px;
+  align-items: center;
+  min-height: 35px;
 }
 
 .itemRedirect {

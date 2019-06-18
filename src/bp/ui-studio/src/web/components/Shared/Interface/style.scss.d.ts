@@ -12,11 +12,13 @@ interface CssExports {
   'itemListSelected': string;
   'label': string;
   'right': string;
+  'rightButtons': string;
   'searchBar': string;
   'sidePanel': string;
   'sidePanel_hidden': string;
   'sidePanel_section': string;
   'splashScreen': string;
+  'toolbar': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

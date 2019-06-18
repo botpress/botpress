@@ -5,6 +5,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import { Config } from '../config'
+import { HOOK_SIGNATURES } from '../typings/hooks'
 
 import { EditableFile, FileType, TypingDefinitions } from './typings'
 
@@ -22,14 +23,23 @@ export default class Editor {
     this._config = config
   }
 
+  isGlobalAllowed() {
+    return this._config.allowGlobal
+  }
+
   async fetchFiles() {
     return {
-      actionsGlobal: this._config.allowGlobal && (await this._loadFiles('/actions', 'action')),
-      actionsBot: await this._loadFiles('/actions', 'action', this._botId)
+      actionsGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadActions()),
+      hooksGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadHooks()),
+      actionsBot: this._filterBuiltin(await this._loadActions(this._botId))
     }
   }
 
-  _validateMetadata({ name, botId, type }: Partial<EditableFile>) {
+  private _filterBuiltin(files: EditableFile[]) {
+    return this._config.includeBuiltin ? files : files.filter(x => !x.content.includes('//CHECKSUM:'))
+  }
+
+  _validateMetadata({ name, botId, type, hookType }: Partial<EditableFile>) {
     if (!botId || !botId.length) {
       if (!this._config.allowGlobal) {
         throw new Error(`Global files are restricted, please check your configuration`)
@@ -40,8 +50,12 @@ export default class Editor {
       }
     }
 
-    if (type !== 'action') {
-      throw new Error('Invalid file type Only actions are allowed at the moment')
+    if (type !== 'action' && type !== 'hook') {
+      throw new Error('Invalid file type, only actions/hooks are allowed at the moment')
+    }
+
+    if (type === 'hook' && !HOOK_SIGNATURES[hookType]) {
+      throw new Error('Invalid hook type.')
     }
 
     if (!FILENAME_REGEX.test(name)) {
@@ -51,10 +65,14 @@ export default class Editor {
 
   async saveFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
-    const { location, botId, content } = file
+    const { location, botId, content, hookType } = file
     const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
 
-    return ghost.upsertFile('/actions', location, content)
+    if (file.type === 'action') {
+      return ghost.upsertFile('/actions', location, content)
+    } else if (file.type === 'hook') {
+      return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
+    }
   }
 
   async loadTypings() {
@@ -63,35 +81,41 @@ export default class Editor {
     }
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
+    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.js`), 'utf-8')
 
     this._typings = {
       'process.d.ts': this._buildRestrictedProcessVars(),
-      'node.d.ts': this._getNodeTypings().toString(),
+      'node.d.ts': nodeTyping.toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`)
     }
 
     return this._typings
   }
 
-  private _getNodeTypings() {
-    const getTypingPath = folder => path.join(__dirname, `/../../${folder}/@types/node/index.d.ts`)
-
-    if (fs.existsSync(getTypingPath('node_modules'))) {
-      return fs.readFileSync(getTypingPath('node_modules'), 'utf-8')
-    }
-    return fs.readFileSync(getTypingPath('node_production_modules'), 'utf-8')
-  }
-
-  private async _loadFiles(rootFolder: string, type: FileType, botId?: string): Promise<EditableFile[]> {
+  private async _loadActions(botId?: string): Promise<EditableFile[]> {
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
 
-    return Promise.map(await ghost.directoryListing(rootFolder, '*.js'), async (filepath: string) => {
+    return Promise.map(ghost.directoryListing('/actions', '*.js'), async (filepath: string) => {
       return {
         name: path.basename(filepath),
+        type: 'action' as FileType,
         location: filepath,
-        content: await ghost.readFileAsString(rootFolder, filepath),
-        type,
+        content: await ghost.readFileAsString('/actions', filepath),
         botId
+      }
+    })
+  }
+
+  private async _loadHooks(): Promise<EditableFile[]> {
+    const ghost = this.bp.ghost.forGlobal()
+
+    return Promise.map(ghost.directoryListing('/hooks', '*.js'), async (filepath: string) => {
+      return {
+        name: path.basename(filepath),
+        type: 'hook' as FileType,
+        location: filepath,
+        hookType: filepath.substr(0, filepath.indexOf('/')),
+        content: await ghost.readFileAsString('/hooks', filepath)
       }
     })
   }

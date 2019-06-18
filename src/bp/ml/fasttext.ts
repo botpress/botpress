@@ -43,7 +43,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
     return this._modelPath + '.bin'
   }
 
-  constructor(private lazy: boolean = true, private keepInMemory = false) {}
+  constructor(private lazy: boolean = true, private keepInMemory = false, private queryOnly = false) {}
 
   cleanup() {
     this._modelPromise = undefined
@@ -66,7 +66,9 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
     this._modelPath = outPath
 
     if (!this.lazy) {
-      await this._getModel()
+      if (!this.queryOnly) {
+        await this._getModel()
+      }
       await this._getQuery()
     }
   }
@@ -74,12 +76,19 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
   async loadFromFile(modelPath: string): Promise<void> {
     this._modelPath = this._cleanPath(modelPath)
     if (!this.lazy) {
-      await this._getModel()
+      if (!this.queryOnly) {
+        await this._getModel()
+      }
+
       await this._getQuery()
     }
   }
 
   async predict(str: string, nbLabels: number): Promise<sdk.MLToolkit.FastText.PredictResult[]> {
+    if (this.queryOnly) {
+      throw new Error('This model is marked as Query Only, which doesnt support Prediction')
+    }
+
     const model = await this._getModel()
     return model.predict(str, nbLabels)
   }
@@ -121,9 +130,10 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
       return this._queryPromise
     }
 
-    this._queryPromise = new Promise((resolve, reject) => {
+    this._queryPromise = new Promise(async (resolve, reject) => {
       try {
         const q = new binding.Query(this.modelPath)
+        await q.getWordVector('hydrate') // hydration as fastText loads models lazily
         resolve(q)
         this._resetQueryBomb()
       } catch (err) {

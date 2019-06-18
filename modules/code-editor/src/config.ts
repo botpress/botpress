@@ -4,4 +4,9 @@ export interface Config {
    * @default false
    */
   allowGlobal: boolean
+  /**
+   * When enabled, actions & hooks created by Botpress will also be available in the UI
+   * @default false
+   */
+  includeBuiltin: boolean
 }
