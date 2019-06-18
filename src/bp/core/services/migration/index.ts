@@ -47,7 +47,7 @@ export class MigrationService {
     this.configVersion = (await this.configProvider.getBotpressConfig()).version
     debug(`Migration Check: %o`, { configVersion: this.configVersion, currentVersion: this.currentVersion })
 
-    if (process.env.IGNORE_MIGRATION) {
+    if (process.env.SKIP_MIGRATIONS) {
       debug(`Skipping Migrations`)
       return
     }
@@ -65,9 +65,9 @@ export class MigrationService {
         `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
       )
       process.exit(1)
-    } else {
-      await this.execute()
     }
+
+    await this.execute()
   }
 
   private _displayStatus() {
@@ -119,10 +119,15 @@ export class MigrationService {
       }
     })
 
-    if (!hasFailures) {
-      await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
-      this.logger.info(`Migrations completed successfully! `)
+    if (hasFailures) {
+      await this.logger.error(
+        `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
+      )
+      process.exit(1)
     }
+
+    await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
+    this.logger.info(`Migrations completed successfully! `)
   }
 
   private _getCompletedMigrations(): string[] {
