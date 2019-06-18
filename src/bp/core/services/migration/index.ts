@@ -41,6 +41,7 @@ export class MigrationService {
   ) {
     this.currentVersion = process.BOTPRESS_VERSION
     this.completedMigrationsDir = path.resolve(process.PROJECT_LOCATION, `data/migrations`)
+    mkdirp.sync(this.completedMigrationsDir)
   }
 
   async initialize() {
@@ -135,7 +136,6 @@ export class MigrationService {
   }
 
   private _saveCompletedMigration(filename: string, result: sdk.MigrationResult) {
-    mkdirp.sync(this.completedMigrationsDir)
     fs.writeFileSync(path.resolve(`${this.completedMigrationsDir}/${filename}`), JSON.stringify(result, undefined, 2))
   }
 
