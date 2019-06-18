@@ -1,10 +1,10 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 
 import withLanguage from '~/components/Util/withLanguage'
 
@@ -231,7 +231,7 @@ class ListView extends Component<Props, State> {
     return (
       <div>
         <Toolbar>
-          <Fragment>
+          <LeftToolbarButtons>
             <Tooltip content="Refresh" position={Position.BOTTOM}>
               <AnchorButton icon="refresh" onClick={this.props.handleRefresh} />
             </Tooltip>
@@ -264,7 +264,7 @@ class ListView extends Component<Props, State> {
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}
             />
-          </Fragment>
+          </LeftToolbarButtons>
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
       </div>

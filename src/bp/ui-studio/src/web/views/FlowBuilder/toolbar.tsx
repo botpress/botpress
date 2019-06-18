@@ -10,9 +10,9 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { Fragment } from 'react'
+import React from 'react'
 import PermissionsChecker from '~/components/Layout/PermissionsChecker'
-import { Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 
 const SkillDropdown = props => {
   return (
@@ -51,7 +51,7 @@ const FlowToolbar = props => {
 
   return (
     <Toolbar>
-      <Fragment>
+      <LeftToolbarButtons>
         <Tooltip content="Save all (ctrl+s)" position={Position.BOTTOM}>
           <AnchorButton
             icon="floppy-disk"
@@ -101,7 +101,7 @@ const FlowToolbar = props => {
             <AnchorButton icon="trash" onClick={props.onDelete} />
           </Tooltip>
         )}
-      </Fragment>
+      </LeftToolbarButtons>
     </Toolbar>
   )
 }

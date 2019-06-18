@@ -11,6 +11,8 @@ declare module 'botpress/ui' {
   export function SplashScreen(props: SplashScreenProps): JSX.Element
   export function SidePanel(props: SidePanelProps): JSX.Element
   export function Toolbar(props: ToolbarProps): JSX.Element
+  export function LeftToolbarButtons(props: ToolbarButtonsProps): JSX.Element
+  export function RightToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
 
   export const { Item, ItemAction, SectionAction }
@@ -125,8 +127,6 @@ interface SectionAction {
   label?: string
   /** Text displayed when the cursor is over the button */
   tooltip?: string
-  /** Tooltip position */
-  tooltipPosition?: Position
   /** Any JSX element to be displayed when the button is clicked (for ex: filters)  */
   popover?: JSX.Element
   /** Type "divider" is special and adds a separator in the menu */
@@ -160,6 +160,11 @@ export interface SearchBarProps {
 }
 
 export interface ToolbarProps {
-  /** Elements in Toolbar which are wrapped in a button group */
-  children?: JSX.Element[] | JSX.Element
+  /** Button Groups of Toolbar */
+  children?: React.ReactElement<ToolbarButtonsProps> | React.ReactElement<ToolbarButtonsProps>[]
+}
+
+export interface ToolbarButtonsProps {
+  /** Elements of the button group */
+  children?: JSX.Element | JSX.Element[]
 }

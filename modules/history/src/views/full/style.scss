@@ -1,7 +1,10 @@
 .fetch-more {
-  cursor: pointer;
   width: fit-content;
   margin: 0 auto;
+}
+
+.filtersCheckbox {
+  margin: auto 0 auto 0;
 }
 
 .datepicker > span {
@@ -22,7 +25,6 @@
 }
 
 .downloadCopy {
-  margin-left: auto;
   padding-right: 5px;
   display: flex;
 }

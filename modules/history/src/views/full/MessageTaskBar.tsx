@@ -1,5 +1,5 @@
-import { AnchorButton, Checkbox, Colors, Divider, Icon, Position, Tooltip, Alignment, Text } from '@blueprintjs/core'
-import { Toolbar } from 'botpress/ui'
+import { Alignment, AnchorButton, Checkbox, Colors, Divider, Icon, Position, Text, Tooltip } from '@blueprintjs/core'
+import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from 'botpress/ui'
 import React, { Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
@@ -47,27 +47,25 @@ export class MessageTaskBar extends React.Component<Props, State> {
     this.props.updateFilters(this.filters)
   }
 
-  renderFilters() {
+  renderActions() {
     return (
-      <Toolbar>
-        <Fragment>
-          <Text className={style.taskBarText}>{this.props.selectedCount} selected messages</Text>
+      <LeftToolbarButtons>
+        <Text className={style.taskBarText}>{this.props.selectedCount} selected messages</Text>
 
-          <Divider />
+        <Divider />
 
-          <Tooltip content={'Mark selected messages as not good'} position={Position.BOTTOM}>
-            <AnchorButton data-tip data-for={'flag'} onClick={this.props.flag}>
-              <Icon icon={'flag'} color={Colors.BLACK} />
-            </AnchorButton>
-          </Tooltip>
+        <Tooltip content={'Mark selected messages as not good'} position={Position.BOTTOM}>
+          <AnchorButton data-tip data-for={'flag'} onClick={this.props.flag}>
+            <Icon icon={'flag'} color={Colors.BLACK} />
+          </AnchorButton>
+        </Tooltip>
 
-          <Tooltip content={'Unflag Selected messages'} position={Position.BOTTOM}>
-            <AnchorButton>
-              <Icon icon={'flag'} color={Colors.GRAY1} onClick={this.props.unflag} />
-            </AnchorButton>
-          </Tooltip>
-        </Fragment>
-      </Toolbar>
+        <Tooltip content={'Unflag Selected messages'} position={Position.BOTTOM}>
+          <AnchorButton>
+            <Icon icon={'flag'} color={Colors.GRAY1} onClick={this.props.unflag} />
+          </AnchorButton>
+        </Tooltip>
+      </LeftToolbarButtons>
     )
   }
 
@@ -76,34 +74,35 @@ export class MessageTaskBar extends React.Component<Props, State> {
     setTimeout(() => this.setState({ showCopiedTooltip: false }), 600)
   }
 
-  renderActions() {
+  renderFilters() {
     return (
-      <Toolbar>
-        <Checkbox
-          inline
-          label={'Display only flagged messages:'}
-          alignIndicator={Alignment.RIGHT}
-          checked={this.filters.flag}
-          onChange={this.toggleFlagFilter}
-        />
+      <Fragment>
+        <LeftToolbarButtons>
+          <Checkbox
+            className={style.filtersCheckbox}
+            inline
+            label={'Show flagged only:'}
+            alignIndicator={Alignment.RIGHT}
+            checked={this.filters.flag}
+            onChange={this.toggleFlagFilter}
+          />
+        </LeftToolbarButtons>
 
-        <div key={'download-copy'} className={style.downloadCopy}>
-          <MessageDownload messageGroups={this.props.messageGroups} />
-          <Tooltip content={'copied!'} isOpen={this.state.showCopiedTooltip} position={Position.BOTTOM}>
-            <CopyToClipboard text={window.location.href}>
-              <AnchorButton icon={'link'} onClick={this.copyLink} />
-            </CopyToClipboard>
-          </Tooltip>
-        </div>
-      </Toolbar>
+        <RightToolbarButtons>
+          <div className={style.downloadCopy}>
+            <MessageDownload messageGroups={this.props.messageGroups} />
+            <Tooltip content={'copied!'} isOpen={this.state.showCopiedTooltip} position={Position.BOTTOM}>
+              <CopyToClipboard text={window.location.href}>
+                <AnchorButton icon={'link'} onClick={this.copyLink} />
+              </CopyToClipboard>
+            </Tooltip>
+          </div>
+        </RightToolbarButtons>
+      </Fragment>
     )
   }
 
   render() {
-    if (!this.props.useAsFilter) {
-      return this.renderFilters()
-    } else {
-      return this.renderActions()
-    }
+    return <Toolbar>{this.props.useAsFilter ? this.renderFilters() : this.renderActions()}</Toolbar>
   }
 }

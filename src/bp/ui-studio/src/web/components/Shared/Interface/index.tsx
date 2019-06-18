@@ -26,7 +26,9 @@ import {
   SearchBarProps,
   SectionAction,
   SidePanelSectionProps,
-  SplashScreenProps
+  SplashScreenProps,
+  ToolbarButtonsProps,
+  ToolbarProps
 } from './typings'
 
 import { buildMenu, showContextMenu } from './utils'
@@ -173,10 +175,9 @@ export const InfoTooltip: FC<InfoTooltipProps> = props => (
 )
 
 const SectionAction = (action: SectionAction, idx: number) => {
-  const toolTipPos = action.tooltipPosition ? action.tooltipPosition : Position.RIGHT
   if (action.items) {
     return (
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={toolTipPos}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -186,7 +187,7 @@ const SectionAction = (action: SectionAction, idx: number) => {
 
   return (
     <Popover disabled={!action.popover} content={action.popover}>
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={toolTipPos}>
+      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Button
           icon={action.icon}
           text={action.label}
@@ -197,15 +198,22 @@ const SectionAction = (action: SectionAction, idx: number) => {
   )
 }
 
-export const Toolbar = props => {
-  const children: JSX.Element[] = props.children && !props.children.length ? [props.children] : props.children
+export const Toolbar = (props: ToolbarProps) => {
+  return <div className={style.toolbar}>{props.children}</div>
+}
+
+export const LeftToolbarButtons = (props: ToolbarButtonsProps) => {
+  return toolbarButtons(props)
+}
+
+export const RightToolbarButtons = (props: ToolbarButtonsProps) => {
+  return toolbarButtons(props, style.rightButtons)
+}
+
+function toolbarButtons(props: ToolbarButtonsProps, style?: string) {
   return (
-    <div className={style.toolbar}>
-      {children.map(c => (
-        <ButtonGroup key={c.key} className={c.props.className} vertical={false} minimal={true}>
-          {c}
-        </ButtonGroup>
-      ))}
-    </div>
+    <ButtonGroup className={style} vertical={false} minimal={true}>
+      {props.children}
+    </ButtonGroup>
   )
 }

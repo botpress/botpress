@@ -6,7 +6,7 @@ import { MessageGroup } from './MessageGroup'
 import { MessageInspector } from './MessageInspector'
 
 import { SplashScreen } from 'botpress/ui'
-import { Icon } from '@blueprintjs/core'
+import { Icon, Button } from '@blueprintjs/core'
 
 import { MessageTaskBar } from './MessageTaskBar'
 
@@ -175,8 +175,10 @@ export class MessageViewer extends React.Component {
               </div>
             )}
             {this.props.isThereStillMessagesLeft && (
-              <div className={style['fetch-more']} onClick={() => this.props.fetchNewMessages(this.state.filters)}>
-                Load More...
+              <div className={style['fetch-more']}>
+                <Button onClick={() => this.props.fetchNewMessages(this.state.filters)} minimal>
+                  Load More...
+                </Button>
               </div>
             )}
           </div>

@@ -5,6 +5,7 @@ interface CssExports {
   'datepicker': string;
   'downloadCopy': string;
   'fetch-more': string;
+  'filtersCheckbox': string;
   'message-elements': string;
   'message-group': string;
   'message-group-confidence': string;
