@@ -34,7 +34,7 @@ const CSV_STATUS_POLL_INTERVAL = 1000
 export default class QnaAdmin extends Component {
   constructor(props) {
     super(props)
-    this.csvDownloadableLink = React.createRef()
+    this.jsonDownloadableLink = React.createRef()
   }
 
   state = {
@@ -158,15 +158,15 @@ export default class QnaAdmin extends Component {
     }
   }
 
-  downloadCsv = () =>
+  downloadJson = () =>
     // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ method: 'get', url: '/mod/qna/export/csv', responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ method: 'get', url: '/mod/qna/export', responseType: 'blob' }).then(response => {
       this.setState(
         {
-          csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
-          csvDownloadableFileName: /filename=(.*\.csv)/.exec(response.headers['content-disposition'])[1]
+          jsonDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
+          jsonDownloadableFileName: /filename=(.*\.json)/.exec(response.headers['content-disposition'])[1]
         },
-        () => this.csvDownloadableLink.current.click()
+        () => this.jsonDownloadableLink.current.click()
       )
     })
 
@@ -288,8 +288,8 @@ export default class QnaAdmin extends Component {
           >
             Import from CSV
           </Button>
-          <Button bsStyle="default" onClick={this.downloadCsv} type="button">
-            Export to CSV
+          <Button bsStyle="default" onClick={this.downloadJson} type="button">
+            Export to JSON
           </Button>
         </ButtonGroup>
       </ButtonToolbar>
@@ -510,9 +510,9 @@ export default class QnaAdmin extends Component {
     return (
       <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
         <a
-          ref={this.csvDownloadableLink}
-          href={this.state.csvDownloadableLinkHref}
-          download={this.state.csvDownloadableFileName}
+          ref={this.jsonDownloadableLink}
+          href={this.state.jsonDownloadableLinkHref}
+          download={this.state.jsonDownloadableFileName}
         />
         <Panel.Body>
           {this.renderQnAHeader()}

@@ -1,6 +1,8 @@
 import _ from 'lodash'
 
 import * as parsers from './parsers.js'
+import { QnaItem } from './qna'
+import Storage from './storage'
 
 const ANSWERS_SPLIT_CHAR = '†'
 
@@ -9,7 +11,7 @@ export const importQuestions = async (questions, params) => {
 
   statusCallback(uploadStatusId, 'Calculating diff with existing questions')
 
-  const existingQuestions = (await storage.fetchAllQuestions()).map(item =>
+  const existingQuestions = (await (storage as Storage).fetchQNAs()).map(item =>
     JSON.stringify(_.omit(item.data, 'enabled'))
   )
 
@@ -31,36 +33,8 @@ export const importQuestions = async (questions, params) => {
   })
 }
 
-export const prepareExport = async (storage, { flat = false } = {}) => {
-  const qnas = await storage.fetchAllQuestions()
-
-  return _.flatMap(qnas, question => {
-    const { data } = question
-    const { questions, action, redirectNode, redirectFlow, category, answers, answer: textAnswer } = data
-
-    // FIXME: Remove v11.2 answer support
-    let answer = answers.join(ANSWERS_SPLIT_CHAR) || textAnswer // textAnswer allow to support v11.2 answer format
-    let answer2 = undefined
-
-    // FIXME: Refactor these answer, answer2 fieds for something more meaningful like a 'redirect' field.
-    // redirect dont need text so answer is overriden with the redirect flow
-    if (action === 'redirect') {
-      answer = redirectFlow
-      if (redirectNode) {
-        answer += '#' + redirectNode
-      }
-      // text_redirect will display a text before redirecting to the desired flow
-    } else if (action === 'text_redirect') {
-      answer2 = redirectFlow
-      if (redirectNode) {
-        answer2 += '#' + redirectNode
-      }
-    }
-    const categoryWrapper = storage.getCategories() ? { category } : {}
-
-    if (!flat) {
-      return { questions, action, answer, answer2, ...categoryWrapper }
-    }
-    return questions.map(question => ({ question, action, answer, answer2, ...categoryWrapper }))
-  })
+export const prepareExport = async (storage: Storage, { flat = false } = {}) => {
+  const qnas = await storage.fetchQNAs()
+  const qnaEntries = _.flatMap(qnas, (question: QnaItem) => question.data)
+  return JSON.stringify(qnaEntries, undefined, 2)
 }

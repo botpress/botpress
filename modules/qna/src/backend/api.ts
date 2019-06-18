@@ -93,29 +93,12 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     res.send({ categories })
   })
 
-  // TODO make sure that this works properly
-  router.get('/export/:format', async (req, res) => {
+  router.get('/export', async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
-    const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
-    const data = await prepareExport(storage, { flat: true })
-
-    if (req.params.format === 'csv') {
-      res.setHeader('Content-Type', 'text/csv')
-      res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.csv`)
-
-      const categoryWrapper = storage.hasCategories() ? ['category'] : []
-      const parseOptions = {
-        fields: ['question', 'action', 'answer', 'answer2', ...categoryWrapper],
-        header: true
-      }
-      const json2csvParser = new Json2csvParser(parseOptions)
-
-      res.end(iconv.encode(json2csvParser.parse(data), config.exportCsvEncoding))
-    } else {
-      res.setHeader('Content-Type', 'application/json')
-      res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.json`)
-      res.end(JSON.stringify(data))
-    }
+    const data: string = await prepareExport(storage, { flat: true })
+    res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.json`)
+    res.end(data)
   })
 
   // TODO make sure that this works properly
