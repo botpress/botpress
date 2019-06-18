@@ -33,7 +33,7 @@ export default class PanelContent extends Component {
     const flowsName = normalFlows.map(x => {
       return { name: x.name }
     })
-    const createFlowAction = { icon: 'add', tooltip: 'Create new flow', onClick: this.createFlow }
+    const createFlowAction = { icon: 'add', key: 'create', tooltip: 'Create new flow', onClick: this.createFlow }
 
     return (
       <SidePanel>

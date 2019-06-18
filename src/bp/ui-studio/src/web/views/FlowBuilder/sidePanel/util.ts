@@ -50,7 +50,12 @@ export const splitFlowPath = flow => {
   currentPath.push(flowName)
   return {
     folders,
-    flow: { icon: FLOW_ICON, label: flowName, fullPath: currentPath.join('/') } // document, exchange, search-around
+    flow: {
+      id: currentPath.join('/'),
+      icon: FLOW_ICON,
+      label: flowName,
+      fullPath: currentPath.join('/')
+    }
   }
 }
 
