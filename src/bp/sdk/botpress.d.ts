@@ -486,6 +486,7 @@ declare module 'botpress/sdk' {
       readonly intent: NLU.Intent
       readonly intents: NLU.Intent[]
       readonly language: string
+      readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
