@@ -47,7 +47,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     try {
       const { eventIds } = req.body
       const builder = new Builder(bp.database, eventIds)
-      res.send(builder.createScenario())
+      res.send(await builder.createScenario())
     } catch (err) {
       res.status(400).send(err.message)
     }

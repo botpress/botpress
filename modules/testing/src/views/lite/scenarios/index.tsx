@@ -1,4 +1,5 @@
 import { Button, Intent } from '@blueprintjs/core'
+import _ from 'lodash'
 import React from 'react'
 import { MdPolymer } from 'react-icons/md'
 
@@ -13,13 +14,14 @@ const DEV_TOOLS_WIDTH = 450
 export const updater = { callback: undefined }
 
 export class ScenarioBuilder extends React.Component<Props, State> {
-  private selectedEventIds = {}
+  private firstEvent
+  private secondEvent
 
   state = {
     visible: false,
     scenario: undefined,
     errorMessage: undefined,
-    interactionsCount: 0
+    selectedEventIds: []
   }
 
   componentDidMount() {
@@ -42,15 +44,19 @@ export class ScenarioBuilder extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.visible && this.state.visible) {
-      this.selectedEventIds = {}
+      this.clearSelection()
       this.props.store.setMessageWrapper({ module: 'testing', component: 'Wrapper' })
     } else if (prevState.visible && !this.state.visible) {
       this.resetWebchat()
     }
+
+    if (prevState.selectedEventIds !== this.state.selectedEventIds) {
+      this.props.store.view.setHighlightedMessages(this.state.selectedEventIds)
+    }
   }
 
   resetWebchat() {
-    this.props.store.view.setHighlightedMessages([])
+    this.clearSelection()
     this.props.store.setMessageWrapper(undefined)
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
@@ -62,29 +68,41 @@ export class ScenarioBuilder extends React.Component<Props, State> {
   }
 
   handleEventClicked = eventId => {
-    if (!this.selectedEventIds[eventId]) {
-      this.selectedEventIds[eventId] = true
-    } else {
-      delete this.selectedEventIds[eventId]
+    if (this.firstEvent && this.secondEvent) {
+      return this.clearSelection()
     }
 
-    this.setState({ interactionsCount: Object.keys(this.selectedEventIds).length })
-    this.props.store.view.setHighlightedMessages(Object.keys(this.selectedEventIds))
+    if (!this.firstEvent) {
+      this.firstEvent = eventId
+      return this.setState({ selectedEventIds: [eventId] })
+    }
+
+    if (!this.secondEvent) {
+      this.secondEvent = eventId
+    }
+
+    this.setState({ selectedEventIds: this._getEventIdsInRange(this.firstEvent, eventId) })
   }
 
-  get hasEvents() {
-    return this.selectedEventIds && !!Object.keys(this.selectedEventIds).length
+  private _getEventIdsInRange(firstEvent: string, lastEvent: string): string[] {
+    const messages: any[] = this.props.store.currentConversation.messages
+
+    const firstIndex = _.findIndex(messages, x => x.incomingEventId === firstEvent)
+    const lastIndex = _.findIndex(messages, x => x.incomingEventId === lastEvent)
+
+    return _.uniq(messages.slice(firstIndex, lastIndex + 1).map(x => x.incomingEventId))
   }
 
   buildScenario = async () => {
     const axios = this.props.store.bp.axios
-    const eventIds = Object.keys(this.selectedEventIds)
+    const eventIds = this.state.selectedEventIds
 
     try {
       const { data: scenario } = await axios.post('/mod/testing/buildScenario', { eventIds })
       this.setState({ scenario })
     } catch (err) {
-      AppToaster.show({ message: `Error while saving scenario: ${err.message}`, intent: Intent.DANGER, timeout: 3000 })
+      const error = _.get(err, 'response.data', err.message)
+      AppToaster.show({ message: `Error while saving scenario: ${error}`, intent: Intent.DANGER, timeout: 3000 })
     }
   }
 
@@ -95,8 +113,7 @@ export class ScenarioBuilder extends React.Component<Props, State> {
         steps: recordedScenario
       })
 
-      this.selectedEventIds = {}
-      this.props.store.view.setHighlightedMessages([])
+      this.clearSelection()
       this.setState({ scenario: undefined })
 
       AppToaster.show({ message: 'Scenario created successfully!', intent: Intent.SUCCESS, timeout: 3000 })
@@ -106,6 +123,12 @@ export class ScenarioBuilder extends React.Component<Props, State> {
   }
 
   discardScenario = () => this.setState({ scenario: undefined })
+
+  clearSelection = () => {
+    this.firstEvent = undefined
+    this.secondEvent = undefined
+    this.setState({ selectedEventIds: [] })
+  }
 
   renderEvents() {
     return this.state.scenario ? (
@@ -117,9 +140,10 @@ export class ScenarioBuilder extends React.Component<Props, State> {
         <br />
         <br />
         <p>
-          Interactions selected: <b>{this.state.interactionsCount}</b>
+          Interactions selected: <b>{this.state.selectedEventIds.length}</b>
         </p>
-        <Button onClick={this.buildScenario}>Build Scenario</Button>
+        <Button onClick={this.buildScenario}>Build Scenario</Button>{' '}
+        <Button onClick={this.clearSelection}>Clear Selection</Button>
       </div>
     )
   }
@@ -136,7 +160,11 @@ export class ScenarioBuilder extends React.Component<Props, State> {
           <div />
         </div>
 
-        {this.hasEvents ? <div className={style.content}>{this.renderEvents()}</div> : <SplashScreen />}
+        {this.state.selectedEventIds.length ? (
+          <div className={style.content}>{this.renderEvents()}</div>
+        ) : (
+          <SplashScreen />
+        )}
       </div>
     )
   }
@@ -150,5 +178,5 @@ interface Props {
 interface State {
   visible: boolean
   scenario: any
-  interactionsCount: number
+  selectedEventIds: string[]
 }

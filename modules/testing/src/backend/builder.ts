@@ -26,7 +26,9 @@ export class Builder {
 
     if (this._events.length !== this._eventIds.length) {
       throw new Error(
-        `Could not load some events. Expected ${this._eventIds.length}, got ${this._events.length} events`
+        `Could not load some specified events. Expected ${this._eventIds.length}, got ${
+          this._events.length
+        } events. Maybe they were cleared from the database, or they weren't saved yet.`
       )
     }
 
