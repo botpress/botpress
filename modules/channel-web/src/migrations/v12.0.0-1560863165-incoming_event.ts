@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 
-const migration = {
+const migration: sdk.ModuleMigration = {
   info: {
     description: `Adds incomingEventId to the table web_messages`,
     type: 'database'
   },
-  up: async (bp: typeof sdk) => {
+  up: async (bp: typeof sdk): Promise<sdk.MigrationResult> => {
     if (await bp.database.schema.hasColumn('web_messages', 'incomingEventId')) {
       return { success: true, message: 'Column incomingEventId already exists, skipping...' }
     }
