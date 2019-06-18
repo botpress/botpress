@@ -30,15 +30,10 @@ function renderMessenger(data) {
     },
     {
       attachment: {
-        type: 'template',
+        type: 'image',
         payload: {
-          template_type: 'generic',
-          elements: [
-            {
-              title: data.title,
-              image_url: url.resolve(data.BOT_URL, data.image)
-            }
-          ]
+          is_reusable: true,
+          url: url.resolve(data.BOT_URL, data.image)
         }
       }
     }

@@ -3,13 +3,17 @@ id: proactive
 title: Acting Proactively
 ---
 
+## Overview
+
 You may wish to make your bot act proactively on your website in response to some action. E.g., make the bot speak first, suggest they buy the product they are viewing after a set time or ask them for feedback on services they were using.
 
 ## Requirements
 
 ### Send an event from the webpage
 
-First you need to open the chat widget (either manually or programatically) and then send an event from the webpage.
+First you need to open the webchat (either manually or programatically) and then send an event from the webpage.
+
+> 📖 How do I open the webchat? Please refer to the [channel-web](../channels/web#embedding) section.
 
 ```js
 window.botpressWebChat.sendEvent({
