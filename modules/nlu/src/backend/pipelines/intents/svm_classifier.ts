@@ -6,7 +6,7 @@ import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
-import FTWordVecFeaturizer from '../language/ft_featurizer'
+import { getSentenceFeatures } from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
@@ -105,14 +105,14 @@ export default class SVMClassifier {
       for (const { name: intentName, tokens } of intents) {
         for (const utteranceTokens of tokens) {
           if (utteranceTokens.length) {
-            const l0Vec = await FTWordVecFeaturizer.getFeatures(
+            const l0Vec = await getSentenceFeatures(
               this.language,
               utteranceTokens,
               l0Tfidf[context],
               this.languageProvider
             )
 
-            const l1Vec = await FTWordVecFeaturizer.getFeatures(
+            const l1Vec = await getSentenceFeatures(
               this.language,
               utteranceTokens,
               l1Tfidf[context][intentName],
@@ -188,7 +188,7 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
-      const svm = new this.toolkit.SVM.Trainer()
+      const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
 
@@ -264,7 +264,7 @@ export default class SVMClassifier {
 
     const input = tokens.join(' ')
 
-    const l0Vec = await FTWordVecFeaturizer.getFeatures(this.language, tokens, this.l0Tfidf, this.languageProvider)
+    const l0Vec = await getSentenceFeatures(this.language, tokens, this.l0Tfidf, this.languageProvider)
     const l0Features = [...l0Vec, tokens.length]
     const l0 = await this.l0Predictor.predict(l0Features)
 
@@ -277,12 +277,7 @@ export default class SVMClassifier {
 
       const predictions = _.flatten(
         await Promise.map(includedContexts, async ctx => {
-          const l1Vec = await FTWordVecFeaturizer.getFeatures(
-            this.language,
-            tokens,
-            this.l1Tfidf[ctx],
-            this.languageProvider
-          )
+          const l1Vec = await getSentenceFeatures(this.language, tokens, this.l1Tfidf[ctx], this.languageProvider)
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
           const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)

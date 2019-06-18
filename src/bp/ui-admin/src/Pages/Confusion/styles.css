@@ -23,7 +23,12 @@ td.name span {
   padding-left: 5px;
   font-size: 12px;
   line-height: 20px;
-  color: #333;
+  width: 100px;
+  text-align: left;
+}
+
+td a {
+  color: black;
 }
 
 .color-75 {

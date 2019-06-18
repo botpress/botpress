@@ -27,7 +27,9 @@ import {
   SectionAction,
   SidePanelProps,
   SidePanelSectionProps,
-  SplashScreenProps
+  SplashScreenProps,
+  ToolbarButtonsProps,
+  ToolbarProps
 } from './typings'
 import { buildMenu, showContextMenu } from './utils'
 
@@ -98,28 +100,28 @@ export const ItemList = (props: ItemListProps) => {
   return (
     <div className={style.itemList}>
       {props.items &&
-        props.items.map(item => (
-          <div
-            key={item.key ? item.key : item.label}
-            className={classnames(style.item, { [style.itemListSelected]: item.selected })}
-          >
-            <div
-              className={style.label}
-              onClick={() => props.onElementClicked && props.onElementClicked(item)}
-              onContextMenu={e => showContextMenu(e, item.contextMenu)}
-            >
-              {item.icon && <Icon icon={item.icon} />} {item.label}
+        props.items.map(item => {
+          const key = item.key ? item.key : item.label
+          return (
+            <div key={key} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+              <div
+                className={style.label}
+                onClick={() => props.onElementClicked && props.onElementClicked(item)}
+                onContextMenu={e => showContextMenu(e, item.contextMenu)}
+              >
+                {item.icon && <Icon icon={item.icon} />} {item.label}
+              </div>
+              <div className={style.right}>
+                {item.actions &&
+                  item.actions.map(action => (
+                    <Tooltip key={key + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                    </Tooltip>
+                  ))}
+              </div>
             </div>
-            <div className={style.right}>
-              {item.actions &&
-                item.actions.map(action => (
-                  <Tooltip key={item.label + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                    <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
-                  </Tooltip>
-                ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
     </div>
   )
 }
@@ -186,11 +188,23 @@ const SectionAction = (action: SectionAction, idx: number) => {
   )
 }
 
-export const Toolbar = props => {
+export const Toolbar = (props: ToolbarProps) => {
+  return <div className={style.toolbar}>{props.children}</div>
+}
+
+export const LeftToolbarButtons = (props: ToolbarButtonsProps) => {
+  return toolbarButtons(props)
+}
+
+export const RightToolbarButtons = (props: ToolbarButtonsProps) => {
+  return toolbarButtons(props, style.rightButtons)
+}
+
+function toolbarButtons(props: ToolbarButtonsProps, style?: string) {
   return (
-    <div className={style.toolbar}>
-      <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
-    </div>
+    <ButtonGroup className={style} vertical={false} minimal={true}>
+      {props.children}
+    </ButtonGroup>
   )
 }
 

@@ -4,7 +4,7 @@ import moment from 'moment'
 import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 
 import withLanguage from '~/components/Util/withLanguage'
 
@@ -231,38 +231,40 @@ class ListView extends Component<Props, State> {
     return (
       <div>
         <Toolbar>
-          <Tooltip content="Refresh" position={Position.BOTTOM}>
-            <AnchorButton icon="refresh" onClick={this.props.handleRefresh} />
-          </Tooltip>
-
-          <Divider />
-          {!this.props.readOnly && (
-            <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
-              <AnchorButton
-                icon="trash"
-                disabled={_.isEmpty(this.state.checkedIds)}
-                onClick={this.handleDeleteSelected}
-              />
+          <LeftToolbarButtons>
+            <Tooltip content="Refresh" position={Position.BOTTOM}>
+              <AnchorButton icon="refresh" onClick={this.props.handleRefresh} />
             </Tooltip>
-          )}
 
-          {!this.props.readOnly && (
-            <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
-              <AnchorButton
-                icon="duplicate"
-                disabled={_.isEmpty(this.state.checkedIds)}
-                onClick={this.handleCloneSelected}
-              />
-            </Tooltip>
-          )}
-          <Divider />
-          <InputGroup
-            style={{ marginTop: 3, width: 250 }}
-            placeholder="Search content"
-            small={true}
-            value={this.state.searchTerm}
-            onChange={this.handleSearchChanged}
-          />
+            <Divider />
+            {!this.props.readOnly && (
+              <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
+                <AnchorButton
+                  icon="trash"
+                  disabled={_.isEmpty(this.state.checkedIds)}
+                  onClick={this.handleDeleteSelected}
+                />
+              </Tooltip>
+            )}
+
+            {!this.props.readOnly && (
+              <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
+                <AnchorButton
+                  icon="duplicate"
+                  disabled={_.isEmpty(this.state.checkedIds)}
+                  onClick={this.handleCloneSelected}
+                />
+              </Tooltip>
+            )}
+            <Divider />
+            <InputGroup
+              style={{ marginTop: 3, width: 250 }}
+              placeholder="Search content"
+              small={true}
+              value={this.state.searchTerm}
+              onChange={this.handleSearchChanged}
+            />
+          </LeftToolbarButtons>
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
       </div>
