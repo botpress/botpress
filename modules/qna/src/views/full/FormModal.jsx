@@ -14,30 +14,32 @@ const ACTIONS = {
 }
 
 export default class FormModal extends Component {
-  defaultState = {
-    item: {
-      answers: {},
-      questions: {},
-      redirectFlow: '',
-      redirectNode: '',
-      action: ACTIONS.TEXT,
-      category: 'global',
-      enabled: true
-    },
-    invalidFields: {
-      category: false,
-      questions: false,
-      answer: false,
-      checkbox: false,
-      redirectFlow: false,
-      redirectNode: false
-    },
-    errorMessage: undefined,
-    isText: true,
-    isRedirect: false
-  }
-
   state = this.defaultState
+
+  get defaultState() {
+    return {
+      item: {
+        answers: {},
+        questions: {},
+        redirectFlow: '',
+        redirectNode: '',
+        action: ACTIONS.TEXT,
+        category: 'global',
+        enabled: true
+      },
+      invalidFields: {
+        category: false,
+        questions: false,
+        answer: false,
+        checkbox: false,
+        redirectFlow: false,
+        redirectNode: false
+      },
+      errorMessage: undefined,
+      isText: true,
+      isRedirect: false
+    }
+  }
 
   async componentDidUpdate(prevProps) {
     const { id } = this.props
