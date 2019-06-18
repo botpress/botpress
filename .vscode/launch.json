@@ -8,13 +8,16 @@
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
+      "args": ["start"],
       "protocol": "auto",
       "env": {
-        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/private-modules",
-        "NODE_PATH": "${workspaceFolder}/out/bp"
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:*"
       },
+      "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out/",
+        "${workspaceFolder}/out",
         "${workspaceFolder}/modules/*/dist",
         "${workspaceFolder}/private-modules/*/dist",
         "!${workspaceFolder}/**/node_modules"

@@ -10,12 +10,12 @@ export default class ExactMatcher {
   constructor(private trainingSet: Sequence[]) {}
 
   exactMatch(text: string, includedContext: string[]): sdk.NLU.Intent | void {
-    const filteredDataset = this.trainingSet.filter(
-      seq => !includedContext.length || _.intersection(seq.contexts || [], includedContext).length
-    )
-
     const lowText = sanitize(text.toLowerCase())
-    const seq = _.find(filteredDataset, s => sanitize(s.cannonical.toLowerCase()) === lowText)
+
+    const seq = this.trainingSet
+      .filter(seq => !includedContext.length || _.intersection(seq.contexts || [], includedContext).length)
+      .find(s => sanitize(s.cannonical.toLowerCase()) === lowText)
+
     if (seq) {
       return {
         name: seq.intent,

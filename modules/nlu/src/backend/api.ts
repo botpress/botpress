@@ -1,14 +1,14 @@
 import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
-import ms from 'ms'
 import _ from 'lodash'
+import ms from 'ms'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
-const SYNC_INTERVAL_MS = ms('15s')
+const SYNC_INTERVAL_MS = ms('5s')
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -28,7 +28,11 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }, SYNC_INTERVAL_MS)
   }
 
-  const syncNLU = async (botEngine: ScopedEngine, confusionMode: boolean = false): Promise<string> => {
+  const syncNLU = async (
+    botEngine: ScopedEngine,
+    confusionMode: boolean = false,
+    confusionVersion: string = undefined
+  ): Promise<string> => {
     const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
 
@@ -37,7 +41,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      return await botEngine.sync(confusionMode)
+      return await botEngine.trainOrLoad(confusionMode, confusionVersion)
     } catch (e) {
       bp.realtime.sendPayload(
         bp.RealTimePayload.forAdmins('toast.nlu-sync', {
@@ -64,22 +68,37 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.send(modelHash)
   })
 
-  router.get('/confusion/:modelHash', async (req, res) => {
+  router.get('/confusion/:modelHash/:version', async (req, res) => {
     const engine = nlus[req.params.botId] as ConfusionEngine
     const confusionComputing = engine.confusionComputing
+    const lang = req.query.lang || (await sdk.bots.getBotById(req.params.botId)).defaultLanguage
+
     try {
-      const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash)
+      const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash, req.params.version, lang)
       res.send({ matrix, confusionComputing })
     } catch (err) {
-      bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}. It may not exist`)
+      if (err.code !== 'ENOENT') {
+        bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}.`)
+      }
       res.send({ confusionComputing })
+    }
+  })
+
+  router.get('/confusion', async (req, res) => {
+    try {
+      const botId = req.params.botId
+      const confusions = await (nlus[botId] as ScopedEngine).storage.getAllConfusionMatrix()
+      res.send({ botId, confusions })
+    } catch (err) {
+      res.sendStatus(500)
     }
   })
 
   router.post('/confusion', async (req, res) => {
     try {
       const botEngine = nlus[req.params.botId] as ScopedEngine
-      const modelHash = await syncNLU(botEngine, true)
+      const { version } = req.body
+      const modelHash = await syncNLU(botEngine, true, version)
       res.send({ modelHash })
     } catch (err) {
       res.status(400).send('Could not train confusion matrix')
@@ -118,6 +137,16 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
       res.status(400).send('Invalid schema')
     }
+  })
+
+  // TODO use this in UI
+  router.put('/intents/:id/utterances', async (req, res) => {
+    const { botId, id } = req.params
+    const { lang, utterances } = req.body
+    const botEngine = nlus[botId] as ScopedEngine
+    // TODO add validation : bot exists, intent exist, lang is supported by bot utterance is string[])
+
+    await botEngine.storage.updateIntent(id, { utterances: { [lang]: utterances } })
   })
 
   router.get('/contexts', async (req, res) => {
@@ -185,7 +214,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      const result = await nlus[req.params.botId].extract(eventText.preview)
+      const result = await nlus[req.params.botId].extract(eventText.preview, [])
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)

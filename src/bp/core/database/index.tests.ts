@@ -18,7 +18,7 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
   const sqlite = new Database(logger.T)
   const postgres = new Database(logger.T)
 
-  describe(`DB[SQLite] ${suiteName}`, async () => {
+  describe(`DB[SQLite] ${suiteName}`, () => {
     beforeAll(async () => {
       await sqlite.initialize('sqlite', sqlitePath)
 
@@ -37,7 +37,7 @@ export function createDatabaseSuite(suiteName: string, suite: DatabaseTestSuite)
       await sqlite.seedForTests()
     })
 
-    await suite(sqlite)
+    suite(sqlite)
   })
 
   describe(`DB[Postgres] ${suiteName}`, () => {

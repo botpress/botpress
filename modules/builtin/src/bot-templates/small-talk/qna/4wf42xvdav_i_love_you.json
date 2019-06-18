@@ -1,8 +1,8 @@
 {
   "id": "4wf42xvdav_i_love_you",
   "data": {
-    "questions": ["I love you", "I am in love with you", "Do you love me?"],
-    "answers": ["People tell me all the time that i'm a lovable little bot :-)"],
+    "questions": { "en": ["I love you", "I am in love with you", "Do you love me?"] },
+    "answers": { "en": ["People tell me all the time that i'm a lovable little bot :-)"] },
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

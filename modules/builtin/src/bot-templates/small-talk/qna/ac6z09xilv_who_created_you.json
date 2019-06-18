@@ -1,7 +1,7 @@
 {
   "id": "ac6z09xilv_who_created_you",
   "data": {
-    "questions": [
+    "questions": {"en"[
       "who created you?",
       "who's your creator?",
       "who is behind this bot?",
@@ -9,8 +9,8 @@
       "who is your father?",
       "who are your parents?",
       "your creator?"
-    ],
-    "answers": ["I was created by the great team at Botpress"],
+    ]},
+    "answers": {"en" :["I was created by the great team at Botpress"]},
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",

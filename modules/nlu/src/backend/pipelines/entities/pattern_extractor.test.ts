@@ -1,7 +1,21 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
+import { initNLUDS } from './../../pipelinemanager'
 import PatternExtractor from './pattern_extractor'
+
+const languageProvider = {
+  vectorize: function(tokens: string[], lang: string): Promise<number[][]> {
+    const vectors = [[1, 2, 3]]
+    return Promise.resolve(vectors)
+  },
+  tokenize: function(text: string, lang: string): Promise<string[]> {
+    //This is a white space tokenizer only working for tests written in english
+    const res = text.split(' ').filter(_.identity)
+    return Promise.resolve(res)
+  }
+}
 
 describe('Custom entity extraction', () => {
   require('../../../../../../src/bp/import-rewire')
@@ -20,7 +34,7 @@ describe('Custom entity extraction', () => {
     } as sdk.NLU.EntityDefinition
     const userInput = 'lollolppplol hello haha'
 
-    const extractor = new PatternExtractor(Toolkit)
+    const extractor = new PatternExtractor(Toolkit, languageProvider)
 
     const entities = await extractor.extractPatterns(userInput, [entityDef])
 
@@ -62,32 +76,39 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
               [============]                                      ==                 [======]                                          [=]
 */
 
-    const extractor = new PatternExtractor(Toolkit)
-    const entities = await extractor.extractLists(userInput, 'en', [entityDef])
+    const extractor = new PatternExtractor(Toolkit, languageProvider)
+
+    const sanitized = userInput.replace('\n', '')
+    const ds = initNLUDS(sanitized, ['global'])
+    ds.lowerText = sanitized
+    ds.language = 'en'
+    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+
+    const entities = await extractor.extractLists(ds, [entityDef])
 
     expect(entities.length).toEqual(4)
 
     expect(entities[0].name).toEqual(entityDef.name)
-    expect(entities[0].meta.start).toEqual(15)
-    expect(entities[0].meta.end).toEqual(28)
+    expect(entities[0].meta.start).toEqual(14)
+    expect(entities[0].meta.end).toEqual(27)
     expect(entities[0].meta.source).toEqual('mercedes-benz')
     expect(entities[0].data.value).toEqual('Mercedes-Benz')
 
     expect(entities[1].name).toEqual(entityDef.name)
-    expect(entities[1].meta.start).toEqual(86)
-    expect(entities[1].meta.end).toEqual(94)
+    expect(entities[1].meta.start).toEqual(85)
+    expect(entities[1].meta.end).toEqual(93)
     expect(entities[1].meta.source).toEqual('mercedes')
     expect(entities[1].data.value).toEqual('Mercedes-Benz')
 
     expect(entities[2].name).toEqual(entityDef.name)
-    expect(entities[2].meta.start).toEqual(67)
-    expect(entities[2].meta.end).toEqual(69)
+    expect(entities[2].meta.start).toEqual(66)
+    expect(entities[2].meta.end).toEqual(68)
     expect(entities[2].meta.source).toEqual('BM')
     expect(entities[2].data.value).toEqual('BMW')
 
     expect(entities[3].name).toEqual(entityDef.name)
-    expect(entities[3].meta.start).toEqual(136)
-    expect(entities[3].meta.end).toEqual(140)
+    expect(entities[3].meta.start).toEqual(135)
+    expect(entities[3].meta.end).toEqual(139)
     expect(entities[3].meta.source).toEqual('BMW!')
     expect(entities[3].data.value).toEqual('BMW')
   })
@@ -111,14 +132,20 @@ My name is kanye West and I rap like kanye wsest` /*
            [========]                [xxxxxxxxxx]
 */
 
-    const extractor = new PatternExtractor(Toolkit)
-    const entities = await extractor.extractLists(userInput, 'en', [entityDef])
+    const extractor = new PatternExtractor(Toolkit, languageProvider)
+    const sanitized = userInput.replace('\n', '')
+    const ds = initNLUDS(sanitized, ['global'])
+    ds.lowerText = sanitized
+    ds.language = 'en'
+    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+
+    const entities = await extractor.extractLists(ds, [entityDef])
 
     expect(entities.length).toEqual(1)
 
     expect(entities[0].name).toEqual(entityDef.name)
-    expect(entities[0].meta.start).toEqual(12)
-    expect(entities[0].meta.end).toEqual(22)
+    expect(entities[0].meta.start).toEqual(11)
+    expect(entities[0].meta.end).toEqual(21)
     expect(entities[0].meta.source).toEqual('kanye West')
     expect(entities[0].data.value).toEqual('Kanye West')
   })
@@ -142,20 +169,25 @@ My name is kanye West and I rap like kanye wsest` /*
                        [========]          [xx]                   [==]
 */
 
-    const extractor = new PatternExtractor(Toolkit)
-    const entities = await extractor.extractLists(userInput, 'en', [entityDef])
+    const extractor = new PatternExtractor(Toolkit, languageProvider)
+    const sanitized = userInput.replace('\n', '')
+    const ds = initNLUDS(sanitized, ['global'])
+    ds.lowerText = sanitized
+    ds.language = 'en'
+    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+    const entities = await extractor.extractLists(ds, [entityDef])
 
     expect(entities.length).toEqual(2)
 
     expect(entities[0].name).toEqual(entityDef.name)
-    expect(entities[0].meta.start).toEqual(67)
-    expect(entities[0].meta.end).toEqual(71)
+    expect(entities[0].meta.start).toEqual(66)
+    expect(entities[0].meta.end).toEqual(70)
     expect(entities[0].meta.source).toEqual('gore')
     expect(entities[0].data.value).toEqual('Jon Gore')
 
     expect(entities[1].name).toEqual(entityDef.name)
-    expect(entities[1].meta.start).toEqual(24)
-    expect(entities[1].meta.end).toEqual(34)
+    expect(entities[1].meta.start).toEqual(23)
+    expect(entities[1].meta.end).toEqual(33)
     expect(entities[1].meta.source).toEqual('Jone Goree')
     expect(entities[1].data.value).toEqual('Jon Gore')
   })

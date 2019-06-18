@@ -106,7 +106,7 @@ describe('Ghost Service', () => {
     })
   })
 
-  describe('Using DB Driver', async () => {
+  describe('Using DB Driver', () => {
     const buildRev = n =>
       <FileRevision>{
         path: 'file',
@@ -117,7 +117,7 @@ describe('Ghost Service', () => {
       ghost.initialize(true)
     })
 
-    describe('read/write/delete', async () => {
+    describe('read/write/delete', () => {
       it('read files uses DB', async () => {
         dbDriver.readFile.mockImplementation(fileName => fileName)
         const content = await ghost.global().readFileAsString('test', 'my/test.json')
@@ -148,7 +148,7 @@ describe('Ghost Service', () => {
       })
     })
 
-    describe('directory listing', async () => {
+    describe('directory listing', () => {
       it('reads files from the DB', async () => {
         await ghost.global().directoryListing('test', '*.json')
         expect(dbDriver.directoryListing).toHaveBeenCalled()
@@ -168,7 +168,7 @@ describe('Ghost Service', () => {
       })
     })
 
-    describe('sync', async () => {
+    describe('sync', () => {
       it('if disk is not up to date, mark as dirty and dont sync disk files', async () => {
         dbDriver.listRevisions.mockReturnValue(['1', '2', '3'].map(buildRev))
         diskDriver.listRevisions.mockReturnValue(['1', '2'].map(buildRev)) // missing revision "3"
@@ -218,7 +218,7 @@ describe('Ghost Service', () => {
       })
     })
 
-    describe('revisions', async () => {
+    describe('revisions', () => {
       it('empty when no revisions', async () => {
         dbDriver.listRevisions.mockReturnValue([])
         const pending = await ghost.global().getPendingChanges()

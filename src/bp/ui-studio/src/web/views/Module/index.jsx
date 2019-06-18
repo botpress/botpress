@@ -47,7 +47,12 @@ class ModuleView extends React.Component {
     const module = _.find(modules, { name: moduleName })
 
     return module ? (
-      <InjectedModuleView moduleName={moduleName} componentName={componentName} onNotFound={this.renderNotFound} />
+      <InjectedModuleView
+        moduleName={moduleName}
+        componentName={componentName}
+        onNotFound={this.renderNotFound}
+        contentLang={this.props.contentLang}
+      />
     ) : (
       this.renderNotFound()
     )
@@ -55,7 +60,8 @@ class ModuleView extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  modules: state.modules
+  modules: state.modules,
+  contentLang: state.language.contentLang
 })
 
 export default connect(mapStateToProps)(ModuleView)

@@ -21,7 +21,12 @@ export default class Storage {
   private readonly modelsDir: string = './models'
   private readonly config: Config
 
-  constructor(config: Config, private readonly botId: string) {
+  constructor(
+    config: Config,
+    private readonly botId: string,
+    private readonly defaultLanguage: string,
+    private readonly languages: string[]
+  ) {
     this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
     this.globalGhost = Storage.ghostProvider()
@@ -57,16 +62,48 @@ export default class Storage {
     await this.botGhost.upsertFile(this.intentsDir, `${intent}.json`, JSON.stringify(content, undefined, 2))
   }
 
-  async saveConfusionMatrix(modelHash: string, results: Result) {
-    await this.botGhost.upsertFile(
-      this.modelsDir,
-      `confusion__${modelHash}.json`,
-      JSON.stringify(results, undefined, 2)
-    )
+  async updateIntent(intentName: string, content: Partial<sdk.NLU.IntentDefinition>) {
+    const intentDef = await this.getIntent(intentName)
+    const merged = _.merge(intentDef, content)
+
+    return this.saveIntent(intentName, merged)
   }
 
-  async getConfusionMatrix(modelHash: string): Promise<Result> {
-    return this.botGhost.readFileAsObject<Result>(this.modelsDir, `confusion__${modelHash}.json`)
+  async saveConfusionMatrix({
+    modelHash,
+    lang,
+    results,
+    confusionVersion
+  }: {
+    modelHash: string
+    lang: string
+    results: Result
+    confusionVersion: string
+  }) {
+    const fileName = `confusion__${modelHash}__${confusionVersion}.json`
+    await this.botGhost.upsertFile(`${this.modelsDir}/${lang}`, `${fileName}`, JSON.stringify(results, undefined, 2))
+  }
+
+  getAllConfusionMatrix = async (): Promise<{ lang: string; matrix: Result }[]> =>
+    await Promise.all(
+      (await this.botGhost.directoryListing(this.modelsDir, '*.json')).map(async path => {
+        const [lang, file] = path.split('/')
+        const [_, hash, rest] = file.split('__')
+
+        return {
+          version: rest.split('.')[0],
+          hash: hash,
+          lang,
+          matrix: await this.botGhost.readFileAsObject<Result>(`${this.modelsDir}/${lang}`, file)
+        }
+      })
+    )
+
+  async getConfusionMatrix(modelHash: string, buildVersion: string, lang: string): Promise<Result> {
+    return await this.botGhost.readFileAsObject<Result>(
+      `${this.modelsDir}/${lang}`,
+      `confusion__${modelHash}__${buildVersion}.json`
+    )
   }
 
   async deleteIntent(intent) {
@@ -98,33 +135,35 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const propertiesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
-    let properties: any = {}
+    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
 
     try {
-      properties = JSON.parse(propertiesContent)
+      const content = JSON.parse(jsonContent)
+      return this._migrate_intentDef_11_12(intent, filename, content)
     } catch (err) {
-      throw new Error(
-        `Could not parse intent properties (invalid JSON). JSON = "${propertiesContent}" in file "${filename}"`
-      )
+      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${jsonContent}" in file "${filename}"`)
     }
+  }
 
-    const obj = {
-      name: intent,
-      filename: filename,
-      contexts: ['global'], // @deprecated remove in bp > 11
-      ...properties
-    }
-
-    // @deprecated remove in bp > 11
+  /**
+   * @deprecated > 12
+   * Graceful migration
+   */
+  private async _migrate_intentDef_11_12(
+    intentName: string,
+    filename: string,
+    oldIntent: any
+  ): Promise<sdk.NLU.IntentDefinition> {
     let hasChange = false
-    if (!properties.utterances) {
-      await this._legacyAppendIntentUtterances(obj, intent)
-      hasChange = true
+    const intentDef = {
+      name: intentName,
+      filename: filename,
+      contexts: ['global'],
+      ...oldIntent
     }
 
-    // @deprecated > 11 graceful migration
-    for (const slot of obj.slots || []) {
+    // add slots
+    for (const slot of intentDef.slots || []) {
       if (!slot.entities && slot.entity) {
         slot.entities = [slot.entity]
         delete slot.entity
@@ -132,24 +171,25 @@ export default class Storage {
       }
     }
 
-    if (hasChange) {
-      await this.saveIntent(intent, obj)
+    // add multilang utterances
+    if (_.isArray(intentDef.utterances)) {
+      hasChange = true
+      const getTranslatedUtterances = lang => (lang === this.defaultLanguage ? intentDef.utterances : [])
+
+      intentDef.utterances = this.languages.reduce(
+        (utt, lang) => ({
+          ...utt,
+          [lang]: getTranslatedUtterances(lang)
+        }),
+        {}
+      )
     }
 
-    return obj
-  }
+    if (hasChange) {
+      await this.saveIntent(intentName, intentDef)
+    }
 
-  /** @deprecated remove in 12.0+
-   * utterances used to be defined in a separate .txt file
-   * this is not the case anymore since 11.2
-   * we added this method for backward compatibility
-   */
-  private async _legacyAppendIntentUtterances(intent: any, intentName: string) {
-    const filename = `${intentName}.utterances.txt`
-
-    const utterancesContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
-    intent.utterances = _.split(utterancesContent, /\r|\r\n|\n/i).filter(x => x.length)
-    await this.botGhost.deleteFile(this.intentsDir, filename)
+    return intentDef
   }
 
   async getAvailableEntities(): Promise<sdk.NLU.EntityDefinition[]> {
@@ -202,14 +242,16 @@ export default class Storage {
     return this.botGhost.deleteFile(this.entitiesDir, `${entityId}.json`)
   }
 
-  private async _persistModel(model: Model) {
+  private async _persistModel(model: Model, lang: string) {
     // TODO Ghost to support streams?
     const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
-    return this.botGhost.upsertFile(this.modelsDir, modelName, model.model)
+    const modelDir = `${this.modelsDir}/${lang}`
+
+    return this.botGhost.upsertFile(modelDir, modelName, model.model)
   }
 
-  private async _cleanupModels(): Promise<void> {
-    const models = await this._getAvailableModels(false)
+  private async _cleanupModels(lang: string): Promise<void> {
+    const models = await this._getAvailableModels(false, lang)
     const uniqModelMeta = _.chain(models)
       .orderBy('created_on', 'desc')
       .uniqBy('hash')
@@ -220,21 +262,20 @@ export default class Storage {
       await Promise.all(
         models
           .filter(model => model.created_on < threshModel.created_on && model.hash !== threshModel.hash)
-          .map(model => this.botGhost.deleteFile(this.modelsDir, model.fileName))
+          .map(model => this.botGhost.deleteFile(`${this.modelsDir}/${lang}`, model.fileName))
       )
     }
   }
 
-  async persistModels(models: Model[]) {
-    await Promise.map(models, model => this._persistModel(model))
-    return this._cleanupModels()
+  async persistModels(models: Model[], lang: string) {
+    await Promise.map(models, model => this._persistModel(model, lang))
+    return this._cleanupModels(lang)
   }
 
-  private async _getAvailableModels(includeGlobalModels: boolean = false): Promise<ModelMeta[]> {
-    const botModels = await this.botGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
-    const globalModels = includeGlobalModels
-      ? await this.globalGhost.directoryListing(this.modelsDir, '*.+(bin|vec)')
-      : []
+  private async _getAvailableModels(includeGlobalModels: boolean, lang: string): Promise<ModelMeta[]> {
+    const modelDir = `${this.modelsDir}/${lang}`
+    const botModels = await this.botGhost.directoryListing(modelDir, '*.+(bin|vec)')
+    const globalModels = includeGlobalModels ? await this.globalGhost.directoryListing(modelDir, '*.+(bin|vec)') : []
 
     return [...botModels, ...globalModels]
       .map(x => {
@@ -260,18 +301,18 @@ export default class Storage {
       .filter(x => !!x)
   }
 
-  async modelExists(modelHash: string): Promise<boolean> {
-    const models = await this._getAvailableModels(false)
+  async modelExists(modelHash: string, lang: string): Promise<boolean> {
+    const models = await this._getAvailableModels(false, lang)
     return !!_.find(models, m => m.hash === modelHash)
   }
 
-  async getModelsFromHash(modelHash: string): Promise<Model[]> {
-    const modelsMeta = await this._getAvailableModels(true)
+  async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {
+    const modelsMeta = await this._getAvailableModels(true, lang)
     return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
       const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
       return {
         meta,
-        model: await ghostDriver.readFileAsBuffer(this.modelsDir, meta.fileName!)
+        model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)
       }
     })
   }

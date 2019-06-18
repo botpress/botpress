@@ -102,7 +102,7 @@ export default class ModuleResolver {
   }
 
   requireModule(moduleLocation: string): ModuleEntryPoint {
-    let originalRequirePaths = global.require.getPaths()
+    const originalRequirePaths = global.require.getPaths()
 
     try {
       // We temporarily bump the module's node_modules in priority
