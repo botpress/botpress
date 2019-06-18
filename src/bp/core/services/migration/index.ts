@@ -147,10 +147,8 @@ export class MigrationService {
   }
 
   private _getMissingModuleMigrations() {
-    return _.flatten(
-      Object.keys(process.LOADED_MODULES).map(module =>
-        this._getFilteredMigrations(path.join(process.LOADED_MODULES[module], 'dist/migrations'))
-      )
+    return _.flatMap(Object.keys(process.LOADED_MODULES), module =>
+      this._getFilteredMigrations(path.join(process.LOADED_MODULES[module], 'dist/migrations'))
     )
   }
 

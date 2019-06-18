@@ -60,7 +60,7 @@ const createMigration = cb => {
   const args = require('yargs')(process.argv).argv
   if (!args.ver) {
     console.error('Version is required (set with --ver parameter')
-    console.error('Example: yarn cmd create:migration --target core --ver 13.0.0 --title "some config update"')
+    console.error('Example: yarn cmd migration:create --target core --ver 13.0.0 --title "some config update"')
     return cb()
   }
 
