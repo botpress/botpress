@@ -32,6 +32,10 @@ const migration: Migration = {
       const workspaces: any = await ghost.global().readFileAsObject('/', `workspaces.json`)
       const users = _.get(workspaces, '[0].users')
 
+      if (!_.isArray(users)) {
+        return { success: true, message: `No users in the workspaces file to migrate.` }
+      }
+
       for (const user of users) {
         await userRepo.createUser({
           email: user.email,
@@ -56,7 +60,7 @@ const migration: Migration = {
         })
       }
     } catch (err) {
-      return { success: false, message: `Could not migrate users: ${err.messag}` }
+      return { success: false, message: `Could not migrate users: ${err.message}` }
     }
 
     return { success: true }
