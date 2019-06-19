@@ -6,7 +6,7 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import yn from 'yn'
 
-import { QnaEntry } from './qna'
+import { QnaEntry, QnaItem } from './qna'
 import Storage from './storage'
 import { importQuestions, prepareExport } from './transfer'
 import { QnaDefSchema } from './validation'
@@ -116,7 +116,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
 
     try {
-      const questions = JSON.parse(req.file.buffer)
+      const questions = JSON.parse(req.file.buffer) as QnaItem[]
       await importQuestions(questions, storage, config, updateUploadStatus, uploadStatusId)
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
