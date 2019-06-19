@@ -37,6 +37,7 @@ const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
+const debugLang = debugExtract.sub('lang')
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -413,7 +414,7 @@ export default class ScopedEngine implements Engine {
     ds.detectedLanguage = lang
 
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      this.logger.debug(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
+      debugLang(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
       lang = this.defaultLanguage
     }
 
