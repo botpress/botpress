@@ -7,13 +7,15 @@ import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
 
+import { monitoringMiddleware, startMonitoring } from './monitoring'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 import {
   assertValidLanguage,
   authMiddleware,
   disabledReadonlyMiddleware,
-  errorHandler,
+  handleErrorLogging,
+  handleUnexpectedError,
   serviceLoadingMiddleware
 } from './util'
 
@@ -29,7 +31,7 @@ export type APIOptions = {
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
 
-function createExpressApp(options: APIOptions): Application {
+const createExpressApp = (options: APIOptions): Application => {
   const app = express()
 
   app.use(bodyParser.json({ limit: '1kb' }))
@@ -40,17 +42,17 @@ function createExpressApp(options: APIOptions): Application {
     next()
   })
 
-  app.use(errorHandler)
+  app.use(monitoringMiddleware)
+  app.use(handleUnexpectedError)
 
   if (process.core_env.REVERSE_PROXY) {
     app.set('trust proxy', process.core_env.REVERSE_PROXY)
   }
 
   if (options.limit > 0) {
-    const windowMs = ms(options.limitWindow)
     app.use(
       rateLimit({
-        windowMs,
+        windowMs: ms(options.limitWindow),
         max: options.limit,
         message: 'Too many requests, please slow down'
       })
@@ -177,6 +179,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
   })
 
   app.use('/languages', waitForServiceMw, router)
+  app.use(handleErrorLogging)
 
   const httpServer = createServer(app)
 
@@ -186,4 +189,8 @@ export default async function(options: APIOptions, languageService: LanguageServ
   })
 
   console.log(`Language Server is ready at http://${options.host}:${options.port}/`)
+
+  if (process.env.MONITORING_INTERVAL) {
+    startMonitoring()
+  }
 }

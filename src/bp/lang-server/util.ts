@@ -7,15 +7,18 @@ const debugAuth = DEBUG('api:auth')
 
 export const authMiddleware = (secureToken: string) => (req, _res, next) => {
   if (!req.headers.authorization) {
+    debugAuth('Authorization header missing', { ip: req.ip })
     return next(new UnauthorizedError('Authorization header is missing'))
   }
 
   const [scheme, token] = req.headers.authorization.split(' ')
   if (scheme.toLowerCase() !== 'bearer') {
+    debugAuth('Schema is missing', { ip: req.ip })
     return next(new UnauthorizedError(`Unknown scheme "${scheme}" - expected 'bearer <token>'`))
   }
 
   if (!token) {
+    debugAuth('Token is missing', { ip: req.ip })
     return next(new UnauthorizedError('Authentication token is missing'))
   }
 
@@ -62,7 +65,7 @@ export const disabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, ne
   next()
 }
 
-export const errorHandler = (err, req, res, next) => {
+export const handleUnexpectedError = (err, req, res, next) => {
   const statusCode = err.statusCode || 500
   const errorCode = err.errorCode || 'BP_000'
   const message = (err.errorCode && err.message) || 'Unexpected error'
@@ -73,4 +76,12 @@ export const errorHandler = (err, req, res, next) => {
     type: err.type || Object.getPrototypeOf(err).name || 'Exception',
     message
   })
+}
+
+export const handleErrorLogging = (err, req, res, next) => {
+  if ((err && err.skipLogging) || process.env.SKIP_LOGGING) {
+    return res.status(err.statusCode).send(err.message)
+  }
+
+  next(err)
 }
