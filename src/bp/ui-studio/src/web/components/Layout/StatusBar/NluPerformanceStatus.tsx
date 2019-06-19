@@ -1,14 +1,11 @@
-import { Colors } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import axios from 'axios'
+import cx from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { FaThLarge } from 'react-icons/fa'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
-
-const GREEM_LOWER_BOUND = 85
-const RED_UPPER_BOUND = 50
 
 interface MatrixInfo {
   matrix: any | undefined
@@ -98,20 +95,8 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     await this.fetchConfusion(response.data.modelHash)
   }
 
-  mapF1ToColor(f1: number | undefined) {
-    if (!f1) {
-      return Colors.WHITE
-    }
-    if (f1 < RED_UPPER_BOUND) {
-      return Colors.RED2
-    }
-    if (f1 >= GREEM_LOWER_BOUND) {
-      return Colors.GREEN4
-    }
-    return Colors.GOLD4
-  }
-
   render() {
+    const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]
     return (
       <ActionItem
         title={'NLU performance'}
@@ -124,7 +109,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
         className={style.right}
         onClick={this.calculateConfusion}
       >
-        <FaThLarge color={this.mapF1ToColor(this.state.f1)} />
+        <Icon icon="cube" iconSize={18} className={cx(colorScale, style.brain)} />
       </ActionItem>
     )
   }
