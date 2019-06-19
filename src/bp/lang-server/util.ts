@@ -79,7 +79,7 @@ export const handleUnexpectedError = (err, req, res, next) => {
 }
 
 export const handleErrorLogging = (err, req, res, next) => {
-  if ((err && err.skipLogging) || process.env.SKIP_LOGGING) {
+  if (err && (err.skipLogging || process.env.SKIP_LOGGING)) {
     return res.status(err.statusCode).send(err.message)
   }
 
