@@ -5,33 +5,62 @@
   </head>
 
   <body>
-    This is an example of embedded webchat
+    <h1>Form with Contextual Help</h1>
+    <p style="width: 500px;text-align: justify;text-justify: inter-word;">
+      Here's a fake form enhanced by Botpress. Generally forms are very efficient for data entry. Chatbots are best used
+      to enhanced form filling by providing helpful information. The fields are pre-filled for you except for one that
+      is cryptic and could really beneficiate from the bot input. Once the form is complete, click on "submit".
+    </p>
+    <div>
+      <label for="name">What is your name?</label>
+      <input id="name" type="text" value="John Doe" />
+      <br />
+
+      <label for="name">What is your email?</label>
+      <input id="email" type="email" value="john.doe@botpress.io" />
+      <br />
+
+      <label for="cryptic-field">Enter your X and Y at Z</label>
+      <input id="cryptic-field" type="text" placeholder="Enter something here" />
+      <br />
+
+      <label for="plateform">What is your prefered chatbot plateform?</label>
+      <select id="plateform">
+        <option selected value="botpress">Botpress</option>
+      </select>
+      <br />
+
+      <button id="submit" type="click">Submit</button>
+    </div>
   </body>
 
   <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
       botId: 'proactive-bot'
     })
 
-    function sendMessageOnClick() {
-      const iframe = document.querySelector('#bp-widget')
-      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
+    const main = () => {
+      const sendContactForm = () => {
+        const payload = {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          plateform: document.getElementById('plateform').value
+        }
+        window.botpressWebChat.sendEvent({ type: 'show' })
+        window.botpressWebChat.sendEvent({ type: 'contact-form', payload })
+      }
 
-      widget.addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({
-          type: 'proactive-trigger',
-          channel: 'web',
-          payload: { text: 'fake message' }
-        })
+      const crypticFieldInput = document.getElementById('cryptic-field')
+      crypticFieldInput.addEventListener('focus', function sendContextualHelp() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
+        window.botpressWebChat.sendEvent({ type: 'field-description' })
+        crypticFieldInput.removeEventListener('focus', sendContextualHelp)
       })
+
+      document.getElementById('submit').addEventListener('click', sendContactForm)
     }
 
-    // Make sure the widget is loaded
-    setTimeout(function() {
-      sendMessageOnClick()
-    }, 1500)
+    setTimeout(main, 1500)
   </script>
 </html>

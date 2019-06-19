@@ -30,14 +30,16 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": ["en"],
+  "languages": [
+    "en"
+  ],
   "id": "proactive-bot",
-  "name": "Proactive Bot",
+  "name": "proactive-bot",
   "category": null,
   "pipeline_status": {
     "current_stage": {
       "id": "staging",
-      "promoted_on": "2019-06-19T15:30:15.439Z",
+      "promoted_on": "2019-06-19T18:18:10.840Z",
       "promoted_by": "admin"
     }
   }
