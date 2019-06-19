@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
-import { BadRequestError, NotReadyError, UnauthorizedError } from 'core/routers/errors'
+import { BadRequestError } from 'core/routers/errors'
 import cors from 'cors'
-import express, { Application, RequestHandler } from 'express'
+import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
@@ -9,6 +9,13 @@ import ms from 'ms'
 
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
+import {
+  assertValidLanguage,
+  authMiddleware,
+  disabledReadonlyMiddleware,
+  errorHandler,
+  serviceLoadingMiddleware
+} from './util'
 
 export type APIOptions = {
   host: string
@@ -20,74 +27,12 @@ export type APIOptions = {
 }
 
 const debug = DEBUG('api')
-const debugAuth = debug.sub('auth')
 const debugRequest = debug.sub('request')
-
-const authMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
-  const header = (req.header('authorization') || '').trim()
-  const split = header.indexOf(' ')
-
-  if (split < 0) {
-    debugAuth('no authentication', { ip: req.ip })
-    throw new UnauthorizedError('You must authenticate to use this API')
-  }
-
-  const schema = header.slice(0, split)
-  const value = header.slice(split + 1)
-
-  if (schema.toLowerCase() !== 'bearer') {
-    debugAuth('invalid schema', { ip: req.ip })
-    throw new UnauthorizedError('Unsupported authentication schema (expected `bearer <token>`)')
-  }
-
-  if (value !== token) {
-    debugAuth('invalid token', { ip: req.ip })
-    throw new UnauthorizedError('Invalid Bearer token')
-  }
-
-  next()
-}
-
-const serviceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
-  if (!service.isReady) {
-    throw new NotReadyError('language')
-  }
-  next()
-}
-
-const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
-  const language = req.body.lang
-
-  if (!language) {
-    throw new BadRequestError(`Param 'lang' is mandatory`)
-  }
-  if (!_.isString(language)) {
-    throw new BadRequestError(`Param 'lang': ${language} must be a string`)
-  }
-
-  const availableLanguages = service.getModels().map(x => x.lang)
-  if (!availableLanguages.includes(language)) {
-    throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
-  }
-
-  next()
-}
-
-const DisabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, next) => {
-  if (readonly) {
-    throw new UnauthorizedError('API server is running in read-only mode')
-  }
-  next()
-}
 
 function createExpressApp(options: APIOptions): Application {
   const app = express()
 
-  app.use(
-    bodyParser.json({
-      limit: '1kb'
-    })
-  )
+  app.use(bodyParser.json({ limit: '1kb' }))
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
@@ -95,17 +40,7 @@ function createExpressApp(options: APIOptions): Application {
     next()
   })
 
-  app.use(function handleErrors(err, req, res, next) {
-    const statusCode = err.statusCode || 500
-    const errorCode = err.errorCode || 'BP_000'
-    const message = (err.errorCode && err.message) || 'Unexpected error'
-    res.status(statusCode).json({
-      statusCode,
-      errorCode,
-      type: err.type || Object.getPrototypeOf(err).name || 'Exception',
-      message
-    })
-  })
+  app.use(errorHandler)
 
   if (process.core_env.REVERSE_PROXY) {
     app.set('trust proxy', process.core_env.REVERSE_PROXY)
@@ -137,6 +72,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
   const waitForServiceMw = serviceLoadingMiddleware(languageService)
   const validateLanguageMw = assertValidLanguage(languageService)
+  const readOnlyMw = disabledReadonlyMiddleware(options.readOnly)
 
   app.get('/info', (req, res) => {
     res.send({
@@ -200,7 +136,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     })
   })
 
-  router.post('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
+  router.post('/:lang', readOnlyMw, async (req, res) => {
     const { lang } = req.params
     try {
       const downloadId = await downloadManager.download(lang)
@@ -210,7 +146,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.delete('/:lang', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
+  router.delete('/:lang', readOnlyMw, async (req, res) => {
     const { lang } = req.params
     if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
       throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
@@ -220,7 +156,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     res.end()
   })
 
-  router.post('/:lang/load', DisabledReadonlyMiddleware(options.readOnly), async (req, res) => {
+  router.post('/:lang/load', readOnlyMw, async (req, res) => {
     const { lang } = req.params
 
     if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
@@ -234,7 +170,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.post('/cancel/:id', DisabledReadonlyMiddleware(options.readOnly), (req, res) => {
+  router.post('/cancel/:id', readOnlyMw, (req, res) => {
     const { id } = req.params
     downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
