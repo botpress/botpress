@@ -1,12 +1,17 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
+import lru from 'lru-cache'
 import moment from 'moment'
 
 import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
+const maxAgeCacheInMS = 86400000
 
 export class RemoteLanguageProvider implements LanguageProvider {
+  private _vectorsCache
+  private _tokensCache
+
   private discoveryRetryPolicy = {
     interval: 1000,
     max_interval: 5000,
@@ -21,6 +26,14 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   async initialize(sources: LanguageSource[]): Promise<LanguageProvider> {
+    this._tokensCache = new lru({
+      maxAge: maxAgeCacheInMS
+    })
+
+    this._vectorsCache = new lru({
+      maxAge: maxAgeCacheInMS
+    })
+
     await Promise.mapSeries(sources, async source => {
       const headers = {}
 
@@ -93,7 +106,16 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    return this.queryProvider(lang, '/vectorize', { tokens }, 'vectors')
+    const text = tokens.reduce((a, b) => a + b, '')
+    const cacheKey = `${lang}_${encodeURI(text)}`
+
+    if (this._vectorsCache.has(cacheKey)) {
+      return this._vectorsCache.get(cacheKey)
+    }
+
+    const vectors = await this.queryProvider<number[][]>(lang, '/vectorize', { tokens }, 'vectors')
+    this._vectorsCache.set(cacheKey, vectors)
+    return vectors
   }
 
   async tokenize(text: string, lang: string): Promise<string[]> {
@@ -101,7 +123,15 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    return this.queryProvider(lang, '/tokenize', { input: text }, 'tokens')
+    const cacheKey = `${lang}_${encodeURIComponent(text)}`
+
+    if (this._tokensCache.has(cacheKey)) {
+      return this._tokensCache.get(cacheKey)
+    }
+
+    const tokens = await this.queryProvider<string[]>(lang, '/tokenize', { input: text }, 'tokens')
+    this._tokensCache.set(cacheKey, tokens)
+    return tokens
   }
 }
 

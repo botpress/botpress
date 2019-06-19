@@ -160,7 +160,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
       const tokens = await languageService.tokenize(input, language)
 
-      res.json({ input, language, tokens })
+      res.set('Cache-Control', 'public, max-age=86400').json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
@@ -176,13 +176,14 @@ export default async function(options: APIOptions, languageService: LanguageServ
       }
 
       const result = await languageService.vectorize(tokens, lang)
-      res.json({ language: lang, vectors: result })
+      res.set('Cache-Control', 'public, max-age=86400').json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
     }
   })
 
   const router = express.Router({ mergeParams: true })
+
   router.get('/', (req, res) => {
     const downloading = downloadManager.inProgress.map(x => ({
       lang: x.lang,
