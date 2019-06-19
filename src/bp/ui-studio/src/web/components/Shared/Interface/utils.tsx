@@ -21,6 +21,7 @@ const renderMenuItem = element => {
 
   return (
     <MenuItem
+      key={element.label}
       text={element.label}
       icon={element.icon}
       onClick={e => !element.disabled && element.onClick && element.onClick(e)}
