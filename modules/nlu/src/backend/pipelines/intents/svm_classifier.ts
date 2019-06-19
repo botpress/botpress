@@ -164,9 +164,9 @@ export default class SVMClassifier {
 
       // TODO refine this logic here, maybe use a density based clustering or at least cluster step should be a func of our data
       for (
-        let i = Math.min(Math.floor(nLabels / 6), l1Points.length) || 1;
-        i < Math.max(nLabels, l1Points.length);
-        i += 1
+        let i = Math.min(Math.floor(nLabels / 3), l1Points.length) || 1;
+        i < Math.max(nLabels, l1Points.length / 3);
+        i += 5
       ) {
         const km = kmeans(data, i)
         const clusters: { [clusterId: number]: { [label: string]: number[][] } } = {}
