@@ -89,11 +89,12 @@ export class EventCollector {
       return
     }
 
-    this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, this.batch, this.BATCH_SIZE)
-      .then(async () => {
-        this.batch.splice(0, this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length)
+    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const elements = this.batch.splice(0, batchCount)
 
+    this.currentPromise = this.knex
+      .batchInsert(this.TABLE_NAME, elements, this.BATCH_SIZE)
+      .then(async () => {
         await this.runCleanup()
       })
       .catch(err => this.logger.attachError(err).error(`Couldn't store events to the database`))
@@ -107,6 +108,6 @@ export class EventCollector {
       .subtract(this.retentionPeriod)
       .toDate()
 
-    await this.eventRepo.pruneUntil(expiration)
+    return this.eventRepo.pruneUntil(expiration)
   }
 }
