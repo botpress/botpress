@@ -7,10 +7,6 @@ export interface Config {
    * @default #builtin_text
    */
   textRenderer: string
-  /**
-   * @default utf8
-   */
-  exportCsvEncoding: string
   qnaMakerApiKey?: string
   /**
    * @default botpress
