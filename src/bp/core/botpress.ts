@@ -167,11 +167,13 @@ export class Botpress {
       }
 
       if (workspaces.length) {
-        const pipeline = await this.workspaceService.getPipeline(workspaces[0].id)
-        if (pipeline && pipeline.length > 1) {
-          throw new Error(
-            'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
-          )
+        for (const workspace of workspaces) {
+          const pipeline = await this.workspaceService.getPipeline(workspace.id)
+          if (pipeline && pipeline.length > 1) {
+            throw new Error(
+              'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
+            )
+          }
         }
       }
     }

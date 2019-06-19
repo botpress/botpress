@@ -222,6 +222,9 @@ export type BotpressConfig = {
    */
   autoRevision: boolean
   eventCollector: EventCollectorConfig
+  /**
+   * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
+   */
   authStrategies: {
     [strategyId: string]: AuthStrategy
   }
