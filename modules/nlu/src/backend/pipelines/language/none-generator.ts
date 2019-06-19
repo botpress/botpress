@@ -12,20 +12,21 @@ export function generateNoneUtterances(utterances: string[][], count: number): s
   // We build a gramset, which is essentially a list of all the unique bigrams and trigrams
   // We'll create entirely new words from those grams
   const gramset = _.chain(plainTokens)
-    .map(x => [ngram(x, 2), ngram(x, 3)])
+    .map(x => [ngram(x, 1), ngram(x, 2)])
     .flattenDeep()
     .uniq()
     .value()
 
   const realWords = _.uniq(plainTokens)
+  const meanWordSize = _.meanBy(realWords, w => w.length)
   const junkWords = _.range(0, 100)
-    .map(() => _.sampleSize(gramset, _.random(1, 4, false)).join('')) // 100 randomly generated words
+    .map(() => _.sampleSize(gramset, _.random(meanWordSize / 3, meanWordSize * 1.5, false)).join('')) // 100 randomly generated words
     .filter(x => !realWords.includes(x)) // excluding words that exist for real
 
   return _.range(0, count).map(() => {
     // create new utterances of varying length, made of real AND junk words (more junk)
-    const fromVocab = _.random(1, 2, false)
-    const fromJunk = _.random(2, 8, false)
+    const fromVocab = _.random(0, 1, false)
+    const fromJunk = _.random(2, 5, false)
 
     return _.shuffle([..._.sampleSize(realWords, fromVocab), ..._.sampleSize(junkWords, fromJunk)]).map(
       x => SEPARATOR_CHAR + x // Add token separator at the begining of each word
