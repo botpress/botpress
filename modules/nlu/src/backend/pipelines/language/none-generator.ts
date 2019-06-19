@@ -1,12 +1,12 @@
 import _ from 'lodash'
 
-const separatorChar = '▁'
+export const SEPARATOR_CHAR = ''
 
-// Example input: [ [ '▁he', 'llo', '▁what', '▁is', '▁your', '▁name', '▁?' ] ]
-// Example output: [ [ '▁haatlo', '▁llmeour', '▁your', '▁name', '▁ame', '▁atyona', '▁he' ], [ '▁amheur', '▁am', '▁llo', '▁is' ] ]
+// Example input: [ [ 'he', 'llo', 'what', 'is', 'your', 'name', '?' ] ]
+// Example output: [ [ 'haatlo', 'llmeour', 'your', 'name', 'ame', 'atyona', 'he' ], [ 'amheur', 'am', 'llo', 'is' ] ]
 export function generateNoneUtterances(utterances: string[][], count: number): string[][] {
   const plainTokens = _.flatten(utterances)
-    .map(x => x.replace(separatorChar, '')) // We want to discover real language-specific chars
+    .map(x => x.replace(SEPARATOR_CHAR, '')) // We want to discover real language-specific chars
     .filter(x => x.length > 1) // We want to exclude tokens that represent ponctuation etc (tokenizers will often split them alone)
 
   // We build a gramset, which is essentially a list of all the unique bigrams and trigrams
@@ -28,7 +28,7 @@ export function generateNoneUtterances(utterances: string[][], count: number): s
     const fromJunk = _.random(2, 8, false)
 
     return _.shuffle([..._.sampleSize(realWords, fromVocab), ..._.sampleSize(junkWords, fromJunk)]).map(
-      x => separatorChar + x // Add token separator at the begining of each word
+      x => SEPARATOR_CHAR + x // Add token separator at the begining of each word
     )
   })
 }

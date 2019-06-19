@@ -7,6 +7,7 @@ import { VError } from 'verror'
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import { getSentenceFeatures } from '../language/ft_featurizer'
+import { generateNoneUtterances } from '../language/none-generator'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
@@ -83,15 +84,20 @@ export default class SVMClassifier {
       .value()
 
     const intentsWTokens = await Promise.all(
-      intentDefs.map(async intent => ({
-        ...intent,
-        tokens: await Promise.all(
-          (intent.utterances[this.language] || [])
-            .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
-            .filter(x => x.trim().length)
-            .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
-        )
-      }))
+      intentDefs
+        // we're generating none intents automatically from now on
+        // but some existing bots might have the 'none' intent already created
+        // so we exclude it explicitely from the dataset here
+        .filter(x => x.name !== 'none')
+        .map(async intent => ({
+          ...intent,
+          tokens: await Promise.all(
+            (intent.utterances[this.language] || [])
+              .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+              .filter(x => x.trim().length)
+              .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
+          )
+        }))
     )
 
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
@@ -100,6 +106,17 @@ export default class SVMClassifier {
 
     for (const context of allContexts) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
+      const utterances = _.flatten(intents.map(x => x.tokens))
+      const noneUtterances = generateNoneUtterances(utterances, Math.max(5, utterances.length / 2)) // minimum 5 none utterances per context
+      intents.push({
+        contexts: [context],
+        filename: 'none.json',
+        name: 'none',
+        slots: [],
+        tokens: noneUtterances,
+        utterances: { [this.language]: noneUtterances.map(utt => utt.join('')) }
+      })
+
       const l1Points: sdk.MLToolkit.SVM.DataPoint[] = []
 
       for (const { name: intentName, tokens } of intents) {
@@ -115,14 +132,17 @@ export default class SVMClassifier {
             const l1Vec = await getSentenceFeatures(
               this.language,
               utteranceTokens,
-              l1Tfidf[context][intentName],
+              l1Tfidf[context][intentName === 'none' ? '__avg__' : intentName],
               this.languageProvider
             )
 
-            l0Points.push({
-              label: context,
-              coordinates: [...l0Vec, utteranceTokens.length]
-            })
+            if (intentName !== 'none') {
+              // We don't want contexts to fit on l1-specific none intents
+              l0Points.push({
+                label: context,
+                coordinates: [...l0Vec, utteranceTokens.length]
+              })
+            }
 
             l1Points.push({
               label: intentName,

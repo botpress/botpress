@@ -183,8 +183,8 @@ export default class ScopedEngine implements Engine {
     let res: any = { errored: true }
 
     try {
-      const runner = this.pipelineManager.of(this._pipeline).initDS(text, includedContexts)
-      res = await retry(async () => await runner.run(), this.retryPolicy)
+      const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
+      res = await retry(() => runner.run(), this.retryPolicy)
       res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
@@ -351,7 +351,8 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const exactIntent = this._exactIntentMatchers[ds.language].exactMatch(ds.sanitizedText, ds.includedContexts)
+    const exactMatcher = this._exactIntentMatchers[ds.language]
+    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
 
     if (exactIntent) {
       ds.intent = exactIntent
@@ -394,6 +395,11 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
+    if (ds.intent.name === 'none') {
+      debugSlots('none intent, skipping slots')
+      return ds
+    }
+
     const intentDef = await this.storage.getIntent(ds.intent.name)
 
     ds.slots = await this.slotExtractors[ds.language].extract(
