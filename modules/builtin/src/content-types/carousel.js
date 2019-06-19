@@ -64,6 +64,12 @@ function renderMessenger(data) {
             url: a.url,
             title: a.title
           }
+        } else if (a.action === 'Postback') {
+          return {
+            type: 'postback',
+            title: a.title,
+            payload: a.payload
+          }
         } else {
           throw new Error(`Channel-Messenger carousel does not support "${a.action}" action-buttons at the moment`)
         }
