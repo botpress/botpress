@@ -2,6 +2,8 @@ import _ from 'lodash'
 
 const separatorChar = '▁'
 
+// Example input: [ [ '▁he', 'llo', '▁what', '▁is', '▁your', '▁name', '▁?' ] ]
+// Example output: [ [ '▁haatlo', '▁llmeour', '▁your', '▁name', '▁ame', '▁atyona', '▁he' ], [ '▁amheur', '▁am', '▁llo', '▁is' ] ]
 export function generateNoneUtterances(utterances: string[][], count: number): string[][] {
   const plainTokens = _.flatten(utterances)
     .map(x => x.replace(separatorChar, '')) // We want to discover real language-specific chars
