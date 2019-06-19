@@ -55,7 +55,6 @@ export default class PanelContent extends React.Component<Props> {
     const items: SectionAction[] = [
       {
         label: 'Action - Bot',
-        key: 'lol',
         icon: <Icon icon="new-text-box" />,
         onClick: () => this.props.createFilePrompt('action', false)
       }
