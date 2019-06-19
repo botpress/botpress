@@ -450,7 +450,7 @@ export interface EventCollectorConfig {
   enabled: boolean
   /**
    * Events are batched then sent to the database. Change the delay to save them more frequently or not.
-   * @default 5s
+   * @default 1s
    */
   collectionInterval: string
   /**
