@@ -7,7 +7,7 @@ export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.01, 0.125, 0.5, 1, 2],
   classifier: 'C_SVC',
   gamma: [0.001, 0.01, 0.5],
-  kernel: 'linear'
+  kernel: 'LINEAR'
 }
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {

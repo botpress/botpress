@@ -176,11 +176,9 @@ export default class SVMClassifier {
           if (samples.length >= MIN_CLUSTER_SAMPLES) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
-            l1Points
-              .filter(x => samples.includes(x.coordinates))
-              .forEach(x => {
-                x.label = newLabel
-              })
+            l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
+              x.label = newLabel
+            })
           }
         }
       }
@@ -198,7 +196,7 @@ export default class SVMClassifier {
       })
     }
 
-    const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
+    const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
 
