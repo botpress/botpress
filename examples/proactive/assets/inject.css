@@ -1,0 +1,50 @@
+.bp-widget-web {
+  border: none;
+  display: block;
+  position: fixed;
+  visibility: none;
+  z-index: 100000;
+  max-height: 100vh;
+  max-width: 100vw;
+  transition: none;
+  background: none transparent;
+  opacity: 1;
+  font-size: 16px;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  padding: 0;
+}
+
+.bp-widget-widget {
+  top: auto;
+  left: auto;
+  bottom: 24px;
+  right: 36px;
+  width: 76px !important;
+  height: 76px !important;
+}
+
+.bp-widget-convo {
+  top: auto;
+  left: auto;
+  bottom: 24px;
+  right: 36px;
+  width: 420px !important;
+  min-height: 382px !important;
+  max-height: 500px !important;
+}
+
+.bp-widget-side {
+  top: 0px;
+  left: auto;
+  bottom: 0px;
+  right: 0px;
+  width: 360px;
+  height: 100% !important;
+}
+
+@media only screen and (max-device-width: 768px) {
+  .bp-widget-side {
+    width: 100%;
+  }
+}

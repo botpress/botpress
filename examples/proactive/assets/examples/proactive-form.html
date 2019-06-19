@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>Embedded Webchat</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    This is an example of embedded webchat
+  </body>
+
+  <script>
+    // Initialize the chat widget
+    // Change the `botId` with the Id of the bot that should respond to the chat
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'proactive-bot'
+    })
+
+    function sendMessageOnClick() {
+      const iframe = document.querySelector('#bp-widget')
+      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
+
+      widget.addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({
+          type: 'proactive-trigger',
+          channel: 'web',
+          payload: { text: 'fake message' }
+        })
+      })
+    }
+
+    // Make sure the widget is loaded
+    setTimeout(function() {
+      sendMessageOnClick()
+    }, 1500)
+  </script>
+</html>

@@ -1,0 +1,886 @@
+:root {
+  --main-bg-color: #ffffff;
+  --main-bg-color-hover: rgba(255, 255, 255, 0.9);
+  --main-fg-color: #000000;
+  --main-fg-color-hover: rgba(0, 0, 0, 0.07);
+}
+
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body {
+  margin: 0 !important;
+  font-family: 'Lato', sans-serif;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
+.bpw-from-user .bpw-chat-bubble {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.bpw-from-bot .bpw-chat-bubble {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.bp-emulator-history .bpw-chat-bubble {
+  color: #000000;
+  background: none;
+  border: 0px;
+  display: inline-block;
+}
+
+.bp-emulator-history .bpw-bubble-carousel {
+  display: block;
+  margin-left: 30px;
+}
+
+.bpw-widget-btn {
+  background-color: #000000;
+}
+
+.bpw-chat-container {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.bpw-layout {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  border-left: 1px solid #ccc;
+  visibility: hidden;
+
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-layout-fullscreen {
+  visibility: visible !important;
+}
+
+.bpw-bot-avatar {
+  margin-right: 5px;
+}
+
+.bpw-bot-avatar img,
+.bpw-bot-avatar svg {
+  border: solid 3px white;
+  border-radius: 50%;
+  background: #ccc;
+}
+
+.bpw-button {
+  background-color: var(--main-bg-color);
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  min-width: 5rem;
+  height: 40px;
+  text-align: center;
+  border: 1px solid currentColor;
+  border-radius: 0px;
+  cursor: pointer;
+  margin: 3px 2px;
+  text-transform: none;
+  overflow: visible;
+  align-items: flex-start;
+}
+
+.bpw-button-alt {
+  background-color: var(--main-bg-color);
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  min-width: 5rem;
+  height: 40px;
+}
+
+.bpw-button:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+.bpw-input {
+  height: 30px;
+  border: none;
+  outline: none;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #bbb;
+  width: 200px;
+  text-align: center;
+  margin: 10px;
+  font-size: 14px;
+}
+
+.bpw-file-message {
+  padding: 0.5rem 0.75rem;
+}
+
+.bpw-message-big-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 1rem 0;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+  padding-right: 18px;
+  padding-left: 0;
+}
+
+.bpw-message-container {
+  width: 100%;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-message-username {
+  margin: 0 12px;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  padding: 0.3125rem 0;
+  font-size: 12px;
+  color: #9a9a9a;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-message-group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.bpw-message-group > :not(:last-child) {
+  margin-bottom: 2px;
+}
+
+.bpw-from-user {
+  padding-right: 0;
+}
+
+.bpw-from-user .bpw-message-container {
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+}
+
+.bpw-from-user .bpw-message-group {
+  padding-left: 60px;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+}
+
+/* */
+.bpw-msg-list-container {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-height: 1px;
+}
+
+.bpw-msg-list {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow-y: auto;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.bpw-date-container {
+  color: #666;
+  text-align: center;
+  font-size: 12px;
+  margin: 40px 0 20px;
+}
+
+.bpw-date-container .bpw-small-line {
+  border-bottom: solid 1px #555;
+  margin: auto;
+  width: 80px;
+  margin-top: 5px;
+}
+
+/**
+* Chat Bubble configuration. You can add other classes to match different renderers,
+*  for example .bpw-bubble-text or .bpw-bubble-carousel
+*/
+.bpw-chat-bubble {
+  color: rgb(255, 255, 255);
+
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  max-width: 80%;
+  border: 1px solid #f1f1f1;
+  background-color: rgba(255, 255, 255, 0.9);
+
+  padding: 0.5rem 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bpw-bubble-session_reset {
+  color: red !important;
+  background: none !important;
+  border: none;
+  border-top: 1px solid red;
+  border-bottom: 1px solid red;
+  margin: 10px 0;
+}
+
+.bpw-bubble-carousel {
+  background: none;
+  border: 0px;
+  padding: 0 !important;
+  margin: 10px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.bpw-bubble-file {
+  padding: 0;
+}
+.bpw-bubble-file p {
+  padding: 0.5rem 0.75rem;
+}
+
+.bpw-bubble-file a {
+  display: block;
+  cursor: pointer;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+.bpw-bubble-file a img {
+  max-height: 240px;
+  max-width: 100%;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+
+.bpw-chat-bubble p {
+  margin: 0;
+}
+
+.bpw-chat-bubble:first-of-type {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.bpw-keyboard-quick_reply {
+  background-color: #fbfbfb;
+  padding: 15px 20px;
+  text-align: left;
+  border-top: 1px solid #dcdcdc;
+}
+
+/* CAROUSEL  */
+.slick-arrow {
+  background-color: #fff;
+  border: 1px solid #dddfe2;
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  box-shadow: none;
+  color: #444;
+  z-index: 1;
+}
+.slick-arrow:before {
+  color: #444;
+}
+
+.slick-track {
+  margin: 0px !important;
+}
+
+.bpw-card-container {
+  margin-right: 0px !important;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 1);
+  line-height: 1.28em;
+
+  margin-right: 10px;
+  min-height: 150px;
+  max-height: 410px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bpw-card-header {
+  padding: 6px 12px 12px 12px;
+}
+
+.bpw-card-title {
+  text-overflow: ellipsis;
+  white-space: normal;
+  font-weight: bold;
+  line-height: 1.28em;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.bpw-card-subtitle {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.bpw-card-buttons {
+  /** The container of buttons*/
+}
+
+.bpw-card-action {
+  font-weight: 500;
+  padding: 0 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 32px;
+  text-align: center;
+}
+
+/* Comment this element to hide the icon indicating an external website */
+.bpw-card-external-icon {
+  background: url(/assets/modules/channel-web/images/external_icon.png) no-repeat;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-size: 100% 100%;
+}
+
+.bpw-card-picture {
+  background-position: 50% 50%;
+  background-size: cover;
+  height: 150px;
+  width: 100%;
+}
+
+/* Custom styling for the login form*/
+.bpw-form-container {
+}
+.bpw-form-container label {
+  display: block;
+}
+
+/* Highlight special actions, for example displaying the status after using a custom component */
+.bpw-special-action {
+  opacity: 0.6;
+}
+
+/* Conversation List */
+.bpw-convo-list {
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.bpw-convo-add-btn {
+  background: transparent;
+  border: 2px solid;
+  border-radius: 50%;
+  float: right;
+  margin-right: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+.bpw-convo-add-btn:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.bpw-convo-item {
+  padding-left: 15px;
+  height: 4.7rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-convo-item:hover {
+  background-color: #fafafa;
+}
+
+.bpw-convo-item .bpw-title {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+}
+
+.bpw-convo-item .bpw-align-right {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  padding-right: 1rem;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-convo-item .bpw-convo-preview {
+  font-size: 0.875rem;
+  color: #9a9a9a;
+  max-width: 15rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bpw-convo-item .bpw-date {
+  text-align: right;
+  font-size: 0.875rem;
+  color: #9a9a9a;
+  position: absolute;
+  right: 0;
+}
+
+.bpw-composer {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: #aaaaaa;
+  position: relative;
+  padding: 0.5rem 0 0;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border 0.3s ease;
+  outline: none;
+  padding-bottom: 0.5rem;
+}
+
+.bpw-composer textarea {
+  font: inherit;
+  background-color: transparent;
+  width: 100%;
+  resize: none;
+  line-height: 1.2;
+  height: 50px;
+  border: none;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  padding-right: 60px;
+  margin-bottom: 0.5rem;
+}
+
+.bpw-send-button {
+  position: absolute;
+  right: 25px;
+  bottom: 28px;
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bpw-send-button:hover {
+  background: #d8d8d8;
+}
+
+/** HEADER STUFF */
+
+.bpw-header-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  height: 52px;
+  font-weight: 500;
+  border-top: solid 1px #ccc;
+  border-bottom: 1px solid #ccc;
+  padding: 0 1rem;
+  overflow: hidden;
+}
+
+.bpw-header-title-flexbox {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.bpw-header-title-container {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-header-title {
+  padding-left: 10px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.bpw-header-subtitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9a9a9a;
+  vertical-align: middle;
+  margin-top: 0px;
+}
+
+.bpw-header-unread {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
+
+  text-align: center;
+  vertical-align: top;
+
+  border-radius: 50%;
+  line-height: 20px;
+
+  font-size: 12px;
+  color: #fff;
+  background-color: #ff5d5d;
+}
+
+.bpw-header-icon {
+  color: #bbb;
+  margin-left: 17px;
+  text-align: right;
+  vertical-align: middle;
+  cursor: pointer;
+  fill: #bbb;
+  width: 15px;
+}
+
+.bpw-header-icon :hover {
+  fill: black;
+}
+
+.bpw-floating-button {
+  float: right;
+  fill: rgb(255, 255, 255);
+  cursor: pointer;
+  outline: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1;
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+  border-radius: 0px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+
+  padding: 0;
+  border: none;
+  background-clip: padding-box;
+
+  transition: width 1s, height 1s;
+}
+
+.bpw-floating-button i {
+  transition: opacity 0.3s ease;
+  opacity: 1;
+  fill: inherit;
+  stroke: inherit;
+  width: 100%;
+  padding: 0;
+  line-height: 0;
+}
+
+.bpw-floating-button .bpw-floating-button-unread {
+  display: block;
+  position: absolute;
+  right: 2px;
+  bottom: 54px;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50%;
+  line-height: 20px;
+
+  color: #fff;
+  background-color: #ff5d5d;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/** BOT INFORMATION PAGE - START */
+
+.bpw-botinfo-container {
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  color: #1e1e1e;
+  overflow-y: auto;
+}
+
+.bpw-botinfo-cover-picture {
+  width: 100%;
+}
+
+.bpw-botinfo-container button,
+.bpw-botinfo-container a {
+  font-size: 0.9em;
+  color: rgb(102, 102, 102);
+  text-decoration: none;
+}
+
+.bpw-botinfo-summary {
+  margin-top: -32px;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 5px -5px #ccc;
+}
+
+.bpw-botinfo-description {
+  margin-top: 0.4em;
+  margin-bottom: 1em;
+}
+
+.bpw-botinfo-summary h3 {
+  margin: 0;
+}
+
+.bpw-botinfo-links {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.bpw-botinfo-link {
+  padding-left: 25%;
+  display: flex;
+  margin: 20px 0;
+}
+
+.bpw-botinfo-link i {
+  margin-right: 10px;
+}
+
+.bpw-botinfo-terms {
+  padding: 0px 20px;
+  text-align: left;
+}
+
+.bpw-botinfo-terms a {
+  display: inline-block;
+  width: 100%;
+  line-height: 2.5;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.bpw-botinfo-start-button {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  line-height: 24px;
+  padding: 5px 10px;
+  margin-top: 25px;
+  border: 1px solid rgb(100, 100, 100);
+}
+
+.bpw-botinfo-start-button:focus {
+  border: 1px solid black;
+  color: black;
+}
+
+/* Fix for IE which has trouble with the max-width property */
+@media only screen and (min-width: 800px) {
+  .bpw-botinfo-container {
+    width: 800px;
+  }
+}
+/** BOT INFORMATION PAGE - END */
+
+/** TYPING ANIMATIIONS */
+@keyframes typingAnimation {
+  0% {
+    transform: translateY(0px);
+  }
+  28% {
+    transform: translateY(-6px);
+  }
+  44% {
+    transform: translateY(0px);
+  }
+}
+
+.bpw-typing-group {
+  align-items: center;
+  display: flex;
+  height: 17px;
+}
+
+.bpw-typing-bubble {
+  animation: typingAnimation 1s infinite ease-in-out;
+  border-radius: 50%;
+  height: 6px;
+  margin-right: 4px;
+  vertical-align: middle;
+  width: 6px;
+  white-space: pre-wrap;
+  font-size: 16px;
+  direction: ltr;
+  background-color: #000000;
+}
+
+.bpw-typing-bubble:nth-child(1) {
+  animation-delay: 200ms;
+}
+.bpw-typing-bubble:nth-child(2) {
+  animation-delay: 300ms;
+}
+.bpw-typing-bubble:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+/* IE10+ CSS styles go here */
+/*@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .typingGroup {
+    .typingBubble {
+      animation: initial;
+    }
+  }
+}*/
+
+/**ANIMATIONS */
+
+.bpw-anim-fadeIn {
+  animation-name: slideInRight;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@keyframes slideInRight {
+  0% {
+    visibility: visible;
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+}
+
+.bpw-anim-fadeOut {
+  animation-name: slideOutRight;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@-webkit-keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateX(100%);
+  }
+}

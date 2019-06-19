@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "properties": {
+    "uploadsUseS3": {
+      "default": false,
+      "type": "boolean"
+    },
+    "uploadsS3Bucket": {
+      "default": "bucket-name",
+      "type": "string"
+    },
+    "uploadsS3Region": {
+      "default": "eu-west-1",
+      "type": "string"
+    },
+    "uploadsS3AWSAccessKey": {
+      "default": "your-aws-key-name",
+      "type": "string"
+    },
+    "uploadsS3AWSAccessSecret": {
+      "default": "secret-key",
+      "type": "string"
+    },
+    "startNewConvoOnTimeout": {
+      "default": false,
+      "type": "boolean"
+    },
+    "recentConversationLifetime": {
+      "default": "6 hours",
+      "type": "string"
+    },
+    "maxMessageLength": {
+      "default": 360,
+      "type": "number"
+    },
+    "showBotInfoPage": {
+      "default": false,
+      "type": "boolean"
+    },
+    "fileUploadPath": {
+      "description": "Destination of file uploads if S3 is not enabled",
+      "default": "./uploads",
+      "type": "string"
+    },
+    "infoPage": {
+      "description": "The bot information page in the web chat",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "description",
+        "enabled"
+      ]
+    },
+    "maxMessagesHistory": {
+      "description": "The number of messages that are displayed in the chat history",
+      "default": 20,
+      "type": "number"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "fileUploadPath",
+    "infoPage",
+    "showBotInfoPage"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+
