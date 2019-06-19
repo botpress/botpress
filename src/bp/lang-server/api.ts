@@ -245,8 +245,9 @@ export default async function(options: APIOptions, languageService: LanguageServ
   const httpServer = createServer(app)
 
   await Promise.fromCallback(callback => {
-    httpServer.listen(options.port, options.host, undefined, callback)
+    const hostname = options.host === 'localhost' ? undefined : options.host
+    httpServer.listen(options.port, hostname, undefined, callback)
   })
 
-  console.log(`Language server ready on '${options.host}' port ${options.port}`)
+  console.log(`Language Server is ready at http://${options.host}:${options.port}/`)
 }
