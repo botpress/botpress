@@ -8,7 +8,6 @@ import ms from 'ms'
 import { Config } from '../config'
 
 import { PipelineManager } from './pipelinemanager'
-import { MIN_NB_UTTERANCES } from './pipelines/constants'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
@@ -37,6 +36,7 @@ const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
+export const MIN_NB_UTTERANCES = 3
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
