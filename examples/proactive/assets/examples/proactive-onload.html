@@ -9,15 +9,13 @@
   </body>
 
   <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
       botId: 'proactive-bot'
     })
 
-    // Wait for the chat to load
     setTimeout(function() {
+      window.botpressWebChat.sendEvent({ type: 'show' })
       window.botpressWebChat.sendEvent({
         type: 'proactive-trigger',
         channel: 'web',

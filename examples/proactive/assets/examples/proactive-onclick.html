@@ -9,8 +9,6 @@
   </body>
 
   <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
       botId: 'proactive-bot'
@@ -29,7 +27,6 @@
       })
     }
 
-    // Make sure the widget is loaded
     setTimeout(function() {
       sendMessageOnClick()
     }, 1500)
