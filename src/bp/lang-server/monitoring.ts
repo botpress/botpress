@@ -1,34 +1,52 @@
+import _ from 'lodash'
 import ms from 'ms'
 import onHeaders from 'on-headers'
 
 const debugMonitor = DEBUG('api:monitoring')
 
-let metricCollectionEnabled = false
-let metricsContainer = {}
+let collectionEnabled = false
+let metrics = {}
 
 export const startMonitoring = () => {
   console.log('Metrics collection enabled. Interval: ', process.env.MONITORING_INTERVAL)
 
   setInterval(() => {
-    debugMonitor('Stats %o', metricsContainer)
-    metricsContainer = {}
+    if (!metrics || !Object.keys(metrics).length) {
+      return
+    }
+
+    try {
+      debugMonitor(
+        'Stats %o',
+        _.flatMap(Object.keys(metrics), lang => ({
+          [lang]: {
+            requests: metrics[lang].requests,
+            latency_avg: _.round(metrics[lang].latency / metrics[lang].requests, 2)
+          }
+        }))
+      )
+    } catch (err) {
+      console.error('Could not prepare stats:', err)
+    }
+    metrics = {}
   }, ms(process.env.MONITORING_INTERVAL!))
 
-  metricCollectionEnabled = true
+  collectionEnabled = true
 }
 
-export const incrementMetric = (language: string, metricName: string, value?: number | undefined) => {
-  if (!metricCollectionEnabled) {
+export const logMetric = (language: string = 'n/a', timeInMs: number) => {
+  if (!collectionEnabled) {
     return
   }
 
-  const key = `${language || 'none'}_${metricName}`
-  const realValue = value !== undefined ? value : 1
-
-  if (!metricsContainer[key]) {
-    metricsContainer[key] = realValue
+  if (!metrics[language]) {
+    metrics[language] = {
+      requests: 1,
+      latency: timeInMs
+    }
   } else {
-    metricsContainer[key] += realValue
+    metrics[language].requests++
+    metrics[language].latency += timeInMs
   }
 }
 
@@ -37,8 +55,7 @@ export const monitoringMiddleware = (req, res, next) => {
 
   onHeaders(res, () => {
     const timeInMs = Date.now() - startAt
-    incrementMetric(req.body.lang, 'requestCount')
-    incrementMetric(req.body.lang, 'latencySum', timeInMs)
+    logMetric(req.body.lang, timeInMs)
     res.setHeader('X-Response-Time', `${timeInMs}ms`)
   })
 
