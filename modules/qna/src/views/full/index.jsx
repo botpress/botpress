@@ -29,7 +29,7 @@ import 'react-select/dist/react-select.css'
 import './button.css'
 
 const ITEMS_PER_PAGE = 50
-const CSV_STATUS_POLL_INTERVAL = 1000
+const JSON_STATUS_POLL_INTERVAL = 1000
 
 export default class QnaAdmin extends Component {
   constructor(props) {
@@ -128,32 +128,32 @@ export default class QnaAdmin extends Component {
       .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
   }
 
-  uploadCsv = async () => {
+  uploadJson = async () => {
     const formData = new FormData()
-    formData.set('isReplace', this.state.isCsvUploadReplace)
-    formData.append('csv', this.state.csvToUpload)
+    formData.set('isReplace', this.state.isJsonUploadReplace)
+    formData.append('json', this.state.jsonToUpload)
 
     const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: csvStatusId } = await this.props.bp.axios.post('/mod/qna/import/csv', formData, { headers })
+    const { data: jsonStatusId } = await this.props.bp.axios.post('/mod/qna/import', formData, { headers })
 
-    this.setState({ csvStatusId })
+    this.setState({ jsonStatusId })
 
-    while (this.state.csvStatusId) {
+    while (this.state.jsonStatusId) {
       try {
-        const { data: status } = await this.props.bp.axios.get(`/mod/qna/csv-upload-status/${csvStatusId}`)
+        const { data: status } = await this.props.bp.axios.get(`/mod/qna/json-upload-status/${jsonStatusId}`)
 
-        this.setState({ csvUploadStatus: status })
+        this.setState({ jsonUploadStatus: status })
 
         if (status === 'Completed') {
-          this.setState({ csvStatusId: null, importCsvModalShow: false })
+          this.setState({ jsonStatusId: null, importJsonModalShow: false })
           this.fetchData()
         } else if (status.startsWith('Error')) {
-          this.setState({ csvStatusId: null })
+          this.setState({ jsonStatusId: null })
         }
 
-        await Promise.delay(CSV_STATUS_POLL_INTERVAL)
+        await Promise.delay(JSON_STATUS_POLL_INTERVAL)
       } catch (e) {
-        return this.setState({ csvUploadStatus: 'Server Error', csvStatusId: null })
+        return this.setState({ jsonUploadStatus: 'Server Error', jsonStatusId: null })
       }
     }
   }
@@ -216,40 +216,40 @@ export default class QnaAdmin extends Component {
   }
 
   renderImportModal() {
-    const { csvUploadStatus } = this.state
+    const { jsonUploadStatus } = this.state
 
     return (
       <Modal
-        show={this.state.importCsvModalShow}
-        onHide={() => this.setState({ importCsvModalShow: false })}
+        show={this.state.importJsonModalShow}
+        onHide={() => this.setState({ importJsonModalShow: false })}
         backdrop={'static'}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Import CSV</Modal.Title>
+          <Modal.Title>Import JSON</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {csvUploadStatus && (
+          {jsonUploadStatus && (
             <Alert
-              bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
-              onDismiss={() => this.setState({ csvUploadStatus: null })}
+              bsStyle={jsonUploadStatus.startsWith('Error') ? 'danger' : 'info'}
+              onDismiss={() => this.setState({ jsonUploadStatus: null })}
             >
-              <p>{this.state.csvUploadStatus}</p>
+              <p>{this.state.jsonUploadStatus}</p>
             </Alert>
           )}
           <form>
             <FormGroup>
-              <ControlLabel>CSV file</ControlLabel>
+              <ControlLabel>JSON file</ControlLabel>
               <FormControl
                 type="file"
-                accept=".csv"
-                onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
+                accept=".json"
+                onChange={e => this.setState({ jsonToUpload: e.target.files[0] })}
               />
-              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
+              <HelpBlock>JSON should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
             </FormGroup>
             <FormGroup>
               <Checkbox
-                checked={this.state.isCsvUploadReplace}
-                onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
+                checked={this.state.isJsonUploadReplace}
+                onChange={e => this.setState({ isJsonUploadReplace: e.target.checked })}
               >
                 Replace existing FAQs
               </Checkbox>
@@ -258,7 +258,7 @@ export default class QnaAdmin extends Component {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
+          <Button bsStyle="primary" onClick={this.uploadJson} disabled={!Boolean(this.state.jsonToUpload)}>
             Upload
           </Button>
         </Modal.Footer>
@@ -278,15 +278,15 @@ export default class QnaAdmin extends Component {
             bsStyle="default"
             onClick={() =>
               this.setState({
-                importCsvModalShow: true,
-                csvToUpload: null,
-                csvUploadStatus: null,
-                isCsvUploadReplace: false
+                importJsonModalShow: true,
+                jsonToUpload: null,
+                jsonUploadStatus: null,
+                isJsonUploadReplace: false
               })
             }
             type="button"
           >
-            Import from CSV
+            Import from JSON
           </Button>
           <Button bsStyle="default" onClick={this.downloadJson} type="button">
             Export to JSON

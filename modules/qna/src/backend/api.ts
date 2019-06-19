@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import iconv from 'iconv-lite'
 import { validate } from 'joi'
-import { Parser as Json2csvParser } from 'json2csv'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -14,7 +12,7 @@ import { importQuestions, prepareExport } from './transfer'
 import { QnaDefSchema } from './validation'
 
 export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
-  const csvUploadStatuses = {}
+  const jsonUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 
   router.get('/questions', async (req, res) => {
@@ -95,15 +93,14 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
   router.get('/export', async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
-    const data: string = await prepareExport(storage, { flat: true })
+    const data: string = await prepareExport(storage)
     res.setHeader('Content-Type', 'application/json')
     res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.json`)
     res.end(data)
   })
 
-  // TODO make sure that this works properly
   const upload = multer()
-  router.post('/import/csv', upload.single('csv'), async (req, res) => {
+  router.post('/import', upload.single('json'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
     const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
 
@@ -119,25 +116,17 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
 
     try {
-      const questions = iconv.decode(req.file.buffer, config.exportCsvEncoding)
-      const params = {
-        storage,
-        config,
-        format: 'csv',
-        statusCallback: updateUploadStatus,
-        uploadStatusId
-      }
-      await importQuestions(questions, params)
-
+      const questions = JSON.parse(req.file.buffer)
+      await importQuestions(questions, storage, config, updateUploadStatus, uploadStatusId)
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
-      bp.logger.attachError(e).error('CSV Import Failure')
+      bp.logger.attachError(e).error('JSON Import Failure')
       updateUploadStatus(uploadStatusId, `Error: ${e.message}`)
     }
   })
 
-  router.get('/csv-upload-status/:uploadStatusId', async (req, res) => {
-    res.end(csvUploadStatuses[req.params.uploadStatusId])
+  router.get('/json-upload-status/:uploadStatusId', async (req, res) => {
+    res.end(jsonUploadStatuses[req.params.uploadStatusId])
   })
 
   const sendToastError = (action, error) => {
@@ -150,6 +139,6 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     if (!uploadStatusId) {
       return
     }
-    csvUploadStatuses[uploadStatusId] = status
+    jsonUploadStatuses[uploadStatusId] = status
   }
 }
