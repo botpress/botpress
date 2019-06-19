@@ -41,7 +41,7 @@ export const importQuestions = async (questions: QnaItem[], storage, config, sta
   const entriesToSave = itemsToSave.map(q => q.data)
 
   if (config.qnaMakerApiKey) {
-    return storage.insert(entriesToSave.map(question => ({ ...question, enabled: true })))
+    return (storage as Storage).insert(entriesToSave.map(question => ({ ...question, enabled: true })))
   }
 
   let questionsSavedCount = 0
