@@ -5,20 +5,18 @@ title: Release Notes
 
 ## Features
 
-- Configurable history length in channel web
-- Add security namespace
-- Add option to create trusted reference in channel web
+- Support images on Telegram
 
-## Bug Fixes
+## Bug fixes
 
-- Fix before session timeout not being executed
-- Fix context expiry that only worked one time
-- Fix an issue where renamed files were duplicated in the ghost
-- Fix issue where config files caused the ghost to always be dirty
+- Fix pause not working on quick replies in HITL module
+- Fix image rendering on Messenger
+- Fix object caching using wrong key
+- Increase cache size of object caching
 
 ## Docs
 
-- Add section on internationalization
+- Update the license activation docs
 
 ## Changelog
 
