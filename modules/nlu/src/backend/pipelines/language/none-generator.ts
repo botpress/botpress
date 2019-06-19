@@ -18,7 +18,9 @@ export function generateNoneUtterances(utterances: string[][], count: number): s
     .value()
 
   const realWords = _.uniq(plainTokens)
-  const junkWords = _.range(0, 100).map(() => _.sampleSize(gramset, _.random(1, 4, false)).join('')) // 100 randomly generated words
+  const junkWords = _.range(0, 100)
+    .map(() => _.sampleSize(gramset, _.random(1, 4, false)).join('')) // 100 randomly generated words
+    .filter(x => !realWords.includes(x)) // excluding words that exist for real
 
   return _.range(0, count).map(() => {
     // create new utterances of varying length, made of real AND junk words (more junk)

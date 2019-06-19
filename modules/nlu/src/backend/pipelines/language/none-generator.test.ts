@@ -5,7 +5,9 @@ import { generateNoneUtterances, ngram } from './none-generator'
 const tokens = [['▁he', 'llo', '▁what', '▁is', '▁your', '▁name', '▁?']]
 
 test('None intent generator', () => {
-  expect(generateNoneUtterances(tokens, 10)).toHaveLength(10)
+  const utterances = generateNoneUtterances(tokens, 10)
+  expect(utterances).toHaveLength(10)
+  // console.log(utterances)
 })
 
 test('ngram', () => {
