@@ -27,10 +27,16 @@ export class WebBotpressUIInjection extends React.Component {
         disableAnimations: true,
         showPoweredBy: false,
         overrides: {
-          before_container: {
-            module: 'extensions',
-            component: 'Debugger'
-          }
+          before_container: [
+            {
+              module: 'extensions',
+              component: 'Debugger'
+            },
+            {
+              module: 'testing',
+              component: 'ScenarioBuilder'
+            }
+          ]
         }
       })
 

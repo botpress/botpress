@@ -1,3 +1,6 @@
+import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
+
 export const convertLastMessages = (lastMessages, eventId) => {
   if (!lastMessages) {
     return
@@ -18,4 +21,31 @@ export const convertLastMessages = (lastMessages, eventId) => {
       }
     })
   }
+}
+
+export const buildScenarioFromEvents = (storedEvents: sdk.IO.StoredEvent[]) => {
+  const scenario = {
+    steps: [],
+    // Since we don't have the real initial state (beforeIncomingMiddleware), we force a new one
+    initialState: {},
+    finalState: (_.last(storedEvents).event as sdk.IO.IncomingEvent).state
+  }
+
+  for (const storedEvent of storedEvents) {
+    const incoming = storedEvent.event as sdk.IO.IncomingEvent
+
+    const interactions = convertLastMessages(incoming.state.session.lastMessages, storedEvent.incomingEventId)
+    if (interactions) {
+      scenario.steps.push(interactions)
+    }
+  }
+
+  return _.omit(scenario, [
+    'initialState.session.lastMessages',
+    'initialState.context.jumpPoints',
+    'initialState.context.queue',
+    'finalState.session.lastMessages',
+    'finalState.context.jumpPoints',
+    'finalState.context.queue'
+  ])
 }

@@ -42,6 +42,14 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     res.sendStatus(200)
   })
 
+  router.post('/buildScenario', async (req, res) => {
+    try {
+      res.send(await testByBot[req.params.botId].buildScenario(req.body.eventIds))
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
+  })
+
   router.post('/incomingEvent', (req, res) => {
     const event = req.body as sdk.IO.IncomingEvent
     res.send(testByBot[req.params.botId].processIncomingEvent(event))
