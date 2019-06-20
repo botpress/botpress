@@ -216,7 +216,7 @@ export default class SVMClassifier {
   // this means that the 3 best predictions are really close, do not change magic numbers
   private predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]) {
     const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
-    return predictions.length > 2 && bestOf3STD < 0.05
+    return predictions.length > 2 && bestOf3STD <= 0.03
   }
 
   public async predict(tokens: string[], includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
