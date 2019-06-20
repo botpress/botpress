@@ -12,17 +12,17 @@
       "main/emulator"
     ],
     "Advanced Guides": [
-      "advanced/configuration",
       "advanced/debug",
-      "advanced/i18n",
+      "advanced/configuration",
       "advanced/authentication",
+      "advanced/i18n",
       "advanced/custom-module",
       "advanced/analytics",
-      "advanced/performances",
-      "advanced/pipelines",
-      "advanced/versions",
       "advanced/architecture",
+      "advanced/performances",
       "advanced/hosting",
+      "advanced/versions",
+      "advanced/pipelines",
       "advanced/cluster",
       "advanced/monitoring"
     ],
