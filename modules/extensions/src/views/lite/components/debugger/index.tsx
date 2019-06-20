@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
+import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
 import { MdBugReport } from 'react-icons/md'
@@ -14,6 +15,7 @@ import { Intents } from './views/Intents'
 import { Slots } from './views/Slots'
 import { Suggestions } from './views/Suggestions'
 import EventNotFound from './EventNotFound'
+import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 
@@ -21,6 +23,7 @@ export const updater = { callback: undefined }
 
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
+const RETRY_PERIOD = 500
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -28,17 +31,26 @@ export class Debugger extends React.Component<Props, State> {
     showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
-    showSettings: false
+    showSettings: false,
+    fetching: false
   }
+  allowedRetryCount = 0
+  currentRetryCount = 0
+  retryTimer: number
 
-  componentDidMount() {
-    updater.callback = this.loadEvent
+  async componentDidMount() {
+    updater.callback = this.selectEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
 
     this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
     window.addEventListener('keydown', this.hotkeyListener)
+
+    const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
+    const { collectionInterval } = data
+    const maxDelai = ms(collectionInterval as string)
+    this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
   }
 
   componentWillUnmount() {
@@ -66,15 +78,11 @@ export class Debugger extends React.Component<Props, State> {
     }
   }
 
-  loadEvent = async eventId => {
+  selectEvent = async eventId => {
     const previousEvent = this.state.event
 
-    try {
-      const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
-      this.setState({ event: data, showEventNotFound: false })
-    } catch (err) {
-      this.setState({ event: undefined, showEventNotFound: true })
-    }
+    // tslint:disable-next-line: no-floating-promises
+    this.loadEvent(eventId)
 
     if (previousEvent && previousEvent.id === eventId && this.state.visible) {
       this.closeDebugger()
@@ -82,6 +90,41 @@ export class Debugger extends React.Component<Props, State> {
     }
     this.openDebugger()
     this.props.store.view.setHighlightedMessages(eventId)
+  }
+
+  loadEvent = async eventId => {
+    clearInterval(this.retryTimer)
+    const event = await this.fetchEvent(eventId)
+    if (!event) {
+      this.setState({ fetching: true })
+
+      this.retryTimer = window.setInterval(async () => {
+        await this.retryLoadEvent(eventId)
+      }, RETRY_PERIOD)
+    }
+    this.setState({ event })
+  }
+
+  retryLoadEvent = async eventId => {
+    const event = await this.fetchEvent(eventId)
+    this.currentRetryCount++
+
+    if (!event && this.currentRetryCount < this.allowedRetryCount) {
+      return
+    }
+
+    clearInterval(this.retryTimer)
+    this.currentRetryCount = 0
+    this.setState({ event, showEventNotFound: !event, fetching: false })
+  }
+
+  fetchEvent = async eventId => {
+    try {
+      const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      return data
+    } catch (err) {
+      return
+    }
   }
 
   handleNewSession = () => {
@@ -122,6 +165,16 @@ export class Debugger extends React.Component<Props, State> {
     )
   }
 
+  renderWhenNoEvent() {
+    if (this.state.fetching) {
+      return <FetchingEvent />
+    }
+    if (this.state.showEventNotFound) {
+      return <EventNotFound />
+    }
+    return <SplashScreen />
+  }
+
   render() {
     if (!this.state.visible) {
       return null
@@ -131,7 +184,7 @@ export class Debugger extends React.Component<Props, State> {
       <div className={style.container2}>
         <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
         <Header newSession={this.handleNewSession} toggleSettings={this.toggleSettings} />
-        {!this.state.event && (this.state.showEventNotFound ? <EventNotFound /> : <SplashScreen />)}
+        {!this.state.event && this.renderWhenNoEvent()}
         {this.state.event && (
           <div className={style.content}>
             <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
@@ -156,4 +209,5 @@ interface State {
   visible: boolean
   showSettings: boolean
   showEventNotFound: boolean
+  fetching: boolean
 }
