@@ -96,6 +96,8 @@ export interface NLUStructure {
   tokens: string[]
 }
 
+export type Token2Vec = { [token: string]: number[] }
+
 export interface PipelineProcessManager {
   withPipeline(pipeline: Function[]): PipelineProcessManager
   initFromText(text: string, includedContexts: string[]): PipelineProcessManager
