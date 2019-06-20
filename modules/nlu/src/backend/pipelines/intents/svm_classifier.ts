@@ -17,6 +17,14 @@ const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
 const debugPredict = debug.sub('predict')
 
+const getPayloadForProgress = progress => ({
+  type: 'nlu',
+  name: 'training',
+  value: 0.25 + Math.floor(progress / 2),
+  working: true,
+  message: 'Model is training'
+})
+
 // We might want to compute this as a function of the number of samples in each cluster
 // As this depends on the dataset size and distribution
 const MIN_CLUSTER_SAMPLES = 3
@@ -30,7 +38,9 @@ export default class SVMClassifier {
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private language: string,
-    private languageProvider: LanguageProvider
+    private languageProvider: LanguageProvider,
+    private realtime: typeof sdk.realtime,
+    private realtimePayload: typeof sdk.RealTimePayload
   ) {}
 
   private teardownModels() {
@@ -77,6 +87,8 @@ export default class SVMClassifier {
   }
 
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0)))
+
     const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
       .flatMap(x => (<sdk.NLU.IntentDefinition>x).contexts)
       .uniq()
@@ -188,8 +200,15 @@ export default class SVMClassifier {
       //////////////////////////////
       //////////////////////////////
 
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0.2)))
+
       const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
-      await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
+
+      await svm.train(l1Points, progress => {
+        this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(progress)))
+        debugTrain('SVM => progress for INT', { context, progress })
+      })
+
       const modelStr = svm.serialize()
 
       models.push({
