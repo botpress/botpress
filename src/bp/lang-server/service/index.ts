@@ -64,12 +64,16 @@ export default class LanguageService {
     await this._loadModels(lang)
   }
 
-  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
   private async _loadModels(lang: string) {
     console.log('Loading Embeddings for', lang.toUpperCase())
-    const fastTextModel = await this._loadFastTextModel(lang)
-    const bpeModel = await this._loadBPEModel(lang)
-    this._models[lang] = { fastTextModel, bpeModel }
+
+    try {
+      const fastTextModel = await this._loadFastTextModel(lang)
+      const bpeModel = await this._loadBPEModel(lang)
+      this._models[lang] = { fastTextModel, bpeModel }
+    } catch (err) {
+      console.error(`[${lang.toUpperCase()}] Error loading language. It will be unavailable.`, err)
+    }
   }
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
