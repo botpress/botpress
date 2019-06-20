@@ -10,6 +10,8 @@ import API from './api'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 
+const debug = DEBUG('api')
+
 export interface ArgV {
   port: number
   host: string
@@ -26,7 +28,7 @@ export interface ArgV {
 export default async function(options: ArgV) {
   options.langDir = options.langDir || path.join(process.APP_DATA_PATH, 'embeddings')
 
-  console.log('Language Server', options)
+  debug('Language Server Options ', options)
 
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)

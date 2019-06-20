@@ -1,7 +1,2 @@
-import React from 'react'
-
-export class LiteView extends React.Component {
-  render() {
-    return null
-  }
-}
+export { Wrapper } from './scenarios/Wrapper'
+export { ScenarioBuilder } from './scenarios'

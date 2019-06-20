@@ -3,6 +3,11 @@ import * as sdk from 'botpress/sdk'
 const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('extensions')
+  const config = (await bp.config.getBotpressConfig()).eventCollector
+
+  router.get('/events/update-frequency', async (_req, res) => {
+    res.send({ collectionInterval: config.collectionInterval })
+  })
 
   router.get('/events/:eventId', async (req, res) => {
     const storedEvents = await bp.events.findEvents({

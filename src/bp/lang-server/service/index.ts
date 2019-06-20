@@ -5,24 +5,24 @@ import _ from 'lodash'
 import lru from 'lru-cache'
 import path from 'path'
 import { VError } from 'verror'
+import ms from 'ms'
 
 import toolkit from '../../ml/toolkit'
 
-import { AvailableModel, LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
+import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
+
+const maxAgeCacheInMS = ms('24h')
+
+// Examples:  "scope.en.300.bin" "bp.fr.150.bin"
+const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
+
+// Examples: "scope.en.bpe.model" "bp.en.bpe.model"
+const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
   private _cache
-
-  // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
-  private readonly FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
-
-  // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
-  private readonly BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
-
-  // This equals to 24H
-  private readonly _maxAgeCacheInMS = 86400000
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
 
@@ -30,8 +30,9 @@ export default class LanguageService {
     if (Object.keys(this._models).length) {
       throw new Error('Language Service already initialized')
     }
+
     this._cache = new lru({
-      maxAge: this._maxAgeCacheInMS
+      maxAge: maxAgeCacheInMS
     })
 
     this._models = this._getModels()
@@ -69,12 +70,12 @@ export default class LanguageService {
   }
 
   private _getModelInfoFromFile = (file: string): ModelFileInfo => {
-    const fastTextModelsMatch = file.match(this.FAST_TEXT_MODEL_REGEX)
+    const fastTextModelsMatch = file.match(FAST_TEXT_MODEL_REGEX)
     if (fastTextModelsMatch) {
       return this._getFileInfo(fastTextModelsMatch, true, file)
     }
 
-    const bpeModelsMatch = file.match(this.BPE_MODEL_REGEX)
+    const bpeModelsMatch = file.match(BPE_MODEL_REGEX)
     if (bpeModelsMatch) {
       return this._getFileInfo(bpeModelsMatch, false, file)
     }

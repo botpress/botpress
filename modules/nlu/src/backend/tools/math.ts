@@ -1,6 +1,5 @@
 import _ from 'lodash'
 
-// TODO add unit test for this
 export function GetZPercent(z) {
   if (z < -6.5) {
     return 0.0

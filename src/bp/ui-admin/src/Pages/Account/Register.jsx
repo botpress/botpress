@@ -3,12 +3,27 @@ import { Redirect } from 'react-router-dom'
 import logo from '../../media/nobg_white.png'
 
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
+import { setActiveWorkspace } from '../../Auth'
 
 export default class Register extends Component {
   state = {
     email: '',
     password: '',
     confirmPassword: ''
+  }
+
+  componentDidMount() {
+    this.loadAuthConfig()
+    setActiveWorkspace(this.props.match.params.workspace)
+  }
+
+  loadAuthConfig = async () => {
+    const strategyConfig = await this.props.auth.getStrategyConfig(this.props.match.params.strategy)
+    if (!strategyConfig) {
+      return this.setState({ error: 'Invalid strategy' })
+    }
+
+    this.setState({ ...strategyConfig })
   }
 
   register = async () => {
@@ -20,10 +35,13 @@ export default class Register extends Component {
     }
 
     try {
-      await this.props.auth.register({
-        email: this.state.email,
-        password: this.state.password
-      })
+      await this.props.auth.register(
+        {
+          email: this.state.email,
+          password: this.state.password
+        },
+        this.state.registerUrl
+      )
     } catch (err) {
       this.setState({ error: err.message })
     }

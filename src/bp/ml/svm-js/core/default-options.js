@@ -4,12 +4,12 @@ var types = require('./svm-types')
 var kernels = require('./kernel-types')
 
 module.exports = {
-  degree: [2, 3, 4], // for POLY kernel
+  degree: [2], // for POLY kernel
   gamma: [0.001, 0.01, 0.5], // for POLY, RBF and SIGMOID kernels
-  r: [0.125, 0.5, 0, 1], // for POLY and SIGMOID kernels
+  r: [0.125, 0.5], // for POLY and SIGMOID kernels
 
   // SVM specific parameters
-  c: [0.01, 0.125, 0.5, 1, 2], // cost for C_SVC, EPSILON_SVR and NU_SVR
+  c: [1, 2], // cost for C_SVC, EPSILON_SVR and NU_SVR
   nu: [0.01, 0.125, 0.5, 1], // for NU_SVC, ONE_CLASS and NU_SVR
   epsilon: [0.01, 0.125, 0.5, 1], // for EPSILON-SVR
 

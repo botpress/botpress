@@ -1,5 +1,5 @@
 import { Icon } from '@blueprintjs/core'
-import { SidePanel, SidePanelSection } from 'botpress/ui'
+import { SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 
@@ -52,7 +52,7 @@ export default class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
-    const items = [
+    const items: SectionAction[] = [
       {
         label: 'Action - Bot',
         icon: <Icon icon="new-text-box" />,
@@ -69,7 +69,7 @@ export default class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label={'Actions'} actions={[{ icon: <Icon icon="add" />, items }]}>
+      <SidePanelSection label={'Actions'} actions={[{ icon: <Icon icon="add" />, key: 'add', items }]}>
         <FileNavigator
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
@@ -93,6 +93,7 @@ export default class PanelContent extends React.Component<Props> {
     const actions = [
       {
         icon: <Icon icon="add" />,
+        key: 'add',
         items: [
           {
             label: 'Event Hooks',

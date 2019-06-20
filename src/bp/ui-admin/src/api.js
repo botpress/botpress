@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import axios from 'axios'
 import _ from 'lodash'
-import { pullToken, logout } from './Auth'
+import { pullToken, logout, getActiveWorkspace } from './Auth'
 import { toast } from 'react-toastify'
 import * as licensing from './Auth/licensing'
 
@@ -84,7 +84,8 @@ export default {
       {
         timeout,
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'X-BP-Workspace': getActiveWorkspace()
         },
         ...overrideApiUrl
       },

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import logo from '../media/nobg_white.png'
 import api from '../api'
+import { setActiveWorkspace } from '../Auth'
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
 
 export default class Login extends Component {
@@ -9,7 +10,7 @@ export default class Login extends Component {
     isLoading: true,
     isFirstTimeUse: false,
     email: '',
-    authStrategy: 'basic',
+    strategyType: 'basic',
     authEndpoint: null,
     password: '',
     passwordExpired: false,
@@ -17,29 +18,37 @@ export default class Login extends Component {
   }
 
   loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous().get('/auth/config')
+    const { isFirstUser, ...strategyConfig } = await this.props.auth.getStrategyConfig(this.props.match.params.strategy)
+
+    if (!strategyConfig) {
+      return this.setState({ isLoading: false, error: 'Invalid strategy' })
+    }
 
     this.setState({
       isLoading: false,
-      isFirstTimeUse: data.payload.isFirstTimeUse,
-      authStrategy: data.payload.strategy,
-      authEndpoint: data.payload.authEndpoint
+      isFirstTimeUse: isFirstUser,
+      ...strategyConfig
     })
   }
 
   componentDidMount() {
     this.loadAuthConfig()
     this.checkErrorMessages()
+
+    setActiveWorkspace(this.props.match.params.workspace)
   }
 
   login = async ({ email, password, showError = true } = {}) => {
     this.setState({ error: null })
 
     try {
-      await this.props.auth.login({
-        email: email || this.state.email,
-        password: password || this.state.password
-      })
+      await this.props.auth.login(
+        {
+          email: email || this.state.email,
+          password: password || this.state.password
+        },
+        this.state.loginUrl
+      )
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         if (!this.state.email || !this.state.password) {
@@ -66,8 +75,8 @@ export default class Login extends Component {
   handleInputKeyPress = e => e.key === 'Enter' && this.login()
 
   redirectToExternalAuthProvider = () => {
-    if (this.state.authStrategy === 'saml') {
-      return (window.location = `${api.getApiPath()}/auth/saml-redirect`)
+    if (this.state.strategyType === 'saml') {
+      return (window.location = `${api.getApiPath()}/auth/redirect/saml/${this.state.strategyId}`)
     }
 
     window.location = this.state.authEndpoint
@@ -126,7 +135,7 @@ export default class Login extends Component {
       return <Redirect to="/" />
     }
 
-    if (this.state.isFirstTimeUse && this.state.authStrategy === 'basic') {
+    if (this.state.isFirstTimeUse && this.state.strategyType === 'basic') {
       return <Redirect to="/register" />
     }
 
@@ -145,7 +154,7 @@ export default class Login extends Component {
             <img className="logo" src={logo} alt="loading" />
             <Card body>
               <CardBody className="login-box">
-                {this.state.authStrategy === 'saml' ? this.renderExternal() : this.renderForm()}
+                {this.state.strategyType === 'saml' ? this.renderExternal() : this.renderForm()}
               </CardBody>
             </Card>
           </div>
