@@ -12,6 +12,7 @@ interface CssExports {
   'itemListSelected': string;
   'label': string;
   'right': string;
+  'rightButtons': string;
   'searchBar': string;
   'sidePanel': string;
   'sidePanel_hidden': string;

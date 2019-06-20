@@ -19,9 +19,9 @@ export class RolesRouter extends CustomRouter {
       '/',
       this.needPermissions('read', 'admin.roles'),
       this.asyncMiddleware(async (req, res) => {
-        const workspace = await this.workspaceService.getWorkspace()
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
         sendSuccess(res, 'Roles retrieved', {
-          roles: workspace.roles
+          roles: (workspace && workspace.roles) || []
         })
       })
     )

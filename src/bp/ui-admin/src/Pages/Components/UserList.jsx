@@ -78,7 +78,7 @@ class UserList extends Component {
                   <p>
                     <span className="field">
                       <b>Email: </b>
-                      {user.email}
+                      {user.email} ({user.strategy})
                     </span>
                     <span className="field">
                       <b>Last Login: </b>

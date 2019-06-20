@@ -239,7 +239,7 @@ declare module 'botpress/sdk' {
     export namespace SVM {
       export interface SVMOptions {
         classifier: 'C_SVC'
-        kernel: 'linear' | 'RBF' | 'POLY'
+        kernel: 'LINEAR' | 'RBF' | 'POLY'
         c: number | number[]
         gamma: number | number[]
       }
@@ -485,7 +485,10 @@ declare module 'botpress/sdk' {
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
       readonly intents: NLU.Intent[]
+      /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
       readonly language: string
+      /** Language detected from users input. */
+      readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
@@ -956,6 +959,20 @@ declare module 'botpress/sdk' {
     headers: {
       Authorization: string
     }
+  }
+
+  export interface MigrationResult {
+    success: boolean
+    message?: string
+  }
+
+  export interface ModuleMigration {
+    info: {
+      description: string
+      type: 'database' | 'config' | 'content'
+    }
+    up: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+    down?: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
   }
 
   /**

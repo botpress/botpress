@@ -4,11 +4,6 @@ var types = require('./svm-types')
 var kernels = require('./kernel-types')
 
 module.exports = {
-  // svm type
-  'svm-type': types.C_SVC,
-
-  // kernels parameters
-  'kernel-type': kernels.RBF,
   degree: [2, 3, 4], // for POLY kernel
   gamma: [0.001, 0.01, 0.5], // for POLY, RBF and SIGMOID kernels
   r: [0.125, 0.5, 0, 1], // for POLY and SIGMOID kernels

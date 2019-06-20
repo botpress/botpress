@@ -41,6 +41,7 @@ const eventSchema = {
         .items(joi.object())
         .optional(),
       language: joi.string().optional(),
+      detectedLanguage: joi.string().optional(),
       entities: joi
         .array()
         .items(joi.object())

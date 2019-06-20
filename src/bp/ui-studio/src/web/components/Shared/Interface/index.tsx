@@ -27,7 +27,9 @@ import {
   SectionAction,
   SidePanelProps,
   SidePanelSectionProps,
-  SplashScreenProps
+  SplashScreenProps,
+  ToolbarButtonsProps,
+  ToolbarProps
 } from './typings'
 import { buildMenu, showContextMenu } from './utils'
 
@@ -67,7 +69,7 @@ export const SidePanelSection = (props: SidePanelSectionProps) => {
           {props.label || ''}
         </strong>
         <ButtonGroup minimal={true} onClick={e => e.stopPropagation()}>
-          {props.actions && props.actions.map((action, idx) => SectionAction(action, idx))}
+          {props.actions && props.actions.map(action => SectionAction(action))}
         </ButtonGroup>
       </div>
       <Collapse isOpen={isOpen} keepChildrenMounted={true}>
@@ -98,28 +100,28 @@ export const ItemList = (props: ItemListProps) => {
   return (
     <div className={style.itemList}>
       {props.items &&
-        props.items.map(item => (
-          <div
-            key={item.key ? item.key : item.label}
-            className={classnames(style.item, { [style.itemListSelected]: item.selected })}
-          >
-            <div
-              className={style.label}
-              onClick={() => props.onElementClicked && props.onElementClicked(item)}
-              onContextMenu={e => showContextMenu(e, item.contextMenu)}
-            >
-              {item.icon && <Icon icon={item.icon} />} {item.label}
+        props.items.map(item => {
+          const key = item.key ? item.key : item.label
+          return (
+            <div key={key} className={classnames(style.item, { [style.itemListSelected]: item.selected })}>
+              <div
+                className={style.label}
+                onClick={() => props.onElementClicked && props.onElementClicked(item)}
+                onContextMenu={e => showContextMenu(e, item.contextMenu)}
+              >
+                {item.icon && <Icon icon={item.icon} />} {item.label}
+              </div>
+              <div className={style.right}>
+                {item.actions &&
+                  item.actions.map(action => (
+                    <Tooltip key={key + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                    </Tooltip>
+                  ))}
+              </div>
             </div>
-            <div className={style.right}>
-              {item.actions &&
-                item.actions.map(action => (
-                  <Tooltip key={item.label + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                    <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
-                  </Tooltip>
-                ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
     </div>
   )
 }
@@ -149,23 +151,22 @@ export const KeyboardShortcut = (props: KeyboardShortcutsProps) => {
   )
 }
 
-export const SplashScreen = (props: SplashScreenProps) => {
-  return (
-    <div className={style.splashScreen}>
-      <div>
-        <Icon icon={props.icon} />
-        <h1>{props.title || ''}</h1>
-        <p>{props.description || ''}</p>
-        {props.children}
-      </div>
+export const SplashScreen = (props: SplashScreenProps) => (
+  <div className={style.splashScreen}>
+    <div>
+      <Icon icon={props.icon} />
+      <h1>{props.title || ''}</h1>
+      <p>{props.description || ''}</p>
+      {props.children}
     </div>
-  )
-}
+  </div>
+)
 
-const SectionAction = (action: SectionAction, idx: number) => {
+const SectionAction = (action: SectionAction) => {
+  const key = action.key || action.label || action.tooltip
   if (action.items) {
     return (
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+      <Tooltip key={key} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Popover content={buildMenu(action.items)} position={Position.BOTTOM_LEFT}>
           <Button icon={action.icon} text={action.label} />
         </Popover>
@@ -174,8 +175,8 @@ const SectionAction = (action: SectionAction, idx: number) => {
   }
 
   return (
-    <Popover disabled={!action.popover} content={action.popover}>
-      <Tooltip key={idx} disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
+    <Popover key={key} disabled={!action.popover} content={action.popover}>
+      <Tooltip disabled={!action.tooltip} content={action.tooltip} position={Position.RIGHT}>
         <Button
           icon={action.icon}
           text={action.label}
@@ -186,11 +187,19 @@ const SectionAction = (action: SectionAction, idx: number) => {
   )
 }
 
-export const Toolbar = props => {
+export const Toolbar = (props: ToolbarProps) => {
+  return <div className={style.toolbar}>{props.children}</div>
+}
+
+export const LeftToolbarButtons = (props: ToolbarButtonsProps) => {
+  return <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
+}
+
+export const RightToolbarButtons = (props: ToolbarButtonsProps) => {
   return (
-    <div className={style.toolbar}>
-      <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
-    </div>
+    <ButtonGroup className={style.rightButtons} minimal={true}>
+      {props.children}
+    </ButtonGroup>
   )
 }
 

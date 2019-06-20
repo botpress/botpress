@@ -17,3 +17,10 @@ export const QnaDefSchema = Joi.object().keys({
     .pattern(/.*/, Joi.array().items(Joi.string()))
     .default({})
 })
+
+const QnaItemSchema = Joi.object().keys({
+  id: Joi.string().required(),
+  data: QnaDefSchema
+})
+
+export const QnaItemArraySchema = Joi.array().items(QnaItemSchema)

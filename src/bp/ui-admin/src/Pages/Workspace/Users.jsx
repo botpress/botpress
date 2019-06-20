@@ -69,7 +69,7 @@ class List extends Component {
     const message = `Your botpress account is ready! 
 
       Sign-in here: ${window.location.origin}/admin/login
-      Email: ${this.state.email}
+      Email: ${createdUser.email}
       Password: ${createdUser.tempPassword}`
 
     this.setState({
@@ -80,6 +80,11 @@ class List extends Component {
     })
 
     // TODO replace this fetch by adding an action & add the created user in the store
+    this.props.fetchUsers()
+  }
+
+  onUserAdded = () => {
+    this.setState({ isCreateUserModalOpen: false })
     this.props.fetchUsers()
   }
 
@@ -103,15 +108,21 @@ Password: ${payload.tempPassword}`
     }
   }
 
+  async removeUser(user) {
+    if (window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
+      await api.getSecured().delete(`/admin/users/workspace/remove/${user.strategy}/${user.email}`)
+    }
+  }
+
   async deleteUser(user) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      await api.getSecured().delete(`/admin/users/${user.email}`)
+      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
     }
   }
 
   updateUser = async () => {
     const user = this.state.user
-    await api.getSecured().put(`/admin/users/${user.email}`, user)
+    await api.getSecured().put(`/admin/users/workspace/update_role`, user)
     this.setState({ isRoleChanged: false, isUpdateRoleModalOpen: false, user: null }, this.props.fetchUsers)
   }
 
@@ -181,6 +192,13 @@ Password: ${payload.tempPassword}`
       onClick: user => this.deleteUser(user)
     }
 
+    const removeUser = {
+      label: 'Remove from workspace',
+      type: 'link',
+      needRefresh: true,
+      onClick: user => this.removeUser(user)
+    }
+
     const changeRole = {
       label: 'Change Role',
       type: 'link',
@@ -189,7 +207,9 @@ Password: ${payload.tempPassword}`
     }
 
     const actions =
-      this.state.authStrategy === 'basic' ? [resetPassword, changeRole, deleteUser] : [changeRole, deleteUser]
+      this.state.authStrategy === 'basic'
+        ? [resetPassword, changeRole, deleteUser, removeUser]
+        : [changeRole, deleteUser, removeUser]
 
     return (
       <div>
@@ -208,6 +228,7 @@ Password: ${payload.tempPassword}`
           isOpen={this.state.isCreateUserModalOpen}
           toggleOpen={this.toggleCreateUserModalOpen}
           onUserCreated={this.onUserCreated}
+          onUserAdded={this.onUserAdded}
         />
         {this.renderEmailModal()}
         {this.renderUpdateUserModal()}

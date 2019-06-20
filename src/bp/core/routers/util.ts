@@ -1,13 +1,13 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
+import { StrategyUser } from 'core/repositories/strategy_users'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import onHeaders from 'on-headers'
 
-import { AuthUser, RequestWithUser, TokenUser } from '../misc/interfaces'
-import { SERVER_USER } from '../server'
-import AuthService from '../services/auth/auth-service'
+import { RequestWithUser, TokenUser } from '../misc/interfaces'
+import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
 import { incrementMetric } from '../services/monitoring'
 
 import {
@@ -25,9 +25,10 @@ const debugSuperSuccess = DEBUG('audit:admin:success')
 const debugSuperFailure = DEBUG('audit:admin:fail')
 
 export type BPRequest = Request & {
-  authUser: AuthUser | undefined
+  authUser: StrategyUser | undefined
   tokenUser: TokenUser | undefined
   credentials: any | undefined
+  workspace?: string
 }
 
 export type AsyncMiddleware = (
@@ -104,6 +105,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
     }
 
     req.tokenUser = tokenUser
+    req.workspace = req.headers[WORKSPACE_HEADER] as string
   } catch (err) {
     return next(new UnauthorizedError('Invalid authentication token'))
   }
@@ -118,7 +120,7 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
     return next(new InternalServerError('No tokenUser in request'))
   }
 
-  const authUser = await authService.findUserByEmail(tokenUser.email)
+  const authUser = await authService.findUser(tokenUser.email, tokenUser.strategy)
   if (!authUser) {
     return next(new UnauthorizedError('Unknown user'))
   }
@@ -162,9 +164,8 @@ export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
   next: NextFunction
 ) => {
   if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
-    const workspace = await workspaceService.getWorkspace()
     // Allow to create the first user
-    if (workspace.users.length > 0) {
+    if ((await workspaceService.getUniqueCollaborators()) > 0) {
       return next(new PaymentRequiredError('Botpress Pro is required to perform this action'))
     }
   }
@@ -172,18 +173,35 @@ export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
   return next()
 }
 
+/**
+ * This method checks if the user exists, if he has access to the requested workspace, and if his role
+ * allows him to do the requested operation. No other security checks should be needed.
+ */
 export const needPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
   req: RequestWithUser,
   _res: Response,
   next: NextFunction
 ) => {
-  const email = req.tokenUser && req.tokenUser!.email
+  if (!req.tokenUser) {
+    return next(new ForbiddenError(`Unauthorized`))
+  }
+
+  const { email, strategy, isSuperAdmin } = req.tokenUser
+
   // The server user is used internally, and has all the permissions
-  if (email === SERVER_USER) {
+  if (email === SERVER_USER || isSuperAdmin) {
     return next()
   }
 
-  const user = await workspaceService.findUser({ email })
+  if (!req.workspace && req.params.botId) {
+    req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
+  }
+
+  if (!email || !strategy || !req.workspace) {
+    return next(new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`))
+  }
+
+  const user = await workspaceService.findUser(email, strategy, req.workspace)
 
   if (!user) {
     debugFailure(`${req.originalUrl} %o`, {
@@ -193,10 +211,10 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       resource,
       ip: req.ip
     })
-    return next(new NotFoundError(`User "${email}" does not exists`))
+    return next(new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`))
   }
 
-  const role = await workspaceService.getRoleForUser(req.tokenUser!.email)
+  const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
     debugFailure(req.originalUrl, {
