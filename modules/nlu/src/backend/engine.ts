@@ -360,14 +360,8 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
+    // TODO add disambiguation flag if intent 1 & intent 2
     const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
-
-    // TODO: This is no longer relevant because of multi-context
-    // We need to actually check if there's a clear winner
-    // We also need to adjust the scores depending on the interaction model
-    // We need to return a disambiguation flag here too if we're uncertain
-    const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
-    intent.matches = createIntentMatcher(intent.name)
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -376,7 +370,7 @@ export default class ScopedEngine implements Engine {
       .value()
 
     ds.intents = intents
-    ds.intent = intent
+    ds.intent = intents[0]
 
     debugIntents(ds.sanitizedText, { intents })
 

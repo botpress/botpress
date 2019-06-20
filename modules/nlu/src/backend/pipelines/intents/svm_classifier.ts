@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'
-import kmeans from 'ml-kmeans'
 import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
@@ -17,10 +16,6 @@ import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
 const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
 const debugPredict = debug.sub('predict')
-
-// We might want to compute this as a function of the number of samples in each cluster
-// As this depends on the dataset size and distribution
-const MIN_CLUSTER_SAMPLES = 4
 
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
@@ -142,11 +137,6 @@ export default class SVMClassifier {
                 label: context,
                 coordinates: [...l0Vec, utteranceTokens.length]
               })
-            } else {
-              // l0Points.push({
-              //   label: 'none',
-              //   coordinates: [...l0Vec, utteranceTokens.length]
-              // })
             }
 
             l1Points.push({
@@ -157,66 +147,6 @@ export default class SVMClassifier {
           }
         }
       }
-
-      //////////////////////////////
-      // split with k-means here
-      //////////////////////////////
-
-      // const data = l1Points.map(x => _.dropRight(x.coordinates, 1))
-      // const nLabels = _.uniq(l1Points.map(x => x.label)).length
-
-      // let bestScore = 0
-      // let bestCluster: { [clusterId: number]: { [label: string]: number[][] } } = {}
-
-      // // TODO refine this logic here, maybe use a density based clustering or at least cluster step should be a func of our data
-      // for (
-      //   let i = Math.min(Math.floor(nLabels / 3), l1Points.length) || 1;
-      //   i < Math.min(nLabels, l1Points.length);
-      //   i += 5
-      // ) {
-      //   const km = kmeans(data, i)
-      //   const clusters: { [clusterId: number]: { [label: string]: number[][] } } = {}
-
-      //   l1Points.forEach(pts => {
-      //     const r = km.nearest([_.dropRight(pts.coordinates, 1)])[0] as number
-      //     clusters[r] = clusters[r] || {}
-      //     clusters[r][pts.label] = clusters[r][pts.label] || []
-      //     clusters[r][pts.label].push(pts.coordinates)
-      //   })
-
-      //   const total = _.sum(
-      //     _.map(clusters, c => {
-      //       const things = _.map(c, y => y.length)
-      //       return _.max(things) / _.sum(things)
-      //     })
-      //   )
-      //   // const total = _.sum(_.map(clusters, c => _.max(_.map(c, y => y.length)))) / l1Points.length
-      //   const score = total / Math.sqrt(i)
-
-      //   if (score >= bestScore) {
-      //     bestScore = score
-      //     bestCluster = clusters
-      //   }
-      // }
-
-      // const labelIncCluster: { [label: string]: number } = {}
-
-      // for (const pairs of _.values(bestCluster)) {
-      //   const labels = Object.keys(pairs)
-      //   for (const label of labels) {
-      //     const samples = pairs[label]
-      //     if (samples.length >= MIN_CLUSTER_SAMPLES) {
-      //       labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
-      //       const newLabel = label + '__k__' + labelIncCluster[label]
-      //       l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
-      //         x.label = newLabel
-      //       })
-      //     }
-      //   }
-      // }
-
-      //////////////////////////////
-      //////////////////////////////
 
       const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
@@ -283,6 +213,12 @@ export default class SVMClassifier {
     return { l0Tfidf, l1Tfidf }
   }
 
+  // this means that the 3 best predictions are really close, do not change magic numbers
+  private predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]) {
+    const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+    return predictions.length > 2 && bestOf3STD < 0.05
+  }
+
   public async predict(tokens: string[], includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
     if (!Object.keys(this.l1PredictorsByContextName).length || !this.l0Predictor) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
@@ -317,15 +253,17 @@ export default class SVMClassifier {
           }
 
           const firstBest = preds[0]
-
           if (preds.length === 1) {
             return [{ label: firstBest.label, l0Confidence: l0Conf, context: ctx, confidence: 1 }]
           }
 
+          if (this.predictionsReallyConfused(preds)) {
+            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }] // refine confidence
+          }
+
           const secondBest = preds[1]
-          // because we want a lognormal distribution
-          const std = math.std(preds.map(x => Math.log(x.confidence)))
-          let p1Conf = GetZPercent((Math.log(firstBest.confidence) - Math.log(secondBest.confidence)) / std)
+          const lnstd = math.std(preds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+          let p1Conf = GetZPercent((Math.log(firstBest.confidence) - Math.log(secondBest.confidence)) / lnstd)
 
           if (isNaN(p1Conf)) {
             p1Conf = 0.5
