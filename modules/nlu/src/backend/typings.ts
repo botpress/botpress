@@ -97,8 +97,8 @@ export interface NLUStructure {
 }
 
 export interface PipelineProcessManager {
-  of(pipeline: Function[]): PipelineProcessManager
-  initDS(text: string, includedContexts: string[]): PipelineProcessManager
+  withPipeline(pipeline: Function[]): PipelineProcessManager
+  initFromText(text: string, includedContexts: string[]): PipelineProcessManager
   run(): Promise<NLUStructure>
 }
 
