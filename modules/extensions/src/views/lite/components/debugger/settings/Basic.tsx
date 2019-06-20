@@ -1,17 +1,21 @@
-import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, Checkbox, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { AppToaster } from '../toaster'
+import { loadSettings, persistSettings } from '../utils'
 
 export default class Basic extends React.Component<BasicSettingProps, BasicSettingState> {
   state = {
     userId: '',
-    externalAuthToken: ''
+    externalAuthToken: '',
+    autoOpenDebugger: false
   }
 
   componentDidMount() {
     const { userId, externalAuthToken } = this.props.store.config
-    this.setState({ userId, externalAuthToken })
+    const { autoOpenDebugger } = loadSettings()
+
+    this.setState({ userId, externalAuthToken, autoOpenDebugger })
   }
 
   saveSettings = () => {
@@ -20,15 +24,23 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
       externalAuthToken: this.state.externalAuthToken
     })
 
+    persistSettings({ autoOpenDebugger: this.state.autoOpenDebugger })
     AppToaster.show({ message: 'Configuration updated successfully!', intent: Intent.SUCCESS, timeout: 3000 })
   }
 
   handleUserIdChanged = event => this.setState({ userId: event.target.value })
   handleAuthChanged = event => this.setState({ externalAuthToken: event.target.value })
+  handleAutoOpenChanged = event => this.setState({ autoOpenDebugger: event.target.checked })
 
   render() {
     return (
       <div>
+        <Checkbox
+          label="Automatically open the Debugger when the emulator is displayed"
+          checked={this.state.autoOpenDebugger}
+          onChange={this.handleAutoOpenChanged}
+        />
+
         <FormGroup label="User ID" helperText={'Changes the User ID stored on your browser'}>
           <InputGroup value={this.state.userId} onChange={this.handleUserIdChanged} placeholder="Your User ID" />
         </FormGroup>
@@ -56,4 +68,5 @@ interface BasicSettingProps {
 interface BasicSettingState {
   userId: string
   externalAuthToken: string
+  autoOpenDebugger: boolean
 }
