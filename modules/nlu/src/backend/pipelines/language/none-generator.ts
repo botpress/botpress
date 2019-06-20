@@ -25,7 +25,7 @@ export function generateNoneUtterances(utterances: string[][], count: number): s
 
   return _.range(0, count).map(() => {
     // create new utterances of varying length, made of real AND junk words (more junk)
-    const fromVocab = _.random(0, 1, false)
+    const fromVocab = _.random(0, 0, false)
     const fromJunk = _.random(2, 5, false)
 
     return _.shuffle([..._.sampleSize(realWords, fromVocab), ..._.sampleSize(junkWords, fromJunk)]).map(

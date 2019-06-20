@@ -44,6 +44,8 @@ export class FiveFolder<T> {
 
   results: { [suite: string]: F1 } = {}
 
+  private readonly N = 3
+
   async fold(
     suiteName: string,
     trainFn: (trainSet: T[]) => Promise<void>,
@@ -57,7 +59,7 @@ export class FiveFolder<T> {
     }
 
     const shuffled = _.shuffle(this.dataset)
-    const chunks = _.chunk(shuffled, Math.ceil(shuffled.length / 5))
+    const chunks = _.chunk(shuffled, Math.ceil(shuffled.length / this.N))
 
     await Promise.mapSeries(chunks, async testSet => {
       const trainSet = _.flatten(chunks.filter(c => c !== testSet))
