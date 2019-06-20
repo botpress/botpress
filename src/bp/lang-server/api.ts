@@ -169,6 +169,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
     try {
       await languageService.loadModel(lang)
+      res.sendStatus(200)
     } catch (err) {
       res.status(500).send({ success: false, message: err.message })
     }
