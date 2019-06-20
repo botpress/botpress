@@ -12,4 +12,4 @@ You can learn more about proactive messages [here](https://botpress.io/docs/tuto
 1. Start Botpress: `cd ../.. && yarn start`
 1. Create a new bot using the "Proactive Bot" template from the bot templates list and name it `proactive-bot`:
    ![Create Bot](assets/images/create-proactive-bot.png)
-1. Go to http://localhost:3000/assets/modules/proactive-module/
+1. Go to http://localhost:3000/assets/modules/proactive-module/ or <you_url>/assets/modules/proactive-module/

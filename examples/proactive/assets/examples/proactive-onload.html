@@ -13,7 +13,7 @@
 
   <script>
     window.botpressWebChat.init({
-      host: 'http://localhost:3000',
+      host: window.origin,
       botId: 'proactive-bot'
     })
 
@@ -24,6 +24,6 @@
         channel: 'web',
         payload: { text: 'fake message' }
       })
-    }, 1000)
+    }, 1500)
   </script>
 </html>
