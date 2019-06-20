@@ -36,7 +36,7 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
     return (
       <div>
         <Checkbox
-          label="Automatically open the Debugger when the emulator is displayed"
+          label="Always show Debugger"
           checked={this.state.autoOpenDebugger}
           onChange={this.handleAutoOpenChanged}
         />
