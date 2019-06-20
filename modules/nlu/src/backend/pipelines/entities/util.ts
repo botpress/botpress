@@ -17,7 +17,5 @@ export const getTextWithoutEntities = (entities: sdk.NLU.Entity[], text: string)
     .value()
 
   const res = noEntitiesText + text.substr(cursor, text.length - cursor)
-  console.log('RES IS;')
-  console.log(res)
   return res
 }
