@@ -48,7 +48,7 @@ const cleanStudio = () => {
 }
 
 const cleanStudioAssets = () => {
-  return gulp.src('./out/bp/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./out/bp/data/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const copyStudio = () => {
@@ -56,7 +56,7 @@ const copyStudio = () => {
 }
 
 const createStudioSymlink = () => {
-  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/assets/ui-studio/', { type: 'dir' }))
+  return gulp.src('./src/bp/ui-studio/public').pipe(symlink('./out/bp/data/assets/ui-studio/', { type: 'dir' }))
 }
 
 const watchAdmin = cb => {

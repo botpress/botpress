@@ -181,7 +181,7 @@ export class Botpress {
 
   async deployAssets() {
     try {
-      const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
+      const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
       // Avoids overwriting the folder when developping locally on the studio
