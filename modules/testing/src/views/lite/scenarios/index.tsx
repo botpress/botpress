@@ -15,7 +15,7 @@ export const updater = { callback: undefined }
 
 export class ScenarioBuilder extends React.Component<Props, State> {
   private firstEvent
-  private secondEvent
+  private lastEvent
 
   state = {
     visible: false,
@@ -68,7 +68,7 @@ export class ScenarioBuilder extends React.Component<Props, State> {
   }
 
   handleEventClicked = eventId => {
-    if (this.firstEvent && this.secondEvent) {
+    if (this.firstEvent && this.lastEvent) {
       return this.clearSelection()
     }
 
@@ -77,8 +77,8 @@ export class ScenarioBuilder extends React.Component<Props, State> {
       return this.setState({ selectedEventIds: [eventId] })
     }
 
-    if (!this.secondEvent) {
-      this.secondEvent = eventId
+    if (!this.lastEvent) {
+      this.lastEvent = eventId
     }
 
     this.setState({ selectedEventIds: this._getEventIdsInRange(this.firstEvent, eventId) })
@@ -126,7 +126,7 @@ export class ScenarioBuilder extends React.Component<Props, State> {
 
   clearSelection = () => {
     this.firstEvent = undefined
-    this.secondEvent = undefined
+    this.lastEvent = undefined
     this.setState({ selectedEventIds: [] })
   }
 
@@ -136,7 +136,8 @@ export class ScenarioBuilder extends React.Component<Props, State> {
     ) : (
       <div style={{ padding: 5, height: '100%' }}>
         Select one or multiple interactions in the webchat. When you are satisfied, press the button below to name it
-        and save your changes.
+        and save your changes. <br />
+        <br /> * When using this feature, the initial set is cleared, so make sure you start a new conversation before.
         <br />
         <br />
         <p>

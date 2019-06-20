@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Builder } from './builder'
 import { TestByBot } from './typings'
 
 export default async (bp: typeof sdk, testByBot: TestByBot) => {
@@ -45,9 +44,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
 
   router.post('/buildScenario', async (req, res) => {
     try {
-      const { eventIds } = req.body
-      const builder = new Builder(bp.database, eventIds)
-      res.send(await builder.createScenario())
+      res.send(await testByBot[req.params.botId].buildScenario(req.body.eventIds))
     } catch (err) {
       res.status(400).send(err.message)
     }
