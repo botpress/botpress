@@ -15,8 +15,6 @@ export function keepEntityValues(text: string): string {
   return text.replace(SLOTS_REGEX, '$1')
 }
 
-const _removeEntityNotations = (text: string): string => text.replace(SLOTS_REGEX, '$1')
-
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
   ({
     value,
@@ -94,7 +92,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let tokens: Token[] = []
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = _removeEntityNotations(input)
+  const cannonical = keepEntityValues(input)
 
   do {
     matches = SLOTS_REGEX.exec(input)
