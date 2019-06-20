@@ -20,9 +20,7 @@
     setTimeout(function() {
       window.botpressWebChat.sendEvent({ type: 'show' })
       window.botpressWebChat.sendEvent({
-        type: 'proactive-trigger',
-        channel: 'web',
-        payload: { text: 'fake message' }
+        type: 'proactive-trigger'
       })
     }, 1500)
   </script>

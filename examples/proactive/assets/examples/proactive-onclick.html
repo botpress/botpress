@@ -23,9 +23,7 @@
 
       widget.addEventListener('click', function() {
         window.botpressWebChat.sendEvent({
-          type: 'proactive-trigger',
-          channel: 'web',
-          payload: { text: 'fake message' }
+          type: 'proactive-trigger'
         })
       })
     }
