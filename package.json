@@ -147,6 +147,11 @@
     }
   },
   "lint-staged": {
-    "*": "tslintgs"
+    "linters": {
+      "*.{ts,scss,js}": "tslintgs"
+    },
+    "ignore": [
+      "*.styl.d.ts"
+    ]
   }
 }

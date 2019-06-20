@@ -34,16 +34,18 @@ module.exports = function(dataset, kFold) {
     return subset
   })
 
-  return _(nIndexes).map(function(a, i, list) {
-    return {
-      test: sets[i],
-      train: _.chain(list)
-        .without(i)
-        .map(function(iii) {
-          return sets[iii]
-        })
-        .flatten()
-        .value()
-    }
-  })
+  return _(nIndexes)
+    .map(function(a, i, list) {
+      return {
+        test: sets[i],
+        train: _.chain(list)
+          .without(i)
+          .map(function(iii) {
+            return sets[iii]
+          })
+          .flatten()
+          .value()
+      }
+    })
+    .value()
 }

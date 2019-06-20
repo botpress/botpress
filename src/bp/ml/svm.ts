@@ -4,9 +4,9 @@ import _ from 'lodash'
 const binding = require('./svm-js/index.js')
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
-  c: [0.01, 0.125, 0.5, 1, 2],
+  c: [0.1, 1, 2, 5, 10, 20, 100],
   classifier: 'C_SVC',
-  gamma: [0.001, 0.01, 0.5],
+  gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
   kernel: 'LINEAR'
 }
 
@@ -25,7 +25,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       gamma: args.gamma,
       reduce: false,
       probability: true,
-      kFold: 1
+      kFold: 4
     })
   }
 

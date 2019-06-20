@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'
-import kmeans from 'ml-kmeans'
 import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
 import { Model } from '../../typings'
 import { getSentenceFeatures } from '../language/ft_featurizer'
+import { generateNoneUtterances } from '../language/none-generator'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
@@ -16,10 +16,6 @@ import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
 const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
 const debugPredict = debug.sub('predict')
-
-// We might want to compute this as a function of the number of samples in each cluster
-// As this depends on the dataset size and distribution
-const MIN_CLUSTER_SAMPLES = 3
 
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
@@ -83,15 +79,20 @@ export default class SVMClassifier {
       .value()
 
     const intentsWTokens = await Promise.all(
-      intentDefs.map(async intent => ({
-        ...intent,
-        tokens: await Promise.all(
-          (intent.utterances[this.language] || [])
-            .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
-            .filter(x => x.trim().length)
-            .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
-        )
-      }))
+      intentDefs
+        // we're generating none intents automatically from now on
+        // but some existing bots might have the 'none' intent already created
+        // so we exclude it explicitely from the dataset here
+        .filter(x => x.name !== 'none')
+        .map(async intent => ({
+          ...intent,
+          tokens: await Promise.all(
+            (intent.utterances[this.language] || [])
+              .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+              .filter(x => x.trim().length)
+              .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
+          )
+        }))
     )
 
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
@@ -100,6 +101,17 @@ export default class SVMClassifier {
 
     for (const context of allContexts) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
+      const utterances = _.flatten(intents.map(x => x.tokens))
+      const noneUtterances = generateNoneUtterances(utterances, Math.max(5, utterances.length / 2)) // minimum 5 none utterances per context
+      intents.push({
+        contexts: [context],
+        filename: 'none.json',
+        name: 'none',
+        slots: [],
+        tokens: noneUtterances,
+        utterances: { [this.language]: noneUtterances.map(utt => utt.join('')) }
+      })
+
       const l1Points: sdk.MLToolkit.SVM.DataPoint[] = []
 
       for (const { name: intentName, tokens } of intents) {
@@ -115,78 +127,28 @@ export default class SVMClassifier {
             const l1Vec = await getSentenceFeatures(
               this.language,
               utteranceTokens,
-              l1Tfidf[context][intentName],
+              l1Tfidf[context][intentName === 'none' ? '__avg__' : intentName],
               this.languageProvider
             )
 
-            l0Points.push({
-              label: context,
-              coordinates: [...l0Vec, utteranceTokens.length]
-            })
+            if (intentName !== 'none') {
+              // We don't want contexts to fit on l1-specific none intents
+              l0Points.push({
+                label: context,
+                coordinates: [...l0Vec, utteranceTokens.length]
+              })
+            }
 
             l1Points.push({
               label: intentName,
-              coordinates: [...l1Vec, utteranceTokens.length]
-            })
+              coordinates: [...l1Vec, utteranceTokens.length],
+              utterance: utteranceTokens.join(' ')
+            } as any)
           }
         }
       }
 
-      //////////////////////////////
-      // split with k-means here
-      //////////////////////////////
-
-      const data = l1Points.map(x => x.coordinates)
-      const nLabels = _.uniq(l1Points.map(x => x.label)).length
-
-      let bestScore = 0
-      let bestCluster: { [clusterId: number]: { [label: string]: number[][] } } = {}
-
-      // TODO refine this logic here, maybe use a density based clustering or at least cluster step should be a func of our data
-      for (
-        let i = Math.min(Math.floor(nLabels / 6), l1Points.length) || 1;
-        i < Math.max(nLabels, l1Points.length);
-        i += 1
-      ) {
-        const km = kmeans(data, i)
-        const clusters: { [clusterId: number]: { [label: string]: number[][] } } = {}
-
-        l1Points.forEach(pts => {
-          const r = km.nearest([pts.coordinates])[0] as number
-          clusters[r] = clusters[r] || {}
-          clusters[r][pts.label] = clusters[r][pts.label] || []
-          clusters[r][pts.label].push(pts.coordinates)
-        })
-
-        const total = _.sum(_.map(clusters, c => _.max(_.map(c, y => y.length)))) / l1Points.length
-        const score = total / Math.sqrt(i)
-
-        if (score >= bestScore) {
-          bestScore = score
-          bestCluster = clusters
-        }
-      }
-
-      const labelIncCluster: { [label: string]: number } = {}
-
-      for (const pairs of _.values(bestCluster)) {
-        const labels = Object.keys(pairs)
-        for (const label of labels) {
-          const samples = pairs[label]
-          if (samples.length >= MIN_CLUSTER_SAMPLES) {
-            labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
-            const newLabel = label + '__k__' + labelIncCluster[label]
-            l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
-              x.label = newLabel
-            })
-          }
-        }
-      }
-
-      //////////////////////////////
-      //////////////////////////////
-
-      const svm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
+      const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
       await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
       const modelStr = svm.serialize()
 
@@ -251,6 +213,12 @@ export default class SVMClassifier {
     return { l0Tfidf, l1Tfidf }
   }
 
+  // this means that the 3 best predictions are really close, do not change magic numbers
+  private predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]) {
+    const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+    return predictions.length > 2 && bestOf3STD <= 0.03
+  }
+
   public async predict(tokens: string[], includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
     if (!Object.keys(this.l1PredictorsByContextName).length || !this.l0Predictor) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
@@ -285,15 +253,17 @@ export default class SVMClassifier {
           }
 
           const firstBest = preds[0]
-
           if (preds.length === 1) {
             return [{ label: firstBest.label, l0Confidence: l0Conf, context: ctx, confidence: 1 }]
           }
 
+          if (this.predictionsReallyConfused(preds)) {
+            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }] // refine confidence
+          }
+
           const secondBest = preds[1]
-          // because we want a lognormal distribution
-          const std = math.std(preds.map(x => Math.log(x.confidence)))
-          let p1Conf = GetZPercent((Math.log(firstBest.confidence) - Math.log(secondBest.confidence)) / std)
+          const lnstd = math.std(preds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+          let p1Conf = GetZPercent((Math.log(firstBest.confidence) - Math.log(secondBest.confidence)) / lnstd)
 
           if (isNaN(p1Conf)) {
             p1Conf = 0.5
