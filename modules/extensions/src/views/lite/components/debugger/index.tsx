@@ -36,33 +36,26 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
-    this.props.store.view.addHeaderButton({
-      id: 'toggleDev',
-      label: 'Show Debugger',
-      icon: <MdBugReport />,
-      onClick: this.toggleDebugger
-    })
 
+    this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
     window.addEventListener('keydown', this.hotkeyListener)
   }
 
   componentWillUnmount() {
     this.props.store.view.removeHeaderButton('toggleDev')
     window.removeEventListener('keydown', this.hotkeyListener)
+    this.props.store.setMessageWrapper(undefined)
     this.resetWebchat()
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevState.visible && this.state.visible) {
-      this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
-    } else if (prevState.visible && !this.state.visible) {
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.visible && !this.state.visible) {
       this.resetWebchat()
     }
   }
 
   resetWebchat() {
     this.props.store.view.setHighlightedMessages([])
-    this.props.store.setMessageWrapper(undefined)
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
   }
@@ -74,6 +67,8 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   loadEvent = async eventId => {
+    const previousEvent = this.state.event
+
     try {
       const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
       this.setState({ event: data, showEventNotFound: false })
@@ -81,6 +76,11 @@ export class Debugger extends React.Component<Props, State> {
       this.setState({ event: undefined, showEventNotFound: true })
     }
 
+    if (previousEvent && previousEvent.id === eventId && this.state.visible) {
+      this.closeDebugger()
+      return
+    }
+    this.openDebugger()
     this.props.store.view.setHighlightedMessages(eventId)
   }
 
@@ -90,8 +90,21 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   toggleDebugger = () => {
-    this.props.store.view.setContainerWidth(this.state.visible ? WEBCHAT_WIDTH : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH)
-    this.setState({ visible: !this.state.visible })
+    if (this.state.visible) {
+      this.closeDebugger()
+      return
+    }
+    this.openDebugger()
+  }
+
+  closeDebugger = () => {
+    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
+    this.setState({ visible: false })
+  }
+
+  openDebugger = () => {
+    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH + DEV_TOOLS_WIDTH)
+    this.setState({ visible: true })
   }
 
   toggleSettings = e => this.setState({ showSettings: !this.state.showSettings })
