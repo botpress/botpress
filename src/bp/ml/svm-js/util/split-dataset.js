@@ -5,6 +5,7 @@ var _ = require('lodash')
 
 module.exports = function(dataset, k = 5) {
   const kFold = Math.min(dataset.length, k)
+  const n = dataset.length
 
   assert(n >= k, 'kFold parameter must be <= n')
 
@@ -17,7 +18,6 @@ module.exports = function(dataset, k = 5) {
     ]
   }
 
-  const n = dataset.length
   const nIndexes = _.range(kFold)
   const nbExPerGroup = Math.floor(n / kFold)
   const rest = n % kFold
