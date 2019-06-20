@@ -485,7 +485,9 @@ declare module 'botpress/sdk' {
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
       readonly intents: NLU.Intent[]
+      /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
       readonly language: string
+      /** Language detected from users input. */
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
       readonly slots: NLU.SlotCollection
