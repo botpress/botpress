@@ -97,7 +97,10 @@ export class EventCollector {
       .then(async () => {
         await this.runCleanup()
       })
-      .catch(err => this.logger.attachError(err).error(`Couldn't store events to the database`))
+      .catch(err => {
+        this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
+        this.batch.push(...elements)
+      })
       .finally(() => {
         this.currentPromise = undefined
       })
