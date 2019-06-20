@@ -7,6 +7,7 @@ import { MdBugReport } from 'react-icons/md'
 
 import Settings from './settings'
 import style from './style.scss'
+import { loadSettings } from './utils'
 import { Decision } from './views/Decision'
 import { Entities } from './views/Entities'
 import { Flow } from './views/Flow'
@@ -56,6 +57,11 @@ export class Debugger extends React.Component<Props, State> {
     const { collectionInterval } = data
     const maxDelai = ms(collectionInterval as string)
     this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
+
+    const settings = loadSettings()
+    if (settings.autoOpenDebugger) {
+      this.toggleDebugger()
+    }
   }
 
   componentWillUnmount() {
