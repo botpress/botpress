@@ -53,7 +53,8 @@ export class Debugger extends React.Component<Props, State> {
     window.addEventListener('keydown', this.hotkeyListener)
 
     const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
-    const maxDelai = ms(data as string)
+    const { collectionInterval } = data
+    const maxDelai = ms(collectionInterval as string)
     this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
   }
 
@@ -94,7 +95,7 @@ export class Debugger extends React.Component<Props, State> {
         await this.retryLoadEvent(eventId)
       }, RETRY_PERIOD)
     }
-    this.setState({ event, showEventNotFound: !event })
+    this.setState({ event })
     this.props.store.view.setHighlightedMessages(eventId)
   }
 

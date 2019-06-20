@@ -6,7 +6,7 @@ const onServerReady = async (bp: typeof sdk) => {
   const config = (await bp.config.getBotpressConfig()).eventCollector
 
   router.get('/events/update-frequency', async (_req, res) => {
-    res.send(config.collectionInterval)
+    res.send({ collectionInterval: config.collectionInterval })
   })
 
   router.get('/events/:eventId', async (req, res) => {

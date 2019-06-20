@@ -13,7 +13,6 @@ export default () => (
         The requested event was not found. Possible reasons:
         <ul>
           <li>The Event Collector is not enabled in Botpress Config</li>
-          <li>The event was recently logged and will be stored soon (try again shortly)</li>
           <li>The event was pruned from the database </li>
         </ul>
       </p>
