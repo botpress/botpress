@@ -21,7 +21,6 @@ const migration: Migration = {
     database: Database,
     inversify: Container
   ): Promise<sdk.MigrationResult> => {
-    const ghost = inversify.get<GhostService>(TYPES.GhostService)
     const userRepo = inversify.get<StrategyUsersRepository>(TYPES.StrategyUsersRepository)
     const workspaceRepo = inversify.get<WorkspaceUsersRepository>(TYPES.WorkspaceUsersRepository)
 
@@ -29,7 +28,7 @@ const migration: Migration = {
     await strategyTable.createStrategyTable(database.knex, `strategy_default`)
 
     try {
-      const workspaces: any = await ghost.global().readFileAsObject('/', `workspaces.json`)
+      const workspaces: any = await bp.ghost.forGlobal().readFileAsObject('/', `workspaces.json`)
       const users = _.get(workspaces, '[0].users')
 
       if (!_.isArray(users)) {

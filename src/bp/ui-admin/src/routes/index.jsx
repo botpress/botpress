@@ -22,7 +22,6 @@ import Bot from '../Pages/Bot'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 import WorkspacePicker from '../Pages/WorkspacePicker'
-import Details from '../Pages/Confusion/details'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()

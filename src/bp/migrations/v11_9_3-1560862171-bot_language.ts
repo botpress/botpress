@@ -20,8 +20,9 @@ const migration: Migration = {
 
     await Promise.mapSeries(bots.values(), async bot => {
       const updatedConfig: any = {}
-      const workspace = await workspaceService.getBotWorkspaceId(bot.id)
-      const pipeline = await workspaceService.findWorkspace(workspace)
+      const botWorkspace = await workspaceService.getBotWorkspaceId(bot.id)
+      const workspace = await workspaceService.findWorkspace(botWorkspace)
+      const pipeline = workspace && workspace.pipeline
 
       if (!bot.defaultLanguage) {
         bp.logger.warn(
