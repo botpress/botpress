@@ -176,9 +176,11 @@ export default class SVMClassifier {
           if (samples.length >= MIN_CLUSTER_SAMPLES) {
             labelIncCluster[label] = (labelIncCluster[label] || 0) + 1
             const newLabel = label + '__k__' + labelIncCluster[label]
-            l1Points.filter(x => samples.includes(x.coordinates)).forEach(x => {
-              x.label = newLabel
-            })
+            l1Points
+              .filter(x => samples.includes(x.coordinates))
+              .forEach(x => {
+                x.label = newLabel
+              })
           }
         }
       }
