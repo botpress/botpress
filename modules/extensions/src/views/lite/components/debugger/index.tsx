@@ -15,6 +15,7 @@ import { Intents } from './views/Intents'
 import { Slots } from './views/Slots'
 import { Suggestions } from './views/Suggestions'
 import EventNotFound from './EventNotFound'
+import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 
@@ -146,7 +147,7 @@ export class Debugger extends React.Component<Props, State> {
 
   renderWhenNoEvent() {
     if (this.state.fetching) {
-      return <div>fetching...</div>
+      return <FetchingEvent />
     }
     if (this.state.showEventNotFound) {
       return <EventNotFound />
