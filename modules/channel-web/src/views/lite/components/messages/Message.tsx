@@ -73,13 +73,20 @@ class Message extends Component<Renderer.Message> {
       'store'
     ])
 
+    const childIsSessionReset = wrapped.type === 'session_reset'
+    const child = wrapped && (
+      <Message {...sanitizedProps} keyboard={Keyboard} noBubble={!childIsSessionReset} payload={wrapped} />
+    )
+    if (childIsSessionReset) {
+      return child
+    }
+
     const props = {
       ...sanitizedProps,
       ...messageDataProps,
       keyboard: Keyboard,
-      children: wrapped && <Message {...sanitizedProps} keyboard={Keyboard} noBubble={true} payload={wrapped} />
+      children: child
     }
-
     return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
   }
 
@@ -105,6 +112,9 @@ class Message extends Component<Renderer.Message> {
     const rendered = renderer()
     if (rendered === null) {
       return undefined
+    }
+    if (type === 'custom' && rendered.props.payload && rendered.props.payload.type === 'session_reset') {
+      return rendered
     }
 
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
