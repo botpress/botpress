@@ -39,7 +39,7 @@ export class MigrationService {
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
-    this.currentVersion = process.BOTPRESS_VERSION
+    this.currentVersion = process.env.MIGRATION_TEST_VERSION || process.BOTPRESS_VERSION
     this.completedMigrationsDir = path.resolve(process.PROJECT_LOCATION, `data/migrations`)
     mkdirp.sync(this.completedMigrationsDir)
   }
