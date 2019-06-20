@@ -76,6 +76,7 @@ export class IOEvent implements sdk.IO.Event {
     this.nlu = {
       entities: [],
       language: 'n/a',
+      detectedLanguage: 'n/a',
       slots: {},
       intent: { name: 'none', confidence: 1, context: 'global' },
       intents: [],
