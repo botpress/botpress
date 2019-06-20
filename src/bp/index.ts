@@ -194,43 +194,42 @@ try {
       'Launch a local language server',
       {
         port: {
-          description: 'the port to listen to',
+          description: 'The port to listen to',
           default: 3100
         },
         host: {
-          description: 'only allow connections from this host',
+          description: 'Binds the language server to a specific hostname',
           default: 'localhost'
         },
         langDir: {
-          description: 'the directory where the language models reside in'
+          description: 'Directory where language embeddings will be saved'
         },
         authToken: {
-          description: 'require API requests to use this Bearer token'
+          description: 'When defined clients must provide this Bearer token'
         },
         limit: {
-          description: 'the maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
           default: 0
         },
         limitWindow: {
-          description: 'the time window on which the limit is applied',
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
         readOnly: {
-          description: 'disables adding and removing embeddings at run-time',
+          description: 'Read-only prevents adding and removing language embeddings at run-time',
           default: false,
           type: 'boolean'
         },
         metadataLocation: {
-          description: 'location of the available models to download',
+          description: 'URL of metadata file which lists available languages',
           default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
         },
         dim: {
           default: 100,
-          description: '(filter=dim) the dimentions of language to provide. files are named "domain.lang.dim.bin"'
+          description: 'Number of language dimensions provided (25, 100 or 300 at the moment)'
         },
         domain: {
-          description:
-            '(filter=domain) the domain the embeddings were trained on. files are named "domain.lang.dim.bin"',
+          description: 'Name of the domain where those embeddings were trained on.',
           default: 'bp'
         }
       },
