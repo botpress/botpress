@@ -7,7 +7,6 @@ export interface Config {
    * @default #builtin_text
    */
   textRenderer: string
-  qnaMakerApiKey?: string
   /**
    * @default botpress
    */

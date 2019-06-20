@@ -9,7 +9,7 @@ import yn from 'yn'
 import { QnaEntry, QnaItem } from './qna'
 import Storage from './storage'
 import { importQuestions, prepareExport } from './transfer'
-import { QnaDefSchema } from './validation'
+import { QnaDefSchema, QnaItemArraySchema } from './validation'
 
 export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
   const jsonUploadStatuses = {}
@@ -102,7 +102,6 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   const upload = multer()
   router.post('/import', upload.single('json'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
-    const config = await bp.config.getModuleConfigForBot('qna', req.params.botId)
 
     const uploadStatusId = nanoid()
     res.end(uploadStatusId)
@@ -116,8 +115,10 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
 
     try {
-      const questions = JSON.parse(req.file.buffer) as QnaItem[]
-      await importQuestions(questions, storage, config, updateUploadStatus, uploadStatusId)
+      const parsedJson: any = JSON.parse(req.file.buffer)
+      const questions = (await validate(parsedJson, QnaItemArraySchema)) as QnaItem[]
+
+      await importQuestions(questions, storage, updateUploadStatus, uploadStatusId)
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
       bp.logger.attachError(e).error('JSON Import Failure')
