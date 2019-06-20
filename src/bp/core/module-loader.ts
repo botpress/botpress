@@ -250,13 +250,12 @@ export class ModuleLoader {
   }
 
   public getBotTemplates(): BotTemplate[] {
-    const templates = Array.from(this.entryPoints.values())
-      .filter(module => module.botTemplates)
-      .map(module => {
-        return module.botTemplates!.map(template => {
-          return { ...template, moduleId: module.definition.name, moduleName: module.definition.fullName }
-        })
+    const modules = Array.from(this.entryPoints.values())
+    const templates = modules.filter(module => module.botTemplates).map(module => {
+      return module.botTemplates!.map(template => {
+        return { ...template, moduleId: module.definition.name, moduleName: module.definition.fullName }
       })
+    })
 
     return _.flatten(templates)
   }

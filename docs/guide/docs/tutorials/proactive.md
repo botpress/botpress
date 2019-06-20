@@ -173,3 +173,9 @@ if (event.type === 'proactive-trigger') {
   }
 }
 ```
+
+## Live Examples
+
+If you'd like to play around with proactives, we provide a bot and some examples that you can interact with. These examples are probably the best way to learn everything you can do with proactives.
+
+See how to install the Proactive Module [here](https://github.com/botpress/botpress/tree/master/examples/proactive).
