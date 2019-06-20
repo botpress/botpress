@@ -29,15 +29,12 @@ export const validateHash = (password: string, hash: string, salt: string) => {
   }
 }
 
-export const isSuperAdmin = (email: string, config: BotpressConfig): boolean => {
-  return config.superAdmins.includes(email)
-}
-
 export const generateUserToken = (
   email: string,
+  strategy: string,
   isSuperAdmin: boolean,
   expiresIn: string = '6h',
   audience?: string
 ): string => {
-  return jsonwebtoken.sign({ email, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
+  return jsonwebtoken.sign({ email, strategy, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
 }
