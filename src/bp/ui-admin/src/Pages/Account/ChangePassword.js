@@ -24,11 +24,14 @@ export default class ChangePassword extends Component {
     }
 
     try {
-      await this.props.auth.login({
-        email: this.state.email,
-        password: this.state.password,
-        newPassword: this.state.newPassword
-      })
+      await this.props.auth.login(
+        {
+          email: this.state.email,
+          password: this.state.password,
+          newPassword: this.state.newPassword
+        },
+        this.state.loginUrl
+      )
     } catch (err) {
       this.setState({ error: err.message })
     }

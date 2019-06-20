@@ -36,7 +36,7 @@ const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
-export const MIN_NB_UTTERANCES = 3
+const debugLang = debugExtract.sub('lang')
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -52,7 +52,13 @@ export default class ScopedEngine implements Engine {
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
-  private scopedGenerateTrainingSequence: Function
+  private scopedGenerateTrainingSequence: (
+    input: string,
+    lang: string,
+    slotDefinitions: sdk.NLU.SlotDefinition[],
+    intentName: string,
+    contexts: string[]
+  ) => Promise<Sequence>
 
   // move this in a functionnal util file?
   private readonly flatMapIdentityReducer = (a, b) => a.concat(b)
@@ -221,7 +227,8 @@ export default class ScopedEngine implements Engine {
   ): Promise<Sequence[]> =>
     Promise.all(
       (intent.utterances[lang] || []).map(
-        async utterance => await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name)
+        async utterance =>
+          await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
       )
     )
 
@@ -413,7 +420,7 @@ export default class ScopedEngine implements Engine {
     ds.detectedLanguage = lang
 
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      this.logger.debug(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
+      debugLang(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
       lang = this.defaultLanguage
     }
 

@@ -153,10 +153,12 @@ export type Config = {
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
 
 interface Overrides {
-  [componentToOverride: string]: {
-    module: string
-    component: string
-  }
+  [componentToOverride: string]: [
+    {
+      module: string
+      component: string
+    }
+  ]
 }
 
 interface BotDetails {

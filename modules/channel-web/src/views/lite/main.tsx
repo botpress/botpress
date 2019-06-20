@@ -79,8 +79,12 @@ class Web extends React.Component<MainProps> {
   }
 
   loadOverrides(overrides) {
-    for (const override of _values(overrides)) {
-      this.props.bp.loadModuleView(override.module, true)
+    try {
+      for (const override of _values(overrides)) {
+        override.map(({ module }) => this.props.bp.loadModuleView(module, true))
+      }
+    } catch (err) {
+      console.error('Error while loading overrides', err.message)
     }
   }
 

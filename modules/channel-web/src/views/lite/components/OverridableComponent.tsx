@@ -4,65 +4,63 @@ import React from 'react'
 import { RootStore } from '../store'
 import { Overrides } from '../typings'
 
-class CustomComponent extends React.Component<CustomComponentProps, CustomComponentState> {
+class OverridableComponent extends React.Component<Props, State> {
   state = {
-    component: undefined
+    components: undefined
   }
 
   componentDidMount() {
-    this.loadComponent()
+    this.loadComponents()
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.overrides !== this.props.overrides) {
-      this.loadComponent()
+      this.loadComponents()
     }
   }
 
   componentDidCatch(error, info) {
     console.log(`Error in overridable component ${this.props.name}. Loading original component.`, error, info)
-    this.setState({ component: this.props.original })
+    this.setState({ components: [{ key: 'original', element: this.props.original }] })
   }
 
-  loadComponent() {
-    this.setState({
-      component: this.getOverridedComponent(this.props.name) || this.props.original
-    })
+  loadComponents() {
+    this.setState({ components: this.resolveComponents() || [{ key: 'original', element: this.props.original }] })
   }
 
-  getOverridedComponent = (componentName: string) => {
-    const overrides = this.props.overrides
-    if (!overrides || !overrides[componentName]) {
+  resolveComponents = () => {
+    if (!this.props.overrides || !this.props.overrides[this.props.name]) {
       return
     }
 
-    const { module, component } = overrides[componentName]
-    if (module && component) {
-      return window.botpress[module] && window.botpress[module][component]
-    }
+    return this.props.overrides[this.props.name]
+      .map(({ module, component }) => ({
+        key: `${module}:${component}`,
+        element: window.botpress[module] && window.botpress[module][component]
+      }))
+      .filter(x => x.element)
   }
 
   render() {
-    if (!this.state.component) {
-      return null
-    }
+    const { components } = this.state
 
-    const Component = this.state.component
-    return <Component {...this.props} />
+    return components
+      ? components.map(({ element: Element, key }) => Element && <Element key={key} {...this.props} />)
+      : null
   }
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
   store,
   overrides: store.config.overrides
-}))(CustomComponent)
+}))(OverridableComponent)
 
-interface CustomComponentProps {
+interface Props {
   name: string
   overrides?: Overrides
   original?: any
 }
 
-interface CustomComponentState {
-  component: JSX.Element
+interface State {
+  components: any
 }

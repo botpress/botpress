@@ -22,6 +22,7 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { AlertingService } from './services/alerting-service'
+import AuthService from './services/auth/auth-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
@@ -90,6 +91,7 @@ export class Botpress {
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService
   ) {
     this.version = '12.0.1'
@@ -155,12 +157,27 @@ export class Botpress {
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
-    const nStage = (await this.workspaceService.getPipeline()).length
-    if (!process.IS_PRO_ENABLED && nStage > 1) {
-      throw new Error(
-        'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
-      )
+
+    if (!process.IS_PRO_ENABLED) {
+      const workspaces = await this.workspaceService.getWorkspaces()
+      if (workspaces.length > 1) {
+        throw new Error(
+          'You have more than one workspace. To create unlimited workspaces, please upgrade to Botpress Pro.'
+        )
+      }
+
+      if (workspaces.length) {
+        for (const workspace of workspaces) {
+          const pipeline = await this.workspaceService.getPipeline(workspace.id)
+          if (pipeline && pipeline.length > 1) {
+            throw new Error(
+              'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
+            )
+          }
+        }
+      }
     }
+
     const bots = await this.botService.getBots()
     bots.forEach(bot => {
       if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
@@ -229,18 +246,19 @@ export class Botpress {
     }
 
     const bots = await this.botService.getBots()
-    const pipeline = await this.workspaceService.getPipeline()
-    if (pipeline.length > 4) {
-      this.logger.warn('It seems like you have more than 4 stages in your pipeline, consider to join stages together.')
+
+    for (const workspace of await this.workspaceService.getWorkspaces()) {
+      const pipeline = await this.workspaceService.getPipeline(workspace.id)
+      if (pipeline && pipeline.length > 4) {
+        this.logger.warn(
+          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${
+            workspace.id
+          })`
+        )
+      }
     }
 
-    const disabledBots = [...bots.values()]
-      .filter(b => {
-        const isStage0 = b.pipeline_status.current_stage.id === pipeline[0].id
-        const stageExist = pipeline.findIndex(s => s.id === b.pipeline_status.current_stage.id) !== -1
-        return b.disabled || ((!process.IS_PRO_ENABLED && !isStage0) || !stageExist)
-      })
-      .map(b => b.id)
+    const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
@@ -258,9 +276,10 @@ export class Botpress {
 
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
+    await this.authService.initialize()
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
-    await this.eventCollector.initialize(this.config!, this.database)
+    await this.eventCollector.initialize(this.database)
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)

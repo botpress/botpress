@@ -1,4 +1,4 @@
-import { Button, ProgressBar } from '@blueprintjs/core'
+import { Button, ProgressBar, Tooltip, Position } from '@blueprintjs/core'
 import React, { FC, SFC, useState } from 'react'
 
 import { getLanguageSourceClient } from './api'
@@ -18,9 +18,24 @@ interface Props {
   downloadProgress?: any
 }
 
+const units = ['bytes', 'Kb', 'Mb', 'Gb', 'Tb']
+function bytesToFormatedString(bytes: number): string {
+  const power = Math.log2(bytes)
+  const unitNumber = Math.min(Math.floor(power / 10), 4)
+  const mantisse = bytes / Math.pow(2, unitNumber * 10)
+  return `${mantisse.toFixed(0)} ${units[unitNumber]}`
+}
+
 const DownloadProgress: SFC<{ current: number; total: number }> = props => {
   const value = props.current / props.total
-  return <ProgressBar value={value} />
+  const formatedLoadingState = `${bytesToFormatedString(props.current)} / ${bytesToFormatedString(props.total)}`
+  return (
+    <Tooltip content={formatedLoadingState} position={Position.TOP}>
+      <div style={{ width: '250px' }}>
+        <ProgressBar value={value} />
+      </div>
+    </Tooltip>
+  )
 }
 
 const Language: FC<Props> = props => {

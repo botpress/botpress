@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
-import { AuthUser } from 'core/misc/interfaces'
 import { printObject } from 'core/misc/print'
+import { StrategyUser } from 'core/repositories/strategy_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -100,7 +100,7 @@ export namespace Hooks {
     constructor(
       bp: typeof sdk,
       bot: sdk.BotConfig,
-      users: Partial<AuthUser[]>,
+      users: Partial<StrategyUser[]>,
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
@@ -113,7 +113,7 @@ export namespace Hooks {
       bp: typeof sdk,
       previousBotConfig: sdk.BotConfig,
       bot: sdk.BotConfig,
-      users: Partial<AuthUser[]>,
+      users: Partial<StrategyUser[]>,
       pipeline: sdk.Pipeline
     ) {
       super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })

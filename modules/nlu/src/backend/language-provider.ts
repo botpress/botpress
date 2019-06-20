@@ -2,11 +2,13 @@ import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import lru from 'lru-cache'
 import moment from 'moment'
+import ms from 'ms'
 
 import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
-const maxAgeCacheInMS = 86400000
+
+const maxAgeCacheInMS = ms('1d')
 
 export class RemoteLanguageProvider implements LanguageProvider {
   private _vectorsCache
@@ -123,7 +125,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return []
     }
 
-    const cacheKey = `${lang}_${encodeURIComponent(text)}`
+    const cacheKey = `${lang}_${encodeURI(text)}`
 
     if (this._tokensCache.has(cacheKey)) {
       return this._tokensCache.get(cacheKey)

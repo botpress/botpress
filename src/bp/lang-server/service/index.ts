@@ -5,13 +5,13 @@ import _ from 'lodash'
 import lru from 'lru-cache'
 import path from 'path'
 import { VError } from 'verror'
+import ms from 'ms'
 
 import toolkit from '../../ml/toolkit'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
-// This equals to 24H
-const maxAgeCacheInMS = 86400000
+const maxAgeCacheInMS = ms('24h')
 
 // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
 const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
