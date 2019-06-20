@@ -22,6 +22,7 @@ export type APIOptions = {
 const debug = DEBUG('api')
 const debugAuth = debug.sub('auth')
 const debugRequest = debug.sub('request')
+const cachePolicy = { 'Cache-Control': `max-age=${ms('1d')}` }
 
 const authMiddleware: (token: string) => RequestHandler = (token: string) => (req, _res, next) => {
   const header = (req.header('authorization') || '').trim()
@@ -160,7 +161,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
       const tokens = await languageService.tokenize(input, language)
 
-      res.set('Cache-Control', 'public, max-age=86400').json({ input, language, tokens })
+      res.set(cachePolicy).json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
@@ -176,7 +177,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
       }
 
       const result = await languageService.vectorize(tokens, lang)
-      res.set('Cache-Control', 'public, max-age=86400').json({ language: lang, vectors: result })
+      res.set(cachePolicy).json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
     }
