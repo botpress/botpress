@@ -30,6 +30,7 @@ export type APIOptions = {
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
+const cachePolicy = { 'Cache-Control': `max-age=${ms('1d')}` }
 
 const createExpressApp = (options: APIOptions): Application => {
   const app = express()
@@ -98,7 +99,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
       const tokens = await languageService.tokenize(input, language)
 
-      res.json({ input, language, tokens })
+      res.set(cachePolicy).json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
@@ -114,13 +115,14 @@ export default async function(options: APIOptions, languageService: LanguageServ
       }
 
       const result = await languageService.vectorize(tokens, lang)
-      res.json({ language: lang, vectors: result })
+      res.set(cachePolicy).json({ language: lang, vectors: result })
     } catch (err) {
       next(err)
     }
   })
 
   const router = express.Router({ mergeParams: true })
+
   router.get('/', (req, res) => {
     const downloading = downloadManager.inProgress.map(x => ({
       lang: x.lang,
