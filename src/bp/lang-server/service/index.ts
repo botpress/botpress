@@ -54,6 +54,11 @@ export default class LanguageService {
         ...this._getModels(),
         ...this._models
       }
+    } else {
+      const { bpeModel, fastTextModel } = this._models[lang]
+      if (bpeModel && bpeModel.loaded && fastTextModel && fastTextModel.loaded) {
+        return
+      }
     }
 
     await this._loadModels(lang)
