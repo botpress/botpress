@@ -40,7 +40,7 @@ const MessageGroup = (props: MessageGroupProps) => {
               payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
             }
 
-            if (props.messageWrapper) {
+            if (props.messageWrapper && payload.type !== 'session_reset') {
               payload = {
                 type: 'custom',
                 module: props.messageWrapper.module,
