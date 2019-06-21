@@ -1,23 +1,24 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BIO } from '../../typings'
+import { BIO, LanguageProvider } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
 
 const AN_ENTITY = 'person'
 const OTHER_ENTITY = 'animal'
 
-const languageProvider = {
-  vectorize: function(tokens: string[], lang: string): Promise<number[][]> {
-    const vectors = [[1, 2, 3]]
+const languageProvider: LanguageProvider = {
+  vectorize: function(tokens: string[], lang: string): Promise<Float32Array[]> {
+    const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
   tokenize: function(text: string, lang: string): Promise<string[]> {
-    //This is a white space tokenizer only working for tests written in english
+    // This is a white space tokenizer only working for tests written in english
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
-  }
+  },
+  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]) // Not implemented
 }
 
 const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)

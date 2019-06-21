@@ -109,8 +109,9 @@ export interface LangsGateway {
 }
 
 export interface LanguageProvider {
-  vectorize(tokens: string[], lang: string): Promise<number[][]>
+  vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(text: string, lang: string): Promise<string[]>
+  generateSimilarJunkWords(subsetVocab: string[]): Promise<string[]>
 }
 
 export interface FastTextOverrides {

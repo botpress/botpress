@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 /** Splits a string in all its N-grams */
 export function ngram(value: string, n: number): string[] {
   const nGrams: string[] = []
@@ -8,6 +10,28 @@ export function ngram(value: string, n: number): string[] {
   }
 
   return nGrams
+}
+
+export function vocabNGram(tokens: string[]): string[] {
+  const plainTokens = tokens
+    .map(x => x.replace('_', '\u2581')) // We want to discover real language-specific chars
+    .filter(x => x.length > 1) // We want to exclude tokens that represent ponctuation etc (tokenizers will often split them alone)
+
+  // We build a gramset, which is essentially a list of all the unique bigrams and trigrams
+  // We'll create entirely new words from those grams
+  const gramset = _.chain(plainTokens)
+    .map(x => [ngram(x, 1), ngram(x, 2)])
+    .flattenDeep()
+    .uniq()
+    .value()
+
+  return (gramset as never) as string[]
+}
+
+/** Returns the similarity of two sets of strings in percentage */
+export function setSimilarity(a: string[], b: string[]): number {
+  const common = _.intersection(a, b).length
+  return common / (a.length + b.length - common)
 }
 
 /**

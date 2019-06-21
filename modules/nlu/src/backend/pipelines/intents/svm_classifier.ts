@@ -4,11 +4,9 @@ import math from 'mathjs'
 import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
-
 import { getProgressPayload, identityProgress } from '../../tools/progress'
 import { Model, Token2Vec } from '../../typings'
 import { enrichToken2Vec, getSentenceFeatures } from '../language/ft_featurizer'
-import { generateNoneUtterances } from '../language/none-generator'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
@@ -68,6 +66,7 @@ export default class SVMClassifier {
     this.l0Tfidf = l0Tfidf
     this.l1Tfidf = l1Tfidf
     this.token2vec = token2vec
+
     Object.freeze(this.token2vec)
 
     if (_.uniqBy(l1Models, x => x.meta.context).length !== l1Models.length) {
@@ -128,7 +127,11 @@ export default class SVMClassifier {
     for (const [index, context] of Object.entries(allContexts)) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
       const utterances = _.flatten(intents.map(x => x.tokens))
-      const noneUtterances = generateNoneUtterances(utterances, Math.max(5, utterances.length / 2)) // minimum 5 none utterances per context
+
+      // Generate 'none' utterances for this context
+      const junkWords = await this.languageProvider.generateSimilarJunkWords(_.flatten(utterances))
+      const nbOfNoneUtterances = Math.max(5, utterances.length / 2) // minimum 5 none utterances per context
+      const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => _.sampleSize(junkWords))
       intents.push({
         contexts: [context],
         filename: 'none.json',

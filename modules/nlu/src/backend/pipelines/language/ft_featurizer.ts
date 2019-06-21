@@ -25,7 +25,7 @@ export const enrichToken2Vec = async (
 
   _.zip(doc, vecs).forEach(([token, vec]) => {
     if (!token2vec[token]) {
-      token2vec[token] = vec
+      token2vec[token] = Array.from(vec.values())
     }
   })
 }
@@ -43,7 +43,9 @@ export const getSentenceFeatures = async ({
   token2vec: Token2Vec
   langProvider: LanguageProvider
 }): Promise<number[]> => {
-  const vecs = await langProvider.vectorize(doc, lang)
+  const vecs = (await langProvider.vectorize(doc, lang)).map(x => {
+    return Array.from(x.values())
+  })
 
   debug(`get for '${lang}'`, { doc, got: vecs.map(x => x.length) })
 
