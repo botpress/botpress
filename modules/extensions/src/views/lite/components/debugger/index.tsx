@@ -53,7 +53,7 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
-      label: 'debug message',
+      label: 'Inspect in Debugger',
       onClick: this.handleSelect
     })
 
