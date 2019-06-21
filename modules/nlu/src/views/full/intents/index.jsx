@@ -22,7 +22,7 @@ export class IntentsComponent extends React.Component {
       const dataToSet = { intents: res.data.filter(x => !x.name.startsWith('__qna__')) }
 
       if (!this.state.currentIntent) {
-        dataToSet.currentIntent = _.get(_.first(res.data), 'name')
+        dataToSet.currentIntent = _.get(_.first(dataToSet.intents), 'name')
       }
 
       this.setState(dataToSet)
