@@ -16,6 +16,7 @@ import {
   disabledReadonlyMiddleware,
   handleErrorLogging,
   handleUnexpectedError,
+  RequestWithLang,
   serviceLoadingMiddleware
 } from './util'
 
@@ -88,10 +89,10 @@ export default async function(options: APIOptions, languageService: LanguageServ
     })
   })
 
-  app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
+  app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
       const input = req.body.input
-      const language = req.body.lang
+      const language = req.language!
 
       if (!input || !_.isString(input)) {
         throw new BadRequestError('Param `input` is mandatory (must be a string)')
@@ -105,10 +106,10 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req, res, next) => {
+  app.post('/vectorize', waitForServiceMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
       const tokens = req.body.tokens
-      const lang = req.body.lang
+      const lang = req.language!
 
       if (!tokens || !tokens.length || !_.isArray(tokens)) {
         throw new BadRequestError('Param `tokens` is mandatory (must be an array of strings)')
@@ -150,25 +151,14 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.delete('/:lang', readOnlyMw, async (req, res) => {
-    const { lang } = req.params
-    if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
-      throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
-    }
-
-    await languageService.remove(lang)
-    res.end()
+  router.delete('/:lang', readOnlyMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
+    await languageService.remove(req.language!)
+    res.sendStatus(200)
   })
 
-  router.post('/:lang/load', readOnlyMw, async (req, res) => {
-    const { lang } = req.params
-
-    if (!lang || !languageService.getModels().find(x => x.lang === lang)) {
-      throw new BadRequestError('Parameter `lang` is mandatory and must be part of the available languages')
-    }
-
+  router.post('/:lang/load', readOnlyMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
-      await languageService.loadModel(lang)
+      await languageService.loadModel(req.language!)
       res.sendStatus(200)
     } catch (err) {
       res.status(500).send({ success: false, message: err.message })

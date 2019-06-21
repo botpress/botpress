@@ -31,11 +31,12 @@ export class WebBotpressUIInjection extends React.Component {
             {
               module: 'extensions',
               component: 'Debugger'
-            },
+            }
+            /* Disabled for now until we get a proper UX with that
             {
               module: 'testing',
               component: 'ScenarioBuilder'
-            }
+            }*/
           ]
         }
       })
