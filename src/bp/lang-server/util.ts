@@ -1,4 +1,5 @@
 import { BadRequestError, NotReadyError, UnauthorizedError } from 'core/routers/errors'
+import { Request } from 'express'
 import _ from 'lodash'
 
 import LanguageService from './service'
@@ -39,21 +40,22 @@ export const serviceLoadingMiddleware = (service: LanguageService) => (_req, _re
 }
 
 export const assertValidLanguage = (service: LanguageService) => (req, _res, next) => {
-  const language = req.body.lang
+  const language = req.body.lang || req.params.lang
 
   if (!language) {
-    throw new BadRequestError(`Param 'lang' is mandatory`)
+    return next(new BadRequestError(`Param 'lang' is mandatory`))
   }
 
   if (!_.isString(language)) {
-    throw new BadRequestError(`Param 'lang': ${language} must be a string`)
+    return next(new BadRequestError(`Param 'lang': ${language} must be a string`))
   }
 
   const availableLanguages = service.getModels().map(x => x.lang)
   if (!availableLanguages.includes(language)) {
-    throw new BadRequestError(`Param 'lang': ${language} is not element of the available languages`)
+    return next(new BadRequestError(`Param 'lang': ${language} is not element of the available languages`))
   }
 
+  req.language = language
   next()
 }
 
@@ -84,4 +86,8 @@ export const handleErrorLogging = (err, req, res, next) => {
   }
 
   next(err)
+}
+
+export type RequestWithLang = Request & {
+  language?: string
 }
