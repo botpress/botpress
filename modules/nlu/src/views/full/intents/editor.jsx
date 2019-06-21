@@ -10,6 +10,7 @@ import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
 import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
 import IntentHint from './IntentHint'
+import { SplashScreen } from 'botpress/ui'
 
 const NLU_TABIDX = 3745
 
@@ -193,9 +194,11 @@ export default class IntentsEditor extends React.Component {
 
   renderNone() {
     return (
-      <div>
-        <h1>No intent selected</h1>
-      </div>
+      <SplashScreen
+        icon={<Icon iconSize={80} icon="translate" />}
+        title="Natual language understanding"
+        description="Start by adding intents"
+      />
     )
   }
 
