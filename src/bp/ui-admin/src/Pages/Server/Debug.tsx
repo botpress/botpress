@@ -1,26 +1,32 @@
+import { Button, Intent } from '@blueprintjs/core'
 import React from 'react'
-import { Container, Button, Alert } from 'reactstrap'
 import CheckboxTree from 'react-checkbox-tree'
+import 'react-checkbox-tree/lib/react-checkbox-tree.css'
 import {
   FaCheckSquare,
-  FaSquare,
-  FaChevronRight,
   FaChevronDown,
-  FaPlusSquare,
-  FaMinusSquare,
+  FaChevronRight,
+  FaFile,
   FaFolder,
   FaFolderOpen,
-  FaFile
+  FaMinusSquare,
+  FaPlusSquare,
+  FaSquare
 } from 'react-icons/fa'
-import { MdRefresh, MdSave } from 'react-icons/md'
-import 'react-checkbox-tree/lib/react-checkbox-tree.css'
+
 import api from '../../api'
+import { AppToaster } from '../../utils/toaster'
+import SectionLayout from '../Layouts/Section'
 
-export default class Debug extends React.Component {
-  state = { nodes: undefined, checked: [], expanded: ['bp'] }
+export default class Debug extends React.Component<Props, State> {
+  state = {
+    nodes: undefined,
+    checked: [],
+    expanded: ['bp']
+  }
 
-  componentDidMount() {
-    this.loadConfiguration()
+  async componentDidMount() {
+    await this.loadConfiguration()
   }
 
   loadConfiguration = async () => {
@@ -34,10 +40,10 @@ export default class Debug extends React.Component {
     this.setState({ nodes: rootNode.children, checked: Object.keys(data).filter(x => data[x]) })
   }
 
-  buildNodeRecursive(node, path, index) {
+  buildNodeRecursive(node: any, path: string[], index: number) {
     if (index < path.length) {
-      let item = path[index]
-      let directory = node.children.find(child => child.label === item)
+      const item = path[index]
+      let directory = node.children.find((child: any) => child.label === item)
       if (!directory) {
         directory = { label: item, value: path.slice(0, index + 1).join(':'), children: [] }
         node.children.push(directory)
@@ -50,11 +56,7 @@ export default class Debug extends React.Component {
     const debugScope = this.state.checked && this.state.checked.join(',')
     await api.getSecured().post(`/admin/server/debug`, { debugScope })
 
-    this.setState({ successMsg: `Debug scope updated successfully` })
-
-    window.setTimeout(() => {
-      this.setState({ successMsg: undefined })
-    }, 2000)
+    AppToaster.show({ message: 'Debug configuration updated successfully!', intent: Intent.SUCCESS, timeout: 2000 })
   }
 
   renderTree() {
@@ -64,7 +66,7 @@ export default class Debug extends React.Component {
 
     return (
       <CheckboxTree
-        nodes={this.state.nodes}
+        nodes={this.state.nodes || []}
         checked={this.state.checked}
         expanded={this.state.expanded}
         onCheck={checked => this.setState({ checked })}
@@ -86,21 +88,33 @@ export default class Debug extends React.Component {
     )
   }
 
-  render() {
+  renderSide() {
     return (
-      <Container style={{ marginTop: 50, border: '1px solid #dfdfdf', padding: 20 }}>
-        {this.state.successMsg && <Alert type="success">{this.state.successMsg}</Alert>}
-        <h3>
-          Debugging{' '}
-          <Button size="sm" onClick={this.loadConfiguration}>
-            <MdRefresh />
-          </Button>
-        </h3>
-        <div style={{ padding: 20 }}>{this.renderTree()}</div>
-        <Button color="primary" onClick={this.saveConfiguration}>
-          Save <MdSave />
-        </Button>
-      </Container>
+      <div>
+        <Button onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
+        <br />
+        <Button onClick={this.saveConfiguration} intent={Intent.PRIMARY} fill={true} icon="floppy-disk" text="Save" />
+      </div>
     )
   }
+
+  render() {
+    return (
+      <SectionLayout
+        title={`Configure Debug`}
+        helpText="This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing"
+        activePage="bots"
+        mainContent={this.renderTree()}
+        sideMenu={this.renderSide()}
+      />
+    )
+  }
+}
+
+interface Props {}
+
+interface State {
+  nodes: any
+  checked: any
+  expanded: any
 }
