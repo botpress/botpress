@@ -5,11 +5,13 @@ import React from 'react'
 import { EditableFile } from '../../backend/typings'
 
 import style from './style.scss'
+import { calculateHash } from './utils/crypto'
 import { wrapper } from './utils/wrapper'
 
 export default class Editor extends React.Component<Props> {
   private editor
   private editorContainer
+  private _fileOriginalHash: string
 
   async componentDidMount() {
     this.setupEditor()
@@ -66,6 +68,7 @@ export default class Editor extends React.Component<Props> {
     }
 
     const fileContent = noWrapper ? content : wrapper.add(content, type, hookType)
+    this._fileOriginalHash = calculateHash(fileContent)
     const model = monaco.editor.createModel(fileContent, 'typescript', uri)
 
     this.editor && this.editor.setModel(model)
@@ -83,8 +86,9 @@ export default class Editor extends React.Component<Props> {
   }
 
   handleContentChanged = () => {
+    const hasChanges = this._fileOriginalHash !== calculateHash(this.editor.getValue())
     const content = wrapper.remove(this.editor.getValue())
-    this.props.onContentChanged && this.props.onContentChanged(content)
+    this.props.onContentChanged && this.props.onContentChanged(content, hasChanges)
   }
 
   handleDecorationChanged = () => {
@@ -114,7 +118,7 @@ export default class Editor extends React.Component<Props> {
 }
 
 interface Props {
-  onContentChanged: (code: string) => void
+  onContentChanged: (code: string, hasChanges: boolean) => void
   onDiscardChanges: () => void
   onCreateNewClicked: (type: string) => void
   onProblemsChanged: (markers: monaco.editor.IMarker[]) => void
