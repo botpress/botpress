@@ -52,8 +52,8 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
-      text: 'debug message',
-      select: this.handleSelect
+      label: 'debug message',
+      onClick: this.handleSelect
     })
 
     window.addEventListener('keydown', this.hotkeyListener)

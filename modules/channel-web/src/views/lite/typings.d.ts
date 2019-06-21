@@ -250,10 +250,10 @@ interface CustomButton {
 interface CustomAction {
   /** An ID to identify your action. It is required to remove it */
   id: string
-  /** Text rendered in the context menu */
-  text: string
-  /** Handler called when clicking the action in the context menu */
-  select: (eventId: string) => void
+  /** This text will be displayed in the context menu */
+  label: string
+  /** The event triggered when the action is clicked */
+  onClick: (eventId: string, actionId: string, event: React.MouseEvent) => void
 }
 
 /** When set, this will wrap every messages displayed in the webchat */

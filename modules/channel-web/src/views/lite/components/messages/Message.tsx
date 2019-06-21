@@ -102,9 +102,7 @@ class Message extends Component<Renderer.Message> {
   handleContextMenu = e => {
     const showContextMenu = window.botpress.extensions && window.botpress.extensions.showContextMenu
     if (showContextMenu) {
-      const customActions = this.props.store.view.customActions
-      const id = this.props.incomingEventId
-      showContextMenu(e, { id, customActions })
+      showContextMenu(e, this.props)
     }
   }
 
