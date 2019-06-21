@@ -127,7 +127,6 @@ export interface LanguageSource {
 
 export interface NLUHealth {
   isEnabled: boolean
-  isDucklingEnabled: boolean
   validProvidersCount: number
   validLanguages: string[]
 }

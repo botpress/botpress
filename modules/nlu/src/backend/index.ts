@@ -34,7 +34,6 @@ const onServerStarted = async (bp: typeof sdk) => {
 
   nluHealth = {
     isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-    isDucklingEnabled: DucklingEntityExtractor.enabled,
     validProvidersCount,
     validLanguages
   } as NLUHealth
