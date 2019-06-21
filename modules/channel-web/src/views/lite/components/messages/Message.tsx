@@ -101,7 +101,7 @@ class Message extends Component<Renderer.Message> {
   }
 
   render() {
-    const type = this.props.type || (this.props.payload && this.props.payload.type)
+    const type = this.props.payload && this.props.type || (this.props.payload && this.props.payload.type)
     const wrappedType = this.props.payload.wrapped && this.props.payload.wrapped.type
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
     const wrappedClass = `bpw-bubble-${wrappedType}`
