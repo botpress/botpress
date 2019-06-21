@@ -1,4 +1,6 @@
 import _ from 'lodash'
+import { promises } from 'fs'
+import { stringify } from 'querystring'
 
 export type RecordCallback = (expected: string, actual: string) => void
 
@@ -40,7 +42,7 @@ export interface SuiteResult {
 export type Result = { [suite: string]: { [cls: string]: SuiteResult } }
 
 export class FiveFolder<T> {
-  constructor(private readonly dataset: T[]) {}
+  constructor(private readonly dataset: T[][]) {}
 
   results: { [suite: string]: F1 } = {}
 
@@ -58,14 +60,22 @@ export class FiveFolder<T> {
       confusions: new Proxy({}, MapProxy)
     }
 
-    const shuffled = _.shuffle(this.dataset)
-    const chunks = _.chunk(shuffled, Math.ceil(shuffled.length / this.N))
+    const trainingPromises = _.chain(this.dataset)
+      .map(intentUtterances => _.shuffle(intentUtterances))
+      .map(intentUtterances => _.chunk(intentUtterances, Math.ceil(intentUtterances.length / this.N)))
+      .map(chunckedUtterances => _.shuffle(chunckedUtterances))
+      .zip()
+      .flatten()
+      .unzip()
+      .value()
+      .map(fold => fold.reduce((a, b) => a.concat(b), []))
+      .map(async (testSet, index, arr) => {
+        const trainSet = _.flatten([...arr.slice(0, index), ...arr.slice(index + 1, arr.length)])
+        await trainFn([...trainSet])
+        await evaluateFn([...trainSet], [...testSet], this._record(suiteName))
+      })
 
-    await Promise.mapSeries(chunks, async testSet => {
-      const trainSet = _.flatten(chunks.filter(c => c !== testSet))
-      await trainFn([...trainSet])
-      await evaluateFn([...trainSet], [...testSet], this._record(suiteName))
-    })
+    await Promise.all(trainingPromises)
   }
 
   _record = suiteName => (expected: string, actual: string) => {
