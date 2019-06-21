@@ -1,6 +1,7 @@
 import _ from 'lodash'
 
-import { computeNorm, levenshtein, ndistance, scalarDivide, vectorAdd } from '../../tools/math'
+import { computeNorm, ndistance, scalarDivide, vectorAdd } from '../../tools/math'
+import { levenshtein } from '../../tools/strings'
 import { LanguageProvider, Token2Vec } from '../../typings'
 
 const debug = DEBUG('nlu')

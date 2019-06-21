@@ -1,6 +1,8 @@
 import _ from 'lodash'
 
-import { generateNoneUtterances, ngram } from './none-generator'
+import { ngram } from '../../tools/strings'
+
+import { generateNoneUtterances } from './none-generator'
 
 const tokens = [['▁he', 'llo', '▁what', '▁is', '▁your', '▁name', '▁?']]
 

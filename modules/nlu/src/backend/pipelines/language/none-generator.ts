@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+import { ngram } from '../../tools/strings'
+
 export const SEPARATOR_CHAR = ''
 
 // Example input: [ [ 'he', 'llo', 'what', 'is', 'your', 'name', '?' ] ]
@@ -32,15 +34,4 @@ export function generateNoneUtterances(utterances: string[][], count: number): s
       x => SEPARATOR_CHAR + x // Add token separator at the begining of each word
     )
   })
-}
-
-export function ngram(value: string, n: number) {
-  const nGrams: string[] = []
-  let index = value.length - n + 1
-
-  while (index--) {
-    nGrams.push(value.slice(index, index + n))
-  }
-
-  return nGrams
 }
