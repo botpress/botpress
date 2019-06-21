@@ -9,7 +9,7 @@ import style from './style.scss'
 import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
 import classnames from 'classnames'
-import { BotpressTooltip } from 'botpress/tooltip'
+import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
 
 const NLU_TABIDX = 3745
 
@@ -260,11 +260,11 @@ export default class IntentsEditor extends React.Component {
           </div>
         </div>
         <div className={classnames('pull-left', style.selectContext)}>
-          <div>
-            <label for="selectContext">Current contexts</label>
-            &nbsp;
-            <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot." />
-          </div>
+          <label for="selectContext">Current contexts</label>
+          &nbsp;
+          <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
+            <Icon color={Colors.GRAY2} icon="info-sign" />
+          </Tooltip>
           <Creatable
             id="selectContext"
             isMulti
@@ -279,7 +279,7 @@ export default class IntentsEditor extends React.Component {
           />
         </div>
         <div>
-          <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
+          <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>
             {this.renderEditor()}
             <div className={style.entitiesPanel}>
               <Slots

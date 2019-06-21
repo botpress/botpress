@@ -1,39 +1,20 @@
 import React from 'react'
-import { Button, Glyphicon, ListGroup, ListGroupItem, FormGroup, InputGroup, FormControl } from 'react-bootstrap'
+import { Container } from 'botpress/ui'
 import _ from 'lodash'
 
 import IntentEditor from './editor'
-import style from '../style.scss'
+import NLUSidePanel from './SidePanel'
 
 export class IntentsComponent extends React.Component {
   state = {
     showNavIntents: true,
     intents: [],
-    currentIntent: null,
-    filterValue: ''
+    currentIntent: null
   }
 
   componentDidMount() {
     this.fetchIntents()
     this.fetchContexts()
-    this.checkForIntentSearch()
-  }
-
-  // Deprecated, will be fixed when we fix the whole NLU UI
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.intent !== this.props.intent) {
-      this.initiateStateFromProps(nextProps)
-    }
-  }
-
-  checkForIntentSearch() {
-    const { hash } = window.location
-    const searchCmd = '#search:'
-
-    if (hash && hash.includes(searchCmd)) {
-      const intent = hash.replace(searchCmd, '')
-      this.setState({ filterValue: intent, currentIntent: intent })
-    }
   }
 
   fetchIntents = () => {
@@ -54,15 +35,9 @@ export class IntentsComponent extends React.Component {
     })
   }
 
-  toggleProp = prop => () => {
-    this.setState({ [prop]: !this.state[prop] })
-  }
-
   getIntents = () => this.state.intents || []
 
   getCurrentIntent = () => _.find(this.getIntents(), { name: this.state.currentIntent })
-
-  onFilterChanged = event => this.setState({ filterValue: event.target.value })
 
   setCurrentIntent = name => {
     if (this.state.currentIntent !== name) {
@@ -93,17 +68,7 @@ export class IntentsComponent extends React.Component {
     await this.setCurrentIntent(name)
   }
 
-  getFilteredIntents() {
-    return this.getIntents().filter(i => {
-      if (this.state.filterValue.length && !i.name.toLowerCase().includes(this.state.filterValue.toLowerCase())) {
-        return false
-      }
-      return true
-    })
-  }
-
-  deleteIntent = (intent, event) => {
-    event.stopPropagation()
+  deleteIntent = intent => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intent}" ?`)
     if (confirmDelete) {
       return this.props.bp.axios.delete(`/mod/nlu/intents/${intent}`).then(() => {
@@ -112,72 +77,26 @@ export class IntentsComponent extends React.Component {
     }
   }
 
-  renderCategory() {
-    const intents = this.getFilteredIntents()
-
-    return (
-      <div className={style.intentsContainer}>
-        <ListGroup>
-          {intents.map((el, i) => (
-            <ListGroupItem key={`nlu_entity_${el.name}`} className={style.entity}>
-              <div onClick={() => this.setCurrentIntent(el.name)} className={style.entityText}>
-                {el.name}
-                &nbsp;(
-                {_.get(el, `utterances.${this.props.contentLang}.length`, 0)})
-              </div>
-              <a onClick={this.deleteIntent.bind(this, el.name)}>
-                <Glyphicon glyph="trash" className={style.deleteEntity} />
-              </a>
-            </ListGroupItem>
-          ))}
-        </ListGroup>
-      </div>
-    )
-  }
-
   render() {
     return (
-      <div className={style.workspace}>
-        <div>
-          <div className={style.main}>
-            <nav className={style.navigationBar}>
-              <div className={style.create}>
-                <Button bsStyle="primary" block onClick={this.createNewIntent}>
-                  Create new intent
-                </Button>
-              </div>
-
-              <div className={style.filter}>
-                <FormGroup bsSize="small">
-                  <InputGroup>
-                    <FormControl
-                      value={this.state.filterValue}
-                      type="text"
-                      placeholder="Search"
-                      onChange={this.onFilterChanged}
-                    />
-                    <InputGroup.Addon>
-                      <Glyphicon glyph="search" />
-                    </InputGroup.Addon>
-                  </InputGroup>
-                </FormGroup>
-              </div>
-              <div className={style.list}>{this.renderCategory()}</div>
-            </nav>
-            <div className={style.childContent}>
-              <IntentEditor
-                ref={el => (this.intentEditor = el)}
-                intent={this.getCurrentIntent()}
-                contexts={this.state.contexts}
-                router={this.props.router}
-                axios={this.props.bp.axios}
-                reloadIntents={this.fetchIntents}
-                contentLang={this.props.contentLang}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <Container>
+        <NLUSidePanel
+          intents={this.getIntents()}
+          currentIntent={this.state.currentIntent}
+          setCurrentIntent={this.setCurrentIntent}
+          deleteIntent={this.deleteIntent}
+          createIntent={this.createNewIntent}
+        />
+        <IntentEditor
+          ref={el => (this.intentEditor = el)}
+          intent={this.getCurrentIntent()}
+          contexts={this.state.contexts}
+          router={this.props.router}
+          axios={this.props.bp.axios}
+          reloadIntents={this.fetchIntents}
+          contentLang={this.props.contentLang}
+        />
+      </Container>
     )
   }
 }

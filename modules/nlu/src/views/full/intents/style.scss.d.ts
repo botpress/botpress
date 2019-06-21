@@ -3,6 +3,7 @@
 interface CssExports {
   'container': string;
   'header': string;
+  'intentEditor': string;
   'markdown': string;
   'selectContext': string;
   'utterances': string;
