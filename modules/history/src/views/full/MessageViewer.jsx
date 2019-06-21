@@ -186,14 +186,7 @@ export class MessageViewer extends React.Component {
                 </div>
               )}
             </div>
-            <div>
-              {this.state.focusedMessage && (
-                <MessageInspector
-                  focusedMessage={this.state.focusedMessage}
-                  closeInspector={() => this.setState({ inspectorIsShown: false })}
-                />
-              )}
-            </div>
+            <div>{this.state.focusedMessage && <MessageInspector focusedMessage={this.state.focusedMessage} />}</div>
           </div>
         </div>
       </div>
