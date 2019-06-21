@@ -5,7 +5,7 @@ import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 
-import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
+import { LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -14,6 +14,7 @@ const maxAgeCacheInMS = ms('1d')
 export class RemoteLanguageProvider implements LanguageProvider {
   private _vectorsCache
   private _tokensCache
+  private _validProvidersCount: number
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -30,13 +31,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   async initialize(sources: LanguageSource[], logger: typeof sdk.logger): Promise<LanguageProvider> {
-    this._tokensCache = new lru({
-      maxAge: maxAgeCacheInMS
-    })
-
-    this._vectorsCache = new lru({
-      maxAge: maxAgeCacheInMS
-    })
+    this._tokensCache = new lru({ maxAge: maxAgeCacheInMS })
+    this._vectorsCache = new lru({ maxAge: maxAgeCacheInMS })
+    this._validProvidersCount = 0
 
     await Promise.mapSeries(sources, async source => {
       const headers = {}
@@ -54,6 +51,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
             throw new Error('Language source is not ready')
           }
 
+          this._validProvidersCount++
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
         }, this.discoveryRetryPolicy)
       } catch (err) {
@@ -64,6 +62,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
     return this
+  }
+
+  getHealth(): Partial<NLUHealth> {
+    return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
   private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {

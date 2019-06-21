@@ -9,10 +9,12 @@ import LangProvider from './language-provider'
 import { registerMiddleware } from './middleware'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
-import { EngineByBot } from './typings'
+import { EngineByBot, LanguageProvider, NLUHealth } from './typings'
 
 const nluByBot: EngineByBot = {}
-let langProvider
+let langProvider: LanguageProvider
+
+export let nluHealth: NLUHealth
 
 const onServerStarted = async (bp: typeof sdk) => {
   Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
@@ -27,6 +29,16 @@ const onServerStarted = async (bp: typeof sdk) => {
     }
     throw e
   }
+
+  const { validProvidersCount, validLanguages } = langProvider.getHealth()
+
+  nluHealth = {
+    isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
+    isDucklingEnabled: DucklingEntityExtractor.enabled,
+    validProvidersCount,
+    validLanguages
+  } as NLUHealth
+
   await registerMiddleware(bp, nluByBot)
 }
 
