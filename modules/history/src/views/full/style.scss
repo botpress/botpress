@@ -32,14 +32,18 @@
 .message {
   &-viewer {
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
     background-color: #fff;
   }
 }
 
 .messageGroup {
+  height: 100%;
   width: 100%;
-  border: 1px solid #ddd;
+  cursor: pointer;
+  &:hover {
+    background-color: #fafafa;
+  }
 }
 
 .iconWrap {

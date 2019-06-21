@@ -158,11 +158,13 @@ export class MessageViewer extends React.Component {
             <div style={{ width: '70%', marginRight: 20 }}>
               {!!this.props.messageGroups.length && (
                 <div style={{ padding: 5 }}>
-                  <Checkbox
-                    checked={this.state.areAllMessagesSelected}
-                    onChange={this.handleSelectAll}
-                    label="Select All"
-                  />
+                  <div style={{ borderBottom: '1px solid #eee', marginBottom: '10px' }}>
+                    <Checkbox
+                      checked={this.state.areAllMessagesSelected}
+                      onChange={this.handleSelectAll}
+                      label="Select All"
+                    />
+                  </div>
                   {this.props.messageGroups.map(group => {
                     return (
                       <MessageGroup
@@ -184,10 +186,14 @@ export class MessageViewer extends React.Component {
                 </div>
               )}
             </div>
-            <MessageInspector
-              focusedMessage={this.state.focusedMessage}
-              closeInspector={() => this.setState({ inspectorIsShown: false })}
-            />
+            <div>
+              {this.state.focusedMessage && (
+                <MessageInspector
+                  focusedMessage={this.state.focusedMessage}
+                  closeInspector={() => this.setState({ inspectorIsShown: false })}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

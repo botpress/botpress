@@ -1,6 +1,7 @@
 import React from 'react'
 import style from './style.scss'
 import Interaction from './Interaction'
+import moment from 'moment'
 import { Checkbox, Icon, Button, Tooltip, Intent } from '@blueprintjs/core'
 
 const InfoTooltip = ({ userMessage }) => {
@@ -11,7 +12,10 @@ const InfoTooltip = ({ userMessage }) => {
       {`${confidence}% decision: ${decision.sourceDetails}`}
       <br />
       <br />
-      Sent at {createdOn}
+      Sent{' '}
+      {moment(createdOn)
+        .toDate()
+        .toLocaleString()}
     </div>
   )
 }
@@ -35,7 +39,7 @@ export class MessageGroup extends React.Component {
       <div style={{ display: 'flex' }}>
         <Checkbox checked={this.props.isSelected} onChange={() => this.handleSelection()} />
 
-        <div className={style.messageGroup}>
+        <div className={style.messageGroup} onClick={() => this.props.focusMessage(this.props.group.userMessage)}>
           <Interaction userMessage={this.props.group.userMessage.preview} botReplies={this.props.group.botMessages} />
         </div>
 
@@ -48,10 +52,6 @@ export class MessageGroup extends React.Component {
 
           <Tooltip content={<InfoTooltip userMessage={this.props.group.userMessage} />}>
             <Icon icon="info-sign" intent={Intent.PRIMARY} className={style.iconWrap} />
-          </Tooltip>
-
-          <Tooltip content="Inspect this message">
-            <Button icon="search" small={true} onClick={() => this.props.focusMessage(this.props.group.userMessage)} />
           </Tooltip>
         </div>
       </div>
