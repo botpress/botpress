@@ -2,7 +2,7 @@ import merge from 'lodash/merge'
 import { action, computed, observable, runInAction } from 'mobx'
 
 import constants from '../core/constants'
-import { ChatDimensions, CustomButton } from '../typings'
+import { ChatDimensions, CustomAction, CustomButton } from '../typings'
 
 import { RootStore } from '.'
 
@@ -43,6 +43,9 @@ class ViewStore {
   /** These buttons are displayed in the header, and can point to actions on your custom components */
   @observable
   public customButtons: CustomButton[] = []
+
+  @observable
+  public customActions: CustomAction[] = []
 
   @observable
   public disableAnimations = false
@@ -206,6 +209,21 @@ class ViewStore {
     if (width) {
       this.dimensions.container = width = typeof width === 'number' ? width + 'px' : width
     }
+  }
+
+  @action.bound
+  addCustomAction(newAction: CustomAction) {
+    if (this.customActions.find(act => act.id === newAction.id)) {
+      console.log(`Can't add another action with the same ID.`)
+      return
+    }
+
+    this.customActions.push(newAction)
+  }
+
+  @action.bound
+  removeCustomAction(actionId: string) {
+    this.customActions = this.customActions.filter(btn => btn.id !== actionId)
   }
 
   @action.bound
