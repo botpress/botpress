@@ -253,7 +253,7 @@ interface CustomAction {
   /** This text will be displayed in the context menu */
   label: string
   /** The event triggered when the action is clicked */
-  onClick: (eventId: string, actionId: string, event: React.MouseEvent) => void
+  onClick: (actionId: string, messageProps: any, event: React.MouseEvent) => void
 }
 
 /** When set, this will wrap every messages displayed in the webchat */

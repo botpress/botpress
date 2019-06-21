@@ -4,8 +4,10 @@ import React from 'react'
 function MessageMenu(props) {
   return (
     <Menu>
-      {props.customActions.map(c => {
-        return <MenuItem key={c.id} text={c.label} onClick={e => c.onClick(props.messageId, c.id, e)} />
+      {props.customActions.map(action => {
+        return (
+          <MenuItem key={action.id} text={action.label} onClick={action.onClick.bind(this, action.id, props.element)} />
+        )
       })}
     </Menu>
   )
@@ -13,11 +15,10 @@ function MessageMenu(props) {
 
 export const showContextMenu = (e: React.MouseEvent<HTMLDivElement>, props: any) => {
   const customActions = props.store.view.customActions
-  const id = props.incomingEventId
 
-  if (customActions && id) {
+  if (customActions && props.incomingEventId) {
     e.preventDefault()
-    const menu = <MessageMenu messageId={id} customActions={customActions} />
+    const menu = <MessageMenu element={props} customActions={customActions} />
     ContextMenu.show(menu, { left: e.clientX, top: e.clientY })
   }
 }

@@ -79,11 +79,11 @@ export class Debugger extends React.Component<Props, State> {
     }
   }
 
-  handleSelect = async eventId => {
+  handleSelect = async (_actionId: string, props: any) => {
     if (!this.state.visible) {
       this.toggleDebugger()
     }
-    await this.loadEvent(eventId)
+    await this.loadEvent(props.incomingEventId)
   }
 
   resetWebchat() {
