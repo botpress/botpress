@@ -16,6 +16,7 @@ interface Props {
   synced: boolean
   contentLang: string
   updateSyncStatus: (synced: boolean) => void
+  display: boolean
 }
 
 interface State {
@@ -43,6 +44,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
+      // tslint:disable-next-line: no-floating-promises
       this.fetchConfusion()
     }
   }
@@ -96,6 +98,10 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   }
 
   render() {
+    if (!this.props.display) {
+      return undefined
+    }
+
     const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]
     return (
       <ActionItem
