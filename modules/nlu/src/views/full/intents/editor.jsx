@@ -195,7 +195,7 @@ export default class IntentsEditor extends React.Component {
   renderNone() {
     return (
       <SplashScreen
-        icon={<Icon iconSize={80} icon="translate" />}
+        icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
         title="Understanding"
         description="Use Botpress native Natural language understanding engine to make your bot smart."
       />
