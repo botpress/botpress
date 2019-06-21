@@ -3,9 +3,11 @@
 interface CssExports {
   'container': string;
   'header': string;
+  'hint': string;
   'intentEditor': string;
   'markdown': string;
   'selectContext': string;
+  'tools': string;
   'utterances': string;
 }
 declare var cssExports: CssExports;

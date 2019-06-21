@@ -40,6 +40,18 @@
   }
 }
 
+.tools {
+  display: flex;
+  margin-bottom: 15px;
+  align-items: flex-end;
+
+  .selectContext {
+    width: 300px;
+    z-index: 1000;
+    margin: 10px 10px 0 10px;
+  }
+}
+
 .markdown {
   ul {
     padding: 10px;
@@ -103,8 +115,9 @@
   padding: 0 0 150px 0;
 }
 
-.selectContext {
-  max-width: 300px;
-  z-index: 1000;
-  margin: 10px 10px 0 10px;
+.hint {
+  color: #738694;
+  span {
+    margin-left: 10px;
+  }
 }

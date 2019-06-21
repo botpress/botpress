@@ -8,8 +8,8 @@ import Editor from './draft/editor'
 import style from './style.scss'
 import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
-import classnames from 'classnames'
 import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
+import IntentHint from './IntentHint'
 
 const NLU_TABIDX = 3745
 
@@ -259,24 +259,27 @@ export default class IntentsEditor extends React.Component {
             </h1>
           </div>
         </div>
-        <div className={classnames('pull-left', style.selectContext)}>
-          <label for="selectContext">Current contexts</label>
-          &nbsp;
-          <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
-            <Icon color={Colors.GRAY2} icon="info-sign" />
-          </Tooltip>
-          <Creatable
-            id="selectContext"
-            isMulti
-            onChange={this.handleChangeContext}
-            value={this.state.selectedContextOptions}
-            options={
-              this.state.availableContexts &&
-              this.state.availableContexts.map(x => {
-                return { value: x, label: x }
-              })
-            }
-          />
+        <div className={style.tools}>
+          <div className={style.selectContext}>
+            <label for="selectContext">Current contexts</label>
+            &nbsp;
+            <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
+              <Icon color={Colors.GRAY2} icon="info-sign" />
+            </Tooltip>
+            <Creatable
+              id="selectContext"
+              isMulti
+              onChange={this.handleChangeContext}
+              value={this.state.selectedContextOptions}
+              options={
+                this.state.availableContexts &&
+                this.state.availableContexts.map(x => {
+                  return { value: x, label: x }
+                })
+              }
+            />
+          </div>
+          <IntentHint intent={this.props.intent} />
         </div>
         <div>
           <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>
