@@ -3,6 +3,7 @@ import {
   ButtonGroup,
   Classes,
   Collapse,
+  Colors,
   ControlGroup,
   Icon,
   InputGroup,
@@ -89,8 +90,19 @@ export const SearchBar = (props: SearchBarProps) => {
   return (
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
-        <InputGroup placeholder={props.placeholder || 'Search'} value={text} onChange={handleTextChanged} />
-        <Button icon={'search'} className={Classes.FIXED} onClick={e => props.onClick && props.onClick(e)} />
+        <InputGroup
+          leftIcon={props.icon}
+          placeholder={props.placeholder || 'Search'}
+          value={text}
+          onChange={handleTextChanged}
+        />
+        {props.showButton && (
+          <Button
+            icon={'search'}
+            className={Classes.FIXED}
+            onClick={e => props.onButtonClick && props.onButtonClick(e)}
+          />
+        )}
       </ControlGroup>
     </div>
   )
@@ -115,7 +127,12 @@ export const ItemList = (props: ItemListProps) => {
                 {item.actions &&
                   item.actions.map(action => (
                     <Tooltip key={key + action.tooltip} content={action.tooltip} position={Position.RIGHT}>
-                      <Icon icon={action.icon} onClick={() => action.onClick && action.onClick(item)} />
+                      <Icon
+                        style={{ padding: '0 7px' }} // so it has the same padding of a button
+                        icon={action.icon}
+                        color={Colors.GRAY2}
+                        onClick={() => action.onClick && action.onClick(item)}
+                      />
                     </Tooltip>
                   ))}
               </div>

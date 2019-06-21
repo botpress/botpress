@@ -1,6 +1,6 @@
 import { Icon, InputGroup } from '@blueprintjs/core'
 import sdk from 'botpress/sdk'
-import { Item, ItemList, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
+import { Item, ItemList, SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
 import React, { FC, useState } from 'react'
 
 interface Props {
@@ -37,7 +37,7 @@ const NLUSidePanel: FC<Props> = props => {
   return (
     <SidePanel>
       <SidePanelSection label="Intents" actions={actions}>
-        <InputGroup onChange={e => setFilter(e.target.value)} leftIcon="filter" placeholder="filter intents" />
+        <SearchBar icon="filter" placeholder="filter intents" onChange={setFilter} showButton={false} />
         <ItemList items={items} onElementClicked={({ value: intentName }) => props.setCurrentIntent(intentName)} />
       </SidePanelSection>
     </SidePanel>
