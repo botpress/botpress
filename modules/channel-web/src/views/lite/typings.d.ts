@@ -247,6 +247,15 @@ interface CustomButton {
   onClick: (buttonId: string, headerComponent: JSX.Element, event: React.MouseEvent) => void
 }
 
+interface CustomAction {
+  /** An ID to identify your action. It is required to remove it */
+  id: string
+  /** */
+  text: string
+  /** */
+  select: (eventId: string) => void
+}
+
 /** When set, this will wrap every messages displayed in the webchat */
 interface MessageWrapper {
   /** The name of the module hosting the component */

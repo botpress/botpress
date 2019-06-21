@@ -99,6 +99,15 @@ class Message extends Component<Renderer.Message> {
     return '*Unsupported message type*'
   }
 
+  handleContextMenu = e => {
+    const showContextMenu = window.botpress.extensions && window.botpress.extensions.showContextMenu
+    if (showContextMenu) {
+      const customActions = this.props.store.view.customActions
+      const id = this.props.incomingEventId
+      showContextMenu(e, { id, customActions })
+    }
+  }
+
   render() {
     const type = this.props.type || (this.props.payload && this.props.payload.type)
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
@@ -115,6 +124,7 @@ class Message extends Component<Renderer.Message> {
 
     return (
       <div
+        onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
         className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type, {
           'bpw-bubble-highlight': this.props.isHighlighted
         })}

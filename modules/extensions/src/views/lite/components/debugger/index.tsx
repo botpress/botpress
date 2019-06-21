@@ -50,6 +50,12 @@ export class Debugger extends React.Component<Props, State> {
       onClick: this.toggleDebugger
     })
 
+    this.props.store.view.addCustomAction({
+      id: 'actionDebug',
+      text: 'debug message',
+      select: this.handleSelect
+    })
+
     window.addEventListener('keydown', this.hotkeyListener)
 
     const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
@@ -60,6 +66,7 @@ export class Debugger extends React.Component<Props, State> {
 
   componentWillUnmount() {
     this.props.store.view.removeHeaderButton('toggleDev')
+    this.props.store.view.removeCustomAction('actionDebug')
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
   }
@@ -72,6 +79,13 @@ export class Debugger extends React.Component<Props, State> {
     }
   }
 
+  handleSelect = async eventId => {
+    if (!this.state.visible) {
+      this.toggleDebugger()
+    }
+    await this.loadEvent(eventId)
+  }
+
   resetWebchat() {
     this.props.store.view.setHighlightedMessages([])
     this.props.store.setMessageWrapper(undefined)
@@ -79,8 +93,9 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
   }
 
-  hotkeyListener = e => {
-    if (e.ctrlKey && e.key === 'F12') {
+  hotkeyListener = (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.key === 'd') {
+      e.preventDefault()
       this.toggleDebugger()
     }
   }
