@@ -4,6 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
+import { getProgressPayload } from '../../tools/progress'
 import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
@@ -14,13 +15,11 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
-const getPayloadForProgress = progress => ({
-  type: 'nlu',
-  name: 'training',
-  value: 0.75 + Math.floor(progress / 4),
-  working: true,
-  message: 'Model is training'
+const crfPayloadProgress = progress => ({
+  value: 0.75 + Math.floor(progress / 4)
 })
+
+const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
 const MIN_SLOT_CONFIDENCE = 0.5
 // TODO grid search / optimization for those hyperparams
@@ -79,22 +78,22 @@ export default class CRFExtractor implements SlotExtractor {
       debugTrain('start training')
       debugTrain('training language model')
       await this._trainLanguageModel(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0.2)))
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.2)))
 
       debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0.4)))
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
 
       debugTrain('training CRF')
       await this._trainCrf(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0.6)))
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
 
       debugTrain('reading tagger')
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
       debugTrain('done training')
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', getPayloadForProgress(0.8)))
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.8)))
       return {
         language: readFileSync(this._ftModelFn),
         crf: readFileSync(this._crfModelFn)

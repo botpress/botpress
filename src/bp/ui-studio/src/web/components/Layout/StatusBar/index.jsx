@@ -58,18 +58,21 @@ class StatusBar extends React.Component {
       this.initializeProgressBar()
     }
 
-    if (prevState.progress >= 1 || this.state.progress >= 1) {
-      this.progressBar.animate(1, 300)
-      clearTimeout(this.clearCompletedStyleTimer)
-      this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
-    } else {
-      this.progressBar.animate(this.state.progress, 200)
+    if (prevState.progress != this.state.progress && this.state.progress) {
+      if (this.state.progress >= 1) {
+        this.progressBar.animate(1, 300)
+        clearTimeout(this.clearCompletedStyleTimer)
+        this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
+      } else {
+        this.progressBar.animate(this.state.progress, 200)
+      }
     }
   }
 
   cleanupCompleted = () => {
     const newMessages = this.state.messages.filter(x => x.ts > Date.now() - COMPLETED_DURATION)
     this.setState({ messages: newMessages })
+    this.setState({ progress: 0 })
     this.progressBar.set(0)
   }
 
