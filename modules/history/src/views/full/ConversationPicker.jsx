@@ -52,7 +52,7 @@ export class ConversationPicker extends React.Component {
       {
         icon: <Icon icon="refresh" />,
         onClick: this.props.refresh,
-        tooltip: 'refresh conversations'
+        tooltip: 'Refresh Conversations'
       }
     ]
     return (
