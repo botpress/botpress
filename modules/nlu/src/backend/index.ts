@@ -19,7 +19,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
   try {
-    langProvider = await LangProvider.initialize(globalConfig.languageSources)
+    langProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger)
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
       bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)

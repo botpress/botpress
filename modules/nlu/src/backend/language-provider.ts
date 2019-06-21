@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
 import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
@@ -25,9 +26,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
   private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
+    debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[]): Promise<LanguageProvider> {
+  async initialize(sources: LanguageSource[], logger: typeof sdk.logger): Promise<LanguageProvider> {
     this._tokensCache = new lru({
       maxAge: maxAgeCacheInMS
     })
@@ -44,16 +46,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       const client = axios.create({ baseURL: source.endpoint, headers })
+      try {
+        await retry(async () => {
+          const { data } = await client.get('/info')
 
-      await retry(async () => {
-        const { data } = await client.get('/info')
+          if (!data.ready) {
+            throw new Error('Language source is not ready')
+          }
 
-        if (!data.ready) {
-          throw new Error('Language source is not ready')
-        }
-
-        data.languages.forEach(x => this.addProvider(x.lang, source, client))
-      }, this.discoveryRetryPolicy)
+          data.languages.forEach(x => this.addProvider(x.lang, source, client))
+        }, this.discoveryRetryPolicy)
+      } catch (err) {
+        logger.attachError(err).error(`Could not load Language Provider at ${source.endpoint}: ${err.code}`)
+      }
     })
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
