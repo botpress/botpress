@@ -70,7 +70,8 @@ class Message extends Component<Renderer.Message> {
       'onSendData',
       'onFileUpload',
       'sentOn',
-      'store'
+      'store',
+      'className'
     ])
 
     const props = {
@@ -101,7 +102,10 @@ class Message extends Component<Renderer.Message> {
 
   render() {
     const type = this.props.type || (this.props.payload && this.props.payload.type)
+    const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
+    const wrappedClass = `bpw-bubble-${wrappedType}`
+
     const rendered = renderer()
     if (rendered === null) {
       return undefined
@@ -110,12 +114,16 @@ class Message extends Component<Renderer.Message> {
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
 
     if (this.props.noBubble) {
-      return <div style={additionalStyle}>{rendered}</div>
+      return (
+        <div className={classnames(this.props.className, wrappedClass)} style={additionalStyle}>
+          {rendered}
+        </div>
+      )
     }
 
     return (
       <div
-        className={classnames('bpw-chat-bubble', 'bpw-bubble-' + type, {
+        className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
           'bpw-bubble-highlight': this.props.isHighlighted
         })}
         style={additionalStyle}
