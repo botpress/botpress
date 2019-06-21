@@ -3,7 +3,7 @@ import path from 'path'
 
 import Database from '../../database'
 import { createDatabaseSuite } from '../../database/index.tests'
-import { expectAsync } from '../../misc/utils'
+import { asBytes, expectAsync } from '../../misc/utils'
 
 import DBStorageDriver from './db-driver'
 
@@ -22,7 +22,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
     })
 
     it('writing large blob', async () => {
-      const size = 1024 * 1024 * 1 // 1mb
+      const size = asBytes('1mb')
       await driver.upsertFile(F_A_PATH, Buffer.alloc(size))
       const buffer = await driver.readFile(F_A_PATH)
       expect(buffer.length).toBe(size)

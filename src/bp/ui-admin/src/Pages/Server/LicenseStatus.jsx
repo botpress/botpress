@@ -197,7 +197,7 @@ class LicenseStatus extends React.Component {
       return this.renderReboot()
     }
 
-    if (this.props.licensing && !this.props.licensing.builtWithPro) {
+    if (this.props.licensing && !this.props.licensing.isBuiltWithPro) {
       return this.renderUnofficialBuild()
     }
 

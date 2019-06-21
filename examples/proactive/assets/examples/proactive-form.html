@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>Proactive Example #3</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    <h1>Form with Contextual Help</h1>
+    <p style="width: 500px;text-align: justify;text-justify: inter-word;">
+      Here's a fake form enhanced by Botpress. Generally forms are very efficient for data entry. Chatbots are best used
+      to enhanced form filling by providing helpful information. The fields are pre-filled for you except for one that
+      is cryptic and could really beneficiate from the bot input. Once the form is complete, click on "submit".
+    </p>
+    <div>
+      <label for="name">What is your name?</label>
+      <input id="name" type="text" value="John Doe" />
+      <br />
+
+      <label for="name">What is your email?</label>
+      <input id="email" type="email" value="john.doe@botpress.io" />
+      <br />
+
+      <label for="cryptic-field">Enter your X and Y at Z</label>
+      <input id="cryptic-field" type="text" placeholder="Enter something here" />
+      <br />
+
+      <label for="plateform">What is your preferred chatbot plateform?</label>
+      <select id="plateform">
+        <option selected value="botpress">Botpress</option>
+      </select>
+      <br />
+
+      <button id="submit" type="click">Submit</button>
+    </div>
+  </body>
+
+  <script>
+    window.botpressWebChat.init({
+      host: window.origin,
+      botId: 'proactive-bot'
+    })
+
+    const main = () => {
+      const sendContactForm = () => {
+        const payload = {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          plateform: document.getElementById('plateform').value
+        }
+        window.botpressWebChat.sendEvent({ type: 'show' })
+        window.botpressWebChat.sendEvent({ type: 'contact-form', payload })
+      }
+
+      const crypticFieldInput = document.getElementById('cryptic-field')
+      crypticFieldInput.addEventListener('focus', function sendContextualHelp() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
+        window.botpressWebChat.sendEvent({ type: 'field-description' })
+        crypticFieldInput.removeEventListener('focus', sendContextualHelp)
+      })
+
+      document.getElementById('submit').addEventListener('click', sendContactForm)
+    }
+
+    setTimeout(main, 1500)
+  </script>
+</html>

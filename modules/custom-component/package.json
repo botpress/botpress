@@ -1,0 +1,20 @@
+{
+  "name": "custom-component",
+  "version": "1.0.0",
+  "description": "Custom Component",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "react-select": "^2.4.2"
+  }
+}

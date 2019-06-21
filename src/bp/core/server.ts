@@ -163,7 +163,7 @@ export default class HTTPServer {
     this.botsRouter.router.use('/converse', this.converseRouter.router)
   }
 
-  resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'assets', file)
+  resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'data/assets', file)
 
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
@@ -283,7 +283,6 @@ export default class HTTPServer {
       res.sendFile(this.resolveAsset('ui-admin/public/index.html'))
     })
 
-    app.get('/api/community/hero', (req, res) => res.send({ hidden: true }))
     app.get('/', (req, res) => res.redirect('/admin'))
   }
 

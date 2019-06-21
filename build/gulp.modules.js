@@ -144,7 +144,7 @@ const buildSdk = () => {
 
 const cleanModuleAssets = () => {
   const moduleName = _.last(process.argv)
-  return gulp.src(`./out/bp/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
+  return gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
 }
 
 const createModuleSymlink = () => {
@@ -152,7 +152,7 @@ const createModuleSymlink = () => {
   const moduleName = _.last(process.argv)
   return gulp
     .src(`./${moduleFolder}/${moduleName}/assets/`)
-    .pipe(symlink(`./out/bp/assets/modules/${moduleName}/`, { type: 'dir' }))
+    .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
 }
 
 module.exports = {

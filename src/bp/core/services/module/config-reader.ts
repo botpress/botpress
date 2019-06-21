@@ -91,7 +91,7 @@ export default class ConfigReader {
   private async getModuleDefaultConfigFile(moduleId): Promise<any | undefined> {
     try {
       const defaultConfig = {
-        $schema: `../../../assets/modules/${moduleId}/config.schema.json`,
+        $schema: `../../assets/modules/${moduleId}/config.schema.json`,
         ...defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
       }
 

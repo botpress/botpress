@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>Proactive Example #2</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    <h1>Send a message on click</h1>
+    <p style="width: 500px;text-align: justify;text-justify: inter-word;">
+      Click on the chat widget to trigger a proactive message.
+    </p>
+  </body>
+
+  <script>
+    window.botpressWebChat.init({
+      host: window.origin,
+      botId: 'proactive-bot'
+    })
+
+    function sendMessageOnClick() {
+      const iframe = document.querySelector('#bp-widget')
+      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
+
+      widget.addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({
+          type: 'proactive-trigger'
+        })
+      })
+    }
+
+    setTimeout(function() {
+      sendMessageOnClick()
+    }, 1500)
+  </script>
+</html>
