@@ -1,14 +1,13 @@
 import React from 'react'
 import style from './style.scss'
 
-import classnames from 'classnames'
 import { MessageGroup } from './MessageGroup'
-import { MessageInspector } from './MessageInspector'
 
 import { SplashScreen } from 'botpress/ui'
-import { Icon, Button } from '@blueprintjs/core'
+import { Icon, Button, Checkbox } from '@blueprintjs/core'
 
 import { MessageTaskBar } from './MessageTaskBar'
+import { MessageInspector } from './MessageInspector'
 
 function NoConversationSelected() {
   return (
@@ -117,20 +116,23 @@ export class MessageViewer extends React.Component {
   }
 
   renderHeader() {
+    if (!this.state.currentConversation) {
+      return null
+    }
+
+    const lastMessages = this.props.messageGroups.length ? (
+      <span>Last message on : {this.getLastMessageDate(this.props.messageGroups).toDateString()}</span>
+    ) : (
+      <span>No messages with current filters</span>
+    )
+
     return (
-      this.state.currentConversation && (
-        <React.Fragment>
-          <div className={style['message-title']}>Conversation {this.state.currentConversation}</div>
-          {!!this.props.messageGroups.length && (
-            <div className={style['message-lastdate']}>
-              Last message on : #{this.getLastMessageDate(this.props.messageGroups).toDateString()}
-            </div>
-          )}
-          {!this.props.messageGroups.length && (
-            <div className={style['message-lastdate']}>No messages with current filters</div>
-          )}
-        </React.Fragment>
-      )
+      <div style={{ padding: '5px 0 0 10px' }}>
+        <h5>
+          <strong>Conversation {this.state.currentConversation}</strong> <small>({lastMessages})</small>
+        </h5>
+        <hr />
+      </div>
     )
   }
 
@@ -150,42 +152,43 @@ export class MessageViewer extends React.Component {
           messageGroups={this.props.messageGroups}
         />
         <div className={style['message-viewer']}>
-          <div
-            className={classnames(
-              style['message-list'],
-              this.state.inspectorIsShown ? style['message-list-partial'] : style['message-list-full']
-            )}
-          >
-            {this.renderHeader()}
-            {!!this.props.messageGroups.length && (
-              <div>
-                select all:
-                <input type="checkbox" checked={this.state.areAllMessagesSelected} onChange={this.handleSelectAll} />
-                {this.props.messageGroups.map(group => {
-                  return (
-                    <MessageGroup
-                      key={group.userMessage.id}
-                      group={group}
-                      focusMessage={focusedMessage => this.setState({ focusedMessage, inspectorIsShown: true })}
-                      isSelected={this.state.selectedGroups.includes(group)}
-                      handleSelection={this.handleSelection}
-                    />
-                  )
-                })}
-              </div>
-            )}
-            {this.props.isThereStillMessagesLeft && (
-              <div className={style['fetch-more']}>
-                <Button onClick={() => this.props.fetchNewMessages(this.state.filters)} minimal>
-                  Load More...
-                </Button>
-              </div>
-            )}
+          {this.renderHeader()}
+
+          <div style={{ display: 'flex' }}>
+            <div style={{ width: '70%', marginRight: 20 }}>
+              {!!this.props.messageGroups.length && (
+                <div style={{ padding: 5 }}>
+                  <Checkbox
+                    checked={this.state.areAllMessagesSelected}
+                    onChange={this.handleSelectAll}
+                    label="Select All"
+                  />
+                  {this.props.messageGroups.map(group => {
+                    return (
+                      <MessageGroup
+                        key={group.userMessage.id}
+                        group={group}
+                        focusMessage={focusedMessage => this.setState({ focusedMessage, inspectorIsShown: true })}
+                        isSelected={this.state.selectedGroups.includes(group)}
+                        handleSelection={this.handleSelection}
+                      />
+                    )
+                  })}
+                </div>
+              )}
+              {this.props.isThereStillMessagesLeft && (
+                <div className={style['fetch-more']}>
+                  <Button onClick={() => this.props.fetchNewMessages(this.state.filters)} minimal>
+                    Load More...
+                  </Button>
+                </div>
+              )}
+            </div>
+            <MessageInspector
+              focusedMessage={this.state.focusedMessage}
+              closeInspector={() => this.setState({ inspectorIsShown: false })}
+            />
           </div>
-          <MessageInspector
-            focusedMessage={this.state.focusedMessage}
-            closeInspector={() => this.setState({ inspectorIsShown: false })}
-          />
         </div>
       </div>
     )
