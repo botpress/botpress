@@ -250,9 +250,9 @@ interface CustomButton {
 interface CustomAction {
   /** An ID to identify your action. It is required to remove it */
   id: string
-  /** */
+  /** Text rendered in the context menu */
   text: string
-  /** */
+  /** Handler called when clicking the action in the context menu */
   select: (eventId: string) => void
 }
 
