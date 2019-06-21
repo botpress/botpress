@@ -1,7 +1,7 @@
 export default {
   scheme: 'monokai',
   author: 'wimer hazenberg (http://www.monokai.nl)',
-  base00: 'var(--c-background--dark-1)',
+  base00: '#1e1e1e',
   base01: '#383830',
   base02: '#49483e',
   base03: '#75715e',

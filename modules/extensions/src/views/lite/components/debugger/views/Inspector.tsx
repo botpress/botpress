@@ -16,7 +16,7 @@ export const Inspector = props => {
           <JSONTree
             data={props.data || {}}
             theme={inspectorTheme}
-            invertTheme={false}
+            invertTheme={true}
             hideRoot={true}
             shouldExpandNode={shouldExpand}
           />
