@@ -99,7 +99,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
   render() {
     if (!this.props.display) {
-      return undefined
+      return null
     }
 
     const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]
