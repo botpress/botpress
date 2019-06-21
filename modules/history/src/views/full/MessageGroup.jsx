@@ -4,12 +4,13 @@ import Interaction from './Interaction'
 import moment from 'moment'
 import { Checkbox, Icon, Button, Tooltip, Intent } from '@blueprintjs/core'
 
+const formatConfidence = confidence => (+confidence * 100).toFixed(1)
+
 const InfoTooltip = ({ userMessage }) => {
   const { decision, createdOn } = userMessage
-  const confidence = Math.round(decision.confidence * 10000) / 100
   return (
     <div>
-      {`${confidence}% decision: ${decision.sourceDetails}`}
+      {`${formatConfidence(decision.confidence)}% decision: ${decision.sourceDetails}`}
       <br />
       <br />
       Sent{' '}
