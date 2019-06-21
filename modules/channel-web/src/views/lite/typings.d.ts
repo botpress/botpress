@@ -23,6 +23,7 @@ declare global {
 export namespace Renderer {
   export interface Message {
     type?: string
+    className?: string
     payload?: any
     store?: RootStore
     bp?: StudioConnector
