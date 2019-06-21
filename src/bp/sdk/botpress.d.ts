@@ -1062,6 +1062,12 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    /**
+     * Return the state of the icoming queue. True if there are any events(messages)
+     * from the user waiting in the queue.
+     */
+    export function isIncomingQueueEmpty(): boolean
   }
 
   export type GetOrCreateResult<T> = Promise<{

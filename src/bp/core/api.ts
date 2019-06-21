@@ -66,6 +66,9 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     },
     replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string): void {
       eventEngine.replyToEvent(eventDestination, payloads, incomingEventId)
+    },
+    isIncomingQueueEmpty(): boolean {
+      return eventEngine.isIncomingQueueEmpty()
     }
   }
 }

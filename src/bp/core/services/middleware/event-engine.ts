@@ -190,6 +190,10 @@ export class EventEngine {
     }
   }
 
+  isIncomingQueueEmpty(): boolean {
+    return this.incomingQueue.isEmpty()
+  }
+
   private async getBotMiddlewareChains(botId: string) {
     const incoming = new MiddlewareChain()
     const outgoing = new MiddlewareChain()
