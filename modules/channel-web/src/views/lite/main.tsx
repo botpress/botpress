@@ -194,7 +194,10 @@ class Web extends React.Component<MainProps> {
       return null
     }
 
-    const parentClass = `bp-widget-web bp-widget-${this.props.activeView}`
+    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
+      'bp-widget-hidden': !this.props.showWidgetButton
+    })
+
     if (this.parentClass !== parentClass) {
       window.parent && window.parent.postMessage({ type: 'setClass', value: parentClass }, '*')
       this.parentClass = parentClass
