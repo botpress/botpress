@@ -279,7 +279,7 @@ export default class IntentsEditor extends React.Component {
               }
             />
           </div>
-          <IntentHint intent={this.props.intent} />
+          <IntentHint intent={this.props.intent} contentLang={this.props.contentLang} />
         </div>
         <div>
           <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>

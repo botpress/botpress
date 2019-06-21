@@ -13,8 +13,7 @@ const MIN_ML_UTT = 3
 const GOOD_ML_UTT = 10
 
 const IntentHint: SFC<Props> = props => {
-  // const utterances = props.intent.utterances[props.contentLang]
-  const utterances = props.intent.utterances['en']
+  const utterances = props.intent.utterances[props.contentLang] || []
   const idealNumberOfUtt = Math.max((props.intent.slots || []).length * 5, GOOD_ML_UTT)
   let hint: JSX.Element
 
@@ -25,7 +24,7 @@ const IntentHint: SFC<Props> = props => {
   if (utterances.length && utterances.length < MIN_ML_UTT) {
     hint = (
       <span>
-        This intent will use <strong>exact match only</strong>. To make it machine learning bases, add at least{' '}
+        This intent will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
         <strong>{MIN_ML_UTT - utterances.length} more utterances</strong>
       </span>
     )

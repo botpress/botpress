@@ -137,6 +137,7 @@ $status-bar-height: 24px;
     .label {
       padding: 5px;
       white-space: nowrap;
+      flex-grow: 1;
     }
 
     .right {

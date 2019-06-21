@@ -1,4 +1,4 @@
-import { Icon, InputGroup } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import sdk from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
 import React, { FC, useState } from 'react'
@@ -29,8 +29,8 @@ const NLUSidePanel: FC<Props> = props => {
           key: intent.name,
           label: intent.name,
           value: intent.name,
-          selected: props.currentIntent == intent.name,
-          actions: [{ tooltip: 'remove', icon: 'delete', onClick: props.deleteIntent.bind(this, intent.name) }]
+          selected: props.currentIntent === intent.name,
+          actions: [{ tooltip: 'Delete Intent', icon: 'delete', onClick: props.deleteIntent.bind(this, intent.name) }]
         } as Item)
     )
 
