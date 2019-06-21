@@ -29,7 +29,7 @@ class StatusBar extends React.Component {
     inProgress: [],
     messages: [],
     nluSynced: true,
-    singleContext: false
+    contexts: []
   }
 
   constructor(props) {
@@ -40,13 +40,12 @@ class StatusBar extends React.Component {
   }
 
   async componentDidMount() {
-    const contexts = await this.fetchContexts()
-    this.setState({ singleContext: contexts.length === 1 })
+    await this.fetchContexts()
   }
 
   fetchContexts = async () => {
     const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
-    return data || []
+    this.setState({ contexts: data || [] })
   }
 
   handleModuleEvent = async event => {
@@ -57,8 +56,8 @@ class StatusBar extends React.Component {
     }
 
     if (event.name === 'train') {
-      const contexts = await this.fetchContexts()
-      this.setState({ nluSynced: false, singleContext: contexts.length === 1 })
+      await this.fetchContexts()
+      this.setState({ nluSynced: false })
     }
 
     if (event.name === 'done' || event.working === false) {
@@ -170,7 +169,7 @@ class StatusBar extends React.Component {
             contentLang={this.props.contentLang}
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
-            singleContext={this.state.singleContext}
+            display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>

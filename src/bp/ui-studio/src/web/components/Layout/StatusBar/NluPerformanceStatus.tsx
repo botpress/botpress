@@ -16,7 +16,7 @@ interface Props {
   synced: boolean
   contentLang: string
   updateSyncStatus: (synced: boolean) => void
-  singleContext: boolean
+  display: boolean
 }
 
 interface State {
@@ -97,7 +97,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   }
 
   render() {
-    if (!this.props.singleContext) {
+    if (!this.props.display) {
       return null
     }
 
