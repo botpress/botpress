@@ -6,7 +6,14 @@
   "bin": "index.js",
   "private": true,
   "pkg": {
-    "scripts": ["./core/**/*.js", "./*.js", "./pro/**/*.js", "./common/**/*.js", "./ml/**/*.js"],
+    "scripts": [
+      "./core/**/*.js",
+      "./*.js",
+      "./pro/**/*.js",
+      "./common/**/*.js",
+      "./ml/**/*.js",
+      "./migrations/**/*.js"
+    ],
     "assets": [
       "../../node_modules/vm2/lib/*.js",
       "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",

@@ -63,8 +63,6 @@ export default class ConfusionEngine extends ScopedEngine {
   }
 
   private async _processResults(results: Result, lang: string, confusionVersion: string = undefined) {
-    const reportUrl = process['EXTERNAL_URL'] + `/api/v1/bots/${this.botId}/mod/nlu/confusion/${this.originalModelHash}`
-
     await this.storage.saveConfusionMatrix({
       modelHash: this.originalModelHash,
       lang,
@@ -75,7 +73,6 @@ export default class ConfusionEngine extends ScopedEngine {
     const intents = results['intents']
     this.logger.debug('=== Confusion Matrix ===')
     this.logger.debug(`F1: ${intents['all'].f1} P1: ${intents['all'].precision} R1: ${intents['all'].recall}`)
-    this.logger.debug(`Details available here: ${reportUrl}`)
   }
 
   private _definitionsToEntry(def: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[] {

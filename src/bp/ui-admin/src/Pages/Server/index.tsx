@@ -1,9 +1,11 @@
+import { Icon } from '@blueprintjs/core'
 import React from 'react'
-import { MdCompareArrows, MdCopyright, MdLanguage, MdMultilineChart, MdNotifications } from 'react-icons/md'
+import { MdCopyright } from 'react-icons/md'
 
 import TabLayout from '../Layouts/Tabs'
 
 import Alerting from './Alerting'
+import Debug from './Debug'
 import Languages from './Languages'
 import LicenseStatus from './LicenseStatus'
 import Monitoring from './Monitoring'
@@ -13,9 +15,15 @@ const Server = (props: any) => {
   const title = 'Server'
   const tabs = [
     {
+      name: 'Languages',
+      route: '/server/languages',
+      icon: <Icon icon="globe-network" />,
+      component: Languages
+    },
+    {
       name: 'Monitoring',
       route: '/server/monitoring',
-      icon: <MdMultilineChart />,
+      icon: <Icon icon="timeline-line-chart" />,
       useFullWidth: true,
       proOnly: true,
       component: Monitoring
@@ -23,7 +31,7 @@ const Server = (props: any) => {
     {
       name: 'Alerts & Incidents',
       route: '/server/alerting',
-      icon: <MdNotifications />,
+      icon: <Icon icon="notifications" />,
       useFullWidth: false,
       proOnly: true,
       component: Alerting
@@ -35,16 +43,16 @@ const Server = (props: any) => {
       component: LicenseStatus
     },
     {
-      name: 'Version control',
+      name: 'Version Control',
       route: '/server/version',
-      icon: <MdCompareArrows />,
+      icon: <Icon icon="changes" />,
       component: Versioning
     },
     {
-      name: 'Languages',
-      route: '/server/languages',
-      icon: <MdLanguage />,
-      component: Languages
+      name: 'Debug',
+      route: '/server/debug',
+      icon: <Icon icon="console" />,
+      component: Debug
     }
   ]
 

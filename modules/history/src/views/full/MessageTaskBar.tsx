@@ -49,34 +49,36 @@ export class MessageTaskBar extends React.Component<Props, State> {
 
   renderActions() {
     return (
-      <LeftToolbarButtons>
-        <Text className={style.taskBarText}>{this.props.selectedCount} selected messages</Text>
+      <Toolbar>
+        <LeftToolbarButtons>
+          <Text className={style.taskBarText}>{this.props.selectedCount} selected messages</Text>
 
-        <Divider />
+          <Divider />
 
-        <Tooltip content={'Mark selected messages as not good'} position={Position.BOTTOM}>
-          <AnchorButton data-tip data-for={'flag'} onClick={this.props.flag}>
-            <Icon icon={'flag'} color={Colors.BLACK} />
-          </AnchorButton>
-        </Tooltip>
+          <Tooltip content={'Mark selected messages as not good'} position={Position.BOTTOM}>
+            <AnchorButton data-tip data-for={'flag'} onClick={this.props.flag}>
+              <Icon icon={'flag'} color={Colors.BLACK} />
+            </AnchorButton>
+          </Tooltip>
 
-        <Tooltip content={'Unflag Selected messages'} position={Position.BOTTOM}>
-          <AnchorButton>
-            <Icon icon={'flag'} color={Colors.GRAY1} onClick={this.props.unflag} />
-          </AnchorButton>
-        </Tooltip>
-      </LeftToolbarButtons>
+          <Tooltip content={'Unflag Selected messages'} position={Position.BOTTOM}>
+            <AnchorButton>
+              <Icon icon={'flag'} color={Colors.GRAY1} onClick={this.props.unflag} />
+            </AnchorButton>
+          </Tooltip>
+        </LeftToolbarButtons>
+      </Toolbar>
     )
   }
 
   copyLink = () => {
     this.setState({ showCopiedTooltip: true })
-    setTimeout(() => this.setState({ showCopiedTooltip: false }), 600)
+    setTimeout(() => this.setState({ showCopiedTooltip: false }), 1000)
   }
 
   renderFilters() {
     return (
-      <Fragment>
+      <Toolbar>
         <LeftToolbarButtons>
           <Checkbox
             className={style.filtersCheckbox}
@@ -89,20 +91,22 @@ export class MessageTaskBar extends React.Component<Props, State> {
         </LeftToolbarButtons>
 
         <RightToolbarButtons>
-          <div className={style.downloadCopy}>
+          <Tooltip content="Download Conversation" position={Position.BOTTOM}>
             <MessageDownload messageGroups={this.props.messageGroups} />
-            <Tooltip content={'copied!'} isOpen={this.state.showCopiedTooltip} position={Position.BOTTOM}>
+          </Tooltip>
+          <Tooltip content="Copy link to clipboard" position={Position.BOTTOM}>
+            <Tooltip content="Copied to clipboard" isOpen={this.state.showCopiedTooltip} position={Position.BOTTOM}>
               <CopyToClipboard text={window.location.href}>
-                <AnchorButton icon={'link'} onClick={this.copyLink} />
+                <AnchorButton icon="link" onClick={this.copyLink} />
               </CopyToClipboard>
             </Tooltip>
-          </div>
+          </Tooltip>
         </RightToolbarButtons>
-      </Fragment>
+      </Toolbar>
     )
   }
 
   render() {
-    return <Toolbar>{this.props.useAsFilter ? this.renderFilters() : this.renderActions()}</Toolbar>
+    return this.props.useAsFilter ? this.renderFilters() : this.renderActions()
   }
 }

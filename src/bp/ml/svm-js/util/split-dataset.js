@@ -3,17 +3,11 @@
 var assert = require('assert')
 var _ = require('lodash')
 
-module.exports = function(dataset, kFold) {
-  kFold = kFold || 5
+module.exports = function(dataset, k = 5) {
+  const kFold = Math.min(dataset.length, k)
+  const n = dataset.length
 
-  var n = dataset.length,
-    nIndexes = _.range(kFold),
-    nbExPerGroup = Math.floor(n / kFold),
-    rest = n % kFold,
-    gDelta = 0
-
-  assert(n >= kFold, 'kFold parameter must be <= n')
-  var shuffled = _.shuffle(dataset)
+  assert(n >= k, 'kFold parameter must be <= n')
 
   if (kFold === 1) {
     return [
@@ -24,26 +18,30 @@ module.exports = function(dataset, kFold) {
     ]
   }
 
-  var sets = _.map(nIndexes, function(i) {
+  const nIndexes = _.range(kFold)
+  const nbExPerGroup = Math.floor(n / kFold)
+  const rest = n % kFold
+  let gDelta = 0
+  var shuffled = _.chain(dataset).shuffle()
+
+  const sets = nIndexes.map(i => {
     var delta = i < rest ? 1 : 0
-    var subset = _.chain(shuffled)
+
+    var subset = shuffled
       .drop(i * nbExPerGroup + gDelta)
       .take(nbExPerGroup + delta)
       .value()
+
     gDelta += delta
     return subset
   })
 
-  return _(nIndexes).map(function(a, i, list) {
-    return {
-      test: sets[i],
-      train: _.chain(list)
-        .without(i)
-        .map(function(iii) {
-          return sets[iii]
-        })
-        .flatten()
-        .value()
-    }
-  })
+  return nIndexes.map((a, i, list) => ({
+    test: sets[i],
+    train: _.chain(list)
+      .without(i)
+      .map(idx => sets[idx])
+      .flatten()
+      .value()
+  }))
 }

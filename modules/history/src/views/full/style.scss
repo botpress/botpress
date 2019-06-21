@@ -24,11 +24,6 @@
   overflow-y: auto;
 }
 
-.downloadCopy {
-  padding-right: 5px;
-  display: flex;
-}
-
 .taskBarText {
   vertical-align: middle;
   line-height: 30px;
@@ -37,111 +32,54 @@
 .message {
   &-viewer {
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
     background-color: #fff;
-  }
-
-  &-sender {
-    color: #37373f;
-    font-weight: 900;
-  }
-
-  &-group {
-    margin-bottom: 4%;
-    width: 42%;
-    margin-left: 3%;
-
-    &-header {
-      display: flex;
-      background-color: #efefef;
-      padding: 0 1%;
-    }
-
-    &-explanation {
-      display: flex;
-      width: min-content;
-    }
-
-    &-confidence {
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    &-decision {
-      padding-left: 3%;
-      white-space: nowrap;
-    }
-
-    &-flag {
-      margin-left: auto;
-      display: flex;
-    }
-  }
-
-  &-title {
-    color: #2c2c2c;
-    font-size: 1.6em;
-  }
-
-  &-lastdate {
-    color: #a1a1a1;
-    font-size: 1em;
-    padding: 0.5%;
-    padding-bottom: 1.5%;
-    white-space: nowrap;
-  }
-
-  &-list {
-    overflow-y: auto;
-    word-wrap: break-word;
-    padding: 3%;
-
-    &-full {
-      height: 100%;
-    }
-
-    &-partial {
-      height: 50%;
-    }
-  }
-
-  &-inspect {
-    cursor: pointer;
-    color: #233abc;
-    font-size: 1em;
-  }
-
-  &-inspector {
-    height: 50%;
-    background-color: #1e1e1e;
-    overflow-y: auto;
-    padding: 0.5%;
-    position: relative;
-
-    &-hidden {
-      visibility: hidden;
-    }
-  }
-
-  &-elements {
-    padding: 0.2%;
-    font-size: 1.4em;
-    padding-left: 2.5%;
-  }
-
-  &-outgoing {
-    color: #a1a1a1;
-  }
-
-  &-incomming {
-    color: #a1a1a1;
   }
 }
 
-.quit-inspector {
-  right: 5px;
-  top: 5px;
-  position: absolute;
+.messageGroup {
+  height: 100%;
+  width: 100%;
   cursor: pointer;
-  color: #434343;
+  &:hover {
+    background-color: #fafafa;
+  }
+}
+
+.iconWrap {
+  padding: 5px;
+}
+
+.inspector {
+  width: 350px;
+  border: 2px solid #ccc;
+}
+
+.interaction {
+  margin-bottom: 8px;
+  strong {
+    display: inline-block;
+    width: 50px;
+    margin-right: 25px;
+  }
+
+  .interactionStatus {
+    display: inline-block;
+    width: 25px;
+    vertical-align: middle;
+  }
+
+  .userMessage {
+    margin-left: 25px;
+  }
+  .botReplies {
+    display: flex;
+    > div {
+      margin-left: 25px;
+    }
+    > ul {
+      list-style: none;
+      padding: 0;
+    }
+  }
 }

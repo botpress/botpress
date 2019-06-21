@@ -3,9 +3,9 @@ import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
 import _ from 'lodash'
 import lru from 'lru-cache'
+import ms from 'ms'
 import path from 'path'
 import { VError } from 'verror'
-import ms from 'ms'
 
 import toolkit from '../../ml/toolkit'
 
@@ -36,8 +36,10 @@ export default class LanguageService {
     })
 
     this._models = this._getModels()
-    console.log(`Loading languages "${Object.keys(this._models).join(', ')}"`)
-    await Promise.all(Object.keys(this._models).map(this._loadModels.bind(this)))
+    const languages = Object.keys(this._models)
+
+    console.log(`Found Languages: ${languages.join(', ')}`)
+    await Promise.mapSeries(languages, this._loadModels.bind(this))
 
     this._ready = true
   }
@@ -52,16 +54,26 @@ export default class LanguageService {
         ...this._getModels(),
         ...this._models
       }
+    } else {
+      const { bpeModel, fastTextModel } = this._models[lang]
+      if (bpeModel && bpeModel.loaded && fastTextModel && fastTextModel.loaded) {
+        return
+      }
     }
 
-    this._loadModels(lang)
+    await this._loadModels(lang)
   }
 
-  @WrapErrorsWith(args => `Couldn't load language model "${args[0]}"`)
   private async _loadModels(lang: string) {
-    const fastTextModel = await this._loadFastTextModel(lang)
-    const bpeModel = await this._loadBPEModel(lang)
-    this._models[lang] = { fastTextModel, bpeModel }
+    console.log('Loading Embeddings for', lang.toUpperCase())
+
+    try {
+      const fastTextModel = await this._loadFastTextModel(lang)
+      const bpeModel = await this._loadBPEModel(lang)
+      this._models[lang] = { fastTextModel, bpeModel }
+    } catch (err) {
+      console.error(`[${lang.toUpperCase()}] Error loading language. It will be unavailable.`, err)
+    }
   }
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
@@ -181,7 +193,7 @@ export default class LanguageService {
     const usedDelta = Math.round(usedAfter - usedBefore)
     const dtDelta = dtAfter - dtBefore
 
-    console.log(`${path} '${lang}' took about ${usedDelta}mb of RAM and ${dtDelta}ms to load`)
+    console.log(`[${lang.toUpperCase()}] Took ${dtDelta}ms to load ${usedDelta}mb into RAM (${path})`)
 
     return { model, usedDelta, dtDelta }
   }

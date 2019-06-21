@@ -3,6 +3,7 @@ import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 
+import { nluHealth } from '.'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
@@ -57,6 +58,10 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
     }
   }
+
+  router.get('/health', (req, res) => {
+    res.send(nluHealth)
+  })
 
   router.get('/currentModelHash', async (req, res) => {
     const engine = nlus[req.params.botId] as ScopedEngine

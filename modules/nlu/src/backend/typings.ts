@@ -97,8 +97,8 @@ export interface NLUStructure {
 }
 
 export interface PipelineProcessManager {
-  of(pipeline: Function[]): PipelineProcessManager
-  initDS(text: string, includedContexts: string[]): PipelineProcessManager
+  withPipeline(pipeline: Function[]): PipelineProcessManager
+  initFromText(text: string, includedContexts: string[]): PipelineProcessManager
   run(): Promise<NLUStructure>
 }
 
@@ -109,6 +109,7 @@ export interface LangsGateway {
 export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<number[][]>
   tokenize(text: string, lang: string): Promise<string[]>
+  getHealth(): Partial<NLUHealth>
 }
 
 export interface FastTextOverrides {
@@ -122,4 +123,10 @@ export interface LanguageSource {
   endpoint: string
   /** The authentication token, if required by the source */
   authToken?: string
+}
+
+export interface NLUHealth {
+  isEnabled: boolean
+  validProvidersCount: number
+  validLanguages: string[]
 }

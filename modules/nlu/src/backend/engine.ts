@@ -8,13 +8,11 @@ import ms from 'ms'
 import { Config } from '../config'
 
 import { PipelineManager } from './pipelinemanager'
-import { MIN_NB_UTTERANCES } from './pipelines/constants'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
-import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
@@ -38,6 +36,7 @@ const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
+const MIN_NB_UTTERANCES = 3
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -83,7 +82,9 @@ export default class ScopedEngine implements Engine {
     readonly toolkit: typeof sdk.MLToolkit,
     protected readonly languages: string[],
     private readonly defaultLanguage: string,
-    private readonly languageProvider: LanguageProvider
+    private readonly languageProvider: LanguageProvider,
+    private realtime: typeof sdk.realtime,
+    private realtimePayload: typeof sdk.RealTimePayload
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
@@ -93,8 +94,8 @@ export default class ScopedEngine implements Engine {
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
-      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider)
-      this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider)
+      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
+      this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider, realtime, realtimePayload)
     }
   }
 
@@ -190,8 +191,20 @@ export default class ScopedEngine implements Engine {
     let res: any = { errored: true }
 
     try {
-      const runner = this.pipelineManager.of(this._pipeline).initDS(text, includedContexts)
-      res = await retry(async () => await runner.run(), this.retryPolicy)
+      const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
+      const nluResults = await retry(() => runner.run(), this.retryPolicy)
+      res = _.pick(
+        nluResults,
+        'intent',
+        'intents',
+        'language',
+        'detectedLanguage',
+        'entities',
+        'slots',
+        'errored',
+        'includedContexts'
+      )
+
       res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
@@ -359,7 +372,8 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const exactIntent = this._exactIntentMatchers[ds.language].exactMatch(ds.sanitizedText, ds.includedContexts)
+    const exactMatcher = this._exactIntentMatchers[ds.language]
+    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
 
     if (exactIntent) {
       ds.intent = exactIntent
@@ -367,14 +381,8 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
+    // TODO add disambiguation flag if intent 1 & intent 2
     const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
-
-    // TODO: This is no longer relevant because of multi-context
-    // We need to actually check if there's a clear winner
-    // We also need to adjust the scores depending on the interaction model
-    // We need to return a disambiguation flag here too if we're uncertain
-    const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
-    intent.matches = createIntentMatcher(intent.name)
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -383,7 +391,7 @@ export default class ScopedEngine implements Engine {
       .value()
 
     ds.intents = intents
-    ds.intent = intent
+    ds.intent = intents[0]
 
     debugIntents(ds.sanitizedText, { intents })
 
@@ -402,6 +410,11 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
+    if (ds.intent.name === 'none') {
+      debugSlots('none intent, skipping slots')
+      return ds
+    }
+
     const intentDef = await this.storage.getIntent(ds.intent.name)
 
     ds.slots = await this.slotExtractors[ds.language].extract(
