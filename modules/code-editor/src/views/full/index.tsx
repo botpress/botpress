@@ -82,7 +82,7 @@ export default class CodeEditor extends React.Component<Props, State> {
   }
 
   handleFileChanged = selectedFile => this.setState({ isEditing: false, selectedFile })
-  handleContentChanged = editedContent => this.setState({ isEditing: true, editedContent })
+  handleContentChanged = (editedContent, hasChanges) => this.setState({ isEditing: hasChanges, editedContent })
   handleProblemsChanged = errors => this.setState({ errors })
 
   handleDiscardChanges = async () => {
