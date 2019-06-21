@@ -1,3 +1,23 @@
+## [11.9.5](https://github.com/botpress/botpress/compare/v11.9.4...v11.9.5) (2019-06-21)
+
+
+### Bug Fixes
+
+* **core:** added memory cache limits ([4732f3f](https://github.com/botpress/botpress/commit/4732f3f))
+* **core:** object caching uses proper key ([ef3c460](https://github.com/botpress/botpress/commit/ef3c460))
+* **hitl:** pause on quick reply ([c3edfbd](https://github.com/botpress/botpress/commit/c3edfbd))
+* **hitl:** swallow quick reply message type ([1392d97](https://github.com/botpress/botpress/commit/1392d97))
+* **messenger:** typing indicators and postback button ([9aadeb9](https://github.com/botpress/botpress/commit/9aadeb9))
+* continue instead of return ([07f4a5a](https://github.com/botpress/botpress/commit/07f4a5a))
+* validate entry.messaging exists ([99aae8b](https://github.com/botpress/botpress/commit/99aae8b))
+* validate entry.messaging exists ([5307500](https://github.com/botpress/botpress/commit/5307500))
+* **pro:** fixed "built with pro" variable ([9183293](https://github.com/botpress/botpress/commit/9183293))
+* **pro:** fixed "built with pro" variable ([9ebe1d8](https://github.com/botpress/botpress/commit/9ebe1d8))
+* **webchat:** scroll to the very bottom of the chat on open ([44857fd](https://github.com/botpress/botpress/commit/44857fd))
+* **webchat:** scroll to the very bottom of the chat on open ([d5b3045](https://github.com/botpress/botpress/commit/d5b3045))
+
+
+
 ## [11.9.4](https://github.com/botpress/botpress/compare/v11.9.3...v11.9.4) (2019-06-12)
 
 

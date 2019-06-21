@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Embedded Webchat</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    This is an example of embedded webchat, which replaces the composer with a component exported from another module
+  </body>
+
+  <script>
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'welcome-bot',
+      //There are only two possible overrides for the moment.
+      overrides: {
+        // For now, the composer is the only component which is editable. It represents the zone where the user is typing
+        composer: {
+          // Name of the module, as declared in package.json
+          module: 'custom-component',
+          // The name of your exported component. It must be in your lite view: `/views/lite/index.jsx`
+          component: 'Composer'
+        },
+        // You can use this override to inject your component and interact with the web chat. Make it invisible by returning null
+        below_conversation: {
+          module: 'custom-component',
+          component: 'InjectedBelow'
+        }
+      }
+    })
+  </script>
+</html>
