@@ -17,6 +17,8 @@ import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
+import axios from 'axios'
+
 const COMPLETED_DURATION = 2000
 
 class StatusBar extends React.Component {
@@ -26,7 +28,8 @@ class StatusBar extends React.Component {
     keepBlueUntil: undefined,
     inProgress: [],
     messages: [],
-    nluSynced: true
+    nluSynced: true,
+    contexts: []
   }
 
   constructor(props) {
@@ -36,7 +39,16 @@ class StatusBar extends React.Component {
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
-  handleModuleEvent = event => {
+  async componentDidMount() {
+    await this.fetchContexts()
+  }
+
+  fetchContexts = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
+    this.setState({ contexts: data || [] })
+  }
+
+  handleModuleEvent = async event => {
     if (event.message) {
       const messages = this.state.messages.filter(x => x.type !== event.type)
       const newMessage = { ...event, ts: Date.now() }
@@ -44,6 +56,7 @@ class StatusBar extends React.Component {
     }
 
     if (event.name === 'train') {
+      await this.fetchContexts()
       this.setState({ nluSynced: false })
     }
 
@@ -156,6 +169,7 @@ class StatusBar extends React.Component {
             contentLang={this.props.contentLang}
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
+            display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
