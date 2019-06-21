@@ -24,6 +24,10 @@
   height: 76px !important;
 }
 
+.bp-widget-hidden {
+  display: none;
+}
+
 .bp-widget-convo {
   top: auto;
   left: auto;
