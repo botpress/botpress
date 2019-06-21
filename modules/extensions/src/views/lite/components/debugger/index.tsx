@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
+import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
@@ -20,11 +21,13 @@ import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 
-export const updater = { callback: undefined }
+export const updater = { callback: undefined, updateLastMessage: undefined }
 
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
 const RETRY_PERIOD = 500
+const RETRY_SECURITY_FACTOR = 1.5
+const DEBOUNCE_DELAI = 100
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -38,9 +41,13 @@ export class Debugger extends React.Component<Props, State> {
   allowedRetryCount = 0
   currentRetryCount = 0
   retryTimer: number
+  loadEventDebounced = _.debounce(() => this.loadEvent(this.lastMessage), DEBOUNCE_DELAI)
+  updateToLastMessage = undefined
+  lastMessage = undefined
 
   async componentDidMount() {
     updater.callback = this.loadEvent
+    updater.updateLastMessage = this.updateLastMessage
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
@@ -61,13 +68,14 @@ export class Debugger extends React.Component<Props, State> {
 
     const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
     const { collectionInterval } = data
-    const maxDelai = ms(collectionInterval as string)
+    const maxDelai = ms(collectionInterval as string) * RETRY_SECURITY_FACTOR
     this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
 
     const settings = loadSettings()
     if (settings.autoOpenDebugger) {
       this.toggleDebugger()
     }
+    this.updateToLastMessage = settings.updateToLastMessage
   }
 
   componentWillUnmount() {
@@ -82,6 +90,14 @@ export class Debugger extends React.Component<Props, State> {
       this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
     } else if (prevState.visible && !this.state.visible) {
       this.resetWebchat()
+    }
+  }
+
+  updateLastMessage = async newMessage => {
+    if (this.updateToLastMessage && newMessage && newMessage !== this.lastMessage) {
+      this.lastMessage = newMessage
+      // tslint:disable-next-line: no-floating-promises
+      this.loadEventDebounced()
     }
   }
 
