@@ -1,8 +1,7 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { Dictionary } from 'lodash'
 import moment from 'moment'
-
-import * as sdk from 'botpress/sdk'
 
 import { MessageGroup, QueryFilters } from '../typings'
 
@@ -50,6 +49,7 @@ export default class HistoryDb {
       .from(EVENTS_TABLE_NAME)
       .whereNotNull('sessionId')
       .andWhere({ botId })
+      .andWhereNot('sessionId', 'like', '%benchmark%') // Those are users created when benchmarking performances
 
     if (from) {
       const fromDate = moment.unix(from).toDate()

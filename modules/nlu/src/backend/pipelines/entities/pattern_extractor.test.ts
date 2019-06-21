@@ -2,6 +2,8 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { NLUHealth } from '../../typings'
+
 import { initNLUDS } from './../../pipelinemanager'
 import PatternExtractor from './pattern_extractor'
 
@@ -11,9 +13,12 @@ const languageProvider = {
     return Promise.resolve(vectors)
   },
   tokenize: function(text: string, lang: string): Promise<string[]> {
-    //This is a white space tokenizer only working for tests written in english
+    // This is a white space tokenizer only working for tests written in english
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
+  },
+  getHealth: (): Partial<NLUHealth> => {
+    return {}
   }
 }
 

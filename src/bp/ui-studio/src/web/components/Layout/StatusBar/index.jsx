@@ -17,16 +17,18 @@ import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
+import axios from 'axios'
+
 const COMPLETED_DURATION = 2000
 
 class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
 
   state = {
-    keepBlueUntil: undefined,
-    inProgress: [],
+    progress: 0,
     messages: [],
-    nluSynced: true
+    nluSynced: true,
+    contexts: []
   }
 
   constructor(props) {
@@ -36,7 +38,16 @@ class StatusBar extends React.Component {
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
-  handleModuleEvent = event => {
+  async componentDidMount() {
+    await this.fetchContexts()
+  }
+
+  fetchContexts = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
+    this.setState({ contexts: data || [] })
+  }
+
+  handleModuleEvent = async event => {
     if (event.message) {
       const messages = this.state.messages.filter(x => x.type !== event.type)
       const newMessage = { ...event, ts: Date.now() }
@@ -44,13 +55,14 @@ class StatusBar extends React.Component {
     }
 
     if (event.name === 'train') {
+      await this.fetchContexts()
       this.setState({ nluSynced: false })
-    }
-
-    if (event.name === 'done' || event.working === false) {
-      this.setState({ inProgress: _.without(this.state.inProgress, event.type) })
+    } else if (event.name === 'done' || event.working === false) {
+      this.setState({ progress: 1 })
     } else {
-      this.setState({ inProgress: [..._.without(this.state.inProgress, event.type), event.type] })
+      if (event.value != this.state.progress) {
+        this.setState({ progress: event.value })
+      }
     }
   }
 
@@ -59,26 +71,22 @@ class StatusBar extends React.Component {
       this.initializeProgressBar()
     }
 
-    if (!this.state.inProgress.length) {
-      if (prevState.inProgress.length) {
+    if (prevState.progress != this.state.progress && this.state.progress) {
+      if (this.state.progress >= 1) {
         this.progressBar.animate(1, 300)
         clearTimeout(this.clearCompletedStyleTimer)
         this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
       } else {
-        this.progressBar.set(0)
+        this.progressBar.animate(this.state.progress, 200)
       }
-    } else {
-      const current = this.progressBar.value()
-      this.progressBar.animate(Math.min(current + 0.15, 0.75), 200)
     }
   }
 
   cleanupCompleted = () => {
     const newMessages = this.state.messages.filter(x => x.ts > Date.now() - COMPLETED_DURATION)
     this.setState({ messages: newMessages })
-    if (this.progressBar.value() >= 1) {
-      this.progressBar.set(0)
-    }
+    this.setState({ progress: 0 })
+    this.progressBar.set(0)
   }
 
   initializeProgressBar = () => {
@@ -156,6 +164,7 @@ class StatusBar extends React.Component {
             contentLang={this.props.contentLang}
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
+            display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>

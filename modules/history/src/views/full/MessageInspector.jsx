@@ -1,25 +1,18 @@
 import React from 'react'
 import style from './style.scss'
 
-import { GoX } from 'react-icons/go'
-
-import classnames from 'classnames'
 import inspectorTheme from './inspectortheme'
 import JSONTree from 'react-json-tree'
 
-export function MessageInspector(props) {
+export const MessageInspector = props => {
   return (
-    <div
-      className={classnames(style['message-inspector'], {
-        [style['message-inspector-hidden']]: props.inspectorIsShown
-      })}
-    >
-      <div className={style['quit-inspector']} onClick={props.closeInspector}>
-        <GoX />
+    <div>
+      <h5>
+        <strong>Inspect Event Details</strong>
+      </h5>
+      <div className={style.inspector}>
+        <JSONTree theme={inspectorTheme} data={props.focusedMessage || {}} invertTheme={true} hideRoot={true} />
       </div>
-      {props.focusedMessage && (
-        <JSONTree theme={inspectorTheme} data={props.focusedMessage} invertTheme={false} hideRoot={true} />
-      )}
     </div>
   )
 }

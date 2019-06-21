@@ -4,6 +4,7 @@ import math from 'mathjs'
 import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
+import { getProgressPayload, identityProgress } from '../../tools/progress'
 import { Model } from '../../typings'
 import { getSentenceFeatures } from '../language/ft_featurizer'
 import { generateNoneUtterances } from '../language/none-generator'
@@ -17,6 +18,14 @@ const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
 const debugPredict = debug.sub('predict')
 
+const getPayloadForInnerSVMProgress = total => index => progress => ({
+  value: 0.25 + Math.floor((progress * index) / (2 * total))
+})
+
+// We might want to compute this as a function of the number of samples in each cluster
+// As this depends on the dataset size and distribution
+const MIN_CLUSTER_SAMPLES = 3
+
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
@@ -26,7 +35,9 @@ export default class SVMClassifier {
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private language: string,
-    private languageProvider: LanguageProvider
+    private languageProvider: LanguageProvider,
+    private realtime: typeof sdk.realtime,
+    private realtimePayload: typeof sdk.RealTimePayload
   ) {}
 
   private teardownModels() {
@@ -73,6 +84,10 @@ export default class SVMClassifier {
   }
 
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    this.realtime.sendPayload(
+      this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(identityProgress)(0.1))
+    )
+
     const allContexts = _.chain<sdk.NLU.IntentDefinition[]>(intentDefs)
       .flatMap(x => (<sdk.NLU.IntentDefinition>x).contexts)
       .uniq()
@@ -80,7 +95,7 @@ export default class SVMClassifier {
 
     const intentsWTokens = await Promise.all(
       intentDefs
-        // we're generating none intents automatically from now on
+        // we're generating none iantents automatically from now on
         // but some existing bots might have the 'none' intent already created
         // so we exclude it explicitely from the dataset here
         .filter(x => x.name !== 'none')
@@ -99,7 +114,13 @@ export default class SVMClassifier {
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
     const models: Model[] = []
 
-    for (const context of allContexts) {
+    this.realtime.sendPayload(
+      this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(identityProgress)(0.2))
+    )
+
+    const ratioedProgress = getPayloadForInnerSVMProgress(allContexts.length)
+
+    for (const [index, context] of Object.entries(allContexts)) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
       const utterances = _.flatten(intents.map(x => x.tokens))
       const noneUtterances = generateNoneUtterances(utterances, Math.max(5, utterances.length / 2)) // minimum 5 none utterances per context
@@ -149,7 +170,16 @@ export default class SVMClassifier {
       }
 
       const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-      await svm.train(l1Points, progress => debugTrain('SVM => progress for INT', { context, progress }))
+
+      const ratioedProgressForIndex = ratioedProgress(index)
+
+      await svm.train(l1Points, progress => {
+        this.realtime.sendPayload(
+          this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(ratioedProgressForIndex)(progress))
+        )
+        debugTrain('SVM => progress for INT', { context, progress })
+      })
+
       const modelStr = svm.serialize()
 
       models.push({

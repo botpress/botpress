@@ -23,6 +23,7 @@ declare global {
 export namespace Renderer {
   export interface Message {
     type?: string
+    className?: string
     payload?: any
     store?: RootStore
     bp?: StudioConnector
@@ -245,6 +246,15 @@ interface CustomButton {
   icon: Function | JSX.Element
   /** The event triggered when the button is clicked */
   onClick: (buttonId: string, headerComponent: JSX.Element, event: React.MouseEvent) => void
+}
+
+interface CustomAction {
+  /** An ID to identify your action. It is required to remove it */
+  id: string
+  /** This text will be displayed in the context menu */
+  label: string
+  /** The event triggered when the action is clicked */
+  onClick: (actionId: string, messageProps: any, event: React.MouseEvent) => void
 }
 
 /** When set, this will wrap every messages displayed in the webchat */

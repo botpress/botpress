@@ -82,7 +82,9 @@ export default class ScopedEngine implements Engine {
     readonly toolkit: typeof sdk.MLToolkit,
     protected readonly languages: string[],
     private readonly defaultLanguage: string,
-    private readonly languageProvider: LanguageProvider
+    private readonly languageProvider: LanguageProvider,
+    private realtime: typeof sdk.realtime,
+    private realtimePayload: typeof sdk.RealTimePayload
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
@@ -92,8 +94,8 @@ export default class ScopedEngine implements Engine {
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
-      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider)
-      this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider)
+      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
+      this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider, realtime, realtimePayload)
     }
   }
 
@@ -190,7 +192,19 @@ export default class ScopedEngine implements Engine {
 
     try {
       const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
-      res = await retry(() => runner.run(), this.retryPolicy)
+      const nluResults = await retry(() => runner.run(), this.retryPolicy)
+      res = _.pick(
+        nluResults,
+        'intent',
+        'intents',
+        'language',
+        'detectedLanguage',
+        'entities',
+        'slots',
+        'errored',
+        'includedContexts'
+      )
+
       res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)

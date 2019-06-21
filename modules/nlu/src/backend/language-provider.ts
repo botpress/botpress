@@ -1,10 +1,11 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
 import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 
-import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
+import { LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -13,6 +14,7 @@ const maxAgeCacheInMS = ms('1d')
 export class RemoteLanguageProvider implements LanguageProvider {
   private _vectorsCache
   private _tokensCache
+  private _validProvidersCount: number
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -25,16 +27,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
   private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
+    debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[]): Promise<LanguageProvider> {
-    this._tokensCache = new lru({
-      maxAge: maxAgeCacheInMS
-    })
-
-    this._vectorsCache = new lru({
-      maxAge: maxAgeCacheInMS
-    })
+  async initialize(sources: LanguageSource[], logger: typeof sdk.logger): Promise<LanguageProvider> {
+    this._tokensCache = new lru({ maxAge: maxAgeCacheInMS })
+    this._vectorsCache = new lru({ maxAge: maxAgeCacheInMS })
+    this._validProvidersCount = 0
 
     await Promise.mapSeries(sources, async source => {
       const headers = {}
@@ -44,21 +43,29 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       const client = axios.create({ baseURL: source.endpoint, headers })
+      try {
+        await retry(async () => {
+          const { data } = await client.get('/info')
 
-      await retry(async () => {
-        const { data } = await client.get('/info')
+          if (!data.ready) {
+            throw new Error('Language source is not ready')
+          }
 
-        if (!data.ready) {
-          throw new Error('Language source is not ready')
-        }
-
-        data.languages.forEach(x => this.addProvider(x.lang, source, client))
-      }, this.discoveryRetryPolicy)
+          this._validProvidersCount++
+          data.languages.forEach(x => this.addProvider(x.lang, source, client))
+        }, this.discoveryRetryPolicy)
+      } catch (err) {
+        logger.attachError(err).error(`Could not load Language Provider at ${source.endpoint}: ${err.code}`)
+      }
     })
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
     return this
+  }
+
+  getHealth(): Partial<NLUHealth> {
+    return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
   private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {
