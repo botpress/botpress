@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import { Button } from 'react-bootstrap'
 import _ from 'lodash'
 
 import SlotModal from './SlotModal'
@@ -7,6 +6,7 @@ import SlotModal from './SlotModal'
 import style from './style.scss'
 import ActionSlotItem from './ActionSlotItem'
 import SlotItem from './SlotItem'
+import { NonIdealState, Button } from '@blueprintjs/core'
 
 export default class Slots extends React.Component {
   state = {
@@ -184,7 +184,8 @@ export default class Slots extends React.Component {
             }
           })}
         </ul>
-        <Button bsStyle="success" onClick={this.showSlotModal.bind(this, null, null)}>
+
+        <Button icon="add" large onClick={this.showSlotModal.bind(this, null, null)}>
           Create a slot
         </Button>
       </div>
@@ -201,22 +202,20 @@ export default class Slots extends React.Component {
 
     return (
       <div className={style.centerContainer}>
-        <div className={style.centerElement}>
-          <h1>No slot is defined for this intent 🤖</h1>
-          {this.hasSelectedText() && (
-            <h3>
-              Define a new slot in order to tag <span className={style.selectionText}>"{this.state.selectedText}"</span>
-            </h3>
-          )}
-          <Button bsSize="large" bsStyle="success" onClick={this.showSlotModal.bind(this, null, null)}>
-            Create a slot
-          </Button>
-          {this.hasSelectedText() && (
-            <div className={style.buttonTip}>
-              Press <strong>Enter</strong> while editing
-            </div>
-          )}
-        </div>
+        <NonIdealState
+          icon="layers"
+          description="No slots defined for this intent"
+          action={
+            <Button icon="add" large onClick={this.showSlotModal.bind(this, null, null)}>
+              Create a slot
+            </Button>
+          }
+        />
+        {this.hasSelectedText() && (
+          <div className={style.buttonTip}>
+            Press <strong>Enter</strong> to create a slot
+          </div>
+        )}
       </div>
     )
   }

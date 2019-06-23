@@ -156,8 +156,12 @@ export interface SearchBarProps {
   placeholder?: string
   /** This is called whenever the text in the input changes */
   onChange?: (text: string) => void
-  /** This is called when the user clicks on the search icon */
-  onClick?: (e: React.MouseEvent) => void
+  /** The name of the icon to use. Can also be a JSX element */
+  icon?: IconName | MaybeElement
+  /** Show or hide button */
+  showButton?: boolean
+  /** This is called when the user clicks on the button */
+  onButtonClick?: (e: React.MouseEvent) => void
 }
 
 export interface ToolbarProps {

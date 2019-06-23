@@ -33,6 +33,7 @@ h4 {
 }
 
 .buttonTip {
+  text-align: center;
   margin-top: 7px;
   font-size: 80%;
   color: #888;
@@ -99,7 +100,7 @@ h4 {
   }
 
   &:hover {
-    background: #fff889;
+    background: #eee;
 
     a {
       display: initial;
