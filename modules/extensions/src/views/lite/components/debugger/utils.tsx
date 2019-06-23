@@ -2,7 +2,8 @@ export const formatConfidence = confidence => (+confidence * 100).toFixed(1)
 
 const SETTINGS_KEY = 'bp::modules::extensions::settings'
 const DEFAULT_SETTINGS: Settings = {
-  autoOpenDebugger: true
+  autoOpenDebugger: true,
+  updateToLastMessage: true
 }
 
 export const loadSettings = (): Settings => {
@@ -21,4 +22,5 @@ export const persistSettings = (settings: Settings) => {
 
 interface Settings {
   autoOpenDebugger: boolean
+  updateToLastMessage: boolean
 }

@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, Intent, Position, Toaster } from '@blueprintjs/core'
 import axios from 'axios'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -23,19 +23,21 @@ interface State {
   f1: number
   synced: boolean
   computing: boolean
+  nluHealth: any
 }
 
 export default class NluPerformanceStatus extends React.Component<Props, State> {
   state: State = {
     f1: undefined,
     synced: true,
-    computing: false
+    computing: false,
+    nluHealth: undefined
   }
   computationMutex = false // not in the state because it needs to be updated in sync
 
-  componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.fetchConfusion()
+  async componentDidMount() {
+    await this.fetchConfusion()
+    await this.fetchHealth()
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -46,6 +48,19 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
       // tslint:disable-next-line: no-floating-promises
       this.fetchConfusion()
+    }
+  }
+
+  async fetchHealth() {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/health`)
+    this.setState({ nluHealth: data })
+
+    if (!data.isEnabled) {
+      Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+        message: `The NLU Status is Unhealthy, user messages sent to the bot will not be analyzed. Please check your language sources configuration`,
+        intent: Intent.DANGER,
+        timeout: 0
+      })
     }
   }
 
@@ -97,7 +112,36 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     await this.fetchConfusion(response.data.modelHash)
   }
 
+  renderUnhealthy() {
+    const { validLanguages, validProvidersCount } = this.state.nluHealth
+
+    return (
+      <ActionItem
+        title="NLU is Unhealthy"
+        description={
+          <div>
+            <span style={{ color: 'red', fontWeight: 'bold' }}>
+              Language Providers: {validProvidersCount}
+              <br />
+              Valid Languages: {validLanguages.length === 0 ? 'None' : validLanguages.join(', ')}
+            </span>
+            <p>For more informations, click here</p>
+          </div>
+        }
+        disabled={this.state.computing}
+        className={style.right}
+        onClick={() => window.open('https://botpress.io/docs/main/nlu/')}
+      >
+        <Icon icon="error" iconSize={18} intent={Intent.DANGER} />
+      </ActionItem>
+    )
+  }
+
   render() {
+    if (this.state.nluHealth && !this.state.nluHealth.isEnabled) {
+      return this.renderUnhealthy()
+    }
+
     if (!this.props.display) {
       return null
     }

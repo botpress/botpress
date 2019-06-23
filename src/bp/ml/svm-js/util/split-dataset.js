@@ -21,7 +21,7 @@ module.exports = function(dataset, k = 5) {
   const nIndexes = _.range(kFold)
   const nbExPerGroup = Math.floor(n / kFold)
   const rest = n % kFold
-  const gDelta = 0
+  let gDelta = 0
   var shuffled = _.chain(dataset).shuffle()
 
   const sets = nIndexes.map(i => {

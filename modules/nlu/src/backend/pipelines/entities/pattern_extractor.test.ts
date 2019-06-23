@@ -2,7 +2,7 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { LanguageProvider } from '../../typings'
+import { LanguageProvider, NLUHealth } from '../../typings'
 
 import { initNLUDS } from './../../pipelinemanager'
 import PatternExtractor from './pattern_extractor'
@@ -17,7 +17,10 @@ const languageProvider: LanguageProvider = {
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
   },
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]) // Not implemented
+  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  getHealth: (): Partial<NLUHealth> => {
+    return {}
+  }
 }
 
 describe('Custom entity extraction', () => {

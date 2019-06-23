@@ -112,6 +112,7 @@ export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(text: string, lang: string): Promise<string[]>
   generateSimilarJunkWords(subsetVocab: string[]): Promise<string[]>
+  getHealth(): Partial<NLUHealth>
 }
 
 export interface FastTextOverrides {
@@ -125,4 +126,10 @@ export interface LanguageSource {
   endpoint: string
   /** The authentication token, if required by the source */
   authToken?: string
+}
+
+export interface NLUHealth {
+  isEnabled: boolean
+  validProvidersCount: number
+  validLanguages: string[]
 }

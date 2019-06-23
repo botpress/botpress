@@ -24,7 +24,7 @@ export const enrichToken2Vec = async (
   }
 
   _.zip(doc, vecs).forEach(([token, vec]) => {
-    if (!token2vec[token]) {
+    if (token && vec && !token2vec[token]) {
       token2vec[token] = Array.from(vec.values())
     }
   })

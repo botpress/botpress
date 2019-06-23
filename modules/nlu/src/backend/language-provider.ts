@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
 import _, { debounce, sumBy } from 'lodash'
 import lru from 'lru-cache'
@@ -8,7 +9,7 @@ import ms from 'ms'
 import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
-import { LangsGateway, LanguageProvider, LanguageSource } from './typings'
+import { LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -26,6 +27,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _junkwordsCache: lru<string[], string[]>
 
   private _cacheDumpDisabled: boolean = false
+  private _validProvidersCount: number
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -38,9 +40,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
   private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
+    debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[]): Promise<LanguageProvider> {
+  async initialize(sources: LanguageSource[], logger: typeof sdk.logger): Promise<LanguageProvider> {
     this._vectorsCache = new lru<string, Float32Array>({
       length: (arr: Float32Array) => {
         if (arr && arr.BYTES_PER_ELEMENT) {
@@ -55,6 +58,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this._tokensCache = new lru<string, string[]>({
       maxAge: maxAgeCacheInMS
     })
+    this._validProvidersCount = 0
 
     this._junkwordsCache = new lru<string[], string[]>({
       length: (val: string[], key: string[]) => sumBy(key, x => x.length * 4) + sumBy(val, x => x.length * 4),
@@ -75,16 +79,20 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       const client = axios.create({ baseURL: source.endpoint, headers })
+      try {
+        await retry(async () => {
+          const { data } = await client.get('/info')
 
-      await retry(async () => {
-        const { data } = await client.get('/info')
+          if (!data.ready) {
+            throw new Error('Language source is not ready')
+          }
 
-        if (!data.ready) {
-          throw new Error('Language source is not ready')
-        }
-
-        data.languages.forEach(x => this.addProvider(x.lang, source, client))
-      }, this.discoveryRetryPolicy)
+          this._validProvidersCount++
+          data.languages.forEach(x => this.addProvider(x.lang, source, client))
+        }, this.discoveryRetryPolicy)
+      } catch (err) {
+        logger.attachError(err).error(`Could not load Language Provider at ${source.endpoint}: ${err.code}`)
+      }
     })
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
@@ -152,6 +160,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     } catch (err) {
       debug('could not restore junk cache, error: %s', err.message)
     }
+  }
+
+  getHealth(): Partial<NLUHealth> {
+    return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
   private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {

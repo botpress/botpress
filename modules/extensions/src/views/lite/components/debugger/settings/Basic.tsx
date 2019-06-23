@@ -8,14 +8,15 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
   state = {
     userId: '',
     externalAuthToken: '',
-    autoOpenDebugger: false
+    autoOpenDebugger: false,
+    updateToLastMessage: false
   }
 
   componentDidMount() {
     const { userId, externalAuthToken } = this.props.store.config
-    const { autoOpenDebugger } = loadSettings()
+    const { autoOpenDebugger, updateToLastMessage } = loadSettings()
 
-    this.setState({ userId, externalAuthToken, autoOpenDebugger })
+    this.setState({ userId, externalAuthToken, autoOpenDebugger, updateToLastMessage })
   }
 
   saveSettings = () => {
@@ -24,13 +25,17 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
       externalAuthToken: this.state.externalAuthToken
     })
 
-    persistSettings({ autoOpenDebugger: this.state.autoOpenDebugger })
+    persistSettings({
+      autoOpenDebugger: this.state.autoOpenDebugger,
+      updateToLastMessage: this.state.updateToLastMessage
+    })
     AppToaster.show({ message: 'Configuration updated successfully!', intent: Intent.SUCCESS, timeout: 3000 })
   }
 
   handleUserIdChanged = event => this.setState({ userId: event.target.value })
   handleAuthChanged = event => this.setState({ externalAuthToken: event.target.value })
   handleAutoOpenChanged = event => this.setState({ autoOpenDebugger: event.target.checked })
+  handleAutoUpdateToLastMessage = event => this.setState({ updateToLastMessage: event.target.checked })
 
   render() {
     return (
@@ -39,6 +44,12 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
           label="Always show Debugger"
           checked={this.state.autoOpenDebugger}
           onChange={this.handleAutoOpenChanged}
+        />
+
+        <Checkbox
+          label="Update debugger on new message"
+          checked={this.state.updateToLastMessage}
+          onChange={this.handleAutoUpdateToLastMessage}
         />
 
         <FormGroup label="User ID" helperText={'Changes the User ID stored on your browser'}>
@@ -69,4 +80,5 @@ interface BasicSettingState {
   userId: string
   externalAuthToken: string
   autoOpenDebugger: boolean
+  updateToLastMessage: boolean
 }

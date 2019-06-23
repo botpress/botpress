@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BIO, LanguageProvider } from '../../typings'
+import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
 
@@ -18,7 +18,12 @@ const languageProvider: LanguageProvider = {
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
   },
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]) // Not implemented
+
+  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+
+  getHealth: (): Partial<NLUHealth> => {
+    return {}
+  }
 }
 
 const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)

@@ -192,7 +192,19 @@ export default class ScopedEngine implements Engine {
 
     try {
       const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
-      res = await retry(() => runner.run(), this.retryPolicy)
+      const nluResults = await retry(() => runner.run(), this.retryPolicy)
+      res = _.pick(
+        nluResults,
+        'intent',
+        'intents',
+        'language',
+        'detectedLanguage',
+        'entities',
+        'slots',
+        'errored',
+        'includedContexts'
+      )
+
       res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
