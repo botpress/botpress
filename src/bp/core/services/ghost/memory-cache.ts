@@ -15,7 +15,7 @@ export default class MemoryObjectCache implements ObjectCache {
   public readonly events: EventEmitter = new EventEmitter()
 
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
-    this.cache = LRU({
+    this.cache = new LRU({
       max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
       length: obj => {
         if (Buffer.isBuffer(obj)) {
