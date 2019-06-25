@@ -92,23 +92,24 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
   const cannonical = keepEntityValues(input)
+  let inputCopy = input
 
   do {
-    matches = SLOTS_REGEX.exec(input)
+    matches = SLOTS_REGEX.exec(inputCopy)
 
     if (matches) {
-      const sub = input.substr(0, matches.index - 1)
+      const sub = inputCopy.substr(0, matches.index - 1)
 
       const tokensBeforeSlot = await genToken(sub, lang, 0)
       const slotTokens = await genToken(matches[1], lang, matches.index, matches[2], slotDefinitions)
 
       tokens = [...tokens, ...tokensBeforeSlot, ...slotTokens]
-      input = input.substr(matches.index + matches[0].length)
+      inputCopy = inputCopy.substr(matches.index + matches[0].length)
     }
   } while (matches)
 
-  if (input.length) {
-    tokens = [...tokens, ...(await genToken(input, lang, 0))]
+  if (inputCopy.length) {
+    tokens = [...tokens, ...(await genToken(inputCopy, lang, 0))]
   }
 
   return {
