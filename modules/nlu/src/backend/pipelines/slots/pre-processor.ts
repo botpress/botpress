@@ -5,7 +5,7 @@ import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
-const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
 
 export function keepEntityTypes(text: string): string {
   return text.replace(SLOTS_REGEX, '$2')
@@ -29,7 +29,7 @@ const _makeToken = (value: string, matchedEntities: string[], start: number, tag
 const _generateTrainingTokens = languageProvider => async (
   input: string,
   lang: string,
-  start: number,
+  start: number = 0,
   slot: string = '',
   slotDefinitions: sdk.NLU.SlotDefinition[] = []
 ): Promise<Token[]> => {
@@ -88,7 +88,6 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   intentName: string = '',
   contexts: string[] = []
 ): Promise<Sequence> => {
-  let start = 0
   let tokens: Token[] = []
   let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
@@ -98,19 +97,18 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
     matches = SLOTS_REGEX.exec(input)
 
     if (matches) {
-      const sub = input.substr(start, matches.index - start - 1)
-      tokens = [
-        ...tokens,
-        ...(await genToken(sub, lang, start)),
-        ...(await genToken(matches[1], lang, start + matches.index, matches[2], slotDefinitions))
-      ]
-      start = matches.index + matches[0].length
+      const sub = input.substr(0, matches.index - 1)
+
+      const tokensBeforeSlot = await genToken(sub, lang, 0)
+      const slotTokens = await genToken(matches[1], lang, matches.index, matches[2], slotDefinitions)
+
+      tokens = [...tokens, ...tokensBeforeSlot, ...slotTokens]
+      input = input.substr(matches.index + matches[0].length)
     }
   } while (matches)
 
-  if (start !== input.length) {
-    const lastingPart = input.substr(start, input.length - start)
-    tokens = [...tokens, ...(await genToken(lastingPart, lang, start))]
+  if (input.length) {
+    tokens = [...tokens, ...(await genToken(input, lang, 0))]
   }
 
   return {
