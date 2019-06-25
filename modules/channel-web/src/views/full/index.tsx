@@ -26,6 +26,7 @@ export class WebBotpressUIInjection extends React.Component {
         sendUsageStats: window.SEND_USAGE_STATS,
         disableAnimations: true,
         showPoweredBy: false,
+        enableResetSessionShortcut: true,
         overrides: {
           before_container: [
             {

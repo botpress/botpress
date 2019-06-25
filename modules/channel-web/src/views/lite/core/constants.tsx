@@ -29,6 +29,7 @@ export default {
     hideWidget: false,
     externalAuthToken: undefined,
     showPoweredBy: window.SHOW_POWERED_BY,
-    enablePersistHistory: true
+    enablePersistHistory: true,
+    enableResetSessionShortcut: false
   }
 }

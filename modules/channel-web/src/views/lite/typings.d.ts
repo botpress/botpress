@@ -142,6 +142,8 @@ export type Config = {
   hideWidget: boolean
   /** Disable the slide in / out animations of the webchat */
   disableAnimations: boolean
+  /** When true, sets ctrl+Enter as shortcut for reset session then send */
+  enableResetSessionShortcut: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
   containerWidth?: string | number
