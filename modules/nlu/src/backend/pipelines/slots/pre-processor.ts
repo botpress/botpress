@@ -5,14 +5,15 @@ import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
-const SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
+const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+const ITTERATIVE_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
 
 export function keepEntityTypes(text: string): string {
-  return text.replace(SLOTS_REGEX, '$2')
+  return text.replace(ALL_SLOTS_REGEX, '$2')
 }
 
 export function keepEntityValues(text: string): string {
-  return text.replace(SLOTS_REGEX, '$1')
+  return text.replace(ALL_SLOTS_REGEX, '$1')
 }
 
 const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
@@ -79,8 +80,6 @@ export const generatePredictionSequence = async (
   }
 }
 
-//I don't like the async reduce, we might want to refactor this when merging logic
-//I also don't like that the lang provider is passed a parametter, we chould make as a class
 export const generateTrainingSequence = (langProvider: LanguageProvider) => async (
   input: string,
   lang: string,
@@ -95,7 +94,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let inputCopy = input
 
   do {
-    matches = SLOTS_REGEX.exec(inputCopy)
+    matches = ITTERATIVE_SLOTS_REGEX.exec(inputCopy)
 
     if (matches) {
       const sub = inputCopy.substr(0, matches.index - 1)
