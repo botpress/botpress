@@ -1,6 +1,6 @@
 .fetch-more {
   width: fit-content;
-  margin: 0 auto;
+  margin: 0px auto 30px auto;
 }
 
 .filtersCheckbox {
@@ -31,7 +31,7 @@
 
 .message {
   &-viewer {
-    height: 100%;
+    height: calc(100% - 30px);
     overflow-y: auto;
     background-color: #fff;
   }
