@@ -1,13 +1,17 @@
+import { Config } from '../typings'
+
 export default class BpSocket {
   private events: any
   private userId: string
+  private userIdScope: string
 
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
   public onUserIdChanged: (userId: string) => void
 
-  constructor(bp) {
+  constructor(bp, config: Config) {
     this.events = bp && bp.events
+    this.userIdScope = config.userIdScope
   }
 
   public setup() {
@@ -16,7 +20,7 @@ export default class BpSocket {
     }
 
     // Connect the Botpress Web Socket to the server
-    this.events.setup()
+    this.events.setup(this.userIdScope)
 
     this.events.on('guest.webchat.message', this.onMessage)
     this.events.on('guest.webchat.typing', this.onTyping)
@@ -31,7 +35,7 @@ export default class BpSocket {
   }
 
   public changeUserId(newId: string): Promise<void> {
-    this.events.updateVisitorId(newId)
+    this.events.updateVisitorId(newId, this.userIdScope)
     return this.waitForUserId()
   }
 

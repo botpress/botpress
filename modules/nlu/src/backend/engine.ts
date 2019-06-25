@@ -146,9 +146,9 @@ export default class ScopedEngine implements Engine {
       const modelHash = this.computeModelHash(intents)
       let loaded = false
 
-      const modelsExists = this.languages
-        .map(async lang => await this.storage.modelExists(modelHash, lang))
-        .every(_.identity)
+      const modelsExists = (await Promise.all(
+        this.languages.map(async lang => await this.storage.modelExists(modelHash, lang))
+      )).every(_.identity)
 
       if (!forceRetrain && modelsExists) {
         try {

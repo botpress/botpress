@@ -1,4 +1,5 @@
 .container {
+  background-color: white;
   display: flex;
   flex-direction: column;
 }
@@ -6,7 +7,6 @@
 .header {
   height: 50px;
   padding: 0 15px;
-  border-bottom: 1px solid #e8e8e8;
 
   h1,
   div {
@@ -37,6 +37,18 @@
 
   button + button {
     margin-left: 10px;
+  }
+}
+
+.tools {
+  display: flex;
+  margin-bottom: 15px;
+  align-items: flex-end;
+
+  .selectContext {
+    width: 300px;
+    z-index: 1000;
+    margin: 10px 10px 0 10px;
   }
 }
 
@@ -94,13 +106,18 @@
   }
 }
 
+.intentEditor {
+  background: white;
+}
+
 .utterances {
   list-style: none;
   padding: 0 0 150px 0;
 }
 
-.selectContext {
-  max-width: 300px;
-  z-index: 1000;
-  margin: 10px 10px 0 10px;
+.hint {
+  color: #738694;
+  span {
+    margin-left: 10px;
+  }
 }

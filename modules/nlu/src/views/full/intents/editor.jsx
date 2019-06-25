@@ -8,8 +8,9 @@ import Editor from './draft/editor'
 import style from './style.scss'
 import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
-import classnames from 'classnames'
-import { BotpressTooltip } from 'botpress/tooltip'
+import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
+import IntentHint from './IntentHint'
+import { SplashScreen } from 'botpress/ui'
 
 const NLU_TABIDX = 3745
 
@@ -193,9 +194,11 @@ export default class IntentsEditor extends React.Component {
 
   renderNone() {
     return (
-      <div>
-        <h1>No intent selected</h1>
-      </div>
+      <SplashScreen
+        icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
+        title="Understanding"
+        description="Use Botpress native Natural language understanding engine to make your bot smart."
+      />
     )
   }
 
@@ -259,27 +262,30 @@ export default class IntentsEditor extends React.Component {
             </h1>
           </div>
         </div>
-        <div className={classnames('pull-left', style.selectContext)}>
-          <div>
+        <div className={style.tools}>
+          <div className={style.selectContext}>
             <label for="selectContext">Current contexts</label>
             &nbsp;
-            <BotpressTooltip message="You can type in the select bar to add new contexts. To learn more about contexts, try the Welcome Bot." />
+            <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
+              <Icon color={Colors.GRAY2} icon="info-sign" />
+            </Tooltip>
+            <Creatable
+              id="selectContext"
+              isMulti
+              onChange={this.handleChangeContext}
+              value={this.state.selectedContextOptions}
+              options={
+                this.state.availableContexts &&
+                this.state.availableContexts.map(x => {
+                  return { value: x, label: x }
+                })
+              }
+            />
           </div>
-          <Creatable
-            id="selectContext"
-            isMulti
-            onChange={this.handleChangeContext}
-            value={this.state.selectedContextOptions}
-            options={
-              this.state.availableContexts &&
-              this.state.availableContexts.map(x => {
-                return { value: x, label: x }
-              })
-            }
-          />
+          <IntentHint intent={this.props.intent} contentLang={this.props.contentLang} />
         </div>
         <div>
-          <SplitterLayout secondaryInitialSize={350} secondaryMinSize={200}>
+          <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>
             {this.renderEditor()}
             <div className={style.entitiesPanel}>
               <Slots

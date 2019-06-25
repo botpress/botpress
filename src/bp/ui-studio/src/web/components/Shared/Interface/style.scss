@@ -15,7 +15,7 @@ $status-bar-height: 24px;
   border-left: 5px solid rgba(255, 255, 255, 0);
   border-right: 5px solid rgba(255, 255, 255, 0);
   box-sizing: border-box;
-  background: #999;
+  background: transparent;
   opacity: 0.5;
   z-index: 1;
   background-clip: padding-box;
@@ -24,8 +24,8 @@ $status-bar-height: 24px;
   &:hover {
     -webkit-transition: all 2s ease;
     transition: all 2s ease;
-    border-left: 5px solid rgba(0, 0, 0, 0.5);
-    border-right: 5px solid rgba(0, 0, 0, 0.5);
+    border-left: 5px solid rgba(0, 0, 0, 0.2);
+    border-right: 5px solid rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -34,7 +34,7 @@ $status-bar-height: 24px;
 }
 
 .sidePanel {
-  background-color: #ffffff;
+  background-color: #fcfcfc;
   height: 100%;
 }
 
@@ -48,7 +48,7 @@ $status-bar-height: 24px;
   height: 30px;
   padding: 2px 5px;
   color: #333333;
-  background: #cccccc;
+  background: #dbdfe2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -115,7 +115,7 @@ $status-bar-height: 24px;
 }
 
 .searchBar {
-  padding: 10px;
+  padding: 10px 5px;
 }
 
 .itemList {
@@ -123,49 +123,38 @@ $status-bar-height: 24px;
   overflow-y: auto;
   //TODO: fix scrollbar
   //height: calc(100vh - #{$status-bar-height});
-  padding: 3px 0 3px 0;
 
   .item {
     display: flex;
-
+    padding: 2px 5px;
     cursor: pointer;
     justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    &:first-child {
+      border-top: 1px solid #eee;
+    }
+
+    .label {
+      padding: 5px;
+      white-space: nowrap;
+      flex-grow: 1;
+    }
+
+    .right {
+      display: none;
+    }
 
     &:hover {
-      background: #e9e9e9;
+      background: #eee;
+      .right {
+        display: flex;
+        align-items: center;
+      }
     }
 
     &.active {
       font-weight: bold;
     }
-
-    .label {
-      padding: 3px 7px;
-      flex: 2 1 auto;
-      white-space: nowrap;
-    }
-
-    .right {
-      margin-left: auto;
-      flex: 0 1 auto;
-
-      span {
-        opacity: 0;
-        margin: 2px 1px 0 1px;
-
-        &:hover {
-          opacity: 1 !important;
-        }
-      }
-    }
-
-    &:hover {
-      .right span {
-        opacity: 0.8;
-      }
-    }
-
-    border-bottom: 1px solid #ddd;
   }
 }
 

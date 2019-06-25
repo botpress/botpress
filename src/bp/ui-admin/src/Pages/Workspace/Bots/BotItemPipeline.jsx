@@ -40,13 +40,17 @@ export default ({
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-            <IoIosChatbubbles /> &nbsp;Open chat
-          </DropdownItem>
-          <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
-            <MdModeEdit />
-            &nbsp;Edit in studio
-          </DropdownItem>
+          {!bot.disabled && (
+            <React.Fragment>
+              <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+                <IoIosChatbubbles /> &nbsp;Open chat
+              </DropdownItem>
+              <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
+                <MdModeEdit />
+                &nbsp;Edit in studio
+              </DropdownItem>
+            </React.Fragment>
+          )}
           {allowStageChange && (
             <DropdownItem onClick={requestStageChange}>
               <MdSkipNext />

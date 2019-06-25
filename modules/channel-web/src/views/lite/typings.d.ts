@@ -124,6 +124,8 @@ export type Config = {
   botId?: string
   externalAuthToken?: string
   userId?: string
+  /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
+  userIdScope?: string
   enableReset: boolean
   stylesheet: string
   extraStylesheet: string
@@ -142,6 +144,8 @@ export type Config = {
   hideWidget: boolean
   /** Disable the slide in / out animations of the webchat */
   disableAnimations: boolean
+  /** When true, sets ctrl+Enter as shortcut for reset session then send */
+  enableResetSessionShortcut: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
   containerWidth?: string | number
