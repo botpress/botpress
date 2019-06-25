@@ -17,6 +17,8 @@ export const keyMap = {
   'lang-switcher': `ctrl+l`,
   'toggle-sidepanel': `ctrl+b`,
   'create-new': `ctrl+alt+n`,
+  undo: 'ctrl+z',
+  redo: 'ctrl+shift+z',
   cancel: 'esc'
 }
 

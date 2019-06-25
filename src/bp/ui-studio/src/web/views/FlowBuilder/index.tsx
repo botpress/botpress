@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { setDiagramAction, switchFlow } from '~/actions'
+import { flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
@@ -84,6 +84,14 @@ class FlowBuilder extends Component<Props, State> {
       'flow-save': e => {
         e.preventDefault()
         this.diagram.saveAllFlows()
+      },
+      undo: e => {
+        e.preventDefault()
+        this.props.flowEditorUndo()
+      },
+      redo: e => {
+        e.preventDefault()
+        this.props.flowEditorRedo()
       }
     }
 
@@ -141,7 +149,9 @@ const mapStateToProps = (state: RootReducer) => ({
 
 const mapDispatchToProps = {
   switchFlow,
-  setDiagramAction
+  setDiagramAction,
+  flowEditorUndo,
+  flowEditorRedo
 }
 
 export default connect(
@@ -156,6 +166,8 @@ type Props = {
   user: UserReducer
   setDiagramAction: any
   switchFlow: any
+  flowEditorUndo: any
+  flowEditorRedo: any
 } & RouteComponentProps
 
 interface State {
