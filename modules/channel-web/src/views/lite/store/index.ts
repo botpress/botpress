@@ -165,6 +165,11 @@ class RootStore {
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
   async fetchConversation(convoId?: number): Promise<void> {
+    const conversationId = convoId || this._getCurrentConvoId()
+    if (!conversationId) {
+      return this.createConversation()
+    }
+
     const conversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
