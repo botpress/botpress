@@ -15,7 +15,13 @@ export const Intents = props => {
       <H5>Intent</H5>
       <small>Contexts: {(includedContexts || []).join(', ')}</small>
       <Pre>
-        {formatConfidence(intent.confidence)}% - {intent.name}
+        {intents.map(i => {
+          const content = `${formatConfidence(i.confidence)} % -${i.name}`
+          if (i.name === intent.name) {
+            return <strong>{content}</strong>
+          }
+          return <div>{content}</div>
+        })}
       </Pre>
     </div>
   )
