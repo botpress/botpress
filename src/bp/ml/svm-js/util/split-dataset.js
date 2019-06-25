@@ -7,7 +7,7 @@ module.exports = function(dataset, k = 5) {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
 
-  assert(n >= k, 'kFold parameter must be <= n')
+  assert(n >= kFold, 'kFold parameter must be <= n')
 
   if (kFold === 1) {
     return [
