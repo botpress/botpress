@@ -1,5 +1,5 @@
 import last from 'lodash/last'
-import take from 'lodash/take'
+import takeRight from 'lodash/takeRight'
 import { action, observable } from 'mobx'
 
 import constants from '../core/constants'
@@ -41,7 +41,10 @@ class ComposerStore {
       this._sentHistoryIndex = 0
 
       if (window.BP_STORAGE && this.rootStore.config.enablePersistHistory) {
-        window.BP_STORAGE.set(SENT_HISTORY_KEY, JSON.stringify(take(this._sentHistory, constants.SENT_HISTORY_SIZE)))
+        window.BP_STORAGE.set(
+          SENT_HISTORY_KEY,
+          JSON.stringify(takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
+        )
       }
     }
   }
@@ -52,7 +55,7 @@ class ComposerStore {
       return
     }
 
-    let newIndex = direction === HISTORY_UP ? this._sentHistoryIndex + 1 : this._sentHistoryIndex - 1
+    let newIndex = direction === HISTORY_UP ? this._sentHistoryIndex - 1 : this._sentHistoryIndex + 1
 
     if (newIndex < 0) {
       newIndex = this._sentHistory.length - 1
