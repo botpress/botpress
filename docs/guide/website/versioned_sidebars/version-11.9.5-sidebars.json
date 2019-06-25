@@ -1,0 +1,68 @@
+{
+  "version-11.9.5-docs": {
+    "Getting Started": [
+      "version-11.9.5-introduction",
+      "version-11.9.5-installation",
+      "version-11.9.5-quickstart",
+      "version-11.9.5-updating",
+      "version-11.9.5-troubleshoot"
+    ],
+    "Main Concepts": [
+      "version-11.9.5-main/overview",
+      "version-11.9.5-main/content",
+      "version-11.9.5-main/dialog",
+      "version-11.9.5-main/code",
+      "version-11.9.5-main/memory",
+      "version-11.9.5-main/module",
+      "version-11.9.5-main/nlu",
+      "version-11.9.5-main/emulator"
+    ],
+    "Advanced Guides": [
+      "version-11.9.5-advanced/debug",
+      "version-11.9.5-advanced/configuration",
+      "version-11.9.5-advanced/authentication",
+      "version-11.9.5-advanced/i18n",
+      "version-11.9.5-advanced/custom-module",
+      "version-11.9.5-advanced/analytics",
+      "version-11.9.5-advanced/architecture",
+      "version-11.9.5-advanced/performances",
+      "version-11.9.5-advanced/hosting",
+      "version-11.9.5-advanced/versions",
+      "version-11.9.5-advanced/pipelines",
+      "version-11.9.5-advanced/cluster",
+      "version-11.9.5-advanced/monitoring"
+    ],
+    "Channels": [
+      "version-11.9.5-channels/web",
+      "version-11.9.5-channels/messenger",
+      "version-11.9.5-channels/telegram",
+      "version-11.9.5-channels/converse",
+      "version-11.9.5-channels/faq"
+    ],
+    "Tutorials": [
+      "version-11.9.5-tutorials/proactive",
+      "version-11.9.5-tutorials/skill-slot",
+      "version-11.9.5-tutorials/skill-call-api",
+      "version-11.9.5-tutorials/external-api",
+      "version-11.9.5-tutorials/shortlinks",
+      "version-11.9.5-tutorials/existing-backend",
+      "version-11.9.5-tutorials/database",
+      "version-11.9.5-tutorials/timeouts",
+      "version-11.9.5-tutorials/hitl",
+      "version-11.9.5-tutorials/jump-to",
+      "version-11.9.5-tutorials/interbot",
+      "version-11.9.5-tutorials/contextual-faq",
+      "version-11.9.5-tutorials/chat-3rd-party-OAuth",
+      "version-11.9.5-tutorials/listen-file-changes"
+    ],
+    "Pro Edition": [
+      "version-11.9.5-pro/about-pro",
+      "version-11.9.5-pro/licensing",
+      "version-11.9.5-pro/rbac"
+    ],
+    "Release Notes": [
+      "version-11.9.5-releases/release-notes",
+      "version-11.9.5-releases/migrate"
+    ]
+  }
+}

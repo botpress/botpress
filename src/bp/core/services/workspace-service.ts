@@ -212,4 +212,18 @@ export class WorkspaceService {
     const pipeline = await this.getPipeline(workspaceId)
     return !!pipeline && pipeline.length > 1
   }
+
+  async listUsers(workspaceId?: string): Promise<WorkspaceUser[]> {
+    if (workspaceId) {
+      return this.getWorkspaceUsers(workspaceId)
+    }
+
+    const workspaces = await this.getWorkspaces()
+    let wu: WorkspaceUser[] = []
+    for (const w of workspaces) {
+      const u = await this.getWorkspaceUsers(w.id)
+      wu = [...wu, ...u]
+    }
+    return wu
+  }
 }

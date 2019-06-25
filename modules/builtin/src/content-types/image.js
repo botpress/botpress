@@ -23,24 +23,44 @@ function render(data) {
 }
 
 function renderMessenger(data) {
-  return [
-    {
+  const events = []
+
+  if (data.typing) {
+    events.push({
       type: 'typing',
       value: data.typing
-    },
+    })
+  }
+  
+  return [
+    ...events,
     {
       attachment: {
-        type: 'template',
+        type: 'image',
         payload: {
-          template_type: 'generic',
-          elements: [
-            {
-              title: data.title,
-              image_url: url.resolve(data.BOT_URL, data.image)
-            }
-          ]
+          is_reusable: true,
+          url: url.resolve(data.BOT_URL, data.image)
         }
       }
+    }
+  ]
+}
+
+function renderTelegram(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'image',
+      url: url.resolve(data.BOT_URL, data.image)
     }
   ]
 }
@@ -50,6 +70,8 @@ function renderElement(data, channel) {
     return render(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)
+  } else if (channel === 'telegram') {
+    return renderTelegram(data)
   }
 
   return [] // TODO Handle channel not supported

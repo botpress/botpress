@@ -6,7 +6,7 @@ import Extra from 'telegraf/extra'
 
 import { Clients } from './typings'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
+const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
 
 export const sendEvent = (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
@@ -73,6 +73,8 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       await sendTyping(event, client, chatId)
     } else if (messageType === 'text') {
       await sendTextMessage(event, client, chatId)
+    } else if (messageType === 'image') {
+      await sendImage(event, client, chatId)
     } else if (messageType === 'carousel') {
       await sendCarousel(event, client, chatId)
     } else {
@@ -118,6 +120,23 @@ async function sendTextMessage(event: sdk.IO.Event, client: Telegraf<ContextMess
     await client.telegram.sendMessage(
       chatId,
       event.preview,
+      Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
+    )
+  }
+}
+
+async function sendImage(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
+  const keyboard = Markup.keyboard(keyboardButtons<Button>(event.payload.quick_replies))
+  if (event.payload.url.toLowerCase().endsWith('.gif')) {
+    await client.telegram.sendAnimation(
+      chatId,
+      event.payload.url,
+      Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
+    )
+  } else {
+    await client.telegram.sendPhoto(
+      chatId,
+      event.payload.url,
       Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
     )
   }
