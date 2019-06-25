@@ -8,7 +8,7 @@ import { getProgressPayload, identityProgress } from '../../tools/progress'
 import { Model, Token2Vec } from '../../typings'
 import { enrichToken2Vec, getSentenceFeatures } from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
-import { keepEntityTypes } from '../slots/pre-processor'
+import { keepEntityTypes, keepEntityValues } from '../slots/pre-processor'
 
 import { LanguageProvider } from './../../typings'
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
@@ -106,7 +106,7 @@ export default class SVMClassifier {
           ...intent,
           tokens: await Promise.all(
             (intent.utterances[this.language] || [])
-              .map(x => keepEntityTypes(sanitize(x.toLowerCase())))
+              .map(x => keepEntityValues(sanitize(x.toLowerCase())))
               .filter(x => x.trim().length)
               .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
           )

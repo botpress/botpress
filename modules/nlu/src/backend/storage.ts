@@ -205,7 +205,7 @@ export default class Storage {
           'distance',
           'duration',
           'email',
-          'numeral',
+          'number',
           'ordinal',
           'phoneNumber',
           'quantity',
