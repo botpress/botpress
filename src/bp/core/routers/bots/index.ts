@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------
-*  Copyright (c) Botpress, Inc. All rights reserved.
-*  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Botpress, Inc. All rights reserved.
+ *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
+ *--------------------------------------------------------------------------------------------*/
 
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
@@ -29,6 +29,7 @@ import { URL } from 'url'
 
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
+import { NotFoundError } from '../errors'
 import { checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
@@ -91,12 +92,16 @@ export class BotsRouter extends CustomRouter {
     // '___' is a non-valid botId, but here acts as for "all bots"
     // This is used in modules when they setup routes that work on a global level (they are not tied to a specific bot)
     // Check the 'sso-login' module for an example
-    if (req.params.botId === '___') {
+    if (req.params.botId === '___' || req.originalUrl.endsWith('env.js')) {
       return next()
     }
 
     const config = await this.configProvider.getBotConfig(req.params.botId)
-    if (config.private && !req.originalUrl.endsWith('env.js') && !this.mediaPathRegex.test(req.originalUrl)) {
+    if (config.disabled) {
+      return next(new NotFoundError('Bot is disabled'))
+    }
+
+    if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
       return this.checkTokenHeader(req, res, next)
     }
 
