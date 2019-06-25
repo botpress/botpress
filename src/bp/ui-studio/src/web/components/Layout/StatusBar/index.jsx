@@ -18,6 +18,7 @@ import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
+import { Icon } from '@blueprintjs/core'
 
 const COMPLETED_DURATION = 2000
 
@@ -135,9 +136,9 @@ class StatusBar extends React.Component {
         shortcut={keyMap['docs-toggle']}
         description="This screen has documentation available."
         onClick={onClick}
+        className={style.right}
       >
-        <Glyphicon glyph="question-sign" style={{ marginRight: '5px' }} />
-        Documentation
+        <Icon icon="help" />
       </ActionItem>
     )
   }
