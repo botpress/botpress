@@ -74,7 +74,8 @@ class Layout extends React.Component<ILayoutProps> {
     window.botpressWebChat.sendEvent({ type: 'hide' })
   }
 
-  toggleDocs = () => {
+  toggleDocs = e => {
+    e.preventDefault()
     if (this.props.docModal) {
       this.props.updateDocumentationModal(null)
     } else if (this.props.docHints.length) {
@@ -82,7 +83,8 @@ class Layout extends React.Component<ILayoutProps> {
     }
   }
 
-  toggleLangSwitcher = () => {
+  toggleLangSwitcher = e => {
+    e.preventDefault()
     if (!isInputFocused()) {
       const langSwitcherOpen = !this.state.langSwitcherOpen
       this.setState({ langSwitcherOpen }, () => {

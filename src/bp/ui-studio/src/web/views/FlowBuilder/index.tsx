@@ -77,8 +77,14 @@ class FlowBuilder extends Component<Props, State> {
     const { readOnly } = this.state
 
     const keyHandlers = {
-      'flow-add-node': () => this.props.setDiagramAction('insert_node'),
-      'flow-save': () => this.diagram.saveAllFlows()
+      'flow-add-node': e => {
+        e.preventDefault()
+        this.props.setDiagramAction('insert_node')
+      },
+      'flow-save': e => {
+        e.preventDefault()
+        this.diagram.saveAllFlows()
+      }
     }
 
     return (
