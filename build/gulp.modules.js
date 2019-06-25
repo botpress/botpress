@@ -66,14 +66,13 @@ const buildModule = (modulePath, cb) => {
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
-        console.error(stderr)
-        console.log(
+        console.error(
           `
 =======================================
 Error building module ${modulePath}
 =======================================
-        `,
-          stdout
+Status: ${stderr}
+Output: ${stdout}`
         )
         return cb(err)
       }
