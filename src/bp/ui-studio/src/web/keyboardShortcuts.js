@@ -1,4 +1,5 @@
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+const controlKey = isMac ? 'command' : 'ctrl'
 
 export const keyMap = {
   // Navigation to screens
@@ -9,16 +10,15 @@ export const keyMap = {
   // 'go-emulator': 'g e',
   // 'go-module-qna': 'g m q',
 
-  // Flow-Editor Actions
-  'flow-add-node': `ctrl+a`,
-  'flow-save': `ctrl+s`,
+  add: `${controlKey}+a`,
+  save: `${controlKey}+s`,
+  undo: `${controlKey}+z`,
+  redo: `${controlKey}+shift+z`,
   'emulator-focus': `e`,
-  'docs-toggle': `ctrl+h`,
-  'lang-switcher': `ctrl+l`,
-  'toggle-sidepanel': `ctrl+b`,
-  'create-new': `ctrl+alt+n`,
-  undo: 'ctrl+z',
-  redo: 'ctrl+shift+z',
+  'docs-toggle': `${controlKey}+h`,
+  'lang-switcher': `${controlKey}+l`,
+  'toggle-sidepanel': `${controlKey}+b`,
+  'create-new': `${controlKey}+alt+n`,
   cancel: 'esc'
 }
 
