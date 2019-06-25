@@ -75,19 +75,8 @@ export default class ConfusionEngine extends ScopedEngine {
     this.logger.debug(`F1: ${intents['all'].f1} P1: ${intents['all'].precision} R1: ${intents['all'].recall}`)
   }
 
-  private _definitionsToEntry(def: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[] {
-    return flatten(
-      def.map(x =>
-        x.utterances[lang].map(
-          u =>
-            ({
-              definition: x,
-              utterance: u
-            } as TrainingEntry)
-        )
-      )
-    )
-  }
+  _definitionsToEntry = (defs: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[][] =>
+    defs.map(definition => definition.utterances[lang].map(utterance => ({ definition, utterance })))
 
   private _entriesToDefinition(entries: TrainingEntry[], lang): sdk.NLU.IntentDefinition[] {
     const groups = groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
@@ -115,6 +104,7 @@ export default class ConfusionEngine extends ScopedEngine {
     const defs = this._entriesToDefinition(trainSet, lang)
 
     await this.loadModels(defs, this.modelName)
+
     const actual = await Promise.mapSeries(testSet, (__, idx) =>
       this.extract(keepEntityValues(testSet[idx].utterance), [])
     )

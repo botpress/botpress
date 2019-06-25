@@ -266,8 +266,12 @@ body {
   word-break: break-word;
 }
 
-.bpw-bubble-highlight {
-  border: 2px solid #0000cd;
+.bpw-from-bot .bpw-bubble-highlight {
+  background-color: rgba(255, 192, 114, 0.25);
+}
+
+.bpw-from-user .bpw-bubble-highlight {
+  background-color: #ffa73a;
 }
 
 .bpw-bubble-session_reset {

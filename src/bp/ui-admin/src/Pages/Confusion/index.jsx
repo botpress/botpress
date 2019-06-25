@@ -107,6 +107,7 @@ class Confusion extends Component {
         <div key={`conf-${confusion.botId}`}>
           <h3>{confusion.botId}</h3>
           {confusion.confusions
+            .filter(x => _.get(x, 'matrix.intents.all.f1'))
             .filter(data =>
               _.isEmpty(_.difference(this.getValueForAttributes(allFilterFields)(data), this.state.select))
             )

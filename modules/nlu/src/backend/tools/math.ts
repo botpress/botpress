@@ -1,6 +1,23 @@
 import _ from 'lodash'
 
-export function GetZPercent(z) {
+/**
+ * Vectorial distance between two N-dimentional points
+ * a[] and b[] must be of same dimention
+ */
+export function ndistance(a: number[], b: number[]): number {
+  if (a.length !== b.length) {
+    throw new Error(`Can't calculate distance between vectors of different length (${a.length} vs ${b.length})`)
+  }
+
+  let total = 0
+  for (let i = 0; i < a.length; i++) {
+    const diff = b[i] - a[i]
+    total += diff * diff
+  }
+  return Math.sqrt(total)
+}
+
+export function GetZPercent(z: number) {
   if (z < -6.5) {
     return 0.0
   }

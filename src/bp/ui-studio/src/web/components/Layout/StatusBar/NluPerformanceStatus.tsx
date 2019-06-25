@@ -46,6 +46,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
+      // tslint:disable-next-line: no-floating-promises
       this.fetchConfusion()
     }
   }

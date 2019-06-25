@@ -5,9 +5,8 @@ import { VError } from 'verror'
 
 import { GetZPercent } from '../../tools/math'
 import { getProgressPayload, identityProgress } from '../../tools/progress'
-import { Model } from '../../typings'
-import { getSentenceFeatures } from '../language/ft_featurizer'
-import { generateNoneUtterances } from '../language/none-generator'
+import { Model, Token2Vec } from '../../typings'
+import { enrichToken2Vec, getSentenceFeatures } from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityTypes } from '../slots/pre-processor'
 
@@ -31,6 +30,7 @@ export default class SVMClassifier {
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
   private l0Tfidf: _.Dictionary<number>
   private l1Tfidf: { [context: string]: _.Dictionary<number> }
+  private token2vec: Token2Vec
 
   constructor(
     private toolkit: typeof sdk.MLToolkit,
@@ -62,9 +62,12 @@ export default class SVMClassifier {
       throw new Error('Could not find intents TFIDF model')
     }
 
-    const { l0Tfidf, l1Tfidf } = JSON.parse(tfidfModel.model.toString('utf8'))
+    const { l0Tfidf, l1Tfidf, token2vec } = JSON.parse(tfidfModel.model.toString('utf8'))
     this.l0Tfidf = l0Tfidf
     this.l1Tfidf = l1Tfidf
+    this.token2vec = token2vec
+
+    Object.freeze(this.token2vec)
 
     if (_.uniqBy(l1Models, x => x.meta.context).length !== l1Models.length) {
       const ctx = l1Models.map(x => x.meta.context).join(', ')
@@ -110,6 +113,7 @@ export default class SVMClassifier {
         }))
     )
 
+    const token2vec: Token2Vec = {}
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
     const models: Model[] = []
@@ -123,7 +127,11 @@ export default class SVMClassifier {
     for (const [index, context] of Object.entries(allContexts)) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
       const utterances = _.flatten(intents.map(x => x.tokens))
-      const noneUtterances = generateNoneUtterances(utterances, Math.max(5, utterances.length / 2)) // minimum 5 none utterances per context
+
+      // Generate 'none' utterances for this context
+      const junkWords = await this.languageProvider.generateSimilarJunkWords(_.flatten(utterances))
+      const nbOfNoneUtterances = Math.max(5, utterances.length / 2) // minimum 5 none utterances per context
+      const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => _.sampleSize(junkWords))
       intents.push({
         contexts: [context],
         filename: 'none.json',
@@ -137,35 +145,43 @@ export default class SVMClassifier {
 
       for (const { name: intentName, tokens } of intents) {
         for (const utteranceTokens of tokens) {
-          if (utteranceTokens.length) {
-            const l0Vec = await getSentenceFeatures(
-              this.language,
-              utteranceTokens,
-              l0Tfidf[context],
-              this.languageProvider
-            )
-
-            const l1Vec = await getSentenceFeatures(
-              this.language,
-              utteranceTokens,
-              l1Tfidf[context][intentName === 'none' ? '__avg__' : intentName],
-              this.languageProvider
-            )
-
-            if (intentName !== 'none') {
-              // We don't want contexts to fit on l1-specific none intents
-              l0Points.push({
-                label: context,
-                coordinates: [...l0Vec, utteranceTokens.length]
-              })
-            }
-
-            l1Points.push({
-              label: intentName,
-              coordinates: [...l1Vec, utteranceTokens.length],
-              utterance: utteranceTokens.join(' ')
-            } as any)
+          if (!utteranceTokens.length) {
+            continue
           }
+
+          if (intentName !== 'none') {
+            await enrichToken2Vec(this.language, utteranceTokens, this.languageProvider, token2vec)
+          }
+
+          const l0Vec = await getSentenceFeatures({
+            lang: this.language,
+            doc: utteranceTokens,
+            docTfidf: l0Tfidf[context],
+            langProvider: this.languageProvider,
+            token2vec: token2vec
+          })
+
+          const l1Vec = await getSentenceFeatures({
+            lang: this.language,
+            doc: utteranceTokens,
+            docTfidf: l1Tfidf[context][intentName === 'none' ? '__avg__' : intentName],
+            langProvider: this.languageProvider,
+            token2vec: token2vec
+          })
+
+          if (intentName !== 'none') {
+            // We don't want contexts to fit on l1-specific none intents
+            l0Points.push({
+              label: context,
+              coordinates: [...l0Vec, utteranceTokens.length]
+            })
+          }
+
+          l1Points.push({
+            label: intentName,
+            coordinates: [...l1Vec, utteranceTokens.length],
+            utterance: utteranceTokens.join(' ')
+          } as any)
         }
       }
 
@@ -200,7 +216,11 @@ export default class SVMClassifier {
     models.push({
       meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-tfidf' },
       model: new Buffer(
-        JSON.stringify({ l0Tfidf: l0Tfidf['__avg__'], l1Tfidf: _.mapValues(l1Tfidf, x => x['__avg__']) }),
+        JSON.stringify({
+          l0Tfidf: l0Tfidf['__avg__'],
+          l1Tfidf: _.mapValues(l1Tfidf, x => x['__avg__']),
+          token2vec: token2vec
+        }),
         'utf8'
       )
     })
@@ -260,7 +280,13 @@ export default class SVMClassifier {
 
     const input = tokens.join(' ')
 
-    const l0Vec = await getSentenceFeatures(this.language, tokens, this.l0Tfidf, this.languageProvider)
+    const l0Vec = await getSentenceFeatures({
+      lang: this.language,
+      doc: tokens,
+      docTfidf: this.l0Tfidf,
+      langProvider: this.languageProvider,
+      token2vec: this.token2vec
+    })
     const l0Features = [...l0Vec, tokens.length]
     const l0 = await this.l0Predictor.predict(l0Features)
 
@@ -273,7 +299,13 @@ export default class SVMClassifier {
 
       const predictions = _.flatten(
         await Promise.map(includedContexts, async ctx => {
-          const l1Vec = await getSentenceFeatures(this.language, tokens, this.l1Tfidf[ctx], this.languageProvider)
+          const l1Vec = await getSentenceFeatures({
+            lang: this.language,
+            doc: tokens,
+            docTfidf: this.l1Tfidf[ctx],
+            langProvider: this.languageProvider,
+            token2vec: this.token2vec
+          })
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
           const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)
