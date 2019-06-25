@@ -95,7 +95,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   updateLastMessage = async newMessage => {
-    if (newMessage && newMessage !== this.lastMessage) {
+    if (this.state.visible && newMessage && newMessage !== this.lastMessage) {
       this.lastMessage = newMessage
       // tslint:disable-next-line: no-floating-promises
       this.loadEventDebounced(newMessage)
