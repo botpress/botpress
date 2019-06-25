@@ -23,7 +23,7 @@ class Composer extends React.Component<ComposerProps> {
   }
 
   handleKeyPress = async e => {
-    if (e.ctrlKey && e.key === 'Enter') {
+    if (this.props.enableResetSessionShortcut && e.ctrlKey && e.key === 'Enter') {
       await this.props.resetSession()
       await this.props.sendMessage()
       e.preventDefault()
@@ -96,6 +96,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
   enableArrowNavigation: store.config.enableArrowNavigation,
+  enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession
 }))(observer(Composer))
 
@@ -117,4 +118,5 @@ type ComposerProps = {
     | 'message'
     | 'enableArrowNavigation'
     | 'resetSession'
+    | 'enableResetSessionShortcut'
   >
