@@ -22,6 +22,8 @@ export default async (argv: any) => {
 }
 
 export async function buildBackend(modulePath: string) {
+  const start = Date.now()
+
   let babelConfig: babel.TransformOptions = {
     presets: [
       [
@@ -109,6 +111,8 @@ export async function buildBackend(modulePath: string) {
       throw err
     }
   }
+
+  normal(`Generated backend (${Date.now() - start} ms)`)
 }
 
 export async function buildConfigSchema(modulePath: string) {

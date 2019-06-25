@@ -67,6 +67,14 @@ const buildModule = (modulePath, cb) => {
     (err, stdout, stderr) => {
       if (err) {
         console.error(stderr)
+        console.log(
+          `
+=======================================
+Error building module ${modulePath}
+=======================================
+        `,
+          stdout
+        )
         return cb(err)
       }
       cb()
