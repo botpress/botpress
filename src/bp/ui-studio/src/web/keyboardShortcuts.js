@@ -24,6 +24,7 @@ export const keyMap = {
   'go-module-code': `g m c`,
   'go-module-qna': `g m q`,
   'go-module-testing': `g m t`,
+  'go-module-analytics': 'g m a',
   'go-module-nlu-intent': `g i`,
   'go-module-nlu-entities': `g e`
 }

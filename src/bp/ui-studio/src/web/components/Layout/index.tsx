@@ -123,6 +123,7 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-code': () => this.gotoUrl('/modules/code-editor'),
       'go-module-qna': () => this.gotoUrl('/modules/qna'),
       'go-module-testing': () => this.gotoUrl('/modules/testing'),
+      'go-module-analytics': () => this.gotoUrl('/modules/analytics'),
       'go-module-nlu-intent': () => this.gotoUrl('/modules/nlu/Intents'),
       'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
