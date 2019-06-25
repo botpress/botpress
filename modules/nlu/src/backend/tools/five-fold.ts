@@ -1,7 +1,4 @@
 import _ from 'lodash'
-import { promises } from 'fs'
-import { stringify } from 'querystring'
-import { file } from 'tmp'
 
 export type RecordCallback = (expected: string, actual: string) => void
 
@@ -47,7 +44,7 @@ export class FiveFolder<T> {
 
   results: { [suite: string]: F1 } = {}
 
-  private readonly N = 5
+  private readonly N = 3
 
   async fold(
     suiteName: string,
@@ -61,28 +58,19 @@ export class FiveFolder<T> {
       confusions: new Proxy({}, MapProxy)
     }
 
-    const testSets = _.chain(this.dataset)
-      .map(intentUtterances => _.shuffle(intentUtterances))
-      .map(intentUtterances =>
-        _.chain(intentUtterances)
-          .chunk(Math.ceil(intentUtterances.length / this.N))
-          .map(arr => Object.assign(_.fill(Array(this.N), undefined), arr))
-          .shuffle()
-          .value()
-      )
-      .zip()
-      .flatten()
-      .unzip()
-      .map(fold => fold.reduce((a, b) => a.concat(b), []))
-      .map(fold =>
-        _.chain(fold)
-          .reject(_.isEmpty)
-          .value()
-      )
-      .value()
+    const folds = Array.from({ length: this.N }, () => new Array<T>(0))
 
-    await Promise.mapSeries(testSets, async (testSet, index) => {
-      const trainSet = _.flatten([...testSets.slice(0, index), ...testSets.slice(index + 1, testSets.length)])
+    for (const group of this.dataset) {
+      const samples = _.shuffle(group)
+      const startPlayer = _.random(0, this.N, false)
+
+      for (let i = 0; i < samples.length; i++) {
+        folds[(i + startPlayer) % this.N].push(samples[i])
+      }
+    }
+
+    await Promise.mapSeries(folds, async (testSet, index) => {
+      const trainSet = _.flatten([...folds.slice(0, index), ...folds.slice(index + 1, folds.length)])
       await trainFn([...trainSet])
       await evaluateFn([...trainSet], [...testSet], this._record(suiteName))
     })

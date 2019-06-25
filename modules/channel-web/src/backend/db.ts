@@ -1,10 +1,11 @@
-import * as sdk from 'botpress/sdk'
-
 import Bluebird from 'bluebird'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
+
+import { Config } from '../config'
 
 export default class WebchatDb {
   knex: any
@@ -250,6 +251,7 @@ export default class WebchatDb {
   }
 
   async getConversation(userId, conversationId, botId) {
+    const config = (await this.bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const condition: any = { userId, botId }
 
     if (conversationId && conversationId !== 'null') {
@@ -265,7 +267,7 @@ export default class WebchatDb {
       return undefined
     }
 
-    const messages = await this.getConversationMessages(conversationId)
+    const messages = await this.getConversationMessages(conversationId, config.maxMessagesHistory)
 
     messages.forEach(m => {
       return Object.assign(m, {
@@ -280,7 +282,7 @@ export default class WebchatDb {
     })
   }
 
-  getConversationMessages(conversationId, fromId?: string): PromiseLike<any> {
+  async getConversationMessages(conversationId, limit: number, fromId?: string): Promise<any> {
     let query = this.knex('web_messages').where({ conversationId: conversationId })
 
     if (fromId) {
@@ -290,7 +292,6 @@ export default class WebchatDb {
     return query
       .whereNot({ message_type: 'visit' })
       .orderBy('sent_on', 'desc')
-      .limit(20)
-      .then()
+      .limit(limit)
   }
 }

@@ -25,13 +25,16 @@ class MessageList extends React.Component<MessageListProps> {
   }
 
   tryScrollToBottom(delayed?: boolean) {
-    setTimeout(() => {
-      try {
-        this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
-      } catch (err) {
-        // Discard the error
-      }
-    }, delayed ? 200 : 0)
+    setTimeout(
+      () => {
+        try {
+          this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
+        } catch (err) {
+          // Discard the error
+        }
+      },
+      delayed ? 200 : 0
+    )
   }
 
   handleKeyDown = e => {

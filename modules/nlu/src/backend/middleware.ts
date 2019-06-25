@@ -6,7 +6,7 @@ import { nluHealth } from '.'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 
-const EVENTS_TO_IGNORE = ['session_reset', 'bp_dialog_timeout', 'visit']
+const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', '']
 
 export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByBot) => {
   bp.events.registerMiddleware({

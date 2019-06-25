@@ -82,6 +82,12 @@ declare type BotpressEnvironementVariables = {
    * Truthy if running the official Botpress docker image
    */
   readonly BP_IS_DOCKER?: boolean
+
+  /**
+   * The max size of the in-memory, in-process cache.
+   * Defaults to '1gb'
+   */
+  readonly BP_MAX_MEMORY_CACHE_SIZE?: string
 }
 
 interface IDebug {

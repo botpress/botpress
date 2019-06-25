@@ -95,7 +95,7 @@ export default class ScopedEngine implements Engine {
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
       this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
-      this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider, realtime, realtimePayload)
+      this.slotExtractors[lang] = new CRFExtractor(toolkit, realtime, realtimePayload)
     }
   }
 
