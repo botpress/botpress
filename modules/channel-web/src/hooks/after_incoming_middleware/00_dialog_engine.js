@@ -23,7 +23,7 @@ const saySomethingHook = async () => {
       await bp.events.replyToEvent(event, content)
     } else {
       // Sends a basic text message
-      const payloads = await bp.cms.renderElement('builtin_text', { text, typing: true }, event.channel)
+      const payloads = await bp.cms.renderElement('builtin_text', { text, typing: true }, event)
       await bp.events.replyToEvent(event, payloads)
     }
   }
