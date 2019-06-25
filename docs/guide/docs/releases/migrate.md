@@ -3,6 +3,22 @@ id: migrate
 title: Migrations
 ---
 
+## Migration from 11.9 to 12.0
+
+### Auto-migrate
+
+Botpress 12 comes with an "auto-migration" feature that runs migrations for the database and Botpress config files. No more database or file manipulation is required when upgrading from now on.
+
+### Database changes
+
+- Users from `workspaces.json` are now in the `workspace_user` table
+- User credentials are stored in the database alongside their auth strategy
+- Events are stored in the `events` table
+
+### How to upgrade
+
+Replace `bp`, `modules/` and `bindings/` of your Botpress 11 installation by the ones from Botpress 12 of the target plateform.
+
 ## Migration from 11.7 to 11.8
 
 ### Channel-Web Refactor
