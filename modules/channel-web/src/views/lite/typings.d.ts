@@ -124,6 +124,8 @@ export type Config = {
   botId?: string
   externalAuthToken?: string
   userId?: string
+  /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
+  userIdScope?: string
   enableReset: boolean
   stylesheet: string
   extraStylesheet: string

@@ -50,13 +50,14 @@ class Web extends React.Component<MainProps> {
   }
 
   async initialize() {
-    this.socket = new BpSocket(this.props.bp)
+    const config = this.extractConfig()
+
+    this.socket = new BpSocket(this.props.bp, config)
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.props.updateTyping
     this.socket.onUserIdChanged = this.props.setUserId
     this.socket.setup()
 
-    const config = this.extractConfig()
     config.overrides && this.loadOverrides(config.overrides)
     config.userId && this.socket.changeUserId(config.userId)
 

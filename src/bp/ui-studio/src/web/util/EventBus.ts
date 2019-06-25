@@ -1,9 +1,11 @@
-import EventEmitter2 from 'eventemitter2'
+import { EventEmitter2 } from 'eventemitter2'
 import io from 'socket.io-client'
-
-import { getToken, authEvents, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
+import { authEvents, getToken, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
+  private adminSocket
+  private guestSocket
+
   constructor() {
     super({
       wildcard: true,
@@ -29,14 +31,14 @@ class EventBus extends EventEmitter2 {
     socket && socket.emit('event', { name, data })
   }
 
-  updateVisitorId = newId => {
-    setVisitorId(newId)
-    this.setup()
+  updateVisitorId = (newId: string, userIdScope?: string) => {
+    setVisitorId(newId, userIdScope)
+    this.setup(userIdScope)
   }
 
-  setup = () => {
+  setup = (userIdScope?: string) => {
     const query = {
-      visitorId: getUniqueVisitorId()
+      visitorId: getUniqueVisitorId(userIdScope)
     }
 
     const token = getToken()
@@ -45,16 +47,16 @@ class EventBus extends EventEmitter2 {
     }
 
     if (this.adminSocket) {
-      this.adminSocket.off('event', this.dispatchEvent)
+      this.adminSocket.off('event', this.dispatchSocketEvent)
       this.adminSocket.disconnect()
     }
 
     if (this.guestSocket) {
-      this.guestSocket.off('event', this.dispatchEvent)
+      this.guestSocket.off('event', this.dispatchSocketEvent)
       this.guestSocket.disconnect()
     }
 
-    const socketUrl = window.BP_SOCKET_URL || window.location.origin
+    const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
 
     this.adminSocket = io(socketUrl + '/admin', { query })
     this.adminSocket.on('event', this.dispatchSocketEvent)
@@ -64,6 +66,7 @@ class EventBus extends EventEmitter2 {
   }
 }
 
+// @ts-ignore
 EventBus.default = new EventBus()
 
 export default EventBus
