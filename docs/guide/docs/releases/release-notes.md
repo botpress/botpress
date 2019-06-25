@@ -5,18 +5,18 @@ title: Release Notes
 
 ## Features
 
-* Add option to white-label the admin panel on Pro edition.
-* **(beta)** Code Editor Module allows you to create / edit your actions and hooks directly from the UI. It make uses of Typescript typings and Monaco IntelliSense.
-* **(beta)** Testing Module allows you to create scenarios which are test cases for a conversation with your bot.
-* Added a new action to clear an extracted slot.
+- Support images on Telegram
 
-## UX
-* Toolbar enhancements in flow editor.
-* Several UI improvements.
+## Bug fixes
+
+- Fix pause not working on quick replies in HITL module
+- Fix image rendering on Messenger
+- Fix object caching using wrong key
+- Increase cache size of object caching
 
 ## Docs
-* Added documentation for Slot skill.
-* Clarified the proactive message documentation.
+
+- Update the license activation docs
 
 ## Changelog
 

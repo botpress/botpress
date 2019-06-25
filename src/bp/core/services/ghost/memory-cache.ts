@@ -1,7 +1,8 @@
 import { ObjectCache } from 'common/object-cache'
+import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
-import lru from 'lru-cache'
+import LRU from 'lru-cache'
 
 import { TYPES } from '../../types'
 
@@ -14,10 +15,17 @@ export default class MemoryObjectCache implements ObjectCache {
   public readonly events: EventEmitter = new EventEmitter()
 
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
-    this.cache = new lru({
-      // For now we cache up to 5000 elements, whatever the size
-      // We will probably want to assign different length to various element types in the future
-      max: 5000
+    this.cache = LRU({
+      max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
+      length: obj => {
+        if (Buffer.isBuffer(obj)) {
+          return obj.length
+        } else if (typeof obj === 'string') {
+          return obj.length * 2 // chars are 2 bytes in ECMAScript
+        }
+
+        return 1024 // Assuming 1kb per object, this is kind of random
+      }
     })
 
     this.cacheInvalidator.install(this)

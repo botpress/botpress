@@ -1,11 +1,9 @@
 ---
 id: configuration
-title: Configuration
+title: Configurations
 ---
 
-There is currently no graphical interface on Botpress to manage your server or your bot's configuration. Most of the configuration is done using `JSON` files.
-
-There are also some configurations that can be edited by using environment variables.
+Most of the configuration is done using `JSON` files. There are also some configurations that can be edited by using environment variables.
 
 On this page, you will learn about the Botpress global configuration, individual bot configuration, module configuration, and environment variables.
 

@@ -71,11 +71,11 @@ export const validateRequestSchema = (property: string, req: Request, schema: Jo
 
 export const validateBodySchema = (req: Request, schema: Joi.AnySchema) => validateRequestSchema('body', req, schema)
 
-export const success = (res: Response, message: string = 'Success', payload = {}) => {
+export const success = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
   res.json({
     status: 'success',
     message,
-    payload
+    payload: payload || {}
   })
 }
 

@@ -1,0 +1,70 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "onReceive": [],
+    "next": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "entry",
+      "next": [
+        {
+          "condition": "event.type === \"field-description\"",
+          "node": "describe-field"
+        },
+        {
+          "condition": "session.contactForm && session.contactForm.plateform !== \"botpress\"",
+          "node": "not-botpress"
+        },
+        {
+          "condition": "session.contactForm",
+          "node": "contact-form"
+        },
+        {
+          "condition": "true",
+          "node": "welcome"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null
+    },
+    {
+      "id": "4820de8851",
+      "name": "contact-form",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-aJG2tU"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "a174c2286a",
+      "name": "welcome",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-LnsobY"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "789c93ce09",
+      "name": "describe-field",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-c9e7j-"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "838e3e7bff",
+      "name": "not-botpress",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-l37HZR"
+      ],
+      "onReceive": null
+    }
+  ]
+}
