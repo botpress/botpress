@@ -17,7 +17,7 @@ Botpress 12 comes with an "auto-migration" feature that runs migrations for the 
 
 ### How to upgrade
 
-Replace `bp`, `modules/` and `bindings/` of your Botpress 11 installation by the ones from Botpress 12 of the target plateform.
+Replace `bp`, `modules/` and `bindings/` of your Botpress 11 installation by the ones from Botpress 12 of the target platform.
 
 ## Migration from 11.7 to 11.8
 
