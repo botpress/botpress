@@ -8,7 +8,7 @@ import { getProgressPayload, identityProgress } from '../../tools/progress'
 import { Model, Token2Vec } from '../../typings'
 import { enrichToken2Vec, getSentenceFeatures } from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
-import { keepEntityTypes, keepEntityValues } from '../slots/pre-processor'
+import { keepEntityValues } from '../slots/pre-processor'
 
 import { LanguageProvider } from './../../typings'
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
@@ -20,10 +20,6 @@ const debugPredict = debug.sub('predict')
 const getPayloadForInnerSVMProgress = total => index => progress => ({
   value: 0.25 + Math.floor((progress * index) / (2 * total))
 })
-
-// We might want to compute this as a function of the number of samples in each cluster
-// As this depends on the dataset size and distribution
-const MIN_CLUSTER_SAMPLES = 3
 
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
@@ -96,21 +92,25 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = await Promise.all(
-      intentDefs
-        // we're generating none iantents automatically from now on
-        // but some existing bots might have the 'none' intent already created
-        // so we exclude it explicitely from the dataset here
-        .filter(x => x.name !== 'none')
-        .map(async intent => ({
+    const intentsWTokens = await Promise.map(
+      intentDefs.filter(x => x.name !== 'none'),
+      // we're generating none intents automatically from now on
+      // but some existing bots might have the 'none' intent already created
+      // so we exclude it explicitely from the dataset here
+      async intent => {
+        const utterances = (intent.utterances[this.language] || [])
+          .map(x => sanitize(keepEntityValues(x.toLowerCase())))
+          .filter(x => x.trim().length)
+
+        const tokens = await Promise.map(utterances, async utterance =>
+          (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize)
+        )
+
+        return {
           ...intent,
-          tokens: await Promise.all(
-            (intent.utterances[this.language] || [])
-              .map(x => keepEntityValues(sanitize(x.toLowerCase())))
-              .filter(x => x.trim().length)
-              .map(async utterance => (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize))
-          )
-        }))
+          tokens: tokens
+        }
+      }
     )
 
     const token2vec: Token2Vec = {}
