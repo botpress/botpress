@@ -345,6 +345,7 @@ export default class Web extends React.Component {
 
   handleButtonClicked = () => {
     this.state.view === 'convo' ? this.handleSwitchView('widget') : this.handleSwitchView('side')
+    parent.postMessage({ name: 'handleButtonClicked' }, '*')
   }
 
   handleApiError = error => {
