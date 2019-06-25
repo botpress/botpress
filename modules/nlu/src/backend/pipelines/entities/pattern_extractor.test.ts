@@ -2,14 +2,14 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { NLUHealth } from '../../typings'
+import { LanguageProvider, NLUHealth } from '../../typings'
 
 import { initNLUDS } from './../../pipelinemanager'
 import PatternExtractor from './pattern_extractor'
 
-const languageProvider = {
-  vectorize: function(tokens: string[], lang: string): Promise<number[][]> {
-    const vectors = [[1, 2, 3]]
+const languageProvider: LanguageProvider = {
+  vectorize: function(tokens: string[], lang: string): Promise<Float32Array[]> {
+    const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
   tokenize: function(text: string, lang: string): Promise<string[]> {
@@ -17,6 +17,7 @@ const languageProvider = {
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
   },
+  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
   getHealth: (): Partial<NLUHealth> => {
     return {}
   }

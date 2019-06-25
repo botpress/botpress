@@ -96,6 +96,8 @@ export interface NLUStructure {
   tokens: string[]
 }
 
+export type Token2Vec = { [token: string]: number[] }
+
 export interface PipelineProcessManager {
   withPipeline(pipeline: Function[]): PipelineProcessManager
   initFromText(text: string, includedContexts: string[]): PipelineProcessManager
@@ -107,8 +109,9 @@ export interface LangsGateway {
 }
 
 export interface LanguageProvider {
-  vectorize(tokens: string[], lang: string): Promise<number[][]>
+  vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(text: string, lang: string): Promise<string[]>
+  generateSimilarJunkWords(subsetVocab: string[]): Promise<string[]>
   getHealth(): Partial<NLUHealth>
 }
 
