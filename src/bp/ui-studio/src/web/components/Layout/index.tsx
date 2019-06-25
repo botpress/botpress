@@ -28,6 +28,7 @@ interface ILayoutProps {
   docHints: any
   updateDocumentationModal: any
   location: any
+  history: any
 }
 
 class Layout extends React.Component<ILayoutProps> {
@@ -102,6 +103,11 @@ class Layout extends React.Component<ILayoutProps> {
     }
   }
 
+  gotoUrl = url => {
+    this.props.history.push(url)
+    this.focusMain()
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -111,7 +117,14 @@ class Layout extends React.Component<ILayoutProps> {
       'emulator-focus': this.focusEmulator,
       cancel: this.closeEmulator,
       'docs-toggle': this.toggleDocs,
-      'lang-switcher': this.toggleLangSwitcher
+      'lang-switcher': this.toggleLangSwitcher,
+      'go-flow': () => this.gotoUrl('/flows'),
+      'go-content': () => this.gotoUrl('/content'),
+      'go-module-code': () => this.gotoUrl('/modules/code-editor'),
+      'go-module-qna': () => this.gotoUrl('/modules/qna'),
+      'go-module-testing': () => this.gotoUrl('/modules/testing'),
+      'go-module-nlu-intent': () => this.gotoUrl('/modules/nlu/Intents'),
+      'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
 
     return (
