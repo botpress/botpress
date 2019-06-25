@@ -21,18 +21,22 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
           <FaCog /> Configs
         </Button>
       </AccessControl>
-      <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-        <IoIosChatbubbles /> Open chat
-      </Button>
+      {!bot.disabled && (
+        <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+          <IoIosChatbubbles /> Open chat
+        </Button>
+      )}
       <UncontrolledButtonDropdown>
         <DropdownToggle tag="span" className="more">
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
-            <MdModeEdit />
-            &nbsp;Edit in studio
-          </DropdownItem>
+          {!bot.disabled && (
+            <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
+              <MdModeEdit />
+              &nbsp;Edit in studio
+            </DropdownItem>
+          )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={createRevision}>
               <MdBackup />
