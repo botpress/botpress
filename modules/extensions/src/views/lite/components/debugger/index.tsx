@@ -21,13 +21,13 @@ import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 
-export const updater = { callback: undefined, updateLastMessage: undefined }
+export const updater = { callback: undefined }
 
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
 const RETRY_PERIOD = 500
 const RETRY_SECURITY_FACTOR = 1.5
-const DEBOUNCE_DELAI = 100
+const DEBOUNCE_DELAY = 100
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -41,13 +41,11 @@ export class Debugger extends React.Component<Props, State> {
   allowedRetryCount = 0
   currentRetryCount = 0
   retryTimer: number
-  loadEventDebounced = _.debounce(() => this.loadEvent(this.lastMessage), DEBOUNCE_DELAI)
-  updateToLastMessage = undefined
+  loadEventDebounced = _.debounce(m => this.loadEvent(m), DEBOUNCE_DELAY)
   lastMessage = undefined
 
   async componentDidMount() {
     updater.callback = this.loadEvent
-    updater.updateLastMessage = this.updateLastMessage
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
@@ -75,7 +73,10 @@ export class Debugger extends React.Component<Props, State> {
     if (settings.autoOpenDebugger) {
       this.toggleDebugger()
     }
-    this.updateToLastMessage = settings.updateToLastMessage
+
+    if (settings.updateToLastMessage) {
+      this.props.store.bp.events.on('guest.webchat.message', async m => await this.updateLastMessage(m.incomingEventId))
+    }
   }
 
   componentWillUnmount() {
@@ -94,10 +95,10 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   updateLastMessage = async newMessage => {
-    if (this.updateToLastMessage && newMessage && newMessage !== this.lastMessage) {
+    if (newMessage && newMessage !== this.lastMessage) {
       this.lastMessage = newMessage
       // tslint:disable-next-line: no-floating-promises
-      this.loadEventDebounced()
+      this.loadEventDebounced(newMessage)
     }
   }
 
