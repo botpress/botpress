@@ -229,20 +229,22 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     if (!result) {
       // didn't find any close gramset, let's create a new one
-      const realWords = _.uniq(subsetVocab)
-      const meanWordSize = _.meanBy(realWords, w => w.length)
-      const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 3)
-      const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5)
-
-      result = _.range(0, JUNK_VOCAB_SIZE).map(() =>
-        _.sampleSize(gramset, _.random(minJunkSize, maxJunkSize, false)).join('')
-      ) // randomly generated words
-
+      result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
       this._junkwordsCache.set(gramset, result)
       this.onJunkWordsCacheChanged()
     }
 
     return result
+  }
+
+  private generateJunkWords(subsetVocab: string[], gramset: string[]) {
+    const realWords = _.uniq(subsetVocab)
+    const meanWordSize = _.meanBy(realWords, w => w.length)
+    const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
+    const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 2) // Twice as long.  Those numbers are discretionary and are not expected to make a big impact on the models.
+    return _.range(0, JUNK_VOCAB_SIZE).map(() =>
+      _.sampleSize(gramset, _.random(minJunkSize, maxJunkSize, false)).join('')
+    ) // randomly generated words
   }
 
   async vectorize(tokens: string[], lang: string): Promise<Float32Array[]> {

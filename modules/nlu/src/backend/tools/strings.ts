@@ -14,7 +14,7 @@ export function ngram(value: string, n: number): string[] {
 
 export function vocabNGram(tokens: string[]): string[] {
   const plainTokens = tokens
-    .map(x => x.replace('_', '\u2581')) // We want to discover real language-specific chars
+    .map(x => x.replace('\u2581', '')) // We want to discover real language-specific chars
     .filter(x => x.length > 1) // We want to exclude tokens that represent ponctuation etc (tokenizers will often split them alone)
 
   // We build a gramset, which is essentially a list of all the unique bigrams and trigrams
@@ -36,6 +36,7 @@ export function setSimilarity(a: string[], b: string[]): number {
 
 /**
  * Returns the levenshtein distance between two strings
+ * Duplicate of `src/bp/ml/homebrew/leveinsthein`, remove/refactor if/when we merge NLU into core
  * @returns the # of operations required to go from a to b
  */
 export function levenshtein(a: string, b: string): number {

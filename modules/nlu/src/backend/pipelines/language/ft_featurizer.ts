@@ -56,7 +56,7 @@ export const getSentenceFeatures = async ({
   return computeSentenceEmbedding(vecs, doc, docTfidf, token2vec)
 }
 
-export function getCloserToken(tokenStr: string, tokenVec: number[], token2Vec: Token2Vec): string {
+export function getClosestToken(tokenStr: string, tokenVec: number[], token2Vec: Token2Vec): string {
   let token = ''
   let dist = Number.POSITIVE_INFINITY
   _.forEach(token2Vec, (vec, t) => {
@@ -92,11 +92,11 @@ export function computeSentenceEmbedding(
     const norm = computeNorm(vec)
     if (norm > 0) {
       const token = doc[i]
-      const outOfVocab = !docTfidf[token]
+      const outOfVocab = typeof docTfidf[token] === 'undefined'
       let weight = docTfidf[token]
 
       if (outOfVocab) {
-        const closerToken = getCloserToken(token, vec, token2vec)
+        const closerToken = getClosestToken(token, vec, token2vec)
         weight = docTfidf[closerToken] || defaultWordWeight
       }
 
