@@ -3,7 +3,7 @@ import React from 'react'
 
 import { EditableFile } from '../../backend/typings'
 
-import { buildTree } from './utils/tree'
+import { buildTree, renameTreeNode } from './utils/tree'
 
 export default class FileNavigator extends React.Component<Props, State> {
   state = {
@@ -11,7 +11,7 @@ export default class FileNavigator extends React.Component<Props, State> {
     nodes: []
   }
 
-  treeRef = undefined
+  treeRef: React.RefObject<Tree<NodeData>>
   constructor(props) {
     super(props)
     this.treeRef = React.createRef()
@@ -91,67 +91,21 @@ export default class FileNavigator extends React.Component<Props, State> {
     e.preventDefault()
     ContextMenu.show(
       <Menu>
-        <MenuItem icon="edit" text="Rename" onClick={() => this.handleRename(node)} />
+        <MenuItem
+          icon="edit"
+          text="Rename"
+          onClick={async () =>
+            await renameTreeNode(node, this.treeRef, async newName => this.renameThreeNode(node, newName))
+          }
+        />
         <MenuItem icon="delete" text="Delete" onClick={() => this.props.onNodeDelete(node.nodeData as EditableFile)} />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
   }
 
-  handleRename = (node: ITreeNode<NodeData>) => {
-    const nodeDomElement = this.treeRef.current.getNodeContentElement(node.id)
-
-    const input = document.createElement('input')
-    input.type = 'text'
-    input.className = 'bp3-input bp3-small'
-    input.value = node.label as string
-
-    const div = document.createElement('div')
-    div.className = nodeDomElement.className
-    div.appendChild(input)
-
-    nodeDomElement.replaceWith(div)
-
-    input.focus()
-    input.select()
-
-    const closeRename = async e => {
-      e.preventDefault()
-      div.replaceWith(nodeDomElement)
-      window.removeEventListener('keydown', keyboardListener)
-      window.removeEventListener('mousedown', mouseListener)
-
-      const file = node.nodeData as EditableFile
-      let newName = input.value as string
-      newName = newName.endsWith('.js') ? newName : newName + '.js'
-
-      if (newName === node.label) {
-        return
-      }
-
-      try {
-        await this.props.onNodeRename(file, newName)
-      } catch (e) {
-        return
-      }
-
-      node.label = newName
-    }
-
-    const keyboardListener = async e => {
-      if (e.key === 'Enter' || e.key === 'Escape') {
-        await closeRename(e)
-      }
-    }
-
-    const mouseListener = async e => {
-      if (!div.contains(e.target)) {
-        await closeRename(e)
-      }
-    }
-
-    window.addEventListener('keydown', keyboardListener)
-    window.addEventListener('mousedown', mouseListener)
+  renameThreeNode = async (node: ITreeNode<NodeData>, newName: string) => {
+    await this.props.onNodeRename(node.nodeData as EditableFile, newName)
   }
 
   render() {
