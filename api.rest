@@ -1,0 +1,57 @@
+// Details on how to use at the bottom of the file
+
+### Login on the Admin UI
+# @name login
+POST {{baseUrl}}/api/v1/auth/login/basic/default
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}&password={{password}}
+
+@authToken = {{login.response.body.payload.token}}
+
+### List All Bots (need to login first)
+GET {{baseUrl}}/api/v1/admin/bots
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+
+### Send a request using Converse
+POST {{baseUrl}}/api/v1/bots/welcome-bot/converse/benchmarkUser
+Content-Type: application/json
+
+{
+  "type": "text",
+  "text": "hey"
+}
+
+### Test Duckling
+POST https://duckling.botpress.io/parse
+Content-Type: application/x-www-form-urlencoded
+
+text=hello how are you today
+&lang=en
+&reftime={{$datetime "xx"}}
+&tz=America/Toronto
+
+### Test Lang Server
+GET https://lang-01.botpress.io/info
+
+### SETUP 
+
+#  Use with https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+#  1) Configure environment variable in VS Code
+#    - Open settings.json and add that snippet (replace vars as wanted for different environments)
+# 
+# "rest-client.environmentVariables": {
+#     "$shared": {
+#       "baseUrl": "http://localhost:3000",
+#       "email": "admin",
+#       "password": "123456"
+#     },
+#     "local": {
+#       "baseUrl": "http://localhost:3000"
+#     },
+#     "production": {
+#       "baseUrl": "https://botpress.io",
+#     }
+#   }
