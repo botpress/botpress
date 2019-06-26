@@ -63,42 +63,46 @@ export default class Editor {
     }
   }
 
+  private _loadGhostForBotId(file: EditableFile) {
+    return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+  }
+
   async saveFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
-    const { location, botId, content, hookType } = file
-    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+    const { location, content, hookType, type } = file
+    const ghost = this._loadGhostForBotId(file)
 
-    if (file.type === 'action') {
+    if (type === 'action') {
       return ghost.upsertFile('/actions', location, content)
-    } else if (file.type === 'hook') {
+    } else if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
     }
   }
 
   async deleteFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
-    const { location, botId, hookType } = file
-    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+    const { location, hookType, type } = file
+    const ghost = this._loadGhostForBotId(file)
 
-    if (file.type === 'action') {
+    if (type === 'action') {
       return ghost.deleteFile('/actions', location)
     }
-    if (file.type === 'hook') {
+    if (type === 'hook') {
       return ghost.deleteFile(`/hooks/${hookType}`, location.replace(hookType, ''))
     }
   }
 
   async renameFile(file: EditableFile, newName: string): Promise<EditableFile> {
     this._validateMetadata(file)
-    const { location, botId, hookType } = file
-    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+    const { location, hookType, type } = file
+    const ghost = this._loadGhostForBotId(file)
 
     const newLocation = location.replace(file.name, newName)
 
     let fileAlreadyExist
-    if (file.type === 'action') {
+    if (type === 'action') {
       fileAlreadyExist = await ghost.fileExists('/actions', newLocation)
-    } else if (file.type === 'hook') {
+    } else if (type === 'hook') {
       fileAlreadyExist = await ghost.fileExists(`/hooks/${hookType}`, location.replace(hookType, ''))
     }
 
