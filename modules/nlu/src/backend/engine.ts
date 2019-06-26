@@ -375,6 +375,11 @@ export default class ScopedEngine implements Engine {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
 
+    const skipIntentExtraction = !((await this.getIntents()) || []).length
+    if (skipIntentExtraction) {
+      return ds
+    }
+
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
@@ -410,8 +415,7 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
-    if (ds.intent.name === 'none') {
-      debugSlots('none intent, skipping slots')
+    if (!ds.intent.name || ds.intent.name === 'none') {
       return ds
     }
 
