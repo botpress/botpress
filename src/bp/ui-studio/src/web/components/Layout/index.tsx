@@ -104,8 +104,10 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   gotoUrl = url => {
-    this.props.history.push(url)
-    this.focusMain()
+    if (!isInputFocused()) {
+      this.props.history.push(url)
+      this.focusMain()
+    }
   }
 
   render() {
