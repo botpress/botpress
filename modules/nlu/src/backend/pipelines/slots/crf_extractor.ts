@@ -140,8 +140,13 @@ export default class CRFExtractor implements SlotExtractor {
         const slotName = tagResult.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
+      .map(x => {
+        console.log('X IS;', x)
+        return x
+      })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
+
         const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
 
         if (!slot) {
@@ -149,8 +154,11 @@ export default class CRFExtractor implements SlotExtractor {
         }
 
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
-          // simply append the source if the tag is inside a slot
-          slotCollection[slotName].source += ` ${token.value}`
+          if (_.isEmpty(token.matchedEntities)) {
+            // simply append the source if the tag is inside a slot && type any (thus the if)
+            slotCollection[slotName].source += ` ${token.value}`
+            slotCollection[slotName].value += ` ${token.value}`
+          }
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
@@ -162,6 +170,7 @@ export default class CRFExtractor implements SlotExtractor {
         } else {
           slotCollection[slotName] = slot
         }
+
         return slotCollection
       }, {})
   }
@@ -192,6 +201,7 @@ export default class CRFExtractor implements SlotExtractor {
       return
     }
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
+
     const entity =
       slotDef &&
       entities.find(
@@ -203,11 +213,14 @@ export default class CRFExtractor implements SlotExtractor {
       return
     }
 
+    console.log('token is;', token)
+
     const value = _.get(entity, 'data.value', token.value)
     const source = _.get(entity, 'meta.source', token.value)
 
     const slot = {
       name: slotName,
+      source,
       value,
       confidence
     } as sdk.NLU.Slot
