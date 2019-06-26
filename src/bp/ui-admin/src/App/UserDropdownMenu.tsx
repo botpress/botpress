@@ -1,4 +1,4 @@
-import { Button, Menu, MenuDivider, MenuItem, Popover, Position } from '@blueprintjs/core'
+import { Button, Menu, MenuDivider, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
@@ -32,7 +32,7 @@ class UserDropdownMenu extends Component<Props> {
   renderPopover() {
     const { email, fullName, isSuperAdmin } = this.props.profile
     return (
-      <Popover position={Position.BOTTOM}>
+      <Popover position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
         <Button
           icon={<GravatarImage email={this.props.profile.email} size="sm" className="user-avatar" />}
           rightIcon="caret-down"
