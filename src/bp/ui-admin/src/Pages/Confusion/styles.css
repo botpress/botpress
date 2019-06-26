@@ -68,3 +68,12 @@ td.identity {
 table.matrix {
   border-spacing: 0px;
 }
+
+.bp3-tooltip .bp3-popover-content .smallTooltip {
+  font-size: 80%;
+}
+
+.smallTooltip div label {
+  width: 130px;
+  margin: 0px;
+}

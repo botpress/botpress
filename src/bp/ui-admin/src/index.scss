@@ -212,3 +212,7 @@ pre.code {
 .form-range {
   padding-right: 25px;
 }
+
+:global(.bp3-tooltip .bp3-popover-content) {
+  padding: 5px 8px !important;
+}

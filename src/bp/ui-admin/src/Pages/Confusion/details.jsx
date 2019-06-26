@@ -61,43 +61,40 @@ const MatrixComponent = props => {
     const noneConfusions = v.confusions.none || 0
 
     const toolTipContent = (
-      <div>
-        <h3>{key}</h3>
-        <ul>
-          <li>
-            <strong>F1: </strong>
-            {v.f1.toFixed(2)}
-          </li>
-          <li>
-            <strong>Precision: </strong>
-            {v.precision.toFixed(2)}
-          </li>
-          <li>
-            <strong>Recall: </strong>
-            {v.recall.toFixed(2)}
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <strong>False Positives: </strong>
-            {v.fp}
-          </li>
-          <li>
-            <strong>False Negatives: </strong>
-            {v.fn - noneConfusions}
-          </li>
-          {noneConfusions ? (
-            <li>
-              <strong>Not found (none):</strong> {noneConfusions}
-            </li>
-          ) : null}
-        </ul>
+      <div className="smallTooltip">
+        <div>
+          <label>F1: </label>
+          <strong>{v.f1.toFixed(2)}</strong>
+        </div>
+        <div>
+          <label>Precision: </label>
+          <strong>{v.precision.toFixed(2)}</strong>
+        </div>
+        <div>
+          <label>Recall: </label>
+          <strong>{v.recall.toFixed(2)}</strong>
+        </div>
+        <br />
+        <div>
+          <label>False Positives:</label>
+          <strong>{v.fp}</strong>
+        </div>
+        <div>
+          <label>False Negatives:</label>
+          <strong>{v.fn - noneConfusions}</strong>
+        </div>
+        {noneConfusions && (
+          <div>
+            <label>Not found (none):</label>
+            <strong>{noneConfusions}</strong>
+          </div>
+        )}
       </div>
     )
 
     cols[idxByName[key]] = (
       <Cell className="identity" scoreInPercent={v.f1 || 0}>
-        <Tooltip content={toolTipContent} position={Position.RIGHT}>
+        <Tooltip content={toolTipContent} position={Position.TOP}>
           <a data-tip data-for={'cls-' + key}>
             {v.f1.toFixed(1)}
           </a>
@@ -114,17 +111,14 @@ const MatrixComponent = props => {
       const nConfusions = (v.confusions || [])[cls] + ((matrix[cls].confusions || {})[key] || 0)
 
       const content = (
-        <div>
-          <h3>{key}</h3>
-          <p>
-            The model got confused <strong>{nConfusions}</strong> times with the <strong>{cls}</strong> intent.
-          </p>
+        <div className="smallTooltip">
+          The model got confused <strong>{nConfusions}</strong> times with the <strong>{cls}</strong> intent.
         </div>
       )
 
       cols[idxByName[cls]] = (
         <Cell scoreInAbsolute={nConfusions}>
-          <Tooltip content={content}>
+          <Tooltip content={content} position={Position.TOP}>
             <a data-tip data-for={tipKey}>
               {nConfusions}
             </a>
