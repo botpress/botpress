@@ -9,7 +9,6 @@ const invalidAnswer = async () => {
   const value = (temp[key] || 0) + 1
 
   temp[key] = value
-  console.log('skill-choice-invalid-count', value)
 }
 
 return invalidAnswer()

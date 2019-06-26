@@ -49,7 +49,6 @@ export class Choice extends React.Component {
   }
 
   updateParent = () => {
-    console.log('UPDATE')
     this.props.onDataChanged &&
       this.props.onDataChanged({
         contentId: this.state.contentId,
@@ -141,9 +140,9 @@ export class Choice extends React.Component {
       )
 
     const contentPickerProps = {}
-    const contentElement = this.getContentElement()
-    if (contentElement && contentElement.length) {
-      contentPickerProps.categoryId = contentElement
+    const contentType = this.getContentType()
+    if (contentType && contentType.length) {
+      contentPickerProps.categoryId = contentType
     }
 
     return (
@@ -154,7 +153,7 @@ export class Choice extends React.Component {
         <div>
           <ContentPickerWidget
             {...contentPickerProps}
-            contentType={this.getContentElement()}
+            contentType={this.getContentType()}
             itemId={this.state.contentId}
             onChange={this.onContentChanged}
             placeholder="Pick content (question and choices)"
@@ -168,7 +167,8 @@ export class Choice extends React.Component {
     )
   }
 
-  getContentElement() {
+  getContentType() {
+    // FIXME: defaultContentElement should really be defaultContentType in the config
     return typeof this.state.config.contentElement === 'string'
       ? this.state.config.contentElement
       : this.state.defaultConfig && this.state.defaultConfig.defaultContentElement
@@ -194,11 +194,10 @@ export class Choice extends React.Component {
   }
 
   renderAdvanced() {
-    console.log('state', this.state)
     return (
       <div className={style.content}>
         <div>
-          <Label htmlFor="inputMaxRetries">Max number of retries</Label>
+          <Label htmlFor="inputMaxRetries">Max number of retries:</Label>
           <Input
             id="inputMaxRetries"
             type="number"
@@ -222,11 +221,11 @@ export class Choice extends React.Component {
         </div>
 
         <div>
-          <Label htmlFor="contentElementName">Content Element to use (optionnal)</Label>
+          <Label htmlFor="contentElementType">Default choice content type:</Label>
           <Input
-            id="contentElementName"
+            id="contentElementType"
             type="text"
-            value={this.getContentElement()}
+            value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />
         </div>
