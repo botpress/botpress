@@ -57,23 +57,3 @@ export const Slots: SFC<{ slots: sdk.NLU.SlotCollection }> = props => (
     </HTMLTable>
   </div>
 )
-
-// export const Slots = props => {
-//   const { slots } = props
-
-//   return (
-//     <div className={style.subSection}>
-//       <H5 color={Colors.DARK_GRAY5}>Slots</H5>
-//       <ul>
-//         {Object.keys(slots).map((key, idx) => {
-//           const res = _.isArray(slots[key]) ? slots[key].map(s => s.value).join(',') : slots[key].value
-//           return (
-//             <li key={key + idx}>
-//               {key}: {res}
-//             </li>
-//           )
-//         })}
-//       </ul>
-//     </div>
-//   )
-// }
