@@ -75,6 +75,46 @@ export default class Editor {
     }
   }
 
+  async deleteFile(file: EditableFile): Promise<void> {
+    this._validateMetadata(file)
+    const { location, botId, hookType } = file
+    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+
+    if (file.type === 'action') {
+      return ghost.deleteFile('/actions', location)
+    }
+    if (file.type === 'hook') {
+      return ghost.deleteFile(`/hooks/${hookType}`, location.replace(hookType, ''))
+    }
+  }
+
+  async renameFile(file: EditableFile, newName: string): Promise<EditableFile> {
+    this._validateMetadata(file)
+    const { location, botId, hookType } = file
+    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+
+    const newLocation = location.replace(file.name, newName)
+
+    let fileAlreadyExist
+    if (file.type === 'action') {
+      fileAlreadyExist = await ghost.fileExists('/actions', newLocation)
+    } else if (file.type === 'hook') {
+      fileAlreadyExist = await ghost.fileExists(`/hooks/${hookType}`, location.replace(hookType, ''))
+    }
+
+    if (fileAlreadyExist) {
+      return
+    }
+
+    await this.deleteFile(file)
+
+    file.location = newLocation
+    file.name = newName
+
+    await this.saveFile(file)
+    return file
+  }
+
   async loadTypings() {
     if (this._typings) {
       return this._typings
