@@ -140,10 +140,6 @@ export default class CRFExtractor implements SlotExtractor {
         const slotName = tagResult.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
-      .map(x => {
-        console.log('X IS;', x)
-        return x
-      })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
 
@@ -212,8 +208,6 @@ export default class CRFExtractor implements SlotExtractor {
     if (slotDef && !slotDef.entities.includes('any') && !entity) {
       return
     }
-
-    console.log('token is;', token)
 
     const value = _.get(entity, 'data.value', token.value)
     const source = _.get(entity, 'meta.source', token.value)
