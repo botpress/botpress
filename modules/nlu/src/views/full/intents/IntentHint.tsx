@@ -14,7 +14,16 @@ const GOOD_ML_UTT = 10
 
 const IntentHint: SFC<Props> = props => {
   const utterances = props.intent.utterances[props.contentLang] || []
-  const idealNumberOfUtt = Math.max((props.intent.slots || []).length * 5, GOOD_ML_UTT)
+  const slotsLength = (props.intent.slots || []).length
+
+  /*
+    The ideal number of utterances should not be computed for the whole intent but rather by slots.
+    Meaning, we should recommend a number of utterances for each slot, what we are doing right now is only
+    valid if the're no slots. Also, we should do a density based clustering per slots and for the whole intent
+    to see if the utterances all belong to the same class or if the are considerable different ways of saying
+    the samething. Then, we could also not only recommend number of utterances per intent & slots but by cluster also.  
+  */
+  const idealNumberOfUtt = Math.max(Math.pow(slotsLength * 2, 2), GOOD_ML_UTT)
   let hint: JSX.Element
 
   if (!utterances.length) {
