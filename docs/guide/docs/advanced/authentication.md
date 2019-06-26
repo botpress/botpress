@@ -1,6 +1,6 @@
 ---
 id: authentication
-title: Authentication
+title: Authentication Methods
 ---
 
 There's two different types of authentication, and different methods for each:
@@ -61,7 +61,7 @@ There are two possible behaviors. You can either:
 #### Quick Start
 
 1. Open `botpress.config.json` and set `pro.auth.strategy = 'saml'`
-2. Configure the available options
+2. Configure the available options. The complete list of SAML options is [available here](https://github.com/bergie/passport-saml).
 
 Here is a complete example
 
@@ -69,11 +69,11 @@ Here is a complete example
 "auth": {
   "strategy": "saml",
   "options": {
-    "authEndpoint": "https://botpress-saml-idp.auth0.com/somestuff/bla",
+    "entryPoint": "https://botpress-saml-idp.auth0.com/somestuff/bla",
     "callbackUrl": "http://localhost:3000/admin/login-callback",
     "path": "/login-callback",
     "issuer": "botpress-saml",
-    "certificate": "MIIDETCCAfmgAwIBAgIJIHQ75dJxjRuEMA0GCSqGSIb3DQEBCwUAMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTAeFw0xOTAxMTUxNTAzMDFaFw0zMjA5MjMxNTAzMDFaMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMUHXzCG3c4iSyU1N1Nzu8LsEIQ8tj5SHG+VtHrhWyfdckq5nP2wy/u6Tt20pdOx+4zu1718x2xVPMwFN9M2uUSJaY6vIXfHofKyn1htuYYzOklLZmnrLX4Pm7YHE2SubAsuwg6e7/sgIZ06T",
+    "cert": "MIIDETCCAfmgAwIBAgIJIHQ75dJxjRuEMA0GCSqGSIb3DQEBCwUAMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTAeFw0xOTAxMTUxNTAzMDFaFw0zMjA5MjMxNTAzMDFaMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMUHXzCG3c4iSyU1N1Nzu8LsEIQ8tj5SHG+VtHrhWyfdckq5nP2wy/u6Tt20pdOx+4zu1718x2xVPMwFN9M2uUSJaY6vIXfHofKyn1htuYYzOklLZmnrLX4Pm7YHE2SubAsuwg6e7/sgIZ06T",
     "acceptedClockSkewMs": 5000
   },
   "fieldMapping": {
@@ -169,7 +169,7 @@ cat jwtRS256.key.pub // Your public key
 
 ### Authenticate the user
 
-Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connectring your bot with your existing backend](../tutorials/existing-backend) for more details. There are two different situations:
+Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connecting your bot with your existing backend](../tutorials/existing-backend) for more details. There are two different situations:
 
 1. The user is authenticated before the webchat is loaded.
 

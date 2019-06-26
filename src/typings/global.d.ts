@@ -24,6 +24,7 @@ declare namespace NodeJS {
     LOADED_MODULES: { [module: string]: string }
     pkg: any
     IS_LICENSED: boolean
+    IS_PRO_AVAILABLE: boolean
     IS_PRO_ENABLED: boolean
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
@@ -62,6 +63,17 @@ declare type BotpressEnvironementVariables = {
    * @example bp:dialog:*,bp:nlu:intents:*
    */
   readonly DEBUG?: string
+
+  /**
+   * Truthy if running the official Botpress docker image
+   */
+  readonly BP_IS_DOCKER?: boolean
+
+  /**
+   * The max size of the in-memory, in-process cache.
+   * Defaults to '1gb'
+   */
+  readonly BP_MAX_MEMORY_CACHE_SIZE?: string
 }
 
 interface IDebug {

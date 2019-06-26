@@ -27,3 +27,9 @@ export class FlowError extends Error {
     super(`${message}, Bot: ${botId}, Flow: ${flowName || 'N/A'}, Node: ${nodeName || 'N/A'}`)
   }
 }
+
+export class TimeoutNodeNotFound extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}

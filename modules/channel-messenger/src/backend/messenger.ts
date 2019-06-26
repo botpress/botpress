@@ -160,10 +160,13 @@ export class MessengerService {
         debugMessages('could not find a bot for page id =', pageId)
         continue
       }
-
+      if (!messages) {
+         debugMessages('incoming event without messaging entry')
+         continue
+       }
       for (const webhookEvent of messages) {
         if (!webhookEvent.sender) {
-          return
+          continue
         }
 
         debugMessages('incoming', webhookEvent)

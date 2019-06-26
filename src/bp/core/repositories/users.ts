@@ -9,6 +9,7 @@ export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   setAttributes(channel: string, id: string, attributes: any): Promise<void>
+  getAttributes(channel: string, id: string): Promise<any>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
 }

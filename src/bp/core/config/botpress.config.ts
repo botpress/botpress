@@ -12,18 +12,20 @@ export type ModuleConfigEntry = {
 
 export interface DialogConfig {
   /**
-   * Interval between executions of the janitor to check for stale sessions
+   * Interval between executions of the janitor that checks for stale contexts and sessions.
    * @default 10s
    */
   janitorInterval: string
   /**
-   * The delay before a stale session will get sweeped by the janitor
+   * Interval before a session's context expires.
+   * e.g. when the conversation is stale and has not reach the END of the flow.
+   * This will reset the position of the user in the flow.
    * @default 2m
    */
   timeoutInterval: string
   /**
-   * The delay before we consider that it is a new interaction (ex: different subject). We keep the user's last messages
-   * and variables in the session context to customize interactions.
+   * Interval before a session expires. e.g. when the user has not spoken for a while.
+   * The session including its variable will be deleted.
    * @default 30m
    */
   sessionTimeoutInterval: string
@@ -213,9 +215,9 @@ export type BotpressConfig = {
   fileUpload: {
     /**
      * Maximum file size for media files upload (in mb)
-     * @default 10
+     * @default 10mb
      */
-    maxFileSize: number
+    maxFileSize: string
     /**
      * The list of allowed extensions for media file uploads
      * @default ["image/jpeg","image/png","image/gif"]
@@ -318,11 +320,15 @@ export interface AuthStrategyBasic {
   requireComplexPassword?: boolean
 }
 
+/**
+ *  SAML Options, identical to the "passeport-saml" NPM library
+ *  @see https://github.com/bergie/passport-saml
+ */
 export interface AuthStrategySaml {
   /**
    * This is the page of the external SAML IdP where users will login
    */
-  authEndpoint: string
+  entryPoint: string
   /**
    * The callback url is called by the SAML provider with the payload. The path provided here is absolute.
    * @default http://localhost:3000/admin/login-callback
@@ -344,7 +350,7 @@ export interface AuthStrategySaml {
    * The string should be provided as one line (use \n for new lines)
    * @default <paste PEM certificate>
    */
-  certificate: string
+  cert: string
   /**
    * Change if there is a significant time difference between this server and your identity provider
    * @default 5000

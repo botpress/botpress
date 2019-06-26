@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import LicensingService, { LicenseInfo } from 'common/licensing-service'
+import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'core/misc/interfaces'
 import { Router } from 'express'
 import _ from 'lodash'
@@ -7,6 +7,23 @@ import _ from 'lodash'
 import { CustomRouter } from '../customRouter'
 import { BadRequestError } from '../errors'
 import { assertSuperAdmin, success as sendSuccess } from '../util'
+
+type LicensingStatus = {
+  isPro: boolean
+  isBuiltWithPro: boolean
+  fingerprints: {
+    cluster_url: string
+  }
+  license?: LicenseInfo
+} & LicenseStatus
+
+const defaultResponse: LicensingStatus = {
+  breachReasons: [],
+  status: 'licensed',
+  fingerprints: { cluster_url: '' },
+  isBuiltWithPro: process.IS_PRO_AVAILABLE,
+  isPro: process.IS_PRO_ENABLED
+}
 
 export class LicenseRouter extends CustomRouter {
   constructor(logger: Logger, private licenseService: LicensingService) {
@@ -22,29 +39,33 @@ export class LicenseRouter extends CustomRouter {
       '/status',
       this.asyncMiddleware(async (req, res) => {
         const { tokenUser } = <RequestWithUser>req
+
         if (!process.IS_PRO_ENABLED) {
-          return sendSuccess(res, 'License status', { isPro: false })
+          return sendSuccess<LicensingStatus>(res, 'License status', { ...defaultResponse, isPro: false })
         }
 
         const status = await svc.getLicenseStatus()
         if (!tokenUser || !tokenUser.isSuperAdmin) {
-          return sendSuccess(res, 'License status', { isPro: true, status: status.status })
+          return sendSuccess<LicensingStatus>(res, 'License status', {
+            ...defaultResponse,
+            isPro: true,
+            status: status.status
+          })
         }
 
         // Only SuperAdmins can see the details of the server's license
         const clusterFingerprint = await svc.getFingerprint('cluster_url')
-        const machineFingerprint = await svc.getFingerprint('machine_v1')
+
         let info: LicenseInfo | undefined
         try {
           info = await svc.getLicenseInfo()
         } catch (err) {}
 
-        return sendSuccess(res, 'License status', {
+        return sendSuccess<LicensingStatus>(res, 'License status', {
+          ...defaultResponse,
           fingerprints: {
-            machine_v1: machineFingerprint,
             cluster_url: clusterFingerprint
           },
-          isPro: true,
           license: info,
           ...status
         })

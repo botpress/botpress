@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>Proactive Example #1</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    <h1>Send a message on load</h1>
+    <p style="width: 500px;text-align: justify;text-justify: inter-word;">
+      Loading / reloading the page will trigger a proactive message.
+    </p>
+  </body>
+
+  <script>
+    window.botpressWebChat.init({
+      host: window.origin,
+      botId: 'proactive-bot'
+    })
+
+    setTimeout(function() {
+      window.botpressWebChat.sendEvent({ type: 'show' })
+      window.botpressWebChat.sendEvent({
+        type: 'proactive-trigger'
+      })
+    }, 1500)
+  </script>
+</html>

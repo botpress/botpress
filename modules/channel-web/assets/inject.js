@@ -22,9 +22,11 @@ function init(config) {
   const botId = config.botId || ''
   const cssHref = host + '/assets/modules/channel-web/inject.css'
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
-
   const options = encodeURIComponent(JSON.stringify({ config: config }))
-  const iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
+  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
+  if (config.ref) {
+    iframeSrc += '&ref=' + encodeURIComponent(config.ref)
+  }
   const iframeHTML = '<iframe id="bp-widget" frameborder="0" src="' + iframeSrc + '" class="bp-widget-web"/>'
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 

@@ -10,6 +10,7 @@ import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
+import { getMessageSignature } from './misc/security'
 import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
@@ -121,6 +122,7 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
+    getAttributes: userRepo.getAttributes.bind(userRepo),
     setAttributes: userRepo.setAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
     getUserCount: userRepo.getUserCount.bind(userRepo)
@@ -161,6 +163,12 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
     async create(botId: string, notification: any): Promise<any> {
       await notificationService.create(botId, notification)
     }
+  }
+}
+
+const security = (): typeof sdk.security => {
+  return {
+    getMessageSignature: getMessageSignature
   }
 }
 
@@ -238,6 +246,7 @@ export class BotpressAPIProvider {
   cms: typeof sdk.cms
   mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
+  security: typeof sdk.security
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -272,6 +281,7 @@ export class BotpressAPIProvider {
     this.cms = cms(cmsService, mediaService)
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
+    this.security = security()
   }
 
   @Memoize()
@@ -300,6 +310,7 @@ export class BotpressAPIProvider {
       ghost: this.ghost,
       bots: this.bots,
       cms: this.cms,
+      security: this.security,
       experimental: this.experimental
     }
   }

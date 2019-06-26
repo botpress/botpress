@@ -89,6 +89,8 @@ export default class DiskStorageDriver implements StorageDriver {
       globOptions['ignore'] = [...options.excludes, ...ghostIgnorePatterns]
     } else if (options.excludes) {
       globOptions['ignore'] = [options.excludes, ...ghostIgnorePatterns]
+    } else {
+      globOptions['ignore'] = ghostIgnorePatterns
     }
 
     try {
@@ -133,7 +135,7 @@ export default class DiskStorageDriver implements StorageDriver {
   private async _getGhostIgnorePatterns(ghostIgnorePath: string): Promise<string[]> {
     if (await fse.pathExists(ghostIgnorePath)) {
       const ghostIgnoreFile = await fse.readFile(ghostIgnorePath)
-      return ghostIgnoreFile.toString().split(os.EOL)
+      return ghostIgnoreFile.toString().split(/\r?\n/gi)
     }
     return []
   }
