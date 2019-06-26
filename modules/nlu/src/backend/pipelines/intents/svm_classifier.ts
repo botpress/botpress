@@ -278,6 +278,10 @@ export default class SVMClassifier {
       return []
     }
 
+    if (!includedContexts.length) {
+      includedContexts = ['global']
+    }
+
     const input = tokens.join(' ')
 
     const l0Vec = await getSentenceFeatures({
@@ -287,12 +291,9 @@ export default class SVMClassifier {
       langProvider: this.languageProvider,
       token2vec: this.token2vec
     })
-    const l0Features = [...l0Vec, tokens.length]
-    const l0 = await this.l0Predictor.predict(l0Features)
 
-    if (!includedContexts.length) {
-      includedContexts = ['global']
-    }
+    const l0Features = [...l0Vec, tokens.length]
+    const l0 = await this.predictL0Contextually(l0Features, includedContexts)
 
     try {
       debugPredict('prediction request %o', { includedContexts, input })
@@ -349,5 +350,15 @@ export default class SVMClassifier {
     } catch (e) {
       throw new VError(e, `Error predicting intent for "${input}"`)
     }
+  }
+
+  private async predictL0Contextually(
+    l0Features: number[],
+    includedContexts: string[]
+  ): Promise<sdk.MLToolkit.SVM.Prediction[]> {
+    const allL0 = await this.l0Predictor.predict(l0Features)
+    const includedL0 = allL0.filter(c => includedContexts.includes(c.label))
+    const totalL0Confidence = Math.min(1, _.sumBy(includedL0, c => c.confidence))
+    return includedL0.map(x => ({ ...x, confidence: x.confidence / totalL0Confidence }))
   }
 }
