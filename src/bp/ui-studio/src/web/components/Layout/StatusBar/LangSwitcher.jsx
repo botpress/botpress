@@ -6,6 +6,18 @@ import withLanguage from '../../Util/withLanguage'
 import ActionItem from './ActionItem'
 import { keyMap } from '~/keyboardShortcuts'
 import style from './StatusBar.styl'
+import Flag from 'react-world-flags'
+
+const mapFlags = {
+  fr: 'fr',
+  en: 'gb',
+  ja: 'jp',
+  ru: 'rus',
+  ar: 'sau',
+  pt: 'prt',
+  sp: 'esp',
+  ko: 'kor'
+}
 
 class LangSwitcher extends React.Component {
   elems = {}
@@ -73,7 +85,8 @@ class LangSwitcher extends React.Component {
                 onClick={this.switchLang.bind(this, l)}
                 onKeyDown={this.handleKeyDown.bind(this, l)}
               >
-                {l.toUpperCase()}
+                <Flag code={mapFlags[l] || ''} height={16} />
+                <span>{l.toUpperCase()}</span>
               </li>
             ))}
           </Dropdown.Menu>
