@@ -13,7 +13,7 @@ const FileStatus = props => {
   if (!props.errors || !props.errors.length) {
     return (
       <SidePanelSection label={'File Information'} actions={actions}>
-        <p>No error found</p>
+        <React.Fragment />
       </SidePanelSection>
     )
   }
