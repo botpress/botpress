@@ -10,6 +10,8 @@ interface CssExports {
   'inspectorContainer': string;
   'notFound': string;
   'splash': string;
+  'subSection': string;
+  'summaryTable': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

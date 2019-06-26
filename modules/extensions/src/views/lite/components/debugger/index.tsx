@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
@@ -9,13 +10,13 @@ import { MdBugReport } from 'react-icons/md'
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
-import { Decision } from './views/Decision'
+import Dialog from './views/Dialog'
 import { Entities } from './views/Entities'
 import { Flow } from './views/Flow'
 import { Inspector } from './views/Inspector'
 import { Intents } from './views/Intents'
+import NLU from './views/NLU'
 import { Slots } from './views/Slots'
-import { Suggestions } from './views/Suggestions'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
 import Header from './Header'
@@ -75,7 +76,12 @@ export class Debugger extends React.Component<Props, State> {
     }
 
     if (settings.updateToLastMessage) {
-      this.props.store.bp.events.on('guest.webchat.message', async m => await this.updateLastMessage(m.incomingEventId))
+      this.props.store.bp.events.on('guest.webchat.message', async (m: Partial<sdk.IO.IncomingEvent>) => {
+        if (m.payload.type !== 'session_reset') {
+          // @ts-ignore
+          await this.updateLastMessage(m.incomingEventId)
+        }
+      })
     }
   }
 
@@ -175,11 +181,8 @@ export class Debugger extends React.Component<Props, State> {
   renderSummary() {
     return (
       <div>
-        <Decision decision={this.state.event.decision} />
-        <Intents nlu={this.state.event.nlu} />
-        <Entities nlu={this.state.event.nlu} />
-        <Suggestions suggestions={this.state.event.suggestions} />
-        <Slots nlu={this.state.event.nlu} />
+        <Dialog suggestions={this.state.event.suggestions} decision={this.state.event.decision} />
+        <NLU nluData={this.state.event.nlu} />
       </div>
     )
   }
