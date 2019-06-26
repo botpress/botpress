@@ -1,12 +1,13 @@
 import { H5, Pre } from '@blueprintjs/core'
 import { isArray } from 'lodash'
+import _ from 'lodash'
 import React from 'react'
 
 import style from '../style.scss'
 
 export const Slots = props => {
   const { slots } = props.nlu
-  if (!slots) {
+  if (!slots || _.isEmpty(slots)) {
     return null
   }
 

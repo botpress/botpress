@@ -6,23 +6,22 @@ import { formatConfidence } from '../utils'
 
 export const Intents = props => {
   const { intent, intents, includedContexts } = props.nlu
-  if (!intent || !intents) {
+  if (!intent || !intents || !intents.length) {
     return null
   }
 
   return (
     <div className={style.block}>
-      <H5>Intent</H5>
-      <small>Contexts: {(includedContexts || []).join(', ')}</small>
-      <Pre>
+      <H5>Intents</H5>
+      <div>
         {intents.map(i => {
-          const content = `${formatConfidence(i.confidence)} % -${i.name}`
+          const content = `${i.name}: ${formatConfidence(i.confidence)} %`
           if (i.name === intent.name) {
-            return <strong>{content}</strong>
+            return <strong>{content} (elected)</strong>
           }
           return <div>{content}</div>
         })}
-      </Pre>
+      </div>
     </div>
   )
 }
