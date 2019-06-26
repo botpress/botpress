@@ -1,4 +1,5 @@
 import axios from 'axios'
+import fse from 'fs-extra'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -29,6 +30,7 @@ class Bench {
   /** When enabled, each message sent will be displayed with their response time */
   isVerbose: boolean
   interval: NodeJS.Timeout | undefined
+  textMessages: string[]
 
   maxMpsReached: number = 0
 
@@ -43,9 +45,11 @@ class Bench {
     this.isVerbose = Boolean(args.verbose)
 
     this.stats = new Stats(this.slaLimit, this.slaTarget)
-    this.defaultMessage = {
-      type: 'text',
-      text: args.text
+
+    if (args.messageFile && fse.existsSync(args.messageFile)) {
+      this.textMessages = fse.readFileSync(args.messageFile, 'utf-8').split('\n')
+    } else {
+      this.textMessages = [args.text]
     }
   }
 
@@ -109,13 +113,20 @@ class Bench {
     }
   }
 
+  get randomMessage() {
+    return {
+      type: 'text',
+      text: _.sample(this.textMessages)
+    }
+  }
+
   async sendMessage(userId, index) {
     const start = Date.now()
     let status
     try {
       const result = await axios.post(
         `${this.url}/api/v1/bots/${this.botId}/converse/benchmark${userId}`,
-        this.defaultMessage
+        this.randomMessage
       )
       status = result.status
     } catch (err) {
@@ -175,5 +186,6 @@ class Bench {
 
 export default argv => {
   const benchmark = new Bench(argv)
+  // tslint:disable-next-line: no-floating-promises
   benchmark.start()
 }

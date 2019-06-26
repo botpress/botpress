@@ -183,6 +183,10 @@ try {
         text: {
           description: 'Configure the text message that will be send by the fake users',
           default: 'Hey'
+        },
+        messageFile: {
+          alias: 'file',
+          description: 'Path to a text file with one message on each line (randomize sent messages)'
         }
       },
       argv => {
