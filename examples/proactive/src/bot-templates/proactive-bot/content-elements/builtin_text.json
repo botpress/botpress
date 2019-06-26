@@ -1,0 +1,42 @@
+[
+  {
+    "id": "builtin_text-LnsobY",
+    "formData": {
+      "text$en": "Hello! I'm Proactive Bot and I'm proactive ...",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-06-19T15:30:56.241Z",
+    "modifiedOn": "2019-06-19T18:18:10.869Z"
+  },
+  {
+    "id": "builtin_text-aJG2tU",
+    "formData": {
+      "text$en": "👋 {{session.contactForm.name}}, I'm glad you prefer Botpress over all the other plateforms!",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-06-19T19:28:14.505Z",
+    "modifiedOn": "2019-06-19T20:13:27.125Z"
+  },
+  {
+    "id": "builtin_text-c9e7j-",
+    "formData": {
+      "text$en": "This field really doesn't mean anything! You can leave it empty.",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-06-19T19:51:35.637Z",
+    "modifiedOn": "2019-06-19T20:15:56.675Z"
+  },
+  {
+    "id": "builtin_text-l37HZR",
+    "formData": {
+      "text$en": "Ohh really?! \"{{session.contactForm.plateform}}\" ??  Let's add you to the \"special\" users list 😈",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-06-19T20:19:33.476Z",
+    "modifiedOn": "2019-06-19T20:27:26.286Z"
+  }
+]

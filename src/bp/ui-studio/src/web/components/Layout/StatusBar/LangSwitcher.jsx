@@ -44,7 +44,6 @@ class LangSwitcher extends React.Component {
       <Fragment>
         <ActionItem
           shortcut={keyMap['lang-switcher']}
-          className={style.right}
           title="Content Language"
           description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
           onClick={this.props.toggleLangSwitcher}
@@ -56,7 +55,6 @@ class LangSwitcher extends React.Component {
           </span>
         </ActionItem>
         <Dropdown
-          className={style.right}
           pullRight
           dropup={true}
           open={this.props.langSwitcherOpen}

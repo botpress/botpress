@@ -47,7 +47,6 @@ export default class CRFExtractor implements SlotExtractor {
 
   constructor(
     private toolkit: typeof sdk.MLToolkit,
-    private languageProvider: LanguageProvider,
     private realtime: typeof sdk.realtime,
     private realtimePayload: typeof sdk.RealTimePayload
   ) {}

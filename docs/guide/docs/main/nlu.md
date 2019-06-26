@@ -80,7 +80,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialogs).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialog).
 
 ##### Example
 
@@ -169,7 +169,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the section [Hosting & Environment](../advanced/hosting)
+For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
 
 ##### Example
 

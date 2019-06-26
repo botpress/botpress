@@ -17,7 +17,7 @@ export default class EditLicense extends Component {
 
   onInputChange = event => {
     this.setState({
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value.trim()
     })
   }
 

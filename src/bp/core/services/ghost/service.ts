@@ -1,7 +1,7 @@
 import { ListenHandle, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
-import { forceForwardSlashes } from 'core/misc/utils'
+import { asBytes, forceForwardSlashes } from 'core/misc/utils'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -19,7 +19,7 @@ import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-const MAX_GHOST_FILE_SIZE = 20 * 1024 * 1024 // 20 Mb
+const MAX_GHOST_FILE_SIZE = asBytes('20mb')
 
 @injectable()
 export class GhostService {
@@ -155,7 +155,7 @@ export class ScopedGhostService {
     return forceForwardSlashes(path.join(this._normalizeFolderName(rootFolder), file))
   }
 
-  objectCacheKey = str => `string::${str}`
+  objectCacheKey = str => `object::${str}`
   bufferCacheKey = str => `buffer::${str}`
 
   private async _invalidateFile(fileName: string) {
@@ -174,7 +174,7 @@ export class ScopedGhostService {
     }
   }
 
-  async upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void> {
+  async upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision = true): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
@@ -185,7 +185,7 @@ export class ScopedGhostService {
       throw new Error(`The size of the file ${fileName} is over the 20mb limit`)
     }
 
-    await this.primaryDriver.upsertFile(fileName, content, true)
+    await this.primaryDriver.upsertFile(fileName, content, recordRevision)
     this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
   }

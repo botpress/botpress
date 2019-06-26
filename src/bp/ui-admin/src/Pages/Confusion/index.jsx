@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
-import SectionLayout from '../Layouts/Section'
+import TabLayout from '../Layouts/Tabs'
 import Details from './details'
-
+import { fetchBots } from '../../reducers/bots'
 import _ from 'lodash'
 
 import api from '../../api'
+import { Icon, FormGroup, InputGroup, Button, ControlGroup } from '@blueprintjs/core'
 
 const allFilterFields = ['lang', 'version']
 
@@ -19,8 +21,25 @@ class Confusion extends Component {
   }
 
   componentDidMount = async () => {
-    this.addConfusionToState(await this.getAllConfusions())
-    this.initLabels()
+    this.loadBots()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.bots !== this.props.bots) {
+      this.loadBots()
+    }
+  }
+
+  async loadBots() {
+    if (!this.props.bots) {
+      return this.props.fetchBots()
+    }
+
+    const botIds = this.props.bots.filter(b => !b.disabled).map(bot => bot.id)
+    this.setState({ botIds }, async () => {
+      this.addConfusionToState(await this.getAllConfusions())
+      this.initLabels()
+    })
   }
 
   versionChange = event => this.setState({ version: event.target.value })
@@ -30,31 +49,35 @@ class Confusion extends Component {
 
   selectChangeFromFrontEnd = index => event => this.setSelect(event.target.value, index)
 
-  getAllBotIds = async () => {
-    if (_.isEmpty(this.state.botIds)) {
-      this.setState({ botIds: (await api.getSecured().get('/admin/bots')).data.payload.bots.map(bot => bot.id) })
+  fetchConfusionForBot = async botId => {
+    try {
+      const { data } = await api.getSecured().get(`/bots/${botId}/mod/nlu/confusion`)
+      return data
+    } catch (err) {
+      console.error(`Could not fetch confusion for bot ${botId}`, err)
     }
-
-    return this.state.botIds
   }
 
-  fetchConfusionForBot = async botId => (await api.getSecured().get(`/bots/${botId}/mod/nlu/confusion`)).data
+  handleVersionChanged = event => {
+    this.setState({ version: event.target.value })
+    this.setSelect(event.target.value, 1)
+  }
 
   triggerComputeConfusionForBot = async botId =>
     (await api
       .getSecured({ timeout: 999999999 })
       .post(`/bots/${botId}/mod/nlu/confusion`, { version: this.state.version })).data
 
-  getAllConfusions = async () => await Promise.all((await this.getAllBotIds()).map(await this.fetchConfusionForBot))
+  getAllConfusions = async () => await Promise.all(this.state.botIds.map(await this.fetchConfusionForBot))
 
   triggerCompute = async () => {
     this.setState({ isComputing: true })
 
-    await Promise.all((await this.getAllBotIds()).map(await this.triggerComputeConfusionForBot))
+    await Promise.all(this.state.botIds.map(await this.triggerComputeConfusionForBot))
     this.addConfusionToState(await this.getAllConfusions())
     this.initLabels()
 
-    this.setState({ isComputing: false })
+    this.setState({ isComputing: false, select: [this.state.select[0], this.state.version] })
   }
 
   addConfusionToState = confusions => this.setState({ confusions })
@@ -77,31 +100,58 @@ class Confusion extends Component {
   langSelectValues = () => this.getAttributesFromAllConfusions(['lang'])[0] || []
   versionSelectValues = () => this.getAttributesFromAllConfusions(['version'])[0] || []
 
+  renderToolbar() {
+    return (
+      <div style={{ display: 'flex' }}>
+        <div>
+          <h5>View existing Confusion</h5>
+          <div style={{ display: 'flex' }}>
+            <FormGroup label="Language" style={{ width: 120 }}>
+              <select key={'select-lang'} value={this.state.select[0]} onChange={this.selectChangeFromFrontEnd(0)}>
+                {this.langSelectValues().map(val => (
+                  <option key={val} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </FormGroup>
+            <FormGroup label="Version" style={{ width: 150 }}>
+              <select key={'select-version'} value={this.state.select[1]} onChange={this.handleVersionChanged}>
+                {this.versionSelectValues().map(val => (
+                  <option key={val} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </FormGroup>
+          </div>
+        </div>
+        <div>
+          <h5>Recompute Confusion</h5>
+          <div style={{ display: 'flex' }}>
+            {this.state.isComputing ? (
+              <span>Please wait, computing confusion... (version: {this.state.version})</span>
+            ) : (
+              <FormGroup label="Assign results to version...">
+                <ControlGroup>
+                  <InputGroup
+                    placeholder="Version (optional)"
+                    value={this.state.version}
+                    onChange={this.versionChange}
+                  />
+                  <Button onClick={this.triggerCompute} text="Go" />
+                </ControlGroup>
+              </FormGroup>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   renderConfusions = () => (
-    <div className="bp_table bot_views compact_view">
-      <button onClick={this.triggerCompute}>
-        {this.state.isComputing ? 'Computing...' : 'Compute matrices for version:'}
-      </button>
-
-      <input type="text" value={this.state.version} onChange={this.versionChange} />
-
-      <br />
-
-      <select key={'select-lang'} value={this.state.select[0]} onChange={this.selectChangeFromFrontEnd(0)}>
-        {this.langSelectValues().map(val => (
-          <option key={val} value={val}>
-            {val}
-          </option>
-        ))}
-      </select>
-
-      <select key={'select-version'} value={this.state.select[1]} onChange={this.selectChangeFromFrontEnd(1)}>
-        {this.versionSelectValues().map(val => (
-          <option key={val} value={val}>
-            {val}
-          </option>
-        ))}
-      </select>
+    <div style={{ padding: 10 }}>
+      {this.renderToolbar()}
 
       {(this.state.confusions || []).map(confusion => (
         <div key={`conf-${confusion.botId}`}>
@@ -113,9 +163,9 @@ class Confusion extends Component {
             )
             .map((data, i) => (
               <div key={data.hash + i}>
-                <span>
-                  {data.lang} - {data.matrix.intents.all.f1.toFixed(2)}
-                </span>
+                <h6>
+                  [{data.lang.toUpperCase()}] - F1: <strong>{data.matrix.intents.all.f1.toFixed(2)}</strong>
+                </h6>
 
                 <Details data={data.matrix.intents} />
               </div>
@@ -126,15 +176,23 @@ class Confusion extends Component {
   )
 
   render() {
-    return (
-      <SectionLayout
-        title={`Confusions matrix for bots`}
-        helpText="This page lists all the computed confusions matrix for each bots."
-        activePage="confusion"
-        mainContent={this.renderConfusions()}
-      />
-    )
+    const tabs = [
+      {
+        name: 'Confusions',
+        route: '/confusion',
+        icon: <Icon icon="cube" />,
+        component: this.renderConfusions,
+        useFullWidth: true
+      }
+    ]
+    return <TabLayout title="Confusion Matrix" {...{ tabs, ...this.props, showHome: true }} />
   }
 }
 
-export default Confusion
+const mapStateToProps = state => ({ bots: state.bots.bots })
+const mapDispatchToProps = { fetchBots }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Confusion)

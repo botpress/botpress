@@ -1,3 +1,50 @@
+## [11.9.5](https://github.com/botpress/botpress/compare/v11.9.4...v11.9.5) (2019-06-21)
+
+
+### Bug Fixes
+
+* **core:** added memory cache limits ([4732f3f](https://github.com/botpress/botpress/commit/4732f3f))
+* **core:** object caching uses proper key ([ef3c460](https://github.com/botpress/botpress/commit/ef3c460))
+* **hitl:** pause on quick reply ([c3edfbd](https://github.com/botpress/botpress/commit/c3edfbd))
+* **hitl:** swallow quick reply message type ([1392d97](https://github.com/botpress/botpress/commit/1392d97))
+* **messenger:** typing indicators and postback button ([9aadeb9](https://github.com/botpress/botpress/commit/9aadeb9))
+* continue instead of return ([07f4a5a](https://github.com/botpress/botpress/commit/07f4a5a))
+* validate entry.messaging exists ([99aae8b](https://github.com/botpress/botpress/commit/99aae8b))
+* validate entry.messaging exists ([5307500](https://github.com/botpress/botpress/commit/5307500))
+* **pro:** fixed "built with pro" variable ([9183293](https://github.com/botpress/botpress/commit/9183293))
+* **pro:** fixed "built with pro" variable ([9ebe1d8](https://github.com/botpress/botpress/commit/9ebe1d8))
+* **webchat:** scroll to the very bottom of the chat on open ([44857fd](https://github.com/botpress/botpress/commit/44857fd))
+* **webchat:** scroll to the very bottom of the chat on open ([d5b3045](https://github.com/botpress/botpress/commit/d5b3045))
+
+
+
+## [11.9.4](https://github.com/botpress/botpress/compare/v11.9.3...v11.9.4) (2019-06-12)
+
+
+### Bug Fixes
+
+* do not create revisions for models ([4347826](https://github.com/botpress/botpress/commit/4347826))
+* dont record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
+* expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
+* Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
+* Expose getAttributes from UserRepository ([10fb6ef](https://github.com/botpress/botpress/commit/10fb6ef))
+* **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
+* ghost use soft delete when deleting a folder ([c026d03](https://github.com/botpress/botpress/commit/c026d03))
+* null context_expiry caused sessions to never timeout ([1d558eb](https://github.com/botpress/botpress/commit/1d558eb))
+* **core:** resources-loader doesn't over-create files ([38ae8d7](https://github.com/botpress/botpress/commit/38ae8d7))
+* **hooks:** before session timeout not being executed ([951ba9b](https://github.com/botpress/botpress/commit/951ba9b))
+* **testing:** made ghost always dirty with duplicate .recorder.js ([fbb1c24](https://github.com/botpress/botpress/commit/fbb1c24))
+* **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
+
+
+### Features
+
+* **channel-web:** configurable messages history ([d52d455](https://github.com/botpress/botpress/commit/d52d455))
+* **core:** added security namespace ([e5eb2e4](https://github.com/botpress/botpress/commit/e5eb2e4))
+* **web:** added ability to create trusted reference ([14d8cb6](https://github.com/botpress/botpress/commit/14d8cb6))
+
+
+
 ## [11.9.3](https://github.com/botpress/botpress/compare/v11.9.2...v11.9.3) (2019-06-06)
 
 

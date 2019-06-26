@@ -48,6 +48,7 @@ describe('Preprocessing', () => {
     )
 
     expect(trainingSeq.cannonical).toEqual('hello my name is Jacob Jacobson and your name is Paul')
+
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
     expect(trainingSeq.tokens[0].slot).toEqual('')
     expect(trainingSeq.tokens[0].matchedEntities).toEqual([])
@@ -121,6 +122,7 @@ describe('Preprocessing', () => {
     const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
 
     const entityTokens = testingSeq.tokens.filter(t => t.matchedEntities.length)
+
     expect(entityTokens.length).toEqual(3)
     expect(entityTokens[0].value).toEqual('70')
     expect(entityTokens[0].matchedEntities).toEqual(['numeral', 'amountOfMoney'])

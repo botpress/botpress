@@ -51,4 +51,9 @@ export interface Config {
     enabled: boolean
     description: string
   }
+  /**
+   * The number of messages that are displayed in the chat history
+   * @default 20
+   */
+  maxMessagesHistory?: number
 }

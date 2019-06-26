@@ -60,7 +60,9 @@ export class KnexSessionRepository implements SessionRepository {
         temp_data: this.database.knex.json.set(session.temp_data || {}),
         session_data: this.database.knex.json.set(session.session_data || {}),
         modified_on: this.database.knex.date.now(),
-        created_on: this.database.knex.date.now()
+        created_on: this.database.knex.date.now(),
+        context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
+        session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
       },
       ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on']
     )
@@ -107,7 +109,6 @@ export class KnexSessionRepository implements SessionRepository {
       .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('session_expiry', new Date()))
       .del()
-      .then()
   }
 
   async update(session: DialogSession): Promise<void> {
@@ -122,7 +123,6 @@ export class KnexSessionRepository implements SessionRepository {
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null'),
         modified_on: this.database.knex.date.now()
       })
-      .then()
   }
 
   async delete(id: string) {
@@ -130,6 +130,5 @@ export class KnexSessionRepository implements SessionRepository {
       .knex(this.tableName)
       .where({ id })
       .del()
-      .then()
   }
 }

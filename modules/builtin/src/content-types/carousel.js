@@ -64,6 +64,12 @@ function renderMessenger(data) {
             url: a.url,
             title: a.title
           }
+        } else if (a.action === 'Postback') {
+          return {
+            type: 'postback',
+            title: a.title,
+            payload: a.payload
+          }
         } else {
           throw new Error(`Channel-Messenger carousel does not support "${a.action}" action-buttons at the moment`)
         }
@@ -71,11 +77,17 @@ function renderMessenger(data) {
     }))
   }
 
-  return [
-    {
+  const events = []
+
+  if (data.typing) {
+    events.push({
       type: 'typing',
       value: data.typing
-    },
+    })
+  }
+  
+  return [
+    ...events,
     {
       attachment: {
         type: 'template',

@@ -1,6 +1,5 @@
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-
-const navigationKey = isMac ? 'ctrl' : 'ctrl+shift'
+const controlKey = isMac ? 'command' : 'ctrl'
 
 export const keyMap = {
   // Navigation to screens
@@ -10,16 +9,24 @@ export const keyMap = {
   // 'go-content': 'g c',
   // 'go-emulator': 'g e',
   // 'go-module-qna': 'g m q',
-
-  // Flow-Editor Actions
-  'flow-add-node': `${navigationKey}+a`,
-  'flow-save': `${navigationKey}+s`,
+  add: `${controlKey}+a`,
+  save: `${controlKey}+s`,
+  undo: `${controlKey}+z`,
+  redo: `${controlKey}+shift+z`,
   'emulator-focus': `e`,
-  'docs-toggle': `${navigationKey}+h`,
-  'lang-switcher': `${navigationKey}+l`,
-  'toggle-sidepanel': `ctrl+b`,
-  'create-new': `ctrl+alt+n`,
-  cancel: 'esc'
+  'docs-toggle': `${controlKey}+h`,
+  'lang-switcher': `${controlKey}+l`,
+  'toggle-sidepanel': `${controlKey}+b`,
+  'create-new': `${controlKey}+alt+n`,
+  cancel: 'esc',
+  'go-flow': `g f`,
+  'go-content': `g c`,
+  'go-module-code': `g m c`,
+  'go-module-qna': `g m q`,
+  'go-module-testing': `g m t`,
+  'go-module-analytics': 'g m a',
+  'go-module-nlu-intent': `g i`,
+  'go-module-nlu-entities': `g e`
 }
 
 export const isInputFocused = () => {

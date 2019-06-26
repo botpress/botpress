@@ -29,7 +29,7 @@ const Server = (props: any) => {
       component: Monitoring
     },
     {
-      name: 'Alerts & Incidents',
+      name: 'Incidents',
       route: '/server/alerting',
       icon: <Icon icon="notifications" />,
       useFullWidth: false,

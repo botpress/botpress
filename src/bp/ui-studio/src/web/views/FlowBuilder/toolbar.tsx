@@ -46,7 +46,8 @@ const FlowToolbar = props => {
 
   const hasUnsavedChanges = !_.isEmpty(props.dirtyFlows)
   const isInsertNodeMode = props.currentDiagramAction === 'insert_node'
-  const canDelete = !!props.currentFlowNode && props.currentFlowNode.name !== props.currentFlow.startNode
+
+  const isStartNode = props.currentFlowNode && props.currentFlowNode.name === props.currentFlow.startNode
   const canCopy = !!props.currentFlowNode
 
   return (
@@ -90,17 +91,13 @@ const FlowToolbar = props => {
 
         <Divider />
 
-        {canMakeStartNode() && (
-          <Tooltip content="Set as Start node" position={Position.BOTTOM}>
-            <AnchorButton icon="star" onClick={setAsCurrentNode} />
-          </Tooltip>
-        )}
+        <Tooltip content="Set as Start node" position={Position.BOTTOM}>
+          <AnchorButton icon="star" disabled={!canMakeStartNode()} onClick={setAsCurrentNode} />
+        </Tooltip>
 
-        {canDelete && (
-          <Tooltip content="Delete" position={Position.BOTTOM}>
-            <AnchorButton icon="trash" onClick={props.onDelete} />
-          </Tooltip>
-        )}
+        <Tooltip content="Delete" position={Position.BOTTOM}>
+          <AnchorButton icon="trash" disabled={isStartNode} onClick={props.onDelete} />
+        </Tooltip>
       </LeftToolbarButtons>
     </Toolbar>
   )
