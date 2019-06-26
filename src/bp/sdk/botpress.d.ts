@@ -389,6 +389,7 @@ declare module 'botpress/sdk' {
     export interface Slot {
       name: string
       value: any
+      source: any
       entity: Entity
       confidence: number
     }
