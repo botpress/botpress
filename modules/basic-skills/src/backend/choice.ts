@@ -32,8 +32,8 @@ const setup = async bp => {
 }
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  const hardLimit = 10
-  const maxAttempts = Math.min(data.config.nbMaxRetries, hardLimit)
+  const hardRetryLimit = 10
+  const nbMaxRetries = Math.min(data.config.nbMaxRetries, hardRetryLimit)
 
   const nodes: sdk.SkillFlowNode[] = [
     {
@@ -68,7 +68,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       ],
       next: [
         {
-          condition: `temp['skill-choice-invalid-count'] == ${maxAttempts}`,
+          condition: `temp['skill-choice-invalid-count'] == ${nbMaxRetries}`,
           node: '#'
         },
         { condition: 'true', node: 'sorry' }
