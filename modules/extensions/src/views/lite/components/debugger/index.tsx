@@ -211,7 +211,7 @@ export class Debugger extends React.Component<Props, State> {
           <div className={style.content}>
             <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
               <Tab id="basic" title="Summary" panel={this.renderSummary()} />
-              <Tab id="advanced" title="View payload" panel={<Inspector data={this.state.event} />} />
+              <Tab id="advanced" title="View JSON event" panel={<Inspector data={this.state.event} />} />
               <Tab id="flow" title="Debug flow" panel={<Flow stacktrace={this.state.event.state.__stacktrace} />} />
             </Tabs>
           </div>
