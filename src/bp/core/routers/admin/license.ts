@@ -1,5 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
+import { ConfigProvider } from 'core/config/config-loader'
 import { RequestWithUser } from 'core/misc/interfaces'
 import { Router } from 'express'
 import _ from 'lodash'
@@ -26,7 +27,7 @@ const defaultResponse: LicensingStatus = {
 }
 
 export class LicenseRouter extends CustomRouter {
-  constructor(logger: Logger, private licenseService: LicensingService) {
+  constructor(logger: Logger, private licenseService: LicensingService, private configProvider: ConfigProvider) {
     super('License', logger, Router({ mergeParams: true }))
     this.setupRoutes()
   }
@@ -80,6 +81,13 @@ export class LicenseRouter extends CustomRouter {
         if (!result) {
           throw new BadRequestError('Invalid License Key')
         }
+
+        // We want to update the licenseKey in botpress.config.json if the user manually replaces its key
+        const pro = {
+          enabled: process.IS_PRO_ENABLED,
+          licenseKey: req.body.licenseKey
+        }
+        await this.configProvider.mergeBotpressConfig({ pro })
 
         return sendSuccess(res, 'License Key updated')
       })
