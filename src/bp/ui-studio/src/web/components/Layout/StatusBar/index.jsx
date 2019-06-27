@@ -148,10 +148,9 @@ class StatusBar extends React.Component {
       <footer ref={this.progressContainerRef} className={style.statusBar}>
         <div className={style.list}>
           <ActionItem
-            title="Toggle Emulator"
+            title="Show Emulator"
             id={'statusbar_emulator'}
             shortcut={keyMap['emulator-focus']}
-            description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
             className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
           >
