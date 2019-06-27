@@ -1,9 +1,11 @@
 import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import { EditableFile } from '../../backend/typings'
 
-import { buildTree, renameTreeNode } from './utils/tree'
+import { buildTree } from './utils/tree'
+import { TreeNodeRenameInput } from './utils/TreeNodeRenameInput'
 
 export default class FileNavigator extends React.Component<Props, State> {
   state = {
@@ -92,21 +94,44 @@ export default class FileNavigator extends React.Component<Props, State> {
 
     ContextMenu.show(
       <Menu>
-        <MenuItem
-          icon="edit"
-          text="Rename"
-          onClick={async () =>
-            await renameTreeNode(node, this.treeRef, async newName => this.renameThreeNode(node, newName))
-          }
-        />
+        <MenuItem icon="edit" text="Rename" onClick={() => this.renameThreeNode(node)} />
         <MenuItem icon="delete" text="Delete" onClick={() => this.props.onNodeDelete(node.nodeData as EditableFile)} />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
   }
 
-  renameThreeNode = async (node: ITreeNode<NodeData>, newName: string) => {
-    await this.props.onNodeRename(node.nodeData as EditableFile, newName)
+  renameThreeNode = async (node: ITreeNode) => {
+    const nodeDomElement = this.treeRef.current.getNodeContentElement(node.id)
+    const renamer = document.createElement('div')
+
+    const handleCloseComponent = this.buildCloseComponentHandler(renamer, node, nodeDomElement)
+
+    ReactDOM.render(
+      <TreeNodeRenameInput node={node} nodeDomElement={nodeDomElement} handleCloseComponent={handleCloseComponent} />,
+      renamer
+    )
+    nodeDomElement.replaceWith(renamer)
+  }
+
+  buildCloseComponentHandler = (renamer: HTMLElement, node: ITreeNode, nodeDomElement: HTMLElement) => {
+    return async (newName: string, succes: boolean) => {
+      ReactDOM.unmountComponentAtNode(renamer)
+      renamer.replaceWith(nodeDomElement)
+
+      if (!newName || !newName.length || newName === node.label || !succes) {
+        return
+      }
+
+      try {
+        await this.props.onNodeRename(node.nodeData as EditableFile, newName)
+      } catch (err) {
+        console.error('could not rename file')
+        return
+      }
+
+      node.label = newName
+    }
   }
 
   render() {
