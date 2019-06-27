@@ -7,6 +7,7 @@ import path from 'path'
 import { Config } from '../config'
 import { HOOK_SIGNATURES } from '../typings/hooks'
 
+import { EditorError, EditorErrorStatus } from './editorError'
 import { EditableFile, FileType, TypingDefinitions } from './typings'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
@@ -58,21 +59,65 @@ export default class Editor {
       throw new Error('Invalid hook type.')
     }
 
-    if (!FILENAME_REGEX.test(name)) {
-      throw new Error('Filename has invalid characters')
+    this._validateFilename(name)
+  }
+
+  private _validateFilename(filename: string) {
+    if (!FILENAME_REGEX.test(filename)) {
+      throw new EditorError('Filename has invalid characters', EditorErrorStatus.INVALID_NAME)
     }
+  }
+
+  private _loadGhostForBotId(file: EditableFile): sdk.ScopedGhostService {
+    return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
   }
 
   async saveFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
-    const { location, botId, content, hookType } = file
-    const ghost = botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
+    const { location, content, hookType, type } = file
+    const ghost = this._loadGhostForBotId(file)
 
-    if (file.type === 'action') {
+    if (type === 'action') {
       return ghost.upsertFile('/actions', location, content)
-    } else if (file.type === 'hook') {
+    } else if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
     }
+  }
+
+  async deleteFile(file: EditableFile): Promise<void> {
+    this._validateMetadata(file)
+    const { location, hookType, type } = file
+    const ghost = this._loadGhostForBotId(file)
+
+    if (type === 'action') {
+      return ghost.deleteFile('/actions', location)
+    }
+    if (type === 'hook') {
+      return ghost.deleteFile(`/hooks/${hookType}`, location.replace(hookType, ''))
+    }
+  }
+
+  async renameFile(file: EditableFile, newName: string): Promise<void> {
+    this._validateMetadata(file)
+    this._validateFilename(newName)
+
+    const { location, hookType, type, name } = file
+    const ghost = this._loadGhostForBotId(file)
+
+    const newLocation = location.replace(name, newName)
+    if (type === 'action' && !(await ghost.fileExists('/actions', newLocation))) {
+      await ghost.renameFile('/actions', location, newLocation)
+      return
+    }
+
+    const hookLocation = location.replace(hookType, '')
+    const newHookLocation = hookLocation.replace(name, newName)
+    if (type === 'hook' && !(await ghost.fileExists(`/hooks/${hookType}`, newHookLocation))) {
+      await ghost.renameFile(`/hooks/${hookType}`, hookLocation, newHookLocation)
+      return
+    }
+
+    throw new EditorError('File already exists', EditorErrorStatus.FILE_ALREADY_EXIST)
   }
 
   async loadTypings() {

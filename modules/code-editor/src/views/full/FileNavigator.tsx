@@ -1,14 +1,22 @@
-import { Classes, ITreeNode, Tree } from '@blueprintjs/core'
+import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import { EditableFile } from '../../backend/typings'
 
 import { buildTree } from './utils/tree'
+import { TreeNodeRenameInput } from './TreeNodeRenameInput'
 
 export default class FileNavigator extends React.Component<Props, State> {
   state = {
     files: undefined,
     nodes: []
+  }
+
+  treeRef: React.RefObject<Tree<NodeData>>
+  constructor(props) {
+    super(props)
+    this.treeRef = React.createRef()
   }
 
   async componentDidMount() {
@@ -77,6 +85,51 @@ export default class FileNavigator extends React.Component<Props, State> {
     }
   }
 
+  handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
+    e.preventDefault()
+
+    if (!node.nodeData) {
+      return null
+    }
+
+    ContextMenu.show(
+      <Menu>
+        <MenuItem icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
+        <MenuItem icon="delete" text="Delete" onClick={() => this.props.onNodeDelete(node.nodeData as EditableFile)} />
+      </Menu>,
+      { left: e.clientX, top: e.clientY }
+    )
+  }
+
+  renameTreeNode = async (node: ITreeNode) => {
+    const nodeDomElement = this.treeRef.current.getNodeContentElement(node.id)
+    const renamer = document.createElement('div')
+
+    const handleCloseComponent = async (newName: string, cancel: boolean) => {
+      ReactDOM.unmountComponentAtNode(renamer)
+      renamer.replaceWith(nodeDomElement)
+
+      if (cancel || !newName || !newName.length || newName === node.label) {
+        return
+      }
+
+      try {
+        await this.props.onNodeRename(node.nodeData as EditableFile, newName)
+      } catch (err) {
+        console.error('could not rename file')
+        return
+      }
+
+      node.label = newName
+    }
+
+    ReactDOM.render(
+      <TreeNodeRenameInput node={node} nodeDomElement={nodeDomElement} handleCloseComponent={handleCloseComponent} />,
+      renamer
+    )
+    nodeDomElement.replaceWith(renamer)
+  }
+
   render() {
     if (!this.state.nodes) {
       return null
@@ -84,7 +137,9 @@ export default class FileNavigator extends React.Component<Props, State> {
 
     return (
       <Tree
+        ref={this.treeRef}
         contents={this.state.nodes}
+        onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
         onNodeCollapse={this.handleNodeCollapse}
         onNodeExpand={this.handleNodeExpand}
@@ -99,8 +154,14 @@ interface Props {
   onFileSelected: (file: EditableFile) => void
   onNodeStateChanged: (id: string, isExpanded: boolean) => void
   expandedNodes: object
+  onNodeDelete: (file: EditableFile) => Promise<void>
+  onNodeRename: (file: EditableFile, newName: string) => Promise<void>
 }
 
 interface State {
   nodes: ITreeNode[]
+}
+
+interface NodeData {
+  name: string
 }

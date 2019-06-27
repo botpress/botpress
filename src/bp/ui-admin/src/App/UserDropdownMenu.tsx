@@ -32,7 +32,7 @@ class UserDropdownMenu extends Component<Props> {
   renderPopover() {
     const { email, fullName, isSuperAdmin } = this.props.profile
     return (
-      <Popover position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
+      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
         <Button
           icon={<GravatarImage email={this.props.profile.email} size="sm" className="user-avatar" />}
           rightIcon="caret-down"

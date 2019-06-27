@@ -75,6 +75,8 @@ export default class PanelContent extends React.Component<Props> {
           expandedNodes={this.expandedNodes}
           onNodeStateChanged={this.updateNodeState}
           onFileSelected={this.props.handleFileChanged}
+          onNodeDelete={this.props.removeFile}
+          onNodeRename={this.props.renameFile}
         />
       </SidePanelSection>
     )
@@ -129,6 +131,8 @@ export default class PanelContent extends React.Component<Props> {
           expandedNodes={this.expandedNodes}
           onNodeStateChanged={this.updateNodeState}
           onFileSelected={this.props.handleFileChanged}
+          onNodeDelete={this.props.removeFile}
+          onNodeRename={this.props.renameFile}
         />
       </SidePanelSection>
     )
@@ -161,4 +165,6 @@ interface Props {
   discardChanges: () => void
   createFilePrompt: (type: string, isGlobal?: boolean, hookType?: string) => void
   onSaveClicked: () => void
+  removeFile: (file: EditableFile) => Promise<void>
+  renameFile: (file: EditableFile, newName: string) => Promise<void>
 }
