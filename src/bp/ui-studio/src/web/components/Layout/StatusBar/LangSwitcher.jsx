@@ -13,7 +13,7 @@ const langFlagsMap = {
   en: 'gb',
   ja: 'jp',
   ru: 'rus',
-  ar: 'sau',
+  ar: 'eh',
   pt: 'prt',
   sp: 'esp',
   ko: 'kor'
