@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom'
 import { EditableFile } from '../../backend/typings'
 
 import { buildTree } from './utils/tree'
-import { TreeNodeRenameInput } from './utils/TreeNodeRenameInput'
+import { TreeNodeRenameInput } from './TreeNodeRenameInput'
 
 export default class FileNavigator extends React.Component<Props, State> {
   state = {
@@ -94,32 +94,22 @@ export default class FileNavigator extends React.Component<Props, State> {
 
     ContextMenu.show(
       <Menu>
-        <MenuItem icon="edit" text="Rename" onClick={() => this.renameThreeNode(node)} />
+        <MenuItem icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
         <MenuItem icon="delete" text="Delete" onClick={() => this.props.onNodeDelete(node.nodeData as EditableFile)} />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
   }
 
-  renameThreeNode = async (node: ITreeNode) => {
+  renameTreeNode = async (node: ITreeNode) => {
     const nodeDomElement = this.treeRef.current.getNodeContentElement(node.id)
     const renamer = document.createElement('div')
 
-    const handleCloseComponent = this.buildCloseComponentHandler(renamer, node, nodeDomElement)
-
-    ReactDOM.render(
-      <TreeNodeRenameInput node={node} nodeDomElement={nodeDomElement} handleCloseComponent={handleCloseComponent} />,
-      renamer
-    )
-    nodeDomElement.replaceWith(renamer)
-  }
-
-  buildCloseComponentHandler = (renamer: HTMLElement, node: ITreeNode, nodeDomElement: HTMLElement) => {
-    return async (newName: string, succes: boolean) => {
+    const handleCloseComponent = async (newName: string, cancel: boolean) => {
       ReactDOM.unmountComponentAtNode(renamer)
       renamer.replaceWith(nodeDomElement)
 
-      if (!newName || !newName.length || newName === node.label || !succes) {
+      if (cancel || !newName || !newName.length || newName === node.label) {
         return
       }
 
@@ -132,6 +122,12 @@ export default class FileNavigator extends React.Component<Props, State> {
 
       node.label = newName
     }
+
+    ReactDOM.render(
+      <TreeNodeRenameInput node={node} nodeDomElement={nodeDomElement} handleCloseComponent={handleCloseComponent} />,
+      renamer
+    )
+    nodeDomElement.replaceWith(renamer)
   }
 
   render() {

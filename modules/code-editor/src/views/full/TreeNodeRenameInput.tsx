@@ -4,7 +4,7 @@ import React from 'react'
 interface Props {
   nodeDomElement: HTMLElement
   node: ITreeNode
-  handleCloseComponent: (newName: string, succes: boolean) => Promise<void>
+  handleCloseComponent: (newName: string, cancel: boolean) => Promise<void>
 }
 
 interface State {
@@ -18,30 +18,29 @@ interface Preventable {
 const FILENAME_REGEX = /[^0-9a-zA-Z_\-.]/
 
 export class TreeNodeRenameInput extends React.Component<Props, State> {
-  state: State
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      newName: this.props.node.label as string
-    }
+  state = {
+    newName: ''
   }
 
-  closeRename = async (e: Preventable, succes: boolean) => {
+  componentDidMount() {
+    this.setState({ newName: this.props.node.label as string })
+  }
+
+  closeRename = async (e: Preventable, cancel: boolean) => {
     e.preventDefault()
     let newName = this.state.newName
     newName = newName.endsWith('.js') ? newName : newName + '.js'
     this.setState({ newName })
-    await this.props.handleCloseComponent(newName, succes)
+    await this.props.handleCloseComponent(newName, cancel)
   }
 
   handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      await this.closeRename(e, true)
+      await this.closeRename(e, false)
       return
     }
     if (e.key === 'Escape') {
-      await this.closeRename(e, false)
+      await this.closeRename(e, true)
       return
     }
   }
@@ -63,7 +62,7 @@ export class TreeNodeRenameInput extends React.Component<Props, State> {
     return (
       <div className={this.props.nodeDomElement && this.props.nodeDomElement.className}>
         <input
-          onBlur={e => this.closeRename(e, true)}
+          onBlur={e => this.closeRename(e, false)}
           onKeyDown={this.handleKeyPress}
           ref={this.focusRef}
           type="text"
