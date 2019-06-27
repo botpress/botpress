@@ -224,9 +224,7 @@ export default class ScopedEngine implements Engine {
   getTrainingLanguages = (intents: sdk.NLU.IntentDefinition[]) =>
     _.chain(intents)
       .flatMap(intent =>
-        Object.keys(intent.utterances)
-          .filter(lang => this.languages.includes(lang))
-          .filter(lang => (intent.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
+        Object.keys(intent.utterances).filter(lang => (intent.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
       )
       .uniq()
       .value()
@@ -250,8 +248,9 @@ export default class ScopedEngine implements Engine {
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
+    const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
 
-    for (const lang of this.getTrainingLanguages(intents)) {
+    for (const lang of trainableLangs) {
       const models = await this.storage.getModelsFromHash(modelHash, lang)
 
       const intentModels = _.chain(models)
@@ -263,15 +262,15 @@ export default class ScopedEngine implements Engine {
       const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
       const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
-      if (!skipgramModel) {
+      if (_.isEmpty(skipgramModel)) {
         throw new Error(`Could not find skipgram model for slot tagging. Hash = "${modelHash}"`)
       }
 
-      if (!crfModel) {
+      if (_.isEmpty(crfModel)) {
         throw new Error(`Could not find CRF model for slot tagging. Hash = "${modelHash}"`)
       }
 
-      if (!intentModels || !intentModels.length) {
+      if (_.isEmpty(intentModels)) {
         throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
       }
 
