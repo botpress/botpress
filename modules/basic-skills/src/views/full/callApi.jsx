@@ -24,7 +24,7 @@ const stringify = obj => {
   return JSON.stringify(obj, null, 2)
 }
 
-// Show an example of how to write headers in a JSON format
+// Example of how to format headers in JSON
 const headersPlaceholder = stringify({
   Authorization: '<value>',
   'Content-Type': '<value>',
@@ -42,28 +42,31 @@ export class CallAPI extends React.Component {
     invalidJson: false
   }
 
+  getInitialDataProps = propsKey => this.props.initialData[propsKey]
+  getOrDefault = (propsKey, stateKey) => this.getInitialDataProps(propsKey) || this.state[stateKey]
+  createSelectOption = data => (data ? { value: data, label: data } : undefined)
+
   componentDidMount() {
-    const data = this.props.initialData
-    if (data) {
+    if (this.props.initialData) {
       this.setState({
-        selectedMethod: data.method ? { value: data.method, label: data.method } : this.state.selectedMethod,
-        selectedMemory: data.memory ? { value: data.memory, label: data.memory } : this.state.selectedMemory,
-        variable: data.variable ? data.variable : this.state.variable,
-        body: data.body ? data.body : this.state.body,
-        url: data.url ? data.url : this.state.url,
-        headers: data.headers ? stringify(data.headers) : this.state.headers
+        selectedMethod: this.createSelectOption(this.getInitialDataProps('method')) || this.state.selectedMethod,
+        selectedMemory: this.createSelectOption(this.getInitialDataProps('memory')) || this.state.selectedMemory,
+        headers: stringify(this.getInitialDataProps('headers')) || this.state.headers,
+        variable: this.getOrDefault('variable', 'variable'),
+        body: this.getOrDefault('body', 'body'),
+        url: this.getOrDefault('url', 'url')
       })
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { selectedMethod, selectedMemory, body, url, variable, jsonHeaders, invalidJson } = this.state
-    if (url && selectedMethod && selectedMemory && variable && !invalidJson && this.state !== prevState) {
+  componentDidUpdate() {
+    const { selectedMethod, selectedMemory, body, url, variable, invalidJson, headers } = this.state
+    if (url && selectedMethod && selectedMemory && variable && !invalidJson) {
       const data = {
         method: selectedMethod.value,
         memory: selectedMemory.value,
         body,
-        headers: jsonHeaders,
+        headers: headers ? JSON.parse(headers) : undefined,
         url,
         variable,
         invalidJson
@@ -76,15 +79,12 @@ export class CallAPI extends React.Component {
 
   handleHeadersChange = event => {
     const value = event.target.value
+
     try {
-      if (value === '') {
-        // Allow empty string to be valid JSON
-        this.setState({ headers: value, invalidJson: false })
-      } else {
-        // Will throw if JSON is invalid
-        const jsonHeaders = JSON.parse(value)
-        this.setState({ headers: value, jsonHeaders, invalidJson: false })
+      if (value !== '') {
+        JSON.parse(value) // Only to validate
       }
+      this.setState({ headers: value, invalidJson: false })
     } catch (e) {
       this.setState({ headers: value, invalidJson: true })
     }

@@ -33,10 +33,6 @@ class SkillsBuilder extends React.Component {
   state = this.resetState()
 
   componentDidMount() {
-    this.setState({ initialData: this.props.data })
-  }
-
-  componentDidMount() {
     this.setState({
       ...this.resetState(),
       moduleProps: this.buildModuleProps(this.props.data)
