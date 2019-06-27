@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types"],
-    "exclude": ["./src/views/**"]
-  }
+    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types"]
+  },
+  "exclude": ["./src/views/**"]
 }

@@ -4,10 +4,10 @@ import _ from 'lodash'
 import path from 'path'
 
 import { Config } from '../config'
+import { sanitizeFilenameNoExt } from '../util'
 
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
-import { sanitizeFilenameNoExt } from './util'
 
 const N_KEEP_MODELS = 10
 
