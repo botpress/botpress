@@ -170,7 +170,12 @@ export class BotService {
       ...updatedFields
     })
 
-    if (actualBot.disabled && !updatedBot.disabled) {
+    if (!updatedBot.disabled) {
+      if (this._isBotMounted(botId)) {
+        // we need to remount the bot to update the config
+        await this.unmountBot(botId)
+      }
+
       await this.mountBot(botId)
     }
 
