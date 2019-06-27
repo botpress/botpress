@@ -1,8 +1,9 @@
+import { Intent, Position, Toaster } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 
-import { EditableFile, FileType } from '../../backend/typings'
+import { EditableFile, FilesDS, FileType } from '../../backend/typings'
 
 import SplashScreen from './components/SplashScreen'
 import { baseAction, baseHook } from './utils/templates'
@@ -81,6 +82,36 @@ export default class CodeEditor extends React.Component<Props, State> {
     this.setState({ isEditing: false, editedContent: undefined }, this.initialize)
   }
 
+  removeFile = async (file: EditableFile) => {
+    if (window.confirm('Are you sure you want to delete this file?')) {
+      await this.props.bp.axios.post('/mod/code-editor/remove', file)
+      await this.initialize()
+    }
+  }
+
+  renameFile = async (file, newName) => {
+    try {
+      await this.props.bp.axios.put('/mod/code-editor/rename', { file, newName })
+    } catch (e) {
+      if (e.response && e.response.status === 409) {
+        Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+          message: `File with name "${newName} already exists in the same location"`,
+          intent: Intent.DANGER,
+          timeout: 2000
+        })
+      }
+      if (e.response && e.response.status === 412) {
+        Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+          message: `Name "${newName} is invalid"`,
+          intent: Intent.DANGER,
+          timeout: 2000
+        })
+      }
+      throw e
+    }
+    await this.initialize()
+  }
+
   handleFileChanged = selectedFile => this.setState({ isEditing: false, selectedFile })
   handleContentChanged = (editedContent, hasChanges) => this.setState({ isEditing: hasChanges, editedContent })
   handleProblemsChanged = errors => this.setState({ errors })
@@ -107,6 +138,8 @@ export default class CodeEditor extends React.Component<Props, State> {
           discardChanges={this.handleDiscardChanges}
           onSaveClicked={this.saveChanges}
           isGlobalAllowed={this.state.isGlobalAllowed}
+          removeFile={this.removeFile}
+          renameFile={this.renameFile}
         />
         {this.state.selectedFile && (
           <Editor
@@ -130,7 +163,7 @@ interface Props {
 }
 
 interface State {
-  files: EditableFile[]
+  files: FilesDS
   selectedFile: EditableFile
   isEditing: boolean
   editedContent: string
