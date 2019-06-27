@@ -121,6 +121,7 @@ class Layout extends React.Component<ILayoutProps> {
       'docs-toggle': this.toggleDocs,
       'lang-switcher': this.toggleLangSwitcher,
       'go-flow': () => this.gotoUrl('/flows'),
+      'go-home': () => (window.location.href = '/admin'),
       'go-content': () => this.gotoUrl('/content'),
       'go-module-code': () => this.gotoUrl('/modules/code-editor'),
       'go-module-qna': () => this.gotoUrl('/modules/qna'),
