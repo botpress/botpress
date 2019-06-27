@@ -1,6 +1,6 @@
-export const ID_REGEX = /[\t\s_]/gi
+export const ID_REGEX: RegExp = /[\t\s_]/gi
 
-export const sanitizeFilenameNoExt = name =>
+export const sanitizeFilenameNoExt = (name: string) =>
   name
     .toLowerCase()
     .replace('.json', '')
