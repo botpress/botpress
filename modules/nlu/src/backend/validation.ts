@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import { ID_REGEX } from './../util'
+import { ID_REGEX } from '../util'
 
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
