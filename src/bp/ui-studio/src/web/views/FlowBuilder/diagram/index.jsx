@@ -120,15 +120,19 @@ export default class FlowBuilder extends Component {
 
     if (diagramContainer) {
       const diagramWidth = diagramContainer.offsetWidth
+      const diagramHeight = diagramContainer.offsetHeight
       const totalFlowWidth = _.max(nodes.map(({ x }) => x)) - _.min(nodes.map(({ x }) => x))
-      this.activeModel.setZoomLevel(Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING)) * 100)
-      this.activeModel.setOffsetX(-_.min(nodes.map(({ x }) => x)) + PADDING)
-      this.activeModel.setOffsetY(-_.min(nodes.map(({ y }) => y)) + PADDING)
+      const totalFlowHeight = _.max(nodes.map(({ y }) => y)) - _.min(nodes.map(({ y }) => y))
+      const zoomLevelX = Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING))
+      const zoomLevelY = Math.min(1, diagramHeight / (totalFlowHeight + 2 * PADDING))
+      const zoomLevel = Math.min(zoomLevelX, zoomLevelY)
 
-      // TODO: find the dark formula to center the selected element ...
-      if (centeredElement) {
-        this.activeModel.setOffset(0, 0)
-      }
+      const offsetX = PADDING - _.min(nodes.map(({ x }) => x))
+      const offsetY = PADDING - _.min(nodes.map(({ y }) => y))
+
+      this.activeModel.setZoomLevel(zoomLevel * 100)
+      this.activeModel.setOffsetX(offsetX * zoomLevel)
+      this.activeModel.setOffsetY(offsetY * zoomLevel)
 
       this.diagramWidget && this.diagramWidget.forceUpdate()
     }
