@@ -36,6 +36,7 @@ class Confusion extends Component {
     }
 
     const botIds = this.props.bots.filter(b => !b.disabled).map(bot => bot.id)
+
     this.setState({ botIds }, async () => {
       this.addConfusionToState(await this.getAllConfusions())
       this.initLabels()
