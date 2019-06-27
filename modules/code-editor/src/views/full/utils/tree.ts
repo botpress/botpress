@@ -58,7 +58,7 @@ export const buildTree = (files: EditableFile[], expandedNodeIds: object) => {
 export const renameTreeNode = async (
   node: ITreeNode<any>,
   treeRef: React.RefObject<Tree<any>>,
-  callback: (newName: string) => Promise<void>
+  onRename: (newName: string) => Promise<void>
 ) => {
   const nodeDomElement = treeRef.current.getNodeContentElement(node.id)
 
@@ -77,32 +77,43 @@ export const renameTreeNode = async (
   input.focus()
   input.select()
 
-  const closeRename = async e => {
+  const closeRename = async (e: Event, succes: Boolean) => {
     e.preventDefault()
+
     div.replaceWith(nodeDomElement)
     window.removeEventListener('keydown', keyboardListener)
     window.removeEventListener('mousedown', mouseListener)
-    const file = node.nodeData as EditableFile
+
     let newName = input.value as string
     newName = newName.endsWith('.js') ? newName : newName + '.js'
-    if (newName === node.label) {
+    if (newName === node.label || !succes) {
       return
     }
+
     try {
-      await callback(newName)
+      await onRename(newName)
     } catch (e) {
+      console.error('could not rename file')
       return
     }
+
     node.label = newName
   }
+
   const keyboardListener = async e => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      await closeRename(e)
+    if (e.key === 'Enter') {
+      await closeRename(e, true)
+      return
+    }
+    if (e.key === 'Escape') {
+      await closeRename(e, false)
+      return
     }
   }
+
   const mouseListener = async e => {
     if (!div.contains(e.target)) {
-      await closeRename(e)
+      await closeRename(e, true)
     }
   }
   window.addEventListener('keydown', keyboardListener)

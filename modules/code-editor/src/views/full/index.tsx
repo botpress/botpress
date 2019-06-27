@@ -83,17 +83,15 @@ export default class CodeEditor extends React.Component<Props, State> {
   }
 
   removeFile = async (file: EditableFile) => {
-    await this.props.bp.axios.post('/mod/code-editor/remove', {
-      ...file
-    })
-    await this.initialize()
+    if (window.confirm('Are you sure you want to delete this file?')) {
+      await this.props.bp.axios.post('/mod/code-editor/remove', file)
+      await this.initialize()
+    }
   }
 
   renameFile = async (file, newName) => {
     try {
-      await this.props.bp.axios.put('/mod/code-editor/rename/' + newName, {
-        ...file
-      })
+      await this.props.bp.axios.put('/mod/code-editor/rename', { file, newName })
     } catch (e) {
       if (e.response && e.response.status === 409) {
         Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
@@ -102,6 +100,14 @@ export default class CodeEditor extends React.Component<Props, State> {
           timeout: 2000
         })
       }
+      if (e.response && e.response.status === 412) {
+        Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+          message: `Name "${newName} is invalid"`,
+          intent: Intent.DANGER,
+          timeout: 2000
+        })
+      }
+      throw e
     }
     await this.initialize()
   }

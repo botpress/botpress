@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
+import { EditorErrorStatus } from './editorError'
 import { EditorByBot } from './typings'
 
 export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
@@ -33,17 +34,21 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.put('/rename/:newName', async (req, res) => {
-    const file = req.body
-    const newName = req.params.newName
+  router.put('/rename', async (req, res) => {
+    const { file, newName } = req.body
     try {
-      const updatedFile = await editorByBot[req.params.botId].renameFile(file, newName)
-      if (!updatedFile) {
+      await editorByBot[req.params.botId].renameFile(file, newName)
+      res.sendStatus(200)
+    } catch (err) {
+      if (err.status === EditorErrorStatus.FILE_ALREADY_EXIST) {
         res.sendStatus(409) // conflict, file already exists
         return
       }
-      res.sendStatus(200)
-    } catch (err) {
+      if (err.status === EditorErrorStatus.INVALID_NAME) {
+        res.sendStatus(412) // pre-condition fail, invalid filename
+        return
+      }
+
       bp.logger.attachError(err).error('Could not rename file')
       res.sendStatus(500)
     }

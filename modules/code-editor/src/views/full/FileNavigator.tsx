@@ -84,11 +84,12 @@ export default class FileNavigator extends React.Component<Props, State> {
   }
 
   handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
+    e.preventDefault()
+
     if (!node.nodeData) {
       return null
     }
 
-    e.preventDefault()
     ContextMenu.show(
       <Menu>
         <MenuItem

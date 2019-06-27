@@ -7,6 +7,7 @@ import path from 'path'
 import { Config } from '../config'
 import { HOOK_SIGNATURES } from '../typings/hooks'
 
+import { EditorError, EditorErrorStatus } from './editorError'
 import { EditableFile, FileType, TypingDefinitions } from './typings'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
@@ -58,12 +59,16 @@ export default class Editor {
       throw new Error('Invalid hook type.')
     }
 
-    if (!FILENAME_REGEX.test(name)) {
-      throw new Error('Filename has invalid characters')
+    this._validateFilename(name)
+  }
+
+  private _validateFilename(filename: string) {
+    if (!FILENAME_REGEX.test(filename)) {
+      throw new EditorError('Filename has invalid characters', EditorErrorStatus.INVALID_NAME)
     }
   }
 
-  private _loadGhostForBotId(file: EditableFile) {
+  private _loadGhostForBotId(file: EditableFile): sdk.ScopedGhostService {
     return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
   }
 
@@ -92,31 +97,27 @@ export default class Editor {
     }
   }
 
-  async renameFile(file: EditableFile, newName: string): Promise<EditableFile> {
+  async renameFile(file: EditableFile, newName: string): Promise<void> {
     this._validateMetadata(file)
-    const { location, hookType, type } = file
+    this._validateFilename(newName)
+
+    const { location, hookType, type, name } = file
     const ghost = this._loadGhostForBotId(file)
 
-    const newLocation = location.replace(file.name, newName)
-
-    let fileAlreadyExist
-    if (type === 'action') {
-      fileAlreadyExist = await ghost.fileExists('/actions', newLocation)
-    } else if (type === 'hook') {
-      fileAlreadyExist = await ghost.fileExists(`/hooks/${hookType}`, location.replace(hookType, ''))
-    }
-
-    if (fileAlreadyExist) {
+    const newLocation = location.replace(name, newName)
+    if (type === 'action' && !(await ghost.fileExists('/actions', newLocation))) {
+      await ghost.renameFile('/actions', location, newLocation)
       return
     }
 
-    await this.deleteFile(file)
+    const hookLocation = location.replace(hookType, '')
+    const newHookLocation = hookLocation.replace(hookType, '')
+    if (type === 'hook' && !(await ghost.fileExists(`/hooks/${hookType}`, hookLocation))) {
+      await ghost.renameFile(`/hooks/${hookType}`, hookLocation, newHookLocation)
+      return
+    }
 
-    file.location = newLocation
-    file.name = newName
-
-    await this.saveFile(file)
-    return file
+    throw new EditorError('File already exists', EditorErrorStatus.FILE_ALREADY_EXIST)
   }
 
   async loadTypings() {
