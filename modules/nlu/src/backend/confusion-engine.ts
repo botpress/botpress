@@ -76,7 +76,7 @@ export default class ConfusionEngine extends ScopedEngine {
   }
 
   _definitionsToEntry = (defs: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[][] =>
-    defs.map(definition => definition.utterances[lang].map(utterance => ({ definition, utterance })))
+    defs.map(definition => (definition.utterances[lang] || []).map(utterance => ({ definition, utterance })))
 
   private _entriesToDefinition(entries: TrainingEntry[], lang): sdk.NLU.IntentDefinition[] {
     const groups = groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
