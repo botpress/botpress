@@ -210,12 +210,6 @@ class LicenseStatus extends React.Component {
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
-            <hr />
-            <h5>Edit key</h5>
-            <p>
-              To set a license key, make sure you <a href="/admin/profile/account">purchase a license key</a> and assign
-              it your current fingerprint.
-            </p>
             {this.renderFingerprintStatus()}
             <EditLicense refresh={this.props.fetchLicensing} />
           </Col>
