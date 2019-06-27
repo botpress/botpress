@@ -20,6 +20,7 @@ export const keyMap = {
   'create-new': `${controlKey}+alt+n`,
   cancel: 'esc',
   'go-flow': `g f`,
+  'go-home': `g h`,
   'go-content': `g c`,
   'go-module-code': `g m c`,
   'go-module-qna': `g m q`,

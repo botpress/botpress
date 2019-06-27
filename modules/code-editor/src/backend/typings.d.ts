@@ -20,3 +20,9 @@ export interface EditableFile {
   botId?: string
   hookType?: string
 }
+
+export interface FilesDS {
+  actionsGlobal: EditableFile[]
+  hooksGlobal: EditableFile[]
+  actionsBot: EditableFile[]
+}
