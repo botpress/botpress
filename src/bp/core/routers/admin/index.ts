@@ -50,7 +50,7 @@ export class AdminRouter extends CustomRouter {
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
-    this.licenseRouter = new LicenseRouter(logger, this.licenseService)
+    this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider)
