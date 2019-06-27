@@ -8,7 +8,7 @@ import { keyMap } from '~/keyboardShortcuts'
 import style from './StatusBar.styl'
 import Flag from 'react-world-flags'
 
-const mapFlags = {
+const langFlagsMap = {
   fr: 'fr',
   en: 'gb',
   ja: 'jp',
@@ -61,7 +61,7 @@ class LangSwitcher extends React.Component {
           onClick={this.props.toggleLangSwitcher}
         >
           <span>
-            <Glyphicon glyph="globe" />
+            <Flag code={langFlagsMap[this.props.contentLang] || ''} height={10} />
             &nbsp;
             {this.props.contentLang.toUpperCase()}
           </span>
@@ -85,7 +85,7 @@ class LangSwitcher extends React.Component {
                 onClick={this.switchLang.bind(this, l)}
                 onKeyDown={this.handleKeyDown.bind(this, l)}
               >
-                <Flag code={mapFlags[l] || ''} height={16} />
+                <Flag code={langFlagsMap[l] || ''} height={14} />
                 <span>{l.toUpperCase()}</span>
               </li>
             ))}
