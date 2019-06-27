@@ -224,7 +224,9 @@ export default class ScopedEngine implements Engine {
   getTrainingLanguages = (intents: sdk.NLU.IntentDefinition[]) =>
     _.chain(intents)
       .flatMap(intent =>
-        Object.keys(intent.utterances).filter(lang => (intent.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
+        Object.keys(intent.utterances)
+          .filter(lang => this.languages.includes(lang))
+          .filter(lang => (intent.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
       )
       .uniq()
       .value()
