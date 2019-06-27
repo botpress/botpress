@@ -111,8 +111,8 @@ export default class Editor {
     }
 
     const hookLocation = location.replace(hookType, '')
-    const newHookLocation = hookLocation.replace(hookType, '')
-    if (type === 'hook' && !(await ghost.fileExists(`/hooks/${hookType}`, hookLocation))) {
+    const newHookLocation = hookLocation.replace(name, newName)
+    if (type === 'hook' && !(await ghost.fileExists(`/hooks/${hookType}`, newHookLocation))) {
       await ghost.renameFile(`/hooks/${hookType}`, hookLocation, newHookLocation)
       return
     }
