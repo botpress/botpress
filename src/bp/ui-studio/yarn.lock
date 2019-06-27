@@ -6254,6 +6254,14 @@ react-treebeard@^2.1.0:
     shallowequal "^0.2.2"
     velocity-react "^1.3.1"
 
+react-world-flags@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-world-flags/-/react-world-flags-1.3.0.tgz#be2e96287b8b7c3d9f8f02903324d4356934920b"
+  integrity sha512-GBiPZAYgkOM5nmLsnTQ4E1nlpQ9QZmxjEUHuvhXLz7XobS+5n/v5bHjjgfkfQ/2ZiF+DJPy8mPOxcD6lfh6VQw==
+  dependencies:
+    svg-country-flags "^1.2.6"
+    world-countries "^2.1.0"
+
 react@^16.2.0, react@^16.8.6:
   version "16.8.6"
   resolved "https://registry.yarnpkg.com/react/-/react-16.8.6.tgz#ad6c3a9614fd3a4e9ef51117f54d888da01f2bbe"
@@ -7275,6 +7283,11 @@ supports-color@^5.3.0, supports-color@^5.4.0, supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
+svg-country-flags@^1.2.6:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/svg-country-flags/-/svg-country-flags-1.2.6.tgz#d979895dc50245e025e1298af4e4472565645207"
+  integrity sha512-loHSF5qIEXoUgcXxLBlGG2eczDvqjzhyjdu2cIxcuHbJDGPUFBIsKnlp3N/+KBhaIZWbpksoczghkJsyJxbSGQ==
+
 svgo@^0.7.0:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/svgo/-/svgo-0.7.2.tgz#9f5772413952135c6fefbf40afe6a4faa88b4bb5"
@@ -7937,6 +7950,11 @@ worker-farm@^1.5.2:
   integrity sha512-6w+3tHbM87WnSWnENBUvA2pxJPLhQUg5LKwUQHq3r+XPhIM+Gh2R5ycbwPCyuGbNg+lPgdcnQUhuC02kJCvffQ==
   dependencies:
     errno "~0.1.7"
+
+world-countries@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/world-countries/-/world-countries-2.1.0.tgz#935a3bb5839a88bc1c7d05b8645341db4edd48d4"
+  integrity sha512-g8DRgoH7UJiF5L0xjj+RP/GFH4fOVlD3J5CxkJ+PZYH1PNl0i5JrstBOX53Ub8ObTZ6lCx0V7nIA8BuCvxMoSg==
 
 wrap-ansi@^2.0.0:
   version "2.1.0"

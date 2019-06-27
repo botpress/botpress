@@ -45,6 +45,7 @@
     "react-table": "^6.10.0",
     "react-toastify": "^3.3.3",
     "react-treebeard": "^2.1.0",
+    "react-world-flags": "^1.3.0",
     "reactour": "^1.15.0",
     "reactstrap": "^8.0.0",
     "reduce-reducers": "^0.1.2",
