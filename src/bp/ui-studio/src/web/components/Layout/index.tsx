@@ -110,6 +110,12 @@ class Layout extends React.Component<ILayoutProps> {
     }
   }
 
+  goHome = () => {
+    if (!isInputFocused()) {
+      window.location.href = '/admin'
+    }
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -121,7 +127,7 @@ class Layout extends React.Component<ILayoutProps> {
       'docs-toggle': this.toggleDocs,
       'lang-switcher': this.toggleLangSwitcher,
       'go-flow': () => this.gotoUrl('/flows'),
-      'go-home': () => (window.location.href = '/admin'),
+      'go-home': this.goHome,
       'go-content': () => this.gotoUrl('/content'),
       'go-module-code': () => this.gotoUrl('/modules/code-editor'),
       'go-module-qna': () => this.gotoUrl('/modules/qna'),
