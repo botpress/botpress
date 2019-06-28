@@ -63,6 +63,7 @@ class BottomPanel extends React.Component<IProps, IState> {
       <li className={cn(style.entry, style[`level-${log.level}`])} key={'log-entry-' + log.id}>
         <span className={style.time}>{time}</span>
         <span className={style.level}>{log.level}</span> <span className={style.message}>{log.message}</span>
+        <span className={style.message}>{log.args || ''}</span>
       </li>
     )
   }

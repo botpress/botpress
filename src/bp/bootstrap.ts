@@ -28,11 +28,14 @@ async function start() {
   }
 
   global.printBotLog = (botId, args) => {
+    const message = args[0]
+    const rest = args.slice(1)
+
     logger
       .level(sdk.LogLevel.DEBUG)
       .persist(false)
       .forBot(botId)
-      .debug(args[0], args.slice(1))
+      .debug(message.trim(), rest)
   }
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {

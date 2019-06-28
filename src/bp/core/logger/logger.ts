@@ -18,6 +18,20 @@ import { LoggerDbPersister, LoggerFilePersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
+function serializeArgs(args: any): string {
+  if (_.isArray(args)) {
+    return args.map(arg => serializeArgs(arg)).join(', ')
+  } else if (_.isObject(args)) {
+    return util.inspect(args, false, 2, true)
+  } else if (_.isString(args)) {
+    return args.trim()
+  } else if (args && args.toString) {
+    return args.toString()
+  } else {
+    return ''
+  }
+}
+
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
@@ -114,7 +128,7 @@ export class PersistedConsoleLogger implements Logger {
       } catch (err) {}
     }
 
-    const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
+    const serializedMetadata = metadata ? serializeArgs(metadata) : ''
     const timeFormat = 'HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
