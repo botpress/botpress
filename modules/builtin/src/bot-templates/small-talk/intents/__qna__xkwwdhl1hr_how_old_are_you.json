@@ -1,9 +1,0 @@
-{
-  "name": "__qna__xkwwdhl1hr_how_old_are_you",
-  "filename": "__qna__xkwwdhl1hr_how_old_are_you.json",
-  "contexts": ["global"],
-  "slots": [],
-  "utterances": {
-    "en": ["how old are you?", "what's your age?", "when were you born?"]
-  }
-}
