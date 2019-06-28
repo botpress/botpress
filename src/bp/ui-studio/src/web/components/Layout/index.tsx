@@ -114,6 +114,11 @@ class Layout extends React.Component<ILayoutProps> {
     }
   }
 
+  toggleBottomPanel = e => {
+    e.preventDefault()
+    this.props.toggleBottomPanel()
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -123,7 +128,7 @@ class Layout extends React.Component<ILayoutProps> {
       'emulator-focus': this.focusEmulator,
       cancel: this.closeEmulator,
       'docs-toggle': this.toggleDocs,
-      'bottom-bar': this.props.toggleBottomPanel,
+      'bottom-bar': this.toggleBottomPanel,
       'lang-switcher': this.toggleLangSwitcher,
       'go-flow': () => this.gotoUrl('/flows'),
       'go-home': () => (window.location.href = '/admin'),
