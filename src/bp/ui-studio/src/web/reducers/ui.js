@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions'
 import _ from 'lodash'
+import yn from 'yn'
 
 import {
   updateDocumentationModal,
@@ -10,12 +11,21 @@ import {
   toggleBottomPanel
 } from '~/actions'
 
+const bottomPanelStorageKey = `BP/UI/${window.BOT_ID}/BOTTOM_PANEL_OPEN`
+let defaultBottomPanelOpen = false
+
+try {
+  defaultBottomPanelOpen = yn(localStorage.getItem(bottomPanelStorageKey))
+} catch (err) {
+  // default to false
+}
+
 const defaultState = {
   viewMode: -1,
   customStyle: {},
   docHints: [],
   docModal: null,
-  bottomPanel: true
+  bottomPanel: defaultBottomPanelOpen || false
 }
 
 const reducer = handleActions(
@@ -40,10 +50,14 @@ const reducer = handleActions(
       ...state,
       docModal: payload
     }),
-    [toggleBottomPanel]: (state, {}) => ({
-      ...state,
-      bottomPanel: !state.bottomPanel
-    })
+    [toggleBottomPanel]: (state, {}) => {
+      const value = !state.bottomPanel
+      localStorage.setItem(bottomPanelStorageKey, value)
+      return {
+        ...state,
+        bottomPanel: value
+      }
+    }
   },
   defaultState
 )

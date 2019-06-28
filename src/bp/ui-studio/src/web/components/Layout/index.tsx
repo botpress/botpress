@@ -136,14 +136,22 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
 
-    const bottomBarSize = this.props.bottomPanel ? 175 : 0
+    const splitPanelLastSizeKey = `BP/UI/${window.BOT_ID}/BOTTOM_PANEL_SIZE`
+    const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
+    const bottomBarSize = this.props.bottomPanel ? lastSize : 0
 
     return (
       <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
         <div style={{ display: 'flex' }} className={layout.container}>
           <Sidebar />
-          <SplitPane split={'horizontal'} defaultSize={175} size={bottomBarSize} primary="second">
+          <SplitPane
+            split={'horizontal'}
+            defaultSize={lastSize}
+            onChange={size => localStorage.setItem(splitPanelLastSizeKey, size.toString())}
+            size={bottomBarSize}
+            primary="second"
+          >
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
