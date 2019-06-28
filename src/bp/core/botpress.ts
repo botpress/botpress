@@ -117,6 +117,7 @@ export class Botpress {
     this.config = await this.loadConfiguration()
     await this.createDatabase()
     await this.initializeGhost()
+    await this.restoreDebugScope()
 
     // Invalidating the configuration to force it to load it from the ghost if enabled
     this.config = await this.loadConfiguration(true)
@@ -137,6 +138,17 @@ export class Botpress {
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
+  }
+
+  async restoreDebugScope() {
+    if (await this.ghostService.global().fileExists('/', 'debug.json')) {
+      try {
+        const { scopes } = await this.ghostService.global().readFileAsObject('/', 'debug.json')
+        setDebugScopes(scopes.join(','))
+      } catch (err) {
+        this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
+      }
+    }
   }
 
   async checkJwtSecret() {
