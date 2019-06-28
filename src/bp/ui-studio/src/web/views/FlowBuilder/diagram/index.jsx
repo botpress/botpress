@@ -73,6 +73,18 @@ export default class FlowBuilder extends Component {
     }
   }
 
+  checkForProblems() {
+    const nodes = this.activeModel.getNodes()
+    const nodesWithProblems = Object.keys(nodes)
+      .map(node => ({
+        nodeName: nodes[node].name,
+        missingPorts: nodes[node].next.filter(n => n.node === '').length
+      }))
+      .filter(x => x.missingPorts > 0)
+
+    this.props.updateFlowProblems(nodesWithProblems)
+  }
+
   setTranslation(x = 0, y = 0) {
     this.activeModel.setOffset(x, y)
     this.diagramWidget.fireAction()
@@ -136,6 +148,8 @@ export default class FlowBuilder extends Component {
 
       this.diagramWidget && this.diagramWidget.forceUpdate()
     }
+
+    this.checkForProblems()
   }
 
   clearModel() {
@@ -417,6 +431,7 @@ export default class FlowBuilder extends Component {
       this.activeModel.linksHash = newLinksHash
       this.props.updateFlow({ links: newLinks })
     }
+    this.checkForProblems()
   }
 
   serialize = () => {
@@ -502,6 +517,7 @@ export default class FlowBuilder extends Component {
     }
 
     this.diagramWidget.forceUpdate()
+    this.checkForProblems()
   }
 
   copySelectedElementToBuffer() {
