@@ -1,5 +1,5 @@
 import { Component } from 'react'
-
+import nanoid from 'nanoid'
 import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
@@ -58,12 +58,8 @@ class App extends Component {
 
     EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
       this.props.appendLog({
-        id:
-          id ||
-          Date.now().toString() +
-            Math.random()
-              .toString()
-              .substr(2, 5),
+        ts: new Date(),
+        id: nanoid(10),
         level,
         message,
         args

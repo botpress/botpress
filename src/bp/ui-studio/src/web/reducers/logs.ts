@@ -23,4 +23,5 @@ export interface LogEntry {
   level: string
   message: string
   args: any
+  ts: Date
 }

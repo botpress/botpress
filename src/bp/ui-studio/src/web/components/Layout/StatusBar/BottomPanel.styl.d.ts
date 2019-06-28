@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'container': string;
+  'divide': string;
   'end': string;
   'entry': string;
   'level': string;
@@ -13,6 +14,8 @@ interface CssExports {
   'level-warn': string;
   'logs': string;
   'message': string;
+  'tab': string;
+  'tabs': string;
   'time': string;
 }
 declare var cssExports: CssExports;
