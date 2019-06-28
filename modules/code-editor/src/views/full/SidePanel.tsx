@@ -41,7 +41,12 @@ class PanelContent extends React.Component<Props> {
     actionsGlobal && actionFiles.push({ label: 'Global', files: actionsGlobal })
 
     const hookFiles = [hooksGlobal && { label: 'Global', files: hooksGlobal }]
-    const botConfigFiles = [botConfigs && { label: 'All Bots', files: botConfigs }]
+
+    const botConfigFiles = [
+      botConfigs && botConfigs.length === 1
+        ? { label: 'Current Bot', files: botConfigs }
+        : { label: 'All Bots', files: botConfigs }
+    ]
 
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles })
   }
