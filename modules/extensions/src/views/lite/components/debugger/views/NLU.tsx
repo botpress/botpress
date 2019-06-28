@@ -19,7 +19,15 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding }> = ({ nluData }) => {
       <div className={style.title}>
         <H4>Understanding</H4>
         {nluData.ambiguous && (
-          <Tooltip position={Position.RIGHT} content="Predicted intents are very close">
+          <Tooltip
+            position={Position.TOP}
+            content={
+              <span>
+                Predicted intents are very close. You can account for it checking the{' '}
+                <strong>event.nlu.ambiguous</strong> variable.
+              </span>
+            }
+          >
             <span style={{ color: Colors.GRAY1 }}>
               <Icon icon="warning-sign" color={Colors.GRAY1} />
               &nbsp;Ambiguous
