@@ -10,6 +10,7 @@ import {
   fetchUser,
   fetchBotInformation,
   fetchModules,
+  fetchAllBots,
   fetchSkills,
   refreshHints,
   fetchNotifications,
@@ -28,6 +29,7 @@ class App extends Component {
 
   fetchData = () => {
     this.props.fetchModules()
+    this.props.fetchAllBots()
     this.props.fetchSkills()
     this.props.refreshHints()
     this.props.fetchNotifications()
@@ -65,6 +67,7 @@ const mapDispatchToProps = {
   fetchUser,
   fetchBotInformation,
   fetchModules,
+  fetchAllBots,
   fetchSkills,
   refreshHints,
   fetchNotifications,

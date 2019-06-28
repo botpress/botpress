@@ -33,21 +33,23 @@ export const saveAllFlows = () => (dispatch, getState) => {
     .difference(dirtyFlows)
     .value()
 
-  dirtyFlows = dirtyFlows.filter(name => !!flowsByName[name]).map(name => {
-    const flow = flowsByName[name]
-    return {
-      name,
-      version: '0.0.1',
-      flow: name,
-      location: flow.location,
-      startNode: flow.startNode,
-      catchAll: flow.catchAll,
-      links: flow.links,
-      nodes: flow.nodes,
-      skillData: flow.skillData,
-      timeoutNode: flow.timeoutNode
-    }
-  })
+  dirtyFlows = dirtyFlows
+    .filter(name => !!flowsByName[name])
+    .map(name => {
+      const flow = flowsByName[name]
+      return {
+        name,
+        version: '0.0.1',
+        flow: name,
+        location: flow.location,
+        startNode: flow.startNode,
+        catchAll: flow.catchAll,
+        links: flow.links,
+        nodes: flow.nodes,
+        skillData: flow.skillData,
+        timeoutNode: flow.timeoutNode
+      }
+    })
 
   axios.post(`${window.BOT_API_PATH}/flows`, { cleanFlows, dirtyFlows }).then(() => {
     dispatch(receiveSaveFlows())
@@ -165,7 +167,9 @@ export const fetchBotInformation = () => dispatch => {
 
 export const botsReceived = createAction('BOTS/RECEIVED')
 export const fetchAllBots = () => dispatch => {
-  axios.get(`${window.API_PATH}/admin/bots`).then(res => dispatch(botsReceived(res.data)))
+  axios
+    .get(`${window.API_PATH}/admin/bots`, { headers: { 'X-BP-Workspace': 'default' } })
+    .then(res => dispatch(botsReceived(res.data)))
 }
 
 // Modules

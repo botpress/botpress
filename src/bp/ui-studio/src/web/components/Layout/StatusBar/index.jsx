@@ -8,9 +8,10 @@ import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { updateDocumentationModal } from '~/actions'
+import { updateDocumentationModal, fetchAllBots } from '~/actions'
 import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
+import BotSwitcher from './BotSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
@@ -29,18 +30,19 @@ class StatusBar extends React.Component {
     progress: 0,
     messages: [],
     nluSynced: true,
-    contexts: []
+    contexts: [],
+    botIds: []
   }
 
   constructor(props) {
     super(props)
     this.progressContainerRef = React.createRef()
-
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
   async componentDidMount() {
     await this.fetchContexts()
+    this.setState({ botIds: this.props.bots.bots.map(bot => bot.id) })
   }
 
   fetchContexts = async () => {
@@ -184,16 +186,7 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem
-            id="statusbar_switchbot"
-            title="Switch Bot"
-            description="Switch to an other bot. This will leave this interface."
-          >
-            <a href="/admin/">
-              <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
-              <strong>{this.props.botName}</strong> (bot)
-            </a>
-          </ActionItem>
+          <BotSwitcher botIds={this.state.botIds} currentBotId={this.props.botInfo.id} />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher
@@ -210,10 +203,11 @@ const mapStateToProps = state => ({
   user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  bots: state.bots
 })
 
 export default connect(
   mapStateToProps,
-  { updateDocumentationModal }
+  { updateDocumentationModal, fetchAllBots }
 )(StatusBar)
