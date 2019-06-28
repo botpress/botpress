@@ -249,8 +249,14 @@ export default class ScopedEngine implements Engine {
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+    for (const lang of this.languages) {
+      const trainingSet = await this.getTrainingSets(intents, lang)
+      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
-    for (const lang of trainableLangs) {
+      if (!trainableLangs.includes(lang)) {
+        return
+      }
+
       const models = await this.storage.getModelsFromHash(modelHash, lang)
 
       const intentModels = _.chain(models)
@@ -273,9 +279,6 @@ export default class ScopedEngine implements Engine {
       if (_.isEmpty(intentModels)) {
         throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
       }
-
-      const trainingSet = await this.getTrainingSets(intents, lang)
-      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
       await this.intentClassifiers[lang].load(intentModels)
       await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
@@ -375,15 +378,17 @@ export default class ScopedEngine implements Engine {
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
-
-    const skipIntentExtraction = !((await this.getIntents()) || []).length
-    if (skipIntentExtraction) {
-      return ds
-    }
-
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
+      return ds
+    }
+
+    const allIntents = (await this.getIntents()) || []
+    const isThereEnoughUtterances = !!allIntents.filter(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
+      .length
+
+    if (!allIntents.length || !isThereEnoughUtterances) {
       return ds
     }
 
@@ -421,6 +426,10 @@ export default class ScopedEngine implements Engine {
     }
 
     const intentDef = await this.storage.getIntent(ds.intent.name)
+
+    if (!(intentDef.slots && intentDef.slots.length)) {
+      return ds
+    }
 
     ds.slots = await this.slotExtractors[ds.language].extract(
       ds.lowerText,
