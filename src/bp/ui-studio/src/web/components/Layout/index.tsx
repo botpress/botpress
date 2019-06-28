@@ -85,7 +85,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   toggleLangSwitcher = e => {
-    e.preventDefault()
+    e && e.preventDefault()
     if (!isInputFocused()) {
       const langSwitcherOpen = !this.state.langSwitcherOpen
       this.setState({ langSwitcherOpen }, () => {
