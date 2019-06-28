@@ -1,41 +1,63 @@
-import { Icon } from '@blueprintjs/core'
-import axios from 'axios'
-import classNames from 'classnames'
+import cn from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { Glyphicon } from 'react-bootstrap'
-import { GoMortarBoard } from 'react-icons/go'
+import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { updateDocumentationModal } from '~/actions'
-import { keyMap } from '~/keyboardShortcuts'
-import EventBus from '~/util/EventBus'
+import { RootReducer } from '~/reducers'
+import { LogEntry } from '~/reducers/logs'
 
-import PermissionsChecker from '../PermissionsChecker'
-
-import ActionItem from './ActionItem'
 import style from './BottomPanel.styl'
-import LangSwitcher from './LangSwitcher'
-import NluPerformanceStatus from './NluPerformanceStatus'
 
 interface IProps {
-  visible: boolean
+  logs: LogEntry[]
 }
 
 class BottomPanel extends React.Component<IProps> {
-  render() {
-    if (!this.props.visible) {
-      return <React.Fragment />
+  messageListRef = React.createRef<HTMLUListElement>()
+
+  renderEntry(log: LogEntry): JSX.Element {
+    return (
+      <li className={cn(style.entry, style[`level-${log.level}`])} key={'log-entry-' + log.id}>
+        <span className={style.level}>{log.level}</span> <span className={style.message}>{log.message}</span>
+      </li>
+    )
+  }
+
+  componentDidUpdate() {
+    this.scrollToBottom()
+  }
+
+  scrollToBottom = () => {
+    const el = this.messageListRef.current
+    if (!el) {
+      return
     }
 
-    return <div className={style.container}>HELLO WORLD</div>
+    const scrollHeight = el.scrollHeight
+    const height = el.clientHeight
+    const maxScrollTop = scrollHeight - height
+    el.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0
+  }
+
+  render() {
+    const logs = this.props.logs.map(e => this.renderEntry(e))
+
+    return (
+      <div className={style.container}>
+        <ul className={style.logs} ref={this.messageListRef}>
+          {logs}
+          <li className={style.end}>End of logs</li>
+        </ul>
+      </div>
+    )
   }
 }
 
-const mapStateToProps = state => ({
-  visible: state.ui.bottomPanel
+const mapStateToProps = (state: RootReducer) => ({
+  logs: state.logs.logs
 })
 
 export default connect(
   mapStateToProps,
-  { updateDocumentationModal }
+  null
 )(BottomPanel)

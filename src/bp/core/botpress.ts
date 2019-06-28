@@ -14,7 +14,6 @@ import plur from 'plur'
 import { setDebugScopes } from '../debug'
 
 import { createForGlobalHooks } from './api'
-import { BotConfig } from './config/bot.config'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database, { DatabaseType } from './database'

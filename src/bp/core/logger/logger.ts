@@ -1,7 +1,10 @@
-import { AxiosError, AxiosRequestConfig } from 'axios'
-import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
+import { AxiosError } from 'axios'
+import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { IDisposable } from 'core/misc/disposable'
 import { incrementMetric } from 'core/services/monitoring'
+import { InvalidParameterError } from 'errors'
+import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
@@ -23,6 +26,23 @@ export class PersistedConsoleLogger implements Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
+
+  private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
+    delimiter: '::',
+    maxListeners: 1000,
+    verboseMemoryLeak: true,
+    wildcard: true
+  })
+
+  public static listenForAllLogs(fn: LoggerListener, botId: string = '*'): IDisposable {
+    if (!_.isFunction(fn)) {
+      throw new InvalidParameterError('"fn" listener must be a callback function')
+    }
+
+    const namespace = `logs::${botId}`
+    this.LogStreamEmitter.on(namespace, fn)
+    return { dispose: () => this.LogStreamEmitter.off(namespace, fn) }
+  }
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
@@ -120,6 +140,8 @@ export class PersistedConsoleLogger implements Logger {
       metadata: stripAnsi(serializedMetadata),
       timestamp: moment().toISOString()
     }
+
+    PersistedConsoleLogger.LogStreamEmitter.emit(`logs::${this.botId || '*'}`, level, entry.message, entry.metadata) // Args => level, message, args
 
     if (this.willPersistMessage && level !== LoggerLevel.Debug) {
       this.loggerDbPersister.appendLog(entry)

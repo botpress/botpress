@@ -14,7 +14,8 @@ import {
   refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 } from '~/actions'
 
 class App extends Component {
@@ -54,6 +55,20 @@ class App extends Component {
     EventBus.default.on('hints.updated', () => {
       this.props.refreshHints()
     })
+
+    EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
+      this.props.appendLog({
+        id:
+          id ||
+          Date.now().toString() +
+            Math.random()
+              .toString()
+              .substr(2, 5),
+        level,
+        message,
+        args
+      })
+    })
   }
 
   render() {
@@ -69,7 +84,8 @@ const mapDispatchToProps = {
   refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 }
 
 export default connect(

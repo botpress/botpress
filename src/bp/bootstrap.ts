@@ -12,7 +12,7 @@ import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
-import path from 'path'
+
 import { FatalError } from './errors'
 
 async function start() {
@@ -25,6 +25,14 @@ async function start() {
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
+  }
+
+  global.printBotLog = (botId, args) => {
+    logger
+      .level(sdk.LogLevel.DEBUG)
+      .persist(false)
+      .forBot(botId)
+      .debug(args[0], args.slice(1))
   }
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
