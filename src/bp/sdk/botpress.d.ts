@@ -485,6 +485,8 @@ declare module 'botpress/sdk' {
 
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
+      /** Predicted intents needs disambiguiation */
+      readonly ambiguous: boolean
       readonly intents: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
       readonly language: string
@@ -495,7 +497,7 @@ declare module 'botpress/sdk' {
       readonly errored: boolean
       readonly includedContexts: string[]
     }
-
+    
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestions?: Suggestion[]

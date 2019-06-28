@@ -1,20 +1,20 @@
 import * as sdk from 'botpress/sdk'
 
-import { NLUStructure, PipelineProcessManager } from './typings'
+import { NLUStructure } from './typings'
 
 export type PipelineStep = (ds: NLUStructure) => Promise<NLUStructure>
 
-export class PipelineManager implements PipelineProcessManager {
+export class PipelineManager {
   private _nluds!: NLUStructure
   private _pipeline!: PipelineStep[]
 
-  public withPipeline(pipeline: PipelineStep[]): PipelineProcessManager {
+  public withPipeline(pipeline: PipelineStep[]): PipelineManager {
     this._pipeline = pipeline
     return this
   }
 
-  public initFromText(text: string, includedContexts: string[]): PipelineProcessManager {
-    this._nluds = initNLUDS(text, includedContexts)
+  public initFromText(text: string, includedContexts: string[]): PipelineManager {
+    this._nluds = initNLUStruct(text, includedContexts)
     return this
   }
 
@@ -35,7 +35,8 @@ export class PipelineManager implements PipelineProcessManager {
   }
 }
 
-export const initNLUDS = (text: string, includedContexts: string[]): NLUStructure => {
+// exported for testing purposes
+export const initNLUStruct = (text: string, includedContexts: string[]): NLUStructure => {
   return {
     rawText: text,
     lowerText: '',
@@ -43,8 +44,9 @@ export const initNLUDS = (text: string, includedContexts: string[]): NLUStructur
     detectedLanguage: '',
     language: '',
     entities: [],
-    intents: [],
+    ambiguous: false,
     intent: {} as sdk.NLU.Intent,
+    intents: [],
     sanitizedText: '',
     tokens: [],
     slots: {}
