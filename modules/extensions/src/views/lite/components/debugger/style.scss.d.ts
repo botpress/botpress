@@ -12,6 +12,7 @@ interface CssExports {
   'splash': string;
   'subSection': string;
   'summaryTable': string;
+  'title': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

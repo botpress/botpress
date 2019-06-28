@@ -7,7 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import { PipelineManager } from './pipelinemanager'
+import { PipelineManager } from './pipeline-manager'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
@@ -18,6 +18,7 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
+import { allInRange } from './tools/math'
 import { LanguageProvider } from './typings'
 import {
   Engine,
@@ -37,6 +38,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
+const AMBIGUITY_RANGE = 0.05 // +- 5% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -61,7 +63,7 @@ export default class ScopedEngine implements Engine {
   ) => Promise<Sequence>
 
   // move this in a functionnal util file?
-  private readonly flatMapIdentityReducer = (a, b) => a.concat(b)
+  private readonly flatMapIdendity = (a, b) => a.concat(b)
 
   private retryPolicy = {
     interval: 100,
@@ -192,11 +194,12 @@ export default class ScopedEngine implements Engine {
 
     try {
       const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
-      const nluResults = await retry(() => runner.run(), this.retryPolicy)
+      const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
       res = _.pick(
         nluResults,
         'intent',
         'intents',
+        'ambiguous',
         'language',
         'detectedLanguage',
         'entities',
@@ -234,7 +237,7 @@ export default class ScopedEngine implements Engine {
       _.chain(intentDefs)
         .flatMap(await this.generateTrainingSequenceFromIntent(lang))
         .value()
-    ).reduce(this.flatMapIdentityReducer, [])
+    ).reduce(this.flatMapIdendity, [])
 
   private generateTrainingSequenceFromIntent = (lang: string) => async (
     intent: sdk.NLU.IntentDefinition
@@ -328,6 +331,7 @@ export default class ScopedEngine implements Engine {
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO use the same data structure to train intent and slot models
     // TODO generate single training set here and filter
+
     for (const lang of this.languages) {
       try {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
@@ -375,6 +379,17 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
+  // returns a promise to comply with PipelineStep
+  private _setAmbiguity = (ds: NLUStructure): Promise<NLUStructure> => {
+    const perfectConfusion = 1 / ds.intents.length
+    const lower = perfectConfusion - AMBIGUITY_RANGE
+    const upper = perfectConfusion + AMBIGUITY_RANGE
+
+    ds.ambiguous = allInRange(ds.intents.map(i => i.confidence), lower, upper)
+
+    return Promise.resolve(ds)
+  }
+
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
@@ -392,7 +407,6 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    // TODO add disambiguation flag if intent 1 & intent 2
     const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
 
     // alter ctx with the given predictions in case where no ctx were provided
@@ -462,6 +476,7 @@ export default class ScopedEngine implements Engine {
     this._extractEntities,
     this._setTextWithoutEntities,
     this._extractIntents,
+    this._setAmbiguity,
     this._extractSlots
   ]
 }

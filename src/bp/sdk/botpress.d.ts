@@ -485,6 +485,8 @@ declare module 'botpress/sdk' {
 
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
+      /** Predicted intents needs disambiguiation */
+      readonly ambiguous: boolean
       readonly intents: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
       readonly language: string
@@ -495,7 +497,7 @@ declare module 'botpress/sdk' {
       readonly errored: boolean
       readonly includedContexts: string[]
     }
-
+    
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestions?: Suggestion[]
@@ -709,8 +711,14 @@ declare module 'botpress/sdk' {
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
      * @param exclude - The pattern to match excluded files.
+     * @param includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
      */
-    directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
+    directoryListing(
+      rootFolder: string,
+      fileEndingPattern: string,
+      exclude?: string | string[],
+      includeDotFiles?: boolean
+    ): Promise<string[]>
     /**
      * Starts listening on all file changes (deletion, inserts and updates)
      * `callback` will be called for every change
@@ -1301,7 +1309,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
-
+    /**
+     * Access the Ghost Service scoped at the root of all bots
+     */
+    export function forBots(): ScopedGhostService
     /**
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
