@@ -38,7 +38,7 @@ export default class Editor {
       actionsGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadActions()),
       hooksGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadHooks()),
       actionsBot: this._filterBuiltin(await this._loadActions(this._botId)),
-      botConfigs: this._config.includeBotConfig && (await this._loadBotConfigs())
+      botConfigs: this._config.includeBotConfig && (await this._loadBotConfigs(this._config.allowGlobal))
     }
   }
 
@@ -193,8 +193,8 @@ export default class Editor {
     })
   }
 
-  private async _loadBotConfigs(): Promise<EditableFile[]> {
-    const ghost = this.bp.ghost.forBots()
+  private async _loadBotConfigs(includeAllBots: boolean): Promise<EditableFile[]> {
+    const ghost = includeAllBots ? this.bp.ghost.forBots() : this.bp.ghost.forBot(this._botId)
 
     return Promise.map(ghost.directoryListing('/', 'bot.config.json', undefined, true), async (filepath: string) => {
       return {
