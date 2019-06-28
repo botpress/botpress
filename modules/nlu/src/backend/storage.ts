@@ -4,7 +4,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import { Config } from '../config'
-import { sanitizeFilenameNoExt } from '../util.js'
+import { sanitizeFilenameNoExt } from '../util'
 
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
