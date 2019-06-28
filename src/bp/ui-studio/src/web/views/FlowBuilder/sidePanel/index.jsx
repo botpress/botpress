@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 import reject from 'lodash/reject'
 
 import FlowsList from './FlowsList'
-import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
+import { SidePanel, SidePanelSection, PaddedContent } from '~/components/Shared/Interface'
+import { Tooltip } from '@blueprintjs/core'
 
 export default class PanelContent extends Component {
   createFlow = () => {
@@ -28,6 +29,10 @@ export default class PanelContent extends Component {
 
   goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
+  highlightNode = node => {
+    window.highlightNode(this.props.currentFlow && this.props.currentFlow.name, node)
+  }
+
   render() {
     const normalFlows = reject(this.props.flows, x => x.name.startsWith('skills/'))
     const flowsName = normalFlows.map(x => {
@@ -37,6 +42,23 @@ export default class PanelContent extends Component {
 
     return (
       <SidePanel>
+        {!!this.props.flowProblems.length && (
+          <SidePanelSection label="Flow Problems">
+            <PaddedContent>
+              {this.props.flowProblems.map(node => (
+                <div>
+                  <Tooltip content="Click to highlight node">
+                    <a onClick={() => this.highlightNode(node.nodeName)}>
+                      <strong>{node.nodeName}</strong>
+                    </a>
+                  </Tooltip>
+                  : Missing <strong>{node.missingPorts}</strong> links
+                </div>
+              ))}
+            </PaddedContent>
+          </SidePanelSection>
+        )}
+
         <SidePanelSection label={'Flows'} actions={!this.props.readOnly && [createFlowAction]}>
           <FlowsList
             readOnly={this.props.readOnly}

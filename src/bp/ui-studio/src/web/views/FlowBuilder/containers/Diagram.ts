@@ -1,22 +1,22 @@
 import { connect } from 'react-redux'
-
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import {
-  fetchFlows,
-  switchFlowNode,
-  openFlowNodeProps,
-  setDiagramAction,
-  createFlowNode,
-  saveAllFlows,
-  updateFlowNode,
-  removeFlowNode,
   copyFlowNode,
-  pasteFlowNode,
   createFlow,
-  updateFlow,
+  createFlowNode,
+  fetchFlows,
+  insertNewSkillNode,
+  openFlowNodeProps,
+  pasteFlowNode,
+  removeFlowNode,
+  saveAllFlows,
+  setDiagramAction,
   switchFlow,
-  insertNewSkillNode
+  switchFlowNode,
+  updateFlow,
+  updateFlowNode,
+  updateFlowProblems
 } from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import Diagram from '../diagram'
 
@@ -41,7 +41,8 @@ const mapDispatchToProps = {
   updateFlow,
   copyFlowNode,
   pasteFlowNode,
-  insertNewSkillNode
+  insertNewSkillNode,
+  updateFlowProblems
 }
 
 const ConnectedDiagram = connect(
