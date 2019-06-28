@@ -1,0 +1,44 @@
+{
+  "id": "3xcljo3jr5_where_are_you_right_now",
+  "data": {
+    "questions": {
+      "en": [
+        "where are you right now?",
+        "where do you live?",
+        "where are you?",
+        "where you at?",
+        "where do you live",
+        "what is your habitat",
+        "what is your location?",
+        "Tell me where you live",
+        "Where are you located?",
+        "Tell me your whereabouts"
+      ],
+      "fr": [
+        "Où es-tu?",
+        "Tu es ou?",
+        "À quel endroit tu te situes?",
+        "Vous vous situez ou?",
+        "À quel emplacement je peux vous trouver?",
+        "Quel est ton emplacement?",
+        "Ou puis-je vous trouver?",
+        "t'es ou?",
+        "Tu es à quel place?",
+        "Quel est ton lieu?"
+      ]
+    },
+    "answers": {
+      "en": [
+        "I'm a computer program, so I live inside a boring server."
+      ],
+      "fr": [
+        "Je suis un logiciel informatique, donc j'existe à l'intérieur d'un serveur."
+      ]
+    },
+    "redirectFlow": "",
+    "redirectNode": "",
+    "action": "text",
+    "category": "global",
+    "enabled": true
+  }
+}

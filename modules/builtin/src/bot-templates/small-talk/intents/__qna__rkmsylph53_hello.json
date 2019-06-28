@@ -1,0 +1,33 @@
+{
+  "name": "__qna__rkmsylph53_hello",
+  "contexts": [
+    "global"
+  ],
+  "utterances": {
+    "en": [
+      "Hello",
+      "Hi",
+      "Hey",
+      "Heya",
+      "hey there",
+      "bonjour",
+      "sup'",
+      "Heyyyy",
+      "Greetings",
+      "Salutations"
+    ],
+    "fr": [
+      "Bonjour",
+      "Salut",
+      "Allo",
+      "Cou cou",
+      "Bonsoir",
+      "Bon matin",
+      "Bonne matinée",
+      "Bonjour toi",
+      "Salut vous",
+      "Bonjour le robot"
+    ]
+  },
+  "slots": []
+}
