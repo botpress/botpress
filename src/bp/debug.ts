@@ -9,7 +9,8 @@ export const Debug = (mod: string, base = 'bp') => {
   instance.sub = mod => Debug(mod, namespace)
   instance.forBot = (botId, message, extra?) => {
     if (extra) {
-      return instance(`(${botId}) ${message}`, { ...extra, botId })
+      const args = typeof extra === 'string' ? { extra, botId } : { ...extra, botId }
+      return instance(`(${botId}) ${message}`, args)
     } else {
       return instance(`(${botId}) ${message}`, { botId })
     }
