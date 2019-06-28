@@ -36,6 +36,7 @@ $status-bar-height: 24px;
 .sidePanel {
   background-color: #fcfcfc;
   height: 100%;
+  overflow-y: auto;
 }
 
 .sidePanel_hidden {
