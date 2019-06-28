@@ -10,6 +10,7 @@ export interface StudioConnector {
 
 export type Config = {
   isGlobalAllowed: boolean
+  isBotConfigIncluded: boolean
 }
 
 export interface FileFilters {

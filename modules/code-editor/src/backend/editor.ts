@@ -29,12 +29,16 @@ export default class Editor {
     return this._config.allowGlobal
   }
 
+  getConfig(): Config {
+    return this._config
+  }
+
   async fetchFiles() {
     return {
       actionsGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadActions()),
       hooksGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadHooks()),
       actionsBot: this._filterBuiltin(await this._loadActions(this._botId)),
-      botConfigs: this._config.allowGlobal && (await this._loadBotConfigs())
+      botConfigs: this._config.includeBotConfig && (await this._loadBotConfigs())
     }
   }
 
@@ -62,6 +66,10 @@ export default class Editor {
     }
 
     if (type === 'bot_config') {
+      if (!this._config.includeBotConfig) {
+        throw new Error(`Enable "includeBotConfig" in the Code Editor configuration to save those files.`)
+      }
+
       this._validateBotConfig(content)
     }
 

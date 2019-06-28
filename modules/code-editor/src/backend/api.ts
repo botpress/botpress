@@ -15,8 +15,9 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
   })
 
   router.get('/config', async (req, res, next) => {
+    const { allowGlobal, includeBotConfig } = editorByBot[req.params.botId].getConfig()
     try {
-      res.send({ isGlobalAllowed: await editorByBot[req.params.botId].isGlobalAllowed() })
+      res.send({ isGlobalAllowed: allowGlobal, isBotConfigIncluded: includeBotConfig })
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching config')
       next(err)

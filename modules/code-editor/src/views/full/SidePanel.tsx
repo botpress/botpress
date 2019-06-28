@@ -55,7 +55,7 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionBotsConfig() {
-    if (!this.props.isGlobalAllowed) {
+    if (!this.props.isBotConfigIncluded) {
       return null
     }
 
@@ -187,10 +187,11 @@ export default inject(({ store }: { store: RootStore }) => ({
   isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
-  isGlobalAllowed: store.config && store.config.isGlobalAllowed
+  isGlobalAllowed: store.config && store.config.isGlobalAllowed,
+  isBotConfigIncluded: store.config && store.config.isBotConfigIncluded
 }))(observer(PanelContent))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'files' | 'isGlobalAllowed' | 'createFilePrompt' | 'setFilenameFilter'
+  'files' | 'isGlobalAllowed' | 'isBotConfigIncluded' | 'createFilePrompt' | 'setFilenameFilter'
 >
