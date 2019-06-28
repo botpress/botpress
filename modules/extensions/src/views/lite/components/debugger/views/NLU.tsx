@@ -10,6 +10,10 @@ import { Intents } from './Intents'
 import { Slots } from './Slots'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding }> = ({ nluData }) => {
+  if (!nluData.intents.length && !nluData.entities.length && _.isEmpty(nluData.slots)) {
+    return null
+  }
+
   return (
     <div className={style.block}>
       <H4>Understanding</H4>

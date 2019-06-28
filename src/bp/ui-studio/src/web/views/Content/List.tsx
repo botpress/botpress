@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
-
 import withLanguage from '~/components/Util/withLanguage'
 
 class ListView extends Component<Props, State> {
@@ -15,7 +14,7 @@ class ListView extends Component<Props, State> {
     searchTerm: '',
     checkedIds: [],
     allChecked: false,
-    pageSize: 10,
+    pageSize: 20,
     pages: 0,
     page: 0,
     filters: [],
@@ -24,6 +23,12 @@ class ListView extends Component<Props, State> {
 
   componentDidMount() {
     this.debouncedHandleSearch = _.debounce(() => this.launchSearch(), 1000)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.count !== prevProps.count) {
+      this.setState({ page: 0 })
+    }
   }
 
   handleCheckboxChanged(id) {
@@ -165,20 +170,20 @@ class ListView extends Component<Props, State> {
       {
         Header: 'ID',
         Cell: x => `#!${x.value}`,
-        Filter: this.renderFilterPlaceholder('Filter'),
+        filterable: false,
         accessor: 'id',
         width: 170
       },
       {
         Header: 'Content Type',
-        Filter: this.renderFilterPlaceholder('Filter'),
+        filterable: false,
         accessor: 'contentType',
         width: 150
       },
       {
         Header: 'Preview',
         accessor: 'previews',
-        Filter: this.renderFilterPlaceholder('Filter'),
+        filterable: false,
         Cell: x => x.original.previews && x.original.previews[this.props.contentLang]
       },
       {
@@ -213,13 +218,16 @@ class ListView extends Component<Props, State> {
       <ReactTable
         columns={this.getTableColumns()}
         data={this.props.contentItems}
+        page={this.state.page}
         onFetchData={this.fetchData}
         onPageSizeChange={(pageSize, page) => this.setState({ page, pageSize })}
+        onPageChange={page => this.setState({ page })}
         getTdProps={this.onRowClick}
         defaultPageSize={this.state.pageSize}
         defaultSorted={[{ id: 'modifiedOn', desc: true }]}
         noDataText={noDataMessage}
         className="-striped -highlight"
+        style={{ height: window.innerHeight - 36 /** Toolbar height */ - 40 /** bottom buttons height */ }}
         pages={pageCount}
         manual
         filterable
