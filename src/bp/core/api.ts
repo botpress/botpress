@@ -169,13 +169,9 @@ const security = (): typeof sdk.security => {
 
 const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
-    forBot(botId: string): ScopedGhostService {
-      return ghostService.forBot(botId)
-    },
-
-    forGlobal(): ScopedGhostService {
-      return ghostService.global()
-    }
+    forBot: ghostService.forBot.bind(ghostService),
+    forBots: ghostService.bots.bind(ghostService),
+    forGlobal: ghostService.global.bind(ghostService)
   }
 }
 
