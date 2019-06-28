@@ -6,7 +6,7 @@ $status-bar-height: 24px;
 }
 
 .fullsize {
-  height: calc(100vh - #{$status-bar-height});
+  height: 100%;
 }
 
 .container :global(.Resizer.vertical) {

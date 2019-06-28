@@ -2,9 +2,10 @@ import React from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
+import SplitPane from 'react-split-pane'
+import { style, ToastContainer } from 'react-toastify'
 import { bindActionCreators } from 'redux'
-import { updateDocumentationModal, viewModeChanged } from '~/actions'
+import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import DocumentationModal from '~/components/Layout/DocumentationModal'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
@@ -20,6 +21,7 @@ import GuidedTour from './GuidedTour'
 import layout from './Layout.styl'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
+import BottomPanel from './StatusBar/BottomPanel'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -28,7 +30,9 @@ interface ILayoutProps {
   docHints: any
   updateDocumentationModal: any
   location: any
+  toggleBottomPanel: () => null
   history: any
+  bottomPanel: boolean
 }
 
 class Layout extends React.Component<ILayoutProps> {
@@ -119,6 +123,7 @@ class Layout extends React.Component<ILayoutProps> {
       'emulator-focus': this.focusEmulator,
       cancel: this.closeEmulator,
       'docs-toggle': this.toggleDocs,
+      'bottom-bar': this.props.toggleBottomPanel,
       'lang-switcher': this.toggleLangSwitcher,
       'go-flow': () => this.gotoUrl('/flows'),
       'go-home': () => (window.location.href = '/admin'),
@@ -131,25 +136,34 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
 
+    const bottomBarSize = this.props.bottomPanel ? 300 : 0
+
     return (
       <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex' }} className={layout.container}>
           <Sidebar />
-          <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
-            <Switch>
-              <Route exact path="/" render={() => <Redirect to="/flows" />} />
-              <Route exact path="/content" component={Content} />
-              <Route exact path="/flows/:flow*" component={FlowBuilder} />
-              <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
-              <Route exact path="/notifications" component={Notifications} />
-              <Route exact path="/logs" component={Logs} />
-            </Switch>
-          </main>
+          <SplitPane split={'horizontal'} defaultSize={200} size={bottomBarSize} primary="second">
+            <div>
+              <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
+                <Switch>
+                  <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                  <Route exact path="/content" component={Content} />
+                  <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                  <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
+                  <Route exact path="/notifications" component={Notifications} />
+                  <Route exact path="/logs" component={Logs} />
+                </Switch>
+              </main>
+            </div>
+            <BottomPanel />
+          </SplitPane>
+
           <ToastContainer position="bottom-right" />
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
+
           <StatusBar
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
@@ -158,6 +172,7 @@ class Layout extends React.Component<ILayoutProps> {
             langSwitcherOpen={this.state.langSwitcherOpen}
             toggleLangSwitcher={this.toggleLangSwitcher}
             onToggleGuidedTour={this.toggleGuidedTour}
+            toggleBottomPanel={this.props.toggleBottomPanel}
           />
           <GuidedTour isDisplayed={this.state.guidedTourOpen} onToggle={this.toggleGuidedTour} />
         </div>
@@ -168,10 +183,12 @@ class Layout extends React.Component<ILayoutProps> {
 
 const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
-  docHints: state.ui.docHints
+  docHints: state.ui.docHints,
+  bottomPanel: state.ui.bottomPanel
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, updateDocumentationModal }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
 
 export default connect(
   mapStateToProps,

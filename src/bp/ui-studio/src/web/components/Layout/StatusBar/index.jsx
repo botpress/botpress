@@ -1,3 +1,4 @@
+import { Icon } from '@blueprintjs/core'
 import style from './StatusBar.styl'
 import React from 'react'
 import _ from 'lodash'
@@ -7,9 +8,7 @@ import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
 import { updateDocumentationModal } from '~/actions'
-import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
@@ -18,7 +17,6 @@ import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
-import { Icon } from '@blueprintjs/core'
 
 const COMPLETED_DURATION = 2000
 
@@ -168,10 +166,14 @@ class StatusBar extends React.Component {
             display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
-            <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
-              <NavLink to={'/logs'}>
-                <GoFile />
-              </NavLink>
+            <ActionItem
+              id="statusbar_logs"
+              title="Logs"
+              description="See real-time logs"
+              className={style.right}
+              onClick={this.props.toggleBottomPanel}
+            >
+              <Icon icon="console" />
             </ActionItem>
           </PermissionsChecker>
           <ActionItem

@@ -6,14 +6,16 @@ import {
   addDocumentationHint,
   removeDocumentationHint,
   viewModeChanged,
-  updateGlobalStyle
+  updateGlobalStyle,
+  toggleBottomPanel
 } from '~/actions'
 
 const defaultState = {
   viewMode: -1,
   customStyle: {},
   docHints: [],
-  docModal: null
+  docModal: null,
+  bottomPanel: true
 }
 
 const reducer = handleActions(
@@ -37,6 +39,10 @@ const reducer = handleActions(
     [updateDocumentationModal]: (state, { payload }) => ({
       ...state,
       docModal: payload
+    }),
+    [toggleBottomPanel]: (state, {}) => ({
+      ...state,
+      bottomPanel: !state.bottomPanel
     })
   },
   defaultState
