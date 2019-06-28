@@ -385,10 +385,10 @@ export default class ScopedEngine implements Engine {
     }
 
     const allIntents = (await this.getIntents()) || []
-    const isThereEnoughUtterances = !!allIntents.filter(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
-      .length
+    const shouldPredict =
+      allIntents.length && allIntents.some(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
 
-    if (!allIntents.length || !isThereEnoughUtterances) {
+    if (!shouldPredict) {
       return ds
     }
 
