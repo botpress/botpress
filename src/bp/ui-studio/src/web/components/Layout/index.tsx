@@ -136,7 +136,7 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
 
-    const splitPanelLastSizeKey = `BP/UI/${window.BOT_ID}/BOTTOM_PANEL_SIZE`
+    const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
     const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
     const bottomBarSize = this.props.bottomPanel ? lastSize : 0
 

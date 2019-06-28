@@ -11,7 +11,7 @@ import {
   toggleBottomPanel
 } from '~/actions'
 
-const bottomPanelStorageKey = `BP/UI/${window.BOT_ID}/BOTTOM_PANEL_OPEN`
+const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
 let defaultBottomPanelOpen = false
 
 try {
