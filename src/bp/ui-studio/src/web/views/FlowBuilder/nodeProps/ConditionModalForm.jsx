@@ -176,7 +176,8 @@ export default class ConditionModalForm extends Component {
       return
     }
 
-    const condition = this.cleanTextFromDoubleCurlyBraces(this.state.condition)
+    // replace: "{{stuff}} more stuff... {{other stuff}}" by "stuff more stuff... other stuff"
+    const condition = this.state.condition.replace(/({{)(.*?)(}})/g, '$2')
     const payload = { condition }
 
     if (this.state.typeOfTransition === 'subflow') {
@@ -202,19 +203,6 @@ export default class ConditionModalForm extends Component {
 
     this.props.onSubmit(payload)
     this.resetForm()
-  }
-
-  cleanTextFromDoubleCurlyBraces(text) {
-    const enclosedByBracesRegexp = /{{.*?}}/g // matches {{something}}... {{something else}} with two different matches
-    let enclosedByBracesMatch = enclosedByBracesRegexp.exec(text)
-
-    while (enclosedByBracesMatch) {
-      const matchContent = enclosedByBracesMatch[0].replace('{{', '').replace('}}', '')
-      text = text.replace(enclosedByBracesMatch[0], matchContent)
-      enclosedByBracesMatch = enclosedByBracesRegexp.exec(text)
-    }
-
-    return text
   }
 
   renderSubflowChoice() {
