@@ -1,7 +1,7 @@
 const _ = require('lodash')
 
-// Make sure extractedSlots exists
-event.state.session.extractedSlots = event.state.session.extractedSlots || {}
+// Make sure slots exists exists
+event.state.session.slots = event.state.session.slots || {}
 handleSlotsExpiry()
 extractIntentSlots()
 
@@ -9,10 +9,7 @@ function extractIntentSlots() {
   const slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
   for (let slot of slots) {
     // BETA(11.8.4): Prevent overwrite of the slot if explicitely demanded
-    if (
-      event.state.session.extractedSlots[slot.name] &&
-      event.state.session.extractedSlots[slot.name].overwritable == false
-    ) {
+    if (event.state.session.slots[slot.name] && event.state.session.slots[slot.name].overwritable == false) {
       continue
     }
 
@@ -22,9 +19,9 @@ function extractIntentSlots() {
       slot = slot[0]
     }
 
-    event.state.session.extractedSlots.notFound = 0
+    event.state.session.slots.notFound = 0
     event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
-    event.state.session.extractedSlots[slot.name] = {
+    event.state.session.slots[slot.name] = {
       ...slot,
       timestamp: Date.now(),
       turns: 0,
@@ -35,14 +32,14 @@ function extractIntentSlots() {
 }
 
 function handleSlotsExpiry() {
-  for (let slot of _.values(event.state.session.extractedSlots)) {
+  for (let slot of _.values(event.state.session.slots)) {
     if (typeof slot.turns === 'number') {
       ++slot.turns
     }
 
     // BETA(11.8.4): Automatically expire the slot after X dialog turns
     if (typeof slot.expiresAfterTurns === 'number' && slot.turns >= slot.expiresAfterTurns) {
-      delete event.state.session.extractedSlots[slot.name]
+      delete event.state.session.slots[slot.name]
     }
   }
 }
