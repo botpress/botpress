@@ -29,10 +29,12 @@ export default class ConditionModalForm extends Component {
   componentDidMount() {
     this.fetchIntents()
 
-    const subflowOptions = this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
-      label: flow,
-      value: flow
-    }))
+    const subflowOptions = this.props.subflows
+      .filter(flow => !flow.startsWith('skills/'))
+      .map(flow => ({
+        label: flow,
+        value: flow
+      }))
 
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []
@@ -288,7 +290,11 @@ export default class ConditionModalForm extends Component {
       return null
     }
 
-    const intents = this.state.intents.map(({ name }) => ({ label: name, value: name }))
+    const intents = this.state.intents
+      .filter(i => !i.name.startsWith('__qna__'))
+      .map(({ name }) => ({ label: name, value: name }))
+      .concat([{ label: 'none', value: 'none' }])
+
     return (
       <Select
         name="matchIntent"
