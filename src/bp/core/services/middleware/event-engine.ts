@@ -40,6 +40,7 @@ const eventSchema = {
         .array()
         .items(joi.object())
         .optional(),
+      ambiguous: joi.boolean(),
       language: joi.string().optional(),
       detectedLanguage: joi.string().optional(),
       entities: joi

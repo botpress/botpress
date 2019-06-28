@@ -1,4 +1,4 @@
-import { H4 } from '@blueprintjs/core'
+import { Colors, H4, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { SFC } from 'react'
@@ -16,7 +16,17 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding }> = ({ nluData }) => {
 
   return (
     <div className={style.block}>
-      <H4>Understanding</H4>
+      <div className={style.title}>
+        <H4>Understanding</H4>
+        {nluData.ambiguous && (
+          <Tooltip position={Position.RIGHT} content="Predicted intents are very close">
+            <span style={{ color: Colors.GRAY1 }}>
+              <Icon icon="warning-sign" color={Colors.GRAY1} />
+              &nbsp;Ambiguous
+            </span>
+          </Tooltip>
+        )}
+      </div>
       <Intents intents={nluData.intents} intent={nluData.intent} />
       {nluData.entities.length > 0 && <Entities entities={nluData.entities} />}
       {nluData.slots && !_.isEmpty(nluData.slots) && <Slots slots={nluData.slots} />}

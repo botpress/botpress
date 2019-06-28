@@ -10,6 +10,10 @@
   padding: 15px;
   background: #f5f5f5;
   color: #353535;
+  .title {
+    display: flex;
+    justify-content: space-between;
+  }
   .subSection {
     margin: 10px 5px;
     h5 {
@@ -20,6 +24,7 @@
       text-transform: capitalize;
     }
     ul {
+      margin: 5px 0;
       padding-left: 15px;
       li {
         line-height: 1.5em;
