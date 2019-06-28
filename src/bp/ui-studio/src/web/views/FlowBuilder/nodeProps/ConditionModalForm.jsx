@@ -29,10 +29,12 @@ export default class ConditionModalForm extends Component {
   componentDidMount() {
     this.fetchIntents()
 
-    const subflowOptions = this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
-      label: flow,
-      value: flow
-    }))
+    const subflowOptions = this.props.subflows
+      .filter(flow => !flow.startsWith('skills/'))
+      .map(flow => ({
+        label: flow,
+        value: flow
+      }))
 
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []
@@ -173,7 +175,9 @@ export default class ConditionModalForm extends Component {
     if (!this.validation()) {
       return
     }
-    const payload = { condition: this.state.condition }
+
+    const condition = this.cleanTextFromDoubleCurlyBraces(this.state.condition)
+    const payload = { condition }
 
     if (this.state.typeOfTransition === 'subflow') {
       payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
@@ -198,6 +202,19 @@ export default class ConditionModalForm extends Component {
 
     this.props.onSubmit(payload)
     this.resetForm()
+  }
+
+  cleanTextFromDoubleCurlyBraces(text) {
+    const enclosedByBracesRegexp = /{{.*?}}/g // matches {{something}}... {{something else}} with two different matches
+    let enclosedByBracesMatch = enclosedByBracesRegexp.exec(text)
+
+    while (enclosedByBracesMatch) {
+      const matchContent = enclosedByBracesMatch[0].replace('{{', '').replace('}}', '')
+      text = text.replace(enclosedByBracesMatch[0], matchContent)
+      enclosedByBracesMatch = enclosedByBracesRegexp.exec(text)
+    }
+
+    return text
   }
 
   renderSubflowChoice() {
