@@ -6,7 +6,7 @@ export interface TypingDefinitions {
   [file: string]: string
 }
 
-export type FileType = 'action' | 'hook'
+export type FileType = 'action' | 'hook' | 'bot_config'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */
@@ -25,4 +25,5 @@ export interface FilesDS {
   actionsGlobal: EditableFile[]
   hooksGlobal: EditableFile[]
   actionsBot: EditableFile[]
+  botConfigs: EditableFile[]
 }

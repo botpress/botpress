@@ -1,20 +1,22 @@
 import { Icon } from '@blueprintjs/core'
-import { SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
+import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import { EditableFile } from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
+import { RootStore, StoreDef } from './store'
+import { EditorStore } from './store/editor'
 import FileNavigator from './FileNavigator'
 
-export default class PanelContent extends React.Component<Props> {
+class PanelContent extends React.Component<Props> {
   private expandedNodes = {}
 
   state = {
     actionFiles: [],
-    hookFiles: []
+    hookFiles: [],
+    botConfigs: []
   }
 
   componentDidMount() {
@@ -32,15 +34,16 @@ export default class PanelContent extends React.Component<Props> {
       return
     }
 
-    const { actionsBot, actionsGlobal, hooksGlobal } = this.props.files
+    const { actionsBot, actionsGlobal, hooksGlobal, botConfigs } = this.props.files
 
     const actionFiles = []
     actionsBot && actionFiles.push({ label: `Bot (${window['BOT_NAME']})`, files: actionsBot })
     actionsGlobal && actionFiles.push({ label: 'Global', files: actionsGlobal })
 
     const hookFiles = [hooksGlobal && { label: 'Global', files: hooksGlobal }]
+    const botConfigFiles = [botConfigs && { label: 'All Bots', files: botConfigs }]
 
-    this.setState({ actionFiles, hookFiles })
+    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles })
   }
 
   updateNodeState = (id: string, isExpanded: boolean) => {
@@ -49,6 +52,23 @@ export default class PanelContent extends React.Component<Props> {
     } else {
       delete this.expandedNodes[id]
     }
+  }
+
+  renderSectionBotsConfig() {
+    if (!this.props.isGlobalAllowed) {
+      return null
+    }
+
+    return (
+      <SidePanelSection label={'Bot Configurations'}>
+        <FileNavigator
+          files={this.state.botConfigs}
+          disableContextMenu={true}
+          expandedNodes={this.expandedNodes}
+          onNodeStateChanged={this.updateNodeState}
+        />
+      </SidePanelSection>
+    )
   }
 
   renderSectionActions() {
@@ -74,15 +94,16 @@ export default class PanelContent extends React.Component<Props> {
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
           onNodeStateChanged={this.updateNodeState}
-          onFileSelected={this.props.handleFileChanged}
-          onNodeDelete={this.props.removeFile}
-          onNodeRename={this.props.renameFile}
         />
       </SidePanelSection>
     )
   }
 
   renderSectionHooks() {
+    if (!this.props.isGlobalAllowed) {
+      return null
+    }
+
     const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
       label: hookType
@@ -130,9 +151,6 @@ export default class PanelContent extends React.Component<Props> {
           files={this.state.hookFiles}
           expandedNodes={this.expandedNodes}
           onNodeStateChanged={this.updateNodeState}
-          onFileSelected={this.props.handleFileChanged}
-          onNodeDelete={this.props.removeFile}
-          onNodeRename={this.props.renameFile}
         />
       </SidePanelSection>
     )
@@ -141,30 +159,38 @@ export default class PanelContent extends React.Component<Props> {
   render() {
     return (
       <SidePanel>
-        {this.props.isEditing && (
-          <FileStatus
-            errors={this.props.errors}
-            onSaveClicked={this.props.onSaveClicked}
-            discardChanges={this.props.discardChanges}
-          />
-        )}
+        {this.props.editor.isOpenedFile && this.props.editor.isDirty ? (
+          <FileStatus />
+        ) : (
+          <React.Fragment>
+            <SearchBar
+              icon="filter"
+              placeholder="Filter files"
+              onChange={this.props.setFilenameFilter}
+              showButton={false}
+            />
 
-        {!this.props.isEditing && this.renderSectionActions()}
-        {!this.props.isEditing && this.props.isGlobalAllowed && this.renderSectionHooks()}
+            {this.renderSectionActions()}
+            {this.renderSectionHooks()}
+            {this.renderSectionBotsConfig()}
+          </React.Fragment>
+        )}
       </SidePanel>
     )
   }
 }
 
-interface Props {
-  isEditing: boolean
-  isGlobalAllowed: boolean
-  files: any
-  errors: monaco.editor.IMarker[]
-  handleFileChanged: (file: EditableFile) => void
-  discardChanges: () => void
-  createFilePrompt: (type: string, isGlobal?: boolean, hookType?: string) => void
-  onSaveClicked: () => void
-  removeFile: (file: EditableFile) => Promise<void>
-  renameFile: (file: EditableFile, newName: string) => Promise<void>
-}
+export default inject(({ store }: { store: RootStore }) => ({
+  store,
+  editor: store.editor,
+  files: store.files,
+  isDirty: store.editor.isDirty,
+  setFilenameFilter: store.setFilenameFilter,
+  createFilePrompt: store.createFilePrompt,
+  isGlobalAllowed: store.config && store.config.isGlobalAllowed
+}))(observer(PanelContent))
+
+type Props = { store?: RootStore; editor?: EditorStore } & Pick<
+  StoreDef,
+  'files' | 'isGlobalAllowed' | 'createFilePrompt' | 'setFilenameFilter'
+>

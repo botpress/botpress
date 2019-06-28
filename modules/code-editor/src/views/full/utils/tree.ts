@@ -44,12 +44,14 @@ export const splitPath = (location: string, expandedNodeIds: object) => {
   }
 }
 
-export const buildTree = (files: EditableFile[], expandedNodeIds: object) => {
+export const buildTree = (files: EditableFile[], expandedNodeIds: object, filterFileName: string | undefined) => {
   const tree: ITreeNode = { id: 'root', label: '<root>', childNodes: [] }
 
   files.forEach(fileData => {
     const { folders, file } = splitPath(fileData.location, expandedNodeIds)
-    addNode(tree, folders, file, { nodeData: fileData })
+    if (!filterFileName || !filterFileName.length || file.label.includes(filterFileName)) {
+      addNode(tree, folders, file, { nodeData: fileData })
+    }
   })
 
   return tree.childNodes

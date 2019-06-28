@@ -11,6 +11,7 @@ import { EditorError, EditorErrorStatus } from './editorError'
 import { EditableFile, FileType, TypingDefinitions } from './typings'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
+const ALLOWED_TYPES = ['hook', 'action', 'bot_config']
 
 export default class Editor {
   private bp: typeof sdk
@@ -32,7 +33,8 @@ export default class Editor {
     return {
       actionsGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadActions()),
       hooksGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadHooks()),
-      actionsBot: this._filterBuiltin(await this._loadActions(this._botId))
+      actionsBot: this._filterBuiltin(await this._loadActions(this._botId)),
+      botConfigs: this._config.allowGlobal && (await this._loadBotConfigs())
     }
   }
 
@@ -40,7 +42,7 @@ export default class Editor {
     return this._config.includeBuiltin ? files : files.filter(x => !x.content.includes('//CHECKSUM:'))
   }
 
-  _validateMetadata({ name, botId, type, hookType }: Partial<EditableFile>) {
+  _validateMetadata({ name, botId, type, hookType, content }: Partial<EditableFile>) {
     if (!botId || !botId.length) {
       if (!this._config.allowGlobal) {
         throw new Error(`Global files are restricted, please check your configuration`)
@@ -51,15 +53,28 @@ export default class Editor {
       }
     }
 
-    if (type !== 'action' && type !== 'hook') {
-      throw new Error('Invalid file type, only actions/hooks are allowed at the moment')
+    if (!ALLOWED_TYPES.includes(type)) {
+      throw new Error(`Invalid file type, only ${ALLOWED_TYPES} are allowed at the moment`)
     }
 
     if (type === 'hook' && !HOOK_SIGNATURES[hookType]) {
       throw new Error('Invalid hook type.')
     }
 
+    if (type === 'bot_config') {
+      this._validateBotConfig(content)
+    }
+
     this._validateFilename(name)
+  }
+
+  private _validateBotConfig(config: string) {
+    try {
+      JSON.parse(config)
+      return true
+    } catch (err) {
+      throw new EditorError(`Invalid JSON file. ${err}`, EditorErrorStatus.INVALID_NAME)
+    }
   }
 
   private _validateFilename(filename: string) {
@@ -68,26 +83,28 @@ export default class Editor {
     }
   }
 
-  private _loadGhostForBotId(file: EditableFile): sdk.ScopedGhostService {
+  private _getGhost(file: EditableFile): sdk.ScopedGhostService {
     return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
   }
 
   async saveFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
     const { location, content, hookType, type } = file
-    const ghost = this._loadGhostForBotId(file)
+    const ghost = this._getGhost(file)
 
     if (type === 'action') {
       return ghost.upsertFile('/actions', location, content)
     } else if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
+    } else if (type === 'bot_config') {
+      return ghost.upsertFile('/', 'bot.config.json', content)
     }
   }
 
   async deleteFile(file: EditableFile): Promise<void> {
     this._validateMetadata(file)
     const { location, hookType, type } = file
-    const ghost = this._loadGhostForBotId(file)
+    const ghost = this._getGhost(file)
 
     if (type === 'action') {
       return ghost.deleteFile('/actions', location)
@@ -102,7 +119,7 @@ export default class Editor {
     this._validateFilename(newName)
 
     const { location, hookType, type, name } = file
-    const ghost = this._loadGhostForBotId(file)
+    const ghost = this._getGhost(file)
 
     const newLocation = location.replace(name, newName)
     if (type === 'action' && !(await ghost.fileExists('/actions', newLocation))) {
@@ -127,11 +144,14 @@ export default class Editor {
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
     const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.js`), 'utf-8')
+    // Ideally we should fetch them locally, but for now it's safer to bundle it
+    const botSchema = fs.readFileSync(path.join(__dirname, '/../typings/bot.config.schema.json'), 'utf-8')
 
     this._typings = {
       'process.d.ts': this._buildRestrictedProcessVars(),
       'node.d.ts': nodeTyping.toString(),
-      'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`)
+      'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
+      'bot.config.schema.json': botSchema.toString()
     }
 
     return this._typings
@@ -140,7 +160,7 @@ export default class Editor {
   private async _loadActions(botId?: string): Promise<EditableFile[]> {
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
 
-    return Promise.map(ghost.directoryListing('/actions', '*.js'), async (filepath: string) => {
+    return Promise.map(ghost.directoryListing('/actions', '*.js', undefined, true), async (filepath: string) => {
       return {
         name: path.basename(filepath),
         type: 'action' as FileType,
@@ -154,13 +174,27 @@ export default class Editor {
   private async _loadHooks(): Promise<EditableFile[]> {
     const ghost = this.bp.ghost.forGlobal()
 
-    return Promise.map(ghost.directoryListing('/hooks', '*.js'), async (filepath: string) => {
+    return Promise.map(ghost.directoryListing('/hooks', '*.js', undefined, true), async (filepath: string) => {
       return {
         name: path.basename(filepath),
         type: 'hook' as FileType,
         location: filepath,
         hookType: filepath.substr(0, filepath.indexOf('/')),
         content: await ghost.readFileAsString('/hooks', filepath)
+      }
+    })
+  }
+
+  private async _loadBotConfigs(): Promise<EditableFile[]> {
+    const ghost = this.bp.ghost.forBots()
+
+    return Promise.map(ghost.directoryListing('/', 'bot.config.json', undefined, true), async (filepath: string) => {
+      return {
+        name: path.basename(filepath),
+        type: 'bot_config' as FileType,
+        botId: filepath.substr(0, filepath.indexOf('/')),
+        location: filepath,
+        content: await ghost.readFileAsString('/', filepath)
       }
     })
   }
