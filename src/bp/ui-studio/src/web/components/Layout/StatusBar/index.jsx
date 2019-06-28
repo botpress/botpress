@@ -167,8 +167,9 @@ class StatusBar extends React.Component {
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem
               id="statusbar_logs"
-              title="Logs"
-              description="See real-time logs"
+              title="Logs Panel"
+              shortcut={keyMap['bottom-bar']}
+              description="Toggle Logs Panel"
               className={style.right}
               onClick={this.props.toggleBottomPanel}
             >

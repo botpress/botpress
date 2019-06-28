@@ -20,6 +20,7 @@ interface CssExports {
   'langSwitherMenu': string;
   'list': string;
   'right': string;
+  'scoreLine': string;
   'shortcut': string;
   'statusBar': string;
   'worker': string;

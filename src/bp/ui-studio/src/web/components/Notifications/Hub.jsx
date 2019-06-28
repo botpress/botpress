@@ -50,12 +50,7 @@ class NotificationHub extends NotificationComponent {
       invisible: unreadCount === 0
     })
 
-    const label = (
-      <span>
-        <GoBell />
-        <span className={className}>{unreadCount}</span>
-      </span>
-    )
+    const label = <span>{unreadCount === 0 ? <GoBell /> : <span className={className}>{unreadCount}</span>}</span>
 
     return (
       <Popover

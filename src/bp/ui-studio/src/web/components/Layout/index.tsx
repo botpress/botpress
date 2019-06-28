@@ -136,14 +136,14 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
     }
 
-    const bottomBarSize = this.props.bottomPanel ? 300 : 0
+    const bottomBarSize = this.props.bottomPanel ? 175 : 0
 
     return (
       <HotKeys handlers={keyHandlers} id="mainLayout">
         <DocumentationModal />
         <div style={{ display: 'flex' }} className={layout.container}>
           <Sidebar />
-          <SplitPane split={'horizontal'} defaultSize={200} size={bottomBarSize} primary="second">
+          <SplitPane split={'horizontal'} defaultSize={175} size={bottomBarSize} primary="second">
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
