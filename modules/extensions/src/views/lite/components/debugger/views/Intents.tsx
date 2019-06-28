@@ -1,4 +1,4 @@
-import { Colors, H5, Icon, Text } from '@blueprintjs/core'
+import { Colors, H5 } from '@blueprintjs/core'
 import React from 'react'
 
 import style from '../style.scss'
