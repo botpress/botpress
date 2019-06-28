@@ -24,7 +24,7 @@ export default class BotSwitcher extends React.Component {
           description="Switch to an other bot. This will leave this interface."
           onClick={this.toggleOpen}
         >
-          <Glyphicon glyph="twitter" style={{ marginRight: '5px' }} />
+          <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
           <span>{this.props.currentBotId}</span>
         </ActionItem>
 
