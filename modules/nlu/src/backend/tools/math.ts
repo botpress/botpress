@@ -70,3 +70,7 @@ export function scalarMultiply(vec: number[], multiplier: number): number[] {
 export function scalarDivide(vec: number[], divider: number): number[] {
   return scalarMultiply(vec, 1 / divider)
 }
+
+export function allInRange(vec: number[], lower: number, upper: number): boolean {
+  return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
+}

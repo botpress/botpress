@@ -91,18 +91,13 @@ export interface NLUStructure {
   includedContexts: string[]
   slots: { [key: string]: sdk.NLU.Slot }
   entities: sdk.NLU.Entity[]
+  ambiguous: boolean
   intents: sdk.NLU.Intent[]
   intent: sdk.NLU.Intent
   tokens: string[]
 }
 
 export type Token2Vec = { [token: string]: number[] }
-
-export interface PipelineProcessManager {
-  withPipeline(pipeline: Function[]): PipelineProcessManager
-  initFromText(text: string, includedContexts: string[]): PipelineProcessManager
-  run(): Promise<NLUStructure>
-}
 
 export interface LangsGateway {
   [lang: string]: { source: LanguageSource; client: AxiosInstance; errors: number; disabledUntil?: Date }[]

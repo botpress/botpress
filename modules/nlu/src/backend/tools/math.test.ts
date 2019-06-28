@@ -1,4 +1,4 @@
-import { computeNorm, scalarMultiply, vectorAdd } from './math'
+import { allInRange, computeNorm, scalarMultiply, vectorAdd } from './math'
 
 describe('Math utils', () => {
   const vec0 = []
@@ -25,5 +25,15 @@ describe('Math utils', () => {
     expect(computeNorm(vec2)).toBeCloseTo(3.46, 2)
     expect(computeNorm(vec3)).toBeCloseTo(8.77, 2)
     expect(computeNorm([22, 21, 59, 4, -5, 36])).toBeCloseTo(75.78, 2)
+  })
+
+  test('AllInRange', () => {
+    expect(allInRange([0.45, 0.55], 0.45, 0.55)).toBeFalsy()
+    expect(allInRange([0.44, 0.55], 0.45, 0.55)).toBeFalsy()
+    expect(allInRange([0.45, 0.56], 0.45, 0.55)).toBeFalsy()
+    expect(allInRange([0.4, 0.6], 0.45, 0.55)).toBeFalsy()
+    expect(allInRange([0.46, 0.54], 0.45, 0.55)).toBeTruthy()
+    expect(allInRange([0.32, 0.32, 0.35], 0.3, 0.36)).toBeTruthy()
+    expect(allInRange([], 0.3, 0.36)).toBeTruthy()
   })
 })
