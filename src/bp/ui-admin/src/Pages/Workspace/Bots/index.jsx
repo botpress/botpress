@@ -21,7 +21,7 @@ import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
 import { toast } from 'react-toastify'
 import { IoIosArchive } from 'react-icons/io'
-import { Popover, Button, PopoverInteractionKind, Position, ButtonGroup, Alignment } from '@blueprintjs/core'
+import { Popover, Button, PopoverInteractionKind, Position, ButtonGroup, Alignment, Intent } from '@blueprintjs/core'
 
 class Bots extends Component {
   state = {
@@ -96,7 +96,7 @@ class Bots extends Component {
     return (
       <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
         <Popover minimal interactionKind={PopoverInteractionKind.HOVER} position={Position.BOTTOM}>
-          <Button minimal text="Create Bot" rightIcon="caret-down" />
+          <Button intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
           <ButtonGroup vertical={true} minimal={true} fill={true} alignText={Alignment.LEFT}>
             <Button text="New Bot" icon="add" onClick={() => this.setState({ isCreateBotModalOpen: true })} />
             <Button

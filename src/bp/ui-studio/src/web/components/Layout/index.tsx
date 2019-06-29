@@ -65,7 +65,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   focusEmulator = e => {
-    if (!isInputFocused()) {
+    if (!isInputFocused() || e.ctrlKey) {
       e.preventDefault()
       window.botpressWebChat.sendEvent({ type: 'show' })
     }
