@@ -13,7 +13,8 @@ import EventBus from '~/util/EventBus'
 
 import style from './BottomPanel.styl'
 
-export const LOGS_LIMIT = 200
+const INITIAL_LOGS_LIMIT = 200
+const MAX_LOGS_LIMIT = 500
 
 interface IProps {
   logs: LogEntry[]
@@ -24,7 +25,6 @@ interface IProps {
 interface IState {
   followLogs: boolean
   selectedPanel: string
-  logsLimit: number
   initialLogs: LogEntry[]
 }
 
@@ -62,7 +62,7 @@ class BottomPanel extends React.Component<IProps, IState> {
         args
       })
 
-      if (this.logs.length > 200) {
+      if (this.logs.length > MAX_LOGS_LIMIT) {
         this.logs.shift()
       }
       this.debounceRefreshLogs()
@@ -72,14 +72,13 @@ class BottomPanel extends React.Component<IProps, IState> {
   state = {
     followLogs: true,
     selectedPanel: 'bt-panel-logs',
-    logsLimit: LOGS_LIMIT,
     initialLogs: []
   }
 
   queryLogs = async () => {
     const { data } = await axios.get(`${window.BOT_API_PATH}/logs`, {
       params: {
-        limit: this.state.logsLimit
+        limit: INITIAL_LOGS_LIMIT
       }
     })
 
