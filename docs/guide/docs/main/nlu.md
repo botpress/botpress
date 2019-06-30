@@ -343,6 +343,10 @@ slots : {
 
 Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
 
+## Language Server
+
+The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
+
 ## External NLU Providers
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.

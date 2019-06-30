@@ -315,6 +315,24 @@ When you have the duckling binary, simply edit the file `data/global/config/nlu.
 }
 ```
 
+## Running your own Language Server
+
+The language server is embedded in Botpress and can be started by command line. Here are the steps to run it and use it with your Botpress Server:
+
+1. Start the language server with `./bp lang`
+2. In `data/global/config/nlu.json`, change `languageSources.endpoint` to `http://localhost:3100`
+3. Restart Botpress and open the Languages page on the Admin Panel
+4. Install the desired languages your server should support
+5. Restart the language server with parameters `./bp lang --readOnly`
+
+ReadOnly prevents anyone from adding or removing languages and can only be used to fetch embeddings.
+
+By default, the language server is configured to get 100 dimensions for words. If you plan to use that language server in production, we highly recommend setting the dimensions to 300 for a better vocabulary.
+
+The vocabulary for 100 dimensions weights around 900 mb per language, with a ram usage of 1.3 gb, while 300 dimensions are around 3 gb and have a RAM usage of 3.5 gb
+
+There are additional parameters that can be configured (for example, to require authentication), you can see them by typing `./bp lang help`.
+
 #### Linux and Mac users
 
 Duckling must be compiled to run correctly on your specific system. Therefore, you will need to install the software development tools and build it from source.
