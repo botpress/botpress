@@ -48,7 +48,6 @@ export const Slots: SFC<Props> = props => {
     return null
   }
 
-  debugger
   return (
     <div className={style.subSection}>
       <H5 color={Colors.DARK_GRAY5}>Slots</H5>
