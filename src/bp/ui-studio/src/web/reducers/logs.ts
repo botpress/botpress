@@ -1,5 +1,7 @@
+import takeRight from 'lodash/takeRight'
 import { handleActions } from 'redux-actions'
-import { appendLog } from '~/actions'
+import { appendLog, setLogs } from '~/actions'
+import { LOGS_LIMIT } from '~/components/Layout/StatusBar/BottomPanel'
 
 const defaultState: LogsReducer = {
   logs: []
@@ -7,7 +9,8 @@ const defaultState: LogsReducer = {
 
 const reducer = handleActions(
   {
-    [appendLog]: (state, { payload }) => ({ ...state, logs: [...state.logs, payload] })
+    [appendLog]: (state, { payload }) => ({ ...state, logs: [...takeRight(state.logs, LOGS_LIMIT), payload] }),
+    [setLogs]: (state, { payload }) => ({ ...state, logs: payload })
   },
   defaultState
 )

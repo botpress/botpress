@@ -242,3 +242,4 @@ export const refreshHints = () => dispatch => {
 
 // Logs
 export const appendLog = createAction('LOGGER/APPEND')
+export const setLogs = createAction('LOGGER/SET_LOGS')

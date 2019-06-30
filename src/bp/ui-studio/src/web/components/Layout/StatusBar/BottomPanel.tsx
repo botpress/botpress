@@ -1,4 +1,4 @@
-import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, ButtonGroup, Divider, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import cn from 'classnames'
 import _ from 'lodash'
@@ -6,16 +6,19 @@ import moment from 'moment'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel } from '~/actions'
+import { setLogs, toggleBottomPanel } from '~/actions'
 import { RootReducer } from '~/reducers'
 import { LogEntry } from '~/reducers/logs'
 import { downloadBlob } from '~/util'
 
 import style from './BottomPanel.styl'
 
+export const LOGS_LIMIT = 200
+
 interface IProps {
   logs: LogEntry[]
   toggleBottomPanel: () => void
+  setLogs: (logs: LogEntry[]) => void
 }
 
 interface IState {
@@ -35,7 +38,7 @@ class BottomPanel extends React.Component<IProps, IState> {
   state = {
     followLogs: true,
     selectedPanel: 'bt-panel-logs',
-    logsLimit: 200,
+    logsLimit: LOGS_LIMIT,
     initialLogs: []
   }
 
@@ -46,15 +49,15 @@ class BottomPanel extends React.Component<IProps, IState> {
       }
     })
 
-    this.setState({
-      initialLogs: data.map((x, idx) => ({
+    this.props.setLogs(
+      data.map((x, idx) => ({
         id: `initial-log-${idx}`,
         message: x.message,
         level: x.level || 'debug',
         ts: new Date(x.timestamp),
         args: x.metadata
       }))
-    })
+    )
   }
 
   renderEntry(log: LogEntry): JSX.Element {
@@ -97,10 +100,9 @@ class BottomPanel extends React.Component<IProps, IState> {
   }
 
   render() {
-    const allLogs = [...this.state.initialLogs, ...this.props.logs]
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef}>
-        {allLogs.map(e => this.renderEntry(e))}
+        {this.props.logs.map(e => this.renderEntry(e))}
         <li className={style.end}>End of logs</li>
       </ul>
     )
@@ -115,7 +117,7 @@ class BottomPanel extends React.Component<IProps, IState> {
         >
           <Tab id="bt-panel-logs" className={style.tab} title="Logs" panel={LogsPanel} />
           <Tabs.Expander />
-          <div>
+          <ButtonGroup minimal={true}>
             <Tooltip content={<em>Scroll to follow logs</em>}>
               <Button
                 minimal={true}
@@ -128,15 +130,21 @@ class BottomPanel extends React.Component<IProps, IState> {
             </Tooltip>
 
             <Tooltip content={<em>Download logs</em>}>
-              <Button minimal={true} icon={'import'} small={true} type="button" onClick={this.handleDownloadLogs} />
+              <Button icon={'import'} small={true} type="button" onClick={this.handleDownloadLogs} />
             </Tooltip>
 
-            <span className={style.divide} />
+            <Divider />
+
+            <Tooltip content={<em>Clear log history</em>}>
+              <Button icon={'trash'} small={true} type="button" onClick={() => this.props.setLogs([])} />
+            </Tooltip>
+
+            <Divider />
 
             <Tooltip content={<em>Close panel</em>}>
-              <Button minimal={true} icon={'cross'} small={true} type="button" onClick={this.props.toggleBottomPanel} />
+              <Button icon={'cross'} small={true} type="button" onClick={this.props.toggleBottomPanel} />
             </Tooltip>
-          </div>
+          </ButtonGroup>
         </Tabs>
       </div>
     )
@@ -147,7 +155,7 @@ const mapStateToProps = (state: RootReducer) => ({
   logs: state.logs.logs
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel, setLogs }, dispatch)
 
 export default connect(
   mapStateToProps,
