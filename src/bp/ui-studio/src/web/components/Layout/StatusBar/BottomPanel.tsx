@@ -16,13 +16,11 @@ import style from './BottomPanel.styl'
 const INITIAL_LOGS_LIMIT = 200
 const MAX_LOGS_LIMIT = 500
 
-interface IProps {
-  logs: LogEntry[]
+interface Props {
   toggleBottomPanel: () => void
-  setLogs: (logs: LogEntry[]) => void
 }
 
-interface IState {
+interface State {
   followLogs: boolean
   selectedPanel: string
   initialLogs: LogEntry[]
@@ -36,13 +34,14 @@ interface LogEntry {
   ts: Date
 }
 
-class BottomPanel extends React.Component<IProps, IState> {
+class BottomPanel extends React.Component<Props, State> {
   private messageListRef = React.createRef<HTMLUListElement>()
-  private logs: LogEntry[] = []
   private debounceRefreshLogs
+  private logs: LogEntry[]
 
   constructor(props) {
     super(props)
+    this.logs = []
     this.debounceRefreshLogs = _.debounce(this.forceUpdate, 50, { maxWait: 300 })
   }
 
