@@ -5,10 +5,11 @@ import React, { SFC } from 'react'
 
 import style from '../style.scss'
 
-const renderSlotItem = (slot: sdk.NLU.Slot | sdk.NLU.Slot[]) => {
+const renderSlotItem = (name: string, slot: any) => {
   if (_.isArray(slot)) {
     return (
-      <React.Fragment>
+      <tr>
+        <td>{name}</td>
         <td>
           <ul>
             {slot.map(s => (
@@ -23,37 +24,53 @@ const renderSlotItem = (slot: sdk.NLU.Slot | sdk.NLU.Slot[]) => {
             ))}
           </ul>
         </td>
-      </React.Fragment>
+      </tr>
     )
   }
 
   return (
-    <React.Fragment>
+    <tr>
+      <td>{name}</td>
       <td>{slot.source}</td>
       <td>{slot.value}</td>
-    </React.Fragment>
+      <td>{slot.turns ? `${slot.turns} turns ago` : 'This turn'} </td>
+    </tr>
   )
 }
 
-export const Slots: SFC<{ slots: sdk.NLU.SlotCollection }> = props => (
-  <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Slots</H5>
-    <HTMLTable condensed className={style.summaryTable}>
-      <thead>
-        <tr>
-          <th>Slot</th>
-          <th>Source</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(props.slots).map(([name, slot]) => (
+interface Props {
+  slots: sdk.NLU.SlotCollection
+  sessionSlots: any | undefined
+}
+
+export const Slots: SFC<Props> = props => {
+  if (!props.sessionSlots && _.isEmpty(props.slots)) {
+    return null
+  }
+
+  debugger
+  return (
+    <div className={style.subSection}>
+      <H5 color={Colors.DARK_GRAY5}>Slots</H5>
+      <HTMLTable condensed className={style.summaryTable}>
+        <thead>
           <tr>
-            <td>{name}</td>
-            {renderSlotItem(slot)}
+            <th>Slot</th>
+            <th>Source</th>
+            <th>Value</th>
+            <th />
           </tr>
-        ))}
-      </tbody>
-    </HTMLTable>
-  </div>
-)
+        </thead>
+        <tbody>
+          {props.slots && Object.entries(props.slots).map(([name, slot]) => renderSlotItem(name, slot))}
+          {props.sessionSlots &&
+            _.chain(props.sessionSlots)
+              .omit('notFound')
+              .entries()
+              .map(([name, slot]) => !props.slots[name] && renderSlotItem(name, slot))
+              .value()}
+        </tbody>
+      </HTMLTable>
+    </div>
+  )
+}
