@@ -3,13 +3,13 @@ import axios from 'axios'
 import cn from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
+import nanoid from 'nanoid'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { setLogs, toggleBottomPanel } from '~/actions'
-import { RootReducer } from '~/reducers'
-import { LogEntry } from '~/reducers/logs'
+import { toggleBottomPanel } from '~/actions'
 import { downloadBlob } from '~/util'
+import EventBus from '~/util/EventBus'
 
 import style from './BottomPanel.styl'
 
@@ -28,11 +28,45 @@ interface IState {
   initialLogs: LogEntry[]
 }
 
+interface LogEntry {
+  id: string
+  level: string
+  message: string
+  args: any
+  ts: Date
+}
+
 class BottomPanel extends React.Component<IProps, IState> {
-  messageListRef = React.createRef<HTMLUListElement>()
+  private messageListRef = React.createRef<HTMLUListElement>()
+  private logs: LogEntry[] = []
+  private debounceRefreshLogs
+
+  constructor(props) {
+    super(props)
+    this.debounceRefreshLogs = _.debounce(this.forceUpdate, 50, { maxWait: 300 })
+  }
 
   componentDidMount() {
     this.queryLogs()
+    this.setupListener()
+  }
+
+  setupListener = () => {
+    // @ts-ignore
+    EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
+      this.logs.push({
+        ts: new Date(),
+        id: nanoid(10),
+        level,
+        message,
+        args
+      })
+
+      if (this.logs.length > 200) {
+        this.logs.shift()
+      }
+      this.debounceRefreshLogs()
+    })
   }
 
   state = {
@@ -49,15 +83,15 @@ class BottomPanel extends React.Component<IProps, IState> {
       }
     })
 
-    this.props.setLogs(
-      data.map((x, idx) => ({
+    this.setState({
+      initialLogs: data.map((x, idx) => ({
         id: `initial-log-${idx}`,
         message: x.message,
         level: x.level || 'debug',
         ts: new Date(x.timestamp),
         args: x.metadata
       }))
-    )
+    })
   }
 
   renderEntry(log: LogEntry): JSX.Element {
@@ -109,16 +143,22 @@ class BottomPanel extends React.Component<IProps, IState> {
     }
   }
 
+  handleClearLogs = () => {
+    this.logs = []
+    this.forceUpdate()
+  }
+
   render() {
+    const allLogs = [...this.state.initialLogs, ...this.logs]
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
-        {this.props.logs.map(e => this.renderEntry(e))}
+        {allLogs.map(e => this.renderEntry(e))}
         <li className={style.end}>End of logs</li>
       </ul>
     )
 
     return (
-      <div className={cn('bp3-dark', style.container)}>
+      <div className={cn(style.container)}>
         <Tabs
           id="BottomPanelTabs"
           className={style.tabs}
@@ -128,9 +168,8 @@ class BottomPanel extends React.Component<IProps, IState> {
           <Tab id="bt-panel-logs" className={style.tab} title="Logs" panel={LogsPanel} />
           <Tabs.Expander />
           <ButtonGroup minimal={true}>
-            <Tooltip content={<em>Scroll to follow logs</em>}>
+            <Tooltip content="Scroll to follow logs">
               <Button
-                minimal={true}
                 icon={'sort'}
                 intent={this.state.followLogs ? 'primary' : 'none'}
                 small={true}
@@ -139,19 +178,19 @@ class BottomPanel extends React.Component<IProps, IState> {
               />
             </Tooltip>
 
-            <Tooltip content={<em>Download logs</em>}>
+            <Tooltip content="Download Logs">
               <Button icon={'import'} small={true} type="button" onClick={this.handleDownloadLogs} />
             </Tooltip>
 
             <Divider />
 
-            <Tooltip content={<em>Clear log history</em>}>
-              <Button icon={'trash'} small={true} type="button" onClick={() => this.props.setLogs([])} />
+            <Tooltip content="Clear log history">
+              <Button icon={'trash'} small={true} type="button" onClick={this.handleClearLogs} />
             </Tooltip>
 
             <Divider />
 
-            <Tooltip content={<em>Close panel</em>}>
+            <Tooltip content="Close Panel">
               <Button icon={'cross'} small={true} type="button" onClick={this.props.toggleBottomPanel} />
             </Tooltip>
           </ButtonGroup>
@@ -161,13 +200,9 @@ class BottomPanel extends React.Component<IProps, IState> {
   }
 }
 
-const mapStateToProps = (state: RootReducer) => ({
-  logs: state.logs.logs
-})
-
-const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel, setLogs }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel }, dispatch)
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(BottomPanel)

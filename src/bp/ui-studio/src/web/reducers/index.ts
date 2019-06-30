@@ -6,7 +6,6 @@ import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
 import language from './language'
-import logs, { LogsReducer } from './logs'
 import modules from './modules'
 import notifications from './notifications'
 import skills from './skills'
@@ -25,8 +24,7 @@ const bpApp = combineReducers({
   notifications,
   skills,
   language,
-  hints,
-  logs
+  hints
 })
 export default bpApp
 
@@ -34,5 +32,4 @@ export interface RootReducer {
   flows: FlowReducer
   user: UserReducer
   content: ContentReducer
-  logs: LogsReducer
 }
