@@ -99,9 +99,19 @@ class BottomPanel extends React.Component<IProps, IState> {
     downloadBlob(`logs-${time}.txt`, data)
   }
 
+  handleLogsScrolled = e => {
+    const isAtBottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight
+
+    if (isAtBottom && !this.state.followLogs) {
+      this.setState({ followLogs: true })
+    } else if (!isAtBottom && this.state.followLogs) {
+      this.setState({ followLogs: false })
+    }
+  }
+
   render() {
     const LogsPanel = (
-      <ul className={style.logs} ref={this.messageListRef}>
+      <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {this.props.logs.map(e => this.renderEntry(e))}
         <li className={style.end}>End of logs</li>
       </ul>
