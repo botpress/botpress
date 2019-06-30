@@ -57,7 +57,15 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
     if (!data.isEnabled) {
       Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
-        message: `The NLU Status is Unhealthy, user messages sent to the bot will not be analyzed. Please check your language sources configuration`,
+        message: (
+          <span>
+            Language server is unreachable, bots wont work properly. Check{' '}
+            <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
+              the documentation
+            </a>{' '}
+            to learn how to run your own language server.
+          </span>
+        ),
         intent: Intent.DANGER,
         timeout: 0
       })
