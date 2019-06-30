@@ -7,7 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import { PipelineManager } from './pipelinemanager'
+import { PipelineManager } from './pipeline-manager'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
@@ -18,6 +18,7 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
+import { allInRange } from './tools/math'
 import { LanguageProvider } from './typings'
 import {
   Engine,
@@ -37,6 +38,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
+const AMBIGUITY_RANGE = 0.05 // +- 5% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -61,7 +63,7 @@ export default class ScopedEngine implements Engine {
   ) => Promise<Sequence>
 
   // move this in a functionnal util file?
-  private readonly flatMapIdentityReducer = (a, b) => a.concat(b)
+  private readonly flatMapIdendity = (a, b) => a.concat(b)
 
   private retryPolicy = {
     interval: 100,
@@ -185,6 +187,8 @@ export default class ScopedEngine implements Engine {
   async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.trainOrLoad()
+      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
     }
 
     const t0 = Date.now()
@@ -192,11 +196,12 @@ export default class ScopedEngine implements Engine {
 
     try {
       const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
-      const nluResults = await retry(() => runner.run(), this.retryPolicy)
+      const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
       res = _.pick(
         nluResults,
         'intent',
         'intents',
+        'ambiguous',
         'language',
         'detectedLanguage',
         'entities',
@@ -234,7 +239,7 @@ export default class ScopedEngine implements Engine {
       _.chain(intentDefs)
         .flatMap(await this.generateTrainingSequenceFromIntent(lang))
         .value()
-    ).reduce(this.flatMapIdentityReducer, [])
+    ).reduce(this.flatMapIdendity, [])
 
   private generateTrainingSequenceFromIntent = (lang: string) => async (
     intent: sdk.NLU.IntentDefinition
@@ -249,8 +254,14 @@ export default class ScopedEngine implements Engine {
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+    for (const lang of this.languages) {
+      const trainingSet = await this.getTrainingSets(intents, lang)
+      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
-    for (const lang of trainableLangs) {
+      if (!trainableLangs.includes(lang)) {
+        return
+      }
+
       const models = await this.storage.getModelsFromHash(modelHash, lang)
 
       const intentModels = _.chain(models)
@@ -273,9 +284,6 @@ export default class ScopedEngine implements Engine {
       if (_.isEmpty(intentModels)) {
         throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
       }
-
-      const trainingSet = await this.getTrainingSets(intents, lang)
-      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
       await this.intentClassifiers[lang].load(intentModels)
       await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
@@ -325,6 +333,7 @@ export default class ScopedEngine implements Engine {
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO use the same data structure to train intent and slot models
     // TODO generate single training set here and filter
+
     for (const lang of this.languages) {
       try {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
@@ -372,22 +381,34 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
+  // returns a promise to comply with PipelineStep
+  private _setAmbiguity = (ds: NLUStructure): Promise<NLUStructure> => {
+    const perfectConfusion = 1 / ds.intents.length
+    const lower = perfectConfusion - AMBIGUITY_RANGE
+    const upper = perfectConfusion + AMBIGUITY_RANGE
+
+    ds.ambiguous = allInRange(ds.intents.map(i => i.confidence), lower, upper)
+
+    return Promise.resolve(ds)
+  }
+
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
-
-    const skipIntentExtraction = !((await this.getIntents()) || []).length
-    if (skipIntentExtraction) {
-      return ds
-    }
-
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
       return ds
     }
 
-    // TODO add disambiguation flag if intent 1 & intent 2
+    const allIntents = (await this.getIntents()) || []
+    const shouldPredict =
+      allIntents.length && allIntents.some(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
+
+    if (!shouldPredict) {
+      return ds
+    }
+
     const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
 
     // alter ctx with the given predictions in case where no ctx were provided
@@ -422,6 +443,10 @@ export default class ScopedEngine implements Engine {
 
     const intentDef = await this.storage.getIntent(ds.intent.name)
 
+    if (!(intentDef.slots && intentDef.slots.length)) {
+      return ds
+    }
+
     ds.slots = await this.slotExtractors[ds.language].extract(
       ds.lowerText,
       ds.language,
@@ -453,6 +478,7 @@ export default class ScopedEngine implements Engine {
     this._extractEntities,
     this._setTextWithoutEntities,
     this._extractIntents,
+    this._setAmbiguity,
     this._extractSlots
   ]
 }

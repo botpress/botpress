@@ -1,39 +1,28 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { observe } from 'mobx'
+import { inject, observer } from 'mobx-react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import React from 'react'
 
-import { EditableFile } from '../../backend/typings'
-
+import SplashScreen from './components/SplashScreen'
+import { RootStore, StoreDef } from './store'
+import { EditorStore } from './store/editor'
 import style from './style.scss'
-import { calculateHash } from './utils/crypto'
-import { wrapper } from './utils/wrapper'
 
-export default class Editor extends React.Component<Props> {
-  private editor
-  private editorContainer
-  private _fileOriginalHash: string
+class Editor extends React.Component<Props> {
+  private editor: monaco.editor.IStandaloneCodeEditor
+  private editorContainer: HTMLDivElement
 
   async componentDidMount() {
     this.setupEditor()
-    await this.loadTypings()
+    // tslint:disable-next-line: no-floating-promises
+    this.loadTypings()
 
-    if (this.props.selectedFile) {
-      await this.loadFile(this.props.selectedFile)
-    }
+    observe(this.props.editor, 'currentFile', this.loadFile, true)
   }
 
   componentWillUnmount() {
     this.editor && this.editor.dispose()
-  }
-
-  async componentDidUpdate(prevProps) {
-    if (this.props.selectedFile === prevProps.selectedFile) {
-      return
-    }
-
-    if (this.props.selectedFile) {
-      await this.loadFile(this.props.selectedFile)
-    }
   }
 
   setupEditor() {
@@ -46,83 +35,101 @@ export default class Editor extends React.Component<Props> {
     })
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })
-    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.onSaveClicked)
-    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, () =>
-      this.props.onCreateNewClicked('action')
-    )
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.props.editor.saveChanges)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, this.props.createNewAction)
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>
-      this.editor.trigger('', 'editor.action.quickCommand')
+      this.editor.trigger('', 'editor.action.quickCommand', '')
     )
 
     this.editor.onDidChangeModelContent(this.handleContentChanged)
     this.editor.onDidChangeModelDecorations(this.handleDecorationChanged)
+
+    this.props.store.editor.setMonacoEditor(this.editor)
   }
 
-  loadFile(selectedFile: EditableFile, noWrapper?: boolean) {
-    const { content, location, type, hookType } = selectedFile
-    const uri = monaco.Uri.parse('bp://files/' + location.replace('.js', '.ts'))
+  loadFile = () => {
+    if (!this.props.editor.currentFile) {
+      return
+    }
+
+    const { location } = this.props.editor.currentFile
+    const fileType = location.endsWith('.json') ? 'json' : 'typescript'
+    const filepath = fileType === 'json' ? location : location.replace('.js', '.ts')
+
+    const uri = monaco.Uri.parse(`bp://files/${filepath}`)
 
     const oldModel = monaco.editor.getModel(uri)
     if (oldModel) {
       oldModel.dispose()
     }
 
-    const fileContent = noWrapper ? content : wrapper.add(content, type, hookType)
-    this._fileOriginalHash = calculateHash(fileContent)
-    const model = monaco.editor.createModel(fileContent, 'typescript', uri)
-
+    const model = monaco.editor.createModel(this.props.editor.fileContentWrapped, fileType, uri)
     this.editor && this.editor.setModel(model)
   }
 
-  async loadTypings() {
-    const { data: typings } = await this.props.bp.axios.get('/mod/code-editor/typings')
+  loadTypings = async () => {
+    const typings = await this.props.fetchTypings()
+    if (!typings) {
+      return
+    }
 
     Object.keys(typings).forEach(name => {
       const uri = 'bp://types/' + name
       const content = typings[name]
 
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(content, uri)
+      if (name.endsWith('.json')) {
+        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+          schemas: [{ uri, fileMatch: ['bot.config.json'], schema: JSON.parse(content) }],
+          validate: true
+        })
+      } else {
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, uri)
+      }
     })
   }
 
   handleContentChanged = () => {
-    const hasChanges = this._fileOriginalHash !== calculateHash(this.editor.getValue())
-    const content = wrapper.remove(this.editor.getValue())
-    this.props.onContentChanged && this.props.onContentChanged(content, hasChanges)
+    this.props.editor.updateContent(this.editor.getValue())
   }
 
   handleDecorationChanged = () => {
     const uri = this.editor.getModel().uri
     const markers = monaco.editor.getModelMarkers({ resource: uri })
-    this.props.onProblemsChanged && this.props.onProblemsChanged(markers)
+    this.props.editor.setFileProblems(markers)
   }
 
   render() {
     return (
-      <div className={style.editorContainer}>
-        <div className={style.tabsContainer}>
-          <div className={style.tab}>
-            <span>{this.props.selectedFile.name}</span>
+      <React.Fragment>
+        {!this.props.editor.isOpenedFile && <SplashScreen />}
+        <div className={style.editorContainer}>
+          <div className={style.tabsContainer}>
+            <div className={style.tab}>
+              <span>{this.props.editor.currentFile && this.props.editor.currentFile.name}</span>
 
-            <div>
-              <Tooltip content="Discard" position={Position.RIGHT}>
-                <Icon icon="delete" iconSize={10} className={style.btn} onClick={this.props.onDiscardChanges} />
-              </Tooltip>
+              <div>
+                <Tooltip content="Discard" position={Position.RIGHT}>
+                  <Icon icon="delete" iconSize={10} className={style.btn} onClick={this.props.editor.discardChanges} />
+                </Tooltip>
+              </div>
             </div>
           </div>
+          <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
         </div>
-        <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
-      </div>
+      </React.Fragment>
     )
   }
 }
 
-interface Props {
-  onContentChanged: (code: string, hasChanges: boolean) => void
-  onDiscardChanges: () => void
-  onCreateNewClicked: (type: string) => void
-  onProblemsChanged: (markers: monaco.editor.IMarker[]) => void
-  onSaveClicked: () => void
-  selectedFile: EditableFile
-  bp: any
-}
+export default inject(({ store }: { store: RootStore }) => ({
+  store,
+  createNewAction: store.createNewAction,
+  typings: store.typings,
+  fetchTypings: store.fetchTypings,
+  editor: store.editor
+}))(observer(Editor))
+
+type Props = { store?: RootStore; editor?: EditorStore } & Pick<
+  StoreDef,
+  'typings' | 'fetchTypings' | 'createNewAction'
+>

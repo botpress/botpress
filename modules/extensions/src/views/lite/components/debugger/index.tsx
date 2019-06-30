@@ -11,12 +11,9 @@ import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
 import Dialog from './views/Dialog'
-import { Entities } from './views/Entities'
 import { Flow } from './views/Flow'
 import { Inspector } from './views/Inspector'
-import { Intents } from './views/Intents'
 import NLU from './views/NLU'
-import { Slots } from './views/Slots'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
 import Header from './Header'
@@ -76,27 +73,30 @@ export class Debugger extends React.Component<Props, State> {
     }
 
     if (settings.updateToLastMessage) {
-      this.props.store.bp.events.on('guest.webchat.message', async (m: Partial<sdk.IO.IncomingEvent>) => {
-        if (m.payload.type !== 'session_reset') {
-          // @ts-ignore
-          await this.updateLastMessage(m.incomingEventId)
-        }
-      })
+      this.props.store.bp.events.on('guest.webchat.message', this.handleNewMessage)
     }
   }
 
   componentWillUnmount() {
+    this.props.store.bp.events.off('guest.webchat.message', this.handleNewMessage)
     this.props.store.view.removeHeaderButton('toggleDev')
     this.props.store.view.removeCustomAction('actionDebug')
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_prevProps, prevState) {
     if (!prevState.visible && this.state.visible) {
       this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
     } else if (prevState.visible && !this.state.visible) {
       this.resetWebchat()
+    }
+  }
+
+  handleNewMessage = async (m: Partial<sdk.IO.IncomingEvent>) => {
+    if (m.payload.type !== 'session_reset') {
+      // @ts-ignore
+      await this.updateLastMessage(m.incomingEventId)
     }
   }
 

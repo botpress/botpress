@@ -1,0 +1,187 @@
+{
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "details": {
+      "$ref": "#/definitions/BotDetails"
+    },
+    "author": {
+      "type": "string"
+    },
+    "disabled": {
+      "type": "boolean"
+    },
+    "private": {
+      "type": "boolean"
+    },
+    "version": {
+      "type": "string"
+    },
+    "imports": {
+      "type": "object",
+      "properties": {
+        "contentTypes": {
+          "description": "Defines the list of content types supported by the bot",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "contentTypes"
+      ]
+    },
+    "dialog": {
+      "$ref": "#/definitions/DialogConfig"
+    },
+    "logs": {
+      "$ref": "#/definitions/LogsConfig"
+    },
+    "defaultLanguage": {
+      "type": "string"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "locked": {
+      "type": "boolean"
+    },
+    "pipeline_status": {
+      "$ref": "#/definitions/BotPipelineStatus"
+    }
+  },
+  "required": [
+    "defaultLanguage",
+    "details",
+    "id",
+    "imports",
+    "languages",
+    "locked",
+    "name",
+    "pipeline_status",
+    "version"
+  ],
+  "definitions": {
+    "BotDetails": {
+      "type": "object",
+      "properties": {
+        "website": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "termsConditions": {
+          "type": "string"
+        },
+        "privacyPolicy": {
+          "type": "string"
+        },
+        "emailAddress": {
+          "type": "string"
+        }
+      }
+    },
+    "DialogConfig": {
+      "type": "object",
+      "properties": {
+        "timeoutInterval": {
+          "type": "string"
+        },
+        "sessionTimeoutInterval": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sessionTimeoutInterval",
+        "timeoutInterval"
+      ]
+    },
+    "LogsConfig": {
+      "type": "object",
+      "properties": {
+        "expiration": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expiration"
+      ]
+    },
+    "BotPipelineStatus": {
+      "type": "object",
+      "properties": {
+        "current_stage": {
+          "type": "object",
+          "properties": {
+            "promoted_by": {
+              "type": "string"
+            },
+            "promoted_on": {
+              "description": "Enables basic storage and retrieval of dates and times.",
+              "type": "string",
+              "format": "date-time"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "promoted_by",
+            "promoted_on"
+          ]
+        },
+        "stage_request": {
+          "type": "object",
+          "properties": {
+            "requested_on": {
+              "description": "Enables basic storage and retrieval of dates and times.",
+              "type": "string",
+              "format": "date-time"
+            },
+            "expires_on": {
+              "description": "Enables basic storage and retrieval of dates and times.",
+              "type": "string",
+              "format": "date-time"
+            },
+            "requested_by": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "requested_by",
+            "requested_on"
+          ]
+        }
+      },
+      "required": [
+        "current_stage"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

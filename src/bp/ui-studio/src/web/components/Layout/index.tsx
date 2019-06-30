@@ -69,7 +69,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   focusEmulator = e => {
-    if (!isInputFocused()) {
+    if (!isInputFocused() || e.ctrlKey) {
       e.preventDefault()
       window.botpressWebChat.sendEvent({ type: 'show' })
     }
@@ -89,7 +89,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   toggleLangSwitcher = e => {
-    e.preventDefault()
+    e && e.preventDefault()
     if (!isInputFocused()) {
       const langSwitcherOpen = !this.state.langSwitcherOpen
       this.setState({ langSwitcherOpen }, () => {
@@ -119,6 +119,12 @@ class Layout extends React.Component<ILayoutProps> {
     this.props.toggleBottomPanel()
   }
 
+  goHome = () => {
+    if (!isInputFocused()) {
+      window.location.href = '/admin'
+    }
+  }
+
   render() {
     if (this.props.viewMode < 0) {
       return null
@@ -131,7 +137,7 @@ class Layout extends React.Component<ILayoutProps> {
       'bottom-bar': this.toggleBottomPanel,
       'lang-switcher': this.toggleLangSwitcher,
       'go-flow': () => this.gotoUrl('/flows'),
-      'go-home': () => (window.location.href = '/admin'),
+      'go-home': this.goHome,
       'go-content': () => this.gotoUrl('/content'),
       'go-module-code': () => this.gotoUrl('/modules/code-editor'),
       'go-module-qna': () => this.gotoUrl('/modules/qna'),

@@ -2,9 +2,9 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { initNLUStruct } from '../../pipeline-manager'
 import { LanguageProvider, NLUHealth } from '../../typings'
 
-import { initNLUDS } from './../../pipelinemanager'
 import PatternExtractor from './pattern_extractor'
 
 const languageProvider: LanguageProvider = {
@@ -85,7 +85,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     const extractor = new PatternExtractor(Toolkit, languageProvider)
 
     const sanitized = userInput.replace('\n', '')
-    const ds = initNLUDS(sanitized, ['global'])
+    const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
     ds.tokens = await languageProvider.tokenize(sanitized, 'en')
@@ -140,7 +140,7 @@ My name is kanye West and I rap like kanye wsest` /*
 
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
-    const ds = initNLUDS(sanitized, ['global'])
+    const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
     ds.tokens = await languageProvider.tokenize(sanitized, 'en')
@@ -177,7 +177,7 @@ My name is kanye West and I rap like kanye wsest` /*
 
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
-    const ds = initNLUDS(sanitized, ['global'])
+    const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
     ds.tokens = await languageProvider.tokenize(sanitized, 'en')

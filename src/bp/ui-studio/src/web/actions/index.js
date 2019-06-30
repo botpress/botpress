@@ -65,6 +65,7 @@ export const duplicateFlow = createAction('FLOWS/DUPLICATE')
 export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
 
+export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')

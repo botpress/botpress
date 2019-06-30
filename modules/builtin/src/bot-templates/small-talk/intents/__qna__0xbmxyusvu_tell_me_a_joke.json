@@ -1,0 +1,33 @@
+{
+  "name": "__qna__0xbmxyusvu_tell_me_a_joke",
+  "contexts": [
+    "global"
+  ],
+  "utterances": {
+    "en": [
+      "Tell me a joke",
+      "Can you tell me a joke?",
+      "I want to hear a joke",
+      "make me laugh",
+      "tell me something funny",
+      "joke",
+      "show me your humour",
+      "Be funny now!",
+      "Can you say something amusing?",
+      "Do you have good jokes to share?"
+    ],
+    "fr": [
+      "Raconte moi une blaque",
+      "Dit moi une joke",
+      "Dit un truc drôle",
+      "Raconte moi ta meilleure histoire comique",
+      "Une blague svp",
+      "Fait moi rire!",
+      "Es-tu capable de me faire rire?",
+      "je veux une blague maintenant",
+      "Je veux entendre un anecdote humoristique",
+      "Soit drole !"
+    ]
+  },
+  "slots": []
+}

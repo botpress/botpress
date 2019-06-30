@@ -54,6 +54,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       if (confusionMode && botEngine instanceof ConfusionEngine) {
         botEngine.computeConfusionOnTrain = false
       }
+
       const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
     }

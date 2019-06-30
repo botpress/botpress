@@ -1,0 +1,35 @@
+{
+  "name": "__qna__4wywaoky6v_bye",
+  "contexts": [
+    "global"
+  ],
+  "utterances": {
+    "en": [
+      "bye",
+      "Cya",
+      "ttyl",
+      "Goodbye",
+      "Chow",
+      "bye for now",
+      "alright see you later",
+      "talk to you later!",
+      "see you tomorrow",
+      "good night",
+      "Adios",
+      "Until next time!"
+    ],
+    "fr": [
+      "Au revoir",
+      "Chow",
+      "Adieu",
+      "À la prochaine!",
+      "À une prochaine fois",
+      "Bonne nuit",
+      "Bonne fin de journée",
+      "à plus",
+      "a plus dans l'bus",
+      "À la revoyure"
+    ]
+  },
+  "slots": []
+}

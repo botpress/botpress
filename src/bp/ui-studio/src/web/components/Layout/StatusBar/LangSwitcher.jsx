@@ -8,6 +8,7 @@ import { keyMap } from '~/keyboardShortcuts'
 import style from './StatusBar.styl'
 import Flag from 'react-world-flags'
 
+const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
 const langFlagsMap = {
   fr: 'fr',
   en: 'gb',
@@ -22,10 +23,29 @@ const langFlagsMap = {
 class LangSwitcher extends React.Component {
   elems = {}
 
-  componentDidUpdate() {
+  componentDidMount() {
+    this.restoreLastLanguage()
+  }
+
+  componentDidUpdate(prevProps) {
     let idx = this.props.languages.findIndex(l => l == this.props.contentLang)
     if (idx != -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
+    }
+
+    if (prevProps.languages !== this.props.languages) {
+      this.restoreLastLanguage()
+    }
+  }
+
+  restoreLastLanguage() {
+    const lastLang = localStorage.getItem(STORAGE_KEY)
+    if (!this.props.languages || !this.props.languages.length || !lastLang) {
+      return
+    }
+
+    if (this.props.languages.includes(lastLang)) {
+      this.props.changeContentLanguage(lastLang)
     }
   }
 
@@ -39,9 +59,11 @@ class LangSwitcher extends React.Component {
     }
   }
 
-  switchLang = l => {
-    this.props.changeContentLanguage(l)
+  switchLang = lang => {
+    this.props.changeContentLanguage(lang)
     this.props.toggleLangSwitcher()
+
+    localStorage.setItem(STORAGE_KEY, lang)
   }
 
   //react-bootstrap warning otherwise

@@ -1,6 +1,5 @@
-import React from 'react'
-
 import { KeyboardShortcut, SplashScreen } from 'botpress/ui'
+import React from 'react'
 import { MdCode } from 'react-icons/md'
 
 export default () => (
