@@ -113,12 +113,21 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   }
 
   renderUnhealthy() {
+    const { validLanguages, validProvidersCount } = this.state.nluHealth
     return (
       <ActionItem
         title="NLU is Unhealthy"
         description={
-          <div>
-            <span style={{ color: 'red', fontWeight: 'bold' }}>No Language Server</span>
+          <div className={style.nluUnhealthy}>
+            {validProvidersCount === 0 ? (
+              <span>No Language Server</span>
+            ) : (
+              <span>
+                Language Servers: {validProvidersCount}
+                <br />
+                {validLanguages.length === 0 ? 'No language available' : 'Valid languages:' + validLanguages.join(', ')}
+              </span>
+            )}
             <p>For more informations, click here</p>
           </div>
         }
