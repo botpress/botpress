@@ -44,7 +44,7 @@ interface Props {
 }
 
 export const Slots: SFC<Props> = props => {
-  if (!props.sessionSlots && _.isEmpty(props.slots)) {
+  if (_.isEmpty(props.sessionSlots) && _.isEmpty(props.slots)) {
     return null
   }
 
