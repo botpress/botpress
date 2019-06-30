@@ -113,24 +113,18 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   }
 
   renderUnhealthy() {
-    const { validLanguages, validProvidersCount } = this.state.nluHealth
-
     return (
       <ActionItem
         title="NLU is Unhealthy"
         description={
           <div>
-            <span style={{ color: 'red', fontWeight: 'bold' }}>
-              Language Providers: {validProvidersCount}
-              <br />
-              Valid Languages: {validLanguages.length === 0 ? 'None' : validLanguages.join(', ')}
-            </span>
+            <span style={{ color: 'red', fontWeight: 'bold' }}>No Language Server</span>
             <p>For more informations, click here</p>
           </div>
         }
         disabled={this.state.computing}
         className={style.right}
-        onClick={() => window.open('https://botpress.io/docs/main/nlu/')}
+        onClick={() => window.open('https://botpress.io/docs/main/nlu#language-server')}
       >
         <Icon icon="error" iconSize={18} intent={Intent.DANGER} />
       </ActionItem>
