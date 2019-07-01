@@ -31,7 +31,14 @@ export default class BotSwitcher extends React.Component {
         <Dropdown pullRight dropup={true} open={this.state.open} onToggle={this.toggleOpen} id="bot-switcher">
           {/* react-bootstrap warning otherwise */}
           <Dropdown.Toggle style={{ display: 'none' }} />
+
           <Dropdown.Menu pullRight onClose={this.toggleOpen} className={style.langSwitherMenu}>
+            <li className={style.langItem}>
+              <a key="admin" href={`/admin`}>
+                Back to admin
+              </a>
+            </li>
+
             {this.props.botsIds
               .filter(id => this.props.currentBotId != id)
               .map(id => (
