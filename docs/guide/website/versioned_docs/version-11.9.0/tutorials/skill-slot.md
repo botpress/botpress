@@ -45,7 +45,7 @@ How many times the bot should try to get the right answer. `On not found` outcom
 
 Three outcome are possible:
 
-1. `On extracted` - The slot has been successfuly extracted. It will be stored in `session.extractedSlots.<slot_name>`
+1. `On extracted` - The slot has been successfuly extracted. It will be stored in `session.slots.<slot_name>`
 1. `On not found` - The slot has not been extracted. This will also happen when the maximum number of retries is reached or when custom validation fail.
 1. `On already extracted` - The slot has previously been extracted. One use-case for that would be to ask for the user if the previous information is still relevant and if he would like to overwrite it.
 

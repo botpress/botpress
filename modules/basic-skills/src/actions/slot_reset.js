@@ -6,7 +6,7 @@
  * @param slotName The name of the slot
  */
 const resetSlot = async slotName => {
-  event.state.session.extractedSlots[slotName] = undefined
+  event.state.session.slots[slotName] = undefined
 }
 
 return resetSlot(args.slotName)

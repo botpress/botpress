@@ -182,10 +182,12 @@ export class Debugger extends React.Component<Props, State> {
     return (
       <div>
         <Dialog suggestions={this.state.event.suggestions} decision={this.state.event.decision} />
-        <NLU nluData={this.state.event.nlu} />
+        <NLU session={this.state.event.state.session} nluData={this.state.event.nlu} />
       </div>
     )
   }
+
+  // check rendering
 
   renderWhenNoEvent() {
     if (this.state.fetching) {
