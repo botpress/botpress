@@ -170,6 +170,7 @@ export default class HTTPServer {
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
 
+    // tslint:disable-next-line: no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
       this.isBotpressReady = true
     })

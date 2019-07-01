@@ -139,7 +139,10 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          this.logger.attachError(err).error(`Cannot request bot: ${req.params.botId} for stage change`)
+          this.logger
+            .forBot(req.params.botId)
+            .attachError(err)
+            .error(`Cannot request bot: ${req.params.botId} for stage change`)
           res.status(400)
         }
       })
