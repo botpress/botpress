@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-
 import _ from 'lodash'
 
 const setup = async bp => {
@@ -33,12 +32,8 @@ const setup = async bp => {
 }
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  let onInvalidText = undefined
-  if (data.config.invalidText && data.config.invalidText.length) {
-    onInvalidText = data.config.invalidText
-  }
-
-  const maxAttempts = data.config.nbMaxRetries
+  const hardRetryLimit = 10
+  const nbMaxRetries = Math.min(data.config.nbMaxRetries, hardRetryLimit)
 
   const nodes: sdk.SkillFlowNode[] = [
     {
@@ -73,10 +68,10 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       ],
       next: [
         {
-          condition: `temp['skill-choice-invalid-count'] <= ${maxAttempts}`,
-          node: 'sorry'
+          condition: `temp['skill-choice-invalid-count'] == ${nbMaxRetries}`,
+          node: '#'
         },
-        { condition: 'true', node: '#' }
+        { condition: 'true', node: 'sorry' }
       ]
     },
     {
@@ -84,8 +79,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       onEnter: [
         {
           type: sdk.NodeActionType.RenderElement,
-          name: `#!${data.contentId}`,
-          args: { ...{ skill: 'choice' }, ...(onInvalidText ? { text: onInvalidText } : {}) }
+          name: `#!${data.invalidContentId}`
         }
       ],
       next: [{ condition: 'true', node: 'parse' }]
