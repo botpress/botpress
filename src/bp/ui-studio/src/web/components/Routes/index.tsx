@@ -1,9 +1,8 @@
-import React from 'react'
-import { Router, Switch } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
+import React from 'react'
 import ReactGA from 'react-ga'
-
+import { Router, Switch } from 'react-router-dom'
 import EnsureAuthenticated from '~/components/Authentication'
 import Layout from '~/components/Layout'
 

@@ -1,6 +1,7 @@
-import { createStore, applyMiddleware, compose } from 'redux'
+import { applyMiddleware, compose, createStore } from 'redux'
 import thunk from 'redux-thunk'
 import * as actions from '~/actions'
+
 import reducers from './reducers'
 
 const composeEnhancers =
