@@ -5,6 +5,7 @@ import { authEvents, getToken, getUniqueVisitorId, setVisitorId } from '~/util/A
 class EventBus extends EventEmitter2 {
   private adminSocket
   private guestSocket
+  static default
 
   constructor() {
     super({
@@ -66,7 +67,6 @@ class EventBus extends EventEmitter2 {
   }
 }
 
-// @ts-ignore
 EventBus.default = new EventBus()
 
 export default EventBus

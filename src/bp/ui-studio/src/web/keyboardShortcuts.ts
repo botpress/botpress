@@ -29,7 +29,7 @@ export const isInputFocused = () => {
   }
 
   const tag = document.activeElement.tagName
-  const isEditable = document.activeElement.isContentEditable || document.activeElement.contenteditable === 'true'
+  const isEditable = document.activeElement['isContentEditable'] || document.activeElement['contenteditable'] === 'true'
   const inputTypes = ['textarea', 'input']
   return (tag && inputTypes.includes(tag.toLowerCase())) || isEditable
 }
