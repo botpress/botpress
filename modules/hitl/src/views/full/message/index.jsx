@@ -39,7 +39,7 @@ export default class Message extends React.Component {
   renderContent() {
     const type = this.props.content.type
 
-    if (type === 'message' || type === 'text') {
+    if (type === 'message' || type === 'text' || type === 'quick_reply' || type === 'custom') {
       return this.renderText()
     } else if (type === 'image') {
       return this.renderImage()
@@ -94,10 +94,8 @@ export default class Message extends React.Component {
   }
 
   render() {
-    const renderedTypes = ['text', 'message', 'image', 'video', 'audio']
-    const renderedEvents = ['visit']
-
-    if (!_.includes(renderedTypes.concat(renderedEvents), this.props.content.type)) {
+    const renderedTypes = ['text', 'message', 'image', 'video', 'audio', 'quick_reply', 'custom', 'visit']
+    if (!_.includes(renderedTypes, this.props.content.type)) {
       return null
     }
 
