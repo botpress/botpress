@@ -3,20 +3,12 @@ id: release-notes
 title: Release Notes
 ---
 
-## Features
-
-- Support images on Telegram
-
 ## Bug fixes
 
-- Fix pause not working on quick replies in HITL module
-- Fix image rendering on Messenger
-- Fix object caching using wrong key
-- Increase cache size of object caching
-
-## Docs
-
-- Update the license activation docs
+- Use content picker for invalid content in Choice Skill
+- Fix issue on Call API Skill where headers would not save
+- Display last user visit in HITL
+- Display quick replies in HITL
 
 ## Changelog
 
