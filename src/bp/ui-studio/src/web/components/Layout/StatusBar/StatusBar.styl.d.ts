@@ -21,6 +21,7 @@ interface CssExports {
   'list': string;
   'nluUnhealthy': string;
   'right': string;
+  'scoreLine': string;
   'shortcut': string;
   'statusBar': string;
   'worker': string;

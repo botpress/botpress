@@ -1,8 +1,6 @@
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
-
 import { receiveContentCategories, receiveContentItem, receiveContentItems, receiveContentItemsCount } from '~/actions'
-import { SkillCallNodeModel } from '~views/FlowBuilder/diagram/nodes/SkillCallNode'
 
 const defaultState = {
   categories: null,

@@ -1,7 +1,10 @@
-import { AxiosError, AxiosRequestConfig } from 'axios'
-import { Logger, LoggerEntry, LoggerLevel, LogLevel } from 'botpress/sdk'
+import { AxiosError } from 'axios'
+import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { IDisposable } from 'core/misc/disposable'
 import { incrementMetric } from 'core/services/monitoring'
+import { InvalidParameterError } from 'errors'
+import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
@@ -15,6 +18,20 @@ import { LoggerDbPersister, LoggerFilePersister } from '.'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
+function serializeArgs(args: any): string {
+  if (_.isArray(args)) {
+    return args.map(arg => serializeArgs(arg)).join(', ')
+  } else if (_.isObject(args)) {
+    return util.inspect(args, false, 2, true)
+  } else if (_.isString(args)) {
+    return args.trim()
+  } else if (args && args.toString) {
+    return args.toString()
+  } else {
+    return ''
+  }
+}
+
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
@@ -23,6 +40,23 @@ export class PersistedConsoleLogger implements Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
+
+  private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
+    delimiter: '::',
+    maxListeners: 1000,
+    verboseMemoryLeak: true,
+    wildcard: true
+  })
+
+  public static listenForAllLogs(fn: LoggerListener, botId: string = '*'): IDisposable {
+    if (!_.isFunction(fn)) {
+      throw new InvalidParameterError('"fn" listener must be a callback function')
+    }
+
+    const namespace = `logs::${botId}`
+    this.LogStreamEmitter.on(namespace, fn)
+    return { dispose: () => this.LogStreamEmitter.off(namespace, fn) }
+  }
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
@@ -94,7 +128,7 @@ export class PersistedConsoleLogger implements Logger {
       } catch (err) {}
     }
 
-    const serializedMetadata = metadata ? ' | ' + util.inspect(metadata, false, 2, true) : ''
+    const serializedMetadata = metadata ? serializeArgs(metadata) : ''
     const timeFormat = 'HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
@@ -120,6 +154,13 @@ export class PersistedConsoleLogger implements Logger {
       metadata: stripAnsi(serializedMetadata),
       timestamp: moment().toISOString()
     }
+
+    PersistedConsoleLogger.LogStreamEmitter.emit(
+      `logs::${this.botId || '*'}`,
+      level,
+      indentedMessage,
+      serializedMetadata
+    ) // Args => level, message, args
 
     if (this.willPersistMessage && level !== LoggerLevel.Debug) {
       this.loggerDbPersister.appendLog(entry)

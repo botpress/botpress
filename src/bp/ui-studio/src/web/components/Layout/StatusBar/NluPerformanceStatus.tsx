@@ -158,14 +158,20 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]
+
+    const description = (
+      <div>
+        <div className={style.scoreLine}>
+          {this.state.f1 ? `Overall score: ${this.state.f1} %` : 'No score to show'}
+        </div>
+        <div>Click to recompute NLU score</div>
+      </div>
+    )
+
     return (
       <ActionItem
         title={'NLU performance'}
-        description={
-          this.state.f1
-            ? `Overall score: ${this.state.f1} %`
-            : 'No score to show, click to start NLU performance analysis'
-        }
+        description={description}
         disabled={this.state.computing}
         className={style.right}
         onClick={this.calculateConfusion}

@@ -149,6 +149,7 @@ export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
 export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
 export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
+export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')

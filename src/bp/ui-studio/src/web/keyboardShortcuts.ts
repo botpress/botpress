@@ -11,6 +11,7 @@ export const keyMap = {
   'lang-switcher': `${controlKey}+l`,
   'toggle-sidepanel': `${controlKey}+b`,
   'create-new': `${controlKey}+alt+n`,
+  'bottom-bar': `${controlKey}+j`,
   cancel: 'esc',
   'go-flow': `g f`,
   'go-home': `g h`,

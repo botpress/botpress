@@ -10,6 +10,7 @@ declare namespace NodeJS {
     DEBUG: IDebug
     require: ExtraRequire
     rewire: (name: string) => string
+    printBotLog(botId: string, args: any[]): void
   }
 
   export interface Process {
