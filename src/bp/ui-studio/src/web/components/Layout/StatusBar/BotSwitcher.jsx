@@ -32,7 +32,7 @@ export default class BotSwitcher extends React.Component {
           {/* react-bootstrap warning otherwise */}
           <Dropdown.Toggle style={{ display: 'none' }} />
           <Dropdown.Menu pullRight onClose={this.toggleOpen} className={style.langSwitherMenu}>
-            {this.props.botIds
+            {this.props.botsIds
               .filter(id => this.props.currentBotId != id)
               .map(id => (
                 <li className={style.langItem}>

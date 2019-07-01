@@ -8,7 +8,7 @@ import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { updateDocumentationModal, fetchAllBots } from '~/actions'
+import { updateDocumentationModal } from '~/actions'
 import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
 import BotSwitcher from './BotSwitcher'
@@ -31,7 +31,7 @@ class StatusBar extends React.Component {
     messages: [],
     nluSynced: true,
     contexts: [],
-    botIds: []
+    botsIds: []
   }
 
   constructor(props) {
@@ -42,7 +42,12 @@ class StatusBar extends React.Component {
 
   async componentDidMount() {
     await this.fetchContexts()
-    this.setState({ botIds: this.props.bots.bots.map(bot => bot.id) })
+    await this.fetchWorkspaceBotsIds()
+  }
+
+  fetchWorkspaceBotsIds = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`)
+    this.setState({ botsIds: data || [] })
   }
 
   fetchContexts = async () => {
@@ -186,7 +191,7 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <BotSwitcher botIds={this.state.botIds} currentBotId={this.props.botInfo.id} />
+          <BotSwitcher botsIds={this.state.botsIds} currentBotId={this.props.botInfo.id} />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher
@@ -203,11 +208,10 @@ const mapStateToProps = state => ({
   user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints,
-  contentLang: state.language.contentLang,
-  bots: state.bots
+  contentLang: state.language.contentLang
 })
 
 export default connect(
   mapStateToProps,
-  { updateDocumentationModal, fetchAllBots }
+  { updateDocumentationModal }
 )(StatusBar)

@@ -165,13 +165,6 @@ export const fetchBotInformation = () => dispatch => {
   })
 }
 
-export const botsReceived = createAction('BOTS/RECEIVED')
-export const fetchAllBots = () => dispatch => {
-  axios
-    .get(`${window.API_PATH}/admin/bots`, { headers: { 'X-BP-Workspace': 'default' } })
-    .then(res => dispatch(botsReceived(res.data)))
-}
-
 // Modules
 export const modulesReceived = createAction('MODULES/RECEIVED')
 export const fetchModules = () => dispatch => {
