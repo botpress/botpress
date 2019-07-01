@@ -2,8 +2,8 @@
   {
     "id": "builtin_single-choice-elJyV5",
     "formData": {
-      "text": "a",
-      "choices": [
+      "text$en": "a",
+      "choices$en": [
         {
           "title": "1",
           "value": "1"
@@ -13,17 +13,17 @@
           "value": "2"
         }
       ],
-      "typing": true
+      "typing$en": true
     },
     "createdBy": "admin",
     "createdOn": "2018-05-17T14:29:04.897Z",
-    "modifiedOn": null
+    "modifiedOn": "2019-07-01T13:51:45.562Z"
   },
   {
     "id": "builtin_single-choice-mrFFU_",
     "formData": {
-      "text": "What would you like to know?",
-      "choices": [
+      "text$en": "What would you like to know?",
+      "choices$en": [
         {
           "title": "What is a Context?",
           "value": "context"
@@ -33,17 +33,17 @@
           "value": "memory"
         }
       ],
-      "typing": true
+      "typing$en": true
     },
     "createdBy": "admin",
     "createdOn": "2019-03-25T16:42:46.073Z",
-    "modifiedOn": "2019-03-25T16:42:46.073Z"
+    "modifiedOn": "2019-07-01T13:51:45.567Z"
   },
   {
     "id": "builtin_single-choice-yOBfeA",
     "formData": {
-      "text": "Okay, let's use a simple example. Let's talk about animals. Pick one.",
-      "choices": [
+      "text$en": "Okay, let's use a simple example. Let's talk about animals. Pick one.",
+      "choices$en": [
         {
           "title": "Monkey",
           "value": "monkey"
@@ -53,10 +53,10 @@
           "value": "giraffe"
         }
       ],
-      "typing": true
+      "typing$en": true
     },
     "createdBy": "admin",
     "createdOn": "2019-03-25T18:12:55.197Z",
-    "modifiedOn": "2019-03-25T18:12:55.197Z"
+    "modifiedOn": "2019-07-01T13:51:45.572Z"
   }
 ]
