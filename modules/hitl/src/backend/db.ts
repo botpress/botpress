@@ -140,10 +140,12 @@ export default class HitlDb {
   }
 
   appendMessageToSession(event, sessionId, direction) {
+    const text = event.type === 'custom' ? event.payload.wrapped.text : event.payload.text
+
     const message = {
       session_id: sessionId,
       type: event.type,
-      text: event.payload.text,
+      text: text,
       raw_message: event.payload,
       direction: direction,
       ts: this.knex.date.now()
