@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Divider, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import anser from 'anser'
 import axios from 'axios'
 import cn from 'classnames'
 import _ from 'lodash'
@@ -57,8 +58,8 @@ class BottomPanel extends React.Component<Props, State> {
         ts: new Date(),
         id: nanoid(10),
         level,
-        message,
-        args
+        message: anser.ansiToHtml(message),
+        args: anser.ansiToHtml(args)
       })
 
       if (this.logs.length > MAX_LOGS_LIMIT) {
@@ -97,8 +98,9 @@ class BottomPanel extends React.Component<Props, State> {
     return (
       <li className={cn(style.entry, style[`level-${log.level}`])} key={'log-entry-' + log.id}>
         <span className={style.time}>{time}</span>
-        <span className={style.level}>{log.level}</span> <span className={style.message}>{log.message}</span>
-        <span className={style.message}>{log.args || ''}</span>
+        <span className={style.level}>{log.level}</span>
+        <span className={style.message} dangerouslySetInnerHTML={{ __html: log.message }} />
+        <span className={style.message} dangerouslySetInnerHTML={{ __html: log.args || '' }} />
       </li>
     )
   }
