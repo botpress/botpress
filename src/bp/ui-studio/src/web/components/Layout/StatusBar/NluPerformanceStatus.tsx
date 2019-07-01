@@ -57,7 +57,15 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
     if (!data.isEnabled) {
       Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
-        message: `The NLU Status is Unhealthy, user messages sent to the bot will not be analyzed. Please check your language sources configuration`,
+        message: (
+          <span>
+            Language server is unreachable, bots wont work properly. Check{' '}
+            <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
+              the documentation
+            </a>{' '}
+            to learn how to run your own language server.
+          </span>
+        ),
         intent: Intent.DANGER,
         timeout: 0
       })
@@ -114,23 +122,26 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
   renderUnhealthy() {
     const { validLanguages, validProvidersCount } = this.state.nluHealth
-
     return (
       <ActionItem
         title="NLU is Unhealthy"
         description={
-          <div>
-            <span style={{ color: 'red', fontWeight: 'bold' }}>
-              Language Providers: {validProvidersCount}
-              <br />
-              Valid Languages: {validLanguages.length === 0 ? 'None' : validLanguages.join(', ')}
-            </span>
+          <div className={style.nluUnhealthy}>
+            {validProvidersCount === 0 ? (
+              <span>No Language Server</span>
+            ) : (
+              <span>
+                Language Servers: {validProvidersCount}
+                <br />
+                {validLanguages.length === 0 ? 'No language available' : 'Valid languages:' + validLanguages.join(', ')}
+              </span>
+            )}
             <p>For more informations, click here</p>
           </div>
         }
         disabled={this.state.computing}
         className={style.right}
-        onClick={() => window.open('https://botpress.io/docs/main/nlu/')}
+        onClick={() => window.open('https://botpress.io/docs/main/nlu#language-server')}
       >
         <Icon icon="error" iconSize={18} intent={Intent.DANGER} />
       </ActionItem>
