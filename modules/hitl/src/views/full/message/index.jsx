@@ -31,10 +31,15 @@ export default class Message extends React.Component {
     return <ReactAudioPlayer className={style.audio} src={this.props.content.text} />
   }
 
+  renderEvent() {
+    const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
+    return <p>User visit : {date}</p>
+  }
+
   renderContent() {
     const type = this.props.content.type
 
-    if (type === 'message' || type === 'text') {
+    if (type === 'message' || type === 'text' || type === 'quick_reply' || type === 'custom') {
       return this.renderText()
     } else if (type === 'image') {
       return this.renderImage()
@@ -42,6 +47,8 @@ export default class Message extends React.Component {
       return this.renderVideo()
     } else if (type === 'audio') {
       return this.renderAudio()
+    } else if (type === 'visit') {
+      return this.renderEvent()
     }
     return null
   }
@@ -54,15 +61,27 @@ export default class Message extends React.Component {
     return <div className={style.message + ' ' + style.fromBot}>{this.renderContent()}</div>
   }
 
+  renderMessageFromSystem() {
+    return <div className={style.message + ' ' + style.fromSystem}>{this.renderContent()}</div>
+  }
+
   renderMessage() {
     const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
 
     const tooltip = <Tooltip id="tooltip">{date}</Tooltip>
 
     if (this.props.content.direction === 'in') {
+      if (this.props.content.type === 'text') {
+        return (
+          <OverlayTrigger placement="right" overlay={tooltip}>
+            {this.renderMessageFromUser()}
+          </OverlayTrigger>
+        )
+      }
+
       return (
-        <OverlayTrigger placement="right" overlay={tooltip}>
-          {this.renderMessageFromUser()}
+        <OverlayTrigger placement="auto" overlay={tooltip}>
+          {this.renderMessageFromSystem()}
         </OverlayTrigger>
       )
     }
@@ -75,11 +94,11 @@ export default class Message extends React.Component {
   }
 
   render() {
-    const renderedTypes = ['text', 'message', 'image', 'video', 'audio']
-
+    const renderedTypes = ['text', 'message', 'image', 'video', 'audio', 'quick_reply', 'custom', 'visit']
     if (!_.includes(renderedTypes, this.props.content.type)) {
       return null
     }
+
     return (
       <Row>
         <Col md={12}>{this.renderMessage()}</Col>

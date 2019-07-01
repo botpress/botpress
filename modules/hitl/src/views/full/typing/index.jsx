@@ -11,20 +11,24 @@ export default class Typing extends React.Component {
     }
   }
 
-  handleChange = (event) => {
+  handleChange = event => {
     this.setState({
       message: event.target.value
     })
   }
 
-  handleKeyPress = (event) => {
-    if (event.key === 'Enter' && this.state.message) {
-      this.props.sendMessage(this.state.message)
-      event.preventDefault()
-      this.setState({
-        message: ''
-      })
-      return false
+  handleKeyPress = event => {
+    if (this.state.message) {
+      const message = this.state.message.trim()
+
+      if (event.key === 'Enter' && message.length > 0) {
+        this.props.sendMessage(message)
+        event.preventDefault()
+        this.setState({
+          message: ''
+        })
+        return false
+      }
     }
   }
 

@@ -1,3 +1,24 @@
+## [11.9.6](https://github.com/botpress/botpress/compare/v11.9.5...v11.9.6) (2019-07-01)
+
+
+### Bug Fixes
+
+* **call-api:** missing headers on reload ([6f46a37](https://github.com/botpress/botpress/commit/6f46a37))
+* **call-api:** missing headers on reload ([71611ef](https://github.com/botpress/botpress/commit/71611ef))
+* **choices:** use content picker and fix retry attempts ([ad4ea28](https://github.com/botpress/botpress/commit/ad4ea28))
+* **hitl:** added trim in hitl textarea ([f28eb08](https://github.com/botpress/botpress/commit/f28eb08))
+* **hitl:** added trim in hitl textarea ([d3e0eaf](https://github.com/botpress/botpress/commit/d3e0eaf))
+* **hitl:** display last user visit ([0694c2a](https://github.com/botpress/botpress/commit/0694c2a))
+* **hitl:** display messages of type quick_reply in hitl module ([b38d426](https://github.com/botpress/botpress/commit/b38d426))
+* **hitl:** render quick replies in hitl module ([941037f](https://github.com/botpress/botpress/commit/941037f))
+
+
+### Features
+
+* **hitl:** display last user visit ([262de34](https://github.com/botpress/botpress/commit/262de34))
+
+
+
 ## [11.9.5](https://github.com/botpress/botpress/compare/v11.9.4...v11.9.5) (2019-06-21)
 
 

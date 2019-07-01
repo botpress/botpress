@@ -2,9 +2,8 @@ import React from 'react'
 import _ from 'lodash'
 
 import { Alert, Tabs, Tab } from 'react-bootstrap'
-
+import { Label, Input } from 'reactstrap'
 import { WithContext as ReactTags } from 'react-tag-input'
-
 import ContentPickerWidget from 'botpress/content-picker'
 
 import style from './style.scss'
@@ -13,25 +12,27 @@ export class Choice extends React.Component {
   state = {
     keywords: {},
     contentId: '',
+    invalidContentId: '',
     config: {}
   }
 
   componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
-
-    if (this.props.initialData) {
-      this.setState(
-        {
-          contentId: getOrDefault('contentId', 'contentId'),
-          keywords: getOrDefault('keywords', 'keywords'),
-          config: getOrDefault('config', 'config')
-        },
-        () => this.refreshContent()
-      )
-    }
-
-    this.fetchDefaultConfig()
+    this.fetchDefaultConfig().then(res => {
+      if (this.props.initialData) {
+        this.setState(
+          {
+            contentId: getOrDefault('contentId', 'contentId'),
+            invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
+            keywords: getOrDefault('keywords', 'keywords'),
+            config: getOrDefault('config', 'config'),
+            defaultConfig: res.data
+          },
+          () => this.refreshContent()
+        )
+      }
+    })
   }
 
   async refreshContent() {
@@ -51,6 +52,7 @@ export class Choice extends React.Component {
     this.props.onDataChanged &&
       this.props.onDataChanged({
         contentId: this.state.contentId,
+        invalidContentId: this.state.invalidContentId,
         keywords: this.state.keywords,
         config: this.state.config
       })
@@ -60,8 +62,7 @@ export class Choice extends React.Component {
   }
 
   fetchDefaultConfig = async () => {
-    const res = await this.props.bp.axios.get('/mod/basic-skills/choice/config')
-    this.setState({ defaultConfig: res.data })
+    return this.props.bp.axios.get('/mod/basic-skills/choice/config')
   }
 
   onMaxRetriesChanged = event => {
@@ -139,9 +140,9 @@ export class Choice extends React.Component {
       )
 
     const contentPickerProps = {}
-    const contentElement = this.getContentElement()
-    if (contentElement && contentElement.length) {
-      contentPickerProps.categoryId = contentElement
+    const contentType = this.getContentType()
+    if (contentType && contentType.length) {
+      contentPickerProps.categoryId = contentType
     }
 
     return (
@@ -152,7 +153,7 @@ export class Choice extends React.Component {
         <div>
           <ContentPickerWidget
             {...contentPickerProps}
-            contentType={this.getContentElement()}
+            contentType={this.getContentType()}
             itemId={this.state.contentId}
             onChange={this.onContentChanged}
             placeholder="Pick content (question and choices)"
@@ -166,7 +167,8 @@ export class Choice extends React.Component {
     )
   }
 
-  getContentElement() {
+  getContentType() {
+    // FIXME: defaultContentElement should really be defaultContentType in the config
     return typeof this.state.config.contentElement === 'string'
       ? this.state.config.contentElement
       : this.state.defaultConfig && this.state.defaultConfig.defaultContentElement
@@ -187,37 +189,43 @@ export class Choice extends React.Component {
     this.setState({ config })
   }
 
+  handleInvalidContentChange = content => {
+    this.setState({ invalidContentId: content.id })
+  }
+
   renderAdvanced() {
     return (
       <div className={style.content}>
         <div>
-          <label htmlFor="inputMaxRetries">Max number of retries</label>
-          <input
+          <Label htmlFor="inputMaxRetries">Max number of retries:</Label>
+          <Input
             id="inputMaxRetries"
             type="number"
             name="quantity"
             min="0"
-            max="1000"
+            max="10"
             value={this.getNbRetries()}
             onChange={this.onMaxRetriesChanged}
           />
         </div>
+
         <div>
-          <label htmlFor="invalidText">On invalid choice, say this before repeating question:</label>
-          <div>
-            <textarea
-              id="invalidText"
-              value={this.getInvalidText()}
-              onChange={this.handleConfigTextChanged('invalidText')}
-            />
-          </div>
+          <Label htmlFor="invalidText">On invalid choice, say this before repeating question:</Label>
+          <ContentPickerWidget
+            id="invalidContent"
+            name="invalidContent"
+            itemId={this.state.invalidContentId}
+            onChange={this.handleInvalidContentChange}
+            placeholder="Pick a reply"
+          />
         </div>
+
         <div>
-          <label htmlFor="contentElementName">Content Element to use:</label>
-          <input
-            id="contentElementName"
+          <Label htmlFor="contentElementType">Default choice content type:</Label>
+          <Input
+            id="contentElementType"
             type="text"
-            value={this.getContentElement()}
+            value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />
         </div>
