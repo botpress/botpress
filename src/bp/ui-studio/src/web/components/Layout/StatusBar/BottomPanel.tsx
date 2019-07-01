@@ -1,48 +1,83 @@
-import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, ButtonGroup, Divider, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import cn from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
+import nanoid from 'nanoid'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { toggleBottomPanel } from '~/actions'
-import { RootReducer } from '~/reducers'
-import { LogEntry } from '~/reducers/logs'
 import { downloadBlob } from '~/util'
+import EventBus from '~/util/EventBus'
 
 import style from './BottomPanel.styl'
 
-interface IProps {
-  logs: LogEntry[]
+const INITIAL_LOGS_LIMIT = 200
+const MAX_LOGS_LIMIT = 500
+
+interface Props {
   toggleBottomPanel: () => void
 }
 
-interface IState {
+interface State {
   followLogs: boolean
   selectedPanel: string
-  logsLimit: number
   initialLogs: LogEntry[]
 }
 
-class BottomPanel extends React.Component<IProps, IState> {
-  messageListRef = React.createRef<HTMLUListElement>()
+interface LogEntry {
+  id: string
+  level: string
+  message: string
+  args: any
+  ts: Date
+}
+
+class BottomPanel extends React.Component<Props, State> {
+  private messageListRef = React.createRef<HTMLUListElement>()
+  private debounceRefreshLogs
+  private logs: LogEntry[]
+
+  constructor(props) {
+    super(props)
+    this.logs = []
+    this.debounceRefreshLogs = _.debounce(this.forceUpdate, 50, { maxWait: 300 })
+  }
 
   componentDidMount() {
     this.queryLogs()
+    this.setupListener()
+  }
+
+  setupListener = () => {
+    // @ts-ignore
+    EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
+      this.logs.push({
+        ts: new Date(),
+        id: nanoid(10),
+        level,
+        message,
+        args
+      })
+
+      if (this.logs.length > MAX_LOGS_LIMIT) {
+        this.logs.shift()
+      }
+      this.debounceRefreshLogs()
+    })
   }
 
   state = {
     followLogs: true,
     selectedPanel: 'bt-panel-logs',
-    logsLimit: 200,
     initialLogs: []
   }
 
   queryLogs = async () => {
     const { data } = await axios.get(`${window.BOT_API_PATH}/logs`, {
       params: {
-        limit: this.state.logsLimit
+        limit: INITIAL_LOGS_LIMIT
       }
     })
 
@@ -96,17 +131,32 @@ class BottomPanel extends React.Component<IProps, IState> {
     downloadBlob(`logs-${time}.txt`, data)
   }
 
+  handleLogsScrolled = e => {
+    const isAtBottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight
+
+    if (isAtBottom && !this.state.followLogs) {
+      this.setState({ followLogs: true })
+    } else if (!isAtBottom && this.state.followLogs) {
+      this.setState({ followLogs: false })
+    }
+  }
+
+  handleClearLogs = () => {
+    this.logs = []
+    this.forceUpdate()
+  }
+
   render() {
-    const allLogs = [...this.state.initialLogs, ...this.props.logs]
+    const allLogs = [...this.state.initialLogs, ...this.logs]
     const LogsPanel = (
-      <ul className={style.logs} ref={this.messageListRef}>
+      <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {allLogs.map(e => this.renderEntry(e))}
         <li className={style.end}>End of logs</li>
       </ul>
     )
 
     return (
-      <div className={cn('bp3-dark', style.container)}>
+      <div className={cn(style.container)}>
         <Tabs
           id="BottomPanelTabs"
           className={style.tabs}
@@ -115,10 +165,9 @@ class BottomPanel extends React.Component<IProps, IState> {
         >
           <Tab id="bt-panel-logs" className={style.tab} title="Logs" panel={LogsPanel} />
           <Tabs.Expander />
-          <div>
-            <Tooltip content={<em>Scroll to follow logs</em>}>
+          <ButtonGroup minimal={true}>
+            <Tooltip content="Scroll to follow logs">
               <Button
-                minimal={true}
                 icon={'sort'}
                 intent={this.state.followLogs ? 'primary' : 'none'}
                 small={true}
@@ -127,29 +176,31 @@ class BottomPanel extends React.Component<IProps, IState> {
               />
             </Tooltip>
 
-            <Tooltip content={<em>Download logs</em>}>
-              <Button minimal={true} icon={'import'} small={true} type="button" onClick={this.handleDownloadLogs} />
+            <Tooltip content="Download Logs">
+              <Button icon={'import'} small={true} type="button" onClick={this.handleDownloadLogs} />
             </Tooltip>
 
-            <span className={style.divide} />
+            <Divider />
 
-            <Tooltip content={<em>Close panel</em>}>
-              <Button minimal={true} icon={'cross'} small={true} type="button" onClick={this.props.toggleBottomPanel} />
+            <Tooltip content="Clear log history">
+              <Button icon={'trash'} small={true} type="button" onClick={this.handleClearLogs} />
             </Tooltip>
-          </div>
+
+            <Divider />
+
+            <Tooltip content="Close Panel">
+              <Button icon={'cross'} small={true} type="button" onClick={this.props.toggleBottomPanel} />
+            </Tooltip>
+          </ButtonGroup>
         </Tabs>
       </div>
     )
   }
 }
 
-const mapStateToProps = (state: RootReducer) => ({
-  logs: state.logs.logs
-})
-
 const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel }, dispatch)
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(BottomPanel)

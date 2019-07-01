@@ -55,16 +55,6 @@ class App extends Component {
     EventBus.default.on('hints.updated', () => {
       this.props.refreshHints()
     })
-
-    EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
-      this.props.appendLog({
-        ts: new Date(),
-        id: nanoid(10),
-        level,
-        message,
-        args
-      })
-    })
   }
 
   render() {

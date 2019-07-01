@@ -239,6 +239,3 @@ export const refreshHints = () => dispatch => {
     dispatch(hintsReceived(res.data))
   })
 }
-
-// Logs
-export const appendLog = createAction('LOGGER/APPEND')
