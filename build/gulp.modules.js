@@ -163,6 +163,31 @@ const createModuleSymlink = () => {
     .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
 }
 
+const createAllModulesSymlink = () => {
+  const moduleFolder = process.argv.includes('--internal') ? 'internal-modules' : 'modules'
+  const modules = getAllModulesRoot()
+
+  const tasks = modules.map(m => {
+    const moduleName = path.basename(m)
+    const taskName = `dev-modules ${moduleName}`
+
+    gulp.task(
+      taskName,
+      gulp.series(
+        () => gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf()),
+        () =>
+          gulp
+            .src(`./${moduleFolder}/${moduleName}/assets/`)
+            .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+      )
+    )
+
+    return taskName
+  })
+
+  return gulp.series(tasks)
+}
+
 module.exports = {
   build,
   buildSdk,
@@ -170,5 +195,6 @@ module.exports = {
   packageModules,
   buildModuleBuilder,
   cleanModuleAssets,
-  createModuleSymlink
+  createModuleSymlink,
+  createAllModulesSymlink
 }
