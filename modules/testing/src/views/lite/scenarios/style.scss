@@ -20,6 +20,7 @@
 .container {
   width: 450px;
   height: 100vh;
+  position: relative;
   border: 1px solid #ccc;
   border-right: none;
   background-color: white;
@@ -63,4 +64,6 @@
 
 .content {
   padding: 10px;
+  height: calc(100% - 50px);
+  overflow-y: auto;
 }
