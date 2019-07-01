@@ -50,7 +50,7 @@ const createNodes = data => {
       onReceive: slotExtractOnReceive,
       next: [
         {
-          condition: `session.slots.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
+          condition: `session.slots['${data.slotName}'] && (temp.valid === undefined || temp.valid == "true")`,
           node: 'extracted'
         },
         {
@@ -90,7 +90,7 @@ const createNodes = data => {
       onReceive: slotExtractOnReceive,
       next: [
         {
-          condition: `session.slots.${data.slotName} && (temp.valid === undefined || temp.valid == "true")`,
+          condition: `session.slots['${data.slotName}'] && (temp.valid === undefined || temp.valid == "true")`,
           node: 'extracted'
         },
         {
@@ -118,7 +118,7 @@ const createNodes = data => {
       onReceive: undefined,
       next: [
         {
-          condition: `session.slots.${data.slotName} !== undefined`,
+          condition: `session.slots['${data.slotName}'] !== undefined`,
           node: 'already-extracted'
         },
         {
