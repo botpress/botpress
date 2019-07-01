@@ -57,7 +57,7 @@ export const Slots: SFC<Props> = props => {
             <th>Slot</th>
             <th>Source</th>
             <th>Value</th>
-            <th />
+            <th>Extracted</th>
           </tr>
         </thead>
         <tbody>
