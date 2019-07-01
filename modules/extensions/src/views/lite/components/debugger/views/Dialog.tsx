@@ -45,10 +45,10 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   <div className={style.subSection}>
     <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
     <ol>
-      {props.stacktrace.map(({ flow, node }) => {
+      {props.stacktrace.map(({ flow, node }, idx) => {
         const flowName = flow && flow.replace('.flow.json', '')
         return (
-          <li key={`${flow}:${node}`}>
+          <li key={`${flow}:${node}:${idx}`}>
             <span>
               <a onClick={() => highlightNode(flow, node)}>
                 {flowName} / {node}
