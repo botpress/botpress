@@ -1,38 +1,37 @@
-import { handleActions } from 'redux-actions'
-import reduceReducers from 'reduce-reducers'
 import _ from 'lodash'
-
-import { hashCode, prettyId } from '~/util'
-
+import reduceReducers from 'reduce-reducers'
+import { handleActions } from 'redux-actions'
 import {
-  requestFlows,
-  requestSaveFlows,
-  receiveSaveFlows,
-  receiveFlows,
-  switchFlow,
-  updateFlow,
-  handleRefreshFlowLinks,
-  renameFlow,
-  updateFlowNode,
-  switchFlowNode,
-  openFlowNodeProps,
   closeFlowNodeProps,
-  setDiagramAction,
-  createFlowNode,
   copyFlowNode,
-  pasteFlowNode,
   copyFlowNodeElement,
-  pasteFlowNodeElement,
   createFlow,
+  createFlowNode,
   deleteFlow,
   duplicateFlow,
-  removeFlowNode,
-  handleFlowEditorUndo,
   handleFlowEditorRedo,
+  handleFlowEditorUndo,
+  handleRefreshFlowLinks,
   insertNewSkill,
   insertNewSkillNode,
+  openFlowNodeProps,
+  pasteFlowNode,
+  pasteFlowNodeElement,
+  receiveFlows,
+  receiveSaveFlows,
+  removeFlowNode,
+  renameFlow,
+  requestFlows,
+  requestSaveFlows,
+  setDiagramAction,
+  switchFlow,
+  switchFlowNode,
+  updateFlow,
+  updateFlowNode,
+  updateFlowProblems,
   updateSkill
 } from '~/actions'
+import { hashCode, prettyId } from '~/util'
 
 export interface FlowReducer {
   currentFlow: any
@@ -54,7 +53,8 @@ const defaultState = {
   undoStack: [],
   redoStack: [],
   nodeInBuffer: null, // TODO: move it to buffer.node
-  buffer: { action: null, transition: null }
+  buffer: { action: null, transition: null },
+  flowProblems: []
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -220,6 +220,11 @@ const doCreateNewFlow = name => ({
 
 let reducer = handleActions(
   {
+    [updateFlowProblems]: (state, { payload }) => ({
+      ...state,
+      flowProblems: payload
+    }),
+
     [requestFlows]: state => ({
       ...state,
       fetchingFlows: true

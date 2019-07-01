@@ -53,7 +53,7 @@ export class AdminRouter extends CustomRouter {
     this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
-    this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider)
+    this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider, ghostService)
     this.languagesRouter = new LanguagesRouter(logger, moduleLoader)
     this.loadUser = loadUser(this.authService)
 

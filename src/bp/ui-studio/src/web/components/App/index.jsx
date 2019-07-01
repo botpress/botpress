@@ -1,5 +1,5 @@
 import { Component } from 'react'
-
+import nanoid from 'nanoid'
 import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
@@ -14,7 +14,8 @@ import {
   refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 } from '~/actions'
 
 class App extends Component {
@@ -69,7 +70,8 @@ const mapDispatchToProps = {
   refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 }
 
 export default connect(

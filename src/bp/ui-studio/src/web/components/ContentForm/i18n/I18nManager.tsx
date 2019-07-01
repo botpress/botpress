@@ -1,9 +1,22 @@
+import _ from 'lodash'
 import React from 'react'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { MdErrorOutline } from 'react-icons/md'
+
 import style from './style.scss'
 
-export default class I18nManager extends React.Component {
+interface Props {
+  formData: any
+  formContext: any
+  name: string
+  onChange: (text: string) => void
+}
+
+interface State {
+  placeholder: string
+}
+
+export default class I18nManager extends React.Component<Props, State> {
   state = {
     placeholder: ''
   }
@@ -20,11 +33,20 @@ export default class I18nManager extends React.Component {
       return false
     }
 
-    const isDefaultLangSet = this.props.formContext[this.props.name + '$' + defaultLang] !== undefined
-    const isActiveLangSet = this.props.formContext[this.props.name + '$' + activeLang] !== undefined
+    const isDefaultLangSet = this.isPropertySet(this.props.name + '$' + defaultLang)
+    const isActiveLangSet = this.isPropertySet(this.props.name + '$' + activeLang)
     const isEmpty = !this.props.formData || !this.props.formData.length
 
     return isDefaultLangSet && (!isActiveLangSet || isEmpty)
+  }
+
+  isPropertySet(propName) {
+    const value = this.props.formContext[propName]
+    if (value === undefined || (_.isArray(value) && value.length === 1 && _.every(_.values(value[0]), _.isEmpty))) {
+      return false
+    }
+
+    return true
   }
 
   handleOnChange = value => {
@@ -32,7 +54,8 @@ export default class I18nManager extends React.Component {
   }
 
   useDefaultLangText = () => {
-    this.props.onChange(this.state.placeholder)
+    const original = this.props.formContext[this.props.name + '$' + this.props.formContext.defaultLang]
+    original && this.handleOnChange(original)
   }
 
   renderWrapped(component) {
@@ -52,7 +75,7 @@ export default class I18nManager extends React.Component {
                 </Tooltip>
               }
             >
-              <MdErrorOutline onClick={() => this.props.onChange(this.state.placeholder)} />
+              <MdErrorOutline onClick={this.useDefaultLangText} />
             </OverlayTrigger>
           )}
         </div>

@@ -86,7 +86,7 @@ export default class ArrayMl extends I18nManager {
   render() {
     return (
       <div>
-        <div style={{ float: 'right', position: 'absolute', right: 0 }}>
+        <div style={{ float: 'right', position: 'absolute', right: 30 }}>
           <Button onClick={this.toggle} bsStyle="link">
             Quick Editor
           </Button>

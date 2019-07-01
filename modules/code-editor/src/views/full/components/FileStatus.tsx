@@ -1,16 +1,18 @@
-import { SidePanelSection } from 'botpress/ui'
-import React, { useState } from 'react'
-
 import { Collapse, Icon } from '@blueprintjs/core'
+import { SidePanelSection } from 'botpress/ui'
+import { RootStore } from 'full/store'
+import { inject, observer } from 'mobx-react'
+import React, { useState } from 'react'
 
 const FileStatus = props => {
   const [showErrors, setErrorDisplayed] = useState(false)
   const actions = [
-    { label: 'Discard', icon: <Icon icon="disable" />, onClick: props.discardChanges },
-    { label: 'Save', icon: <Icon icon="floppy-disk" />, onClick: props.onSaveClicked }
+    { label: 'Discard', icon: <Icon icon="disable" />, onClick: props.editor.discardChanges },
+    { label: 'Save', icon: <Icon icon="floppy-disk" />, onClick: props.editor.saveChanges }
   ]
 
-  if (!props.errors || !props.errors.length) {
+  const problems = props.editor.fileProblems
+  if (!problems || !problems.length) {
     return (
       <SidePanelSection label={'File Information'} actions={actions}>
         <React.Fragment />
@@ -22,7 +24,7 @@ const FileStatus = props => {
     <SidePanelSection label={'File Information'} actions={actions}>
       <div style={{ padding: 5 }}>
         <strong>Warning</strong>
-        <p>There are {props.errors.length} errors in your file.</p>
+        <p>There are {problems.length} errors in your file.</p>
         <p>Please make sure to fix them before saving.</p>
 
         <span onClick={() => setErrorDisplayed(!showErrors)} style={{ cursor: 'pointer' }}>
@@ -33,8 +35,8 @@ const FileStatus = props => {
 
         <Collapse isOpen={showErrors}>
           <div style={{ paddingLeft: 15 }}>
-            {props.errors.map(x => (
-              <div style={{ marginBottom: 10 }}>
+            {problems.map(x => (
+              <div key={x.message} style={{ marginBottom: 10 }}>
                 Line <strong>{x.startLineNumber}</strong>
                 <br />
                 {x.message}
@@ -47,4 +49,7 @@ const FileStatus = props => {
   )
 }
 
-export default FileStatus
+export default inject(({ store }: { store: RootStore }) => ({
+  store,
+  editor: store.editor
+}))(observer(FileStatus))

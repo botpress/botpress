@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Col, Grid, Panel, Row, Table, Tooltip as BTooltip, OverlayTrigger, Button } from 'react-bootstrap'
-
+import { Container } from 'botpress/ui'
 import {
   Area,
   AreaChart,
@@ -479,7 +479,7 @@ export default class AnalyticsModule extends React.Component {
 
   renderAllMetrics() {
     return (
-      <div>
+      <div style={{ height: '100%', overflowY: 'auto' }}>
         <StatsHeader axios={this.props.bp.axios} />
         {this.renderCustomMetrics()}
         <Row>
@@ -520,6 +520,11 @@ export default class AnalyticsModule extends React.Component {
       return this.renderNoAnalyticsYet()
     }
 
-    return <div>{this.state.loading ? <h3>Wait, we are loading graphs...</h3> : this.renderAllMetrics()}</div>
+    return (
+      <Container sidePanelHidden={true}>
+        <div />
+        {this.state.loading ? <h3>Wait, we are loading graphs...</h3> : this.renderAllMetrics()}
+      </Container>
+    )
   }
 }

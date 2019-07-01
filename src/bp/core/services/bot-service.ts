@@ -1,10 +1,13 @@
-import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, LoggerListener, Stage } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
+import { PersistedConsoleLogger } from 'core/logger'
+import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
+import { RealTimePayload } from 'core/sdk/impl'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { WrapErrorsWith } from 'errors'
@@ -25,6 +28,7 @@ import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
 import { ModuleResourceLoader } from './module/resources-loader'
+import RealtimeService from './realtime'
 import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
@@ -46,6 +50,7 @@ export class BotService {
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
+  private static _botListenerHandles: Map<string, IDisposable> = new Map()
 
   constructor(
     @inject(TYPES.Logger)
@@ -58,7 +63,8 @@ export class BotService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: Statistics,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
   ) {
     this._botIds = undefined
   }
@@ -460,6 +466,24 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       this._invalidateBotIds()
+
+      if (BotService._botListenerHandles.has(botId)) {
+        BotService._botListenerHandles.get(botId)!.dispose()
+        BotService._botListenerHandles.delete(botId)
+      }
+
+      BotService._botListenerHandles.set(
+        botId,
+        PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
+          this.realtimeService.sendToSocket(
+            RealTimePayload.forAdmins('logs::' + botId, {
+              level,
+              message,
+              args
+            })
+          )
+        }, botId)
+      )
     } catch (err) {
       this.logger
         .attachError(err)

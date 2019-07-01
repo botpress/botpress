@@ -104,7 +104,7 @@ class SmartInput extends Component<ConnectedProps, State> {
       <div className={cx(style.editor, this.props.className)} onClick={this.focus}>
         <Editor
           stripPastedStyles={true}
-          placeholder={this.props.placeholder}
+          placeholder={this.props.placeholder.substring(0, 50) + '...'}
           editorState={this.state.editorState}
           onChange={this.onChange}
           plugins={plugins}

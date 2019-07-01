@@ -187,6 +187,8 @@ export default class ScopedEngine implements Engine {
   async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.trainOrLoad()
+      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
     }
 
     const t0 = Date.now()

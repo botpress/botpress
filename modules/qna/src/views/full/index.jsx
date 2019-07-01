@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { Container } from 'botpress/ui'
 import {
   FormGroup,
   FormControl,
@@ -508,34 +508,37 @@ export default class QnaAdmin extends Component {
 
   render() {
     return (
-      <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
-        <a
-          ref={this.jsonDownloadableLink}
-          href={this.state.jsonDownloadableLinkHref}
-          download={this.state.jsonDownloadableFileName}
-        />
-        <Panel.Body>
-          {this.renderQnAHeader()}
-          {this.renderPagination()}
-          {this.questionsList()}
-          {this.renderPagination()}
-          <FormModal
-            contentLang={this.props.contentLang}
-            flows={this.state.flows}
-            flowsList={this.state.flowsList}
-            bp={this.props.bp}
-            showQnAModal={this.state.showQnAModal}
-            closeQnAModal={this.closeQnAModal}
-            categories={this.state.categoryOptions}
-            fetchData={this.fetchData}
-            id={this.state.currentItemId}
-            modalType={this.state.QnAModalType}
-            page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
-            updateQuestion={this.updateQuestion}
-            filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+      <Container sidePanelHidden={true}>
+        <div />
+        <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
+          <a
+            ref={this.jsonDownloadableLink}
+            href={this.state.jsonDownloadableLinkHref}
+            download={this.state.jsonDownloadableFileName}
           />
-        </Panel.Body>
-      </Panel>
+          <Panel.Body>
+            {this.renderQnAHeader()}
+            {this.renderPagination()}
+            {this.questionsList()}
+            {this.renderPagination()}
+            <FormModal
+              contentLang={this.props.contentLang}
+              flows={this.state.flows}
+              flowsList={this.state.flowsList}
+              bp={this.props.bp}
+              showQnAModal={this.state.showQnAModal}
+              closeQnAModal={this.closeQnAModal}
+              categories={this.state.categoryOptions}
+              fetchData={this.fetchData}
+              id={this.state.currentItemId}
+              modalType={this.state.QnAModalType}
+              page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
+              updateQuestion={this.updateQuestion}
+              filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+            />
+          </Panel.Body>
+        </Panel>
+      </Container>
     )
   }
 }
