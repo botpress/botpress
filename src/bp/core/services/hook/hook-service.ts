@@ -243,12 +243,12 @@ export class HookService {
     const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
-    hook.debug('before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
+    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
     process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    hook.debug('after execute')
+    hook.debug.forBot(botId, 'after execute')
   }
 
   private logScriptError(err, botId, path, folder) {

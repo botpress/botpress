@@ -186,7 +186,10 @@ export class ScopedActionService {
     const runner = new VmRunner()
 
     const result = await runner.runInVm(vm, code, dirPath).catch(err => {
-      this.logger.attachError(err).error(`An error occurred while executing the action "${actionName}`)
+      this.logger
+        .forBot(this.botId)
+        .attachError(err)
+        .error(`An error occurred while executing the action "${actionName}`)
       throw new BPError(`An error occurred while executing the action "${actionName}"`, 'BP_451')
     })
 

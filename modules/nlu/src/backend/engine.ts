@@ -375,7 +375,7 @@ export default class ScopedEngine implements Engine {
 
     const systemEntities = await this.systemEntityExtractor.extract(ds.lowerText, ds.language)
 
-    debugEntities(ds.rawText, { systemEntities, patternEntities, listEntities })
+    debugEntities.forBot(this.botId, ds.rawText, { systemEntities, patternEntities, listEntities })
 
     ds.entities = [...systemEntities, ...patternEntities, ...listEntities]
     return ds
@@ -420,7 +420,7 @@ export default class ScopedEngine implements Engine {
     ds.intents = intents
     ds.intent = intents[0]
 
-    debugIntents(ds.sanitizedText, { intents })
+    debugIntents.forBot(this.botId, ds.sanitizedText, { intents })
 
     return ds
   }
@@ -455,7 +455,7 @@ export default class ScopedEngine implements Engine {
       ds.tokens
     )
 
-    debugSlots('slots', { rawText: ds.rawText, slots: ds.slots })
+    debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
     return ds
   }
 
@@ -464,7 +464,7 @@ export default class ScopedEngine implements Engine {
     ds.detectedLanguage = lang
 
     if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      debugLang(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
+      debugLang.forBot(this.botId, `Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
       lang = this.defaultLanguage
     }
 

@@ -245,9 +245,9 @@ export class BotService {
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this.workspaceService.addBotRef(botId, workspaceId)
         await this.mountBot(botId)
-        this.logger.info(`Import of bot ${botId} successful`)
+        this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
-        this.logger.info(`Import of bot ${botId} was denied by hook validation`)
+        this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
       }
     } finally {
       tmpDir.removeCallback()
@@ -291,7 +291,9 @@ export class BotService {
       throw new Error('New bot id needs to differ from original bot')
     }
     if (!overwriteDest && (await this.botExists(destBotId))) {
-      this.logger.warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
+      this.logger
+        .forBot(destBotId)
+        .warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
       return
     }
 
@@ -382,7 +384,10 @@ export class BotService {
       delete initialBot.pipeline_status.stage_request
       return this.configProvider.setBotConfig(initialBot.id, initialBot)
     } catch (err) {
-      this.logger.attachError(err).error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
+      this.logger
+        .forBot(newBot.id)
+        .attachError(err)
+        .error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
     }
   }
 
@@ -580,7 +585,7 @@ export class BotService {
       await this.ghostService.forBot(botId).deleteFolder('/')
       await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
       await this.mountBot(botId)
-      this.logger.info(`Rollback of bot ${botId} successful`)
+      this.logger.forBot(botId).info(`Rollback of bot ${botId} successful`)
     } finally {
       tmpDir.removeCallback()
     }
