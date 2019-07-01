@@ -9,14 +9,14 @@ export const Debug = (mod: string, base = 'bp') => {
   instance.sub = mod => Debug(mod, namespace)
   instance.forBot = (botId, message, extra?) => {
     /**
-     * The botId is specified twice below, because when you format logs using %o, the arguments are undefined
+     * The extra bot ID is required, because when you format logs using %o, the arguments are merged in the message & set undefined
      * %o pretty-prints an object on a single line which makes resulting logs more compact
      */
     if (extra) {
       const args = typeof extra === 'string' ? { extra, botId } : { ...extra, botId }
-      return instance(`(${botId}) ${message}`, args, { botId })
+      return instance(`(${botId}) ${message}`, args, message.includes('%o') && { botId })
     } else {
-      return instance(`(${botId}) ${message}`, { botId }, { botId })
+      return instance(`(${botId}) ${message}`, { botId }, message.includes('%o') && { botId })
     }
   }
   return instance
