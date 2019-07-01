@@ -155,7 +155,12 @@ export class PersistedConsoleLogger implements Logger {
       timestamp: moment().toISOString()
     }
 
-    PersistedConsoleLogger.LogStreamEmitter.emit(`logs::${this.botId || '*'}`, level, entry.message, entry.metadata) // Args => level, message, args
+    PersistedConsoleLogger.LogStreamEmitter.emit(
+      `logs::${this.botId || '*'}`,
+      level,
+      indentedMessage,
+      serializedMetadata
+    ) // Args => level, message, args
 
     if (this.willPersistMessage && level !== LoggerLevel.Debug) {
       this.loggerDbPersister.appendLog(entry)

@@ -4,6 +4,7 @@
   "author": "Botpress",
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
+    "anser": "^1.4.8",
     "axios": "^0.18.1",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.5",
