@@ -11,7 +11,6 @@ import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
 import Dialog from './views/Dialog'
-import { Flow } from './views/Flow'
 import { Inspector } from './views/Inspector'
 import NLU from './views/NLU'
 import EventNotFound from './EventNotFound'
@@ -181,7 +180,11 @@ export class Debugger extends React.Component<Props, State> {
   renderSummary() {
     return (
       <div>
-        <Dialog suggestions={this.state.event.suggestions} decision={this.state.event.decision} />
+        <Dialog
+          suggestions={this.state.event.suggestions}
+          decision={this.state.event.decision}
+          stacktrace={this.state.event.state.__stacktrace}
+        />
         <NLU session={this.state.event.state.session} nluData={this.state.event.nlu} />
       </div>
     )
@@ -214,7 +217,6 @@ export class Debugger extends React.Component<Props, State> {
             <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
               <Tab id="basic" title="Summary" panel={this.renderSummary()} />
               <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-              <Tab id="flow" title="Debug flow" panel={<Flow stacktrace={this.state.event.state.__stacktrace} />} />
             </Tabs>
           </div>
         )}
