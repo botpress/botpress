@@ -145,7 +145,7 @@ class BottomPanel extends React.Component<Props, State> {
 
   handleClearLogs = () => {
     this.logs = []
-    this.forceUpdate()
+    this.setState({ initialLogs: [] })
   }
 
   render() {
