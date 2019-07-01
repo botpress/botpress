@@ -38,7 +38,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
-const AMBIGUITY_RANGE = 0.05 // +- 5% away from perfect median leads to ambiguity
+const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
