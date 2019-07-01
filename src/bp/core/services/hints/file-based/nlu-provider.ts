@@ -14,27 +14,27 @@ export default class NLUProvider implements FileBasedHintProvider {
           [
             {
               description: 'An extracted slot',
-              name: `session.extractedSlots.${x.name}`,
+              name: `session.slots.${x.name}`,
               partial: true
             },
             {
               description: 'The value of the extracted slot',
-              name: `session.extractedSlots.${x.name}.value`,
+              name: `session.slots.${x.name}.value`,
               partial: false
             },
             {
               description: 'The entity associated to the extracted slot',
-              name: `session.extractedSlots.${x.name}.entity`,
+              name: `session.slots.${x.name}.entity`,
               partial: true
             },
             {
               description: 'The name of the entity used to extract the slot',
-              name: `session.extractedSlots.${x.name}.entity.name`,
+              name: `session.slots.${x.name}.entity.name`,
               partial: false
             },
             {
               description: 'The type of the entity used to extract the slot',
-              name: `session.extractedSlots.${x.name}.entity.type`,
+              name: `session.slots.${x.name}.entity.type`,
               partial: false
             }
           ].map(hint => ({

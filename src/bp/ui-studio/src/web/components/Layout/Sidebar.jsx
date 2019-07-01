@@ -83,7 +83,7 @@ class Sidebar extends React.Component {
     if (module.name === 'nlu') {
       return (
         <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
-          <li>
+          <li id={`bp-menu_${module.name}`}>
             <a
               onMouseOver={this.showNluMenu}
               onMouseOut={this.hideNluMenu}
@@ -124,7 +124,7 @@ class Sidebar extends React.Component {
     } else {
       return (
         <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
-          <li>
+          <li id={`bp-menu_${module.name}`}>
             <NavLink
               to={path}
               title={module.menuText}
@@ -147,7 +147,7 @@ class Sidebar extends React.Component {
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
     <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
-      <li key={path}>
+      <li id={`bp-menu_${name}`} key={path}>
         <NavLink to={path} title={name} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
             {icon}

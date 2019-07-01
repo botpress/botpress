@@ -38,7 +38,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
-const AMBIGUITY_RANGE = 0.05 // +- 5% away from perfect median leads to ambiguity
+const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -387,7 +387,7 @@ export default class ScopedEngine implements Engine {
     const lower = perfectConfusion - AMBIGUITY_RANGE
     const upper = perfectConfusion + AMBIGUITY_RANGE
 
-    ds.ambiguous = allInRange(ds.intents.map(i => i.confidence), lower, upper)
+    ds.ambiguous = ds.intents.length > 1 && allInRange(ds.intents.map(i => i.confidence), lower, upper)
 
     return Promise.resolve(ds)
   }

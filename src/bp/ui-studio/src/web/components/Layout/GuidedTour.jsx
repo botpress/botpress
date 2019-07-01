@@ -22,15 +22,30 @@ export default class GuidedTour extends React.Component {
     const steps = [
       {
         selector: '',
-        content: 'Welcome to Botpress ! This is a quick your of the most important features'
+        content: 'Welcome to Botpress! This is a quick tour of the most important features.'
+      },
+      {
+        selector: '#bp-menu_qna',
+        content: 'The QnA module is great for easily adding knowledge to you bot as "Question & Answer" pairs.'
+      },
+      {
+        selector: '#bp-menu_nlu',
+        content:
+          'The "Understanding" screen will allow you to understand more complex user queries (Intents) and extract structured information (Entities).'
+      },
+      {
+        selector: '#bp-menu_Flows',
+        content:
+          'The "Flows" screen is the main interface. Using this tool, you can go beyond static responses by designing more complex, multi-turn dialogs.'
       },
       {
         selector: '#statusbar_emulator',
-        content: 'The emulator allows you to easily test your bot'
+        content:
+          'When making changes to your bot, you will use the Emulator to chat with your bot and debug your conversations.'
       },
       {
         selector: '#statusbar_switchbot',
-        content: 'Click here to return to the Admin UI and change bot'
+        content: 'Finally, this button will allow you to return to the administration panel or switch bot.'
       }
     ]
 

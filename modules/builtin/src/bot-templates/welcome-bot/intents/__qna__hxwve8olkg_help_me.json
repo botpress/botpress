@@ -1,8 +1,21 @@
 {
   "name": "__qna__hxwve8olkg_help_me",
-  "contexts": ["contexts"],
+  "contexts": [
+    "contexts"
+  ],
   "utterances": {
-    "en": ["help me", "I need help", "I don't know what to do", "I'm stuck", "What do I do"]
+    "en": [
+      "help me",
+      "I need help",
+      "I don't know what to do",
+      "I'm stuck",
+      "What do I do",
+      "what can i do?",
+      "I don't understand, how this works!",
+      "Please, Help me!",
+      "How does this work?",
+      "help!!"
+    ]
   },
   "slots": []
 }

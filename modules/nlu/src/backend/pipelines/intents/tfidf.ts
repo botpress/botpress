@@ -1,5 +1,8 @@
 import _ from 'lodash'
 
+const MAX_TFIDF = 2
+const MIN_TFIDF = 0.5
+
 export type TfidfInput = _.Dictionary<string[]>
 export type TfidfOutput = _.Dictionary<_.Dictionary<number>>
 
@@ -24,9 +27,10 @@ export default function tfidf(docs: TfidfInput): TfidfOutput {
 
       // Smooth IDF
       const idf = Math.max(0.25, -Math.log(docFreq / Object.keys(docs).length))
-      _avgSum[key] = (_avgSum[key] || 0) + tf * idf
+      const tfidf = Math.max(MIN_TFIDF, Math.min(MAX_TFIDF, tf * idf))
+      _avgSum[key] = (_avgSum[key] || 0) + tfidf
       _avgCount[key] = (_avgCount[key] || 0) + 1
-      return tf * idf
+      return tfidf
     })
 
     tfidf['__avg__'] = _.mean(_.values(tfidf))
