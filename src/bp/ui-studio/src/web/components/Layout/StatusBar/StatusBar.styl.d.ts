@@ -19,6 +19,7 @@ interface CssExports {
   'langItem': string;
   'langSwitherMenu': string;
   'list': string;
+  'nluUnhealthy': string;
   'right': string;
   'scoreLine': string;
   'shortcut': string;

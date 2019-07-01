@@ -54,8 +54,8 @@ const LanguageManagement: FC<Props> = props => {
 
   return (
     <React.Fragment>
-      {languages && languages.available.length > 0 && !props.readOnly && (
-        <div className='languages-list'>
+      {languages && languages.available.length > 0 && !props.readOnly && !!downloadables.length && (
+        <div className="languages-list">
           {/* TODO add a select when we have too many languages */}
           <h4>Add Languages</h4>
           {downloadables.map(lang => (
@@ -71,7 +71,7 @@ const LanguageManagement: FC<Props> = props => {
           ))}
         </div>
       )}
-      <div className='languages-list'>
+      <div className="languages-list">
         <h4>Installed Languages</h4>
         {installed.length === 0 && <p>No languages yet</p>}
         {installed.map(lang => (

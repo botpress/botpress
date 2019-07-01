@@ -43,6 +43,7 @@ gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
 
 // Example: yarn cmd dev:module --public nlu or yarn cmd dev:module --private bank
 gulp.task('dev:module', gulp.series([modules.cleanModuleAssets, modules.createModuleSymlink]))
+gulp.task('dev:modules', modules.createAllModulesSymlink())
 
 /**
  * Example: yarn cmd migration:create --target core --ver 13.0.0 --title "some config update"

@@ -1,6 +1,25 @@
-import React from 'react'
 import axios from 'axios'
+import React from 'react'
 import { toast } from 'react-toastify'
+import InjectedComponent from '~/components/Injected'
+import EventBus from '~/util/EventBus'
+
+interface Props {
+  moduleName: string
+  componentName: string
+  lite?: boolean
+  onNotFound?: any
+  extraProps?: any
+  contentLang?: string
+}
+
+interface State {
+  error: any
+  moduleComponent: any
+  moduleName: string
+  componentName: string
+}
+
 /*****
   DO NOT REQUIRE HEAVY DEPENDENCIES HERE
   Avoid requiring lodash here
@@ -8,16 +27,16 @@ import { toast } from 'react-toastify'
   To keep `lite.bundle.js` as small as possible
 *****/
 
-import InjectedComponent from '~/components/Injected'
-import EventBus from '~/util/EventBus'
-
-export default class InjectedModuleView extends React.Component {
+export default class InjectedModuleView extends React.Component<Props, State> {
   _isMounted = false
   state = {
-    moduleComponent: null
+    moduleComponent: undefined,
+    moduleName: undefined,
+    componentName: undefined,
+    error: undefined
   }
 
-  loadModule(modName, compName) {
+  loadModule(modName?: string, compName?: string) {
     const moduleName = modName || this.props.moduleName
     const componentName = compName || this.props.componentName
 
@@ -25,7 +44,7 @@ export default class InjectedModuleView extends React.Component {
       return
     }
 
-    this.setState({ moduleComponent: null, moduleName, componentName })
+    this.setState({ moduleComponent: undefined, moduleName, componentName })
 
     if (!window.botpress || !window.botpress[moduleName]) {
       const script = document.createElement('script')
@@ -47,7 +66,7 @@ export default class InjectedModuleView extends React.Component {
     }
   }
 
-  loadModuleView(moduleName, isLite) {
+  loadModuleView(moduleName: string, isLite: boolean) {
     if (!window.botpress || !window.botpress[moduleName]) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
@@ -56,7 +75,7 @@ export default class InjectedModuleView extends React.Component {
     }
   }
 
-  setViewInState(moduleName, componentName) {
+  setViewInState(moduleName: string, componentName: string) {
     const viewResolve = () => {
       const module = window.botpress && window.botpress[moduleName]
       return module && (module[componentName] || module['default'])

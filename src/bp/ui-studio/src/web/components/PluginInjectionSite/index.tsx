@@ -1,11 +1,15 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
-
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
 
-class InjectionSite extends React.Component {
+interface Props {
+  site: string
+  modules: any
+}
+
+class InjectionSite extends React.Component<Props> {
   static contextTypes = {
     router: PropTypes.object.isRequired
   }
