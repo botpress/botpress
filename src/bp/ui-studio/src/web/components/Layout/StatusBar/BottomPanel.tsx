@@ -93,14 +93,16 @@ class BottomPanel extends React.Component<Props, State> {
     })
   }
 
+  textToHtml = (text: string) => (text || '').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />')
+
   renderEntry(log: LogEntry): JSX.Element {
     const time = moment(new Date(log.ts)).format('YYYY-MM-DD HH:mm:ss')
     return (
       <li className={cn(style.entry, style[`level-${log.level}`])} key={'log-entry-' + log.id}>
         <span className={style.time}>{time}</span>
         <span className={style.level}>{log.level}</span>
-        <span className={style.message} dangerouslySetInnerHTML={{ __html: log.message }} />
-        <span className={style.message} dangerouslySetInnerHTML={{ __html: log.args || '' }} />
+        <span className={style.message} dangerouslySetInnerHTML={{ __html: this.textToHtml(log.message) }} />
+        <span className={style.message} dangerouslySetInnerHTML={{ __html: this.textToHtml(log.args) }} />
       </li>
     )
   }
