@@ -141,6 +141,10 @@ class PanelContent extends React.Component<Props> {
             items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
           },
           {
+            label: 'General Hooks',
+            items: hooks.filter(x => ['after_server_start'].includes(x.id))
+          },
+          {
             label: 'Pipeline Hooks',
             items: hooks.filter(x =>
               ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)

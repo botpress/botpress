@@ -340,7 +340,7 @@ export class BotService {
         if (action === 'promote_copy') {
           return this._promoteCopy(currentConfig, alteredBot)
         } else if (action === 'promote_move') {
-          return this._promoteMove(alteredBot)
+          return this._promoteMove(currentConfig, alteredBot)
         }
       })
     }
@@ -355,14 +355,14 @@ export class BotService {
     }
   }
 
-  private async _promoteMove(bot: BotConfig) {
-    bot.pipeline_status.current_stage = {
-      id: bot.pipeline_status.stage_request!.id,
-      promoted_by: bot.pipeline_status.stage_request!.requested_by,
+  private async _promoteMove(bot: BotConfig, finalBot: BotConfig) {
+    finalBot.pipeline_status.current_stage = {
+      id: finalBot.pipeline_status.stage_request!.id,
+      promoted_by: finalBot.pipeline_status.stage_request!.requested_by,
       promoted_on: new Date()
     }
-    delete bot.pipeline_status.stage_request
-    return this.configProvider.setBotConfig(bot.id, bot)
+    delete finalBot.pipeline_status.stage_request
+    return this.configProvider.setBotConfig(bot.id, finalBot)
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
