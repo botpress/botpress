@@ -25,7 +25,9 @@ export default class Testing extends React.Component {
 
   startRecording = () => {
     this.setState({ isRecording: true })
-    this.props.bp.axios.get('/mod/testing/startRecording/' + window.__BP_VISITOR_ID)
+
+    const userId = localStorage.getItem(`bp/socket/studio/user`)
+    this.props.bp.axios.get('/mod/testing/startRecording/' + userId || window.__BP_VISITOR_ID)
 
     setTimeout(window.botpressWebChat.sendEvent({ type: 'show' }), 1500)
   }
@@ -173,21 +175,20 @@ export default class Testing extends React.Component {
                 />
               )}
               {!this.state.isRecording && !this.hasScenarios && <NoScenarios onRecordClicked={this.startRecording} />}
-              {!this.state.isRecording &&
-                this.hasScenarios && (
-                  <div>
-                    {this.state.scenarios.map(s => (
-                      <Scenario
-                        key={s.name}
-                        scenario={s}
-                        run={this.runSingleScenario.bind(this, s)}
-                        previews={this.state.previews}
-                        bp={this.props.bp}
-                        isRunning={this.state.isRunning}
-                      />
-                    ))}
-                  </div>
-                )}
+              {!this.state.isRecording && this.hasScenarios && (
+                <div>
+                  {this.state.scenarios.map(s => (
+                    <Scenario
+                      key={s.name}
+                      scenario={s}
+                      run={this.runSingleScenario.bind(this, s)}
+                      previews={this.state.previews}
+                      bp={this.props.bp}
+                      isRunning={this.state.isRunning}
+                    />
+                  ))}
+                </div>
+              )}
             </Col>
           </Row>
         </Grid>
