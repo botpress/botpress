@@ -15,7 +15,8 @@ class ScenarioRecorder extends React.Component {
   state = { ...DEFAULT_STATE }
 
   componentDidMount() {
-    this.setState({ chatUserId: window.__BP_VISITOR_ID })
+    const userId = localStorage.getItem(`bp/socket/studio/user`)
+    this.setState({ chatUserId: userId || window.__BP_VISITOR_ID })
   }
 
   startRecording = async () => {
@@ -49,19 +50,18 @@ class ScenarioRecorder extends React.Component {
     return (
       <Row>
         <Col md={10} className={style.scenarioRecorder}>
-          {this.props.isRecording &&
-            !this.state.recordedScenario && (
-              <Alert>
-                <h4>Recording</h4>
-                <p>
-                  You are now recording a scenario, every interaction in the emulator will be saved in a scenario. You
-                  can either continue your current session or start a new session.
-                </p>
-                <Button bsSize="sm" onClick={this.stopRecording}>
-                  Stop recording
-                </Button>
-              </Alert>
-            )}
+          {this.props.isRecording && !this.state.recordedScenario && (
+            <Alert>
+              <h4>Recording</h4>
+              <p>
+                You are now recording a scenario, every interaction in the emulator will be saved in a scenario. You can
+                either continue your current session or start a new session.
+              </p>
+              <Button bsSize="sm" onClick={this.stopRecording}>
+                Stop recording
+              </Button>
+            </Alert>
+          )}
           {this.state.recordedScenario && (
             <div>
               <Alert bsStyle="success">Recording complete</Alert>
