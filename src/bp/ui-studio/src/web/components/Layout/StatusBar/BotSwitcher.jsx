@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
-import { Dropdown, Glyphicon } from 'react-bootstrap'
+import { Dropdown, Glyphicon, MenuItem } from 'react-bootstrap'
 import style from './StatusBar.styl'
+import cn from 'classnames'
 import ActionItem from './ActionItem'
 import _ from 'lodash'
 
@@ -28,17 +29,11 @@ export default class BotSwitcher extends React.Component {
           <span>{this.props.currentBotId}</span>
         </ActionItem>
 
-        <Dropdown pullRight dropup={true} open={this.state.open} onToggle={this.toggleOpen} id="bot-switcher">
+        <Dropdown dropup={true} open={this.state.open} onToggle={this.toggleOpen} id="bot-switcher">
           {/* react-bootstrap warning otherwise */}
           <Dropdown.Toggle style={{ display: 'none' }} />
 
-          <Dropdown.Menu pullRight onClose={this.toggleOpen} className={style.langSwitherMenu}>
-            <li className={style.langItem}>
-              <a key="admin" href={`/admin`}>
-                Back to admin
-              </a>
-            </li>
-
+          <Dropdown.Menu pullRight onClose={this.toggleOpen} className={cn(style.langSwitherMenu, style.switchBotMenu)}>
             {this.props.botsIds
               .filter(id => this.props.currentBotId != id)
               .map(id => (
@@ -48,6 +43,12 @@ export default class BotSwitcher extends React.Component {
                   </a>
                 </li>
               ))}
+            <MenuItem divider />
+            <li className={style.langItem}>
+              <a key="admin" href={`/admin`}>
+                Back to admin
+              </a>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
       </Fragment>

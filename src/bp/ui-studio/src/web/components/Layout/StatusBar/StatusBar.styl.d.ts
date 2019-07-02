@@ -22,6 +22,7 @@ interface CssExports {
   'right': string;
   'shortcut': string;
   'statusBar': string;
+  'switchBotMenu': string;
   'worker': string;
 }
 declare var cssExports: CssExports;
