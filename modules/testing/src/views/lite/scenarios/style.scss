@@ -1,0 +1,69 @@
+@import '~@blueprintjs/core/lib/scss/variables';
+
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
+.block {
+  margin-bottom: 10px;
+}
+
+.hovering {
+  width: 100%;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.container {
+  width: 450px;
+  height: 100vh;
+  position: relative;
+  border: 1px solid #ccc;
+  border-right: none;
+  background-color: white;
+}
+
+.header {
+  height: 50px;
+  background-color: whitesmoke;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.splash {
+  display: flex;
+  align-items: center;
+  height: 100%;
+
+  > div {
+    text-align: center;
+    margin: auto;
+    width: 80%;
+    color: #353535;
+    padding-bottom: 20%;
+    svg {
+      font-size: 110px;
+      color: $light-gray3;
+    }
+    h2 {
+      margin: 10px 0;
+    }
+  }
+}
+
+.notFound {
+  > div {
+    width: 95%;
+  }
+}
+
+.content {
+  padding: 10px;
+  height: calc(100% - 50px);
+  overflow-y: auto;
+}

@@ -1,7 +1,5 @@
-import { AuthUser } from 'core/misc/interfaces'
 import { IncidentRule } from 'core/services/alerting-service'
-
-export type AuthStrategy = 'basic' | 'saml' | 'ldap'
+import { UniqueUser } from 'core/services/auth/auth-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -133,6 +131,12 @@ export type BotpressConfig = {
   modules: Array<ModuleConfigEntry>
   pro: {
     /**
+     * These strategies are allowed to log on the Admin UI.
+     * Once a user is logged on, he still needs individual access to respective workspaces
+     * @default  ["default"]
+     */
+    collaboratorsAuthStrategies: string[]
+    /**
      * When pro features are enabled, the license key must be provided
      * @default false
      */
@@ -144,28 +148,6 @@ export type BotpressConfig = {
      * @default paste your license key here
      */
     licenseKey: string
-    auth: {
-      /**
-       * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
-       * @default basic
-       */
-      strategy: AuthStrategy
-      /**
-       * Defines custom options based on the chosen authentication strategy
-       */
-      options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
-      /**
-       * Maps the values returned by your provider to Botpress user parameters.
-       * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
-       */
-      fieldMapping: FieldMapping
-      /**
-       * When enabled, users are able to register new accounts by themselves. For example, if you use the SAML strategy and this is enabled,
-       * any user able to sign in using your SAML provider will create automatically an account on Botpress.
-       * @default false
-       */
-      allowSelfSignup: boolean
-    }
     monitoring: MonitoringConfig
     /**
      * The alert service is an extension of the monitoring service. The monitoring collects data, while the alert service
@@ -188,7 +170,7 @@ export type BotpressConfig = {
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
    * @example: [admin@botpress.io]
    */
-  superAdmins: string[]
+  superAdmins: UniqueUser[]
   /**
    * When enabled, Botpress collects anonymous data about the bot's usage
    * @default true
@@ -241,6 +223,19 @@ export type BotpressConfig = {
    * @default false
    */
   autoRevision: boolean
+  eventCollector: EventCollectorConfig
+  /**
+   * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
+   */
+  authStrategies: {
+    [strategyId: string]: AuthStrategy
+  }
+  /**
+   * Displays the "Powered by Botpress" under the webchat.
+   * Help us spread the word, enable this to show your support !
+   * @default true
+   */
+  showPoweredBy: boolean
 }
 
 export interface ExternalAuthConfig {
@@ -286,6 +281,32 @@ export interface DataRetentionConfig {
  */
 export type RetentionPolicy = {
   [key: string]: string
+}
+
+export type AuthStrategyType = 'basic' | 'saml' | 'ldap'
+
+export interface AuthStrategy {
+  readonly id: string
+  /**
+   * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
+   * @default basic
+   */
+  type: AuthStrategyType
+  /**
+   * Defines custom options based on the chosen authentication strategy
+   */
+  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
+  /**
+   * Maps the values returned by your provider to Botpress user parameters.
+   * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
+   */
+  fieldMapping?: FieldMapping
+  /**
+   * When enabled, users are able to register new accounts by themselves. For example, if you use the SAML strategy and this is enabled,
+   * any user able to sign in using your SAML provider will create automatically an account on Botpress.
+   * @default false
+   */
+  allowSelfSignup: boolean
 }
 
 export interface AuthStrategyBasic {
@@ -382,7 +403,7 @@ export interface AuthStrategyLdap {
   certificates: string[]
 }
 
-export type FieldMapping = { [key in keyof Partial<AuthUser>]?: string }
+export type FieldMapping = { [bpAttribute: string]: string }
 
 export interface MonitoringConfig {
   /**
@@ -434,4 +455,35 @@ export interface AlertingConfig {
    * is called with the incident.
    */
   rules: IncidentRule[]
+}
+
+export interface EventCollectorConfig {
+  /**
+   * When enabled, incoming and outgoing events will be saved on the database.
+   * It is required for some modules to work proprely (eg: history, testing, developer tools on channel web)
+   * @default true
+   */
+  enabled: boolean
+  /**
+   * Events are batched then sent to the database. Change the delay to save them more frequently or not.
+   * @default 1s
+   */
+  collectionInterval: string
+  /**
+   * The duration for which events will be kept in the database
+   * @default 30d
+   */
+  retentionPeriod: string
+  /**
+   * Specify an array of event types that won't be persisted to the database. For example, typing events and visits
+   * may not provide you with useful informations
+   * @default ["visit","typing"]
+   */
+  ignoredEventTypes: string[]
+  /**
+   * Specify an array of properties that will be stripped from the event before being saved. For example, the "state" property of the event
+   * contains a lot of details about the user session (context, attributes, etc) and may not be useful in some cases.
+   * @default []
+   */
+  ignoredEventProperties: string[]
 }

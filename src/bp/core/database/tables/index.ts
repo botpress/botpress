@@ -4,19 +4,19 @@ import { Table } from '../interfaces'
 
 import {
   DialogSessionTable,
+  EventsTable,
   GhostFilesTable,
   GhostRevisionsTable,
   KeyValueStoreTable,
   LogsTable,
   NotificationsTable
 } from './bot-specific'
-
-import { ChannelUsersTable, DataRetentionTable, MigrationsTable, ServerMetadataTable } from './server-wide'
+import { ChannelUsersTable, DataRetentionTable, ServerMetadataTable, WorkspaceUsersTable } from './server-wide'
 
 const tables: (typeof Table)[] = [
-  MigrationsTable,
   ServerMetadataTable,
   ChannelUsersTable,
+  WorkspaceUsersTable,
 
   LogsTable,
   ChannelUsersTable,
@@ -25,7 +25,8 @@ const tables: (typeof Table)[] = [
   GhostRevisionsTable,
   NotificationsTable,
   KeyValueStoreTable,
-  DataRetentionTable
+  DataRetentionTable,
+  EventsTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables

@@ -3,11 +3,19 @@
   "contexts": [
     "contexts"
   ],
-  "utterances": [
-    "Lets talk about something else",
-    "Lets talk about another animal",
-    "I want to ask about another animal",
-    "I want to switch animal"
-  ],
+  "utterances": {
+    "en": [
+      "Lets talk about something else",
+      "Lets talk about another animal",
+      "I want to ask about another animal",
+      "I want to switch animal",
+      "Switch context",
+      "Let us address another subject",
+      "Can we change topic?",
+      "Please talk about anything else",
+      "Reset the animal",
+      "Talk about other mammals"
+    ]
+  },
   "slots": []
 }

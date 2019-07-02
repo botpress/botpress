@@ -11,14 +11,13 @@
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
-  "webpack": {
-    "externals": {
-      "botpress/tooltip": "BotpressTooltip"
-    }
-  },
   "devDependencies": {
+    "@blueprintjs/core": "^3.15.1",
     "@types/jest": "^23.3.9",
+    "@types/lru-cache": "^5.1.0",
     "@types/node": "^10.11.3",
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
@@ -29,15 +28,21 @@
     "classnames": "^2.2.6",
     "draft-js": "^0.10.5",
     "draftjs-utils": "^0.9.4",
+    "fs-extra": "^8.0.1",
     "https-proxy-agent": "^2.2.1",
     "joi": "^13.6.0",
+    "kuromoji": "^0.1.2",
     "lodash": "^4.17.11",
+    "lru-cache": "^5.1.1",
+    "mathjs": "^5.9.0",
     "ml-kmeans": "^4.2.1",
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
+    "react-dnd": "^8.0.3",
+    "react-dnd-html5-backend": "^8.0.3",
     "react-select": "^2.4.3",
     "react-splitter-layout": "^3.0.0",
-    "react-tag-input": "6.2.0",
+    "react-tag-input": "6.4.0",
     "tmp": "^0.0.33",
     "verror": "^1.10.0"
   }

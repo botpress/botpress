@@ -3,10 +3,19 @@
   "contexts": [
     "giraffes"
   ],
-  "utterances": [
-    "How many years does a giraffe live?",
-    "How long can giraffes live?",
-    "What is the life span of a giraffe?"
-  ],
+  "utterances": {
+    "en": [
+      "How many years does a giraffe live?",
+      "How long can giraffes live?",
+      "What is the life span of a giraffe?",
+      "Length of giraffe life",
+      "Typical lifespan of a giraffe?",
+      "How old can a giraffe get?",
+      "When do giraffes typically die?",
+      "Life expectancy",
+      "Do giraffes live long?",
+      "Tell me about giraffe's lifespan!"
+    ]
+  },
   "slots": []
 }

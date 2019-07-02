@@ -14,8 +14,8 @@ body {
 }
 
 * {
-  box-sizing: border-box;
-  outline: none;
+  box-sizing: border-box !important;
+  outline: none !important;
 }
 
 .bpw-from-user .bpw-chat-bubble {
@@ -264,6 +264,14 @@ body {
   padding: 0.5rem 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.bpw-from-bot .bpw-bubble-highlight {
+  background-color: rgba(255, 192, 114, 0.25);
+}
+
+.bpw-from-user .bpw-bubble-highlight {
+  background-color: #ffa73a;
 }
 
 .bpw-bubble-session_reset {
@@ -532,6 +540,12 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.bpw-powered {
+  text-align: right;
+  border-top: 1px solid #aaaaaa;
+  padding: 2px 5px 2px 0;
+}
+
 .bpw-send-button {
   position: absolute;
   right: 25px;
@@ -703,6 +717,7 @@ body {
 .bpw-botinfo-container {
   margin: 0 auto;
   max-width: 800px;
+  width: 100%;
   text-align: center;
   color: #1e1e1e;
   overflow-y: auto;
@@ -777,12 +792,6 @@ body {
   color: black;
 }
 
-/* Fix for IE which has trouble with the max-width property */
-@media only screen and (min-width: 800px) {
-  .bpw-botinfo-container {
-    width: 800px;
-  }
-}
 /** BOT INFORMATION PAGE - END */
 
 /** TYPING ANIMATIIONS */
@@ -845,6 +854,10 @@ body {
   animation-iteration-count: 1;
 }
 
+.bpw-anim-none {
+  visibility: visible;
+}
+
 @keyframes slideInRight {
   0% {
     visibility: visible;
@@ -883,4 +896,8 @@ body {
     visibility: hidden;
     transform: translateX(100%);
   }
+}
+
+.bpw-mobx-tools {
+  visibility: hidden;
 }

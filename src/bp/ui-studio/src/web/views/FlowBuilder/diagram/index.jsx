@@ -27,6 +27,8 @@ const createNodeModel = (node, props) => {
 }
 
 export default class FlowBuilder extends Component {
+  highlightedNodeName = undefined
+
   constructor(props) {
     super(props)
     this.state = {}
@@ -38,6 +40,26 @@ export default class FlowBuilder extends Component {
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     this.setModel()
+
+    window.highlightNode = (flow, node) => {
+      this.highlightedNodeName = node
+
+      if (!flow || !node) {
+        // Refreshing the model anyway, to remove the highlight if node is undefined
+        this.setModel()
+        return
+      }
+
+      try {
+        if (this.props.currentFlow.name !== flow) {
+          this.props.switchFlow(flow)
+        } else {
+          this.setModel()
+        }
+      } catch (err) {
+        console.error('Error when switching flow or refreshing', err)
+      }
+    }
   }
 
   async checkForNodeSearch() {
@@ -49,6 +71,18 @@ export default class FlowBuilder extends Component {
       await this.props.switchFlowNode(chosenNode.id)
       await this.props.openFlowNodeProps()
     }
+  }
+
+  checkForProblems() {
+    const nodes = this.activeModel.getNodes()
+    const nodesWithProblems = Object.keys(nodes)
+      .map(node => ({
+        nodeName: nodes[node].name,
+        missingPorts: nodes[node].next.filter(n => n.node === '').length
+      }))
+      .filter(x => x.missingPorts > 0)
+
+    this.props.updateFlowProblems(nodesWithProblems)
   }
 
   setTranslation(x = 0, y = 0) {
@@ -72,10 +106,19 @@ export default class FlowBuilder extends Component {
       return
     }
 
+    let centeredElement
     const nodes = currentFlow.nodes.map(node => {
-      const model = createNodeModel(node, { ...node, isStartNode: currentFlow.startNode === node.name })
+      const model = createNodeModel(node, {
+        ...node,
+        isStartNode: currentFlow.startNode === node.name,
+        isHighlighted: this.highlightedNodeName === node.name
+      })
       model.x = model.oldX = node.x
       model.y = model.oldY = node.y
+
+      if (this.highlightedNodeName === node.name) {
+        centeredElement = { x: model.x, y: model.x }
+      }
 
       return model
     })
@@ -89,13 +132,24 @@ export default class FlowBuilder extends Component {
 
     if (diagramContainer) {
       const diagramWidth = diagramContainer.offsetWidth
+      const diagramHeight = diagramContainer.offsetHeight
       const totalFlowWidth = _.max(nodes.map(({ x }) => x)) - _.min(nodes.map(({ x }) => x))
-      this.activeModel.setZoomLevel(Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING)) * 100)
-      this.activeModel.setOffsetX(-_.min(nodes.map(({ x }) => x)) + PADDING)
-      this.activeModel.setOffsetY(-_.min(nodes.map(({ y }) => y)) + PADDING)
+      const totalFlowHeight = _.max(nodes.map(({ y }) => y)) - _.min(nodes.map(({ y }) => y))
+      const zoomLevelX = Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING))
+      const zoomLevelY = Math.min(1, diagramHeight / (totalFlowHeight + 2 * PADDING))
+      const zoomLevel = Math.min(zoomLevelX, zoomLevelY)
+
+      const offsetX = PADDING - _.min(nodes.map(({ x }) => x))
+      const offsetY = PADDING - _.min(nodes.map(({ y }) => y))
+
+      this.activeModel.setZoomLevel(zoomLevel * 100)
+      this.activeModel.setOffsetX(offsetX * zoomLevel)
+      this.activeModel.setOffsetY(offsetY * zoomLevel)
 
       this.diagramWidget && this.diagramWidget.forceUpdate()
     }
+
+    this.checkForProblems()
   }
 
   clearModel() {
@@ -208,7 +262,8 @@ export default class FlowBuilder extends Component {
 
     model.setData({
       ..._.pick(node, passThroughNodeProps),
-      isStartNode: this.props.currentFlow.startNode === node.name
+      isStartNode: this.props.currentFlow.startNode === node.name,
+      isHighlighted: this.highlightedNodeName === node.name
     })
 
     model.lastModified = node.lastModified
@@ -217,7 +272,8 @@ export default class FlowBuilder extends Component {
   syncNode(node, model, snapshot) {
     model.setData({
       ..._.pick(node, passThroughNodeProps),
-      isStartNode: this.props.currentFlow.startNode === node.name
+      isStartNode: this.props.currentFlow.startNode === node.name,
+      isHighlighted: this.highlightedNodeName === node.name
     })
 
     model.setPosition(node.x, node.y)
@@ -375,6 +431,7 @@ export default class FlowBuilder extends Component {
       this.activeModel.linksHash = newLinksHash
       this.props.updateFlow({ links: newLinks })
     }
+    this.checkForProblems()
   }
 
   serialize = () => {
@@ -460,6 +517,7 @@ export default class FlowBuilder extends Component {
     }
 
     this.diagramWidget.forceUpdate()
+    this.checkForProblems()
   }
 
   copySelectedElementToBuffer() {

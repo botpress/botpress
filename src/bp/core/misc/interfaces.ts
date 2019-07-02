@@ -1,4 +1,5 @@
 import { BotDetails } from 'botpress/sdk'
+import { StrategyUser } from 'core/repositories/strategy_users'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../config/botpress.config'
@@ -12,57 +13,14 @@ export interface IInitializeFromConfig {
 }
 
 export interface Workspace {
+  id: string
   name: string
-  userSeq: number
-  users: AuthUser[]
   roles: AuthRole[]
   defaultRole: string
   adminRole: string
   bots: string[]
   pipeline: Pipeline
-}
-
-export interface AuthConfig {
-  strategy: string
-  isFirstTimeUse: boolean
-  authEndpoint: string
-}
-
-export type BasicAuthUser = Partial<AuthUser> & {
-  email: string
-  password: string
-  salt: string
-}
-
-export type ExternalAuthUser = Partial<AuthUser> & {
-  email: string
-  provider: string
-}
-
-export interface CreatedUser {
-  user: AuthUser
-  password?: string
-}
-
-export interface AuthUser {
-  email: string
-  password?: string
-  salt?: string
-  role?: string
-  firstname?: string
-  lastname?: string
-  fullName?: string
-  company?: string
-  last_ip?: string
-  location?: string
-  provider?: string
-  last_logon?: Date
-  created_on?: Date
-  locked_out?: boolean
-  password_expired?: boolean
-  password_expiry_date?: Date
-  unsuccessful_logins?: number
-  last_login_attempt?: Date | undefined
+  authStrategy?: string
 }
 
 export interface AuthRule {
@@ -79,12 +37,15 @@ export interface AuthRole {
 
 export interface TokenUser {
   email: string
+  strategy: string
   isSuperAdmin: boolean
+  exp?: number
 }
 
 export type RequestWithUser = Request & {
   tokenUser?: TokenUser
-  authUser?: AuthUser
+  authUser?: StrategyUser
+  workspace?: string
 }
 
 export interface Bot {

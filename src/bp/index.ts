@@ -6,6 +6,7 @@ const fs = require('fs')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
 const { Debug } = require('./debug')
+const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
   console.log('Error starting botpress')
@@ -32,7 +33,13 @@ function stripDeprecationWrite(this: Function): boolean {
     return (arguments[2] || arguments[1])()
   }
 
-  return originalWrite.apply(this, arguments)
+  return originalWrite.apply(this, (arguments as never) as [string])
+}
+
+if (process.env.APP_DATA_PATH) {
+  process.APP_DATA_PATH = process.env.APP_DATA_PATH
+} else {
+  process.APP_DATA_PATH = getAppDataPath()
 }
 
 process.BOTPRESS_EVENTS = new EventEmitter()
@@ -54,7 +61,7 @@ process.on('uncaughtException', err => {
 
 try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
-  process.core_env = process.env
+  process.core_env = process.env as BotpressEnvironementVariables
 
   const argv = require('yargs')
     .command(
@@ -66,6 +73,12 @@ try {
           description: 'Whether you want to run in production mode or not',
           default: false,
           type: 'boolean'
+        },
+        autoMigrate: {
+          description:
+            'When this flag is set, Botpress will automatically migrate your content and configuration files when upgrading',
+          default: false,
+          type: 'boolean'
         }
       },
       argv => {
@@ -75,6 +88,9 @@ try {
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
           defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
         }
+
+        process.AUTO_MIGRATE =
+          process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.IS_LICENSED = true
@@ -167,10 +183,65 @@ try {
         text: {
           description: 'Configure the text message that will be send by the fake users',
           default: 'Hey'
+        },
+        messageFile: {
+          alias: 'file',
+          description: 'Path to a text file with one message on each line (randomize sent messages)'
         }
       },
       argv => {
         require('./bench').default(argv)
+      }
+    )
+    .command(
+      'lang',
+      'Launch a local language server',
+      {
+        port: {
+          description: 'The port to listen to',
+          default: 3100
+        },
+        host: {
+          description: 'Binds the language server to a specific hostname',
+          default: 'localhost'
+        },
+        langDir: {
+          description: 'Directory where language embeddings will be saved'
+        },
+        authToken: {
+          description: 'When defined clients must provide this Bearer token'
+        },
+        limit: {
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
+          default: '1h'
+        },
+        readOnly: {
+          description: 'Read-only prevents adding and removing language embeddings at run-time',
+          default: false,
+          type: 'boolean'
+        },
+        metadataLocation: {
+          description: 'URL of metadata file which lists available languages',
+          default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
+        },
+        dim: {
+          default: 100,
+          description: 'Number of language dimensions provided (25, 100 or 300 at the moment)'
+        },
+        domain: {
+          description: 'Name of the domain where those embeddings were trained on.',
+          default: 'bp'
+        }
+      },
+      argv => {
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./lang-server').default(argv)
+        })
       }
     )
     .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {

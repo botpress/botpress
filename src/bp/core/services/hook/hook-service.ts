@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
-import { AuthUser } from 'core/misc/interfaces'
 import { printObject } from 'core/misc/print'
+import { StrategyUser } from 'core/repositories/strategy_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -100,7 +100,7 @@ export namespace Hooks {
     constructor(
       bp: typeof sdk,
       bot: sdk.BotConfig,
-      users: Partial<AuthUser[]>,
+      users: Partial<StrategyUser[]>,
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
@@ -113,7 +113,7 @@ export namespace Hooks {
       bp: typeof sdk,
       previousBotConfig: sdk.BotConfig,
       bot: sdk.BotConfig,
-      users: Partial<AuthUser[]>,
+      users: Partial<StrategyUser[]>,
       pipeline: sdk.Pipeline
     ) {
       super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })
@@ -243,12 +243,12 @@ export class HookService {
     const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
-    hook.debug('before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
+    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
     process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    hook.debug('after execute')
+    hook.debug.forBot(botId, 'after execute')
   }
 
   private logScriptError(err, botId, path, folder) {

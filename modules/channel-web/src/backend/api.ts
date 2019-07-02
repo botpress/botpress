@@ -257,7 +257,7 @@ export default async (bp: typeof sdk, db: Database) => {
       credentials
     })
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload)
+    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     return bp.events.sendEvent(event)

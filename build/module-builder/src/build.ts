@@ -22,6 +22,8 @@ export default async (argv: any) => {
 }
 
 export async function buildBackend(modulePath: string) {
+  const start = Date.now()
+
   let babelConfig: babel.TransformOptions = {
     presets: [
       [
@@ -35,7 +37,8 @@ export async function buildBackend(modulePath: string) {
       '@babel/preset-typescript',
       '@babel/preset-react'
     ],
-    sourceMaps: 'both',
+
+    sourceMaps: true,
     sourceRoot: path.join(modulePath, 'src/backend'),
     parserOpts: {
       allowReturnOutsideFunction: true
@@ -91,8 +94,13 @@ export async function buildBackend(modulePath: string) {
       const result = babel.transformFileSync(file, babelConfig)
 
       const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+      const destMap = dest + '.map'
       mkdirp.sync(path.dirname(dest))
-      fs.writeFileSync(dest, result.code)
+
+      fs.writeFileSync(dest, result.code + os.EOL + `//# sourceMappingURL=${path.basename(destMap)}`)
+      result.map.sources = [path.relative(babelConfig.sourceRoot, file)]
+      fs.writeFileSync(destMap, JSON.stringify(result.map))
+
       const totalTime = Date.now() - dBefore
 
       debug(`Generated "${dest}" (${totalTime} ms)`)
@@ -103,6 +111,8 @@ export async function buildBackend(modulePath: string) {
       throw err
     }
   }
+
+  normal(`Generated backend (${Date.now() - start} ms)`)
 }
 
 export async function buildConfigSchema(modulePath: string) {

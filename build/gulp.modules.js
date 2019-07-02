@@ -9,7 +9,7 @@ const print = require('gulp-print').default
 const mkdirp = require('mkdirp')
 const { symlink } = require('gulp')
 const rimraf = require('gulp-rimraf')
-const cwd = path.join(__dirname, '../', process.argv.includes('--private') ? 'private-modules' : 'modules')
+const cwd = path.join(__dirname, '../', process.argv.includes('--internal') ? 'internal-modules' : 'modules')
 
 const getAllModulesRoot = () => {
   return glob
@@ -66,7 +66,14 @@ const buildModule = (modulePath, cb) => {
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
-        console.error(stderr)
+        console.error(
+          `
+=======================================
+Error building module ${modulePath}
+=======================================
+Status: ${stderr}
+Output: ${stdout}`
+        )
         return cb(err)
       }
       cb()
@@ -88,6 +95,7 @@ const packageModule = (modulePath, cb) => {
     }
   )
 }
+
 const buildModuleBuilder = cb => {
   exec(`yarn && yarn build`, { cwd: 'build/module-builder' }, (err, stdout, stderr) => {
     if (err) {
@@ -148,11 +156,36 @@ const cleanModuleAssets = () => {
 }
 
 const createModuleSymlink = () => {
-  const moduleFolder = process.argv.includes('--private') ? 'private-modules' : 'modules'
+  const moduleFolder = process.argv.includes('--internal') ? 'internal-modules' : 'modules'
   const moduleName = _.last(process.argv)
   return gulp
     .src(`./${moduleFolder}/${moduleName}/assets/`)
     .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+}
+
+const createAllModulesSymlink = () => {
+  const moduleFolder = process.argv.includes('--internal') ? 'internal-modules' : 'modules'
+  const modules = getAllModulesRoot()
+
+  const tasks = modules.map(m => {
+    const moduleName = path.basename(m)
+    const taskName = `dev-modules ${moduleName}`
+
+    gulp.task(
+      taskName,
+      gulp.series(
+        () => gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf()),
+        () =>
+          gulp
+            .src(`./${moduleFolder}/${moduleName}/assets/`)
+            .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+      )
+    )
+
+    return taskName
+  })
+
+  return gulp.series(tasks)
 }
 
 module.exports = {
@@ -162,5 +195,6 @@ module.exports = {
   packageModules,
   buildModuleBuilder,
   cleanModuleAssets,
-  createModuleSymlink
+  createModuleSymlink,
+  createAllModulesSymlink
 }

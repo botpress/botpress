@@ -12,6 +12,10 @@
   border: 1px solid black;
 }
 
+.highlightedNode {
+  outline: 5px solid #ffde33 !important;
+}
+
 .item {
   word-wrap: break-word;
   text-overflow: ellipsis;

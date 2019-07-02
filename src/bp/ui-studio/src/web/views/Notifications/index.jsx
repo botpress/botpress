@@ -4,8 +4,7 @@ import { ListGroup, ListGroupItem, Panel, Button, Tooltip, OverlayTrigger } from
 import _ from 'lodash'
 
 import NotificationComponent from '~/components/Notifications'
-import ContentWrapper from '~/components/Layout/ContentWrapper'
-import PageHeader from '~/components/Layout/PageHeader'
+
 import { fetchNotifications } from '~/actions'
 import styles from './style.scss'
 
@@ -32,10 +31,7 @@ class NotificationHub extends NotificationComponent {
     const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
 
     return (
-      <ContentWrapper>
-        <PageHeader>
-          <span>Notifications</span>
-        </PageHeader>
+      <div>
         {notifications.length > 0 ? (
           <Panel>
             <Panel.Body>
@@ -65,7 +61,7 @@ class NotificationHub extends NotificationComponent {
         >
           {this.renderMenuItems(notifications)}
         </ListGroup>
-      </ContentWrapper>
+      </div>
     )
   }
 }

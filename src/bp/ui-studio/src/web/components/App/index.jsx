@@ -1,5 +1,5 @@
 import { Component } from 'react'
-
+import nanoid from 'nanoid'
 import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
@@ -11,9 +11,11 @@ import {
   fetchBotInformation,
   fetchModules,
   fetchSkills,
+  refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 } from '~/actions'
 
 class App extends Component {
@@ -28,9 +30,9 @@ class App extends Component {
   fetchData = () => {
     this.props.fetchModules()
     this.props.fetchSkills()
+    this.props.refreshHints()
     this.props.fetchNotifications()
     this.props.fetchBotInformation()
-
     this.props.fetchUser()
   }
 
@@ -49,6 +51,10 @@ class App extends Component {
     EventBus.default.on('notifications.new', notification => {
       this.props.addNotifications([notification])
     })
+
+    EventBus.default.on('hints.updated', () => {
+      this.props.refreshHints()
+    })
   }
 
   render() {
@@ -61,9 +67,11 @@ const mapDispatchToProps = {
   fetchBotInformation,
   fetchModules,
   fetchSkills,
+  refreshHints,
   fetchNotifications,
   replaceNotifications,
-  addNotifications
+  addNotifications,
+  appendLog
 }
 
 export default connect(

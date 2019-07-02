@@ -40,7 +40,9 @@ const eventSchema = {
         .array()
         .items(joi.object())
         .optional(),
+      ambiguous: joi.boolean(),
       language: joi.string().optional(),
+      detectedLanguage: joi.string().optional(),
       entities: joi
         .array()
         .items(joi.object())
@@ -164,11 +166,11 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {
-      debugIncoming('send', event)
+      debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
-      debugOutgoing('send', event)
+      debugOutgoing.forBot(event.botId, 'send ', event)
       incrementMetric('eventsOut.count')
       await this.outgoingQueue.enqueue(event, 1, false)
     }

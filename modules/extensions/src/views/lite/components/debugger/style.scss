@@ -1,0 +1,119 @@
+@import '~@blueprintjs/core/lib/scss/variables';
+
+* {
+  box-sizing: border-box;
+  outline: none;
+}
+
+.block {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #f5f5f5;
+  color: #353535;
+  .title {
+    display: flex;
+    justify-content: space-between;
+  }
+  .subSection {
+    margin: 10px 5px;
+    h5 {
+      margin-bottom: 5px;
+    }
+    strong {
+      color: #0e5a8a; //blueprint primary
+      text-transform: capitalize;
+    }
+    ul {
+      margin: 5px 0;
+      padding-left: 15px;
+      li {
+        line-height: 1.5em;
+      }
+    }
+  }
+  .summaryTable {
+    width: 100%;
+    th {
+      color: #5c7080; //blueprint gray-1
+    }
+  }
+}
+
+.hovering {
+  width: 100%;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.container2 {
+  width: 450px;
+  height: 100vh;
+  position: relative;
+  border: 1px solid #ccc;
+  border-right: none;
+  background-color: white;
+}
+
+.header {
+  height: 50px;
+  background-color: whitesmoke;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.splash {
+  display: flex;
+  align-items: center;
+  height: 100%;
+
+  > div {
+    text-align: center;
+    margin: auto;
+    width: 80%;
+    color: #353535;
+    padding-bottom: 20%;
+    svg {
+      font-size: 110px;
+      color: $light-gray3;
+    }
+    h2 {
+      margin: 10px 0;
+    }
+  }
+}
+
+.notFound {
+  > div {
+    width: 95%;
+  }
+}
+
+.content {
+  padding: 10px;
+  height: calc(100% - 50px);
+  overflow-y: auto;
+}
+
+.inspectorContainer {
+  height: 100%;
+}
+
+.inspector {
+  overflow-x: hidden;
+  background-color: var(--c-background-dark-2);
+  height: 100%;
+  width: 100%;
+
+  & > ul {
+    margin: none;
+    padding-left: 5px;
+  }
+}
+
+:global(.bp3-tooltip .bp3-popover-content) {
+  padding: 5px 8px !important;
+}

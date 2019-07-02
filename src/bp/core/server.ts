@@ -11,6 +11,7 @@ import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
@@ -23,6 +24,7 @@ import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
@@ -31,13 +33,14 @@ import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from './services/auth/auth-service'
+import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
+import { HintsService } from './services/hints'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
@@ -46,7 +49,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
-export const SERVER_USER = 'server::modules'
+const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
 const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
@@ -66,6 +69,7 @@ const debugRequestMw = (req: Request, _res, next) => {
 export default class HTTPServer {
   public readonly httpServer: Server
   public readonly app: express.Express
+  private isBotpressReady = false
 
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
@@ -74,6 +78,7 @@ export default class HTTPServer {
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
+  private hintsRouter!: HintsRouter
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -90,6 +95,7 @@ export default class HTTPServer {
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
+    @inject(TYPES.HintsService) private hintsService: HintsService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
@@ -136,7 +142,8 @@ export default class HTTPServer {
       this.ghostService,
       this.configProvider,
       this.monitoringService,
-      this.alertingService
+      this.alertingService,
+      moduleLoader
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -159,8 +166,16 @@ export default class HTTPServer {
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
+    this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+
+    // tslint:disable-next-line: no-floating-promises
+    AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
+      this.isBotpressReady = true
+    })
+
+    this.botsRouter.router.use('/hints', this.hintsRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'data/assets', file)
@@ -168,6 +183,20 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+
+    /**
+     * The loading of language models can take some time, access to Botpress is disabled until it is completed
+     * During this time, internal calls between modules can be made
+     */
+    this.app.use((req, res, next) => {
+      res.header('X-Powered-By', 'Botpress')
+      if (!this.isBotpressReady) {
+        if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
+          return res.status(503).send('Botpress is loading. Please try again in a minute.')
+        }
+      }
+      next()
+    })
 
     this.app.use(monitoringMiddleware)
 
@@ -304,7 +333,7 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, false, '5m', TOKEN_AUDIENCE)
+    const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
@@ -314,9 +343,9 @@ export default class HTTPServer {
   }
 
   extractExternalToken = async (req, res, next) => {
-    if (req.headers['x-bp-externalauth']) {
+    if (req.headers[EXTERNAL_AUTH_HEADER]) {
       try {
-        req.credentials = await this.decodeExternalToken(req.headers['x-bp-externalauth'])
+        req.credentials = await this.decodeExternalToken(req.headers[EXTERNAL_AUTH_HEADER])
       } catch (error) {
         return next(new InvalidExternalToken(error.message))
       }

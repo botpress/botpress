@@ -9,9 +9,9 @@ import {
   UncontrolledTooltip
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
-import { IoIosChatbubble } from 'react-icons/lib/io'
-import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/lib/md'
-import { FaCog } from 'react-icons/lib/fa'
+import { IoIosChatbubbles } from 'react-icons/io'
+import { MdModeEdit, MdArchive, MdDelete, MdLock, MdMoreVert, MdWarning, MdBackup, MdReplay } from 'react-icons/md'
+import { FaCog } from 'react-icons/fa'
 
 export default ({ bot, deleteBot, exportBot, permissions, history, createRevision, rollback }) => (
   <div className="bp_table-row" key={bot.id}>
@@ -21,18 +21,22 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
           <FaCog /> Configs
         </Button>
       </AccessControl>
-      <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-        <IoIosChatbubble /> Open chat
-      </Button>
+      {!bot.disabled && (
+        <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+          <IoIosChatbubbles /> Open chat
+        </Button>
+      )}
       <UncontrolledButtonDropdown>
         <DropdownToggle tag="span" className="more">
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
-            <MdModeEdit />
-            &nbsp;Edit in studio
-          </DropdownItem>
+          {!bot.disabled && (
+            <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
+              <MdModeEdit />
+              &nbsp;Edit in studio
+            </DropdownItem>
+          )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
             <DropdownItem onClick={createRevision}>
               <MdBackup />

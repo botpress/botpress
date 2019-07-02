@@ -1,0 +1,86 @@
+@mixin bottomBorder() {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+$charcoal: #1e1e1e;
+
+// Fix for IE which has trouble with the max-width property
+@media only screen and (min-width: 800px) {
+  .bot-info-container {
+    width: 800px;
+  }
+}
+
+.bot-info-container {
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  color: $charcoal;
+  overflow-y: auto;
+  svg {
+    fill: $charcoal;
+  }
+  & > img {
+    width: 100%;
+  }
+  p,
+  a,
+  button {
+    font-size: 0.9em;
+    color: rgb(102, 102, 102);
+    text-decoration: none;
+  }
+}
+
+.summary {
+  margin-top: -32px;
+  @include bottomBorder();
+  box-shadow: 0px 4px 5px -5px #ccc;
+  h3 {
+    margin: 0;
+  }
+  p {
+    margin-top: 0.4em;
+    margin-block-end: 1em;
+  }
+}
+
+.links {
+  @include bottomBorder();
+}
+
+.icon-link {
+  padding-left: 25%;
+  display: flex;
+  margin: 20px 0;
+  i {
+    margin-right: 10px;
+  }
+}
+
+.terms {
+  padding: 0px 20px;
+  text-align: left;
+  a {
+    display: inline-block;
+    width: 100%;
+    line-height: 2.5;
+    @include bottomBorder();
+  }
+}
+
+.startBtn {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 20px;
+  line-height: 24px;
+  padding: 5px 10px;
+  margin-top: 25px;
+  border: 1px solid rgb(100, 100, 100);
+  &:focus {
+    border: 1px solid black;
+    color: black;
+  }
+}

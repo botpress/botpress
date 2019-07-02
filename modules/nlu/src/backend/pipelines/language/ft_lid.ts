@@ -1,8 +1,6 @@
 import * as sdk from 'botpress/sdk'
-
-import { join } from 'path'
-
 import { readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
 import tmp from 'tmp'
 
 import { LanguageIdentifier } from '../../typings'

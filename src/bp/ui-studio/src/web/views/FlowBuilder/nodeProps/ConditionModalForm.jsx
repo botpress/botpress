@@ -5,6 +5,8 @@ import _ from 'lodash'
 import axios from 'axios'
 import style from './style.scss'
 
+import SmartInput from '~/components/SmartInput'
+
 const availableProps = [
   { label: 'User Data', value: 'user' },
   { label: 'Current User Session', value: 'session' },
@@ -27,10 +29,12 @@ export default class ConditionModalForm extends Component {
   componentDidMount() {
     this.fetchIntents()
 
-    const subflowOptions = this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
-      label: flow,
-      value: flow
-    }))
+    const subflowOptions = this.props.subflows
+      .filter(flow => !flow.startsWith('skills/'))
+      .map(flow => ({
+        label: flow,
+        value: flow
+      }))
 
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []
@@ -171,7 +175,10 @@ export default class ConditionModalForm extends Component {
     if (!this.validation()) {
       return
     }
-    const payload = { condition: this.state.condition }
+
+    // replace: "{{stuff}} more stuff... {{other stuff}}" by "stuff more stuff... other stuff"
+    const condition = this.state.condition.replace(/({{)(.*?)(}})/g, '$2')
+    const payload = { condition }
 
     if (this.state.typeOfTransition === 'subflow') {
       payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
@@ -261,8 +268,8 @@ export default class ConditionModalForm extends Component {
 
   handlePropsTypeChanged = option => this.setState({ matchPropsType: option }, this.updatePropertyMatch)
   handlePropsFieldNameChanged = e => this.setState({ matchPropsFieldName: e.target.value }, this.updatePropertyMatch)
-  handlePropsExpressionChanged = e => this.setState({ matchPropsExpression: e.target.value }, this.updatePropertyMatch)
-  handleConditionChanged = e => this.setState({ condition: e.target.value })
+  handlePropsExpressionChanged = value => this.setState({ matchPropsExpression: value }, this.updatePropertyMatch)
+  handleConditionChanged = value => this.setState({ condition: value })
 
   handleMatchIntentChanged = option => {
     this.setState({
@@ -286,7 +293,11 @@ export default class ConditionModalForm extends Component {
       return null
     }
 
-    const intents = this.state.intents.map(({ name }) => ({ label: name, value: name }))
+    const intents = this.state.intents
+      .filter(i => !i.name.startsWith('__qna__'))
+      .map(({ name }) => ({ label: name, value: name }))
+      .concat([{ label: 'none', value: 'none' }])
+
     return (
       <Select
         name="matchIntent"
@@ -315,8 +326,7 @@ export default class ConditionModalForm extends Component {
           className={style.textFields}
         />
 
-        <FormControl
-          type="text"
+        <SmartInput
           placeholder="Expression (ex: !== undefined)"
           value={this.state.matchPropsExpression}
           onChange={this.handlePropsExpressionChanged}
@@ -328,8 +338,7 @@ export default class ConditionModalForm extends Component {
 
   renderRawExpression() {
     return (
-      <FormControl
-        type="text"
+      <SmartInput
         placeholder="Javascript expression"
         value={this.state.condition}
         onChange={this.handleConditionChanged}

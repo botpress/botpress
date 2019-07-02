@@ -10,11 +10,12 @@ import { CacheInvalidators } from './cache-invalidators'
 
 @injectable()
 export default class MemoryObjectCache implements ObjectCache {
-  cache: LRU.Cache<string, any>
+  private cache
+
   public readonly events: EventEmitter = new EventEmitter()
 
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
-    this.cache = LRU({
+    this.cache = new LRU({
       max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
       length: obj => {
         if (Buffer.isBuffer(obj)) {

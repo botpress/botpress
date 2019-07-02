@@ -1,5 +1,5 @@
 import React from 'react'
-
+import { Container } from 'botpress/ui'
 import style from '../style.scss'
 import EntityEditor from './EntityEditor'
 import SidePanel from './SidePanel'
@@ -60,28 +60,31 @@ export class EntitiesComponent extends React.Component {
 
   render() {
     return (
-      <div className={style.workspace}>
-        <div>
-          <div className={style.main}>
-            <SidePanel
-              entities={this.state.entities}
-              selectedEntity={this.state.selectedEntity}
-              onCreateClick={this.toggleCreateModal}
-              onDeleteClick={this.deleteEntity}
-              onEntityClick={this.selectEntity}
-            />
-            <div className={style.childContent}>
-              <EntityEditor entity={this.state.selectedEntity} onUpdate={this.onEntityUpdate} />
+      <Container sidePanelHidden={true}>
+        <div />
+        <div className={style.workspace}>
+          <div>
+            <div className={style.main}>
+              <SidePanel
+                entities={this.state.entities}
+                selectedEntity={this.state.selectedEntity}
+                onCreateClick={this.toggleCreateModal}
+                onDeleteClick={this.deleteEntity}
+                onEntityClick={this.selectEntity}
+              />
+              <div className={style.childContent}>
+                <EntityEditor entity={this.state.selectedEntity} onUpdate={this.onEntityUpdate} />
+              </div>
             </div>
           </div>
+          <CreateEntityModal
+            visible={this.state.createModalVisible}
+            hide={this.toggleCreateModal}
+            axios={this.props.bp.axios}
+            onEntityCreated={this.handleEntityCreated}
+          />
         </div>
-        <CreateEntityModal
-          visible={this.state.createModalVisible}
-          hide={this.toggleCreateModal}
-          axios={this.props.bp.axios}
-          onEntityCreated={this.handleEntityCreated}
-        />
-      </div>
+      </Container>
     )
   }
 }

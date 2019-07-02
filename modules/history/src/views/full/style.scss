@@ -1,0 +1,85 @@
+.fetch-more {
+  width: fit-content;
+  margin: 0px auto 30px auto;
+}
+
+.filtersCheckbox {
+  margin: auto 0 auto 0;
+}
+
+.datepicker > span {
+  width: 100%;
+}
+
+.datepicker > span > div > div {
+  width: 50%;
+}
+
+.noConvIcon {
+  margin-bottom: 3em;
+}
+
+.conversations {
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.taskBarText {
+  vertical-align: middle;
+  line-height: 30px;
+}
+
+.message {
+  &-viewer {
+    height: calc(100% - 30px);
+    overflow-y: auto;
+    background-color: #fff;
+  }
+}
+
+.messageGroup {
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  &:hover {
+    background-color: #fafafa;
+  }
+}
+
+.iconWrap {
+  padding: 5px;
+}
+
+.inspector {
+  width: 350px;
+  border: 2px solid #ccc;
+}
+
+.interaction {
+  margin-bottom: 8px;
+  strong {
+    display: inline-block;
+    width: 50px;
+    margin-right: 25px;
+  }
+
+  .interactionStatus {
+    display: inline-block;
+    width: 25px;
+    vertical-align: middle;
+  }
+
+  .userMessage {
+    margin-left: 25px;
+  }
+  .botReplies {
+    display: flex;
+    > div {
+      margin-left: 25px;
+    }
+    > ul {
+      list-style: none;
+      padding: 0;
+    }
+  }
+}

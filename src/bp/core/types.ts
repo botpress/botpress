@@ -23,6 +23,7 @@ const TYPES = {
   IncomingQueue: Symbol.for('IncomingQueue'),
   OutgoingQueue: Symbol.for('OutgoingQueue'),
   HookService: Symbol.for('HookService'),
+  HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
@@ -68,8 +69,13 @@ const TYPES = {
   WorkspaceService: Symbol.for('WorkspaceService'),
   BotService: Symbol.for('BotService'),
   AuthStrategies: Symbol.for('AuthStrategies'),
+  MigrationService: Symbol.for('MigrationService'),
   MonitoringService: Symbol.for('MonitoringService'),
-  AlertingService: Symbol.for('AlertingService')
+  AlertingService: Symbol.for('AlertingService'),
+  EventRepository: Symbol.for('EventRepository'),
+  EventCollector: Symbol.for('EventCollector'),
+  StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
+  WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository')
 }
 
 export { TYPES }

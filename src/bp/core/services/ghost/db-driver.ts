@@ -140,7 +140,7 @@ export default class DBStorageDriver implements StorageDriver {
         query = query.andWhere('file_path', 'like', folder + '%')
       }
 
-      return query.then().map((x: any) => {
+      return query.then<Iterable<any>>().map((x: any) => {
         return forceForwardSlashes(path.relative(folder, x.file_path))
       })
     } catch (e) {

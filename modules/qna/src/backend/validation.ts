@@ -10,11 +10,17 @@ export const QnaDefSchema = Joi.object().keys({
   redirectNode: Joi.string()
     .optional()
     .allow(''),
-  questions: Joi.array()
-    .items(Joi.string())
-    .default([]),
-  answers: Joi.array()
-    .items(Joi.string())
-    .default([]),
-  answer: Joi.string().optional()
+  questions: Joi.object()
+    .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({}),
+  answers: Joi.object()
+    .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({})
 })
+
+const QnaItemSchema = Joi.object().keys({
+  id: Joi.string().required(),
+  data: QnaDefSchema
+})
+
+export const QnaItemArraySchema = Joi.array().items(QnaItemSchema)

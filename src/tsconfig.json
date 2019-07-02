@@ -17,5 +17,13 @@
     "typeRoots": ["./typings", "../node_modules/@types", "./bp/common"],
     "types": ["reflect-metadata", "jest", "bluebird-global"]
   },
-  "exclude": ["**/*.__test__.(ts|js)", "../out", "**/node_modules/**/*.(ts|js)", "**/static/**/*.(js|ts)"]
+  "exclude": [
+    "**/*.__test__.(ts|js)",
+    "../out",
+    "**/node_modules/**/*.(ts|js)",
+    "**/static/**/*.(js|ts)",
+    "**/ml/svm-js/**/*.*",
+    "**/ui-admin/**/*",
+    "bp/ui-studio/**"
+  ]
 }

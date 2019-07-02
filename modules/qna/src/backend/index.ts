@@ -2,10 +2,10 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import api from './api'
-import { QnaStorage } from './qna'
 import { initBot, initModule } from './setup'
+import Storage from './storage'
 
-const botScopedStorage: Map<string, QnaStorage> = new Map<string, QnaStorage>()
+const botScopedStorage: Map<string, Storage> = new Map<string, Storage>()
 
 const onServerStarted = async (bp: typeof sdk) => {
   await initModule(bp, botScopedStorage)

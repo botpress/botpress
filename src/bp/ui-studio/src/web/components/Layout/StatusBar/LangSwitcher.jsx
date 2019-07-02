@@ -6,14 +6,46 @@ import withLanguage from '../../Util/withLanguage'
 import ActionItem from './ActionItem'
 import { keyMap } from '~/keyboardShortcuts'
 import style from './StatusBar.styl'
+import Flag from 'react-world-flags'
+
+const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
+const langFlagsMap = {
+  fr: 'fr',
+  en: 'gb',
+  ja: 'jp',
+  ru: 'rus',
+  ar: 'eh',
+  pt: 'prt',
+  sp: 'esp',
+  ko: 'kor'
+}
 
 class LangSwitcher extends React.Component {
   elems = {}
 
-  componentDidUpdate() {
+  componentDidMount() {
+    this.restoreLastLanguage()
+  }
+
+  componentDidUpdate(prevProps) {
     let idx = this.props.languages.findIndex(l => l == this.props.contentLang)
     if (idx != -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
+    }
+
+    if (prevProps.languages !== this.props.languages) {
+      this.restoreLastLanguage()
+    }
+  }
+
+  restoreLastLanguage() {
+    const lastLang = localStorage.getItem(STORAGE_KEY)
+    if (!this.props.languages || !this.props.languages.length || !lastLang) {
+      return
+    }
+
+    if (this.props.languages.includes(lastLang)) {
+      this.props.changeContentLanguage(lastLang)
     }
   }
 
@@ -27,9 +59,11 @@ class LangSwitcher extends React.Component {
     }
   }
 
-  switchLang = l => {
-    this.props.changeContentLanguage(l)
+  switchLang = lang => {
+    this.props.changeContentLanguage(lang)
     this.props.toggleLangSwitcher()
+
+    localStorage.setItem(STORAGE_KEY, lang)
   }
 
   //react-bootstrap warning otherwise
@@ -44,19 +78,17 @@ class LangSwitcher extends React.Component {
       <Fragment>
         <ActionItem
           shortcut={keyMap['lang-switcher']}
-          className={style.right}
           title="Content Language"
           description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
           onClick={this.props.toggleLangSwitcher}
         >
           <span>
-            <Glyphicon glyph="globe" />
+            <Flag code={langFlagsMap[this.props.contentLang] || ''} height={10} />
             &nbsp;
             {this.props.contentLang.toUpperCase()}
           </span>
         </ActionItem>
         <Dropdown
-          className={style.right}
           pullRight
           dropup={true}
           open={this.props.langSwitcherOpen}
@@ -75,7 +107,8 @@ class LangSwitcher extends React.Component {
                 onClick={this.switchLang.bind(this, l)}
                 onKeyDown={this.handleKeyDown.bind(this, l)}
               >
-                {l.toUpperCase()}
+                <Flag code={langFlagsMap[l] || ''} height={14} />
+                <span>{l.toUpperCase()}</span>
               </li>
             ))}
           </Dropdown.Menu>

@@ -1,0 +1,109 @@
+.editor {
+  :global(.public-DraftEditorPlaceholder-root) {
+    display: inline;
+    position: absolute;
+    color: #888;
+  }
+
+  cursor: text;
+  position: relative;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  padding: 5px;
+  background: white;
+
+  .insertBtn {
+    position: absolute;
+    z-index: 5;
+    right: 6px;
+    top: 3px;
+    display: inline-block;
+
+    span[icon] {
+      transition: opacity 0.1s ease-in-out;
+      opacity: 0;
+    }
+  }
+
+  &:hover {
+    .insertBtn span[icon] {
+      opacity: 0.5;
+    }
+  }
+}
+
+.mentionSuggestions {
+  border: 1px solid #eee;
+  margin-top: 0.4em;
+  position: absolute;
+  min-width: 400px;
+  width: 400px;
+  max-width: 600px;
+  background: #fff;
+  cursor: pointer;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transform: scale(0);
+}
+
+.mentionSuggestions .suggestion-type {
+  border-radius: 50%;
+  background: #eee;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.mentionSuggestions .suggestion-type.variables {
+  background: pink;
+}
+
+.mentionSuggestions .suggestion-type.properties {
+  background: greenyellow;
+}
+
+.mentionSuggestions .variable {
+  font-size: 14px;
+  color: blue;
+  margin-left: 5px;
+  &.focused {
+    font-weight: bold;
+  }
+}
+
+.mentionSuggestions .description {
+  font-size: 12px;
+  color: #555;
+}
+
+.mentionSuggestionsEntry,
+.mentionSuggestionsEntryFocused {
+  padding: 7px 10px 3px 10px;
+  transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
+
+  &:active,
+  &.mentionSuggestionsEntryFocused {
+    background-color: #cce7ff;
+  }
+}
+
+.mentionSuggestionsEntryText {
+  display: inline-block;
+  margin-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 368px;
+  font-size: 0.9em;
+  margin-bottom: 0.2em;
+}
+
+.mention {
+  background-color: #cce7ff;
+}

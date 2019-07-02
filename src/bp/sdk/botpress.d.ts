@@ -45,6 +45,10 @@ declare module 'botpress/sdk' {
     DEBUG = 2
   }
 
+  export interface LoggerListener {
+    (level: LogLevel, message: string, args: any): void
+  }
+
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
@@ -230,9 +234,47 @@ declare module 'botpress/sdk' {
 
       export interface ModelConstructor {
         new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
+    }
+
+    export namespace SVM {
+      export interface SVMOptions {
+        classifier: 'C_SVC'
+        kernel: 'LINEAR' | 'RBF' | 'POLY'
+        c: number | number[]
+        gamma: number | number[]
+      }
+
+      export type DataPoint = {
+        label: string
+        coordinates: number[]
+      }
+
+      export type Prediction = {
+        label: string
+        confidence: number
+      }
+
+      export interface TrainProgressCallback {
+        (progress: number): void
+      }
+
+      export class Trainer {
+        constructor(options?: Partial<SVMOptions>)
+        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        isTrained(): boolean
+        serialize(): string
+      }
+
+      export class Predictor {
+        constructor(model: string)
+        predict(coordinates: number[]): Promise<Prediction[]>
+        isLoaded(): boolean
+        getLabels(): string[]
+      }
     }
 
     export namespace Strings {
@@ -273,6 +315,16 @@ declare module 'botpress/sdk' {
       export const createTrainer: () => Trainer
       export const createTagger: () => Tagger
     }
+
+    export namespace SentencePiece {
+      export interface Processor {
+        loadModel: (modelPath: string) => void
+        encode: (inputText: string) => string[]
+        decode: (pieces: string[]) => string
+      }
+
+      export const createProcessor: () => Processor
+    }
   }
 
   export namespace NLU {
@@ -301,7 +353,9 @@ declare module 'botpress/sdk' {
 
     export interface IntentDefinition {
       name: string
-      utterances: string[]
+      utterances: {
+        [lang: string]: string[]
+      }
       filename: string
       slots: SlotDefinition[]
       contexts: string[]
@@ -339,11 +393,17 @@ declare module 'botpress/sdk' {
     export interface Slot {
       name: string
       value: any
+      source: any
       entity: Entity
+      confidence: number
+    }
+
+    export interface SlotCollection {
+      [key: string]: Slot
     }
 
     export interface SlotsCollection {
-      [key: string]: Slot | Slot[]
+      [key: string]: Slot[]
     }
   }
   export namespace IO {
@@ -429,14 +489,19 @@ declare module 'botpress/sdk' {
 
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
+      /** Predicted intents needs disambiguiation */
+      readonly ambiguous: boolean
       readonly intents: NLU.Intent[]
+      /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
       readonly language: string
+      /** Language detected from users input. */
+      readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotsCollection
+      readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
     }
-
+    
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestions?: Suggestion[]
@@ -490,6 +555,11 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
+      /**
+       * EXPERIMENTAL
+       * This includes all the flow/nodes which were traversed for the current event
+       */
+      __stacktrace: JumpPoint[]
     }
 
     export interface JumpPoint {
@@ -523,6 +593,17 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
     }
+
+    export type StoredEvent = {
+      /** This ID is automatically generated when inserted in the DB  */
+      readonly id?: number
+      direction: EventDirection
+      /** Outgoing events will have the incoming event ID, if they were triggered by one */
+      incomingEventId?: string
+      sessionId: string
+      event: IO.Event
+      createdOn: any
+    } & EventDestination
 
     /**
      * They represent the contexts that will be used by the NLU Engine for the next messages for that chat session.
@@ -626,6 +707,7 @@ declare module 'botpress/sdk' {
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>
+    renameFile(rootFolder: string, fromName: string, toName: string): Promise<void>
     deleteFile(rootFolder: string, file: string): Promise<void>
     /**
      * List all the files matching the ending pattern in the folder
@@ -633,8 +715,14 @@ declare module 'botpress/sdk' {
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
      * @param exclude - The pattern to match excluded files.
+     * @param includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
      */
-    directoryListing(rootFolder: string, fileEndingPattern: string, exclude?: string | string[]): Promise<string[]>
+    directoryListing(
+      rootFolder: string,
+      fileEndingPattern: string,
+      exclude?: string | string[],
+      includeDotFiles?: boolean
+    ): Promise<string[]>
     /**
      * Starts listening on all file changes (deletion, inserts and updates)
      * `callback` will be called for every change
@@ -889,6 +977,20 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export interface MigrationResult {
+    success: boolean
+    message?: string
+  }
+
+  export interface ModuleMigration {
+    info: {
+      description: string
+      type: 'database' | 'config' | 'content'
+    }
+    up: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+    down?: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+  }
+
   /**
    * Simple interface to use when paging is required
    */
@@ -948,6 +1050,14 @@ declare module 'botpress/sdk' {
     sortOrder?: SortOrder[]
     /** Apply a filter to a specific field (instead of the 'search all' field) */
     filters?: Filter[]
+  }
+
+  export type EventSearchParams = {
+    /** Returns the amount of elements from the starting position  */
+    from: number
+    count: number
+    /** An array of columns with direction to sort results */
+    sortOrder?: SortOrder[]
   }
 
   export interface Filter {
@@ -1062,6 +1172,18 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    /**
+     * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param fields - One or multiple fields to add to the search query
+     * @param searchParams - Additional parameters for the query, like ordering, number of rows, etc.
+     */
+    export function findEvents(
+      fields: Partial<IO.StoredEvent>,
+      searchParams?: EventSearchParams
+    ): Promise<IO.StoredEvent[]>
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -1086,7 +1208,7 @@ declare module 'botpress/sdk' {
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
-    export function getAttributes(): Promise<any>
+    export function getAttributes(channel: string, userId: string): Promise<any>
   }
 
   /**
@@ -1191,7 +1313,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forBot(botId: string): ScopedGhostService
-
+    /**
+     * Access the Ghost Service scoped at the root of all bots
+     */
+    export function forBots(): ScopedGhostService
     /**
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */

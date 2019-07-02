@@ -8,7 +8,7 @@ import {
   UncontrolledTooltip
 } from 'reactstrap'
 import { AccessControl } from '../../../App/AccessControl'
-import { IoIosChatbubble } from 'react-icons/lib/io'
+import { IoIosChatbubbles } from 'react-icons/io'
 import {
   MdModeEdit,
   MdArchive,
@@ -19,8 +19,8 @@ import {
   MdWarning,
   MdBackup,
   MdReplay
-} from 'react-icons/lib/md'
-import { FaCog } from 'react-icons/lib/fa'
+} from 'react-icons/md'
+import { FaCog } from 'react-icons/fa'
 
 export default ({
   bot,
@@ -40,13 +40,17 @@ export default ({
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
-          <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
-            <IoIosChatbubble /> &nbsp;Open chat
-          </DropdownItem>
-          <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
-            <MdModeEdit />
-            &nbsp;Edit in studio
-          </DropdownItem>
+          {!bot.disabled && (
+            <React.Fragment>
+              <DropdownItem tag="a" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+                <IoIosChatbubbles /> &nbsp;Open chat
+              </DropdownItem>
+              <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
+                <MdModeEdit />
+                &nbsp;Edit in studio
+              </DropdownItem>
+            </React.Fragment>
+          )}
           {allowStageChange && (
             <DropdownItem onClick={requestStageChange}>
               <MdSkipNext />

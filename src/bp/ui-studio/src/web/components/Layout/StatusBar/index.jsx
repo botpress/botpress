@@ -1,3 +1,4 @@
+import { Icon } from '@blueprintjs/core'
 import style from './StatusBar.styl'
 import React from 'react'
 import _ from 'lodash'
@@ -7,10 +8,16 @@ import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
-
 import { updateDocumentationModal } from '~/actions'
 import LangSwitcher from './LangSwitcher'
+import BotSwitcher from './BotSwitcher'
 import ActionItem from './ActionItem'
+import PermissionsChecker from '../PermissionsChecker'
+import NotificationHub from '~/components/Notifications/Hub'
+import { GoMortarBoard } from 'react-icons/go'
+import NluPerformanceStatus from './NluPerformanceStatus'
+
+import axios from 'axios'
 
 const COMPLETED_DURATION = 2000
 
@@ -18,29 +25,50 @@ class StatusBar extends React.Component {
   clearCompletedStyleTimer = undefined
 
   state = {
-    keepBlueUntil: undefined,
-    inProgress: [],
-    messages: []
+    progress: 0,
+    messages: [],
+    nluSynced: true,
+    contexts: [],
+    botsIds: []
   }
 
   constructor(props) {
     super(props)
     this.progressContainerRef = React.createRef()
-
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
-  handleModuleEvent = event => {
+  async componentDidMount() {
+    await this.fetchContexts()
+    await this.fetchWorkspaceBotsIds()
+  }
+
+  fetchWorkspaceBotsIds = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`)
+    this.setState({ botsIds: data || [] })
+  }
+
+  fetchContexts = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
+    this.setState({ contexts: data || [] })
+  }
+
+  handleModuleEvent = async event => {
     if (event.message) {
       const messages = this.state.messages.filter(x => x.type !== event.type)
       const newMessage = { ...event, ts: Date.now() }
       this.setState({ messages: [...messages, newMessage] })
     }
 
-    if (event.name === 'done' || event.working === false) {
-      this.setState({ inProgress: _.without(this.state.inProgress, event.type) })
+    if (event.name === 'train') {
+      await this.fetchContexts()
+      this.setState({ nluSynced: false })
+    } else if (event.name === 'done' || event.working === false) {
+      this.setState({ progress: 1 })
     } else {
-      this.setState({ inProgress: [..._.without(this.state.inProgress, event.type), event.type] })
+      if (event.value != this.state.progress) {
+        this.setState({ progress: event.value })
+      }
     }
   }
 
@@ -49,26 +77,22 @@ class StatusBar extends React.Component {
       this.initializeProgressBar()
     }
 
-    if (!this.state.inProgress.length) {
-      if (prevState.inProgress.length) {
+    if (prevState.progress != this.state.progress && this.state.progress) {
+      if (this.state.progress >= 1) {
         this.progressBar.animate(1, 300)
         clearTimeout(this.clearCompletedStyleTimer)
         this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
       } else {
-        this.progressBar.set(0)
+        this.progressBar.animate(this.state.progress, 200)
       }
-    } else {
-      const current = this.progressBar.value()
-      this.progressBar.animate(Math.min(current + 0.15, 0.75), 200)
     }
   }
 
   cleanupCompleted = () => {
     const newMessages = this.state.messages.filter(x => x.ts > Date.now() - COMPLETED_DURATION)
     this.setState({ messages: newMessages })
-    if (this.progressBar.value() >= 1) {
-      this.progressBar.set(0)
-    }
+    this.setState({ progress: 0 })
+    this.progressBar.set(0)
   }
 
   initializeProgressBar = () => {
@@ -117,9 +141,9 @@ class StatusBar extends React.Component {
         shortcut={keyMap['docs-toggle']}
         description="This screen has documentation available."
         onClick={onClick}
+        className={style.right}
       >
-        <Glyphicon glyph="question-sign" style={{ marginRight: '5px' }} />
-        Documentation
+        <Icon icon="help" />
       </ActionItem>
     )
   }
@@ -129,24 +153,48 @@ class StatusBar extends React.Component {
       <footer ref={this.progressContainerRef} className={style.statusBar}>
         <div className={style.list}>
           <ActionItem
-            title="Toggle Emulator"
+            title="Show Emulator"
+            id={'statusbar_emulator'}
             shortcut={keyMap['emulator-focus']}
-            description="Show/hide the Chat Emulator window"
             onClick={this.props.onToggleEmulator}
             className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
           >
             <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
             Emulator
           </ActionItem>
+          <ActionItem title="Notification" description="View Notifications" className={style.right}>
+            <NotificationHub />
+          </ActionItem>
+          <NluPerformanceStatus
+            contentLang={this.props.contentLang}
+            updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
+            synced={this.state.nluSynced}
+            display={this.state.contexts.length === 1}
+          />
+          <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
+            <ActionItem
+              id="statusbar_logs"
+              title="Logs Panel"
+              shortcut={keyMap['bottom-bar']}
+              description="Toggle Logs Panel"
+              className={style.right}
+              onClick={this.props.toggleBottomPanel}
+            >
+              <Icon icon="console" />
+            </ActionItem>
+          </PermissionsChecker>
+          <ActionItem
+            onClick={this.props.onToggleGuidedTour}
+            title="Toggle Guided Tour"
+            description=""
+            className={style.right}
+          >
+            <GoMortarBoard />
+          </ActionItem>
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem title="Switch Bot" description="Switch to an other bot. This will leave this interface.">
-            <a href="/admin/">
-              <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
-              <strong>{this.props.botName}</strong> (bot)
-            </a>
-          </ActionItem>
+          <BotSwitcher botsIds={this.state.botsIds} currentBotId={this.props.botInfo.id} />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher
@@ -160,8 +208,10 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  user: state.user,
   botInfo: state.bot,
-  docHints: state.ui.docHints
+  docHints: state.ui.docHints,
+  contentLang: state.language.contentLang
 })
 
 export default connect(

@@ -3,13 +3,19 @@
   "contexts": [
     "memory"
   ],
-  "utterances": [
-    "forget my name",
-    "dont remember me",
-    "erase my name",
-    "erase me",
-    "stop remembering me",
-    "forget me"
-  ],
+  "utterances": {
+    "en": [
+      "forget my name",
+      "dont remember me",
+      "erase my name",
+      "erase me",
+      "stop remembering me",
+      "forget me",
+      "Please forget my identity",
+      "Can you erase my name from your database?",
+      "May i ask you to forget who I am?",
+      "Clear your memory of my name"
+    ]
+  },
   "slots": []
 }

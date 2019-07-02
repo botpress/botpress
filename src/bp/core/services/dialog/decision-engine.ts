@@ -33,7 +33,7 @@ export class DecisionEngine {
     @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
-  private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.3
+  private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
   private readonly MIN_NO_REPEAT = ms(process.env.BP_DECISION_MIN_NO_REPEAT || '20s')
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {

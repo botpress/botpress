@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import { IoIosBoxOutline } from 'react-icons/lib/io'
+import { IoIosArchive } from 'react-icons/io'
 import { Label, Row, Col, Container, Jumbotron } from 'reactstrap'
 import {
   LineChart,
@@ -294,7 +294,7 @@ class Monitoring extends Component {
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
             <h1>
-              <IoIosBoxOutline />
+              <IoIosArchive />
               &nbsp; Monitoring is not enabled or there is no statistics.
             </h1>
             <p>Make sure that monitoring is enabled in your Botpress Config.</p>

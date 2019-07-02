@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 
 import reject from 'lodash/reject'
-import classnames from 'classnames'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 
-import FlowsList from './flows'
+import FlowsList from './FlowsList'
+import { SidePanel, SidePanelSection, PaddedContent } from '~/components/Shared/Interface'
+import { Tooltip } from '@blueprintjs/core'
 
-const style = require('./style.scss')
-
-export default class SidePanel extends Component {
+export default class PanelContent extends Component {
   createFlow = () => {
     let name = prompt('Enter the name of the new flow')
 
@@ -31,32 +29,49 @@ export default class SidePanel extends Component {
 
   goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
+  highlightNode = node => {
+    window.highlightNode(this.props.currentFlow && this.props.currentFlow.name, node)
+  }
+
   render() {
     const normalFlows = reject(this.props.flows, x => x.name.startsWith('skills/'))
+    const flowsName = normalFlows.map(x => {
+      return { name: x.name }
+    })
+    const createFlowAction = { icon: 'add', key: 'create', tooltip: 'Create new flow', onClick: this.createFlow }
 
     return (
-      <div className={style.panel}>
-        <div className={style.panelHead}>
-          <span>Flows</span>
-          {!this.props.readOnly && (
-            <button className={classnames(style.newFlow, 'pull-right')} onClick={this.createFlow}>
-              <OverlayTrigger placement="bottom" overlay={<Tooltip>Create flow</Tooltip>}>
-                <i className="material-icons">create_new_folder</i>
-              </OverlayTrigger>
-            </button>
-          )}
-        </div>
-        <FlowsList
-          readOnly={this.props.readOnly}
-          flows={normalFlows}
-          dirtyFlows={this.props.dirtyFlows}
-          goToFlow={this.goToFlow}
-          deleteFlow={this.props.deleteFlow}
-          duplicateFlow={this.props.duplicateFlow}
-          renameFlow={this.props.renameFlow}
-          currentFlow={this.props.currentFlow}
-        />
-      </div>
+      <SidePanel>
+        {!!this.props.flowProblems.length && (
+          <SidePanelSection label="Flow Problems">
+            <PaddedContent>
+              {this.props.flowProblems.map(node => (
+                <div>
+                  <Tooltip content="Click to highlight node">
+                    <a onClick={() => this.highlightNode(node.nodeName)}>
+                      <strong>{node.nodeName}</strong>
+                    </a>
+                  </Tooltip>
+                  : Missing <strong>{node.missingPorts}</strong> links
+                </div>
+              ))}
+            </PaddedContent>
+          </SidePanelSection>
+        )}
+
+        <SidePanelSection label={'Flows'} actions={!this.props.readOnly && [createFlowAction]}>
+          <FlowsList
+            readOnly={this.props.readOnly}
+            flows={flowsName}
+            dirtyFlows={this.props.dirtyFlows}
+            goToFlow={this.goToFlow}
+            deleteFlow={this.props.deleteFlow}
+            duplicateFlow={this.props.duplicateFlow}
+            renameFlow={this.props.renameFlow}
+            currentFlow={this.props.currentFlow}
+          />
+        </SidePanelSection>
+      </SidePanel>
     )
   }
 }

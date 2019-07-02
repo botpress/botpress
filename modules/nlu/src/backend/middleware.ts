@@ -2,6 +2,7 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { nluHealth } from '.'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
 
@@ -15,6 +16,10 @@ export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByB
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
+      if (!nluHealth.isEnabled) {
+        return next()
+      }
+
       const botCtx = botScopedNlu[event.botId] as ScopedEngine
 
       if (

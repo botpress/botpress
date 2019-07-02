@@ -40,14 +40,16 @@ export interface SuiteResult {
 export type Result = { [suite: string]: { [cls: string]: SuiteResult } }
 
 export class FiveFolder<T> {
-  constructor(private readonly dataset: T[]) {}
+  constructor(private readonly dataset: T[][]) {}
 
   results: { [suite: string]: F1 } = {}
 
+  private readonly N = 3
+
   async fold(
     suiteName: string,
-    trainFn: ((trainSet: T[]) => Promise<void>),
-    evaluateFn: ((testSet: T[], record: RecordCallback) => Promise<void>)
+    trainFn: (trainSet: T[]) => Promise<void>,
+    evaluateFn: (trainSet: T[], testSet: T[], record: RecordCallback) => Promise<void>
   ) {
     this.results[suiteName] = {
       fp: new Proxy({}, ZeroProxy),
@@ -56,13 +58,21 @@ export class FiveFolder<T> {
       confusions: new Proxy({}, MapProxy)
     }
 
-    const shuffled = _.shuffle(this.dataset)
-    const chunks = _.chunk(shuffled, Math.ceil(shuffled.length / 5))
+    const folds = Array.from({ length: this.N }, () => new Array<T>(0))
 
-    await Promise.mapSeries(chunks, async testSet => {
-      const trainSet = _.flatten(chunks.filter(c => c !== testSet))
+    for (const group of this.dataset) {
+      const samples = _.shuffle(group)
+      const startPlayer = _.random(0, this.N, false)
+
+      for (let i = 0; i < samples.length; i++) {
+        folds[(i + startPlayer) % this.N].push(samples[i])
+      }
+    }
+
+    await Promise.mapSeries(folds, async (testSet, index) => {
+      const trainSet = _.flatten([...folds.slice(0, index), ...folds.slice(index + 1, folds.length)])
       await trainFn([...trainSet])
-      await evaluateFn([...testSet], this._record(suiteName))
+      await evaluateFn([...trainSet], [...testSet], this._record(suiteName))
     })
   }
 

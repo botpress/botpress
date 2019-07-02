@@ -19,7 +19,7 @@ Below are multiple possible ways of deploying Botpress in the cloud.
 
 ### Preparing the Docker image
 
-To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace $VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
+To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
 FROM botpress/server:$VERSION
@@ -315,6 +315,24 @@ When you have the duckling binary, simply edit the file `data/global/config/nlu.
 }
 ```
 
+## Running your own Language Server
+
+The language server is embedded in Botpress and can be started by command line. Here are the steps to run it and use it with your Botpress Server:
+
+1. Start the language server with `./bp lang`
+2. In `data/global/config/nlu.json`, change `languageSources.endpoint` to `http://localhost:3100`
+3. Restart Botpress and open the Languages page on the Admin Panel
+4. Install the desired languages your server should support
+5. Restart the language server with parameters `./bp lang --readOnly`
+
+ReadOnly prevents anyone from adding or removing languages and can only be used to fetch embeddings.
+
+By default, the language server is configured to get 100 dimensions for words. If you plan to use that language server in production, we highly recommend setting the dimensions to 300 for a better vocabulary.
+
+The vocabulary for 100 dimensions weights around 900 mb per language, with a ram usage of 1.3 gb, while 300 dimensions are around 3 gb and have a RAM usage of 3.5 gb
+
+There are additional parameters that can be configured (for example, to require authentication), you can see them by typing `./bp lang help`.
+
 #### Linux and Mac users
 
 Duckling must be compiled to run correctly on your specific system. Therefore, you will need to install the software development tools and build it from source.
@@ -363,4 +381,10 @@ Botpress supports `.env` files, so you don't have to set them everytime you star
 | FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
 | REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
 
-It is also possible to use environment variables to override module configuration. The pattern is `BP_$MODULENAME_$CONFIG`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`
+It is also possible to use environment variables to override module configuration. The pattern is `BP_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`. You can list the available environment variales for each modules by enabling the `DEBUG=bp:configuration:modules:*` flag.
+
+##### Example
+
+`channel-web.infoPage.description` --> `BP_MODULE_CHANNEL_WEB_INFOPAGE_DESCRIPTION`
+
+> **Deprecation warning**: The old `BP_%MODULENAME%_%config%` is deprecated and will be removed in Botpress 12.

@@ -21,7 +21,7 @@ export class StandardNodeWidget extends Component {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
 
-    const className = classnames(style['node-container'])
+    const className = classnames(style['node-container'], { [style.highlightedNode]: node.isHighlighted })
 
     return (
       <div className={className}>
@@ -67,10 +67,10 @@ export class StandardNodeWidget extends Component {
 }
 
 export class StandardNodeModel extends NodeModel {
-  constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false }) {
+  constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false, isHighlighted = false }) {
     super('standard', id)
 
-    this.setData({ name, onEnter, onReceive, next, isStartNode })
+    this.setData({ name, onEnter, onReceive, next, isStartNode, isHighlighted })
 
     if (x) {
       this.x = x
@@ -99,8 +99,9 @@ export class StandardNodeModel extends NodeModel {
     return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
   }
 
-  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode }) {
+  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
     this.isStartNode = isStartNode
+    this.isHighlighted = isHighlighted
     const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 

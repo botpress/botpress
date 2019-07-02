@@ -13,9 +13,8 @@ import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'
-import { SessionIdFactory } from './session/id-factory'
 import { TimeoutNodeNotFound } from './errors'
-import { isObject } from 'util'
+import { SessionIdFactory } from './session/id-factory'
 
 const debug = DEBUG('janitor')
 const dialogDebug = debug.sub('dialog')
@@ -110,7 +109,7 @@ export class DialogJanitor extends Janitor {
     if (error instanceof TimeoutNodeNotFound) {
       dialogDebug.forBot(botId, 'No timeout node found. Clearing context now.')
     } else {
-      this.logger.error(`Could not process the timeout event. ${error.message}`)
+      this.logger.forBot(botId).error(`Could not process the timeout event. ${error.message}`)
     }
   }
 

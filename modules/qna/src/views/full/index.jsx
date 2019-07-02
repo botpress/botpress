@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { Container } from 'botpress/ui'
 import {
   FormGroup,
   FormControl,
@@ -18,6 +18,7 @@ import {
   Popover
 } from 'react-bootstrap'
 import Select from 'react-select'
+import { FiAlertTriangle } from 'react-icons/fi'
 
 import classnames from 'classnames'
 import Promise from 'bluebird'
@@ -28,12 +29,12 @@ import 'react-select/dist/react-select.css'
 import './button.css'
 
 const ITEMS_PER_PAGE = 50
-const CSV_STATUS_POLL_INTERVAL = 1000
+const JSON_STATUS_POLL_INTERVAL = 1000
 
 export default class QnaAdmin extends Component {
   constructor(props) {
     super(props)
-    this.csvDownloadableLink = React.createRef()
+    this.jsonDownloadableLink = React.createRef()
   }
 
   state = {
@@ -47,14 +48,11 @@ export default class QnaAdmin extends Component {
     showQnAModal: false,
     category: '',
     QnAModalType: 'create',
-    quentionsOptions: [],
     categoryOptions: [],
     filterCategory: [],
     filterQuestion: '',
     selectedQuestion: []
   }
-
-  shouldAutofocus = true
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
@@ -66,20 +64,14 @@ export default class QnaAdmin extends Component {
     })
   }
 
-  fetchData = (page = 1) => {
+  fetchData = async (page = 1) => {
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    this.props.bp.axios.get('/mod/qna/questions', { params }).then(({ data }) => {
-      const quentionsOptions = data.items.map(({ id, data: { questions } }) => ({
-        label: (questions || []).join(','),
-        value: id
-      }))
+    const { data } = await this.props.bp.axios.get('/mod/qna/questions', { params })
 
-      this.setState({
-        items: data.items,
-        overallItemsCount: data.count,
-        page,
-        quentionsOptions
-      })
+    this.setState({
+      items: data.items,
+      overallItemsCount: data.count,
+      page
     })
   }
 
@@ -90,6 +82,12 @@ export default class QnaAdmin extends Component {
         this.setState({ categoryOptions })
       }
     })
+  }
+
+  componentDidUpdate(prevprops) {
+    if (prevprops.contentLang !== this.props.contentLang) {
+      this.filterOrFetch()
+    }
   }
 
   componentDidMount() {
@@ -130,45 +128,45 @@ export default class QnaAdmin extends Component {
       .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
   }
 
-  uploadCsv = async () => {
+  uploadJson = async () => {
     const formData = new FormData()
-    formData.set('isReplace', this.state.isCsvUploadReplace)
-    formData.append('csv', this.state.csvToUpload)
+    formData.set('isReplace', this.state.isJsonUploadReplace)
+    formData.append('json', this.state.jsonToUpload)
 
     const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: csvStatusId } = await this.props.bp.axios.post('/mod/qna/import/csv', formData, { headers })
+    const { data: jsonStatusId } = await this.props.bp.axios.post('/mod/qna/import', formData, { headers })
 
-    this.setState({ csvStatusId })
+    this.setState({ jsonStatusId })
 
-    while (this.state.csvStatusId) {
+    while (this.state.jsonStatusId) {
       try {
-        const { data: status } = await this.props.bp.axios.get(`/mod/qna/csv-upload-status/${csvStatusId}`)
+        const { data: status } = await this.props.bp.axios.get(`/mod/qna/json-upload-status/${jsonStatusId}`)
 
-        this.setState({ csvUploadStatus: status })
+        this.setState({ jsonUploadStatus: status })
 
         if (status === 'Completed') {
-          this.setState({ csvStatusId: null, importCsvModalShow: false })
+          this.setState({ jsonStatusId: null, importJsonModalShow: false })
           this.fetchData()
         } else if (status.startsWith('Error')) {
-          this.setState({ csvStatusId: null })
+          this.setState({ jsonStatusId: null })
         }
 
-        await Promise.delay(CSV_STATUS_POLL_INTERVAL)
+        await Promise.delay(JSON_STATUS_POLL_INTERVAL)
       } catch (e) {
-        return this.setState({ csvUploadStatus: 'Server Error', csvStatusId: null })
+        return this.setState({ jsonUploadStatus: 'Server Error', jsonStatusId: null })
       }
     }
   }
 
-  downloadCsv = () =>
+  downloadJson = () =>
     // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ method: 'get', url: '/mod/qna/export/csv', responseType: 'blob' }).then(response => {
+    this.props.bp.axios({ method: 'get', url: '/mod/qna/export', responseType: 'blob' }).then(response => {
       this.setState(
         {
-          csvDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
-          csvDownloadableFileName: /filename=(.*\.csv)/.exec(response.headers['content-disposition'])[1]
+          jsonDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
+          jsonDownloadableFileName: /filename=(.*\.json)/.exec(response.headers['content-disposition'])[1]
         },
-        () => this.csvDownloadableLink.current.click()
+        () => this.jsonDownloadableLink.current.click()
       )
     })
 
@@ -218,40 +216,40 @@ export default class QnaAdmin extends Component {
   }
 
   renderImportModal() {
-    const { csvUploadStatus } = this.state
+    const { jsonUploadStatus } = this.state
 
     return (
       <Modal
-        show={this.state.importCsvModalShow}
-        onHide={() => this.setState({ importCsvModalShow: false })}
+        show={this.state.importJsonModalShow}
+        onHide={() => this.setState({ importJsonModalShow: false })}
         backdrop={'static'}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Import CSV</Modal.Title>
+          <Modal.Title>Import JSON</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {csvUploadStatus && (
+          {jsonUploadStatus && (
             <Alert
-              bsStyle={csvUploadStatus.startsWith('Error') ? 'danger' : 'info'}
-              onDismiss={() => this.setState({ csvUploadStatus: null })}
+              bsStyle={jsonUploadStatus.startsWith('Error') ? 'danger' : 'info'}
+              onDismiss={() => this.setState({ jsonUploadStatus: null })}
             >
-              <p>{this.state.csvUploadStatus}</p>
+              <p>{this.state.jsonUploadStatus}</p>
             </Alert>
           )}
           <form>
             <FormGroup>
-              <ControlLabel>CSV file</ControlLabel>
+              <ControlLabel>JSON file</ControlLabel>
               <FormControl
                 type="file"
-                accept=".csv"
-                onChange={e => this.setState({ csvToUpload: e.target.files[0] })}
+                accept=".json"
+                onChange={e => this.setState({ jsonToUpload: e.target.files[0] })}
               />
-              <HelpBlock>CSV should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
+              <HelpBlock>JSON should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
             </FormGroup>
             <FormGroup>
               <Checkbox
-                checked={this.state.isCsvUploadReplace}
-                onChange={e => this.setState({ isCsvUploadReplace: e.target.checked })}
+                checked={this.state.isJsonUploadReplace}
+                onChange={e => this.setState({ isJsonUploadReplace: e.target.checked })}
               >
                 Replace existing FAQs
               </Checkbox>
@@ -260,7 +258,7 @@ export default class QnaAdmin extends Component {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.uploadCsv} disabled={!Boolean(this.state.csvToUpload)}>
+          <Button bsStyle="primary" onClick={this.uploadJson} disabled={!Boolean(this.state.jsonToUpload)}>
             Upload
           </Button>
         </Modal.Footer>
@@ -280,18 +278,18 @@ export default class QnaAdmin extends Component {
             bsStyle="default"
             onClick={() =>
               this.setState({
-                importCsvModalShow: true,
-                csvToUpload: null,
-                csvUploadStatus: null,
-                isCsvUploadReplace: false
+                importJsonModalShow: true,
+                jsonToUpload: null,
+                jsonUploadStatus: null,
+                isJsonUploadReplace: false
               })
             }
             type="button"
           >
-            Import from CSV
+            Import from JSON
           </Button>
-          <Button bsStyle="default" onClick={this.downloadCsv} type="button">
-            Export to CSV
+          <Button bsStyle="default" onClick={this.downloadJson} type="button">
+            Export to JSON
           </Button>
         </ButtonGroup>
       </ButtonToolbar>
@@ -351,6 +349,22 @@ export default class QnaAdmin extends Component {
     )
   }
 
+  renderMissingTranslationsOverlay = () => {
+    return (
+      <OverlayTrigger
+        trigger={['hover', 'focus']}
+        placement="top"
+        overlay={
+          <Popover id="lang-popover">
+            <span className="text-danger">Missing translation</span>
+          </Popover>
+        }
+      >
+        <FiAlertTriangle className="text-danger" />
+      </OverlayTrigger>
+    )
+  }
+
   renderRedirectInfo(redirectFlow, redirectNode) {
     if (!redirectFlow || !redirectNode) {
       return null
@@ -379,21 +393,38 @@ export default class QnaAdmin extends Component {
       return null
     }
 
+    const questions = item.questions[this.props.contentLang] || []
+    const answers = item.answers[this.props.contentLang] || []
+
     return (
       <Well className={style.qnaItem} bsSize="small" key={id}>
         <div className={style.itemContainer}>
-          <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q:</span>
-            <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-              {item.questions[0]}
-            </a>
-            {this.renderVariationsOverlayTrigger(item.questions)}
-          </div>
-          {item.answers[0] && (
+          {!questions.length && (
+            <div className={style.itemQuestions}>
+              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
+                {this.renderMissingTranslationsOverlay()}&nbsp;
+                {id
+                  .split('_')
+                  .slice(1)
+                  .join(' ')}{' '}
+                &nbsp;
+              </a>
+            </div>
+          )}
+          {questions.length > 0 && (
+            <div className={style.itemQuestions}>
+              <span className={style.itemQuestionsTitle}>Q:</span>
+              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
+                {questions[0]}
+              </a>
+              {this.renderVariationsOverlayTrigger(questions)}
+            </div>
+          )}
+          {answers[0] && (
             <div className={style.itemAnswerContainer}>
               <span className={style.itemAnswerTitle}>A:</span>
-              <div className={style.itemAnswerText}>{item.answers[0]}</div>
-              {this.renderVariationsOverlayTrigger(item.answers)}
+              <div className={style.itemAnswerText}>{answers[0]}</div>
+              {this.renderVariationsOverlayTrigger(answers)}
             </div>
           )}
           <div className={style.itemRedirectContainer}>
@@ -413,7 +444,7 @@ export default class QnaAdmin extends Component {
           <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
             delete
           </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.enabledItem(item, id) })}
+          {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}
         </div>
       </Well>
     )
@@ -438,7 +469,7 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
-  enabledItem = (item, id) => value => {
+  toggleEnableItem = (item, id, value) => {
     const { page, filterQuestion, filterCategory } = this.state
     const params = {
       limit: ITEMS_PER_PAGE,
@@ -477,33 +508,37 @@ export default class QnaAdmin extends Component {
 
   render() {
     return (
-      <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
-        <a
-          ref={this.csvDownloadableLink}
-          href={this.state.csvDownloadableLinkHref}
-          download={this.state.csvDownloadableFileName}
-        />
-        <Panel.Body>
-          {this.renderQnAHeader()}
-          {this.renderPagination()}
-          {this.questionsList()}
-          {this.renderPagination()}
-          <FormModal
-            flows={this.state.flows}
-            flowsList={this.state.flowsList}
-            bp={this.props.bp}
-            showQnAModal={this.state.showQnAModal}
-            closeQnAModal={this.closeQnAModal}
-            categories={this.state.categoryOptions}
-            fetchData={this.fetchData}
-            id={this.state.currentItemId}
-            modalType={this.state.QnAModalType}
-            page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
-            updateQuestion={this.updateQuestion}
-            filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+      <Container sidePanelHidden={true}>
+        <div />
+        <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
+          <a
+            ref={this.jsonDownloadableLink}
+            href={this.state.jsonDownloadableLinkHref}
+            download={this.state.jsonDownloadableFileName}
           />
-        </Panel.Body>
-      </Panel>
+          <Panel.Body>
+            {this.renderQnAHeader()}
+            {this.renderPagination()}
+            {this.questionsList()}
+            {this.renderPagination()}
+            <FormModal
+              contentLang={this.props.contentLang}
+              flows={this.state.flows}
+              flowsList={this.state.flowsList}
+              bp={this.props.bp}
+              showQnAModal={this.state.showQnAModal}
+              closeQnAModal={this.closeQnAModal}
+              categories={this.state.categoryOptions}
+              fetchData={this.fetchData}
+              id={this.state.currentItemId}
+              modalType={this.state.QnAModalType}
+              page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
+              updateQuestion={this.updateQuestion}
+              filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+            />
+          </Panel.Body>
+        </Panel>
+      </Container>
     )
   }
 }
