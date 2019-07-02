@@ -50,7 +50,7 @@ class CreateUserModal extends Component<Props, State> {
     this.loadStrategies()
     // tslint:disable-next-line: no-floating-promises
     this.loadUsers()
-    //  this.loadRoles()
+    this.loadRoles()
   }
 
   componentDidUpdate(prevProps: Props) {
