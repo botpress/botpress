@@ -71,17 +71,17 @@ export default class Message extends React.Component {
     const tooltip = <Tooltip id="tooltip">{date}</Tooltip>
 
     if (this.props.content.direction === 'in') {
-      if (this.props.content.type === 'text') {
+      if (this.props.content.type === 'visit') {
         return (
-          <OverlayTrigger placement="right" overlay={tooltip}>
-            {this.renderMessageFromUser()}
+          <OverlayTrigger placement="auto" overlay={tooltip}>
+            {this.renderMessageFromSystem()}
           </OverlayTrigger>
         )
       }
 
       return (
-        <OverlayTrigger placement="auto" overlay={tooltip}>
-          {this.renderMessageFromSystem()}
+        <OverlayTrigger placement="right" overlay={tooltip}>
+          {this.renderMessageFromUser()}
         </OverlayTrigger>
       )
     }
