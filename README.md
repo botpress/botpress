@@ -1,4 +1,4 @@
-<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
+<a href='http://botpress.io'><img src='.github/assets/train_bar.gif'></a>
 
 # [Botpress](https://botpress.io) — The open-source bot platform
 
@@ -14,6 +14,8 @@ Botpress is an open-source all-in-one bot creation platform that provides all th
 - Support multiple messaging channels such as Webchat, SMS, Telegram, Facebook Messenger etc
 
 ---
+
+<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
 
 ##### Learn Botpress
 
