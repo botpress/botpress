@@ -269,8 +269,12 @@ export default class SVMClassifier {
     return predictions.length > 2 && bestOf3STD <= 0.03
   }
 
+  public get isLoaded(): boolean {
+    return !!Object.keys(this.l1PredictorsByContextName).length && !!this.l0Predictor
+  }
+
   public async predict(tokens: string[], includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
-    if (!Object.keys(this.l1PredictorsByContextName).length || !this.l0Predictor) {
+    if (!this.isLoaded) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
     }
 
