@@ -63,22 +63,6 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    router.get(
-      '/languages',
-      this.asyncMiddleware(async (req, res) => {
-        const languages = [
-          { code: 'en', name: 'English' },
-          { code: 'fr', name: 'French' },
-          { code: 'ar', name: 'Arabic' },
-          { code: 'ja', name: 'Japanese' },
-          { code: 'pt', name: 'Portuguese' }
-        ]
-
-        // TODO get languages from LanguageService here
-        res.send(languages)
-      })
-    )
-
     router.post(
       '/',
       this.needPermissions('write', this.resource),

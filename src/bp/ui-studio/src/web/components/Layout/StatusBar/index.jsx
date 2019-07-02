@@ -10,6 +10,7 @@ import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
 import { updateDocumentationModal } from '~/actions'
 import LangSwitcher from './LangSwitcher'
+import BotSwitcher from './BotSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
@@ -27,18 +28,24 @@ class StatusBar extends React.Component {
     progress: 0,
     messages: [],
     nluSynced: true,
-    contexts: []
+    contexts: [],
+    botsIds: []
   }
 
   constructor(props) {
     super(props)
     this.progressContainerRef = React.createRef()
-
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
   async componentDidMount() {
     await this.fetchContexts()
+    await this.fetchWorkspaceBotsIds()
+  }
+
+  fetchWorkspaceBotsIds = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`)
+    this.setState({ botsIds: data || [] })
   }
 
   fetchContexts = async () => {
@@ -187,16 +194,7 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem
-            id="statusbar_switchbot"
-            title="Switch Bot"
-            description="Switch to an other bot. This will leave this interface."
-          >
-            <a href="/admin/">
-              <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
-              <strong>{this.props.botName}</strong> (bot)
-            </a>
-          </ActionItem>
+          <BotSwitcher botsIds={this.state.botsIds} currentBotId={this.props.botInfo.id} />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher
