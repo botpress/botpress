@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
+import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
-import { RequestWithUser } from 'core/misc/interfaces'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
 import StrategyBasic from 'core/services/auth/basic'
