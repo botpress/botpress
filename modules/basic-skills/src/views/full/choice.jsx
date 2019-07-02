@@ -152,6 +152,7 @@ export class Choice extends React.Component {
         <div>
           <ContentPickerWidget
             {...contentPickerProps}
+            refresh={() => this.refreshContent()}
             contentType={this.getContentElement()}
             itemId={this.state.contentId}
             onChange={this.onContentChanged}
