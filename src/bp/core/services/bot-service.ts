@@ -362,7 +362,13 @@ export class BotService {
       promoted_on: new Date()
     }
     delete finalBot.pipeline_status.stage_request
-    return this.configProvider.setBotConfig(bot.id, finalBot)
+    if (bot.id === finalBot.id) {
+      return this.configProvider.setBotConfig(bot.id, finalBot)
+    }
+
+    await this.configProvider.setBotConfig(bot.id, finalBot)
+    await this.duplicateBot(bot.id, finalBot.id, true)
+    await this.deleteBot(bot.id)
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
