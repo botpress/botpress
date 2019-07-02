@@ -38,7 +38,7 @@ export default class PatternExtractor {
   ): Promise<sdk.NLU.Entity[]> {
     const values = await Promise.all(
       [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x, ds.language)).map(sanitize)
+        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).map(sanitize).filter(t => t.length)
       )
     )
 
@@ -58,7 +58,8 @@ export default class PatternExtractor {
 
         if (val.length > 1) {
           const text = ds.lowerText.substr(cur + partOfPhrase.length)
-          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize)
+          // TODO use ds.tokens
+          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize).filter(t => t.length)
 
           while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
             partOfPhrase += '+' + _tokens.shift()
@@ -95,7 +96,13 @@ export default class PatternExtractor {
       const end = cur + source.length
 
       // prevent adding substrings of an already matched, longer entity
-      const hasBiggerMatch = findings.find(x => start >= x.meta.start && end <= x.meta.end)
+      // prioretize longer matches with confidence * its length higher
+      const hasBiggerMatch = findings.find(
+        x =>
+          start >= x.meta.start &&
+          end <= x.meta.end &&
+          x.meta.confidence * Math.log(x.meta.source.length) > highest * Math.log(source.length)
+      )
 
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
         debugLists('found list entity', {
@@ -107,7 +114,7 @@ export default class PatternExtractor {
           source
         })
 
-        findings.push({
+        const newMatch = {
           name: entityDef.name,
           type: 'list',
           meta: {
@@ -123,7 +130,14 @@ export default class PatternExtractor {
             value: occurence.name, // cannonical value,
             unit: 'string'
           }
-        })
+        }
+
+        const idxToSwap = findings.findIndex(match => match.meta.start < start || match.meta.end > end)
+        if (idxToSwap !== -1) {
+          findings[idxToSwap] = newMatch
+        } else {
+          findings.push(newMatch)
+        }
       }
     }
 
