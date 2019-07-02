@@ -24,5 +24,6 @@
   },
   "include": [
     "src"
-  ]
+  ],
+  "extends": "./tsconfig_bp.json"
 }

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "baseUrl": "./",
+    "paths": {
+      "botpress/sdk": ["../sdk/botpress.d.ts"],
+      "common/*": ["../common/*"]
+    }
+  }
+}

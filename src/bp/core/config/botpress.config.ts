@@ -1,5 +1,5 @@
+import { UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
-import { UniqueUser } from 'core/services/auth/auth-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 

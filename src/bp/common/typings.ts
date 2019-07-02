@@ -1,8 +1,8 @@
 import { BotDetails } from 'botpress/sdk'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { Request } from 'express'
 
-import { BotpressConfig } from '../config/botpress.config'
+import { BotpressConfig } from '../core/config/botpress.config'
+import { StrategyUser } from '../core/repositories/strategy_users'
 
 export interface IDisposeOnExit {
   disposeOnExit(): void
@@ -10,6 +10,18 @@ export interface IDisposeOnExit {
 
 export interface IInitializeFromConfig {
   initializeFromConfig(config: BotpressConfig): void
+}
+
+export interface UniqueUser {
+  email: string
+  strategy: string
+}
+
+export interface AuthStrategyConfig {
+  strategyType: string
+  strategyId: string
+  loginUrl?: string
+  registerUrl?: string
 }
 
 export interface Workspace {
