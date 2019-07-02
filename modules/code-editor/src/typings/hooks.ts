@@ -5,7 +5,7 @@ export const HOOK_SIGNATURES = {
   after_event_processed: 'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   before_suggestions_election:
     'async function action(bp: typeof sdk, sessionId: string, event: sdk.IO.IncomingEvent, suggestions: sdk.IO.Suggestion[])',
-
+  after_server_start: 'async function action(bp: typeof sdk)',
   after_bot_mount: 'async function action(bp: typeof sdk, botId: string)',
   after_bot_unmount: 'async function action(bp: typeof sdk, botId: string)',
   before_session_timeout: 'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
