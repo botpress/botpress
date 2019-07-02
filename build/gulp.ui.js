@@ -16,27 +16,19 @@ const build = () => {
 }
 
 const buildStudio = cb => {
-  const src = 'src/bp/ui-studio'
   const cmd = process.argv.includes('--prod') ? 'yarn && yarn build:prod --nomap' : 'yarn && yarn build'
-  exec(cmd, { cwd: src }, (err, stdout, stderr) => {
-    if (err) {
-      console.error(stderr)
-      return cb(err)
-    }
-    cb()
-  })
+
+  const studio = exec(cmd, { cwd: 'src/bp/ui-studio' }, err => cb(err))
+  studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
 }
 
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap' : ''
-  const src = 'src/bp/ui-admin'
-  exec(`yarn && yarn build ${prod}`, { cwd: src }, (err, stdout, stderr) => {
-    if (err) {
-      console.error(stderr)
-      return cb(err)
-    }
-    cb()
-  })
+
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  admin.stdout.pipe(process.stdout)
+  admin.stderr.pipe(process.stderr)
 }
 
 const copyAdmin = () => {
@@ -48,7 +40,7 @@ const cleanStudio = () => {
 }
 
 const cleanStudioAssets = () => {
-  return gulp.src('./out/bp/data/assets/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./out/bp/data/assets/ui-studio', { allowEmpty: true }).pipe(rimraf())
 }
 
 const copyStudio = () => {
@@ -60,23 +52,15 @@ const createStudioSymlink = () => {
 }
 
 const watchAdmin = cb => {
-  exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, (err, stdout, stderr) => {
-    if (err) {
-      console.error(stderr)
-      return cb(err)
-    }
-    cb()
-  })
+  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  admin.stdout.pipe(process.stdout)
+  admin.stderr.pipe(process.stderr)
 }
 
 const watchStudio = cb => {
-  exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, (err, stdout, stderr) => {
-    if (err) {
-      console.error(stderr)
-      return cb(err)
-    }
-    cb()
-  })
+  const studio = exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, err => cb(err))
+  studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
 }
 
 const watchAll = () => {
