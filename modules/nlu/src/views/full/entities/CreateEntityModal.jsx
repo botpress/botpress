@@ -1,9 +1,9 @@
 import React from 'react'
 
 import Select from 'react-select'
-import { Button, Modal, FormControl } from 'react-bootstrap'
+import { Modal, FormControl } from 'react-bootstrap'
 import { sanitizeFilenameNoExt } from '../../../util'
-
+import { Button, Intent } from '@blueprintjs/core'
 const AVAILABLE_TYPES = [
   {
     label: 'List',
@@ -35,8 +35,6 @@ export default class CreateEntityModal extends React.Component {
   }
 
   createEntity = e => {
-    e.preventDefault()
-    e.stopPropagation()
     const entity = {
       id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
@@ -81,7 +79,7 @@ export default class CreateEntityModal extends React.Component {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button tabIndex="3" bsStyle="primary" disabled={!this.state.isValid} onClick={this.createEntity}>
+          <Button tabIndex="3" intent={Intent.PRIMARY} disabled={!this.state.isValid} onClick={this.createEntity}>
             Create Entity
           </Button>
         </Modal.Footer>
