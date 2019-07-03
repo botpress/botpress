@@ -373,7 +373,7 @@ export default class ScopedEngine implements Engine {
       customEntityDefs.filter(ent => ent.type === 'list')
     )
 
-    const systemEntities = await this.systemEntityExtractor.extract(ds.lowerText, ds.language)
+    const systemEntities = await this.systemEntityExtractor.extract(ds.rawText.toLowerCase(), ds.language)
 
     debugEntities.forBot(this.botId, ds.rawText, { systemEntities, patternEntities, listEntities })
 
