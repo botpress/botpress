@@ -11,8 +11,10 @@ import { sanitize } from '../language/sanitizer'
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
-const MIN_LENGTH_FUZZY_MATCH = 4
+const MIN_LENGTH_FUZZY_MATCH = 5
 const MIN_CONFIDENCE = 0.65
+
+type limits = { start: number; end: number }
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
@@ -46,10 +48,16 @@ export default class PatternExtractor {
 
     let cursor = 0
 
-    _.forEach(ds.tokens, (tok, tokenIndex) => {
+    for (const { tok, tokenIndex } of ds.tokens.map((t, i) => ({ tok: t, tokenIndex: i }))) {
       const rawToken = tok.value
       const sanitizedToken = tok.sanitized
+
+      const previousCursor = cursor
       cursor = cursor + ds.lowerText.substr(cursor).indexOf(sanitizedToken)
+      if (cursor === previousCursor) {
+        cursor += sanitizedToken.length
+        cursor = cursor + ds.lowerText.substr(cursor).indexOf(sanitizedToken)
+      }
 
       let highest = 0
       let extracted = ''
@@ -70,7 +78,7 @@ export default class PatternExtractor {
 
         let distance = 0.0
 
-        if (entityDef.fuzzy && partOfPhrase.length > MIN_LENGTH_FUZZY_MATCH) {
+        if (entityDef.fuzzy && sanitize(partOfPhrase).length > MIN_LENGTH_FUZZY_MATCH) {
           const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
           const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
           distance = Math.min(d1, d2)
@@ -90,6 +98,9 @@ export default class PatternExtractor {
         if (distance > highest || (distance === highest && extracted.length < occ.length)) {
           extracted = occ
           highest = distance
+          if (partOfPhrase[0] === '\u2581') {
+            partOfPhrase = partOfPhrase.slice(1)
+          }
           source = ds.lowerText.substr(cursor, partOfPhrase.replace('+', '').length)
         }
       }
@@ -101,9 +112,8 @@ export default class PatternExtractor {
       // prioretize longer matches with confidence * its length higher
       const hasBiggerMatch = findings.find(
         x =>
-          start >= x.meta.start &&
-          end <= x.meta.end &&
-          x.meta.confidence * Math.log(x.meta.source.length) > highest * Math.log(source.length)
+          this._is({ start, end }).inside(x.meta) &&
+          x.meta.confidence * Math.log(100 * x.meta.source.length) > highest * Math.log(100 * source.length)
       )
 
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
@@ -134,16 +144,24 @@ export default class PatternExtractor {
           }
         }
 
-        const idxToSwap = findings.findIndex(match => match.meta.start < start || match.meta.end > end)
+        const idxToSwap = findings.findIndex(match => this._is({ start, end }).inside(match.meta))
         if (idxToSwap !== -1) {
           findings[idxToSwap] = newMatch
         } else {
           findings.push(newMatch)
         }
       }
-    })
+    }
 
     return findings
+  }
+
+  private _is(limits: limits) {
+    return {
+      inside: (otherLimits: limits) => {
+        return limits.start >= otherLimits.start && limits.end <= otherLimits.end
+      }
+    }
   }
 
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
