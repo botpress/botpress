@@ -19,7 +19,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { LanguageProvider } from './typings'
+import { LanguageProvider, Token } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -409,7 +409,10 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
+    const intents = await this.intentClassifiers[ds.language].predict(
+      ds.tokens.map(t => t.sanitized),
+      ds.includedContexts
+    )
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -431,9 +434,23 @@ export default class ScopedEngine implements Engine {
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.lowerText = sanitize(ds.rawText).toLowerCase()
-    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
+    const text = sanitize(ds.rawText).toLowerCase()
+    ds.lowerText = text
+    const rawTokens = await this.languageProvider.tokenize(text, ds.language)
+    const tokens: Token[] = rawTokens.map(token => this._buildTokenObject(token, text))
+    ds.tokens = tokens
     return ds
+  }
+
+  private _buildTokenObject(token: string, text: string): Token {
+    const start = text.indexOf(token)
+    return {
+      value: token,
+      sanitized: sanitize(token),
+      start,
+      end: start + token.length,
+      matchedEntities: []
+    }
   }
 
   private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
@@ -452,7 +469,7 @@ export default class ScopedEngine implements Engine {
       ds.language,
       intentDef,
       ds.entities,
-      ds.tokens
+      ds.tokens.map(t => t.sanitized)
     )
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })

@@ -38,31 +38,33 @@ export default class PatternExtractor {
   ): Promise<sdk.NLU.Entity[]> {
     const values = await Promise.all(
       [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).map(sanitize).filter(t => t.length)
+        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).filter(t => t.length)
       )
     )
 
     const findings: sdk.NLU.Entity[] = []
 
-    let cur = 0
-    for (const tok of ds.tokens) {
-      cur = cur + ds.lowerText.substr(cur).indexOf(tok)
+    let cursor = 0
+
+    _.forEach(ds.tokens, (tok, tokenIndex) => {
+      const rawToken = tok.value
+      const sanitizedToken = tok.sanitized
+      cursor = cursor + ds.lowerText.substr(cursor).indexOf(sanitizedToken)
 
       let highest = 0
       let extracted = ''
       let source = ''
 
       for (const val of values) {
-        let partOfPhrase = tok
+        let partOfPhrase: string = rawToken
         const occ = val.join('+')
 
         if (val.length > 1) {
-          const text = ds.lowerText.substr(cur + partOfPhrase.length)
-          // TODO use ds.tokens
-          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize).filter(t => t.length)
+          const remainingTokens = ds.tokens.slice(tokenIndex + 1).map(t => t.value)
 
-          while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
-            partOfPhrase += '+' + _tokens.shift()
+          // TODO: try with one token less and one token more if no perfect match in length
+          while (remainingTokens && remainingTokens.length && partOfPhrase.length < occ.length) {
+            partOfPhrase += '+' + remainingTokens.shift()
           }
         }
 
@@ -88,12 +90,12 @@ export default class PatternExtractor {
         if (distance > highest || (distance === highest && extracted.length < occ.length)) {
           extracted = occ
           highest = distance
-          source = ds.lowerText.substr(cur, partOfPhrase.length)
+          source = ds.lowerText.substr(cursor, partOfPhrase.replace('+', '').length)
         }
       }
 
-      const start = cur
-      const end = cur + source.length
+      const start = cursor
+      const end = cursor + source.length
 
       // prevent adding substrings of an already matched, longer entity
       // prioretize longer matches with confidence * its length higher
@@ -139,7 +141,7 @@ export default class PatternExtractor {
           findings.push(newMatch)
         }
       }
-    }
+    })
 
     return findings
   }
