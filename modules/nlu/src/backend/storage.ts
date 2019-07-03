@@ -43,6 +43,9 @@ export default class Storage {
           slot.entities = [slot.entity]
         }
 
+        // numeral is now number
+        slot.entities = slot.entities.map(x => (x === 'numeral' ? 'number' : x))
+
         for (const entity of slot.entities) {
           if (!availableEntities.find(e => e.name === entity)) {
             throw Error(`"${entity}" is neither a system entity nor a custom entity`)
@@ -214,6 +217,7 @@ export default class Storage {
           'url',
           'volume'
         ]
+
     sysEntNames.unshift('any')
 
     return sysEntNames.map(
