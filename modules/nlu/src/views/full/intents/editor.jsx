@@ -67,17 +67,7 @@ export default class IntentsEditor extends React.Component {
     })
   }
 
-  deleteIntent = () => {
-    if (!confirm('Are you sure you want to delete this intent? This is not revertable.')) {
-      return
-    }
-
-    this.props.axios.delete(`/mod/nlu/intents/${this.props.intent.name}`).then(() => {
-      this.props.reloadIntents && this.props.reloadIntents()
-    })
-  }
-
-  // TODO replace this by new route intent/:id/utterances
+  // TODO use updateIntent from api
   saveIntent = async () => {
     await this.props.axios.post(`/mod/nlu/intents`, {
       name: this.props.intent.name,
@@ -103,14 +93,6 @@ export default class IntentsEditor extends React.Component {
       await this.saveIntent()
       this.props.onUtterancesChange && this.props.onUtterancesChange()
     }
-  }
-
-  onBeforeLeave = () => {
-    if (this.isDirty()) {
-      return confirm('You have unsaved changed that will be lost. Are you sure you want to leave?')
-    }
-
-    return true
   }
 
   getCanonicalUtterances = utterances => (utterances || []).map(x => x.text).filter(x => x.length)
@@ -192,16 +174,6 @@ export default class IntentsEditor extends React.Component {
     )
   }
 
-  renderNone() {
-    return (
-      <SplashScreen
-        icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-        title="Understanding"
-        description="Use Botpress native Natural language understanding engine to make your bot smart."
-      />
-    )
-  }
-
   handleSlotsChanged = (slots, { operation, name, oldName } = {}) => {
     const replaceObj = { slots }
 
@@ -246,10 +218,6 @@ export default class IntentsEditor extends React.Component {
   }
 
   render() {
-    if (!this.props.intent) {
-      return this.renderNone()
-    }
-
     const { name } = this.props.intent
 
     return (
