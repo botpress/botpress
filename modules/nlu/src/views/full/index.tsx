@@ -51,6 +51,7 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <IntentSidePanelSection
           api={api}
+          contentLang={props.contentLang}
           intents={intents}
           currentItem={currentItem}
           setCurrentItem={setCurrentItem}

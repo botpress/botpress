@@ -1,4 +1,5 @@
 import { Icon } from '@blueprintjs/core'
+import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
 import { CurrentItem } from 'full'
@@ -7,11 +8,11 @@ import React, { FC, useState } from 'react'
 import CreateEntityModal from './CreateEntityModal'
 
 interface Props {
-  api: any
+  api: NLUAPI
   entities: NLU.EntityDefinition[]
   currentItem: CurrentItem
   setCurrentItem: (x: CurrentItem) => void
-  reloadEntities: Function
+  reloadEntities: () => void
 }
 
 // TODO add props

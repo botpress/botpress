@@ -1,15 +1,17 @@
 import { Icon } from '@blueprintjs/core'
+import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
 import { CurrentItem } from 'full'
 import React, { FC, useState } from 'react'
 
 interface Props {
-  api: any
+  api: NLUAPI
   intents: NLU.IntentDefinition[]
   currentItem: CurrentItem
+  contentLang: string
   setCurrentItem: (x: CurrentItem) => void
-  reloadIntents: Function
+  reloadIntents: () => void
 }
 
 export const IntentSidePanelSection: FC<Props> = props => {
@@ -33,14 +35,19 @@ export const IntentSidePanelSection: FC<Props> = props => {
       return
     }
 
-    if (/[^a-z0-9-_.]/i.test(name)) {
-      alert('Invalid name, only alphanumerical characters, underscores and hypens are accepted')
-      return createIntent()
+    const sanitizedName = name
+      .toLowerCase()
+      .replace(/\s|\t|\n/g, '-')
+      .replace(/[^a-z0-9-_.]/g, '')
+
+    const intentDef = {
+      name: sanitizedName,
+      utterances: { [props.contentLang]: [name] }
     }
 
-    await props.api.createIntent(name)
+    await props.api.createIntent(intentDef)
     await props.reloadIntents()
-    props.setCurrentItem({ name, type: 'intent' })
+    props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
 
   const intentActions: SectionAction[] = [
