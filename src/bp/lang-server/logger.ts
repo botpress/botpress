@@ -1,8 +1,9 @@
 import chalk from 'chalk'
-import { LoggerLevel, LogLevel } from 'core/sdk/enums'
 import moment from 'moment'
 import os from 'os'
 import util from 'util'
+
+import { LoggerLevel, LogLevel } from '../core/sdk/enums'
 
 export class LangServerLogger {
   private attachedError: Error | undefined

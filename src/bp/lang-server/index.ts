@@ -1,8 +1,8 @@
 import chalk from 'chalk'
-import center from 'core/logger/center'
 import _ from 'lodash'
 import path from 'path'
 
+import center from '../core/logger/center'
 // tslint:disable-next-line:ordered-imports
 import rewire from '../sdk/rewire'
 // tslint:disable-next-line:ordered-imports
