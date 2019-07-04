@@ -1,11 +1,12 @@
 import bodyParser from 'body-parser'
-import { BadRequestError } from 'core/routers/errors'
 import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
+
+import { BadRequestError } from '../core/routers/errors'
 
 import { LangServerLogger } from './logger'
 import { monitoringMiddleware, startMonitoring } from './monitoring'

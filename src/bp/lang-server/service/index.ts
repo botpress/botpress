@@ -1,7 +1,5 @@
 import { MLToolkit } from 'botpress/sdk'
-import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
-import { LangServerLogger } from 'lang-server/logger'
 import _ from 'lodash'
 import lru from 'lru-cache'
 import ms from 'ms'
@@ -9,6 +7,7 @@ import path from 'path'
 import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
+import { LangServerLogger } from '../logger'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
