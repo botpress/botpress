@@ -184,7 +184,7 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.trainOrLoad()
       const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
@@ -195,8 +195,12 @@ export default class ScopedEngine implements Engine {
     let res: any = { errored: true }
 
     try {
-      const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
+      const runner = this.pipelineManager
+        .withPipeline(this._pipeline)
+        .initFromText(text, lastMessages, includedContexts)
+
       const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+
       res = _.pick(
         nluResults,
         'intent',
@@ -460,15 +464,34 @@ export default class ScopedEngine implements Engine {
   }
 
   private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
-    let lang = await this.langIdentifier.identify(ds.rawText)
-    ds.detectedLanguage = lang
+    const allMessages = ds.lastMessages.concat(ds.rawText).join(' ')
+    const threeLastMessages = _(ds.lastMessages)
+      .reverse()
+      .take(3)
+      .value()
 
-    if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      debugLang.forBot(this.botId, `Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
-      lang = this.defaultLanguage
+    const samples = [ds.rawText, ...threeLastMessages, allMessages]
+    const results = await Promise.all(samples.map(await this.langIdentifier.identify))
+
+    const elected = _(results)
+      .flatten()
+      .groupBy(res => res.label)
+      .map((confs, lang) => ({ confs, lang }))
+      .filter(score => this.languages.includes(score.lang))
+      .map(score => ({ lang: score.lang, score: score.confs.map(pred => pred.value).reduce(_.add, 0) }))
+      .orderBy(lang => lang.score)
+      .first()
+
+    const lang = _.get(elected, 'lang', '')
+
+    ds.detectedLanguage = _.isEmpty(lang) ? 'n/a' : lang
+
+    if (_.isEmpty(elected)) {
+      debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    ds.language = lang
+    ds.language = _.isEmpty(elected) || elected.score < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+
     return ds
   }
 
