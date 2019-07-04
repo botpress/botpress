@@ -19,6 +19,8 @@ const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
 
+const fifthPercentile = (length, idx) => Math.floor(idx / (length * 0.2))
+
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
 const MIN_SLOT_CONFIDENCE = 0.5
@@ -142,8 +144,9 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
+        const slotDef = intentDef.slots.find(x => x.name == slotName)
 
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
+        const slot = this._makeSlot(slotName, token, slotDef, entities, probability)
 
         if (!slot) {
           return slotCollection
@@ -189,15 +192,13 @@ export default class CRFExtractor implements SlotExtractor {
   private _makeSlot(
     slotName: string,
     token: Token,
-    slotDefinitions: sdk.NLU.SlotDefinition[],
+    slotDef: sdk.NLU.SlotDefinition,
     entities: sdk.NLU.Entity[],
     confidence: number
   ): sdk.NLU.Slot {
     if (confidence < MIN_SLOT_CONFIDENCE) {
       return
     }
-    const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
-
     const entity =
       slotDef &&
       entities.find(
@@ -306,9 +307,14 @@ export default class CRFExtractor implements SlotExtractor {
       token.value[1] === token.value[1].toLowerCase()
     )
       vector.push(`${featPrefix}title`)
+
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.value)
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
+    }
+
+    if (token.value) {
+      vector.push(`${featPrefix}word=${token}`)
     }
 
     const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
@@ -321,7 +327,11 @@ export default class CRFExtractor implements SlotExtractor {
   // TODO maybe use a slice instead of the whole token seq ?
   private async _vectorize(tokens: Token[], intentName: string, idx: number): Promise<string[]> {
     const prev = idx === 0 ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
+
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
+
+    const currentFifth = `w[0]fifth=${fifthPercentile(tokens.length, idx)}`
+
     const next =
       idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
 
