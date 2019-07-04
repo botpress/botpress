@@ -51,13 +51,13 @@ export default async function(options: ArgV) {
 {dim ${center(`OS ${process.distro.toString()}`, 40)}}
 ========================================`)
 
-  if (options.authToken) {
+  if (options.authToken && options.authToken.length) {
     logger.info(`authToken: ${chalk.greenBright('enabled')} (only users with this token can query your server)`)
   } else {
     logger.info(`authToken: ${chalk.redBright('disabled')} (anyone can query your language server)`)
   }
 
-  if (options.adminToken) {
+  if (options.adminToken && options.adminToken.length) {
     logger.info(`adminToken: ${chalk.greenBright('enabled')} (only users using this token can manage the server)`)
   } else {
     logger.info(`adminToken: ${chalk.redBright('disabled')} (anyone can add, remove or change languages)`)
