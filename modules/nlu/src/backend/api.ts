@@ -226,4 +226,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)
     }
   })
+
+  router.get('/ml-recommendations', async (req, res) => {
+    const engine = nlus[req.params.botId] as ScopedEngine
+    res.send(engine.getMLRecommendations())
+  })
 }

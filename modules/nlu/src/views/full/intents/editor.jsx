@@ -22,11 +22,18 @@ export default class IntentsEditor extends React.Component {
     utterances: [],
     selectedContextOptions: []
   }
+  mlRecommendations = {
+    minUtterancesForML: undefined,
+    goodUtterancesForML: undefined
+  }
 
   editorRef = null
 
-  componentDidMount() {
+  async componentDidMount() {
     this.initiateStateFromProps(this.props)
+
+    const { data } = await this.props.axios.get('/mod/nlu/ml-recommendations')
+    this.mlRecommendations = data
   }
 
   componentWillReceiveProps(nextProps) {
@@ -282,7 +289,11 @@ export default class IntentsEditor extends React.Component {
               }
             />
           </div>
-          <IntentHint intent={this.props.intent} contentLang={this.props.contentLang} />
+          <IntentHint
+            intent={this.props.intent}
+            contentLang={this.props.contentLang}
+            mlRecommendations={this.mlRecommendations}
+          />
         </div>
         <div>
           <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>

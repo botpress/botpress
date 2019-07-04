@@ -128,3 +128,8 @@ export interface NLUHealth {
   validProvidersCount: number
   validLanguages: string[]
 }
+
+export interface NluMlRecommendations {
+  minUtterancesForML: number
+  goodUtterancesForML: number
+}

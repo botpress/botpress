@@ -19,7 +19,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { LanguageProvider } from './typings'
+import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -38,6 +38,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
+const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
@@ -131,6 +132,13 @@ export default class ScopedEngine implements Engine {
 
   protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     return this.storage.getIntents()
+  }
+
+  public getMLRecommendations(): NluMlRecommendations {
+    return {
+      minUtterancesForML: MIN_NB_UTTERANCES,
+      goodUtterancesForML: GOOD_NB_UTTERANCES
+    }
   }
 
   /**
