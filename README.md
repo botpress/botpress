@@ -1,33 +1,26 @@
-<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
+<a href='http://botpress.io'><img src='.github/assets/train_bar.gif'></a>
 
 # [Botpress](https://botpress.io) — The open-source bot platform
 
 [![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNTZoU0wzRmRQd29iWTFqVjliUzlvN0gzUUtoN25QVHlHMUhWYkZCWHpPQ3ZKQzFOMFh6Wm5EcHkxQW5SUmJuTFpLSDJXdURDVzNtRjM5d1BaU2pNUHhJPSIsIml2UGFyYW1ldGVyU3BlYyI6Iitoa0RBM091SnlXNTJwK2MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codesuite/codebuild/projects/botpress-ce-tests/history?region=us-east-1)
 
-Botpress is an open-source bot creation tool written in TypeScript. It is powered by a rich set of open-source modules built by the community. We like to say that **Botpress is like the WordPress of bots**; anyone can create and reuse other people's modules.
+Botpress is an open-source all-in-one bot creation platform that provides all the tools you need to build, debug and deploy AI-based conversational assistants.
+
+- Developer-focused
+- Natural Language Understanding (NLU)
+- Built-in graphical interface & flow editor
+- Administration panel and bot management tools
+- Runs fully on-prem (control your data)
+- Support multiple messaging channels such as Webchat, SMS, Telegram, Facebook Messenger etc
 
 ---
 
-### About V11
-
-Botpress Server (> 11.5) is considered as ready for production usage.
-
-#### What has changed
-
-There are 3 major differences between Botpress X (10.x) and Botpress Server (11.x).
-
-1. v11 is not an NPM library anymore – it is a standalone application. We distribute binaries of v11 for OSX, Windows, Linux and Docker on a daily basis.
-
-2. v11 now supports multiple bots natively and can be run on multiple nodes – thus the naming of Botpress Server.
-
-3. v11 is a complete backend rewrite to TypeScript. We have made significant architectural changes that are not backward-compatible.
-
----
+<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
 
 ##### Learn Botpress
 
-| 📖 [v11 **Documentation**](https://botpress.io/docs) |
-| ---------------------------------------------------- |
+| 📖 [v12 **Documentation**](https://botpress.io/docs) | 🍿 [**YouTube Channel**](https://www.youtube.com/c/botpress) |
+| ---------------------------------------------------- | ------------------------------------------------------------ |
 
 
 ##### Follow us
@@ -42,22 +35,11 @@ If you feel awesome and want to support us in a small way, please consider starr
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
-## Binaries
+## Pre-built Binaries
 
 You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
 
-## What's New in Botpress Server
-
-Botpress is on a mission to make useful bots ubiquitous by providing developers with cutting-edge tools to build & manage chatbots. We believe that in order to create great bots, significant time should be spent on user experience, **not** on the surrounding (and generic) features.
-
-<p align="right">
-  <img alt="Multi-bots" height="450" src=".github/assets/multi-bots.jpg">  
-</p>
-<p align="left">
-  <img alt="One-click" height="450" src=".github/assets/one_click.jpg">
-</p>
-
-## Quick Start
+## Building from source
 
 **Prerequisites**: Node 10.11 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
 
@@ -70,11 +52,6 @@ Botpress is on a mission to make useful bots ubiquitous by providing developers 
 If you encounter errors when building modules (timeout, random errors, etc), try the following:
 
 1. Go in each module folder and type `yarn && yarn build`
-
-## Build the Botpress Pro Edition
-
-To build the Pro Edition, set the environment variable `EDITION` or create an empty file named `pro` in the root folder.
-This will fetch the pro submodule and build the app. By default, `yarn build` will target the Community Edition.
 
 ## Documentation
 
@@ -116,9 +93,3 @@ Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpr
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
 
 For more information about how the dual-license works and why it works that way, please see the <a href="https://botpress.io/faq">FAQS</a>.
-
-## Credits
-
-Emoji provided free by [EmojiOne](http://emojione.com)
-
-[starter-label]: https://github.com/botpress/botpress/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
