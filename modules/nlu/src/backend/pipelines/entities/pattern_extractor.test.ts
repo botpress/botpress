@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import { initNLUStruct } from '../../pipeline-manager'
 import { LanguageProvider, NLUHealth } from '../../typings'
+import { makeTokenObjects } from '../../tools/make-tokens'
 
 import PatternExtractor from './pattern_extractor'
 
@@ -14,7 +15,10 @@ const languageProvider: LanguageProvider = {
   },
   tokenize: function(text: string, lang: string): Promise<string[]> {
     // This is a white space tokenizer only working for tests written in english
-    const res = text.split(' ').filter(_.identity)
+    const res = text
+      .split(' ')
+      .filter(_.identity)
+      .map(x => '\u2581' + x)
     return Promise.resolve(res)
   },
   generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
@@ -88,7 +92,8 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
-    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+    const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
@@ -143,7 +148,8 @@ My name is kanye West and I rap like kanye wsest` /*
     const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
-    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+    const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
@@ -180,7 +186,9 @@ My name is kanye West and I rap like kanye wsest` /*
     const ds = initNLUStruct(sanitized, ['global'])
     ds.lowerText = sanitized
     ds.language = 'en'
-    ds.tokens = await languageProvider.tokenize(sanitized, 'en')
+    const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+
     const entities = await extractor.extractLists(ds, [entityDef])
 
     // expect(entities.length).toEqual(2)
@@ -196,5 +204,59 @@ My name is kanye West and I rap like kanye wsest` /*
     // expect(entities[1].meta.end).toEqual(33)
     // expect(entities[1].meta.source).toEqual('Jone Goree')
     // expect(entities[1].data.value).toEqual('Jon Gore')
+  })
+
+  test('Extract the biggest match', async () => {
+    const entityDef = {
+      id: '_',
+      name: 'numbers',
+      type: 'list',
+      fuzzy: true,
+      occurences: [
+        {
+          name: 'one',
+          synonyms: ['two', 'three', 'one two', 'two three', 'one two three']
+        }
+      ]
+    } as sdk.NLU.EntityDefinition
+
+    const userInput = `three two one one two tree`
+    //                 [xxx] [x] [x] [----------]
+
+    const extractor = new PatternExtractor(Toolkit, languageProvider)
+    const sanitized = userInput.replace('\n', '')
+    const ds = initNLUStruct(sanitized, ['global'])
+    ds.lowerText = sanitized
+    ds.language = 'en'
+    const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+
+    const entities = await extractor.extractLists(ds, [entityDef])
+
+    expect(entities.length).toEqual(4)
+
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(4)
+    expect(entities[0].meta.end).toEqual(9)
+    expect(entities[0].meta.source).toEqual('three')
+    expect(entities[0].data.value).toEqual('one')
+
+    expect(entities[1].name).toEqual(entityDef.name)
+    expect(entities[1].meta.start).toEqual(10)
+    expect(entities[1].meta.end).toEqual(13)
+    expect(entities[1].meta.source).toEqual('two')
+    expect(entities[1].data.value).toEqual('one')
+
+    expect(entities[2].name).toEqual(entityDef.name)
+    expect(entities[2].meta.start).toEqual(14)
+    expect(entities[2].meta.end).toEqual(17)
+    expect(entities[2].meta.source).toEqual('one')
+    expect(entities[2].data.value).toEqual('one')
+
+    expect(entities[3].name).toEqual(entityDef.name)
+    expect(entities[3].meta.start).toEqual(18)
+    expect(entities[3].meta.end).toEqual(30)
+    expect(entities[3].meta.source).toEqual('one two tree')
+    expect(entities[3].data.value).toEqual('one')
   })
 })
