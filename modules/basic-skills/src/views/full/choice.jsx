@@ -19,15 +19,16 @@ export class Choice extends React.Component {
   componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
-    this.fetchDefaultConfig().then(res => {
+
+    this.fetchDefaultConfig().then(({ data }) => {
       if (this.props.initialData) {
         this.setState(
           {
             contentId: getOrDefault('contentId', 'contentId'),
             invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
             keywords: getOrDefault('keywords', 'keywords'),
-            config: getOrDefault('config', 'config'),
-            defaultConfig: res.data
+            config: { ...getOrDefault('config', 'config'), nbMaxRetries: data.defaultMaxAttempts },
+            defaultConfig: data
           },
           () => this.refreshContent()
         )
