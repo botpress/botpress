@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 import { initNLUStruct } from '../../pipeline-manager'
 import { LanguageProvider, NLUHealth } from '../../typings'
-import { buildTokens } from '../../tools/build-tokens'
+import { makeTokenObjects } from '../../tools/make-tokens'
 
 import PatternExtractor from './pattern_extractor'
 
@@ -93,7 +93,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
     ds.lowerText = sanitized
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = buildTokens(stringTokens, sanitized)
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
@@ -149,7 +149,7 @@ My name is kanye West and I rap like kanye wsest` /*
     ds.lowerText = sanitized
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = buildTokens(stringTokens, sanitized)
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
@@ -187,7 +187,7 @@ My name is kanye West and I rap like kanye wsest` /*
     ds.lowerText = sanitized
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = buildTokens(stringTokens, sanitized)
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
@@ -231,7 +231,7 @@ My name is kanye West and I rap like kanye wsest` /*
     ds.lowerText = sanitized
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = buildTokens(stringTokens, sanitized)
+    ds.tokens = makeTokenObjects(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 

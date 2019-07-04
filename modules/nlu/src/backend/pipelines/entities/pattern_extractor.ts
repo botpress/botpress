@@ -46,39 +46,38 @@ export default class PatternExtractor {
 
     const findings: sdk.NLU.Entity[] = []
 
-    let cursor = 0
-
     for (const { tok, tokenIndex } of ds.tokens.map((t, i) => ({ tok: t, tokenIndex: i }))) {
       const rawToken = tok.value
-      const sanitizedToken = tok.sanitized
-
-      const previousCursor = cursor
-      cursor = cursor + ds.lowerText.substr(cursor).indexOf(sanitizedToken)
-      if (cursor === previousCursor) {
-        cursor += sanitizedToken.length
-        cursor = cursor + ds.lowerText.substr(cursor).indexOf(sanitizedToken)
-      }
 
       let highest = 0
       let extracted = ''
       let source = ''
+      let lastToken = tok
 
       for (const val of values) {
         let partOfPhrase: string = rawToken
         const occ = val.join('+')
+        let currentLastToken = tok
 
         if (val.length > 1) {
-          const remainingTokens = ds.tokens.slice(tokenIndex + 1).map(t => t.value)
+          const remainingTokens = ds.tokens.slice(tokenIndex + 1)
 
           // TODO: try with one token less and one token more if no perfect match in length
           while (remainingTokens && remainingTokens.length && partOfPhrase.length < occ.length) {
-            partOfPhrase += '+' + remainingTokens.shift()
+            const nextToken = remainingTokens.shift()
+            if (!nextToken) {
+              break
+            }
+            partOfPhrase += '+' + nextToken.value
+            currentLastToken = nextToken
           }
         }
 
         let distance = 0.0
 
-        if (entityDef.fuzzy && sanitize(partOfPhrase).length > MIN_LENGTH_FUZZY_MATCH) {
+        const strippedPop = sanitize(partOfPhrase.toLowerCase())
+
+        if (entityDef.fuzzy && strippedPop.length > MIN_LENGTH_FUZZY_MATCH) {
           const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
           const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
           distance = Math.min(d1, d2)
@@ -87,7 +86,6 @@ export default class PatternExtractor {
             distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
           }
         } else {
-          const strippedPop = sanitize(partOfPhrase.toLowerCase())
           const strippedOcc = sanitize(occ.toLowerCase())
           if (strippedPop.length && strippedOcc.length) {
             distance = strippedPop === strippedOcc ? 1 : 0
@@ -98,15 +96,13 @@ export default class PatternExtractor {
         if (distance > highest || (distance === highest && extracted.length < occ.length)) {
           extracted = occ
           highest = distance
-          if (partOfPhrase[0] === '\u2581') {
-            partOfPhrase = partOfPhrase.slice(1)
-          }
-          source = ds.lowerText.substr(cursor, partOfPhrase.replace('+', '').length)
+          lastToken = currentLastToken
+          source = ds.lowerText.substring(tok.start, lastToken.end)
         }
       }
 
-      const start = cursor
-      const end = cursor + source.length
+      const start = tok.start
+      const end = lastToken.end
 
       // prevent adding substrings of an already matched, longer entity
       // prioretize longer matches with confidence * its length higher

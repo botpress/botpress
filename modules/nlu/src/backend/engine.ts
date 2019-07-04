@@ -19,7 +19,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { buildTokens } from './tools/build-tokens'
+import { makeTokenObjects } from './tools/make-tokens'
 import { LanguageProvider, Token } from './typings'
 import {
   Engine,
@@ -438,7 +438,7 @@ export default class ScopedEngine implements Engine {
     const text = sanitize(ds.rawText).toLowerCase()
     ds.lowerText = text
     const rawTokens = await this.languageProvider.tokenize(text, ds.language)
-    const tokens: Token[] = buildTokens(rawTokens, text)
+    const tokens: Token[] = makeTokenObjects(rawTokens, text)
     ds.tokens = tokens
     return ds
   }
