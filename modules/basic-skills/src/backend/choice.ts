@@ -76,13 +76,13 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
     },
     {
       name: 'sorry',
-      onEnter: [
+      onEnter: data.invalidContentId && [
         {
           type: sdk.NodeActionType.RenderElement,
           name: `#!${data.invalidContentId}`
         }
       ],
-      next: [{ condition: 'true', node: 'parse' }]
+      next: [{ condition: 'true', node: 'entry' }]
     }
   ]
 
