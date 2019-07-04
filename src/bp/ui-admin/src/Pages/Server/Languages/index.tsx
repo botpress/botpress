@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 
 import api from '../../../api'
 
-import { getLanguageSourceClient } from './api'
 import { LangServerInfo, LanguageSource } from './typings'
 import LanguageManagement from './LanguageManagement'
 import LangServer from './LangServer'
@@ -20,8 +19,7 @@ const fetchLangSource = async (setLangSource: Function) => {
 }
 
 const fetchLangServerInfo = async (langSource: LanguageSource, setLangServerInfo: Function) => {
-  const client = getLanguageSourceClient(langSource)
-  const { data: langServerInfo } = (await client.get('/info')) as { data: LangServerInfo }
+  const { data: langServerInfo } = (await api.getSecured().get('/admin/languages/info')) as { data: LangServerInfo }
 
   setLangServerInfo(langServerInfo)
 }
@@ -41,10 +39,10 @@ export default () => {
 
   if (langSource && langServerInfo) {
     return (
-      <div className='languages-grid'>
+      <div className="languages-grid">
         <div>
           {langServerInfo.readOnly && (
-            <Callout intent='warning'>Languages cannot be edited as Language Server is read only</Callout>
+            <Callout intent="warning">Languages cannot be edited as Language Server is read only</Callout>
           )}
           <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
         </div>
