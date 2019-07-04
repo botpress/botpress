@@ -1,11 +1,6 @@
 import { AxiosInstance } from 'axios'
 
-interface BP {
-  axios: AxiosInstance
-}
-
-// TODO better typings
-export const makeApi = (bp: BP) => ({
+export const makeApi = (bp: { axios: AxiosInstance }) => ({
   fetchContexts: () => bp.axios.get(`/mod/nlu/contexts`).then(res => res.data),
   fetchIntents: async () => {
     const { data } = await bp.axios.get('/mod/nlu/intents')

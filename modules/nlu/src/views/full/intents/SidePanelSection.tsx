@@ -1,35 +1,18 @@
 import { Icon } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
+import { CurrentItem } from 'full'
 import React, { FC, useState } from 'react'
 
-// // TODO refine typings
-// interface Props {
-//   // intents: sdk.NLU.IntentDefinition[]
-//   intents: { name: string }[]
-//   currentItem: CurrentItem | undefined
-//   setCurrentItem: (item: CurrentItem) => void
-// }
+interface Props {
+  api: any
+  intents: NLU.IntentDefinition[]
+  currentItem: CurrentItem
+  setCurrentItem: (x: CurrentItem) => void
+  reloadIntents: Function
+}
 
-// const createIntent = async (api, reloadIntents, setCurrentIntent) => {
-//   return () => {
-//     const name = prompt('Enter the name of the new intent')
-
-//     if (!name || !name.length) {
-//       return
-//     }
-
-//     if (/[^a-z0-9-_.]/i.test(name)) {
-//       alert('Invalid name, only alphanumerical characters, underscores and hypens are accepted')
-//       return createIntent(api, reloadIntents, setCurrentIntent)
-//     }
-
-//     api.createIntent(name).then(reloadIntents).then(setCurrentIntent(name))
-//   }
-// }
-
-// TODO add props
-// const IntentSidePanelSection: FC<Props> = props => {
-export const IntentSidePanelSection = props => {
+export const IntentSidePanelSection: FC<Props> = props => {
   const [intentsFilter, setIntentsFilter] = useState('')
 
   const deleteIntent = (intentName: string) => {

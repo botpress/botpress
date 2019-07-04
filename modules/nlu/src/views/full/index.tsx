@@ -1,7 +1,8 @@
 import { Icon } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
 
@@ -16,8 +17,12 @@ export interface CurrentItem {
   type: 'intent' | 'entity'
 }
 
-// TODO better typings
-const NLU = props => {
+interface Props {
+  bp: { axios: AxiosInstance }
+  contentLang: string
+}
+
+const NLU: FC<Props> = props => {
   const api = makeApi(props.bp)
   const [currentItem, setCurrentItem] = useState<CurrentItem | undefined>()
   const [intents, setIntents] = useState([])

@@ -10,7 +10,6 @@ import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
 import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
 import IntentHint from './IntentHint'
-import { SplashScreen } from 'botpress/ui'
 
 const NLU_TABIDX = 3745
 
