@@ -180,6 +180,25 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    router.post(
+      '/:botId/import',
+      this.asyncMiddleware(async (req, res) => {
+        const buffers: any[] = []
+        req.on('data', chunk => {
+          buffers.push(chunk)
+        })
+        req.on('end', async () => {
+          const botId = req.params.botId
+          try {
+            await this.botService.importBot(botId, Buffer.concat(buffers), true)
+            res.send('Ok')
+          } catch (error) {
+            res.status(500).send('Error while importing bot')
+          }
+        })
+      })
+    )
+
     router.get(
       '/:botId/revisions',
       this.needPermissions('read', this.resource),

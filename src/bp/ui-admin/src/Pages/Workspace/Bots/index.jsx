@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 
 import { IoIosBoxOutline } from 'react-icons/lib/io'
-import { FaPlusCircle } from 'react-icons/lib/fa'
+import { FaPlusCircle, FaFolder } from 'react-icons/lib/fa'
 import { connect } from 'react-redux'
 import { Jumbotron, Row, Col, Button, Alert } from 'reactstrap'
 
@@ -17,6 +17,7 @@ import LoadingSection from '../../Components/LoadingSection'
 import api from '../../../api'
 import { AccessControl } from '../../../App/AccessControl'
 import CreateBotModal from './CreateBotModal'
+import ImportBotModal from './ImportBotModal'
 import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
@@ -44,6 +45,10 @@ class Bots extends Component {
 
   toggleCreateBotModal = () => {
     this.setState({ isCreateBotModalOpen: !this.state.isCreateBotModalOpen })
+  }
+
+  toggleImportBotModal = () => {
+    this.setState({ isImportBotModalOpen: !this.state.isImportBotModalOpen })
   }
 
   async exportBot(botId) {
@@ -99,6 +104,15 @@ class Bots extends Component {
         >
           <FaPlusCircle />
           &nbsp;Create Bot
+        </Button>
+        <Button
+          onClick={() => this.setState({ isImportBotModalOpen: true })}
+          outline
+          color="primary"
+          className="createbot_btn"
+        >
+          <FaFolder />
+          &nbsp;Import Bot
         </Button>
       </AccessControl>
     )
@@ -234,6 +248,11 @@ class Bots extends Component {
         <CreateBotModal
           isOpen={this.state.isCreateBotModalOpen}
           toggle={this.toggleCreateBotModal}
+          onCreateBotSuccess={this.props.fetchBots}
+        />
+        <ImportBotModal
+          isOpen={this.state.isImportBotModalOpen}
+          toggle={this.toggleImportBotModal}
           onCreateBotSuccess={this.props.fetchBots}
         />
       </Fragment>
