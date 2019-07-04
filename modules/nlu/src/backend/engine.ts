@@ -20,7 +20,7 @@ import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokenObjects } from './tools/make-tokens'
-import { LanguageProvider, Token } from './typings'
+import { LanguageProvider } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -438,8 +438,7 @@ export default class ScopedEngine implements Engine {
     const text = sanitize(ds.rawText).toLowerCase()
     ds.lowerText = text
     const rawTokens = await this.languageProvider.tokenize(text, ds.language)
-    const tokens: Token[] = makeTokenObjects(rawTokens, text)
-    ds.tokens = tokens
+    ds.tokens = makeTokenObjects(rawTokens, text)
     return ds
   }
 

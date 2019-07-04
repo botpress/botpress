@@ -8,6 +8,8 @@ import { LanguageProvider } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
+import { allInRange } from '../../tools/math'
+
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
@@ -46,7 +48,7 @@ export default class PatternExtractor {
 
     const findings: sdk.NLU.Entity[] = []
 
-    for (const { tok, tokenIndex } of ds.tokens.map((t, i) => ({ tok: t, tokenIndex: i }))) {
+    for (const { tok, tokenIndex } of ds.tokens.map((tok, tokenIndex) => ({ tok, tokenIndex }))) {
       const rawToken = tok.value
 
       let highest = 0
@@ -63,7 +65,7 @@ export default class PatternExtractor {
           const remainingTokens = ds.tokens.slice(tokenIndex + 1)
 
           // TODO: try with one token less and one token more if no perfect match in length
-          while (remainingTokens && remainingTokens.length && partOfPhrase.length < occ.length) {
+          while (!_.isEmpty(remainingTokens) && partOfPhrase.length < occ.length) {
             const nextToken = remainingTokens.shift()
             if (!nextToken) {
               break
@@ -106,9 +108,10 @@ export default class PatternExtractor {
 
       // prevent adding substrings of an already matched, longer entity
       // prioretize longer matches with confidence * its length higher
+
       const hasBiggerMatch = findings.find(
         x =>
-          this._is({ start, end }).inside(x.meta) &&
+          allInRange([start, end], x.meta.start, x.meta.end + 1) &&
           x.meta.confidence * Math.log(100 * x.meta.source.length) > highest * Math.log(100 * source.length)
       )
 
@@ -140,7 +143,7 @@ export default class PatternExtractor {
           }
         }
 
-        const idxToSwap = findings.findIndex(match => this._is({ start, end }).inside(match.meta))
+        const idxToSwap = findings.findIndex(match => allInRange([start, end], match.meta.start, match.meta.end + 1))
         if (idxToSwap !== -1) {
           findings[idxToSwap] = newMatch
         } else {
@@ -150,14 +153,6 @@ export default class PatternExtractor {
     }
 
     return findings
-  }
-
-  private _is(limits: limits) {
-    return {
-      inside: (otherLimits: limits) => {
-        return limits.start >= otherLimits.start && limits.end <= otherLimits.end
-      }
-    }
   }
 
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {

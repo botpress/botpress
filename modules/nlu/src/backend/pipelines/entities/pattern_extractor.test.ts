@@ -220,10 +220,8 @@ My name is kanye West and I rap like kanye wsest` /*
       ]
     } as sdk.NLU.EntityDefinition
 
-    const userInput = `
-    three two one one two tree` /*
-    [xxx] [x] [x] [----------]
-*/
+    const userInput = `three two one one two tree`
+    //                 [xxx] [x] [x] [----------]
 
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
