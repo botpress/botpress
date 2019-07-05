@@ -112,7 +112,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         `Could not load Language Server: ${details}. You may be over the limit for the number of requests allowed for the endpoint ${endpoint}`
       )
     } else if (status === 401) {
-      logger.error(`Could not load Language Server. You must a valid authentication token for the endpoint ${endpoint}`)
+      logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
     } else {
       logger.attachError(err).error(`Could not load Language Provider at ${endpoint}: ${err.code}`)
     }
