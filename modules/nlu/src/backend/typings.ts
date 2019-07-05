@@ -12,7 +12,7 @@ export type Tag = 'o' | 'B' | 'I'
 export interface Token {
   tag?: Tag
   value: string
-  sanitized: string
+  cannonical: string
   slot?: string
   start: number
   end: number
@@ -41,13 +41,7 @@ export interface EntityExtractor {
 export interface SlotExtractor {
   load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
   train(trainingSet: Sequence[]): Promise<{ language: Buffer | undefined; crf: Buffer | undefined }>
-  extract(
-    input: string,
-    lang: string,
-    intent: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[],
-    tokens: string[]
-  ): Promise<sdk.NLU.SlotCollection>
+  extract(ds: NLUStructure, intent: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection>
 }
 
 export type IntentModel = { name: string; model: Buffer }
@@ -86,7 +80,7 @@ export interface Model {
 export interface NLUStructure {
   rawText: string
   sanitizedText: string
-  lowerText: string
+  sanitizedLowerText: string
   detectedLanguage: string
   language: string
   includedContexts: string[]

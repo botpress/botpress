@@ -1,24 +1,25 @@
-import { Token } from '../typings'
 import { sanitize } from '../pipelines/language/sanitizer'
+import { Token } from '../typings'
 
-export const makeTokenObjects = (stringTokens: string[], text: string) => {
+export const makeTokens = (stringTokens: string[], text: string) => {
   return stringTokens.reduce(reduceTokens(text), [] as Token[])
 }
 
 const reduceTokens = (text: string) => (currentTokens: Token[], token: string) => {
-  let tokenWithSpace = token.replace('\u2581', ' ').trim()
+  const trimedToken = token.replace('\u2581', '')
 
   const previousToken = currentTokens[currentTokens.length - 1]
   const cursor = previousToken ? previousToken.end : 0
 
-  const cutText = text.substring(cursor)
-  const start = cutText.indexOf(tokenWithSpace) + cursor
+  const cutText = text.substring(cursor).toLowerCase()
+  const start = cutText.indexOf(trimedToken) + cursor
+  const sanitized = text.substr(start, trimedToken.length)
 
   const newToken = {
     value: token,
-    sanitized: sanitize(token),
+    cannonical: sanitized,
     start,
-    end: start + tokenWithSpace.length,
+    end: start + trimedToken.length,
     matchedEntities: []
   } as Token
 

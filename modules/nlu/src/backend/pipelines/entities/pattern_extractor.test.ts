@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { initNLUStruct } from '../../pipeline-manager'
+import { makeTokens } from '../../tools/make-tokens'
 import { LanguageProvider, NLUHealth } from '../../typings'
-import { makeTokenObjects } from '../../tools/make-tokens'
 
 import PatternExtractor from './pattern_extractor'
 
@@ -90,38 +90,38 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
 
     const sanitized = userInput.replace('\n', '')
     const ds = initNLUStruct(sanitized, ['global'])
-    ds.lowerText = sanitized
-    ds.language = 'en'
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+    ds.tokens = makeTokens(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
-    // expect(entities.length).toEqual(4)
+    expect(entities.length).toEqual(4)
 
-    // expect(entities[0].name).toEqual(entityDef.name)
-    // expect(entities[0].meta.start).toEqual(14)
-    // expect(entities[0].meta.end).toEqual(27)
-    // expect(entities[0].meta.source).toEqual('mercedes-benz')
-    // expect(entities[0].data.value).toEqual('Mercedes-Benz')
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(14)
+    expect(entities[0].meta.end).toEqual(27)
+    expect(entities[0].meta.source).toEqual('mercedes-benz')
+    expect(entities[0].data.value).toEqual('Mercedes-Benz')
 
-    // expect(entities[1].name).toEqual(entityDef.name)
-    // expect(entities[1].meta.start).toEqual(85)
-    // expect(entities[1].meta.end).toEqual(93)
-    // expect(entities[1].meta.source).toEqual('mercedes')
-    // expect(entities[1].data.value).toEqual('Mercedes-Benz')
+    expect(entities[1].name).toEqual(entityDef.name)
+    expect(entities[1].meta.start).toEqual(85)
+    expect(entities[1].meta.end).toEqual(93)
+    expect(entities[1].meta.source).toEqual('mercedes')
+    expect(entities[1].data.value).toEqual('Mercedes-Benz')
 
-    // expect(entities[2].name).toEqual(entityDef.name)
-    // expect(entities[2].meta.start).toEqual(66)
-    // expect(entities[2].meta.end).toEqual(68)
-    // expect(entities[2].meta.source).toEqual('BM')
-    // expect(entities[2].data.value).toEqual('BMW')
+    expect(entities[2].name).toEqual(entityDef.name)
+    expect(entities[2].meta.start).toEqual(66)
+    expect(entities[2].meta.end).toEqual(68)
+    expect(entities[2].meta.source).toEqual('BM')
+    expect(entities[2].data.value).toEqual('BMW')
 
-    // expect(entities[3].name).toEqual(entityDef.name)
-    // expect(entities[3].meta.start).toEqual(135)
-    // expect(entities[3].meta.end).toEqual(139)
-    // expect(entities[3].meta.source).toEqual('BMW!')
-    // expect(entities[3].data.value).toEqual('BMW')
+    expect(entities[3].name).toEqual(entityDef.name)
+    expect(entities[3].meta.start).toEqual(135)
+    expect(entities[3].meta.end).toEqual(139)
+    expect(entities[3].meta.source).toEqual('BMW!')
+    expect(entities[3].data.value).toEqual('BMW')
   })
 
   test('Extract exact list entities', async () => {
@@ -146,20 +146,21 @@ My name is kanye West and I rap like kanye wsest` /*
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
     const ds = initNLUStruct(sanitized, ['global'])
-    ds.lowerText = sanitized
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+    ds.tokens = makeTokens(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
-    // expect(entities.length).toEqual(1)
+    expect(entities.length).toEqual(1)
 
-    // expect(entities[0].name).toEqual(entityDef.name)
-    // expect(entities[0].meta.start).toEqual(11)
-    // expect(entities[0].meta.end).toEqual(21)
-    // expect(entities[0].meta.source).toEqual('kanye West')
-    // expect(entities[0].data.value).toEqual('Kanye West')
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(11)
+    expect(entities[0].meta.end).toEqual(21)
+    expect(entities[0].meta.source).toEqual('kanye West')
+    expect(entities[0].data.value).toEqual('Kanye West')
   })
 
   test('Extract fuzzy entities with synonyms not treated as fuzzy', async () => {
@@ -184,26 +185,27 @@ My name is kanye West and I rap like kanye wsest` /*
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
     const ds = initNLUStruct(sanitized, ['global'])
-    ds.lowerText = sanitized
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+    ds.tokens = makeTokens(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
-    // expect(entities.length).toEqual(2)
+    expect(entities.length).toEqual(2)
 
-    // expect(entities[0].name).toEqual(entityDef.name)
-    // expect(entities[0].meta.start).toEqual(66)
-    // expect(entities[0].meta.end).toEqual(70)
-    // expect(entities[0].meta.source).toEqual('gore')
-    // expect(entities[0].data.value).toEqual('Jon Gore')
+    expect(entities[0].name).toEqual(entityDef.name)
+    expect(entities[0].meta.start).toEqual(66)
+    expect(entities[0].meta.end).toEqual(70)
+    expect(entities[0].meta.source).toEqual('gore')
+    expect(entities[0].data.value).toEqual('Jon Gore')
 
-    // expect(entities[1].name).toEqual(entityDef.name)
-    // expect(entities[1].meta.start).toEqual(23)
-    // expect(entities[1].meta.end).toEqual(33)
-    // expect(entities[1].meta.source).toEqual('Jone Goree')
-    // expect(entities[1].data.value).toEqual('Jon Gore')
+    expect(entities[1].name).toEqual(entityDef.name)
+    expect(entities[1].meta.start).toEqual(23)
+    expect(entities[1].meta.end).toEqual(33)
+    expect(entities[1].meta.source).toEqual('Jone Goree')
+    expect(entities[1].data.value).toEqual('Jon Gore')
   })
 
   test('Extract the biggest match', async () => {
@@ -226,10 +228,11 @@ My name is kanye West and I rap like kanye wsest` /*
     const extractor = new PatternExtractor(Toolkit, languageProvider)
     const sanitized = userInput.replace('\n', '')
     const ds = initNLUStruct(sanitized, ['global'])
-    ds.lowerText = sanitized
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
     ds.language = 'en'
     const stringTokens = await languageProvider.tokenize(sanitized, 'en')
-    ds.tokens = makeTokenObjects(stringTokens, sanitized)
+    ds.tokens = makeTokens(stringTokens, sanitized)
 
     const entities = await extractor.extractLists(ds, [entityDef])
 
