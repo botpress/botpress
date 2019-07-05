@@ -1,4 +1,3 @@
-import { sanitize } from '../pipelines/language/sanitizer'
 import { Token } from '../typings'
 
 export const makeTokens = (stringTokens: string[], text: string) => {

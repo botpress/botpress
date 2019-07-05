@@ -16,12 +16,11 @@ export const keyMap = {
   'go-flow': `g f`,
   'go-home': `g h`,
   'go-content': `g c`,
+  'go-understanding': 'g u',
   'go-module-code': `g m c`,
   'go-module-qna': `g m q`,
   'go-module-testing': `g m t`,
-  'go-module-analytics': 'g m a',
-  'go-module-nlu-intent': `g i`,
-  'go-module-nlu-entities': `g e`
+  'go-module-analytics': 'g m a'
 }
 
 export const isInputFocused = () => {

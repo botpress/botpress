@@ -85,7 +85,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     moduleView: {
       stretched: true
     },
-    menuIcon: 'fiber_smart_record',
+    menuIcon: 'translate',
     menuText: 'NLU',
     fullName: 'NLU',
     homepage: 'https://botpress.io'

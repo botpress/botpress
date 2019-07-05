@@ -143,8 +143,7 @@ class Layout extends React.Component<ILayoutProps> {
       'go-module-qna': () => this.gotoUrl('/modules/qna'),
       'go-module-testing': () => this.gotoUrl('/modules/testing'),
       'go-module-analytics': () => this.gotoUrl('/modules/analytics'),
-      'go-module-nlu-intent': () => this.gotoUrl('/modules/nlu/Intents'),
-      'go-module-nlu-entities': () => this.gotoUrl('/modules/nlu/Entities')
+      'go-understanding': () => this.gotoUrl('/modules/nlu')
     }
 
     const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
