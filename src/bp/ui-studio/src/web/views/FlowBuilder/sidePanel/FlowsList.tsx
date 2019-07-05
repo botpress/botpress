@@ -122,7 +122,9 @@ export default class FlowsList extends Component<Props, State> {
     node.isSelected = originallySelected !== null
 
     if (node.nodeData) {
-      this.props.goToFlow(node.label)
+      this.props.goToFlow(node.nodeData.name)
+    } else {
+      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
     }
 
     this.forceUpdate()

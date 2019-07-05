@@ -122,8 +122,7 @@ export default async (bp: typeof sdk, db: Database) => {
       conversationId = conversationId && parseInt(conversationId)
 
       if (
-        !_.includes(
-          ['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'],
+        !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
           payload.type
         )
       ) {

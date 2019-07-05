@@ -10,6 +10,7 @@ interface CssExports {
   'elementRemove': string;
   'elementTitle': string;
   'firstQuestionTitle': string;
+  'hint': string;
   'itemAction': string;
   'itemActionDelete': string;
   'itemActionEdit': string;
