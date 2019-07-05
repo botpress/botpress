@@ -18,7 +18,7 @@ const languageProvider: LanguageProvider = {
     const res = text
       .split(' ')
       .filter(_.identity)
-      .map(x => '\u2581' + x)
+      .map(x => '\u2581' + x.toLowerCase())
     return Promise.resolve(res)
   },
   generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
@@ -139,10 +139,8 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         ]
       } as sdk.NLU.EntityDefinition
 
-      const userInput = `
-My name is kanye West and I rap like kanye wsest` /*
-           [========]                [xxxxxxxxxx]
-*/
+      const userInput = `My name is kanye West and I rap like kanye wsest`
+      //                            [========]                [xxxxxxxxxx]
 
       const extractor = new PatternExtractor(Toolkit, languageProvider)
       const sanitized = userInput.replace('\n', '')
@@ -200,13 +198,11 @@ My name is kanye West and I rap like kanye wsest` /*
       expect(entities[0].meta.source).toEqual('gore')
       expect(entities[0].data.value).toEqual('Jon Gore')
 
-      // expect(entities[1].name).toEqual(entityDef.name)
-      // expect(entities[1].meta.start).toEqual(23)
-      // expect(entities[1].meta.end).toEqual(33)
-      // expect(entities[1].meta.source).toEqual('Jone Goree')
-      // expect(entities[1].data.value).toEqual('Jon Gore')
-      // expect(entities[1].meta.source).toEqual('gore')
-      // expect(entities[1].data.value).toEqual('Jon Gore')
+      expect(entities[1].name).toEqual(entityDef.name)
+      expect(entities[1].meta.start).toEqual(19)
+      expect(entities[1].meta.end).toEqual(29)
+      expect(entities[1].meta.source).toEqual('Jone Goree')
+      expect(entities[1].data.value).toEqual('Jon Gore')
     })
 
     test('Extract the biggest match', async () => {
