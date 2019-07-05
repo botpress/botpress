@@ -41,9 +41,7 @@ const NLU: FC<Props> = props => {
   const updateEntity = entity => {
     api.updateEntity(entity)
     const i = entities.findIndex(ent => ent.id == entity.id)
-    this.setState({
-      entities: [...this.state.entities.slice(0, i), entity, ...this.state.entities.slice(i + 1)]
-    })
+    setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 
   return (
