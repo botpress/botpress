@@ -15,7 +15,6 @@ interface Props {
   reloadEntities: () => void
 }
 
-// TODO add props
 export const EntitySidePanelSection: FC<Props> = props => {
   const [entitiesFilter, setEntitiesFilter] = useState('')
   const [showEntityModal, setShowEntityModal] = useState(false)
