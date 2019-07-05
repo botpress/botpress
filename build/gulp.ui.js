@@ -4,6 +4,8 @@ const rimraf = require('gulp-rimraf')
 const { symlink } = require('gulp')
 const yn = require('yn')
 
+const verbose = process.argv.includes('--verbose')
+
 const build = () => {
   gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
   gulp.task('build:admin', gulp.series([buildAdmin, copyAdmin]))
@@ -19,7 +21,7 @@ const buildStudio = cb => {
   const cmd = process.argv.includes('--prod') ? 'yarn && yarn build:prod --nomap' : 'yarn && yarn build'
 
   const studio = exec(cmd, { cwd: 'src/bp/ui-studio' }, err => cb(err))
-  studio.stdout.pipe(process.stdout)
+  verbose && studio.stdout.pipe(process.stdout)
   studio.stderr.pipe(process.stderr)
 }
 
@@ -27,7 +29,7 @@ const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap' : ''
 
   const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
-  admin.stdout.pipe(process.stdout)
+  verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
