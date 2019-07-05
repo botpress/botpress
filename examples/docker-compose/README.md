@@ -1,4 +1,4 @@
-## Docker Compose
+# Docker Compose
 
 Those examples allows you to kickstart quickly an installation with all the working pieces together.
 There are 4 different setup:
@@ -10,11 +10,16 @@ There are 4 different setup:
 
 The nginx configuration doesn't include settings for SSL, but those are available on the documentation
 
-Before typing any of the commands below, edit botpress/Dockerfile and set the latest version for the image. Volumes are already configured and your files will be available under the folder botpress/
+Volumes are already configured and your files will be available under the folder botpress/
 
-\*\* For Pro editions, you need to set your license key in the docker-compose file prior to execution
+## Quick Start
 
-### Community - Dev
+1. Visit [Docker Hub](https://cloud.docker.com/u/botpress/repository/docker/botpress/server) to get the latest version
+2. Edit `botpress/Dockerfile` and set the latest version
+3. If running Pro images, edit `docker-compose-pro.yaml` and set your license key at BP_LICENSE_KEY
+4. Type the build command (they are listed below)
+
+### Community
 
 |      Service      | Port | Directly accessible |
 | :---------------: | :--: | :-----------------: |
@@ -26,7 +31,7 @@ Before typing any of the commands below, edit botpress/Dockerfile and set the la
 Command: docker-compose -f docker-compose-community.yaml up --build
 Open URL: http://localhost:3000
 
-### Community - Prod
+### Community (with nginx)
 
 |      Service      | Port | Directly accessible |
 | :---------------: | :--: | :-----------------: |
@@ -39,7 +44,7 @@ Open URL: http://localhost:3000
 Command: docker-compose -f docker-compose-community-nginx.yaml up --build
 Open URL: http://localhost:80
 
-### Pro - Dev
+### Pro
 
 |      Service      | Port | Directly accessible |
 | :---------------: | :--: | :-----------------: |
@@ -52,7 +57,7 @@ Open URL: http://localhost:80
 Command: docker-compose -f docker-compose-pro.yaml up --build
 Open URL: http://localhost:3000
 
-### Pro - Prod
+### Pro (with nginx)
 
 |      Service      | Port | Directly accessible |
 | :---------------: | :--: | :-----------------: |
