@@ -8,11 +8,15 @@ import { LanguageProvider } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
+import { allInRange } from '../../tools/math'
+
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
-const MIN_LENGTH_FUZZY_MATCH = 4
+const MIN_LENGTH_FUZZY_MATCH = 5
 const MIN_CONFIDENCE = 0.65
+
+type limits = { start: number; end: number }
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
@@ -38,37 +42,44 @@ export default class PatternExtractor {
   ): Promise<sdk.NLU.Entity[]> {
     const values = await Promise.all(
       [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).map(sanitize).filter(t => t.length)
+        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).filter(t => t.length)
       )
     )
 
     const findings: sdk.NLU.Entity[] = []
 
-    let cur = 0
-    for (const tok of ds.tokens) {
-      cur = cur + ds.lowerText.substr(cur).indexOf(tok)
+    for (const { tok, tokenIndex } of ds.tokens.map((tok, tokenIndex) => ({ tok, tokenIndex }))) {
+      const rawToken = tok.value
 
       let highest = 0
       let extracted = ''
       let source = ''
+      let lastToken = tok
 
       for (const val of values) {
-        let partOfPhrase = tok
+        let partOfPhrase: string = rawToken
         const occ = val.join('+')
+        let currentLastToken = tok
 
         if (val.length > 1) {
-          const text = ds.lowerText.substr(cur + partOfPhrase.length)
-          // TODO use ds.tokens
-          const _tokens = (await this.languageProvider.tokenize(text, ds.language)).map(sanitize).filter(t => t.length)
+          const remainingTokens = ds.tokens.slice(tokenIndex + 1)
 
-          while (_tokens && _tokens.length && partOfPhrase.length < occ.length) {
-            partOfPhrase += '+' + _tokens.shift()
+          // TODO: try with one token less and one token more if no perfect match in length
+          while (!_.isEmpty(remainingTokens) && partOfPhrase.length < occ.length) {
+            const nextToken = remainingTokens.shift()
+            if (!nextToken) {
+              break
+            }
+            partOfPhrase += '+' + nextToken.value
+            currentLastToken = nextToken
           }
         }
 
         let distance = 0.0
 
-        if (entityDef.fuzzy && partOfPhrase.length > MIN_LENGTH_FUZZY_MATCH) {
+        const strippedPop = sanitize(partOfPhrase.toLowerCase())
+
+        if (entityDef.fuzzy && strippedPop.length > MIN_LENGTH_FUZZY_MATCH) {
           const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
           const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
           distance = Math.min(d1, d2)
@@ -77,7 +88,6 @@ export default class PatternExtractor {
             distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
           }
         } else {
-          const strippedPop = sanitize(partOfPhrase.toLowerCase())
           const strippedOcc = sanitize(occ.toLowerCase())
           if (strippedPop.length && strippedOcc.length) {
             distance = strippedPop === strippedOcc ? 1 : 0
@@ -88,20 +98,21 @@ export default class PatternExtractor {
         if (distance > highest || (distance === highest && extracted.length < occ.length)) {
           extracted = occ
           highest = distance
-          source = ds.lowerText.substr(cur, partOfPhrase.length)
+          lastToken = currentLastToken
+          source = ds.lowerText.substring(tok.start, lastToken.end)
         }
       }
 
-      const start = cur
-      const end = cur + source.length
+      const start = tok.start
+      const end = lastToken.end
 
       // prevent adding substrings of an already matched, longer entity
       // prioretize longer matches with confidence * its length higher
+
       const hasBiggerMatch = findings.find(
         x =>
-          start >= x.meta.start &&
-          end <= x.meta.end &&
-          x.meta.confidence * Math.log(x.meta.source.length) > highest * Math.log(source.length)
+          allInRange([start, end], x.meta.start, x.meta.end + 1) &&
+          x.meta.confidence * Math.log(100 * x.meta.source.length) > highest * Math.log(100 * source.length)
       )
 
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
@@ -132,7 +143,7 @@ export default class PatternExtractor {
           }
         }
 
-        const idxToSwap = findings.findIndex(match => match.meta.start < start || match.meta.end > end)
+        const idxToSwap = findings.findIndex(match => allInRange([start, end], match.meta.start, match.meta.end + 1))
         if (idxToSwap !== -1) {
           findings[idxToSwap] = newMatch
         } else {

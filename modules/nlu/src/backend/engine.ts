@@ -19,6 +19,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
+import { makeTokenObjects } from './tools/make-tokens'
 import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
   Engine,
@@ -417,7 +418,10 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
+    const intents = await this.intentClassifiers[ds.language].predict(
+      ds.tokens.map(t => t.sanitized),
+      ds.includedContexts
+    )
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -439,8 +443,10 @@ export default class ScopedEngine implements Engine {
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.lowerText = sanitize(ds.rawText).toLowerCase()
-    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
+    const text = sanitize(ds.rawText).toLowerCase()
+    ds.lowerText = text
+    const rawTokens = await this.languageProvider.tokenize(text, ds.language)
+    ds.tokens = makeTokenObjects(rawTokens, text)
     return ds
   }
 
@@ -460,7 +466,7 @@ export default class ScopedEngine implements Engine {
       ds.language,
       intentDef,
       ds.entities,
-      ds.tokens
+      ds.tokens.map(t => t.sanitized)
     )
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
