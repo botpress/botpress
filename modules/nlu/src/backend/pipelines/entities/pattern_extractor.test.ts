@@ -18,7 +18,7 @@ const languageProvider: LanguageProvider = {
     const res = text
       .split(' ')
       .filter(_.identity)
-      .map(x => '\u2581' + x)
+      .map(x => '\u2581' + x.toLowerCase())
     return Promise.resolve(res)
   },
   generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
@@ -239,26 +239,26 @@ My name is kanye West and I rap like kanye wsest` /*
     expect(entities.length).toEqual(4)
 
     expect(entities[0].name).toEqual(entityDef.name)
-    expect(entities[0].meta.start).toEqual(4)
-    expect(entities[0].meta.end).toEqual(9)
+    expect(entities[0].meta.start).toEqual(0)
+    expect(entities[0].meta.end).toEqual(5)
     expect(entities[0].meta.source).toEqual('three')
     expect(entities[0].data.value).toEqual('one')
 
     expect(entities[1].name).toEqual(entityDef.name)
-    expect(entities[1].meta.start).toEqual(10)
-    expect(entities[1].meta.end).toEqual(13)
+    expect(entities[1].meta.start).toEqual(6)
+    expect(entities[1].meta.end).toEqual(9)
     expect(entities[1].meta.source).toEqual('two')
     expect(entities[1].data.value).toEqual('one')
 
     expect(entities[2].name).toEqual(entityDef.name)
-    expect(entities[2].meta.start).toEqual(14)
-    expect(entities[2].meta.end).toEqual(17)
+    expect(entities[2].meta.start).toEqual(10)
+    expect(entities[2].meta.end).toEqual(13)
     expect(entities[2].meta.source).toEqual('one')
     expect(entities[2].data.value).toEqual('one')
 
     expect(entities[3].name).toEqual(entityDef.name)
-    expect(entities[3].meta.start).toEqual(18)
-    expect(entities[3].meta.end).toEqual(30)
+    expect(entities[3].meta.start).toEqual(14)
+    expect(entities[3].meta.end).toEqual(26)
     expect(entities[3].meta.source).toEqual('one two tree')
     expect(entities[3].data.value).toEqual('one')
   })
