@@ -26,6 +26,13 @@ interface State {
   nluHealth: any
 }
 
+const toastError = message =>
+  Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+    message,
+    intent: Intent.DANGER,
+    timeout: 0
+  })
+
 export default class NluPerformanceStatus extends React.Component<Props, State> {
   state: State = {
     f1: undefined,
@@ -55,20 +62,29 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/health`)
     this.setState({ nluHealth: data })
 
-    if (!data.isEnabled) {
-      Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
-        message: (
-          <span>
-            Language server is unreachable, bots wont work properly. Check{' '}
-            <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
-              the documentation
-            </a>{' '}
-            to learn how to run your own language server.
-          </span>
-        ),
-        intent: Intent.DANGER,
-        timeout: 0
-      })
+    if (data.isEnabled) {
+      return
+    }
+
+    if (!data.validProvidersCount) {
+      toastError(
+        <span>
+          Language server is unreachable, bots wont work properly. Check{' '}
+          <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
+            the documentation
+          </a>
+          to learn how to run your own language server.
+        </span>
+      )
+    } else if (data.validProvidersCount && !data.validLanguages.length) {
+      toastError(
+        <span>
+          There is no language enabled on your language server, bots wont work properly.{' '}
+          <a href="/admin/server/languages" target="_blank">
+            Click here to manage languages
+          </a>
+        </span>
+      )
     }
   }
 
