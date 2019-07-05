@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  botpress:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress-server
+    container_name: botpress-server
+    command: /botpress/bp
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      - REDIS_URL=redis://redis:6379?password=redisPassword
+      - BP_MODULE_NLU_DUCKLINGURL=http://botpress_lang:8000
+      - BP_MODULE_NLU_LANGUAGESOURCES=[{"endpoint":"http://botpress_lang:3100"}]
+      - EXTERNAL_URL=http://localhost:3000
+    depends_on:
+      - postgres
+    volumes:
+      - ./botpress/data:/botpress/data
+
+  postgres:
+    image: postgres:11.2-alpine
+    ports:
+      - 5435:5435
+    container_name: postgres
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
