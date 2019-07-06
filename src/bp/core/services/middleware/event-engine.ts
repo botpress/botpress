@@ -192,8 +192,8 @@ export class EventEngine {
     }
   }
 
-  isIncomingQueueEmpty(): boolean {
-    return this.incomingQueue.isEmpty()
+  isIncomingQueueEmpty(event: sdk.IO.Event): boolean {
+    return this.incomingQueue.isEmptyForJob(event)
   }
 
   private async getBotMiddlewareChains(botId: string) {

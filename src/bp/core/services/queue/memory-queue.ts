@@ -47,6 +47,12 @@ export default class MemoryQueue implements Queue {
     return !this._queue.length
   }
 
+  isEmptyForJob(job: Job) {
+    const jobQueueId = this.getQueueId(job)
+    const subqueueLength = this._queue.filter(item => this.getQueueId(item.job) === jobQueueId).length
+    return !subqueueLength
+  }
+
   getQueueId(job: Job): string {
     const event = (job as JobWithEvent).event || job
     return `${event.botId}::${event.channel}::${event.target}`

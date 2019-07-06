@@ -1174,6 +1174,13 @@ declare module 'botpress/sdk' {
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
 
     /**
+     * Return the state of the icoming queue. True if there are any events(messages)
+     * from the user waiting in the queue.
+     * @param event - Current event in the action context, used to identify the queue
+     */
+    export function isIncomingQueueEmpty(event: IO.Event): boolean
+
+    /**
      * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields
      * for your query, but at least one is required.
      *
