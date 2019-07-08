@@ -1,0 +1,14 @@
+[
+  {
+    "id": "builtin_text-iVBzXn",
+    "formData": {
+      "text$en": "I'm sorry, I did not understand. Please ask me something else.",
+      "typing$en": true,
+      "text$fr": "Pardon, je n'ai pas compris. Veuillez me poser un autre question.",
+      "typing$fr": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-07-01T18:28:03.566Z",
+    "modifiedOn": "2019-07-01T18:31:39.862Z"
+  }
+]

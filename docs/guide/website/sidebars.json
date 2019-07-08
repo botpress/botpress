@@ -1,5 +1,6 @@
 {
   "docs": {
+    "Release Notes": ["releases/release-notes", "releases/migrate"],
     "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
     "Main Concepts": [
       "main/overview",
@@ -43,7 +44,6 @@
       "tutorials/chat-3rd-party-OAuth",
       "tutorials/listen-file-changes"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"],
-    "Release Notes": ["releases/release-notes", "releases/migrate"]
+    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"]
   }
 }

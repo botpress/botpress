@@ -164,7 +164,7 @@ export class ModuleResourceLoader {
     const files = fse.readdirSync(src)
 
     const allGhostedFiles = await this.ghost.global().directoryListing('/', undefined, [], true)
-    const getNormalizedDir = fullPath => path.dirname(fullPath.replace(/^\//, ''))
+    const getNormalizedDir = fullPath => path.dirname(fullPath.replace(/\\/g, '/').replace(/^\//, ''))
     const getNakedFileName = file =>
       path
         .basename(file)

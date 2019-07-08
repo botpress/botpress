@@ -24,14 +24,14 @@ class Composer extends React.Component<ComposerProps> {
 
   handleKeyPress = async e => {
     if (this.props.enableResetSessionShortcut && e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault()
       await this.props.resetSession()
       await this.props.sendMessage()
-      e.preventDefault()
       return
     }
     if (e.key === 'Enter') {
-      await this.props.sendMessage()
       e.preventDefault()
+      await this.props.sendMessage()
     }
   }
 

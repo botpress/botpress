@@ -24,8 +24,8 @@ const slotFill = async (slotName, entitiesName) => {
 }
 
 const setSlot = (slotName, entity) => {
-  if (!session.extractedSlots[slotName]) {
-    session.extractedSlots[slotName] = {
+  if (!session.slots[slotName]) {
+    session.slots[slotName] = {
       name: slotName,
       value: entity.data.value,
       entity: entity,
@@ -34,7 +34,7 @@ const setSlot = (slotName, entity) => {
       overwritable: true,
       expiresAfterTurns: false // BETA(11.8.4): Set this to a number to expire the slot after 'N' turns
     }
-    session.extractedSlots.notFound = 0
+    session.slots.notFound = 0
   }
 }
 

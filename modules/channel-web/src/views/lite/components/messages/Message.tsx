@@ -2,13 +2,15 @@ import classnames from 'classnames'
 import pick from 'lodash/pick'
 
 import React, { Component } from 'react'
+import { inject } from 'mobx-react'
+import { RootStore, StoreDef } from '../../store'
 
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
 import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
 
-class Message extends Component<Renderer.Message> {
+class Message extends Component<MessageProps> {
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
 
@@ -85,7 +87,7 @@ class Message extends Component<Renderer.Message> {
   }
 
   render_session_reset() {
-    return this.render_text()
+    return this.render_text(this.props.intl.formatMessage({ id: 'store.resetSessionMessage' }))
   }
 
   render_visit() {
@@ -142,4 +144,8 @@ class Message extends Component<Renderer.Message> {
   }
 }
 
-export default Message
+export default inject(({ store }: { store: RootStore }) => ({
+  intl: store.intl
+}))(Message)
+
+type MessageProps = Renderer.Message & Pick<StoreDef, 'intl'>

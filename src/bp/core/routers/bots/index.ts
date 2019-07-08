@@ -261,6 +261,15 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.get(
+      '/workspaceBotsIds',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.information'),
+      this.asyncMiddleware(async (req, res) => {
+        return res.send(await this.workspaceService.getBotRefs(req.workspace))
+      })
+    )
+
+    this.router.get(
       '/flows',
       this.checkTokenHeader,
       this.needPermissions('read', 'bot.flows'),

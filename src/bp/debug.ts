@@ -7,8 +7,12 @@ export const Debug = (mod: string, base = 'bp') => {
   available[namespace] = true
   const instance = debug(base).extend(mod)
   instance.sub = mod => Debug(mod, namespace)
-  instance.forBot = (botId, message, extra?) => {
-    return extra ? instance(`(${botId}) ${message}`, extra) : instance(`(${botId}) ${message}`)
+  instance.forBot = (botId: string, message: string, extra?: any) => {
+    if (extra) {
+      return instance(`(${botId}) ${message}`, extra, { botId })
+    } else {
+      return instance(`(${botId}) ${message}`, { botId })
+    }
   }
   return instance
 }
@@ -22,4 +26,13 @@ export const getDebugScopes = () => {
 export const setDebugScopes = scopes => {
   debug.disable()
   debug.enable(scopes)
+}
+
+debug.log = function(...args) {
+  const botId = (args[0] && args[0].botId) || (args[1] && args[1].botId) || (args[2] && args[2].botId)
+  if (botId) {
+    global.printBotLog(botId, args)
+  } else {
+    console.log.call(console, ...args)
+  }
 }

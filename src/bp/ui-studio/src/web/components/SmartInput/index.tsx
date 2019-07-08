@@ -6,7 +6,6 @@ import createSingleLinePlugin from 'draft-js-single-line-plugin'
 import * as React from 'react'
 import { Component } from 'react'
 import { connect } from 'react-redux'
-
 import { refreshHints } from '~/actions'
 import store from '~/store'
 
@@ -92,6 +91,11 @@ class SmartInput extends Component<ConnectedProps, State> {
     }, 100)
   }
 
+  get placeholder() {
+    const placeholder = (this.props.placeholder || '').split('\n').join(' ')
+    return placeholder.length > 50 ? placeholder.substring(0, 50) + '...' : placeholder
+  }
+
   render() {
     const { MentionSuggestions } = this.mentionPlugin
     const plugins = [this.mentionPlugin]
@@ -104,7 +108,7 @@ class SmartInput extends Component<ConnectedProps, State> {
       <div className={cx(style.editor, this.props.className)} onClick={this.focus}>
         <Editor
           stripPastedStyles={true}
-          placeholder={this.props.placeholder.substring(0, 50) + '...'}
+          placeholder={this.placeholder}
           editorState={this.state.editorState}
           onChange={this.onChange}
           plugins={plugins}

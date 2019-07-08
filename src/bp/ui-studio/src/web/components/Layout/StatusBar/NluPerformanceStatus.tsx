@@ -26,6 +26,13 @@ interface State {
   nluHealth: any
 }
 
+const toastError = message =>
+  Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
+    message,
+    intent: Intent.DANGER,
+    timeout: 0
+  })
+
 export default class NluPerformanceStatus extends React.Component<Props, State> {
   state: State = {
     f1: undefined,
@@ -55,12 +62,29 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/health`)
     this.setState({ nluHealth: data })
 
-    if (!data.isEnabled) {
-      Toaster.create({ className: 'recipe-toaster', position: Position.TOP }).show({
-        message: `The NLU Status is Unhealthy, user messages sent to the bot will not be analyzed. Please check your language sources configuration`,
-        intent: Intent.DANGER,
-        timeout: 0
-      })
+    if (data.isEnabled) {
+      return
+    }
+
+    if (!data.validProvidersCount) {
+      toastError(
+        <span>
+          Language server is unreachable, bots wont work properly. Check{' '}
+          <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
+            the documentation
+          </a>
+          to learn how to run your own language server.
+        </span>
+      )
+    } else if (data.validProvidersCount && !data.validLanguages.length) {
+      toastError(
+        <span>
+          There is no language enabled on your language server, bots wont work properly.{' '}
+          <a href="/admin/server/languages" target="_blank">
+            Click here to manage languages
+          </a>
+        </span>
+      )
     }
   }
 
@@ -114,23 +138,26 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
 
   renderUnhealthy() {
     const { validLanguages, validProvidersCount } = this.state.nluHealth
-
     return (
       <ActionItem
         title="NLU is Unhealthy"
         description={
-          <div>
-            <span style={{ color: 'red', fontWeight: 'bold' }}>
-              Language Providers: {validProvidersCount}
-              <br />
-              Valid Languages: {validLanguages.length === 0 ? 'None' : validLanguages.join(', ')}
-            </span>
+          <div className={style.nluUnhealthy}>
+            {validProvidersCount === 0 ? (
+              <span>No Language Server</span>
+            ) : (
+              <span>
+                Language Servers: {validProvidersCount}
+                <br />
+                {validLanguages.length === 0 ? 'No language available' : 'Valid languages:' + validLanguages.join(', ')}
+              </span>
+            )}
             <p>For more informations, click here</p>
           </div>
         }
         disabled={this.state.computing}
         className={style.right}
-        onClick={() => window.open('https://botpress.io/docs/main/nlu/')}
+        onClick={() => window.open('https://botpress.io/docs/main/nlu#language-server')}
       >
         <Icon icon="error" iconSize={18} intent={Intent.DANGER} />
       </ActionItem>
@@ -147,14 +174,20 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
 
     const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]
+
+    const description = (
+      <div>
+        <div className={style.scoreLine}>
+          {this.state.f1 ? `Overall score: ${this.state.f1} %` : 'No score to show'}
+        </div>
+        <div>Click to recompute NLU score</div>
+      </div>
+    )
+
     return (
       <ActionItem
         title={'NLU performance'}
-        description={
-          this.state.f1
-            ? `Overall score: ${this.state.f1} %`
-            : 'No score to show, click to start NLU performance analysis'
-        }
+        description={description}
         disabled={this.state.computing}
         className={style.right}
         onClick={this.calculateConfusion}

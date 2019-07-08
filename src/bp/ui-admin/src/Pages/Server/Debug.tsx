@@ -1,4 +1,4 @@
-import { Button, Intent } from '@blueprintjs/core'
+import { Button, Checkbox, Intent, Tooltip } from '@blueprintjs/core'
 import React from 'react'
 import CheckboxTree from 'react-checkbox-tree'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
@@ -22,7 +22,8 @@ export default class Debug extends React.Component<Props, State> {
   state = {
     nodes: undefined,
     checked: [],
-    expanded: ['bp']
+    expanded: ['bp'],
+    persist: false
   }
 
   async componentDidMount() {
@@ -54,10 +55,12 @@ export default class Debug extends React.Component<Props, State> {
 
   saveConfiguration = async () => {
     const debugScope = this.state.checked && this.state.checked.join(',')
-    await api.getSecured().post(`/admin/server/debug`, { debugScope })
+    await api.getSecured().post(`/admin/server/debug`, { debugScope, persist: this.state.persist })
 
     AppToaster.show({ message: 'Debug configuration updated successfully!', intent: Intent.SUCCESS, timeout: 2000 })
   }
+
+  handlePersistChanged = (e: any) => this.setState({ persist: e.target.checked })
 
   renderTree() {
     if (!this.state.nodes) {
@@ -93,6 +96,11 @@ export default class Debug extends React.Component<Props, State> {
       <div>
         <Button onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
         <br />
+        <br />
+        <Tooltip content="When checked, the selected debug options will be enabled after each server restart">
+          <Checkbox checked={this.state.persist} onChange={this.handlePersistChanged} label="Persist" />
+        </Tooltip>
+
         <Button onClick={this.saveConfiguration} intent={Intent.PRIMARY} fill={true} icon="floppy-disk" text="Save" />
       </div>
     )
@@ -117,4 +125,5 @@ interface State {
   nodes: any
   checked: any
   expanded: any
+  persist: boolean
 }

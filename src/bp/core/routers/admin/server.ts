@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { spawn } from 'child_process'
 import { ConfigProvider } from 'core/config/config-loader'
+import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import { MonitoringService } from 'core/services/monitoring'
 import { Router } from 'express'
@@ -14,7 +15,8 @@ export class ServerRouter extends CustomRouter {
     private logger: Logger,
     private monitoringService: MonitoringService,
     private alertingService: AlertingService,
-    private configProvider: ConfigProvider
+    private configProvider: ConfigProvider,
+    private ghostService: GhostService
   ) {
     super('Server', logger, Router({ mergeParams: true }))
     this.setupRoutes()
@@ -106,7 +108,15 @@ export class ServerRouter extends CustomRouter {
     router.post(
       '/debug',
       this.asyncMiddleware(async (req, res) => {
-        setDebugScopes(req.body.debugScope)
+        const { debugScope, persist } = req.body
+
+        if (persist) {
+          await this.ghostService
+            .global()
+            .upsertFile('/', 'debug.json', JSON.stringify({ scopes: debugScope.split(',') }))
+        }
+
+        setDebugScopes(debugScope)
         res.sendStatus(200)
       })
     )

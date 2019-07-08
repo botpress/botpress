@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { AuthRole, Pipeline, Workspace } from 'core/misc/interfaces'
+import { AuthRole, Pipeline, Workspace } from 'common/typings'
 import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUser, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'

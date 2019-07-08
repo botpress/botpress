@@ -9,4 +9,9 @@ export interface Config {
    * @default false
    */
   includeBuiltin: boolean
+  /**
+   * When enabled, bot configurations are also editable on the UI
+   * @default false
+   */
+  includeBotConfig: boolean
 }

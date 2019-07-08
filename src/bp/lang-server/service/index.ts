@@ -1,5 +1,4 @@
 import { MLToolkit } from 'botpress/sdk'
-import { WrapErrorsWith } from 'errors'
 import fs from 'fs'
 import _ from 'lodash'
 import lru from 'lru-cache'
@@ -8,6 +7,7 @@ import path from 'path'
 import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
+import { LangServerLogger } from '../logger'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
@@ -23,8 +23,11 @@ export default class LanguageService {
   private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
   private _cache
+  private logger: LangServerLogger
 
-  constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {}
+  constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {
+    this.logger = new LangServerLogger('Service')
+  }
 
   async initialize() {
     if (Object.keys(this._models).length) {
@@ -38,7 +41,7 @@ export default class LanguageService {
     this._models = this._getModels()
     const languages = Object.keys(this._models)
 
-    console.log(`Found Languages: ${languages.join(', ')}`)
+    this.logger.info(`Found Languages: ${!languages.length ? 'None' : languages.join(', ')}`)
     await Promise.mapSeries(languages, this._loadModels.bind(this))
 
     this._ready = true
@@ -65,14 +68,14 @@ export default class LanguageService {
   }
 
   private async _loadModels(lang: string) {
-    console.log('Loading Embeddings for', lang.toUpperCase())
+    this.logger.info(`Loading Embeddings for ${lang.toUpperCase()}`)
 
     try {
       const fastTextModel = await this._loadFastTextModel(lang)
       const bpeModel = await this._loadBPEModel(lang)
       this._models[lang] = { fastTextModel, bpeModel }
     } catch (err) {
-      console.error(`[${lang.toUpperCase()}] Error loading language. It will be unavailable.`, err)
+      this.logger.attachError(err).error(`[${lang.toUpperCase()}] Error loading language. It will be unavailable.`)
     }
   }
 
@@ -193,7 +196,7 @@ export default class LanguageService {
     const usedDelta = Math.round(usedAfter - usedBefore)
     const dtDelta = dtAfter - dtBefore
 
-    console.log(`[${lang.toUpperCase()}] Took ${dtDelta}ms to load ${usedDelta}mb into RAM (${path})`)
+    this.logger.info(`[${lang.toUpperCase()}] Took ${dtDelta}ms to load ${usedDelta}mb into RAM (${path})`)
 
     return { model, usedDelta, dtDelta }
   }

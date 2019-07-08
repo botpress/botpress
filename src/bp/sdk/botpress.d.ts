@@ -45,6 +45,10 @@ declare module 'botpress/sdk' {
     DEBUG = 2
   }
 
+  export interface LoggerListener {
+    (level: LogLevel, message: string, args: any): void
+  }
+
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this

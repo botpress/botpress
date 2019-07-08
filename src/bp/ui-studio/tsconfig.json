@@ -12,9 +12,9 @@
     "typeRoots": ["./node_modules/@types", "src/web/typings.d.ts"],
     "baseUrl": "./",
     "paths": {
-      "~*": ["src/web/*"],
-      "DOCS*": ["../../../docs/guide/docs*"],
-      "common*": ["../../../out/bp/common*"]
+      "~/*": ["src/web/*"],
+      "DOCS/*": ["../../../docs/guide/docs/*"],
+      "common/*": ["../../../out/bp/common/*"]
     }
   }
 }

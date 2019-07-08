@@ -6,5 +6,6 @@
   "botInfo.backToConversation": "Retour à la conversation",
   "botInfo.startConversation": "Démarrer la conversation",
   "botInfo.privacyPolicy": "Politique de confidentialité",
-  "botInfo.termsAndConditions": "Termes et conditions"
+  "botInfo.termsAndConditions": "Termes et conditions",
+  "store.resetSessionMessage": "Réinitialisation de la conversation"
 }

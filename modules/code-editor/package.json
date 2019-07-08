@@ -20,6 +20,8 @@
     "monaco-editor-webpack-plugin": "^1.7.0"
   },
   "dependencies": {
+    "mobx": "^5.10.1",
+    "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
     "react-icons": "^3.7.0"
   }

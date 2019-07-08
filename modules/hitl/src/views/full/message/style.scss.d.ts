@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'fromBot': string;
+  'fromSystem': string;
   'fromUser': string;
   'message': string;
 }

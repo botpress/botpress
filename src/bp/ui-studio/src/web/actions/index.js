@@ -33,21 +33,23 @@ export const saveAllFlows = () => (dispatch, getState) => {
     .difference(dirtyFlows)
     .value()
 
-  dirtyFlows = dirtyFlows.filter(name => !!flowsByName[name]).map(name => {
-    const flow = flowsByName[name]
-    return {
-      name,
-      version: '0.0.1',
-      flow: name,
-      location: flow.location,
-      startNode: flow.startNode,
-      catchAll: flow.catchAll,
-      links: flow.links,
-      nodes: flow.nodes,
-      skillData: flow.skillData,
-      timeoutNode: flow.timeoutNode
-    }
-  })
+  dirtyFlows = dirtyFlows
+    .filter(name => !!flowsByName[name])
+    .map(name => {
+      const flow = flowsByName[name]
+      return {
+        name,
+        version: '0.0.1',
+        flow: name,
+        location: flow.location,
+        startNode: flow.startNode,
+        catchAll: flow.catchAll,
+        links: flow.links,
+        nodes: flow.nodes,
+        skillData: flow.skillData,
+        timeoutNode: flow.timeoutNode
+      }
+    })
 
   axios.post(`${window.BOT_API_PATH}/flows`, { cleanFlows, dirtyFlows }).then(() => {
     dispatch(receiveSaveFlows())
@@ -63,6 +65,7 @@ export const duplicateFlow = createAction('FLOWS/DUPLICATE')
 export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
 
+export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
 export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
@@ -146,6 +149,7 @@ export const updateGlobalStyle = createAction('UI/UPDATE_GLOBAL_STYLE')
 export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
 export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
 export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
+export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
@@ -161,11 +165,6 @@ export const fetchBotInformation = () => dispatch => {
   axios.get(`${window.BOT_API_PATH}`).then(information => {
     dispatch(botInfoReceived(information.data))
   })
-}
-
-export const botsReceived = createAction('BOTS/RECEIVED')
-export const fetchAllBots = () => dispatch => {
-  axios.get(`${window.API_PATH}/admin/bots`).then(res => dispatch(botsReceived(res.data)))
 }
 
 // Modules

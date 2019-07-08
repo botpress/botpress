@@ -1,10 +1,13 @@
-import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, LoggerListener, Stage } from 'botpress/sdk'
 import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
+import { PersistedConsoleLogger } from 'core/logger'
+import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
+import { RealTimePayload } from 'core/sdk/impl'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { WrapErrorsWith } from 'errors'
@@ -25,6 +28,7 @@ import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
 import { ModuleResourceLoader } from './module/resources-loader'
+import RealtimeService from './realtime'
 import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
@@ -46,6 +50,7 @@ export class BotService {
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
+  private static _botListenerHandles: Map<string, IDisposable> = new Map()
 
   constructor(
     @inject(TYPES.Logger)
@@ -58,7 +63,8 @@ export class BotService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: Statistics,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
   ) {
     this._botIds = undefined
   }
@@ -239,9 +245,9 @@ export class BotService {
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this.workspaceService.addBotRef(botId, workspaceId)
         await this.mountBot(botId)
-        this.logger.info(`Import of bot ${botId} successful`)
+        this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
-        this.logger.info(`Import of bot ${botId} was denied by hook validation`)
+        this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
       }
     } finally {
       tmpDir.removeCallback()
@@ -285,7 +291,9 @@ export class BotService {
       throw new Error('New bot id needs to differ from original bot')
     }
     if (!overwriteDest && (await this.botExists(destBotId))) {
-      this.logger.warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
+      this.logger
+        .forBot(destBotId)
+        .warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
       return
     }
 
@@ -332,7 +340,7 @@ export class BotService {
         if (action === 'promote_copy') {
           return this._promoteCopy(currentConfig, alteredBot)
         } else if (action === 'promote_move') {
-          return this._promoteMove(alteredBot)
+          return this._promoteMove(currentConfig, alteredBot)
         }
       })
     }
@@ -347,14 +355,20 @@ export class BotService {
     }
   }
 
-  private async _promoteMove(bot: BotConfig) {
-    bot.pipeline_status.current_stage = {
-      id: bot.pipeline_status.stage_request!.id,
-      promoted_by: bot.pipeline_status.stage_request!.requested_by,
+  private async _promoteMove(bot: BotConfig, finalBot: BotConfig) {
+    finalBot.pipeline_status.current_stage = {
+      id: finalBot.pipeline_status.stage_request!.id,
+      promoted_by: finalBot.pipeline_status.stage_request!.requested_by,
       promoted_on: new Date()
     }
-    delete bot.pipeline_status.stage_request
-    return this.configProvider.setBotConfig(bot.id, bot)
+    delete finalBot.pipeline_status.stage_request
+    if (bot.id === finalBot.id) {
+      return this.configProvider.setBotConfig(bot.id, finalBot)
+    }
+
+    await this.configProvider.setBotConfig(bot.id, finalBot)
+    await this.duplicateBot(bot.id, finalBot.id, true)
+    await this.deleteBot(bot.id)
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
@@ -376,7 +390,10 @@ export class BotService {
       delete initialBot.pipeline_status.stage_request
       return this.configProvider.setBotConfig(initialBot.id, initialBot)
     } catch (err) {
-      this.logger.attachError(err).error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
+      this.logger
+        .forBot(newBot.id)
+        .attachError(err)
+        .error(`Error trying to "promote_copy" bot : ${initialBot.id}`)
     }
   }
 
@@ -460,6 +477,24 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       this._invalidateBotIds()
+
+      if (BotService._botListenerHandles.has(botId)) {
+        BotService._botListenerHandles.get(botId)!.dispose()
+        BotService._botListenerHandles.delete(botId)
+      }
+
+      BotService._botListenerHandles.set(
+        botId,
+        PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
+          this.realtimeService.sendToSocket(
+            RealTimePayload.forAdmins('logs::' + botId, {
+              level,
+              message,
+              args
+            })
+          )
+        }, botId)
+      )
     } catch (err) {
       this.logger
         .attachError(err)
@@ -556,7 +591,7 @@ export class BotService {
       await this.ghostService.forBot(botId).deleteFolder('/')
       await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
       await this.mountBot(botId)
-      this.logger.info(`Rollback of bot ${botId} successful`)
+      this.logger.forBot(botId).info(`Rollback of bot ${botId} successful`)
     } finally {
       tmpDir.removeCallback()
     }

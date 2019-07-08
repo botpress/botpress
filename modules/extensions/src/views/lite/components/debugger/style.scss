@@ -50,6 +50,7 @@
 .container2 {
   width: 450px;
   height: 100vh;
+  position: relative;
   border: 1px solid #ccc;
   border-right: none;
   background-color: white;
@@ -93,6 +94,8 @@
 
 .content {
   padding: 10px;
+  height: calc(100% - 50px);
+  overflow-y: auto;
 }
 
 .inspectorContainer {
@@ -109,4 +112,8 @@
     margin: none;
     padding-left: 5px;
   }
+}
+
+:global(.bp3-tooltip .bp3-popover-content) {
+  padding: 5px 8px !important;
 }

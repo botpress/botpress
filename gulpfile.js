@@ -7,7 +7,6 @@ const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
-const fs = require('fs')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
@@ -19,6 +18,19 @@ if (yn(process.env.GULP_PARALLEL)) {
 } else {
   gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
 }
+
+gulp.task('default', cb => {
+  console.log(`
+    Development Cheat Sheet
+    ==================================
+    yarn cmd dev:modules  Creates a symlink to modules bundles (restart server to apply backend changes - refresh for UI)
+                          After this command, type "yarn watch" in each module folder you want to watch for changes
+    yarn cmd watch:core   Recompiles the server on file modification (restart server to apply)
+    yarn cmd watch:studio Recompiles the bundle on file modification (no restart required - refresh page manually)
+    yarn cmd watch:admin  Recompiles the bundle on file modification (no restart required - page refresh automatically)
+  `)
+  cb()
+})
 
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
@@ -43,6 +55,7 @@ gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
 
 // Example: yarn cmd dev:module --public nlu or yarn cmd dev:module --private bank
 gulp.task('dev:module', gulp.series([modules.cleanModuleAssets, modules.createModuleSymlink]))
+gulp.task('dev:modules', modules.createAllModulesSymlink())
 
 /**
  * Example: yarn cmd migration:create --target core --ver 13.0.0 --title "some config update"
@@ -70,17 +83,4 @@ gulp.task('changelog', () => {
     .src('CHANGELOG.md')
     .pipe(changelog(changelogOts, context, gitRawCommitsOpts, commitsParserOpts, changelogWriterOpts))
     .pipe(gulp.dest('./'))
-})
-
-gulp.task('migrate:make', () => {
-  const index = process.argv.findIndex(x => x.toLowerCase() === '--name')
-  if (index === -1) {
-    return Promise.reject('Please use the --name argument and provide a meaningful migration name')
-  }
-
-  const name = Date.now() + '_' + process.argv[index + 1]
-  const template = fs.readFileSync('src/bp/core/database/migrations/template.ts')
-  fs.writeFileSync(`src/bp/core/database/migrations/${name}.ts`, template)
-
-  return Promise.resolve()
 })

@@ -8,7 +8,7 @@ import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 
-import { TokenUser } from '../../misc/interfaces'
+import { AuthStrategyConfig, TokenUser } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { KeyValueStore } from '../kvs'
@@ -21,18 +21,6 @@ export const CHAT_USERS_AUDIENCE = 'chat_users'
 export const WORKSPACE_HEADER = 'x-bp-workspace'
 export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
-
-export interface UniqueUser {
-  email: string
-  strategy: string
-}
-
-interface AuthStrategyConfig {
-  strategyType: string
-  strategyId: string
-  loginUrl?: string
-  registerUrl?: string
-}
 
 @injectable()
 export default class AuthService {

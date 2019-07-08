@@ -18,8 +18,9 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
+import { makeTokens } from './tools/make-tokens'
 import { allInRange } from './tools/math'
-import { LanguageProvider } from './typings'
+import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -38,7 +39,8 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
-const AMBIGUITY_RANGE = 0.05 // +- 5% away from perfect median leads to ambiguity
+const GOOD_NB_UTTERANCES = 10
+const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -133,6 +135,13 @@ export default class ScopedEngine implements Engine {
     return this.storage.getIntents()
   }
 
+  public getMLRecommendations(): NluMlRecommendations {
+    return {
+      minUtterancesForML: MIN_NB_UTTERANCES,
+      goodUtterancesForML: GOOD_NB_UTTERANCES
+    }
+  }
+
   /**
    * @return The trained model hash
    */
@@ -184,17 +193,23 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.trainOrLoad()
+      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
     }
 
     const t0 = Date.now()
     let res: any = { errored: true }
 
     try {
-      const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
+      const runner = this.pipelineManager
+        .withPipeline(this._pipeline)
+        .initFromText(text, lastMessages, includedContexts)
+
       const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+
       res = _.pick(
         nluResults,
         'intent',
@@ -362,7 +377,7 @@ export default class ScopedEngine implements Engine {
     const customEntityDefs = await this.storage.getCustomEntities()
 
     const patternEntities = await this.entityExtractor.extractPatterns(
-      ds.lowerText,
+      ds.rawText,
       customEntityDefs.filter(ent => ent.type === 'pattern')
     )
 
@@ -371,9 +386,9 @@ export default class ScopedEngine implements Engine {
       customEntityDefs.filter(ent => ent.type === 'list')
     )
 
-    const systemEntities = await this.systemEntityExtractor.extract(ds.lowerText, ds.language)
+    const systemEntities = await this.systemEntityExtractor.extract(ds.rawText, ds.language)
 
-    debugEntities(ds.rawText, { systemEntities, patternEntities, listEntities })
+    debugEntities.forBot(this.botId, ds.rawText, { systemEntities, patternEntities, listEntities })
 
     ds.entities = [...systemEntities, ...patternEntities, ...listEntities]
     return ds
@@ -385,7 +400,7 @@ export default class ScopedEngine implements Engine {
     const lower = perfectConfusion - AMBIGUITY_RANGE
     const upper = perfectConfusion + AMBIGUITY_RANGE
 
-    ds.ambiguous = allInRange(ds.intents.map(i => i.confidence), lower, upper)
+    ds.ambiguous = ds.intents.length > 1 && allInRange(ds.intents.map(i => i.confidence), lower, upper)
 
     return Promise.resolve(ds)
   }
@@ -400,14 +415,16 @@ export default class ScopedEngine implements Engine {
     }
 
     const allIntents = (await this.getIntents()) || []
-    const shouldPredict =
-      allIntents.length && allIntents.some(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
+    const shouldPredict = allIntents.length && this.intentClassifiers[ds.language].isLoaded
 
     if (!shouldPredict) {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
+    const intents = await this.intentClassifiers[ds.language].predict(
+      ds.tokens.map(t => t.cannonical),
+      ds.includedContexts
+    )
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -418,19 +435,20 @@ export default class ScopedEngine implements Engine {
     ds.intents = intents
     ds.intent = intents[0]
 
-    debugIntents(ds.sanitizedText, { intents })
+    debugIntents.forBot(this.botId, ds.sanitizedText, { intents })
 
     return ds
   }
 
   private _setTextWithoutEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText).toLowerCase()
+    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText)
+    ds.sanitizedLowerText = ds.sanitizedText.toLowerCase()
     return ds
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.lowerText = sanitize(ds.rawText).toLowerCase()
-    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
+    const rawTokens = await this.languageProvider.tokenize(ds.sanitizedLowerText, ds.language)
+    ds.tokens = makeTokens(rawTokens, ds.sanitizedText)
     return ds
   }
 
@@ -445,32 +463,45 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    ds.slots = await this.slotExtractors[ds.language].extract(
-      ds.lowerText,
-      ds.language,
-      intentDef,
-      ds.entities,
-      ds.tokens
-    )
+    ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef)
 
-    debugSlots('slots', { rawText: ds.rawText, slots: ds.slots })
+    debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
     return ds
   }
 
   private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
-    let lang = await this.langIdentifier.identify(ds.rawText)
-    ds.detectedLanguage = lang
+    const lastMessages = _(ds.lastMessages)
+      .reverse()
+      .take(3)
+      .concat(ds.rawText)
+      .join(' ')
 
-    if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      debugLang(`Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
-      lang = this.defaultLanguage
+    const results = await this.langIdentifier.identify(lastMessages)
+
+    const elected = _(results)
+      .filter(score => this.languages.includes(score.label))
+      .orderBy(lang => lang.value, 'desc')
+      .first()
+
+    if (_.isEmpty(elected)) {
+      debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    ds.language = lang
+    ds.detectedLanguage = _.get(elected, 'label', 'n/a')
+    ds.language = _.isEmpty(elected) || elected.value < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+
     return ds
   }
 
+  private _processText = (ds: NLUStructure): Promise<NLUStructure> => {
+    const sanitized = sanitize(ds.rawText)
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
+    return Promise.resolve(ds)
+  }
+
   private readonly _pipeline = [
+    this._processText,
     this._detectLang,
     this._tokenize,
     this._extractEntities,

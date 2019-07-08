@@ -9,7 +9,7 @@ import { Entities } from './Entities'
 import { Intents } from './Intents'
 import { Slots } from './Slots'
 
-const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding }> = ({ nluData }) => {
+const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
   if (!nluData.intents.length && !nluData.entities.length && _.isEmpty(nluData.slots)) {
     return null
   }
@@ -37,7 +37,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding }> = ({ nluData }) => {
       </div>
       <Intents intents={nluData.intents} intent={nluData.intent} />
       {nluData.entities.length > 0 && <Entities entities={nluData.entities} />}
-      {nluData.slots && !_.isEmpty(nluData.slots) && <Slots slots={nluData.slots} />}
+      <Slots sessionSlots={session.slots} slots={nluData.slots} />
     </div>
   )
 }

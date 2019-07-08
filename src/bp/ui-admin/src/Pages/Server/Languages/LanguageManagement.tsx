@@ -1,7 +1,8 @@
 import { Spinner } from '@blueprintjs/core'
 import React, { FC, useEffect, useState } from 'react'
 
-import { getLanguageSourceClient } from './api'
+import api from '../../../api'
+
 import { LanguageSource } from './typings'
 import Language from './Language'
 
@@ -12,9 +13,8 @@ interface LanguageData {
   installed: any[]
 }
 
-const fetchLanguages = async (langSource: LanguageSource, setLanguages: Function) => {
-  const client = getLanguageSourceClient(langSource)
-  const { data } = (await client.get('/languages')) as { data: LanguageData }
+const fetchLanguages = async (setLanguages: Function) => {
+  const { data } = (await api.getSecured().get('/admin/languages')) as { data: LanguageData }
   setLanguages(data)
 }
 
@@ -27,7 +27,7 @@ const LanguageManagement: FC<Props> = props => {
   const [languages, setLanguages] = useState<LanguageData | undefined>()
   useEffect(() => {
     const init = async () => {
-      await fetchLanguages(props.languageSource, setLanguages)
+      await fetchLanguages(setLanguages)
     }
 
     init()
@@ -35,7 +35,7 @@ const LanguageManagement: FC<Props> = props => {
 
   // TODO extract this as a custom hook
   useEffect(() => {
-    const id = setInterval(fetchLanguages.bind({}, props.languageSource!, setLanguages), 2000)
+    const id = setInterval(fetchLanguages.bind({}, setLanguages), 2000)
     return () => clearInterval(id)
   })
 
@@ -54,8 +54,8 @@ const LanguageManagement: FC<Props> = props => {
 
   return (
     <React.Fragment>
-      {languages && languages.available.length > 0 && !props.readOnly && (
-        <div className='languages-list'>
+      {languages && languages.available.length > 0 && !props.readOnly && !!downloadables.length && (
+        <div className="languages-list">
           {/* TODO add a select when we have too many languages */}
           <h4>Add Languages</h4>
           {downloadables.map(lang => (
@@ -71,7 +71,7 @@ const LanguageManagement: FC<Props> = props => {
           ))}
         </div>
       )}
-      <div className='languages-list'>
+      <div className="languages-list">
         <h4>Installed Languages</h4>
         {installed.length === 0 && <p>No languages yet</p>}
         {installed.map(lang => (

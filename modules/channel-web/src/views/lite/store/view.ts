@@ -153,6 +153,11 @@ class ViewStore {
   }
 
   @action.bound
+  postMessage(name: string) {
+    window.parent.postMessage({ name: name }, '*')
+  }
+
+  @action.bound
   incrementUnread() {
     this.unreadCount++
   }
@@ -185,6 +190,7 @@ class ViewStore {
   @action.bound
   setLoadingCompleted() {
     this._isLoading = false
+    this.postMessage('webchatLoaded')
   }
 
   @action.bound
@@ -267,6 +273,8 @@ class ViewStore {
     }, constants.ANIM_DURATION + 10)
 
     this._endAnimation('side')
+
+    this.postMessage('webchatOpened')
   }
 
   @action.bound
@@ -289,6 +297,8 @@ class ViewStore {
     }
 
     this._endAnimation('widget')
+
+    this.postMessage('webchatClosed')
   }
 
   @action.bound

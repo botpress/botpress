@@ -1,0 +1,68 @@
+{
+  "version-11.9.6-docs": {
+    "Release Notes": [
+      "version-11.9.6-releases/release-notes",
+      "version-11.9.6-releases/migrate"
+    ],
+    "Getting Started": [
+      "version-11.9.6-introduction",
+      "version-11.9.6-installation",
+      "version-11.9.6-quickstart",
+      "version-11.9.6-updating",
+      "version-11.9.6-troubleshoot"
+    ],
+    "Main Concepts": [
+      "version-11.9.6-main/overview",
+      "version-11.9.6-main/content",
+      "version-11.9.6-main/dialog",
+      "version-11.9.6-main/code",
+      "version-11.9.6-main/memory",
+      "version-11.9.6-main/module",
+      "version-11.9.6-main/nlu",
+      "version-11.9.6-main/emulator"
+    ],
+    "Advanced Guides": [
+      "version-11.9.6-advanced/debug",
+      "version-11.9.6-advanced/configuration",
+      "version-11.9.6-advanced/authentication",
+      "version-11.9.6-advanced/i18n",
+      "version-11.9.6-advanced/custom-module",
+      "version-11.9.6-advanced/analytics",
+      "version-11.9.6-advanced/architecture",
+      "version-11.9.6-advanced/performances",
+      "version-11.9.6-advanced/hosting",
+      "version-11.9.6-advanced/versions",
+      "version-11.9.6-advanced/pipelines",
+      "version-11.9.6-advanced/cluster",
+      "version-11.9.6-advanced/monitoring"
+    ],
+    "Channels": [
+      "version-11.9.6-channels/web",
+      "version-11.9.6-channels/messenger",
+      "version-11.9.6-channels/telegram",
+      "version-11.9.6-channels/converse",
+      "version-11.9.6-channels/faq"
+    ],
+    "Tutorials": [
+      "version-11.9.6-tutorials/proactive",
+      "version-11.9.6-tutorials/skill-slot",
+      "version-11.9.6-tutorials/skill-call-api",
+      "version-11.9.6-tutorials/external-api",
+      "version-11.9.6-tutorials/shortlinks",
+      "version-11.9.6-tutorials/existing-backend",
+      "version-11.9.6-tutorials/database",
+      "version-11.9.6-tutorials/timeouts",
+      "version-11.9.6-tutorials/hitl",
+      "version-11.9.6-tutorials/jump-to",
+      "version-11.9.6-tutorials/interbot",
+      "version-11.9.6-tutorials/contextual-faq",
+      "version-11.9.6-tutorials/chat-3rd-party-OAuth",
+      "version-11.9.6-tutorials/listen-file-changes"
+    ],
+    "Pro Edition": [
+      "version-11.9.6-pro/about-pro",
+      "version-11.9.6-pro/licensing",
+      "version-11.9.6-pro/rbac"
+    ]
+  }
+}

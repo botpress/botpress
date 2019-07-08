@@ -17,6 +17,13 @@ $elementHeight: 40px;
   }
 }
 
+.hint {
+  color: #738694;
+  span {
+    margin-left: 10px;
+  }
+}
+
 .elementRemove {
   padding-left: 10px;
   display: none;
@@ -100,6 +107,8 @@ $elementHeight: 40px;
 
 .qnaContainer {
   padding: 25px;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .qnaNavBar {

@@ -18,17 +18,28 @@ class ListView extends Component<Props, State> {
     pages: 0,
     page: 0,
     filters: [],
-    sortOrder: []
+    sortOrder: [],
+    tableHeight: 0
   }
 
   componentDidMount() {
+    this.updateTableHeight()
     this.debouncedHandleSearch = _.debounce(() => this.launchSearch(), 1000)
+    window.addEventListener('resize', this.updateTableHeight)
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateTableHeight)
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.count !== prevProps.count) {
       this.setState({ page: 0 })
     }
+  }
+
+  updateTableHeight = () => {
+    this.setState({ tableHeight: window.innerHeight - 36 /** Toolbar height */ - 40 /** bottom buttons height */ })
   }
 
   handleCheckboxChanged(id) {
@@ -227,7 +238,7 @@ class ListView extends Component<Props, State> {
         defaultSorted={[{ id: 'modifiedOn', desc: true }]}
         noDataText={noDataMessage}
         className="-striped -highlight"
-        style={{ height: window.innerHeight - 36 /** Toolbar height */ - 40 /** bottom buttons height */ }}
+        style={{ height: this.state.tableHeight }}
         pages={pageCount}
         manual
         filterable
@@ -301,6 +312,7 @@ interface State {
   searchTerm: string
   sortOrder: any
   filters: any
+  tableHeight: number
 }
 
 interface SearchQuery {

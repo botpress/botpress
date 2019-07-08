@@ -87,6 +87,7 @@
 .langSwitherMenu {
   background-color: var(--c-background--dark-1);
   padding: 0;
+
   min-width: 100px;
   .langItem {
     padding: 5px 0;
@@ -104,7 +105,24 @@
       float: right;
       margin-right: 15px;
     }
+
+    a {
+      color: white;
+      text-decoration: 'none';
+    }
+
+    a:hover {
+      color: white;
+      background-color: black;
+      text-decoration: none;
+    }
   }
+}
+
+.switchBotMenu {
+  min-width: 200px;
+  margin-left: -100px;
+  bottom: 6px !important;
 }
 
 .brain {
@@ -133,5 +151,16 @@
   &.color-9,
   &.color-10 {
     color: #a6ff72;
+  }
+}
+
+.scoreLine {
+  margin: 3px 0;
+}
+
+.nluUnhealthy {
+  span {
+    color: red;
+    font-weight: bold;
   }
 }

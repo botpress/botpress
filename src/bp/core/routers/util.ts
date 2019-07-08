@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import onHeaders from 'on-headers'
 
-import { RequestWithUser, TokenUser } from '../misc/interfaces'
+import { RequestWithUser, TokenUser } from '../../common/typings'
 import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
 import { incrementMetric } from '../services/monitoring'
 
@@ -186,15 +186,15 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
     return next(new ForbiddenError(`Unauthorized`))
   }
 
+  if (!req.workspace && req.params.botId) {
+    req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
+  }
+
   const { email, strategy, isSuperAdmin } = req.tokenUser
 
   // The server user is used internally, and has all the permissions
   if (email === SERVER_USER || isSuperAdmin) {
     return next()
-  }
-
-  if (!req.workspace && req.params.botId) {
-    req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
   }
 
   if (!email || !strategy || !req.workspace) {

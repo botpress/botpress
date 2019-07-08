@@ -10,10 +10,10 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
+import { IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
 import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
-import { IDisposeOnExit } from '../misc/interfaces'
 import { TYPES } from '../types'
 
 import { GhostService } from '.'

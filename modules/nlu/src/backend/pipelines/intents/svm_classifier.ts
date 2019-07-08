@@ -127,18 +127,26 @@ export default class SVMClassifier {
     for (const [index, context] of Object.entries(allContexts)) {
       const intents = intentsWTokens.filter(x => x.contexts.includes(context))
       const utterances = _.flatten(intents.map(x => x.tokens))
+      const vocabulary = _.flatten(utterances)
+
+      // Vectorize all the vocabulary upfront to batch and cache it
+      await this.languageProvider.vectorize(vocabulary, this.language)
 
       // Generate 'none' utterances for this context
-      const junkWords = await this.languageProvider.generateSimilarJunkWords(_.flatten(utterances))
-      const nbOfNoneUtterances = Math.max(5, utterances.length / 2) // minimum 5 none utterances per context
-      const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => _.sampleSize(junkWords))
+      const junkWords = await this.languageProvider.generateSimilarJunkWords(vocabulary, this.language)
+      const nbOfNoneUtterances = Math.max(5, utterances.length / 2) // minimum 5 none utterances per context, max 50% of the utterances set
+      const averageWordCount = _.meanBy(utterances, x => x.length)
+      const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
+        const nbWords = _.random(averageWordCount / 2, averageWordCount * 2, false)
+        return _.sampleSize(junkWords, nbWords)
+      })
       intents.push({
         contexts: [context],
         filename: 'none.json',
         name: 'none',
         slots: [],
         tokens: noneUtterances,
-        utterances: { [this.language]: noneUtterances.map(utt => utt.join('')) }
+        utterances: { [this.language]: noneUtterances.map(utt => utt.join(' ')) }
       })
 
       const l1Points: sdk.MLToolkit.SVM.DataPoint[] = []
@@ -269,8 +277,12 @@ export default class SVMClassifier {
     return predictions.length > 2 && bestOf3STD <= 0.03
   }
 
+  public get isLoaded(): boolean {
+    return !!Object.keys(this.l1PredictorsByContextName).length && !!this.l0Predictor
+  }
+
   public async predict(tokens: string[], includedContexts: string[]): Promise<sdk.NLU.Intent[]> {
-    if (!Object.keys(this.l1PredictorsByContextName).length || !this.l0Predictor) {
+    if (!this.isLoaded) {
       throw new Error('No model loaded. Make sure you `load` your models before you call `predict`.')
     }
 

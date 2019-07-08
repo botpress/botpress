@@ -1,3 +1,4 @@
+import { Icon } from '@blueprintjs/core'
 import style from './StatusBar.styl'
 import React from 'react'
 import _ from 'lodash'
@@ -7,10 +8,9 @@ import { Line } from 'progressbar.js'
 import EventBus from '~/util/EventBus'
 import { keyMap } from '~/keyboardShortcuts'
 import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
 import { updateDocumentationModal } from '~/actions'
-import { GoFile } from 'react-icons/go'
 import LangSwitcher from './LangSwitcher'
+import BotSwitcher from './BotSwitcher'
 import ActionItem from './ActionItem'
 import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
@@ -18,7 +18,6 @@ import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
-import { Icon } from '@blueprintjs/core'
 
 const COMPLETED_DURATION = 2000
 
@@ -29,18 +28,24 @@ class StatusBar extends React.Component {
     progress: 0,
     messages: [],
     nluSynced: true,
-    contexts: []
+    contexts: [],
+    botsIds: []
   }
 
   constructor(props) {
     super(props)
     this.progressContainerRef = React.createRef()
-
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
   }
 
   async componentDidMount() {
     await this.fetchContexts()
+    await this.fetchWorkspaceBotsIds()
+  }
+
+  fetchWorkspaceBotsIds = async () => {
+    const { data } = await axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`)
+    this.setState({ botsIds: data || [] })
   }
 
   fetchContexts = async () => {
@@ -167,10 +172,15 @@ class StatusBar extends React.Component {
             display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
-            <ActionItem title="Logs" description="View Botpress Logs" className={style.right}>
-              <NavLink to={'/logs'}>
-                <GoFile />
-              </NavLink>
+            <ActionItem
+              id="statusbar_logs"
+              title="Logs Panel"
+              shortcut={keyMap['bottom-bar']}
+              description="Toggle Logs Panel"
+              className={style.right}
+              onClick={this.props.toggleBottomPanel}
+            >
+              <Icon icon="console" />
             </ActionItem>
           </PermissionsChecker>
           <ActionItem
@@ -184,16 +194,7 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <ActionItem
-            id="statusbar_switchbot"
-            title="Switch Bot"
-            description="Switch to an other bot. This will leave this interface."
-          >
-            <a href="/admin/">
-              <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
-              <strong>{this.props.botName}</strong> (bot)
-            </a>
-          </ActionItem>
+          <BotSwitcher botsIds={this.state.botsIds} currentBotId={this.props.botInfo.id} />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher

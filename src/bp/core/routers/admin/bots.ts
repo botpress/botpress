@@ -63,22 +63,6 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    router.get(
-      '/languages',
-      this.asyncMiddleware(async (req, res) => {
-        const languages = [
-          { code: 'en', name: 'English' },
-          { code: 'fr', name: 'French' },
-          { code: 'ar', name: 'Arabic' },
-          { code: 'ja', name: 'Japanese' },
-          { code: 'pt', name: 'Portuguese' }
-        ]
-
-        // TODO get languages from LanguageService here
-        res.send(languages)
-      })
-    )
-
     router.post(
       '/',
       this.needPermissions('write', this.resource),
@@ -139,7 +123,10 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          this.logger.attachError(err).error(`Cannot request bot: ${req.params.botId} for stage change`)
+          this.logger
+            .forBot(req.params.botId)
+            .attachError(err)
+            .error(`Cannot request bot: ${req.params.botId} for stage change`)
           res.status(400)
         }
       })

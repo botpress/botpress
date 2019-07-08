@@ -1,4 +1,4 @@
-import { AuthRole } from 'core/misc/interfaces'
+import { AuthRole } from './typings'
 
 export const defaultUserRole = 'dev'
 export const defaultAdminRole = 'admin'
