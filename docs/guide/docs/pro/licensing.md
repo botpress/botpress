@@ -9,7 +9,7 @@ To enable Botpress pro features, you need to create a Botpress account, customiz
 
 Before we move on, make sure to have the followings :
 
-- A working Botpress installation [running on pro](/docs/pro/about-pro#activate-pro)
+- A working Botpress installation [running on pro](/docs/pro/about-pro#activation)
 - Admin rights on your Botpress installation (if downloaded & started Botpress you're good to go)
 - A connection to the Internet
 - A valid credit card

@@ -18,8 +18,8 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
+import { makeTokens } from './tools/make-tokens'
 import { allInRange } from './tools/math'
-import { makeTokenObjects } from './tools/make-tokens'
 import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
   Engine,
@@ -422,7 +422,7 @@ export default class ScopedEngine implements Engine {
     }
 
     const intents = await this.intentClassifiers[ds.language].predict(
-      ds.tokens.map(t => t.sanitized),
+      ds.tokens.map(t => t.cannonical),
       ds.includedContexts
     )
 
@@ -441,15 +441,14 @@ export default class ScopedEngine implements Engine {
   }
 
   private _setTextWithoutEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText).toLowerCase()
+    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText)
+    ds.sanitizedLowerText = ds.sanitizedText.toLowerCase()
     return ds
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const text = sanitize(ds.rawText).toLowerCase()
-    ds.lowerText = text
-    const rawTokens = await this.languageProvider.tokenize(text, ds.language)
-    ds.tokens = makeTokenObjects(rawTokens, text)
+    const rawTokens = await this.languageProvider.tokenize(ds.sanitizedLowerText, ds.language)
+    ds.tokens = makeTokens(rawTokens, ds.sanitizedText)
     return ds
   }
 
@@ -464,13 +463,7 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    ds.slots = await this.slotExtractors[ds.language].extract(
-      ds.lowerText,
-      ds.language,
-      intentDef,
-      ds.entities,
-      ds.tokens.map(t => t.sanitized)
-    )
+    ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef)
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
     return ds
@@ -500,7 +493,15 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
+  private _processText = (ds: NLUStructure): Promise<NLUStructure> => {
+    const sanitized = sanitize(ds.rawText)
+    ds.sanitizedText = sanitized
+    ds.sanitizedLowerText = sanitized.toLowerCase()
+    return Promise.resolve(ds)
+  }
+
   private readonly _pipeline = [
+    this._processText,
     this._detectLang,
     this._tokenize,
     this._extractEntities,

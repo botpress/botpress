@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
+import { makeTokens } from '../../tools/make-tokens'
 
 const AN_ENTITY = 'person'
 const OTHER_ENTITY = 'animal'
@@ -19,7 +20,7 @@ const languageProvider: LanguageProvider = {
     return Promise.resolve(res)
   },
 
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
 
   getHealth: (): Partial<NLUHealth> => {
     return {}
@@ -57,11 +58,12 @@ describe('Preprocessing', () => {
     expect(trainingSeq.tokens[4].slot).toEqual(slotDef[0].name)
     expect(trainingSeq.tokens[4].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[4].tag).toEqual(BIO.BEGINNING)
-    expect(trainingSeq.tokens[4].value).toEqual('Jacob')
+    expect(trainingSeq.tokens[4].value).toEqual('jacob')
+    expect(trainingSeq.tokens[4].cannonical).toEqual('Jacob')
     expect(trainingSeq.tokens[5].slot).toEqual(slotDef[0].name)
     expect(trainingSeq.tokens[5].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[5].tag).toEqual(BIO.INSIDE)
-    expect(trainingSeq.tokens[5].value).toEqual('Jacobson')
+    expect(trainingSeq.tokens[5].value).toEqual('jacobson')
     expect(trainingSeq.tokens[10].matchedEntities).toEqual(slotDef[1].entities)
   })
 
@@ -116,7 +118,8 @@ describe('Preprocessing', () => {
     ] as sdk.NLU.Entity[]
 
     const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
-    const tokens = await languageProvider.tokenize(input, 'en')
+
+    const tokens = await makeTokens(await languageProvider.tokenize(input, 'en'), input)
 
     // some extra spaces on purpose here
     const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
