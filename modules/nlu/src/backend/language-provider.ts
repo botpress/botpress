@@ -9,7 +9,7 @@ import ms from 'ms'
 import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
-import { LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
+import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -166,23 +166,18 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
-  private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {
-    const providers = this.langs[lang]
-
-    if (!providers) {
+  private getAvailableProviders(lang: string): Gateway[] {
+    if (!this.langs[lang]) {
       throw new Error(`Language "${lang}" is not supported by the configured language sources`)
     }
 
-    for (const provider of providers) {
-      if (provider.disabledUntil > new Date()) {
-        debug('source disabled, skipping', {
-          source: provider.source,
-          errors: provider.errors,
-          until: provider.disabledUntil
-        })
-        continue
-      }
+    return this.langs[lang].filter(x => !x.disabledUntil || x.disabledUntil <= new Date())
+  }
 
+  private async queryProvider<T>(lang: string, path: string, body: any, returnProperty: string): Promise<T> {
+    const providers = this.getAvailableProviders(lang)
+
+    for (const provider of providers) {
       try {
         const { data } = await provider.client.post(path, { ...body, lang })
 
@@ -192,16 +187,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
         return data
       } catch (err) {
-        provider.disabledUntil = moment()
-          .add(provider.errors++, 'seconds')
-          .toDate()
+        if (this.getAvailableProviders(lang).length > 1) {
+          // we don't disable providers when there's no backup
+          provider.disabledUntil = moment()
+            .add(provider.errors++, 'seconds')
+            .toDate()
 
-        debug('disabled temporarily source', {
-          source: provider.source,
-          err: err.message,
-          errors: provider.errors,
-          until: provider.disabledUntil
-        })
+          debug('disabled temporarily source', {
+            source: provider.source,
+            err: err.message,
+            errors: provider.errors,
+            until: provider.disabledUntil
+          })
+        }
       }
     }
 
@@ -212,7 +210,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
    * Generates words that don't exist in the vocabulary, but that are built from ngrams of existing vocabulary
    * @param subsetVocab The tokens to which you want similar tokens to
    */
-  async generateSimilarJunkWords(subsetVocab: string[]): Promise<string[]> {
+  async generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]> {
     // from totalVocab compute the cachedKey the closest to what we have
     // if 75% of the vocabulary is the same, we keep the cache we have instead of rebuilding one
     const gramset = vocabNGram(subsetVocab)
@@ -230,6 +228,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!result) {
       // didn't find any close gramset, let's create a new one
       result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
+      await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens
       this._junkwordsCache.set(gramset, result)
       this.onJunkWordsCacheChanged()
     }
@@ -241,10 +240,15 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const realWords = _.uniq(subsetVocab)
     const meanWordSize = _.meanBy(realWords, w => w.length)
     const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
-    const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 2) // Twice as long.  Those numbers are discretionary and are not expected to make a big impact on the models.
-    return _.range(0, JUNK_VOCAB_SIZE).map(() =>
-      _.sampleSize(gramset, _.random(minJunkSize, maxJunkSize, false)).join('')
-    ) // randomly generated words
+    const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5) // A bit longer.  Those numbers are discretionary and are not expected to make a big impact on the models.
+    return _.range(0, JUNK_VOCAB_SIZE).map(() => {
+      const finalSize = _.random(minJunkSize, maxJunkSize, false)
+      let word = ''
+      while (word.length < finalSize) {
+        word += _.sample(gramset)
+      }
+      return word
+    }) // randomly generated words
   }
 
   async vectorize(tokens: string[], lang: string): Promise<Float32Array[]> {
@@ -264,9 +268,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
     })
 
-    if (idxToFetch.length) {
+    while (idxToFetch.length) {
+      // we tokenize maximum 100 tokens at the same time
+      const group = idxToFetch.splice(0, 100)
+
       // We have new tokens we haven't cached yet
-      const query = idxToFetch.map(idx => tokens[idx])
+      const query = group.map(idx => tokens[idx])
       // Fetch only the missing tokens
       const fetched = await this.queryProvider<number[][]>(lang, '/vectorize', { tokens: query }, 'vectors')
 
@@ -279,7 +286,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       // Reconstruct them in our array and cache them for future cache lookup
-      idxToFetch.forEach((tokenIdx, fetchIdx) => {
+      group.forEach((tokenIdx, fetchIdx) => {
         vectors[tokenIdx] = Float32Array.from(fetched[fetchIdx])
         this._vectorsCache.set(getCacheKey(tokens[tokenIdx]), vectors[tokenIdx])
       })

@@ -17,7 +17,7 @@ const languageProvider: LanguageProvider = {
     const res = text.split(' ').filter(_.identity)
     return Promise.resolve(res)
   },
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
   getHealth: (): Partial<NLUHealth> => {
     return {}
   }
