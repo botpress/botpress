@@ -91,7 +91,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
         }, this.discoveryRetryPolicy)
       } catch (err) {
-        logger.attachError(err).error(`Could not load Language Provider at ${source.endpoint}: ${err.code}`)
+        this.handleLanguageServerError(err, source.endpoint, logger)
       }
     })
 
@@ -101,6 +101,21 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this.restoreJunkWordsCache()
 
     return this
+  }
+
+  private handleLanguageServerError = (err, endpoint: string, logger) => {
+    const status = _.get(err, 'failure.response.status')
+    const details = _.get(err, 'failure.response.message')
+
+    if (status === 429) {
+      logger.error(
+        `Could not load Language Server: ${details}. You may be over the limit for the number of requests allowed for the endpoint ${endpoint}`
+      )
+    } else if (status === 401) {
+      logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
+    } else {
+      logger.attachError(err).error(`Could not load Language Provider at ${endpoint}: ${err.code}`)
+    }
   }
 
   private onVectorsCacheChanged = debounce(() => {

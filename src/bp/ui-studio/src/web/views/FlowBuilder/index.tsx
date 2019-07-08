@@ -7,7 +7,7 @@ import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
-import { UserReducer } from '~reducers/user'
+import { UserReducer } from '~/reducers/user'
 
 import Diagram from './containers/Diagram'
 import NodeProps from './containers/NodeProps'

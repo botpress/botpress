@@ -28,9 +28,12 @@ class ChangePassword extends Component {
       return
     }
 
+    const type = this.props.profile.strategyType
+    const strategy = this.props.profile.strategy
+
     await api
       .getSecured()
-      .post('/auth/login', {
+      .post(`/auth/login/${type}/${strategy}`, {
         email: this.props.profile.email,
         password: this.state.password,
         newPassword: this.state.newPassword

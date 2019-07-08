@@ -6,11 +6,14 @@ import _ from 'lodash'
 import Database from '../database'
 import { TYPES } from '../types'
 
-export interface StrategyUser {
+export type StrategyUser = {
   id?: number
-  email: string
   password?: string
   salt?: string
+} & UserInfo
+
+interface UserInfo {
+  email: string
   strategy: string
   attributes: any
 }
@@ -80,8 +83,8 @@ export class StrategyUsersRepository {
     emails: string[],
     strategy: string,
     filteredAttributes?: string[]
-  ): Promise<StrategyUser[]> {
-    const users = await this.database.knex(this._getTableName(strategy)).whereIn('email', emails)
+  ): Promise<UserInfo[]> {
+    const users: StrategyUser[] = await this.database.knex(this._getTableName(strategy)).whereIn('email', emails)
     const json = this.database.knex.json
 
     return users.map(user => ({

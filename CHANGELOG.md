@@ -1,3 +1,52 @@
+## [12.0.1](https://github.com/botpress/botpress/compare/v12.0.0...v12.0.1) (2019-07-08)
+
+
+### Bug Fixes
+
+* **admin:** add create bot to pipeline view with no bots ([9cdc703](https://github.com/botpress/botpress/commit/9cdc703))
+* **admin:** password reset for basic auth strategy ([c3b181e](https://github.com/botpress/botpress/commit/c3b181e))
+* **channel-web:** fix pt translations + added es translation ([04859bb](https://github.com/botpress/botpress/commit/04859bb))
+* **channel-web:** translate reset conversation label ([27e34f3](https://github.com/botpress/botpress/commit/27e34f3))
+* **channel-web:** using native includes instead ([d9669ab](https://github.com/botpress/botpress/commit/d9669ab))
+* **channel-web:** using native includes instead ([356e5cd](https://github.com/botpress/botpress/commit/356e5cd))
+* **core:** pass full workspace user object + attributes to stage change hooks ([f9dac3f](https://github.com/botpress/botpress/commit/f9dac3f))
+* **env:** allow json in env var (for complex configs) ([bdc3500](https://github.com/botpress/botpress/commit/bdc3500))
+* **env:** allow json in env var (for complex configs) ([ac0bf13](https://github.com/botpress/botpress/commit/ac0bf13))
+* **flow:** fix subflows not working & bit of ux ([fc4d822](https://github.com/botpress/botpress/commit/fc4d822))
+* **flow:** fix subflows not working & bit of ux ([b13af6c](https://github.com/botpress/botpress/commit/b13af6c))
+* **gulp:** added verbose for build ([487fda4](https://github.com/botpress/botpress/commit/487fda4))
+* **gulp:** added verbose for build ([f00b431](https://github.com/botpress/botpress/commit/f00b431))
+* **gulp:** sending outputs to console when watching ([c2a3e88](https://github.com/botpress/botpress/commit/c2a3e88))
+* **gulp:** sending outputs to console when watching ([a9d958d](https://github.com/botpress/botpress/commit/a9d958d))
+* **lang-server:** replace readonly with admintoken ([2fb9af5](https://github.com/botpress/botpress/commit/2fb9af5))
+* **lang-server:** replace readonly with admintoken ([92d41b1](https://github.com/botpress/botpress/commit/92d41b1))
+* **lang-server:** users dont hit directly the endpoint ([ce49b0a](https://github.com/botpress/botpress/commit/ce49b0a))
+* **lang-server:** users dont hit directly the endpoint ([c7d3276](https://github.com/botpress/botpress/commit/c7d3276))
+* **native:** added sentencepiece for all os ([ad00566](https://github.com/botpress/botpress/commit/ad00566))
+* **native:** added sentencepiece for all os ([8e3246f](https://github.com/botpress/botpress/commit/8e3246f))
+* **nlu:** check if model loaded before extracting intents ([0c831e8](https://github.com/botpress/botpress/commit/0c831e8))
+* **nlu:** email entity extraction ([faf9afe](https://github.com/botpress/botpress/commit/faf9afe))
+* **nlu:** email entity extraction ([9c10dc8](https://github.com/botpress/botpress/commit/9c10dc8))
+* **nlu:** numeral to number ([d1f5465](https://github.com/botpress/botpress/commit/d1f5465))
+* **nlu:** numeral to number ([c196959](https://github.com/botpress/botpress/commit/c196959))
+* **nlu:** pattern extractor uses raw text ([59570ef](https://github.com/botpress/botpress/commit/59570ef))
+* **nlu:** pattern extractor uses raw text ([b8a5340](https://github.com/botpress/botpress/commit/b8a5340))
+* **nlu:** various performance fixes wrt lang server ([bb0f1f4](https://github.com/botpress/botpress/commit/bb0f1f4))
+* **nlu:** various performance fixes wrt lang server ([cb846e6](https://github.com/botpress/botpress/commit/cb846e6))
+* **skill-choice:** update choice on choice edit ([d7cdf3b](https://github.com/botpress/botpress/commit/d7cdf3b))
+* **typings:** better experience working with typescript ([397f1e8](https://github.com/botpress/botpress/commit/397f1e8))
+* **typings:** better experience working with typescript ([22f6e59](https://github.com/botpress/botpress/commit/22f6e59))
+
+
+### Features
+
+* **channel-web:** introduce webchat events ([1ca8f49](https://github.com/botpress/botpress/commit/1ca8f49))
+* **channel-web:** introduce webchat events ([6583457](https://github.com/botpress/botpress/commit/6583457))
+* **nlu:** usage of sentencepiece underscore in list extraction ([b13cbf3](https://github.com/botpress/botpress/commit/b13cbf3))
+* **qna:** display nlu machine learning recommendations in qna ([fd29a3b](https://github.com/botpress/botpress/commit/fd29a3b))
+
+
+
 # [12.0.0](https://github.com/botpress/botpress/compare/v11.9.6...v12.0.0) (2019-07-02)
 
 

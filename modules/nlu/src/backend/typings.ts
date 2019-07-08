@@ -12,6 +12,7 @@ export type Tag = 'o' | 'B' | 'I'
 export interface Token {
   tag?: Tag
   value: string
+  cannonical: string
   slot?: string
   start: number
   end: number
@@ -30,7 +31,7 @@ export type EngineByBot = { [botId: string]: Engine }
 export interface Engine {
   trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
-  extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
+  extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface EntityExtractor {
@@ -40,13 +41,7 @@ export interface EntityExtractor {
 export interface SlotExtractor {
   load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
   train(trainingSet: Sequence[]): Promise<{ language: Buffer | undefined; crf: Buffer | undefined }>
-  extract(
-    input: string,
-    lang: string,
-    intent: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[],
-    tokens: string[]
-  ): Promise<sdk.NLU.SlotCollection>
+  extract(ds: NLUStructure, intent: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection>
 }
 
 export type IntentModel = { name: string; model: Buffer }
@@ -58,7 +53,7 @@ export interface IntentClassifier {
 }
 
 export interface LanguageIdentifier {
-  identify(input: string): Promise<string>
+  identify(input: string): Promise<sdk.MLToolkit.FastText.PredictResult[]>
 }
 
 export const MODEL_TYPES = {
@@ -85,16 +80,17 @@ export interface Model {
 export interface NLUStructure {
   rawText: string
   sanitizedText: string
-  lowerText: string
+  sanitizedLowerText: string
   detectedLanguage: string
   language: string
   includedContexts: string[]
+  lastMessages: string[]
   slots: { [key: string]: sdk.NLU.Slot }
   entities: sdk.NLU.Entity[]
   ambiguous: boolean
   intents: sdk.NLU.Intent[]
   intent: sdk.NLU.Intent
-  tokens: string[]
+  tokens: Token[]
 }
 
 export type Token2Vec = { [token: string]: number[] }
@@ -135,4 +131,9 @@ export interface NLUHealth {
   isEnabled: boolean
   validProvidersCount: number
   validLanguages: string[]
+}
+
+export interface NluMlRecommendations {
+  minUtterancesForML: number
+  goodUtterancesForML: number
 }

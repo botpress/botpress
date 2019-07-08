@@ -31,6 +31,7 @@
       "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
+      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions" },
       "args": ["--inspect-brk", "${workspaceFolder}/node_modules/.bin/jest", "--runInBand"],
       "windows": {
         "args": ["--inspect-brk", "${workspaceRoot}/node_modules/jest/bin/jest.js", "--runInBand"]

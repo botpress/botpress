@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
+import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
-import { RequestWithUser } from 'core/misc/interfaces'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
 import StrategyBasic from 'core/services/auth/basic'
@@ -69,6 +69,8 @@ export class AuthRouter extends CustomRouter {
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         const { email, strategy, isSuperAdmin } = req.tokenUser!
 
+        const { type } = await this.authService.getStrategy(strategy)
+
         const user = await this.authService.findUser(email, strategy)
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
@@ -81,6 +83,8 @@ export class AuthRouter extends CustomRouter {
           firstname,
           lastname,
           email,
+          strategyType: type,
+          strategy,
           isSuperAdmin,
           fullName: [firstname, lastname].filter(Boolean).join(' '),
           permissions: userRole && userRole.rules

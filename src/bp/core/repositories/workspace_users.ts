@@ -11,6 +11,10 @@ export interface WorkspaceUser {
   role: string
 }
 
+export type WorkspaceUserAttributes = {
+  attributes: any
+} & WorkspaceUser
+
 @injectable()
 export class WorkspaceUsersRepository {
   private readonly tableName = 'workspace_users'

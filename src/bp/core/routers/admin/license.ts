@@ -1,7 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
+import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
-import { RequestWithUser } from 'core/misc/interfaces'
 import { Router } from 'express'
 import _ from 'lodash'
 
