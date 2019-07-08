@@ -464,33 +464,25 @@ export default class ScopedEngine implements Engine {
   }
 
   private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const allMessages = ds.lastMessages.concat(ds.rawText).join(' ')
-    const threeLastMessages = _(ds.lastMessages)
+    const lastMessages = _(ds.lastMessages)
       .reverse()
       .take(3)
-      .value()
+      .concat(ds.rawText)
+      .join(' ')
 
-    const samples = [ds.rawText, ...threeLastMessages, allMessages]
-    const results = await Promise.all(samples.map(await this.langIdentifier.identify))
+    const results = await this.langIdentifier.identify(lastMessages)
 
     const elected = _(results)
-      .flatten()
-      .groupBy(res => res.label)
-      .map((confs, lang) => ({ confs, lang }))
-      .filter(score => this.languages.includes(score.lang))
-      .map(score => ({ lang: score.lang, score: score.confs.map(pred => pred.value).reduce(_.add, 0) }))
-      .orderBy(lang => lang.score)
+      .filter(score => this.languages.includes(score.label))
+      .orderBy(lang => lang.value, 'desc')
       .first()
-
-    const lang = _.get(elected, 'lang', '')
-
-    ds.detectedLanguage = _.isEmpty(lang) ? 'n/a' : lang
 
     if (_.isEmpty(elected)) {
       debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    ds.language = _.isEmpty(elected) || elected.score < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+    ds.detectedLanguage = _.get(elected, 'label', 'n/a')
+    ds.language = _.isEmpty(elected) || elected.value < 0.5 ? this.defaultLanguage : ds.detectedLanguage
 
     return ds
   }
