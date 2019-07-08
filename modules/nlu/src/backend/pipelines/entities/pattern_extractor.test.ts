@@ -90,7 +90,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       const extractor = new PatternExtractor(Toolkit, languageProvider)
 
       const sanitized = userInput.replace('\n', '')
-      const ds = initNLUStruct(sanitized, ['global'])
+      const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       const stringTokens = await languageProvider.tokenize(sanitized, 'en')
@@ -144,7 +144,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
 
       const extractor = new PatternExtractor(Toolkit, languageProvider)
       const sanitized = userInput.replace('\n', '')
-      const ds = initNLUStruct(sanitized, ['global'])
+      const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
@@ -181,7 +181,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
 
       const extractor = new PatternExtractor(Toolkit, languageProvider)
       const sanitized = userInput.replace('\n', '')
-      const ds = initNLUStruct(sanitized, ['global'])
+      const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
@@ -224,7 +224,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
 
       const extractor = new PatternExtractor(Toolkit, languageProvider)
       const sanitized = userInput.replace('\n', '')
-      const ds = initNLUStruct(sanitized, ['global'])
+      const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
