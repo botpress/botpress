@@ -6,5 +6,6 @@
   "botInfo.backToConversation": "Back to Conversation",
   "botInfo.startConversation": "Start Conversation",
   "botInfo.privacyPolicy": "View Privacy Policy",
-  "botInfo.termsAndConditions": "View Terms of Service"
+  "botInfo.termsAndConditions": "View Terms of Service",
+  "store.resetSessionMessage": "Reset the conversation"
 }

@@ -21,7 +21,7 @@ const languageProvider: LanguageProvider = {
       .map(x => '\u2581' + x.toLowerCase())
     return Promise.resolve(res)
   },
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
   getHealth: (): Partial<NLUHealth> => {
     return {}
   }

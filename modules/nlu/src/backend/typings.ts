@@ -94,14 +94,22 @@ export interface NLUStructure {
 
 export type Token2Vec = { [token: string]: number[] }
 
+export interface Gateway {
+  source: LanguageSource
+  client: AxiosInstance
+  errors: number
+  disabledUntil?: Date
+}
+[]
+
 export interface LangsGateway {
-  [lang: string]: { source: LanguageSource; client: AxiosInstance; errors: number; disabledUntil?: Date }[]
+  [lang: string]: Gateway[]
 }
 
 export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(text: string, lang: string): Promise<string[]>
-  generateSimilarJunkWords(subsetVocab: string[]): Promise<string[]>
+  generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<NLUHealth>
 }
 

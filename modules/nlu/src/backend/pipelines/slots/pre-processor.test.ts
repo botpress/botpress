@@ -20,7 +20,7 @@ const languageProvider: LanguageProvider = {
     return Promise.resolve(res)
   },
 
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
 
   getHealth: (): Partial<NLUHealth> => {
     return {}
