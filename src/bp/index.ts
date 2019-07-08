@@ -209,7 +209,10 @@ try {
           description: 'Directory where language embeddings will be saved'
         },
         authToken: {
-          description: 'When defined clients must provide this Bearer token'
+          description: 'When enabled, this token is required for clients to query your language server'
+        },
+        adminToken: {
+          description: 'This token is required to access the server as admin and manage language.'
         },
         limit: {
           description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
@@ -218,11 +221,6 @@ try {
         limitWindow: {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
-        },
-        readOnly: {
-          description: 'Read-only prevents adding and removing language embeddings at run-time',
-          default: false,
-          type: 'boolean'
         },
         metadataLocation: {
           description: 'URL of metadata file which lists available languages',

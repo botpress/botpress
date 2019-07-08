@@ -12,6 +12,7 @@ export type Tag = 'o' | 'B' | 'I'
 export interface Token {
   tag?: Tag
   value: string
+  sanitized: string
   slot?: string
   start: number
   end: number
@@ -95,7 +96,7 @@ export interface NLUStructure {
   ambiguous: boolean
   intents: sdk.NLU.Intent[]
   intent: sdk.NLU.Intent
-  tokens: string[]
+  tokens: Token[]
 }
 
 export type Token2Vec = { [token: string]: number[] }
@@ -128,4 +129,9 @@ export interface NLUHealth {
   isEnabled: boolean
   validProvidersCount: number
   validLanguages: string[]
+}
+
+export interface NluMlRecommendations {
+  minUtterancesForML: number
+  goodUtterancesForML: number
 }

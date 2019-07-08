@@ -19,7 +19,8 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { LanguageProvider } from './typings'
+import { makeTokenObjects } from './tools/make-tokens'
+import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -38,6 +39,7 @@ const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
+const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
@@ -131,6 +133,13 @@ export default class ScopedEngine implements Engine {
 
   protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     return this.storage.getIntents()
+  }
+
+  public getMLRecommendations(): NluMlRecommendations {
+    return {
+      minUtterancesForML: MIN_NB_UTTERANCES,
+      goodUtterancesForML: GOOD_NB_UTTERANCES
+    }
   }
 
   /**
@@ -406,14 +415,16 @@ export default class ScopedEngine implements Engine {
     }
 
     const allIntents = (await this.getIntents()) || []
-    const shouldPredict =
-      allIntents.length && allIntents.some(i => i.utterances[ds.language].length >= MIN_NB_UTTERANCES)
+    const shouldPredict = allIntents.length && this.intentClassifiers[ds.language].isLoaded
 
     if (!shouldPredict) {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.language].predict(ds.tokens, ds.includedContexts)
+    const intents = await this.intentClassifiers[ds.language].predict(
+      ds.tokens.map(t => t.sanitized),
+      ds.includedContexts
+    )
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
@@ -435,8 +446,10 @@ export default class ScopedEngine implements Engine {
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.lowerText = sanitize(ds.rawText).toLowerCase()
-    ds.tokens = (await this.languageProvider.tokenize(ds.lowerText, ds.language)).map(sanitize)
+    const text = sanitize(ds.rawText).toLowerCase()
+    ds.lowerText = text
+    const rawTokens = await this.languageProvider.tokenize(text, ds.language)
+    ds.tokens = makeTokenObjects(rawTokens, text)
     return ds
   }
 
@@ -456,7 +469,7 @@ export default class ScopedEngine implements Engine {
       ds.language,
       intentDef,
       ds.entities,
-      ds.tokens
+      ds.tokens.map(t => t.sanitized)
     )
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })

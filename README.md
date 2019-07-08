@@ -67,7 +67,7 @@ We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
 
 We use [TypeDoc](https://github.com/TypeStrong/typedoc) to generate the SDK Reference directly from the source code.
 
-- Run `yarn build:reference` to generate the documentation. THe static files will appear under `/docs/reference/public`.
+- Run `yarn build:reference` to generate the documentation. The static files will appear under `/docs/reference/public`.
 
 ## Contributing
 
