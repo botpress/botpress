@@ -32,8 +32,14 @@ export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByB
       }
 
       try {
-        const metadata = await botCtx.extract(event.preview, event.nlu.includedContexts)
+        const metadata = await botCtx.extract(
+          event.preview,
+          event.state.session.lastMessages.map(message => message.incomingPreview),
+          event.nlu.includedContexts
+        )
+
         _.merge(event, { nlu: metadata })
+
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)

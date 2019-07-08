@@ -1,6 +1,7 @@
 ---
-id: licensing
+id: version-12.0.1-licensing
 title: Licensing
+original_id: licensing
 ---
 
 ## Requirements
