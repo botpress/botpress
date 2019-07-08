@@ -170,20 +170,21 @@ export class WorkspaceService {
 
     const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
 
-    const usersInfo = _.keyBy(
-      _.flatten(
-        await Promise.map(uniqStrategies, strategy =>
-          this.usersRepo.getMultipleUserAttributes(
-            workspaceUsers.filter(x => x.strategy === strategy).map(x => x.email),
-            strategy,
-            filteredAttributes
-          )
-        )
-      ),
-      'email'
-    )
+    const attributes = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
 
-    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email].attributes }))
+    return workspaceUsers.map(u => ({ ...u, attributes: attributes[u.email] }))
+  }
+
+  private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
+    const usersInfo = _.flatten(
+      await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
+    )
+    return _.mapValues(_.keyBy(usersInfo, 'email'), u => u.attributes)
+  }
+
+  private async _getUsersInfoForStrategy(users: WorkspaceUser[], strategy: string, attributes: any) {
+    const emails = users.filter(x => x.strategy === strategy).map(x => x.email)
+    return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
   }
 
   async getUniqueCollaborators(): Promise<number> {
