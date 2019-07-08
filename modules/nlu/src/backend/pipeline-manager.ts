@@ -41,16 +41,16 @@ export class PipelineManager {
 export const initNLUStruct = (rawText: string, lastMessages: string[], includedContexts: string[]): NLUStructure => {
   return {
     rawText,
-    lowerText: '',
+    sanitizedText: '',
+    sanitizedLowerText: '',
     lastMessages,
-    includedContexts,
+    includedContexts: includedContexts,
     detectedLanguage: '',
     language: '',
     entities: [],
     ambiguous: false,
     intent: {} as sdk.NLU.Intent,
     intents: [],
-    sanitizedText: '',
     tokens: [],
     slots: {}
   }
