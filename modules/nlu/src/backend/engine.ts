@@ -193,7 +193,7 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  async extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+  async extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
     if (!this._preloaded) {
       await this.trainOrLoad()
       const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
@@ -204,8 +204,12 @@ export default class ScopedEngine implements Engine {
     let res: any = { errored: true }
 
     try {
-      const runner = this.pipelineManager.withPipeline(this._pipeline).initFromText(text, includedContexts)
+      const runner = this.pipelineManager
+        .withPipeline(this._pipeline)
+        .initFromText(text, lastMessages, includedContexts)
+
       const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+
       res = _.pick(
         nluResults,
         'intent',
@@ -473,15 +477,26 @@ export default class ScopedEngine implements Engine {
   }
 
   private _detectLang = async (ds: NLUStructure): Promise<NLUStructure> => {
-    let lang = await this.langIdentifier.identify(ds.rawText)
-    ds.detectedLanguage = lang
+    const lastMessages = _(ds.lastMessages)
+      .reverse()
+      .take(3)
+      .concat(ds.rawText)
+      .join(' ')
 
-    if (!lang || lang === 'n/a' || !this.languages.includes(lang)) {
-      debugLang.forBot(this.botId, `Detected language (${lang}) is not supported, fallback to ${this.defaultLanguage}`)
-      lang = this.defaultLanguage
+    const results = await this.langIdentifier.identify(lastMessages)
+
+    const elected = _(results)
+      .filter(score => this.languages.includes(score.label))
+      .orderBy(lang => lang.value, 'desc')
+      .first()
+
+    if (_.isEmpty(elected)) {
+      debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    ds.language = lang
+    ds.detectedLanguage = _.get(elected, 'label', 'n/a')
+    ds.language = _.isEmpty(elected) || elected.value < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+
     return ds
   }
 

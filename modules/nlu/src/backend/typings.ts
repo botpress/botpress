@@ -31,7 +31,7 @@ export type EngineByBot = { [botId: string]: Engine }
 export interface Engine {
   trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
-  extract(text: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
+  extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface EntityExtractor {
@@ -59,7 +59,7 @@ export interface IntentClassifier {
 }
 
 export interface LanguageIdentifier {
-  identify(input: string): Promise<string>
+  identify(input: string): Promise<sdk.MLToolkit.FastText.PredictResult[]>
 }
 
 export const MODEL_TYPES = {
@@ -90,6 +90,7 @@ export interface NLUStructure {
   detectedLanguage: string
   language: string
   includedContexts: string[]
+  lastMessages: string[]
   slots: { [key: string]: sdk.NLU.Slot }
   entities: sdk.NLU.Entity[]
   ambiguous: boolean
