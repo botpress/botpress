@@ -22,6 +22,7 @@ const getPayloadForInnerSVMProgress = total => index => progress => ({
 })
 
 export default class SVMClassifier {
+  private OOSPredictor: sdk.MLToolkit.SVM.Predictor
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
   private l0Tfidf: _.Dictionary<number>
@@ -37,11 +38,13 @@ export default class SVMClassifier {
   ) {}
 
   private teardownModels() {
+    this.OOSPredictor = undefined
     this.l0Predictor = undefined
     this.l1PredictorsByContextName = {}
   }
 
   async load(models: Model[]) {
+    const OOSModel = models.find(x => x.meta.type === 'intent-oos')
     const l0Model = models.find(x => x.meta.type === 'intent-l0' && x.meta.context === 'all')
     const l1Models = models.filter(x => x.meta.type === 'intent-l1')
     const tfidfModel = models.find(x => x.meta.type === 'intent-tfidf')
@@ -70,6 +73,7 @@ export default class SVMClassifier {
       throw new Error(`You can't train different models with the same context. Ctx = [${ctx}]`)
     }
 
+    const oos = new this.toolkit.SVM.Predictor(OOSModel.model.toString('utf8'))
     const l0 = new this.toolkit.SVM.Predictor(l0Model.model.toString('utf8'))
     const l1: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
 
@@ -79,6 +83,7 @@ export default class SVMClassifier {
 
     this.teardownModels()
     this.l0Predictor = l0
+    this.OOSPredictor = oos
     this.l1PredictorsByContextName = l1
   }
 
@@ -116,6 +121,8 @@ export default class SVMClassifier {
     const token2vec: Token2Vec = {}
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
+    const oosPoints: sdk.MLToolkit.SVM.DataPoint[] = []
+
     const models: Model[] = []
 
     this.realtime.sendPayload(
@@ -132,6 +139,7 @@ export default class SVMClassifier {
       const junkWords = await this.languageProvider.generateSimilarJunkWords(_.flatten(utterances))
       const nbOfNoneUtterances = Math.max(5, utterances.length / 2) // minimum 5 none utterances per context
       const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => _.sampleSize(junkWords))
+
       intents.push({
         contexts: [context],
         filename: 'none.json',
@@ -177,6 +185,11 @@ export default class SVMClassifier {
             })
           }
 
+          oosPoints.push({
+            label: intentName,
+            coordinates: [...l0Vec, utteranceTokens.length]
+          })
+
           l1Points.push({
             label: intentName,
             coordinates: [...l1Vec, utteranceTokens.length],
@@ -193,6 +206,7 @@ export default class SVMClassifier {
         this.realtime.sendPayload(
           this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(ratioedProgressForIndex)(progress))
         )
+
         debugTrain('SVM => progress for INT', { context, progress })
       })
 
@@ -205,12 +219,22 @@ export default class SVMClassifier {
     }
 
     const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
+    const oosSvm = new this.toolkit.SVM.Trainer({ kernel: 'RBF', classifier: 'C_SVC' })
+
+    await oosSvm.train(oosPoints)
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
+
     const ctxModelStr = svm.serialize()
+    const oosModelStr = oosSvm.serialize()
 
     models.push({
       meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-l0' },
       model: new Buffer(ctxModelStr, 'utf8')
+    })
+
+    models.push({
+      meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-oos' },
+      model: new Buffer(oosModelStr, 'utf8')
     })
 
     models.push({
@@ -286,8 +310,6 @@ export default class SVMClassifier {
       includedContexts = ['global']
     }
 
-    const input = tokens.join(' ')
-
     const l0Vec = await getSentenceFeatures({
       lang: this.language,
       doc: tokens,
@@ -296,8 +318,17 @@ export default class SVMClassifier {
       token2vec: this.token2vec
     })
 
+    const input = tokens.join(' ')
     const l0Features = [...l0Vec, tokens.length]
     const l0 = await this.predictL0Contextually(l0Features, includedContexts)
+
+    const firstLabel = _(await this.OOSPredictor.predict(l0Features))
+      .orderBy(x => x.confidence, 'desc')
+      .first()
+
+    if (firstLabel.label === 'none') {
+      return [firstLabel]
+    }
 
     try {
       debugPredict('prediction request %o', { includedContexts, input })
