@@ -33,7 +33,7 @@ const setup = async bp => {
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   const hardRetryLimit = 10
-  const nbMaxRetries = Math.min(data.config.nbMaxRetries, hardRetryLimit)
+  const nbMaxRetries = Number(Math.min(data.config.nbMaxRetries, hardRetryLimit))
 
   const nodes: sdk.SkillFlowNode[] = [
     {
