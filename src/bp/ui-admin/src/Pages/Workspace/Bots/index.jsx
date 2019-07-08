@@ -141,6 +141,9 @@ class Bots extends Component {
   }
 
   renderCompactView() {
+    if (!this.props.bots.length) {
+      return this.renderEmptyBots()
+    }
     return (
       <div className="bp_table bot_views compact_view">
         {this.props.bots.map(bot => (
@@ -228,7 +231,7 @@ class Bots extends Component {
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
-          mainContent={this.props.bots.length > 0 ? this.renderBots() : this.renderEmptyBots()}
+          mainContent={this.renderBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />
         <RollbackBotModal

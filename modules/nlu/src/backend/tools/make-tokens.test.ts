@@ -1,16 +1,16 @@
-import { makeTokenObjects } from './make-tokens'
+import { makeTokens } from './make-tokens'
+
+const SPACE = '\u2581'
 
 describe('Tokens generation', () => {
-  require('../../../../../src/bp/import-rewire')
-
   test('Make token objects from strings with sanitized text', async () => {
     // arrange
-    const text = 'Never gonna let you down'
+    const text = 'Never gonna let you Down'
     //            012345678901234567890123
-    const stringTokens = ['Never', 'gonna', 'let', 'you', 'down']
+    const stringTokens = ['never', 'gonna', 'let', 'you', 'down']
 
     // act
-    const tokens = makeTokenObjects(stringTokens, text)
+    const tokens = makeTokens(stringTokens, text)
 
     // assert
     expect(tokens).toHaveLength(5)
@@ -26,12 +26,12 @@ describe('Tokens generation', () => {
 
   test('Make token objects from strings with sentencepiece like tokens', async () => {
     // arrange
-    const text = 'Never gonna let you down'
+    const text = 'Never gonna let you Down'
     //            012345678901234567890123
-    const stringTokens = ['\u2581Never', '\u2581gon', 'na', '\u2581let', '\u2581you', '\u2581down'] // \u2581 is ▁
+    const stringTokens = [`${SPACE}never`, `${SPACE}gon`, 'na', `${SPACE}let`, `${SPACE}you`, `${SPACE}down`] // \u2581 is ▁
 
     // act
-    const tokens = makeTokenObjects(stringTokens, text)
+    const tokens = makeTokens(stringTokens, text)
 
     // assert
     expect(tokens).toHaveLength(6)
