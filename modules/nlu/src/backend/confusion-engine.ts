@@ -106,7 +106,7 @@ export default class ConfusionEngine extends ScopedEngine {
     await this.loadModels(defs, this.modelName)
 
     const actual = await Promise.mapSeries(testSet, (__, idx) =>
-      this.extract(keepEntityValues(testSet[idx].utterance), [])
+      this.extract(keepEntityValues(testSet[idx].utterance), [], [])
     )
 
     testSet.forEach((__, idx) => record(testSet[idx].definition.name, actual[idx].intent.name))
