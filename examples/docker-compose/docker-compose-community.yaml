@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   botpress:
@@ -20,6 +20,19 @@ services:
       - postgres
     volumes:
       - ./botpress/data:/botpress/data
+
+  botpress_lang:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress-lang
+    container_name: botpress-lang
+    command: bash -c "./duckling -p 8000 & ./bp lang --langDir /botpress/lang --port 3100"
+    expose:
+      - 3100
+      - 8000
+    volumes:
+      - ./botpress/language:/botpress/lang
 
   postgres:
     image: postgres:11.2-alpine
