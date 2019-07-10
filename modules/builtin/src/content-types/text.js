@@ -29,7 +29,7 @@ function renderMessenger(data) {
       value: data.typing
     })
   }
-  
+
   return [
     ...events,
     {
@@ -39,7 +39,7 @@ function renderMessenger(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api' || channel === 'telegram') {
+  if (channel === 'web' || channel === 'api' || channel === 'telegram' || channel === 'slack') {
     return render(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)
