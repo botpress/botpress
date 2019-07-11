@@ -1,10 +1,17 @@
-import { getModifiedFlows } from '../../reducers/selectors'
+import _ from 'lodash'
 
 import { deleteFlow as apiDeleteFlow, insertFlow, updateFlow as apiUpdateFlow } from './api'
 
+const DEBOUNCE_WAIT = 1000
+const DEBOUNCE_MAX_WAIT = 5000
+
+const debounceDeleteFlow = _.debounce(apiDeleteFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
+const debounceUpdateFlow = _.debounce(apiUpdateFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
+const debounceInsertFlow = _.debounce(insertFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
+
 export namespace FlowsAPI {
   export const deleteFlow = async (flowState: any, name: string) => {
-    await apiDeleteFlow(name)
+    await debounceDeleteFlow(name)
   }
 
   export const createFlow = async (flowState: any, name: string) => {
@@ -13,7 +20,7 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, name)
 
-    await insertFlow(flowDto)
+    await debounceInsertFlow(flowDto)
   }
 
   export const renameFlow = async (flowState: any, previousName: string, newName: string) => {
@@ -22,7 +29,7 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, newName)
 
-    await apiUpdateFlow(previousName, flowDto)
+    await debounceUpdateFlow(previousName, flowDto)
   }
 
   export const updateFlow = async (flowState: any, name: string) => {
@@ -31,7 +38,7 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, name)
 
-    await apiUpdateFlow(name, flowDto)
+    await debounceUpdateFlow(name, flowDto)
   }
 }
 
