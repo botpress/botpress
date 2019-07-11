@@ -97,34 +97,63 @@ export class FlowService {
     }
   }
 
-  async saveAll(botId: string, flowViews: FlowView[], flowsToKeep: string[] = []) {
+  async upsertFlow(botId: string, flow: FlowView) {
+    console.log(`UPSERT ${flow.name}`)
+
     process.ASSERT_LICENSED()
-    if (!flowViews.find(f => f.name === 'main.flow.json') && flowsToKeep.indexOf('main.flow.json') === -1) {
-      throw new Error(`Expected flows list to contain 'main.flow.json'`)
-    }
 
-    const flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.json')
-    const flowsToSave = await Promise.map(flowViews, flow => {
-      const isNew = !flowFiles.find(x => flow.location === x)
-      return this.prepareSaveFlow(botId, flow, isNew)
-    })
+    const ghost = this.ghost.forBot(botId)
 
-    const flowsSavePromises = _.flatten(
-      flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
-        this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
-        this.ghost.forBot(botId).upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
-      ])
-    )
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
 
-    const pathsToOmit = _.flatten([
-      ...flowsToSave.map(flow => [flow.flowPath, flow.uiPath]),
-      ...flowsToKeep.map(f => [f, f.replace('.flow.json', '.ui.json')])
+    const isNew = !flowFiles.find(x => flow.location === x)
+    const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(botId, flow, isNew)
+
+    await Promise.all([
+      ghost.upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
+      ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
-    const flowsToDelete = flowFiles.filter(f => !pathsToOmit.includes(f))
-    const flowsDeletePromises = flowsToDelete.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
+    this._allFlows.clear()
+  }
 
-    await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
+  async deleteFlow(botId: string, flowName: string) {
+    console.log(`DELETE ${flowName}`)
+
+    process.ASSERT_LICENSED()
+
+    const ghost = this.ghost.forBot(botId)
+
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const fileToDelete = flowFiles.find(f => f === flowName)
+    if (!fileToDelete) {
+      throw new Error(`Can not delete a flow that does not exist: ${flowName}`)
+    }
+
+    const uiPath = this.uiPath(fileToDelete)
+    await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
+    this._allFlows.clear()
+  }
+
+  async renameFlow(botId: string, previousName: string, newName: string) {
+    console.log(`RENAME ${previousName} to ${newName}`)
+
+    process.ASSERT_LICENSED()
+
+    const ghost = this.ghost.forBot(botId)
+
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const fileToRename = flowFiles.find(f => f === previousName)
+    if (!fileToRename) {
+      throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
+    }
+
+    const previousUiName = this.uiPath(fileToRename)
+    const newUiName = this.uiPath(newName)
+    await Promise.all([
+      ghost.renameFile(FLOW_DIR, fileToRename!, newName),
+      ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
+    ])
     this._allFlows.clear()
   }
 
@@ -149,7 +178,7 @@ export class FlowService {
       links: []
     }
 
-    return this.saveAll(botId, [flow])
+    return this.upsertFlow(botId, flow)
   }
 
   private async prepareSaveFlow(botId, flow, isNew: boolean) {

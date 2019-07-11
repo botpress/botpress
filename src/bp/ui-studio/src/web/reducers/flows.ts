@@ -5,31 +5,31 @@ import {
   closeFlowNodeProps,
   copyFlowNode,
   copyFlowNodeElement,
-  createFlow,
-  createFlowNode,
-  deleteFlow,
-  duplicateFlow,
+  errorSaveFlows,
   handleFlowEditorRedo,
   handleFlowEditorUndo,
   handleRefreshFlowLinks,
-  insertNewSkill,
-  insertNewSkillNode,
   openFlowNodeProps,
-  pasteFlowNode,
-  pasteFlowNodeElement,
   receiveFlows,
   receiveSaveFlows,
-  removeFlowNode,
-  renameFlow,
+  requestCreateFlow,
+  requestCreateFlowNode,
+  requestDeleteFlow,
+  requestDuplicateFlow,
   requestFlows,
-  requestSaveFlows,
+  requestInsertNewSkill,
+  requestInsertNewSkillNode,
+  requestPasteFlowNode,
+  requestPasteFlowNodeElement,
+  requestRemoveFlowNode,
+  requestRenameFlow,
+  requestUpdateFlow,
+  requestUpdateFlowNode,
+  requestUpdateSkill,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
-  updateFlow,
-  updateFlowNode,
-  updateFlowProblems,
-  updateSkill
+  updateFlowProblems
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
 
@@ -54,7 +54,8 @@ const defaultState = {
   redoStack: [],
   nodeInBuffer: null, // TODO: move it to buffer.node
   buffer: { action: null, transition: null },
-  flowProblems: []
+  flowProblems: [],
+  errorSavingFlows: undefined
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -176,23 +177,30 @@ const copyName = (siblingNames, nameToCopy) => {
   }
 }
 
-const doRenameFlow = ({ flow, name, flows }) =>
+const doRenameFlow = ({ currentName, newName, flows }) =>
   flows.reduce((obj, f) => {
-    if (f.name === flow) {
-      f.name = name
-      f.location = name
+    if (f.name === currentName) {
+      f.name = newName
+      f.location = newName
     }
 
     if (f.nodes) {
       let json = JSON.stringify(f.nodes)
-      json = json.replace(flow, name)
+      json = json.replace(currentName, newName)
       f.nodes = JSON.parse(json)
     }
 
-    obj[f.name] = f
+    const newObj = { ...obj }
+    newObj[f.name] = f
 
-    return obj
+    return newObj
   }, {})
+
+const doDeleteFlow = ({ name, flowsByName }) => {
+  flowsByName = _.omit(flowsByName, name)
+  const flows = _.values(flowsByName)
+  return doRenameFlow({ currentName: name, newName: '', flows })
+}
 
 const doCreateNewFlow = name => ({
   version: '0.1',
@@ -245,14 +253,14 @@ let reducer = handleActions(
       }
     },
 
-    [requestSaveFlows]: state => ({
-      ...state,
-      savingFlows: true
-    }),
-
     [receiveSaveFlows]: state => ({
       ...state,
       savingFlows: false
+    }),
+
+    [errorSaveFlows]: (state, { payload }) => ({
+      ...state,
+      errorSavingFlows: payload
     }),
 
     [switchFlowNode]: (state, { payload }) => ({
@@ -305,17 +313,17 @@ reducer = reduceReducers(
   reducer,
   handleActions(
     {
-      [renameFlow]: (state, { payload: { targetFlow, name } }) => ({
+      [requestRenameFlow]: (state, { payload: { targetFlow, name } }) => ({
         ...state,
         flowsByName: doRenameFlow({
-          flow: targetFlow,
-          name,
+          currentName: targetFlow,
+          newName: name,
           flows: _.values(state.flowsByName)
         }),
         currentFlow: name
       }),
 
-      [updateFlow]: (state, { payload }) => {
+      [requestUpdateFlow]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const nodes = !payload.links
           ? currentFlow.nodes
@@ -350,7 +358,7 @@ reducer = reduceReducers(
         }
       },
 
-      [createFlow]: (state, { payload: name }) => ({
+      [requestCreateFlow]: (state, { payload: name }) => ({
         ...state,
         flowsByName: {
           ...state.flowsByName,
@@ -360,18 +368,18 @@ reducer = reduceReducers(
         currentFlowNode: null
       }),
 
-      [deleteFlow]: (state, { payload: name }) => ({
+      [requestDeleteFlow]: (state, { payload: name }) => ({
         ...state,
         currentFlow: state.currentFlow === name ? 'main.flow.json' : state.currentFlow,
         currentFlowNode: state.currentFlow === name ? null : state.currentFlowNode,
-        flowsByName: _.omit(state.flowsByName, name)
+        flowsByName: doDeleteFlow({ name, flowsByName: state.flowsByName })
       }),
 
       // Inserting a new skill essentially:
       // 1. creates a new flow
       // 2. creates a new "skill" node
       // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
-      [insertNewSkill]: (state, { payload }) => {
+      [requestInsertNewSkill]: (state, { payload }) => {
         const skillId = payload.skillId
         const flowRandomId = prettyId(6)
         const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
@@ -404,7 +412,7 @@ reducer = reduceReducers(
         }
       },
 
-      [updateSkill]: (state, { payload }) => {
+      [requestUpdateSkill]: (state, { payload }) => {
         const modifiedFlow = Object.assign({}, state.flowsByName[payload.editFlowName], payload.generatedFlow, {
           skillData: payload.data,
           name: payload.editFlowName,
@@ -438,7 +446,7 @@ reducer = reduceReducers(
         }
       },
 
-      [insertNewSkillNode]: (state, { payload }) => ({
+      [requestInsertNewSkillNode]: (state, { payload }) => ({
         ...state,
         flowsByName: {
           ...state.flowsByName,
@@ -452,7 +460,7 @@ reducer = reduceReducers(
         }
       }),
 
-      [duplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
+      [requestDuplicateFlow]: (state, { payload: { flowNameToDuplicate, name } }) => {
         return {
           ...state,
           flowsByName: {
@@ -472,7 +480,7 @@ reducer = reduceReducers(
         }
       },
 
-      [updateFlowNode]: (state, { payload }) => {
+      [requestUpdateFlowNode]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
         const needsUpdate = name => name === (currentNode || {}).name && payload.name
@@ -511,7 +519,7 @@ reducer = reduceReducers(
         }
       },
 
-      [removeFlowNode]: (state, { payload }) => {
+      [requestRemoveFlowNode]: (state, { payload }) => {
         const flowsToRemove = []
         const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
 
@@ -545,7 +553,7 @@ reducer = reduceReducers(
         }
       },
 
-      [pasteFlowNode]: (state, { payload: { x, y } }) => {
+      [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
         const name = copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name)
@@ -573,7 +581,7 @@ reducer = reduceReducers(
         }
       }),
 
-      [pasteFlowNodeElement]: (state, { payload }) => {
+      [requestPasteFlowNodeElement]: (state, { payload }) => {
         const SECTION_TYPES = { onEnter: 'action', onReceive: 'action', next: 'transition' }
         const element = state.buffer[SECTION_TYPES[payload]]
         if (!element) {
@@ -606,7 +614,7 @@ reducer = reduceReducers(
         })
       },
 
-      [createFlowNode]: (state, { payload }) => ({
+      [requestCreateFlowNode]: (state, { payload }) => ({
         ...state,
         flowsByName: {
           ...state.flowsByName,
@@ -654,19 +662,19 @@ reducer = reduceReducers(
         return { ...state, currentHashes: hashes, initialHashes: hashes }
       },
 
-      [updateFlow]: updateCurrentHash,
-      [renameFlow]: updateCurrentHash,
-      [updateFlowNode]: updateCurrentHash,
+      [requestUpdateFlow]: updateCurrentHash,
+      [requestRenameFlow]: updateCurrentHash,
+      [requestUpdateFlowNode]: updateCurrentHash,
 
-      [createFlowNode]: updateCurrentHash,
-      [createFlow]: updateCurrentHash,
-      [deleteFlow]: updateCurrentHash,
-      [duplicateFlow]: updateCurrentHash,
-      [removeFlowNode]: updateCurrentHash,
-      [pasteFlowNode]: updateCurrentHash,
-      [insertNewSkillNode]: updateCurrentHash,
-      [updateSkill]: updateCurrentHash,
-      [pasteFlowNodeElement]: updateCurrentHash
+      [requestCreateFlowNode]: updateCurrentHash,
+      [requestCreateFlow]: updateCurrentHash,
+      [requestDeleteFlow]: updateCurrentHash,
+      [requestDuplicateFlow]: updateCurrentHash,
+      [requestRemoveFlowNode]: updateCurrentHash,
+      [requestPasteFlowNode]: updateCurrentHash,
+      [requestInsertNewSkillNode]: updateCurrentHash,
+      [requestUpdateSkill]: updateCurrentHash,
+      [requestPasteFlowNodeElement]: updateCurrentHash
     },
     defaultState
   )
@@ -680,19 +688,18 @@ reducer = reduceReducers(
   reducer,
   handleActions(
     {
-      [updateFlow]: recordHistory,
-      [renameFlow]: recordHistory,
-      [updateFlowNode]: recordHistory,
-      [createFlowNode]: recordHistory,
-      [createFlow]: recordHistory,
-      [deleteFlow]: recordHistory,
-      [duplicateFlow]: recordHistory,
-      [removeFlowNode]: recordHistory,
-      [pasteFlowNode]: recordHistory,
-      [insertNewSkill]: recordHistory,
-      [insertNewSkillNode]: recordHistory,
-      [updateSkill]: recordHistory,
-      [pasteFlowNodeElement]: recordHistory,
+      [requestRenameFlow]: recordHistory,
+      [requestUpdateFlowNode]: recordHistory,
+      [requestCreateFlowNode]: recordHistory,
+      [requestCreateFlow]: recordHistory,
+      [requestDeleteFlow]: recordHistory,
+      [requestDuplicateFlow]: recordHistory,
+      [requestRemoveFlowNode]: recordHistory,
+      [requestPasteFlowNode]: recordHistory,
+      [requestInsertNewSkill]: recordHistory,
+      [requestInsertNewSkillNode]: recordHistory,
+      [requestUpdateSkill]: recordHistory,
+      [requestPasteFlowNodeElement]: recordHistory,
       [handleFlowEditorUndo]: popHistory('undoStack'),
       [handleFlowEditorRedo]: popHistory('redoStack')
     },

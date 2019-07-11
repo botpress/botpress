@@ -43,8 +43,6 @@ const FlowToolbar = props => {
   }
 
   const setAsCurrentNode = () => props.updateFlow({ startNode: props.currentFlowNode.name })
-
-  const hasUnsavedChanges = !_.isEmpty(props.dirtyFlows)
   const isInsertNodeMode = props.currentDiagramAction === 'insert_node'
 
   const isStartNode = props.currentFlowNode && props.currentFlowNode.name === props.currentFlow.startNode
@@ -53,16 +51,6 @@ const FlowToolbar = props => {
   return (
     <Toolbar>
       <LeftToolbarButtons>
-        <Tooltip content="Save all (ctrl+s)" position={Position.BOTTOM}>
-          <AnchorButton
-            icon="floppy-disk"
-            disabled={window.BOTPRESS_FLOW_EDITOR_DISABLED || !hasUnsavedChanges}
-            onClick={() => props.onSaveAllFlows && props.onSaveAllFlows()}
-          />
-        </Tooltip>
-
-        <Divider />
-
         <Tooltip content="Undo" position={Position.BOTTOM}>
           <AnchorButton icon="undo" disabled={!props.canUndo} onClick={props.undo} />
         </Tooltip>

@@ -54,21 +54,6 @@ class FlowBuilder extends Component<Props, State> {
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
   }
 
-  componentWillUnmount() {
-    const { pathname } = this.props.history.location
-    const hasDirtyFlows = !_.isEmpty(this.props.dirtyFlows)
-
-    const hasUnsavedChanges = !/^\/flows\//g.exec(pathname) && !window.BOTPRESS_FLOW_EDITOR_DISABLED && hasDirtyFlows
-
-    if (hasUnsavedChanges) {
-      const isSave = confirm('Save changes?')
-
-      if (isSave) {
-        this.diagram.saveAllFlows()
-      }
-    }
-  }
-
   render() {
     if (!this.state.initialized) {
       return null
@@ -80,10 +65,6 @@ class FlowBuilder extends Component<Props, State> {
       add: e => {
         e.preventDefault()
         this.props.setDiagramAction('insert_node')
-      },
-      save: e => {
-        e.preventDefault()
-        this.diagram.saveAllFlows()
       },
       undo: e => {
         e.preventDefault()
@@ -106,9 +87,6 @@ class FlowBuilder extends Component<Props, State> {
         />
         {!readOnly && (
           <Toolbar
-            onSaveAllFlows={() => {
-              this.diagram.saveAllFlows()
-            }}
             onDelete={() => {
               this.diagram.deleteSelectedElements()
             }}

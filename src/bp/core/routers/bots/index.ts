@@ -281,15 +281,52 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.post(
-      '/flows',
+      '/flow',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const flowViews = <FlowView[]>req.body.dirtyFlows
+        const flow = <FlowView>req.body.flow
 
-        await this.flowService.saveAll(botId, flowViews, req.body.cleanFlows)
-        res.sendStatus(201)
+        await this.flowService.upsertFlow(botId, flow)
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.put(
+      '/flow/:flowName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const flowName = req.params.flowName
+        const flow = <FlowView>req.body.flow
+
+        if (flowName !== flow.name) {
+          await this.flowService.renameFlow(botId, flowName, flow.name)
+          res.sendStatus(200)
+          return
+        }
+
+        await this.flowService.upsertFlow(botId, flow)
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.delete(
+      '/flow/:name',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+
+        const flowName = req.params.name
+        if (!_.isString(flowName)) {
+          res.sendStatus(412)
+        }
+
+        await this.flowService.deleteFlow(botId, flowName as string)
+        res.sendStatus(200)
       })
     )
 

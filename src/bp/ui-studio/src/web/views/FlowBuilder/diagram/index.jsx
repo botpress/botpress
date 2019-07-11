@@ -490,10 +490,6 @@ export default class FlowBuilder extends Component {
     })
   }
 
-  saveAllFlows() {
-    this.props.saveAllFlows()
-  }
-
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
