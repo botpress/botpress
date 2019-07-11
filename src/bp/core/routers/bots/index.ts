@@ -302,7 +302,7 @@ export class BotsRouter extends CustomRouter {
         const flowName = req.params.flowName
         const flow = <FlowView>req.body.flow
 
-        if (flowName !== flow.name) {
+        if (_.has(flow, 'name') && flowName !== flow.name) {
           await this.flowService.renameFlow(botId, flowName, flow.name)
           res.sendStatus(200)
           return
