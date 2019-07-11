@@ -9,7 +9,7 @@ Let's start by creating intents. We created `book-flight`, `cancel-flight` and `
 
 ![](assets/intent-matching-switch-intents.png)
 
-On our entry node, we create transtions. Click on the `Intent Is` radio button and select the intent of your choice.
+On our entry node, we create transitions. Click on the `Intent Is` radio button and select the intent of your choice.
 We're leaving `When condition is met` empty for now, because we're going to manually link the nodes later on.
 
 ![](assets/intent-matching-transition.png)
