@@ -1,3 +1,4 @@
+import { Intent } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -15,6 +16,7 @@ import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import Toolbar from './containers/Toolbar'
 import style from './style.scss'
+import { FlowToaster } from './FlowToaster'
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
@@ -48,6 +50,14 @@ class FlowBuilder extends Component<Props, State> {
       this.pushFlowState(this.props.currentFlow)
     } else if (flow && prevProps.currentFlow !== nextRouteFlow) {
       this.props.switchFlow(nextRouteFlow)
+    }
+
+    if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
+      FlowToaster.show({
+        message:
+          'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition',
+        intent: Intent.DANGER
+      })
     }
   }
   pushFlowState = flow => {
@@ -122,7 +132,8 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
   showFlowNodeProps: state.flows.showFlowNodeProps,
   dirtyFlows: getDirtyFlows(state),
-  user: state.user
+  user: state.user,
+  errorSavingFlows: state.flows.errorSavingFlows
 })
 
 const mapDispatchToProps = {
@@ -146,6 +157,7 @@ type Props = {
   switchFlow: any
   flowEditorUndo: any
   flowEditorRedo: any
+  errorSavingFlows: any
 } & RouteComponentProps
 
 interface State {

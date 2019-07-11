@@ -37,6 +37,7 @@ export interface FlowReducer {
   currentFlow: any
   showFlowNodeProps: boolean
   dirtyFlows: string[]
+  errorSavingFlows: any
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -255,7 +256,8 @@ let reducer = handleActions(
 
     [receiveSaveFlows]: state => ({
       ...state,
-      savingFlows: false
+      savingFlows: false,
+      errorSavingFlows: undefined
     }),
 
     [errorSaveFlows]: (state, { payload }) => ({
