@@ -220,7 +220,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      const result = await nlus[req.params.botId].extract(eventText.preview, [])
+      const result = await nlus[req.params.botId].extract(eventText.preview, [], [])
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)

@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { flatten, groupBy } from 'lodash'
+import * as _ from 'lodash'
 
 import ScopedEngine from './engine'
 import { keepEntityValues } from './pipelines/slots/pre-processor'
@@ -45,20 +45,56 @@ export default class ConfusionEngine extends ScopedEngine {
       }
 
       const dataset = this._definitionsToEntry(intentDefs, lang)
-      const folder = new FiveFolder<TrainingEntry>(dataset)
 
       this.modelIdx = 0
       this.modelName = ''
       this.originalModelHash = modelHash
-
       this._confusionComputing = true
+
+      const contexts = _.chain(dataset)
+        .flatMap(group =>
+          _.chain(group)
+            .flatMap(entry => entry.definition.contexts)
+            .value()
+        )
+        .uniq()
+        .value()
+
+      const folders = contexts.map(context => {
+        const contextDataset = dataset.map(group =>
+          group.filter(
+            entry => entry.definition.contexts.includes('global') || entry.definition.contexts.includes(context)
+          )
+        )
+
+        return { model: new FiveFolder<TrainingEntry>(contextDataset), context }
+      })
+
       try {
-        await folder.fold('intents', this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+        await Promise.mapSeries(folders, folder =>
+          folder.model.fold(folder.context, this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+        )
+
+        const results = folders.map(folder => folder.model.getResults())
+
+        const meanValues = _.chain(results)
+          .flatMap(res => Object.values(res))
+          .flatMap(context => context.all)
+          .map(keys =>
+            _.chain(keys)
+              .mapValues(val => Array.of(val))
+              .value()
+          )
+          .reduce((a, b) => _.mergeWith(a, b, (c, d) => c.concat(d)))
+          .mapValues(_.mean)
+          .value() as any
+
+        const allResults = [{ all: meanValues }, ...results].reduce((a, b) => ({ ...a, ...b }), {})
+
+        await this._processResults(allResults, lang, confusionVersion)
       } finally {
         this._confusionComputing = false
       }
-
-      await this._processResults(folder.getResults(), lang, confusionVersion)
     }
   }
 
@@ -70,16 +106,17 @@ export default class ConfusionEngine extends ScopedEngine {
       confusionVersion
     })
 
-    const intents = results['intents']
+    const overall = results['all']
     this.logger.debug('=== Confusion Matrix ===')
-    this.logger.debug(`F1: ${intents['all'].f1} P1: ${intents['all'].precision} R1: ${intents['all'].recall}`)
+    this.logger.debug(`F1: ${overall.f1} P1: ${overall.precision} R1: ${overall.recall}`)
   }
 
   _definitionsToEntry = (defs: sdk.NLU.IntentDefinition[], lang: string): TrainingEntry[][] =>
     defs.map(definition => (definition.utterances[lang] || []).map(utterance => ({ definition, utterance })))
 
   private _entriesToDefinition(entries: TrainingEntry[], lang): sdk.NLU.IntentDefinition[] {
-    const groups = groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
+    const groups = _.groupBy<TrainingEntry>(entries, x => x.definition.name + '|' + x.definition.contexts.join('+'))
+
     return Object.keys(groups).map(
       x =>
         ({
@@ -106,7 +143,7 @@ export default class ConfusionEngine extends ScopedEngine {
     await this.loadModels(defs, this.modelName)
 
     const actual = await Promise.mapSeries(testSet, (__, idx) =>
-      this.extract(keepEntityValues(testSet[idx].utterance), [])
+      this.extract(keepEntityValues(testSet[idx].utterance), [], [])
     )
 
     testSet.forEach((__, idx) => record(testSet[idx].definition.name, actual[idx].intent.name))

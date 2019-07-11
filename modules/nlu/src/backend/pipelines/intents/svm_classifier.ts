@@ -114,7 +114,9 @@ export default class SVMClassifier {
     )
 
     const token2vec: Token2Vec = {}
+
     const { l0Tfidf, l1Tfidf } = this.computeTfidf(intentsWTokens)
+
     const l0Points: sdk.MLToolkit.SVM.DataPoint[] = []
     const models: Model[] = []
 
@@ -140,6 +142,7 @@ export default class SVMClassifier {
         const nbWords = _.random(averageWordCount / 2, averageWordCount * 2, false)
         return _.sampleSize(junkWords, nbWords)
       })
+
       intents.push({
         contexts: [context],
         filename: 'none.json',
@@ -268,6 +271,7 @@ export default class SVMClassifier {
       l1Tfidf[context] = tfidf(l1Input)
     }
     const l0Tfidf: TfidfOutput = tfidf(l0TfidfInput)
+
     return { l0Tfidf, l1Tfidf }
   }
 
@@ -319,6 +323,7 @@ export default class SVMClassifier {
             langProvider: this.languageProvider,
             token2vec: this.token2vec
           })
+
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
           const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)

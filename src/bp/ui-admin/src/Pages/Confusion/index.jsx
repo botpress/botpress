@@ -158,17 +158,24 @@ class Confusion extends Component {
         <div key={`conf-${confusion.botId}`}>
           <h3>{confusion.botId}</h3>
           {confusion.confusions
-            .filter(x => _.get(x, 'matrix.intents.all.f1'))
+            .filter(x => _.get(x, 'matrix.all.f1'))
             .filter(data =>
               _.isEmpty(_.difference(this.getValueForAttributes(allFilterFields)(data), this.state.select))
             )
             .map((data, i) => (
               <div key={data.hash + i}>
                 <h6>
-                  [{data.lang.toUpperCase()}] - F1: <strong>{data.matrix.intents.all.f1.toFixed(2)}</strong>
+                  [{data.lang.toUpperCase()}] -{' '}
+                  {['f1', 'recall', 'precision'].map(field => (
+                    <strong>{field.toString() + ': ' + data.matrix.all[field].toFixed(2) + ', '}</strong>
+                  ))}
                 </h6>
 
-                <Details data={data.matrix.intents} />
+                <Details
+                  data={_.chain(data.matrix)
+                    .pickBy((val, key) => key !== 'all')
+                    .value()}
+                />
               </div>
             ))}
         </div>

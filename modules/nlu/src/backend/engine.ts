@@ -208,7 +208,7 @@ export default class ScopedEngine implements Engine {
         .withPipeline(this._pipeline)
         .initFromText(text, lastMessages, includedContexts)
 
-      const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+      const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
 
       res = _.pick(
         nluResults,
@@ -267,6 +267,7 @@ export default class ScopedEngine implements Engine {
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+
     for (const lang of this.languages) {
       const trainingSet = await this.getTrainingSets(intents, lang)
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
@@ -408,6 +409,7 @@ export default class ScopedEngine implements Engine {
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
+
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
