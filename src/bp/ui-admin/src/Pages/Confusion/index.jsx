@@ -166,9 +166,9 @@ class Confusion extends Component {
               <div key={data.hash + i}>
                 <h6>
                   [{data.lang.toUpperCase()}] -{' '}
-                  {['f1', 'recall', 'precision'].map(field => (
-                    <strong>{field.toString() + ': ' + data.matrix.all[field].toFixed(2) + ', '}</strong>
-                  ))}
+                  {['f1', 'recall', 'precision']
+                    .map(field => <strong>{field.toString() + ': ' + data.matrix.all[field].toFixed(2)}</strong>)
+                    .reduce((acc, field) => [acc, ', ', field])}
                 </h6>
 
                 <Details

@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 
 import ScopedEngine from './engine'
 import { keepEntityValues } from './pipelines/slots/pre-processor'
-import { FiveFolder, RecordCallback, Result } from './tools/five-fold'
+import { FiveFolder, RecordCallback, Result, SuiteResult } from './tools/five-fold'
 
 type TrainingEntry = {
   utterance: string
@@ -87,9 +87,9 @@ export default class ConfusionEngine extends ScopedEngine {
           )
           .reduce((a, b) => _.mergeWith(a, b, (c, d) => c.concat(d)))
           .mapValues(_.mean)
-          .value() as any
+          .value()
 
-        const allResults = [{ all: meanValues }, ...results].reduce((a, b) => ({ ...a, ...b }), {})
+        const allResults = [{ all: meanValues }, ...results].reduce((a, b) => ({ ...a, ...b }), {}) as Result
 
         await this._processResults(allResults, lang, confusionVersion)
       } finally {
