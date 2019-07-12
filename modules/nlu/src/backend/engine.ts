@@ -286,6 +286,10 @@ export default class ScopedEngine implements Engine {
       const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
       const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
+      if (!models.length) {
+        return
+      }
+
       if (_.isEmpty(skipgramModel)) {
         throw new Error(`Could not find skipgram model for slot tagging. Hash = "${modelHash}"`)
       }
