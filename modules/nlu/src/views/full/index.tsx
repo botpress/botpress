@@ -3,6 +3,7 @@ import { AxiosInstance } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { withRouter } from 'react-router-dom'
 
 import { makeApi } from '../api'
 
@@ -22,6 +23,9 @@ interface Props {
   contentLang: string
 }
 
+const ITEM_TYPE_PARAM = 'itemType'
+const ITEM_NAME_PARAM = 'itemName'
+
 const NLU: FC<Props> = props => {
   const api = makeApi(props.bp)
   const [currentItem, setCurrentItem] = useState<CurrentItem | undefined>()
@@ -36,7 +40,35 @@ const NLU: FC<Props> = props => {
     api.fetchContexts().then(setContexts)
     loadIntents()
     loadEntities()
-  }, [])
+    setCurrentItemFromPath()
+  }, [window.location.href])
+
+  const handleSelectItem = (item: CurrentItem) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set(ITEM_TYPE_PARAM, item.type)
+    url.searchParams.set(ITEM_NAME_PARAM, item.name)
+    window.history.pushState(window.history.state, '', url.toString())
+    setCurrentItem(item)
+  }
+
+  const getCurrentItemFromPath = () => {
+    const url = new URL(window.location.href)
+    const type = url.searchParams.get(ITEM_TYPE_PARAM)
+    const name = url.searchParams.get(ITEM_NAME_PARAM)
+    if (type && name) {
+      return { type, name } as CurrentItem
+    }
+  }
+
+  const setCurrentItemFromPath = () => {
+    const newCurrentItem = getCurrentItemFromPath()
+    if (
+      newCurrentItem &&
+      (!currentItem || newCurrentItem.name !== currentItem.name || newCurrentItem.type !== currentItem.type)
+    ) {
+      setCurrentItem(newCurrentItem)
+    }
+  }
 
   const updateEntity = entity => {
     api.updateEntity(entity)
@@ -52,14 +84,14 @@ const NLU: FC<Props> = props => {
           contentLang={props.contentLang}
           intents={intents}
           currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
+          setCurrentItem={handleSelectItem}
           reloadIntents={loadIntents}
         />
         <EntitySidePanelSection
           api={api}
           entities={entities}
           currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
+          setCurrentItem={handleSelectItem}
           reloadEntities={loadEntities}
         />
       </SidePanel>
@@ -71,7 +103,7 @@ const NLU: FC<Props> = props => {
             description="Use Botpress native Natural language understanding engine to make your bot smarter."
           />
         )}
-        {currentItem && currentItem.type === 'intent' && (
+        {intents.length && currentItem && currentItem.type === 'intent' && (
           <IntentEditor
             intent={intents.find(i => i.name == currentItem.name)}
             contexts={contexts} // TODO fetch this within the component
@@ -80,7 +112,7 @@ const NLU: FC<Props> = props => {
             contentLang={props.contentLang}
           />
         )}
-        {currentItem && currentItem.type === 'entity' && (
+        {entities.length && currentItem && currentItem.type === 'entity' && (
           <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
         )}
       </div>
@@ -88,4 +120,4 @@ const NLU: FC<Props> = props => {
   )
 }
 
-export default NLU
+export default withRouter(NLU)
