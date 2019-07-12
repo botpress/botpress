@@ -95,16 +95,21 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
   app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
-      const input = req.body.input
+      const utterances = req.body.utterances
       const language = req.language!
 
-      if (!input || !_.isString(input)) {
-        throw new BadRequestError('Param `input` is mandatory (must be a string)')
+      if (!utterances || !_.isArray(utterances) || !utterances.length) {
+        // For backward cpompatibility with Botpress 12.0.0 - 12.0.2
+        const singleInput = req.body.input
+        if (!singleInput || !_.isString(singleInput)) {
+          throw new BadRequestError('Param `utterances` is mandatory (must be an array of string)')
+        }
+        const tokens = await languageService.tokenize([singleInput], language)
+        res.set(cachePolicy).json({ input: singleInput, language, tokens: tokens[0] })
+      } else {
+        const tokens = await languageService.tokenize(utterances, language)
+        res.set(cachePolicy).json({ utterances, language, tokens })
       }
-
-      const tokens = await languageService.tokenize(input, language)
-
-      res.set(cachePolicy).json({ input, language, tokens })
     } catch (err) {
       next(err)
     }

@@ -451,7 +451,7 @@ export default class ScopedEngine implements Engine {
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const rawTokens = await this.languageProvider.tokenize(ds.sanitizedLowerText, ds.language)
+    const [rawTokens] = await this.languageProvider.tokenize([ds.sanitizedLowerText], ds.language)
     ds.tokens = makeTokens(rawTokens, ds.sanitizedText)
     return ds
   }

@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { makeTokens } from '../../tools/make-tokens'
 import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
-import { makeTokens } from '../../tools/make-tokens'
 
 const AN_ENTITY = 'person'
 const OTHER_ENTITY = 'animal'
@@ -14,9 +14,11 @@ const languageProvider: LanguageProvider = {
     const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
-  tokenize: function(text: string, lang: string): Promise<string[]> {
+
+  tokenize: function(utterances: string[], lang: string): Promise<string[][]> {
     // This is a white space tokenizer only working for tests written in english
-    const res = text.split(' ').filter(_.identity)
+    const res = utterances.map(text => text.split(' ').filter(_.identity))
+
     return Promise.resolve(res)
   },
 
@@ -119,7 +121,7 @@ describe('Preprocessing', () => {
 
     const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
 
-    const tokens = await makeTokens(await languageProvider.tokenize(input, 'en'), input)
+    const tokens = await makeTokens((await languageProvider.tokenize([input], 'en'))[0], input)
 
     // some extra spaces on purpose here
     const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
