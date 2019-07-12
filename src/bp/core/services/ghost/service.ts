@@ -72,11 +72,14 @@ export class GhostService {
       this.logger
     )
 
-    process.BOTPRESS_EVENTS.on('after_bot_unmount', args => {
-      if (args.botId === botId) {
+    const listenForUnmount = args => {
+      if (args && args.botId === botId) {
         scopedGhost.events.removeAllListeners()
+      } else {
+        process.BOTPRESS_EVENTS.once('after_bot_unmount', listenForUnmount)
+      }
     }
-    })
+    listenForUnmount({})
 
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
