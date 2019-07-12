@@ -41,7 +41,7 @@ const createExpressApp = (options: APIOptions): Application => {
   // This must be first, otherwise the /info endpoint can't be called when token is used
   app.use(cors())
 
-  app.use(bodyParser.json({ limit: '1kb' }))
+  app.use(bodyParser.json({ limit: '250kb' }))
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')

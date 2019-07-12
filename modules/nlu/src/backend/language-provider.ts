@@ -202,6 +202,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
         return data
       } catch (err) {
+        debug('error from language server', { message: err.message, code: err.code, status: err.status, payload: body })
+
         if (this.getAvailableProviders(lang).length > 1) {
           // we don't disable providers when there's no backup
           provider.disabledUntil = moment()
