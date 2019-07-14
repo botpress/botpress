@@ -1,3 +1,4 @@
+import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'
@@ -82,6 +83,16 @@ export default class SVMClassifier {
     this.l1PredictorsByContextName = l1
   }
 
+  /**
+   * Batches all utterances and tokenize+vectorize them in batch to populate the cache
+   * This speeds up the tokenization during train and evaluation time without, while keeping the logic simple in those two methods
+   */
+  private async _primeLanguageCaches(intentDefs: sdk.NLU.IntentDefinition[]) {
+    const utterances = _.flatten(intentDefs.map(intent => this._getSanitizedIntentUtterances(intent)))
+    const tokens = await this.languageProvider.tokenize(utterances, this.language)
+    await this.languageProvider.vectorize(_.flatten(tokens), this.language)
+  }
+
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
     this.realtime.sendPayload(
       this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(identityProgress)(0.1))
@@ -92,20 +103,18 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = await Promise.map(
+    await this._primeLanguageCaches(intentDefs)
+    const intentsWTokens = await Promise.mapSeries(
       intentDefs.filter(x => x.name !== 'none'),
       // we're generating none intents automatically from now on
       // but some existing bots might have the 'none' intent already created
       // so we exclude it explicitely from the dataset here
       async intent => {
-        const utterances = (intent.utterances[this.language] || [])
-          .map(x => sanitize(keepEntityValues(x.toLowerCase())))
-          .filter(x => x.trim().length)
-
-        const tokens = await Promise.map(utterances, async utterance =>
-          (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize)
+        const utterances = this._getSanitizedIntentUtterances(intent)
+        debugTrain('tokenizing intent ' + intent.name)
+        const tokens = (await this.languageProvider.tokenize(utterances, this.language)).map(tokens =>
+          tokens.map(sanitize)
         )
-
         return {
           ...intent,
           tokens: tokens
@@ -234,6 +243,12 @@ export default class SVMClassifier {
     })
 
     return models
+  }
+
+  private _getSanitizedIntentUtterances(intent: sdk.NLU.IntentDefinition) {
+    return (intent.utterances[this.language] || [])
+      .map(x => sanitize(keepEntityValues(x.toLowerCase())))
+      .filter(x => x.trim().length)
   }
 
   private computeTfidf(

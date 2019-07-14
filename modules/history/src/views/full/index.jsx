@@ -1,5 +1,4 @@
 import React from 'react'
-import style from './style.scss'
 import moment from 'moment'
 
 import { MessageViewer } from './MessageViewer'

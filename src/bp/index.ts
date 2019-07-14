@@ -43,6 +43,8 @@ if (process.env.APP_DATA_PATH) {
 }
 
 process.BOTPRESS_EVENTS = new EventEmitter()
+process.BOTPRESS_EVENTS.setMaxListeners(1000)
+
 process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
   ? path.dirname(process.execPath) // We point at the binary path
