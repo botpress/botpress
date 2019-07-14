@@ -74,8 +74,9 @@ const NLU: FC<Props> = props => {
         {currentItem && currentItem.type === 'intent' && (
           <IntentEditor
             intent={intents.find(i => i.name == currentItem.name)}
-            contexts={contexts} // TODO fetch this within the component
+            api={api}
             axios={props.bp.axios} // TODO replace this with api instance
+            bp={props.bp}
             reloadIntents={loadIntents}
             contentLang={props.contentLang}
           />

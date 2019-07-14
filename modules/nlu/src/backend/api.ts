@@ -145,8 +145,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  // TODO use this in UI
-  router.put('/intents/:id/utterances', async (req, res) => {
+  router.put('/intents/:id', async (req, res) => {
     const { botId, id } = req.params
     const { lang, utterances } = req.body
     const botEngine = nlus[botId] as ScopedEngine
@@ -220,7 +219,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      const result = await nlus[req.params.botId].extract(eventText.preview, [])
+      const result = await nlus[req.params.botId].extract(eventText.preview, [], [])
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)

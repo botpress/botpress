@@ -1,25 +1,33 @@
 import { Icon } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
-import React, { SFC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
-import { NluMlRecommendations } from '../../../backend/typings'
+import { NluMlRecommendations } from '../../backend/typings'
 
 import style from './style.scss'
 
 interface Props {
   intent: sdk.NLU.IntentDefinition
   contentLang: string
-  mlRecommendations: NluMlRecommendations
+  axios: AxiosInstance
 }
 
-const IntentHint: SFC<Props> = props => {
+const fetchRecommendations = async (axios: AxiosInstance): Promise<NluMlRecommendations> => {
+  return axios.get('/mod/nlu/ml-recommendations').then(({ data }) => data)
+}
+
+// At some point, recommendations will be computed in the backend and this component will simply fetch and display intents recommentations
+const IntentHint: FC<Props> = props => {
   const utterances = props.intent.utterances[props.contentLang] || []
   const slotsLength = (props.intent.slots || []).length
+  const [recommendations, setRecommendations] = useState<NluMlRecommendations | undefined>()
 
-  const goodMLUtterances = props.mlRecommendations.goodUtterancesForML
-  const minMLUtterances = props.mlRecommendations.minUtterancesForML
+  useEffect(() => {
+    fetchRecommendations(props.axios).then(setRecommendations)
+  }, [])
 
-  if (!minMLUtterances || !goodMLUtterances) {
+  if (!recommendations) {
     return null
   }
 
@@ -30,23 +38,23 @@ const IntentHint: SFC<Props> = props => {
     to see if the utterances all belong to the same class or if the are considerable different ways of saying
     the samething. Then, we could also not only recommend number of utterances per intent & slots but by cluster also.
   */
-  const idealNumberOfUtt = Math.max(Math.pow(slotsLength * 2, 2), goodMLUtterances)
+  const idealNumberOfUtt = Math.max(Math.pow(slotsLength * 2, 2), recommendations.goodUtterancesForML)
   let hint: JSX.Element
 
   if (!utterances.length) {
     hint = <span>This intent will be ignored, start adding utterances to make it trainable.</span>
   }
 
-  if (utterances.length && utterances.length < minMLUtterances) {
+  if (utterances.length && utterances.length < recommendations.minUtterancesForML) {
     hint = (
       <span>
         This intent will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
-        <strong>{minMLUtterances - utterances.length} more utterances</strong>
+        <strong>{recommendations.minUtterancesForML - utterances.length} more utterances</strong>
       </span>
     )
   }
 
-  if (utterances.length >= minMLUtterances && utterances.length < idealNumberOfUtt) {
+  if (utterances.length >= recommendations.minUtterancesForML && utterances.length < idealNumberOfUtt) {
     hint = (
       <span>
         Add <strong>{idealNumberOfUtt - utterances.length} more utterances</strong> to make NLU more resilient.

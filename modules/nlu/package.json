@@ -30,6 +30,7 @@
     "draftjs-utils": "^0.9.4",
     "fs-extra": "^8.0.1",
     "https-proxy-agent": "^2.2.1",
+    "immutable": "^4.0.0-rc.12",
     "joi": "^13.6.0",
     "kuromoji": "^0.1.2",
     "lodash": "^4.17.11",
@@ -43,6 +44,9 @@
     "react-select": "^2.4.3",
     "react-splitter-layout": "^3.0.0",
     "react-tag-input": "6.4.0",
+    "slate": "^0.47.4",
+    "slate-react": "^0.22.4",
+    "slate-react-placeholder": "^0.2.4",
     "tmp": "^0.0.33",
     "verror": "^1.10.0"
   }

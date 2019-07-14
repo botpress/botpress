@@ -1,0 +1,125 @@
+.hint {
+  color: #738694;
+  span {
+    margin-left: 10px;
+  }
+}
+
+.editor-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.utterances {
+  flex: 1;
+  min-width: 300px;
+}
+
+.entities-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+p.utterance {
+  margin: 0;
+  font-size: 16px;
+  z-index: 0;
+}
+
+p.utterance.title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+p.utterance.title + p.utterance {
+  margin-top: 5px;
+}
+
+p.utterance + p.utterance {
+  margin-top: 5px;
+}
+
+p.utterance.active {
+  background: yellow;
+}
+
+p.utterance.wrong {
+  color: red;
+}
+
+p.utterance .index {
+  margin-right: 5px;
+  opacity: 0.5;
+}
+
+p.utterance .index.count {
+  background: lightgrey;
+  padding: 0 5px;
+  border-radius: 5px;
+}
+
+/* ---------- */
+/* SLOTS COLORING */
+/* ---------- */
+
+.slot {
+  padding: 2px 4px;
+  cursor: pointer;
+  border-radius: 2px;
+  &:hover {
+    font-weight: bold;
+  }
+}
+
+.color-bg {
+  color: white;
+  background-color: grey;
+}
+.color-bg.color-0 {
+  color: white;
+  background-color: red;
+}
+.color-bg.color-1 {
+  color: white;
+  background-color: blue;
+}
+.color-bg.color-2 {
+  color: white;
+  background-color: green;
+}
+.color-bg.color-3 {
+  color: white;
+  background-color: purple;
+}
+.color-bg.color-4 {
+  color: white;
+  background-color: fuchsia;
+}
+.color-fg {
+  border-color: grey;
+  color: grey;
+}
+.color-fg.color-0 {
+  border-color: red;
+  color: red;
+}
+.color-fg.color-1 {
+  border-color: blue;
+  color: blue;
+}
+.color-fg.color-2 {
+  border-color: green;
+  color: green;
+}
+.color-fg.color-3 {
+  border-color: purple;
+  color: purple;
+}
+.color-fg.color-4 {
+  border-color: fuchsia;
+  color: fuchsia;
+}
