@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
@@ -44,24 +44,44 @@ const NLU: FC<Props> = props => {
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 
+  const intentsPanel = (
+    <IntentSidePanelSection
+      api={api}
+      contentLang={props.contentLang}
+      intents={intents}
+      currentItem={currentItem}
+      setCurrentItem={setCurrentItem}
+      reloadIntents={loadIntents}
+    />
+  )
+
+  const entitiesPanel = (
+    <EntitySidePanelSection
+      api={api}
+      entities={entities}
+      currentItem={currentItem}
+      setCurrentItem={setCurrentItem}
+      reloadEntities={loadEntities}
+    />
+  )
+
   return (
     <Container>
       <SidePanel>
-        <IntentSidePanelSection
-          api={api}
-          contentLang={props.contentLang}
-          intents={intents}
-          currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
-          reloadIntents={loadIntents}
-        />
-        <EntitySidePanelSection
-          api={api}
-          entities={entities}
-          currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
-          reloadEntities={loadEntities}
-        />
+        <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
+          <Tab id="intents" panel={intentsPanel} className={style.panelTab}>
+            <span>Intents</span>{' '}
+            <Tag large={false} round={true} minimal={true}>
+              {intents.length}
+            </Tag>
+          </Tab>
+          <Tab id="entities" panel={entitiesPanel} className={style.panelTab}>
+            <span>Entities</span>{' '}
+            <Tag large={false} round={true} minimal={true}>
+              {entities.length}
+            </Tag>
+          </Tab>
+        </Tabs>
       </SidePanel>
       <div className={style.container}>
         {!currentItem && (
