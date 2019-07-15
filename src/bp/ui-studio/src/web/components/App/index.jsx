@@ -57,9 +57,13 @@ class App extends Component {
     })
 
     window.addEventListener('message', e => {
-      if (e.data && e.data.action === 'navigate-intent') {
+      if (e.data && e.data.action === 'navigate-nlu') {
         const intent = e.data.intent
         history.push(`/modules/nlu?itemType=intent&itemName=${intent}`)
+      }
+      if (e.data && e.data.action === 'navigate-qna') {
+        const intent = e.data.intent
+        history.push(`/modules/qna?id=${intent}`)
       }
     })
   }

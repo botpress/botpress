@@ -3,7 +3,6 @@ import { AxiosInstance } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { withRouter } from 'react-router-dom'
 
 import { makeApi } from '../api'
 
@@ -120,4 +119,4 @@ const NLU: FC<Props> = props => {
   )
 }
 
-export default withRouter(NLU)
+export default NLU

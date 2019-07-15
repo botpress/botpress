@@ -1,10 +1,23 @@
 import { Colors, H5 } from '@blueprintjs/core'
+import _ from 'lodash'
 import React from 'react'
 
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
-export const Intents = props => {
+const QNA_IDENTIFIER = '__qna__'
+
+interface IntentDef {
+  name: string
+  confidence: number
+}
+
+interface Props {
+  intent: IntentDef
+  intents: IntentDef[]
+}
+
+export const Intents = (props: Props) => {
   const { intent, intents } = props
   if (!intent || !intents || !intents.length) {
     return null
@@ -25,18 +38,23 @@ export const Intents = props => {
   )
 }
 
-const Intent = ({ intent, elected }) => {
+const Intent = (props: { intent: IntentDef; elected: boolean }) => {
+  const { intent, elected } = props
+  const isQnA = intent.name.startsWith(QNA_IDENTIFIER)
+
   let content: string | JSX.Element = `${intent.name}: ${formatConfidence(intent.confidence)} %`
   if (elected) {
     content = <strong>{content}</strong>
   }
   return (
-    <li onClick={navigateToNlu(intent.name)} style={{ cursor: 'pointer' }}>
+    <li onClick={navigateToIntentDefinition(intent.name, isQnA)} style={{ cursor: 'pointer' }}>
       {content}
     </li>
   )
 }
 
-const navigateToNlu = intent => () => {
-  window.parent.postMessage({ action: 'navigate-intent', intent }, '*')
+const navigateToIntentDefinition = (intent: string, isQna: boolean) => () => {
+  const action = isQna ? 'navigate-qna' : 'navigate-nlu'
+  intent = isQna ? intent.replace(QNA_IDENTIFIER, '') : intent
+  window.parent.postMessage({ action, intent }, '*')
 }
