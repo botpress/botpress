@@ -154,7 +154,7 @@ export default class PatternExtractor {
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     return flatMap(entityDefs, entityDef => {
       try {
-        const regex = new RegExp(entityDef.pattern!)
+        const regex = new RegExp(entityDef.pattern!, 'i')
         return extractPattern(input, regex).map(res => ({
           name: entityDef.name,
           type: entityDef.type, // pattern
