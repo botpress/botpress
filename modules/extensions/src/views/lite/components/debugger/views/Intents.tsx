@@ -30,7 +30,11 @@ const Intent = ({ intent, elected }) => {
   if (elected) {
     content = <strong>{content}</strong>
   }
-  return <li onClick={navigateToNlu(intent.name)}>{content}</li>
+  return (
+    <li onClick={navigateToNlu(intent.name)} style={{ cursor: 'pointer' }}>
+      {content}
+    </li>
+  )
 }
 
 const navigateToNlu = intent => () => {
