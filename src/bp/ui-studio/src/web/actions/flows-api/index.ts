@@ -2,16 +2,9 @@ import _ from 'lodash'
 
 import { deleteFlow as apiDeleteFlow, insertFlow, updateFlow as apiUpdateFlow } from './api'
 
-const DEBOUNCE_WAIT = 1000
-const DEBOUNCE_MAX_WAIT = 5000
-
-const debounceDeleteFlow = _.debounce(apiDeleteFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
-const debounceUpdateFlow = _.debounce(apiUpdateFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
-const debounceInsertFlow = _.debounce(insertFlow, DEBOUNCE_WAIT, { maxWait: DEBOUNCE_MAX_WAIT })
-
 export namespace FlowsAPI {
   export const deleteFlow = async (flowState: any, name: string) => {
-    await debounceDeleteFlow(name)
+    return apiDeleteFlow(name)
   }
 
   export const createFlow = async (flowState: any, name: string) => {
@@ -20,7 +13,7 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, name)
 
-    await debounceInsertFlow(flowDto)
+    return insertFlow(flowDto)
   }
 
   export const renameFlow = async (flowState: any, previousName: string, newName: string) => {
@@ -29,7 +22,7 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, newName)
 
-    await debounceUpdateFlow(previousName, flowDto)
+    return apiUpdateFlow(previousName, flowDto)
   }
 
   export const updateFlow = async (flowState: any, name: string) => {
@@ -38,9 +31,23 @@ export namespace FlowsAPI {
 
     const flowDto = toFlowDto(flow, name)
 
-    await debounceUpdateFlow(name, flowDto)
+    const debounced = currentUpdates[name]
+    if (debounced) {
+      debounced(flowDto)
+      return
+    }
+
+    const newDebounce = _.debounce(buildUpdateDebounced(name))
+    await newDebounce(flowDto)
+    currentUpdates[name] = newDebounce
   }
 }
+
+const buildUpdateDebounced = (flowName: string) => async f => {
+  await apiUpdateFlow(flowName, f)
+}
+
+const currentUpdates = {}
 
 const toFlowDto = (flow: any, name: string) => {
   return {

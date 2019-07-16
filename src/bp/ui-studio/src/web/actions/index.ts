@@ -7,9 +7,10 @@ import { getDeletedFlows, getModifiedFlows, getNewFlows } from '../reducers/sele
 import { FlowsAPI } from './flows-api'
 import BatchRunner from './BatchRunner'
 
-type AsyncCallback = (payload, state) => Promise<void>
-
 // Flows
+export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
+export const clearFlowsModification = createAction('FLOWS/MODIFICATIONS/CLEAR')
+
 export const requestFlows = createAction('FLOWS/REQUEST')
 export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
@@ -25,6 +26,7 @@ export const fetchFlows = () => dispatch => {
 
 export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
+export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
 // actions that modifies flow
 export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
@@ -40,24 +42,25 @@ export const requestRemoveFlowNode = createAction('FLOWS/FLOW/REMOVE')
 export const requestPasteFlowNode = createAction('FLOWS/NODE/PASTE')
 export const requestPasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PASTE')
 
+export const requestSaveFlows = createAction('YOYOYOY')
+
 const wrapAction = (
   requestAction,
-  asyncCallback: AsyncCallback,
+  asyncCallback: (payload, state) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
 ) => payload => (dispatch, getState) => {
+  dispatch(requestSaveFlows(payload))
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
   asyncCallback(payload, getState())
     .then(() => dispatch(receiveAction()))
-    .catch(err => {
-      dispatch(errorAction(err))
-    })
+    .catch(err => dispatch(errorAction(err)))
 }
 
 const updateCurrentFlow = async (_payload, state) => {
   const flowState = state.flows
-  await FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
 }
 
 const saveDirtyFlows = async flowState => {

@@ -15,7 +15,8 @@ import {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  appendLog
+  appendLog,
+  receiveFlowsModification
 } from '~/actions'
 
 class App extends Component {
@@ -52,6 +53,10 @@ class App extends Component {
       this.props.addNotifications([notification])
     })
 
+    EventBus.default.on('flow.changes', payload => {
+      this.props.receiveFlowsModification(payload)
+    })
+
     EventBus.default.on('hints.updated', () => {
       this.props.refreshHints()
     })
@@ -71,7 +76,15 @@ const mapDispatchToProps = {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  appendLog
+  appendLog,
+  receiveFlowsModification
+}
+
+const mapStateToProps = state => {
+  console.log(state)
+  return {
+    flowsByName: state.flows.flowsByName
+  }
 }
 
 export default connect(
