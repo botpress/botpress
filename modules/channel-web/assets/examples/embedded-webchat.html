@@ -1,7 +1,10 @@
 <html>
   <head>
     <title>Embedded Webchat</title>
-    <script src="/assets/modules/channel-web/inject.js"></script>
+    <!-- Set the base URL to access this page, for example: /botpress/
+    It must match the path configured as an externalUrl in Botpress config, and in the init method -->
+    <base href="/" />
+    <script src="assets/modules/channel-web/inject.js"></script>
   </head>
 
   <body>
@@ -10,13 +13,13 @@
 
   <script>
     window.botpressWebChat.init({
-      host: 'http://localhost:3000',
+      host: 'http://localhost:3000/',
       botId: 'welcome-bot'
       /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
       */
-      //extraStylesheet: '/assets/modules/channel-web/examples/my-theme.css'
+      //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
     })
   </script>
 </html>

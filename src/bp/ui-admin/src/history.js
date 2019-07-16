@@ -7,7 +7,7 @@ const addLocationQuery = history => {
   })
 }
 
-const history = createHistory({ basename: '/admin' })
+const history = createHistory({ basename: `${window.ROOT_PATH}admin` })
 
 addLocationQuery(history)
 history.listen(() => addLocationQuery(history))
