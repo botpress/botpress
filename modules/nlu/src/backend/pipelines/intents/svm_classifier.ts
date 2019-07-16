@@ -348,7 +348,12 @@ export default class SVMClassifier {
           }
 
           if (this.predictionsReallyConfused(preds)) {
-            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }] // refine confidence
+            const others = _.take(preds, 4).map(x => ({
+              label: x.label,
+              l0Confidence: l0Conf,
+              confidence: l0Conf * x.confidence
+            }))
+            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }, ...others] // refine confidence
           }
 
           const secondBest = preds[1]
