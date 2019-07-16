@@ -13,12 +13,15 @@ const languageProvider: LanguageProvider = {
     const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
-  tokenize: function(text: string, lang: string): Promise<string[]> {
+  tokenize: function(utterances: string[], lang: string): Promise<string[][]> {
     // This is a white space tokenizer only working for tests written in english
-    const res = text
-      .split(' ')
-      .filter(_.identity)
-      .map(x => '\u2581' + x.toLowerCase())
+    const res = utterances.map(text =>
+      text
+        .split(' ')
+        .filter(_.identity)
+        .map(x => '\u2581' + x.toLowerCase())
+    )
+
     return Promise.resolve(res)
   },
   generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
@@ -93,7 +96,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
-      const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+      const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
       ds.tokens = makeTokens(stringTokens, sanitized)
 
       const entities = await extractor.extractLists(ds, [entityDef])
@@ -148,7 +151,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
-      const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+      const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
       ds.tokens = makeTokens(stringTokens, sanitized)
 
       const entities = await extractor.extractLists(ds, [entityDef])
@@ -185,7 +188,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
-      const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+      const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
       ds.tokens = makeTokens(stringTokens, sanitized)
 
       const entities = await extractor.extractLists(ds, [entityDef])
@@ -228,7 +231,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()
       ds.language = 'en'
-      const stringTokens = await languageProvider.tokenize(sanitized, 'en')
+      const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
       ds.tokens = makeTokens(stringTokens, sanitized)
 
       const entities = await extractor.extractLists(ds, [entityDef])

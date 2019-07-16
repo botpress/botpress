@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Button, Classes } from '@blueprintjs/core'
 import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
@@ -50,14 +50,6 @@ export const IntentSidePanelSection: FC<Props> = props => {
     props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
 
-  const intentActions: SectionAction[] = [
-    {
-      icon: <Icon icon="add" />,
-      onClick: createIntent,
-      tooltip: 'Create new intent'
-    }
-  ]
-
   const intentItems = props.intents
     .filter(intent => !intentsFilter || intent.name.includes(intentsFilter))
     .map(
@@ -80,12 +72,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
     )
 
   return (
-    <SidePanelSection label="Intents" actions={intentActions}>
+    <div>
+      <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={createIntent} />
       <SearchBar icon="filter" placeholder="filter intents" onChange={setIntentsFilter} showButton={false} />
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
       />
-    </SidePanelSection>
+    </div>
   )
 }

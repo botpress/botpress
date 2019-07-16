@@ -22,8 +22,8 @@ export const updater = { callback: undefined }
 
 const WEBCHAT_WIDTH = 400
 const DEV_TOOLS_WIDTH = 450
-const RETRY_PERIOD = 500
-const RETRY_SECURITY_FACTOR = 1.5
+const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
+const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
 
 export class Debugger extends React.Component<Props, State> {

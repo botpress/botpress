@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Button, Classes, Icon } from '@blueprintjs/core'
 import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
@@ -30,14 +30,6 @@ export const EntitySidePanelSection: FC<Props> = props => {
     }
   }
 
-  const entityActions: SectionAction[] = [
-    {
-      icon: <Icon icon="add" />,
-      onClick: () => setShowEntityModal(!showEntityModal),
-      tooltip: 'Create new entity'
-    }
-  ]
-
   const entityItems = props.entities
     .filter(entity => !entitiesFilter || entity.name.includes(entitiesFilter))
     .map(
@@ -65,20 +57,24 @@ export const EntitySidePanelSection: FC<Props> = props => {
   }
 
   return (
-    <React.Fragment>
-      <SidePanelSection label="Entities" actions={entityActions}>
-        <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
-        <ItemList
-          items={entityItems}
-          onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}
-        />
-      </SidePanelSection>
+    <div>
+      <Button
+        className={Classes.MINIMAL}
+        icon="new-object"
+        text="New entity"
+        onClick={() => setShowEntityModal(!showEntityModal)}
+      />
+      <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
+      <ItemList
+        items={entityItems}
+        onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}
+      />
       <CreateEntityModal
         api={props.api}
         onEntityCreated={entityCreated}
         visible={showEntityModal}
         hide={() => setShowEntityModal(false)}
       />
-    </React.Fragment>
+    </div>
   )
 }

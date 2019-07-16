@@ -128,6 +128,8 @@ class Web extends React.Component<MainProps> {
         this.props.displayWidgetView ? this.props.showChat() : this.props.hideChat()
       } else if (type === 'message') {
         await this.props.sendMessage(text)
+      } else if (type === 'toggleBotInfo') {
+        this.props.toggleBotInfo()
       } else {
         await this.props.sendData({ type, payload })
       }
@@ -237,6 +239,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   activeView: store.view.activeView,
   showChat: store.view.showChat,
   hideChat: store.view.hideChat,
+  toggleBotInfo: store.view.toggleBotInfo,
   dimensions: store.view.dimensions,
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
@@ -255,6 +258,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'updateTyping'
   | 'hideChat'
   | 'showChat'
+  | 'toggleBotInfo'
   | 'widgetTransition'
   | 'activeView'
   | 'unreadCount'
