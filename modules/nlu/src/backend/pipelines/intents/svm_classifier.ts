@@ -288,8 +288,20 @@ export default class SVMClassifier {
 
   // this means that the 3 best predictions are really close, do not change magic numbers
   private predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]) {
+    const intentsPreds = predictions.filter(x => x.label !== 'none')
+    if (intentsPreds.length <= 2) {
+      return false
+    }
+
+    const std = math.std(intentsPreds.map(p => p.confidence))
+    const diff = (intentsPreds[0].confidence - intentsPreds[1].confidence) / std
+
+    if (diff >= 2.5) {
+      return false
+    }
+
     const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
-    return predictions.length > 2 && bestOf3STD <= 0.03
+    return bestOf3STD <= 0.03
   }
 
   public get isLoaded(): boolean {
