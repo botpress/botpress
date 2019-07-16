@@ -64,7 +64,7 @@ function renderSlack(data) {
         type: 'actions',
         elements: data.choices.map((q, idx) => ({
           type: 'button',
-          action_id: 'button_clicked' + idx,
+          action_id: 'replace_buttons' + idx,
           text: {
             type: 'plain_text',
             text: q.title

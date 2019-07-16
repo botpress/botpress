@@ -5,7 +5,6 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { Router } from 'express'
 import _ from 'lodash'
-import util from 'util'
 
 import { Config } from '../config'
 
@@ -40,15 +39,21 @@ export class SlackClient {
 
   private _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
+      debugIncoming(`Received interactive message %o`, payload)
+
       const actionId = _.get(payload, 'actions[0].action_id', '')
       const label = _.get(payload, 'actions[0].text.text', '')
       const value = _.get(payload, 'actions[0].value', '')
 
-      // Either we leave buttons displayed, we replace with the selection, or we remove it
-      // await axios.post(payload.response_url, { text: `*${label}*` }) // { delete_original: true }
-
-      // Discarding actions ex open url
+      // Some actions (ex: open url) should be discarded
       if (!actionId.startsWith('discard_action')) {
+        // Either we leave buttons displayed, we replace with the selection, or we remove it
+        if (actionId.startsWith('replace_buttons')) {
+          await axios.post(payload.response_url, { text: `*${label}*` })
+        } else if (actionId.startsWith('remove_buttons')) {
+          await axios.post(payload.response_url, { delete_original: true })
+        }
+
         await this.sendEvent(payload, { type: 'quick_reply', text: label, payload: value })
       }
     })
@@ -67,7 +72,7 @@ export class SlackClient {
   private async _setupRealtime() {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
     this.rtm.on('message', async payload => {
-      debugIncoming(payload)
+      debugIncoming(`Received real time payload %o`, payload)
 
       if (!discardedSubtypes.includes(payload.subtype)) {
         await this.sendEvent(payload, { type: 'text', text: payload.text })
@@ -105,7 +110,7 @@ export class SlackClient {
       blocks
     }
 
-    debugOutgoing(util.inspect(message))
+    debugOutgoing(`Sending message %o`, message)
     await this.client.chat.postMessage(message)
 
     next(undefined, false)
