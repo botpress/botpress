@@ -1,24 +1,40 @@
-## Slack Channel
+# Slack Channel
 
-### Prerequisite
+## Prerequisite
 
 - Set the `externalUrl` field in botpress.config.json
 
-### Steps
+## Steps
 
-1. Create a new app on Slack
+### Create the app on Slack
 
-2. Edit `data/bots/YOUR_BOT_ID/config/channel-slack.json` (or create it) and set
+1. On slack, go to `Administration`, then `Manage apps`
+
+2. In the upper right corner, click on `Build`, then `Your apps` (also in the corner)
+
+3. Click on `Create new app` then give it a name
+
+4. Open the page `Bot Users`, then choose a display name and a username for your bot. Save changes.
+
+5. Open the page `OAuth Tokens & Redirect URLs`, then add the app to your workspace
+
+### Configure your bot
+
+1. Edit `data/bots/YOUR_BOT_ID/config/channel-slack.json` (or create it) and set
 
 - enabled: Set to `true`
-- signingSecret: Signing Secret on page Basic Information
+- signingSecret: Take the value `Signing Secret` on the page `Basic Information`
 - botToken: Take the value `Bot User OAuth Access Token` on the page `OAuth & Permissions`
 
-3. Enable Interactive Components
+2. Restart Botpress
 
-4. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
+### Configure Callback on Slack
+
+These steps are required so users can click on quick reply buttons, select dropdown options or any other interactive method.
+
+1. Open the page `Interactive Components`, then turn the switch to `On`
+
+2. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID by your bot ID
-
-5. Restart Botpress

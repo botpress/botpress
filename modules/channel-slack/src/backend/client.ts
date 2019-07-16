@@ -84,7 +84,10 @@ export class SlackClient {
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
-      return this.rtm.sendTyping(event.threadId || event.target)
+      await this.rtm.sendTyping(event.threadId || event.target)
+      await new Promise(resolve => setTimeout(() => resolve(), 1000))
+
+      return next(undefined, false)
     }
 
     const messageType = event.type === 'default' ? 'text' : event.type
