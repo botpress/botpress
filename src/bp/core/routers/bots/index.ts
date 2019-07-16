@@ -297,7 +297,7 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
+        const { botId } = req.params
         const flow = <FlowView>req.body.flow
 
         await this.flowService.upsertFlow(botId, flow)
@@ -316,8 +316,7 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
-        const flowName = req.params.flowName
+        const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
@@ -329,17 +328,16 @@ export class BotsRouter extends CustomRouter {
             modification: 'rename',
             newName: flow.name
           })
-          return
+        } else {
+          await this.flowService.upsertFlow(botId, flow)
+          res.sendStatus(200)
+
+          this.notifyChanges({
+            name: flowName,
+            modification: 'update',
+            payload: flow
+          })
         }
-
-        await this.flowService.upsertFlow(botId, flow)
-        res.sendStatus(200)
-
-        this.notifyChanges({
-          name: flowName,
-          modification: 'update',
-          payload: flow
-        })
       })
     )
 
@@ -348,11 +346,11 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
+        const { botId, flowName } = req.params
 
-        const flowName = req.params.name
-        if (!_.isString(flowName)) {
-          res.sendStatus(412)
+        if (!_.isString(flowName) && flowName.length) {
+          res.sendStatus(400)
+          return
         }
 
         await this.flowService.deleteFlow(botId, flowName as string)

@@ -46,21 +46,24 @@ export const requestSaveFlows = createAction('YOYOYOY')
 
 const wrapAction = (
   requestAction,
-  asyncCallback: (payload, state) => Promise<any>,
+  asyncCallback: (payload, state, dispatch) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
 ) => payload => (dispatch, getState) => {
   dispatch(requestSaveFlows(payload))
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
-  asyncCallback(payload, getState())
+  asyncCallback(payload, getState(), dispatch)
     .then(() => dispatch(receiveAction()))
     .catch(err => dispatch(errorAction(err)))
 }
 
-const updateCurrentFlow = async (_payload, state) => {
+const updateCurrentFlow = async (_payload, state, dispatch) => {
   const flowState = state.flows
-  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+
+  const then = () => dispatch(receiveSaveFlows())
+  const error = err => dispatch(errorSaveFlows(err))
+  return FlowsAPI.updateFlow(flowState, flowState.currentFlow, then, error)
 }
 
 const saveDirtyFlows = async flowState => {
@@ -71,7 +74,7 @@ const saveDirtyFlows = async flowState => {
   }
 }
 
-export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
+export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow, () => {}, () => {})
 
 export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
   const { targetFlow, name } = payload
@@ -102,8 +105,8 @@ export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, st
 export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
 
-export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
-  await updateCurrentFlow(payload, state)
+export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state, dispatch) => {
+  await updateCurrentFlow(payload, state, dispatch)
 
   // If node is a skill and there's no references to it, then the complete flow is deleted
   const deletedFlows = getDeletedFlows(state)

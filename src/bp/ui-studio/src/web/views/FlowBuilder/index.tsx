@@ -1,4 +1,4 @@
-import { Intent } from '@blueprintjs/core'
+import { Intent, Position, Toaster } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -23,7 +23,10 @@ import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import Toolbar from './containers/Toolbar'
 import style from './style.scss'
-import { FlowToaster } from './FlowToaster'
+
+const FlowToaster = Toaster.create({
+  position: Position.TOP
+})
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
@@ -60,10 +63,15 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
+      const { status } = this.props.errorSavingFlows
+      const message =
+        status === 403
+          ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
+          : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
       FlowToaster.show({
-        message:
-          'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition',
+        message,
         intent: Intent.DANGER,
+        timeout: 0,
         onDismiss: this.props.clearErrorSaveFlows
       })
     }
@@ -72,8 +80,9 @@ class FlowBuilder extends Component<Props, State> {
       FlowToaster.show({
         message: `The modification "${this.props.lastModification.modification}" was applied on the flow "${
           this.props.lastModification.name
-        }"`,
+        }". Somebody else might be working on the same flow. Please reload the page`,
         intent: Intent.WARNING,
+        timeout: 0,
         onDismiss: this.props.clearFlowsModification
       })
     }

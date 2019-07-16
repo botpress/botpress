@@ -98,8 +98,6 @@ export class FlowService {
   }
 
   async upsertFlow(botId: string, flow: FlowView) {
-    this.logger.debug(`UPSERT ${flow.name}`)
-
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)
@@ -118,8 +116,6 @@ export class FlowService {
   }
 
   async deleteFlow(botId: string, flowName: string) {
-    this.logger.debug(`DELETE ${flowName}`)
-
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)
@@ -136,8 +132,6 @@ export class FlowService {
   }
 
   async renameFlow(botId: string, previousName: string, newName: string) {
-    this.logger.debug(`RENAME ${previousName} to ${newName}`)
-
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)

@@ -271,10 +271,6 @@ const handleServerUpdate = (state, modification) => {
 let reducer = handleActions(
   {
     [receiveFlowsModification]: (state, { payload }) => {
-      if (state.savingFlows) {
-        return state
-      }
-
       let actualModification
       switch (payload.modification) {
         case 'create':
