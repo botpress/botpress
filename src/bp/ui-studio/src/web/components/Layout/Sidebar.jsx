@@ -32,10 +32,6 @@ class Sidebar extends React.Component {
     router: PropTypes.object.isRequired
   }
 
-  state = {
-    nluCollapseOpen: false
-  }
-
   componentDidMount() {
     const mql = window.matchMedia(`(min-width: 800px)`)
     mql.addListener(this.mediaQueryChanged)
@@ -47,9 +43,6 @@ class Sidebar extends React.Component {
   }
 
   mediaQueryChanged = () => this.setState({ sidebarDocked: this.state.mql.matches })
-
-  showNluMenu = () => this.setState({ nluCollapseOpen: true })
-  hideNluMenu = () => this.setState({ nluCollapseOpen: false })
 
   handleMenuItemClicked = () => window.toggleSidebar && window.toggleSidebar()
 
@@ -66,83 +59,32 @@ class Sidebar extends React.Component {
         </i>
       )
 
-    const entitiesPath = path + '/Entities'
-    const intentsPath = path + '/Intents'
-
-    const isNluActive = _.get(this.context.router, 'route.location.pathname', '')
-      .toLowerCase()
-      .includes('/modules/nlu/')
-
     const experimentalTooltip = (
       <Tooltip id="experimental-tooltip">
         This feature is <strong>experimental</strong> and is subject to change in the next version
       </Tooltip>
     )
 
-    // TODO: Make generic menu and submenu and use them for intents / entities ui
-    if (module.name === 'nlu') {
-      return (
-        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
-          <li id={`bp-menu_${module.name}`}>
-            <a
-              onMouseOver={this.showNluMenu}
-              onMouseOut={this.hideNluMenu}
-              className={classnames(style.link, { [style.active]: isNluActive })}
-            >
-              {moduleIcon}
-              <span>Understanding</span>
-            </a>
-            <Collapse in={this.state.nluCollapseOpen} onMouseOver={this.showNluMenu} onMouseOut={this.hideNluMenu}>
-              <ul className={style.mainMenu_level2}>
-                <li className={style.mainMenu__item}>
-                  <NavLink
-                    to={entitiesPath}
-                    activeClassName={style.active}
-                    title={module.menuText}
-                    className={style.mainMenu__link}
-                    onClick={this.handleMenuItemClicked}
-                  >
-                    <span>Entities</span>
-                  </NavLink>
-                </li>
-                <li className={style.mainMenu__item}>
-                  <NavLink
-                    activeClassName={style.active}
-                    to={intentsPath}
-                    title={module.menuText}
-                    className={style.mainMenu__link}
-                    onClick={this.handleMenuItemClicked}
-                  >
-                    <span>Intents</span>
-                  </NavLink>
-                </li>
-              </ul>
-            </Collapse>
-          </li>
-        </PermissionsChecker>
-      )
-    } else {
-      return (
-        <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
-          <li id={`bp-menu_${module.name}`}>
-            <NavLink
-              to={path}
-              title={module.menuText}
-              activeClassName={style.active}
-              onClick={this.handleMenuItemClicked}
-            >
-              {moduleIcon}
-              <span>{module.menuText}</span>
-              {module.experimental && (
-                <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
-                  <GoBeaker className={style.experimental} />
-                </OverlayTrigger>
-              )}
-            </NavLink>
-          </li>
-        </PermissionsChecker>
-      )
-    }
+    return (
+      <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+        <li id={`bp-menu_${module.name}`}>
+          <NavLink
+            to={path}
+            title={module.menuText}
+            activeClassName={style.active}
+            onClick={this.handleMenuItemClicked}
+          >
+            {moduleIcon}
+            <span>{module.menuText}</span>
+            {module.experimental && (
+              <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
+                <GoBeaker className={style.experimental} />
+              </OverlayTrigger>
+            )}
+          </NavLink>
+        </li>
+      </PermissionsChecker>
+    )
   }
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
@@ -163,7 +105,7 @@ class Sidebar extends React.Component {
     return (
       <aside style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '8px 13px' }}>
+          <div style={{ padding: '8px 13px', overflowX: 'hidden' }}>
             <a href="/" className={classnames(style.logo, 'bp-logo')}>
               <img width="125" src="/assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
             </a>

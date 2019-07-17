@@ -1,14 +1,20 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { ModuleLoader } from 'core/module-loader'
-import { Router } from 'express'
+import { WorkspaceService } from 'core/services/workspace-service'
+import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
+import { needPermissions } from '../util'
 
 export class LanguagesRouter extends CustomRouter {
-  constructor(logger: Logger, private moduleLoader: ModuleLoader) {
+  private needPermissions: (operation: string, resource: string) => RequestHandler
+  private readonly resource = 'admin.languages'
+
+  constructor(logger: Logger, private moduleLoader: ModuleLoader, private workspaceService: WorkspaceService) {
     super('Languages', logger, Router({ mergeParams: true }))
+    this.needPermissions = needPermissions(this.workspaceService)
     this.setupRoutes()
   }
 
@@ -28,6 +34,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.get(
       '/',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
@@ -40,6 +47,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.get(
       '/sources',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const config = await this.moduleLoader.configReader.getGlobal('nlu')
         res.send({
@@ -50,6 +58,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.get(
       '/info',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
@@ -62,6 +71,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.post(
       '/:lang',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
@@ -74,6 +84,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.post(
       '/:lang/load',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
@@ -86,6 +97,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.delete(
       '/:lang',
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
@@ -98,6 +110,7 @@ export class LanguagesRouter extends CustomRouter {
 
     router.get(
       '/available',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()

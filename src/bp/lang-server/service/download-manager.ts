@@ -1,6 +1,8 @@
 import Axios from 'axios'
 import fse from 'fs-extra'
 import ms from 'ms'
+import path from 'path'
+import { URL } from 'url'
 
 import ModelDownload from './model-download'
 
@@ -58,10 +60,30 @@ export default class DownloadManager {
 
   async refreshMeta() {
     try {
+      new URL(this.metaUrl)
+      return this.refreshRemoteMeta()
+    } catch (e) {
+      debug('Fetching models locally', { url: this.metaUrl })
+      return this.refreshLocalMeta()
+    }
+  }
+
+  async refreshRemoteMeta() {
+    try {
       const { data } = (await Axios.get(this.metaUrl)) as { data: Meta }
       this.meta = data
     } catch (err) {
-      debug('Error fecthing models', { url: this.metaUrl, message: err.message })
+      debug('Error fetching models', { url: this.metaUrl, message: err.message })
+    }
+  }
+
+  async refreshLocalMeta() {
+    const filePath = path.isAbsolute(this.metaUrl) ? this.metaUrl : path.resolve(process.APP_DATA_PATH, this.metaUrl)
+    try {
+      const json = fse.readJSONSync(filePath)
+      this.meta = json
+    } catch (err) {
+      debug('Error reading metadata file', { file: filePath, message: err.message })
     }
   }
 

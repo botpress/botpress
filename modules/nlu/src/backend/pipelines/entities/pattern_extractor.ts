@@ -3,20 +3,17 @@ import * as sdk from 'botpress/sdk'
 import { flatMap, flatten } from 'lodash'
 import _ from 'lodash'
 
+import { allInRange } from '../../tools/math'
 import { extractPattern } from '../../tools/patterns-utils'
 import { LanguageProvider } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
-
-import { allInRange } from '../../tools/math'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
 const MIN_LENGTH_FUZZY_MATCH = 5
 const MIN_CONFIDENCE = 0.65
-
-type limits = { start: number; end: number }
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
@@ -40,10 +37,9 @@ export default class PatternExtractor {
     occurence: sdk.NLU.EntityDefOccurence,
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
-    const values = await Promise.all(
-      [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).filter(t => t.length)
-      )
+    const texts = [occurence.name, ...occurence.synonyms]
+    const values = (await this.languageProvider.tokenize(texts.map(x => x.toLowerCase()), ds.language)).filter(
+      x => x.length
     )
 
     const findings: sdk.NLU.Entity[] = []
@@ -99,7 +95,7 @@ export default class PatternExtractor {
           extracted = occ
           highest = distance
           lastToken = currentLastToken
-          source = ds.lowerText.substring(tok.start, lastToken.end)
+          source = ds.sanitizedText.substring(tok.start, lastToken.end)
         }
       }
 
@@ -119,7 +115,7 @@ export default class PatternExtractor {
         debugLists('found list entity', {
           lang: ds.language,
           occurence: occurence.name,
-          input: ds.lowerText,
+          input: ds.sanitizedText,
           extracted,
           confidence: highest,
           source
@@ -158,7 +154,7 @@ export default class PatternExtractor {
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     return flatMap(entityDefs, entityDef => {
       try {
-        const regex = new RegExp(entityDef.pattern!)
+        const regex = new RegExp(entityDef.pattern!, 'i')
         return extractPattern(input, regex).map(res => ({
           name: entityDef.name,
           type: entityDef.type, // pattern

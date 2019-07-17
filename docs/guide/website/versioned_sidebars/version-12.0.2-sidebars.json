@@ -1,0 +1,69 @@
+{
+  "version-12.0.2-docs": {
+    "Release Notes": [
+      "version-12.0.2-releases/release-notes",
+      "version-12.0.2-releases/migrate"
+    ],
+    "Getting Started": [
+      "version-12.0.2-introduction",
+      "version-12.0.2-installation",
+      "version-12.0.2-quickstart",
+      "version-12.0.2-updating",
+      "version-12.0.2-troubleshoot"
+    ],
+    "Main Concepts": [
+      "version-12.0.2-main/overview",
+      "version-12.0.2-main/content",
+      "version-12.0.2-main/dialog",
+      "version-12.0.2-main/code",
+      "version-12.0.2-main/memory",
+      "version-12.0.2-main/module",
+      "version-12.0.2-main/nlu",
+      "version-12.0.2-main/emulator"
+    ],
+    "Advanced Guides": [
+      "version-12.0.2-advanced/debug",
+      "version-12.0.2-advanced/configuration",
+      "version-12.0.2-advanced/authentication",
+      "version-12.0.2-advanced/i18n",
+      "version-12.0.2-advanced/custom-module",
+      "version-12.0.2-advanced/analytics",
+      "version-12.0.2-advanced/architecture",
+      "version-12.0.2-advanced/performances",
+      "version-12.0.2-advanced/hosting",
+      "version-12.0.2-advanced/versions",
+      "version-12.0.2-advanced/pipelines",
+      "version-12.0.2-advanced/cluster",
+      "version-12.0.2-advanced/monitoring"
+    ],
+    "Channels": [
+      "version-12.0.2-channels/web",
+      "version-12.0.2-channels/messenger",
+      "version-12.0.2-channels/telegram",
+      "version-12.0.2-channels/converse",
+      "version-12.0.2-channels/faq"
+    ],
+    "Tutorials": [
+      "version-12.0.2-tutorials/intent-matching",
+      "version-12.0.2-tutorials/proactive",
+      "version-12.0.2-tutorials/skill-slot",
+      "version-12.0.2-tutorials/skill-call-api",
+      "version-12.0.2-tutorials/external-api",
+      "version-12.0.2-tutorials/shortlinks",
+      "version-12.0.2-tutorials/existing-backend",
+      "version-12.0.2-tutorials/database",
+      "version-12.0.2-tutorials/timeouts",
+      "version-12.0.2-tutorials/hitl",
+      "version-12.0.2-tutorials/jump-to",
+      "version-12.0.2-tutorials/interbot",
+      "version-12.0.2-tutorials/contextual-faq",
+      "version-12.0.2-tutorials/chat-3rd-party-OAuth",
+      "version-12.0.2-tutorials/listen-file-changes"
+    ],
+    "Pro Edition": [
+      "version-12.0.2-pro/about-pro",
+      "version-12.0.2-pro/licensing",
+      "version-12.0.2-pro/rbac"
+    ]
+  }
+}

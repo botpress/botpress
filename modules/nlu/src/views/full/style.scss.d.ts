@@ -2,23 +2,18 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'caret': string;
   'checkboxContainer': string;
-  'childContent': string;
+  'container': string;
   'create': string;
   'deleteEntity': string;
   'deleteIntent': string;
-  'ellipsis': string;
   'entity': string;
   'entityText': string;
   'filter': string;
   'flash': string;
+  'headerTabs': string;
   'in': string;
-  'intentsContainer': string;
-  'intentsList': string;
-  'inverted': string;
   'list': string;
-  'loading': string;
   'main': string;
   'navigationBar': string;
   'out': string;

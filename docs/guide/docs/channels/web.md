@@ -73,12 +73,25 @@ Here is some sample code for adding the event listeners to your custom elements:
 <script>
   document.getElementById('show-bp').addEventListener('click', () => {
     window.botpressWebChat.sendEvent({ type: 'show' })
+    window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
   })
   document.getElementById('hide-bp').addEventListener('click', () => {
     window.botpressWebChat.sendEvent({ type: 'hide' })
   })
 </script>
 ```
+
+## Others events
+
+There are more events you can trigger by calling the `window.botpressWebChat.sendEvent()` function.
+
+| name            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| `show`          | This event open the webchat                                       |
+| `hide`          | This event close the webchat                                      |
+| `toggle`        | This event open or close the webchat depends on its current state |
+| `message`       | This event send a message (see example above)                     |
+| `toggleBotInfo` | This event switches between bot infos and conversation page       |
 
 ## Obtaining the User ID of your visitor
 
