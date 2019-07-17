@@ -44,13 +44,13 @@ export const requestPasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PAST
 
 const wrapAction = (
   requestAction,
-  asyncCallback: (payload, state) => Promise<any>,
+  asyncCallback: (payload, state, dispatch) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
 ) => payload => (dispatch, getState) => {
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
-  asyncCallback(payload, getState())
+  asyncCallback(payload, getState(), dispatch)
     .then(() => dispatch(receiveAction()))
     .catch(err => dispatch(errorAction(err)))
 }
@@ -130,15 +130,15 @@ export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
-export const flowEditorUndo = () => dispatch => {
-  dispatch(handleFlowEditorUndo())
+export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
-export const flowEditorRedo = () => dispatch => {
-  dispatch(handleFlowEditorRedo())
+export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
