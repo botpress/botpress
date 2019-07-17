@@ -54,7 +54,7 @@ const Intent = (props: { intent: IntentDef; elected: boolean }) => {
 }
 
 const navigateToIntentDefinition = (intent: string, isQna: boolean) => () => {
-  const action = isQna ? 'navigate-qna' : 'navigate-nlu'
   intent = isQna ? intent.replace(QNA_IDENTIFIER, '') : intent
-  window.parent.postMessage({ action, intent }, '*')
+  const url = isQna ? `/modules/qna?id=${intent}` : `/modules/nlu?itemType=intent&itemName=${intent}`
+  window.parent.postMessage({ action: 'navigate-url', payload: url }, '*')
 }
