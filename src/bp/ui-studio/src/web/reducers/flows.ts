@@ -255,7 +255,8 @@ const handleServerDelete = (state, modification) => {
 
 const handleServerUpdate = (state, modification) => {
   const flowHash = computeHashForFlow(modification.payload)
-  if (state.initialHashes[modification.name] === flowHash) {
+  const currentFlowHash = computeHashForFlow(state.flowsByName[modification.name])
+  if (currentFlowHash === flowHash) {
     return
   }
 

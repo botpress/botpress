@@ -10,9 +10,19 @@ import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
 
+import { RealTimePayload } from 'core/sdk/impl'
+import RealtimeService from 'core/services/realtime'
+
 const PLACING_STEP = 250
 const MIN_POS_X = 50
 const FLOW_DIR = 'flows'
+
+interface FlowModification {
+  name: string
+  modification: 'rename' | 'delete' | 'create' | 'update'
+  newName?: string
+  payload?: any
+}
 
 @injectable()
 export class FlowService {
@@ -24,7 +34,8 @@ export class FlowService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.RealtimeService) private realtime: RealtimeService
   ) {
     this._listenForCacheInvalidation()
   }
@@ -97,7 +108,27 @@ export class FlowService {
     }
   }
 
-  async upsertFlow(botId: string, flow: FlowView) {
+  async insertFlow(botId: string, flow: FlowView) {
+    await this._upsertFlow(botId, flow)
+
+    this.notifyChanges({
+      name: flow.name,
+      modification: 'create',
+      payload: flow
+    })
+  }
+
+  async updateFlow(botId: string, flow: FlowView) {
+    await this._upsertFlow(botId, flow)
+
+    this.notifyChanges({
+      name: flow.name,
+      modification: 'update',
+      payload: flow
+    })
+  }
+
+  private async _upsertFlow(botId: string, flow: FlowView) {
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)
@@ -128,7 +159,13 @@ export class FlowService {
 
     const uiPath = this.uiPath(fileToDelete)
     await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
+
     this._allFlows.clear()
+
+    this.notifyChanges({
+      name: flowName,
+      modification: 'delete'
+    })
   }
 
   async renameFlow(botId: string, previousName: string, newName: string) {
@@ -149,6 +186,17 @@ export class FlowService {
       ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
     this._allFlows.clear()
+
+    this.notifyChanges({
+      name: previousName,
+      modification: 'rename',
+      newName: newName
+    })
+  }
+
+  private notifyChanges = (modification: FlowModification) => {
+    const payload = RealTimePayload.forAdmins('flow.changes', modification)
+    this.realtime.sendToSocket(payload)
   }
 
   async createMainFlow(botId: string) {
@@ -172,7 +220,7 @@ export class FlowService {
       links: []
     }
 
-    return this.upsertFlow(botId, flow)
+    return this._upsertFlow(botId, flow)
   }
 
   private async prepareSaveFlow(botId, flow, isNew: boolean) {

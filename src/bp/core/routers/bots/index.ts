@@ -15,7 +15,6 @@ import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { FlowView } from 'core/services/dialog'
 import { FlowService } from 'core/services/dialog/flow/service'
-import { FlowModification } from 'core/services/dialog/flow/typings'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
@@ -33,8 +32,6 @@ import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
 import { checkTokenHeader, needPermissions } from '../util'
-import RealtimeService from 'core/services/realtime'
-import { RealTimePayload } from 'core/sdk/impl'
 import { flow } from 'lodash-decorators'
 
 const debugMedia = DEBUG('audit:action:media-upload')
@@ -56,7 +53,6 @@ export class BotsRouter extends CustomRouter {
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
   private mediaPathRegex: RegExp
-  private realtime: RealtimeService
 
   constructor(args: {
     actionService: ActionService
@@ -70,7 +66,6 @@ export class BotsRouter extends CustomRouter {
     ghostService: GhostService
     workspaceService: WorkspaceService
     logger: Logger
-    realtime: RealtimeService
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
     this.actionService = args.actionService
@@ -86,7 +81,6 @@ export class BotsRouter extends CustomRouter {
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
-    this.realtime = args.realtime
   }
 
   async initialize() {
@@ -169,11 +163,6 @@ export class BotsRouter extends CustomRouter {
         version: process.BOTPRESS_VERSION
       }
     }
-  }
-
-  private notifyChanges = (modification: FlowModification) => {
-    const payload = RealTimePayload.forAdmins('flow.changes', modification)
-    this.realtime.sendToSocket(payload)
   }
 
   private setupRoutes() {
@@ -300,14 +289,9 @@ export class BotsRouter extends CustomRouter {
         const { botId } = req.params
         const flow = <FlowView>req.body.flow
 
-        await this.flowService.upsertFlow(botId, flow)
-        res.sendStatus(200)
+        await this.flowService.insertFlow(botId, flow)
 
-        this.notifyChanges({
-          name: flow.name,
-          modification: 'create',
-          payload: flow
-        })
+        res.sendStatus(200)
       })
     )
 
@@ -321,23 +305,10 @@ export class BotsRouter extends CustomRouter {
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
           await this.flowService.renameFlow(botId, flowName, flow.name)
-          res.sendStatus(200)
-
-          this.notifyChanges({
-            name: flowName,
-            modification: 'rename',
-            newName: flow.name
-          })
         } else {
-          await this.flowService.upsertFlow(botId, flow)
-          res.sendStatus(200)
-
-          this.notifyChanges({
-            name: flowName,
-            modification: 'update',
-            payload: flow
-          })
+          await this.flowService.updateFlow(botId, flow)
         }
+        res.sendStatus(200)
       })
     )
 
@@ -354,12 +325,8 @@ export class BotsRouter extends CustomRouter {
         }
 
         await this.flowService.deleteFlow(botId, flowName as string)
-        res.sendStatus(200)
 
-        this.notifyChanges({
-          name: flowName,
-          modification: 'delete'
-        })
+        res.sendStatus(200)
       })
     )
 
