@@ -15,8 +15,9 @@ interface Props {
 const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => (
   <div className={style.subSection}>
     <H5 color={Colors.DARK_GRAY5}>Decision</H5>
-    <div>
-      <strong>{props.decision.sourceDetails}</strong>&nbsp;
+    <div style={{ display: 'flex' }}>
+      <Intent intent={{ name: props.decision.sourceDetails }} elected={false} />
+      &nbsp;
       <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
         <Icon color={Colors.GRAY3} icon="info-sign" />
       </Tooltip>
@@ -29,7 +30,9 @@ const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
     <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
     <ul>
       {props.suggestions.map(sugg => (
-        <Intent intent={{ name: sugg.sourceDetails, confidence: sugg.confidence }} elected={false} />
+        <li>
+          <Intent intent={{ name: sugg.sourceDetails, confidence: sugg.confidence }} elected={false} />
+        </li>
       ))}
     </ul>
   </div>
