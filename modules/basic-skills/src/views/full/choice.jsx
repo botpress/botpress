@@ -8,6 +8,8 @@ import ContentPickerWidget from 'botpress/content-picker'
 
 import style from './style.scss'
 
+const MAX_RETRIES = 10
+
 export class Choice extends React.Component {
   state = {
     keywords: {},
@@ -19,15 +21,16 @@ export class Choice extends React.Component {
   componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
-    this.fetchDefaultConfig().then(res => {
+
+    this.fetchDefaultConfig().then(({ data }) => {
       if (this.props.initialData) {
         this.setState(
           {
             contentId: getOrDefault('contentId', 'contentId'),
             invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
             keywords: getOrDefault('keywords', 'keywords'),
-            config: getOrDefault('config', 'config'),
-            defaultConfig: res.data
+            config: { nbMaxRetries: data.defaultMaxAttempts, ...getOrDefault('config', 'config') },
+            defaultConfig: data
           },
           () => this.refreshContent()
         )
@@ -66,8 +69,14 @@ export class Choice extends React.Component {
   }
 
   onMaxRetriesChanged = event => {
-    const config = { ...this.state.config, nbMaxRetries: isNaN(event.target.value) ? 1 : event.target.value }
-    this.setState({ config })
+    const value = Number(event.target.value)
+
+    if (value > MAX_RETRIES) {
+      this.setState({ config: { ...this.state.config, nbMaxRetries: MAX_RETRIES } })
+      return
+    }
+
+    this.setState({ config: { ...this.state.config, nbMaxRetries: value } })
   }
 
   onBlocNameChanged = key => event => {

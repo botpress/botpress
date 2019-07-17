@@ -5,6 +5,10 @@
 
   &.msg {
     color: #1cbd57;
+
+    .missingTranslation {
+      color: red;
+    }
   }
 
   &.condition {

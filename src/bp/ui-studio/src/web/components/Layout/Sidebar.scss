@@ -19,24 +19,31 @@
   flex-direction: column;
   justify-content: stretch;
 
-  transition-property: width;
-  transition-duration: 200ms;
-  transition-delay: 150ms;
+  overflow-x: visible;
 
-  overflow: hidden;
-
-  &:hover {
-    width: 200px;
+  .logo {
+    width: 50px;
   }
 }
 
 .sidebar ul {
   list-style: none;
+  overflow-x: visible;
 }
 
 .sidebar ul li {
   font-size: 16px;
   line-height: 44px;
+  width: 50px;
+  overflow-x: hidden;
+
+  transition-property: width;
+  transition-duration: 100ms;
+  transition-timing-function: ease-in-out;
+
+  &:hover {
+    width: 175px;
+  }
 
   .experimental {
     margin-left: 10px;

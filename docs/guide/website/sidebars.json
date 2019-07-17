@@ -29,6 +29,7 @@
     ],
     "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
     "Tutorials": [
+      "tutorials/intent-matching",
       "tutorials/proactive",
       "tutorials/skill-slot",
       "tutorials/skill-call-api",

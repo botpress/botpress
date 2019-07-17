@@ -23,7 +23,7 @@ const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
 
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
-const MIN_SLOT_CONFIDENCE = 0.5
+const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -295,10 +295,11 @@ export default class CRFExtractor implements SlotExtractor {
     featPrefix: string,
     includeCluster: boolean
   ): Promise<string[]> {
-    const vector: string[] = [`${featPrefix}intent=${intentName}`]
+    const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
 
     if (token.cannonical === token.cannonical.toLowerCase()) vector.push(`${featPrefix}low`)
     if (token.cannonical === token.cannonical.toUpperCase()) vector.push(`${featPrefix}up`)
+    // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
     if (
       token.cannonical.length > 1 &&
       token.cannonical[0] === token.cannonical[0].toUpperCase() &&
@@ -312,7 +313,7 @@ export default class CRFExtractor implements SlotExtractor {
     }
 
     if (token.cannonical) {
-      vector.push(`${featPrefix}word=${token}`)
+      vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
     }
 
     const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(

@@ -104,7 +104,7 @@ export default class Storage {
     )
 
     return await Promise.mapSeries(qnaItemsToSync, async item => {
-      await this.checkForDuplicatedQuestions(item.data)
+      // await this.checkForDuplicatedQuestions(item.data) // Why are we doing this check here?
       await this.createNLUIntentFromQnaItem(item)
     })
   }
