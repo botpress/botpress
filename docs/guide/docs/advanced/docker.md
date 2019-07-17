@@ -8,7 +8,11 @@ title: Docker
 If the server you're running Botpress from has access to Internet, you can run this docker command. This will run within a single container and use our hosted Language Server:
 
 ```
-docker run -d --name botpress -p 3000:3000 botpress/server:v12_0_2
+docker run -d \
+--name botpress \
+-p 3000:3000 \
+-v botpress_data:/botpress/data \
+botpress/server:v12_0_2
 ```
 
 ## Offline Access
@@ -23,13 +27,24 @@ For servers without or with limited Internet access, you'll have to run the Lang
 1. Run the Language Server.
 
 ```bash
-docker run -d --name lang -p 3100:3100 botpress/server:v12_0_2 bash -c "./bp lang --dim 300 --langDir /botpress/data/embeddings"
+docker run -d \
+--name lang \
+-p 3100:3100 \
+-v botpress_data:/botpress/data \
+botpress/server:v12_0_2 \
+bash -c "./bp lang --dim 300 --langDir /botpress/data/embeddings"
 ```
 
 2. Run Botpress Server and Duckling within the same container. The usage of Duckling is very light here so we can justify using it in the same container as Botpress Server.
 
 ```bash
-docker run -d --name bp -p 3000:3000 -e BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpoint": "http://localhost:3100" }]' botpress/server:v12_0_2 bash -c "./duckling & ./bp"
+docker run -d \
+--name bp \
+-p 3000:3000 \
+-v botpress_data:/botpress/data \
+-e BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpoint": "http://localhost:3100" }]' \
+botpress/server:v12_0_2 \
+bash -c "./duckling & ./bp"
 ```
 
 ### Running a Single Container
@@ -39,9 +54,12 @@ docker run -d --name bp -p 3000:3000 -e BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpo
 This will run Duckling, the Language Server and Botpress Server within the same container. It will set some environment variables so that services talk to each other.
 
 ```bash
-docker run -d --name bp \
---env BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpoint": "http://localhost:3100" }]' \
--p 3000:3000 -p 3100:3100 botpress/server:v12_0_2 \
+docker run -d \
+--name bp \
+-p 3000:3000 -p 3100:3100 \
+-v botpress_data:/botpress/data \
+-e BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpoint": "http://localhost:3100" }]' \
+botpress/server:v12_0_2 \
 bash -c "./duckling & ./bp lang --dim 300 --langDir /botpress/data/embeddings & ./bp"
 ```
 
