@@ -27,12 +27,11 @@ export const Intent = (props: { intent: IntentDef; elected: boolean }) => {
 
 const navigateToIntentDefinition = (intent: string, isQna: boolean) => () => {
   intent = isQna ? intent.replace(QNA_IDENTIFIER, '') : intent
-  let url = '/modules'
+  let url
   if (isQna) {
-    url += `/qna?id=${intent}`
+    url = `/modules/qna?id=${intent}`
   } else {
-    url += '/nlu'
-    url += intent === 'none' ? '' : `?type=intent&id=${intent}`
+    url = intent === 'none' ? '/modules/nlu' : `/modules/nlu?type=intent&id=${intent}`
   }
   window.parent.postMessage({ action: 'navigate-url', payload: url }, '*')
 }
