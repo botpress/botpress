@@ -3,7 +3,6 @@ import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -14,6 +13,7 @@ import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
+import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 
 const debug = DEBUG('hooks')
 
@@ -100,7 +100,7 @@ export namespace Hooks {
     constructor(
       bp: typeof sdk,
       bot: sdk.BotConfig,
-      users: Partial<StrategyUser[]>,
+      users: WorkspaceUserAttributes[],
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
@@ -113,7 +113,7 @@ export namespace Hooks {
       bp: typeof sdk,
       previousBotConfig: sdk.BotConfig,
       bot: sdk.BotConfig,
-      users: Partial<StrategyUser[]>,
+      users: WorkspaceUserAttributes[],
       pipeline: sdk.Pipeline
     ) {
       super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })

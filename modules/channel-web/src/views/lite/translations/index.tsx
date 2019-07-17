@@ -3,14 +3,16 @@ import { addLocaleData } from 'react-intl'
 import localeEn from 'react-intl/locale-data/en'
 import localeFr from 'react-intl/locale-data/fr'
 import localePt from 'react-intl/locale-data/pt'
+import localeEs from 'react-intl/locale-data/es'
 
 import en from './en.json'
 import fr from './fr.json'
 import pt from './pt.json'
+import es from './es.json'
 
-const availableLocale = ['en', 'pt', 'fr']
+const availableLocale = ['en', 'fr', 'pt', 'es']
 const defaultLocale = 'en'
-const translations = { pt, fr, en, 'en-US': en }
+const translations = { 'en-US': en, en, fr, pt, es }
 
 const getUserLocale = (available?: any, defaultFallback?: string) => {
   const locale = navigator.language || navigator['userLanguage'] || ''
@@ -20,7 +22,7 @@ const getUserLocale = (available?: any, defaultFallback?: string) => {
 }
 
 const initializeLocale = () => {
-  addLocaleData([...localePt, ...localeEn, ...localeFr])
+  addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs])
 }
 
 export { initializeLocale, translations, availableLocale, defaultLocale, getUserLocale }

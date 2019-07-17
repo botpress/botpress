@@ -1,8 +1,8 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
 import { AuthRole, Pipeline, Workspace } from 'common/typings'
-import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUser, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { WorkspaceUser, WorkspaceUsersRepository, WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
@@ -162,18 +162,29 @@ export class WorkspaceService {
     return this.workspaceRepo.getWorkspaceUsers(workspace)
   }
 
-  async getWorkspaceUsersAttributes(workspace: string, filteredAttributes?: string[]): Promise<StrategyUser[]> {
-    const users = await this.workspaceRepo.getWorkspaceUsers(workspace)
+  async getWorkspaceUsersAttributes(
+    workspace: string,
+    filteredAttributes?: string[]
+  ): Promise<WorkspaceUserAttributes[]> {
+    const workspaceUsers = await this.workspaceRepo.getWorkspaceUsers(workspace)
 
-    return _.flatten(
-      await Promise.map(_.uniq(_.map(users, 'strategy')), strategy => {
-        return this.usersRepo.getMultipleUserAttributes(
-          users.filter(x => x.strategy === strategy).map(x => x.email),
-          strategy,
-          filteredAttributes
-        )
-      })
+    const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
+
+    const attributes = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
+
+    return workspaceUsers.map(u => ({ ...u, attributes: attributes[u.email] }))
+  }
+
+  private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
+    const usersInfo = _.flatten(
+      await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
     )
+    return _.mapValues(_.keyBy(usersInfo, 'email'), u => u.attributes)
+  }
+
+  private async _getUsersInfoForStrategy(users: WorkspaceUser[], strategy: string, attributes: any) {
+    const emails = users.filter(x => x.strategy === strategy).map(x => x.email)
+    return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
   }
 
   async getUniqueCollaborators(): Promise<number> {
