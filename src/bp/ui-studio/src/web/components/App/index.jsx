@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { authEvents } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
-import routes from '../Routes'
+import routes, { history } from '../Routes'
 
 import {
   fetchUser,
@@ -54,6 +54,13 @@ class App extends Component {
 
     EventBus.default.on('hints.updated', () => {
       this.props.refreshHints()
+    })
+
+    window.addEventListener('message', e => {
+      const { action, payload } = e.data || {}
+      if (action === 'navigate-url') {
+        history.push(payload)
+      }
     })
   }
 

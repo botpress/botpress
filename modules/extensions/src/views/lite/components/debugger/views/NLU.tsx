@@ -3,10 +3,10 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { SFC } from 'react'
 
+import { Intents } from '../components/Intents'
 import style from '../style.scss'
 
 import { Entities } from './Entities'
-import { Intents } from './Intents'
 import { Slots } from './Slots'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
