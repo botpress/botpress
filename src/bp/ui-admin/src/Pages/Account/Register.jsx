@@ -48,7 +48,7 @@ export default class Register extends Component {
   }
 
   handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
-  handleInputKeyPress = e => e.key === 'Enter' && this.register()
+  handleInputKeyPress = e => e.key === 'Enter' && this.isFormValid && this.register()
 
   get isFormValid() {
     const { email, password, confirmPassword } = this.state

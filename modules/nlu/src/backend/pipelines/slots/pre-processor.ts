@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { makeTokens } from '../../tools/make-tokens'
+import { allInRange } from '../../tools/math'
 import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { sanitize } from '../language/sanitizer'
@@ -16,16 +18,6 @@ export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
 }
 
-const _makeToken = (value: string, matchedEntities: string[], start: number, tag = '', slot = ''): Token =>
-  ({
-    value,
-    matchedEntities,
-    start,
-    end: start + value.length,
-    tag,
-    slot
-  } as Token)
-
 // TODO use the same algorithm as in the prediction sequence
 const _generateTrainingTokens = languageProvider => async (
   input: string,
@@ -40,43 +32,43 @@ const _generateTrainingTokens = languageProvider => async (
 
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
-  return (await languageProvider.tokenize(input, lang))
-    .map(sanitize)
-    .filter(x => !!x)
-    .map((t, idx) => {
-      const token = _makeToken(t, matchedEntities, start, tagToken(idx), slot)
-      start += t.length
-      return token
-    })
+  const [rawToks] = await languageProvider.tokenize([input.toLowerCase()], lang)
+  return makeTokens(rawToks, input).map((t, idx) => {
+    const tok = {
+      ...t,
+      matchedEntities,
+      tag: tagToken(idx),
+      start,
+      end: start + t.value.length,
+      slot
+    } as Token
+
+    start += t.value.length
+    return tok
+  })
 }
 
 export const generatePredictionSequence = async (
   input: string,
   intentName: string,
   entities: sdk.NLU.Entity[],
-  tokens: string[]
+  toks: Token[]
 ): Promise<Sequence> => {
-  const cannonical = input // we generate a copy here since input is mutating
-  let currentIdx = 0
-
-  const taggedTokens = tokens.map(value => {
-    const inputIdx = input.indexOf(value)
-    currentIdx += inputIdx // in case of tokenization uses more than one char i.e words separated with multiple spaces
-    input = input.slice(inputIdx + value.length)
-
+  const tokens = toks.map(tok => {
     const matchedEntities = entities
-      .filter(e => e.meta.start <= currentIdx && e.meta.end >= currentIdx + value.length)
+      .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)
 
-    const token = _makeToken(value, matchedEntities, currentIdx)
-    currentIdx = token.end // move cursor to end of token in original input
-    return token
+    return {
+      ...tok,
+      matchedEntities
+    }
   })
 
   return {
     intent: intentName,
-    cannonical,
-    tokens: taggedTokens
+    cannonical: input,
+    tokens
   }
 }
 
@@ -98,17 +90,18 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
 
     if (matches) {
       const sub = inputCopy.substr(0, matches.index - 1)
+      const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+      const tokensBeforeSlot = await genToken(sub, lang, start)
 
-      const tokensBeforeSlot = await genToken(sub, lang, 0)
-      const slotTokens = await genToken(matches[1], lang, matches.index, matches[2], slotDefinitions)
+      const slotTokens = await genToken(matches[1], lang, start + matches.index, matches[2], slotDefinitions)
 
       tokens = [...tokens, ...tokensBeforeSlot, ...slotTokens]
-      inputCopy = inputCopy.substr(matches.index + matches[0].length)
+      inputCopy = inputCopy.substr(matches.index + matches[0].length).trim()
     }
   } while (matches)
 
   if (inputCopy.length) {
-    tokens = [...tokens, ...(await genToken(inputCopy, lang, 0))]
+    tokens = [...tokens, ...(await genToken(inputCopy, lang, _.isEmpty(tokens) ? 0 : _.last(tokens)!.end))]
   }
 
   return {

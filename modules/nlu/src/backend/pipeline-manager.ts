@@ -13,8 +13,8 @@ export class PipelineManager {
     return this
   }
 
-  public initFromText(text: string, includedContexts: string[]): PipelineManager {
-    this._nluds = initNLUStruct(text, includedContexts)
+  public initFromText(text: string, lastMessages: string[], includedContexts: string[]): PipelineManager {
+    this._nluds = initNLUStruct(text, lastMessages, includedContexts)
     return this
   }
 
@@ -28,18 +28,22 @@ export class PipelineManager {
     }
 
     let ds = this._nluds
+
     for (const step of this._pipeline) {
       ds = await step(ds)
     }
+
     return ds
   }
 }
 
 // exported for testing purposes
-export const initNLUStruct = (text: string, includedContexts: string[]): NLUStructure => {
+export const initNLUStruct = (rawText: string, lastMessages: string[], includedContexts: string[]): NLUStructure => {
   return {
-    rawText: text,
-    lowerText: '',
+    rawText,
+    sanitizedText: '',
+    sanitizedLowerText: '',
+    lastMessages,
     includedContexts: includedContexts,
     detectedLanguage: '',
     language: '',
@@ -47,7 +51,6 @@ export const initNLUStruct = (text: string, includedContexts: string[]): NLUStru
     ambiguous: false,
     intent: {} as sdk.NLU.Intent,
     intents: [],
-    sanitizedText: '',
     tokens: [],
     slots: {}
   }

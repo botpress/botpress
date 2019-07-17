@@ -542,7 +542,7 @@ declare module 'botpress/sdk' {
      */
     export interface EventState {
       /** Data saved as user attributes; retention policies in Botpress global config applies  */
-      user: User
+      user: object
       /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
       /** Data saved to this variable will be remembered until the end of the flow */

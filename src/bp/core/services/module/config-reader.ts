@@ -101,12 +101,20 @@ export default class ConfigReader {
       return [path]
     }
 
+    const getValue = (key: string) => {
+      try {
+        return JSON.parse(process.env[key]!)
+      } catch (err) {
+        return process.env[key]
+      }
+    }
+
     for (const option of getPropertiesRecursive(schema)) {
       const envOption = `${moduleId}_${option}`.replace(/[^A-Z0-9_]+/gi, '_')
       const envKey = `BP_MODULE_${envOption}`.toUpperCase()
       if (envKey in process.env) {
         // Using .set because it supports set on a path with dots
-        const value = process.env[envKey]
+        const value = getValue(envKey)
         _.set(config, option, value)
         debugConfig('ENV SET', { variable: option, env: envKey, value })
       } else {

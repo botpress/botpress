@@ -5,7 +5,7 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
-import { LanguageProvider } from '../../typings'
+import { NLUStructure } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
@@ -19,9 +19,11 @@ const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
 
+const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
+
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
-const MIN_SLOT_CONFIDENCE = 0.5
+const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -119,15 +121,11 @@ export default class CRFExtractor implements SlotExtractor {
    *   songs : [ multiple slots objects here]
    * }
    */
-  async extract(
-    text: string,
-    lang: string,
-    intentDef: sdk.NLU.IntentDefinition,
-    entities: sdk.NLU.Entity[],
-    tokens: string[]
-  ): Promise<sdk.NLU.SlotCollection> {
-    debugExtract(text, { entities })
-    const seq = await generatePredictionSequence(text, intentDef.name, entities, tokens)
+  async extract(ds: NLUStructure, intentDef: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection> {
+    debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
+
+    const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef.name, ds.entities, ds.tokens)
+
     const { probability, result: tags } = await this._tag(seq)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
@@ -142,8 +140,9 @@ export default class CRFExtractor implements SlotExtractor {
       })
       .reduce((slotCollection: any, [token, tag]) => {
         const slotName = tag.slice(2)
+        const slotDef = intentDef.slots.find(x => x.name == slotName)
 
-        const slot = this._makeSlot(slotName, token, intentDef.slots, entities, probability)
+        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, probability)
 
         if (!slot) {
           return slotCollection
@@ -152,8 +151,8 @@ export default class CRFExtractor implements SlotExtractor {
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           if (_.isEmpty(token.matchedEntities)) {
             // simply append the source if the tag is inside a slot && type any (thus the if)
-            slotCollection[slotName].source += ` ${token.value}`
-            slotCollection[slotName].value += ` ${token.value}`
+            slotCollection[slotName].source += ` ${token.cannonical}`
+            slotCollection[slotName].value += ` ${token.cannonical}`
           }
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
@@ -189,15 +188,13 @@ export default class CRFExtractor implements SlotExtractor {
   private _makeSlot(
     slotName: string,
     token: Token,
-    slotDefinitions: sdk.NLU.SlotDefinition[],
+    slotDef: sdk.NLU.SlotDefinition,
     entities: sdk.NLU.Entity[],
     confidence: number
   ): sdk.NLU.Slot {
     if (confidence < MIN_SLOT_CONFIDENCE) {
       return
     }
-    const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
-
     const entity =
       slotDef &&
       entities.find(
@@ -209,8 +206,8 @@ export default class CRFExtractor implements SlotExtractor {
       return
     }
 
-    const value = _.get(entity, 'data.value', token.value)
-    const source = _.get(entity, 'meta.source', token.value)
+    const value = _.get(entity, 'data.value', token.cannonical)
+    const source = _.get(entity, 'meta.source', token.cannonical)
 
     const slot = {
       name: slotName,
@@ -228,7 +225,7 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.value))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical))
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
@@ -269,7 +266,9 @@ export default class CRFExtractor implements SlotExtractor {
     const ft = new this.toolkit.FastText.Model()
 
     const trainContent = samples.reduce((corpus, seq) => {
-      const cannonicSentence = seq.tokens.map(s => (s.tag === BIO.OUT ? s.value : s.slot)).join(' ')
+      const cannonicSentence = seq.tokens
+        .map(token => (token.tag === BIO.OUT ? token.cannonical : token.slot))
+        .join(' ') // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
       return `${corpus}${cannonicSentence}\n`
     }, '')
 
@@ -296,19 +295,25 @@ export default class CRFExtractor implements SlotExtractor {
     featPrefix: string,
     includeCluster: boolean
   ): Promise<string[]> {
-    const vector: string[] = [`${featPrefix}intent=${intentName}`]
+    const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
 
-    if (token.value === token.value.toLowerCase()) vector.push(`${featPrefix}low`)
-    if (token.value === token.value.toUpperCase()) vector.push(`${featPrefix}up`)
+    if (token.cannonical === token.cannonical.toLowerCase()) vector.push(`${featPrefix}low`)
+    if (token.cannonical === token.cannonical.toUpperCase()) vector.push(`${featPrefix}up`)
+    // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
     if (
-      token.value.length > 1 &&
-      token.value[0] === token.value[0].toUpperCase() &&
-      token.value[1] === token.value[1].toLowerCase()
+      token.cannonical.length > 1 &&
+      token.cannonical[0] === token.cannonical[0].toUpperCase() &&
+      token.cannonical[1] === token.cannonical[1].toLowerCase()
     )
       vector.push(`${featPrefix}title`)
+
     if (includeCluster) {
-      const cluster = await this._getWordCluster(token.value)
+      const cluster = await this._getWordCluster(token.cannonical)
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
+    }
+
+    if (token.cannonical) {
+      vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
     }
 
     const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
@@ -321,11 +326,14 @@ export default class CRFExtractor implements SlotExtractor {
   // TODO maybe use a slice instead of the whole token seq ?
   private async _vectorize(tokens: Token[], intentName: string, idx: number): Promise<string[]> {
     const prev = idx === 0 ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
+
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
+    current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
+
     const next =
       idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
 
-    debugVectorize(`"${tokens[idx].value}" (${idx})`, { prev, current, next })
+    debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
 
     return [...prev, ...current, ...next]
   }

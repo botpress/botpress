@@ -6,7 +6,7 @@ import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import onHeaders from 'on-headers'
 
-import { RequestWithUser, TokenUser } from '../misc/interfaces'
+import { RequestWithUser, TokenUser } from '../../common/typings'
 import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
 import { incrementMetric } from '../services/monitoring'
 

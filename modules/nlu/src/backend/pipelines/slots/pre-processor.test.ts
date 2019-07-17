@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { makeTokens } from '../../tools/make-tokens'
 import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'
@@ -13,13 +14,15 @@ const languageProvider: LanguageProvider = {
     const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
-  tokenize: function(text: string, lang: string): Promise<string[]> {
+
+  tokenize: function(utterances: string[], lang: string): Promise<string[][]> {
     // This is a white space tokenizer only working for tests written in english
-    const res = text.split(' ').filter(_.identity)
+    const res = utterances.map(text => text.split(' ').filter(_.identity))
+
     return Promise.resolve(res)
   },
 
-  generateSimilarJunkWords: (tokens: string[]) => Promise.resolve([]), // Not implemented
+  generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
 
   getHealth: (): Partial<NLUHealth> => {
     return {}
@@ -57,11 +60,12 @@ describe('Preprocessing', () => {
     expect(trainingSeq.tokens[4].slot).toEqual(slotDef[0].name)
     expect(trainingSeq.tokens[4].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[4].tag).toEqual(BIO.BEGINNING)
-    expect(trainingSeq.tokens[4].value).toEqual('Jacob')
+    expect(trainingSeq.tokens[4].value).toEqual('jacob')
+    expect(trainingSeq.tokens[4].cannonical).toEqual('Jacob')
     expect(trainingSeq.tokens[5].slot).toEqual(slotDef[0].name)
     expect(trainingSeq.tokens[5].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[5].tag).toEqual(BIO.INSIDE)
-    expect(trainingSeq.tokens[5].value).toEqual('Jacobson')
+    expect(trainingSeq.tokens[5].value).toEqual('jacobson')
     expect(trainingSeq.tokens[10].matchedEntities).toEqual(slotDef[1].entities)
   })
 
@@ -116,7 +120,8 @@ describe('Preprocessing', () => {
     ] as sdk.NLU.Entity[]
 
     const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
-    const tokens = await languageProvider.tokenize(input, 'en')
+
+    const tokens = await makeTokens((await languageProvider.tokenize([input], 'en'))[0], input)
 
     // some extra spaces on purpose here
     const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
