@@ -12,7 +12,7 @@ import IntentEditor from './intents/editor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
-export interface CurrentItem {
+export interface NluItem {
   name: string
   type: 'intent' | 'entity'
 }
@@ -22,12 +22,12 @@ interface Props {
   contentLang: string
 }
 
-const ITEM_TYPE_PARAM = 'itemType'
-const ITEM_NAME_PARAM = 'itemName'
+const ITEM_TYPE_PARAM = 'type'
+const ITEM_NAME_PARAM = 'id'
 
 const NLU: FC<Props> = props => {
   const api = makeApi(props.bp)
-  const [currentItem, setCurrentItem] = useState<CurrentItem | undefined>()
+  const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
   const [contexts, setContexts] = useState([])
@@ -42,7 +42,7 @@ const NLU: FC<Props> = props => {
     setCurrentItemFromPath()
   }, [window.location.href])
 
-  const handleSelectItem = (item: CurrentItem) => {
+  const handleSelectItem = (item: NluItem) => {
     const url = new URL(window.location.href)
     url.searchParams.set(ITEM_TYPE_PARAM, item.type)
     url.searchParams.set(ITEM_NAME_PARAM, item.name)
@@ -55,18 +55,22 @@ const NLU: FC<Props> = props => {
     const type = url.searchParams.get(ITEM_TYPE_PARAM)
     const name = url.searchParams.get(ITEM_NAME_PARAM)
     if (type && name) {
-      return { type, name } as CurrentItem
+      return { type, name } as NluItem
     }
   }
 
   const setCurrentItemFromPath = () => {
     const newCurrentItem = getCurrentItemFromPath()
-    if (
-      newCurrentItem &&
-      (!currentItem || newCurrentItem.name !== currentItem.name || newCurrentItem.type !== currentItem.type)
-    ) {
+
+    if (!isEqual(newCurrentItem, currentItem)) {
       setCurrentItem(newCurrentItem)
     }
+  }
+
+  const isEqual = (item: NluItem, otherItem: NluItem) => {
+    const isSame = item === otherItem
+    const areDefined = item && otherItem
+    return isSame || (areDefined && item.name === otherItem.name && item.type === otherItem.type)
   }
 
   const updateEntity = entity => {

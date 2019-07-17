@@ -2,6 +2,7 @@ import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import React, { SFC } from 'react'
 
+import { Intent } from '../components/Intent'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
@@ -28,9 +29,7 @@ const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
     <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
     <ul>
       {props.suggestions.map(sugg => (
-        <li key={sugg.source}>
-          {sugg.sourceDetails}: {formatConfidence(sugg.confidence)}%
-        </li>
+        <Intent intent={{ name: sugg.sourceDetails, confidence: sugg.confidence }} elected={false} />
       ))}
     </ul>
   </div>
