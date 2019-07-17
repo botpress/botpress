@@ -2,6 +2,8 @@ import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
 import {
+  clearErrorSaveFlows,
+  clearFlowsModification,
   closeFlowNodeProps,
   copyFlowNode,
   copyFlowNodeElement,
@@ -11,6 +13,7 @@ import {
   handleRefreshFlowLinks,
   openFlowNodeProps,
   receiveFlows,
+  receiveFlowsModification,
   receiveSaveFlows,
   requestCreateFlow,
   requestCreateFlowNode,
@@ -38,6 +41,7 @@ export interface FlowReducer {
   showFlowNodeProps: boolean
   dirtyFlows: string[]
   errorSavingFlows: any
+  lastServerModification: any
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -56,7 +60,8 @@ const defaultState = {
   nodeInBuffer: null, // TODO: move it to buffer.node
   buffer: { action: null, transition: null },
   flowProblems: [],
-  errorSavingFlows: undefined
+  errorSavingFlows: undefined,
+  lastServerModification: undefined
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -65,6 +70,17 @@ const findNodesThatReferenceFlow = (state, flowName) =>
     .map(node => node.id)
 
 const computeFlowsHash = state => {
+  return _.values(state.flowsByName).reduce((obj, curr) => {
+    if (!curr) {
+      return obj
+    }
+
+    obj[curr.name] = computeHashForFlow(curr)
+    return obj
+  }, {})
+}
+
+const computeHashForFlow = flow => {
   const hashAction = (hash, action) => {
     if (_.isArray(action)) {
       action.forEach(c => {
@@ -82,46 +98,39 @@ const computeFlowsHash = state => {
     return hash
   }
 
-  return _.values(state.flowsByName).reduce((obj, curr) => {
-    if (!curr) {
-      return obj
-    }
+  let buff = ''
+  buff += flow.name
+  buff += flow.startNode
 
-    let buff = ''
-    buff += curr.name
-    buff += curr.startNode
+  if (flow.catchAll) {
+    buff = hashAction(buff, flow.catchAll.onReceive)
+    buff = hashAction(buff, flow.catchAll.onEnter)
+    buff = hashAction(buff, flow.catchAll.next)
+  }
 
-    if (curr.catchAll) {
-      buff = hashAction(buff, curr.catchAll.onReceive)
-      buff = hashAction(buff, curr.catchAll.onEnter)
-      buff = hashAction(buff, curr.catchAll.next)
-    }
+  _.orderBy(flow.nodes, 'id').forEach(node => {
+    buff = hashAction(buff, node.onReceive)
+    buff = hashAction(buff, node.onEnter)
+    buff = hashAction(buff, node.next)
+    buff += node.id
+    buff += node.flow
+    buff += node.type
+    buff += node.name
+    buff += node.x
+    buff += node.y
+  })
 
-    _.orderBy(curr.nodes, 'id').forEach(node => {
-      buff = hashAction(buff, node.onReceive)
-      buff = hashAction(buff, node.onEnter)
-      buff = hashAction(buff, node.next)
-      buff += node.id
-      buff += node.flow
-      buff += node.type
-      buff += node.name
-      buff += node.x
-      buff += node.y
-    })
+  _.orderBy(flow.links, l => l.source + l.target).forEach(link => {
+    buff += link.source
+    buff += link.target
+    link.points &&
+      link.points.forEach(p => {
+        buff += p.x
+        buff += p.y
+      })
+  })
 
-    _.orderBy(curr.links, l => l.source + l.target).forEach(link => {
-      buff += link.source
-      buff += link.target
-      link.points &&
-        link.points.forEach(p => {
-          buff += p.x
-          buff += p.y
-        })
-    })
-
-    obj[curr.name] = hashCode(buff)
-    return obj
-  }, {})
+  return hashCode(buff)
 }
 
 const updateCurrentHash = state => ({ ...state, currentHashes: computeFlowsHash(state) })
@@ -223,12 +232,69 @@ const doCreateNewFlow = name => ({
   ]
 })
 
+const handleServerRename = (state, modification) => {
+  if (!modification.newName || _.keys(state.flowsByName).includes(modification.newName)) {
+    return
+  }
+  return modification
+}
+
+const handleServerCreate = (state, modification) => {
+  if (_.keys(state.flowsByName).includes(modification.name)) {
+    return
+  }
+  return modification
+}
+
+const handleServerDelete = (state, modification) => {
+  if (!_.keys(state.flowsByName).includes(modification.name)) {
+    return
+  }
+  return modification
+}
+
+const handleServerUpdate = (state, modification) => {
+  const flowHash = computeHashForFlow(modification.payload)
+  if (state.initialHashes[modification.name] === flowHash) {
+    return
+  }
+
+  return modification
+}
+
 // *****
 // Reducer that deals with non-recordable (no snapshot taking)
 // *****
 
 let reducer = handleActions(
   {
+    [receiveFlowsModification]: (state, { payload }) => {
+      let actualModification
+      switch (payload.modification) {
+        case 'create':
+          actualModification = handleServerCreate(state, payload)
+          break
+        case 'delete':
+          actualModification = handleServerDelete(state, payload)
+          break
+        case 'update':
+          actualModification = handleServerUpdate(state, payload)
+          break
+        case 'rename':
+          actualModification = handleServerRename(state, payload)
+      }
+
+      return {
+        ...state,
+        lastServerModification: actualModification
+      }
+    },
+
+    [clearFlowsModification]: state => ({
+      ...state,
+      lastServerModification: undefined
+    }),
+
     [updateFlowProblems]: (state, { payload }) => ({
       ...state,
       flowProblems: payload
@@ -256,13 +322,17 @@ let reducer = handleActions(
 
     [receiveSaveFlows]: state => ({
       ...state,
-      savingFlows: false,
       errorSavingFlows: undefined
     }),
 
     [errorSaveFlows]: (state, { payload }) => ({
       ...state,
       errorSavingFlows: payload
+    }),
+
+    [clearErrorSaveFlows]: state => ({
+      ...state,
+      errorSavingFlows: undefined
     }),
 
     [switchFlowNode]: (state, { payload }) => ({

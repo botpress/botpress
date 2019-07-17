@@ -47,6 +47,7 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
+import RealtimeService from './services/realtime'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -102,7 +103,8 @@ export default class HTTPServer {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
-    @inject(TYPES.AlertingService) private alertingService: AlertingService
+    @inject(TYPES.AlertingService) private alertingService: AlertingService,
+    @inject(TYPES.RealtimeService) private realtime: RealtimeService
   ) {
     this.app = express()
 
@@ -157,7 +159,8 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
-      logger: this.logger
+      logger: this.logger,
+      realtime
     })
   }
 

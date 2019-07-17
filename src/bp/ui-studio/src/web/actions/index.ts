@@ -4,12 +4,13 @@ import { createAction } from 'redux-actions'
 
 import { getDeletedFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
-import { FlowsAPI } from './flows-api'
+import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
 
-type AsyncCallback = (payload, state) => Promise<void>
-
 // Flows
+export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
+export const clearFlowsModification = createAction('FLOWS/MODIFICATIONS/CLEAR')
+
 export const requestFlows = createAction('FLOWS/REQUEST')
 export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
@@ -25,6 +26,7 @@ export const fetchFlows = () => dispatch => {
 
 export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
+export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
 // actions that modifies flow
 export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
@@ -42,39 +44,38 @@ export const requestPasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PAST
 
 const wrapAction = (
   requestAction,
-  asyncCallback: AsyncCallback,
+  asyncCallback: (payload, state, dispatch) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
 ) => payload => (dispatch, getState) => {
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
-  asyncCallback(payload, getState())
+  asyncCallback(payload, getState(), dispatch)
     .then(() => dispatch(receiveAction()))
-    .catch(err => {
-      dispatch(errorAction(err))
-    })
+    .catch(err => dispatch(errorAction(err)))
 }
 
 const updateCurrentFlow = async (_payload, state) => {
   const flowState = state.flows
-  await FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
 }
 
-const saveDirtyFlows = async flowState => {
-  const dirtyFlows = getModifiedFlows(flowState).filter(name => !!flowState.flowsByName[name])
+const saveDirtyFlows = async state => {
+  const dirtyFlows = getModifiedFlows(state).filter(name => !!state.flows.flowsByName[name])
 
+  const promises = []
   for (const flow of dirtyFlows) {
-    await FlowsAPI.updateFlow(flowState, flow)
+    promises.push(FlowsAPI.updateFlow(state.flows, flow))
   }
+  return Promise.all(promises)
 }
 
 export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
 
 export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
   const { targetFlow, name } = payload
-  const flowState = state.flows
-  await FlowsAPI.renameFlow(flowState, targetFlow, name)
-  await saveDirtyFlows(flowState)
+  await FlowsAPI.renameFlow(state.flows, targetFlow, name)
+  await saveDirtyFlows(state)
 })
 
 export const createFlow = wrapAction(requestCreateFlow, async (payload, state) => {
@@ -84,10 +85,8 @@ export const createFlow = wrapAction(requestCreateFlow, async (payload, state) =
 })
 
 export const deleteFlow = wrapAction(requestDeleteFlow, async (payload, state) => {
-  const name = payload
-  const flowState = state.flows
-  await FlowsAPI.deleteFlow(flowState, name)
-  await saveDirtyFlows(flowState)
+  await FlowsAPI.deleteFlow(state.flows, payload)
+  await saveDirtyFlows(state)
 })
 
 export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, state) => {
@@ -128,15 +127,15 @@ export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
-export const flowEditorUndo = () => dispatch => {
-  dispatch(handleFlowEditorUndo())
+export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
-export const flowEditorRedo = () => dispatch => {
-  dispatch(handleFlowEditorRedo())
+export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
