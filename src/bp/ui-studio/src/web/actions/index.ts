@@ -60,12 +60,12 @@ const updateCurrentFlow = async (_payload, state) => {
   return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
 }
 
-const saveDirtyFlows = async flowState => {
-  const dirtyFlows = getModifiedFlows(flowState).filter(name => !!flowState.flowsByName[name])
+const saveDirtyFlows = async state => {
+  const dirtyFlows = getModifiedFlows(state).filter(name => !!state.flows.flowsByName[name])
 
   const promises = []
   for (const flow of dirtyFlows) {
-    promises.push(FlowsAPI.updateFlow(flowState, flow))
+    promises.push(FlowsAPI.updateFlow(state.flows, flow))
   }
   return Promise.all(promises)
 }
@@ -74,9 +74,8 @@ export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
 
 export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
   const { targetFlow, name } = payload
-  const flowState = state.flows
-  await FlowsAPI.renameFlow(flowState, targetFlow, name)
-  await saveDirtyFlows(flowState)
+  await FlowsAPI.renameFlow(state.flows, targetFlow, name)
+  await saveDirtyFlows(state)
 })
 
 export const createFlow = wrapAction(requestCreateFlow, async (payload, state) => {
@@ -86,10 +85,8 @@ export const createFlow = wrapAction(requestCreateFlow, async (payload, state) =
 })
 
 export const deleteFlow = wrapAction(requestDeleteFlow, async (payload, state) => {
-  const name = payload
-  const flowState = state.flows
-  await FlowsAPI.deleteFlow(flowState, name)
-  await saveDirtyFlows(flowState)
+  await FlowsAPI.deleteFlow(state.flows, payload)
+  await saveDirtyFlows(state)
 })
 
 export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, state) => {

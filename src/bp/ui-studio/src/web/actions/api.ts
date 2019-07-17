@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 type DebounceUpdateFunc = ((flow: any, callback: any) => Promise<void>) & _.Cancelable
 
-const DELAY = 2000
+const DELAY = 1000
 
 export namespace FlowsAPI {
   const currentUpdates: _.Dictionary<DebounceUpdateFunc> = {}
