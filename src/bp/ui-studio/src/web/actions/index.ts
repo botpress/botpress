@@ -4,7 +4,7 @@ import { createAction } from 'redux-actions'
 
 import { getDeletedFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
-import { FlowsAPI } from './flows-api'
+import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
 
 // Flows
@@ -42,39 +42,35 @@ export const requestRemoveFlowNode = createAction('FLOWS/FLOW/REMOVE')
 export const requestPasteFlowNode = createAction('FLOWS/NODE/PASTE')
 export const requestPasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PASTE')
 
-export const requestSaveFlows = createAction('YOYOYOY')
-
 const wrapAction = (
   requestAction,
-  asyncCallback: (payload, state, dispatch) => Promise<any>,
+  asyncCallback: (payload, state) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
 ) => payload => (dispatch, getState) => {
-  dispatch(requestSaveFlows(payload))
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
-  asyncCallback(payload, getState(), dispatch)
+  asyncCallback(payload, getState())
     .then(() => dispatch(receiveAction()))
     .catch(err => dispatch(errorAction(err)))
 }
 
-const updateCurrentFlow = async (_payload, state, dispatch) => {
+const updateCurrentFlow = async (_payload, state) => {
   const flowState = state.flows
-
-  const then = () => dispatch(receiveSaveFlows())
-  const error = err => dispatch(errorSaveFlows(err))
-  return FlowsAPI.updateFlow(flowState, flowState.currentFlow, then, error)
+  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
 }
 
 const saveDirtyFlows = async flowState => {
   const dirtyFlows = getModifiedFlows(flowState).filter(name => !!flowState.flowsByName[name])
 
+  const promises = []
   for (const flow of dirtyFlows) {
-    await FlowsAPI.updateFlow(flowState, flow)
+    promises.push(FlowsAPI.updateFlow(flowState, flow))
   }
+  return Promise.all(promises)
 }
 
-export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow, () => {}, () => {})
+export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
 
 export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
   const { targetFlow, name } = payload
@@ -105,8 +101,8 @@ export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, st
 export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
 
-export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state, dispatch) => {
-  await updateCurrentFlow(payload, state, dispatch)
+export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
 
   // If node is a skill and there's no references to it, then the complete flow is deleted
   const deletedFlows = getDeletedFlows(state)

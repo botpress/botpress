@@ -26,7 +26,6 @@ import {
   requestPasteFlowNodeElement,
   requestRemoveFlowNode,
   requestRenameFlow,
-  requestSaveFlows,
   requestUpdateFlow,
   requestUpdateFlowNode,
   requestUpdateSkill,
@@ -61,7 +60,6 @@ const defaultState = {
   nodeInBuffer: null, // TODO: move it to buffer.node
   buffer: { action: null, transition: null },
   flowProblems: [],
-  savingFlows: 0,
   errorSavingFlows: undefined,
   lastServerModification: undefined
 }
@@ -322,11 +320,8 @@ let reducer = handleActions(
       }
     },
 
-    [requestSaveFlows]: state => ({ ...state, savingFlows: state.savingFlows + 1 }),
-
     [receiveSaveFlows]: state => ({
       ...state,
-      savingFlows: Math.max(0, state.savingFlows - 1),
       errorSavingFlows: undefined
     }),
 
