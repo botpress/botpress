@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { computeNorm, ndistance, scalarDivide, vectorAdd } from '../../tools/math'
@@ -30,6 +31,50 @@ export const enrichToken2Vec = async (
   })
 }
 
+export const createPointsFromUtteranceTokens = (intentName, lang, langProvider, token2vec, context, tfIdf) => async (
+  utteranceTokens
+): Promise<sdk.NLU.TrainingPoints> => {
+  if (!utteranceTokens.length) {
+    return
+  }
+
+  const l0vec = await getSentenceFeatures({
+    lang,
+    doc: utteranceTokens,
+    docTfidf: tfIdf['l0'][context],
+    langProvider,
+    token2vec
+  })
+
+  const l1vec = await getSentenceFeatures({
+    lang,
+    doc: utteranceTokens,
+    docTfidf: tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
+    langProvider,
+    token2vec
+  })
+
+  const l1Point = {
+    label: intentName,
+    coordinates: [...l1vec, utteranceTokens.length],
+    utterance: utteranceTokens.join(' ')
+  }
+
+  const l0Point =
+    intentName === 'none'
+      ? undefined
+      : {
+          label: context,
+          coordinates: [...l0vec, utteranceTokens.length],
+          utterance: utteranceTokens.join(' ')
+        }
+
+  return {
+    l0Point,
+    l1Point
+  }
+}
+
 export const getSentenceFeatures = async ({
   lang,
   doc,
@@ -43,9 +88,7 @@ export const getSentenceFeatures = async ({
   token2vec: Token2Vec
   langProvider: LanguageProvider
 }): Promise<number[]> => {
-  const vecs = (await langProvider.vectorize(doc, lang)).map(x => {
-    return Array.from(x.values())
-  })
+  const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
 
   debug(`get for '${lang}'`, { doc, got: vecs.map(x => x.length) })
 

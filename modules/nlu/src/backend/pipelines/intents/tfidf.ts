@@ -1,4 +1,8 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
+import { Model, Token2Vec } from '../../typings'
+import { enrichToken2Vec } from '../language/ft_featurizer'
 
 const MAX_TFIDF = 2
 const MIN_TFIDF = 0.5
@@ -6,7 +10,24 @@ const MIN_TFIDF = 0.5
 export type TfidfInput = _.Dictionary<string[]>
 export type TfidfOutput = _.Dictionary<_.Dictionary<number>>
 
-export default function tfidf(docs: TfidfInput): TfidfOutput {
+export const parsel0 = (toolkit, model) => new toolkit.SVM.Predictor(model.model.toString('utf8'))
+
+export const parsel1 = (toolkit, models: Model[]) => {
+  if (_.uniqBy(models, x => x.meta.context).length !== models.length) {
+    const ctx = models.map(x => x.meta.context).join(', ')
+    throw new Error(`You can't train different models with the same context. Ctx = [${ctx}]`)
+  }
+
+  return models
+    .map(model => ({
+      [model.meta.context]: new toolkit.SVM.Predictor(model.model.toString('utf8'))
+    }))
+    .reduce((a, b) => ({ ...a, ...b }))
+}
+
+export const parseTfIdf = model => JSON.parse(model.model.toString('utf8'))
+
+export function tfidf(docs: TfidfInput): TfidfOutput {
   const result: TfidfOutput = {}
 
   const _avgSum: _.Dictionary<number> = {}
@@ -40,4 +61,50 @@ export default function tfidf(docs: TfidfInput): TfidfOutput {
   result['__avg__'] = _.mapValues(_avgSum, (v, key) => v / _avgCount[key])
 
   return result
+}
+
+export const computeToken2Vec = async (
+  token2vec: Token2Vec,
+  intentsWithNone: sdk.NLU.IntentDefinitionWithTokens[],
+  lang,
+  langProvider
+) =>
+  await Promise.map(
+    intentsWithNone,
+    async intent =>
+      await Promise.all(
+        intent.tokens.map(async utteranceTokens => {
+          if (intent.name !== 'none') {
+            await enrichToken2Vec(lang, utteranceTokens, langProvider, token2vec)
+          }
+        })
+      )
+  )
+
+export const computeTfidf = (intentsWTokens): { [context: string]: TfidfOutput } => {
+  const allContexts = _.chain(intentsWTokens)
+    .flatMap(x => x.contexts)
+    .uniq()
+    .value()
+
+  const l0TfidfInput: TfidfInput = {}
+
+  const l1Tfidf: {
+    [context: string]: TfidfOutput
+  } = {}
+
+  for (const context of allContexts) {
+    const intents = intentsWTokens.filter(x => x.contexts.includes(context))
+    l0TfidfInput[context] = _.flatten(_.flatten(intents.map(x => x.tokens)))
+    const l1Input: TfidfInput = {}
+
+    for (const { name, tokens } of intents) {
+      l1Input[name] = _.flatten(tokens)
+    }
+
+    l1Tfidf[context] = tfidf(l1Input)
+  }
+
+  l1Tfidf['l0'] = tfidf(l0TfidfInput)
+  return l1Tfidf
 }

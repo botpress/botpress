@@ -12,7 +12,9 @@ import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
 import ExactMatcher from './pipelines/intents/exact_matcher'
-import SVMClassifier from './pipelines/intents/svm_classifier'
+import { predict as SVMPredictor, train as SVMTrainer } from './pipelines/intents/svm_classifier'
+import { computeTfidf, computeToken2Vec } from './pipelines/intents/tfidf'
+import { getIntentsWithTokens } from './pipelines/intents/tokens_utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
@@ -50,12 +52,14 @@ export default class ScopedEngine implements Engine {
 
   private _currentModelHash: string
   private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
-  private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
+  private intentModels: { [lang: string]: any } = {}
+  private tfIdf: { [lang: string]: any } = {}
   private readonly langIdentifier: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
+
   private scopedGenerateTrainingSequence: (
     input: string,
     lang: string,
@@ -98,7 +102,6 @@ export default class ScopedEngine implements Engine {
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
-      this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
       this.slotExtractors[lang] = new CRFExtractor(toolkit, realtime, realtimePayload)
     }
   }
@@ -208,7 +211,7 @@ export default class ScopedEngine implements Engine {
         .withPipeline(this._pipeline)
         .initFromText(text, lastMessages, includedContexts)
 
-      const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+      const nluResults = (await runner.run()) as NLUStructure
 
       res = _.pick(
         nluResults,
@@ -298,7 +301,7 @@ export default class ScopedEngine implements Engine {
         throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
       }
 
-      await this.intentClassifiers[lang].load(intentModels)
+      this.intentModels[lang] = intentModels
       await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
     }
 
@@ -343,6 +346,12 @@ export default class ScopedEngine implements Engine {
     }
   }
 
+  getContextsFromIntentDefs = (defs: sdk.NLU.IntentDefinition[]): string[] =>
+    _.chain(defs)
+      .flatMap(x => x.contexts)
+      .uniq()
+      .value()
+
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO use the same data structure to train intent and slot models
     // TODO generate single training set here and filter
@@ -352,9 +361,47 @@ export default class ScopedEngine implements Engine {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
         if (trainableIntents.length) {
-          const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
+          const intentsWTokens = await Promise.all(
+            trainableIntents.map(getIntentsWithTokens(lang, this.languageProvider))
+          )
+
+          const tfIdf = computeTfidf(intentsWTokens)
+          const token2vec = {}
+
+          /// this should rather be token2vec = comuteToken2Vec but it was too much rewrite
+          await computeToken2Vec(token2vec, intentsWTokens, lang, this.languageProvider)
+
+          const tfIdfModel = {
+            meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-tfidf' },
+            model: new Buffer(
+              JSON.stringify({
+                token2vec,
+                l0Tfidf: tfIdf['l0']['__avg__'],
+                l1Tfidf: _.chain(tfIdf)
+                  .map((tfidf, ctx) => ({ tfidf, ctx }))
+                  .reject(model => model.ctx === 'l0')
+                  .map(model => ({ [model.ctx]: model.tfidf['__avg__'] }))
+                  .reduce((a, b) => ({ ...a, ...b }), {})
+                  .value()
+              }),
+              'utf8'
+            )
+          }
+
+          const intentModels = await SVMTrainer(
+            intentsWTokens,
+            modelHash,
+            lang,
+            this.toolkit,
+            this.languageProvider,
+            tfIdf,
+            token2vec
+          )
+
+          // should slot tagger be trained / context / intent?
           const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
-          await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
+
+          await this.storage.persistModels([...slotTaggerModels, ...intentModels, tfIdfModel], lang)
         }
       } catch (err) {
         this.logger.attachError(err).error('Error training NLU model')
@@ -408,6 +455,7 @@ export default class ScopedEngine implements Engine {
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
     const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
+
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
@@ -415,20 +463,25 @@ export default class ScopedEngine implements Engine {
     }
 
     const allIntents = (await this.getIntents()) || []
-    const shouldPredict = allIntents.length && this.intentClassifiers[ds.language].isLoaded
+
+    const shouldPredict = allIntents.length && !_.isEmpty(this.intentModels[ds.language])
 
     if (!shouldPredict) {
       return ds
     }
 
-    const intents = await this.intentClassifiers[ds.language].predict(
+    const intents = await SVMPredictor(
       ds.tokens.map(t => t.cannonical),
-      ds.includedContexts
+      ds.includedContexts,
+      ds.language,
+      this.languageProvider,
+      this.intentModels[ds.language],
+      this.toolkit
     )
 
     // alter ctx with the given predictions in case where no ctx were provided
     ds.includedContexts = _.chain(intents)
-      .map(p => p.context)
+      .map(intent => intent.context)
       .uniq()
       .value()
 

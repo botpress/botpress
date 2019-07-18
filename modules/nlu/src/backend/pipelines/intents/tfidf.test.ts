@@ -1,4 +1,4 @@
-import tfidf, { TfidfInput } from './tfidf'
+import { TfidfInput, tfidf } from './tfidf'
 
 describe('TFIDF', () => {
   test('accuracy', () => {
