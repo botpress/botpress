@@ -4,7 +4,12 @@ import React from 'react'
 
 import style from '../style.scss'
 
-import { Intent, IntentDef } from './Intent'
+import { Intent } from './Intent'
+
+interface IntentDef {
+  name: string
+  confidence: number
+}
 
 interface Props {
   intent: IntentDef
@@ -23,11 +28,13 @@ export const Intents = (props: Props) => {
       {intents.length > 1 && (
         <ul>
           {intents.map(i => (
-            <Intent intent={i} elected={i.name === intent.name} />
+            <li key={i.name}>
+              <Intent name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
+            </li>
           ))}
         </ul>
       )}
-      {intents.length === 1 && <Intent intent={intent} elected={true} />}
+      {intents.length === 1 && <Intent name={intent.name} confidence={intent.confidence} elected />}
     </div>
   )
 }
