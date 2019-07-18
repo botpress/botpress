@@ -1,4 +1,4 @@
-import { makeTokens, mergeTokens } from './token-utils'
+import { makeTokens, mergeTokens, mergeSpecialCharactersTokens } from './token-utils'
 
 const SPACE = '\u2581'
 
@@ -63,7 +63,7 @@ describe('Token Merging', () => {
     const tokens = makeTokens(text.split(' ').map(t => SPACE + t), text)
 
     // act
-    const mergedTokens = mergeTokens(tokens, tok => false)
+    const mergedTokens = mergeTokens(tokens, () => false)
 
     // assert
     expect(mergedTokens).toEqual(tokens)
@@ -84,7 +84,7 @@ describe('Token Merging', () => {
     const tokens = makeTokens(text.split(' ').map(t => SPACE + t), text)
 
     // act
-    const mergedTokens = mergeTokens(tokens, tok => true)
+    const mergedTokens = mergeTokens(tokens, () => true)
 
     // assert
     expect(mergedTokens).toHaveLength(1)
@@ -94,23 +94,44 @@ describe('Token Merging', () => {
     expect(onlyToken.end).toEqual(text.length)
   })
 
-  test('Merge tokens with some predicate should return merged array', async () => {
+  test('Merge tokens numbers together and letters together should return correct matched arrays', async () => {
     // arrange
     const text = 'frlev144'
     const stringTokens = [SPACE + 'f', 'r', 'lev', '1', '4', '4']
     const tokens = makeTokens(stringTokens, text)
 
-    const numbers = '0123456789'.split('')
+    const isMergable = ({ value: t1 }: { value: string }, { value: t2 }: { value: string }) => {
+      const isNumber = t => !isNaN(t)
+      const bothAreNumbers = isNumber(t1) && isNumber(t2)
+      const noneAreNumbers = !(isNumber(t1) || isNumber(t2))
+      return bothAreNumbers || noneAreNumbers
+    }
 
     // act
-    const actualTokens = mergeTokens(tokens, tok => tok.value.length === 1 && numbers.includes(tok.value))
+    const actualTokens = mergeTokens(tokens, isMergable)
 
     // assert
-    const expectedTokens = [SPACE + 'f', 'r', 'lev144']
-    const expectedStarts = [0, 1, 2]
-    const expectedEnds = [1, 2, 8]
+    const expectedTokens = [SPACE + 'frlev', '144']
+    const expectedStarts = [0, 5]
+    const expectedEnds = [5, 8]
     expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
     expect(actualTokens.map(t => t.start)).toEqual(expectedStarts)
     expect(actualTokens.map(t => t.end)).toEqual(expectedEnds)
+  })
+
+  test('Merge special Characters with numbers should merge all consecutive numbers', async () => {
+    // arrange
+    const text = '1234vanillaIce4321'
+    const stringTokens = [SPACE + '1', '23', '4', 'vanilla', 'ice', '43', '2', '1']
+    const tokens = makeTokens(stringTokens, text)
+
+    const numbers = '0123456789'.split('')
+
+    // act
+    const actualTokens = mergeSpecialCharactersTokens(tokens, numbers)
+
+    // assert
+    const expectedTokens = [SPACE + '1234', 'vanilla', 'ice', '4321']
+    expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
   })
 })
