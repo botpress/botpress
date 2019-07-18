@@ -27,6 +27,7 @@ import { CMSService } from './cms'
 import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
+import { MigrationService } from './migration'
 import { ModuleResourceLoader } from './module/resources-loader'
 import RealtimeService from './realtime'
 import { WorkspaceService } from './workspace-service'
@@ -64,7 +65,8 @@ export class BotService {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: Statistics,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
+    @inject(TYPES.MigrationService) private migrationService: MigrationService
   ) {
     this._botIds = undefined
   }
@@ -244,7 +246,10 @@ export class BotService {
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
         await this.workspaceService.addBotRef(botId, workspaceId)
+
+        await this._migrateBotContent(botId)
         await this.mountBot(botId)
+
         this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
@@ -252,6 +257,11 @@ export class BotService {
     } finally {
       tmpDir.removeCallback()
     }
+  }
+
+  private async _migrateBotContent(botId: string): Promise<void> {
+    const config = await this.configProvider.getBotConfig(botId)
+    return this.migrationService.executeMissingBotMigrations(botId, config.version)
   }
 
   async requestStageChange(botId: string, requested_by: string) {
