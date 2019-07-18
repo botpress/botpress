@@ -5,23 +5,30 @@ title: Clustering
 
 ## Requirements
 
-- Botpress Pro License
 - Redis Server v5+
 - PostgreSQL 10+
+- Load Balancer with a public address
+- Botpress license registered with a public address
 
 ## Enable cluster
 
-To enable server clustering:
+Start Botpress on a single node with these environment variables:
 
-1. Make sure your Botpress Pro license is [activated](../pro/licensing#cluster)
-1. Enable `pro` and `redis` in your `botpress.config.json`
-1. Run Botpress in production so that BPFS uses database filesystem.
+```bash
+EXTERNAL_URL=<public_url> \
+BP_LICENSE_KEY=<license_key> \
+BP_PRODUCTION=true \
+CLUSTER_ENABLED=true \
+REDIS_URL=redis://host:port \
+DATABASE_URL=postgres://login:password@host:port/database \
+./bp
+```
 
-> 🌟 **Tip:** To make things easier when you setup the cluster, copy the initial `botpress.config.json` file to the other nodes before starting them. This way you won't have to manually register the license and setup postgres / redis on every node.
+Once the first node is started, use the same command to start Botpress on the other nodes.
 
-> ⚠️ **Important:** If you're running Botpress in dev mode, BPFS will use your local filesystem. This means that each node will use their own filesystem instead of syncing to the database. In other words, when you're running in cluster mode, make sure you run Botpress in production mode.
+> `BP_PRODUCTION=true` will sync the filesystem to the database so it can be shared across all nodes. This is why you should always run with this environment variable from now on.
 
-## Creating a Cluster on Digital Ocean
+## Digital Ocean
 
 ### Prerequisite
 
