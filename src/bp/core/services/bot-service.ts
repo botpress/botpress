@@ -430,7 +430,8 @@ export class BotService {
         const mergedConfigs = {
           ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,
-          ...botConfig
+          ...botConfig,
+          version: process.BOTPRESS_VERSION
         }
 
         if (!mergedConfigs.imports.contentTypes) {

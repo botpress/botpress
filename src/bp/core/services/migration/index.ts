@@ -14,6 +14,7 @@ import path from 'path'
 import semver from 'semver'
 
 import { container } from '../../app.inversify'
+import { GhostService } from '../ghost/service'
 
 const debug = DEBUG('migration')
 
@@ -35,7 +36,8 @@ export class MigrationService {
     @inject(TYPES.Logger)
     private logger: sdk.Logger,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.GhostService) private ghostService: GhostService
   ) {
     this.currentVersion = process.env.MIGRATION_TEST_VERSION || process.BOTPRESS_VERSION
     this.completedMigrationsDir = path.resolve(process.PROJECT_LOCATION, `data/migrations`)
@@ -133,8 +135,17 @@ export class MigrationService {
       process.exit(1)
     }
 
-    await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
+    await this.updateAllVersions()
     this.logger.info(`Migrations completed successfully! `)
+  }
+
+  private async updateAllVersions() {
+    await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
+
+    const botIds = (await this.ghostService.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    for (const botId of botIds) {
+      await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion })
+    }
   }
 
   private displayMigrationStatus(configVersion: string, missingMigrations: MigrationFile[], logger: sdk.Logger) {
