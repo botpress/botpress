@@ -30,6 +30,15 @@ By default, the Language Server is configured to get `100` dimensions for words.
 
 ## Binary
 
+Run the following command in your command line:
+
+```bash
+EXTERNAL_URL=<public_url> \
+BP_PRODUCTION=true \
+DATABASE_URL=postgres://login:password@host:port/database \
+./bp
+```
+
 ### On-Prem Hosting with Binary
 
 #### Duckling
