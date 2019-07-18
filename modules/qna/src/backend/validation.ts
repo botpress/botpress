@@ -5,11 +5,11 @@ export const QnaDefSchema = Joi.object().keys({
   category: Joi.string().required(),
   enabled: Joi.bool().required(),
   redirectFlow: Joi.string()
-    .optional()
-    .allow(''),
+    .allow(null, '')
+    .optional(),
   redirectNode: Joi.string()
-    .optional()
-    .allow(''),
+    .allow(null, '')
+    .optional(),
   questions: Joi.object()
     .pattern(/.*/, Joi.array().items(Joi.string()))
     .default({}),

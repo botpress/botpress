@@ -1,12 +1,28 @@
-import { BadRequestError, NotReadyError, UnauthorizedError } from 'core/routers/errors'
 import { Request } from 'express'
 import _ from 'lodash'
+
+import { BadRequestError, NotReadyError, UnauthorizedError } from '../core/routers/errors'
 
 import LanguageService from './service'
 
 const debugAuth = DEBUG('api:auth')
 
-export const authMiddleware = (secureToken: string) => (req, _res, next) => {
+export const isAdminToken = (req, adminToken: string) => {
+  if (!adminToken || !adminToken.length) {
+    return true
+  }
+  if (!req.headers.authorization) {
+    return false
+  }
+  const [, token] = req.headers.authorization.split(' ')
+  return token === adminToken
+}
+
+export const authMiddleware = (secureToken: string, secondToken?: string) => (req, _res, next) => {
+  if (!secureToken || !secureToken.length) {
+    return next()
+  }
+
   if (!req.headers.authorization) {
     debugAuth('Authorization header missing', { ip: req.ip })
     return next(new UnauthorizedError('Authorization header is missing'))
@@ -23,7 +39,7 @@ export const authMiddleware = (secureToken: string) => (req, _res, next) => {
     return next(new UnauthorizedError('Authentication token is missing'))
   }
 
-  if (secureToken !== token) {
+  if (secureToken !== token && secondToken != token) {
     debugAuth('Invalid token', { ip: req.ip })
     return next(new UnauthorizedError('Invalid Bearer token'))
   }

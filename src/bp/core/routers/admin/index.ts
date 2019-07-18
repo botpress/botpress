@@ -54,7 +54,7 @@ export class AdminRouter extends CustomRouter {
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider, ghostService)
-    this.languagesRouter = new LanguagesRouter(logger, moduleLoader)
+    this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService)
     this.loadUser = loadUser(this.authService)
 
     this.setupRoutes()
@@ -97,8 +97,8 @@ export class AdminRouter extends CustomRouter {
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
+    router.use('/languages', this.checkTokenHeader, this.languagesRouter.router)
     router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
     router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
-    router.use('/languages', this.checkTokenHeader, assertSuperAdmin, this.languagesRouter.router)
   }
 }

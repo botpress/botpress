@@ -6,6 +6,7 @@ import ElementsList from 'botpress/elements-list'
 import _ from 'lodash'
 import Select from 'react-select'
 import style from './style.scss'
+import QnaHint from './QnaHint'
 
 const ACTIONS = {
   TEXT: 'text',
@@ -39,6 +40,16 @@ export default class FormModal extends Component {
       isText: true,
       isRedirect: false
     }
+  }
+
+  mlRecommendations = {
+    minUtterancesForML: undefined,
+    goodUtterancesForML: undefined
+  }
+
+  async componentDidMount() {
+    const { data } = await this.props.bp.axios.get('/mod/nlu/ml-recommendations')
+    this.mlRecommendations = data
   }
 
   async componentDidUpdate(prevProps) {
@@ -243,6 +254,7 @@ export default class FormModal extends Component {
               </div>
             ) : null}
             <div className={style.qnaSection}>
+              <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
               <span className={style.qnaSectionTitle}>Questions</span>
               <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
 

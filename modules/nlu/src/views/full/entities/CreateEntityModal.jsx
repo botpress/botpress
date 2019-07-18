@@ -1,9 +1,9 @@
 import React from 'react'
 
 import Select from 'react-select'
-import { Button, Modal, FormControl } from 'react-bootstrap'
+import { Modal, FormControl } from 'react-bootstrap'
 import { sanitizeFilenameNoExt } from '../../../util'
-
+import { Button, Intent } from '@blueprintjs/core'
 const AVAILABLE_TYPES = [
   {
     label: 'List',
@@ -34,16 +34,14 @@ export default class CreateEntityModal extends React.Component {
     this.validate()
   }
 
-  handleKeyDown = e => e.key === 'Enter' && this.state.isValid && this.createEntity()
-
-  createEntity = () => {
+  createEntity = e => {
     const entity = {
       id: sanitizeFilenameNoExt(this.state.name),
       name: this.state.name,
       type: this.state.type.value,
       occurences: []
     }
-    this.props.axios.post(`/mod/nlu/entities/`, entity).then(() => {
+    this.props.api.createEntity(entity).then(() => {
       this.setState({ ...DEFAULT_STATE })
       this.props.onEntityCreated(entity)
       this.props.hide()
@@ -69,7 +67,6 @@ export default class CreateEntityModal extends React.Component {
             placeholder="Name"
             value={this.state.name}
             onChange={this.handleNameChange}
-            onKeyDown={this.handleKeyDown}
           />
 
           <h4>Type</h4>
@@ -82,7 +79,7 @@ export default class CreateEntityModal extends React.Component {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button tabIndex="3" bsStyle="primary" disabled={!this.state.isValid} onClick={this.createEntity}>
+          <Button tabIndex="3" intent={Intent.PRIMARY} disabled={!this.state.isValid} onClick={this.createEntity}>
             Create Entity
           </Button>
         </Modal.Footer>

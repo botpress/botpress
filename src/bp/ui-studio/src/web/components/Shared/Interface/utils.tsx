@@ -24,6 +24,7 @@ const renderMenuItem = element => {
       key={element.label}
       text={element.label}
       icon={element.icon}
+      disabled={element.disabled}
       onClick={e => !element.disabled && element.onClick && element.onClick(e)}
     >
       {element.items && buildMenuItems(element.items)}

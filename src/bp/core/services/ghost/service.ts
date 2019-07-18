@@ -19,7 +19,7 @@ import { PendingRevisions, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-const MAX_GHOST_FILE_SIZE = asBytes('20mb')
+const MAX_GHOST_FILE_SIZE = asBytes('100mb')
 
 @injectable()
 export class GhostService {
@@ -72,11 +72,14 @@ export class GhostService {
       this.logger
     )
 
-    process.BOTPRESS_EVENTS.on('after_bot_unmount', args => {
-      if (args.botId === botId) {
+    const listenForUnmount = args => {
+      if (args && args.botId === botId) {
         scopedGhost.events.removeAllListeners()
+      } else {
+        process.BOTPRESS_EVENTS.once('after_bot_unmount', listenForUnmount)
       }
-    })
+    }
+    listenForUnmount({})
 
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
@@ -182,7 +185,7 @@ export class ScopedGhostService {
     const fileName = this._normalizeFileName(rootFolder, file)
 
     if (content.length > MAX_GHOST_FILE_SIZE) {
-      throw new Error(`The size of the file ${fileName} is over the 20mb limit`)
+      throw new Error(`The size of the file ${fileName} is over the 100mb limit`)
     }
 
     await this.primaryDriver.upsertFile(fileName, content, recordRevision)

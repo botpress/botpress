@@ -24,17 +24,18 @@ export class FastTextLanguageId implements LanguageIdentifier {
     FastTextLanguageId.model = ft
   }
 
-  async identify(text: string): Promise<string> {
+  async identify(text: string): Promise<sdk.MLToolkit.FastText.PredictResult[]> {
     if (!FastTextLanguageId.model) {
       await FastTextLanguageId.initializeModel()
     }
 
     if (!FastTextLanguageId.model) {
-      return 'n/a'
+      return []
     }
 
-    const res = await FastTextLanguageId.model.predict(text, 1)
-
-    return res.length ? res[0].label.replace('__label__', '') : 'n/a'
+    return (await FastTextLanguageId.model.predict(text, 3)).map(pred => ({
+      ...pred,
+      label: pred.label.replace('__label__', '')
+    }))
   }
 }

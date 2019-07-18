@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser'
-import { BadRequestError } from 'core/routers/errors'
 import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
@@ -7,15 +6,18 @@ import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
 
+import { BadRequestError } from '../core/routers/errors'
+
+import { LangServerLogger } from './logger'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 import {
   assertValidLanguage,
   authMiddleware,
-  disabledReadonlyMiddleware,
   handleErrorLogging,
   handleUnexpectedError,
+  isAdminToken,
   RequestWithLang,
   serviceLoadingMiddleware
 } from './util'
@@ -26,7 +28,7 @@ export type APIOptions = {
   authToken?: string
   limitWindow: string
   limit: number
-  readOnly: boolean
+  adminToken: string
 }
 
 const debug = DEBUG('api')
@@ -36,7 +38,10 @@ const cachePolicy = { 'Cache-Control': `max-age=${ms('1d')}` }
 const createExpressApp = (options: APIOptions): Application => {
   const app = express()
 
-  app.use(bodyParser.json({ limit: '1kb' }))
+  // This must be first, otherwise the /info endpoint can't be called when token is used
+  app.use(cors())
+
+  app.use(bodyParser.json({ limit: '250kb' }))
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
@@ -62,7 +67,8 @@ const createExpressApp = (options: APIOptions): Application => {
   }
 
   if (options.authToken && options.authToken.length) {
-    app.use(authMiddleware(options.authToken))
+    // Both tokens can be used to query the language server
+    app.use(authMiddleware(options.authToken, options.adminToken))
   }
 
   return app
@@ -70,13 +76,11 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions, languageService: LanguageService, downloadManager: DownloadManager) {
   const app = createExpressApp(options)
-
-  // TODO we might want to set a special cors
-  app.use(cors())
+  const logger = new LangServerLogger('API')
 
   const waitForServiceMw = serviceLoadingMiddleware(languageService)
   const validateLanguageMw = assertValidLanguage(languageService)
-  const readOnlyMw = disabledReadonlyMiddleware(options.readOnly)
+  const adminTokenMw = authMiddleware(options.adminToken)
 
   app.get('/info', (req, res) => {
     res.send({
@@ -84,23 +88,28 @@ export default async function(options: APIOptions, languageService: LanguageServ
       ready: languageService.isReady,
       dimentions: languageService.dim,
       domain: languageService.domain,
-      readOnly: options.readOnly,
+      readOnly: !isAdminToken(req, options.adminToken),
       languages: languageService.getModels().filter(x => x.loaded) // TODO remove this from info and make clients use /languages route
     })
   })
 
   app.post('/tokenize', waitForServiceMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
-      const input = req.body.input
+      const utterances = req.body.utterances
       const language = req.language!
 
-      if (!input || !_.isString(input)) {
-        throw new BadRequestError('Param `input` is mandatory (must be a string)')
+      if (!utterances || !_.isArray(utterances) || !utterances.length) {
+        // For backward cpompatibility with Botpress 12.0.0 - 12.0.2
+        const singleInput = req.body.input
+        if (!singleInput || !_.isString(singleInput)) {
+          throw new BadRequestError('Param `utterances` is mandatory (must be an array of string)')
+        }
+        const tokens = await languageService.tokenize([singleInput], language)
+        res.set(cachePolicy).json({ input: singleInput, language, tokens: tokens[0] })
+      } else {
+        const tokens = await languageService.tokenize(utterances, language)
+        res.set(cachePolicy).json({ utterances, language, tokens })
       }
-
-      const tokens = await languageService.tokenize(input, language)
-
-      res.set(cachePolicy).json({ input, language, tokens })
     } catch (err) {
       next(err)
     }
@@ -141,7 +150,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     })
   })
 
-  router.post('/:lang', readOnlyMw, async (req, res) => {
+  router.post('/:lang', adminTokenMw, async (req, res) => {
     const { lang } = req.params
     try {
       const downloadId = await downloadManager.download(lang)
@@ -151,12 +160,12 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.delete('/:lang', readOnlyMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
+  router.delete('/:lang', adminTokenMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     await languageService.remove(req.language!)
     res.sendStatus(200)
   })
 
-  router.post('/:lang/load', readOnlyMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
+  router.post('/:lang/load', adminTokenMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
     try {
       await languageService.loadModel(req.language!)
       res.sendStatus(200)
@@ -165,7 +174,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.post('/cancel/:id', readOnlyMw, (req, res) => {
+  router.post('/cancel/:id', adminTokenMw, (req, res) => {
     const { id } = req.params
     downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
@@ -181,7 +190,7 @@ export default async function(options: APIOptions, languageService: LanguageServ
     httpServer.listen(options.port, hostname, undefined, callback)
   })
 
-  console.log(`Language Server is ready at http://${options.host}:${options.port}/`)
+  logger.info(`Language Server is ready at http://${options.host}:${options.port}/`)
 
   if (process.env.MONITORING_INTERVAL) {
     startMonitoring()

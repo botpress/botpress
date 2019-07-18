@@ -88,14 +88,18 @@ class ActionItem extends Component {
       return '{' + stripDots(x) + '}'
     })
 
+    const className = classnames(style.name, {
+      [style.missingTranslation]: preview && preview.startsWith('(missing translation) ')
+    })
+
     const mustached = restoreDots(Mustache.render(htmlTpl, vars))
 
     const html = { __html: mustached }
 
     return (
-      <div className={classnames(this.props.className, style['action-item'], style['msg'])}>
+      <div className={classnames(this.props.className, style['action-item'], style.msg)}>
         <span className={style.icon}>💬</span>
-        <span className={style.name} dangerouslySetInnerHTML={html} />
+        <span className={className} dangerouslySetInnerHTML={html} />
         {this.props.children}
       </div>
     )

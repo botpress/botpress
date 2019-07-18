@@ -1,5 +1,37 @@
 $status-bar-height: 24px;
 
+.container {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - #{$status-bar-height});
+  width: 100%;
+}
+
+.headerTabs {
+  :global(.bp3-tab-list) {
+    background: #fefefe;
+    border-bottom: 1px solid #eee;
+  }
+
+  :global(.bp3-tab-indicator-wrapper) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.bp3-tab-panel) {
+    margin-top: 5px;
+  }
+
+  :global(.bp3-tab) {
+    padding: 2px 8px;
+    border-right: 1px solid #eee;
+  }
+
+  :global(.bp3-tab-list > *:not(:last-child)) {
+    margin-right: 0;
+  }
+}
+
 .workspace {
   width: 100%;
   height: calc(100vh - #{$status-bar-height});
@@ -120,58 +152,6 @@ $status-bar-height: 24px;
   }
 }
 
-.intentsContainer {
-  height: 100%;
-}
-
-.intentsList {
-  max-height: calc(100% - #{$status-bar-height});
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #888;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-}
-
-.childContent {
-  flex: 1 1 auto;
-  position: relative;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-.caret {
-  margin-left: 5px;
-  display: inline-block;
-  cursor: pointer;
-  padding: 0px 6px 0 3px;
-
-  &:hover {
-    background: #e9e9e9;
-  }
-
-  &.inverted :global(.caret) {
-    transform: rotate(180deg);
-  }
-}
-
-.deleteIntent {
-  float: right;
-  display: none;
-}
-
 .deleteEntity {
   float: right;
   display: none;
@@ -201,30 +181,4 @@ $status-bar-height: 24px;
 .synonym {
   width: 30%;
   display: none;
-}
-
-.loading {
-  font-size: 30px;
-}
-
-.loading:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
-  animation: ellipsis steps(4, end) 900ms infinite;
-  content: '\2026'; /* ascii code for the ellipsis character */
-  width: 0px;
-}
-
-@keyframes ellipsis {
-  to {
-    width: 1.25em;
-  }
-}
-
-@-webkit-keyframes ellipsis {
-  to {
-    width: 1.25em;
-  }
 }

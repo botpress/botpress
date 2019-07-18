@@ -42,7 +42,19 @@ if (event.type === 'proactive-trigger') {
 
 > **Tip**: Use `event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)` to tell the dialog engine to skip the event processing. This is useful when your event is not a user message.
 
+## Webchat events
+
+There's currently 3 events that can be catched in your page :
+
+| name            | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| `webchatLoaded` | Triggered when the webchat is loaded and ready to be opened |
+| `webchatOpened` | Triggered when the webchat button bubble is clicked         |
+| `webchatClosed` | Triggered when the webchat close button is clicked          |
+
 ## Common use cases
+
+Here are some examples of how can you use webchat events in your page.
 
 ### Send message on page load
 
@@ -81,9 +93,9 @@ Use this code in your `index.html`:
 </html>
 ```
 
-### Send message on chat widget click
+### Send message when the webchat is loaded
 
-This will send an event only when the user clicks on the chat widget.
+This will send an event when the webchat is loaded and ready to be opened.
 
 Use this code in your `index.html`:
 
@@ -106,23 +118,53 @@ Use this code in your `index.html`:
       botId: 'welcome-bot'
     })
 
-    function sendMessageOnClick() {
-      const iframe = document.querySelector('#bp-widget')
-      const widget = iframe.contentWindow.document.getElementsByTagName('button')[0]
-
-      widget.addEventListener('click', function() {
+    window.addEventListener('message', function(event) {
+      if (event.data.name === 'webchatLoaded') {
         window.botpressWebChat.sendEvent({
           type: 'proactive-trigger',
           channel: 'web',
           payload: { text: 'fake message' }
         })
-      })
-    }
+      }
+    })
+  </script>
+</html>
+```
 
-    // Make sure the widget is loaded
-    setTimeout(function() {
-      sendMessageOnClick()
-    }, 1500)
+### Send message when openning webchat
+
+This will send an event when the webchat button bubble is clicked
+
+Use this code in your `index.html`:
+
+```html
+<html>
+  <head>
+    <title>Embedded Webchat</title>
+    <script src="/assets/modules/channel-web/inject.js"></script>
+  </head>
+
+  <body>
+    This is an example of embedded webchat
+  </body>
+
+  <script>
+    // Initialize the chat widget
+    // Change the `botId` with the Id of the bot that should respond to the chat
+    window.botpressWebChat.init({
+      host: 'http://localhost:3000',
+      botId: 'welcome-bot'
+    })
+
+    window.addEventListener('message', function(event) {
+      if (event.data.name === 'webchatOpened') {
+        window.botpressWebChat.sendEvent({
+          type: 'proactive-trigger',
+          channel: 'web',
+          payload: { text: 'fake message' }
+        })
+      }
+    })
   </script>
 </html>
 ```
