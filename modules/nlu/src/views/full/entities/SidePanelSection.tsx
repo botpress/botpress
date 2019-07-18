@@ -1,8 +1,8 @@
-import { Icon } from '@blueprintjs/core'
+import { Button, Classes, Icon } from '@blueprintjs/core'
 import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
-import { CurrentItem } from 'full'
+import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
 
 import CreateEntityModal from './CreateEntityModal'
@@ -10,8 +10,8 @@ import CreateEntityModal from './CreateEntityModal'
 interface Props {
   api: NLUAPI
   entities: NLU.EntityDefinition[]
-  currentItem: CurrentItem
-  setCurrentItem: (x: CurrentItem) => void
+  currentItem: NluItem
+  setCurrentItem: (x: NluItem) => void
   reloadEntities: () => void
 }
 
@@ -29,14 +29,6 @@ export const EntitySidePanelSection: FC<Props> = props => {
       props.api.deleteEntity(entity.id).then(props.reloadEntities)
     }
   }
-
-  const entityActions: SectionAction[] = [
-    {
-      icon: <Icon icon="add" />,
-      onClick: () => setShowEntityModal(!showEntityModal),
-      tooltip: 'Create new entity'
-    }
-  ]
 
   const entityItems = props.entities
     .filter(entity => !entitiesFilter || entity.name.includes(entitiesFilter))
@@ -65,20 +57,24 @@ export const EntitySidePanelSection: FC<Props> = props => {
   }
 
   return (
-    <React.Fragment>
-      <SidePanelSection label="Entities" actions={entityActions}>
-        <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
-        <ItemList
-          items={entityItems}
-          onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}
-        />
-      </SidePanelSection>
+    <div>
+      <Button
+        className={Classes.MINIMAL}
+        icon="new-object"
+        text="New entity"
+        onClick={() => setShowEntityModal(!showEntityModal)}
+      />
+      <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
+      <ItemList
+        items={entityItems}
+        onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}
+      />
       <CreateEntityModal
         api={props.api}
         onEntityCreated={entityCreated}
         visible={showEntityModal}
         hide={() => setShowEntityModal(false)}
       />
-    </React.Fragment>
+    </div>
   )
 }

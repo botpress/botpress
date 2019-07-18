@@ -32,7 +32,7 @@ const _generateTrainingTokens = languageProvider => async (
 
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
-  const rawToks = await languageProvider.tokenize(input.toLowerCase(), lang)
+  const [rawToks] = await languageProvider.tokenize([input.toLowerCase()], lang)
   return makeTokens(rawToks, input).map((t, idx) => {
     const tok = {
       ...t,

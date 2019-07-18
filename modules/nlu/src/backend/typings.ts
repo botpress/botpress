@@ -101,15 +101,16 @@ export interface Gateway {
   errors: number
   disabledUntil?: Date
 }
-[]
+;[]
 
 export interface LangsGateway {
   [lang: string]: Gateway[]
 }
 
 export interface LanguageProvider {
+  primeLanguageCaches(intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<void>
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(text: string, lang: string): Promise<string[]>
+  tokenize(utterances: string[], lang: string): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<NLUHealth>
 }

@@ -95,7 +95,7 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService
   ) {
-    this.version = '12.0.0'
+    this.version = '12.0.1'
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
   }

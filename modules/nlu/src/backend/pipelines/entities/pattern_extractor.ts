@@ -37,10 +37,9 @@ export default class PatternExtractor {
     occurence: sdk.NLU.EntityDefOccurence,
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
-    const values = await Promise.all(
-      [occurence.name, ...occurence.synonyms].map(async x =>
-        (await this.languageProvider.tokenize(x.toLowerCase(), ds.language)).filter(t => t.length)
-      )
+    const texts = [occurence.name, ...occurence.synonyms]
+    const values = (await this.languageProvider.tokenize(texts.map(x => x.toLowerCase()), ds.language)).filter(
+      x => x.length
     )
 
     const findings: sdk.NLU.Entity[] = []
@@ -155,7 +154,7 @@ export default class PatternExtractor {
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
     return flatMap(entityDefs, entityDef => {
       try {
-        const regex = new RegExp(entityDef.pattern!)
+        const regex = new RegExp(entityDef.pattern!, 'i')
         return extractPattern(input, regex).map(res => ({
           name: entityDef.name,
           type: entityDef.type, // pattern

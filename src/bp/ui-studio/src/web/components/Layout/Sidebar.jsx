@@ -105,7 +105,7 @@ class Sidebar extends React.Component {
     return (
       <aside style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '8px 13px' }}>
+          <div style={{ padding: '8px 13px', overflowX: 'hidden' }}>
             <a href="/" className={classnames(style.logo, 'bp-logo')}>
               <img width="125" src="/assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
             </a>

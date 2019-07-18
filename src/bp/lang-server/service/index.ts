@@ -213,13 +213,17 @@ export default class LanguageService {
     return val
   }
 
-  async tokenize(input: string, lang: string): Promise<string[]> {
+  async tokenize(utterances: string[], lang: string): Promise<string[][]> {
     const { fastTextModel, bpeModel } = this._models[lang] as ModelSet
     if (!fastTextModel || !fastTextModel.loaded) {
       throw new Error(`FastText Model for lang '${lang}' is not loaded in memory`)
     }
 
-    return await (bpeModel as LoadedBPEModel).tokenizer.encode(input).map(_.toLower)
+    return Promise.resolve(
+      utterances.map(utterance => {
+        return (bpeModel as LoadedBPEModel).tokenizer.encode(utterance).map(_.toLower)
+      })
+    )
   }
 
   async vectorize(tokens: string[], lang: string): Promise<number[][]> {

@@ -6,6 +6,7 @@ interface CssExports {
   'empty': string;
   'experimental': string;
   'link': string;
+  'logo': string;
   'mainMenu': string;
   'mainMenu__item': string;
   'mainMenu__link': string;
