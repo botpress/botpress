@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { Token } from '../typings'
 
 export const makeTokens = (stringTokens: string[], text: string) => {
@@ -23,4 +24,27 @@ const reduceTokens = (text: string) => (currentTokens: Token[], token: string) =
   } as Token
 
   return currentTokens.concat(newToken)
+}
+
+export const mergeTokens: (toks: Token[], isMergable: (tok: Token) => boolean) => Token[] = (
+  toks: Token[],
+  isMergable: (tok: Token) => boolean
+) => {
+  return toks.reduce(
+    (acc: Token[], currentToken: Token, idx: number) => {
+      if (idx > 0 && isMergable(currentToken)) {
+        const previousToken = _.last(acc)
+        const newToken = {
+          value: previousToken!.value + currentToken.value,
+          cannonical: previousToken!.cannonical + currentToken.cannonical,
+          start: previousToken!.start,
+          end: currentToken.end,
+          matchedEntities: []
+        }
+        return _.dropRight(acc).concat(newToken)
+      }
+      return acc.concat(currentToken)
+    },
+    [] as Token[]
+  )
 }
