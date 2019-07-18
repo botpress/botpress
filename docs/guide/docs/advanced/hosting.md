@@ -144,6 +144,15 @@ bash -c "./duckling & ./bp lang --dim 300 --langDir /botpress/data/embeddings & 
 1. Download the `bpe` and `embeddings` files corresponding to your languages. For instance, for french, download the `bp.fr.bpe.model` file located under `remoteUrl` and the `bp.fr.300.bin` also located under `remoteUrl`.
 1. Once the files are downloaded, place them under the `/botpress/data/embeddings/` folder of your container.
 
+| Abbreviation | Language   |
+| ------------ | ---------- |
+| ar           | Arabic     |
+| en           | English    |
+| fr           | French     |
+| ja           | Japanese   |
+| pt           | Portuguese |
+| ru           | Russian    |
+
 > **Note**: `300` is the number of dimensions the model has. More dimensions means the model size is bigger. You can choose a lighter model if your server specs are limited, but keep in mind that you need to change the `--dim` parameter when you start the Language Server (e.g. `./bp lang --dim <number>`).
 
 ## Heroku
