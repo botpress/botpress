@@ -3,9 +3,8 @@ import _ from 'lodash'
 
 import { makeTokens } from '../../tools/make-tokens'
 import { allInRange } from '../../tools/math'
-import { LanguageProvider } from '../../typings'
+import { LanguageProvider, KnownSlot, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
-import { sanitize } from '../language/sanitizer'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 const ITTERATIVE_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
@@ -16,6 +15,36 @@ export function keepEntityTypes(text: string): string {
 
 export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
+}
+
+export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinition[]): KnownSlot[] {
+  const slots = [] as KnownSlot[]
+
+  let regResult: RegExpExecArray | null
+  let cursor = 0
+  do {
+    const textCpy = text.substring(cursor)
+    regResult = ITTERATIVE_SLOTS_REGEX.exec(textCpy)
+    if (regResult) {
+      const rawMatch = regResult[0]
+      const source = regResult[1] as string
+      const slotName = regResult[2] as string
+
+      const previousSlot = _.last(slots)
+      const start = (previousSlot ? previousSlot.end : 0) + regResult.index
+      const end = start + source.length
+
+      cursor = start + rawMatch.length
+
+      const slotDef = slotDefinitions.find(sd => sd.name === slotName)
+
+      if (slotDef) {
+        slots.push({ ...slotDef, start, end, source })
+      }
+    }
+  } while (regResult)
+
+  return slots
 }
 
 // TODO use the same algorithm as in the prediction sequence
@@ -36,14 +65,13 @@ const _generateTrainingTokens = languageProvider => async (
   return makeTokens(rawToks, input).map((t, idx) => {
     const tok = {
       ...t,
+      start: start + t.start,
+      end: start + t.end,
       matchedEntities,
       tag: tagToken(idx),
-      start,
-      end: start + t.value.length,
       slot
     } as Token
 
-    start += t.value.length
     return tok
   })
 }
@@ -78,36 +106,34 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   slotDefinitions: sdk.NLU.SlotDefinition[],
   intentName: string = '',
   contexts: string[] = []
-): Promise<Sequence> => {
+): Promise<TrainingSequence> => {
   let tokens: Token[] = []
-  let matches: RegExpExecArray | null
   const genToken = _generateTrainingTokens(langProvider)
   const cannonical = keepEntityValues(input)
-  let inputCopy = input
+  const knownSlots = getKnownSlots(input, slotDefinitions)
 
-  do {
-    matches = ITTERATIVE_SLOTS_REGEX.exec(inputCopy)
+  // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
+  for (const slot of knownSlots) {
+    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+    const sub = cannonical.substring(start, slot.start - 1)
+    const tokensBeforeSlot = await genToken(sub, lang, start)
 
-    if (matches) {
-      const sub = inputCopy.substr(0, matches.index - 1)
-      const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
-      const tokensBeforeSlot = await genToken(sub, lang, start)
+    const slotTokens = await genToken(slot.source, lang, slot.start, slot.name, slotDefinitions)
 
-      const slotTokens = await genToken(matches[1], lang, start + matches.index, matches[2], slotDefinitions)
+    tokens = [...tokens, ...tokensBeforeSlot, ...slotTokens]
+  }
 
-      tokens = [...tokens, ...tokensBeforeSlot, ...slotTokens]
-      inputCopy = inputCopy.substr(matches.index + matches[0].length).trim()
-    }
-  } while (matches)
-
-  if (inputCopy.length) {
-    tokens = [...tokens, ...(await genToken(inputCopy, lang, _.isEmpty(tokens) ? 0 : _.last(tokens)!.end))]
+  const lastSlot = _.maxBy(knownSlots, ks => ks.end)
+  if (lastSlot && lastSlot!.end < cannonical.length) {
+    const sup: string = cannonical.substring(lastSlot!.end)
+    tokens = [...tokens, ...(await genToken(sup, lang, _.isEmpty(tokens) ? 0 : _.last(tokens)!.end))]
   }
 
   return {
     intent: intentName,
     cannonical,
     tokens,
-    contexts
+    contexts,
+    knownSlots
   }
 }
