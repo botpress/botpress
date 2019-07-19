@@ -63,9 +63,8 @@ export class MigrationService {
 
     if (!process.AUTO_MIGRATE) {
       await this.logger.error(
-        `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
+        `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate". If you're running in production, pull your data before running Botpress with --auto-migrate.`
       )
-      process.exit(1)
     }
 
     await this.execute()
