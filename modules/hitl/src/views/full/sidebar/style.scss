@@ -30,9 +30,28 @@
       top: 18px;
       left: 24px;
     }
+    .textfilter {
+      position: absolute;
+      width: 80%;
+      top: 18px;
+      left: 10px;
+    }
 
     .filter:hover {
       cursor: pointer;
+    }
+
+    .icon_right {
+      left: 60px;
+    }
+
+    .text_right {
+      left: 280px;
+      top: 23px;
+    }
+    .cancel_right {
+      left: 310px;
+      top: 23px;
     }
   }
 

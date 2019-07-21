@@ -238,4 +238,18 @@ export default class HitlDb {
       .select('*')
       .then(messages => _.orderBy(messages, ['id'], ['asc']))
   }
+
+  searchMessages(content) {
+    let search_term = content
+
+    return this.knex('hitl_sessions')
+      .where('full_name', 'like', `%${search_term}%`)
+      .orderBy('last_heard_on')
+      .limit(100)
+      .select('*')
+      .then(results => ({
+        total: 0,
+        sessions: results
+      }))
+  }
 }
