@@ -1,4 +1,4 @@
-import { makeTokens, mergeTokens, mergeSpecialCharactersTokens } from './token-utils'
+import { makeTokens, mergeSpecialCharactersTokens } from './token-utils'
 
 const SPACE = '\u2581'
 
@@ -47,78 +47,6 @@ describe('Tokens generation', () => {
 })
 
 describe('Token Merging', () => {
-  test('Merge tokens with false predicate should return original array', async () => {
-    // arrange
-    const text = (
-      "I don't want to be" +
-      " Anything other than what I've been tryna be lately" +
-      ' All I have to do' +
-      ' Is think of me and I have peace of mind' +
-      " I'm tired of looking 'round rooms" +
-      " Wondering what I've got to do" +
-      " Or who I'm supposed to be" +
-      " I don't want to be anything other than me"
-    ).toLowerCase()
-
-    const tokens = makeTokens(text.split(' ').map(t => SPACE + t), text)
-
-    // act
-    const mergedTokens = mergeTokens(tokens, () => false)
-
-    // assert
-    expect(mergedTokens).toEqual(tokens)
-  })
-
-  test('Merge tokens with true predicate should return array of single element', async () => {
-    // arrange
-    const text = (
-      'Que tout ceux qui sont dans la vibe' +
-      ' Lèvent le doigt' +
-      ' Que toutes celles qui sont dans la vibe' +
-      ' Lèvent le doigt' +
-      ' Que ceux qui sont assis se lèvent' +
-      ' Suivent le pas' +
-      ' Allez maintenant on y va'
-    ).toLowerCase()
-
-    const tokens = makeTokens(text.split(' ').map(t => SPACE + t), text)
-
-    // act
-    const mergedTokens = mergeTokens(tokens, () => true)
-
-    // assert
-    expect(mergedTokens).toHaveLength(1)
-
-    const onlyToken = mergedTokens[0]
-    expect(onlyToken.start).toEqual(0)
-    expect(onlyToken.end).toEqual(text.length)
-  })
-
-  test('Merge tokens numbers together and letters together should return correct matched arrays', async () => {
-    // arrange
-    const text = 'frlev144'
-    const stringTokens = [SPACE + 'f', 'r', 'lev', '1', '4', '4']
-    const tokens = makeTokens(stringTokens, text)
-
-    const isMergable = ({ value: t1 }: { value: string }, { value: t2 }: { value: string }) => {
-      const isNumber = t => !isNaN(t)
-      const bothAreNumbers = isNumber(t1) && isNumber(t2)
-      const noneAreNumbers = !(isNumber(t1) || isNumber(t2))
-      return bothAreNumbers || noneAreNumbers
-    }
-
-    // act
-    const actualTokens = mergeTokens(tokens, isMergable)
-
-    // assert
-    const expectedTokens = [SPACE + 'frlev', '144']
-    const expectedStarts = [0, 5]
-    const expectedEnds = [5, 8]
-    expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
-    expect(actualTokens.map(t => t.start)).toEqual(expectedStarts)
-    expect(actualTokens.map(t => t.end)).toEqual(expectedEnds)
-  })
-
   test('Merge special Characters with numbers should merge all consecutive numbers', async () => {
     // arrange
     const text = '1234vanillaIce4321'
@@ -132,6 +60,21 @@ describe('Token Merging', () => {
 
     // assert
     const expectedTokens = [SPACE + '1234', 'vanilla', 'ice', '4321']
+    expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
+  })
+
+  test('Merge special Characters with pipes should merge all consecutive pipes', async () => {
+    // arrange
+    const text = '|||yes|||yes|||yes|||'
+    const base = ['yes', '|', '|', '|']
+    const stringTokens = [SPACE + '|', '|', '|', ...base, ...base, ...base]
+    const tokens = makeTokens(stringTokens, text)
+
+    // act
+    const actualTokens = mergeSpecialCharactersTokens(tokens, ['|'])
+
+    // assert
+    const expectedTokens = [SPACE + '|||', 'yes', '|||', 'yes', '|||', 'yes', '|||']
     expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
   })
 })
