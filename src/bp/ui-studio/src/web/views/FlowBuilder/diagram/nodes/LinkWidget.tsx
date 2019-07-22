@@ -1,14 +1,17 @@
-import React, { Component } from 'react'
-import { DefaultLinkWidget, LinkFactory, PointModel } from 'storm-react-diagrams'
+import React from 'react'
+import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, PointModel } from 'storm-react-diagrams'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
-  addPointToLink = (event, index) => {
+  addPointToLink = (event: MouseEvent, index: number): void => {
+    if (!this.props.diagramEngine['enableLinkPoints']) {
+      return
+    }
+
     if (
-      event.type === 'contextmenu' &&
+      !event.shiftKey &&
       !this.props.diagramEngine.isModelLocked(this.props.link) &&
       this.props.link.points.length - 1 <= this.props.diagramEngine.getMaxNumberPointsPerLink()
     ) {
-      event.preventDefault()
       const point = new PointModel(this.props.link, this.props.diagramEngine.getRelativeMousePoint(event))
       point.setSelected(true)
       this.forceUpdate()
@@ -17,16 +20,16 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     }
   }
 
-  generateLink(extraProps, id) {
-    const { link, width, color, diagramEngine } = this.props
-    const index = extraProps['data-point'] || 0
+  generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
+    const { link, width, color } = this.props
 
     const Bottom = (
       <path
-        className={this.state.selected || link.isSelected() ? 'selected' : ''}
+        className={this.state.selected || link.isSelected() ? this.bem('--path-selected') : ''}
         strokeWidth={width}
         stroke={color}
         ref={path => path && this.refPaths && this.refPaths.push(path)}
+        d={path}
         {...extraProps}
       />
     )
@@ -40,7 +43,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}
         strokeWidth={20}
-        onContextMenu={event => this.addPointToLink(event, index + 1)}
+        d={path}
         {...extraProps}
       />
     )
@@ -54,12 +57,16 @@ class DeletableLinkWidget extends DefaultLinkWidget {
   }
 }
 
-export class DeletableLinkFactory extends LinkFactory {
+export class DeletableLinkFactory extends AbstractLinkFactory {
   constructor() {
     super('default')
   }
 
   generateReactWidget(diagramEngine, link) {
-    return React.createElement(DeletableLinkWidget, { link, diagramEngine })
+    return <DeletableLinkWidget link={link} diagramEngine={diagramEngine} />
+  }
+
+  getNewInstance() {
+    return new DefaultLinkModel()
   }
 }

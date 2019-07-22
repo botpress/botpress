@@ -1,22 +1,20 @@
-import React, { Component } from 'react'
-import { Button, Label } from 'react-bootstrap'
-
-import ReactDOM from 'react-dom'
+import { ContextMenu, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { DiagramWidget, DiagramEngine, DiagramModel, LinkModel, PointModel } from 'storm-react-diagrams'
+import React, { Component } from 'react'
+import { Button, Label } from 'react-bootstrap'
+import ReactDOM from 'react-dom'
 import { toast } from 'react-toastify'
-
+import { DiagramEngine, DiagramModel, DiagramWidget, LinkModel, NodeModel, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
-import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
-import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
+import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
+import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
+import style from './style.scss'
 
-const style = require('./style.scss')
-
-const passThroughNodeProps = ['name', 'onEnter', 'onReceive', 'next', 'skill']
-const PADDING = 100
+const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
+const PADDING: number = 100
 
 const createNodeModel = (node, props) => {
   if (node.type && node.type === 'skill-call') {
@@ -26,21 +24,24 @@ const createNodeModel = (node, props) => {
   }
 }
 
-export default class FlowBuilder extends Component {
-  highlightedNodeName = undefined
+export default class FlowBuilder extends Component<Props> {
+  private diagramEngine: ExtendedDiagramEngine
+  private activeModel: ExtendedDiagramModel
+  private diagramWidget: DiagramWidget
+  private diagramContainer: HTMLDivElement
+  private highlightedNodeName?: string
 
   constructor(props) {
     super(props)
-    this.state = {}
 
     this.diagramEngine = new DiagramEngine()
-
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     this.setModel()
 
+    // @ts-ignore
     window.highlightNode = (flow, node) => {
       this.highlightedNodeName = node
 
@@ -62,6 +63,37 @@ export default class FlowBuilder extends Component {
     }
   }
 
+  handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault()
+
+    const element = this.diagramWidget.getMouseElement(event)
+    const model = element && element.model
+
+    ContextMenu.show(
+      <Menu>
+        {model && model instanceof NodeModel && (
+          <MenuItem
+            icon="minimize"
+            text="Disconnect Node"
+            onClick={() => {
+              this._disconnectPorts(model)
+              this.checkForLinksUpdate()
+            }}
+          />
+        )}
+        <MenuItem
+          icon="new-link"
+          text="Toggle Link Points"
+          onClick={() => {
+            this.diagramEngine.enableLinkPoints = !this.diagramEngine.enableLinkPoints
+          }}
+        />
+        <MenuDivider />
+      </Menu>,
+      { left: event.clientX, top: event.clientY }
+    )
+  }
+
   async checkForNodeSearch() {
     const { hash } = window.location
     const searchCmd = '#search:'
@@ -75,23 +107,17 @@ export default class FlowBuilder extends Component {
 
   checkForProblems() {
     const nodes = this.activeModel.getNodes()
-    const nodesWithProblems = Object.keys(nodes)
+    const nodesWithProblems: NodeProblem[] = Object.keys(nodes)
       .map(node => ({
-        nodeName: nodes[node].name,
-        missingPorts: nodes[node].next.filter(n => n.node === '').length
+        nodeName: (nodes[node] as BpNodeModel).name,
+        missingPorts: (nodes[node] as BpNodeModel).next.filter(n => n.node === '').length
       }))
       .filter(x => x.missingPorts > 0)
 
     this.props.updateFlowProblems(nodesWithProblems)
   }
 
-  setTranslation(x = 0, y = 0) {
-    this.activeModel.setOffset(x, y)
-    this.diagramWidget.fireAction()
-    this.diagramWidget.forceUpdate()
-  }
-
-  createFlow(name) {
+  createFlow(name: string) {
     this.props.createFlow(name + '.flow.json')
   }
 
@@ -106,7 +132,6 @@ export default class FlowBuilder extends Component {
       return
     }
 
-    let centeredElement
     const nodes = currentFlow.nodes.map(node => {
       const model = createNodeModel(node, {
         ...node,
@@ -116,31 +141,25 @@ export default class FlowBuilder extends Component {
       model.x = model.oldX = node.x
       model.y = model.oldY = node.y
 
-      if (this.highlightedNodeName === node.name) {
-        centeredElement = { x: model.x, y: model.x }
-      }
-
       return model
     })
 
-    nodes.forEach(node => this.activeModel.addNode(node))
+    this.activeModel.addAll(...nodes)
     nodes.forEach(node => this.createNodeLinks(node, nodes, this.props.currentFlow.links))
 
     this.diagramEngine.setDiagramModel(this.activeModel)
 
-    const diagramContainer = document.getElementById('diagramContainer')
-
-    if (diagramContainer) {
-      const diagramWidth = diagramContainer.offsetWidth
-      const diagramHeight = diagramContainer.offsetHeight
-      const totalFlowWidth = _.max(nodes.map(({ x }) => x)) - _.min(nodes.map(({ x }) => x))
-      const totalFlowHeight = _.max(nodes.map(({ y }) => y)) - _.min(nodes.map(({ y }) => y))
+    if (this.diagramContainer) {
+      const diagramWidth = this.diagramContainer.offsetWidth
+      const diagramHeight = this.diagramContainer.offsetHeight
+      const totalFlowWidth = _.max(_.map(nodes, 'x')) - _.min(_.map(nodes, 'x'))
+      const totalFlowHeight = _.max(_.map(nodes, 'y')) - _.min(_.map(nodes, 'y'))
       const zoomLevelX = Math.min(1, diagramWidth / (totalFlowWidth + 2 * PADDING))
       const zoomLevelY = Math.min(1, diagramHeight / (totalFlowHeight + 2 * PADDING))
       const zoomLevel = Math.min(zoomLevelX, zoomLevelY)
 
-      const offsetX = PADDING - _.min(nodes.map(({ x }) => x))
-      const offsetY = PADDING - _.min(nodes.map(({ y }) => y))
+      const offsetX = PADDING - _.min(_.map(nodes, 'x'))
+      const offsetY = PADDING - _.min(_.map(nodes, 'y'))
 
       this.activeModel.setZoomLevel(zoomLevel * 100)
       this.activeModel.setOffsetX(offsetX * zoomLevel)
@@ -187,6 +206,7 @@ export default class FlowBuilder extends Component {
           target: targetNode.id,
           sourcePort: sourcePort.name
         })
+
         const targetPort = targetNode.ports['in']
         const link = new LinkModel()
         link.setSourcePort(sourcePort)
@@ -205,9 +225,10 @@ export default class FlowBuilder extends Component {
     })
   }
 
-  deleteNode(nodeId) {
+  deleteNode(nodeId: string) {
     const ports = this.activeModel.getNode(nodeId).getPorts()
     this.activeModel.removeNode(nodeId)
+
     _.values(ports).forEach(port => {
       _.values(port.getLinks()).forEach(link => {
         this.activeModel.removeLink(link)
@@ -215,6 +236,7 @@ export default class FlowBuilder extends Component {
     })
   }
 
+  /** This method makes sure that the diagram represents correctly the flow stored in redux, and make changes accordingly */
   syncModel() {
     // Don't serialize more than once
     const snapshot = _.once(this.serialize)
@@ -228,8 +250,7 @@ export default class FlowBuilder extends Component {
 
     this.props.currentFlow &&
       this.props.currentFlow.nodes.forEach(node => {
-        const model = this.activeModel.getNode(node.id)
-
+        const model = this.activeModel.getNode(node.id) as BpNodeModel
         if (!model) {
           // Node doesn't exist
           this.addNode(node)
@@ -237,6 +258,7 @@ export default class FlowBuilder extends Component {
           // Node has been modified
           this.syncNode(node, model, snapshot())
         } else {
+          // @ts-ignore
           model.setData({
             ..._.pick(node, passThroughNodeProps),
             isStartNode: this.props.currentFlow.startNode === node.name
@@ -244,11 +266,12 @@ export default class FlowBuilder extends Component {
         }
       })
 
+    this._cleanPortLinks()
     this.activeModel.setLocked(this.props.readOnly)
     this.diagramWidget.forceUpdate()
   }
 
-  addNode(node) {
+  addNode(node: BpNodeModel) {
     const model = createNodeModel(node, { ...node, isStartNode: this.props.currentFlow.startNode === node.name })
     model.x = model.oldX = node.x
     model.y = model.oldY = node.y
@@ -260,6 +283,7 @@ export default class FlowBuilder extends Component {
       this.props.switchFlowNode(node.id)
     }, 150)
 
+    // @ts-ignore
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.props.currentFlow.startNode === node.name,
@@ -269,7 +293,7 @@ export default class FlowBuilder extends Component {
     model.lastModified = node.lastModified
   }
 
-  syncNode(node, model, snapshot) {
+  syncNode(node: BpNodeModel, model, snapshot) {
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.props.currentFlow.startNode === node.name,
@@ -291,12 +315,22 @@ export default class FlowBuilder extends Component {
 
     const allNodes = _.values(this.activeModel.getNodes())
     this.createNodeLinks(model, allNodes, snapshot.links)
-
     model.lastModified = node.lastModified
   }
 
+  private _disconnectPorts(model: any) {
+    const ports = model.getPorts()
+
+    Object.keys(ports).forEach(p => {
+      _.values(ports[p].links).forEach(link => {
+        this.activeModel.removeLink(link)
+        ports[p].removeLink(link)
+      })
+    })
+  }
+
   getSelectedNode() {
-    return _.first(this.activeModel.getSelectedItems() || [], { selected: true })
+    return _.first(this.activeModel.getSelectedItems() || [])
   }
 
   componentDidMount() {
@@ -313,13 +347,12 @@ export default class FlowBuilder extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const isDifferentFlow = _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
+
     if (!this.props.currentFlow) {
       // Clear the active model
       this.clearModel()
-    } else if (
-      !prevProps.currentFlow ||
-      _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
-    ) {
+    } else if (!prevProps.currentFlow || isDifferentFlow) {
       // Update the diagram model only if we changed the current flow
       this.setModel()
     } else {
@@ -328,6 +361,7 @@ export default class FlowBuilder extends Component {
     }
 
     if (this.props.currentFlow && !prevProps.currentFlow) {
+      // tslint:disable-next-line: no-floating-promises
       this.checkForNodeSearch()
     }
   }
@@ -336,8 +370,8 @@ export default class FlowBuilder extends Component {
     this.props.openFlowNodeProps()
   }
 
-  onDiagramClick = event => {
-    const selectedNode = this.getSelectedNode()
+  onDiagramClick = (event: MouseEvent) => {
+    const selectedNode = this.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
 
     // Sanitizing the links, making sure that:
@@ -346,30 +380,30 @@ export default class FlowBuilder extends Component {
     const links = _.values(this.activeModel.getLinks())
     links.forEach(link => {
       // If there's not two ports attached to the link
-      if (!link.sourcePort || !link.targetPort) {
+      if (!link.getSourcePort() || !link.getTargetPort()) {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
 
       // We need at least one input port
-      if (link.sourcePort.name !== 'in' && link.targetPort.name !== 'in') {
+      if (link.getSourcePort().name !== 'in' && link.getTargetPort().name !== 'in') {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
 
       // We need at least one output port
-      if (!link.sourcePort.name.startsWith('out') && !link.targetPort.name.startsWith('out')) {
+      if (!link.getSourcePort().name.startsWith('out') && !link.getTargetPort().name.startsWith('out')) {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
 
       // If ports have more than one outbout link
-      const ports = [link.sourcePort, link.targetPort]
+      const ports = [link.getSourcePort(), link.getTargetPort()]
       ports.forEach(port => {
         if (!port) {
           return
         }
-        const portLinks = _.values(port.links)
+        const portLinks = _.values(port.getLinks())
         if (port.name.startsWith('out') && portLinks.length > 1) {
           _.last(portLinks).remove()
           this.diagramWidget.forceUpdate()
@@ -377,13 +411,15 @@ export default class FlowBuilder extends Component {
       })
 
       // We don't want to link node to itself
-      const outPort = link.sourcePort.name.startsWith('out') ? link.sourcePort : link.targetPort
-      const targetPort = link.sourcePort.name.startsWith('out') ? link.targetPort : link.sourcePort
-      if (outPort.parentNode.id === targetPort.parentNode.id) {
+      const outPort = link.getSourcePort().name.startsWith('out') ? link.getSourcePort() : link.getTargetPort()
+      const targetPort = link.getSourcePort().name.startsWith('out') ? link.getTargetPort() : link.getSourcePort()
+      if (outPort.getParent().getID() === targetPort.getParent().getID()) {
         link.remove()
         return this.diagramWidget.forceUpdate()
       }
     })
+
+    this._cleanPortLinks()
 
     if (this.props.currentDiagramAction && this.props.currentDiagramAction.startsWith('insert_')) {
       let { x, y } = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
@@ -419,25 +455,41 @@ export default class FlowBuilder extends Component {
     this.checkForLinksUpdate()
   }
 
+  /** This makes sure that ports no longer keep reference to deleted links */
+  private _cleanPortLinks() {
+    const allLinkIds = _.values(this.activeModel.getLinks()).map(x => x.getID())
+
+    // Loops through all nodes to extract all their ports
+    const allPorts = _.flatten(
+      _.values(this.activeModel.getNodes())
+        .map(x => x.ports)
+        .map(_.values)
+    )
+
+    // For each ports, if it has an invalid link, it will be removed
+    allPorts.map(port =>
+      Object.keys(port.links)
+        .filter(x => !allLinkIds.includes(x))
+        .map(x => port.links[x].remove())
+    )
+  }
+
+  /** Updates redux when links are changes on the diagram */
   checkForLinksUpdate() {
     const newLinks = this.serializeLinks()
     const newLinksHash = hashCode(JSON.stringify(newLinks))
 
-    if (!this.activeModel.linksHash) {
-      this.activeModel.linksHash = newLinksHash
-    }
-
-    if (this.activeModel.linksHash !== newLinksHash) {
+    if (!this.activeModel.linksHash || this.activeModel.linksHash !== newLinksHash) {
       this.activeModel.linksHash = newLinksHash
       this.props.updateFlow({ links: newLinks })
     }
+
     this.checkForProblems()
   }
 
   serialize = () => {
     const model = this.activeModel.serializeDiagram()
-
-    const nodes = model.nodes.map(node => {
+    const nodes = model.nodes.map((node: any) => {
       return {
         ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
         next: node.next.map((next, index) => {
@@ -448,6 +500,7 @@ export default class FlowBuilder extends Component {
           }
 
           const link = _.find(model.links, { id: port.links[0] })
+          // @ts-ignore
           const otherNodeId = link && (link.source === node.id ? link.target : link.source)
           const otherNode = _.find(model.nodes, { id: otherNodeId })
 
@@ -455,7 +508,7 @@ export default class FlowBuilder extends Component {
             return next
           }
 
-          return { condition: next.condition, node: otherNode.name }
+          return { condition: next.condition, node: otherNode['name'] }
         }),
         position: _.pick(node, 'x', 'y')
       }
@@ -473,15 +526,15 @@ export default class FlowBuilder extends Component {
       const instance = this.activeModel.getLink(link.id)
       const model = {
         source: link.source,
-        sourcePort: instance.sourcePort.name,
+        sourcePort: instance.getSourcePort().name,
         target: link.target,
         points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
       }
 
-      if (instance.sourcePort.name === 'in') {
+      if (instance.getSourcePort().name === 'in') {
         // We reverse the model so that target is always an input port
         model.source = link.target
-        model.sourcePort = instance.targetPort.name
+        model.sourcePort = instance.getTargetPort().name
         model.target = link.source
         model.points = _.reverse(model.points)
       }
@@ -500,9 +553,10 @@ export default class FlowBuilder extends Component {
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
-        if (element.isStartNode) {
+        if (element['isStartNode']) {
           return alert("You can't delete the start node.")
         } else if (
+          // @ts-ignore
           _.includes(['standard', 'skill-call'], element.nodeType) ||
           _.includes(['standard', 'skill-call'], element.type)
         ) {
@@ -571,9 +625,11 @@ export default class FlowBuilder extends Component {
     return (
       <div
         id="diagramContainer"
-        tabIndex="1"
+        ref={ref => (this.diagramContainer = ref)}
+        tabIndex={1}
         className={classNames}
         style={{ outline: 'none', width: '100%', height: '100%' }}
+        onContextMenu={e => this.handleContextMenu(e)}
       >
         <div className={style.floatingInfo}>
           {this.renderCatchAllInfo()}
@@ -590,12 +646,48 @@ export default class FlowBuilder extends Component {
         </div>
 
         <DiagramWidget
-          readOnly={this.props.readOnly}
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
+          inverseZoom={true}
         />
       </div>
     )
   }
 }
+
+interface Props {
+  currentFlow: any
+  switchFlow: (flowName: string) => void
+  switchFlowNode: (nodeId: string) => void
+  updateFlowProblems: (problems: NodeProblem[]) => void
+  openFlowNodeProps: any
+  updateFlow: any
+  createFlowNode: any
+  createFlow: (name: string) => void
+  insertNewSkillNode: any
+  updateFlowNode: any
+  fetchFlows: any
+  setDiagramAction: any
+  pasteFlowNode: ({ x, y }) => void
+  currentDiagramAction: any
+  copyFlowNode: () => void
+  currentFlowNode: any
+  removeFlowNode: any
+  saveAllFlows: any
+  readOnly: boolean
+}
+
+interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
+type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+type ExtendedDiagramModel = {
+  linksHash?: number
+} & DiagramModel
+
+type ExtendedDiagramEngine = {
+  enableLinkPoints?: boolean
+} & DiagramEngine

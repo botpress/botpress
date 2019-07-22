@@ -1,27 +1,46 @@
-import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { withRouter } from 'react-router-dom'
+import React from 'react'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
 
-const { PortWidget, PortModel } = require('storm-react-diagrams')
+import style from './style.scss'
 
-const style = require('./style.scss')
-
-export class StandardOutgoingPortModel extends PortModel {
-  constructor(name) {
-    super(name)
+export class StandardIncomingPortModel extends DefaultPortModel {
+  constructor(name: string, type: string) {
+    super(true, name, type)
   }
 
   serialize() {
     return _.merge(super.serialize(), {})
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
   }
 }
 
-export class StandardPortWidgetDisconnected extends React.Component {
+export class StandardOutgoingPortModel extends DefaultPortModel {
+  constructor(name: string) {
+    super(false, name)
+  }
+
+  serialize() {
+    return _.merge(super.serialize(), {})
+  }
+
+  deSerialize(data, engine) {
+    super.deSerialize(data, engine)
+  }
+}
+
+type Props = {
+  className?: string
+  name: string
+  node: any
+} & RouteComponentProps
+
+export class StandardPortWidgetDisconnected extends React.Component<Props> {
   renderSubflowNode() {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
@@ -97,18 +116,5 @@ export class StandardPortWidgetDisconnected extends React.Component {
     )
   }
 }
+
 export const StandardPortWidget = withRouter(StandardPortWidgetDisconnected)
-
-export class StandardIncomingPortModel extends PortModel {
-  constructor(name) {
-    super(name)
-  }
-
-  serialize() {
-    return _.merge(super.serialize(), {})
-  }
-
-  deSerialize(data) {
-    super.deSerialize(data)
-  }
-}
