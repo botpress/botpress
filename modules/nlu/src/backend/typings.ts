@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 
 export const BIO = {
   INSIDE: 'I',
@@ -95,13 +95,19 @@ export interface NLUStructure {
 
 export type Token2Vec = { [token: string]: number[] }
 
+export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: Token[] }
+
+export interface TrainingPoint {
+  l0Point: {}
+  l1Point: {}
+}
+
 export interface Gateway {
   source: LanguageSource
   client: AxiosInstance
   errors: number
   disabledUntil?: Date
 }
-;[]
 
 export interface LangsGateway {
   [lang: string]: Gateway[]

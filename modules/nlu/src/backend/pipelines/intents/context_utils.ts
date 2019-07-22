@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { LanguageProvider, Model } from '../../typings'
+import { IntentDefinitionWithTokens, LanguageProvider, Model, TrainingPoint } from '../../typings'
 import { createPointsFromUtteranceTokens } from '../language/ft_featurizer'
 
 import { generateNoneIntent } from './none_intent_utils'
@@ -13,13 +13,13 @@ export const getContextsFromIntentDefs = (defs: sdk.NLU.IntentDefinition[]): str
     .value()
 
 export const getPointsForContext = async (
-  intentsWTokens: sdk.NLU.IntentDefinitionWithTokens[],
+  intentsWTokens: IntentDefinitionWithTokens[],
   context: string,
   lang: string,
   langProvider: LanguageProvider,
   tfIdf,
   token2vec
-): Promise<sdk.NLU.TrainingPoints[]> => {
+): Promise<TrainingPoint[]> => {
   const noneIntent = await generateNoneIntent(intentsWTokens, lang, context, langProvider)
   const intentsWithNone = intentsWTokens.concat(noneIntent)
 
@@ -35,12 +35,18 @@ export const getPointsForContext = async (
   return _.flatten(nestedPoints)
 }
 
-export const createl1ModelsFromAllPoints = async (allPoints, modelHash, toolkit): Promise<Model[]> =>
+export const createl1ModelsFromAllPoints = async (
+  allPoints,
+  modelHash,
+  toolkit,
+  notify,
+  progressFn
+): Promise<Model[]> =>
   await Promise.all(
-    allPoints.map(async ctxPoints => {
+    allPoints.map(async (ctxPoints, index) => {
       const points = ctxPoints.points.map(point => point.l1Point)
       const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-      await svm.train(points)
+      await svm.train(points, notify(progressFn(index)))
       const modelStr = svm.serialize()
 
       return {
@@ -56,14 +62,14 @@ export const createl1ModelsFromAllPoints = async (allPoints, modelHash, toolkit)
     })
   )
 
-export const createl0ModelFromAllPoints = async (allPoints, modelHash, toolkit): Promise<Model> => {
+export const createl0ModelFromAllPoints = async (allPoints, modelHash, toolkit, notify, progressFn): Promise<Model> => {
   const l0Points = _.chain(allPoints)
     .flatMap(ctxPoints => ctxPoints.points.map(point => point.l0Point))
     .reject(_.isEmpty)
     .value()
 
   const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-  await svm.train(l0Points)
+  await svm.train(l0Points, notify(progressFn(0)))
   const modelStr = svm.serialize()
 
   return {

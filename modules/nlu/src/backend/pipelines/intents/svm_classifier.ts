@@ -2,8 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { VError } from 'verror'
 
-import { Model, Token2Vec } from '../../typings'
-import { LanguageProvider } from '../../typings'
+import { IntentDefinitionWithTokens, LanguageProvider, Model, Token2Vec } from '../../typings'
 
 import {
   createl0ModelFromAllPoints,
@@ -12,14 +11,15 @@ import {
   getPointsForContext
 } from './context_utils'
 import { predictl0, predictl1 } from './predictions_utils'
+import { getPayloadForInnerSVMProgress, identityProgress, notifyProgress } from './realtime_utils'
 import { parsel0, parsel1, parseTfIdf } from './tfidf'
 
 export const predict = async function(
   tokens: string[],
   includedContexts: string[],
-  lang,
-  langProvider,
-  models,
+  lang: string,
+  langProvider: LanguageProvider,
+  models: Model[],
   toolkit: typeof sdk.MLToolkit
 ): Promise<sdk.NLU.Intent[]> {
   if (!tokens.length) {
@@ -50,14 +50,19 @@ export const predict = async function(
 }
 
 export const train = async function(
-  intentsWTokens: sdk.NLU.IntentDefinitionWithTokens[],
+  intentsWTokens: IntentDefinitionWithTokens[],
   modelHash: string,
   lang,
   toolkit: typeof sdk.MLToolkit,
   langProvider: LanguageProvider,
   tfIdf: { [context: string]: _.Dictionary<_.Dictionary<number>> },
-  token2vec: Token2Vec
+  token2vec: Token2Vec,
+  realtime: typeof sdk.realtime,
+  realtimePayload: typeof sdk.RealTimePayload
 ): Promise<Model[]> {
+  const notify = notifyProgress(realtime, realtimePayload)
+  notify(identityProgress)(0.1)
+
   const contexts = getContextsFromIntentDefs(intentsWTokens)
 
   const allPoints = await Promise.map(contexts, async context => {
@@ -69,8 +74,21 @@ export const train = async function(
     }
   })
 
-  const l1Models = await createl1ModelsFromAllPoints(allPoints, modelHash, toolkit)
-  const l0Model = await createl0ModelFromAllPoints(allPoints, modelHash, toolkit)
+  notify(identityProgress)(0.2)
+
+  // + 1 for global
+  const ctxLength = allPoints.map(x => x.context).length + 1
+  const ratioedProgress = getPayloadForInnerSVMProgress(ctxLength)
+
+  const l1Models = await createl1ModelsFromAllPoints(allPoints, modelHash, toolkit, notify, ratioedProgress(0))
+
+  const l0Model = await createl0ModelFromAllPoints(
+    allPoints,
+    modelHash,
+    toolkit,
+    notify,
+    ratioedProgress(l1Models.length)
+  )
 
   return [...l1Models, l0Model]
 }

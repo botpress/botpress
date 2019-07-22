@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { computeNorm, ndistance, scalarDivide, vectorAdd } from '../../tools/math'
 import { levenshtein } from '../../tools/strings'
-import { LanguageProvider, Token2Vec } from '../../typings'
+import { LanguageProvider, Token2Vec, TrainingPoint } from '../../typings'
 
 const debug = DEBUG('nlu')
   .sub('intents')
@@ -33,7 +33,7 @@ export const enrichToken2Vec = async (
 
 export const createPointsFromUtteranceTokens = (intentName, lang, langProvider, token2vec, context, tfIdf) => async (
   utteranceTokens
-): Promise<sdk.NLU.TrainingPoints> => {
+): Promise<TrainingPoint> => {
   if (!utteranceTokens.length) {
     return
   }
