@@ -359,6 +359,8 @@ export default class ScopedEngine implements Engine {
       try {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
+        await this.languageProvider.primeLanguageCaches(trainableIntents, lang)
+
         if (trainableIntents.length) {
           const intentsWTokens = await Promise.all(
             trainableIntents.map(getIntentsWithTokens(lang, this.languageProvider))
