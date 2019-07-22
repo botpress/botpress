@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { makeTokens } from '../../tools/make-tokens'
+import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
 import { allInRange } from '../../tools/math'
 import { LanguageProvider } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
@@ -48,13 +48,15 @@ const _generateTrainingTokens = languageProvider => async (
   })
 }
 
+const charactersToMerge: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
+
 export const generatePredictionSequence = async (
   input: string,
   intentName: string,
   entities: sdk.NLU.Entity[],
   toks: Token[]
 ): Promise<Sequence> => {
-  const tokens = toks.map(tok => {
+  const tokens = mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
     const matchedEntities = entities
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)

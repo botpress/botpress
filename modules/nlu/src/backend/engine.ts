@@ -18,7 +18,7 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { makeTokens } from './tools/make-tokens'
+import { makeTokens } from './tools/token-utils'
 import { allInRange } from './tools/math'
 import { LanguageProvider, NluMlRecommendations } from './typings'
 import {
