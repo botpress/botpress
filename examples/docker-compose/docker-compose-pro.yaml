@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+  botpress:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress-server
+    container_name: botpress-server
+    command: /botpress/bp
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      - REDIS_URL=redis://redis:6379?password=redisPassword
+      - BP_MODULE_NLU_DUCKLINGURL=http://botpress_lang:8000
+      - BP_MODULE_NLU_LANGUAGESOURCES=[{"endpoint":"http://botpress_lang:3100"}]
+      - EXTERNAL_URL=http://localhost:3000
+      - CLUSTER_ENABLED=true
+      - PRO_ENABLED=true
+      - BP_PRODUCTION=true
+      - BP_LICENSE_KEY=YOUR_KEY_HERE
+    depends_on:
+      - botpress_lang
+      - postgres
+      - redis
+    volumes:
+      - ./botpress/data:/botpress/data
+
+  botpress_lang:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress-lang
+    container_name: botpress-lang
+    command: bash -c "./duckling -p 8000 & ./bp lang --langDir /botpress/lang --port 3100"
+    ports:
+      - 3100:3100
+      - 8000:8000
+    volumes:
+      - ./botpress/language:/botpress/lang
+
+  postgres:
+    image: postgres:11.2-alpine
+    ports:
+      - 5435:5435
+    container_name: postgres
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:5.0.5-alpine
+    ports:
+      - 6379:6379
+    container_name: redis
+    command: redis-server --requirepass redisPassword
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
