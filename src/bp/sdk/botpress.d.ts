@@ -1047,6 +1047,12 @@ declare module 'botpress/sdk' {
      * @default true
      */
     enableJsonBodyParser?: RouterCondition
+
+    /**
+     * Only parses body which are urlencoded
+     * @default true
+     */
+    enableUrlEncoderBodyParser?: RouterCondition
   }
 
   /**
