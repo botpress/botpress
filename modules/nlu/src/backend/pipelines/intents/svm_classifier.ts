@@ -60,8 +60,8 @@ export const train = async function(
   realtime: typeof sdk.realtime,
   realtimePayload: typeof sdk.RealTimePayload
 ): Promise<Model[]> {
-  const notify = notifyProgress(realtime, realtimePayload)
-  notify(identityProgress)(0.1)
+  const notify = notifyProgress(realtime, realtimePayload)(identityProgress)
+  notify(0.1)
 
   const contexts = getContextsFromIntentDefs(intentsWTokens)
 
@@ -74,7 +74,7 @@ export const train = async function(
     }
   })
 
-  notify(identityProgress)(0.2)
+  notify(0.2)
 
   // + 1 for global
   const ctxLength = allPoints.map(x => x.context).length + 1
