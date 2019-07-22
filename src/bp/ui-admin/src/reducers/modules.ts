@@ -2,9 +2,12 @@ import api from '../api'
 
 export const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'
 
-const initialState = { modules: [] }
+export interface ModulesState {
+  modules: []
+}
+const initialState: ModulesState = { modules: [] }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): ModulesState => {
   switch (action.type) {
     case FETCH_MODULES_RECEIVED:
       return {
