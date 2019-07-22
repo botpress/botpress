@@ -1,4 +1,5 @@
 import { Logger, LoggerEntry } from 'botpress/sdk'
+import { KnexExtension } from 'common/knex'
 import { injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -12,7 +13,7 @@ export class LoggerDbPersister {
   private readonly TABLE_NAME = 'srv_logs'
   private readonly INTERVAL = ms('2s')
 
-  private knex!: Knex
+  private knex!: Knex & KnexExtension
   private batch: LoggerEntry[] = []
   private intervalRef
   private currentPromise
@@ -63,8 +64,19 @@ export class LoggerDbPersister {
       return
     }
 
+    const rows = this.batch.map(log => {
+      const { botId, scope, metadata, message, level, timestamp } = log
+      return {
+        botId,
+        scope,
+        metadata,
+        message,
+        level,
+        timestamp: this.knex.date.format(timestamp)
+      }
+    })
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, this.batch, this.BATCH_SIZE)
+      .batchInsert(this.TABLE_NAME, rows, this.BATCH_SIZE)
       .then(() => {
         if (this.batch.length >= this.BATCH_SIZE) {
           this.batch.splice(0, this.BATCH_SIZE)
