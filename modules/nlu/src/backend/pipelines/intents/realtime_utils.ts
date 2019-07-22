@@ -16,5 +16,9 @@ export const getProgressPayload = (progressFn: Function) => (progress: number) =
   ...progressFn(progress)
 })
 
+export const crfPayloadProgress = progress => ({
+  value: 0.75 + Math.floor(progress / 4)
+})
+
 export const notifyProgress = (realtime, realtimePayload) => progressFn => progress =>
   realtime.sendPayload(realtimePayload.forAdmins('statusbar.event', getProgressPayload(progressFn)(progress)))

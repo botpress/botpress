@@ -6,7 +6,7 @@ import tmp from 'tmp'
 
 import { NLUStructure } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
-import { getProgressPayload } from '../intents/realtime_utils'
+import { crfPayloadProgress, notifyProgress } from '../intents/realtime_utils'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -15,13 +15,7 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
-const crfPayloadProgress = progress => ({
-  value: 0.75 + Math.floor(progress / 4)
-})
-
 const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
-
-const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
 const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
@@ -76,31 +70,35 @@ export default class CRFExtractor implements SlotExtractor {
   async train(trainingSet: Sequence[]): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
+      const notify = notifyProgress(this.realtime, this.realtimePayload)(crfPayloadProgress)
+
       debugTrain('start training')
       debugTrain('training language model')
       await this._trainLanguageModel(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.2)))
+      notify(0.2)
 
       debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
+      notify(0.4)
 
       debugTrain('training CRF')
       await this._trainCrf(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
+      notify(0.6)
 
       debugTrain('reading tagger')
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
       debugTrain('done training')
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.8)))
+      notify(0.8)
+
       return {
         language: readFileSync(this._ftModelFn),
         crf: readFileSync(this._crfModelFn)
       }
     } else {
       debugTrain('training set too small, skipping training')
+
       return {
         language: undefined,
         crf: undefined
