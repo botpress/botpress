@@ -501,7 +501,7 @@ declare module 'botpress/sdk' {
       readonly errored: boolean
       readonly includedContexts: string[]
     }
-    
+
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestions?: Suggestion[]
@@ -1033,6 +1033,12 @@ declare module 'botpress/sdk' {
      * @default true
      */
     enableJsonBodyParser?: RouterCondition
+
+    /**
+     * Only parses body which are urlencoded
+     * @default true
+     */
+    enableUrlEncoderBodyParser?: RouterCondition
   }
 
   /**

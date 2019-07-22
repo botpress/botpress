@@ -15,7 +15,8 @@ const onServerStarted = async (bp: typeof sdk) => {
 const onServerReady = async (bp: typeof sdk) => {
   router = bp.http.createRouterForBot('channel-slack', {
     checkAuthentication: false,
-    enableJsonBodyParser: false
+    enableJsonBodyParser: false,
+    enableUrlEncoderBodyParser: false
   })
 }
 
@@ -35,7 +36,6 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   if (!client) {
     return
   }
-
 
   delete clients[botId]
 }

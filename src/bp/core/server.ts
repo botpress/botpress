@@ -213,7 +213,7 @@ export default class HTTPServer {
     }
 
     this.app.use((req, res, next) => {
-      if (!isDisabled('bodyParser', req)) {
+      if (!isDisabled('bodyParserJson', req)) {
         bodyParser.json({ limit: config.bodyLimit })(req, res, next)
       } else {
         next()
@@ -221,7 +221,7 @@ export default class HTTPServer {
     })
 
     this.app.use((req, res, next) => {
-      if (!isDisabled('bodyParser', req)) {
+      if (!isDisabled('bodyParserUrlEncoder', req)) {
         bodyParser.urlencoded({ extended: true })(req, res, next)
       } else {
         next()

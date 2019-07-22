@@ -133,7 +133,11 @@ export class BotsRouter extends CustomRouter {
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {
-      disableForModule('bodyParser', path)
+      disableForModule('bodyParserJson', path)
+    }
+
+    if (!_.get(options, 'enableUrlEncoderBodyParser', true)) {
+      disableForModule('bodyParserUrlEncoder', path)
     }
 
     const relPath = '/mod/' + path
