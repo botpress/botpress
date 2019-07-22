@@ -96,7 +96,7 @@ export class PersistedConsoleLogger implements Logger {
   private print(level: LoggerLevel, message: string, metadata: any) {
     if (typeof message !== 'string') {
       metadata = message
-      message = '[warning] Message must be a string. If you want to log an object, use the second argument (metadata) '
+      message = '(object)'
     }
 
     if (this.attachedError) {
