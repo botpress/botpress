@@ -270,6 +270,7 @@ export default class ScopedEngine implements Engine {
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     this.logger.debug(`Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+
     for (const lang of this.languages) {
       const trainingSet = await this.getTrainingSets(intents, lang)
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
@@ -350,12 +351,6 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  getContextsFromIntentDefs = (defs: sdk.NLU.IntentDefinition[]): string[] =>
-    _.chain(defs)
-      .flatMap(x => x.contexts)
-      .uniq()
-      .value()
-
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO use the same data structure to train intent and slot models
     // TODO generate single training set here and filter
@@ -382,10 +377,8 @@ export default class ScopedEngine implements Engine {
                 token2vec,
                 l0Tfidf: tfIdf['l0']['__avg__'],
                 l1Tfidf: _.chain(tfIdf)
-                  .map((tfidf, ctx) => ({ tfidf, ctx }))
-                  .reject(model => model.ctx === 'l0')
-                  .map(model => ({ [model.ctx]: model.tfidf['__avg__'] }))
-                  .reduce((a, b) => ({ ...a, ...b }), {})
+                  .pickBy((tf, ctx) => ctx !== 'l0')
+                  .mapValues(tf => tf['__avg__'])
                   .value()
               }),
               'utf8'
@@ -399,7 +392,9 @@ export default class ScopedEngine implements Engine {
             this.toolkit,
             this.languageProvider,
             tfIdf,
-            token2vec
+            token2vec,
+            this.realtime,
+            this.realtimePayload
           )
 
           // should slot tagger be trained / context / intent?

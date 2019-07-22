@@ -4,9 +4,9 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
-import { getProgressPayload } from '../../tools/progress'
 import { NLUStructure } from '../../typings'
 import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
+import { getProgressPayload } from '../intents/realtime_utils'
 
 import { generatePredictionSequence } from './pre-processor'
 
