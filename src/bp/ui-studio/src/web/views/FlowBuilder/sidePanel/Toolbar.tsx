@@ -1,4 +1,4 @@
-import { AnchorButton, Icon, Popover, Position, Tooltip } from '@blueprintjs/core'
+import { AnchorButton, Icon, Intent, Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
@@ -6,6 +6,8 @@ import { flowEditorRedo, flowEditorUndo, saveAllFlows } from '~/actions'
 import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { canFlowRedo, canFlowUndo } from '~/reducers'
 import { getCurrentFlow } from '~/reducers'
+
+import style from './style.scss'
 
 const FlowProblems = props => {
   const highlightNode = node => {
@@ -17,10 +19,18 @@ const FlowProblems = props => {
   return (
     <Popover>
       <Tooltip
-        content={hasProblems ? 'Problems with your flow. Click for more details' : 'No issue with your flow'}
+        content={
+          hasProblems ? <span>There are some problems with your flow.<br />Click for more details</span> : <span>No problem with your flow.</span>
+        }
         position={Position.BOTTOM}
       >
-        <Icon icon="info-sign" color={hasProblems ? 'red' : 'gray'} style={{ padding: '5px 5px 0 0' }} />
+        {hasProblems ? (
+          <Tag icon="error" className={style.flowProblems} intent={Intent.DANGER}>
+            {props.flowProblems.length}
+          </Tag>
+        ) : (
+          <Icon icon="info-sign" color="gray" style={{ padding: '5px 5px 0 0' }} />
+        )}
       </Tooltip>
       <div style={{ padding: 10 }}>
         {props.flowProblems.map(node => (

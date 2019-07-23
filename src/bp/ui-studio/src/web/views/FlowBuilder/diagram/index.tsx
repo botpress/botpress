@@ -79,10 +79,10 @@ export default class FlowBuilder extends Component<Props> {
     } else if (!prevProps.currentFlow || isDifferentFlow) {
       // Update the diagram model only if we changed the current flow
       this.manager.initializeModel()
+      this.checkForProblems()
     } else {
       // Update the current model with the new properties
       this.manager.syncModel()
-      // this.checkForProblems()
     }
   }
 
