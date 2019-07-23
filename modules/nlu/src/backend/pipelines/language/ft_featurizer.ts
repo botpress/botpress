@@ -31,21 +31,26 @@ export const enrichToken2Vec = async (
   })
 }
 
-export const createPointsFromUtteranceTokens = (intentName, lang, langProvider, token2vec, context, tfIdf) => async (
-  utteranceTokens
-): Promise<TrainingPoint> => {
+export const createPointsFromUtteranceTokens = (
+  intentName: string,
+  lang: string,
+  langProvider: LanguageProvider,
+  token2vec: Token2Vec,
+  context: string,
+  tfIdf
+) => async (utteranceTokens): Promise<TrainingPoint> => {
   if (!utteranceTokens.length) {
     return
   }
 
-  const l0vec = await getSentenceFeatures(lang, utteranceTokens, tfIdf['l0'][context], langProvider, token2vec)
+  const l0vec = await getSentenceFeatures(lang, utteranceTokens, tfIdf['l0'][context], token2vec, langProvider)
 
   const l1vec = await getSentenceFeatures(
     lang,
     utteranceTokens,
     tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
-    langProvider,
-    token2vec
+    token2vec,
+    langProvider
   )
 
   const l1Point = {

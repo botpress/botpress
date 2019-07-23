@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { LanguageProvider } from '../../typings'
+import { LanguageProvider, IntentDefinitionWithTokens } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 import { keepEntityValues } from '../slots/pre-processor'
 
@@ -25,7 +25,7 @@ const utteranceToTokens = (lang: string, languageProvider: LanguageProvider) => 
 
 export const getIntentsWithTokens = (lang, languageProvider) => async (
   intent: sdk.NLU.IntentDefinition
-): Promise<any> => ({
+): Promise<IntentDefinitionWithTokens> => ({
   ...intent,
   tokens: await getTokensFromUtterances(lang, languageProvider)(intent.utterances[lang])
 })

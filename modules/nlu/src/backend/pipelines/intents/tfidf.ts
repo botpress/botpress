@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Model, Token2Vec, IntentDefinitionWithTokens, L1Models } from '../../typings'
+import { Model, Token2Vec, IntentDefinitionWithTokens, L1Models, LanguageProvider } from '../../typings'
 import { enrichToken2Vec } from '../language/ft_featurizer'
 
 const MAX_TFIDF = 2
@@ -68,8 +68,8 @@ export function tfidf(docs: TfidfInput): TfidfOutput {
 export const computeToken2Vec = async (
   token2vec: Token2Vec,
   intentsWithNone: IntentDefinitionWithTokens[],
-  lang,
-  langProvider
+  lang: string,
+  langProvider: LanguageProvider
 ): Promise<void> => {
   await Promise.map(
     intentsWithNone,
@@ -77,7 +77,7 @@ export const computeToken2Vec = async (
       await Promise.all(
         intent.tokens.map(async utteranceTokens => {
           if (intent.name !== 'none') {
-            await enrichToken2Vec(lang, utteranceTokens.map(token => token.cannonical), langProvider, token2vec)
+            await enrichToken2Vec(lang, utteranceTokens, langProvider, token2vec)
           }
         })
       )

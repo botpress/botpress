@@ -338,6 +338,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       // We have new tokens we haven't cached yet
       const query = group.map(idx => tokens[idx])
+
       // Fetch only the missing tokens
       if (!query.length) {
         break

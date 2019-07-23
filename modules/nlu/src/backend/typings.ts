@@ -99,7 +99,7 @@ export interface NLUStructure {
 
 export type Token2Vec = { [token: string]: number[] }
 
-export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: Token[][] }
+export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: string[][] }
 
 export interface TrainingPoint {
   l0Point: sdk.MLToolkit.SVM.DataPoint
