@@ -133,7 +133,7 @@ export class FlowService {
 
     const ghost = this.ghost.forBot(botId)
 
-    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '**/*.json')
 
     const isNew = !flowFiles.find(x => flow.location === x)
     const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(botId, flow, isNew)

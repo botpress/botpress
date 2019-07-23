@@ -313,16 +313,11 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.delete(
-      '/flow/:name',
+      '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
-
-        if (!_.isString(flowName) && flowName.length) {
-          res.sendStatus(400)
-          return
-        }
 
         await this.flowService.deleteFlow(botId, flowName as string)
 

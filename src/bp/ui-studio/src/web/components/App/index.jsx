@@ -80,13 +80,6 @@ const mapDispatchToProps = {
   receiveFlowsModification
 }
 
-const mapStateToProps = state => {
-  console.log(state)
-  return {
-    flowsByName: state.flows.flowsByName
-  }
-}
-
 export default connect(
   null,
   mapDispatchToProps
