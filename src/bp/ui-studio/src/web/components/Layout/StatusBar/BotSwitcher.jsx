@@ -37,10 +37,8 @@ export default class BotSwitcher extends React.Component {
             {this.props.botsIds
               .filter(id => this.props.currentBotId != id)
               .map(id => (
-                <li className={style.langItem}>
-                  <a key={id} href={`/studio/${id}`}>
-                    {id}
-                  </a>
+                <li className={style.langItem} key={id}>
+                  <a href={`/studio/${id}`}>{id}</a>
                 </li>
               ))}
             <MenuItem divider />
