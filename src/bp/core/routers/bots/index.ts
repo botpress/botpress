@@ -32,7 +32,6 @@ import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
 import { checkTokenHeader, needPermissions } from '../util'
-import { flow } from 'lodash-decorators'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
