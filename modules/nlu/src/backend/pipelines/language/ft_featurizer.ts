@@ -43,9 +43,7 @@ export const getSentenceFeatures = async ({
   token2vec: Token2Vec
   langProvider: LanguageProvider
 }): Promise<number[]> => {
-  const vecs = (await langProvider.vectorize(doc, lang)).map(x => {
-    return Array.from(x.values())
-  })
+  const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
 
   debug(`get for '${lang}'`, { doc, got: vecs.map(x => x.length) })
 
