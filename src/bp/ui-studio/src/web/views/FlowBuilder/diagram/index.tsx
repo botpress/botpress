@@ -82,11 +82,7 @@ export default class FlowBuilder extends Component<Props> {
     } else {
       // Update the current model with the new properties
       this.manager.syncModel()
-    }
-
-    if (this.props.currentFlow && !prevProps.currentFlow) {
-      // tslint:disable-next-line: no-floating-promises
-      this.checkForNodeSearch()
+      // this.checkForProblems()
     }
   }
 
@@ -148,17 +144,6 @@ export default class FlowBuilder extends Component<Props> {
       </Menu>,
       { left: event.clientX, top: event.clientY }
     )
-  }
-
-  async checkForNodeSearch() {
-    const { hash } = window.location
-    const searchCmd = '#search:'
-
-    if (hash && hash.includes(searchCmd)) {
-      const chosenNode = this.props.currentFlow.nodes.find(node => node.name === hash.replace(searchCmd, ''))
-      await this.props.switchFlowNode(chosenNode.id)
-      await this.props.openFlowNodeProps()
-    }
   }
 
   checkForProblems() {
