@@ -8,6 +8,30 @@ $status-bar-height: 24px;
   width: 100%;
 }
 
+.headerTabs {
+  :global(.bp3-tab-list) {
+    background: #fefefe;
+    border-bottom: 1px solid #eee;
+  }
+
+  :global(.bp3-tab-indicator-wrapper) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.bp3-tab-panel) {
+    margin-top: 5px;
+  }
+
+  :global(.bp3-tab) {
+    padding: 2px 8px;
+    border-right: 1px solid #eee;
+  }
+
+  :global(.bp3-tab-list > *:not(:last-child)) {
+    margin-right: 0;
+  }
+}
+
 .workspace {
   width: 100%;
   height: calc(100vh - #{$status-bar-height});

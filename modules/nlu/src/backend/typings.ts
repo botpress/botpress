@@ -109,7 +109,7 @@ export interface LangsGateway {
 
 export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(text: string, lang: string): Promise<string[]>
+  tokenize(utterances: string[], lang: string): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<NLUHealth>
 }

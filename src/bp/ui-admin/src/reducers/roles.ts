@@ -1,14 +1,21 @@
+import { AuthRole } from 'common/typings'
+
 import api from '../api'
 
 export const FETCH_ROLES_REQUESTED = 'roles/FETCH_ROLES_REQUESTED'
 export const FETCH_ROLES_RECEIVED = 'roles/FETCH_ROLES_RECEIVED'
 
-const initialState = {
+export interface RoleState {
+  roles: AuthRole[]
+  loading?: boolean
+}
+
+const initialState: RoleState = {
   roles: [],
   loading: false
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): RoleState => {
   switch (action.type) {
     case FETCH_ROLES_REQUESTED:
       return {

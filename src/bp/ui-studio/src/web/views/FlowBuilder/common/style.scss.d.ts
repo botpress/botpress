@@ -7,6 +7,7 @@ interface CssExports {
   'editableInput': string;
   'fn': string;
   'icon': string;
+  'missingTranslation': string;
   'msg': string;
   'name': string;
 }

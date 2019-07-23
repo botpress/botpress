@@ -11,6 +11,7 @@ interface CssExports {
   'entityText': string;
   'filter': string;
   'flash': string;
+  'headerTabs': string;
   'in': string;
   'list': string;
   'main': string;
