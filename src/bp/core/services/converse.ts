@@ -125,7 +125,7 @@ export class ConverseService {
 
     let actionRunning = false
 
-    return new Promise((_, reject) => {
+    return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         // We deactivate the timeout for actions because they have their own timeout check
         if (!actionRunning) {
