@@ -16,21 +16,25 @@ const FlowProblems = props => {
   }
   const hasProblems = !!props.flowProblems.length
 
+  if (!hasProblems) {
+    return null
+  }
+
   return (
     <Popover>
       <Tooltip
         content={
-          hasProblems ? <span>There are some problems with your flow.<br />Click for more details</span> : <span>No problem with your flow.</span>
+          <span>
+            There are some problems with your flow.
+            <br />
+            Click for more details
+          </span>
         }
         position={Position.BOTTOM}
       >
-        {hasProblems ? (
-          <Tag icon="error" className={style.flowProblems} intent={Intent.DANGER}>
-            {props.flowProblems.length}
-          </Tag>
-        ) : (
-          <Icon icon="info-sign" color="gray" style={{ padding: '5px 5px 0 0' }} />
-        )}
+        <Tag icon="error" className={style.flowProblems} intent={Intent.DANGER}>
+          {props.flowProblems.length}
+        </Tag>
       </Tooltip>
       <div style={{ padding: 10 }}>
         {props.flowProblems.map(node => (
