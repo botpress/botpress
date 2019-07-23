@@ -3,7 +3,7 @@ import _ from 'lodash'
 import math from 'mathjs'
 
 import { GetZPercent } from '../../tools/math'
-import { LanguageProvider, Token2Vec } from '../../typings'
+import { L1Models, LanguageProvider, Model, Token2Vec } from '../../typings'
 import { getSentenceFeatures } from '../language/ft_featurizer'
 
 // this means that the 3 best predictions are really close, do not change magic numbers
@@ -27,7 +27,7 @@ const predictionsReallyConfused = (predictions: sdk.MLToolkit.SVM.Prediction[]) 
 const predictL0Contextually = async function(
   l0Features: number[],
   includedContexts: string[],
-  l0Predictor
+  l0Predictor: sdk.MLToolkit.SVM.Predictor
 ): Promise<sdk.MLToolkit.SVM.Prediction[]> {
   const allL0 = await l0Predictor.predict(l0Features)
   const includedL0 = allL0.filter(c => includedContexts.includes(c.label))
@@ -37,24 +37,17 @@ const predictL0Contextually = async function(
 
 export const predictl1 = async (
   includedContexts: string[],
-  tokens,
-  lang,
-  token2vec,
-  l1Tfidf,
-  langProvider,
-  l1Models,
-  l0
+  tokens: string[],
+  lang: string,
+  token2vec: Token2Vec,
+  l1Tfidf: _.Dictionary<_.Dictionary<number>>,
+  langProvider: LanguageProvider,
+  l1Models: L1Models,
+  l0: sdk.MLToolkit.SVM.Prediction[]
 ) => {
   return _.flatten(
     await Promise.map(includedContexts, async context => {
-      const l1Vec = await getSentenceFeatures({
-        lang: lang,
-        doc: tokens,
-        docTfidf: l1Tfidf[context],
-        langProvider,
-        token2vec: token2vec
-      })
-
+      const l1Vec = await getSentenceFeatures(lang, tokens, l1Tfidf[context], token2vec, langProvider)
       const l1Features = [...l1Vec, tokens.length]
       const preds = await l1Models[context].predict(l1Features)
 
@@ -98,15 +91,8 @@ export const predictl0 = async (
   langProvider: LanguageProvider,
   includedContexts: string[],
   l0Model
-) => {
-  const l0Vec = await getSentenceFeatures({
-    lang,
-    doc: tokens,
-    docTfidf: l0Tfidf,
-    token2vec,
-    langProvider
-  })
-
+): Promise<sdk.MLToolkit.SVM.Prediction[]> => {
+  const l0Vec = await getSentenceFeatures(lang, tokens, l0Tfidf, token2vec, langProvider)
   const l0Features = [...l0Vec, tokens.length]
   return await predictL0Contextually(l0Features, includedContexts, l0Model)
 }

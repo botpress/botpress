@@ -39,7 +39,7 @@ SVM.prototype.train = function(dataset) {
   var self = this
   this._training = true
   var dims = numeric.dim(dataset)
-  assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,Y] tuples')
+  assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
   if (!this._config.normalize) {
     this._config.mu = _a.take(dims[2], function() {

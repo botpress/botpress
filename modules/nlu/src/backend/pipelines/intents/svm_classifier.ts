@@ -15,14 +15,14 @@ import { getPayloadForInnerSVMProgress, identityProgress, notifyProgress } from 
 import { parsel0, parsel1, parseTfIdf } from './tfidf'
 
 export const predict = async function(
-  tokens: string[],
+  cannonicalTokens: string[],
   includedContexts: string[],
   lang: string,
   langProvider: LanguageProvider,
   models: Model[],
   toolkit: typeof sdk.MLToolkit
 ): Promise<sdk.NLU.Intent[]> {
-  if (!tokens.length) {
+  if (!cannonicalTokens.length) {
     return []
   }
 
@@ -35,8 +35,18 @@ export const predict = async function(
   }
 
   try {
-    const l0 = await predictl0(lang, tokens, l0Tfidf, token2vec, langProvider, includedContexts, l0Model)
-    const predictions = await predictl1(includedContexts, tokens, lang, token2vec, l1Tfidf, langProvider, l1Models, l0)
+    const l0 = await predictl0(lang, cannonicalTokens, l0Tfidf, token2vec, langProvider, includedContexts, l0Model)
+
+    const predictions = await predictl1(
+      includedContexts,
+      cannonicalTokens,
+      lang,
+      token2vec,
+      l1Tfidf,
+      langProvider,
+      l1Models,
+      l0
+    )
 
     return _.chain(predictions)
       .flatten()
@@ -45,7 +55,7 @@ export const predict = async function(
       .map(x => ({ name: x.label, context: x.context, confidence: x.confidence }))
       .value()
   } catch (e) {
-    throw new VError(e, `Error predicting intent for "${tokens.join(' ')}"`)
+    throw new VError(e, `Error predicting intent for "${cannonicalTokens.join(' ')}"`)
   }
 }
 
@@ -60,8 +70,9 @@ export const train = async function(
   realtime: typeof sdk.realtime,
   realtimePayload: typeof sdk.RealTimePayload
 ): Promise<Model[]> {
-  const notify = notifyProgress(realtime, realtimePayload)(identityProgress)
-  notify(0.1)
+  const notify = notifyProgress(realtime, realtimePayload)
+  const identityNotify = notify(identityProgress)
+  identityNotify(0.1)
 
   const contexts = getContextsFromIntentDefs(intentsWTokens)
 
@@ -74,10 +85,10 @@ export const train = async function(
     }
   })
 
-  notify(0.2)
+  identityNotify(0.2)
 
-  // + 1 for global
-  const ctxLength = allPoints.map(x => x.context).length + 1
+  // + 1 for l0
+  const ctxLength = allPoints.length + 1
   const ratioedProgress = getPayloadForInnerSVMProgress(ctxLength)
 
   const l1Models = await createl1ModelsFromAllPoints(allPoints, modelHash, toolkit, notify, ratioedProgress(0))

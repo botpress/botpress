@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { IntentDefinitionWithTokens, LanguageProvider, Model, TrainingPoint } from '../../typings'
+import { IntentDefinitionWithTokens, LanguageProvider, Model, TrainingPoint, TrainingSet } from '../../typings'
 import { createPointsFromUtteranceTokens } from '../language/ft_featurizer'
 
 import { generateNoneIntent } from './none_intent_utils'
@@ -23,46 +23,48 @@ export const getPointsForContext = async (
   const noneIntent = await generateNoneIntent(intentsWTokens, lang, context, langProvider)
   const intentsWithNone = intentsWTokens.concat(noneIntent)
 
-  const nestedPoints = await Promise.map(
-    intentsWithNone,
-    async intent =>
-      await Promise.map(
-        intent.tokens,
-        createPointsFromUtteranceTokens(intent.name, lang, langProvider, token2vec, context, tfIdf)
-      )
+  const nestedPoints = await Promise.map(intentsWithNone, async intent =>
+    Promise.map(
+      intent.tokens,
+      createPointsFromUtteranceTokens(intent.name, lang, langProvider, token2vec, context, tfIdf)
+    )
   )
 
   return _.flatten(nestedPoints)
 }
 
 export const createl1ModelsFromAllPoints = async (
-  allPoints,
-  modelHash,
-  toolkit,
+  allPoints: TrainingSet[],
+  modelHash: string,
+  toolkit: typeof sdk.MLToolkit,
   notify,
   progressFn
 ): Promise<Model[]> =>
-  await Promise.all(
-    allPoints.map(async (ctxPoints, index) => {
-      const points = ctxPoints.points.map(point => point.l1Point)
-      const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-      await svm.train(points, notify(progressFn(index)))
-      const modelStr = svm.serialize()
+  Promise.map(allPoints, async (ctxPoints, index) => {
+    const points = ctxPoints.points.map(point => point.l1Point)
+    const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
+    await svm.train(points, notify(progressFn(index)))
+    const modelStr = svm.serialize()
 
-      return {
-        meta: {
-          context: ctxPoints.context,
-          created_on: Date.now(),
-          hash: modelHash,
-          scope: 'bot',
-          type: 'intent-l1'
-        },
-        model: new Buffer(modelStr, 'utf8')
-      }
-    })
-  )
+    return {
+      meta: {
+        context: ctxPoints.context,
+        created_on: Date.now(),
+        hash: modelHash,
+        scope: 'bot',
+        type: 'intent-l1'
+      },
+      model: new Buffer(modelStr, 'utf8')
+    }
+  })
 
-export const createl0ModelFromAllPoints = async (allPoints, modelHash, toolkit, notify, progressFn): Promise<Model> => {
+export const createl0ModelFromAllPoints = async (
+  allPoints: TrainingSet[],
+  modelHash: string,
+  toolkit: typeof sdk.MLToolkit,
+  notify,
+  progressFn
+): Promise<Model> => {
   const l0Points = _.chain(allPoints)
     .flatMap(ctxPoints => ctxPoints.points.map(point => point.l0Point))
     .reject(_.isEmpty)

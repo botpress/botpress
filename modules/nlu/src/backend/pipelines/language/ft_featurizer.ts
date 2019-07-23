@@ -14,7 +14,7 @@ type Document = Token[]
 
 export const enrichToken2Vec = async (
   lang: string,
-  doc: Document,
+  doc: Token[],
   langProvider: LanguageProvider,
   token2vec: Token2Vec
 ): Promise<void> => {
@@ -38,21 +38,15 @@ export const createPointsFromUtteranceTokens = (intentName, lang, langProvider, 
     return
   }
 
-  const l0vec = await getSentenceFeatures({
-    lang,
-    doc: utteranceTokens,
-    docTfidf: tfIdf['l0'][context],
-    langProvider,
-    token2vec
-  })
+  const l0vec = await getSentenceFeatures(lang, utteranceTokens, tfIdf['l0'][context], langProvider, token2vec)
 
-  const l1vec = await getSentenceFeatures({
+  const l1vec = await getSentenceFeatures(
     lang,
-    doc: utteranceTokens,
-    docTfidf: tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
+    utteranceTokens,
+    tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
     langProvider,
     token2vec
-  })
+  )
 
   const l1Point = {
     label: intentName,
@@ -75,19 +69,13 @@ export const createPointsFromUtteranceTokens = (intentName, lang, langProvider, 
   }
 }
 
-export const getSentenceFeatures = async ({
-  lang,
-  doc,
-  docTfidf,
-  langProvider,
-  token2vec
-}: {
-  lang: string
-  doc: Document
-  docTfidf: _.Dictionary<number>
-  token2vec: Token2Vec
+export const getSentenceFeatures = async (
+  lang: string,
+  doc: Document,
+  docTfidf: _.Dictionary<number>,
+  token2vec: Token2Vec,
   langProvider: LanguageProvider
-}): Promise<number[]> => {
+): Promise<number[]> => {
   const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
 
   debug(`get for '${lang}'`, { doc, got: vecs.map(x => x.length) })

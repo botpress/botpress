@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Model, Token2Vec } from '../../typings'
+import { Model, Token2Vec, IntentDefinitionWithTokens, L1Models } from '../../typings'
 import { enrichToken2Vec } from '../language/ft_featurizer'
 
 const MAX_TFIDF = 2
@@ -12,17 +12,19 @@ export type TfidfOutput = _.Dictionary<_.Dictionary<number>>
 
 export const parsel0 = (toolkit, model) => new toolkit.SVM.Predictor(model.model.toString('utf8'))
 
-export const parsel1 = (toolkit, models: Model[]) => {
+export const parsel1 = (toolkit, models: Model[]): L1Models => {
   if (_.uniqBy(models, x => x.meta.context).length !== models.length) {
     const ctx = models.map(x => x.meta.context).join(', ')
     throw new Error(`You can't train different models with the same context. Ctx = [${ctx}]`)
   }
 
-  return models
-    .map(model => ({
-      [model.meta.context]: new toolkit.SVM.Predictor(model.model.toString('utf8'))
-    }))
-    .reduce((a, b) => ({ ...a, ...b }))
+  return models.reduce(
+    (acc, model) => ({
+      ...acc,
+      ...{ [model.meta.context]: new toolkit.SVM.Predictor(model.model.toString('utf8')) }
+    }),
+    {}
+  )
 }
 
 export const parseTfIdf = model => JSON.parse(model.model.toString('utf8'))
@@ -65,21 +67,22 @@ export function tfidf(docs: TfidfInput): TfidfOutput {
 
 export const computeToken2Vec = async (
   token2vec: Token2Vec,
-  intentsWithNone: sdk.NLU.IntentDefinitionWithTokens[],
+  intentsWithNone: IntentDefinitionWithTokens[],
   lang,
   langProvider
-) =>
+): Promise<void> => {
   await Promise.map(
     intentsWithNone,
     async intent =>
       await Promise.all(
         intent.tokens.map(async utteranceTokens => {
           if (intent.name !== 'none') {
-            await enrichToken2Vec(lang, utteranceTokens, langProvider, token2vec)
+            await enrichToken2Vec(lang, utteranceTokens.map(token => token.cannonical), langProvider, token2vec)
           }
         })
       )
   )
+}
 
 export const computeTfidf = (intentsWTokens): { [context: string]: TfidfOutput } => {
   const allContexts = _.chain(intentsWTokens)

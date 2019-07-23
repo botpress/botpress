@@ -72,6 +72,10 @@ export interface ModelMeta {
   scope: string
 }
 
+export interface L1Models {
+  [ctx: string]: any
+}
+
 export interface Model {
   meta: ModelMeta
   model: Buffer
@@ -95,11 +99,16 @@ export interface NLUStructure {
 
 export type Token2Vec = { [token: string]: number[] }
 
-export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: Token[] }
+export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: Token[][] }
 
 export interface TrainingPoint {
-  l0Point: {}
-  l1Point: {}
+  l0Point: sdk.MLToolkit.SVM.DataPoint
+  l1Point: sdk.MLToolkit.SVM.DataPoint
+}
+
+export interface TrainingSet {
+  context: string
+  points: TrainingPoint[]
 }
 
 export interface Gateway {
