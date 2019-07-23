@@ -125,8 +125,10 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
 
   const lastSlot = _.maxBy(knownSlots, ks => ks.end)
   if (lastSlot && lastSlot!.end < cannonical.length) {
-    const sup: string = cannonical.substring(lastSlot!.end)
-    tokens = [...tokens, ...(await genToken(sup, lang, _.isEmpty(tokens) ? 0 : _.last(tokens)!.end))]
+    const textLeftAfterLastSlot: string = cannonical.substring(lastSlot!.end)
+    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+    const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
+    tokens = [...tokens, ...tokensLeft]
   }
 
   return {

@@ -410,7 +410,8 @@ export default class ScopedEngine implements Engine {
   }
 
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const exactIntent = this._exactMatch(ds)
+    const exactMatcher = this._exactIntentMatchers[ds.language]
+    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds)
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
@@ -441,21 +442,6 @@ export default class ScopedEngine implements Engine {
     debugIntents.forBot(this.botId, ds.sanitizedText, { intents })
 
     return ds
-  }
-
-  private _exactMatch = (ds: NLUStructure) => {
-    const exactMatcher = this._exactIntentMatchers[ds.language]
-    let exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
-    if (exactIntent) {
-      return exactIntent
-    }
-
-    for (const entity of ds.entities) {
-      exactIntent = exactMatcher && exactMatcher.exactMatchIgnoringEntity(ds.sanitizedText, ds.includedContexts, entity)
-      if (exactIntent) {
-        return exactIntent
-      }
-    }
   }
 
   private _setTextWithoutEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
