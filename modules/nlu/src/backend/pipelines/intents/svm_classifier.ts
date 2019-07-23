@@ -1,3 +1,4 @@
+import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'
@@ -82,6 +83,16 @@ export default class SVMClassifier {
     this.l1PredictorsByContextName = l1
   }
 
+  /**
+   * Batches all utterances and tokenize+vectorize them in batch to populate the cache
+   * This speeds up the tokenization during train and evaluation time without, while keeping the logic simple in those two methods
+   */
+  private async _primeLanguageCaches(intentDefs: sdk.NLU.IntentDefinition[]) {
+    const utterances = _.flatten(intentDefs.map(intent => this._getSanitizedIntentUtterances(intent)))
+    const tokens = await this.languageProvider.tokenize(utterances, this.language)
+    await this.languageProvider.vectorize(_.flatten(tokens), this.language)
+  }
+
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
     this.realtime.sendPayload(
       this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(identityProgress)(0.1))
@@ -92,20 +103,18 @@ export default class SVMClassifier {
       .uniq()
       .value()
 
-    const intentsWTokens = await Promise.map(
+    await this._primeLanguageCaches(intentDefs)
+    const intentsWTokens = await Promise.mapSeries(
       intentDefs.filter(x => x.name !== 'none'),
       // we're generating none intents automatically from now on
       // but some existing bots might have the 'none' intent already created
       // so we exclude it explicitely from the dataset here
       async intent => {
-        const utterances = (intent.utterances[this.language] || [])
-          .map(x => sanitize(keepEntityValues(x.toLowerCase())))
-          .filter(x => x.trim().length)
-
-        const tokens = await Promise.map(utterances, async utterance =>
-          (await this.languageProvider.tokenize(utterance, this.language)).map(sanitize)
+        const utterances = this._getSanitizedIntentUtterances(intent)
+        debugTrain('tokenizing intent ' + intent.name)
+        const tokens = (await this.languageProvider.tokenize(utterances, this.language)).map(tokens =>
+          tokens.map(sanitize)
         )
-
         return {
           ...intent,
           tokens: tokens
@@ -239,6 +248,12 @@ export default class SVMClassifier {
     return models
   }
 
+  private _getSanitizedIntentUtterances(intent: sdk.NLU.IntentDefinition) {
+    return (intent.utterances[this.language] || [])
+      .map(x => sanitize(keepEntityValues(x.toLowerCase())))
+      .filter(x => x.trim().length)
+  }
+
   private computeTfidf(
     intentsWTokens: {
       tokens: string[][]
@@ -277,8 +292,20 @@ export default class SVMClassifier {
 
   // this means that the 3 best predictions are really close, do not change magic numbers
   private predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]) {
+    const intentsPreds = predictions.filter(x => x.label !== 'none')
+    if (intentsPreds.length <= 2) {
+      return false
+    }
+
+    const std = math.std(intentsPreds.map(p => p.confidence))
+    const diff = (intentsPreds[0].confidence - intentsPreds[1].confidence) / std
+
+    if (diff >= 2.5) {
+      return false
+    }
+
     const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
-    return predictions.length > 2 && bestOf3STD <= 0.03
+    return bestOf3STD <= 0.03
   }
 
   public get isLoaded(): boolean {
@@ -338,7 +365,12 @@ export default class SVMClassifier {
           }
 
           if (this.predictionsReallyConfused(preds)) {
-            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }] // refine confidence
+            const others = _.take(preds, 4).map(x => ({
+              label: x.label,
+              l0Confidence: l0Conf,
+              confidence: l0Conf * x.confidence
+            }))
+            return [{ label: 'none', l0Confidence: l0Conf, context: ctx, confidence: 1 }, ...others] // refine confidence
           }
 
           const secondBest = preds[1]

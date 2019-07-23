@@ -3,6 +3,7 @@
 interface CssExports {
   'cancel': string;
   'content': string;
+  'missingTranslation': string;
   'modal': string;
 }
 declare var cssExports: CssExports;

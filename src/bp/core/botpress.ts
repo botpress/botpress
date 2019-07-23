@@ -56,7 +56,6 @@ export class Botpress {
   botpressPath: string
   configLocation: string
   modulesConfig: any
-  version: string
   config!: BotpressConfig | undefined
   api!: typeof sdk
   _heartbeatTimer?: NodeJS.Timeout
@@ -95,7 +94,6 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService
   ) {
-    this.version = '12.0.0'
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
   }
