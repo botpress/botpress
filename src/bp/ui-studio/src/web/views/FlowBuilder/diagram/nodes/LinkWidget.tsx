@@ -2,16 +2,13 @@ import React from 'react'
 import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, PointModel } from 'storm-react-diagrams'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
-  addPointToLink = (event: MouseEvent, index: number): void => {
-    if (!this.props.diagramEngine['enableLinkPoints']) {
-      return
-    }
-
+  addPointToLink = (event, index: number): void => {
     if (
-      !event.shiftKey &&
+      event.type === 'contextmenu' &&
       !this.props.diagramEngine.isModelLocked(this.props.link) &&
       this.props.link.points.length - 1 <= this.props.diagramEngine.getMaxNumberPointsPerLink()
     ) {
+      event.preventDefault()
       const point = new PointModel(this.props.link, this.props.diagramEngine.getRelativeMousePoint(event))
       point.setSelected(true)
       this.forceUpdate()
@@ -22,6 +19,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
 
   generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
     const { link, width, color } = this.props
+    const index = extraProps['data-point'] || 0
 
     const Bottom = (
       <path
@@ -39,6 +37,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         strokeLinecap="round"
         onMouseLeave={() => this.setState({ selected: false })}
         onMouseEnter={() => this.setState({ selected: true })}
+        onContextMenu={event => this.addPointToLink(event, index + 1)}
         data-linkid={link.getID()}
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}

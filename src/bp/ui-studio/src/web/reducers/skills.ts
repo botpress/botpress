@@ -1,6 +1,5 @@
 import { handleActions } from 'redux-actions'
-
-import { skillsReceived, buildNewSkill, cancelNewSkill, insertNewSkill, editSkill, updateSkill } from '~/actions'
+import { buildNewSkill, cancelNewSkill, editSkill, insertNewSkill, skillsReceived, updateSkill } from '~/actions'
 
 const defaultState = {
   installed: [],
@@ -28,7 +27,8 @@ const reducer = handleActions(
         opened: true,
         action: 'new',
         data: {},
-        skillId: payload
+        skillId: payload.id,
+        location: payload.location
       }
     }),
 
