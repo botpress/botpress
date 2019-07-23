@@ -231,15 +231,20 @@ export default class HTTPServer {
     }
 
     this.app.use((req, res, next) => {
-      if (!isDisabled('bodyParser', req)) {
+      if (!isDisabled('bodyParserJson', req)) {
         bodyParser.json({ limit: config.bodyLimit })(req, res, next)
       } else {
         next()
       }
     })
 
-    // this.app.use(bodyParser.json({ limit: config.bodyLimit }))
-    this.app.use(bodyParser.urlencoded({ extended: true }))
+    this.app.use((req, res, next) => {
+      if (!isDisabled('bodyParserUrlEncoder', req)) {
+        bodyParser.urlencoded({ extended: true })(req, res, next)
+      } else {
+        next()
+      }
+    })
 
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))

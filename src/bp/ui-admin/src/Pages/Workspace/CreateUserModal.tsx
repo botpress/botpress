@@ -1,46 +1,80 @@
+import { CreatedUser, WorkspaceUser } from 'common/typings'
 import React, { Component } from 'react'
-import { Button, Modal, FormGroup, Input, Label, ModalHeader, ModalBody } from 'reactstrap'
 import { MdGroupAdd } from 'react-icons/md'
-
 import { connect } from 'react-redux'
-import { fetchRoles } from '../../reducers/roles'
-import api from '../../api'
-import AsyncSelect from 'react-select/lib/AsyncCreatable'
 import Select from 'react-select'
+import AsyncSelect from 'react-select/lib/AsyncCreatable'
+import { Button, FormGroup, Label, Modal, ModalBody, ModalHeader } from 'reactstrap'
+import { AppState } from 'src/reducers'
 
-class CreateUserModal extends Component {
-  state = {
+import api from '../../api'
+import { fetchRoles } from '../../reducers/roles'
+
+type Props = {
+  isOpen?: boolean
+  toggleOpen?: () => void
+  onUserAdded?: () => void
+  onUserCreated?: (newUser: CreatedUser) => void
+} & ReturnType<typeof mapStateToProps> & { fetchRoles }
+
+type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
+
+interface State {
+  email: string
+  users: WorkspaceUser[]
+  roles: SelectOption<string>[]
+  strategies: SelectOption<string>[]
+
+  selectedUser?: SelectOption<WorkspaceUser>
+  selectedOption?: SelectOption<string>
+  selectedStrategy?: SelectOption<string>
+  selectedRole?: SelectOption<string>
+
+  displayStrategy: boolean
+}
+
+class CreateUserModal extends Component<Props, State> {
+  private emailInput!: HTMLInputElement
+  private formEl: any
+
+  readonly state: State = {
     email: '',
-    role: null,
-    displayStrategy: false,
-    selectedUser: undefined,
-    selectedStrategy: undefined
+    roles: [],
+    users: [],
+    strategies: [],
+    displayStrategy: false
   }
 
   componentDidMount() {
-    this.props.fetchRoles()
+    // tslint:disable-next-line: no-floating-promises
     this.loadStrategies()
+    // tslint:disable-next-line: no-floating-promises
     this.loadUsers()
+    this.loadRoles()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (!prevProps.isOpen && this.props.isOpen) {
       this.emailInput.focus()
     }
 
     if (!prevProps.roles.length && this.props.roles.length) {
-      this.setState({ role: this.props.roles[0].id })
+      this.loadRoles()
     }
+  }
+
+  private loadRoles() {
+    if (!this.props.roles.length) {
+      return this.props.fetchRoles()
+    }
+
+    const roles = this.props.roles.map(x => ({ value: x.id, label: x.id }))
+    this.setState({ roles, selectedRole: roles[0] })
   }
 
   async loadStrategies() {
     const { data } = await api.getAnonymous().get('/auth/config')
-
-    this.setState({
-      strategies: data.payload.strategies.map(x => {
-        return { label: x.strategyId, value: x.strategyId }
-      })
-    })
+    this.setState({ strategies: data.payload.strategies.map(x => ({ label: x.strategyId, value: x.strategyId })) })
   }
 
   async loadUsers() {
@@ -48,53 +82,48 @@ class CreateUserModal extends Component {
     this.setState({ users: data.payload })
   }
 
-  onEmailChanged = e => {
-    this.setState({ email: e.target.value })
-  }
-
-  onRoleChange = e => {
-    this.setState({ role: e.target.value })
-  }
-
   createUser = async e => {
-    const { selectedUser, selectedStrategy } = this.state
-
     e.preventDefault()
-    if (!this.isFormValid() || !selectedUser) {
+
+    const { selectedUser, selectedStrategy, selectedRole } = this.state
+    if (!selectedUser || !selectedStrategy || !selectedRole || !this.isFormValid()) {
       return
     }
 
-    if (selectedUser['__isNew__']) {
+    if (selectedUser!['__isNew__']) {
       const { data } = await api.getSecured().post('/admin/users', {
         email: selectedUser.value,
         strategy: selectedStrategy.value,
-        role: this.state.role
+        role: selectedRole.value
       })
 
       this.props.onUserCreated && this.props.onUserCreated(data.payload)
     } else {
       const { email, strategy } = selectedUser.value
-      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: this.state.role })
+      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: selectedRole.value })
       this.props.onUserAdded && this.props.onUserAdded()
     }
   }
 
-  isFormValid = () => {
-    return this.formEl && this.formEl.checkValidity()
-  }
+  isFormValid = () => this.formEl && this.formEl.checkValidity()
 
-  findUsers = async inputValue => {
+  findUsers = async (inputValue: string) => {
     if (!inputValue.length || !this.state.users) {
       return
     }
 
     const searchString = inputValue.toLowerCase()
-    return this.state.users.filter(x => x.email.toLowerCase().includes(searchString)).map(user => {
-      return { label: `${user.email} (${user.strategy})`, value: user }
-    })
+    return this.state.users
+      .filter(x => x.email.toLowerCase().includes(searchString))
+      .map((user: any) => {
+        return { label: `${user.email} (${user.strategy})`, value: user }
+      })
   }
 
   handleUserChanged = selectedUser => {
+    if (!this.state.strategies) {
+      return
+    }
     this.setState({
       selectedUser,
       displayStrategy: selectedUser && selectedUser['__isNew__'],
@@ -109,22 +138,12 @@ class CreateUserModal extends Component {
       <AsyncSelect
         cacheOptions
         defaultOptions
-        ref={input => {
+        ref={(input: any) => {
           this.emailInput = input
         }}
         value={this.state.selectedOption}
         loadOptions={this.findUsers}
         onChange={this.handleUserChanged}
-      />
-    )
-  }
-
-  renderStrategies() {
-    return (
-      <Select
-        options={this.state.strategies}
-        onChange={this.handleStrategyChanged}
-        value={this.state.selectedStrategy}
       />
     )
   }
@@ -148,18 +167,20 @@ class CreateUserModal extends Component {
             {this.state.displayStrategy && (
               <FormGroup>
                 <Label for="strategy">Authentication Strategy</Label>
-                {this.renderStrategies()}
+                <Select
+                  options={this.state.strategies}
+                  onChange={this.handleStrategyChanged}
+                  value={this.state.selectedStrategy}
+                />
               </FormGroup>
             )}
             <FormGroup>
               <Label for="role">Role</Label>
-              <Input required type="select" value={this.state.role} onChange={this.onRoleChange}>
-                {this.props.roles.map(role => (
-                  <option value={role.id} key={role.id}>
-                    {role.name}
-                  </option>
-                ))}
-              </Input>
+              <Select
+                options={this.props.roles.map(x => ({ value: x.id, label: x.id }))}
+                onChange={selectedRole => this.setState({ selectedRole })}
+                value={this.state.selectedRole}
+              />
             </FormGroup>
             <Button className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
               <MdGroupAdd /> Add
@@ -171,7 +192,7 @@ class CreateUserModal extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   roles: state.roles.roles
 })
 

@@ -13,7 +13,6 @@ import Diagram from './containers/Diagram'
 import NodeProps from './containers/NodeProps'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
-import Toolbar from './containers/Toolbar'
 import style from './style.scss'
 
 class FlowBuilder extends Component<Props, State> {
@@ -104,22 +103,7 @@ class FlowBuilder extends Component<Props, State> {
             this.props.switchFlow(`${name}.flow.json`)
           }}
         />
-        {!readOnly && (
-          <Toolbar
-            onSaveAllFlows={() => {
-              this.diagram.saveAllFlows()
-            }}
-            onDelete={() => {
-              this.diagram.deleteSelectedElements()
-            }}
-            onCopy={() => {
-              this.diagram.copySelectedElementToBuffer()
-            }}
-            onPaste={() => {
-              this.diagram.pasteElementFromBuffer()
-            }}
-          />
-        )}
+
         <div className={style.diagram}>
           <Diagram
             readOnly={readOnly}

@@ -17,6 +17,7 @@ function render(data) {
     ...events,
     {
       type: 'file',
+      title: data.title,
       url: url.resolve(data.BOT_URL, data.image)
     }
   ]
@@ -31,7 +32,7 @@ function renderMessenger(data) {
       value: data.typing
     })
   }
-  
+
   return [
     ...events,
     {
@@ -65,6 +66,30 @@ function renderTelegram(data) {
   ]
 }
 
+function renderSlack(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'image',
+      title: data.title && {
+        type: 'plain_text',
+        text: data.title
+      },
+      image_url: url.resolve(data.BOT_URL, data.image),
+      alt_text: 'image'
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
@@ -72,6 +97,8 @@ function renderElement(data, channel) {
     return renderMessenger(data)
   } else if (channel === 'telegram') {
     return renderTelegram(data)
+  } else if (channel === 'slack') {
+    return renderSlack(data)
   }
 
   return [] // TODO Handle channel not supported
