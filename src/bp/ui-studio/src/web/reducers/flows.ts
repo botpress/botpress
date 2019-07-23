@@ -476,11 +476,16 @@ reducer = reduceReducers(
 
         return {
           ...state,
-          currentDiagramAction: 'insert_skill',
-          nodeInBuffer: newNode,
           flowsByName: {
             ...state.flowsByName,
-            [newFlow.name]: newFlow
+            [newFlow.name]: newFlow,
+            [state.currentFlow]: {
+              ...state.flowsByName[state.currentFlow],
+              nodes: [
+                ...state.flowsByName[state.currentFlow].nodes,
+                _.merge(newNode, _.pick(payload.location, ['x', 'y']))
+              ]
+            }
           }
         }
       },

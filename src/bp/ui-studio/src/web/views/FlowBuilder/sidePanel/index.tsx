@@ -1,12 +1,28 @@
-import React, { Component } from 'react'
-
+import { Icon } from '@blueprintjs/core'
+import _ from 'lodash'
 import reject from 'lodash/reject'
+import React, { Component } from 'react'
+import { RouteComponentProps } from 'react-router'
+import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 
 import FlowsList from './FlowsList'
-import { SidePanel, SidePanelSection, PaddedContent } from '~/components/Shared/Interface'
-import { Tooltip } from '@blueprintjs/core'
+import FlowTools from './FlowTools'
+import Toolbar from './Toolbar'
 
-export default class PanelContent extends Component {
+type Props = {
+  flowsNames: string[]
+  onCreateFlow: (flowName: string) => void
+  flows: any
+  deleteFlow: (flowName: string) => void
+  renameFlow: any
+  history: any
+  readOnly: boolean
+  dirtyFlows: any
+  duplicateFlow: any
+  currentFlow: any
+} & RouteComponentProps
+
+export default class PanelContent extends Component<Props> {
   createFlow = () => {
     let name = prompt('Enter the name of the new flow')
 
@@ -29,35 +45,21 @@ export default class PanelContent extends Component {
 
   goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
-  highlightNode = node => {
-    window.highlightNode(this.props.currentFlow && this.props.currentFlow.name, node)
-  }
-
   render() {
     const normalFlows = reject(this.props.flows, x => x.name.startsWith('skills/'))
     const flowsName = normalFlows.map(x => {
       return { name: x.name }
     })
-    const createFlowAction = { icon: 'add', key: 'create', tooltip: 'Create new flow', onClick: this.createFlow }
+    const createFlowAction = {
+      icon: <Icon icon="add" />,
+      key: 'create',
+      tooltip: 'Create new flow',
+      onClick: this.createFlow
+    }
 
     return (
       <SidePanel>
-        {!!this.props.flowProblems.length && (
-          <SidePanelSection label="Flow Problems">
-            <PaddedContent>
-              {this.props.flowProblems.map(node => (
-                <div>
-                  <Tooltip content="Click to highlight node">
-                    <a onClick={() => this.highlightNode(node.nodeName)}>
-                      <strong>{node.nodeName}</strong>
-                    </a>
-                  </Tooltip>
-                  : Missing <strong>{node.missingPorts}</strong> links
-                </div>
-              ))}
-            </PaddedContent>
-          </SidePanelSection>
-        )}
+        <Toolbar />
 
         <SidePanelSection label={'Flows'} actions={!this.props.readOnly && [createFlowAction]}>
           <FlowsList
@@ -70,6 +72,10 @@ export default class PanelContent extends Component {
             renameFlow={this.props.renameFlow}
             currentFlow={this.props.currentFlow}
           />
+        </SidePanelSection>
+
+        <SidePanelSection label="Tools">
+          <FlowTools />
         </SidePanelSection>
       </SidePanel>
     )

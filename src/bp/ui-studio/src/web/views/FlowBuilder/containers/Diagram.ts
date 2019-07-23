@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import {
+  buildNewSkill,
   copyFlowNode,
   createFlow,
   createFlowNode,
@@ -23,7 +24,8 @@ const mapStateToProps = state => ({
   flows: state.flows,
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
-  currentDiagramAction: state.flows.currentDiagramAction
+  currentDiagramAction: state.flows.currentDiagramAction,
+  canPasteNode: Boolean(state.flows.nodeInBuffer)
 })
 
 const mapDispatchToProps = {
@@ -40,7 +42,8 @@ const mapDispatchToProps = {
   copyFlowNode,
   pasteFlowNode,
   insertNewSkillNode,
-  updateFlowProblems
+  updateFlowProblems,
+  buildSkill: buildNewSkill
 }
 
 const ConnectedDiagram = connect(
