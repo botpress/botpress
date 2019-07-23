@@ -52,11 +52,8 @@ export default class ConfusionEngine extends ScopedEngine {
       this._confusionComputing = true
 
       const contexts = _.chain(dataset)
-        .flatMap(group =>
-          _.chain(group)
-            .flatMap(entry => entry.definition.contexts)
-            .value()
-        )
+        .flatMap(group => group.map(entry => entry.definition.contexts))
+        .flatten()
         .uniq()
         .value()
 
