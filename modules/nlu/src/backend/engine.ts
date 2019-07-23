@@ -20,7 +20,7 @@ import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { makeTokens } from './tools/token-utils'
 import { allInRange } from './tools/math'
-import { LanguageProvider, NluMlRecommendations } from './typings'
+import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -62,7 +62,7 @@ export default class ScopedEngine implements Engine {
     slotDefinitions: sdk.NLU.SlotDefinition[],
     intentName: string,
     contexts: string[]
-  ) => Promise<Sequence>
+  ) => Promise<TrainingSequence>
 
   // move this in a functionnal util file?
   private readonly flatMapIdendity = (a, b) => a.concat(b)
@@ -247,7 +247,7 @@ export default class ScopedEngine implements Engine {
       .uniq()
       .value()
 
-  private getTrainingSets = async (intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<Sequence[]> =>
+  private getTrainingSets = async (intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<TrainingSequence[]> =>
     await Promise.all(
       _.chain(intentDefs)
         .flatMap(await this.generateTrainingSequenceFromIntent(lang))
@@ -256,7 +256,7 @@ export default class ScopedEngine implements Engine {
 
   private generateTrainingSequenceFromIntent = (lang: string) => async (
     intent: sdk.NLU.IntentDefinition
-  ): Promise<Sequence[]> =>
+  ): Promise<TrainingSequence[]> =>
     Promise.all(
       (intent.utterances[lang] || []).map(
         async utterance =>
@@ -411,7 +411,7 @@ export default class ScopedEngine implements Engine {
 
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
-    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
+    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds)
     if (exactIntent) {
       ds.intent = exactIntent
       ds.intents = [exactIntent]
