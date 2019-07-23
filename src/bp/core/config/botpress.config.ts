@@ -1,3 +1,4 @@
+import { ConverseConfig } from 'botpress/sdk'
 import { UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
 
@@ -27,6 +28,17 @@ export interface DialogConfig {
    * @default 30m
    */
   sessionTimeoutInterval: string
+}
+
+/**
+ * Configuration file definition for the Converse API
+ */
+export type ConverseConfig = {
+  /**
+   * The timeout of the converse API requests
+   * @default 5s
+   */
+  timeout: string
 }
 
 export interface LogsConfig {
@@ -126,6 +138,7 @@ export type BotpressConfig = {
       maxAge: string
     }
   }
+  converse: ConverseConfig
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>

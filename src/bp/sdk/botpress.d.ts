@@ -233,8 +233,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -755,6 +755,7 @@ declare module 'botpress/sdk' {
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
     }
+    converse?: ConverseConfig
     dialog?: DialogConfig
     logs?: LogsConfig
     defaultLanguage: string
@@ -801,9 +802,25 @@ declare module 'botpress/sdk' {
     expiration: string
   }
 
+  /**
+   * Configuration definition of Dialog Sessions
+   */
   export interface DialogConfig {
+    /** The interval until a session context expires */
     timeoutInterval: string
+    /** The interval until a session expires */
     sessionTimeoutInterval: string
+  }
+
+  /**
+   * Configuration file definition for the Converse API
+   */
+  export type ConverseConfig = {
+    /**
+     * The timeout of the converse API requests
+     * @default 5s
+     */
+    timeout: string
   }
 
   /**
