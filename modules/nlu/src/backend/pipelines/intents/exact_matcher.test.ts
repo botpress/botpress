@@ -1,6 +1,8 @@
-import { TrainingSequence, KnownSlot } from '../../typings'
 import * as sdk from 'botpress/sdk'
-import { makeTokens } from '../../tools/make-tokens'
+
+import { makeTokens } from '../../tools/token-utils'
+import { KnownSlot, TrainingSequence } from '../../typings'
+
 import ExactMatcher from './exact_matcher'
 
 const I_LIKE_ANIMALS_INTENT = 'I_LIKE_ANIMALS_INTENT'

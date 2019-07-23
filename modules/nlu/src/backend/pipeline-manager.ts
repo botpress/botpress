@@ -18,7 +18,7 @@ export class PipelineManager {
     return this
   }
 
-  public async run(): Promise<NLUStructure> {
+  public run = async (): Promise<NLUStructure> => {
     if (!this._nluds) {
       throw new Error('You must add a NLUDS to the pipeline manager before runinng it')
     }

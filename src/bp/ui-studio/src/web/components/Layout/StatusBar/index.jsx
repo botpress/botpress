@@ -169,7 +169,6 @@ class StatusBar extends React.Component {
             contentLang={this.props.contentLang}
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
-            display={this.state.contexts.length === 1}
           />
           <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
             <ActionItem

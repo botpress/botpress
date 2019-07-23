@@ -9,7 +9,7 @@ import { sanitizeFilenameNoExt } from '../util'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
-const N_KEEP_MODELS = 10
+const N_KEEP_MODELS = 25
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -275,19 +275,13 @@ export default class Storage {
   private async _getAvailableModels(includeGlobalModels: boolean, lang: string): Promise<ModelMeta[]> {
     const modelDir = `${this.modelsDir}/${lang}`
     const botModels = await this.botGhost.directoryListing(modelDir, '*.+(bin|vec)')
+
     const globalModels = includeGlobalModels ? await this.globalGhost.directoryListing(modelDir, '*.+(bin|vec)') : []
 
     return [...botModels, ...globalModels]
       .map(x => {
         const fileName = path.basename(x)
         const parts = fileName.replace(/\.(bin|vec)$/i, '').split('__')
-
-        if (parts.length !== 4) {
-          // we don't support legacy format (old models)
-          // this is non-breaking as it will simply re-train the models
-          // DEPRECATED – REMOVED THIS CONDITION IN BP > 11
-          return undefined
-        }
 
         return {
           fileName,
@@ -308,8 +302,10 @@ export default class Storage {
 
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {
     const modelsMeta = await this._getAvailableModels(true, lang)
+
     return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
       const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
+
       return {
         meta,
         model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)
