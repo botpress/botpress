@@ -22,7 +22,7 @@ interface SkillDefinition {
 const FlowTools: FC<{ skills: SkillDefinition[]; user: any }> = props => {
   return (
     <div className={style.toolPanel}>
-      <ToolItem label="Standard" type="node" id="standard" icon="chat" />
+      <ToolItem label="Node" type="node" id="standard" icon="chat" />
       <PermissionsChecker user={props.user} op="write" res="bot.skills">
         <div className={style.title}>Skills</div>
         <div className={style.section}>

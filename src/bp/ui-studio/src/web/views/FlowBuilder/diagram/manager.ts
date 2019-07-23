@@ -63,6 +63,10 @@ export class DiagramManager {
 
   // Syncs model with the store (only update changes instead of complete initialization)
   syncModel() {
+    if (!this.activeModel) {
+      return this.initializeModel()
+    }
+
     // Don't serialize more than once
     const snapshot = _.once(this._serialize)
 
