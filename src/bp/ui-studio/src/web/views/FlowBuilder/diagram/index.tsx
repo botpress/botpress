@@ -107,6 +107,11 @@ export default class FlowBuilder extends Component<Props> {
     const isStartNode = targetName === this.props.currentFlow.startNode
     const isNodeTargeted = target instanceof NodeModel
 
+    // Prevents diisplaying an empty menu
+    if (!isNodeTargeted && !this.props.canPasteNode) {
+      return
+    }
+
     ContextMenu.show(
       <Menu>
         {!isNodeTargeted && this.props.canPasteNode && (
@@ -123,13 +128,13 @@ export default class FlowBuilder extends Component<Props> {
                 this.copySelectedElementToBuffer()
               }}
             />
+            <MenuDivider />
             <MenuItem
               icon="star"
               text="Set as Start Node"
               disabled={!canMakeStartNode()}
               onClick={() => setAsCurrentNode()}
             />
-            <MenuDivider />
             <MenuItem
               icon="minimize"
               text="Disconnect Node"
