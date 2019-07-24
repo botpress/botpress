@@ -299,6 +299,14 @@ export default class HTTPServer {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
     }
 
+    if (!process.env.EXTERNAL_URL && !config.externalUrl) {
+      this.logger.warn(
+        `External URL is not configured. Using default value of ${
+          process.EXTERNAL_URL
+        }. Some features may not work proprely`
+      )
+    }
+
     const hostname = config.host === 'localhost' ? undefined : config.host
     await Promise.fromCallback(callback => {
       this.httpServer.listen(process.PORT, hostname, config.backlog, callback)
