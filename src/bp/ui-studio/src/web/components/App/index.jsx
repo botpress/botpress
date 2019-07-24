@@ -54,7 +54,12 @@ class App extends Component {
     })
 
     EventBus.default.on('flow.changes', payload => {
-      this.props.receiveFlowsModification(payload)
+      // TODO: should check if real uniq Id is different. Multiple browser windows can be using the same email. There should be a uniq window Id.
+      const isOtherUser = this.props.user.email !== payload.userEmail
+      const isSameBot = payload.botId === window.BOT_ID
+      if (isOtherUser && isSameBot) {
+        this.props.receiveFlowsModification(payload)
+      }
     })
 
     EventBus.default.on('hints.updated', () => {
@@ -87,7 +92,11 @@ const mapDispatchToProps = {
   receiveFlowsModification
 }
 
+const mapStateToProps = state => ({
+  user: state.user
+})
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App)

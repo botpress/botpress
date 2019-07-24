@@ -19,6 +19,8 @@ const FLOW_DIR = 'flows'
 
 interface FlowModification {
   name: string
+  botId: string
+  userEmail: string
   modification: 'rename' | 'delete' | 'create' | 'update'
   newName?: string
   payload?: any
@@ -108,23 +110,27 @@ export class FlowService {
     }
   }
 
-  async insertFlow(botId: string, flow: FlowView) {
+  async insertFlow(botId: string, flow: FlowView, userEmail: string) {
     await this._upsertFlow(botId, flow)
 
     this.notifyChanges({
+      botId,
       name: flow.name,
       modification: 'create',
-      payload: flow
+      payload: flow,
+      userEmail
     })
   }
 
-  async updateFlow(botId: string, flow: FlowView) {
+  async updateFlow(botId: string, flow: FlowView, userEmail: string) {
     await this._upsertFlow(botId, flow)
 
     this.notifyChanges({
       name: flow.name,
+      botId,
       modification: 'update',
-      payload: flow
+      payload: flow,
+      userEmail
     })
   }
 
@@ -146,7 +152,7 @@ export class FlowService {
     this._allFlows.clear()
   }
 
-  async deleteFlow(botId: string, flowName: string) {
+  async deleteFlow(botId: string, flowName: string, userEmail: string) {
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)
@@ -164,11 +170,13 @@ export class FlowService {
 
     this.notifyChanges({
       name: flowName,
-      modification: 'delete'
+      botId,
+      modification: 'delete',
+      userEmail
     })
   }
 
-  async renameFlow(botId: string, previousName: string, newName: string) {
+  async renameFlow(botId: string, previousName: string, newName: string, userEmail: string) {
     process.ASSERT_LICENSED()
 
     const ghost = this.ghost.forBot(botId)
@@ -189,8 +197,10 @@ export class FlowService {
 
     this.notifyChanges({
       name: previousName,
+      botId,
       modification: 'rename',
-      newName: newName
+      newName: newName,
+      userEmail
     })
   }
 

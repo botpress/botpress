@@ -291,8 +291,9 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
         const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
 
-        await this.flowService.insertFlow(botId, flow)
+        await this.flowService.insertFlow(botId, flow, userEmail)
 
         res.sendStatus(200)
       })
@@ -305,11 +306,12 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
-          await this.flowService.renameFlow(botId, flowName, flow.name)
+          await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
         } else {
-          await this.flowService.updateFlow(botId, flow)
+          await this.flowService.updateFlow(botId, flow, userEmail)
         }
         res.sendStatus(200)
       })
@@ -322,7 +324,9 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
 
-        await this.flowService.deleteFlow(botId, flowName as string)
+        const userEmail = req.tokenUser!.email
+
+        await this.flowService.deleteFlow(botId, flowName as string, userEmail)
 
         res.sendStatus(200)
       })
