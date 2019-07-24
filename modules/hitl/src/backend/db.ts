@@ -248,7 +248,6 @@ export default class HitlDb {
       .limit(100)
       .select('*')
       .then(results => ({
-        total: 0,
         sessions: results
       }))
   }
