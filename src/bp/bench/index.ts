@@ -35,7 +35,7 @@ class Bench {
   maxMpsReached: number = 0
 
   constructor(args) {
-    this.url = args.url
+    this.url = args.url.endsWith('/') ? args.url : args.url + '/'
     this.botId = args.botId
     this.slaTarget = args.slaTarget
     this.slaLimit = args.slaLimit
@@ -79,10 +79,10 @@ class Bench {
 
   async validateBotConfig() {
     try {
-      await axios.get(`${this.url}/studio/${this.botId}/env.js`)
+      await axios.get(`${this.url}studio/${this.botId}/env.js`)
     } catch (err) {
       this.log(`
-      Couldn't reach your bot at ${this.url}/studio/${this.botId}/
+      Couldn't reach your bot at ${this.url}studio/${this.botId}/
       Please check your configuration and make sure your bot is running.
 
       You can use ./bp bench --url and --botId to configure the path.
@@ -125,7 +125,7 @@ class Bench {
     let status
     try {
       const result = await axios.post(
-        `${this.url}/api/v1/bots/${this.botId}/converse/benchmark${userId}`,
+        `${this.url}api/v1/bots/${this.botId}/converse/benchmark${userId}`,
         this.randomMessage
       )
       status = result.status
