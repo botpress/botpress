@@ -79,7 +79,9 @@ class FlowBuilder extends Component<Props, State> {
       FlowToaster.show({
         message: `The modification "${this.props.lastModification.modification}" was applied on the flow "${
           this.props.lastModification.name
-        }". Somebody else might be working on the same flow. Please reload the page`,
+        }" by ${
+          this.props.lastModification.userEmail
+        }. Please reload the page before continuing edition or changes will be overriden.`,
         intent: Intent.WARNING,
         timeout: 0,
         onDismiss: this.props.clearFlowsModification
