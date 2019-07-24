@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "botToken": {
+      "description": "This is the value of \"Bot User OAuth Access Token\" on the page OAuth & Permissions",
+      "type": "string"
+    },
+    "signingSecret": {
+      "description": "The value of Signing Secret on page Basic Information",
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "botToken",
+    "enabled",
+    "signingSecret"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+
