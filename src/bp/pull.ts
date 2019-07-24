@@ -13,7 +13,7 @@ export default ({ url, authToken, targetDir }) => {
     return
   }
 
-  url = url.endsWith('/') ? url : url + '/'
+  url = url.replace(/\/+$/, '')
   console.log(chalk.blue(`Pulling pending changes from ${chalk.bold(url)}`))
   _pull(url, authToken, targetDir)
     .then(() => {
@@ -38,7 +38,7 @@ async function _fetchFullExport(baseUrl: string, auth: string) {
   }
 
   try {
-    const { data } = await axios.get(`${baseUrl}api/v1/admin/versioning/export`, options)
+    const { data } = await axios.get(`${baseUrl}/api/v1/admin/versioning/export`, options)
     return data
   } catch (err) {
     throw Error(`Couldn't export, server responded with \n ${err.response.status} ${err.response.statusText}`)

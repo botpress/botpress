@@ -206,11 +206,11 @@ export class BotsRouter extends CustomRouter {
               // Common
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
-              window.API_PATH = "${process.ROOT_PATH}api/v1";
-              window.BOT_API_PATH = "${process.ROOT_PATH}api/v1/bots/${botId}";
+              window.API_PATH = "${process.ROOT_PATH}/api/v1";
+              window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
               window.BOT_ID = "${botId}";
               window.BOT_NAME = "${bot.name}";
-              window.BP_BASE_PATH = "${process.ROOT_PATH}${app}/${botId}";
+              window.BP_BASE_PATH = "${process.ROOT_PATH}/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};

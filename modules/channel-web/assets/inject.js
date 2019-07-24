@@ -25,10 +25,10 @@ window.addEventListener('message', function(payload) {
 function init(config) {
   const host = config.host || window.ROOT_PATH || ''
   const botId = config.botId || ''
-  const cssHref = host + 'assets/modules/channel-web/inject.css'
+  const cssHref = host + '/assets/modules/channel-web/inject.css'
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
   const options = encodeURIComponent(JSON.stringify({ config: config }))
-  let iframeSrc = host + 'lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
+  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
   if (config.ref) {
     iframeSrc += '&ref=' + encodeURIComponent(config.ref)
   }

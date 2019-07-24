@@ -166,10 +166,10 @@ export default class HTTPServer {
     const externalUrl = botpressConfig.httpServer.externalUrl
 
     if (!externalUrl) {
-      process.ROOT_PATH = '/'
+      process.ROOT_PATH = ''
     } else {
       const pathname = new URL(externalUrl).pathname
-      process.ROOT_PATH = pathname.endsWith('/') ? pathname : pathname + '/'
+      process.ROOT_PATH = pathname.replace(/\/+$/, '')
     }
   }
 
@@ -327,7 +327,7 @@ export default class HTTPServer {
   setupStaticRoutes(app) {
     // Dynamically updates the static paths of index files
     const resolveIndexPaths = page => (req, res) => {
-      const newPath = `<base href="${process.ROOT_PATH}" /><script>window.ROOT_PATH='${process.ROOT_PATH}'</script>`
+      const newPath = `<base href="${process.ROOT_PATH}/" /><script>window.ROOT_PATH='${process.ROOT_PATH}'</script>`
 
       fs.readFile(this.resolveAsset(page), (err, data) => {
         res.contentType('text/html')
@@ -351,7 +351,7 @@ export default class HTTPServer {
     app.use('/admin', express.static(this.resolveAsset('ui-admin/public'), { index: false }))
     app.get(['/admin', '/admin/*'], resolveIndexPaths('ui-admin/public/index.html'))
 
-    app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}admin`))
+    app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}/admin`))
   }
 
   createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
@@ -374,7 +374,7 @@ export default class HTTPServer {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
     const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
     return {
-      baseURL: `${basePath}api/v1/bots/${botId}`,
+      baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
         Authorization: `Bearer ${serverToken}`
       }
