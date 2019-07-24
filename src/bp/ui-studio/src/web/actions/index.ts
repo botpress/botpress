@@ -104,7 +104,7 @@ export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, 
   // If node is a skill and there's no references to it, then the complete flow is deleted
   const deletedFlows = getDeletedFlows(state)
   if (deletedFlows.length) {
-    await FlowsAPI.deleteFlow(state.flow, deletedFlows[0])
+    await FlowsAPI.deleteFlow(state.flows, deletedFlows[0])
   }
 })
 
@@ -260,10 +260,11 @@ export const requestUpdateSkill = createAction('SKILLS/UPDATE')
 export const buildNewSkill = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 
-export const insertNewSkill = wrapAction(requestInsertNewSkill, async (_payload, state) => {
-  const newFlows: string[] = getNewFlows()
+export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
+  const newFlows: string[] = getNewFlows(state)
   for (const newFlow of newFlows) {
-    await FlowsAPI.createFlow(state.flow, newFlow)
+    await FlowsAPI.createFlow(state.flows, newFlow)
   }
 })
 
@@ -271,7 +272,10 @@ export const insertNewSkillNode = wrapAction(requestInsertNewSkillNode, updateCu
 
 export const updateSkill = wrapAction(requestUpdateSkill, async (payload, state) => {
   const { editFlowName } = payload
-  await Promise.all([FlowsAPI.updateFlow(state.flow, editFlowName), FlowsAPI.updateFlow(state.flow, state.currentFlow)])
+  await Promise.all([
+    FlowsAPI.updateFlow(state.flows, editFlowName),
+    FlowsAPI.updateFlow(state.flows, state.currentFlow)
+  ])
 })
 
 export const editSkill = createAction('SKILLS/EDIT')

@@ -196,67 +196,6 @@ export default class FlowBuilder extends Component<Props> {
     this.checkForProblems()
   }
 
-<<<<<<< HEAD
-  serialize = () => {
-    const model = this.activeModel.serializeDiagram()
-    const nodes = model.nodes.map((node: any) => {
-      return {
-        ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
-        next: node.next.map((next, index) => {
-          const port = _.find(node.ports, { name: 'out' + index })
-
-          if (!port || !port.links || !port.links.length) {
-            return next
-          }
-
-          const link = _.find(model.links, { id: port.links[0] })
-          // @ts-ignore
-          const otherNodeId = link && (link.source === node.id ? link.target : link.source)
-          const otherNode = _.find(model.nodes, { id: otherNodeId })
-
-          if (!otherNode) {
-            return next
-          }
-
-          return { condition: next.condition, node: otherNode['name'] }
-        }),
-        position: _.pick(node, 'x', 'y')
-      }
-    })
-
-    const links = this.serializeLinks()
-
-    return { links, nodes }
-  }
-
-  serializeLinks() {
-    const diagram = this.activeModel.serializeDiagram()
-
-    return diagram.links.map(link => {
-      const instance = this.activeModel.getLink(link.id)
-      const model = {
-        source: link.source,
-        sourcePort: instance.getSourcePort().name,
-        target: link.target,
-        points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
-      }
-
-      if (instance.getSourcePort().name === 'in') {
-        // We reverse the model so that target is always an input port
-        model.source = link.target
-        model.sourcePort = instance.getTargetPort().name
-        model.target = link.source
-        model.points = _.reverse(model.points)
-      }
-
-      return model
-    })
-=======
-  saveAllFlows() {
-    this.props.saveAllFlows()
->>>>>>> 9e15a97158f81abc15c6fe6c6f85fa12147185d7
-  }
-
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
@@ -389,7 +328,6 @@ interface Props {
   currentFlowNode: any
   removeFlowNode: any
   buildSkill: any
-  saveAllFlows: any
   readOnly: boolean
   canPasteNode: boolean
 }

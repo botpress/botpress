@@ -474,6 +474,8 @@ reducer = reduceReducers(
           onReceive: null
         }
 
+        const newFlowHash = computeHashForFlow(newFlow)
+
         return {
           ...state,
           flowsByName: {
@@ -486,6 +488,10 @@ reducer = reduceReducers(
                 _.merge(newNode, _.pick(payload.location, ['x', 'y']))
               ]
             }
+          },
+          currentHashes: {
+            ...state.currentHashes,
+            [newFlow.name]: newFlowHash
           }
         }
       },
@@ -750,6 +756,7 @@ reducer = reduceReducers(
       [requestDuplicateFlow]: updateCurrentHash,
       [requestRemoveFlowNode]: updateCurrentHash,
       [requestPasteFlowNode]: updateCurrentHash,
+      [requestInsertNewSkill]: updateCurrentHash,
       [requestInsertNewSkillNode]: updateCurrentHash,
       [requestUpdateSkill]: updateCurrentHash,
       [requestPasteFlowNodeElement]: updateCurrentHash

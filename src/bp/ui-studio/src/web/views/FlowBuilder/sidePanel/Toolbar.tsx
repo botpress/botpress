@@ -2,7 +2,7 @@ import { AnchorButton, Icon, Intent, Popover, Position, Tag, Tooltip } from '@bl
 import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
-import { flowEditorRedo, flowEditorUndo, saveAllFlows } from '~/actions'
+import { flowEditorRedo, flowEditorUndo } from '~/actions'
 import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { canFlowRedo, canFlowUndo } from '~/reducers'
 import { getCurrentFlow } from '~/reducers'
@@ -60,9 +60,6 @@ const MiniToolbar = props => {
         <Tooltip content="Redo" position={Position.BOTTOM}>
           <AnchorButton icon="redo" disabled={!props.canRedo} onClick={props.redo} />
         </Tooltip>
-        <Tooltip content="Save" position={Position.BOTTOM}>
-          <AnchorButton icon="floppy-disk" onClick={() => props.saveAllFlows()} />
-        </Tooltip>
       </LeftToolbarButtons>
       <RightToolbarButtons>
         <FlowProblems {...props} />
@@ -80,8 +77,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   undo: flowEditorUndo,
-  redo: flowEditorRedo,
-  saveAllFlows
+  redo: flowEditorRedo
 }
 
 export default connect(
