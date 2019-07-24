@@ -27,15 +27,15 @@ export default class Sidebar extends React.Component {
   }
 
   toggleSearch = () => {
-    this.props.customSearcProps.searchClickAction()
+    this.props.customSearchProps.searchClickAction()
   }
 
   clearSearch = () => {
-    this.props.customSearcProps.searchClearAction()
+    this.props.customSearchProps.searchClearAction()
   }
 
   handleChange = e => {
-    this.props.customSearcProps.handleChangeSearch(e.target.value)
+    this.props.customSearchProps.handleChangeSearch(e.target.value)
   }
 
   renderUser = value => {
@@ -82,7 +82,7 @@ export default class Sidebar extends React.Component {
 
     return (
       <div className={style.sidebar}>
-        <div style={{ display: this.props.customSearcProps.searchStatus ? 'none' : 'block' }} className={style.header}>
+        <div style={{ display: this.props.customSearchProps.searchStatus ? 'none' : 'block' }} className={style.header}>
           <div className={style.filter}>
             <OverlayTrigger placement="bottom" overlay={filterTooltip}>
               <i className="material-icons" style={filterStyle} onClick={this.toggleFilter}>
@@ -106,10 +106,10 @@ export default class Sidebar extends React.Component {
           </div>
         </div>
 
-        <div style={{ display: this.props.customSearcProps.searchStatus ? 'block' : 'none' }} className={style.header}>
+        <div style={{ display: this.props.customSearchProps.searchStatus ? 'block' : 'none' }} className={style.header}>
           <div className={style.textfilter}>
             <FormControl
-              value={this.props.customSearcProps.searchText}
+              value={this.props.customSearchProps.searchText}
               onChange={this.handleChange}
               placeholder="Search By Name"
             />

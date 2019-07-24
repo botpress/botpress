@@ -167,7 +167,7 @@ export default class HitlModule extends React.Component {
     }
 
     const currentSessionId = this.state.currentSession && this.state.currentSession.id
-    const customSearcProps = {
+    const customSearchProps = {
       searchStatus: this.state.searchClicked,
       searchText: this.state.searchText,
       searchClickAction: this.searchClickAction,
@@ -186,7 +186,7 @@ export default class HitlModule extends React.Component {
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
-                customSearcProps={customSearcProps}
+                customSearchProps={customSearchProps}
               />
             </Col>
             <Col sm={9} className={style.column} lg={7}>
