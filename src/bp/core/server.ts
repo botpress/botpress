@@ -81,6 +81,7 @@ export default class HTTPServer {
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private indexCache: { [pageUrl: string]: string } = {}
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -327,11 +328,19 @@ export default class HTTPServer {
   setupStaticRoutes(app) {
     // Dynamically updates the static paths of index files
     const resolveIndexPaths = page => (req, res) => {
-      const newPath = `<base href="${process.ROOT_PATH}/" /><script>window.ROOT_PATH='${process.ROOT_PATH}'</script>`
+      res.contentType('text/html')
+
+      if (this.indexCache[page]) {
+        return res.send(this.indexCache[page])
+      }
 
       fs.readFile(this.resolveAsset(page), (err, data) => {
-        res.contentType('text/html')
-        res.send(data.toString().replace(/\<base href=\"\/\" ?\/\>/, newPath))
+        this.indexCache[page] = data
+          .toString()
+          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`) //
+          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`) //
+
+        res.send(this.indexCache[page])
       })
     }
 
