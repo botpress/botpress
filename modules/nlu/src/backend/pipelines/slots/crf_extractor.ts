@@ -236,7 +236,6 @@ export default class CRFExtractor implements SlotExtractor {
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
-      throw Error('Error training K-means model')
       throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
