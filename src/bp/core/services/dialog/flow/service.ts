@@ -1,11 +1,11 @@
-import { Flow, FlowNode, Logger } from 'botpress/sdk'
+import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { FlowView, NodeView } from '..'
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
