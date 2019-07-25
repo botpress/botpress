@@ -225,12 +225,18 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
+
+    if (_.isEmpty(tokens)) {
+      return
+    }
+
     const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical))
+
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
-      throw Error('Error training K-means model')
+      throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
 
