@@ -1,4 +1,4 @@
-import { BotDetails } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -96,3 +96,16 @@ export interface Stage {
   label: string
   action: StageAction
 }
+
+export type FlowView = Flow & {
+  nodes: NodeView[]
+  links: NodeLinkView[]
+}
+
+export type NodeLinkView = {
+  source: string
+  target: string
+  points: { x: number; y: number }[]
+}
+
+export type NodeView = FlowNode & { x: number; y: number }

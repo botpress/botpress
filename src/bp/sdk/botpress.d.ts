@@ -911,6 +911,8 @@ declare module 'botpress/sdk' {
     type?: any
     timeoutNode?: string
     flow?: string
+    /** Used internally by the flow editor */
+    readonly lastModified?: Date
   } & (NodeActions)
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>

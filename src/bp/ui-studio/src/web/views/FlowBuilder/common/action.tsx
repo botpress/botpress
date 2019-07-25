@@ -1,36 +1,47 @@
-import React, { Component } from 'react'
 import classnames from 'classnames'
-import { connect } from 'react-redux'
-import { Popover, OverlayTrigger } from 'react-bootstrap'
 import _ from 'lodash'
 import Mustache from 'mustache'
-import withLanguage from '../../../components/Util/withLanguage'
+import React, { Component } from 'react'
+import { OverlayTrigger, Popover } from 'react-bootstrap'
+import { connect } from 'react-redux'
 import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
-const style = require('./style.scss')
+import withLanguage from '../../../components/Util/withLanguage'
 
-class ActionItem extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { itemId: this.textToItemId(this.props.text) }
+import style from './style.scss'
+
+interface Props {
+  text: string
+  fetchContentItem: any
+  refreshFlowsLinks: any
+  className: any
+  items: any
+  contentLang: any
+  layoutv2?: boolean
+}
+
+class ActionItem extends Component<Props> {
+  state = {
+    itemId: null
   }
 
   componentDidMount() {
-    this.fetchItem(this.textToItemId(this.props.text))
+    this.loadElement()
   }
 
-  textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.text !== this.props.text) {
+      this.loadElement()
+    }
 
-  fetchItem = itemId => {
-    if (itemId) {
-      this.props.fetchContentItem(itemId, { force: true, batched: true }).then(this.props.refreshFlowsLinks)
+    if (prevState.itemId !== this.state.itemId && this.state.itemId) {
+      this.props.fetchContentItem(this.state.itemId, { force: true, batched: true }).then(this.props.refreshFlowsLinks)
     }
   }
 
-  componentWillReceiveProps({ text }) {
-    if (text !== this.props.text) {
-      this.fetchItem(this.textToItemId(text))
-    }
+  loadElement() {
+    const textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+    this.setState({ itemId: textToItemId(this.props.text) })
   }
 
   renderAction() {
@@ -95,6 +106,15 @@ class ActionItem extends Component {
     const mustached = restoreDots(Mustache.render(htmlTpl, vars))
 
     const html = { __html: mustached }
+
+    if (this.props.layoutv2) {
+      return (
+        <div className={classnames(this.props.className, style['action-item'])}>
+          <span className={className} dangerouslySetInnerHTML={html} />
+          {this.props.children}
+        </div>
+      )
+    }
 
     return (
       <div className={classnames(this.props.className, style['action-item'], style.msg)}>

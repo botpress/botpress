@@ -1,31 +1,50 @@
+import _ from 'lodash'
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { FormGroup, InputGroup, FormControl } from 'react-bootstrap'
+import { FormControl, FormGroup, InputGroup } from 'react-bootstrap'
 import { IoIosFolderOpen, IoMdCreate } from 'react-icons/io'
-
+import { connect } from 'react-redux'
+import { fetchContentItem, upsertContentItem } from '~/actions'
 import store from '~/store'
-import { upsertContentItem, fetchContentItem } from '~/actions'
+import ActionItem from '~/views/FlowBuilder/common/action'
+
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
-const style = require('./style.scss')
 
-class ContentPickerWidget extends Component {
+import style from './style.scss'
+
+interface Props {
+  fetchContentItem: any
+  upsertContentItem: any
+  onChange: any
+  contentItem: any
+  onUpdate: any
+  refresh: any
+  placeholder: any
+  itemId: any
+  contentType: any
+  contentLang: any
+  inputId: any
+  layoutv2: any
+}
+
+class ContentPickerWidget extends Component<Props> {
   state = {
     showItemEdit: false,
     contentToEdit: null
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.contentItem) {
-      return
+  componentDidMount() {
+    this.props.fetchContentItem(this.props.itemId)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!this.props.contentItem && prevProps.itemId !== this.props.itemId) {
+      this.props.fetchContentItem(this.props.itemId)
     }
-    this.props.fetchContentItem(nextProps.itemId)
   }
 
   editItem = () => {
-    const { contentItem } = this.props
-
-    this.setState({ showItemEdit: true, contentToEdit: (contentItem && contentItem.formData) || null })
+    this.setState({ showItemEdit: true, contentToEdit: _.get(this.props, 'contentItem.formData') })
   }
 
   handleUpdate = () => {
@@ -44,11 +63,49 @@ class ContentPickerWidget extends Component {
     this.props.onChange(item)
   }
 
+  renderModal() {
+    const schema = _.get(this.props, 'contentItem.schema', { json: {}, ui: {} })
+
+    return (
+      <CreateOrEditModal
+        show={this.state.showItemEdit}
+        schema={schema.json}
+        uiSchema={schema.ui}
+        isEditing={this.state.contentToEdit !== null}
+        handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
+        formData={this.state.contentToEdit}
+        handleEdit={contentToEdit => this.setState({ contentToEdit })}
+        handleCreateOrUpdate={this.handleUpdate}
+      />
+    )
+  }
+
   render() {
     const { inputId, contentItem, placeholder } = this.props
-    const contentType = (contentItem && contentItem.contentType) || this.props.contentType
-    const schema = (contentItem && contentItem.schema) || { json: {}, ui: {} }
+    const contentType = _.get(contentItem, 'contentType', this.props.contentType)
+    const schema = _.get(this.props, 'contentItem.schema', { json: {}, ui: {} })
     const textContent = (contentItem && `${schema.title} | ${contentItem.previews[this.props.contentLang]}`) || ''
+    const actionText = (contentItem && 'say #!' + contentItem.id) || 'say '
+
+    if (this.props.layoutv2) {
+      return (
+        <div onDoubleClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
+          {contentItem ? (
+            <ActionItem text={actionText} layoutv2={true} />
+          ) : (
+            <div
+              className={style.actionBtn}
+              // @ts-ignore
+              onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
+            >
+              &lt; Select Content &gt;
+            </div>
+          )}
+
+          {this.renderModal()}
+        </div>
+      )
+    }
 
     return (
       <FormGroup>
@@ -67,16 +124,7 @@ class ContentPickerWidget extends Component {
               <IoIosFolderOpen size={20} color={'#0078cf'} />
             </div>
           </InputGroup.Addon>
-          <CreateOrEditModal
-            show={this.state.showItemEdit}
-            schema={schema.json}
-            uiSchema={schema.ui}
-            isEditing={this.state.contentToEdit !== null}
-            handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
-            formData={this.state.contentToEdit}
-            handleEdit={contentToEdit => this.setState({ contentToEdit })}
-            handleCreateOrUpdate={this.handleUpdate}
-          />
+          {this.renderModal()}
         </InputGroup>
       </FormGroup>
     )

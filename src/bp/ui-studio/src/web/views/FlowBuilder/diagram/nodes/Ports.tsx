@@ -4,6 +4,8 @@ import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
 
+import { newNodeTypes } from '../manager'
+
 import style from './style.scss'
 
 export class StandardIncomingPortModel extends DefaultPortModel {
@@ -85,7 +87,9 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
       const index = Number(this.props.name.replace(/out/i, ''))
       const nextNode = _.get(this.props.node, `next.${index}`)
 
-      if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
+      if (!nextNode) {
+        missingConnection = true
+      } else if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
         type = 'end'
       } else if (/\.flow\.json/i.test(nextNode.node)) {
         type = 'subflow'
@@ -105,12 +109,13 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
       [style.missingConnection]: missingConnection
     })
 
+    const isNewNodeType = newNodeTypes.includes(this.props.node.type)
     return (
       <div className={className}>
         <PortWidget {...this.props} />
         {type === 'subflow' && this.renderSubflowNode()}
         {type === 'end' && this.renderEndNode()}
-        {type === 'start' && this.renderStartNode()}
+        {!isNewNodeType && type === 'start' && this.renderStartNode()}
         {type === 'return' && this.renderReturnNode()}
       </div>
     )

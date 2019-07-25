@@ -3,12 +3,16 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
-import { DiagramEngine, DiagramWidget, LinkModel, NodeModel, PointModel } from 'storm-react-diagrams'
+import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
 
-import { DIAGRAM_PADDING, DiagramManager } from './manager'
+import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
+import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
+import { ListenWidgetFactory } from './nodes_v2/ListenNode'
+import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
+import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
 export default class FlowBuilder extends Component<Props> {
@@ -23,7 +27,14 @@ export default class FlowBuilder extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
+
+    // This reference allows us to update flow nodes from widgets
+    this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
     // @ts-ignore
@@ -156,9 +167,16 @@ export default class FlowBuilder extends Component<Props> {
 
   onDiagramDoubleClick = (event?: MouseEvent) => {
     if (event) {
+      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
       const target = this.diagramWidget.getMouseElement(event)
-      const isLink = target && (target.model instanceof LinkModel || target.model instanceof PointModel)
-      if (isLink) {
+      if (
+        target &&
+        !(
+          target.model instanceof StandardNodeModel ||
+          target.model instanceof SkillCallNodeModel ||
+          target.model instanceof RouterNodeModel
+        )
+      ) {
         return
       }
     }
@@ -210,8 +228,8 @@ export default class FlowBuilder extends Component<Props> {
           return alert("You can't delete the start node.")
         } else if (
           // @ts-ignore
-          _.includes(['standard', 'skill-call'], element.nodeType) ||
-          _.includes(['standard', 'skill-call'], element.type)
+          _.includes(nodeTypes, element.nodeType) ||
+          _.includes(nodeTypes, element.type)
         ) {
           this.props.removeFlowNode(element.id)
         } else if (element.type === 'default') {
@@ -281,11 +299,26 @@ export default class FlowBuilder extends Component<Props> {
     const { x, y } = this.manager.getRealPosition(event)
 
     if (data.type === 'chip') {
-      const target = this.diagramWidget.getMouseElement(event)
+      this._addTransitionChipToRouter(event)
     } else if (data.type === 'skill') {
       this.props.buildSkill({ location: { x, y }, id: data.id })
-    } else {
-      this.props.createFlowNode({ x, y })
+    } else if (data.type === 'node') {
+      // The following nodes needs default transitions
+      if (data.id === 'say_something' || data.id === 'execute') {
+        this.props.createFlowNode({ x, y, type: data.id, next: [defaultTransition] })
+      } else if (data.id === 'listen') {
+        this.props.createFlowNode({ x, y, type: data.id, onReceive: [], next: [defaultTransition] })
+      } else {
+        this.props.createFlowNode({ x, y, type: data.id })
+      }
+    }
+  }
+
+  private _addTransitionChipToRouter(event) {
+    const target = this.diagramWidget.getMouseElement(event)
+    if (target && target.model instanceof RouterNodeModel) {
+      this.props.switchFlowNode(target.model.id)
+      this.props.updateFlowNode({ next: [...this.props.currentFlowNode.next, defaultTransition] })
     }
   }
 
@@ -335,6 +368,7 @@ interface Props {
   saveAllFlows: any
   readOnly: boolean
   canPasteNode: boolean
+  flowPreview: boolean
 }
 
 interface NodeProblem {
@@ -346,4 +380,5 @@ type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
 type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
+  flowBuilder?: any
 } & DiagramEngine

@@ -1,18 +1,41 @@
+import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
-import { DiagramEngine, DiagramModel, DiagramWidget, LinkModel, NodeModel, PointModel } from 'storm-react-diagrams'
+import { DiagramEngine, DiagramModel, DiagramWidget, LinkModel, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
+import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
+import { ListenNodeModel } from './nodes_v2/ListenNode'
+import { RouterNodeModel } from './nodes_v2/RouterNode'
+import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 
 const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
 export const DIAGRAM_PADDING: number = 100
 
-export const createNodeModel = (node, props) => {
-  if (node.type && node.type === 'skill-call') {
-    return new SkillCallNodeModel({ ...props })
+// Must be identified by the deleteSelectedElement logic to know it needs to delete something
+export const nodeTypes = ['standard', 'skill-call', 'say_something', 'execute', 'listen', 'router']
+
+// Using the new node types to prevent displaying start prort
+export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
+
+// Default transition applied for new nodes 1.5
+export const defaultTransition = { condition: 'always', node: '' }
+
+export const createNodeModel = (node, modelProps) => {
+  const { type } = node
+  if (type === 'skill-call') {
+    return new SkillCallNodeModel(modelProps)
+  } else if (type === 'say_something') {
+    return new SaySomethingNodeModel(modelProps)
+  } else if (type === 'execute') {
+    return new ExecuteNodeModel(modelProps)
+  } else if (type === 'listen') {
+    return new ListenNodeModel(modelProps)
+  } else if (type === 'router') {
+    return new RouterNodeModel(modelProps)
   } else {
-    return new StandardNodeModel({ ...props })
+    return new StandardNodeModel(modelProps)
   }
 }
 
@@ -21,7 +44,7 @@ export class DiagramManager {
   private activeModel: ExtendedDiagramModel
   private diagramWidget: DiagramWidget
   private highlightedNodeName?: string
-  private currentFlow: CurrentFlow
+  private currentFlow: FlowView
   private isReadOnly: boolean
   private diagramContainerSize: DiagramContainerSize
   private storeDispatch
@@ -43,15 +66,11 @@ export class DiagramManager {
     }
 
     const nodes = currentFlow.nodes.map(node => {
-      const model = createNodeModel(node, {
+      return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,
         isHighlighted: this.highlightedNodeName === node.name
       })
-      model.x = model.oldX = node.x
-      model.y = model.oldY = node.y
-
-      return model
     })
 
     this.activeModel.addAll(...nodes)
@@ -78,7 +97,7 @@ export class DiagramManager {
     })
 
     this.currentFlow &&
-      this.currentFlow.nodes.forEach(node => {
+      this.currentFlow.nodes.forEach((node: NodeView) => {
         const model = this.activeModel.getNode(node.id) as BpNodeModel
         if (!model) {
           // Node doesn't exist
@@ -215,7 +234,7 @@ export class DiagramManager {
     return { offsetX: this.activeModel.offsetX, offsetY: this.activeModel.offsetY }
   }
 
-  setCurrentFlow(currentFlow: CurrentFlow) {
+  setCurrentFlow(currentFlow: FlowView) {
     this.currentFlow = currentFlow
   }
 
@@ -261,10 +280,13 @@ export class DiagramManager {
     })
   }
 
-  private _addNode(node: BpNodeModel) {
-    const model = createNodeModel(node, { ...node, isStartNode: this.currentFlow.startNode === node.name })
-    model.x = model.oldX = node.x
-    model.y = model.oldY = node.y
+  private _addNode(node: NodeView) {
+    const model = createNodeModel(node, {
+      ...node,
+      isStartNode: this.currentFlow.startNode === node.name,
+      isHighlighted: this.highlightedNodeName === node.name
+    })
+
     this.activeModel.addNode(model)
 
     setTimeout(() => {
@@ -273,17 +295,11 @@ export class DiagramManager {
       this.storeDispatch.switchFlowNode(node.id)
     }, 150)
 
-    // @ts-ignore
-    model.setData({
-      ..._.pick(node, passThroughNodeProps),
-      isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.highlightedNodeName === node.name
-    })
-
     model.lastModified = node.lastModified
   }
 
-  private _syncNode(node: BpNodeModel, model, snapshot) {
+  private _syncNode(node: NodeView, model: BpNodeModel, snapshot) {
+    // @ts-ignore
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.currentFlow.startNode === node.name,
@@ -425,16 +441,6 @@ export class DiagramManager {
       return model
     })
   }
-}
-
-export interface CurrentFlow {
-  name: string
-  location: string
-  catchAll: any
-  links: any
-  nodes: any
-  startNode: string
-  version: string
 }
 
 interface NodeProblem {

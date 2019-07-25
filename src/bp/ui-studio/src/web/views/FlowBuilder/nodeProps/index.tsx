@@ -1,13 +1,32 @@
-import React, { Component } from 'react'
 import _ from 'lodash'
-
+import React, { Component } from 'react'
 import { Modal } from 'react-bootstrap'
 
-import StandardNode from './StandardNode'
-import SkillCallNode from './SkillCallNode'
-import FlowInformation from './FlowInformation'
+import { nodeTypes } from '../diagram/manager'
 
-export default class NodePropsModal extends Component {
+import FlowInformation from './FlowInformation'
+import SkillCallNode from './SkillCallNode'
+import StandardNode from './StandardNode'
+
+interface Props {
+  currentFlowNode: any
+  closeFlowNodeProps: any
+  show: any
+  history: any
+  readOnly: any
+  updateFlowNode: any
+  refreshFlowsLinks: any
+  flows: any
+  currentFlow: any
+  requestEditSkill: any
+  copyFlowNodeElement: any
+  pasteFlowNodeElement: any
+  buffer: any
+  updateFlow: any
+  user: any
+}
+
+export default class NodePropsModal extends Component<Props> {
   render() {
     const node = this.props.currentFlowNode
     return (
@@ -57,7 +76,7 @@ export default class NodePropsModal extends Component {
       )
     }
 
-    if (flowType === 'standard') {
+    if (nodeTypes.includes(flowType)) {
       return (
         <StandardNode
           readOnly={readOnly}

@@ -14,7 +14,8 @@
     "paths": {
       "~/*": ["src/web/*"],
       "DOCS/*": ["../../../docs/guide/docs/*"],
-      "common/*": ["../../../out/bp/common/*"]
+      "common/*": ["../../../out/bp/common/*"],
+      "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
   }
 }
