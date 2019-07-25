@@ -25,6 +25,7 @@ export default {
     showConversationsButton: true,
     showUserName: false,
     showUserAvatar: false,
+    showTimestamp: false,
     disableAnimations: false,
     hideWidget: false,
     externalAuthToken: undefined,

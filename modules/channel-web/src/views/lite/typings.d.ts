@@ -133,6 +133,7 @@ export type Config = {
   showConversationsButton: boolean
   showUserName: boolean
   showUserAvatar: boolean
+  showTimestamp: boolean
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
   botName?: string
