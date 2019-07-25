@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { DiagramEngine, DiagramModel, DiagramWidget, LinkModel, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
+import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
 import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
@@ -20,9 +21,9 @@ export const nodeTypes = ['standard', 'skill-call', 'say_something', 'execute', 
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
 
 // Default transition applied for new nodes 1.5
-export const defaultTransition = { condition: 'always', node: '' }
+export const defaultTransition = { condition: 'true', node: '' }
 
-export const createNodeModel = (node, modelProps) => {
+const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
@@ -452,7 +453,7 @@ interface DiagramContainerSize {
   width: number
   height: number
 }
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+type BpNodeModel = SkillCallNodeModel | BaseNodeModel
 type ExtendedDiagramModel = {
   linksHash?: number
 } & DiagramModel

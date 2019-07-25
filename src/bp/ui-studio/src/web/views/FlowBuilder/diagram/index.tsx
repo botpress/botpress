@@ -292,14 +292,14 @@ export default class FlowBuilder extends Component<Props> {
     )
   }
 
-  handleToolDropped = event => {
+  handleToolDropped = async (event: React.DragEvent) => {
     this.manager.unselectAllElements()
-
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
+
     const { x, y } = this.manager.getRealPosition(event)
 
     if (data.type === 'chip') {
-      this._addTransitionChipToRouter(event)
+      await this._addTransitionChipToRouter(event)
     } else if (data.type === 'skill') {
       this.props.buildSkill({ location: { x, y }, id: data.id })
     } else if (data.type === 'node') {
@@ -314,10 +314,10 @@ export default class FlowBuilder extends Component<Props> {
     }
   }
 
-  private _addTransitionChipToRouter(event) {
+  private async _addTransitionChipToRouter(event) {
     const target = this.diagramWidget.getMouseElement(event)
     if (target && target.model instanceof RouterNodeModel) {
-      this.props.switchFlowNode(target.model.id)
+      await this.props.switchFlowNode(target.model.id)
       this.props.updateFlowNode({ next: [...this.props.currentFlowNode.next, defaultTransition] })
     }
   }
@@ -349,7 +349,7 @@ export default class FlowBuilder extends Component<Props> {
 interface Props {
   currentFlow: any
   switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => void
+  switchFlowNode: (nodeId: string) => any
   updateFlowProblems: (problems: NodeProblem[]) => void
   openFlowNodeProps: () => void
   updateFlow: any

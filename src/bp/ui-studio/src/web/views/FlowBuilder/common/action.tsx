@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
 import withLanguage from '../../../components/Util/withLanguage'
+import { textToItemId } from '../diagram/nodes_v2/utils'
 
 import style from './style.scss'
 
@@ -14,9 +15,9 @@ interface Props {
   text: string
   fetchContentItem: any
   refreshFlowsLinks: any
-  className: any
+  className: string
   items: any
-  contentLang: any
+  contentLang: string
   layoutv2?: boolean
 }
 
@@ -40,7 +41,6 @@ class ActionItem extends Component<Props> {
   }
 
   loadElement() {
-    const textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
     this.setState({ itemId: textToItemId(this.props.text) })
   }
 

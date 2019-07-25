@@ -24,7 +24,7 @@
   }
 
   .content {
-    padding: 2px;
+    padding: 4px;
     word-wrap: break-word;
     text-overflow: ellipsis;
     max-height: 78px;
@@ -71,6 +71,11 @@
   .header {
     background: #a1c4c9;
     color: #000000;
+  }
+
+  .content {
+    overflow: auto;
+    max-height: 250px;
   }
 }
 

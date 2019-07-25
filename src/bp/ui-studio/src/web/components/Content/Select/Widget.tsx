@@ -19,12 +19,12 @@ interface Props {
   contentItem: any
   onUpdate: any
   refresh: any
-  placeholder: any
-  itemId: any
+  placeholder: string
+  itemId: string
   contentType: any
-  contentLang: any
-  inputId: any
-  layoutv2: any
+  contentLang: string
+  inputId: string
+  layoutv2: boolean
 }
 
 class ContentPickerWidget extends Component<Props> {

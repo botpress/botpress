@@ -330,15 +330,16 @@ export default class HTTPServer {
     const resolveIndexPaths = page => (req, res) => {
       res.contentType('text/html')
 
-      if (this.indexCache[page]) {
+      // Not caching pages in dev (issue with webpack )
+      if (this.indexCache[page] && process.IS_PRODUCTION) {
         return res.send(this.indexCache[page])
       }
 
       fs.readFile(this.resolveAsset(page), (err, data) => {
         this.indexCache[page] = data
           .toString()
-          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`) //
-          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`) //
+          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
+          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
 
         res.send(this.indexCache[page])
       })

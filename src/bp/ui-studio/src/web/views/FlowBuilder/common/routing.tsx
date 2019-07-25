@@ -9,7 +9,7 @@ const style = require('./style.scss')
 interface Props {
   position: any
   condition: any
-  className?: any
+  className?: string
 }
 
 const availableProps = [
@@ -47,9 +47,9 @@ const getLabel = parsedCondition => {
   } else if (type === 'intent') {
     return `Intent is ${value}`
   } else if (type === 'props') {
-    return `Property is ...`
+    return `Property ${value.field} is ${value.expression}`
   } else if (type === 'raw') {
-    return `Raw is ...`
+    return value
   }
 }
 
@@ -80,7 +80,7 @@ export default class RoutingItem extends Component<Props> {
     let raw = null
     const renderer = caption ? this.renderOverlay : this.renderNormal
 
-    /* if (caption) {
+    if (caption) {
       const vars = {}
 
       const stripDots = str => str.replace(/\./g, '--dot--')
@@ -94,15 +94,15 @@ export default class RoutingItem extends Component<Props> {
 
       const mustached = restoreDots(Mustache.render(htmlTpl, vars))
       raw = mustached
-    } else {*/
-    if ((condition && condition.length <= 0) || /^(yes|true)$/i.test(condition.toLowerCase())) {
-      raw = position === 0 ? 'always' : 'otherwise'
     } else {
-      const parsed = parseCondition(condition)
+      if ((condition && condition.length <= 0) || /^(yes|true)$/i.test(condition.toLowerCase())) {
+        raw = position === 0 ? 'always' : 'otherwise'
+      } else {
+        const parsed = parseCondition(condition)
 
-      raw = getLabel(parsed)
+        raw = getLabel(parsed)
+      }
     }
-    // }
 
     return renderer(
       <div>
