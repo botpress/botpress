@@ -26,7 +26,7 @@ export class Choice extends React.Component {
             contentId: getOrDefault('contentId', 'contentId'),
             invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
             keywords: getOrDefault('keywords', 'keywords'),
-            config: getOrDefault('config', 'config'),
+            config: { nbMaxRetries: res.data.defaultMaxAttempts, ...getOrDefault('config', 'config') },
             defaultConfig: res.data
           },
           () => this.refreshContent()
@@ -66,8 +66,17 @@ export class Choice extends React.Component {
   }
 
   onMaxRetriesChanged = event => {
-    const config = { ...this.state.config, nbMaxRetries: isNaN(event.target.value) ? 1 : event.target.value }
+    const config = {
+      ...this.state.config,
+      nbMaxRetries: isNaN(Number(event.target.value)) ? 1 : Number(event.target.value)
+    }
     this.setState({ config })
+  }
+
+  onToggleRepeatChoicesOnInvalid = event => {
+    this.setState({
+      config: { ...this.state.config, repeatChoicesOnInvalid: !this.state.config.repeatChoicesOnInvalid }
+    })
   }
 
   onBlocNameChanged = key => event => {
@@ -218,6 +227,13 @@ export class Choice extends React.Component {
             onChange={this.handleInvalidContentChange}
             placeholder="Pick a reply"
           />
+          <Label htmlFor="repeatChoices">Repeat choices on invalid?</Label>
+          <input
+            id="repeatChoices"
+            type="checkbox"
+            checked={this.state.config.repeatChoicesOnInvalid}
+            onChange={this.onToggleRepeatChoicesOnInvalid}
+          />
         </div>
 
         <div>
@@ -225,6 +241,7 @@ export class Choice extends React.Component {
           <Input
             id="contentElementType"
             type="text"
+            style={{ marginLeft: '5px' }}
             value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />
