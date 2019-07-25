@@ -164,7 +164,7 @@ export default class HTTPServer {
 
   async setupRootPath() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
-    const externalUrl = botpressConfig.httpServer.externalUrl
+    const externalUrl = process.env.EXTERNAL_URL || botpressConfig.httpServer.externalUrl
 
     if (!externalUrl) {
       process.ROOT_PATH = ''
