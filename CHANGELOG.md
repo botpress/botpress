@@ -1,3 +1,12 @@
+## [11.9.7](https://github.com/botpress/botpress/compare/v11.9.6...v11.9.7) (2019-07-25)
+
+
+### Bug Fixes
+
+* **skills:** choice skill repeat behavior ([4111cde](https://github.com/botpress/botpress/commit/4111cde))
+
+
+
 ## [11.9.6](https://github.com/botpress/botpress/compare/v11.9.5...v11.9.6) (2019-07-01)
 
 
