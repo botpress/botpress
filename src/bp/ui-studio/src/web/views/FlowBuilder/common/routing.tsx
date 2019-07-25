@@ -101,7 +101,6 @@ export default class RoutingItem extends Component<Props> {
       const parsed = parseCondition(condition)
 
       raw = getLabel(parsed)
-      console.log(raw)
     }
     // }
 
