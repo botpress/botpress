@@ -276,7 +276,7 @@ export default class ScopedEngine implements Engine {
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
       if (!trainableLangs.includes(lang)) {
-        return
+        continue
       }
 
       const models = await this.storage.getModelsFromHash(modelHash, lang)
