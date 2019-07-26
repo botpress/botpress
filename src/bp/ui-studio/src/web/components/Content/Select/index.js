@@ -166,14 +166,13 @@ class SelectContent extends Component {
       <div>
         <strong>Search in:</strong>
         <div className="list-group">
-          <a href="#" onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
+          <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
             All
           </a>
           {categories
             .filter(cat => !cat.hidden)
             .map((category, i) => (
               <a
-                href="#"
                 key={i}
                 onClick={() => this.setCurrentCategory(category.id)}
                 className={classnames('list-group-item', 'list-group-item-action', {
