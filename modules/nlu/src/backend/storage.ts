@@ -123,8 +123,13 @@ export default class Storage {
   }
 
   async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
+    const debug = DEBUG('nlu', this.botId)
     const intentsName = await this.botGhost.directoryListing(this.intentsDir, '*.json')
-    const intents = await Promise.mapSeries(intentsName, name => this.getIntent(name).catch(x => undefined))
+    const intents = await Promise.mapSeries(intentsName, name =>
+      this.getIntent(name).catch(err => {
+        debug(`An error occured while loading intents: ${err}`)
+      })
+    )
     return _.reject(intents, _.isEmpty)
   }
 
@@ -142,7 +147,9 @@ export default class Storage {
       const content = JSON.parse(jsonContent)
       return this._migrate_intentDef_11_12(intent, filename, content)
     } catch (err) {
-      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${jsonContent}" in file "${filename}"`)
+      throw new Error(
+        `Could not parse intent properties (invalid JSON, enable NLU errors for more information). JSON = "${jsonContent}" in file "${filename}"`
+      )
     }
   }
 
