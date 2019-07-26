@@ -117,7 +117,7 @@ class Message extends Component<MessageProps> {
 
     const rendered = renderer()
     if (rendered === null) {
-      return undefined
+      return null
     }
 
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
