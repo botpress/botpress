@@ -232,35 +232,27 @@ const doCreateNewFlow = name => ({
   ]
 })
 
-const handleServerRename = (state, modification) => {
-  if (!modification.newName || _.keys(state.flowsByName).includes(modification.newName)) {
-    return
-  }
-  return modification
-}
-
-const handleServerCreate = (state, modification) => {
-  if (_.keys(state.flowsByName).includes(modification.name)) {
-    return
-  }
-  return modification
-}
-
-const handleServerDelete = (state, modification) => {
-  if (!_.keys(state.flowsByName).includes(modification.name)) {
-    return
-  }
-  return modification
-}
-
-const handleServerUpdate = (state, modification) => {
-  const flowHash = computeHashForFlow(modification.payload)
-  const currentFlowHash = computeHashForFlow(state.flowsByName[modification.name])
-  if (currentFlowHash === flowHash) {
-    return
+const isModificationRelevant = (state, modification) => {
+  const modificationType = modification.modification || ''
+  if (modificationType === 'create') {
+    return !_.keys(state.flowsByName).includes(modification.name)
   }
 
-  return modification
+  if (modificationType === 'delete') {
+    return _.keys(state.flowsByName).includes(modification.name)
+  }
+
+  if (modificationType === 'update') {
+    const flowHash = computeHashForFlow(modification.payload)
+    const currentFlowHash = computeHashForFlow(state.flowsByName[modification.name])
+    return currentFlowHash !== flowHash
+  }
+
+  if (modificationType === 'rename') {
+    return modification.newName && !_.keys(state.flowsByName).includes(modification.newName)
+  }
+
+  return false
 }
 
 // *****
@@ -269,25 +261,10 @@ const handleServerUpdate = (state, modification) => {
 
 let reducer = handleActions(
   {
-    [receiveFlowsModification]: (state, { payload }) => {
-      let actualModification
-      switch (payload.modification) {
-        case 'create':
-          actualModification = handleServerCreate(state, payload)
-          break
-        case 'delete':
-          actualModification = handleServerDelete(state, payload)
-          break
-        case 'update':
-          actualModification = handleServerUpdate(state, payload)
-          break
-        case 'rename':
-          actualModification = handleServerRename(state, payload)
-      }
-
+    [receiveFlowsModification]: (state, { payload: modification }) => {
       return {
         ...state,
-        lastServerModification: actualModification
+        lastServerModification: isModificationRelevant(state, modification) ? modification : undefined
       }
     },
 
