@@ -53,7 +53,8 @@ const Language: FC<Props> = props => {
   const loadLanguage = async () => {
     setLoading(true)
     try {
-      await api.getSecured().post(`/admin/languages/${props.language.code}/load`)
+      // @ts-ignore
+      await api.getSecured({ timeout: 10000 }).post(`/admin/languages/${props.language.code}/load`)
     } catch (err) {
       console.log('error loading model')
     } finally {
