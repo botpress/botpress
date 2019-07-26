@@ -161,6 +161,15 @@ function renderSlack(data) {
   ]
 }
 
+function renderTeams(data) {
+  return {
+    text: ' ',
+    type: 'carousel',
+    items: data.items,
+    BOT_URL: data.BOT_URL
+  }
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api' || channel === 'telegram') {
     return render(data)
@@ -168,6 +177,8 @@ function renderElement(data, channel) {
     return renderMessenger(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'teams') {
+    return renderTeams(data)
   }
 
   return [] // TODO Handle channel not supported

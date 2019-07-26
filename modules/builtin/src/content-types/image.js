@@ -90,6 +90,38 @@ function renderSlack(data) {
   ]
 }
 
+function renderTeams(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing'
+    })
+  }
+
+  let contentUrl = url.resolve(data.BOT_URL, data.image)
+
+  // RETIRER
+  if (true) {
+    const base = 'https://141d2bcf.ngrok.io/'
+    contentUrl = contentUrl.replace('http://localhost:3000/', base)
+  }
+
+  return [
+    ...events,
+    {
+      type: 'message',
+      attachments: [
+        {
+          name: 'architecture-resize.png',
+          contentType: 'image/png',
+          contentUrl
+        }
+      ]
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
@@ -99,6 +131,8 @@ function renderElement(data, channel) {
     return renderTelegram(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'teams') {
+    return renderTeams(data)
   }
 
   return [] // TODO Handle channel not supported
