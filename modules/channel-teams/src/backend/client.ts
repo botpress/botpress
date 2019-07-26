@@ -1,4 +1,4 @@
-import { BotFrameworkAdapter, ConversationReference, CardFactory, TurnContext, MessageFactory } from 'botbuilder'
+import { BotFrameworkAdapter, ConversationReference, CardFactory, TurnContext, AttachmentLayoutTypes } from 'botbuilder'
 
 import * as sdk from 'botpress/sdk'
 import { Router } from 'express'
@@ -87,8 +87,37 @@ export class TeamsClient {
           const base = 'https://141d2bcf.ngrok.io/'
           contentUrl = contentUrl.replace('http://localhost:3000/', base)
         }
-        return CardFactory.heroCard(card.title, CardFactory.images([contentUrl]), CardFactory.actions([]))
-      })
+        return CardFactory.heroCard(
+          card.title,
+          CardFactory.images([contentUrl]),
+          CardFactory.actions(
+            card.buttons.map(button => {
+              if (button.type === 'open_url') {
+                return {
+                  type: 'openUrl',
+                  value: button.url,
+                  title: button.title
+                }
+              } else if (button.type === 'say_something') {
+                return {
+                  type: 'messageBack',
+                  title: button.title,
+                  value: button.text,
+                  text: button.text,
+                  displayText: button.text
+                }
+              } else if (button.type === 'postback') {
+                return {
+                  type: 'postBack',
+                  title: button.title,
+                  value: button.payload
+                }
+              }
+            })
+          )
+        )
+      }),
+      attachmentLayout: AttachmentLayoutTypes.Carousel
     }
   }
 }
