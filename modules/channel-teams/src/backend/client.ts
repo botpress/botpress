@@ -1,23 +1,14 @@
-import {
-  BotFrameworkAdapter,
-  TurnContext,
-  ConversationReference,
-  HeroCard,
-  Activity,
-  CardFactory,
-  CardImage
-} from 'botbuilder'
+import { BotFrameworkAdapter, ConversationReference, CardFactory, TurnContext, MessageFactory } from 'botbuilder'
+
 import * as sdk from 'botpress/sdk'
 import { Router } from 'express'
 import _ from 'lodash'
-
-import url from 'url'
 
 import { Config } from '../config'
 
 import { Clients } from './typings'
 
-const outgoingTypes = ['message', 'typing', 'image', 'login_prompt', 'carousel']
+const outgoingTypes = ['message', 'typing', 'carousel', 'text']
 
 export class TeamsClient {
   private conversationsRefs: _.Dictionary<Partial<ConversationReference>> = {}
@@ -50,21 +41,46 @@ export class TeamsClient {
 
     const ref = this.conversationsRefs[event.threadId]
 
-    let msg: Partial<Activity> = event.payload
+    let msg: any = event.payload
     if (msg.type === 'carousel') {
       msg = this._sendCarousel(event)
+    } else if (msg.quick_replies && msg.quick_replies.length) {
+      msg = this._sendChoice(event)
     }
 
-    await this.adapter.continueConversation(ref, async turnContext => {
+    await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
       await turnContext.sendActivity(msg)
     })
+  }
+
+  private _sendChoice(event: sdk.IO.Event) {
+    return {
+      text: event.payload.text,
+      attachments: [
+        CardFactory.heroCard(
+          '',
+          CardFactory.images([]),
+          CardFactory.actions(
+            event.payload.quick_replies.map(reply => {
+              return {
+                title: reply.title,
+                type: 'messageBack',
+                value: reply.payload,
+                text: reply.payload,
+                displayText: reply.title
+              }
+            })
+          )
+        )
+      ]
+    }
   }
 
   private _sendCarousel(event: sdk.IO.Event) {
     return {
       type: 'message',
-      attachments: event.payload.items.map(card => {
-        let contentUrl = url.resolve(event.payload.BOT_URL, card.image)
+      attachments: event.payload.elements.map(card => {
+        let contentUrl = card.picture
 
         // RETIRER
         if (true) {
