@@ -129,6 +129,8 @@ export default class HitlModule extends React.Component {
             sessions: res.data
           })
         })
+    } else {
+      return false
     }
   }
 
