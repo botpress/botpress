@@ -239,9 +239,7 @@ export default class HitlDb {
       .then(messages => _.orderBy(messages, ['id'], ['asc']))
   }
 
-  searchMessages(content) {
-    let search_term = content
-
+  searchMessages(search_term) {
     return this.knex('hitl_sessions')
       .where('full_name', 'like', `%${search_term}%`)
       .orderBy('last_heard_on')

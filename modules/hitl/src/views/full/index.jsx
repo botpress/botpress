@@ -129,8 +129,6 @@ export default class HitlModule extends React.Component {
             sessions: res.data
           })
         })
-    } else {
-      return false
     }
   }
 
@@ -186,7 +184,11 @@ export default class HitlModule extends React.Component {
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
-                customSearchProps={customSearchProps}
+                searchStatus={this.state.searchClicked}
+                searchText={this.state.searchText}
+                searchClickAction={this.searchClickAction}
+                handleChangeSearch={this.handleChangeSearch}
+                searchClearAction={this.searchClearAction}
               />
             </Col>
             <Col sm={9} className={style.column} lg={7}>

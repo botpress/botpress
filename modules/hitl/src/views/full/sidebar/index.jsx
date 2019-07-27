@@ -26,16 +26,8 @@ export default class Sidebar extends React.Component {
     this.props.toggleOnlyPaused()
   }
 
-  toggleSearch = () => {
-    this.props.customSearchProps.searchClickAction()
-  }
-
-  clearSearch = () => {
-    this.props.customSearchProps.searchClearAction()
-  }
-
-  handleChange = e => {
-    this.props.customSearchProps.handleChangeSearch(e.target.value)
+  mergeClassNames = (param1, param2) => {
+    return param1 + ' ' + param2
   }
 
   renderUser = value => {
@@ -82,7 +74,7 @@ export default class Sidebar extends React.Component {
 
     return (
       <div className={style.sidebar}>
-        <div style={{ display: this.props.customSearchProps.searchStatus ? 'none' : 'block' }} className={style.header}>
+        <div style={{ display: this.props.searchStatus ? 'none' : 'block' }} className={style.header}>
           <div className={style.filter}>
             <OverlayTrigger placement="bottom" overlay={filterTooltip}>
               <i className="material-icons" style={filterStyle} onClick={this.toggleFilter}>
@@ -90,40 +82,40 @@ export default class Sidebar extends React.Component {
               </i>
             </OverlayTrigger>
           </div>
-          <div className={style.filter + ' ' + style.icon_right}>
+          <div className={this.mergeClassNames(style.filter, style.icon_right)}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
-              <i className="material-icons" style={filterStyle} onClick={this.toggleSearch}>
+              <i className="material-icons" style={filterStyle} onClick={this.props.searchClickAction()}>
                 search
               </i>
             </OverlayTrigger>
           </div>
           <div style={{ float: 'right' }} className={style.filter} style={cancelsearch_style}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
-              <i className="material-icons" style={filterStyle} onClick={this.clearSearch}>
+              <i className="material-icons" style={filterStyle} onClick={this.props.searchClearAction()}>
                 clear_all
               </i>
             </OverlayTrigger>
           </div>
         </div>
 
-        <div style={{ display: this.props.customSearchProps.searchStatus ? 'block' : 'none' }} className={style.header}>
+        <div style={{ display: this.props.searchStatus ? 'block' : 'none' }} className={style.header}>
           <div className={style.textfilter}>
             <FormControl
-              value={this.props.customSearchProps.searchText}
-              onChange={this.handleChange}
+              value={this.props.searchText}
+              onChange={this.props.handleChangeSearch(e.target.value)}
               placeholder="Search By Name"
             />
           </div>
           <div className={style.filter + ' ' + style.text_right}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
-              <i className="material-icons" style={filterStyle} onClick={this.toggleSearch}>
+              <i className="material-icons" style={filterStyle} onClick={this.props.searchClickAction()}>
                 search
               </i>
             </OverlayTrigger>
           </div>
           <div className={style.filter + ' ' + style.cancel_right}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
-              <i className="material-icons" style={filterStyle} onClick={this.clearSearch}>
+              <i className="material-icons" style={filterStyle} onClick={this.props.searchClearAction()}>
                 cancel
               </i>
             </OverlayTrigger>
