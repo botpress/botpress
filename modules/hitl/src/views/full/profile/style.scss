@@ -1,8 +1,17 @@
-.sidebar {
-  background-color: #222a33;
+.profile {
+  background-color: #fff;
+  .imgContainer {
+    margin: 15px 10px 15px 10px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #e2e2e2;
+    float: left;
+  }
+
   .header {
     height: 60px;
-    background-color: #1b232c;
+    background-color: #fff;
 
     h3 {
       display: block;

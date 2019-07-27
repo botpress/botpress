@@ -31,7 +31,7 @@ export default class Conversation extends React.Component {
     this.props.bp.events.off('guest.hitl.message', this.appendMessage)
   }
 
-  appendMessage = (message) => {
+  appendMessage = message => {
     if (this.state.messages && this.props.data && this.props.data.id === message.session_id) {
       this.setState({ messages: [...this.state.messages, message] })
       setTimeout(this.scrollToBottom, 50)
@@ -77,11 +77,11 @@ export default class Conversation extends React.Component {
 
   renderHeader() {
     const pausedTooltip = <Tooltip id="pausedTooltip">Pause this conversation</Tooltip>
-
+    const userAttributes = JSON.parse(this.props.data.attributes)
     return (
       <div>
         <h3>
-          {this.props.data && this.props.data.full_name}
+          {(this.props.data && userAttributes.full_name) || this.props.data.full_name}
           {this.props.data && !!this.props.data.paused ? <span className={style.pausedWarning}>Paused</span> : null}
         </h3>
         <OverlayTrigger placement="left" overlay={pausedTooltip}>
@@ -99,7 +99,7 @@ export default class Conversation extends React.Component {
 
   renderMessages() {
     const dynamicHeightStyleInnerMessageDiv = {
-      maxHeight: innerHeight - 210
+      maxHeight: innerHeight - 150
     }
 
     return (
@@ -119,7 +119,7 @@ export default class Conversation extends React.Component {
 
   render() {
     const dynamicHeightStyleMessageDiv = {
-      height: innerHeight - 210
+      height: innerHeight - 150
     }
 
     return (

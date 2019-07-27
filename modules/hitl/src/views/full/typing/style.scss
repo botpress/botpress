@@ -1,6 +1,6 @@
 .typing {
   background-color: red;
-  height: 50px;
+  height: 60px;
   border-bottom-right-radius: 10px;
   border-top: solid 1px #ececec;
 
@@ -9,7 +9,8 @@
   }
 
   textarea {
-    padding: 15px;
+    padding: 18px;
+    resize: none;
     font-size: 16px;
     color: #666666;
     font-weight: 400;

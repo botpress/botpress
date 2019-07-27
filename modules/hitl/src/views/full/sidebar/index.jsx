@@ -26,7 +26,7 @@ export default class Sidebar extends React.Component {
     this.props.toggleOnlyPaused()
   }
 
-  renderUser = (value) => {
+  renderUser = value => {
     const isCurrent = value.id === this.props.currentSession
 
     if (isCurrent || !this.props.filter || (this.props.filter && !!value.paused)) {
@@ -60,7 +60,7 @@ export default class Sidebar extends React.Component {
     }
 
     const dynamicHeightUsersDiv = {
-      height: innerHeight - 160
+      height: innerHeight
     }
 
     return (
@@ -77,7 +77,7 @@ export default class Sidebar extends React.Component {
         <div className={style.users} style={dynamicHeightUsersDiv}>
           {this.renderUsers()}
         </div>
-      </div >
+      </div>
     )
   }
 }

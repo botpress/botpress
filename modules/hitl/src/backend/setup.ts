@@ -79,6 +79,7 @@ export default async (bp: SDK, db: Database) => {
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
     }
 
+    console.log(event)
     await db.appendMessageToSession(event, session.id, 'out')
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
 

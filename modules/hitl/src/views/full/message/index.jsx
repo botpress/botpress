@@ -1,6 +1,6 @@
 import React from 'react'
 import { Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
-
+import SVGIcon from './SVGIcon'
 import style from './style.scss'
 import moment from 'moment'
 import _ from 'lodash'
@@ -53,12 +53,49 @@ export default class Message extends React.Component {
     return null
   }
 
+  displayIcon(icon) {
+    if (icon == 'bot') {
+      return <SVGIcon name="bot" width="50" fill="#36bc98" />
+    } else if (icon == 'agent') {
+      return <SVGIcon name="agent" width="50" fill="#2E046A" />
+    } else if (icon == 'user') {
+      return <SVGIcon name="user" width="50" fill="#FFF" />
+    }
+  }
   renderMessageFromUser() {
-    return <div className={style.message + ' ' + style.fromUser}>{this.renderContent()}</div>
+    return (
+      <div className={style.message + ' ' + style.fromUser}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
   }
 
   renderMessageFromBot() {
-    return <div className={style.message + ' ' + style.fromBot}>{this.renderContent()}</div>
+    return (
+      <div className={style.message + ' ' + style.fromBot}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
+  }
+
+  renderMessageFromAgent() {
+    return (
+      <div className={style.message + ' ' + style.fromAgent}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
   }
 
   renderMessageFromSystem() {
@@ -72,11 +109,7 @@ export default class Message extends React.Component {
 
     if (this.props.content.direction === 'in') {
       if (this.props.content.type === 'visit') {
-        return (
-          <OverlayTrigger placement="auto" overlay={tooltip}>
-            {this.renderMessageFromSystem()}
-          </OverlayTrigger>
-        )
+        return this.renderMessageFromSystem()
       }
 
       return (
@@ -84,13 +117,21 @@ export default class Message extends React.Component {
           {this.renderMessageFromUser()}
         </OverlayTrigger>
       )
+    } else {
+      if (this.props.content.source == 'agent') {
+        return (
+          <OverlayTrigger placement="left" overlay={tooltip}>
+            {this.renderMessageFromAgent()}
+          </OverlayTrigger>
+        )
+      } else {
+        return (
+          <OverlayTrigger placement="left" overlay={tooltip}>
+            {this.renderMessageFromBot()}
+          </OverlayTrigger>
+        )
+      }
     }
-
-    return (
-      <OverlayTrigger placement="left" overlay={tooltip}>
-        {this.renderMessageFromBot()}
-      </OverlayTrigger>
-    )
   }
 
   render() {
