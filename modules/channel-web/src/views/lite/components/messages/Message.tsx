@@ -109,6 +109,14 @@ class Message extends Component<MessageProps> {
     }
   }
 
+  renderTimestamp() {
+    return (
+      <span className="bpw-message-timestamp">
+        {this.props.intl.formatTime(new Date(this.props.sentOn), { hour: 'numeric', minute: 'numeric' })}
+      </span>
+    )
+  }
+
   render() {
     const type = this.props.type || (this.props.payload && this.props.payload.type)
     const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
@@ -139,13 +147,15 @@ class Message extends Component<MessageProps> {
         style={additionalStyle}
       >
         {rendered}
+        {this.props.config.showTimestamp && this.renderTimestamp()}
       </div>
     )
   }
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
-  intl: store.intl
+  intl: store.intl,
+  config: store.config
 }))(Message)
 
-type MessageProps = Renderer.Message & Pick<StoreDef, 'intl'>
+type MessageProps = Renderer.Message & Pick<StoreDef, 'intl' | 'config'>
