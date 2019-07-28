@@ -112,9 +112,6 @@ export default class Conversation extends React.Component {
   }
 
   renderMessages(messages) {
-    if (!messages) {
-      return <div>No Messages found</div>
-    }
     const dynamicHeightStyleInnerMessageDiv = {
       maxHeight: innerHeight - 150
     }
@@ -127,9 +124,9 @@ export default class Conversation extends React.Component {
         style={dynamicHeightStyleInnerMessageDiv}
       >
         {messages &&
-          messages.map(m => {
+          messages.map((m, f) => {
             return (
-              <div>
+              <div key={f}>
                 <div className={style.dateOuter}>
                   <div className={style.date}>{moment(m[0].ts).format('DD MMMM YYYY')}</div>
                 </div>

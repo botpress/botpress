@@ -1,7 +1,22 @@
 .profile {
   background-color: #fff;
   padding: 0px;
-
+  .attributes {
+    padding-top: 30px;
+    .attribute {
+      padding: 15px 3px;
+      margin: 18px;
+      border-bottom: 1px solid #eee;
+      .label {
+        font-weight: bold;
+        padding: 0px;
+      }
+      .value {
+        padding: 0px;
+        text-align: right;
+      }
+    }
+  }
   .header {
     padding-bottom: 60px;
     padding-top: 60px;
