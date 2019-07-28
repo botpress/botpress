@@ -24,6 +24,7 @@ export type QueueConsummer = ((message: IO.Event) => Promise<void>)
 
 export interface Queue {
   isEmpty(): boolean
+  isEmptyForJob(job: Job): boolean
   enqueue(job: Job, retries: number, isPriority: boolean): Promise<void>
   dequeue(): Promise<JobWrapper | undefined>
   cancelAll(job: Job): Promise<void>

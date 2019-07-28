@@ -1,6 +1,7 @@
 ---
-id: hosting
+id: version-12.0.3-hosting
 title: Hosting
+original_id: hosting
 ---
 
 ## Overview

@@ -1,6 +1,7 @@
 ---
-id: channels
+id: version-12.0.3-channels
 title: Messaging Channels
+original_id: channels
 ---
 
 ## Converse API

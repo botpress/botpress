@@ -37,7 +37,15 @@ export interface SuiteResult {
   f1: number
 }
 
-export type Result = { [suite: string]: { [cls: string]: SuiteResult } }
+export type Result = ResultStructure & Summary
+
+export type ResultStructure = {
+  [suite: string]: { [cls: string]: SuiteResult }
+}
+
+export type Summary = {
+  all: SuiteResult
+}
 
 export class FiveFolder<T> {
   constructor(private readonly dataset: T[][]) {}

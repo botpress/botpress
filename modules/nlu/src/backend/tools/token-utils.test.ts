@@ -1,4 +1,4 @@
-import { makeTokens } from './make-tokens'
+import { makeTokens, mergeSpecialCharactersTokens } from './token-utils'
 
 const SPACE = '\u2581'
 
@@ -43,5 +43,38 @@ describe('Tokens generation', () => {
     const expectedEnds = [5, 9, 11, 15, 19, 24]
     const actualEnds = tokens.map(t => t.end)
     expect(actualEnds).toEqual(expectedEnds)
+  })
+})
+
+describe('Token Merging', () => {
+  test('Merge special Characters with numbers should merge all consecutive numbers', async () => {
+    // arrange
+    const text = '1234vanillaIce4321'
+    const stringTokens = [SPACE + '1', '23', '4', 'vanilla', 'ice', '43', '2', '1']
+    const tokens = makeTokens(stringTokens, text)
+
+    const numbers = '0123456789'.split('')
+
+    // act
+    const actualTokens = mergeSpecialCharactersTokens(tokens, numbers)
+
+    // assert
+    const expectedTokens = [SPACE + '1234', 'vanilla', 'ice', '4321']
+    expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
+  })
+
+  test('Merge special Characters with pipes should merge all consecutive pipes', async () => {
+    // arrange
+    const text = '|||yes|||yes|||yes|||'
+    const base = ['yes', '|', '|', '|']
+    const stringTokens = [SPACE + '|', '|', '|', ...base, ...base, ...base]
+    const tokens = makeTokens(stringTokens, text)
+
+    // act
+    const actualTokens = mergeSpecialCharactersTokens(tokens, ['|'])
+
+    // assert
+    const expectedTokens = [SPACE + '|||', 'yes', '|||', 'yes', '|||', 'yes', '|||']
+    expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
   })
 })
