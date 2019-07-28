@@ -16,9 +16,7 @@ export default class HitlModule extends React.Component {
       loading: true,
       currentSession: null,
       sessions: null,
-      onlyPaused: false,
-      searchClicked: false,
-      searchText: ''
+      onlyPaused: false
     }
   }
 
@@ -107,10 +105,6 @@ export default class HitlModule extends React.Component {
       })
   }
 
-  handleChangeSearch = val => {
-    this.setState({ searchText: val })
-  }
-
   toggleOnlyPaused = () => {
     this.setState({ onlyPaused: !this.state.onlyPaused, currentSession: null })
     setTimeout(() => {
@@ -118,33 +112,15 @@ export default class HitlModule extends React.Component {
     }, 50)
   }
 
-  searchClickAction = () => {
-    this.setState({ searchClicked: !this.state.searchClicked, currentSession: null })
-    if (this.state.searchClicked) {
-      return this.getAxios()
-        .get('/mod/hitl/sessions/search?searchText=' + this.state.searchText)
-        .then(res => {
-          this.setState({
-            loading: false,
-            sessions: res.data
-          })
+  handleSearchAction = searchText => {
+    return this.getAxios()
+      .get('/mod/hitl/sessions/search?searchText=' + searchText)
+      .then(res => {
+        this.setState({
+          loading: false,
+          sessions: res.data
         })
-    } else {
-      return false
-    }
-  }
-
-  searchClearAction = () => {
-    this.setState({ searchText: '', searchClicked: false }, () => {
-      return this.getAxios()
-        .get('/mod/hitl/sessions/search?searchText=' + this.state.searchText)
-        .then(res => {
-          this.setState({
-            loading: false,
-            sessions: res.data
-          })
-        })
-    })
+      })
   }
 
   setSession = sessionId => {
@@ -167,13 +143,6 @@ export default class HitlModule extends React.Component {
     }
 
     const currentSessionId = this.state.currentSession && this.state.currentSession.id
-    const customSearchProps = {
-      searchStatus: this.state.searchClicked,
-      searchText: this.state.searchText,
-      searchClickAction: this.searchClickAction,
-      handleChangeSearch: this.handleChangeSearch,
-      searchClearAction: this.searchClearAction
-    }
 
     return (
       <div className={style.mainContainer}>
@@ -186,11 +155,7 @@ export default class HitlModule extends React.Component {
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
-                searchStatus={this.state.searchClicked}
-                searchText={this.state.searchText}
-                searchClickAction={this.searchClickAction}
-                handleChangeSearch={this.handleChangeSearch}
-                searchClearAction={this.searchClearAction}
+                handleSearchAction={this.handleSearchAction}
               />
             </Col>
             <Col sm={9} className={style.column} lg={7}>

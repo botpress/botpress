@@ -12,7 +12,9 @@ export default class Sidebar extends React.Component {
 
     this.state = {
       allPaused: false,
-      filter: true
+      filter: true,
+      searchClicked: false,
+      searchText: ''
     }
   }
 
@@ -24,6 +26,24 @@ export default class Sidebar extends React.Component {
 
   toggleFilter = () => {
     this.props.toggleOnlyPaused()
+  }
+
+  handleSearchClick = () => {
+    this.setState({ searchClicked: !this.state.searchClicked }, () => {
+      if (!this.state.searchClicked) {
+        return this.props.handleSearchAction(this.state.searchText)
+      }
+    })
+  }
+
+  searchClearAction = () => {
+    this.setState({ searchClicked: false, searchText: '' }, () => {
+      this.props.handleSearchAction(this.state.searchText)
+    })
+  }
+
+  handleChange = val => {
+    this.setState({ searchText: val })
   }
 
   renderUser = value => {
@@ -70,7 +90,7 @@ export default class Sidebar extends React.Component {
 
     return (
       <div className={style.sidebar}>
-        <div style={{ display: this.props.searchStatus ? 'none' : 'block' }} className={style.header}>
+        <div style={{ display: this.state.searchClicked ? 'none' : 'block' }} className={style.header}>
           <div className={style.filter}>
             <OverlayTrigger placement="bottom" overlay={filterTooltip}>
               <i className="material-icons" style={filterStyle} onClick={this.toggleFilter}>
@@ -84,7 +104,7 @@ export default class Sidebar extends React.Component {
                 className="material-icons"
                 style={filterStyle}
                 onClick={() => {
-                  this.props.searchClickAction()
+                  this.handleSearchClick()
                 }}
               >
                 search
@@ -97,7 +117,7 @@ export default class Sidebar extends React.Component {
                 className="material-icons"
                 style={filterStyle}
                 onClick={() => {
-                  this.props.searchClearAction()
+                  this.searchClearAction()
                 }}
               >
                 clear_all
@@ -106,12 +126,12 @@ export default class Sidebar extends React.Component {
           </div>
         </div>
 
-        <div style={{ display: this.props.searchStatus ? 'block' : 'none' }} className={style.header}>
+        <div style={{ display: this.state.searchClicked ? 'block' : 'none' }} className={style.header}>
           <div className={style.textfilter}>
             <FormControl
-              value={this.props.searchText}
+              value={this.state.searchText}
               onChange={e => {
-                this.props.handleChangeSearch(e.target.value)
+                this.handleChange(e.target.value)
               }}
               placeholder="Search By Name"
             />
@@ -122,7 +142,7 @@ export default class Sidebar extends React.Component {
                 className="material-icons"
                 style={filterStyle}
                 onClick={() => {
-                  this.props.searchClickAction()
+                  this.handleSearchClick()
                 }}
               >
                 search
@@ -135,7 +155,7 @@ export default class Sidebar extends React.Component {
                 className="material-icons"
                 style={filterStyle}
                 onClick={() => {
-                  this.props.searchClearAction()
+                  this.searchClearAction()
                 }}
               >
                 cancel
