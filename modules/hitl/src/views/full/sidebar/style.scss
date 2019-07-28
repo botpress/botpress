@@ -41,15 +41,23 @@
       cursor: pointer;
     }
 
-    .icon_right {
+    .initial_search {
+      @extend .filter;
       left: 60px;
     }
+    .cancel_search {
+      @extend .filter;
+      float: 'right';
+      left: 90px;
+    }
 
-    .text_right {
+    .textbox_search {
+      @extend .filter;
       left: 280px;
       top: 23px;
     }
-    .cancel_right {
+    .textbox_cancel {
+      @extend .filter;
       left: 310px;
       top: 23px;
     }

@@ -98,7 +98,7 @@ export default class Sidebar extends React.Component {
               </i>
             </OverlayTrigger>
           </div>
-          <div className={style.filter + ' ' + style.icon_right}>
+          <div className={style.initial_search}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
               <i
                 className="material-icons"
@@ -111,7 +111,7 @@ export default class Sidebar extends React.Component {
               </i>
             </OverlayTrigger>
           </div>
-          <div style={{ float: 'right' }} className={style.filter} style={cancelsearch_style}>
+          <div className={style.cancel_search}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
               <i
                 className="material-icons"
@@ -136,7 +136,7 @@ export default class Sidebar extends React.Component {
               placeholder="Search By Name"
             />
           </div>
-          <div className={style.filter + ' ' + style.text_right}>
+          <div className={style.textbox_search}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
               <i
                 className="material-icons"
@@ -149,7 +149,7 @@ export default class Sidebar extends React.Component {
               </i>
             </OverlayTrigger>
           </div>
-          <div className={style.filter + ' ' + style.cancel_right}>
+          <div className={style.textbox_cancel}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
               <i
                 className="material-icons"
