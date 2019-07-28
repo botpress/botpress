@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
 import SVGIcon from './SVGIcon'
 import style from './style.scss'
 import moment from 'moment'
@@ -105,31 +105,17 @@ export default class Message extends React.Component {
   renderMessage() {
     const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
 
-    const tooltip = <Tooltip id="tooltip">{date}</Tooltip>
-
     if (this.props.content.direction === 'in') {
       if (this.props.content.type === 'visit') {
         return this.renderMessageFromSystem()
       }
 
-      return (
-        <OverlayTrigger placement="right" overlay={tooltip}>
-          {this.renderMessageFromUser()}
-        </OverlayTrigger>
-      )
+      return this.renderMessageFromUser()
     } else {
       if (this.props.content.source == 'agent') {
-        return (
-          <OverlayTrigger placement="left" overlay={tooltip}>
-            {this.renderMessageFromAgent()}
-          </OverlayTrigger>
-        )
+        return this.renderMessageFromAgent()
       } else {
-        return (
-          <OverlayTrigger placement="left" overlay={tooltip}>
-            {this.renderMessageFromBot()}
-          </OverlayTrigger>
-        )
+        return this.renderMessageFromBot()
       }
     }
   }

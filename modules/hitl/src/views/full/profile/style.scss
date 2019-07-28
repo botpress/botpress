@@ -1,72 +1,30 @@
 .profile {
   background-color: #fff;
-  .imgContainer {
-    margin: 15px 10px 15px 10px;
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    background-color: #e2e2e2;
-    float: left;
-  }
+  padding: 0px;
 
   .header {
-    height: 60px;
+    padding-bottom: 60px;
+    padding-top: 60px;
     background-color: #fff;
-
-    h3 {
-      display: block;
-      float: left;
-      margin-top: 0;
-      color: #a0a0a0;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 4px 7px 0px 0px;
-    }
-
-    .allPaused {
-      width: 160px;
-      height: 100%;
-      float: left;
-      padding-top: 18px;
-      padding-left: 10px;
-    }
-
-    .filter {
-      position: absolute;
-      top: 18px;
-      left: 24px;
-    }
-
-    .filter:hover {
-      cursor: pointer;
-    }
-  }
-
-  .users {
-    overflow-y: auto;
-  }
-
-  .current {
-    h3 {
-      color: white;
-    }
-  }
-
-  .empty {
     text-align: center;
-    margin-top: 20px;
-    font-size: 15px;
-  }
-
-  .toggle {
-    &:global(.react-toggle--checked) {
-      :global(.react-toggle-thumb) {
-        border-color: #56c0b2;
-      }
-
-      :global(.react-toggle-track) {
-        background-color: #56c0b2 !important;
-      }
+    border-bottom: 1px solid #ebecf1;
+    h3 {
+      font-size: 18px;
+      text-align: center;
+      font-weight: 600;
+      margin-top: 0px;
+    }
+    h5 {
+      margin-top: 0px;
+      color: #b1b1b1;
+    }
+    .profilePic {
+      margin: 15px 10px 15px 10px;
+      height: 100px;
+      width: 100px;
+      border-radius: 50%;
+      display: inline-block;
+      background-color: #e2e2e2;
     }
   }
 }

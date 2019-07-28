@@ -2,6 +2,8 @@
 // Please do not change this file!
 interface CssExports {
   'conversation': string;
+  'date': string;
+  'dateOuter': string;
   'header': string;
   'innerMessages': string;
   'messages': string;

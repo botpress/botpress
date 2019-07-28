@@ -2,10 +2,10 @@ import React from 'react'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import Toggle from 'react-toggle'
 import classnames from 'classnames'
-
+import _ from 'lodash'
 import 'react-toggle/style.css'
 import style from './style.scss'
-
+import moment from 'moment'
 import Message from '../message'
 
 export default class Conversation extends React.Component {
@@ -97,7 +97,24 @@ export default class Conversation extends React.Component {
     )
   }
 
-  renderMessages() {
+  renderMessageGroups() {
+    if (!this.state.messages) {
+      return <div>No Messages found</div>
+    }
+
+    const groupMessages = _.groupBy(this.state.messages, result => moment(result.ts).format('YYYY-MM-DD'))
+    let data = Object.values(groupMessages)
+    return (
+      <div>
+        <div>{data && this.renderMessages(data)}</div>
+      </div>
+    )
+  }
+
+  renderMessages(messages) {
+    if (!messages) {
+      return <div>No Messages found</div>
+    }
     const dynamicHeightStyleInnerMessageDiv = {
       maxHeight: innerHeight - 150
     }
@@ -109,9 +126,18 @@ export default class Conversation extends React.Component {
         ref="innerMessages"
         style={dynamicHeightStyleInnerMessageDiv}
       >
-        {this.state.messages &&
-          this.state.messages.map((m, i) => {
-            return <Message key={i} content={m} />
+        {messages &&
+          messages.map(m => {
+            return (
+              <div>
+                <div className={style.dateOuter}>
+                  <div className={style.date}>{moment(m[0].ts).format('DD MMMM YYYY')}</div>
+                </div>
+                {m.map((n, k) => {
+                  return <Message key={k} content={n} />
+                })}
+              </div>
+            )
           })}
       </div>
     )
@@ -126,7 +152,7 @@ export default class Conversation extends React.Component {
       <div className={style.conversation}>
         <div className={style.header}>{this.props.data ? this.renderHeader() : null}</div>
         <div className={style.messages} style={dynamicHeightStyleMessageDiv}>
-          {this.props.data ? this.renderMessages() : null}
+          {this.props.data ? this.renderMessageGroups() : null}
         </div>
       </div>
     )

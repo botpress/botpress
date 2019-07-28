@@ -10,9 +10,10 @@
     h3 {
       color: #666666;
       margin-top: 0;
-      text-align: center;
+      text-align: left;
       padding-top: 18px;
-      font-size: 20px;
+      font-size: 18px;
+      padding-left: 30px;
       font-weight: 500;
     }
 
@@ -38,6 +39,20 @@
     overflow-x: hidden;
     position: absolute;
     bottom: 0;
+
+    .dateOuter {
+      text-align: center;
+      margin: 5px;
+      .date {
+        text-align: center;
+        text-align: center;
+        display: inline-block;
+        background-color: #fff;
+        color: #646464;
+        padding: 5px 15px;
+        border-radius: 15px;
+      }
+    }
   }
 
   .toggleDiv {
