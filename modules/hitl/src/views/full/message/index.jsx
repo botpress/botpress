@@ -109,15 +109,11 @@ export default class Message extends React.Component {
       if (this.props.content.type === 'visit') {
         return this.renderMessageFromSystem()
       }
-
       return this.renderMessageFromUser()
-    } else {
-      if (this.props.content.source == 'agent') {
-        return this.renderMessageFromAgent()
-      } else {
-        return this.renderMessageFromBot()
-      }
+    } else if (this.props.content.source === 'agent') {
+      return this.renderMessageFromAgent()
     }
+    return this.renderMessageFromBot()
   }
 
   render() {
