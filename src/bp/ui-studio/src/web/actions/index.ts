@@ -1,94 +1,141 @@
-import { createAction } from 'redux-actions'
 import axios from 'axios'
 import _ from 'lodash'
+import { createAction } from 'redux-actions'
+
+import { getDeletedFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
+
+import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
-import { getDirtyFlows } from '../reducers/selectors'
 
 // Flows
+export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
+export const clearFlowsModification = createAction('FLOWS/MODIFICATIONS/CLEAR')
+
 export const requestFlows = createAction('FLOWS/REQUEST')
 export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
 
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/flows`).then(({ data }) => {
     const flows = _.keyBy(data, 'name')
     dispatch(receiveFlows(flows))
   })
 }
 
-export const requestSaveFlows = createAction('FLOWS/SAVE')
 export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
+export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
-export const saveAllFlows = () => (dispatch, getState) => {
-  dispatch(requestSaveFlows())
+// actions that modifies flow
+export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
+export const requestRenameFlow = createAction('FLOWS/FLOW/RENAME')
+export const requestCreateFlow = createAction('FLOWS/CREATE')
+export const requestDeleteFlow = createAction('FLOWS/DELETE')
+export const requestDuplicateFlow = createAction('FLOWS/DUPLICATE')
 
-  const state = getState()
-  const flowsByName = state.flows.flowsByName
+export const requestUpdateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
+export const requestCreateFlowNode = createAction('FLOWS/FLOW/CREATE')
+export const requestRemoveFlowNode = createAction('FLOWS/FLOW/REMOVE')
 
-  let dirtyFlows = getDirtyFlows(state)
-  const cleanFlows = _.chain(flowsByName)
-    .values()
-    .map(flow => flow.name)
-    .difference(dirtyFlows)
-    .value()
+export const requestPasteFlowNode = createAction('FLOWS/NODE/PASTE')
+export const requestPasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PASTE')
 
-  dirtyFlows = dirtyFlows
-    .filter(name => !!flowsByName[name])
-    .map(name => {
-      const flow = flowsByName[name]
-      return {
-        name,
-        version: '0.0.1',
-        flow: name,
-        location: flow.location,
-        startNode: flow.startNode,
-        catchAll: flow.catchAll,
-        links: flow.links,
-        nodes: flow.nodes,
-        skillData: flow.skillData,
-        timeoutNode: flow.timeoutNode
-      }
-    })
-
-  axios.post(`${window.BOT_API_PATH}/flows`, { cleanFlows, dirtyFlows }).then(() => {
-    dispatch(receiveSaveFlows())
-  })
+const wrapAction = (
+  requestAction,
+  asyncCallback: (payload, state, dispatch) => Promise<any>,
+  receiveAction = receiveSaveFlows,
+  errorAction = errorSaveFlows
+) => payload => (dispatch, getState) => {
+  dispatch(requestAction(payload))
+  // tslint:disable-next-line: no-floating-promises
+  asyncCallback(payload, getState(), dispatch)
+    .then(() => dispatch(receiveAction()))
+    .catch(err => dispatch(errorAction(err)))
 }
 
-export const updateFlow = createAction('FLOWS/FLOW/UPDATE')
-export const renameFlow = createAction('FLOWS/FLOW/RENAME')
-export const createFlow = createAction('FLOWS/CREATE')
-export const switchFlow = createAction('FLOWS/SWITCH')
-export const deleteFlow = createAction('FLOWS/DELETE')
-export const duplicateFlow = createAction('FLOWS/DUPLICATE')
-export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
-export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
+const updateCurrentFlow = async (_payload, state) => {
+  const flowState = state.flows
+  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+}
 
-export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
-export const updateFlowNode = createAction('FLOWS/FLOW/UPDATE_NODE')
+const saveDirtyFlows = async state => {
+  const dirtyFlows = getModifiedFlows(state).filter(name => !!state.flows.flowsByName[name])
+
+  const promises = []
+  for (const flow of dirtyFlows) {
+    promises.push(FlowsAPI.updateFlow(state.flows, flow))
+  }
+  return Promise.all(promises)
+}
+
+export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
+
+export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
+  const { targetFlow, name } = payload
+  await FlowsAPI.renameFlow(state.flows, targetFlow, name)
+  await saveDirtyFlows(state)
+})
+
+export const createFlow = wrapAction(requestCreateFlow, async (payload, state) => {
+  const name = payload
+  const flowState = state.flows
+  await FlowsAPI.createFlow(flowState, name)
+})
+
+export const deleteFlow = wrapAction(requestDeleteFlow, async (payload, state) => {
+  await FlowsAPI.deleteFlow(state.flows, payload)
+  await saveDirtyFlows(state)
+})
+
+export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, state) => {
+  const { name } = payload
+  const flowState = state.flows
+  await FlowsAPI.createFlow(flowState, name)
+})
+
+export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
+export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
+
+export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
+
+  // If node is a skill and there's no references to it, then the complete flow is deleted
+  const deletedFlows = getDeletedFlows(state)
+  if (deletedFlows.length) {
+    await FlowsAPI.deleteFlow(state.flows, deletedFlows[0])
+  }
+})
+
+export const pasteFlowNode = wrapAction(requestPasteFlowNode, updateCurrentFlow)
+export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
+
+// actions that do not modify flow
+export const switchFlow = createAction('FLOWS/SWITCH')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
-export const createFlowNode = createAction('FLOWS/FLOW/CREATE')
-export const removeFlowNode = createAction('FLOWS/FLOW/REMOVE')
-export const copyFlowNode = createAction('FLOWS/NODE/COPY')
-export const pasteFlowNode = createAction('FLOWS/NODE/PASTE')
-export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
-export const pasteFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/PASTE')
 export const openFlowNodeProps = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
 export const closeFlowNodeProps = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
+
+export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
+export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
+export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
+
+export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
-export const flowEditorUndo = () => dispatch => {
-  dispatch(handleFlowEditorUndo())
+export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
-export const flowEditorRedo = () => dispatch => {
-  dispatch(handleFlowEditorRedo())
+export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-}
+  await updateCurrentFlow(payload, state)
+})
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
 
@@ -154,6 +201,7 @@ export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
 // User
 export const userReceived = createAction('USER/RECEIVED')
 export const fetchUser = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
     dispatch(userReceived(res.data && res.data.payload))
   })
@@ -162,6 +210,7 @@ export const fetchUser = () => dispatch => {
 // Bot
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}`).then(information => {
     dispatch(botInfoReceived(information.data))
   })
@@ -170,6 +219,7 @@ export const fetchBotInformation = () => dispatch => {
 // Modules
 export const modulesReceived = createAction('MODULES/RECEIVED')
 export const fetchModules = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/modules`).then(res => {
     dispatch(modulesReceived(res.data))
   })
@@ -178,6 +228,7 @@ export const fetchModules = () => dispatch => {
 // Skills
 export const skillsReceived = createAction('SKILLS/RECEIVED')
 export const fetchSkills = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/modules/skills`).then(res => {
     dispatch(skillsReceived(res.data))
   })
@@ -187,6 +238,7 @@ export const fetchSkills = () => dispatch => {
 export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')
 export const newNotificationsReceived = createAction('NOTIFICATIONS/NEW_RECEIVED')
 export const fetchNotifications = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/notifications`).then(res => {
     dispatch(allNotificationsReceived(res.data))
   })
@@ -201,11 +253,30 @@ export const addNotifications = notifications => dispatch => {
 }
 
 // Skills
+export const requestInsertNewSkill = createAction('SKILLS/INSERT')
+export const requestInsertNewSkillNode = createAction('SKILLS/INSERT/NODE')
+export const requestUpdateSkill = createAction('SKILLS/UPDATE')
+
 export const buildNewSkill = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
-export const insertNewSkill = createAction('SKILLS/INSERT')
-export const insertNewSkillNode = createAction('SKILLS/INSERT/NODE')
-export const updateSkill = createAction('SKILLS/UPDATE')
+
+export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
+  const newFlows: string[] = getNewFlows(state)
+  for (const newFlow of newFlows) {
+    await FlowsAPI.createFlow(state.flows, newFlow)
+  }
+})
+
+export const insertNewSkillNode = wrapAction(requestInsertNewSkillNode, updateCurrentFlow)
+
+export const updateSkill = wrapAction(requestUpdateSkill, async (payload, state) => {
+  const { editFlowName } = payload
+  await Promise.all([
+    FlowsAPI.updateFlow(state.flows, editFlowName),
+    FlowsAPI.updateFlow(state.flows, state.currentFlow)
+  ])
+})
 
 export const editSkill = createAction('SKILLS/EDIT')
 export const requestEditSkill = nodeId => (dispatch, getState) => {
@@ -230,6 +301,7 @@ export const changeContentLanguage = createAction('LANGUAGE/CONTENT_LANGUAGE', c
 // Hints
 export const hintsReceived = createAction('HINTS/RECEIVED')
 export const refreshHints = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/hints`).then(res => {
     dispatch(hintsReceived(res.data))
   })

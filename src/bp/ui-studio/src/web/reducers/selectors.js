@@ -12,23 +12,47 @@ export const getCurrentFlowNode = state => {
 }
 
 export const getDirtyFlows = state => {
+  const newFlows = getNewFlows(state)
+  const modifiedFlows = getModifiedFlows(state)
+
+  return [...newFlows, ...modifiedFlows]
+}
+
+export const getNewFlows = state => {
   if (!state.flows) {
     return []
   }
 
   const currentKeys = _.keys(state.flows.currentHashes)
   const initialKeys = _.keys(state.flows.initialHashes)
-  const keys = _.union(currentKeys, initialKeys)
 
-  const dirtyFlows = _.union(_.xor(keys, currentKeys), _.xor(keys, initialKeys))
+  return _.without(currentKeys, ...initialKeys)
+}
 
+export const getDeletedFlows = state => {
+  if (!state.flows) {
+    return []
+  }
+
+  const currentKeys = _.keys(state.flows.currentHashes)
+  const initialKeys = _.keys(state.flows.initialHashes)
+
+  return _.without(initialKeys, ...currentKeys)
+}
+
+export const getModifiedFlows = state => {
+  if (!state.flows) {
+    return []
+  }
+
+  const modifiedFlows = []
   _.keys(state.flows.flowsByName).forEach(flow => {
     if (state.flows.initialHashes[flow] !== state.flows.currentHashes[flow]) {
-      dirtyFlows.push(flow)
+      modifiedFlows.push(flow)
     }
   })
 
-  return dirtyFlows
+  return modifiedFlows
 }
 
 export const canFlowUndo = state => state.flows.undoStack.length > 0
