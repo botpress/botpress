@@ -3,6 +3,7 @@ const gulp = require('gulp')
 const ts = require('gulp-typescript')
 const sourcemaps = require('gulp-sourcemaps')
 const gulpif = require('gulp-if')
+const rename = require('gulp-rename')
 const run = require('gulp-run')
 const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
@@ -54,6 +55,7 @@ const createOutputDirs = () => {
     .src('*.*', { read: false })
     .pipe(gulp.dest('./out/bp/data'))
     .pipe(gulp.dest('./out/bp/data/storage'))
+    .pipe(gulp.dest('./out/bp/data/embeddings'))
 }
 
 const createMigration = cb => {
@@ -91,13 +93,15 @@ const buildSchemas = cb => {
   cb()
 }
 
-const copyBinaries = () => {
-  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
-}
+const copyBinaries = () => gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
 
-const copyJs = () => {
-  return gulp.src('src/bp/ml/svm-js/**/*.*').pipe(gulp.dest('./out/bp/ml/svm-js'))
-}
+const copyJs = () => gulp.src('src/bp/ml/svm-js/**/*.*').pipe(gulp.dest('./out/bp/ml/svm-js'))
+
+const copyEmbeddings = () =>
+  gulp
+    .src('src/embeddings.json')
+    .pipe(rename('index.json'))
+    .pipe(gulp.dest('./out/bp/data/embeddings/'))
 
 const build = () => {
   return gulp.series([
@@ -107,7 +111,8 @@ const build = () => {
     buildSchemas,
     createOutputDirs,
     copyJs,
-    copyBinaries
+    copyBinaries,
+    copyEmbeddings
   ])
 }
 

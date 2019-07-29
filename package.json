@@ -114,6 +114,7 @@
     "gulp-if": "^2.0.2",
     "gulp-ignore": "^2.0.2",
     "gulp-print": "^5.0.0",
+    "gulp-rename": "^1.4.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
     "gulp-sourcemaps": "^2.6.4",

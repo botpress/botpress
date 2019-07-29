@@ -1,0 +1,35 @@
+{
+  "generated_on": "2019-07-22T13:24:09.634Z",
+  "languages": {
+    "ar": {
+      "code": "ar",
+      "name": "Arabic",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Algeria.svg"
+    },
+    "en": {
+      "code": "en",
+      "name": "English",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/4/43/Flag_of_Britain.svg"
+    },
+    "fr": {
+      "code": "fr",
+      "name": "French",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg"
+    },
+    "ja": {
+      "code": "ja",
+      "name": "Japanese",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Flag_of_Japan.svg"
+    },
+    "pt": {
+      "code": "pt",
+      "name": "Portuguese",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg"
+    },
+    "ru": {
+      "code": "ru",
+      "name": "Russian",
+      "flag": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg"
+    }
+  }
+}
