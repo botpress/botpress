@@ -285,15 +285,50 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.post(
-      '/flows',
+      '/flow',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
-        const flowViews = <FlowView[]>req.body.dirtyFlows
+        const { botId } = req.params
+        const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
 
-        await this.flowService.saveAll(botId, flowViews, req.body.cleanFlows)
-        res.sendStatus(201)
+        await this.flowService.insertFlow(botId, flow, userEmail)
+
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.put(
+      '/flow/:flowName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, flowName } = req.params
+        const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
+
+        if (_.has(flow, 'name') && flowName !== flow.name) {
+          await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
+        } else {
+          await this.flowService.updateFlow(botId, flow, userEmail)
+        }
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.delete(
+      '/flow/:flowName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, flowName } = req.params
+
+        const userEmail = req.tokenUser!.email
+
+        await this.flowService.deleteFlow(botId, flowName as string, userEmail)
+
+        res.sendStatus(200)
       })
     )
 

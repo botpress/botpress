@@ -1,8 +1,16 @@
+import { Intent, Position, Toaster } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
+import {
+  clearErrorSaveFlows,
+  clearFlowsModification,
+  flowEditorRedo,
+  flowEditorUndo,
+  setDiagramAction,
+  switchFlow
+} from '~/actions'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
@@ -14,6 +22,10 @@ import NodeProps from './containers/NodeProps'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import style from './style.scss'
+
+const FlowToaster = Toaster.create({
+  position: Position.TOP
+})
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
@@ -49,24 +61,36 @@ class FlowBuilder extends Component<Props, State> {
     } else if (flow && prevProps.currentFlow !== nextRouteFlow) {
       this.props.switchFlow(nextRouteFlow)
     }
+
+    if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
+      const { status } = this.props.errorSavingFlows
+      const message =
+        status === 403
+          ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
+          : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
+      FlowToaster.show({
+        message,
+        intent: Intent.DANGER,
+        timeout: 0,
+        onDismiss: this.props.clearErrorSaveFlows
+      })
+    }
+
+    if (!prevProps.lastModification && this.props.lastModification) {
+      FlowToaster.show({
+        message: `The modification "${this.props.lastModification.modification}" was applied on the flow "${
+          this.props.lastModification.name
+        }" by ${
+          this.props.lastModification.userEmail
+        }. Please reload the page before continuing edition or changes will be overriden.`,
+        intent: Intent.WARNING,
+        timeout: 0,
+        onDismiss: this.props.clearFlowsModification
+      })
+    }
   }
   pushFlowState = flow => {
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
-  }
-
-  componentWillUnmount() {
-    const { pathname } = this.props.history.location
-    const hasDirtyFlows = !_.isEmpty(this.props.dirtyFlows)
-
-    const hasUnsavedChanges = !/^\/flows\//g.exec(pathname) && !window.BOTPRESS_FLOW_EDITOR_DISABLED && hasDirtyFlows
-
-    if (hasUnsavedChanges) {
-      const isSave = confirm('Save changes?')
-
-      if (isSave) {
-        this.diagram.saveAllFlows()
-      }
-    }
   }
 
   render() {
@@ -80,10 +104,6 @@ class FlowBuilder extends Component<Props, State> {
       add: e => {
         e.preventDefault()
         this.props.setDiagramAction('insert_node')
-      },
-      save: e => {
-        e.preventDefault()
-        this.diagram.saveAllFlows()
       },
       undo: e => {
         e.preventDefault()
@@ -109,7 +129,6 @@ class FlowBuilder extends Component<Props, State> {
             this.props.switchFlow(`${name}.flow.json`)
           }}
         />
-
         <div className={style.diagram}>
           <Diagram
             readOnly={readOnly}
@@ -135,14 +154,18 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
   showFlowNodeProps: state.flows.showFlowNodeProps,
   dirtyFlows: getDirtyFlows(state),
-  user: state.user
+  user: state.user,
+  errorSavingFlows: state.flows.errorSavingFlows,
+  lastModification: state.flows.lastServerModification
 })
 
 const mapDispatchToProps = {
   switchFlow,
   setDiagramAction,
   flowEditorUndo,
-  flowEditorRedo
+  flowEditorRedo,
+  clearErrorSaveFlows,
+  clearFlowsModification
 }
 
 export default connect(
@@ -159,6 +182,10 @@ type Props = {
   switchFlow: any
   flowEditorUndo: any
   flowEditorRedo: any
+  errorSavingFlows: any
+  clearErrorSaveFlows: () => void
+  lastModification: any
+  clearFlowsModification: () => void
 } & RouteComponentProps
 
 interface State {

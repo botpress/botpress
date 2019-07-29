@@ -214,10 +214,6 @@ export default class FlowBuilder extends Component<Props> {
     this.checkForProblems()
   }
 
-  saveAllFlows() {
-    this.props.saveAllFlows()
-  }
-
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
@@ -365,7 +361,6 @@ interface Props {
   currentFlowNode: any
   removeFlowNode: any
   buildSkill: any
-  saveAllFlows: any
   readOnly: boolean
   canPasteNode: boolean
   flowPreview: boolean
