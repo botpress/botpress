@@ -1,33 +1,35 @@
 import { Component } from 'react'
-import nanoid from 'nanoid'
 import { connect } from 'react-redux'
-
-import { authEvents } from '~/util/Auth'
-import EventBus from '~/util/EventBus'
-import routes, { history } from '../Routes'
-
 import {
-  fetchUser,
+  addNotifications,
   fetchBotInformation,
   fetchModules,
-  fetchSkills,
-  refreshHints,
   fetchNotifications,
-  replaceNotifications,
-  addNotifications,
-  appendLog,
-  receiveFlowsModification
+  fetchSkills,
+  fetchUser,
+  receiveFlowsModification,
+  refreshHints,
+  replaceNotifications
 } from '~/actions'
+import { authEvents } from '~/util/Auth'
+import EventBus from '~/util/EventBus'
 
-class App extends Component {
-  componentWillMount() {
-    const appName = window.APP_NAME || 'Botpress Studio'
-    const botName = window.BOT_NAME ? ` – ${window.BOT_NAME}` : ''
-    window.document.title = `${appName}${botName}`
+import routes, { history } from '../Routes'
 
-    EventBus.default.setup()
-  }
+interface Props {
+  fetchModules: () => void
+  fetchSkills: () => void
+  refreshHints: () => void
+  fetchNotifications: () => void
+  fetchBotInformation: () => void
+  fetchUser: () => void
+  replaceNotifications: (notifications: any) => void
+  receiveFlowsModification: (modifications: any) => void
+  addNotifications: any
+  user: any
+}
 
+class App extends Component<Props> {
   fetchData = () => {
     this.props.fetchModules()
     this.props.fetchSkills()
@@ -37,7 +39,18 @@ class App extends Component {
     this.props.fetchUser()
   }
 
+  // Prevents re-rendering the whole layout when the user changes. Fixes a bunch of warnings & double queries
+  shouldComponentUpdate() {
+    return false
+  }
+
   componentDidMount() {
+    const appName = window.APP_NAME || 'Botpress Studio'
+    const botName = window.BOT_NAME ? ` – ${window.BOT_NAME}` : ''
+    window.document.title = `${appName}${botName}`
+
+    EventBus.default.setup()
+
     // This acts as the app lifecycle management.
     // If this grows too much, move to a dedicated lifecycle manager.
     this.fetchData()
@@ -67,7 +80,11 @@ class App extends Component {
     })
 
     window.addEventListener('message', e => {
-      const { action, payload } = e.data || {}
+      if (!e.data || !e.data.action) {
+        return
+      }
+
+      const { action, payload } = e.data
       if (action === 'navigate-url') {
         history.push(payload)
       }
@@ -88,7 +105,6 @@ const mapDispatchToProps = {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  appendLog,
   receiveFlowsModification
 }
 
