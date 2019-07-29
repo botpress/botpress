@@ -24,6 +24,10 @@ export class TeamsClient {
     this.router.post('/api/messages', async (req, res) => {
       await this.adapter.processActivity(req, res, async turnContext => {
         const conversationReference = TurnContext.getConversationReference(turnContext.activity)
+        if (!turnContext.activity.text) {
+          // To prevent from emojis reactions to launch actual events
+          return
+        }
 
         const threadId = conversationReference.conversation.id
         this.conversationsRefs[threadId] = conversationReference
