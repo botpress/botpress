@@ -22,7 +22,7 @@ export class ExecuteWidget extends Component<{ node: ExecuteNodeModel; diagramEn
     const actionText = (node.onEnter && node.onEnter.length && node.onEnter[0]) || ''
 
     return (
-      <div className={classnames(style.baseNode, style.nodeExecute)}>
+      <div className={classnames(style.baseNode, style.nodeExecute, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeader({ nodeType: 'Execute', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
           <ActionModalSmall text={actionText} onChange={this.handleItemChanged} layoutv2={true} />

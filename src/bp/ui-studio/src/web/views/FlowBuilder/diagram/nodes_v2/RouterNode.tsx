@@ -15,7 +15,7 @@ export class RouterWidget extends Component<{ node: RouterNodeModel; diagramEngi
     const node = this.props.node
 
     return (
-      <div className={classnames(style.baseNode, style.nodeRouter)}>
+      <div className={classnames(style.baseNode, style.nodeRouter, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeader({ nodeType: 'Router', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
           {node.next &&

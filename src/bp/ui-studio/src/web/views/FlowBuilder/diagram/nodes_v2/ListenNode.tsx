@@ -14,7 +14,7 @@ export class ListenWidget extends Component<{ node: ListenNodeModel; diagramEngi
     const node = this.props.node
 
     return (
-      <div className={classnames(style.baseNode, style.nodeListen)}>
+      <div className={classnames(style.baseNode, style.nodeListen, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeader({ nodeType: 'Listen', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />

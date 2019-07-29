@@ -4,6 +4,7 @@ interface CssExports {
   'baseNode': string;
   'content': string;
   'header': string;
+  'highlightedNode': string;
   'in': string;
   'item': string;
   'nodeExecute': string;

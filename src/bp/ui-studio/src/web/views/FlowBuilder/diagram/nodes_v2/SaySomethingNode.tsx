@@ -22,7 +22,9 @@ export class SaySomethingWidget extends Component<{ node: SaySomethingNodeModel;
     const itemId = textToItemId((node.onEnter && node.onEnter.length && node.onEnter[0]) || '')
 
     return (
-      <div className={classnames(style.baseNode, style.nodeSaySomething)}>
+      <div
+        className={classnames(style.baseNode, style.nodeSaySomething, { [style.highlightedNode]: node.isHighlighted })}
+      >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
           <ContentPickerWidget itemId={itemId} onChange={this.handleItemChanged} layoutv2={true} />
