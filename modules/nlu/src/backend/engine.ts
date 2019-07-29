@@ -92,7 +92,7 @@ export default class ScopedEngine implements Engine {
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
-    this.storage = new Storage(config, this.botId, defaultLanguage, languages)
+    this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
