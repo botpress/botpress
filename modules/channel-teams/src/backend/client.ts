@@ -27,21 +27,36 @@ export class TeamsClient {
 
         const threadId = conversationReference.conversation.id
         this.conversationsRefs[threadId] = conversationReference
-        sendIncomingEvent(this.bp, this.botId, turnContext, threadId, { type: turnContext.activity.type })
+        this._sendIncomingEvent(turnContext, threadId, { type: turnContext.activity.type })
       })
     })
   }
 
-  async sendOutgoingEvent(event: sdk.IO.Event): Promise<Error | void> {
+  private _sendIncomingEvent = (ctx: TurnContext, threadId: string, args: { type: string }) => {
+    this.bp.events.sendEvent(
+      this.bp.IO.Event({
+        botId: this.botId,
+        channel: 'teams',
+        direction: 'incoming',
+        payload: { text: ctx.activity.text },
+        preview: ctx.activity.text,
+        threadId,
+        target: ctx.activity.from.id,
+        ...args
+      })
+    )
+  }
+
+  public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
     const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return new Error('Unsupported event type: ' + event.type)
+      throw new Error('Unsupported event type: ' + event.type)
     }
 
     const ref = this.conversationsRefs[event.threadId]
 
-    let msg: any = event.payload
+    let msg: any = event.payload // TODO: place this logic in builtin with content-types
     if (msg.type === 'typing') {
       msg = {
         type: 'typing'
@@ -56,12 +71,15 @@ export class TeamsClient {
       try {
         await turnContext.sendActivity(msg)
       } catch (err) {
-        this.bp.logger.error(err.message, err)
+        const message = `The following error occured when sending a payload of type ${msg.type} to MS Botframework: ${
+          err.message
+        }`
+        this.bp.logger.error(message, err)
+        throw err
       }
     })
   }
 
-  // TODO: place this logic in builtin with content-types
   private _sendChoice(event: sdk.IO.Event) {
     return {
       text: event.payload.text,
@@ -85,18 +103,12 @@ export class TeamsClient {
     }
   }
 
-  // TODO: place this logic in builtin with content-types
   private _sendCarousel(event: sdk.IO.Event) {
     return {
       type: 'message',
       attachments: event.payload.elements.map(card => {
         let contentUrl = card.picture
 
-        // RETIRER
-        if (true) {
-          const base = 'https://141d2bcf.ngrok.io/'
-          contentUrl = contentUrl.replace('http://localhost:3000/', base)
-        }
         return CardFactory.heroCard(
           card.title,
           CardFactory.images([contentUrl]),
@@ -133,38 +145,13 @@ export class TeamsClient {
   }
 }
 
-const sendIncomingEvent = (
-  bp: typeof sdk,
-  botId: string,
-  ctx: TurnContext,
-  threadId: string,
-  args: { type: string }
-) => {
-  bp.events.sendEvent(
-    bp.IO.Event({
-      botId,
-      channel: 'teams',
-      direction: 'incoming',
-      payload: { text: ctx.activity.text },
-      preview: ctx.activity.text,
-      threadId,
-      target: ctx.activity.from.id,
-      ...args
-    })
-  )
-}
-
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
-  registerMiddleware(bp, outgoingHandler(clients))
-}
-
-const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = teams.' +
       ' This middleware should be placed at the end as it swallows events once sent.',
     direction: 'outgoing',
-    handler: outgoingHandler,
+    handler: outgoingHandler(clients),
     name: 'teams.sendMessages',
     order: 100
   })
@@ -180,10 +167,11 @@ const outgoingHandler = (clients: Clients) => async (event: sdk.IO.Event, next: 
     return next()
   }
 
-  const err = await client.sendOutgoingEvent(event)
-
-  if (err) {
+  try {
+    await client.sendOutgoingEvent(event)
+  } catch (err) {
     next(err)
   }
+
   next(undefined, false)
 }

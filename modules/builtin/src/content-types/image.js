@@ -101,19 +101,13 @@ function renderTeams(data) {
 
   let contentUrl = url.resolve(data.BOT_URL, data.image)
 
-  // RETIRER
-  if (true) {
-    const base = 'https://141d2bcf.ngrok.io/'
-    contentUrl = contentUrl.replace('http://localhost:3000/', base)
-  }
-
   return [
     ...events,
     {
       type: 'message',
       attachments: [
         {
-          name: 'architecture-resize.png',
+          name: data.title,
           contentType: 'image/png',
           contentUrl
         }
