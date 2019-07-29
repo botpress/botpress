@@ -138,7 +138,7 @@ export default class Storage {
 
     const filename = `${intent}.json`
     const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename).catch(err => {
-      this.logger.attachError(err).warn(`An error occured while loading ${intent}`)
+      this.logger.attachError(err).error(`An error occured while loading ${intent}`)
     })
 
     try {
