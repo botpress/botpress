@@ -42,17 +42,26 @@ export class TeamsClient {
     const ref = this.conversationsRefs[event.threadId]
 
     let msg: any = event.payload
-    if (msg.type === 'carousel') {
+    if (msg.type === 'typing') {
+      msg = {
+        type: 'typing'
+      }
+    } else if (msg.type === 'carousel') {
       msg = this._sendCarousel(event)
     } else if (msg.quick_replies && msg.quick_replies.length) {
       msg = this._sendChoice(event)
     }
 
     await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
-      await turnContext.sendActivity(msg)
+      try {
+        await turnContext.sendActivity(msg)
+      } catch (err) {
+        this.bp.logger.error(err.message, err)
+      }
     })
   }
 
+  // TODO: place this logic in builtin with content-types
   private _sendChoice(event: sdk.IO.Event) {
     return {
       text: event.payload.text,
@@ -76,6 +85,7 @@ export class TeamsClient {
     }
   }
 
+  // TODO: place this logic in builtin with content-types
   private _sendCarousel(event: sdk.IO.Event) {
     return {
       type: 'message',
@@ -108,9 +118,10 @@ export class TeamsClient {
                 }
               } else if (button.type === 'postback') {
                 return {
-                  type: 'postBack',
+                  type: 'messageBack',
                   title: button.title,
-                  value: button.payload
+                  value: button.payload,
+                  text: button.payload
                 }
               }
             })
