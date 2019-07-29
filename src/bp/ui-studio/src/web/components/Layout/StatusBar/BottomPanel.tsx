@@ -134,7 +134,8 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   handleLogsScrolled = e => {
-    const isAtBottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight
+    // When zoomed, scrollTop may have decimals and must be rounded
+    const isAtBottom = e.target.scrollHeight - Math.round(e.target.scrollTop) === e.target.clientHeight
 
     if (isAtBottom && !this.state.followLogs) {
       this.setState({ followLogs: true })
