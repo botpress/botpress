@@ -21,7 +21,7 @@ module.exports = {
   moduleNameMapper: {
     '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'
   },
-  testMatch: ['**/modules/nlu/(src|test)/**/*.test.(ts|js)'],
+  testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules'],
   testEnvironment: 'node',
   rootDir: '.',

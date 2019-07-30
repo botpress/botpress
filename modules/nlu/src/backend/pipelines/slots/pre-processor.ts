@@ -42,8 +42,6 @@ export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinit
 
       const slotDef = slotDefinitions.find(sd => sd.name === slotName)
 
-      console.log('slot def is;', slotDef)
-
       if (slotDef) {
         slots.push({ ...slotDef, start, end, source })
       }
