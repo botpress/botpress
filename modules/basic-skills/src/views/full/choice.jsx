@@ -127,7 +127,7 @@ export class Choice extends React.Component {
       const keywordsEntry = this.state.keywords[choice.value] || []
       const tags = keywordsEntry.map(x => ({ id: x, text: x }))
       return (
-        <div className={style.keywords}>
+        <div className={style.keywords} key={choice.title}>
           <h4>
             {choice.title} <small>({choice.value})</small>
           </h4>

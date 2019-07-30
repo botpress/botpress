@@ -18,7 +18,7 @@ export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
       </thead>
       <tbody>
         {props.entities.map(entity => (
-          <tr>
+          <tr key={entity.name}>
             <td>
               @{entity.type}.{entity.name}
             </td>

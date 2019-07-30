@@ -37,7 +37,7 @@ export default class BotSwitcher extends React.Component {
             {this.props.botsIds
               .filter(id => this.props.currentBotId != id)
               .map(id => (
-                <li className={style.langItem}>
+                <li className={style.langItem} key={id}>
                   <a key={id} href={`/studio/${id}`}>
                     {id}
                   </a>
