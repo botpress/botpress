@@ -16,6 +16,39 @@ class MessageGroup extends React.Component<Props> {
     return { hasError: true }
   }
 
+  /**
+   * @deprecated 12.0
+   * Here, we convert old format to the new format Botpress uses internally.
+   * - payload: all the data (raw, whatever) that is necessary to display the element
+   * - type: extracted from payload for easy sorting
+   */
+  convertPayloadFromOldFormat = data => {
+    let payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
+    if (!payload.type) {
+      payload.type = data.message_type || (data.message_data && data.message_data.type) || 'text'
+    }
+
+    // Keeping compatibility with old schema for the quick reply
+    if (data.message_type === 'quick_reply' && !payload.text) {
+      payload.text = data.message_text
+    }
+
+    if (data.message_type === 'file' && !payload.url) {
+      payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
+    }
+
+    if (this.props.messageWrapper && payload.type !== 'session_reset') {
+      payload = {
+        type: 'custom',
+        module: this.props.messageWrapper.module,
+        component: this.props.messageWrapper.component,
+        wrapped: payload
+      }
+    }
+
+    return payload
+  }
+
   render() {
     if (this.state.hasError) {
       return '* Cannot display message *'
@@ -33,35 +66,6 @@ class MessageGroup extends React.Component<Props> {
           {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
           <div className={'bpw-message-group'}>
             {this.props.messages.map((data, i) => {
-              /**
-               * @deprecated 12.0
-               * Here, we convert old format to the new format Botpress uses internally.
-               * - payload: all the data (raw, whatever) that is necessary to display the element
-               * - type: extracted from payload for easy sorting
-               */
-              let payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
-              if (!payload.type) {
-                payload.type = data.message_type || (data.message_data && data.message_data.type) || 'text'
-              }
-
-              // Keeping compatibility with old schema for the quick reply
-              if (data.message_type === 'quick_reply' && !payload.text) {
-                payload.text = data.message_text
-              }
-
-              if (data.message_type === 'file' && !payload.url) {
-                payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
-              }
-
-              if (this.props.messageWrapper && payload.type !== 'session_reset') {
-                payload = {
-                  type: 'custom',
-                  module: this.props.messageWrapper.module,
-                  component: this.props.messageWrapper.component,
-                  wrapped: payload
-                }
-              }
-
               return (
                 <Message
                   key={`msg-${i}`}
@@ -72,7 +76,7 @@ class MessageGroup extends React.Component<Props> {
                   isLastGroup={this.props.isLastGroup}
                   isBotMessage={!data.userId}
                   incomingEventId={data.incomingEventId}
-                  payload={payload}
+                  payload={this.convertPayloadFromOldFormat(data)}
                   sentOn={data.sent_on}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
