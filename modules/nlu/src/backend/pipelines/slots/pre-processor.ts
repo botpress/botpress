@@ -7,7 +7,6 @@ import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-const ITTERATIVE_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
 
 export function keepEntityTypes(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$2')
@@ -19,20 +18,37 @@ export function keepEntityValues(text: string): string {
 
 export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinition[]): KnownSlot[] {
   const slots = [] as KnownSlot[]
-  const localSlotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
+  const LOCAL_ITTERATIVE_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
 
   let regResult: RegExpExecArray | null
-  while ((regResult = localSlotsRegex.exec(text))) {
-    const rawMatch = regResult[0]
-    const source = regResult[1] as string
-    const slotName = regResult[2] as string
 
-    const slotDef = slotDefinitions.find(sd => sd.name === slotName)
+  let cursor = 0
 
-    if (slotDef) {
-      slots.push({ ...slotDef, start: regResult.index, end: regResult.index + rawMatch.length, source })
+  do {
+    const textCpy = text.substring(cursor)
+
+    regResult = LOCAL_ITTERATIVE_SLOTS_REGEX.exec(textCpy)
+
+    if (regResult) {
+      const rawMatch = regResult[0]
+      const source = regResult[1] as string
+      const slotName = regResult[2] as string
+
+      const previousSlot = _.last(slots)
+      const start = (previousSlot ? previousSlot.end : 0) + regResult.index
+      const end = start + source.length
+
+      cursor = start + rawMatch.length
+
+      const slotDef = slotDefinitions.find(sd => sd.name === slotName)
+
+      console.log('slot def is;', slotDef)
+
+      if (slotDef) {
+        slots.push({ ...slotDef, start, end, source })
+      }
     }
-  }
+  } while (regResult)
 
   return slots
 }
@@ -52,6 +68,7 @@ const _generateTrainingTokens = languageProvider => async (
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
   const [rawToks] = await languageProvider.tokenize([input.toLowerCase()], lang)
+
   return makeTokens(rawToks, input).map((t, idx) => {
     const tok = {
       ...t,
@@ -103,6 +120,8 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   const genToken = _generateTrainingTokens(langProvider)
   const cannonical = keepEntityValues(input)
   const knownSlots = getKnownSlots(input, slotDefinitions)
+
+  console.log('knownSlots is', knownSlots)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
   for (const slot of knownSlots) {
