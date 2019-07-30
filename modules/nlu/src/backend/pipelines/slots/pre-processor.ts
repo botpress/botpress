@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
 import { allInRange } from '../../tools/math'
-import { LanguageProvider, KnownSlot, TrainingSequence } from '../../typings'
+import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
+import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
@@ -19,30 +19,20 @@ export function keepEntityValues(text: string): string {
 
 export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinition[]): KnownSlot[] {
   const slots = [] as KnownSlot[]
+  const localSlotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
 
   let regResult: RegExpExecArray | null
-  let cursor = 0
-  do {
-    const textCpy = text.substring(cursor)
-    regResult = ITTERATIVE_SLOTS_REGEX.exec(textCpy)
-    if (regResult) {
-      const rawMatch = regResult[0]
-      const source = regResult[1] as string
-      const slotName = regResult[2] as string
+  while ((regResult = localSlotsRegex.exec(text))) {
+    const rawMatch = regResult[0]
+    const source = regResult[1] as string
+    const slotName = regResult[2] as string
 
-      const previousSlot = _.last(slots)
-      const start = (previousSlot ? previousSlot.end : 0) + regResult.index
-      const end = start + source.length
+    const slotDef = slotDefinitions.find(sd => sd.name === slotName)
 
-      cursor = start + rawMatch.length
-
-      const slotDef = slotDefinitions.find(sd => sd.name === slotName)
-
-      if (slotDef) {
-        slots.push({ ...slotDef, start, end, source })
-      }
+    if (slotDef) {
+      slots.push({ ...slotDef, start: regResult.index, end: regResult.index + rawMatch.length, source })
     }
-  } while (regResult)
+  }
 
   return slots
 }
