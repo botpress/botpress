@@ -33,8 +33,7 @@ if (process.distro.os === 'linux') {
       nearestDistro = folders
     }
 
-    nearestDistro = _.take(folders, 3)
-    platformFolders.unshift(...nearestDistro.map(x => 'linux/' + x))
+    platformFolders.unshift(..._.take(nearestDistro, 3).map(x => 'linux/' + x))
   } finally {
   }
 } else if (os.platform() === 'win32') {
