@@ -7,7 +7,7 @@ title: Teams
 
 Teams requires a Microsoft Azure account and Subscription. To test your bot, you will also need a microsoft Teams access.
 
-## Note
+## Before reading
 
 If you are already familiar with Azure and/or botframework and you've succesfully deployed bots on MS Teams in the past then you can directly start by reading this [section](#setting-up-ms-teams-channel-from-an-already-configured-ms-bot-with-an-appid-and-password).
 
@@ -17,7 +17,7 @@ On the other hand, if you've never used Azure or botframework and you've never d
 
 Because the botframework and Azure are not developped by Botpress, the following instructions might not be up to date. If ever you feel like these instructions are irrelevant, please reffer to the official [Microsoft bot framework documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/bots/bots-create) and try deploying one of the sample bots on the [Microsoft bot framework samples repo](https://github.com/microsoft/BotBuilder-Samples). Don't dig to far in their sdk as Botpress handle this part of the logic.
 
-As already mentionned, if you achieved deploying a dummy bot on MS Teams in the past then you can skip this section and directly go to this [section](#setting-up-ms-teams-channel-from-an-already-configured-ms-bot-with-an-appid-and-password).
+As already mentionned, if you achieved deploying a dummy bot on MS Teams in the past then you can skip this section and directly go to the next [section](#setting-up-ms-teams-channel-from-an-already-configured-ms-bot-with-an-appid-and-password).
 
 1. Sign up in [Microsoft Azure](https://azure.microsoft.com)
 
@@ -92,6 +92,6 @@ You can now continue to next [section](#setting-up-ms-teams-channel-from-an-alre
 
    In the previous [section](#register-a-microsoft-bot-app-id-and-password) this configuration was left volontarely blank. You can edit it in the [botframework web application](https://dev.botframework.com/bots/) in settings menu.
 
-1. Deploy you botpress server and your bot should be good to go.
+1. Deploy your botpress server and your bot should be good to go.
 
 **_At any point, if you feel like your bot should be responding on Teams but you have no feedback, try to sign out of teams and then sign back in. It curiously solves many weird problems._**
