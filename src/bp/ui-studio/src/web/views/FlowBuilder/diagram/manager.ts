@@ -1,6 +1,6 @@
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
-import { DiagramEngine, DiagramModel, DiagramWidget, LinkModel, PointModel } from 'storm-react-diagrams'
+import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
@@ -352,7 +352,7 @@ export class DiagramManager {
         })
 
         const targetPort = targetNode.ports['in']
-        const link = new LinkModel()
+        const link = new DefaultLinkModel()
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)
 
