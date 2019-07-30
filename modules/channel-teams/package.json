@@ -1,6 +1,6 @@
 {
   "name": "channel-teams",
-  "version": "11.5.0",
+  "version": "1.0.0",
   "description": "A Botpress connector for MS Teams",
   "private": true,
   "main": "dist/backend/index.js",

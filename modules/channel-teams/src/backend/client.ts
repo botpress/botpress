@@ -1,4 +1,11 @@
-import { BotFrameworkAdapter, ConversationReference, CardFactory, TurnContext, AttachmentLayoutTypes } from 'botbuilder'
+import {
+  BotFrameworkAdapter,
+  ConversationReference,
+  CardFactory,
+  TurnContext,
+  AttachmentLayoutTypes,
+  Activity
+} from 'botbuilder'
 
 import * as sdk from 'botpress/sdk'
 import { Router } from 'express'
@@ -11,7 +18,7 @@ import { Clients } from './typings'
 const outgoingTypes = ['message', 'typing', 'carousel', 'text']
 
 export class TeamsClient {
-  private conversationsRefs: _.Dictionary<Partial<ConversationReference>> = {}
+  private inMemoryConversationRefs: _.Dictionary<Partial<ConversationReference>> = {}
   private adapter: BotFrameworkAdapter
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router: Router) {}
 
@@ -23,30 +30,56 @@ export class TeamsClient {
 
     this.router.post('/api/messages', async (req, res) => {
       await this.adapter.processActivity(req, res, async turnContext => {
-        const conversationReference = TurnContext.getConversationReference(turnContext.activity)
-        if (!turnContext.activity.text) {
+        const { activity } = turnContext
+
+        const conversationReference = TurnContext.getConversationReference(activity)
+        if (!activity.text) {
           // To prevent from emojis reactions to launch actual events
           return
         }
 
         const threadId = conversationReference.conversation.id
-        this.conversationsRefs[threadId] = conversationReference
-        this._sendIncomingEvent(turnContext, threadId, { type: turnContext.activity.type })
+        await this._setConversationRef(threadId, conversationReference)
+
+        this._sendIncomingEvent(activity, threadId)
       })
     })
   }
 
-  private _sendIncomingEvent = (ctx: TurnContext, threadId: string, args: { type: string }) => {
+  private async _getConversationRef(threadId: string): Promise<Partial<ConversationReference>> {
+    let convRef = this.inMemoryConversationRefs[threadId]
+    if (convRef) {
+      return convRef
+    }
+
+    // cache miss
+    convRef = await this.bp.kvs.get(this.botId, threadId)
+    this.inMemoryConversationRefs[threadId] = convRef
+    return convRef
+  }
+
+  private async _setConversationRef(threadId: string, convRef: Partial<ConversationReference>): Promise<void> {
+    if (this.inMemoryConversationRefs[threadId]) {
+      return
+    }
+
+    this.inMemoryConversationRefs[threadId] = convRef
+    return this.bp.kvs.set(this.botId, threadId, convRef)
+  }
+
+  private _sendIncomingEvent = (activity: Activity, threadId: string) => {
+    const { text, from, type } = activity
+
     this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'teams',
         direction: 'incoming',
-        payload: { text: ctx.activity.text },
-        preview: ctx.activity.text,
+        payload: { text },
+        preview: text,
         threadId,
-        target: ctx.activity.from.id,
-        ...args
+        target: from.id,
+        type
       })
     )
   }
@@ -58,7 +91,15 @@ export class TeamsClient {
       throw new Error('Unsupported event type: ' + event.type)
     }
 
-    const ref = this.conversationsRefs[event.threadId]
+    const ref = await this._getConversationRef(event.threadId)
+    if (!ref) {
+      this.bp.logger.warn(
+        `No message could be sent to MS Botframework with threadId: ${
+          event.threadId
+        } as there is no conversation reference`
+      )
+      return
+    }
 
     let msg: any = event.payload // TODO: place this logic in builtin with content-types
     if (msg.type === 'typing') {
@@ -66,9 +107,9 @@ export class TeamsClient {
         type: 'typing'
       }
     } else if (msg.type === 'carousel') {
-      msg = this._sendCarousel(event)
+      msg = this._prepareCarouselPayload(event)
     } else if (msg.quick_replies && msg.quick_replies.length) {
-      msg = this._sendChoice(event)
+      msg = this._prepareChoicePayload(event)
     }
 
     await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
@@ -84,7 +125,7 @@ export class TeamsClient {
     })
   }
 
-  private _sendChoice(event: sdk.IO.Event) {
+  private _prepareChoicePayload(event: sdk.IO.Event) {
     return {
       text: event.payload.text,
       attachments: [
@@ -107,7 +148,7 @@ export class TeamsClient {
     }
   }
 
-  private _sendCarousel(event: sdk.IO.Event) {
+  private _prepareCarouselPayload(event: sdk.IO.Event) {
     return {
       type: 'message',
       attachments: event.payload.elements.map(card => {

@@ -7,7 +7,4 @@ export interface Config {
 
   /** Enable or disable this channel for this bot */
   enabled: boolean
-
-  // /** Force usage of webhooks */
-  // forceWebhook: boolean
 }

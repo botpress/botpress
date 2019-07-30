@@ -99,8 +99,6 @@ function renderTeams(data) {
     })
   }
 
-  let contentUrl = url.resolve(data.BOT_URL, data.image)
-
   return [
     ...events,
     {
@@ -109,7 +107,7 @@ function renderTeams(data) {
         {
           name: data.title,
           contentType: 'image/png',
-          contentUrl
+          contentUrl: url.resolve(data.BOT_URL, data.image)
         }
       ]
     }

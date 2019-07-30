@@ -8,17 +8,19 @@ import { setupMiddleware, TeamsClient } from './client'
 import { Clients } from './typings'
 
 const clients: Clients = {}
+let router: Router
 
 const onServerReady = async (bp: typeof sdk) => {}
 
 const onServerStarted = async (bp: typeof sdk) => {
+  router = bp.http.createRouterForBot('channel-teams', {
+    checkAuthentication: false
+  })
+
   await setupMiddleware(bp, clients)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const router = bp.http.createRouterForBot('channel-teams', {
-    checkAuthentication: false
-  })
   const config = (await bp.config.getModuleConfigForBot('channel-teams', botId)) as Config
 
   if (config.enabled) {
