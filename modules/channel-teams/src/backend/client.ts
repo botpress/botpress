@@ -20,13 +20,23 @@ const outgoingTypes = ['message', 'typing', 'carousel', 'text']
 export class TeamsClient {
   private inMemoryConversationRefs: _.Dictionary<Partial<ConversationReference>> = {}
   private adapter: BotFrameworkAdapter
-  constructor(private bp: typeof sdk, private botId: string, private config: Config, private router: Router) {}
+  constructor(
+    private bp: typeof sdk,
+    private botId: string,
+    private config: Config,
+    private router: Router & sdk.http.RouterExtension
+  ) {}
 
   async initialize() {
     this.adapter = new BotFrameworkAdapter({
       appId: this.config.microsoftAppId,
       appPassword: this.config.microsoftAppPassword
     })
+
+    const publicPath = await this.router.getPublicPath()
+    if (publicPath.indexOf('https://') !== 0) {
+      this.bp.logger.warn('Teams requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
+    }
 
     this.router.post('/api/messages', async (req, res) => {
       await this.adapter.processActivity(req, res, async turnContext => {
