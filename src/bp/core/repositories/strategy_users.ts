@@ -15,6 +15,8 @@ export type StrategyUser = {
 interface UserInfo {
   email: string
   strategy: string
+  createdOn?: string
+  updatedOn?: string
   attributes: any
 }
 
@@ -51,7 +53,7 @@ export class StrategyUsersRepository {
         }
       })
 
-    return { result: newUser, created: true }
+    return { result: { ...newUser, createdOn: newUser.createdOn, updatedOn: newUser.updatedOn }, created: true }
   }
 
   async updateUser(email: string, strategy: string, updated: any): Promise<void> {
@@ -90,6 +92,8 @@ export class StrategyUsersRepository {
     return users.map(user => ({
       strategy,
       email: user.email,
+      createdOn: user['created_at'],
+      updatedOn: user['updated_at'],
       attributes: filteredAttributes ? _.pick(json.get(user.attributes), filteredAttributes) : json.get(user.attributes)
     }))
   }

@@ -94,6 +94,11 @@ export class PersistedConsoleLogger implements Logger {
   }
 
   private print(level: LoggerLevel, message: string, metadata: any) {
+    if (typeof message !== 'string') {
+      metadata = message
+      message = '(object)'
+    }
+
     if (this.attachedError) {
       try {
         const asAxios = this.attachedError as AxiosError

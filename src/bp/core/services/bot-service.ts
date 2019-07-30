@@ -17,6 +17,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
 import path from 'path'
+import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
@@ -24,6 +25,7 @@ import { extractArchive } from '../misc/archive'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
+import { ReplaceContent } from './ghost'
 import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
 import { JobService } from './job-service'
@@ -35,6 +37,7 @@ import { WorkspaceService } from './workspace-service'
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
+const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
 const REV_SPLIT_CHAR = '++'
 const MAX_REV = 10
 const DEFAULT_BOT_CONFIGS = {
@@ -202,7 +205,12 @@ export class BotService {
   }
 
   async exportBot(botId: string): Promise<Buffer> {
-    return this.ghostService.forBot(botId).exportToArchiveBuffer('models/**/*')
+    const replaceContent: ReplaceContent = {
+      from: [new RegExp(`/bots/${botId}/`, 'g')],
+      to: [BOT_ID_PLACEHOLDER]
+    }
+
+    return this.ghostService.forBot(botId).exportToArchiveBuffer('models/**/*', replaceContent)
   }
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
@@ -229,6 +237,12 @@ export class BotService {
       if (hookResult.allowImport) {
         const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
         const pipeline = await this.workspaceService.getPipeline(workspaceId)
+
+        await replace({
+          files: `${tmpDir.name}/**/*.json`,
+          from: new RegExp(BOT_ID_PLACEHOLDER, 'g'),
+          to: `/bots/${botId}/`
+        })
 
         await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
         const newConfigs = <Partial<BotConfig>>{
