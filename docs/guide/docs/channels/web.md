@@ -48,15 +48,6 @@ You will see the page when starting a new conversation. The page is always acces
 
 > **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, you will need to copy the file `data/global/config/channel-web.json` to your bot folder `data/bots/BOT_NAME/config/channel-web.json` and edit that file.
 
-## Custom look and feel
-
-You can customize the look and feel of the Botpress Webchat with a custom stylesheet. Armed with the [list of all overridable classes](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css) and your browser inspector, you can customize every element of the Webchat.
-
-![WebChat Customization](assets/webchat-customization.png)
-
-1. Add the `extraStylesheet: "path/to/custom-style.css"` property to your `window.botpressWebChat.init()` script.
-1. Create your `custom-style.css` file and override the classes of your choice.
-
 ## Show and hide automatically
 
 If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You will also need to pass the `hideWidget` key to your `init` function like this:
@@ -400,4 +391,5 @@ Feel free to change the webchat config there, the important line to keep is the 
 
 ## Result
 
-Restart Botpress Server, and now your bot's default webchat will use your custom CSS theme!
+Restart Botpress Server, and now your bot's default webchat will use your custom CSS theme! Here's our example:
+![WebChat Customization](assets/webchat-customization.png)
