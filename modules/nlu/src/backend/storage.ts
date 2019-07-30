@@ -125,7 +125,13 @@ export default class Storage {
 
   async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     const intentsName = await this.botGhost.directoryListing(this.intentsDir, '*.json')
-    const intents = await Promise.mapSeries(intentsName, name => this.getIntent(name).catch(x => undefined))
+
+    const intents = await Promise.mapSeries(intentsName, name =>
+      this.getIntent(name).catch(err => {
+        this.logger.attachError(err).error(`An error occured while loading ${name}`)
+      })
+    )
+
     return _.reject(intents, _.isEmpty)
   }
 
