@@ -34,7 +34,7 @@ export class UsersRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const users = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, ['last_logon'])
         return sendSuccess(res, 'Retrieved users', users)
       })
     )
