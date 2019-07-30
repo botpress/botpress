@@ -45,7 +45,7 @@ describe('Preprocessing', () => {
     ]
 
     const trainingSeq = await scopedGenerateTrainingSequence(
-      `hello my name is  [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
+      `hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
       'en',
       slotDef
     )

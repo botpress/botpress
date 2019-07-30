@@ -119,8 +119,6 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   const cannonical = keepEntityValues(input)
   const knownSlots = getKnownSlots(input, slotDefinitions)
 
-  console.log('knownSlots is', knownSlots)
-
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
   for (const slot of knownSlots) {
     const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
