@@ -7,7 +7,6 @@ import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
-const ITTERATIVE_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/i
 
 export function keepEntityTypes(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$2')
@@ -21,6 +20,7 @@ export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinit
   const slots = [] as KnownSlot[]
   const localSlotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
 
+  let removedChars = 0
   let regResult: RegExpExecArray | null
   while ((regResult = localSlotsRegex.exec(text))) {
     const rawMatch = regResult[0]
@@ -30,7 +30,9 @@ export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinit
     const slotDef = slotDefinitions.find(sd => sd.name === slotName)
 
     if (slotDef) {
-      slots.push({ ...slotDef, start: regResult.index, end: regResult.index + rawMatch.length, source })
+      const start = regResult.index - removedChars
+      removedChars += rawMatch.length - source.length
+      slots.push({ ...slotDef, start, end: start + source.length, source })
     }
   }
 

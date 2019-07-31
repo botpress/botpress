@@ -16,7 +16,7 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
     const { userId, externalAuthToken } = this.props.store.config
     const { autoOpenDebugger, updateToLastMessage } = loadSettings()
 
-    this.setState({ userId, externalAuthToken, autoOpenDebugger, updateToLastMessage })
+    this.setState({ userId, externalAuthToken: externalAuthToken || '', autoOpenDebugger, updateToLastMessage })
   }
 
   saveSettings = () => {

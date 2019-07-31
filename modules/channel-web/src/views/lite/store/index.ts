@@ -256,7 +256,7 @@ class RootStore {
     const data = new FormData()
     data.append('file', file)
 
-    await this.api.uploadFile(file, this.currentConversationId)
+    await this.api.uploadFile(data, this.currentConversationId)
   }
 
   /** Use this method to replace a value or add a new config */
