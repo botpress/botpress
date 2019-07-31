@@ -29,7 +29,7 @@ declare module 'botpress/sdk' {
     scope: string
     message: string
     metadata: any
-    timestamp: any
+    timestamp: Date
   }
 
   export enum LoggerLevel {

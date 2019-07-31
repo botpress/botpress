@@ -64,32 +64,22 @@ export class LoggerDbPersister {
       return
     }
 
-    const rows = this.batch.map(log => {
-      const { botId, scope, metadata, message, level, timestamp } = log
-      return {
-        botId,
-        scope,
-        metadata,
-        message,
-        level,
-        timestamp: this.knex.date.format(timestamp)
-      }
-    })
+    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const elements = this.batch.splice(0, batchCount)
+    const formatedRows = elements.map(log => ({
+      ...log,
+      timestamp: this.knex.date.format(log.timestamp)
+    }))
+
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, rows, this.BATCH_SIZE)
-      .then(() => {
-        if (this.batch.length >= this.BATCH_SIZE) {
-          this.batch.splice(0, this.BATCH_SIZE)
-        } else {
-          this.batch.splice(0, this.batch.length)
-        }
-      })
-      .catch(err =>
+      .batchInsert(this.TABLE_NAME, formatedRows, this.BATCH_SIZE)
+      .catch(err => {
         this.logger
           .attachError(err)
           .persist(false)
           .error('Error persisting messages')
-      )
+        this.batch.push(...elements)
+      })
       .finally(() => {
         this.currentPromise = undefined
       })
