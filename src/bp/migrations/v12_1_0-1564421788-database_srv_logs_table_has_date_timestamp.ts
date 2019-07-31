@@ -6,6 +6,7 @@ import { Container } from 'inversify'
 
 const TABLE_NAME = 'srv_logs'
 const COLUMN_NAME = 'timestamp'
+const CURRENT_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 
 const migration: Migration = {
   info: {
@@ -18,55 +19,23 @@ const migration: Migration = {
     database: Database,
     inversify: Container
   ): Promise<sdk.MigrationResult> => {
-    // I'm a little lost here which implementation should I use?
-    migrateByCreatingNewColumnOnly(database) // this one
-    // migrateByDroppingTheWholeTable(database) // or this one ?
+    const { client } = database.knex.client.config
+    if (client === 'sqlite3') {
+      return { success: true, message: 'No migration to run for sqlite' }
+    }
 
-    return { success: true, message: 'Configuration updated successfully' }
+    try {
+      await database.knex.raw(
+        `
+        ALTER TABLE ${TABLE_NAME}
+        ALTER COLUMN ${COLUMN_NAME} TYPE TIMESTAMP USING TO_TIMESTAMP(${COLUMN_NAME}, '${CURRENT_DATE_FORMAT}');
+        `
+      )
+    } catch (err) {
+      return { success: false, message: err }
+    }
+    return { success: true, message: 'PostgreSQL Database updated successfully' }
   }
-}
-
-async function migrateByDroppingTheWholeTable(database: Database) {
-  // get all logs
-  let logs: sdk.LoggerEntry[] = await database.knex.select().from(TABLE_NAME)
-  logs = logs.map((log: sdk.LoggerEntry) => ({
-    ...log,
-    timestamp: database.knex.date.format(log)
-  }))
-
-  // delete table
-  database.knex.schema.dropTable(TABLE_NAME)
-
-  // create and fill the new table
-  await database.knex.createTableIfNotExists(TABLE_NAME, table => {
-    table.string('botId').nullable()
-    table.timestamp('timestamp')
-    table.string('level')
-    table.string('scope')
-    table.text('message')
-    table.text('metadata')
-  })
-  await database.knex.batchInsert(TABLE_NAME, logs)
-}
-
-async function migrateByCreatingNewColumnOnly(database: Database) {
-  const tempName = COLUMN_NAME + '_temp'
-
-  // rename timestamp column to temp
-  await database.knex.schema.alterTable(TABLE_NAME, table => {
-    table.renameColumn(COLUMN_NAME, tempName)
-  })
-
-  // create new column with correct type
-  await database.knex.schema.alterTable(TABLE_NAME, table => {
-    table.timestamp(COLUMN_NAME)
-  })
-
-  // fill the new column with temp using the knex extension to format
-  const format = database.knex.date.format
-  await database.knex(TABLE_NAME).update({
-    [COLUMN_NAME]: format(database.knex.raw('??', [tempName]))
-  })
 }
 
 export default migration
