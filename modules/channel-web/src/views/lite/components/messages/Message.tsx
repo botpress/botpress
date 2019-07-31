@@ -11,6 +11,14 @@ import * as Keyboard from '../Keyboard'
 import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
 
 class Message extends Component<MessageProps> {
+  state = {
+    hasError: false
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
 
@@ -118,6 +126,10 @@ class Message extends Component<MessageProps> {
   }
 
   render() {
+    if (this.state.hasError) {
+      return '* Cannot display message *'
+    }
+
     const type = this.props.type || (this.props.payload && this.props.payload.type)
     const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
