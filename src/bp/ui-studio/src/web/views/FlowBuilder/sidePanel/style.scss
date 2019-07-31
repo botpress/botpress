@@ -1,0 +1,50 @@
+.toolPanel {
+  padding: 10px;
+
+  .title {
+    height: 25px;
+    font-weight: bold;
+  }
+
+  .section {
+    flex-wrap: wrap;
+  }
+}
+
+.toolItem {
+  width: 90px;
+  height: 70px;
+  margin: 0 3px 3px 0;
+  border: 1px solid #ddd;
+  display: inline-block;
+  font-size: 1.2rem;
+
+  .title {
+    width: 100%;
+    margin: 2px 0 2px 0;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .icon {
+    width: 30px;
+    height: 30px;
+    margin: 1.2rem auto auto auto;
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+
+    &:active {
+      cursor: grabbing;
+      cursor: -moz-grabbing;
+      cursor: -webkit-grabbing;
+    }
+  }
+}
+
+.flowProblems {
+  padding: 2px 4px;
+  margin: 2px;
+  cursor: pointer;
+}

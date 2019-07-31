@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { makeTokens } from '../../tools/make-tokens'
+import { makeTokens } from '../../tools/token-utils'
 import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
 import { generatePredictionSequence, generateTrainingSequence } from './pre-processor'

@@ -27,6 +27,8 @@ declare namespace NodeJS {
     PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string
+    /** This is the subfolder where Botpress is located (ex: /botpress/). It is extracted from the external URL */
+    ROOT_PATH: string
     PROJECT_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any

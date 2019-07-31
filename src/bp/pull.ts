@@ -1,4 +1,4 @@
-import Axios from 'axios'
+import axios from 'axios'
 import chalk from 'chalk'
 
 import { extractArchive } from './core/misc/archive'
@@ -13,6 +13,7 @@ export default ({ url, authToken, targetDir }) => {
     return
   }
 
+  url = url.replace(/\/+$/, '')
   console.log(chalk.blue(`Pulling pending changes from ${chalk.bold(url)}`))
   _pull(url, authToken, targetDir)
     .then(() => {
@@ -23,12 +24,12 @@ export default ({ url, authToken, targetDir }) => {
     })
 }
 
-async function _pull(host: string, auth: string, dir: string) {
-  const archive = await _fetchFullExport(host, auth)
+async function _pull(baseUrl: string, auth: string, dir: string) {
+  const archive = await _fetchFullExport(baseUrl, auth)
   return extractArchive(archive, dir)
 }
 
-async function _fetchFullExport(host: string, auth: string) {
+async function _fetchFullExport(baseUrl: string, auth: string) {
   const options = {
     headers: {
       Authorization: `Bearer ${auth}`
@@ -37,7 +38,7 @@ async function _fetchFullExport(host: string, auth: string) {
   }
 
   try {
-    const { data } = await Axios.get(`${host}/api/v1/admin/versioning/export`, options)
+    const { data } = await axios.get(`${baseUrl}/api/v1/admin/versioning/export`, options)
     return data
   } catch (err) {
     throw Error(`Couldn't export, server responded with \n ${err.response.status} ${err.response.statusText}`)

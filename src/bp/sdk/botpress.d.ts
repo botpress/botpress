@@ -755,6 +755,7 @@ declare module 'botpress/sdk' {
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
     }
+    converse?: ConverseConfig
     dialog?: DialogConfig
     logs?: LogsConfig
     defaultLanguage: string
@@ -801,9 +802,25 @@ declare module 'botpress/sdk' {
     expiration: string
   }
 
+  /**
+   * Configuration definition of Dialog Sessions
+   */
   export interface DialogConfig {
+    /** The interval until a session context expires */
     timeoutInterval: string
+    /** The interval until a session expires */
     sessionTimeoutInterval: string
+  }
+
+  /**
+   * Configuration file definition for the Converse API
+   */
+  export type ConverseConfig = {
+    /**
+     * The timeout of the converse API requests
+     * @default 5s
+     */
+    timeout: string
   }
 
   /**
@@ -985,10 +1002,24 @@ declare module 'botpress/sdk' {
   export interface ModuleMigration {
     info: {
       description: string
+      target?: 'core' | 'bot'
       type: 'database' | 'config' | 'content'
     }
-    up: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
-    down?: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+    up: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
+    down?: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
+  }
+
+  export interface ModuleMigrationOpts {
+    bp: typeof import('botpress/sdk')
+    metadata: MigrationMetadata
+    configProvider: any
+    database: any
+    inversify: any
+  }
+
+  /** These are additional informations that Botpress may pass down to migrations (for ex: running bot-specific migration) */
+  export interface MigrationMetadata {
+    botId?: string
   }
 
   /**
@@ -1033,6 +1064,12 @@ declare module 'botpress/sdk' {
      * @default true
      */
     enableJsonBodyParser?: RouterCondition
+
+    /**
+     * Only parses body which are urlencoded
+     * @default true
+     */
+    enableUrlEncoderBodyParser?: RouterCondition
   }
 
   /**
@@ -1172,6 +1209,13 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    /**
+     * Return the state of the icoming queue. True if there are any events(messages)
+     * from the user waiting in the queue.
+     * @param event - Current event in the action context, used to identify the queue
+     */
+    export function isIncomingQueueEmpty(event: IO.Event): boolean
 
     /**
      * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields

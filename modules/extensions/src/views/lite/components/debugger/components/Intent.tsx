@@ -1,28 +1,33 @@
-import _ from 'lodash'
-import React from 'react'
+import { Intent as BpIntent, Tag } from '@blueprintjs/core'
+import React, { Fragment } from 'react'
 
 import { formatConfidence } from '../utils'
 
 const QNA_IDENTIFIER = '__qna__'
 
-export interface IntentDef {
-  name: string
-  confidence: number
+export const Intent = (props: { name: string; confidence?: number; elected?: boolean }) => {
+  const { name, elected, confidence } = props
+  const isQnA = name.startsWith(QNA_IDENTIFIER)
+
+  const displayName = isQnA ? formatQnaName(name) : name
+
+  const textContent: string = confidence ? `${displayName}: ${formatConfidence(confidence)} %` : displayName
+  const content = elected ? <strong>{textContent}</strong> : <span>{textContent}</span>
+
+  return (
+    <Fragment>
+      <Tag intent={isQnA ? BpIntent.SUCCESS : BpIntent.PRIMARY} minimal>
+        {isQnA ? 'Q&A' : 'NLU'}
+      </Tag>
+      &nbsp;
+      <a onClick={navigateToIntentDefinition(name, isQnA)}>{content}</a>
+    </Fragment>
+  )
 }
 
-export const Intent = (props: { intent: IntentDef; elected: boolean }) => {
-  const { intent, elected } = props
-  const isQnA = intent.name.startsWith(QNA_IDENTIFIER)
-
-  let content: string | JSX.Element = `${intent.name}: ${formatConfidence(intent.confidence)} %`
-  if (elected) {
-    content = <strong>{content}</strong>
-  }
-  return (
-    <li>
-      <a onClick={navigateToIntentDefinition(intent.name, isQnA)}>{content}</a>
-    </li>
-  )
+function formatQnaName(name: string): string {
+  name = name.replace(QNA_IDENTIFIER, '')
+  return name.substr(name.indexOf('_') + 1)
 }
 
 const navigateToIntentDefinition = (intent: string, isQna: boolean) => () => {

@@ -5,7 +5,7 @@ import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_use
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { GhostService } from 'core/services'
-import { Migration } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
 import { Container } from 'inversify'
 import _ from 'lodash'
@@ -15,12 +15,7 @@ const migration: Migration = {
     description: 'Copy existing users from workspaces file to database',
     type: 'database'
   },
-  up: async (
-    bp: typeof sdk,
-    configProvider: ConfigProvider,
-    database: Database,
-    inversify: Container
-  ): Promise<sdk.MigrationResult> => {
+  up: async ({ bp, database, inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const userRepo = inversify.get<StrategyUsersRepository>(TYPES.StrategyUsersRepository)
     const workspaceRepo = inversify.get<WorkspaceUsersRepository>(TYPES.WorkspaceUsersRepository)
 

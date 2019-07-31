@@ -15,7 +15,8 @@ import {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  appendLog
+  appendLog,
+  receiveFlowsModification
 } from '~/actions'
 
 class App extends Component {
@@ -52,6 +53,15 @@ class App extends Component {
       this.props.addNotifications([notification])
     })
 
+    EventBus.default.on('flow.changes', payload => {
+      // TODO: should check if real uniq Id is different. Multiple browser windows can be using the same email. There should be a uniq window Id.
+      const isOtherUser = this.props.user.email !== payload.userEmail
+      const isSameBot = payload.botId === window.BOT_ID
+      if (isOtherUser && isSameBot) {
+        this.props.receiveFlowsModification(payload)
+      }
+    })
+
     EventBus.default.on('hints.updated', () => {
       this.props.refreshHints()
     })
@@ -78,10 +88,15 @@ const mapDispatchToProps = {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  appendLog
+  appendLog,
+  receiveFlowsModification
 }
 
+const mapStateToProps = state => ({
+  user: state.user
+})
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App)

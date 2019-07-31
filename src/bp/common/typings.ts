@@ -17,6 +17,18 @@ export interface UniqueUser {
   strategy: string
 }
 
+export interface CreatedUser {
+  email: string
+  tempPassword: string
+}
+
+export interface WorkspaceUser {
+  email: string
+  strategy: string
+  workspace: string
+  role: string
+}
+
 export interface AuthStrategyConfig {
   strategyType: string
   strategyId: string

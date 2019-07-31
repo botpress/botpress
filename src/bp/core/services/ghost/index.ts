@@ -1,3 +1,5 @@
+import { ReplaceInFileConfig } from 'replace-in-file'
+
 export interface StorageDriver {
   upsertFile(filePath: string, content: Buffer | string, recordRevision: boolean): Promise<void>
   readFile(filePath: string): Promise<Buffer>
@@ -27,5 +29,7 @@ export interface ServerWidePendingRevisions {
   global: PendingRevisions
   bots: PendingRevisions[]
 }
+
+export type ReplaceContent = Pick<ReplaceInFileConfig, 'from' | 'to'>
 
 export * from './cache-invalidators'

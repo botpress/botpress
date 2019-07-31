@@ -74,6 +74,7 @@ export default class DownloadManager {
       this.meta = data
     } catch (err) {
       debug('Error fetching models', { url: this.metaUrl, message: err.message })
+      throw err
     }
   }
 

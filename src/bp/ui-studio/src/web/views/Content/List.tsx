@@ -223,7 +223,7 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Cell: !this.props.readOnly && <Button small={true} icon="edit" />,
+        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" /> : ''),
         filterable: false,
         width: 45
       }

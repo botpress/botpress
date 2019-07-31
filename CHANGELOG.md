@@ -1,3 +1,24 @@
+## [12.0.3](https://github.com/botpress/botpress/compare/v12.0.2...v12.0.3) (2019-07-25)
+
+
+### Bug Fixes
+
+* **core:** handling cases where message is not a string ([a486013](https://github.com/botpress/botpress/commit/a486013))
+* **core:** handling cases where message is not a string ([41cbebe](https://github.com/botpress/botpress/commit/41cbebe))
+* **ie:** webchat not working on ie ([830e2e1](https://github.com/botpress/botpress/commit/830e2e1))
+* **ie:** webchat not working on ie ([7d313d3](https://github.com/botpress/botpress/commit/7d313d3))
+* **lang:** meta file, try local when remote fails ([4566c4d](https://github.com/botpress/botpress/commit/4566c4d))
+* **lang-server:** refreshing health when visiting studio ([77cfeed](https://github.com/botpress/botpress/commit/77cfeed))
+* **lang-server:** refreshing health when visiting studio ([6e6db07](https://github.com/botpress/botpress/commit/6e6db07))
+* **nlu:** exact match also matches if one entity type differs ([7880ccb](https://github.com/botpress/botpress/commit/7880ccb))
+* **nlu:** merge tokens if both are made of chosen special characters in slot extraction ([48e3171](https://github.com/botpress/botpress/commit/48e3171))
+* **nlu:** undefined occurances or pattern ([893c912](https://github.com/botpress/botpress/commit/893c912))
+* **nlu:** undefined occurences or pattern ([529549d](https://github.com/botpress/botpress/commit/529549d))
+* **qna:** cleanup unused qna intents when syncing ([cd91499](https://github.com/botpress/botpress/commit/cd91499))
+* **qna:** cleanup unused qna intents when syncing ([729874a](https://github.com/botpress/botpress/commit/729874a))
+
+
+
 ## [12.0.2](https://github.com/botpress/botpress/compare/v12.0.1...v12.0.2) (2019-07-16)
 
 
