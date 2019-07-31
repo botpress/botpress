@@ -20,7 +20,7 @@ const webConfig = {
   },
   output: {
     path: path.resolve(__dirname, './public/js'),
-    publicPath: '/assets/ui-studio/public/js/',
+    publicPath: 'assets/ui-studio/public/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
@@ -152,6 +152,7 @@ const webConfig = {
             loader: 'css-loader',
             options: {
               modules: true,
+              url: false,
               importLoaders: 1,
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }

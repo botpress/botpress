@@ -1,15 +1,16 @@
-import React, { Component } from 'react'
 import classnames from 'classnames'
 import _ from 'lodash'
-import { NodeModel, NodeFactory } from 'storm-react-diagrams'
+import React, { Component } from 'react'
+import { AbstractNodeFactory, DiagramEngine, NodeModel } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
-import { StandardOutgoingPortModel, StandardPortWidget, StandardIncomingPortModel } from './Ports'
+
+import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from './Ports'
 
 const style = require('./style.scss')
 
-export class SkillCallNodeWidget extends React.Component {
+export class StandardNodeWidget extends Component<{ node: StandardNodeModel }> {
   static defaultProps = {
     size: 200,
     node: null
@@ -21,9 +22,7 @@ export class SkillCallNodeWidget extends React.Component {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
 
-    const className = classnames(style['skill-call-node'], style['node-container'], {
-      [style.highlightedNode]: node.isHighlighted
-    })
+    const className = classnames(style['node-container'], { [style.highlightedNode]: node.isHighlighted })
 
     return (
       <div className={className}>
@@ -32,9 +31,14 @@ export class SkillCallNodeWidget extends React.Component {
         </div>
         <div className={style.header} />
         <div className={style.content}>
+          <div className={classnames(style['section-onEnter'], style.section)}>
+            {node.onEnter &&
+              node.onEnter.map((item, i) => {
+                return <ActionItem key={`${i}.${item}`} className={style.item} text={item} />
+              })}
+          </div>
           <div className={classnames(style['section-title'], style.section, { [style.waiting]: isWaiting })}>
-            <div>{node.skill}</div>
-            <div className={style['subtitle']}>Skill | {node.name}</div>
+            {node.name}
           </div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
@@ -63,11 +67,22 @@ export class SkillCallNodeWidget extends React.Component {
   }
 }
 
-export class SkillCallNodeModel extends NodeModel {
-  constructor({ id, x, y, name, skill, next = [], isStartNode = false, isHighlighted = false }) {
-    super('skill-call', id)
+export class StandardNodeModel extends NodeModel {
+  public isStartNode = false
+  public isHighlighted = false
+  public onEnter = undefined
+  public onReceive = undefined
+  public waitOnReceive = undefined
+  public next = undefined
+  public oldX?: number
+  public oldY?: number
+  public lastModified?: Date
+  public name: string
 
-    this.setData({ name, next, isStartNode, skill, isHighlighted })
+  constructor({ id, x, y, name, onEnter = [], onReceive = [], next = [], isStartNode = false, isHighlighted = false }) {
+    super('standard', id)
+
+    this.setData({ name, onEnter, onReceive, next, isStartNode, isHighlighted })
 
     if (x) {
       this.x = x
@@ -80,25 +95,26 @@ export class SkillCallNodeModel extends NodeModel {
   serialize() {
     return _.merge(super.serialize(), {
       name: this.name,
-      next: this.next,
-      skill: this.skill
+      onEnter: this.onEnter,
+      onReceive: this.onReceive,
+      next: this.next
     })
   }
 
-  deSerialize(data) {
-    super.deSerialize(data)
-
-    this.setData({ name: data.name, skill: data.skill, next: data.next })
+  deSerialize(data: any, diagramEngine: DiagramEngine) {
+    super.deSerialize(data, diagramEngine)
+    this.setData(data)
   }
 
   getOutPorts() {
     return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
   }
 
-  setData({ name, next = [], isStartNode, skill, isHighlighted }) {
+  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
     this.isStartNode = isStartNode
     this.isHighlighted = isHighlighted
     const inNodeType = isStartNode ? 'start' : 'normal'
+    const waitOnReceive = !_.isNil(onReceive)
 
     if (!this.ports['in']) {
       this.addPort(new StandardIncomingPortModel('in', inNodeType))
@@ -111,24 +127,43 @@ export class SkillCallNodeModel extends NodeModel {
       }
     }
 
+    if (_.isString(onEnter)) {
+      onEnter = [onEnter]
+    }
+
+    if (_.isString(onReceive)) {
+      onReceive = [onReceive]
+    } else if (_.isNil(onReceive)) {
+      onReceive = []
+    }
+
+    onReceive = onReceive.map(x => x.function || x)
+
     if (!_.isArray(next) && _.isObjectLike(next)) {
       next = [next]
     }
 
-    this.skill = skill
+    this.onEnter = onEnter
+    this.onReceive = onReceive
+    this.waitOnReceive = waitOnReceive
     this.next = next
     this.name = name
   }
 }
 
-export const SkillCallNodeWidgetFactory = React.createFactory(SkillCallNodeWidget)
+export const StandardNodeWidgetFactory = React.createFactory(StandardNodeWidget)
 
-export class SkillCallWidgetFactory extends NodeFactory {
+export class StandardWidgetFactory extends AbstractNodeFactory {
   constructor() {
-    super('skill-call')
+    super('standard')
   }
 
-  generateReactWidget(diagramEngine, node) {
-    return SkillCallNodeWidgetFactory({ node })
+  generateReactWidget(diagramEngine: DiagramEngine, node: StandardNodeModel) {
+    return <StandardNodeWidget node={node} />
+  }
+
+  getNewInstance() {
+    // @ts-ignore
+    return new StandardNodeModel()
   }
 }

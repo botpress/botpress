@@ -1,7 +1,7 @@
 .insertNode {
   cursor: crosshair;
 
-  :global(.storm-diagrams-canvas) {
+  :global(.srd-diagram) {
     cursor: inherit;
   }
 }

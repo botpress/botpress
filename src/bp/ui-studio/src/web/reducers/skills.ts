@@ -1,6 +1,13 @@
 import { handleActions } from 'redux-actions'
-
-import { skillsReceived, buildNewSkill, cancelNewSkill, insertNewSkill, editSkill, updateSkill } from '~/actions'
+import {
+  buildNewSkill,
+  cancelNewSkill,
+  editSkill,
+  requestInsertNewSkill,
+  requestUpdateSkill,
+  skillsReceived,
+  updateSkill
+} from '~/actions'
 
 const defaultState = {
   installed: [],
@@ -28,7 +35,8 @@ const reducer = handleActions(
         opened: true,
         action: 'new',
         data: {},
-        skillId: payload
+        skillId: payload.id,
+        location: payload.location
       }
     }),
 
@@ -40,7 +48,7 @@ const reducer = handleActions(
       }
     }),
 
-    [insertNewSkill]: (state, { payload }) => ({
+    [requestInsertNewSkill]: (state, { payload }) => ({
       ...state,
       builder: {
         ...state.builder,
@@ -63,7 +71,7 @@ const reducer = handleActions(
       }
     }),
 
-    [updateSkill]: state => ({
+    [requestUpdateSkill]: state => ({
       ...state,
       builder: {
         ...state.builder,

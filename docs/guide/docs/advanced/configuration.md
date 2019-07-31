@@ -25,6 +25,12 @@ This means that your server will still listen for connections on port 3000, but 
 
 At this point, Botpress doesn't know how to access the bot from the web. You will need to edit the configuration of `httpServer.externalUrl`. Set the configuration variable to the complete host name, for example `https://bot.botpress.io`
 
+#### Changing the base URL of your bot
+
+By default, Botpress is accessible at the root of your domain (ex: https://bot.botpress.io/). It is possible to change that so you can serve it from a different URL, for example `https://bot.botpress.io/botpress/somepath/`. All you need to do is set the External URL, either in environment variable (`EXTERNAL_URL`), or via the `botpress.config.json` file.
+
+The path will be automatically extracted from that URL, and will be used as the root path.
+
 ## Logs Configuration
 
 Logs are very useful to debug and understand what happens when the bot doesn't behave as expected.

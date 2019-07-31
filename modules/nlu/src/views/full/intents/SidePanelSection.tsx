@@ -2,15 +2,15 @@ import { Button, Classes } from '@blueprintjs/core'
 import { NLUAPI } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
-import { CurrentItem } from 'full'
+import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
 
 interface Props {
   api: NLUAPI
   intents: NLU.IntentDefinition[]
-  currentItem: CurrentItem
+  currentItem: NluItem
   contentLang: string
-  setCurrentItem: (x: CurrentItem) => void
+  setCurrentItem: (x: NluItem) => void
   reloadIntents: () => void
 }
 
