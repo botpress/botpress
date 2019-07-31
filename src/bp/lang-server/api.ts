@@ -19,7 +19,8 @@ import {
   handleUnexpectedError,
   isAdminToken,
   RequestWithLang,
-  serviceLoadingMiddleware
+  serviceLoadingMiddleware,
+  assertServerIsOnline
 } from './util'
 
 export type APIOptions = {
@@ -74,13 +75,18 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, languageService: LanguageService, downloadManager: DownloadManager) {
+export default async function(
+  options: APIOptions,
+  languageService: LanguageService,
+  downloadManager?: DownloadManager
+) {
   const app = createExpressApp(options)
   const logger = new LangServerLogger('API')
 
   const waitForServiceMw = serviceLoadingMiddleware(languageService)
   const validateLanguageMw = assertValidLanguage(languageService)
   const adminTokenMw = authMiddleware(options.adminToken)
+  const assertOnline = assertServerIsOnline(downloadManager)
 
   app.get('/info', (req, res) => {
     res.send({
@@ -133,8 +139,8 @@ export default async function(options: APIOptions, languageService: LanguageServ
 
   const router = express.Router({ mergeParams: true })
 
-  router.get('/', (req, res) => {
-    const downloading = downloadManager.inProgress.map(x => ({
+  router.get('/', assertOnline, (req, res) => {
+    const downloading = downloadManager!.inProgress.map(x => ({
       lang: x.lang,
       progress: {
         status: x.getStatus(),
@@ -144,16 +150,16 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }))
 
     res.send({
-      available: downloadManager.downloadableLanguages,
+      available: downloadManager!.downloadableLanguages,
       installed: languageService.getModels(),
       downloading
     })
   })
 
-  router.post('/:lang', adminTokenMw, async (req, res) => {
+  router.post('/:lang', adminTokenMw, assertOnline, async (req, res) => {
     const { lang } = req.params
     try {
-      const downloadId = await downloadManager.download(lang)
+      const downloadId = await downloadManager!.download(lang)
       res.json({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
@@ -174,9 +180,9 @@ export default async function(options: APIOptions, languageService: LanguageServ
     }
   })
 
-  router.post('/cancel/:id', adminTokenMw, (req, res) => {
+  router.post('/cancel/:id', adminTokenMw, assertOnline, (req, res) => {
     const { id } = req.params
-    downloadManager.cancelAndRemove(id)
+    downloadManager!.cancelAndRemove(id)
     res.status(200).send({ success: true })
   })
 

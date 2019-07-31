@@ -24,6 +24,7 @@ export interface ArgV {
   authToken?: string
   adminToken?: string
   metadataLocation: string
+  offline: boolean
   dim: number
   domain: string
 }
@@ -73,12 +74,25 @@ export default async function(options: ArgV) {
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
-  logger.info(`Serving ${options.dim} language dimensions from ${options.langDir}`)
-  logger.info(' ')
+  if (options.offline) {
+    logger.info(
+      `mode: ${chalk.redBright(
+        'offline'
+      )} (languages needs to be downloaded manually from a machine with internet access)`
+    )
+  } else {
+    logger.info(`Mode: ${chalk.greenBright('online')} (languages will be downloaded from ${options.metadataLocation})`)
+  }
 
-  await Promise.all([
-    API(apiOptions, langService, downloadManager),
-    downloadManager.initialize(),
-    langService.initialize()
-  ])
+  logger.info(`Serving ${options.dim} language dimensions from ${options.langDir}`)
+
+  if (options.offline) {
+    await Promise.all([API(apiOptions, langService), langService.initialize()])
+  } else {
+    await Promise.all([
+      API(apiOptions, langService, downloadManager),
+      downloadManager.initialize(),
+      langService.initialize()
+    ])
+  }
 }
