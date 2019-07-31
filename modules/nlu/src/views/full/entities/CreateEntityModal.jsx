@@ -17,7 +17,7 @@ const AVAILABLE_TYPES = [
 
 const DEFAULT_STATE = {
   name: '',
-  type: 'list',
+  type: AVAILABLE_TYPES[0],
   isValid: false
 }
 

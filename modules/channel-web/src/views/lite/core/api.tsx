@@ -37,7 +37,8 @@ export default class WebchatApi {
       this.axiosConfig = {
         ...this.axiosConfig,
         headers: {
-          ExternalAuth: `Bearer ${externalAuthToken}`
+          ExternalAuth: `Bearer ${externalAuthToken}`,
+          'X-BP-ExternalAuth': `Bearer ${externalAuthToken}`
         }
       }
     }

@@ -238,7 +238,7 @@ export default class IntentsEditor extends React.Component {
         </div>
         <div className={style.tools}>
           <div className={style.selectContext}>
-            <label for="selectContext">Current contexts</label>
+            <label htmlFor="selectContext">Current contexts</label>
             &nbsp;
             <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
               <Icon color={Colors.GRAY2} icon="info-sign" />
