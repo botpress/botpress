@@ -1,6 +1,5 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-import { Router } from 'express'
 
 import { Config } from '../config'
 
@@ -8,23 +7,30 @@ import { setupMiddleware, TeamsClient } from './client'
 import { Clients } from './typings'
 
 const clients: Clients = {}
-let router: Router
-
-const onServerReady = async (bp: typeof sdk) => {}
+let publicPath: string
 
 const onServerStarted = async (bp: typeof sdk) => {
-  router = bp.http.createRouterForBot('channel-teams', {
+  await setupMiddleware(bp, clients)
+}
+
+const onServerReady = async (bp: typeof sdk) => {
+  const router = bp.http.createRouterForBot('channel-teams', {
     checkAuthentication: false
   })
 
-  await setupMiddleware(bp, clients)
+  router.post(`/api/messages`, async (req, res) => {
+    const client = clients[req.params.botId]
+    client && (await client.receiveIncomingEvent(req, res))
+  })
+
+  publicPath = await router.getPublicPath()
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const config = (await bp.config.getModuleConfigForBot('channel-teams', botId)) as Config
 
   if (config.enabled) {
-    const bot = new TeamsClient(bp, botId, config, router)
+    const bot = new TeamsClient(bp, botId, config, publicPath)
     await bot.initialize()
 
     clients[botId] = bot
