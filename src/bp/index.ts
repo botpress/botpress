@@ -229,7 +229,7 @@ try {
           default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
         },
         offline: {
-          description: 'Wheter the server has Internet access or not',
+          description: 'Whether or not the language server has internet access',
           default: false
         },
         dim: {
