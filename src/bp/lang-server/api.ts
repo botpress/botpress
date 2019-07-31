@@ -8,6 +8,7 @@ import ms from 'ms'
 
 import { BadRequestError } from '../core/routers/errors'
 
+import { getLanguageByCode } from './languages'
 import { LangServerLogger } from './logger'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
 import LanguageService from './service'
@@ -19,8 +20,7 @@ import {
   handleUnexpectedError,
   isAdminToken,
   RequestWithLang,
-  serviceLoadingMiddleware,
-  assertServerIsOnline
+  serviceLoadingMiddleware
 } from './util'
 
 export type APIOptions = {
@@ -35,6 +35,7 @@ export type APIOptions = {
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
 const cachePolicy = { 'Cache-Control': `max-age=${ms('1d')}` }
+const offlineErrorMsg = 'The server is running in offline mode. This function is disabled.'
 
 const createExpressApp = (options: APIOptions): Application => {
   const app = express()
@@ -86,7 +87,6 @@ export default async function(
   const waitForServiceMw = serviceLoadingMiddleware(languageService)
   const validateLanguageMw = assertValidLanguage(languageService)
   const adminTokenMw = authMiddleware(options.adminToken)
-  const assertOnline = assertServerIsOnline(downloadManager)
 
   app.get('/info', (req, res) => {
     res.send({
@@ -105,7 +105,7 @@ export default async function(
       const language = req.language!
 
       if (!utterances || !_.isArray(utterances) || !utterances.length) {
-        // For backward cpompatibility with Botpress 12.0.0 - 12.0.2
+        // For backward compatibility with Botpress 12.0.0 - 12.0.2
         const singleInput = req.body.input
         if (!singleInput || !_.isString(singleInput)) {
           throw new BadRequestError('Param `utterances` is mandatory (must be an array of string)')
@@ -139,8 +139,21 @@ export default async function(
 
   const router = express.Router({ mergeParams: true })
 
-  router.get('/', assertOnline, (req, res) => {
-    const downloading = downloadManager!.inProgress.map(x => ({
+  router.get('/', (req, res) => {
+    if (!downloadManager) {
+      const localLanguages = languageService.getModels().map(m => {
+        const { name } = getLanguageByCode(m.lang)
+        return { ...m, code: m.lang, name }
+      })
+
+      return res.send({
+        available: localLanguages,
+        installed: localLanguages,
+        downloading: []
+      })
+    }
+
+    const downloading = downloadManager.inProgress.map(x => ({
       lang: x.lang,
       progress: {
         status: x.getStatus(),
@@ -156,10 +169,14 @@ export default async function(
     })
   })
 
-  router.post('/:lang', adminTokenMw, assertOnline, async (req, res) => {
+  router.post('/:lang', adminTokenMw, async (req, res) => {
     const { lang } = req.params
+    if (!downloadManager) {
+      return res.status(404).send({ success: false, error: offlineErrorMsg })
+    }
+
     try {
-      const downloadId = await downloadManager!.download(lang)
+      const downloadId = await downloadManager.download(lang)
       res.json({ success: true, downloadId })
     } catch (err) {
       res.status(404).send({ success: false, error: err.message })
@@ -180,9 +197,13 @@ export default async function(
     }
   })
 
-  router.post('/cancel/:id', adminTokenMw, assertOnline, (req, res) => {
+  router.post('/cancel/:id', adminTokenMw, (req, res) => {
     const { id } = req.params
-    downloadManager!.cancelAndRemove(id)
+    if (!downloadManager) {
+      return res.send({ success: false, error: offlineErrorMsg })
+    }
+
+    downloadManager.cancelAndRemove(id)
     res.status(200).send({ success: true })
   })
 

@@ -75,14 +75,6 @@ export const assertValidLanguage = (service: LanguageService) => (req, _res, nex
   next()
 }
 
-export const assertServerIsOnline = downloadManager => (req, res, next) => {
-  if (!downloadManager) {
-    return next(new BadRequestError('The server is running in offline mode. This function is disabled.'))
-  }
-
-  next()
-}
-
 export const disabledReadonlyMiddleware = (readonly: boolean) => (_req, _res, next) => {
   if (readonly) {
     return next(new UnauthorizedError('API server is running in read-only mode'))
