@@ -32,10 +32,11 @@ export type APIOptions = {
   adminToken: string
 }
 
+const OFFLINE_ERR_MSG = 'The server is running in offline mode. This function is disabled.'
+
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
 const cachePolicy = { 'Cache-Control': `max-age=${ms('1d')}` }
-const offlineErrorMsg = 'The server is running in offline mode. This function is disabled.'
 
 const createExpressApp = (options: APIOptions): Application => {
   const app = express()
@@ -163,7 +164,7 @@ export default async function(
     }))
 
     res.send({
-      available: downloadManager!.downloadableLanguages,
+      available: downloadManager.downloadableLanguages,
       installed: languageService.getModels(),
       downloading
     })
@@ -172,7 +173,7 @@ export default async function(
   router.post('/:lang', adminTokenMw, async (req, res) => {
     const { lang } = req.params
     if (!downloadManager) {
-      return res.status(404).send({ success: false, error: offlineErrorMsg })
+      return res.status(404).send({ success: false, error: OFFLINE_ERR_MSG })
     }
 
     try {
@@ -200,7 +201,7 @@ export default async function(
   router.post('/cancel/:id', adminTokenMw, (req, res) => {
     const { id } = req.params
     if (!downloadManager) {
-      return res.send({ success: false, error: offlineErrorMsg })
+      return res.send({ success: false, error: OFFLINE_ERR_MSG })
     }
 
     downloadManager.cancelAndRemove(id)
