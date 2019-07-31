@@ -1,3 +1,27 @@
+## [12.0.4](https://github.com/botpress/botpress/compare/v12.0.3...v12.0.4) (2019-07-31)
+
+
+### Bug Fixes
+
+* **admin:** fix last login and joined on dates ([9285d7e](https://github.com/botpress/botpress/commit/9285d7e))
+* **admin:** fix last login and joined on dates ([321608a](https://github.com/botpress/botpress/commit/321608a))
+* **bots:** export & import now updates image paths & others ([a93a819](https://github.com/botpress/botpress/commit/a93a819))
+* **bots:** export & import now updates image paths & others ([470f51b](https://github.com/botpress/botpress/commit/470f51b))
+* **channel-web:** externalAuth token http headers ([41997df](https://github.com/botpress/botpress/commit/41997df))
+* **channel-web:** issue with file upload ([f8c229d](https://github.com/botpress/botpress/commit/f8c229d))
+* **channel-web:** issue with file upload ([af98cad](https://github.com/botpress/botpress/commit/af98cad))
+* **core:** added missing audit logs ([7f6452d](https://github.com/botpress/botpress/commit/7f6452d))
+* **core:** check multiple linux distros in order ([78deecc](https://github.com/botpress/botpress/commit/78deecc))
+* **logs:** follow-logs not working consistently when zoomed ([39a4044](https://github.com/botpress/botpress/commit/39a4044))
+* **logs:** follow-logs not working consistently when zoomed ([563e482](https://github.com/botpress/botpress/commit/563e482))
+* **nlu:** known slots infinite loop ([3fd55b9](https://github.com/botpress/botpress/commit/3fd55b9))
+* **nlu:** knownSlots extraction ([7cc6344](https://github.com/botpress/botpress/commit/7cc6344))
+* **skills:** fixed choice skill repeat ([ffc7ccd](https://github.com/botpress/botpress/commit/ffc7ccd))
+* **webchat:** fix for some messages which crashed the whole chat ([125d0bd](https://github.com/botpress/botpress/commit/125d0bd))
+* **webchat:** fix for some messages which crashed the whole chat ([c55d2d2](https://github.com/botpress/botpress/commit/c55d2d2))
+
+
+
 ## [12.0.3](https://github.com/botpress/botpress/compare/v12.0.2...v12.0.3) (2019-07-25)
 
 
