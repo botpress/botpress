@@ -25,10 +25,11 @@ window.addEventListener('message', function(payload) {
 function init(config) {
   const host = config.host || ''
   const botId = config.botId || ''
+  const widgetSize = config.fullScreen ? 'Fullscreen' : 'Embedded'
   const cssHref = host + '/assets/modules/channel-web/inject.css'
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
   const options = encodeURIComponent(JSON.stringify({ config: config }))
-  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
+  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=' + widgetSize + '&options=' + options
   if (config.ref) {
     iframeSrc += '&ref=' + encodeURIComponent(config.ref)
   }
