@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { createMockLogger } from '../../../../../../src/bp/core/misc/utils'
 import { makeTokens } from '../../tools/token-utils'
 import { BIO, LanguageProvider, NLUHealth } from '../../typings'
 
@@ -29,9 +30,9 @@ const languageProvider: LanguageProvider = {
   }
 }
 
-const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
-
 describe('Preprocessing', () => {
+  const logger = createMockLogger()
+
   test('generate training seq', async () => {
     const slotDef = [
       {
@@ -43,6 +44,7 @@ describe('Preprocessing', () => {
         entities: [AN_ENTITY, OTHER_ENTITY]
       }
     ]
+    const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, logger)
 
     const trainingSeq = await scopedGenerateTrainingSequence(
       `hello my name is [Jacob Jacobson](${slotDef[0].name}) and your name is [Paul](${slotDef[1].name})`,
