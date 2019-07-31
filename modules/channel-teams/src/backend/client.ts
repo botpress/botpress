@@ -1,14 +1,13 @@
 import {
-  BotFrameworkAdapter,
-  ConversationReference,
-  CardFactory,
-  TurnContext,
+  Activity,
   AttachmentLayoutTypes,
-  Activity
+  BotFrameworkAdapter,
+  CardFactory,
+  ConversationReference,
+  TurnContext
 } from 'botbuilder'
-
+import { MicrosoftAppCredentials } from 'botframework-connector'
 import * as sdk from 'botpress/sdk'
-import { Router } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -20,40 +19,67 @@ const outgoingTypes = ['message', 'typing', 'carousel', 'text']
 export class TeamsClient {
   private inMemoryConversationRefs: _.Dictionary<Partial<ConversationReference>> = {}
   private adapter: BotFrameworkAdapter
-  constructor(
-    private bp: typeof sdk,
-    private botId: string,
-    private config: Config,
-    private router: Router & sdk.http.RouterExtension
-  ) {}
+  private logger: sdk.Logger
+
+  constructor(private bp: typeof sdk, private botId: string, private config: Config, private publicPath: string) {
+    this.logger = bp.logger.forBot(this.botId)
+  }
 
   async initialize() {
-    this.adapter = new BotFrameworkAdapter({
-      appId: this.config.microsoftAppId,
-      appPassword: this.config.microsoftAppPassword
-    })
-
-    const publicPath = await this.router.getPublicPath()
-    if (publicPath.indexOf('https://') !== 0) {
-      this.bp.logger.warn('Teams requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
+    if (!this.config.appId || !this.config.appPassword) {
+      return this.logger.error(
+        'You need to set the appId and the appPassword before enabling this channel. It will be disabled for this bot.'
+      )
     }
 
-    this.router.post('/api/messages', async (req, res) => {
-      await this.adapter.processActivity(req, res, async turnContext => {
-        const { activity } = turnContext
+    if (!(await this.validateCredentials())) {
+      return this.logger.error(
+        `Could not validate the specified credentials.
+Make sure that your appId and appPassword are valid.
+If you have a restricted app, you may need to specify the tenantId also.`
+      )
+    }
 
-        const conversationReference = TurnContext.getConversationReference(activity)
-        if (!activity.text) {
-          // To prevent from emojis reactions to launch actual events
-          return
-        }
+    if (!this.publicPath || this.publicPath.indexOf('https://') !== 0) {
+      return this.logger.error(
+        'You need to configure an HTTPS url for this channel to work proprely. See EXTERNAL_URL in botpress config.'
+      )
+    }
 
-        const threadId = conversationReference.conversation.id
-        await this._setConversationRef(threadId, conversationReference)
+    this.logger.info(`Messaging API URL: ${this.publicPath.replace('BOT_ID', this.botId)}/api/messages`)
 
-        this._sendIncomingEvent(activity, threadId)
-      })
+    this.adapter = new BotFrameworkAdapter({
+      appId: this.config.appId,
+      appPassword: this.config.appPassword,
+      channelAuthTenant: this.config.tenantId
     })
+  }
+
+  async receiveIncomingEvent(req, res) {
+    await this.adapter.processActivity(req, res, async turnContext => {
+      const { activity } = turnContext
+
+      const conversationReference = TurnContext.getConversationReference(activity)
+      if (!activity.text) {
+        // To prevent from emojis reactions to launch actual events
+        return
+      }
+
+      const threadId = conversationReference.conversation.id
+      await this._setConversationRef(threadId, conversationReference)
+
+      this._sendIncomingEvent(activity, threadId)
+    })
+  }
+
+  private async validateCredentials() {
+    try {
+      const credentials = new MicrosoftAppCredentials(this.config.appId, this.config.appPassword, this.config.tenantId)
+      const token = await credentials.getToken()
+      return token && !!token.length
+    } catch (err) {
+      return false
+    }
   }
 
   private async _getConversationRef(threadId: string): Promise<Partial<ConversationReference>> {
@@ -122,17 +148,13 @@ export class TeamsClient {
       msg = this._prepareChoicePayload(event)
     }
 
-    await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
-      try {
+    try {
+      await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
         await turnContext.sendActivity(msg)
-      } catch (err) {
-        const message = `The following error occured when sending a payload of type ${msg.type} to MS Botframework: ${
-          err.message
-        }`
-        this.bp.logger.error(message, err)
-        throw err
-      }
-    })
+      })
+    } catch (err) {
+      this.logger.attachError(err).error(`Error while sending payload of type "${msg.type}" `)
+    }
   }
 
   private _prepareChoicePayload(event: sdk.IO.Event) {
@@ -162,7 +184,7 @@ export class TeamsClient {
     return {
       type: 'message',
       attachments: event.payload.elements.map(card => {
-        let contentUrl = card.picture
+        const contentUrl = card.picture
 
         return CardFactory.heroCard(
           card.title,
