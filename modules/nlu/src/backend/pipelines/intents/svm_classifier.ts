@@ -320,6 +320,8 @@ export default class SVMClassifier {
       return []
     }
 
+    tokens = tokens.map(x => x.toLowerCase()) // make sure we're always lower-cased
+
     if (!includedContexts.length) {
       includedContexts = ['global']
     }
