@@ -1,3 +1,12 @@
+## [12.0.5](https://github.com/botpress/botpress/compare/v12.0.4...v12.0.5) (2019-07-31)
+
+
+### Bug Fixes
+
+* **nlu:** case sensitivity in svm ([5746404](https://github.com/botpress/botpress/commit/5746404))
+
+
+
 ## [12.0.4](https://github.com/botpress/botpress/compare/v12.0.3...v12.0.4) (2019-07-31)
 
 
