@@ -16,7 +16,11 @@ export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
 }
 
-export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinition[]): KnownSlot[] {
+export function getKnownSlots(
+  text: string,
+  slotDefinitions: sdk.NLU.SlotDefinition[],
+  logger: sdk.Logger
+): KnownSlot[] {
   const slots = [] as KnownSlot[]
   const localSlotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
 
@@ -33,6 +37,8 @@ export function getKnownSlots(text: string, slotDefinitions: sdk.NLU.SlotDefinit
       const start = regResult.index - removedChars
       removedChars += rawMatch.length - source.length
       slots.push({ ...slotDef, start, end: start + source.length, source })
+    } else {
+      logger.warn(`A slot was found for utterance: ${text} but was not found in slot definitions.`)
     }
   }
 
@@ -94,7 +100,7 @@ export const generatePredictionSequence = async (
   }
 }
 
-export const generateTrainingSequence = (langProvider: LanguageProvider) => async (
+export const generateTrainingSequence = (langProvider: LanguageProvider, logger: sdk.Logger) => async (
   input: string,
   lang: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
@@ -104,7 +110,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider) => asyn
   let tokens: Token[] = []
   const genToken = _generateTrainingTokens(langProvider)
   const cannonical = keepEntityValues(input)
-  const knownSlots = getKnownSlots(input, slotDefinitions)
+  const knownSlots = getKnownSlots(input, slotDefinitions, logger)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
   for (const slot of knownSlots) {
