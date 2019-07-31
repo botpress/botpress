@@ -162,7 +162,7 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api' || channel === 'telegram') {
+  if (channel === 'web' || channel === 'api' || channel === 'telegram' || channel === 'teams') {
     return render(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)

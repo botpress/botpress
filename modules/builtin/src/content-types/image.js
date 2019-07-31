@@ -90,6 +90,30 @@ function renderSlack(data) {
   ]
 }
 
+function renderTeams(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing'
+    })
+  }
+
+  return [
+    ...events,
+    {
+      type: 'message',
+      attachments: [
+        {
+          name: data.title,
+          contentType: 'image/png',
+          contentUrl: url.resolve(data.BOT_URL, data.image)
+        }
+      ]
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
@@ -99,6 +123,8 @@ function renderElement(data, channel) {
     return renderTelegram(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'teams') {
+    return renderTeams(data)
   }
 
   return [] // TODO Handle channel not supported
