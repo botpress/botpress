@@ -78,7 +78,7 @@ export default async function(options: ArgV) {
     logger.info(
       `mode: ${chalk.redBright(
         'offline'
-      )} (languages needs to be downloaded manually from a machine with internet access)`
+      )} (languages need to be downloaded manually from a machine with Internet access)`
     )
   } else {
     logger.info(`Mode: ${chalk.greenBright('online')} (languages will be downloaded from ${options.metadataLocation})`)
