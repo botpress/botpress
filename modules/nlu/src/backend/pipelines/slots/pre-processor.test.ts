@@ -14,19 +14,15 @@ const languageProvider: LanguageProvider = {
     const vectors = [Float32Array.from([1, 2, 3])]
     return Promise.resolve(vectors)
   },
-
   tokenize: function(utterances: string[], lang: string): Promise<string[][]> {
     // This is a white space tokenizer only working for tests written in english
     const res = utterances.map(text => text.split(' ').filter(_.identity))
 
     return Promise.resolve(res)
   },
-
   generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
-
-  getHealth: (): Partial<NLUHealth> => {
-    return {}
-  }
+  getHealth: (): Partial<NLUHealth> => ({}),
+  primeLanguageCaches: async (intentDefs: sdk.NLU.IntentDefinition[], lang: string) => {}
 }
 
 const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)

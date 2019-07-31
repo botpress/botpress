@@ -30,7 +30,10 @@ export const getPointsForContext = async (
     )
   )
 
-  return _.flatten(nestedPoints)
+  return _.chain(nestedPoints)
+    .reject(_.isEmpty)
+    .flatten()
+    .value()
 }
 
 export const createl1ModelsFromAllPoints = async (

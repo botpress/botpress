@@ -102,8 +102,8 @@ export type Token2Vec = { [token: string]: number[] }
 export type IntentDefinitionWithTokens = sdk.NLU.IntentDefinition & { tokens: string[][] }
 
 export interface TrainingPoint {
-  l0Point: sdk.MLToolkit.SVM.DataPoint
-  l1Point: sdk.MLToolkit.SVM.DataPoint
+  l0Point: sdk.MLToolkit.SVM.DataPoint & { utterance: string } | undefined
+  l1Point: sdk.MLToolkit.SVM.DataPoint & { utterance: string }
 }
 
 export interface TrainingSet {

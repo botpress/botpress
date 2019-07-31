@@ -38,7 +38,7 @@ export const createPointsFromUtteranceTokens = (
   token2vec: Token2Vec,
   context: string,
   tfIdf
-) => async (utteranceTokens): Promise<TrainingPoint> => {
+) => async (utteranceTokens): Promise<TrainingPoint | undefined> => {
   if (!utteranceTokens.length) {
     return
   }

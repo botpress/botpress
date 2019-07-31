@@ -25,9 +25,8 @@ const languageProvider: LanguageProvider = {
     return Promise.resolve(res)
   },
   generateSimilarJunkWords: (tokens: string[], lang: string) => Promise.resolve([]), // Not implemented
-  getHealth: (): Partial<NLUHealth> => {
-    return {}
-  }
+  getHealth: (): Partial<NLUHealth> => ({}),
+  primeLanguageCaches: async (intentDefs: sdk.NLU.IntentDefinition[], lang: string) => {}
 }
 
 describe('Custom entity extraction', () => {
