@@ -3,7 +3,7 @@ import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { nluHealth } from '.'
+import { initializeLangServer, nluHealth } from '.'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { EngineByBot } from './typings'
@@ -60,7 +60,11 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   }
 
-  router.get('/health', (req, res) => {
+  router.get('/health', async (req, res) => {
+    // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
+    if (!nluHealth.isEnabled) {
+      await initializeLangServer(bp)
+    }
     res.send(nluHealth)
   })
 
@@ -220,7 +224,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      const result = await nlus[req.params.botId].extract(eventText.preview, [])
+      const result = await nlus[req.params.botId].extract(eventText.preview, [], [])
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)

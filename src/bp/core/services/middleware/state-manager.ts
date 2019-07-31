@@ -69,7 +69,7 @@ export class StateManager {
     await this.sessionRepo.update(dialogSession)
   }
 
-  @Memoize
+  @Memoize()
   private async getBotpresConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }

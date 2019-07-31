@@ -424,7 +424,7 @@ export default class HTTPServer {
     })
   }
 
-  @Memoize
+  @Memoize()
   private async _getExternalAuthConfig(): Promise<ExternalAuthConfig | undefined> {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.pro.externalAuth
@@ -443,8 +443,8 @@ export default class HTTPServer {
             .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
           return undefined
         }
-      } else if (config.publicKey.length < 256) {
-        this.logger.error(`External User Auth: The provided publicKey is invalid (too short)`)
+      } else if (config.publicKey.length < 128) {
+        this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
         return undefined
       }
     }

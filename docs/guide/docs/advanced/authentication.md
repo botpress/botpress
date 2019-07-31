@@ -154,7 +154,7 @@ Here is an example configuration, [check the full configuration for more details
 
 #### How to configure the Public Key
 
-The public key can be added directly in the `botpress.config.json` file (on the same line). If you prefer to add the key in a file, remove the property `certificate`, and Botpress will load the key from `data/global/end_users_auth.key`
+The public key can be added directly in the `botpress.config.json` file (on the same line). If you prefer to add the key in a file, remove the property `certificate`, and Botpress will load the key from `data/global/end_users_auth.pub`
 
 #### How to create a new Key Pair
 

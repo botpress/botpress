@@ -25,8 +25,8 @@ export default class EntityEditor extends React.Component {
     if (_.get(props, 'entity.name') !== _.get(state, 'currentEntity.name')) {
       return {
         currentEntity: { ...DEFAULT_ENTITY, ...props.entity },
-        currentOccurence: props.entity.occurences && props.entity.occurences[0],
-        pattern: props.entity.pattern
+        currentOccurence: _.get(props, 'entity.occurences[0]'),
+        pattern: _.get(props, 'entity.pattern')
       }
     } else if (props.entity === undefined) {
       return DEFAULT_STATE
@@ -209,41 +209,39 @@ export default class EntityEditor extends React.Component {
               </div>
             )}
 
-            {currentEntity &&
-              currentEntity.type === 'list' && (
-                <div style={{ display: 'inline-block', float: 'right' }}>
-                  <input type="checkbox" checked={currentEntity.fuzzy} onChange={this.handleFuzzyChanged} /> Fuzzy
-                  Matching
-                  <OverlayTrigger
-                    placement="left"
-                    overlay={
-                      <Tooltip id="fuzzy">
-                        Fuzzy matching will find entities even if they don't match exactly. Only the closest entities
-                        will be extracted.
-                      </Tooltip>
-                    }
-                  >
-                    <Glyphicon glyph="question-sign" style={{ marginLeft: 5, marginRight: 10 }} />
-                  </OverlayTrigger>
-                </div>
-              )}
+            {currentEntity && currentEntity.type === 'list' && (
+              <div style={{ display: 'inline-block', float: 'right' }}>
+                <input type="checkbox" checked={currentEntity.fuzzy} onChange={this.handleFuzzyChanged} /> Fuzzy
+                Matching
+                <OverlayTrigger
+                  placement="left"
+                  overlay={
+                    <Tooltip id="fuzzy">
+                      Fuzzy matching will find entities even if they don't match exactly. Only the closest entities will
+                      be extracted.
+                    </Tooltip>
+                  }
+                >
+                  <Glyphicon glyph="question-sign" style={{ marginLeft: 5, marginRight: 10 }} />
+                </OverlayTrigger>
+              </div>
+            )}
           </div>
         </div>
         {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}
-        {currentEntity &&
-          currentEntity.type === 'pattern' && (
-            <div>
-              <FormControl
-                tabIndex="1"
-                autoFocus
-                type="text"
-                placeholder="Enter a valid pattern. Try: howdy[0-9]+"
-                value={this.state.pattern}
-                onChange={this.handlePatternChange}
-              />
-              {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
-            </div>
-          )}
+        {currentEntity && currentEntity.type === 'pattern' && (
+          <div>
+            <FormControl
+              tabIndex="1"
+              autoFocus
+              type="text"
+              placeholder="Enter a valid pattern. Try: howdy[0-9]+"
+              value={this.state.pattern}
+              onChange={this.handlePatternChange}
+            />
+            {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
+          </div>
+        )}
       </div>
     )
   }

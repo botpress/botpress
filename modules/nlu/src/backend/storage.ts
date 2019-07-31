@@ -9,7 +9,7 @@ import { sanitizeFilenameNoExt } from '../util'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
-const N_KEEP_MODELS = 10
+const N_KEEP_MODELS = 25
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -25,7 +25,8 @@ export default class Storage {
     config: Config,
     private readonly botId: string,
     private readonly defaultLanguage: string,
-    private readonly languages: string[]
+    private readonly languages: string[],
+    private readonly logger: sdk.Logger
   ) {
     this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
@@ -123,8 +124,15 @@ export default class Storage {
   }
 
   async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
-    const intents = await this.botGhost.directoryListing(this.intentsDir, '*.json')
-    return Promise.mapSeries(intents, intent => this.getIntent(intent))
+    const intentsName = await this.botGhost.directoryListing(this.intentsDir, '*.json')
+
+    const intents = await Promise.mapSeries(intentsName, name =>
+      this.getIntent(name).catch(err => {
+        this.logger.attachError(err).error(`An error occured while loading ${name}`)
+      })
+    )
+
+    return _.reject(intents, _.isEmpty)
   }
 
   async getIntent(intent: string): Promise<sdk.NLU.IntentDefinition> {
@@ -135,13 +143,19 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
+    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename).catch(err => {
+      this.logger.attachError(err).error(`An error occured while loading ${intent}`)
+    })
 
     try {
-      const content = JSON.parse(jsonContent)
-      return this._migrate_intentDef_11_12(intent, filename, content)
+      if (jsonContent) {
+        const content = JSON.parse(jsonContent)
+        return this._migrate_intentDef_11_12(intent, filename, content)
+      }
     } catch (err) {
-      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${jsonContent}" in file "${filename}"`)
+      throw new Error(
+        `Could not parse intent properties (invalid JSON, enable NLU errors for more information). JSON = "${jsonContent}" in file "${filename}"`
+      )
     }
   }
 
@@ -275,19 +289,13 @@ export default class Storage {
   private async _getAvailableModels(includeGlobalModels: boolean, lang: string): Promise<ModelMeta[]> {
     const modelDir = `${this.modelsDir}/${lang}`
     const botModels = await this.botGhost.directoryListing(modelDir, '*.+(bin|vec)')
+
     const globalModels = includeGlobalModels ? await this.globalGhost.directoryListing(modelDir, '*.+(bin|vec)') : []
 
     return [...botModels, ...globalModels]
       .map(x => {
         const fileName = path.basename(x)
         const parts = fileName.replace(/\.(bin|vec)$/i, '').split('__')
-
-        if (parts.length !== 4) {
-          // we don't support legacy format (old models)
-          // this is non-breaking as it will simply re-train the models
-          // DEPRECATED – REMOVED THIS CONDITION IN BP > 11
-          return undefined
-        }
 
         return {
           fileName,
@@ -308,8 +316,10 @@ export default class Storage {
 
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {
     const modelsMeta = await this._getAvailableModels(true, lang)
+
     return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
       const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
+
       return {
         meta,
         model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)

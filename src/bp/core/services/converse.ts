@@ -1,10 +1,12 @@
 import { IO } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable, postConstruct } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { Event } from '../sdk/impl'
 
@@ -22,10 +24,10 @@ type ResponseMap = Partial<{
 
 @injectable()
 export class ConverseService {
-  private readonly timeoutInMs = 5000
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
 
   constructor(
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.UserRepository) private userRepository: UserRepository
   ) {}
@@ -85,7 +87,7 @@ export class ConverseService {
       }
     })
 
-    const timeoutPromise = this._createTimeoutPromise(userId)
+    const timeoutPromise = this._createTimeoutPromise(botId, userId)
     const donePromise = this._createDonePromise(userId)
 
     await this.eventEngine.sendEvent(incomingEvent)
@@ -116,8 +118,11 @@ export class ConverseService {
     })
   }
 
-  // Apply a timeout to prevent hanging in the middleware chain
-  private async _createTimeoutPromise(userId) {
+  private async _createTimeoutPromise(botId, userId) {
+    const botConfig = await this.configProvider.getBotConfig(botId)
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const timeoutInMs = ms(_.get(botConfig, 'converse.timeout', botpressConfig.converse.timeout) as string)
+
     let actionRunning = false
 
     return new Promise((resolve, reject) => {
@@ -126,7 +131,7 @@ export class ConverseService {
         if (!actionRunning) {
           reject(new Error('Request timed out.'))
         }
-      }, this.timeoutInMs)
+      }, timeoutInMs)
 
       converseApiEvents.on(`action.start.${userId}`, () => {
         actionRunning = true

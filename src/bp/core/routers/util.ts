@@ -183,6 +183,14 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   next: NextFunction
 ) => {
   if (!req.tokenUser) {
+    debugFailure(`${req.originalUrl} %o`, {
+      method: req.method,
+      email: 'n/a',
+      operation,
+      resource,
+      ip: req.ip,
+      reason: 'unauthenticated'
+    })
     return next(new ForbiddenError(`Unauthorized`))
   }
 
@@ -194,10 +202,26 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
 
   // The server user is used internally, and has all the permissions
   if (email === SERVER_USER || isSuperAdmin) {
+    debugSuccess(`${req.originalUrl} %o`, {
+      method: req.method,
+      email,
+      operation,
+      resource,
+      userRole: 'superAdmin',
+      ip: req.ip
+    })
     return next()
   }
 
   if (!email || !strategy || !req.workspace) {
+    debugFailure(`${req.originalUrl} %o`, {
+      method: req.method,
+      email,
+      operation,
+      resource,
+      ip: req.ip,
+      reason: 'missing auth parameter'
+    })
     return next(new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`))
   }
 

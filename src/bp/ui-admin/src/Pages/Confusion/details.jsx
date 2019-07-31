@@ -28,15 +28,11 @@ const Cell = props => {
   )
 }
 
-const MatrixComponent = props => {
-  let matrix = props.matrix
-  matrix = { ...matrix }
-  delete matrix.all
-
+const MatrixComponent = ({ context, matrix }) => {
   // navigate all classes and give them an idx
   const orderedNames = _.chain(matrix)
     .keys()
-    .filter(x => x !== 'none')
+    .filter(x => x !== 'none' && x !== 'all')
     .orderBy(x => matrix[x].f1, 'asc')
     .value()
 
@@ -132,23 +128,20 @@ const MatrixComponent = props => {
 
   return (
     <div>
-      <div>
-        <table className="matrix">{rows}</table>
-      </div>
+      <div style={{ textAlign: 'left' }}>Context: {context}</div>
+      <table className="matrix">{rows}</table>
     </div>
   )
 }
 
-const Details = data => {
-  return (
-    <div>
-      <div className="App">
-        {_.map(data, (matrix, index) => (
-          <MatrixComponent matrix={matrix} name={index} />
-        ))}
-      </div>
+const Details = data => (
+  <div>
+    <div className="App">
+      {_.chain(data.data)
+        .map((matrix, context) => <MatrixComponent context={context} matrix={matrix} />)
+        .value()}
     </div>
-  )
-}
+  </div>
+)
 
 export default Details
