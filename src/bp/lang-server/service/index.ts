@@ -204,8 +204,6 @@ export default class LanguageService {
   private _getQueryVectors = (fastTextModel: LoadedFastTextModel) => async (token): Promise<number[]> => {
     const cacheKey = `${fastTextModel.name}/${fastTextModel.path}/${token}`
 
-    console.log('token is;', token)
-
     if (this._cache.has(cacheKey)) {
       return this._cache.get(cacheKey)
     }

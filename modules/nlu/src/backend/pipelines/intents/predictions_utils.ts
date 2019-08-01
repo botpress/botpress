@@ -31,7 +31,7 @@ const predictL0Contextually = async function(
 ): Promise<sdk.MLToolkit.SVM.Prediction[]> {
   const allL0 = await l0Predictor.predict(l0Features)
   const includedL0 = allL0.filter(c => includedContexts.includes(c.label))
-  const totalL0Confidence = Math.min(1, _.sumBy(includedL0, c => c['confidence']))
+  const totalL0Confidence = Math.min(1, _.sumBy(includedL0, 'confidence'))
   return includedL0.map(x => ({ ...x, confidence: x.confidence / totalL0Confidence }))
 }
 
