@@ -22,7 +22,7 @@ export const createl1Models = async (
         created_on: Date.now(),
         hash: modelHash,
         scope: 'bot',
-        type: 'intent-l1'
+        type: 'l1'
       },
       model: new Buffer(modelStr, 'utf8')
     }
@@ -46,7 +46,7 @@ export const createl0Model = async (
       created_on: Date.now(),
       hash: modelHash,
       scope: 'bot',
-      type: 'intent-l0'
+      type: 'l0'
     },
     model: new Buffer(modelStr, 'utf8')
   }

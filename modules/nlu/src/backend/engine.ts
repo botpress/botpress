@@ -53,7 +53,6 @@ export default class ScopedEngine implements Engine {
   private _currentModelHash: string
   private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
   private intentModels: { [lang: string]: any } = {}
-  private tfIdf: { [lang: string]: any } = {}
   private readonly langIdentifier: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
   private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
@@ -373,7 +372,7 @@ export default class ScopedEngine implements Engine {
           await computeToken2Vec(token2vec, intentsWTokens, lang, this.languageProvider)
 
           const tfIdfModel = {
-            meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-tfidf' },
+            meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'tfidf' },
             model: new Buffer(
               JSON.stringify({
                 token2vec,

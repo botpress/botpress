@@ -27,9 +27,9 @@ export const predict = async function(
     return []
   }
 
-  const { l0Tfidf, l1Tfidf, token2vec } = parseTfIdf(models.find(x => x.meta.type === 'intent-tfidf'))
-  const l0Model = parsel0(toolkit, models.find(x => x.meta.type === 'intent-l0'))
-  const l1Models = parsel1(toolkit, models.filter(x => x.meta.type === 'intent-l1'))
+  const { l0Tfidf, l1Tfidf, token2vec } = parseTfIdf(models.find(x => x.meta.type === 'tfidf'))
+  const l0Model = parsel0(toolkit, models.find(x => x.meta.type === 'l0'))
+  const l1Models = parsel1(toolkit, models.filter(x => x.meta.type === 'l1'))
 
   if (!includedContexts.length) {
     includedContexts = ['global']
@@ -37,6 +37,8 @@ export const predict = async function(
 
   try {
     const l0 = await predictl0(lang, cannonicalTokens, l0Tfidf, token2vec, langProvider, includedContexts, l0Model)
+
+    console.log('l0 is;', l0)
 
     const predictions = await predictl1(
       includedContexts,
