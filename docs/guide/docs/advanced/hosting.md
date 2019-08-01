@@ -57,7 +57,7 @@ DATABASE_URL=postgres://login:password@host:port/database \
 
 ### Hosting Duckling and the Language Server
 
-This step is optionnal. Your Botpress installation will use our hosted services by default.
+This step is optional. Your Botpress installation will use our hosted services by default.
 
 #### Duckling
 
@@ -106,7 +106,7 @@ botpress/server:$TAG
 
 ### Hosting Duckling and the Language Server
 
-This step is optionnal. Your Botpress installation will use our hosted services by default.
+This step is optional. Your Botpress installation will use our hosted services by default.
 
 Choose to either run one of two containers (two containers is recommended).
 
