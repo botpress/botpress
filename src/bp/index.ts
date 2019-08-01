@@ -229,6 +229,10 @@ try {
           description: 'URL of metadata file which lists available languages',
           default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
         },
+        offline: {
+          description: 'Whether or not the language server has internet access',
+          default: false
+        },
         dim: {
           default: 100,
           description: 'Number of language dimensions provided (25, 100 or 300 at the moment)'
