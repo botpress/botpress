@@ -115,7 +115,7 @@ export default class FlowBuilder extends Component<Props> {
     const isNodeTargeted = target instanceof NodeModel
 
     // Prevents diisplaying an empty menu
-    if (!isNodeTargeted && !this.props.canPasteNode) {
+    if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
       return
     }
 
@@ -289,6 +289,10 @@ export default class FlowBuilder extends Component<Props> {
   }
 
   handleToolDropped = async (event: React.DragEvent) => {
+    if (this.props.readOnly) {
+      return
+    }
+
     this.manager.unselectAllElements()
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
 
@@ -311,6 +315,10 @@ export default class FlowBuilder extends Component<Props> {
   }
 
   private async _addTransitionChipToRouter(event) {
+    if (this.props.readOnly) {
+      return
+    }
+
     const target = this.diagramWidget.getMouseElement(event)
     if (target && target.model instanceof RouterNodeModel) {
       await this.props.switchFlowNode(target.model.id)
