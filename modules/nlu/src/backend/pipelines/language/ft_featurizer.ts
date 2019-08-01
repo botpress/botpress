@@ -38,9 +38,9 @@ export const createl1PointsFromUtteranceTokens = (
   token2vec: Token2Vec,
   context: string,
   tfIdf
-) => async (utteranceTokens): Promise<TrainingPoint> => {
+) => async (utteranceTokens): Promise<TrainingPoint | undefined> => {
   if (!utteranceTokens.length) {
-    return
+    return undefined
   }
 
   const l1vec = await getSentenceFeatures(
@@ -67,7 +67,7 @@ export const createl0PointsFromUtteranceTokens = (
   tfIdf
 ) => async (utteranceTokens): Promise<TrainingPoint | undefined> => {
   if (!utteranceTokens.length) {
-    return
+    return undefined
   }
 
   const l0vec = await getSentenceFeatures(lang, utteranceTokens, tfIdf['l0'][context], token2vec, langProvider)
