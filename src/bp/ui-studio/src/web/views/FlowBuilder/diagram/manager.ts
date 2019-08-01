@@ -79,6 +79,9 @@ export class DiagramManager {
 
     this.diagramEngine.setDiagramModel(this.activeModel)
     this._updateZoomLevel(nodes)
+
+    // Setting the initial links hash when changing flow
+    this.getLinksRequiringUpdate()
   }
 
   // Syncs model with the store (only update changes instead of complete initialization)
@@ -222,6 +225,7 @@ export class DiagramManager {
   }
 
   getLinksRequiringUpdate() {
+    this.cleanPortLinks()
     const newLinks = this._serializeLinks()
     const newLinksHash = hashCode(JSON.stringify(newLinks))
 
@@ -422,13 +426,13 @@ export class DiagramManager {
   private _serializeLinks() {
     const diagram = this.activeModel.serializeDiagram()
 
-    return diagram.links.map(link => {
+    const links = diagram.links.map(link => {
       const instance = this.activeModel.getLink(link.id)
       const model = {
         source: link.source,
         sourcePort: instance.getSourcePort().name,
         target: link.target,
-        points: link.points.map(pt => ({ x: pt.x, y: pt.y }))
+        points: link.points.map(pt => ({ x: Math.floor(pt.x), y: Math.floor(pt.y) }))
       }
 
       if (instance.getSourcePort().name === 'in') {
@@ -441,6 +445,8 @@ export class DiagramManager {
 
       return model
     })
+
+    return _.sortBy(links, ['source', 'target'])
   }
 }
 
