@@ -102,10 +102,15 @@ export type FlowView = Flow & {
   links: NodeLinkView[]
 }
 
-export type NodeLinkView = {
+export interface NodeLinkView {
   source: string
   target: string
-  points: { x: number; y: number }[]
+  points: FlowPoint[]
 }
 
-export type NodeView = FlowNode & { x: number; y: number }
+export interface FlowPoint {
+  x: number
+  y: number
+}
+
+export type NodeView = FlowNode & FlowPoint
