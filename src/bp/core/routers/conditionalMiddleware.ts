@@ -1,6 +1,6 @@
 import { Request } from 'express'
 
-export type MiddlewareType = 'bodyParser'
+export type MiddlewareType = 'bodyParserJson' | 'bodyParserUrlEncoder'
 
 const moduleRegex = /^\/api\/v1\/bots\/[A-Z0-9_-]+\/mod\/([A-Z0-9_-]+)\//i
 const disabledModules: { [middleware: string]: string[] } = {}

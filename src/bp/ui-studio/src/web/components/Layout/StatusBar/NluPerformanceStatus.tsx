@@ -16,7 +16,6 @@ interface Props {
   synced: boolean
   contentLang: string
   updateSyncStatus: (synced: boolean) => void
-  display: boolean
 }
 
 interface State {
@@ -93,7 +92,7 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     const f1 = confusionComputing ? undefined : this.extractF1FromMatrix(matrix)
     const synced = !!matrix
     this.props.updateSyncStatus(synced)
-    this.setState({ f1, synced: !!matrix, computing: confusionComputing })
+    this.setState({ f1, synced, computing: confusionComputing })
   }
 
   getConfusionMatrix: (modelHash?: string) => Promise<MatrixInfo> = async (modelHash?) => {
@@ -112,11 +111,11 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     }
   }
 
-  extractF1FromMatrix(matrix: any): number | undefined {
-    const f1 = _.get(matrix, 'intents.all.f1')
-
-    return f1 ? Math.round(f1 * 100) : undefined
-  }
+  extractF1FromMatrix = (matrix): number =>
+    _.chain(matrix)
+      .get('all.f1')
+      .round(2)
+      .value() * 100
 
   calculateConfusion = async () => {
     const { confusionComputing } = await this.getConfusionMatrix()
@@ -167,10 +166,6 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   render() {
     if (this.state.nluHealth && !this.state.nluHealth.isEnabled) {
       return this.renderUnhealthy()
-    }
-
-    if (!this.props.display) {
-      return null
     }
 
     const colorScale = style['color-' + Math.min(Math.round(this.state.f1 / 10), 10)]

@@ -1,7 +1,6 @@
 import { handleActions } from 'redux-actions'
 import _ from 'lodash'
-import yn from 'yn'
-
+import storage from '../util/storage'
 import {
   updateDocumentationModal,
   addDocumentationHint,
@@ -12,13 +11,7 @@ import {
 } from '~/actions'
 
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
-let defaultBottomPanelOpen = false
-
-try {
-  defaultBottomPanelOpen = yn(localStorage.getItem(bottomPanelStorageKey))
-} catch (err) {
-  // default to false
-}
+const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
 
 const defaultState = {
   viewMode: -1,

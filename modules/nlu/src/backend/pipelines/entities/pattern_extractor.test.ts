@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { initNLUStruct } from '../../pipeline-manager'
-import { makeTokens } from '../../tools/make-tokens'
+import { makeTokens } from '../../tools/token-utils'
 import { LanguageProvider, NLUHealth } from '../../typings'
 
 import PatternExtractor from './pattern_extractor'

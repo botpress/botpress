@@ -166,21 +166,22 @@ class SelectContent extends Component {
       <div>
         <strong>Search in:</strong>
         <div className="list-group">
-          <a href="#" onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
+          <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
             All
           </a>
-          {categories.filter(cat => !cat.hidden).map((category, i) => (
-            <a
-              href="#"
-              key={i}
-              onClick={() => this.setCurrentCategory(category.id)}
-              className={classnames('list-group-item', 'list-group-item-action', {
-                active: i === this.state.activeItemIndex
-              })}
-            >
-              {category.title}
-            </a>
-          ))}
+          {categories
+            .filter(cat => !cat.hidden)
+            .map((category, i) => (
+              <a
+                key={i}
+                onClick={() => this.setCurrentCategory(category.id)}
+                className={classnames('list-group-item', 'list-group-item-action', {
+                  active: i === this.state.activeItemIndex
+                })}
+              >
+                {category.title}
+              </a>
+            ))}
         </div>
       </div>
     )
@@ -249,7 +250,6 @@ class SelectContent extends Component {
         <div className="list-group">
           {categories.map((category, i) => (
             <a
-              href="#"
               key={i}
               onClick={() => this.setState({ newItemCategory: category, newItemData: null })}
               className={`list-group-item list-group-item-action ${style.createItem}`}
@@ -259,7 +259,6 @@ class SelectContent extends Component {
           ))}
           {this.props.contentItems.map((contentItem, i) => (
             <a
-              href="#"
               key={i}
               className={`list-group-item list-group-item-action ${i === this.state.activeItemIndex ? 'active' : ''}`}
               onClick={() => this.handlePick(contentItem)}

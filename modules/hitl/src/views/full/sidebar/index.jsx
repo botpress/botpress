@@ -1,5 +1,5 @@
 import React from 'react'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { OverlayTrigger, Tooltip, FormControl } from 'react-bootstrap'
 
 import 'react-toggle/style.css'
 import style from './style.scss'
@@ -12,7 +12,9 @@ export default class Sidebar extends React.Component {
 
     this.state = {
       allPaused: false,
-      filter: true
+      filter: true,
+      searchClicked: false,
+      searchText: ''
     }
   }
 
@@ -26,7 +28,25 @@ export default class Sidebar extends React.Component {
     this.props.toggleOnlyPaused()
   }
 
-  renderUser = (value) => {
+  handleSearchClick = () => {
+    this.setState({ searchClicked: !this.state.searchClicked }, () => {
+      if (!this.state.searchClicked) {
+        return this.props.handleSearchAction(this.state.searchText)
+      }
+    })
+  }
+
+  searchClearAction = () => {
+    this.setState({ searchClicked: false, searchText: '' }, () => {
+      this.props.handleSearchAction(this.state.searchText)
+    })
+  }
+
+  handleChange = val => {
+    this.setState({ searchText: val })
+  }
+
+  renderUser = value => {
     const isCurrent = value.id === this.props.currentSession
 
     if (isCurrent || !this.props.filter || (this.props.filter && !!value.paused)) {
@@ -55,8 +75,13 @@ export default class Sidebar extends React.Component {
 
   render() {
     const filterTooltip = <Tooltip id="tooltip">Show only paused conversations</Tooltip>
+    const searchTooltip = <Tooltip id="tooltip">Search By Name</Tooltip>
+    const searchClearTooltip = <Tooltip id="tooltip">Clear Search</Tooltip>
     const filterStyle = {
       color: this.props.filter ? '#56c0b2' : '#666666'
+    }
+    const cancelsearch_style = {
+      left: '90px'
     }
 
     const dynamicHeightUsersDiv = {
@@ -65,19 +90,84 @@ export default class Sidebar extends React.Component {
 
     return (
       <div className={style.sidebar}>
-        <div className={style.header}>
+        <div style={{ display: this.state.searchClicked ? 'none' : 'block' }} className={style.header}>
           <div className={style.filter}>
-            <OverlayTrigger placement="top" overlay={filterTooltip}>
+            <OverlayTrigger placement="bottom" overlay={filterTooltip}>
               <i className="material-icons" style={filterStyle} onClick={this.toggleFilter}>
                 bookmark
               </i>
             </OverlayTrigger>
           </div>
+          <div className={style.initial_search}>
+            <OverlayTrigger placement="bottom" overlay={searchTooltip}>
+              <i
+                className="material-icons"
+                style={filterStyle}
+                onClick={() => {
+                  this.handleSearchClick()
+                }}
+              >
+                search
+              </i>
+            </OverlayTrigger>
+          </div>
+          <div className={style.cancel_search}>
+            <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
+              <i
+                className="material-icons"
+                style={filterStyle}
+                onClick={() => {
+                  this.searchClearAction()
+                }}
+              >
+                clear_all
+              </i>
+            </OverlayTrigger>
+          </div>
         </div>
+
+        <div style={{ display: this.state.searchClicked ? 'block' : 'none' }} className={style.header}>
+          <div className={style.textfilter}>
+            <FormControl
+              value={this.state.searchText}
+              onChange={e => {
+                this.handleChange(e.target.value)
+              }}
+              placeholder="Search By Name"
+            />
+          </div>
+          <div className={style.textbox_search}>
+            <OverlayTrigger placement="bottom" overlay={searchTooltip}>
+              <i
+                className="material-icons"
+                style={filterStyle}
+                onClick={() => {
+                  this.handleSearchClick()
+                }}
+              >
+                search
+              </i>
+            </OverlayTrigger>
+          </div>
+          <div className={style.textbox_cancel}>
+            <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
+              <i
+                className="material-icons"
+                style={filterStyle}
+                onClick={() => {
+                  this.searchClearAction()
+                }}
+              >
+                cancel
+              </i>
+            </OverlayTrigger>
+          </div>
+        </div>
+
         <div className={style.users} style={dynamicHeightUsersDiv}>
           {this.renderUsers()}
         </div>
-      </div >
+      </div>
     )
   }
 }

@@ -126,7 +126,7 @@ try {
       'Sync pending changes from an external server running botpress to local files',
       {
         url: {
-          description: 'url of the botpress server from which you want to pull changes',
+          description: 'Base URL of the botpress server from which you want to pull changes',
           default: 'http://localhost:3000',
           type: 'string'
         },
@@ -151,6 +151,7 @@ try {
       'Run a benchmark on your bot',
       {
         url: {
+          description: 'Base URL of the botpress server you want to benchmark',
           default: 'http://localhost:3000'
         },
         botId: {
@@ -227,6 +228,10 @@ try {
         metadataLocation: {
           description: 'URL of metadata file which lists available languages',
           default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
+        },
+        offline: {
+          description: 'Whether or not the language server has internet access',
+          default: false
         },
         dim: {
           default: 100,

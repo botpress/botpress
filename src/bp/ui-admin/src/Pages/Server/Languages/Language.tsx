@@ -8,7 +8,6 @@ import { LanguageSource } from './typings'
 interface Props {
   language: {
     code: string
-    flag: string
     name: string
     size?: number
   }
@@ -43,7 +42,9 @@ const Language: FC<Props> = props => {
   const [modelLoading, setLoading] = useState(false)
 
   const deleteLanguage = async () => {
-    await api.getSecured().delete(`/admin/languages/${props.language.code}`)
+    if (window.confirm(`Are you sure that you want to delete ${props.language.name} from the server?`)) {
+      await api.getSecured().delete(`/admin/languages/${props.language.code}`)
+    }
   }
 
   const installLanguage = async () => {
@@ -53,7 +54,8 @@ const Language: FC<Props> = props => {
   const loadLanguage = async () => {
     setLoading(true)
     try {
-      await api.getSecured().post(`/admin/languages/${props.language.code}/load`)
+      // @ts-ignore
+      await api.getSecured({ timeout: 10000 }).post(`/admin/languages/${props.language.code}/load`)
     } catch (err) {
       console.log('error loading model')
     } finally {
@@ -61,11 +63,19 @@ const Language: FC<Props> = props => {
     }
   }
 
+  const requireFlag = code => {
+    try {
+      return require(`../../../media/flags/${code}.svg`)
+    } catch {
+      return requireFlag('missing')
+    }
+  }
+
   return (
     <div className="language">
       <div>
         <div className="flag">
-          <img src={props.language.flag} alt={props.language.code} />
+          <img src={requireFlag(props.language.code)} alt={props.language.code} />
         </div>
         <span>{props.language.name}</span>
       </div>

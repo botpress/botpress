@@ -38,8 +38,6 @@ export const predict = async function(
   try {
     const l0 = await predictl0(lang, cannonicalTokens, l0Tfidf, token2vec, langProvider, includedContexts, l0Model)
 
-    console.log('l0 is;', l0)
-
     const predictions = await predictl1(
       includedContexts,
       cannonicalTokens,

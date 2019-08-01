@@ -167,19 +167,20 @@ export class WorkspaceService {
     filteredAttributes?: string[]
   ): Promise<WorkspaceUserAttributes[]> {
     const workspaceUsers = await this.workspaceRepo.getWorkspaceUsers(workspace)
-
     const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
+    const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
 
-    const attributes = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
-
-    return workspaceUsers.map(u => ({ ...u, attributes: attributes[u.email] }))
+    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email] }))
   }
 
   private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
+    let attr = {}
     const usersInfo = _.flatten(
       await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
     )
-    return _.mapValues(_.keyBy(usersInfo, 'email'), u => u.attributes)
+
+    usersInfo.forEach(u => (attr[u.email] = { ...u.attributes, createdOn: u.createdOn, updatedOn: u.updatedOn }))
+    return attr
   }
 
   private async _getUsersInfoForStrategy(users: WorkspaceUser[], strategy: string, attributes: any) {

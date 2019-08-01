@@ -26,6 +26,16 @@ export interface Sequence {
   contexts?: string[]
 }
 
+export interface TrainingSequence extends Sequence {
+  knownSlots: KnownSlot[]
+}
+
+export interface KnownSlot extends sdk.NLU.SlotDefinition {
+  start: number
+  end: number
+  source: string
+}
+
 export type EngineByBot = { [botId: string]: Engine }
 
 export interface Engine {

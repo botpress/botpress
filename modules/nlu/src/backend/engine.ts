@@ -20,9 +20,9 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { makeTokens } from './tools/make-tokens'
 import { allInRange } from './tools/math'
-import { LanguageProvider, NluMlRecommendations } from './typings'
+import { makeTokens } from './tools/token-utils'
+import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -65,10 +65,7 @@ export default class ScopedEngine implements Engine {
     slotDefinitions: sdk.NLU.SlotDefinition[],
     intentName: string,
     contexts: string[]
-  ) => Promise<Sequence>
-
-  // move this in a functionnal util file?
-  private readonly flatMapIdendity = (a, b) => a.concat(b)
+  ) => Promise<TrainingSequence>
 
   private retryPolicy = {
     interval: 100,
@@ -95,7 +92,7 @@ export default class ScopedEngine implements Engine {
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
-    this.storage = new Storage(config, this.botId, defaultLanguage, languages)
+    this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
@@ -210,7 +207,7 @@ export default class ScopedEngine implements Engine {
         .withPipeline(this._pipeline)
         .initFromText(text, lastMessages, includedContexts)
 
-      const nluResults = (await retry(() => runner.run(), this.retryPolicy)) as NLUStructure
+      const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
 
       res = _.pick(
         nluResults,
@@ -249,21 +246,15 @@ export default class ScopedEngine implements Engine {
       .uniq()
       .value()
 
-  private getTrainingSets = async (intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<Sequence[]> =>
-    await Promise.all(
-      _.chain(intentDefs)
-        .flatMap(await this.generateTrainingSequenceFromIntent(lang))
-        .value()
-    ).reduce(this.flatMapIdendity, [])
+  private getTrainingSets = async (intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<TrainingSequence[]> =>
+    _.flatten(await Promise.map(intentDefs, intentDef => this.generateTrainingSequenceFromIntent(lang, intentDef)))
 
-  private generateTrainingSequenceFromIntent = (lang: string) => async (
+  private generateTrainingSequenceFromIntent = async (
+    lang: string,
     intent: sdk.NLU.IntentDefinition
-  ): Promise<Sequence[]> =>
-    Promise.all(
-      (intent.utterances[lang] || []).map(
-        async utterance =>
-          await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
-      )
+  ): Promise<TrainingSequence[]> =>
+    await Promise.map(intent.utterances[lang] || [], utterance =>
+      this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
     )
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
@@ -454,7 +445,7 @@ export default class ScopedEngine implements Engine {
 
   private _extractIntents = async (ds: NLUStructure): Promise<NLUStructure> => {
     const exactMatcher = this._exactIntentMatchers[ds.language]
-    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds.sanitizedText, ds.includedContexts)
+    const exactIntent = exactMatcher && exactMatcher.exactMatch(ds)
 
     if (exactIntent) {
       ds.intent = exactIntent
