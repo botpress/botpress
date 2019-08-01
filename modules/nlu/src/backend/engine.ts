@@ -291,7 +291,7 @@ export default class ScopedEngine implements Engine {
       const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
       if (!models.length) {
-        return
+        continue
       }
 
       if (_.isEmpty(skipgramModel)) {

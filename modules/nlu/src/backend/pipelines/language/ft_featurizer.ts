@@ -31,7 +31,34 @@ export const enrichToken2Vec = async (
   })
 }
 
-export const createPointsFromUtteranceTokens = (
+export const createl1PointsFromUtteranceTokens = (
+  intentName: string,
+  lang: string,
+  langProvider: LanguageProvider,
+  token2vec: Token2Vec,
+  context: string,
+  tfIdf
+) => async (utteranceTokens): Promise<TrainingPoint> => {
+  if (!utteranceTokens.length) {
+    return
+  }
+
+  const l1vec = await getSentenceFeatures(
+    lang,
+    utteranceTokens,
+    tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
+    token2vec,
+    langProvider
+  )
+
+  return {
+    label: intentName,
+    coordinates: [...l1vec, utteranceTokens.length],
+    utterance: utteranceTokens.join(' ')
+  }
+}
+
+export const createl0PointsFromUtteranceTokens = (
   intentName: string,
   lang: string,
   langProvider: LanguageProvider,
@@ -45,33 +72,13 @@ export const createPointsFromUtteranceTokens = (
 
   const l0vec = await getSentenceFeatures(lang, utteranceTokens, tfIdf['l0'][context], token2vec, langProvider)
 
-  const l1vec = await getSentenceFeatures(
-    lang,
-    utteranceTokens,
-    tfIdf[context][intentName === 'none' ? '__avg__' : intentName],
-    token2vec,
-    langProvider
-  )
-
-  const l1Point = {
-    label: intentName,
-    coordinates: [...l1vec, utteranceTokens.length],
-    utterance: utteranceTokens.join(' ')
-  }
-
-  const l0Point =
-    intentName === 'none'
-      ? undefined
-      : {
-          label: context,
-          coordinates: [...l0vec, utteranceTokens.length],
-          utterance: utteranceTokens.join(' ')
-        }
-
-  return {
-    l0Point,
-    l1Point
-  }
+  return intentName === 'none'
+    ? undefined
+    : {
+        label: context,
+        coordinates: [...l0vec, utteranceTokens.length],
+        utterance: utteranceTokens.join(' ')
+      }
 }
 
 export const getSentenceFeatures = async (

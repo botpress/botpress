@@ -5,11 +5,12 @@ import { VError } from 'verror'
 import { IntentDefinitionWithTokens, LanguageProvider, Model, Token2Vec } from '../../typings'
 
 import {
-  createl0ModelFromAllPoints,
-  createl1ModelsFromAllPoints,
   getContextsFromIntentDefs,
-  getPointsForContext
+  getIntentsForContext,
+  getl0PointsForContext,
+  getl1PointsForContext
 } from './context_utils'
+import { createl0Model, createl1Models } from './models_utils'
 import { predictl0, predictl1 } from './predictions_utils'
 import { getPayloadForInnerSVMProgress, identityProgress, notifyProgress } from './realtime_utils'
 import { parsel0, parsel1, parseTfIdf } from './tfidf'
@@ -76,30 +77,43 @@ export const train = async function(
 
   const contexts = getContextsFromIntentDefs(intentsWTokens)
 
-  const allPoints = await Promise.map(contexts, async context => {
-    const intentsForContext = intentsWTokens.filter(intent => intent.contexts.includes(context))
-
-    return {
+  const l1Points = await Promise.map(contexts, async context => ({
+    context,
+    points: await getl1PointsForContext(
+      getIntentsForContext(intentsWTokens, context),
       context,
-      points: await getPointsForContext(intentsForContext, context, lang, langProvider, tfIdf, token2vec)
-    }
-  })
+      lang,
+      langProvider,
+      tfIdf,
+      token2vec
+    )
+  }))
+
+  const l0Points = await Promise.map(contexts, async context => ({
+    context,
+    points: await getl0PointsForContext(
+      getIntentsForContext(intentsWTokens, context),
+      context,
+      lang,
+      langProvider,
+      tfIdf,
+      token2vec
+    )
+  }))
 
   identityNotify(0.2)
 
   // + 1 for l0
-  const ctxLength = allPoints.length + 1
+  const ctxLength =
+    _.chain(l1Points)
+      .map(x => x.context)
+      .uniq()
+      .value().length + 1
+
   const ratioedProgress = getPayloadForInnerSVMProgress(ctxLength)
 
-  const l1Models = await createl1ModelsFromAllPoints(allPoints, modelHash, toolkit, notify, ratioedProgress(0))
-
-  const l0Model = await createl0ModelFromAllPoints(
-    allPoints,
-    modelHash,
-    toolkit,
-    notify,
-    ratioedProgress(l1Models.length)
-  )
+  const l1Models = await createl1Models(l1Points, modelHash, toolkit, notify, ratioedProgress(0))
+  const l0Model = await createl0Model(l0Points, modelHash, toolkit, notify, ratioedProgress(l1Models.length))
 
   return [...l1Models, l0Model]
 }

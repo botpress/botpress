@@ -1,18 +1,37 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { IntentDefinitionWithTokens, LanguageProvider, Model, TrainingPoint, TrainingSet } from '../../typings'
-import { createPointsFromUtteranceTokens } from '../language/ft_featurizer'
+import { IntentDefinitionWithTokens, LanguageProvider, TrainingPoint, Token2Vec } from '../../typings'
+import { createl0PointsFromUtteranceTokens, createl1PointsFromUtteranceTokens } from '../language/ft_featurizer'
 
 import { generateNoneIntent } from './none_intent_utils'
 
-export const getContextsFromIntentDefs = (defs: sdk.NLU.IntentDefinition[]): string[] =>
+export const getContextsFromIntentDefs = (defs: IntentDefinitionWithTokens[]): string[] =>
   _.chain(defs)
     .flatMap(x => x.contexts)
     .uniq()
     .value()
 
-export const getPointsForContext = async (
+export const getIntentsForContext = (intents: IntentDefinitionWithTokens[], context: string) =>
+  intents.filter(intent => intent.contexts.includes(context))
+
+const getPointsWithNone = async (
+  intentsWTokens: IntentDefinitionWithTokens[],
+  context: string,
+  lang: string,
+  langProvider: LanguageProvider
+): Promise<IntentDefinitionWithTokens[]> => {
+  const noneIntent = await generateNoneIntent(intentsWTokens, lang, context, langProvider)
+  return intentsWTokens.concat(noneIntent)
+}
+
+const curateAndFlattenPoints = nestedPoints =>
+  _.chain(nestedPoints)
+    .flatten()
+    .reject(_.isEmpty)
+    .value()
+
+export const getl1PointsForContext = async (
   intentsWTokens: IntentDefinitionWithTokens[],
   context: string,
   lang: string,
@@ -20,71 +39,34 @@ export const getPointsForContext = async (
   tfIdf,
   token2vec
 ): Promise<TrainingPoint[]> => {
-  const noneIntent = await generateNoneIntent(intentsWTokens, lang, context, langProvider)
-  const intentsWithNone = intentsWTokens.concat(noneIntent)
+  const intentsWithNone = await getPointsWithNone(intentsWTokens, context, lang, langProvider)
 
   const nestedPoints = await Promise.map(intentsWithNone, async intent =>
     Promise.map(
       intent.tokens,
-      createPointsFromUtteranceTokens(intent.name, lang, langProvider, token2vec, context, tfIdf)
+      createl1PointsFromUtteranceTokens(intent.name, lang, langProvider, token2vec, context, tfIdf)
     )
   )
 
-  return _.chain(nestedPoints)
-    .reject(_.isEmpty)
-    .flatten()
-    .value()
+  return curateAndFlattenPoints(nestedPoints)
 }
 
-export const createl1ModelsFromAllPoints = async (
-  allPoints: TrainingSet[],
-  modelHash: string,
-  toolkit: typeof sdk.MLToolkit,
-  notify,
-  progressFn
-): Promise<Model[]> =>
-  Promise.map(allPoints, async (ctxPoints, index) => {
-    const points = ctxPoints.points.map(point => point.l1Point)
-    const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-    await svm.train(points, notify(progressFn(index)))
-    const modelStr = svm.serialize()
+export const getl0PointsForContext = async (
+  intentsWTokens: IntentDefinitionWithTokens[],
+  context: string,
+  lang: string,
+  langProvider: LanguageProvider,
+  tfIdf,
+  token2vec: Token2Vec
+): Promise<TrainingPoint[]> => {
+  const intentsWithNone = await getPointsWithNone(intentsWTokens, context, lang, langProvider)
 
-    return {
-      meta: {
-        context: ctxPoints.context,
-        created_on: Date.now(),
-        hash: modelHash,
-        scope: 'bot',
-        type: 'intent-l1'
-      },
-      model: new Buffer(modelStr, 'utf8')
-    }
-  })
+  const nestedPoints = await Promise.map(intentsWithNone, async intent =>
+    Promise.map(
+      intent.tokens,
+      createl0PointsFromUtteranceTokens(intent.name, lang, langProvider, token2vec, context, tfIdf)
+    )
+  )
 
-export const createl0ModelFromAllPoints = async (
-  allPoints: TrainingSet[],
-  modelHash: string,
-  toolkit: typeof sdk.MLToolkit,
-  notify,
-  progressFn
-): Promise<Model> => {
-  const l0Points = _.chain(allPoints)
-    .flatMap(ctxPoints => ctxPoints.points.map(point => point.l0Point))
-    .reject(_.isEmpty)
-    .value()
-
-  const svm = new toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-  await svm.train(l0Points, notify(progressFn(0)))
-  const modelStr = svm.serialize()
-
-  return {
-    meta: {
-      context: 'all',
-      created_on: Date.now(),
-      hash: modelHash,
-      scope: 'bot',
-      type: 'intent-l0'
-    },
-    model: new Buffer(modelStr, 'utf8')
-  }
+  return curateAndFlattenPoints(nestedPoints)
 }
