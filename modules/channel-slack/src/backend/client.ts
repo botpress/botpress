@@ -3,7 +3,6 @@ import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { Router } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -17,27 +16,31 @@ const debugOutgoing = debug.sub('outgoing')
 const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
 
 export class SlackClient {
-  private router: Router & sdk.http.RouterExtension
   private client: WebClient
   private rtm: RTMClient
   private interactive: any
-  private botId: string
+  private logger: sdk.Logger
 
-  constructor(private bp: typeof sdk, botId: string, config: Config, router) {
-    this.botId = botId
-    this.router = router
-
-    this.client = new WebClient(config.botToken)
-    this.rtm = new RTMClient(config.botToken)
-    this.interactive = createMessageAdapter(config.signingSecret, {}) as any
+  constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
+    this.logger = bp.logger.forBot(botId)
   }
 
   async initialize() {
+    if (!this.config.botToken || !this.config.signingSecret) {
+      return this.logger.error(
+        `[${this.botId}] The bot token and the signing secret must be configured to use this channel.`
+      )
+    }
+
+    this.client = new WebClient(this.config.botToken)
+    this.rtm = new RTMClient(this.config.botToken)
+    this.interactive = createMessageAdapter(this.config.signingSecret, {}) as any
+
     await this._setupInteractiveListener()
     await this._setupRealtime()
   }
 
-  private _setupInteractiveListener() {
+  private async _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
       debugIncoming(`Received interactive message %o`, payload)
 
@@ -67,6 +70,14 @@ export class SlackClient {
     })
 
     this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
+    const publicPath = await this.router.getPublicPath()
+
+    // Bot ID is used twice, because slack must setup multiple listeners itself, so can't just be redirected
+    this.logger.info(
+      `[${this.botId}] Interactive Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
+        this.botId
+      }/callback`
+    )
   }
 
   private async _setupRealtime() {
