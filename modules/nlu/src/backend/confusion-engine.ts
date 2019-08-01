@@ -70,7 +70,11 @@ export default class ConfusionEngine extends ScopedEngine {
 
       try {
         await Promise.mapSeries(folders, folder =>
-          folder.model.fold(folder.context, this._trainIntents.bind(this, lang), this._evaluateIntents.bind(this, lang))
+          folder.model.fold(
+            folder.context,
+            this._trainIntents.bind(this, lang),
+            this._evaluateIntents.bind(this, lang, ['global', folder.context])
+          )
         )
 
         const results = folders.map(folder => folder.model.getResults())
@@ -132,6 +136,7 @@ export default class ConfusionEngine extends ScopedEngine {
 
   private async _evaluateIntents(
     lang: string,
+    includedContexts: string[],
     trainSet: TrainingEntry[],
     testSet: TrainingEntry[],
     record: RecordCallback
@@ -141,7 +146,7 @@ export default class ConfusionEngine extends ScopedEngine {
     await this.loadModels(defs, this.modelName)
 
     const actual = await Promise.mapSeries(testSet, (__, idx) =>
-      this.extract(keepEntityValues(testSet[idx].utterance), [], [])
+      this.extract(keepEntityValues(testSet[idx].utterance), [], includedContexts)
     )
 
     testSet.forEach((__, idx) => record(testSet[idx].definition.name, get(actual[idx], 'intent.name', 'none')))
