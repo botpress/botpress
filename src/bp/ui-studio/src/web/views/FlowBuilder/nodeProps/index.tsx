@@ -87,6 +87,7 @@ export default class NodePropsModal extends Component<Props> {
           updateFlow={this.props.updateFlow}
           copyFlowNodeElement={this.props.copyFlowNodeElement}
           pasteFlowNodeElement={this.props.pasteFlowNodeElement}
+          transitionOnly={flowType === 'router'}
           buffer={this.props.buffer}
         />
       )
