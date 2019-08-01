@@ -116,12 +116,12 @@ export class UsersRouter extends CustomRouter {
           throw new ConflictError(`User "${email}" is already taken`)
         }
 
-        const tempPassword = await this.authService.createUser({ email, strategy }, strategy)
+        const result = await this.authService.createUser({ email, strategy }, strategy)
         await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
 
         return sendSuccess(res, 'User created successfully', {
           email,
-          tempPassword
+          tempPassword: typeof result === 'string' ? result : `(Use ${strategy} password)`
         })
       })
     )

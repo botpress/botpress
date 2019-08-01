@@ -39,11 +39,15 @@ export default class BasicAuthentication {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth' + loginUrl, {
-      email,
-      password,
-      newPassword
-    })
+    const { data } = await api.getAnonymous({ toastErrors: false }).post(
+      '/auth' + loginUrl,
+      {
+        email,
+        password,
+        newPassword
+      },
+      { timeout: 15000 }
+    )
 
     const { token } = data.payload
     this.setSession({ expiresIn: 7200, idToken: token })
