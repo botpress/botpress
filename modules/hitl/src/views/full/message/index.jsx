@@ -73,7 +73,7 @@ export default class Message extends React.Component {
     if (this.props.content.direction === 'in') {
       if (this.props.content.type === 'visit') {
         return (
-          <OverlayTrigger placement="auto" overlay={tooltip}>
+          <OverlayTrigger placement="right" overlay={tooltip}>
             {this.renderMessageFromSystem()}
           </OverlayTrigger>
         )
