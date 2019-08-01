@@ -7,9 +7,12 @@ const migration: sdk.ModuleMigration = {
     type: 'database'
   },
   up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    await bp.database.schema
-      .alterTable('hitl_messages', table => table.string('source'))
-      .catch(err => ({ success: false, message: err.message }))
+    try {
+      await bp.database.schema.alterTable('hitl_messages', table => table.string('source'))
+    } catch (err) {
+      return { success: false, message: err.message }
+    }
+
     return { success: true, message: 'Source column created.' }
   }
 }

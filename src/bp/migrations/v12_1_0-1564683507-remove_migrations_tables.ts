@@ -6,13 +6,7 @@ const migration: Migration = {
     description: 'Remove migrations tables',
     type: 'database'
   },
-  up: async ({
-    bp,
-    configProvider,
-    database,
-    inversify,
-    metadata
-  }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       await bp.database.schema.dropTable('knex_core_migrations')
       await bp.database.schema.dropTable('knex_core_migrations_lock')
