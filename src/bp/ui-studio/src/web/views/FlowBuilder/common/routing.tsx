@@ -57,7 +57,7 @@ export default class RoutingItem extends Component<Props> {
   renderNormal(child) {
     return child
   }
-
+  // TODO migrate styling to blueprint
   renderOverlay = child => {
     const popoverHoverFocus = (
       <Popover id="popover-action" title="⚡ Conditional transition">
