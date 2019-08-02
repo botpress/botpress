@@ -34,5 +34,14 @@ export class VersioningRouter extends CustomRouter {
         res.end(tarball)
       })
     )
+
+    this.router.post(
+      '/sync',
+      this.asyncMiddleware(async (req, res) => {
+        await this.ghost.global().sync()
+        const botsIds = await this.botService.getBotsIds()
+        await Promise.map(botsIds, id => this.ghost.forBot(id).sync())
+      })
+    )
   }
 }

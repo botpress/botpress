@@ -1,4 +1,5 @@
 import { ListenHandle, Logger } from 'botpress/sdk'
+import chalk from 'chalk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { asBytes, forceForwardSlashes } from 'core/misc/utils'
@@ -199,18 +200,15 @@ export class ScopedGhostService {
   }
 
   /**
-   * All tracked files will be synced.
+   * Sync the local filesystem to the database.
    * All files are tracked by default, unless `.ghostignore` is used to exclude them.
    */
   async sync() {
     if (!this.useDbDriver) {
-      // We don't have to sync anything as we're just using the files from disk
-      return
+      return // We don't have to sync anything as we're just using the files from disk
     }
 
-    // Get files from disk that should be ghosted
     const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
-
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
@@ -220,7 +218,9 @@ export class ScopedGhostService {
     if (!(await this.isFullySynced())) {
       const scUrl = `/admin/settings/version`
       this.logger.warn(
-        `You have changes on your production environment that aren't synced on your local file system. Visit '${scUrl}' to save changes back to your Source Control.`
+        `${chalk.red(
+          'Out of sync'
+        )} Your local files are not up to date with the database. \nVisit '${scUrl}' to pull the changes or use --force to push the files anyway.`
       )
       return
     }
