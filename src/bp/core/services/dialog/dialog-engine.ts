@@ -77,7 +77,7 @@ export class DialogEngine {
       } else if (result.followUpAction === 'transition') {
         const destination = result.options!.transitionTo!
         if (!destination || !destination.length) {
-          this._debug(event.botId, event.target, 'no node configured, ending flow')
+          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined? (red port)')
           return event
         }
         // We reset the queue when we transition to another node.
