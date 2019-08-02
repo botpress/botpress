@@ -18,8 +18,8 @@ import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
-import { makeTokens } from './tools/token-utils'
 import { allInRange } from './tools/math'
+import { makeTokens } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import {
   Engine,
@@ -92,7 +92,7 @@ export default class ScopedEngine implements Engine {
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
     this.pipelineManager = new PipelineManager()
-    this.storage = new Storage(config, this.botId, defaultLanguage, languages)
+    this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
@@ -248,20 +248,14 @@ export default class ScopedEngine implements Engine {
       .value()
 
   private getTrainingSets = async (intentDefs: sdk.NLU.IntentDefinition[], lang: string): Promise<TrainingSequence[]> =>
-    await Promise.all(
-      _.chain(intentDefs)
-        .flatMap(await this.generateTrainingSequenceFromIntent(lang))
-        .value()
-    ).reduce(this.flatMapIdendity, [])
+    _.flatten(await Promise.map(intentDefs, intentDef => this.generateTrainingSequenceFromIntent(lang, intentDef)))
 
-  private generateTrainingSequenceFromIntent = (lang: string) => async (
+  private generateTrainingSequenceFromIntent = async (
+    lang: string,
     intent: sdk.NLU.IntentDefinition
   ): Promise<TrainingSequence[]> =>
-    Promise.all(
-      (intent.utterances[lang] || []).map(
-        async utterance =>
-          await this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
-      )
+    await Promise.map(intent.utterances[lang] || [], utterance =>
+      this.scopedGenerateTrainingSequence(utterance, lang, intent.slots, intent.name, intent.contexts)
     )
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {

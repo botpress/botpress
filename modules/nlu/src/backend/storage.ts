@@ -25,7 +25,8 @@ export default class Storage {
     config: Config,
     private readonly botId: string,
     private readonly defaultLanguage: string,
-    private readonly languages: string[]
+    private readonly languages: string[],
+    private readonly logger: sdk.Logger
   ) {
     this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
@@ -124,7 +125,13 @@ export default class Storage {
 
   async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     const intentsName = await this.botGhost.directoryListing(this.intentsDir, '*.json')
-    const intents = await Promise.mapSeries(intentsName, name => this.getIntent(name).catch(x => undefined))
+
+    const intents = await Promise.mapSeries(intentsName, name =>
+      this.getIntent(name).catch(err => {
+        this.logger.attachError(err).error(`An error occured while loading ${name}`)
+      })
+    )
+
     return _.reject(intents, _.isEmpty)
   }
 
@@ -136,13 +143,19 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename)
+    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename).catch(err => {
+      this.logger.attachError(err).error(`An error occured while loading ${intent}`)
+    })
 
     try {
-      const content = JSON.parse(jsonContent)
-      return this._migrate_intentDef_11_12(intent, filename, content)
+      if (jsonContent) {
+        const content = JSON.parse(jsonContent)
+        return this._migrate_intentDef_11_12(intent, filename, content)
+      }
     } catch (err) {
-      throw new Error(`Could not parse intent properties (invalid JSON). JSON = "${jsonContent}" in file "${filename}"`)
+      throw new Error(
+        `Could not parse intent properties (invalid JSON, enable NLU errors for more information). JSON = "${jsonContent}" in file "${filename}"`
+      )
     }
   }
 

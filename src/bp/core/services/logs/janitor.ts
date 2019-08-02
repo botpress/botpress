@@ -26,7 +26,7 @@ export class LogsJanitor extends Janitor {
     super(logger)
   }
 
-  @Memoize
+  @Memoize()
   private async getBotpresConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }

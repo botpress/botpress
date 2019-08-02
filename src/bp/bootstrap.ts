@@ -96,7 +96,7 @@ This is a fatal error, process will exit.`
     process.exit(1)
   })
 
-  logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}/`)
+  logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`)
 }
 
 start().catch(global.printErrorDefault)

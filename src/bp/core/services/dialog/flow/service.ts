@@ -1,18 +1,30 @@
-import { Flow, FlowNode, Logger } from 'botpress/sdk'
+import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
-import { FlowView, NodeView } from '..'
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
 
+import { RealTimePayload } from 'core/sdk/impl'
+import RealtimeService from 'core/services/realtime'
+
 const PLACING_STEP = 250
 const MIN_POS_X = 50
 const FLOW_DIR = 'flows'
+
+interface FlowModification {
+  name: string
+  botId: string
+  userEmail: string
+  modification: 'rename' | 'delete' | 'create' | 'update'
+  newName?: string
+  payload?: any
+}
 
 @injectable()
 export class FlowService {
@@ -24,7 +36,8 @@ export class FlowService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.RealtimeService) private realtime: RealtimeService
   ) {
     this._listenForCacheInvalidation()
   }
@@ -97,35 +110,103 @@ export class FlowService {
     }
   }
 
-  async saveAll(botId: string, flowViews: FlowView[], flowsToKeep: string[] = []) {
-    process.ASSERT_LICENSED()
-    if (!flowViews.find(f => f.name === 'main.flow.json') && flowsToKeep.indexOf('main.flow.json') === -1) {
-      throw new Error(`Expected flows list to contain 'main.flow.json'`)
-    }
+  async insertFlow(botId: string, flow: FlowView, userEmail: string) {
+    await this._upsertFlow(botId, flow)
 
-    const flowFiles = await this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.json')
-    const flowsToSave = await Promise.map(flowViews, flow => {
-      const isNew = !flowFiles.find(x => flow.location === x)
-      return this.prepareSaveFlow(botId, flow, isNew)
+    this.notifyChanges({
+      botId,
+      name: flow.name,
+      modification: 'create',
+      payload: flow,
+      userEmail
     })
+  }
 
-    const flowsSavePromises = _.flatten(
-      flowsToSave.map(({ flowPath, uiPath, flowContent, uiContent }) => [
-        this.ghost.forBot(botId).upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
-        this.ghost.forBot(botId).upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
-      ])
-    )
+  async updateFlow(botId: string, flow: FlowView, userEmail: string) {
+    await this._upsertFlow(botId, flow)
 
-    const pathsToOmit = _.flatten([
-      ...flowsToSave.map(flow => [flow.flowPath, flow.uiPath]),
-      ...flowsToKeep.map(f => [f, f.replace('.flow.json', '.ui.json')])
+    this.notifyChanges({
+      name: flow.name,
+      botId,
+      modification: 'update',
+      payload: flow,
+      userEmail
+    })
+  }
+
+  private async _upsertFlow(botId: string, flow: FlowView) {
+    process.ASSERT_LICENSED()
+
+    const ghost = this.ghost.forBot(botId)
+
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '**/*.json')
+
+    const isNew = !flowFiles.find(x => flow.location === x)
+    const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(botId, flow, isNew)
+
+    await Promise.all([
+      ghost.upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
+      ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
-    const flowsToDelete = flowFiles.filter(f => !pathsToOmit.includes(f))
-    const flowsDeletePromises = flowsToDelete.map(filePath => this.ghost.forBot(botId).deleteFile(FLOW_DIR, filePath))
-
-    await Promise.all(flowsSavePromises.concat(flowsDeletePromises))
     this._allFlows.clear()
+  }
+
+  async deleteFlow(botId: string, flowName: string, userEmail: string) {
+    process.ASSERT_LICENSED()
+
+    const ghost = this.ghost.forBot(botId)
+
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const fileToDelete = flowFiles.find(f => f === flowName)
+    if (!fileToDelete) {
+      throw new Error(`Can not delete a flow that does not exist: ${flowName}`)
+    }
+
+    const uiPath = this.uiPath(fileToDelete)
+    await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
+
+    this._allFlows.clear()
+
+    this.notifyChanges({
+      name: flowName,
+      botId,
+      modification: 'delete',
+      userEmail
+    })
+  }
+
+  async renameFlow(botId: string, previousName: string, newName: string, userEmail: string) {
+    process.ASSERT_LICENSED()
+
+    const ghost = this.ghost.forBot(botId)
+
+    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const fileToRename = flowFiles.find(f => f === previousName)
+    if (!fileToRename) {
+      throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
+    }
+
+    const previousUiName = this.uiPath(fileToRename)
+    const newUiName = this.uiPath(newName)
+    await Promise.all([
+      ghost.renameFile(FLOW_DIR, fileToRename!, newName),
+      ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
+    ])
+    this._allFlows.clear()
+
+    this.notifyChanges({
+      name: previousName,
+      botId,
+      modification: 'rename',
+      newName: newName,
+      userEmail
+    })
+  }
+
+  private notifyChanges = (modification: FlowModification) => {
+    const payload = RealTimePayload.forAdmins('flow.changes', modification)
+    this.realtime.sendToSocket(payload)
   }
 
   async createMainFlow(botId: string) {
@@ -149,7 +230,7 @@ export class FlowService {
       links: []
     }
 
-    return this.saveAll(botId, [flow])
+    return this._upsertFlow(botId, flow)
   }
 
   private async prepareSaveFlow(botId, flow, isNew: boolean) {

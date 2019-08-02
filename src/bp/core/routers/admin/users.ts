@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { CreatedUser, WorkspaceUser } from 'common/typings'
 import AuthService from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -34,7 +35,7 @@ export class UsersRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const users = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, ['last_logon'])
         return sendSuccess(res, 'Retrieved users', users)
       })
     )
@@ -46,7 +47,10 @@ export class UsersRouter extends CustomRouter {
         const allUsers = await this.authService.getAllUsers()
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
 
-        return sendSuccess(res, 'Retrieved users', _.filter(allUsers, x => !_.find(workspaceUsers, x)))
+        return sendSuccess(res, 'Retrieved users', _.filter(
+          allUsers,
+          x => !_.find(workspaceUsers, x)
+        ) as WorkspaceUser[])
       })
     )
 
@@ -122,7 +126,7 @@ export class UsersRouter extends CustomRouter {
         return sendSuccess(res, 'User created successfully', {
           email,
           tempPassword
-        })
+        } as CreatedUser)
       })
     )
 

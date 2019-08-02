@@ -20,7 +20,7 @@ const webConfig = {
   },
   output: {
     path: path.resolve(__dirname, './public/js'),
-    publicPath: '/assets/ui-studio/public/js/',
+    publicPath: 'assets/ui-studio/public/js/',
     filename: '[name].[chunkhash].js'
   },
   resolve: {
@@ -28,7 +28,8 @@ const webConfig = {
     alias: {
       '~': path.resolve(__dirname, './src/web'),
       DOCS: path.resolve(__dirname, '../../../docs/guide/docs'),
-      common: path.resolve(__dirname, '../../../out/bp/common')
+      common: path.resolve(__dirname, '../../../out/bp/common'),
+      'botpress/sdk': path.resolve(__dirname, '../sdk/botpress.d.ts')
     }
   },
   optimization: {
@@ -152,6 +153,7 @@ const webConfig = {
             loader: 'css-loader',
             options: {
               modules: true,
+              url: false,
               importLoaders: 1,
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }

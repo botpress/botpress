@@ -22,7 +22,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
         </Button>
       </AccessControl>
       {!bot.disabled && (
-        <Button size="sm" color="link" target="_blank" href={`${window.location.origin}/s/${bot.id}`}>
+        <Button size="sm" color="link" target="_blank" href={`s/${bot.id}`}>
           <IoIosChatbubbles /> Open chat
         </Button>
       )}
@@ -32,7 +32,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
         </DropdownToggle>
         <DropdownMenu>
           {!bot.disabled && (
-            <DropdownItem disabled={bot.locked} tag="a" href={`/studio/${bot.id}`}>
+            <DropdownItem disabled={bot.locked} tag="a" href={`studio/${bot.id}`}>
               <MdModeEdit />
               &nbsp;Edit in studio
             </DropdownItem>
@@ -66,7 +66,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
           &nbsp;
         </span>
       )}
-      {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={`/studio/${bot.id}`}>{bot.name || bot.id}</a>}
+      {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={`studio/${bot.id}`}>{bot.name || bot.id}</a>}
 
       {!bot.defaultLanguage && (
         <React.Fragment>

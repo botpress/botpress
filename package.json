@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.0.3",
+  "version": "12.0.4",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -71,6 +71,7 @@
     "querystring": "^0.2.0",
     "redlock": "^3.1.2",
     "reflect-metadata": "^0.1.13",
+    "replace-in-file": "^4.1.1",
     "semver": "^5.6.0",
     "socket.io": "^2.2.0",
     "socket.io-redis": "^5.2.0",

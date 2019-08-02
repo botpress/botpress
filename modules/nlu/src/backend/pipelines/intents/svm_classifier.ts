@@ -1,4 +1,3 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import math from 'mathjs'

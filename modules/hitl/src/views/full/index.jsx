@@ -110,6 +110,17 @@ export default class HitlModule extends React.Component {
     }, 50)
   }
 
+  handleSearchAction = searchText => {
+    return this.getAxios()
+      .get('/mod/hitl/sessions/search?searchText=' + searchText)
+      .then(res => {
+        this.setState({
+          loading: false,
+          sessions: res.data
+        })
+      })
+  }
+
   setSession = sessionId => {
     const session = _.find(this.state.sessions.sessions, { id: sessionId })
     this.setState({ currentSession: session })
@@ -130,6 +141,7 @@ export default class HitlModule extends React.Component {
     }
 
     const currentSessionId = this.state.currentSession && this.state.currentSession.id
+
     return (
       <div className={style.mainContainer}>
         <Grid>
@@ -141,6 +153,7 @@ export default class HitlModule extends React.Component {
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
+                handleSearchAction={this.handleSearchAction}
               />
             </Col>
             <Col sm={7} className={style.column} lg={7}>

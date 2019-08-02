@@ -27,9 +27,36 @@
       top: 18px;
       left: 24px;
     }
+    .textfilter {
+      position: absolute;
+      width: 80%;
+      top: 18px;
+      left: 10px;
+    }
 
     .filter:hover {
       cursor: pointer;
+    }
+
+    .initial_search {
+      @extend .filter;
+      left: 60px;
+    }
+    .cancel_search {
+      @extend .filter;
+      float: 'right';
+      left: 90px;
+    }
+
+    .textbox_search {
+      @extend .filter;
+      left: 280px;
+      top: 23px;
+    }
+    .textbox_cancel {
+      @extend .filter;
+      left: 310px;
+      top: 23px;
     }
   }
 

@@ -69,14 +69,17 @@ export class Choice extends React.Component {
   }
 
   onMaxRetriesChanged = event => {
-    const value = Number(event.target.value)
-
-    if (value > MAX_RETRIES) {
-      this.setState({ config: { ...this.state.config, nbMaxRetries: MAX_RETRIES } })
-      return
+    const config = {
+      ...this.state.config,
+      nbMaxRetries: isNaN(Number(event.target.value)) ? MAX_RETRIES : Number(event.target.value)
     }
+    this.setState({ config })
+  }
 
-    this.setState({ config: { ...this.state.config, nbMaxRetries: value } })
+  onToggleRepeatChoicesOnInvalid = event => {
+    this.setState({
+      config: { ...this.state.config, repeatChoicesOnInvalid: !this.state.config.repeatChoicesOnInvalid }
+    })
   }
 
   onBlocNameChanged = key => event => {
@@ -124,7 +127,7 @@ export class Choice extends React.Component {
       const keywordsEntry = this.state.keywords[choice.value] || []
       const tags = keywordsEntry.map(x => ({ id: x, text: x }))
       return (
-        <div className={style.keywords}>
+        <div className={style.keywords} key={choice.title}>
           <h4>
             {choice.title} <small>({choice.value})</small>
           </h4>
@@ -228,6 +231,13 @@ export class Choice extends React.Component {
             onChange={this.handleInvalidContentChange}
             placeholder="Pick a reply"
           />
+          <Label htmlFor="repeatChoices">Repeat choices on invalid?</Label>
+          <input
+            id="repeatChoices"
+            type="checkbox"
+            checked={this.state.config.repeatChoicesOnInvalid}
+            onChange={this.onToggleRepeatChoicesOnInvalid}
+          />
         </div>
 
         <div>
@@ -235,6 +245,7 @@ export class Choice extends React.Component {
           <Input
             id="contentElementType"
             type="text"
+            style={{ marginLeft: '5px' }}
             value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />

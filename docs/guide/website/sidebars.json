@@ -27,7 +27,14 @@
       "advanced/cluster",
       "advanced/monitoring"
     ],
-    "Channels": ["channels/web", "channels/messenger", "channels/telegram", "channels/converse", "channels/faq"],
+    "Channels": [
+      "channels/web",
+      "channels/messenger",
+      "channels/telegram",
+      "channels/converse",
+      "channels/faq",
+      "channels/teams"
+    ],
     "Tutorials": [
       "tutorials/intent-matching",
       "tutorials/proactive",

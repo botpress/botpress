@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { TrainingSequence, NLUStructure, KnownSlot } from '../../typings'
+import { KnownSlot, TrainingSequence } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
 type ExactMatchStructure = {

@@ -21,9 +21,15 @@ By default, Botpress will start an HTTP server on localhost, listening to port 3
 
 When you are ready to expose your bot externally, you will need to change some of the server settings. The server doesn't support HTTPS connections, so you will need to set up a reverse proxy in front of it (for example: NGINX).
 
-This means that your server will still listen for connexions on port 3000, but your reverse proxy will answer for queries on port 80. It's also the reverse proxy that will handle secure connexions if you want to access your bot using `https`
+This means that your server will still listen for connections on port 3000, but your reverse proxy will answer for queries on port 80. It's also the reverse proxy that will handle secure connections if you want to access your bot using `https`
 
 At this point, Botpress doesn't know how to access the bot from the web. You will need to edit the configuration of `httpServer.externalUrl`. Set the configuration variable to the complete host name, for example `https://bot.botpress.io`
+
+#### Changing the base URL of your bot
+
+By default, Botpress is accessible at the root of your domain (ex: https://bot.botpress.io/). It is possible to change that so you can serve it from a different URL, for example `https://bot.botpress.io/botpress/somepath/`. All you need to do is set the External URL, either in environment variable (`EXTERNAL_URL`), or via the `botpress.config.json` file.
+
+The path will be automatically extracted from that URL, and will be used as the root path.
 
 ## Logs Configuration
 
