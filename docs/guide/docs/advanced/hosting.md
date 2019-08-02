@@ -170,7 +170,7 @@ To create a new bot from scratch, simply create a file named `Dockerfile` in any
 ```docker
 FROM botpress/server:$VERSION
 WORKDIR /botpress
-CMD ["./bp"]
+CMD ["/bin/bash", "-c", "./duckling & ./bp"]
 ```
 
 Make sure Docker is running on your computer. Then open a command prompt and type these commands:
