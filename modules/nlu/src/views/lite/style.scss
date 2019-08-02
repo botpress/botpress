@@ -62,11 +62,20 @@ p.utterance .index.count {
   border-radius: 5px;
 }
 
-/* ---------- */
-/* SLOTS COLORING */
-/* ---------- */
+.slotMenu {
+  position: absolute;
+  z-index: 500;
+  background-color: whitesmoke;
+  padding: 10px 5px;
+  max-width: 200px;
+  border: solid 1px;
+}
 
-.slot {
+.slotMenuItem {
+  margin-right: 2px;
+}
+
+.slotMark {
   padding: 2px 4px;
   cursor: pointer;
   border-radius: 2px;
@@ -75,51 +84,114 @@ p.utterance .index.count {
   }
 }
 
-.color-bg {
+/* ---------- */
+/* SLOTS COLORING (taken from slot clors) */
+/* ---------- */
+
+.label-colors-0 {
+  background-color: rgb(110, 96, 160);
   color: white;
-  background-color: grey;
+
+  &:hover {
+    background-color: rgb(104, 97, 129);
+  }
 }
-.color-bg.color-0 {
-  color: white;
-  background-color: red;
-}
-.color-bg.color-1 {
-  color: white;
+
+.label-colors-1 {
   background-color: blue;
-}
-.color-bg.color-2 {
   color: white;
+
+  &:hover {
+    background-color: #0559ff;
+  }
+}
+
+.label-colors-2 {
+  background-color: red;
+  color: white;
+
+  &:hover {
+    background-color: #ff3653;
+  }
+}
+
+.label-colors-3 {
+  background-color: yellow;
+  color: black;
+
+  &:hover {
+    background-color: #f7f53a;
+  }
+}
+
+.label-colors-4 {
   background-color: green;
-}
-.color-bg.color-3 {
   color: white;
-  background-color: purple;
+
+  &:hover {
+    background-color: #0a9c12;
+  }
 }
-.color-bg.color-4 {
+
+.label-colors-5 {
+  background-color: teal;
   color: white;
-  background-color: fuchsia;
+
+  &:hover {
+    background-color: #009d9d;
+  }
 }
-.color-fg {
-  border-color: grey;
-  color: grey;
+
+.label-colors-6 {
+  background-color: #fd02ff;
+  color: white;
+
+  &:hover {
+    background-color: #dd3dff;
+  }
 }
-.color-fg.color-0 {
-  border-color: red;
-  color: red;
+
+.label-colors-7 {
+  background-color: #ff00aa;
+  color: white;
+
+  &:hover {
+    background-color: #ff32a8;
+  }
 }
-.color-fg.color-1 {
-  border-color: blue;
-  color: blue;
+
+.label-colors-8 {
+  background-color: orange;
+  color: white;
+
+  &:hover {
+    background-color: #ff6b2f;
+  }
 }
-.color-fg.color-2 {
-  border-color: green;
-  color: green;
+
+.label-colors-9 {
+  background-color: rgb(114, 170, 170);
+  color: white;
+
+  &:hover {
+    background-color: rgb(74, 102, 102);
+  }
 }
-.color-fg.color-3 {
-  border-color: purple;
-  color: purple;
+
+.label-colors-10 {
+  background-color: rgb(185, 97, 126);
+  color: white;
+
+  &:hover {
+    background-color: rgb(170, 87, 115);
+  }
 }
-.color-fg.color-4 {
-  border-color: fuchsia;
-  color: fuchsia;
+
+.label-colors-11 {
+  background-color: rgb(211, 162, 72);
+  color: white;
+
+  &:hover {
+    background-color: rgb(168, 126, 47);
+  }
 }

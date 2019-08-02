@@ -2,19 +2,26 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'color-0': string;
-  'color-1': string;
-  'color-2': string;
-  'color-3': string;
-  'color-4': string;
-  'color-bg': string;
-  'color-fg': string;
   'count': string;
   'editor-body': string;
   'entities-list': string;
   'hint': string;
   'index': string;
-  'slot': string;
+  'label-colors-0': string;
+  'label-colors-1': string;
+  'label-colors-10': string;
+  'label-colors-11': string;
+  'label-colors-2': string;
+  'label-colors-3': string;
+  'label-colors-4': string;
+  'label-colors-5': string;
+  'label-colors-6': string;
+  'label-colors-7': string;
+  'label-colors-8': string;
+  'label-colors-9': string;
+  'slotMark': string;
+  'slotMenu': string;
+  'slotMenuItem': string;
   'title': string;
   'utterance': string;
   'utterances': string;

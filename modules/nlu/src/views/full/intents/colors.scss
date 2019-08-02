@@ -1,3 +1,12 @@
+.label-colors-0 {
+  background-color: rgb(110, 96, 160);
+  color: white;
+
+  &:hover {
+    background-color: rgb(104, 97, 129);
+  }
+}
+
 .label-colors-1 {
   background-color: blue;
   color: white;
@@ -94,14 +103,5 @@
 
   &:hover {
     background-color: rgb(168, 126, 47);
-  }
-}
-
-.label-colors-12 {
-  background-color: rgb(110, 96, 160);
-  color: white;
-
-  &:hover {
-    background-color: rgb(104, 97, 129);
   }
 }
