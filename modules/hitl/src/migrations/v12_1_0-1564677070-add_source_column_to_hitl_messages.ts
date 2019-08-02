@@ -7,7 +7,14 @@ const migration: sdk.ModuleMigration = {
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     try {
-      await bp.database.schema.alterTable('hitl_messages', table => table.string('source'))
+      const tableName = 'hitl_messages'
+      const column = 'source'
+      const exists = await bp.database.schema.hasColumn(tableName, column)
+      console.log(exists)
+
+      if (!exists) {
+        await bp.database.schema.alterTable(tableName, table => table.string(column))
+      }
     } catch (err) {
       return { success: false, message: err.message }
     }

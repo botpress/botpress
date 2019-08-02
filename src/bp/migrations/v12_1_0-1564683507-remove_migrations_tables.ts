@@ -8,8 +8,13 @@ const migration: Migration = {
   },
   up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
-      await bp.database.schema.dropTable('knex_core_migrations')
-      await bp.database.schema.dropTable('knex_core_migrations_lock')
+      if (await bp.database.schema.hasTable('knex_core_migrations')) {
+        await bp.database.schema.dropTable('knex_core_migrations')
+      }
+
+      if (await bp.database.schema.hasTable('knex_core_migrations_lock')) {
+        await bp.database.schema.dropTable('knex_core_migrations_lock')
+      }
     } catch (err) {
       return { success: false, message: err.message }
     }
