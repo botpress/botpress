@@ -25,6 +25,7 @@ export default async (bp: SDK, db: Database) => {
         channel: session.channel,
         direction: 'outgoing',
         payload: {
+          agent: true,
           text: message,
           preview: message
         },

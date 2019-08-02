@@ -1,6 +1,6 @@
 import React from 'react'
-import { Row, Col, OverlayTrigger, Tooltip } from 'react-bootstrap'
-
+import { Row, Col } from 'react-bootstrap'
+import SVGIcon from './SVGIcon'
 import style from './style.scss'
 import moment from 'moment'
 import _ from 'lodash'
@@ -32,8 +32,8 @@ export default class Message extends React.Component {
   }
 
   renderEvent() {
-    const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
-    return <p>User visit : {date}</p>
+    const date = moment(this.props.content.ts).format('MMMM Do YYYY, h:mm a')
+    return <p>User visit: {date}</p>
   }
 
   renderContent() {
@@ -53,12 +53,49 @@ export default class Message extends React.Component {
     return null
   }
 
+  displayIcon(icon) {
+    if (icon == 'bot') {
+      return <SVGIcon name="bot" width="50" fill="#FFF" />
+    } else if (icon == 'agent') {
+      return <SVGIcon name="agent" width="50" fill="#10161A" />
+    } else if (icon == 'user') {
+      return <SVGIcon name="user" width="50" fill="#FFF" />
+    }
+  }
   renderMessageFromUser() {
-    return <div className={style.message + ' ' + style.fromUser}>{this.renderContent()}</div>
+    return (
+      <div className={style.message + ' ' + style.fromUser}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
   }
 
   renderMessageFromBot() {
-    return <div className={style.message + ' ' + style.fromBot}>{this.renderContent()}</div>
+    return (
+      <div className={style.message + ' ' + style.fromBot}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
+  }
+
+  renderMessageFromAgent() {
+    return (
+      <div className={style.message + ' ' + style.fromAgent}>
+        <div className={style.icon}>
+          {this.displayIcon(this.props.content.source)}
+          <time>{moment(this.props.content.ts).format('LT')}</time>
+        </div>
+        {this.renderContent()}
+      </div>
+    )
   }
 
   renderMessageFromSystem() {
@@ -68,29 +105,15 @@ export default class Message extends React.Component {
   renderMessage() {
     const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
 
-    const tooltip = <Tooltip id="tooltip">{date}</Tooltip>
-
     if (this.props.content.direction === 'in') {
       if (this.props.content.type === 'visit') {
-        return (
-          <OverlayTrigger placement="right" overlay={tooltip}>
-            {this.renderMessageFromSystem()}
-          </OverlayTrigger>
-        )
+        return this.renderMessageFromSystem()
       }
-
-      return (
-        <OverlayTrigger placement="right" overlay={tooltip}>
-          {this.renderMessageFromUser()}
-        </OverlayTrigger>
-      )
+      return this.renderMessageFromUser()
+    } else if (this.props.content.source === 'agent') {
+      return this.renderMessageFromAgent()
     }
-
-    return (
-      <OverlayTrigger placement="left" overlay={tooltip}>
-        {this.renderMessageFromBot()}
-      </OverlayTrigger>
-    )
+    return this.renderMessageFromBot()
   }
 
   render() {
