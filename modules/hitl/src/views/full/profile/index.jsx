@@ -39,7 +39,7 @@ export default class Profile extends React.Component {
             <div className={style.profilePic}>
               <img src={currentSession.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
             </div>
-            <h3>{_.get(userAttributes, 'full_name') || currentSession.full_name}</h3>
+            <h3>{_.get(userAttributes, 'full_name', currentSession.full_name)}</h3>
             <h5>{dateFormatted}</h5>
           </div>
           <div className={style.attributes}>
@@ -48,7 +48,7 @@ export default class Profile extends React.Component {
                 Language:
               </Col>
               <Col className={style.value} md={6}>
-                {userAttributes.language}
+                {_.get(userAttributes, 'language', 'N/A')}
               </Col>
             </Row>
           </div>

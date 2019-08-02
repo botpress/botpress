@@ -77,11 +77,12 @@ export default class Conversation extends React.Component {
 
   renderHeader() {
     const pausedTooltip = <Tooltip id="pausedTooltip">Pause this conversation</Tooltip>
-    const userAttributes = JSON.parse(this.props.data.attributes)
+    const userAttributes = this.props.data.attributes && JSON.parse(this.props.data.attributes)
+
     return (
       <div>
         <h3>
-          {(this.props.data && userAttributes.full_name) || this.props.data.full_name}
+          {_.get(userAttributes, 'full_name', this.props.data.full_name)}
           {this.props.data && !!this.props.data.paused ? <span className={style.pausedWarning}>Paused</span> : null}
         </h3>
         <OverlayTrigger placement="left" overlay={pausedTooltip}>
