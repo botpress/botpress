@@ -42,12 +42,17 @@ const NLU: FC<Props> = props => {
     setCurrentItemFromPath()
   }, [window.location.href])
 
-  const handleSelectItem = (item: NluItem) => {
+  const handleSelectItem = (item: NluItem | undefined) => {
+    setCurrentItem(item)
+
+    if (!item) {
+      return
+    }
+
     const url = new URL(window.location.href)
     url.searchParams.set(ITEM_TYPE_PARAM, item.type)
     url.searchParams.set(ITEM_NAME_PARAM, item.name)
     window.history.pushState(window.history.state, '', url.toString())
-    setCurrentItem(item)
   }
 
   const getCurrentItemFromPath = () => {
