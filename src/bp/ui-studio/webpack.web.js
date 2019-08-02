@@ -28,7 +28,8 @@ const webConfig = {
     alias: {
       '~': path.resolve(__dirname, './src/web'),
       DOCS: path.resolve(__dirname, '../../../docs/guide/docs'),
-      common: path.resolve(__dirname, '../../../out/bp/common')
+      common: path.resolve(__dirname, '../../../out/bp/common'),
+      'botpress/sdk': path.resolve(__dirname, '../sdk/botpress.d.ts')
     }
   },
   optimization: {
