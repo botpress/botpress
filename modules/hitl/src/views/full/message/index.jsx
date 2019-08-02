@@ -55,9 +55,9 @@ export default class Message extends React.Component {
 
   displayIcon(icon) {
     if (icon == 'bot') {
-      return <SVGIcon name="bot" width="50" fill="#36bc98" />
+      return <SVGIcon name="bot" width="50" fill="#FFF" />
     } else if (icon == 'agent') {
-      return <SVGIcon name="agent" width="50" fill="#2E046A" />
+      return <SVGIcon name="agent" width="50" fill="#10161A" />
     } else if (icon == 'user') {
       return <SVGIcon name="user" width="50" fill="#FFF" />
     }
