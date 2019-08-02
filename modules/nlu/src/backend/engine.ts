@@ -90,7 +90,7 @@ export default class ScopedEngine implements Engine {
     private realtime: typeof sdk.realtime,
     private realtimePayload: typeof sdk.RealTimePayload
   ) {
-    this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider)
+    this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
     this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)

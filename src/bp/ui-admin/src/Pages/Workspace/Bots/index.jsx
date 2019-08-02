@@ -22,6 +22,7 @@ import RollbackBotModal from './RollbackBotModal'
 import { toast } from 'react-toastify'
 import { IoIosArchive } from 'react-icons/io'
 import { Popover, Button, PopoverInteractionKind, Position, ButtonGroup, Alignment, Intent } from '@blueprintjs/core'
+import ms from 'ms'
 
 class Bots extends Component {
   state = {
@@ -52,7 +53,7 @@ class Bots extends Component {
   }
 
   async exportBot(botId) {
-    const { data } = await api.getSecured({ timeout: 10000 })({
+    const { data } = await api.getSecured({ timeout: ms('2m') })({
       method: 'get',
       url: `/admin/bots/${botId}/export`,
       responseType: 'blob'
