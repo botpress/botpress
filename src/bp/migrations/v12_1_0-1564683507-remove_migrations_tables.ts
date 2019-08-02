@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/services/migration'
 
 const migration: Migration = {
   info: {
     description: 'Remove migrations tables',
     type: 'database'
   },
-  up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       await bp.database.schema.dropTable('knex_core_migrations')
       await bp.database.schema.dropTable('knex_core_migrations_lock')
