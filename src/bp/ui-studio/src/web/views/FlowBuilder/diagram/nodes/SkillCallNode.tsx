@@ -1,23 +1,17 @@
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { AbstractNodeFactory, NodeModel } from 'storm-react-diagrams'
+import { AbstractNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
 
+import { BaseNodeModel } from './BaseNodeModel'
 import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from './Ports'
 
 const style = require('./style.scss')
 
 export class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeModel }> {
-  static defaultProps = {
-    size: 200,
-    node: null
-  }
-
-  state = {}
-
   render() {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
@@ -64,29 +58,16 @@ export class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeMo
   }
 }
 
-export class SkillCallNodeModel extends NodeModel {
-  public isStartNode = false
-  public isHighlighted = false
-  public onReceive = undefined
-  public waitOnReceive = undefined
-  public next = undefined
-  public oldX?: number
-  public oldY?: number
-  public lastModified?: Date
+export class SkillCallNodeModel extends BaseNodeModel {
   public skill?
-  public name: string
 
   constructor({ id, x, y, name, skill, next = [], isStartNode = false, isHighlighted = false }) {
     super('skill-call', id)
 
     this.setData({ name, next, isStartNode, skill, isHighlighted })
 
-    if (x) {
-      this.x = x
-    }
-    if (y) {
-      this.y = y
-    }
+    this.x = this.oldX = x
+    this.y = this.oldY = y
   }
 
   serialize() {
@@ -101,10 +82,6 @@ export class SkillCallNodeModel extends NodeModel {
     super.deSerialize(data, engine)
 
     this.setData(data)
-  }
-
-  getOutPorts() {
-    return _.filter(_.values(this.ports), p => p.name.startsWith('out'))
   }
 
   setData({ name, next = [], isStartNode, skill, isHighlighted }) {

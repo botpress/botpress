@@ -157,7 +157,7 @@ export class PersistedConsoleLogger implements Logger {
       scope: displayName,
       message: stripAnsi(indentedMessage),
       metadata: stripAnsi(serializedMetadata),
-      timestamp: moment().toISOString()
+      timestamp: new Date()
     }
 
     PersistedConsoleLogger.LogStreamEmitter.emit(

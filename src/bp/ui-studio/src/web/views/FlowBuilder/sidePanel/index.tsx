@@ -20,6 +20,7 @@ type Props = {
   dirtyFlows: any
   duplicateFlow: any
   currentFlow: any
+  flowPreview: boolean
   mutexInfo: string
 } & RouteComponentProps
 
@@ -76,7 +77,7 @@ export default class PanelContent extends Component<Props> {
         </SidePanelSection>
 
         <SidePanelSection label="Tools">
-          <FlowTools />
+          <FlowTools flowPreview={this.props.flowPreview} />
         </SidePanelSection>
       </SidePanel>
     )

@@ -36,6 +36,7 @@ class FlowBuilder extends Component<Props, State> {
   state = {
     initialized: false,
     readOnly: false,
+    flowPreview: false,
     mutexInfo: ''
   }
 
@@ -142,6 +143,10 @@ class FlowBuilder extends Component<Props, State> {
       redo: e => {
         e.preventDefault()
         this.props.flowEditorRedo()
+      },
+      'preview-flow': e => {
+        e.preventDefault()
+        this.setState({ flowPreview: true })
       }
     }
 
@@ -150,6 +155,7 @@ class FlowBuilder extends Component<Props, State> {
         <SidePanel
           mutexInfo={this.state.mutexInfo}
           readOnly={readOnly}
+          flowPreview={this.state.flowPreview}
           onCreateFlow={name => {
             this.diagram.createFlow(name)
             this.props.switchFlow(`${name}.flow.json`)
@@ -158,6 +164,7 @@ class FlowBuilder extends Component<Props, State> {
         <div className={style.diagram}>
           <Diagram
             readOnly={readOnly}
+            flowPreview={this.state.flowPreview}
             ref={el => {
               if (!!el) {
                 // @ts-ignore
@@ -220,5 +227,6 @@ type Props = {
 interface State {
   initialized: any
   readOnly: any
+  flowPreview: boolean
   mutexInfo: string
 }

@@ -29,7 +29,7 @@ declare module 'botpress/sdk' {
     scope: string
     message: string
     metadata: any
-    timestamp: string
+    timestamp: Date
   }
 
   export enum LoggerLevel {
@@ -928,6 +928,8 @@ declare module 'botpress/sdk' {
     type?: any
     timeoutNode?: string
     flow?: string
+    /** Used internally by the flow editor */
+    readonly lastModified?: Date
   } & (NodeActions)
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>

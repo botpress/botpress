@@ -33,7 +33,7 @@ export default class HitlModule extends React.Component {
     this.props.bp.events.off('hitl.session.changed', this.updateSession)
   }
 
-  refreshSessions = (session) => {
+  refreshSessions = session => {
     this.fetchAllSessions().then(() => {
       if (!this.state.currentSession) {
         const firstSession = _.head(this.state.sessions.sessions)
@@ -42,7 +42,7 @@ export default class HitlModule extends React.Component {
     })
   }
 
-  updateSession = (changes) => {
+  updateSession = changes => {
     if (!this.state.sessions) {
       return
     }
@@ -63,7 +63,7 @@ export default class HitlModule extends React.Component {
     }
   }
 
-  updateSessionMessage = (message) => {
+  updateSessionMessage = message => {
     if (!this.state.sessions) {
       return
     }
@@ -112,12 +112,23 @@ export default class HitlModule extends React.Component {
     }, 50)
   }
 
-  setSession = (sessionId) => {
+  handleSearchAction = searchText => {
+    return this.getAxios()
+      .get('/mod/hitl/sessions/search?searchText=' + searchText)
+      .then(res => {
+        this.setState({
+          loading: false,
+          sessions: res.data
+        })
+      })
+  }
+
+  setSession = sessionId => {
     const session = _.find(this.state.sessions.sessions, { id: sessionId })
     this.setState({ currentSession: session })
   }
 
-  sendMessage = (message) => {
+  sendMessage = message => {
     const sessionId = this.state.currentSession.id
     this.getAxios().post(`/mod/hitl/sessions/${sessionId}/message`, { message })
   }
@@ -132,6 +143,7 @@ export default class HitlModule extends React.Component {
     }
 
     const currentSessionId = this.state.currentSession && this.state.currentSession.id
+
     return (
       <div className={style.mainContainer}>
         <Grid>
@@ -143,6 +155,7 @@ export default class HitlModule extends React.Component {
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
+                handleSearchAction={this.handleSearchAction}
               />
             </Col>
             <Col sm={9} className={style.column} lg={7}>
