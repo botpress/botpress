@@ -82,11 +82,11 @@ class UserList extends Component {
                     </span>
                     <span className="field">
                       <b>Last Login: </b>
-                      {user.last_logon ? moment(user.last_logon).fromNow() : 'never'}
+                      {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
                     </span>
                     <span className="field">
                       <b>Joined: </b>
-                      {moment(user.created_on).fromNow()}
+                      {moment(user.attributes.createdOn).fromNow()}
                     </span>
                   </p>
                 </div>

@@ -5,7 +5,7 @@ module.exports = ({ full, lite }) => {
     ...full,
     output: {
       ...full.output,
-      publicPath: '/assets/modules/code-editor/web/'
+      publicPath: 'assets/modules/code-editor/web/'
     },
     plugins: [
       ...full.plugins,

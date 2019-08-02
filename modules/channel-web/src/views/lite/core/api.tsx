@@ -30,14 +30,15 @@ export default class WebchatApi {
   updateAxiosConfig({ botId = undefined, externalAuthToken = undefined } = {}) {
     this.botId = botId
     this.axiosConfig = botId
-      ? { baseURL: `${window.location.origin}/api/v1/bots/${botId}/mod/channel-web` }
+      ? { baseURL: `${window.location.origin}${window.BOT_API_PATH}/mod/channel-web` }
       : { baseURL: `${window.BOT_API_PATH}/mod/channel-web` }
 
     if (externalAuthToken) {
       this.axiosConfig = {
         ...this.axiosConfig,
         headers: {
-          ExternalAuth: `Bearer ${externalAuthToken}`
+          ExternalAuth: `Bearer ${externalAuthToken}`,
+          'X-BP-ExternalAuth': `Bearer ${externalAuthToken}`
         }
       }
     }

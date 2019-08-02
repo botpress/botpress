@@ -6,6 +6,7 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
+import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
@@ -13,7 +14,6 @@ import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
-import { FlowView } from 'core/services/dialog'
 import { FlowService } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
@@ -133,7 +133,11 @@ export class BotsRouter extends CustomRouter {
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {
-      disableForModule('bodyParser', path)
+      disableForModule('bodyParserJson', path)
+    }
+
+    if (!_.get(options, 'enableUrlEncoderBodyParser', true)) {
+      disableForModule('bodyParserUrlEncoder', path)
     }
 
     const relPath = '/mod/' + path
@@ -202,11 +206,11 @@ export class BotsRouter extends CustomRouter {
               // Common
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
-              window.API_PATH = "/api/v1";
-              window.BOT_API_PATH = "/api/v1/bots/${botId}";
+              window.API_PATH = "${process.ROOT_PATH}/api/v1";
+              window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
               window.BOT_ID = "${botId}";
               window.BOT_NAME = "${bot.name}";
-              window.BP_BASE_PATH = "/${app}/${botId}";
+              window.BP_BASE_PATH = "${process.ROOT_PATH}/${app}/${botId}";
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
@@ -281,15 +285,50 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.post(
-      '/flows',
+      '/flow',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
-        const flowViews = <FlowView[]>req.body.dirtyFlows
+        const { botId } = req.params
+        const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
 
-        await this.flowService.saveAll(botId, flowViews, req.body.cleanFlows)
-        res.sendStatus(201)
+        await this.flowService.insertFlow(botId, flow, userEmail)
+
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.put(
+      '/flow/:flowName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, flowName } = req.params
+        const flow = <FlowView>req.body.flow
+        const userEmail = req.tokenUser!.email
+
+        if (_.has(flow, 'name') && flowName !== flow.name) {
+          await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
+        } else {
+          await this.flowService.updateFlow(botId, flow, userEmail)
+        }
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.delete(
+      '/flow/:flowName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, flowName } = req.params
+
+        const userEmail = req.tokenUser!.email
+
+        await this.flowService.deleteFlow(botId, flowName as string, userEmail)
+
+        res.sendStatus(200)
       })
     )
 

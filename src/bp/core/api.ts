@@ -63,6 +63,7 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
     replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
+    isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
     findEvents: eventRepo.findEvents.bind(eventRepo)
   }
 }
@@ -214,7 +215,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
+  constructor(private realtimeService: RealtimeService) { }
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)

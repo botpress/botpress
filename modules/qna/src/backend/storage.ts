@@ -92,21 +92,24 @@ export default class Storage {
     )
   }
 
-  // TODO Find better way to implement. When manually copying QNA, intents are not created.
-  // Manual edit & save of each one is required for the intent to be created.
-  async syncQnaToNlu() {
+  /**
+   * Creates QNA intents for each QNA item and cleanup unused qna intents.
+   */
+  async syncQnaToNlu(): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const allQuestions = await this.fetchQNAs()
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
+    const leftOverQnaIntents = allIntents.filter(
+      intent =>
+        intent.name.startsWith('__qna__') && !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
+    )
+    await Promise.map(leftOverQnaIntents, intent => axios.delete(`/mod/nlu/intents/${intent.name}`, axiosConfig))
+
     const qnaItemsToSync = allQuestions.filter(
       qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
     )
-
-    return await Promise.mapSeries(qnaItemsToSync, async item => {
-      await this.checkForDuplicatedQuestions(item.data)
-      await this.createNLUIntentFromQnaItem(item)
-    })
+    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item))
   }
 
   private async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {

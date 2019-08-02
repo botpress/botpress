@@ -8,6 +8,10 @@ export default async (bp: SDK, db: Database) => {
     db.getAllSessions(req.query.onlyPaused === 'true', req.params.botId).then(sessions => res.send(sessions))
   })
 
+  router.get('/sessions/search', (req, res) => {
+    db.searchMessages(req.query.searchText).then(sessions => res.send(sessions))
+  })
+
   router.get('/sessions/:sessionId', (req, res) => {
     db.getSessionData(req.params.sessionId).then(messages => res.send(messages))
   })

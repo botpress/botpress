@@ -49,7 +49,7 @@ class Sidebar extends React.Component {
   renderModuleItem = module => {
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
-    const iconPath = `/assets/modules/${module.name}/icon.png`
+    const iconPath = `assets/modules/${module.name}/icon.png`
     const moduleIcon =
       module.menuIcon === 'custom' ? (
         <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
@@ -105,9 +105,9 @@ class Sidebar extends React.Component {
     return (
       <aside style={{ zIndex: '1000' }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '8px 13px' }}>
-            <a href="/" className={classnames(style.logo, 'bp-logo')}>
-              <img width="125" src="/assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
+          <div style={{ padding: '8px 13px', overflowX: 'hidden' }}>
+            <a href="admin/" className={classnames(style.logo, 'bp-logo')}>
+              <img width="125" src="assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
             </a>
           </div>
           <ul className={classnames('nav', style.mainMenu)}>

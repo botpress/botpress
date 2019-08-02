@@ -3,8 +3,6 @@ import SplitterLayout from 'react-splitter-layout'
 import nanoid from 'nanoid'
 import _ from 'lodash'
 
-import Editor from './draft/editor'
-
 import style from './style.scss'
 import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
@@ -118,59 +116,6 @@ export default class IntentsEditor extends React.Component {
   deleteUtterance = id => {
     const utterances = this.getUtterances()
     this.setState({ utterances: _.filter(utterances, u => u.id !== id) })
-  }
-
-  renderEditor() {
-    const utterances = this.getUtterances()
-    const preprendNewUtterance = () => {
-      this.setState({ utterances: [{ id: nanoid(), text: '' }, ...utterances] })
-    }
-    const canonicalValueChanged = (id, value) => {
-      this.setState({
-        utterances: utterances.map(utterance => {
-          if (utterance.id === id) {
-            return Object.assign({}, utterance, {
-              text: value
-            })
-          } else {
-            return utterance
-          }
-        })
-      })
-    }
-
-    return (
-      <ul className={style.utterances}>
-        {utterances.map((utterance, i) => {
-          return (
-            <li key={`uttr-${utterance.id}`}>
-              <Editor
-                tabIndex={i + NLU_TABIDX}
-                getSlotsEditor={() => this.slotsEditor}
-                ref={el => {
-                  if (i === 0) {
-                    this.editorRef = el
-                    if (el && this.currFocus === i) {
-                      el.focus()
-                    }
-                  }
-                }}
-                onFocus={() => (this.currFocus = i)}
-                onBlur={() => (this.currFocus = null)}
-                utteranceId={utterance.id}
-                deleteUtterance={() => this.deleteUtterance(utterance.id)}
-                onDone={() => setTimeout(this.focusFirstUtterance, 500)}
-                onInputConsumed={preprendNewUtterance}
-                canonicalValue={utterance.text}
-                canonicalValueChanged={value => canonicalValueChanged(utterance.id, value)}
-                slots={this.state.slots}
-              />
-            </li>
-          )
-        })}
-        <div tabIndex={utterances.length + NLU_TABIDX + 1} onFocus={this.focusFirstUtterance} />
-      </ul>
-    )
   }
 
   handleSlotsChanged = (slots, { operation, name, oldName } = {}) => {

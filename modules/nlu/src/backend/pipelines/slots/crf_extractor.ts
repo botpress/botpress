@@ -23,7 +23,7 @@ const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
 
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
-const MIN_SLOT_CONFIDENCE = 0.5
+const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
 const K_CLUSTERS = 15
 const KMEANS_OPTIONS = {
@@ -225,15 +225,20 @@ export default class CRFExtractor implements SlotExtractor {
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.flatMap(sequences, s => s.tokens)
+
+    if (_.isEmpty(tokens)) {
+      return
+    }
+
     const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical))
+
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
       this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
-      throw Error('Error training K-means model')
+      throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
-
   private async _trainCrf(sequences: Sequence[]) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
@@ -295,10 +300,11 @@ export default class CRFExtractor implements SlotExtractor {
     featPrefix: string,
     includeCluster: boolean
   ): Promise<string[]> {
-    const vector: string[] = [`${featPrefix}intent=${intentName}`]
+    const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
 
     if (token.cannonical === token.cannonical.toLowerCase()) vector.push(`${featPrefix}low`)
     if (token.cannonical === token.cannonical.toUpperCase()) vector.push(`${featPrefix}up`)
+    // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
     if (
       token.cannonical.length > 1 &&
       token.cannonical[0] === token.cannonical[0].toUpperCase() &&
@@ -312,7 +318,7 @@ export default class CRFExtractor implements SlotExtractor {
     }
 
     if (token.cannonical) {
-      vector.push(`${featPrefix}word=${token}`)
+      vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
     }
 
     const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(

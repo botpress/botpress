@@ -1,3 +1,68 @@
+## [12.0.3](https://github.com/botpress/botpress/compare/v12.0.2...v12.0.3) (2019-07-25)
+
+
+### Bug Fixes
+
+* **core:** handling cases where message is not a string ([a486013](https://github.com/botpress/botpress/commit/a486013))
+* **core:** handling cases where message is not a string ([41cbebe](https://github.com/botpress/botpress/commit/41cbebe))
+* **ie:** webchat not working on ie ([830e2e1](https://github.com/botpress/botpress/commit/830e2e1))
+* **ie:** webchat not working on ie ([7d313d3](https://github.com/botpress/botpress/commit/7d313d3))
+* **lang:** meta file, try local when remote fails ([4566c4d](https://github.com/botpress/botpress/commit/4566c4d))
+* **lang-server:** refreshing health when visiting studio ([77cfeed](https://github.com/botpress/botpress/commit/77cfeed))
+* **lang-server:** refreshing health when visiting studio ([6e6db07](https://github.com/botpress/botpress/commit/6e6db07))
+* **nlu:** exact match also matches if one entity type differs ([7880ccb](https://github.com/botpress/botpress/commit/7880ccb))
+* **nlu:** merge tokens if both are made of chosen special characters in slot extraction ([48e3171](https://github.com/botpress/botpress/commit/48e3171))
+* **nlu:** undefined occurances or pattern ([893c912](https://github.com/botpress/botpress/commit/893c912))
+* **nlu:** undefined occurences or pattern ([529549d](https://github.com/botpress/botpress/commit/529549d))
+* **qna:** cleanup unused qna intents when syncing ([cd91499](https://github.com/botpress/botpress/commit/cd91499))
+* **qna:** cleanup unused qna intents when syncing ([729874a](https://github.com/botpress/botpress/commit/729874a))
+
+
+
+## [12.0.2](https://github.com/botpress/botpress/compare/v12.0.1...v12.0.2) (2019-07-16)
+
+
+### Bug Fixes
+
+* **admin:** allow admin role to read/write languages ([45feaeb](https://github.com/botpress/botpress/commit/45feaeb))
+* **admin:** greater timeout when importing bot ([f4a449c](https://github.com/botpress/botpress/commit/f4a449c))
+* **admin:** no axios timeout when importing a bot as it might be long for big bots ([c9a6b0a](https://github.com/botpress/botpress/commit/c9a6b0a))
+* **admin:** resolution of components ([9f2957e](https://github.com/botpress/botpress/commit/9f2957e))
+* **admin:** resolution of components ([3b7e49b](https://github.com/botpress/botpress/commit/3b7e49b))
+* **auth:** allow submit with enter only if form is valid on first auth ([fdab96e](https://github.com/botpress/botpress/commit/fdab96e))
+* **choice:** retries only working after save ([8bd67c5](https://github.com/botpress/botpress/commit/8bd67c5))
+* **choice:** retry content element not required anymore ([cdaf003](https://github.com/botpress/botpress/commit/cdaf003))
+* **code-editor:** added reminder for available configs ([6f5f4d3](https://github.com/botpress/botpress/commit/6f5f4d3))
+* **code-editor:** added reminder for available configs ([ebc62ac](https://github.com/botpress/botpress/commit/ebc62ac))
+* **core:** action service uses try/catch instead of promise callbacks ([eb2d48a](https://github.com/botpress/botpress/commit/eb2d48a))
+* **core:** maxListeners warning in console on botpress start ([bd4a1f6](https://github.com/botpress/botpress/commit/bd4a1f6))
+* **core:** unregister listeners after_bot_unmount ([f22b8c0](https://github.com/botpress/botpress/commit/f22b8c0))
+* **debugger:** allow more time for debugger to fetch an event ([7e07239](https://github.com/botpress/botpress/commit/7e07239))
+* **ghost:** allow files up to 100mb ([e9d2e51](https://github.com/botpress/botpress/commit/e9d2e51))
+* **lang:** metadataLocation local files lookup ([7cf9a05](https://github.com/botpress/botpress/commit/7cf9a05))
+* **nlu:** batching tokenize and vectorize calls to lang-server ([e84334b](https://github.com/botpress/botpress/commit/e84334b))
+* **nlu:** bigger payload allowed ([2e3d37e](https://github.com/botpress/botpress/commit/2e3d37e))
+* **nlu:** confusion engine bad parameter ([9848f5d](https://github.com/botpress/botpress/commit/9848f5d))
+* **nlu:** don't load model for lang when not found ([0a98393](https://github.com/botpress/botpress/commit/0a98393))
+* **nlu:** pattern extraction case insensitive ([0d414d3](https://github.com/botpress/botpress/commit/0d414d3))
+* **nlu:** slot tagger ([5897d9f](https://github.com/botpress/botpress/commit/5897d9f))
+* **nlu:** very confused std threshold ([f3a3af9](https://github.com/botpress/botpress/commit/f3a3af9))
+* **nlu:** very confused still return  intents ([9e719f6](https://github.com/botpress/botpress/commit/9e719f6))
+* **nlu:** view supports more intents and sections ([be395f5](https://github.com/botpress/botpress/commit/be395f5))
+* **qna:** redundant question already exists check ([628b209](https://github.com/botpress/botpress/commit/628b209))
+* **qna:** validation failed on empty redirect flow ([8449208](https://github.com/botpress/botpress/commit/8449208))
+* **sdk:** incorrect event state signature ([4b17693](https://github.com/botpress/botpress/commit/4b17693))
+* **sdk:** incorrect event state signature ([97daa0c](https://github.com/botpress/botpress/commit/97daa0c))
+* **studio:** missing translations show up red ([e981590](https://github.com/botpress/botpress/commit/e981590))
+* **studio:** sidebar doesn't unroll anymore ([0886c1a](https://github.com/botpress/botpress/commit/0886c1a))
+
+
+### Features
+
+* **channel-web:** add ability to send toggleBotInfo event ([28e5e2d](https://github.com/botpress/botpress/commit/28e5e2d))
+
+
+
 ## [12.0.1](https://github.com/botpress/botpress/compare/v12.0.0...v12.0.1) (2019-07-08)
 
 

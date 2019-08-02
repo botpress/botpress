@@ -37,6 +37,7 @@ $status-bar-height: 24px;
   background-color: #fcfcfc;
   height: 100%;
   overflow-y: auto;
+  padding-bottom: 20px;
 }
 
 .sidePanel_hidden {
@@ -161,6 +162,7 @@ $status-bar-height: 24px;
 
 .itemListSelected {
   font-weight: bold;
+  background: #eee;
 }
 
 .toolbar {

@@ -20,7 +20,7 @@ export const Intents = props => {
             if (i.name === intent.name) {
               content = <strong>{content}</strong>
             }
-            return <li>{content}</li>
+            return <li key={i.name}>{content}</li>
           })}
         </ul>
       )}

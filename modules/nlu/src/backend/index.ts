@@ -16,10 +16,9 @@ let langProvider: LanguageProvider
 
 export let nluHealth: NLUHealth
 
-const onServerStarted = async (bp: typeof sdk) => {
-  Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
+export const initializeLangServer = async (bp: typeof sdk) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+
   try {
     langProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger)
   } catch (e) {
@@ -37,7 +36,13 @@ const onServerStarted = async (bp: typeof sdk) => {
     validProvidersCount,
     validLanguages
   } as NLUHealth
+}
 
+const onServerStarted = async (bp: typeof sdk) => {
+  Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
+  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
+  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+  await initializeLangServer(bp)
   await registerMiddleware(bp, nluByBot)
 }
 

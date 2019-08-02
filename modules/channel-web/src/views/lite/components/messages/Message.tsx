@@ -11,6 +11,14 @@ import * as Keyboard from '../Keyboard'
 import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
 
 class Message extends Component<MessageProps> {
+  state = {
+    hasError: false
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
 
@@ -109,7 +117,19 @@ class Message extends Component<MessageProps> {
     }
   }
 
+  renderTimestamp() {
+    return (
+      <span className="bpw-message-timestamp">
+        {this.props.intl.formatTime(new Date(this.props.sentOn), { hour: 'numeric', minute: 'numeric' })}
+      </span>
+    )
+  }
+
   render() {
+    if (this.state.hasError) {
+      return '* Cannot display message *'
+    }
+
     const type = this.props.type || (this.props.payload && this.props.payload.type)
     const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
     const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
@@ -117,7 +137,7 @@ class Message extends Component<MessageProps> {
 
     const rendered = renderer()
     if (rendered === null) {
-      return undefined
+      return null
     }
 
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
@@ -139,13 +159,15 @@ class Message extends Component<MessageProps> {
         style={additionalStyle}
       >
         {rendered}
+        {this.props.config.showTimestamp && this.renderTimestamp()}
       </div>
     )
   }
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
-  intl: store.intl
+  intl: store.intl,
+  config: store.config
 }))(Message)
 
-type MessageProps = Renderer.Message & Pick<StoreDef, 'intl'>
+type MessageProps = Renderer.Message & Pick<StoreDef, 'intl' | 'config'>

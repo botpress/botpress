@@ -8,6 +8,8 @@ import ContentPickerWidget from 'botpress/content-picker'
 
 import style from './style.scss'
 
+const MAX_RETRIES = 10
+
 export class Choice extends React.Component {
   state = {
     keywords: {},
@@ -19,15 +21,16 @@ export class Choice extends React.Component {
   componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
-    this.fetchDefaultConfig().then(res => {
+
+    this.fetchDefaultConfig().then(({ data }) => {
       if (this.props.initialData) {
         this.setState(
           {
             contentId: getOrDefault('contentId', 'contentId'),
             invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
             keywords: getOrDefault('keywords', 'keywords'),
-            config: getOrDefault('config', 'config'),
-            defaultConfig: res.data
+            config: { nbMaxRetries: data.defaultMaxAttempts, ...getOrDefault('config', 'config') },
+            defaultConfig: data
           },
           () => this.refreshContent()
         )
@@ -66,8 +69,17 @@ export class Choice extends React.Component {
   }
 
   onMaxRetriesChanged = event => {
-    const config = { ...this.state.config, nbMaxRetries: isNaN(event.target.value) ? 1 : event.target.value }
+    const config = {
+      ...this.state.config,
+      nbMaxRetries: isNaN(Number(event.target.value)) ? MAX_RETRIES : Number(event.target.value)
+    }
     this.setState({ config })
+  }
+
+  onToggleRepeatChoicesOnInvalid = event => {
+    this.setState({
+      config: { ...this.state.config, repeatChoicesOnInvalid: !this.state.config.repeatChoicesOnInvalid }
+    })
   }
 
   onBlocNameChanged = key => event => {
@@ -115,7 +127,7 @@ export class Choice extends React.Component {
       const keywordsEntry = this.state.keywords[choice.value] || []
       const tags = keywordsEntry.map(x => ({ id: x, text: x }))
       return (
-        <div className={style.keywords}>
+        <div className={style.keywords} key={choice.title}>
           <h4>
             {choice.title} <small>({choice.value})</small>
           </h4>
@@ -219,6 +231,13 @@ export class Choice extends React.Component {
             onChange={this.handleInvalidContentChange}
             placeholder="Pick a reply"
           />
+          <Label htmlFor="repeatChoices">Repeat choices on invalid?</Label>
+          <input
+            id="repeatChoices"
+            type="checkbox"
+            checked={this.state.config.repeatChoicesOnInvalid}
+            onChange={this.onToggleRepeatChoicesOnInvalid}
+          />
         </div>
 
         <div>
@@ -226,6 +245,7 @@ export class Choice extends React.Component {
           <Input
             id="contentElementType"
             type="text"
+            style={{ marginLeft: '5px' }}
             value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />

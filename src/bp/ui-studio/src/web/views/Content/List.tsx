@@ -1,4 +1,5 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
+import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
@@ -6,6 +7,8 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import withLanguage from '~/components/Util/withLanguage'
+
+import style from './style.scss'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -195,7 +198,15 @@ class ListView extends Component<Props, State> {
         Header: 'Preview',
         accessor: 'previews',
         filterable: false,
-        Cell: x => x.original.previews && x.original.previews[this.props.contentLang]
+        Cell: x => {
+          const preview = x.original.previews && x.original.previews[this.props.contentLang]
+          const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
+          return (
+            <React.Fragment>
+              <span className={className}>{preview}</span>
+            </React.Fragment>
+          )
+        }
       },
       {
         Header: 'Modified On',
@@ -212,7 +223,7 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Cell: !this.props.readOnly && <Button small={true} icon="edit" />,
+        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" /> : ''),
         filterable: false,
         width: 45
       }

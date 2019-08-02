@@ -1,0 +1,27 @@
+{
+  "name": "channel-slack",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "devDependencies": {
+    "@blueprintjs/core": "^3.15.1",
+    "@types/node": "^10.11.3",
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "@slack/interactive-messages": "^1.1.1",
+    "@slack/rtm-api": "^5.0.1",
+    "@slack/web-api": "^5.0.1",
+    "axios": "^0.19.0"
+  }
+}

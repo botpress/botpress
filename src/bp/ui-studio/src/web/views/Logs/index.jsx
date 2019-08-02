@@ -119,7 +119,7 @@ class LoggerView extends Component {
             <ul className={styles.events}>{logs}</ul>
           </div>
           {canLoadMore && (
-            <div href="#" className={styles['logs-panel-footer']} onClick={this.loadMore}>
+            <div className={styles['logs-panel-footer']} onClick={this.loadMore}>
               Load more
             </div>
           )}

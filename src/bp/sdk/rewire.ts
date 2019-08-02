@@ -27,8 +27,13 @@ if (process.distro.os === 'linux') {
       .sort()
       .reverse()
 
-    const nearestDistro = _.find(folders, f => f <= fullDist) || _.first(folders)
-    nearestDistro && platformFolders.unshift('linux/' + nearestDistro)
+    let nearestDistro = _.filter(folders, f => f <= fullDist) // we're trying to find versions earlier
+
+    if (!nearestDistro.length) {
+      nearestDistro = folders
+    }
+
+    platformFolders.unshift(..._.take(nearestDistro, 3).map(x => 'linux/' + x))
   } finally {
   }
 } else if (os.platform() === 'win32') {
