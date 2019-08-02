@@ -42,8 +42,14 @@ export default class Sidebar extends React.Component {
     })
   }
 
-  handleChange = val => {
-    this.setState({ searchText: val })
+  handleSearchChange = event => {
+    this.setState({ searchText: event.target.value })
+  }
+
+  handleEnterKeyPress = event => {
+    if (event.key === 'Enter') {
+      this.handleSearchClick()
+    }
   }
 
   renderUser = value => {
@@ -100,26 +106,14 @@ export default class Sidebar extends React.Component {
           </div>
           <div className={style.initial_search}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
-              <i
-                className="material-icons"
-                style={filterStyle}
-                onClick={() => {
-                  this.handleSearchClick()
-                }}
-              >
+              <i className="material-icons" style={filterStyle} onClick={() => this.handleSearchClick()}>
                 search
               </i>
             </OverlayTrigger>
           </div>
           <div className={style.cancel_search}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
-              <i
-                className="material-icons"
-                style={filterStyle}
-                onClick={() => {
-                  this.searchClearAction()
-                }}
-              >
+              <i className="material-icons" style={filterStyle} onClick={() => this.searchClearAction()}>
                 clear_all
               </i>
             </OverlayTrigger>
@@ -130,34 +124,21 @@ export default class Sidebar extends React.Component {
           <div className={style.textfilter}>
             <FormControl
               value={this.state.searchText}
-              onChange={e => {
-                this.handleChange(e.target.value)
-              }}
+              onChange={this.handleSearchChange}
+              onKeyPress={this.handleEnterKeyPress}
               placeholder="Search By Name"
             />
           </div>
           <div className={style.textbox_search}>
             <OverlayTrigger placement="bottom" overlay={searchTooltip}>
-              <i
-                className="material-icons"
-                style={filterStyle}
-                onClick={() => {
-                  this.handleSearchClick()
-                }}
-              >
+              <i className="material-icons" style={filterStyle} onClick={() => this.handleSearchClick()}>
                 search
               </i>
             </OverlayTrigger>
           </div>
           <div className={style.textbox_cancel}>
             <OverlayTrigger placement="bottom" overlay={searchClearTooltip}>
-              <i
-                className="material-icons"
-                style={filterStyle}
-                onClick={() => {
-                  this.searchClearAction()
-                }}
-              >
+              <i className="material-icons" style={filterStyle} onClick={() => this.searchClearAction()}>
                 cancel
               </i>
             </OverlayTrigger>
