@@ -4,6 +4,7 @@ import { Row, Col } from 'react-bootstrap'
 import 'react-toggle/style.css'
 import style from './style.scss'
 import moment from 'moment'
+
 export default class Profile extends React.Component {
   constructor() {
     super()
@@ -23,22 +24,22 @@ export default class Profile extends React.Component {
       display: this.state.displayImg
     }
 
-    const currentSession = this.props.currentSession
-    const sessionId = currentSession - 1
+    const currentSession = this.props.sessions.sessions.find(s => s.id === this.props.currentSession)
 
-    if (this.props.sessions.sessions && this.props.currentSession) {
-      const session = this.props.sessions.sessions[sessionId]
-      let dateFormatted = moment(session.last_event_on).fromNow()
+    if (this.props.sessions.sessions && currentSession) {
+      let dateFormatted = moment(currentSession.last_event_on).fromNow()
       dateFormatted = dateFormatted.replace('minutes', 'mins').replace('seconds', 'secs')
-      const userAttributes = JSON.parse(session.attributes)
+
       //TODO: Make user attributes configurable
+      const userAttributes = currentSession.attributes && JSON.parse(currentSession.attributes)
+
       return (
         <div>
           <div className={style.header}>
             <div className={style.profilePic}>
-              <img src={session.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
+              <img src={currentSession.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
             </div>
-            <h3>{userAttributes.full_name || session.full_name}</h3>
+            <h3>{_.get(userAttributes, 'full_name') || currentSession.full_name}</h3>
             <h5>{dateFormatted}</h5>
           </div>
           <div className={style.attributes}>
