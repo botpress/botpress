@@ -32,8 +32,8 @@ export default class Message extends React.Component {
   }
 
   renderEvent() {
-    const date = moment(this.props.content.ts).format('DD MMM YYYY [at] LT')
-    return <p>User visit : {date}</p>
+    const date = moment(this.props.content.ts).format('MMMM Do YYYY, h:mm a')
+    return <p>User visit: {date}</p>
   }
 
   renderContent() {
