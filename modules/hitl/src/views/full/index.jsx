@@ -111,6 +111,10 @@ export default class HitlModule extends React.Component {
   }
 
   handleSearchAction = searchText => {
+    if (_.isEmpty(searchText)) {
+      return this.refreshSessions()
+    }
+
     return this.getAxios()
       .get('/mod/hitl/sessions/search?searchText=' + searchText)
       .then(res => {

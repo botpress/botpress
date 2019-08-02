@@ -26,7 +26,8 @@ export default class User extends React.Component {
 
     let dateFormatted = moment(this.props.session.last_event_on).fromNow()
     dateFormatted = dateFormatted.replace('minutes', 'mins').replace('seconds', 'secs')
-    const userAttributes = JSON.parse(this.props.session.attributes)
+
+    const userAttributes = this.props.session.attributes && JSON.parse(this.props.session.attributes)
     const textPrefix = this.props.session.direction === 'in' ? 'User: ' : 'Bot: '
 
     return (
@@ -36,7 +37,7 @@ export default class User extends React.Component {
           <img src={this.props.session.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
         </div>
         <div className={style.content}>
-          <h3>{userAttributes.full_name || this.props.session.full_name}</h3>
+          <h3>{_.get(userAttributes, 'full_name', this.props.session.full_name)}</h3>
           <h4>
             <span className={style.textPrefix}>{textPrefix}</span>
             {this.props.session.text}
