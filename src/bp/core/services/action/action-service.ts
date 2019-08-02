@@ -11,7 +11,7 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { BPError } from '../dialog/errors'
+import { ActionExecutionError, BPError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
@@ -195,7 +195,7 @@ export class ScopedActionService {
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
-      throw new BPError(`An error occurred while executing the action "${actionName}"`, 'BP_451')
+      throw new ActionExecutionError(err.message, actionName, err.stack)
     }
   }
 
