@@ -10,7 +10,6 @@ const migration: sdk.ModuleMigration = {
       const tableName = 'hitl_messages'
       const column = 'source'
       const exists = await bp.database.schema.hasColumn(tableName, column)
-      console.log(exists)
 
       if (!exists) {
         await bp.database.schema.alterTable(tableName, table => table.string(column))
