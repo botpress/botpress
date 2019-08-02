@@ -20,6 +20,7 @@ type Props = {
   dirtyFlows: any
   duplicateFlow: any
   currentFlow: any
+  mutexInfo: string
 } & RouteComponentProps
 
 export default class PanelContent extends Component<Props> {
@@ -59,7 +60,7 @@ export default class PanelContent extends Component<Props> {
 
     return (
       <SidePanel>
-        <Toolbar />
+        <Toolbar mutexInfo={this.props.mutexInfo} />
 
         <SidePanelSection label={'Flows'} actions={!this.props.readOnly && [createFlowAction]}>
           <FlowsList

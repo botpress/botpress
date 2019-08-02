@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import {
   clearErrorSaveFlows,
+  clearFlowMutex,
   clearFlowsModification,
   flowEditorRedo,
   flowEditorUndo,
@@ -27,12 +28,15 @@ const FlowToaster = Toaster.create({
   position: Position.TOP
 })
 
+const MUTEX_UNLOCK_SECURITY_FACTOR = 1.25
+
 class FlowBuilder extends Component<Props, State> {
   private diagram
 
   state = {
     initialized: false,
-    readOnly: false
+    readOnly: false,
+    mutexInfo: ''
   }
 
   init() {
@@ -87,7 +91,34 @@ class FlowBuilder extends Component<Props, State> {
         onDismiss: this.props.clearFlowsModification
       })
     }
+
+    if (!_.isEqual(prevProps.flowsByName, this.props.flowsByName)) {
+      const currentFlow = this.props.flowsByName[this.props.currentFlow]
+      const { currentMutex } = (currentFlow || {}) as any
+      if (currentMutex) {
+        const { lastModifiedBy, remainingSeconds } = currentMutex
+
+        const lockFlow = lastModifiedBy !== this.props.user.email && !!remainingSeconds
+
+        if (!this.state.readOnly && lockFlow) {
+          setTimeout(this.unfreezeFlows(this.props.currentFlow), remainingSeconds * 1000 * MUTEX_UNLOCK_SECURITY_FACTOR)
+          this.setState({
+            readOnly: true,
+            mutexInfo: lastModifiedBy + ' is editing'
+          })
+        }
+      }
+    }
   }
+
+  unfreezeFlows = currentFlowName => () => {
+    this.setState({
+      readOnly: false,
+      mutexInfo: ''
+    })
+    this.props.clearFlowMutex(currentFlowName)
+  }
+
   pushFlowState = flow => {
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
   }
@@ -117,6 +148,7 @@ class FlowBuilder extends Component<Props, State> {
     return (
       <Container keyHandlers={keyHandlers}>
         <SidePanel
+          mutexInfo={this.state.mutexInfo}
           readOnly={readOnly}
           onCreateFlow={name => {
             this.diagram.createFlow(name)
@@ -145,6 +177,7 @@ class FlowBuilder extends Component<Props, State> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
+  flowsByName: state.flows.flowsByName,
   showFlowNodeProps: state.flows.showFlowNodeProps,
   dirtyFlows: getDirtyFlows(state),
   user: state.user,
@@ -158,7 +191,8 @@ const mapDispatchToProps = {
   flowEditorUndo,
   flowEditorRedo,
   clearErrorSaveFlows,
-  clearFlowsModification
+  clearFlowsModification,
+  clearFlowMutex
 }
 
 export default connect(
@@ -179,9 +213,12 @@ type Props = {
   clearErrorSaveFlows: () => void
   lastModification: any
   clearFlowsModification: () => void
+  flowsByName: _.Dictionary<any>
+  clearFlowMutex: (name: string) => void
 } & RouteComponentProps
 
 interface State {
   initialized: any
   readOnly: any
+  mutexInfo: string
 }

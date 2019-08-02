@@ -16,7 +16,7 @@ import {
   replaceNotifications,
   addNotifications,
   appendLog,
-  receiveFlowsModification
+  handleReceiveFlowsModification
 } from '~/actions'
 
 class App extends Component {
@@ -58,7 +58,7 @@ class App extends Component {
       const isOtherUser = this.props.user.email !== payload.userEmail
       const isSameBot = payload.botId === window.BOT_ID
       if (isOtherUser && isSameBot) {
-        this.props.receiveFlowsModification(payload)
+        this.props.handleReceiveFlowsModification(payload)
       }
     })
 
@@ -89,7 +89,7 @@ const mapDispatchToProps = {
   replaceNotifications,
   addNotifications,
   appendLog,
-  receiveFlowsModification
+  handleReceiveFlowsModification
 }
 
 const mapStateToProps = state => ({

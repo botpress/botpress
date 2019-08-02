@@ -14,7 +14,7 @@ import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { FlowView } from 'core/services/dialog'
-import { FlowService } from 'core/services/dialog/flow/service'
+import { FlowService, MutexError } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
@@ -311,7 +311,14 @@ export class BotsRouter extends CustomRouter {
         if (_.has(flow, 'name') && flowName !== flow.name) {
           await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
         } else {
-          await this.flowService.updateFlow(botId, flow, userEmail)
+          try {
+            await this.flowService.updateFlow(botId, flow, userEmail)
+          } catch (err) {
+            if (err.type && err.type === MutexError.name) {
+              res.send(423) // Mutex locked
+              return
+            }
+          }
         }
         res.sendStatus(200)
       })

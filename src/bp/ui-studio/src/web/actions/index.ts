@@ -2,13 +2,27 @@ import axios from 'axios'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 
-import { getDeletedFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
+import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
 import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
 
 // Flows
 export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
+
+export const handleReceiveFlowsModification = modification => (dispatch, getState) => {
+  const dirtyFlows = getDirtyFlows(getState())
+  const amIModifyingTheSameFlow = dirtyFlows.includes(modification.name)
+  if (amIModifyingTheSameFlow) {
+    FlowsAPI.cancelUpdate(modification.name) // The server call might be already gone, but in that case there will a server error
+  }
+
+  dispatch(receiveFlowsModification(modification))
+  dispatch(refreshFlowsLinks())
+}
+
+export const clearFlowMutex = createAction('FLOWS/MODIFICATIONS/CLEAR_MUTEX')
+
 export const clearFlowsModification = createAction('FLOWS/MODIFICATIONS/CLEAR')
 
 export const requestFlows = createAction('FLOWS/REQUEST')
