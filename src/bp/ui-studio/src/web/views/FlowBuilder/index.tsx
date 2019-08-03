@@ -3,50 +3,58 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import {
-  clearErrorSaveFlows,
-  clearFlowMutex,
-  clearFlowsModification,
-  flowEditorRedo,
-  flowEditorUndo,
-  setDiagramAction,
-  switchFlow
-} from '~/actions'
+import { clearErrorSaveFlows, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
 import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
+import { Flow } from '~/reducers/flows'
 import { UserReducer } from '~/reducers/user'
 
 import Diagram from './containers/Diagram'
 import NodeProps from './containers/NodeProps'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
+import { PannelPermissions } from './sidePanel'
 import style from './style.scss'
 
 const FlowToaster = Toaster.create({
   position: Position.TOP
 })
 
-const MUTEX_UNLOCK_SECURITY_FACTOR = 1.25
-
 class FlowBuilder extends Component<Props, State> {
   private diagram
+  private userAllowed = false
 
   state = {
     initialized: false,
     readOnly: false,
+    pannelPermissions: this.allPermissions,
     flowPreview: false,
     mutexInfo: ''
+  }
+
+  get allPermissions(): PannelPermissions[] {
+    return ['create', 'rename', 'delete']
   }
 
   init() {
     if (this.state.initialized || !this.props.user || this.props.user.email == null) {
       return
     }
+    this.userAllowed = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.flows' })
     this.setState({
-      initialized: true,
-      readOnly: !operationAllowed({ user: this.props.user, op: 'write', res: 'bot.flows' })
+      initialized: true
+    })
+    if (!this.userAllowed) {
+      this.freezeAll()
+    }
+  }
+
+  freezeAll() {
+    this.setState({
+      readOnly: true,
+      pannelPermissions: []
     })
   }
 
@@ -54,7 +62,7 @@ class FlowBuilder extends Component<Props, State> {
     this.init()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     this.init()
 
     const { flow } = this.props.match.params as any
@@ -80,44 +88,50 @@ class FlowBuilder extends Component<Props, State> {
       })
     }
 
-    if (!prevProps.lastModification && this.props.lastModification) {
-      FlowToaster.show({
-        message: `The modification "${this.props.lastModification.modification}" was applied on the flow "${
-          this.props.lastModification.name
-        }" by ${
-          this.props.lastModification.userEmail
-        }. Please reload the page before continuing edition or changes will be overriden.`,
-        intent: Intent.WARNING,
-        timeout: 0,
-        onDismiss: this.props.clearFlowsModification
-      })
-    }
-
-    if (!_.isEqual(prevProps.flowsByName, this.props.flowsByName)) {
-      const currentFlow = this.props.flowsByName[this.props.currentFlow]
-      const { currentMutex } = (currentFlow || {}) as any
-      if (currentMutex) {
-        const { lastModifiedBy, remainingSeconds } = currentMutex
-
-        const lockFlow = lastModifiedBy !== this.props.user.email && !!remainingSeconds
-
-        if (!this.state.readOnly && lockFlow) {
-          setTimeout(this.unfreezeFlows(this.props.currentFlow), remainingSeconds * 1000 * MUTEX_UNLOCK_SECURITY_FACTOR)
-          this.setState({
-            readOnly: true,
-            mutexInfo: lastModifiedBy + ' is editing'
-          })
-        }
-      }
+    const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
+    const currentFlowHasSwitched = prevProps.currentFlow !== this.props.currentFlow
+    if (flowsHaveChanged || currentFlowHasSwitched) {
+      this.handleFlowFreezing()
     }
   }
 
-  unfreezeFlows = currentFlowName => () => {
+  handleFlowFreezing() {
+    if (!this.userAllowed) {
+      this.freezeAll()
+    }
+
+    const me = this.props.user.email
+
+    const currentFlow = this.props.flowsByName[this.props.currentFlow]
+    const { currentMutex } = (currentFlow || {}) as Flow
+
+    if (currentMutex && currentMutex.lastModifiedBy !== me && currentMutex.remainingSeconds) {
+      this.setState({
+        readOnly: true,
+        pannelPermissions: ['create'],
+        mutexInfo: currentMutex.lastModifiedBy + ' is editing'
+      })
+      return
+    }
+
+    const somebodyElseEditingFlows = _.values(this.props.flowsByName).some(
+      f => f.currentMutex && f.currentMutex.lastModifiedBy !== me && !!f.currentMutex.remainingSeconds
+    )
+
+    if (somebodyElseEditingFlows) {
+      this.setState({
+        readOnly: false,
+        pannelPermissions: ['create'],
+        mutexInfo: ''
+      })
+      return
+    }
+
     this.setState({
       readOnly: false,
+      pannelPermissions: this.allPermissions,
       mutexInfo: ''
     })
-    this.props.clearFlowMutex(currentFlowName)
   }
 
   pushFlowState = flow => {
@@ -129,7 +143,7 @@ class FlowBuilder extends Component<Props, State> {
       return null
     }
 
-    const { readOnly } = this.state
+    const { readOnly, pannelPermissions } = this.state
 
     const keyHandlers = {
       add: e => {
@@ -154,7 +168,7 @@ class FlowBuilder extends Component<Props, State> {
       <Container keyHandlers={keyHandlers}>
         <SidePanel
           mutexInfo={this.state.mutexInfo}
-          readOnly={readOnly}
+          permissions={pannelPermissions}
           flowPreview={this.state.flowPreview}
           onCreateFlow={name => {
             this.diagram.createFlow(name)
@@ -188,8 +202,7 @@ const mapStateToProps = (state: RootReducer) => ({
   showFlowNodeProps: state.flows.showFlowNodeProps,
   dirtyFlows: getDirtyFlows(state),
   user: state.user,
-  errorSavingFlows: state.flows.errorSavingFlows,
-  lastModification: state.flows.lastServerModification
+  errorSavingFlows: state.flows.errorSavingFlows
 })
 
 const mapDispatchToProps = {
@@ -197,9 +210,7 @@ const mapDispatchToProps = {
   setDiagramAction,
   flowEditorUndo,
   flowEditorRedo,
-  clearErrorSaveFlows,
-  clearFlowsModification,
-  clearFlowMutex
+  clearErrorSaveFlows
 }
 
 export default connect(
@@ -218,15 +229,14 @@ type Props = {
   flowEditorRedo: any
   errorSavingFlows: any
   clearErrorSaveFlows: () => void
-  lastModification: any
   clearFlowsModification: () => void
-  flowsByName: _.Dictionary<any>
-  clearFlowMutex: (name: string) => void
+  flowsByName: _.Dictionary<Flow>
 } & RouteComponentProps
 
 interface State {
   initialized: any
-  readOnly: any
+  readOnly: boolean
+  pannelPermissions: PannelPermissions[]
   flowPreview: boolean
   mutexInfo: string
 }

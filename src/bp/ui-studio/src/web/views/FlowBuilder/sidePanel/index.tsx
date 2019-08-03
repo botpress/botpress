@@ -9,6 +9,8 @@ import FlowsList from './FlowsList'
 import FlowTools from './FlowTools'
 import Toolbar from './Toolbar'
 
+export type PannelPermissions = 'create' | 'rename' | 'delete'
+
 type Props = {
   flowsNames: string[]
   onCreateFlow: (flowName: string) => void
@@ -16,7 +18,7 @@ type Props = {
   deleteFlow: (flowName: string) => void
   renameFlow: any
   history: any
-  readOnly: boolean
+  permissions: PannelPermissions[]
   dirtyFlows: any
   duplicateFlow: any
   currentFlow: any
@@ -63,9 +65,10 @@ export default class PanelContent extends Component<Props> {
       <SidePanel>
         <Toolbar mutexInfo={this.props.mutexInfo} />
 
-        <SidePanelSection label={'Flows'} actions={!this.props.readOnly && [createFlowAction]}>
+        <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
           <FlowsList
-            readOnly={this.props.readOnly}
+            canDelete={this.props.permissions.includes('delete')}
+            canRename={this.props.permissions.includes('rename')}
             flows={flowsName}
             dirtyFlows={this.props.dirtyFlows}
             goToFlow={this.goToFlow}

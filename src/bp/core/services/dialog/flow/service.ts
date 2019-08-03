@@ -117,9 +117,10 @@ export class FlowService {
       }
     })
 
-    let currentMutex = (await this.kvs.get(botId, flowPath)) as FlowMutex
+    const key = this._buildFlowMutexKey(flowPath)
+    const currentMutex = (await this.kvs.get(botId, key)) as FlowMutex
     if (currentMutex) {
-      currentMutex = this._setRemainingSeconds(currentMutex)
+      currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     }
 
     return {
@@ -135,19 +136,14 @@ export class FlowService {
     }
   }
 
-  private _setRemainingSeconds(currentMutex) {
+  private _getRemainingSeconds(lastModifiedAt: Date): number {
     const now = moment()
-    const freeTime = moment(currentMutex.lastModifiedAt).add(MUTEX_LOCK_DELAY_SECONDS, 'seconds')
-    const remainingSeconds = now.unix() >= freeTime.unix() ? 0 : Math.ceil(Math.abs(now.diff(freeTime, 'seconds')))
-    currentMutex = {
-      ...currentMutex,
-      remainingSeconds
-    }
-    return currentMutex
+    const freeTime = moment(lastModifiedAt).add(MUTEX_LOCK_DELAY_SECONDS, 'seconds')
+    return Math.ceil(Math.max(0, freeTime.diff(now, 'seconds')))
   }
 
   async insertFlow(botId: string, flow: FlowView, userEmail: string) {
-    let currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
+    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
 
     const ghost = this.ghost.forBot(botId)
 
@@ -159,7 +155,7 @@ export class FlowService {
 
     await this._upsertFlow(botId, flow)
 
-    currentMutex = this._setRemainingSeconds(currentMutex)
+    currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     const mutexableFlow: MutexableFlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
@@ -172,11 +168,11 @@ export class FlowService {
   }
 
   async updateFlow(botId: string, flow: FlowView, userEmail: string) {
-    let currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
+    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
 
     await this._upsertFlow(botId, flow)
 
-    currentMutex = this._setRemainingSeconds(currentMutex)
+    currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     const mutexableFlow: MutexableFlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
@@ -263,24 +259,26 @@ export class FlowService {
     this.realtime.sendToSocket(payload)
   }
 
+  private _buildFlowMutexKey(flowLocation: string): string {
+    return 'FLOWMUTEX: ' + flowLocation
+  }
+
   private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
-    const currentMutex = ((await this.kvs.get(botId, flowLocation)) || {}) as FlowMutex
+    const key = this._buildFlowMutexKey(flowLocation)
+
+    const currentMutex = ((await this.kvs.get(botId, key)) || {}) as FlowMutex
     let { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
 
-    // TODO: might use somthing else than flowLocation as key. Maybe something like `FLOWMUTEX: ${flowLocation}`
     if (currentFlowEditor === flowOwner) {
       const mutex = { lastModifiedBy: flowOwner, lastModifiedAt: new Date() }
-      await this.kvs.set(botId, flowLocation, mutex)
+      await this.kvs.set(botId, key, mutex)
       return mutex
     }
 
-    const isMutexExpired =
-      moment(lastModifiedAt)
-        .add(MUTEX_LOCK_DELAY_SECONDS, 'seconds')
-        .unix() < moment().unix()
+    const isMutexExpired = !this._getRemainingSeconds(lastModifiedAt)
     if (!flowOwner || isMutexExpired) {
       const mutex = { lastModifiedBy: currentFlowEditor, lastModifiedAt: new Date() }
-      await this.kvs.set(botId, flowLocation, mutex)
+      await this.kvs.set(botId, key, mutex)
       return mutex
     }
 

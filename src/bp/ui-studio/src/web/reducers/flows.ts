@@ -1,10 +1,10 @@
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
 import {
   clearErrorSaveFlows,
   clearFlowMutex,
-  clearFlowsModification,
   closeFlowNodeProps,
   copyFlowNode,
   copyFlowNodeElement,
@@ -37,13 +37,20 @@ import {
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
 
+type Mutex = {
+  lastModifiedBy: string
+  remainingSeconds: number
+}
+export type Flow = FlowView & {
+  currentMutex?: Mutex
+}
+
 export interface FlowReducer {
-  currentFlow: any
+  currentFlow: Flow | undefined
   showFlowNodeProps: boolean
   dirtyFlows: string[]
   errorSavingFlows: any
-  lastServerModification: any
-  flowsByName: _.Dictionary<any>
+  flowsByName: _.Dictionary<Flow>
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -62,8 +69,7 @@ const defaultState = {
   nodeInBuffer: null, // TODO: move it to buffer.node
   buffer: { action: null, transition: null },
   flowProblems: [],
-  errorSavingFlows: undefined,
-  lastServerModification: undefined
+  errorSavingFlows: undefined
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -304,12 +310,6 @@ let reducer = handleActions(
         ...state.flowsByName,
         [name]: _.omit(state.flowsByName[name], 'currentMutex')
       }
-    }),
-
-    // TODO: remove the whole flow modification thing
-    [clearFlowsModification]: state => ({
-      ...state,
-      lastServerModification: undefined
     }),
 
     [updateFlowProblems]: (state, { payload }) => ({
