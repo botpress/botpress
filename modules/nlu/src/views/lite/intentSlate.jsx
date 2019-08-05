@@ -22,6 +22,32 @@ const plugins = [
 // TODO extract slot menu in component
 // TODO tag on click
 // TODO update slots props from the parent component when on is added or deleted
+// TODO get weird of dead code in full view (i.e slots, utterance editor, etc.)
+
+// const SlotMenu = props => {
+//   if (!props.show) {
+//     return null
+//   }
+
+//   return ReactDOM.createPortal(
+//     <div id="slot-menu" className={style['slotMenu']}>
+//       <p>Tag selection</p>
+//       <p>Click on the slot or use numbers</p>
+//       {/* Display generic message when there is no slots */}
+//       {/* {this.props.slots.map((s, idx) => {
+//         const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
+//         // TODO: onClick tag selection this.tag(idxm this.editor)
+//         return (
+//           <Tag className={cn} round>
+//             <strong>{idx} |&nbsp;</strong>
+//             {s.name}
+//           </Tag>
+//         )
+//       })} */}
+//     </div>,
+//     document.body
+//   )
+// }
 
 export class UtterancesEditor extends React.Component {
   state = {
@@ -117,22 +143,24 @@ export class UtterancesEditor extends React.Component {
     return (
       <div className={style['editor-body']}>
         {/* TODO extract this in a component */}
-        {/* render this in a portal */}
-        <div id="slot-menu" className={style['slotMenu']} style={{ ...this.state.slotMenuStyle }}>
-          <p>Tag selection</p>
-          <p>Click on the slot or use numbers</p>
-          {/* Display generic message when there is no slots */}
-          {this.props.slots.map((s, idx) => {
-            const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
-            // TODO: onClick tag selection this.tag(idxm this.editor)
-            return (
-              <Tag className={cn} round>
-                <strong>{idx} |&nbsp;</strong>
-                {s.name}
-              </Tag>
-            )
-          })}
-        </div>
+        {ReactDOM.createPortal(
+          <div id="slot-menu" className={style['slotMenu']} style={{ ...this.state.slotMenuStyle }}>
+            <p>Tag selection</p>
+            <p>Click on the slot or use numbers</p>
+            {/* Display generic message when there is no slots */}
+            {this.props.slots.map((s, idx) => {
+              const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
+              // TODO: onClick tag selection this.tag(idxm this.editor)
+              return (
+                <Tag className={cn} round>
+                  <strong>{idx} |&nbsp;</strong>
+                  {s.name}
+                </Tag>
+              )
+            })}
+          </div>,
+          document.body
+        )}
         <div className={style.utterances} editor={editor}>
           {children}
         </div>
@@ -181,9 +209,11 @@ export class UtterancesEditor extends React.Component {
   }, 2000)
 
   onChange = ({ value, operations }) => {
+    let selectionState = {}
     if (operations.filter(x => x.get('type') === 'set_selection').size) {
-      this.onSelectionChanged(value)
+      selectionState = this.onSelectionChanged(value)
     }
+
     const needsDispatch = operations
       .map(x => x.get('type'))
       .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark'].includes(x)).size
@@ -192,7 +222,7 @@ export class UtterancesEditor extends React.Component {
       this.dispatchChanges(value)
     }
 
-    this.setState({ value })
+    this.setState({ value, ...selectionState })
   }
 
   renderMark = (props, editor, next) => {
@@ -252,17 +282,13 @@ export class UtterancesEditor extends React.Component {
   showSlotMenu = _.debounce(() => {
     const nativeRange = window.getSelection().getRangeAt(0)
     const rect = nativeRange.getBoundingClientRect()
-    const editorRect = ReactDOM.findDOMNode(this.editorRef).getBoundingClientRect()
-
-    const top = rect.top - editorRect.top - 100 // quick fix to set the menu on top of selection
-    const left = rect.left - editorRect.left - 75 // quick fix to set the menu in the selection in the middle of the menu
-
+    const top = rect.top - 125 // quick fix to set the menu on top of selection
+    const left = rect.left - 75 // quick fix to set the menu in the selection in the middle of the menu
     const slotMenuStyle = {
       display: 'block',
       top,
       left
     }
-
     this.setState({ slotMenuStyle })
   }, 150)
 
@@ -306,6 +332,6 @@ export class UtterancesEditor extends React.Component {
       }
     }
 
-    this.setState({ selection: { utterance, block, from, to } })
+    return { selection: { utterance, block, from, to } }
   }
 }
