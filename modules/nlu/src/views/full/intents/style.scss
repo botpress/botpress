@@ -108,16 +108,12 @@
 
 .intentEditor {
   background: white;
+  > div {
+    margin-left: 10px;
+  }
 }
 
 .utterances {
   list-style: none;
   padding: 0 0 150px 0;
-}
-
-.hint {
-  color: #738694;
-  span {
-    margin-left: 10px;
-  }
 }

@@ -19,11 +19,9 @@ const plugins = [
   })
 ]
 
-// TODO use rounded corners on slots choice
 // TODO extract slot menu in component
 // TODO tag on click
 // TODO update slots props from the parent component when on is added or deleted
-// TODO fix style of slots menu (position)
 
 export class UtterancesEditor extends React.Component {
   state = {
@@ -119,15 +117,17 @@ export class UtterancesEditor extends React.Component {
     return (
       <div className={style['editor-body']}>
         {/* TODO extract this in a component */}
-        <div className={style['slotMenu']} style={{ ...this.state.slotMenuStyle }}>
-          <p>Click on the slot or use numbers to tag selection</p>
+        {/* render this in a portal */}
+        <div id="slot-menu" className={style['slotMenu']} style={{ ...this.state.slotMenuStyle }}>
+          <p>Tag selection</p>
+          <p>Click on the slot or use numbers</p>
           {/* Display generic message when there is no slots */}
           {this.props.slots.map((s, idx) => {
-            const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem)
-            // TODO: onClick tag selection
+            const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
+            // TODO: onClick tag selection this.tag(idxm this.editor)
             return (
-              <Tag className={cn}>
-                <strong>{idx}:&nbsp;</strong>
+              <Tag className={cn} round>
+                <strong>{idx} |&nbsp;</strong>
                 {s.name}
               </Tag>
             )
@@ -200,13 +200,13 @@ export class UtterancesEditor extends React.Component {
       case 'slot':
         const { slotName } = props.mark.data.toJS()
         const color = this.props.slots.find(s => s.name === slotName).color
-        const cn = classnames(style['slotMark'], style[`label-colors-${color}`])
+        const cn = classnames(style.slotMark, style[`label-colors-${color}`])
         const remove = () => props.editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 
         return (
-          <span onClick={remove} className={cn}>
+          <Tag className={cn} round onClick={remove}>
             {props.children}
-          </span>
+          </Tag>
         )
       default:
         return next()
@@ -254,8 +254,8 @@ export class UtterancesEditor extends React.Component {
     const rect = nativeRange.getBoundingClientRect()
     const editorRect = ReactDOM.findDOMNode(this.editorRef).getBoundingClientRect()
 
-    const top = rect.top - editorRect.top
-    const left = rect.left - editorRect.left
+    const top = rect.top - editorRect.top - 100 // quick fix to set the menu on top of selection
+    const left = rect.left - editorRect.left - 75 // quick fix to set the menu in the selection in the middle of the menu
 
     const slotMenuStyle = {
       display: 'block',

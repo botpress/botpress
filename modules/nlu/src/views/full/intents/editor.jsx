@@ -197,16 +197,13 @@ export default class IntentsEditor extends React.Component {
         </div>
         <div>
           <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>
-            {/* {this.renderEditor()} */}
             <LiteEditor intentName={name} contentLang={this.props.contentLang} bp={this.props.bp} />
-            <div className={style.entitiesPanel}>
-              <Slots
-                ref={el => (this.slotsEditor = el)}
-                axios={this.props.axios}
-                slots={this.state.slots}
-                onSlotsChanged={this.handleSlotsChanged}
-              />
-            </div>
+            <Slots
+              ref={el => (this.slotsEditor = el)}
+              axios={this.props.axios}
+              slots={this.state.slots}
+              onSlotsChanged={this.handleSlotsChanged}
+            />
           </SplitterLayout>
         </div>
       </div>

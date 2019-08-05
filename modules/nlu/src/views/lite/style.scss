@@ -1,8 +1,5 @@
 .hint {
   color: #738694;
-  span {
-    margin-left: 10px;
-  }
 }
 
 .editor-body {
@@ -27,58 +24,56 @@
 p.utterance {
   margin: 0;
   font-size: 16px;
+  line-height: 25px;
   z-index: 0;
-}
+  display: flex;
 
-p.utterance.title {
-  font-weight: bold;
-  font-size: 18px;
-}
+  &.title {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  &.active {
+    background-color: #eee;
+  }
+  &.wrong {
+    color: red;
+  }
 
-p.utterance.title + p.utterance {
-  margin-top: 5px;
-}
+  .index {
+    width: 20px;
+    margin-right: 5px;
+    opacity: 0.5;
+    text-align: center;
 
-p.utterance + p.utterance {
-  margin-top: 5px;
-}
-
-p.utterance.active {
-  background: yellow;
-}
-
-p.utterance.wrong {
-  color: red;
-}
-
-p.utterance .index {
-  margin-right: 5px;
-  opacity: 0.5;
-}
-
-p.utterance .index.count {
-  background: lightgrey;
-  padding: 0 5px;
-  border-radius: 5px;
+    &.count {
+      width: inherit;
+      background: lightgrey;
+      padding: 0 5px;
+      border-radius: 5px;
+    }
+  }
 }
 
 .slotMenu {
   position: absolute;
   z-index: 500;
-  background-color: whitesmoke;
-  padding: 10px 5px;
+  background-color: #fefefe;
+  padding: 10px;
   max-width: 200px;
-  border: solid 1px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+  p:first-child {
+    font-weight: bold;
+  }
 }
 
 .slotMenuItem {
-  margin-right: 2px;
+  margin: 0 5px 5px 0;
 }
 
 .slotMark {
-  padding: 2px 4px;
   cursor: pointer;
-  border-radius: 2px;
   &:hover {
     font-weight: bold;
   }
@@ -98,42 +93,33 @@ p.utterance .index.count {
 }
 
 .label-colors-1 {
-  background-color: blue;
+  background-color: #6699cc;
   color: white;
 
   &:hover {
-    background-color: #0559ff;
+    background-color: darken(#6699cc, 10%);
   }
 }
 
 .label-colors-2 {
-  background-color: red;
+  background-color: #ff3c38;
   color: white;
 
   &:hover {
-    background-color: #ff3653;
+    background-color: darken(#ff3c38, 10%);
   }
 }
 
 .label-colors-3 {
-  background-color: yellow;
+  background-color: #fff275;
   color: black;
 
   &:hover {
-    background-color: #f7f53a;
+    background-color: darken(#fff275, 10%);
   }
 }
 
 .label-colors-4 {
-  background-color: green;
-  color: white;
-
-  &:hover {
-    background-color: #0a9c12;
-  }
-}
-
-.label-colors-5 {
   background-color: teal;
   color: white;
 
@@ -143,42 +129,24 @@ p.utterance .index.count {
 }
 
 .label-colors-6 {
-  background-color: #fd02ff;
+  background-color: #ff8c42;
   color: white;
 
   &:hover {
-    background-color: #dd3dff;
+    background-color: darken(#ff8c42, 10%);
   }
 }
 
 .label-colors-7 {
-  background-color: #ff00aa;
+  background-color: #a23e48;
   color: white;
 
   &:hover {
-    background-color: #ff32a8;
+    background-color: darken(#a23e48, 10%);
   }
 }
 
 .label-colors-8 {
-  background-color: orange;
-  color: white;
-
-  &:hover {
-    background-color: #ff6b2f;
-  }
-}
-
-.label-colors-9 {
-  background-color: rgb(114, 170, 170);
-  color: white;
-
-  &:hover {
-    background-color: rgb(74, 102, 102);
-  }
-}
-
-.label-colors-10 {
   background-color: rgb(185, 97, 126);
   color: white;
 
@@ -187,11 +155,20 @@ p.utterance .index.count {
   }
 }
 
-.label-colors-11 {
+.label-colors-9 {
   background-color: rgb(211, 162, 72);
   color: white;
 
   &:hover {
     background-color: rgb(168, 126, 47);
+  }
+}
+
+.label-colors-10 {
+  background-color: #86bbd8;
+  color: black;
+
+  &:hover {
+    background-color: darken(#86bbd8, 10%);
   }
 }

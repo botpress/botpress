@@ -8,42 +8,33 @@
 }
 
 .label-colors-1 {
-  background-color: blue;
+  background-color: #6699cc;
   color: white;
 
   &:hover {
-    background-color: #0559ff;
+    background-color: darken(#6699cc, 10%);
   }
 }
 
 .label-colors-2 {
-  background-color: red;
+  background-color: #ff3c38;
   color: white;
 
   &:hover {
-    background-color: #ff3653;
+    background-color: darken(#ff3c38, 10%);
   }
 }
 
 .label-colors-3 {
-  background-color: yellow;
+  background-color: #fff275;
   color: black;
 
   &:hover {
-    background-color: #f7f53a;
+    background-color: darken(#fff275, 10%);
   }
 }
 
 .label-colors-4 {
-  background-color: green;
-  color: white;
-
-  &:hover {
-    background-color: #0a9c12;
-  }
-}
-
-.label-colors-5 {
   background-color: teal;
   color: white;
 
@@ -53,42 +44,24 @@
 }
 
 .label-colors-6 {
-  background-color: #fd02ff;
+  background-color: #ff8c42;
   color: white;
 
   &:hover {
-    background-color: #dd3dff;
+    background-color: darken(#ff8c42, 10%);
   }
 }
 
 .label-colors-7 {
-  background-color: #ff00aa;
+  background-color: #a23e48;
   color: white;
 
   &:hover {
-    background-color: #ff32a8;
+    background-color: darken(#a23e48, 10%);
   }
 }
 
 .label-colors-8 {
-  background-color: orange;
-  color: white;
-
-  &:hover {
-    background-color: #ff6b2f;
-  }
-}
-
-.label-colors-9 {
-  background-color: rgb(114, 170, 170);
-  color: white;
-
-  &:hover {
-    background-color: rgb(74, 102, 102);
-  }
-}
-
-.label-colors-10 {
   background-color: rgb(185, 97, 126);
   color: white;
 
@@ -97,11 +70,20 @@
   }
 }
 
-.label-colors-11 {
+.label-colors-9 {
   background-color: rgb(211, 162, 72);
   color: white;
 
   &:hover {
     background-color: rgb(168, 126, 47);
+  }
+}
+
+.label-colors-10 {
+  background-color: #86bbd8;
+  color: black;
+
+  &:hover {
+    background-color: darken(#86bbd8, 10%);
   }
 }
