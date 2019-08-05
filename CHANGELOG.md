@@ -1,3 +1,13 @@
+## [12.0.7](https://github.com/botpress/botpress/compare/v12.0.6...v12.0.7) (2019-08-05)
+
+
+### Bug Fixes
+
+* **redis:** fix invalidation with redis ([25a1411](https://github.com/botpress/botpress/commit/25a1411))
+* **redis:** fix invalidation with redis ([43c561f](https://github.com/botpress/botpress/commit/43c561f))
+
+
+
 ## [12.0.6](https://github.com/botpress/botpress/compare/v12.0.5...v12.0.6) (2019-08-02)
 
 
