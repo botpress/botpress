@@ -1,7 +1,9 @@
 import { Logger } from 'botpress/sdk'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
+import { FileRevision } from 'core/services/ghost'
 import { Router } from 'express'
+import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 
@@ -32,6 +34,28 @@ export class VersioningRouter extends CustomRouter {
           'Content-Length': tarball.length
         })
         res.end(tarball)
+      })
+    )
+
+    // Return the list of the new / modified ghosted files compared to the local files.
+    // Used when manually syncing local files to the ghost.
+    this.router.get(
+      '/changes',
+      this.asyncMiddleware(async (req, res) => {
+        const changes = await this.ghost.listFileChanges()
+        res.json(changes)
+      })
+    )
+
+    // Overwrite the production files with the local files
+    this.router.post(
+      '/update',
+      this.asyncMiddleware(async (req, res) => {
+        const botsIds = await this.botService.getBotsIds()
+        await Promise.map(botsIds, id => this.ghost.forBot(id).forceUpdate())
+        await this.ghost.global().forceUpdate()
+
+        res.status(200).send({ success: true })
       })
     )
   }
