@@ -56,10 +56,10 @@ p.utterance {
 
 .slotMenu {
   position: absolute;
+  display: block;
   z-index: 1000;
   background-color: #fefefe;
   padding: 10px;
-  max-width: 200px;
   border: solid 1px #ccc;
   border-radius: 5px;
   box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
@@ -102,11 +102,11 @@ p.utterance {
 }
 
 .label-colors-2 {
-  background-color: #ff3c38;
+  background-color: #a23e48;
   color: white;
 
   &:hover {
-    background-color: darken(#ff3c38, 10%);
+    background-color: darken(#a23e48, 10%);
   }
 }
 
@@ -128,7 +128,7 @@ p.utterance {
   }
 }
 
-.label-colors-6 {
+.label-colors-5 {
   background-color: #ff8c42;
   color: white;
 
@@ -137,16 +137,7 @@ p.utterance {
   }
 }
 
-.label-colors-7 {
-  background-color: #a23e48;
-  color: white;
-
-  &:hover {
-    background-color: darken(#a23e48, 10%);
-  }
-}
-
-.label-colors-8 {
+.label-colors-6 {
   background-color: rgb(185, 97, 126);
   color: white;
 
@@ -155,7 +146,7 @@ p.utterance {
   }
 }
 
-.label-colors-9 {
+.label-colors-7 {
   background-color: rgb(211, 162, 72);
   color: white;
 
@@ -164,7 +155,7 @@ p.utterance {
   }
 }
 
-.label-colors-10 {
+.label-colors-8 {
   background-color: #86bbd8;
   color: black;
 

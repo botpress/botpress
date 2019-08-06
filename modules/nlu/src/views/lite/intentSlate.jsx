@@ -3,10 +3,12 @@ import { Editor } from 'slate-react'
 import { Range, Data } from 'slate'
 import PlaceholderPlugin from 'slate-react-placeholder'
 import classnames from 'classnames'
+import { Tag } from '@blueprintjs/core'
 
 import style from './style.scss'
 import { utterancesToValue, valueToUtterances } from './transformers'
-import { Tag } from '@blueprintjs/core'
+
+import { SlotMenu } from './SlotMenu'
 
 const plugins = [
   PlaceholderPlugin({
@@ -19,45 +21,14 @@ const plugins = [
   })
 ]
 
-// TODO extract slot menu in component
-// TODO tag on click
 // TODO update slots props from the parent component when on is added or deleted
 // TODO get weird of dead code in full view (i.e slots, utterance editor, etc.)
-
-// const SlotMenu = props => {
-//   if (!props.show) {
-//     return null
-//   }
-
-//   return ReactDOM.createPortal(
-//     <div id="slot-menu" className={style['slotMenu']}>
-//       <p>Tag selection</p>
-//       <p>Click on the slot or use numbers</p>
-//       {/* Display generic message when there is no slots */}
-//       {/* {this.props.slots.map((s, idx) => {
-//         const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
-//         // TODO: onClick tag selection this.tag(idxm this.editor)
-//         return (
-//           <Tag className={cn} round>
-//             <strong>{idx} |&nbsp;</strong>
-//             {s.name}
-//           </Tag>
-//         )
-//       })} */}
-//     </div>,
-//     document.body
-//   )
-// }
 
 export class UtterancesEditor extends React.Component {
   state = {
     selection: { utterance: -1, block: -1, from: -1, to: -1 },
     value: utterancesToValue([]),
-    slotMenuStyle: {
-      display: 'none',
-      top: 0,
-      left: 0
-    }
+    showSlotMenu: false
   }
   utteranceKeys = []
   editorRef = null
@@ -104,7 +75,7 @@ export class UtterancesEditor extends React.Component {
 
     if (somethingSelected && slotIdx < this.props.slots.length) {
       event.preventDefault()
-      this.tag(slotIdx, editor)
+      this.tag(editor, this.props.slots[slotIdx])
       return
     }
 
@@ -142,25 +113,7 @@ export class UtterancesEditor extends React.Component {
 
     return (
       <div className={style['editor-body']}>
-        {/* TODO extract this in a component */}
-        {ReactDOM.createPortal(
-          <div id="slot-menu" className={style['slotMenu']} style={{ ...this.state.slotMenuStyle }}>
-            <p>Tag selection</p>
-            <p>Click on the slot or use numbers</p>
-            {/* Display generic message when there is no slots */}
-            {this.props.slots.map((s, idx) => {
-              const cn = classnames(style[`label-colors-${s.color}`], style.slotMenuItem, style.slotMark)
-              // TODO: onClick tag selection this.tag(idxm this.editor)
-              return (
-                <Tag className={cn} round>
-                  <strong>{idx} |&nbsp;</strong>
-                  {s.name}
-                </Tag>
-              )
-            })}
-          </div>,
-          document.body
-        )}
+        <SlotMenu slots={this.props.slots} show={this.state.showSlotMenu} onSlotClicked={this.tag.bind(this, editor)} />
         <div className={style.utterances} editor={editor}>
           {children}
         </div>
@@ -168,12 +121,11 @@ export class UtterancesEditor extends React.Component {
     )
   }
 
-  tag = (slotIdx, editor) => {
+  tag = (editor, slot) => {
+    debugger
     const { utterance, block } = this.state.selection
     let { from, to } = this.state.selection
-
     const node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])
-
     const selectedTxt = node.text.substring(from, to)
     // // We're trimming white spaces in the tagging (forward and backward)
     from += selectedTxt.length - selectedTxt.trimStart().length
@@ -182,7 +134,6 @@ export class UtterancesEditor extends React.Component {
       // Trimming screwed up selection (nothing to tag)
       return
     }
-
     const range = Range.fromJS({
       anchor: { path: [utterance, block], offset: from },
       focus: {
@@ -190,12 +141,10 @@ export class UtterancesEditor extends React.Component {
         offset: Math.min(node.text.length, to)
       }
     })
-
     const mark = {
       type: 'slot',
-      data: Data.fromJSON({ slotName: this.props.slots[slotIdx].name })
+      data: Data.fromJSON({ slotName: slot.name })
     }
-
     const marks = editor.value.get('document').getActiveMarksAtRange(range)
     if (marks.size) {
       marks.forEach(m => editor.select(range).replaceMark(m, mark))
@@ -231,7 +180,7 @@ export class UtterancesEditor extends React.Component {
         const { slotName } = props.mark.data.toJS()
         const color = this.props.slots.find(s => s.name === slotName).color
         const cn = classnames(style.slotMark, style[`label-colors-${color}`])
-        const remove = () => props.editor.moveToRangeOfNode(props.node).removeMark(props.mark)
+        const remove = () => editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 
         return (
           <Tag className={cn} round onClick={remove}>
@@ -261,15 +210,9 @@ export class UtterancesEditor extends React.Component {
       case 'paragraph':
         const utterance = (
           <p className={elementCx} {...attributes}>
-            {utteranceIdx > 0 ? (
-              <span contentEditable={false} className={style.index}>
-                {utteranceIdx}
-              </span>
-            ) : (
-              <span contentEditable={false} className={classnames(style.index, style.count)}>
-                {this.utteranceKeys.length}
-              </span>
-            )}
+            <span contentEditable={false} className={style.index}>
+              {utteranceIdx + 1}
+            </span>
             {children}
           </p>
         )
@@ -280,21 +223,11 @@ export class UtterancesEditor extends React.Component {
   }
 
   showSlotMenu = _.debounce(() => {
-    const nativeRange = window.getSelection().getRangeAt(0)
-    const rect = nativeRange.getBoundingClientRect()
-    const top = rect.top - 125 // quick fix to set the menu on top of selection
-    const left = rect.left - 75 // quick fix to set the menu in the selection in the middle of the menu
-    const slotMenuStyle = {
-      display: 'block',
-      top,
-      left
-    }
-    this.setState({ slotMenuStyle })
+    this.setState({ showSlotMenu: true })
   }, 150)
 
   hideSlotMenu = () => {
-    const slotMenuStyle = { display: 'none' }
-    this.setState({ slotMenuStyle })
+    this.setState({ showSlotMenu: false })
   }
 
   onSelectionChanged = value => {
@@ -318,16 +251,16 @@ export class UtterancesEditor extends React.Component {
       block = selection.anchor.path['1']
       from = Math.min(selection.anchor.offset, selection.focus.offset)
       to = Math.max(selection.anchor.offset, selection.focus.offset)
+
       if (from !== to) {
         if (selection.isFocused) {
           this.showSlotMenu()
         } else {
-          // weird behaviour from slate when selection just changed is to keep the from and to values but to set focus to false
-          this.hideSlotMenu()
+          // Weird behaviour from slate when selection just changed is to keep the from and to values but to set focus to false
+          // need the setTimeout for tagging with click
+          setTimeout(this.hideSlotMenu, 100)
         }
-      }
-
-      if (from === to && this.state.slotMenuStyle.display === 'block') {
+      } else if (from == to && this.state.showSlotMenu) {
         this.hideSlotMenu()
       }
     }

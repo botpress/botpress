@@ -227,7 +227,7 @@ try {
         },
         metadataLocation: {
           description: 'URL of metadata file which lists available languages',
-          default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
+          default: 'https://nyc3.digitaloceanspaces.com/botpress-public/embeddings/index.json'
         },
         offline: {
           description: 'Whether or not the language server has internet access',
