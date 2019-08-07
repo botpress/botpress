@@ -58,25 +58,23 @@ export class GhostService {
       .directoryListing('/', 'bot.config.json')
       .map(path.dirname)
 
-    const botsNewFiles = await Promise.map(botsIds, async botId => {
-      const botGhost = this.forBot(botId)
-      const local = await botGhost.listDiskRevisions()
-      const prod = await botGhost.listDbRevisions()
-      const synced = _.intersectionBy(local, prod, x => `${x.path} | ${x.revision}`)
-      const unsyncedLocalFiles = _.uniq(_.difference(local, synced).map(x => x.path))
-      const unsyncedGhostFiles = _.uniq(_.difference(prod, synced).map(x => x.path))
+    const botsFileChanges = await Promise.map(botsIds, async botId => {
+      const localRevs = await this.forBot(botId).listDiskRevisions()
+      const prodRevs = await this.forBot(botId).listDbRevisions()
+      const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
+      const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
+      const unsyncedGhostFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
       return { scope: botId, local: unsyncedLocalFiles, prod: unsyncedGhostFiles }
     })
 
-    const globalGhost = this.global()
-    const local = await globalGhost.listDbRevisions()
-    const prod = await globalGhost.listDiskRevisions()
-    const synced = _.intersectionBy(local, prod, x => `${x.path} | ${x.revision}`)
-    const unsyncedLocalFiles = _.uniq(_.difference(local, synced).map(x => x.path))
-    const unsyncedGhostFiles = _.uniq(_.difference(prod, synced).map(x => x.path))
+    const localRevs = await this.global().listDbRevisions()
+    const prodRevs = await this.global().listDiskRevisions()
+    const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
+    const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
+    const unsyncedGhostFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
-    return [...botsNewFiles, { scope: 'global', local: unsyncedLocalFiles, prod: unsyncedGhostFiles }]
+    return [...botsFileChanges, { scope: 'global', local: unsyncedLocalFiles, prod: unsyncedGhostFiles }]
   }
 
   bots(): ScopedGhostService {
