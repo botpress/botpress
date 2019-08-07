@@ -234,26 +234,13 @@ export class ScopedGhostService {
       return
     }
 
-    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
+    const localFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
 
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
-
-    // Delete the ghosted files that has been deleted from disk
-    const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
-    const filesToDelete = _.difference(ghostedFiles, trackedFiles)
-    await Promise.map(filesToDelete, filePath =>
-      this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
-    )
-
-    // Overwrite all of the ghosted files with the tracked files
-    await Promise.each(trackedFiles, async file => {
-      const filePath = this._normalizeFileName('./', file)
-      const content = await this.diskDriver.readFile(filePath)
-      await this.dbDriver.upsertFile(filePath, content, false)
-    })
+    await this._updateProduction(localFiles)
   }
 
   /**
@@ -265,18 +252,22 @@ export class ScopedGhostService {
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
 
+    // Delete all local and prod revisions
     await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
     await Promise.each(diskRevs, rev => this.diskDriver.deleteRevision(rev.path, rev.revision))
+    await this._updateProduction(trackedFiles)
+  }
 
-    // Delete the ghosted files that has been deleted from disk
-    const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
-    const filesToDelete = _.difference(ghostedFiles, trackedFiles)
+  private async _updateProduction(localFiles: string[]) {
+    // Delete the prod files that has been deleted from disk
+    const prodFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
+    const filesToDelete = _.difference(prodFiles, localFiles)
     await Promise.map(filesToDelete, filePath =>
       this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
     )
 
-    // Overwrite all of the ghosted files with the tracked files
-    await Promise.each(trackedFiles, async file => {
+    // Overwrite all of the prod files with the local files
+    await Promise.each(localFiles, async file => {
       const filePath = this._normalizeFileName('./', file)
       const content = await this.diskDriver.readFile(filePath)
       await this.dbDriver.upsertFile(filePath, content, false)
