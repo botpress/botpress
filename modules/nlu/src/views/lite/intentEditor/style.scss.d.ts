@@ -20,7 +20,6 @@ interface CssExports {
   'slotMark': string;
   'slotMenu': string;
   'slotMenuItem': string;
-  'slotSidePanel': string;
   'title': string;
   'utterance': string;
   'utterances': string;

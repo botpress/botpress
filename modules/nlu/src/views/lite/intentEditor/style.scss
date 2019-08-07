@@ -1,3 +1,13 @@
+.intentEditor {
+  display: flex;
+  justify-content: flex-end;
+  flex-grow: 1;
+  > div:first-child {
+    flex-grow: 1;
+    padding: 10px;
+  }
+}
+
 .hint {
   color: #738694;
 }

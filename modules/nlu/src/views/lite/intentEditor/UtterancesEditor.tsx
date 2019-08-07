@@ -1,14 +1,15 @@
-import React from 'react'
-import { Editor } from 'slate-react'
-import { Range, Data } from 'slate'
-import PlaceholderPlugin from 'slate-react-placeholder'
-import classnames from 'classnames'
 import { Tag } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
+import classnames from 'classnames'
+import _ from 'lodash'
+import React from 'react'
+import { Data, Range } from 'slate'
+import { Editor } from 'slate-react'
+import PlaceholderPlugin from 'slate-react-placeholder'
 
 import style from './style.scss'
-import { utterancesToValue, valueToUtterances } from './transformers'
-
-import { SlotMenu } from './SlotMenu'
+import { utterancesToValue, valueToUtterances } from './utterances-state-utils'
+import { TagSlotPopover } from './SlotPopover'
 
 const plugins = [
   PlaceholderPlugin({
@@ -21,17 +22,19 @@ const plugins = [
   })
 ]
 
-// TODO update slots props from the parent component when on is added or deleted
-// TODO get weird of dead code in full view (i.e slots, utterance editor, etc.)
+interface Props {
+  utterances: string[]
+  slots: NLU.SlotDefinition[]
+  onChange: (x: string[]) => void
+}
 
-export class UtterancesEditor extends React.Component {
+export class UtterancesEditor extends React.Component<Props> {
   state = {
     selection: { utterance: -1, block: -1, from: -1, to: -1 },
     value: utterancesToValue([]),
     showSlotMenu: false
   }
   utteranceKeys = []
-  editorRef = null
 
   componentDidMount() {
     const value = utterancesToValue(this.props.utterances)
@@ -80,7 +83,7 @@ export class UtterancesEditor extends React.Component {
     }
 
     if ((event.key === 'Escape' || event.key === 'Esc') && somethingSelected) {
-      this.hideSlotMenu()
+      this.hideSlotPopover()
       return
     }
 
@@ -90,7 +93,6 @@ export class UtterancesEditor extends React.Component {
   render() {
     return (
       <Editor
-        ref={editor => (this.editorRef = editor)}
         value={this.state.value}
         plugins={plugins}
         renderMark={this.renderMark}
@@ -113,16 +115,17 @@ export class UtterancesEditor extends React.Component {
 
     return (
       <div className={style['editor-body']}>
-        <SlotMenu slots={this.props.slots} show={this.state.showSlotMenu} onSlotClicked={this.tag.bind(this, editor)} />
-        <div className={style.utterances} editor={editor}>
-          {children}
-        </div>
+        <TagSlotPopover
+          slots={this.props.slots}
+          show={this.state.showSlotMenu}
+          onSlotClicked={this.tag.bind(this, editor)}
+        />
+        <div className={style.utterances}>{children}</div>
       </div>
     )
   }
 
   tag = (editor, slot) => {
-    debugger
     const { utterance, block } = this.state.selection
     let { from, to } = this.state.selection
     const node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])
@@ -134,6 +137,7 @@ export class UtterancesEditor extends React.Component {
       // Trimming screwed up selection (nothing to tag)
       return
     }
+    // @ts-ignore
     const range = Range.fromJS({
       anchor: { path: [utterance, block], offset: from },
       focus: {
@@ -222,11 +226,11 @@ export class UtterancesEditor extends React.Component {
     }
   }
 
-  showSlotMenu = _.debounce(() => {
+  showSlotPopover = _.debounce(() => {
     this.setState({ showSlotMenu: true })
   }, 150)
 
-  hideSlotMenu = () => {
+  hideSlotPopover = () => {
     this.setState({ showSlotMenu: false })
   }
 
@@ -254,14 +258,14 @@ export class UtterancesEditor extends React.Component {
 
       if (from !== to) {
         if (selection.isFocused) {
-          this.showSlotMenu()
+          this.showSlotPopover()
         } else {
           // Weird behaviour from slate when selection just changed is to keep the from and to values but to set focus to false
           // need the setTimeout for tagging with click
-          setTimeout(this.hideSlotMenu, 100)
+          setTimeout(this.hideSlotPopover, 100)
         }
       } else if (from == to && this.state.showSlotMenu) {
-        this.hideSlotMenu()
+        this.hideSlotPopover()
       }
     }
 

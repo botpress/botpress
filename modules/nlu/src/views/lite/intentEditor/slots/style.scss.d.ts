@@ -12,6 +12,7 @@ interface CssExports {
   'normalContainer': string;
   'selectionText': string;
   'shortcutLabel': string;
+  'slotSidePanel': string;
   'type': string;
 }
 declare var cssExports: CssExports;

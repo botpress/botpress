@@ -1,6 +1,6 @@
 import React from 'react'
 import style from './style.scss'
-import colors from '../colors.scss'
+import colors from '../../../full/intents/colors.scss'
 import classnames from 'classnames'
 
 export default class SlotItem extends React.Component {

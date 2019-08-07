@@ -1,8 +1,15 @@
 import { Value } from 'slate'
 
-import { extractSlots, textNodesFromUtterance, utterancesToValue, valueToUtterances } from './transformers'
+import {
+  extractSlots,
+  removeSlotFromUtterances,
+  renameSlotInUtterances,
+  textNodesFromUtterance,
+  utterancesToValue,
+  valueToUtterances
+} from './utterances-state-utils'
 
-const mockedValue = {
+const mockedSlateValue = {
   object: 'value',
   document: {
     object: 'document',
@@ -100,7 +107,7 @@ describe('Slate nodes from utterance', () => {
   })
   test('Slots everywhere', () => {
     const nodes = textNodesFromUtterance(
-      'Just because you shot [Jesse James](target), don’t make you [Jesse James](you)man.'
+      'Just because you shot [Jesse James](target), don’t make you [Jesse James](you), man.'
     )
 
     expect(nodes.length).toEqual(5)
@@ -129,13 +136,45 @@ describe('from utterances to slate value', () => {
   test('many utterances', () => {})
 })
 
-test('value to utterances', () => {
+test('from slate value to utterances', () => {
   // @ts-ignore
-  const value = Value.fromJS(mockedValue)
+  const value = Value.fromJS(mockedSlateValue)
 
   const utterances = valueToUtterances(value)
 
   expect(utterances.length).toEqual(2)
   expect(utterances[0]).toEqual('Book flight to [Paris](destination)')
   expect(utterances[1]).toEqual('Fly me somewhere')
+})
+
+test('remove slot from utterances', () => {
+  const utterances = [
+    'My colleages call me [Mr. White](me), for my family I am [Walter](me) and my customers know me as [Heizenberg](me), who am I?',
+    'Just because you shot [Jesse James](target), don’t make you [Jesse James](you), man.',
+    'Boring utterance with no slots'
+  ]
+
+  const newUtterances = removeSlotFromUtterances(utterances, 'me')
+
+  expect(newUtterances[0]).toEqual(
+    'My colleages call me Mr. White, for my family I am Walter and my customers know me as Heizenberg, who am I?'
+  )
+  expect(newUtterances[1]).toEqual(utterances[1])
+  expect(newUtterances[2]).toEqual(utterances[2])
+})
+
+test('rename slot from utterances', () => {
+  const utterances = [
+    'My colleages call me [Mr. White](me), for my family I am [Walter](me) and my customers know me as [Heizenberg](me), who am I?',
+    'Just because you shot [Jesse James](target), don’t make you [Jesse James](you), man.',
+    'Boring utterance with no slots'
+  ]
+
+  const newUtterances = renameSlotInUtterances(utterances, 'target', 'the-man')
+
+  expect(newUtterances[0]).toEqual(utterances[0])
+  expect(newUtterances[1]).toEqual(
+    'Just because you shot [Jesse James](the-man), don’t make you [Jesse James](you), man.'
+  )
+  expect(newUtterances[2]).toEqual(utterances[2])
 })

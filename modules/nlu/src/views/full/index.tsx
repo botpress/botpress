@@ -131,7 +131,7 @@ const NLU: FC<Props> = props => {
             description="Use Botpress native Natural language understanding engine to make your bot smarter."
           />
         )}
-        {intents.length && currentItem && currentItem.type === 'intent' && (
+        {!!intents.length && currentItem && currentItem.type === 'intent' && (
           <IntentEditor
             intent={intents.find(i => i.name == currentItem.name)}
             api={api}
@@ -141,7 +141,7 @@ const NLU: FC<Props> = props => {
             contentLang={props.contentLang}
           />
         )}
-        {entities.length && currentItem && currentItem.type === 'entity' && (
+        {!!entities.length && currentItem && currentItem.type === 'entity' && (
           <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
         )}
       </div>

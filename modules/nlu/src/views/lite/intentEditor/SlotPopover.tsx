@@ -7,14 +7,13 @@ import style from './style.scss'
 
 const MENU_WIDTH = 300
 
-export const SlotMenu = props => {
+export const TagSlotPopover = props => {
   if (!props.show) {
     return null
   }
 
   const nativeRange = window.getSelection().getRangeAt(0)
   const rect = nativeRange.getBoundingClientRect()
-  console.log('rect', rect)
 
   // quick fix because slot menu has a variable that can't really be computed
   // ~ 3 slots / line, 1 line is 25 px
@@ -30,6 +29,7 @@ export const SlotMenu = props => {
           <p>Define a slot first</p>
         </React.Fragment>
       )}
+
       {props.slots.length > 0 && (
         <React.Fragment>
           <p>Tag selection</p>

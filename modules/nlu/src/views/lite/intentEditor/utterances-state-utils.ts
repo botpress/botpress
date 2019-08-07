@@ -99,3 +99,15 @@ export const valueToUtterances = value => {
     )
     .toJS()
 }
+
+export const removeSlotFromUtterances = (utterances: string[], slotName: string) => {
+  const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\(${slotName}\\)`, 'gi')
+
+  return utterances.map(u => u.replace(regex, '$1'))
+}
+
+export const renameSlotInUtterances = (utterances: string[], prevSlotName: string, newSlotName: string) => {
+  const regex = new RegExp(`\\[([^\\(\\)\\[\\]]+?)\\]\\(${prevSlotName}\\)`, 'gi')
+
+  return utterances.map(u => u.replace(regex, `[$1](${newSlotName})`))
+}

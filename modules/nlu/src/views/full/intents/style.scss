@@ -2,6 +2,7 @@
   background-color: white;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .header {
@@ -104,16 +105,4 @@
       background-color: #ececec;
     }
   }
-}
-
-.intentEditor {
-  background: white;
-  > div {
-    margin-left: 10px;
-  }
-}
-
-.utterances {
-  list-style: none;
-  padding: 0 0 150px 0;
 }

@@ -1,26 +1,18 @@
 import React from 'react'
-import SplitterLayout from 'react-splitter-layout'
-import nanoid from 'nanoid'
 import _ from 'lodash'
 
 import style from './style.scss'
-import Slots from './slots/Slots'
 import Creatable from 'react-select/lib/Creatable'
 import { Tooltip, Icon, Position, Colors } from '@blueprintjs/core'
-import { IntentEditor as LiteEditor } from '../../lite/IntentEditor'
+import { IntentEditor as LiteEditor } from '../../lite/intentEditor/IntentEditor'
 
-const NLU_TABIDX = 3745
+// TODO make sure contexts work properly
+// TODO move context selector in lite editor
 
 export default class IntentsEditor extends React.Component {
   state = {
-    initialUtterances: '',
-    slotsEditor: null,
-    slots: [],
-    utterances: [],
     selectedContextOptions: []
   }
-
-  editorRef = null
 
   async componentDidMount() {
     this.initiateStateFromProps(this.props)
@@ -33,20 +25,8 @@ export default class IntentsEditor extends React.Component {
   }
 
   initiateStateFromProps(props) {
-    const { slots, contexts } = (props && props.intent) || {
-      slots: [],
-      contexts
-    }
-
-    const utterances = (props && props.intent && props.intent.utterances[props.contentLang]) || []
-
+    const { contexts } = props && props.intent
     const availableContexts = props.contexts
-    const expanded = this.expandCanonicalUtterances(utterances)
-
-    if (!_.get(expanded, 'length') || _.get(expanded, '0.text.length')) {
-      // ensure there's an empty utterance at the beginning
-      expanded.unshift({ id: nanoid(), text: '' })
-    }
 
     const selectedContextOptions =
       contexts &&
@@ -54,107 +34,11 @@ export default class IntentsEditor extends React.Component {
         return { value: x, label: x }
       })
 
-    this.initialHash = this.computeHash({ slots, utterances: expanded, contexts })
     this.setState({
-      utterances: expanded,
-      slots: slots,
       contexts,
       selectedContextOptions,
       availableContexts
     })
-  }
-
-  // TODO use updateIntent from api
-  saveIntent = async () => {
-    await this.props.axios.post(`/mod/nlu/intents`, {
-      name: this.props.intent.name,
-      utterances: {
-        ...this.props.intent.utterances,
-        [this.props.contentLang]: this.getCanonicalUtterances(this.state.utterances)
-      },
-      slots: this.state.slots,
-      contexts: this.state.contexts
-    })
-
-    this.initialHash = this.computeHash({
-      utterances: this.state.utterances,
-      slots: this.state.slots,
-      contexts: this.state.contexts
-    })
-
-    this.props.reloadIntents && (await this.props.reloadIntents())
-  }
-
-  async componentDidUpdate() {
-    if (this.isDirty()) {
-      await this.saveIntent()
-      this.props.onUtterancesChange && this.props.onUtterancesChange()
-    }
-  }
-
-  getCanonicalUtterances = utterances => (utterances || []).map(x => x.text).filter(x => x.length)
-
-  expandCanonicalUtterances = utterances =>
-    utterances.map(u => ({
-      id: nanoid(),
-      text: u
-    }))
-
-  computeHash = ({ contexts, utterances, slots }) =>
-    JSON.stringify({
-      utterances: this.getCanonicalUtterances(utterances),
-      slots,
-      contexts
-    })
-
-  isDirty = () =>
-    this.computeHash({ utterances: this.state.utterances, slots: this.state.slots, contexts: this.state.contexts }) !==
-    this.initialHash
-
-  focusFirstUtterance = () => this.editorRef && this.editorRef.focus()
-
-  deleteUtterance = id => {
-    const utterances = this.getUtterances()
-    this.setState({ utterances: _.filter(utterances, u => u.id !== id) })
-  }
-
-  handleSlotsChanged = (slots, { operation, name, oldName } = {}) => {
-    const replaceObj = { slots }
-
-    if (operation === 'deleted') {
-      let utterances = this.getUtterances()
-
-      const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\(${name}\\)`, 'gi')
-      utterances = utterances.map(u => {
-        const text = u.text.replace(regex, '$1')
-        return Object.assign({}, u, { text: text })
-      })
-
-      replaceObj.utterances = utterances
-    } else if (operation === 'modified') {
-      let utterances = this.getUtterances()
-
-      const regex = new RegExp(`\\[([^\\(\\)\\[\\]]+?)\\]\\(${oldName}\\)`, 'gi')
-      utterances = utterances.map(u => {
-        const text = u.text.replace(regex, `[$1](${name})`)
-        return Object.assign({}, u, { text: text })
-      })
-
-      replaceObj.utterances = utterances
-    }
-
-    this.setState(replaceObj)
-  }
-
-  getUtterances = () => {
-    let utterances = this.state.utterances
-
-    if (!utterances.length) {
-      utterances = [{ id: nanoid(), text: '' }]
-      this.setState({ utterances })
-    }
-
-    return utterances
   }
 
   handleChangeContext = selectedContextOptions => {
@@ -195,17 +79,7 @@ export default class IntentsEditor extends React.Component {
             />
           </div>
         </div>
-        <div>
-          <SplitterLayout customClassName={style.intentEditor} secondaryInitialSize={350} secondaryMinSize={200}>
-            <LiteEditor intentName={name} contentLang={this.props.contentLang} bp={this.props.bp} />
-            <Slots
-              ref={el => (this.slotsEditor = el)}
-              axios={this.props.axios}
-              slots={this.state.slots}
-              onSlotsChanged={this.handleSlotsChanged}
-            />
-          </SplitterLayout>
-        </div>
+        <LiteEditor intentName={name} contentLang={this.props.contentLang} bp={this.props.bp} showSlotPanel />
       </div>
     )
   }

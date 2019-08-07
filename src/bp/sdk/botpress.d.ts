@@ -349,6 +349,7 @@ declare module 'botpress/sdk' {
       name: string
       entities: string[]
       entity?: string
+      color: number
     }
 
     export interface IntentDefinition {

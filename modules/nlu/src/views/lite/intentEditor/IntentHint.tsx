@@ -3,7 +3,7 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NluMlRecommendations } from '../../backend/typings'
+import { NluMlRecommendations } from '../../../backend/typings'
 
 import style from './style.scss'
 
