@@ -22,8 +22,8 @@ async function _status(host, auth): Promise<void> {
     const localChanges = _.flatten(changes.map(x => x.local))
     const prodChanges = _.flatten(changes.map(x => x.prod))
 
-    console.log(`(Use "bp pull --token=${auth}" to replace your local environment with production)`)
-    console.log(`(Use bp push --token=${auth}" to replace production with your local environment)`)
+    console.log(`(Use "${chalk.bold(`bp pull --token=${auth}`)}" to replace your local environment with production)`)
+    console.log(`(Use "${chalk.bold(`bp push --token=${auth}`)}" to replace production with your local environment)`)
     console.log(formatLocalChanges(localChanges))
     console.log(formatProdChanges(prodChanges))
   } catch (err) {
@@ -32,9 +32,11 @@ async function _status(host, auth): Promise<void> {
 }
 
 function formatProdChanges(changes) {
-  return `Production changes:\n\n${changes.join('\n')}\n`
+  return !_.isEmpty(changes)
+    ? `Production changes:\n\n+ ${changes.join('\n+ ')}\n`
+    : 'Production changes:\n--no changes--\n'
 }
 
 function formatLocalChanges(changes) {
-  return `Local changes:\n\n${changes.join('\n')}\n`
+  return !_.isEmpty(changes) ? `Local changes:\n\n+ ${changes.join('\n+')}\n` : 'Local changes:\n--no changes--\n'
 }
