@@ -61,7 +61,5 @@ function formatLocalChanges(changes) {
 function formatAction(host) {
   return `\n\nVisit ${chalk.bold(
     `${host}/admin/server/version`
-  )} to save changes back to your Source Control or use ${chalk.yellow('--force')} to ${chalk.red(
-    'overwrite'
-  )} the production files.`
+  )} to save changes back to your Source Control or use ${chalk.yellow('--force')} to overwrite the production files.`
 }
