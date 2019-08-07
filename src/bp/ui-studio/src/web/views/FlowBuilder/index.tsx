@@ -1,4 +1,5 @@
 import { Intent, Position, Toaster } from '@blueprintjs/core'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -8,7 +9,6 @@ import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
-import { Flow } from '~/reducers/flows'
 import { UserReducer } from '~/reducers/user'
 
 import Diagram from './containers/Diagram'
@@ -103,7 +103,7 @@ class FlowBuilder extends Component<Props, State> {
     const me = this.props.user.email
 
     const currentFlow = this.props.flowsByName[this.props.currentFlow]
-    const { currentMutex } = (currentFlow || {}) as Flow
+    const { currentMutex } = (currentFlow || {}) as FlowView
 
     if (currentMutex && currentMutex.lastModifiedBy !== me && currentMutex.remainingSeconds) {
       this.setState({
@@ -114,11 +114,11 @@ class FlowBuilder extends Component<Props, State> {
       return
     }
 
-    const somebodyElseEditingFlows = _.values(this.props.flowsByName).some(
+    const someoneElseIsEditingOtherFlow = _.values(this.props.flowsByName).some(
       f => f.currentMutex && f.currentMutex.lastModifiedBy !== me && !!f.currentMutex.remainingSeconds
     )
 
-    if (somebodyElseEditingFlows) {
+    if (someoneElseIsEditingOtherFlow) {
       this.setState({
         readOnly: false,
         pannelPermissions: ['create'],
@@ -230,7 +230,7 @@ type Props = {
   errorSavingFlows: any
   clearErrorSaveFlows: () => void
   clearFlowsModification: () => void
-  flowsByName: _.Dictionary<Flow>
+  flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
 
 interface State {

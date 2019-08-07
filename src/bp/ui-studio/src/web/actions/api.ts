@@ -79,7 +79,7 @@ export namespace FlowsAPI {
     } catch (err) {
       const { response } = err
       // 423 === Mutex locked we don't have anything to do...
-      if (response !== 423) {
+      if (response.status !== 423) {
         callback(response)
       }
     }

@@ -1,8 +1,8 @@
 import axios from 'axios'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 
-import { Flow } from '../reducers/flows'
 import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
 import { FlowsAPI } from './api'
@@ -29,7 +29,7 @@ export const handleReceiveFlowsModification = modification => (dispatch, getStat
   }
 }
 
-const startMutexCountDown = (flow: Flow) => dispatch => {
+const startMutexCountDown = (flow: FlowView) => dispatch => {
   const { name, currentMutex } = flow
   if (!currentMutex || !currentMutex.remainingSeconds) {
     return

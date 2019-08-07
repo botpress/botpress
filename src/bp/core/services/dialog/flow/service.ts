@@ -1,6 +1,6 @@
 import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
-import { FlowView, NodeView } from 'common/typings'
+import { FlowView, NodeView, FlowMutex } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -30,23 +30,13 @@ interface FlowModification {
   payload?: any
 }
 
-interface FlowMutex {
-  lastModifiedBy: string
-  lastModifiedAt: Date
-  remainingSeconds?: number // backend calculate this because all clients time might be wrong
-}
-
 export class MutexError extends Error {
   type = MutexError.name
 }
 
-interface MutexableFlowView extends FlowView {
-  currentMutex: FlowMutex
-}
-
 @injectable()
 export class FlowService {
-  private _allFlows: Map<string, MutexableFlowView[]> = new Map()
+  private _allFlows: Map<string, FlowView[]> = new Map()
 
   constructor(
     @inject(TYPES.Logger)
@@ -73,7 +63,7 @@ export class FlowService {
     })
   }
 
-  async loadAll(botId: string): Promise<MutexableFlowView[]> {
+  async loadAll(botId: string): Promise<FlowView[]> {
     if (this._allFlows.has(botId)) {
       return this._allFlows.get(botId)!
     }
@@ -96,7 +86,7 @@ export class FlowService {
     }
   }
 
-  private async parseFlow(botId: string, flowPath: string): Promise<MutexableFlowView> {
+  private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
     const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(FLOW_DIR, flowPath)
     const schemaError = validateFlowSchema(flow)
 
@@ -143,8 +133,6 @@ export class FlowService {
   }
 
   async insertFlow(botId: string, flow: FlowView, userEmail: string) {
-    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
-
     const ghost = this.ghost.forBot(botId)
 
     const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
@@ -155,14 +143,14 @@ export class FlowService {
 
     await this._upsertFlow(botId, flow)
 
-    currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
-    const mutexableFlow: MutexableFlowView = { ...flow, currentMutex }
+    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
+    const mutexFlow: FlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
       botId,
       name: flow.name,
       modification: 'create',
-      payload: mutexableFlow,
+      payload: mutexFlow,
       userEmail
     })
   }
@@ -172,14 +160,13 @@ export class FlowService {
 
     await this._upsertFlow(botId, flow)
 
-    currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
-    const mutexableFlow: MutexableFlowView = { ...flow, currentMutex }
+    const mutexFlow: FlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
       name: flow.name,
       botId,
       modification: 'update',
-      payload: mutexableFlow,
+      payload: mutexFlow,
       userEmail
     })
   }
@@ -267,22 +254,35 @@ export class FlowService {
     const key = this._buildFlowMutexKey(flowLocation)
 
     const currentMutex = ((await this.kvs.get(botId, key)) || {}) as FlowMutex
-    let { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
+    const { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
+
+    const now = new Date()
+    const remainingSeconds = this._getRemainingSeconds(now)
 
     if (currentFlowEditor === flowOwner) {
-      const mutex = { lastModifiedBy: flowOwner, lastModifiedAt: new Date() }
+      const mutex: FlowMutex = {
+        lastModifiedBy: flowOwner,
+        lastModifiedAt: now
+      }
       await this.kvs.set(botId, key, mutex)
+
+      mutex.remainingSeconds = remainingSeconds
       return mutex
     }
 
     const isMutexExpired = !this._getRemainingSeconds(lastModifiedAt)
     if (!flowOwner || isMutexExpired) {
-      const mutex = { lastModifiedBy: currentFlowEditor, lastModifiedAt: new Date() }
+      const mutex: FlowMutex = {
+        lastModifiedBy: currentFlowEditor,
+        lastModifiedAt: now
+      }
       await this.kvs.set(botId, key, mutex)
+
+      mutex.remainingSeconds = remainingSeconds
       return mutex
     }
 
-    throw new Error('Flow is currently locked by someone else')
+    throw new MutexError('Flow is currently locked by someone else')
   }
 
   async createMainFlow(botId: string) {

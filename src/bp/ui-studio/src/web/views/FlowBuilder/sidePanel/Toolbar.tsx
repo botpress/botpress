@@ -63,7 +63,7 @@ const MiniToolbar = props => {
       </LeftToolbarButtons>
       <RightToolbarButtons>
         <FlowProblems {...props} />
-        <div style={{ margin: 'auto 0' }}>{props.mutexInfo}</div>
+        <div className={style.mutexInfo}>{props.mutexInfo}</div>
       </RightToolbarButtons>
     </Toolbar>
   )

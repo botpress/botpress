@@ -37,20 +37,12 @@ import {
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
 
-type Mutex = {
-  lastModifiedBy: string
-  remainingSeconds: number
-}
-export type Flow = FlowView & {
-  currentMutex?: Mutex
-}
-
 export interface FlowReducer {
-  currentFlow: Flow | undefined
+  currentFlow: FlowView | undefined
   showFlowNodeProps: boolean
   dirtyFlows: string[]
   errorSavingFlows: any
-  flowsByName: _.Dictionary<Flow>
+  flowsByName: _.Dictionary<FlowView>
 }
 
 const MAX_UNDO_STACK_SIZE = 25
