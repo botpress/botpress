@@ -36,30 +36,27 @@ async function _push(host, auth): Promise<void> {
 
       console.log(chalk.green('🎉 Successfully pushed your local changes to the production environment!'))
     } else {
-      console.log(formatProdChanges(prodChanges))
+      console.log(formatHeader(host))
       console.log(formatLocalChanges(localChanges))
-      console.log(formatAction(host))
+      console.log(formatProdChanges(prodChanges))
     }
   } catch (err) {
     throw Error(`Couldn't import, server responded with \n ${err.response.status} ${err.response.statusText}`)
   }
 }
 
-function formatProdChanges(changes) {
-  return `${chalk.red(
-    '🚨 Out of sync!'
-  )}\nYou have changes on your production environment that aren't synced on your local file system.\n\nProduction changes:\n${chalk.red(
-    '-',
-    changes.join('\n- ')
-  )}`
+function formatHeader(host) {
+  return `🚨 Out of sync!\nYou have changes on your production environment that aren't synced on your local file system.\n(Visit ${chalk.bold(
+    `${host}/admin/server/version`
+  )} to save changes back to your Source Control)\n(Use ${chalk.yellow(
+    '--force'
+  )} to overwrite the production changes by the local changes)\n`
 }
 
 function formatLocalChanges(changes) {
-  return `\n\nLocal changes:\n${chalk.green('+', changes.join('\n+ '))}`
+  return `Local changes:\n\n${chalk.green('+', changes.join('\n+ '))}\n`
 }
 
-function formatAction(host) {
-  return `\n\nVisit ${chalk.bold(
-    `${host}/admin/server/version`
-  )} to save changes back to your Source Control or use ${chalk.yellow('--force')} to overwrite the production files.`
+function formatProdChanges(changes) {
+  return `Production changes:\n\n${chalk.red('-', changes.join('\n- '))}\n`
 }

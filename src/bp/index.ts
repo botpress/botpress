@@ -167,6 +167,25 @@ try {
       argv => require('./push').default(argv)
     )
     .command(
+      'status',
+      'get the file changes status from local and prod',
+      {
+        url: {
+          description: 'url of the botpress server',
+          default: 'http://localhost:3000',
+          type: 'string'
+        },
+        authToken: {
+          alias: 'token',
+          description: 'your authorization token on the remote botpress server',
+          // tslint:disable-next-line:no-null-keyword
+          default: null,
+          type: 'string'
+        }
+      },
+      argv => require('./status').default(argv)
+    )
+    .command(
       'bench',
       'Run a benchmark on your bot',
       {
