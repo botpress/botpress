@@ -9,9 +9,7 @@ export default ({ url, authToken }) => {
   }
 
   url = url.replace(/\/+$/, '')
-  _push(url, authToken).catch(() =>
-    console.log(`${chalk.red(`Error: Could not reach ${url}. Make sure the server is running.`)}`)
-  )
+  _push(url, authToken).catch(err => console.log(`${chalk.red(`Error: ${err}`)}`))
 }
 
 async function _push(host, auth): Promise<void> {

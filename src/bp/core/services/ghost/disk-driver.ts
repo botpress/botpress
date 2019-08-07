@@ -104,7 +104,13 @@ export default class DiskStorageDriver implements StorageDriver {
   }
 
   async deleteRevision(filePath: string, revision: string): Promise<void> {
-    throw new Error('Method not implemented.')
+    const diskRevs = await this.listRevisions(this._getBaseScope(filePath))
+    const newRevs = diskRevs.filter(x => x.revision !== revision)
+
+    fse.writeFileSync(
+      this.resolvePath(path.join(this._getBaseScope(filePath), 'revisions.json')),
+      JSON.stringify(newRevs, undefined, 2)
+    )
   }
 
   async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
@@ -147,7 +153,7 @@ export default class DiskStorageDriver implements StorageDriver {
     return arr[1] === 'bots' ? 'data/bots/' + arr[2] : 'data/global/'
   }
 
-  private async _recordRevision(filePath: string) {
+  private async _recordRevision(filePath: string): Promise<void> {
     const rev: FileRevision = {
       path: filePath,
       revision: nanoid(8),
