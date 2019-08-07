@@ -3,7 +3,6 @@
 interface CssExports {
   'flowProblems': string;
   'icon': string;
-  'mutexInfo': string;
   'section': string;
   'title': string;
   'toolItem': string;

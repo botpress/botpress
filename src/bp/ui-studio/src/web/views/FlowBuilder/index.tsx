@@ -16,6 +16,7 @@ import NodeProps from './containers/NodeProps'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import { PannelPermissions } from './sidePanel'
+import { MutexInfo } from './sidePanel/Toolbar'
 import style from './style.scss'
 
 const FlowToaster = Toaster.create({
@@ -31,7 +32,7 @@ class FlowBuilder extends Component<Props, State> {
     readOnly: false,
     pannelPermissions: this.allPermissions,
     flowPreview: false,
-    mutexInfo: ''
+    mutexInfo: undefined
   }
 
   get allPermissions(): PannelPermissions[] {
@@ -109,7 +110,7 @@ class FlowBuilder extends Component<Props, State> {
       this.setState({
         readOnly: true,
         pannelPermissions: ['create'],
-        mutexInfo: currentMutex.lastModifiedBy + ' is editing'
+        mutexInfo: { currentMutex }
       })
       return
     }
@@ -122,7 +123,7 @@ class FlowBuilder extends Component<Props, State> {
       this.setState({
         readOnly: false,
         pannelPermissions: ['create'],
-        mutexInfo: ''
+        mutexInfo: { someoneElseIsEditingOtherFlow: true }
       })
       return
     }
@@ -130,7 +131,7 @@ class FlowBuilder extends Component<Props, State> {
     this.setState({
       readOnly: false,
       pannelPermissions: this.allPermissions,
-      mutexInfo: ''
+      mutexInfo: undefined
     })
   }
 
@@ -238,5 +239,5 @@ interface State {
   readOnly: boolean
   pannelPermissions: PannelPermissions[]
   flowPreview: boolean
-  mutexInfo: string
+  mutexInfo: MutexInfo
 }
