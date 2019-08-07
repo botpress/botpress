@@ -10,6 +10,8 @@ import { removeSlotFromUtterances, renameSlotInUtterances } from './utterances-s
 import IntentHint from './IntentHint'
 import { UtterancesEditor } from './UtterancesEditor'
 
+// TODO props interface
+
 export const IntentEditor = props => {
   const api = makeApi(props.bp)
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
@@ -20,7 +22,6 @@ export const IntentEditor = props => {
     api.fetchIntent(props.intentName).then(setIntent)
   }, [props.intentName])
 
-  const utterances = (intent && intent.utterances[props.contentLang]) || []
   if (!intent) {
     // TODO display a fetching state instead
     return null
@@ -47,6 +48,8 @@ export const IntentEditor = props => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances }, slots }
     saveIntent(newIntent)
   }
+
+  const utterances = (intent && intent.utterances[props.contentLang]) || []
 
   return (
     intent && (

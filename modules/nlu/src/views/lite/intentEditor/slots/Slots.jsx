@@ -10,14 +10,10 @@ import { NonIdealState, Button } from '@blueprintjs/core'
 export default class Slots extends React.Component {
   state = {
     slotModalVisible: false,
-    selectedSlot: null
+    editingSlotIdx: null
   }
 
   getSlots = () => this.props.slots
-
-  updateSelectedSlot = selectedSlot => {
-    this.setState({ selectedSlot })
-  }
 
   hideSlotModal = () => {
     this.setState({ slotModalVisible: false })
@@ -26,15 +22,13 @@ export default class Slots extends React.Component {
   onSlotSave = (slot, operation) => {
     let slots = [...this.getSlots()]
     if (operation === 'modified') {
-      slots = [...slots.slice(0, this.state.selectedSlotIndex), slot, ...slots.slice(this.state.selectedSlotIndex + 1)]
+      slots = [...slots.slice(0, this.state.editingSlotIdx), slot, ...slots.slice(this.state.editingSlotIdx + 1)]
     } else {
       slots = [...slots, slot]
     }
 
-    const oldname = this.state.selectedSlot ? this.state.selectedSlot.name : ''
-    this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation, oldname, name: slot.name })
-
-    this.updateSelectedSlot(slot)
+    const oldName = this.state.editingSlotIdx ? this.props.slots[this.state.editingSlotIdx].name : ''
+    this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation, oldName, name: slot.name })
   }
 
   onSlotDeleted = slot => {
@@ -42,10 +36,10 @@ export default class Slots extends React.Component {
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation: 'deleted', name: slot.name })
   }
 
-  showSlotModal = slot => {
+  showSlotModal = idx => {
     this.setState({
       slotModalVisible: true,
-      selectedSlot: slot
+      editingSlotIdx: idx
     })
   }
 
@@ -60,7 +54,7 @@ export default class Slots extends React.Component {
               key={slot.id}
               slot={slot}
               onDelete={this.onSlotDeleted}
-              onEdit={this.showSlotModal.bind(this, slot)}
+              onEdit={this.showSlotModal.bind(this, i)}
             />
           ))}
         </ul>
@@ -94,7 +88,7 @@ export default class Slots extends React.Component {
         <SlotModal
           axios={this.props.axios}
           show={this.state.slotModalVisible}
-          slot={this.state.selectedSlot}
+          slot={this.props.slots[this.state.editingSlotIdx]}
           onSlotSave={this.onSlotSave}
           onHide={this.hideSlotModal}
           slots={this.getSlots()}

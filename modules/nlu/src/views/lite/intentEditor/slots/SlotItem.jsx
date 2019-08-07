@@ -1,7 +1,7 @@
 import React from 'react'
 import style from './style.scss'
 import colors from '../../../full/intents/colors.scss'
-import classnames from 'classnames'
+import { Tag } from '@blueprintjs/core'
 
 export default class SlotItem extends React.Component {
   handleDeleteClicked = e => {
@@ -19,11 +19,11 @@ export default class SlotItem extends React.Component {
 
   render() {
     const { slot } = this.props
-    const className = classnames(style.entityLabel, colors['label-colors-' + slot.color])
     return (
       <li className={style.entityItem}>
-        <span className={className}>{slot.name}</span>
-        <span className={style.type}>{slot.type}</span>
+        <Tag className={colors[`label-colors-${slot.color}`]} round large>
+          {slot.name}
+        </Tag>
         <a onClick={this.handleDeleteClicked} className={style.link}>
           Delete
         </a>
