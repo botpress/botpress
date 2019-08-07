@@ -63,18 +63,18 @@ export class GhostService {
       const prodRevs = await this.forBot(botId).listDbRevisions()
       const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
       const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
-      const unsyncedGhostFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+      const unsyncedProdFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
-      return { scope: botId, local: unsyncedLocalFiles, prod: unsyncedGhostFiles }
+      return { scope: botId, local: unsyncedLocalFiles, prod: unsyncedProdFiles }
     })
 
     const localRevs = await this.global().listDbRevisions()
     const prodRevs = await this.global().listDiskRevisions()
     const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
     const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
-    const unsyncedGhostFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+    const unsyncedProdFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
-    return [...botsFileChanges, { scope: 'global', local: unsyncedLocalFiles, prod: unsyncedGhostFiles }]
+    return [...botsFileChanges, { scope: 'global', local: unsyncedLocalFiles, prod: unsyncedProdFiles }]
   }
 
   bots(): ScopedGhostService {
@@ -262,9 +262,20 @@ export class ScopedGhostService {
    */
   async forceUpdate() {
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
+    const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
+    await Promise.each(diskRevs, rev => this.diskDriver.deleteRevision(rev.path, rev.revision))
 
     const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
+
+    // Delete the ghosted files that has been deleted from disk
+    const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
+    const filesToDelete = _.difference(ghostedFiles, trackedFiles)
+    await Promise.map(filesToDelete, filePath =>
+      this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
+    )
+
+    // Overwrite all of the ghosted files with the tracked files
     await Promise.each(trackedFiles, async file => {
       const filePath = this._normalizeFileName('./', file)
       const content = await this.diskDriver.readFile(filePath)
@@ -282,11 +293,11 @@ export class ScopedGhostService {
       await fse.writeFile(outPath, content)
     }
 
-    const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
+    // const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
     const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
-    const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+    // const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
 
-    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
+    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(newRevisions, undefined, 2))
     if (!allFiles.includes('revisions.json')) {
       allFiles.push('revisions.json')
     }
