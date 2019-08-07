@@ -24,7 +24,7 @@ async function _push(host, auth): Promise<void> {
     const useForce = process.argv.includes('--force')
 
     if (_.isEmpty(localChanges)) {
-      console.log("exiting - you don't have any local changes")
+      console.log("You don't have any local changes")
       return
     }
 
