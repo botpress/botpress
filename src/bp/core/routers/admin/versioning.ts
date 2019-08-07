@@ -43,8 +43,7 @@ export class VersioningRouter extends CustomRouter {
       })
     )
 
-    // Return the list of the new / modified ghosted files compared to the local files.
-    // Used when manually syncing local files to the ghost.
+    // Return the list of local and production file changes
     this.router.get(
       '/changes',
       this.needPermissions('read', this.resource),
@@ -54,7 +53,7 @@ export class VersioningRouter extends CustomRouter {
       })
     )
 
-    // Overwrite the production files with the local files
+    // Force update of the production files by the local files
     this.router.post(
       '/update',
       this.needPermissions('write', this.resource),
