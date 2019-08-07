@@ -9,7 +9,9 @@ export default ({ url, authToken }) => {
   }
 
   url = url.replace(/\/+$/, '')
-  _push(url, authToken).catch(err => console.log(err))
+  _push(url, authToken).catch(() =>
+    console.log(`${chalk.red(`Error: Could not reach ${url}. Make sure the server is running.`)}`)
+  )
 }
 
 async function _push(host, auth): Promise<void> {
@@ -57,7 +59,9 @@ function formatLocalChanges(changes) {
 }
 
 function formatAction(host) {
-  return `\n\nVisit ${host}/admin/settings/version to save changes back to your Source Control or use ${chalk.yellow(
-    '--force'
-  )} to ${chalk.red('overwrite')} the production files.`
+  return `\n\nVisit ${chalk.bold(
+    `${host}/admin/server/version`
+  )} to save changes back to your Source Control or use ${chalk.yellow('--force')} to ${chalk.red(
+    'overwrite'
+  )} the production files.`
 }
