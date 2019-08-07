@@ -261,12 +261,12 @@ export class ScopedGhostService {
    * This will remove all the prodution revisions files as well.
    */
   async forceUpdate() {
+    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
+
     await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
     await Promise.each(diskRevs, rev => this.diskDriver.deleteRevision(rev.path, rev.revision))
-
-    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
 
     // Delete the ghosted files that has been deleted from disk
     const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
@@ -293,11 +293,9 @@ export class ScopedGhostService {
       await fse.writeFile(outPath, content)
     }
 
-    // const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
-    const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
-    // const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
 
-    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(newRevisions, undefined, 2))
+    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(dbRevs, undefined, 2))
     if (!allFiles.includes('revisions.json')) {
       allFiles.push('revisions.json')
     }
