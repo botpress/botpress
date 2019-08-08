@@ -65,7 +65,7 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label={'Bot Configurations'}>
+      <SidePanelSection label={'Configurations'}>
         <FileNavigator
           files={this.state.botConfigs}
           disableContextMenu={true}

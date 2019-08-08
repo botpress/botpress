@@ -71,13 +71,10 @@ export default class Editor {
   }
 
   _validateMetadata({ name, botId, type, hookType, content }: Partial<EditableFile>) {
-    if (!botId || !botId.length) {
-    } else {
-      if (botId !== this._botId) {
-        throw new Error(
-          `Can't perform modification on bot ${botId}. Please switch to the correct bot to change its actions.`
-        )
-      }
+    if (botId && botId.length && botId !== this._botId) {
+      throw new Error(
+        `Can't perform modification on bot ${botId}. Please switch to the correct bot to change its actions.`
+      )
     }
 
     if (!ALLOWED_TYPES.includes(type)) {
