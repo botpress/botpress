@@ -74,10 +74,8 @@ const _generateTrainingTokens = languageProvider => async (
   })
 }
 
-const charactersToMerge: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
-
 export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] =>
-  mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
+  toks.map(tok => {
     const matchedEntities = entities
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)

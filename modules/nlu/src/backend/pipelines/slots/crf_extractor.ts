@@ -362,16 +362,10 @@ export default class CRFExtractor {
       vector.push(`${featPrefix}inVocab`)
     }
 
-    // ["w[0]entity=lol", "w[0]entity=b"]
-    // here make sure we add the entity feature only if the entity is part of the potential entities
-    // not sure we need the 'none' entity anymore
-    // const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
-    //   ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
-    //   // TODO we can remove ent === any check because we now uses real entities instead
-    // )
-
     const entitiesFeatures = _.chain(token.matchedEntities)
       .intersection(allowedEntities)
+      .thru(ents => (ents.length ? ents : ['none']))
+      // if array emtpy push none
       .map(entity => `${featPrefix}entity=${entity}`)
       .value()
 

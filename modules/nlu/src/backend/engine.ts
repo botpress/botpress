@@ -26,7 +26,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { assignMatchedEntitiesToTokens, generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { makeTokens } from './tools/token-utils'
+import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import {
   Engine,
@@ -362,10 +362,9 @@ export default class ScopedEngine implements Engine {
       const intentsVocab = await this._buildIntentVocabs(intentDefs)
       const allowedEntitiesPerIntents = intentDefs
         .map(intent => ({
-          name: intent.name,
-          allowedEntities: getHighlightedIntentEntities(intent)
+          [intent.name]: getHighlightedIntentEntities(intent)
         }))
-        .reduce((acc, next) => (acc[next.name] = next.allowedEntities), {})
+        .reduce((acc, next) => ({ ...acc, ...next }), {})
 
       // TODO: Refactor this to use trainPipeline from A to Z instead of generating training sequences
       trainingSet = await Promise.mapSeries(trainingSet, async sequence => {
@@ -517,7 +516,8 @@ export default class ScopedEngine implements Engine {
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
     const [rawTokens] = await this.languageProvider.tokenize([ds.sanitizedLowerText], ds.language)
-    ds.tokens = makeTokens(rawTokens, ds.sanitizedText)
+    const tokens = makeTokens(rawTokens, ds.sanitizedText)
+    ds.tokens = mergeSpecialCharactersTokens(tokens)
     return ds
   }
 
