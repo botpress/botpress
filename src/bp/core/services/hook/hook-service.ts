@@ -3,6 +3,7 @@ import { IO } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
+import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
@@ -13,7 +14,6 @@ import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
-import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 
 const debug = DEBUG('hooks')
 
@@ -144,6 +144,11 @@ export class HookService {
       if (key.toLowerCase().indexOf(`/hooks/`) > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
+
+        // Clearing cache for files required in hooks
+        Object.keys(require.cache)
+          .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
+          .map(file => delete require.cache[file])
       }
     })
   }

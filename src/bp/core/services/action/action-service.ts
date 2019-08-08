@@ -63,6 +63,11 @@ export class ScopedActionService {
       if (key.toLowerCase().indexOf(`/actions`) > -1) {
         this._scriptsCache.clear()
         this._actionsCache = undefined
+
+        // Clearing cache for files required in actions
+        Object.keys(require.cache)
+          .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
+          .map(file => delete require.cache[file])
       }
     })
   }
