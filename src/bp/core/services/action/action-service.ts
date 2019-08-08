@@ -63,7 +63,7 @@ export class ScopedActionService {
   }
 
   private _listenForCacheInvalidation() {
-    this.cache.events.on('invalidation', async key => {
+    this.cache.events.on('invalidation', key => {
       if (key.toLowerCase().indexOf(`/actions`) > -1) {
         this._scriptsCache.clear()
         this._actionsCache = undefined
