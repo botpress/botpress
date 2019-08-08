@@ -5,6 +5,7 @@ import { allInRange } from '../../tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
 import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
+import { sanitize } from '../language/sanitizer'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
@@ -82,7 +83,15 @@ export const generatePredictionSequence = async (
   entities: sdk.NLU.Entity[],
   toks: Token[]
 ): Promise<Sequence> => {
-  const tokens = mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
+  return {
+    intent: intentName,
+    cannonical: input,
+    tokens: assignMatchedEntitiesToTokens(toks, entities)
+  }
+}
+
+export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] =>
+  mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
     const matchedEntities = entities
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)
@@ -93,13 +102,6 @@ export const generatePredictionSequence = async (
     }
   })
 
-  return {
-    intent: intentName,
-    cannonical: input,
-    tokens
-  }
-}
-
 export const generateTrainingSequence = (langProvider: LanguageProvider, logger: sdk.Logger) => async (
   input: string,
   lang: string,
@@ -109,7 +111,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
 ): Promise<TrainingSequence> => {
   let tokens: Token[] = []
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = keepEntityValues(input)
+  const cannonical = sanitize(keepEntityValues(input).toLocaleLowerCase()) // TODO: Use DS as input instead
   const knownSlots = getKnownSlots(input, slotDefinitions, logger)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
@@ -124,12 +126,15 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
   }
 
   const lastSlot = _.maxBy(knownSlots, ks => ks.end)
+  let cursorPosition = 0
   if (lastSlot && lastSlot!.end < cannonical.length) {
-    const textLeftAfterLastSlot: string = cannonical.substring(lastSlot!.end)
-    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
-    const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
-    tokens = [...tokens, ...tokensLeft]
+    cursorPosition = lastSlot!.end
   }
+
+  const textLeftAfterLastSlot: string = cannonical.substring(cursorPosition)
+  const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+  const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
+  tokens = [...tokens, ...tokensLeft]
 
   return {
     intent: intentName,

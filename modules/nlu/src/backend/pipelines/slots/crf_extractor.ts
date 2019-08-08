@@ -124,6 +124,7 @@ export default class CRFExtractor implements SlotExtractor {
   async extract(ds: NLUStructure, intentDef: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
+    // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef.name, ds.entities, ds.tokens)
 
     const { probability, result: tags } = await this._tag(seq)

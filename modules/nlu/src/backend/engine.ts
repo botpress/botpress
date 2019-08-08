@@ -7,7 +7,13 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import { PipelineManager } from './pipeline-manager'
+import {
+  DefaultHashAlgorithm,
+  NoneHashAlgorithm,
+  PipelineManager,
+  PipelineStep2,
+  runPipeline
+} from './pipeline-manager'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
@@ -16,7 +22,7 @@ import SVMClassifier from './pipelines/intents/svm_classifier'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import { generateTrainingSequence } from './pipelines/slots/pre-processor'
+import { assignMatchedEntitiesToTokens, generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens } from './tools/token-utils'
@@ -205,7 +211,7 @@ export default class ScopedEngine implements Engine {
 
     try {
       const runner = this.pipelineManager
-        .withPipeline(this._pipeline)
+        .withPipeline(this._predictPipeline)
         .initFromText(text, lastMessages, includedContexts)
 
       const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
@@ -325,7 +331,33 @@ export default class ScopedEngine implements Engine {
     this.logger.debug('Training slot tagger')
 
     try {
-      const trainingSet = await this.getTrainingSets(intentDefs, lang)
+      let trainingSet = await this.getTrainingSets(intentDefs, lang)
+      // TODO: Refactor this to use trainPipeline from A to Z instead of generating training sequences
+
+      trainingSet = await Promise.mapSeries(trainingSet, async sequence => {
+        const pipeline = this._buildTrainPipeline(lang)
+        const output = await runPipeline(
+          pipeline,
+          { text: sequence.cannonical, lastMessages: [], includedContexts: sequence.contexts },
+          { caching: false }
+        )
+
+        if (sequence.tokens.length === output.result.tokens.length) {
+          // TODO: make this step part of the trainPipeline
+          const toks = assignMatchedEntitiesToTokens(output.result.tokens, output.result.entities)
+          sequence.tokens = sequence.tokens.map((token, idx) => ({
+            ...token,
+            matchedEntities: toks[idx].matchedEntities
+          }))
+        } else {
+          debug('[slots] could not provide entities to tokens because token sizes did not match', {
+            pipelineLength: output.result.tokens.length,
+            sequenceLength: sequence.tokens.length
+          })
+        }
+        return sequence
+      })
+
       const { language, crf } = await this.slotExtractors[lang].train(trainingSet)
 
       this.logger.debug('Done training slot tagger')
@@ -499,7 +531,7 @@ export default class ScopedEngine implements Engine {
     return Promise.resolve(ds)
   }
 
-  private readonly _pipeline = [
+  private readonly _predictPipeline = [
     this._processText,
     this._detectLang,
     this._tokenize,
@@ -508,5 +540,35 @@ export default class ScopedEngine implements Engine {
     this._extractIntents,
     this._setAmbiguity,
     this._extractSlots
+  ]
+
+  private _buildTrainPipeline = (language: string): PipelineStep2[] => [
+    {
+      cacheHashAlgorithm: NoneHashAlgorithm,
+      execute: this._processText,
+      inputProps: ['rawText'],
+      outputProps: ['entities']
+    },
+    {
+      cacheHashAlgorithm: NoneHashAlgorithm,
+      execute: ds => {
+        ds.language = language
+        return Promise.resolve(ds)
+      },
+      inputProps: [],
+      outputProps: []
+    },
+    {
+      cacheHashAlgorithm: NoneHashAlgorithm,
+      execute: this._tokenize,
+      inputProps: ['rawText', 'language', 'tokens'],
+      outputProps: ['entities']
+    },
+    {
+      cacheHashAlgorithm: DefaultHashAlgorithm,
+      execute: this._extractEntities,
+      inputProps: ['rawText', 'language', 'tokens'],
+      outputProps: ['entities']
+    }
   ]
 }

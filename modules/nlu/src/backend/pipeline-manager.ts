@@ -1,4 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
+import _ from 'lodash'
 
 import { NLUStructure } from './typings'
 
@@ -34,6 +36,73 @@ export class PipelineManager {
     }
 
     return ds
+  }
+}
+
+export interface PipelineOutput {
+  result: NLUStructure
+  cache: any
+}
+
+export interface PipelineInput {
+  text: string
+  lastMessages: string[]
+  includedContexts: string[]
+}
+
+export interface PipelineOptions {
+  caching: boolean
+  cache?: any
+}
+
+export interface PipelineStep2 {
+  inputProps: (keyof NLUStructure)[]
+  outputProps: (keyof NLUStructure)[]
+  cacheHashAlgorithm: CacheHashingAlgorithm
+  execute: (ds: NLUStructure) => Promise<NLUStructure>
+}
+
+export type CacheHashingAlgorithm = (ds: NLUStructure, inputProps: (keyof NLUStructure)[]) => string | undefined
+
+export const DefaultHashAlgorithm: CacheHashingAlgorithm = (ds, inputProps) => {
+  const partial = _.pick(ds, inputProps)
+  const content = JSON.stringify(partial)
+  return crypto
+    .createHash('md5')
+    .update(content)
+    .digest('hex')
+}
+
+export const NoneHashAlgorithm: CacheHashingAlgorithm = (ds, inputProps) => undefined
+
+export async function runPipeline(
+  pipelineSteps: PipelineStep2[],
+  input: PipelineInput,
+  options: PipelineOptions
+): Promise<PipelineOutput> {
+  let ds = initNLUStruct(input.text, input.lastMessages, input.includedContexts)
+  const cache = options.caching ? { ...(options.cache || {}) } : {}
+
+  for (const step of pipelineSteps) {
+    const hash = options.caching ? step.cacheHashAlgorithm(ds, step.inputProps) : undefined
+    const cacheKey = `step__${step.execute.name}__${hash}`
+
+    if (typeof hash === 'string' && cache[cacheKey]) {
+      // use cached result
+      const cachedProps = cache[cacheKey]
+      ds = { ...ds, ...cachedProps }
+    } else {
+      // run, and optionally cache resultss
+      ds = await step.execute(ds)
+      if (options.caching) {
+        cache[cacheKey] = _.cloneDeep(_.pick(ds, step.outputProps))
+      }
+    }
+  }
+
+  return {
+    result: ds,
+    cache: cache
   }
 }
 
