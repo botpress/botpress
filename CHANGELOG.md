@@ -1,3 +1,15 @@
+## [12.0.6](https://github.com/botpress/botpress/compare/v12.0.5...v12.0.6) (2019-08-02)
+
+
+### Bug Fixes
+
+* **core:** ldap authentication ([e9375f0](https://github.com/botpress/botpress/commit/e9375f0))
+* **core:** ldap authentication ([4b1a4c5](https://github.com/botpress/botpress/commit/4b1a4c5))
+* **dialog-engine:** ending flow when no nodes configured ([a2c5ad3](https://github.com/botpress/botpress/commit/a2c5ad3))
+* **dialog-engine:** ending flow when no nodes configured ([c354f36](https://github.com/botpress/botpress/commit/c354f36))
+
+
+
 ## [12.0.5](https://github.com/botpress/botpress/compare/v12.0.4...v12.0.5) (2019-07-31)
 
 

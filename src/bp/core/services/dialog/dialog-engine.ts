@@ -75,10 +75,15 @@ export class DialogEngine {
         this._debug(event.botId, event.target, 'waiting until next event')
         context.queue = queue
       } else if (result.followUpAction === 'transition') {
+        const destination = result.options!.transitionTo!
+        if (!destination || !destination.length) {
+          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined? (red port)')
+          return event
+        }
         // We reset the queue when we transition to another node.
         // This way the queue will be rebuilt from the next node.
         context.queue = undefined
-        return this._transition(sessionId, event, result.options!.transitionTo!)
+        return this._transition(sessionId, event, destination)
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
