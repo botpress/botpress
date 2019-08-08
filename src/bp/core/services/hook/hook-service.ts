@@ -6,7 +6,6 @@ import { printObject } from 'core/misc/print'
 import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import moment, { Moment } from 'moment'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
@@ -18,7 +17,7 @@ import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
 
 const debug = DEBUG('hooks')
-const SYNC_MINIMUM_DELAY = ms('2s')
+const SYNC_DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
@@ -131,7 +130,7 @@ class HookScript {
 @injectable()
 export class HookService {
   private _scriptsCache: Map<string, HookScript[]> = new Map()
-  private _lastSync: Moment | undefined
+  private _syncDebounce
 
   constructor(
     @inject(TYPES.Logger)
@@ -141,6 +140,7 @@ export class HookService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this._listenForCacheInvalidation()
+    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
   private _listenForCacheInvalidation() {
@@ -149,26 +149,17 @@ export class HookService {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
 
-        if (this._shouldSync()) {
-          this._lastSync = moment()
-
-          this._clearRequireCache()
-          await this.ghost.global().syncRemoteFiles('hooks')
-        }
+        this._syncDebounce()
       }
     })
   }
 
-  private _shouldSync = () =>
-    !this._lastSync ||
-    moment(this._lastSync)
-      .add(SYNC_MINIMUM_DELAY)
-      .isBefore(moment())
-
-  private _clearRequireCache() {
+  private async _syncFiles() {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
       .map(file => delete require.cache[file])
+
+    await this.ghost.global().syncRemoteFiles('hooks')
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {

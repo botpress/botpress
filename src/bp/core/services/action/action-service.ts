@@ -4,7 +4,6 @@ import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import moment, { Moment } from 'moment'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
@@ -19,7 +18,7 @@ import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
-const SYNC_MINIMUM_DELAY = ms('2s')
+const SYNC_DEBOUNCE_DELAY = ms('2s')
 
 @injectable()
 export default class ActionService {
@@ -56,10 +55,11 @@ export type ActionDefinition = {
 export class ScopedActionService {
   private _actionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
-  private _lastSync: Moment | undefined
+  private _syncDebounce
 
   constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
+    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
   private _listenForCacheInvalidation() {
@@ -68,28 +68,17 @@ export class ScopedActionService {
         this._scriptsCache.clear()
         this._actionsCache = undefined
 
-        // Since we receive multiple invalidate events when one file is changed, we throttle it a bit
-        // Also, the remote sync triggers invalidates so we ignore those
-        if (this._shouldSync()) {
-          this._lastSync = moment()
-
-          this._clearRequireCache()
-          await this.ghost.forBot(this.botId).syncRemoteFiles('actions')
-        }
+        this._syncDebounce()
       }
     })
   }
 
-  private _shouldSync = () =>
-    !this._lastSync ||
-    moment(this._lastSync)
-      .add(SYNC_MINIMUM_DELAY)
-      .isBefore(moment())
-
-  private _clearRequireCache() {
+  private async _syncFiles() {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
       .map(file => delete require.cache[file])
+
+    await this.ghost.forBot(this.botId).syncRemoteFiles('actions')
   }
 
   async listActions(): Promise<ActionDefinition[]> {
