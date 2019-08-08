@@ -169,8 +169,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   renameFile: store.renameFile,
   enableFile: store.enableFile,
   disableFile: store.disableFile,
-  duplicateFile: store.duplicateFile,
-  isGlobalAllowed: store.config && store.config.isGlobalAllowed
+  duplicateFile: store.duplicateFile
 }))(observer(FileNavigator))
 
 type Props = {

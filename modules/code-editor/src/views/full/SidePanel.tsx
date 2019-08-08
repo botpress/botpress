@@ -3,6 +3,7 @@ import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import { FilePermissions } from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
@@ -34,19 +35,17 @@ class PanelContent extends React.Component<Props> {
       return
     }
 
-    const { actionsBot, actionsGlobal, hooksGlobal, botConfigs } = this.props.files
+    const { actionsBot, actionsGlobal, hooksGlobal, configsBot, configsGlobal } = this.props.files
 
     const actionFiles = []
     actionsBot && actionFiles.push({ label: `Bot (${window['BOT_NAME']})`, files: actionsBot })
     actionsGlobal && actionFiles.push({ label: 'Global', files: actionsGlobal })
 
-    const hookFiles = [hooksGlobal && { label: 'Global', files: hooksGlobal }]
+    const hookFiles = hooksGlobal ? [{ label: 'Global', files: hooksGlobal }] : []
 
-    const botConfigFiles = [
-      botConfigs && botConfigs.length === 1
-        ? { label: 'Current Bot', files: botConfigs }
-        : { label: 'All Bots', files: botConfigs }
-    ]
+    const botConfigFiles = []
+    configsBot && botConfigFiles.push({ label: 'Current Bot', files: configsBot })
+    configsGlobal && botConfigFiles.push({ label: 'Global', files: configsGlobal })
 
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles })
   }
@@ -60,7 +59,8 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionBotsConfig() {
-    if (!this.props.isBotConfigIncluded) {
+    const { readPermissions } = (this.props.permissions || {}) as FilePermissions
+    if (!readPermissions || !readPermissions.globalConfigs || !readPermissions.botConfigs) {
       return null
     }
 
@@ -77,6 +77,8 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
+    const { writePermissions } = (this.props.permissions || {}) as FilePermissions
+
     const items: SectionAction[] = [
       {
         label: 'Action - Bot',
@@ -85,7 +87,7 @@ class PanelContent extends React.Component<Props> {
       }
     ]
 
-    if (this.props.isGlobalAllowed) {
+    if (writePermissions && writePermissions.globalActions) {
       items.push({
         label: 'Action - Global',
         icon: <Icon icon="new-text-box" />,
@@ -105,54 +107,61 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionHooks() {
-    if (!this.props.isGlobalAllowed) {
+    const { writePermissions, readPermissions } = (this.props.permissions || {}) as FilePermissions
+    const canRead = readPermissions && readPermissions.hooks
+    const canWrite = writePermissions && writePermissions.hooks
+
+    if (!canRead) {
       return null
     }
 
-    const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
-      id: hookType,
-      label: hookType
-        .split('_')
-        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
-        .join(' '),
-      onClick: () => this.props.createFilePrompt('hook', true, hookType)
-    }))
+    let actions
+    if (canWrite) {
+      const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
+        id: hookType,
+        label: hookType
+          .split('_')
+          .map(x => x.charAt(0).toUpperCase() + x.slice(1))
+          .join(' '),
+        onClick: () => this.props.createFilePrompt('hook', true, hookType)
+      }))
 
-    const actions = [
-      {
-        icon: <Icon icon="add" />,
-        key: 'add',
-        items: [
-          {
-            label: 'Event Hooks',
-            items: hooks.filter(x =>
-              [
-                'before_incoming_middleware',
-                'after_incoming_middleware',
-                'before_outgoing_middleware',
-                'after_event_processed',
-                'before_suggestions_election',
-                'before_session_timeout'
-              ].includes(x.id)
-            )
-          },
-          {
-            label: 'Bot Hooks',
-            items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
-          },
-          {
-            label: 'General Hooks',
-            items: hooks.filter(x => ['after_server_start'].includes(x.id))
-          },
-          {
-            label: 'Pipeline Hooks',
-            items: hooks.filter(x =>
-              ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
-            )
-          }
-        ]
-      }
-    ]
+      actions = [
+        {
+          icon: <Icon icon="add" />,
+          key: 'add',
+          items: [
+            {
+              label: 'Event Hooks',
+              items: hooks.filter(x =>
+                [
+                  'before_incoming_middleware',
+                  'after_incoming_middleware',
+                  'before_outgoing_middleware',
+                  'after_event_processed',
+                  'before_suggestions_election',
+                  'before_session_timeout'
+                ].includes(x.id)
+              )
+            },
+            {
+              label: 'Bot Hooks',
+              items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
+            },
+            {
+              label: 'General Hooks',
+              items: hooks.filter(x => ['after_server_start'].includes(x.id))
+            },
+            {
+              label: 'Pipeline Hooks',
+              items: hooks.filter(x =>
+                ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
+              )
+            }
+          ]
+        }
+      ]
+    }
 
     return (
       <SidePanelSection label={'Hooks'} actions={actions}>
@@ -196,11 +205,10 @@ export default inject(({ store }: { store: RootStore }) => ({
   isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
-  isGlobalAllowed: store.config && store.config.isGlobalAllowed,
-  isBotConfigIncluded: store.config && store.config.isBotConfigIncluded
+  permissions: store.permissions
 }))(observer(PanelContent))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'files' | 'isGlobalAllowed' | 'isBotConfigIncluded' | 'createFilePrompt' | 'setFilenameFilter'
+  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
 >

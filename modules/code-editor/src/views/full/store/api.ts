@@ -1,7 +1,6 @@
 import _ from 'lodash'
 
-import { EditableFile, FilesDS } from '../../../backend/typings'
-import { Config } from '../typings'
+import { EditableFile, FilePermissions, FilesDS } from '../../../backend/typings'
 import { toastFailure } from '../utils'
 
 export default class CodeEditorApi {
@@ -11,12 +10,12 @@ export default class CodeEditorApi {
     this.axios = axiosInstance
   }
 
-  async fetchConfig(): Promise<Config> {
+  async fetchPermissions(): Promise<FilePermissions> {
     try {
-      const { data } = await this.axios.get('/mod/code-editor/config')
+      const { data } = await this.axios.get('/mod/code-editor/permissions')
       return data
     } catch (err) {
-      console.error(`Error while fetching code editor config`, err)
+      console.error(`Error while fetching code editor permissions`, err)
     }
   }
 

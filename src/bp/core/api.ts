@@ -51,6 +51,12 @@ const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => 
     },
     decodeExternalToken(token: string): Promise<any> {
       return httpServer.decodeExternalToken(token)
+    },
+    needPermission(operation: string, resource: string): (req: any, res: any, next: any) => Promise<void> {
+      return httpServer.needPermission(operation, resource)
+    },
+    hasPermission(req: any, operation: string, resource: string): Promise<boolean> {
+      return httpServer.hasPermission(req, operation, resource)
     }
   }
 }
@@ -215,7 +221,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) { }
+  constructor(private realtimeService: RealtimeService) {}
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)

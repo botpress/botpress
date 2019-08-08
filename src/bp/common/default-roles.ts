@@ -14,7 +14,19 @@ export const defaultRoles: AuthRole[] = [
     id: 'dev',
     name: 'Developer',
     description: 'Developers have full read/write access to bots, including flows, content, NLU and actions',
-    rules: [{ res: '*', op: '+r+w' }, { res: 'admin.*', op: '+r-w' }, { res: 'admin.collaborators.*', op: '-r' }]
+    rules: [
+      { res: '*', op: '+r+w' },
+      { res: 'admin.*', op: '+r-w' },
+      { res: 'admin.collaborators.*', op: '-r' },
+      {
+        res: 'module.code-editor.global.*',
+        op: '+r-w'
+      },
+      {
+        res: 'module.code-editor.bot.*',
+        op: '+r+w'
+      }
+    ]
   },
   {
     id: 'editor',

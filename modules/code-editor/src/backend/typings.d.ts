@@ -25,5 +25,19 @@ export interface FilesDS {
   actionsGlobal: EditableFile[]
   hooksGlobal: EditableFile[]
   actionsBot: EditableFile[]
-  botConfigs: EditableFile[]
+  configsBot: EditableFile[]
+  configsGlobal: EditableFile[]
+}
+
+export interface FilePermissions {
+  readPermissions: Permissions
+  writePermissions: Permissions
+}
+
+interface Permissions {
+  hooks: boolean
+  globalActions: boolean
+  botActions: boolean
+  globalConfigs: boolean
+  botConfigs: boolean
 }

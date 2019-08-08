@@ -8,7 +8,7 @@ import { Config } from '../config'
 import { HOOK_SIGNATURES } from '../typings/hooks'
 
 import { EditorError, EditorErrorStatus } from './editorError'
-import { EditableFile, FileType, TypingDefinitions } from './typings'
+import { EditableFile, FilePermissions, FilesDS, FileType, TypingDefinitions } from './typings'
 
 const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 const ALLOWED_TYPES = ['hook', 'action', 'bot_config']
@@ -25,20 +25,44 @@ export default class Editor {
     this._config = config
   }
 
-  isGlobalAllowed() {
-    return this._config.allowGlobal
-  }
-
   getConfig(): Config {
     return this._config
   }
 
-  async fetchFiles() {
+  async getPermissions(req: any): Promise<FilePermissions> {
+    const hasPermission = req => async (op: string, res: string) =>
+      this.bp.http.hasPermission(req, op, 'module.code-editor.' + res)
+
+    const permissionsChecker = hasPermission(req)
+
+    const readPermissions = {
+      hooks: await permissionsChecker('read', 'global.hooks'),
+      globalActions: await permissionsChecker('read', 'global.actions'),
+      botActions: await permissionsChecker('read', 'bot.actions'),
+      globalConfigs: await permissionsChecker('read', 'global.configs'),
+      botConfigs: await permissionsChecker('read', 'bot.configs')
+    }
+
+    const writePermissions = {
+      hooks: await permissionsChecker('write', 'global.hooks'),
+      globalActions: await permissionsChecker('write', 'global.actions'),
+      botActions: await permissionsChecker('write', 'bot.actions'),
+      globalConfigs: await permissionsChecker('write', 'global.configs'),
+      botConfigs: await permissionsChecker('write', 'bot.configs')
+    }
+
+    return { readPermissions, writePermissions }
+  }
+
+  async fetchFiles(permissions: FilePermissions): Promise<FilesDS> {
+    const { readPermissions } = permissions
+
     return {
-      actionsGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadActions()),
-      hooksGlobal: this._config.allowGlobal && this._filterBuiltin(await this._loadHooks()),
-      actionsBot: this._filterBuiltin(await this._loadActions(this._botId)),
-      botConfigs: this._config.includeBotConfig && (await this._loadBotConfigs(this._config.allowGlobal))
+      actionsGlobal: readPermissions.globalActions && this._filterBuiltin(await this._loadActions()),
+      hooksGlobal: readPermissions.hooks && this._filterBuiltin(await this._loadHooks()),
+      actionsBot: readPermissions.botActions && this._filterBuiltin(await this._loadActions(this._botId)),
+      configsGlobal: readPermissions.globalConfigs && (await this._loadBotConfigs()),
+      configsBot: readPermissions.botConfigs && (await this._loadBotConfigs(this._botId))
     }
   }
 
@@ -48,12 +72,11 @@ export default class Editor {
 
   _validateMetadata({ name, botId, type, hookType, content }: Partial<EditableFile>) {
     if (!botId || !botId.length) {
-      if (!this._config.allowGlobal) {
-        throw new Error(`Global files are restricted, please check your configuration`)
-      }
     } else {
       if (botId !== this._botId) {
-        throw new Error(`Please switch to the correct bot to change its actions.`)
+        throw new Error(
+          `Can't perform modification on bot ${botId}. Please switch to the correct bot to change its actions.`
+        )
       }
     }
 
@@ -66,10 +89,6 @@ export default class Editor {
     }
 
     if (type === 'bot_config') {
-      if (!this._config.includeBotConfig) {
-        throw new Error(`Enable "includeBotConfig" in the Code Editor configuration to save those files.`)
-      }
-
       this._validateBotConfig(content)
     }
 
@@ -95,8 +114,29 @@ export default class Editor {
     return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
   }
 
-  async saveFile(file: EditableFile): Promise<void> {
+  private _assertWritePermissions(file: EditableFile, permissions: FilePermissions) {
+    const { type, botId, name } = file
+
+    const { writePermissions } = permissions
+
+    let isAllowed = false
+    if (type === 'action') {
+      isAllowed = botId ? writePermissions.botActions : writePermissions.globalActions
+    } else if (type === 'bot_config') {
+      isAllowed = botId ? writePermissions.botConfigs : writePermissions.globalConfigs
+    } else if (type === 'hook') {
+      isAllowed = writePermissions.hooks
+    }
+
+    if (!isAllowed) {
+      throw new Error(`Insufficient permissions to apply modifications on file ${name}`)
+    }
+  }
+
+  async saveFile(file: EditableFile, permissions: FilePermissions): Promise<void> {
     this._validateMetadata(file)
+    this._assertWritePermissions(file, permissions)
+
     const { location, content, hookType, type } = file
     const ghost = this._getGhost(file)
 
@@ -105,12 +145,14 @@ export default class Editor {
     } else if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
     } else if (type === 'bot_config') {
-      return ghost.upsertFile('/', 'bot.config.json', content)
+      return ghost.upsertFile('/', location, content)
     }
   }
 
-  async deleteFile(file: EditableFile): Promise<void> {
+  async deleteFile(file: EditableFile, permissions: FilePermissions): Promise<void> {
     this._validateMetadata(file)
+    this._assertWritePermissions(file, permissions)
+
     const { location, hookType, type } = file
     const ghost = this._getGhost(file)
 
@@ -122,9 +164,10 @@ export default class Editor {
     }
   }
 
-  async renameFile(file: EditableFile, newName: string): Promise<void> {
+  async renameFile(file: EditableFile, newName: string, permissions: FilePermissions): Promise<void> {
     this._validateMetadata(file)
     this._validateFilename(newName)
+    this._assertWritePermissions(file, permissions)
 
     const { location, hookType, type, name } = file
     const ghost = this._getGhost(file)
@@ -193,18 +236,31 @@ export default class Editor {
     })
   }
 
-  private async _loadBotConfigs(includeAllBots: boolean): Promise<EditableFile[]> {
-    const ghost = includeAllBots ? this.bp.ghost.forBots() : this.bp.ghost.forBot(this._botId)
+  private async _loadBotConfigs(botId?: string): Promise<EditableFile[]> {
+    if (botId) {
+      const ghost = this.bp.ghost.forBot(botId)
+      return this._buildConfigFromFileNames(
+        ghost,
+        await ghost.directoryListing('/', 'bot.config.json', undefined, true),
+        botId
+      )
+    }
 
-    return Promise.map(ghost.directoryListing('/', 'bot.config.json', undefined, true), async (filepath: string) => {
-      return {
-        name: path.basename(filepath),
-        type: 'bot_config' as FileType,
-        botId: filepath.substr(0, filepath.indexOf('/')),
-        location: filepath,
-        content: await ghost.readFileAsString('/', filepath)
-      }
-    })
+    const ghost = this.bp.ghost.forGlobal()
+    const fileNames = ['botpress.config.json', 'workspaces.json']
+    let modulesConfigsFiles = await ghost.directoryListing('/config', '*.json', undefined, true)
+    modulesConfigsFiles = modulesConfigsFiles.map(n => 'config/' + n)
+    return this._buildConfigFromFileNames(ghost, [...modulesConfigsFiles, ...fileNames])
+  }
+
+  private _buildConfigFromFileNames(ghost: sdk.ScopedGhostService, fileNames: string[], botId?: string) {
+    return Promise.map(fileNames, async (filepath: string) => ({
+      name: path.basename(filepath),
+      type: 'bot_config' as FileType,
+      botId,
+      location: filepath,
+      content: await ghost.readFileAsString('/', filepath)
+    }))
   }
 
   private _buildRestrictedProcessVars() {

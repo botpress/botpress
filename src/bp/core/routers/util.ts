@@ -182,6 +182,25 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   _res: Response,
   next: NextFunction
 ) => {
+  const err = await checkPermissions(workspaceService)(operation, resource)(req)
+  return next(err)
+}
+
+/**
+ * Just like needPermissions but returns a boolean and can be used inside an express middleware
+ */
+export const hasPermissions = (workspaceService: WorkspaceService) => async (
+  req: RequestWithUser,
+  operation: string,
+  resource: string
+) => {
+  const err = await checkPermissions(workspaceService)(operation, resource)(req)
+  return !err
+}
+
+const checkPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
+  req: RequestWithUser
+) => {
   if (!req.tokenUser) {
     debugFailure(`${req.originalUrl} %o`, {
       method: req.method,
@@ -191,7 +210,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       ip: req.ip,
       reason: 'unauthenticated'
     })
-    return next(new ForbiddenError(`Unauthorized`))
+    return new ForbiddenError(`Unauthorized`)
   }
 
   if (!req.workspace && req.params.botId) {
@@ -210,7 +229,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       userRole: 'superAdmin',
       ip: req.ip
     })
-    return next()
+    return
   }
 
   if (!email || !strategy || !req.workspace) {
@@ -222,7 +241,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       ip: req.ip,
       reason: 'missing auth parameter'
     })
-    return next(new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`))
+    return new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`)
   }
 
   const user = await workspaceService.findUser(email, strategy, req.workspace)
@@ -235,7 +254,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       resource,
       ip: req.ip
     })
-    return next(new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`))
+    return new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`)
   }
 
   const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
@@ -249,9 +268,7 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
       userRole: role && role.id,
       ip: req.ip
     })
-    return next(
-      new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
-    )
+    return new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
   }
 
   debugSuccess(`${req.originalUrl} %o`, {
@@ -262,6 +279,4 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
     userRole: role && role.id,
     ip: req.ip
   })
-
-  next()
 }

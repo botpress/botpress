@@ -1,8 +1,8 @@
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
-import { EditableFile, FilesDS, FileType } from '../../../backend/typings'
-import { Config, FileFilters, StudioConnector } from '../typings'
+import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
+import { FileFilters } from '../typings'
 import { FILENAME_REGEX, toastSuccess } from '../utils'
 import { baseAction, baseHook } from '../utils/templates'
 
@@ -10,13 +10,13 @@ import CodeEditorApi from './api'
 import { EditorStore } from './editor'
 
 /** Includes the partial definitions of all classes */
-export type StoreDef = Partial<RootStore> & Partial<Config> & Partial<EditorStore>
+export type StoreDef = Partial<RootStore> & Partial<FilePermissions> & Partial<EditorStore>
 
 class RootStore {
   public api: CodeEditorApi
   public editor: EditorStore
 
-  public config: Config
+  public permissions: FilePermissions
   public typings: { [fileName: string]: string } = {}
 
   @observable
@@ -40,7 +40,7 @@ class RootStore {
   @action.bound
   async initialize(): Promise<void> {
     try {
-      await this.fetchConfig()
+      await this.fetchPermissions()
       await this.fetchFiles()
       await this.fetchTypings()
     } catch (err) {
@@ -49,10 +49,10 @@ class RootStore {
   }
 
   @action.bound
-  async fetchConfig() {
-    const config = await this.api.fetchConfig()
+  async fetchPermissions() {
+    const permissions = await this.api.fetchPermissions()
     runInAction('-> setEditorConfig', () => {
-      this.config = config
+      this.permissions = permissions
     })
   }
 

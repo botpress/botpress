@@ -1154,6 +1154,13 @@ declare module 'botpress/sdk' {
      */
     export function extractExternalToken(req: any, res: any, next: any): Promise<void>
 
+    export function needPermission(
+      operation: string,
+      resource: string
+    ): (req: any, res: any, next: any) => Promise<void>
+
+    export function hasPermission(req: any, operation: string, resource: string): Promise<boolean>
+
     export interface RouterExtension {
       getPublicPath(): Promise<string>
     }

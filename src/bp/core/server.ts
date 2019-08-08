@@ -5,7 +5,7 @@ import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
-import express from 'express'
+import express, { Response, NextFunction } from 'express'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import { createServer, Server } from 'http'
@@ -28,7 +28,7 @@ import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
-import { monitoringMiddleware } from './routers/util'
+import { monitoringMiddleware, needPermissions, hasPermissions } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
@@ -47,6 +47,7 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
+import { RequestWithUser, AuthRole } from 'common/typings'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -79,6 +80,11 @@ export default class HTTPServer {
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private _needPermissions: (
+    operation: string,
+    resource: string
+  ) => (req: RequestWithUser, res: Response, next: NextFunction) => Promise<void>
+  private _hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -159,6 +165,8 @@ export default class HTTPServer {
       workspaceService,
       logger: this.logger
     })
+    this._needPermissions = needPermissions(this.workspaceService)
+    this._hasPermissions = hasPermissions(this.workspaceService)
   }
 
   @postConstruct()
@@ -317,6 +325,14 @@ export default class HTTPServer {
 
   createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
     return this.botsRouter.getNewRouter(router, identity, options)
+  }
+
+  needPermission(operation: string, resource: string) {
+    return this._needPermissions(operation, resource)
+  }
+
+  hasPermission(req: RequestWithUser, operation: string, resource: string) {
+    return this._hasPermissions(req, operation, resource)
   }
 
   deleteRouterForBot(router: string): void {
