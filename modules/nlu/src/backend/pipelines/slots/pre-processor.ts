@@ -126,15 +126,16 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
   }
 
   const lastSlot = _.maxBy(knownSlots, ks => ks.end)
-  let cursorPosition = 0
-  if (lastSlot && lastSlot!.end < cannonical.length) {
-    cursorPosition = lastSlot!.end
+  if (lastSlot) {
+    const textLeftAfterLastSlot: string = cannonical.substring(lastSlot!.end)
+    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+    const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
+    tokens = [...tokens, ...tokensLeft]
+  } else {
+    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+    const tokensLeft = await genToken(cannonical, lang, start)
+    tokens = [...tokens, ...tokensLeft]
   }
-
-  const textLeftAfterLastSlot: string = cannonical.substring(cursorPosition)
-  const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
-  const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
-  tokens = [...tokens, ...tokensLeft]
 
   return {
     intent: intentName,
