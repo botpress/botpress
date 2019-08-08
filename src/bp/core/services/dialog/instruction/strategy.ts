@@ -137,7 +137,6 @@ export class ActionStrategy implements InstructionStrategy {
 
     try {
       await this.actionService.forBot(botId).runAction(actionName, event, args)
-      return ProcessingResult.none()
     } catch (err) {
       const payloads = [
         {
@@ -162,6 +161,8 @@ export class ActionStrategy implements InstructionStrategy {
         return ProcessingResult.transition(event.state.temp.onErrorFlowTo)
       }
     }
+
+    return ProcessingResult.none()
   }
 }
 
