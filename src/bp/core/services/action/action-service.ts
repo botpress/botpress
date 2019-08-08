@@ -23,6 +23,7 @@ const SYNC_DEBOUNCE_DELAY = ms('2s')
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
+  private _syncDebounce
 
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
@@ -30,7 +31,30 @@ export default class ActionService {
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
-  ) {}
+  ) {
+    this._listenForCacheInvalidation()
+    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+        this._syncDebounce(key)
+      }
+    })
+  }
+
+  // Listening for sync here, because scopedActionService is not initialized until a user triggers an action
+  private async _syncFiles(key: string) {
+    const parts = key.split('/')
+    const botId = parts[parts.indexOf('actions') - 1]
+
+    Object.keys(require.cache)
+      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
+      .map(file => delete require.cache[file])
+
+    await this.ghost.forBot(botId).syncRemoteFiles('actions')
+  }
 
   forBot(botId: string): ScopedActionService {
     if (this._scopedActions.has(botId)) {
@@ -55,11 +79,9 @@ export type ActionDefinition = {
 export class ScopedActionService {
   private _actionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
-  private _syncDebounce
 
   constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
-    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
   private _listenForCacheInvalidation() {
@@ -67,18 +89,8 @@ export class ScopedActionService {
       if (key.toLowerCase().indexOf(`/actions`) > -1) {
         this._scriptsCache.clear()
         this._actionsCache = undefined
-
-        this._syncDebounce()
       }
     })
-  }
-
-  private async _syncFiles() {
-    Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
-      .map(file => delete require.cache[file])
-
-    await this.ghost.forBot(this.botId).syncRemoteFiles('actions')
   }
 
   async listActions(): Promise<ActionDefinition[]> {
