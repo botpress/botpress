@@ -13,6 +13,7 @@ import PatternExtractor from './pipelines/entities/pattern_extractor'
 import { getTextWithoutEntities } from './pipelines/entities/util'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
+import { getHighlightedIntentEntities } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
@@ -53,7 +54,7 @@ export default class ScopedEngine implements Engine {
   private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
   private readonly langIdentifier: LanguageIdentifier
   private readonly systemEntityExtractor: EntityExtractor
-  private readonly slotExtractors: { [lang: string]: SlotExtractor } = {}
+  private readonly slotExtractors: { [lang: string]: CRFExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
   private scopedGenerateTrainingSequence: (
@@ -317,6 +318,32 @@ export default class ScopedEngine implements Engine {
     }
   }
 
+  // TODO memoize this
+  private async _buildIntentVocabs(intentDefs: sdk.NLU.IntentDefinition[]): Promise<{ [token: string]: string[] }> {
+    const entities = await this.storage.getCustomEntities()
+    const vocab = {}
+
+    intentDefs.forEach(intent => {
+      const intentEntities = getHighlightedIntentEntities(intent)
+      _.chain(entities)
+        .filter(ent => ent.type === 'list')
+        .intersectionWith(intentEntities, (entity, name) => entity.name === name)
+        .flatMap(ent => ent.occurences)
+        .flatMap(occ => [occ.name, ...occ.synonyms])
+        .forEach(word => {
+          word = word.toLowerCase()
+          if (vocab[word]) {
+            vocab[word].push(intent.name)
+          } else {
+            vocab[word] = [intent.name]
+          }
+        })
+        .commit()
+    })
+
+    return vocab
+  }
+
   private async _trainSlotTagger(
     intentDefs: sdk.NLU.IntentDefinition[],
     modelHash: string,
@@ -326,7 +353,9 @@ export default class ScopedEngine implements Engine {
 
     try {
       const trainingSet = await this.getTrainingSets(intentDefs, lang)
-      const { language, crf } = await this.slotExtractors[lang].train(trainingSet)
+      const intentsVocab = await this._buildIntentVocabs(intentDefs)
+
+      const { language, crf } = await this.slotExtractors[lang].train(trainingSet, intentsVocab)
 
       this.logger.debug('Done training slot tagger')
 
@@ -462,7 +491,9 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef)
+    // use prebuilt, kept in memory
+    const intentVocab = await this._buildIntentVocabs([intentDef])
+    ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef, intentVocab)
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
     return ds

@@ -52,3 +52,11 @@ export const createIntentMatcher = (intentName: string): ((pattern: string) => b
     return matcher.test(intentName)
   }
 }
+
+export const getHighlightedIntentEntities = (intent: sdk.NLU.IntentDefinition): string[] => {
+  return _.chain(intent.slots)
+    .flatMap(s => s.entities)
+    .filter(e => e !== 'any')
+    .uniq()
+    .value()
+}
