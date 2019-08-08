@@ -124,7 +124,7 @@ export default class CRFExtractor implements SlotExtractor {
   async extract(ds: NLUStructure, intentDef: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
-    const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef.name, ds.entities, ds.tokens)
+    const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef, ds.entities, ds.tokens)
 
     const { probability, result: tags } = await this._tag(seq)
 
@@ -301,16 +301,20 @@ export default class CRFExtractor implements SlotExtractor {
     includeCluster: boolean
   ): Promise<string[]> {
     const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
-
-    if (token.cannonical === token.cannonical.toLowerCase()) vector.push(`${featPrefix}low`)
-    if (token.cannonical === token.cannonical.toUpperCase()) vector.push(`${featPrefix}up`)
+    if (token.cannonical === token.cannonical.toLowerCase()) {
+      vector.push(`${featPrefix}low`)
+    }
+    if (token.cannonical === token.cannonical.toUpperCase()) {
+      vector.push(`${featPrefix}up`)
+    }
     // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
     if (
       token.cannonical.length > 1 &&
       token.cannonical[0] === token.cannonical[0].toUpperCase() &&
       token.cannonical[1] === token.cannonical[1].toLowerCase()
-    )
+    ) {
       vector.push(`${featPrefix}title`)
+    }
 
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.cannonical)
@@ -323,6 +327,8 @@ export default class CRFExtractor implements SlotExtractor {
 
     const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
       ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
+
+      // ["w[0]entity=lol", "w[0]entity=b"]
     )
 
     return [...vector, ...entitiesFeatures]

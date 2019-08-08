@@ -45,7 +45,6 @@ export function getKnownSlots(
   return slots
 }
 
-// TODO use the same algorithm as in the prediction sequence
 const _generateTrainingTokens = languageProvider => async (
   input: string,
   lang: string,
@@ -78,14 +77,21 @@ const charactersToMerge: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.s
 
 export const generatePredictionSequence = async (
   input: string,
-  intentName: string,
+  intent: sdk.NLU.IntentDefinition,
   entities: sdk.NLU.Entity[],
   toks: Token[]
 ): Promise<Sequence> => {
+  const allowedEntitiesInIntent = _.chain(intent.slots)
+    .flatMap(s => s.entities)
+    .uniq()
+    .value()
+
   const tokens = mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
-    const matchedEntities = entities
+    const matchedEntities = _.chain(entities)
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)
+      .intersection(allowedEntitiesInIntent)
+      .value()
 
     return {
       ...tok,
@@ -94,7 +100,7 @@ export const generatePredictionSequence = async (
   })
 
   return {
-    intent: intentName,
+    intent: intent.name,
     cannonical: input,
     tokens
   }

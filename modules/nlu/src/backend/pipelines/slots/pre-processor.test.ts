@@ -121,22 +121,33 @@ describe('Preprocessing', () => {
       }
     ] as sdk.NLU.Entity[]
 
-    const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
+    const intentDef = {
+      name: 'a_name',
+      slots: [
+        {
+          name: '1',
+          entities: ['numeral']
+        },
+        {
+          name: '2',
+          entities: ['numeral', 'email']
+        }
+      ]
+    } as sdk.NLU.IntentDefinition
 
+    // weird spacing here is on purpose
+    const input = 'Hey can you   please send 70 dollars to  Jekyll at misterhyde@evil.com'
     const tokens = await makeTokens((await languageProvider.tokenize([input], 'en'))[0], input)
 
-    // some extra spaces on purpose here
-    const testingSeq = await generatePredictionSequence(input, 'a name', entities, tokens)
-
+    const testingSeq = await generatePredictionSequence(input, intentDef, entities, tokens)
     const entityTokens = testingSeq.tokens.filter(t => t.matchedEntities.length)
 
-    expect(entityTokens.length).toEqual(3)
+    expect(entityTokens.length).toEqual(2)
     expect(entityTokens[0].value).toEqual('70')
-    expect(entityTokens[0].matchedEntities).toEqual(['numeral', 'amountOfMoney'])
-    expect(entityTokens[1].value).toEqual('dollars')
-    expect(entityTokens[1].matchedEntities).toEqual(['amountOfMoney'])
-    expect(entityTokens[2].value).toEqual('misterhyde@evil.com')
-    expect(entityTokens[2].matchedEntities).toEqual(['email'])
+    // we want amountOfMoney to be filtered out because it's not any of the allowed entities in the intent
+    expect(entityTokens[0].matchedEntities).toEqual(['numeral'])
+    expect(entityTokens[1].value).toEqual('misterhyde@evil.com')
+    expect(entityTokens[1].matchedEntities).toEqual(['email'])
     expect(testingSeq.tokens[0].value).toEqual('Hey')
     expect(testingSeq.tokens[0].matchedEntities).toEqual([])
   })
