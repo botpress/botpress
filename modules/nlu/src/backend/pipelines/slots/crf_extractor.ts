@@ -75,7 +75,8 @@ export default class CRFExtractor {
 
   async train(
     trainingSet: Sequence[],
-    intentVocabs: { [token: string]: string[] }
+    intentVocabs: { [token: string]: string[] },
+    allowedEntitiesPerIntents: { [name: string]: string[] }
   ): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
@@ -89,7 +90,7 @@ export default class CRFExtractor {
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
 
       debugTrain('training CRF')
-      await this._trainCrf(trainingSet, intentVocabs)
+      await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents)
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
 
       debugTrain('reading tagger')
@@ -124,12 +125,18 @@ export default class CRFExtractor {
    *   songs : [ multiple slots objects here]
    * }
    */
-  async extract(ds: NLUStructure, intentDef: sdk.NLU.IntentDefinition, intentVocab): Promise<sdk.NLU.SlotCollection> {
+  async extract(
+    ds: NLUStructure,
+    intentDef: sdk.NLU.IntentDefinition,
+    intentVocab,
+    allowedEntitiesPerIntents
+  ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
+    // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef, ds.entities, ds.tokens)
 
-    const { probability, result: tags } = await this._tag(seq, intentVocab)
+    const { probability, result: tags } = await this._tag(seq, intentVocab, allowedEntitiesPerIntents)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
@@ -174,14 +181,24 @@ export default class CRFExtractor {
   }
 
   // this is made "protected" to facilitate model validation
-  async _tag(seq: Sequence, intentVocab): Promise<{ probability: number; result: string[] }> {
+  async _tag(
+    seq: Sequence,
+    intentVocab,
+    allowedEntitiesPerIntents
+  ): Promise<{ probability: number; result: string[] }> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
     const inputVectors: string[][] = []
 
     for (let i = 0; i < seq.tokens.length; i++) {
-      const featureVec = await this._vectorize(seq.tokens, seq.intent, i, intentVocab)
+      const featureVec = await this._vectorize(
+        seq.tokens,
+        seq.intent,
+        i,
+        intentVocab,
+        allowedEntitiesPerIntents[seq.intent]
+      )
       inputVectors.push(featureVec)
     }
 
@@ -242,7 +259,11 @@ export default class CRFExtractor {
       throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
-  private async _trainCrf(sequences: Sequence[], intentVocab: { [token: string]: string[] }) {
+  private async _trainCrf(
+    sequences: Sequence[],
+    intentVocab: { [token: string]: string[] },
+    allowedEntitiesPerIntents: { [name: string]: string[] }
+  ) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
@@ -254,10 +275,13 @@ export default class CRFExtractor {
       const inputVectors: string[][] = []
       const labels: string[] = []
       for (let i = 0; i < seq.tokens.length; i++) {
-        // TODO add intentVocabs in vectorize
-        // if isInIntentVocab(token.lower, intentName) add it as feature
-        //  isInTokenVocab should look like _.get(intentVocab, token.lower, []).includes(intentName)
-        const featureVec = await this._vectorize(seq.tokens, seq.intent, i, intentVocab)
+        const featureVec = await this._vectorize(
+          seq.tokens,
+          seq.intent,
+          i,
+          intentVocab,
+          allowedEntitiesPerIntents[seq.intent]
+        )
 
         inputVectors.push(featureVec)
 
@@ -305,7 +329,8 @@ export default class CRFExtractor {
     intentName: string,
     featPrefix: string,
     includeCluster: boolean,
-    intentVocab: { [token: string]: string[] }
+    intentVocab: { [token: string]: string[] },
+    allowedEntities: string[]
   ): Promise<string[]> {
     const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
     if (token.cannonical === token.cannonical.toLowerCase()) {
@@ -339,10 +364,16 @@ export default class CRFExtractor {
 
     // ["w[0]entity=lol", "w[0]entity=b"]
     // here make sure we add the entity feature only if the entity is part of the potential entities
-    const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
-      ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
-      // TODO we can remove ent === any check because we now uses real entities instead
-    )
+    // not sure we need the 'none' entity anymore
+    // const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
+    //   ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
+    //   // TODO we can remove ent === any check because we now uses real entities instead
+    // )
+
+    const entitiesFeatures = _.chain(token.matchedEntities)
+      .intersection(allowedEntities)
+      .map(entity => `${featPrefix}entity=${entity}`)
+      .value()
 
     return [...vector, ...entitiesFeatures]
   }
@@ -352,18 +383,21 @@ export default class CRFExtractor {
     tokens: Token[],
     intentName: string,
     idx: number,
-    intentVocab: { [token: string]: string[] }
+    intentVocab: { [token: string]: string[] },
+    allowedEntities: string[]
   ): Promise<string[]> {
     const prev =
-      idx === 0 ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true, intentVocab)
+      idx === 0
+        ? ['w[0]bos']
+        : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true, intentVocab, allowedEntities)
 
-    const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false, intentVocab)
+    const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false, intentVocab, allowedEntities)
     current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
 
     const next =
       idx === tokens.length - 1
         ? ['w[0]eos']
-        : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true, intentVocab)
+        : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true, intentVocab, allowedEntities)
 
     debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
 

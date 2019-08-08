@@ -10,6 +10,17 @@ export class ProcessingError extends Error {
   }
 }
 
+export class ActionExecutionError extends Error {
+  private hideStack = false
+  constructor(
+    public readonly internalMessage: string,
+    public readonly actionName: string,
+    public readonly stacktrace: string
+  ) {
+    super(internalMessage)
+  }
+}
+
 export class BPError extends Error {
   private hideStack = true
   constructor(message: string, private code) {

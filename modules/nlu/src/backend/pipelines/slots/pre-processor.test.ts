@@ -52,7 +52,7 @@ describe('Preprocessing', () => {
       slotDef
     )
 
-    expect(trainingSeq.cannonical).toEqual('hello my name is Jacob Jacobson and your name is Paul')
+    expect(trainingSeq.cannonical).toEqual('hello my name is jacob jacobson and your name is paul')
 
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
     expect(trainingSeq.tokens[0].slot).toEqual('')
