@@ -8,7 +8,13 @@ export const defaultRoles: AuthRole[] = [
     name: 'Administrator',
     description:
       'Administrators have full access to the workspace including adding members, creating bots and synchronizing changes.',
-    rules: [{ res: '*', op: '+r+w' }]
+    rules: [
+      { res: '*', op: '+r+w' },
+      {
+        res: 'module.code-editor.global.configs',
+        op: '+r-w'
+      }
+    ]
   },
   {
     id: 'dev',
@@ -21,6 +27,10 @@ export const defaultRoles: AuthRole[] = [
       {
         res: 'module.code-editor.global.*',
         op: '+r-w'
+      },
+      {
+        res: 'module.code-editor.global.configs',
+        op: '-r-w'
       },
       {
         res: 'module.code-editor.bot.*',
