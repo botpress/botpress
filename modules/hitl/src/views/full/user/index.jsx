@@ -2,7 +2,6 @@ import React from 'react'
 import { Col } from 'react-bootstrap'
 import moment from 'moment'
 import classnames from 'classnames'
-
 import style from './style.scss'
 
 export default class User extends React.Component {
@@ -28,6 +27,7 @@ export default class User extends React.Component {
     let dateFormatted = moment(this.props.session.last_event_on).fromNow()
     dateFormatted = dateFormatted.replace('minutes', 'mins').replace('seconds', 'secs')
 
+    const userAttributes = this.props.session.attributes && JSON.parse(this.props.session.attributes)
     const textPrefix = this.props.session.direction === 'in' ? 'User: ' : 'Bot: '
 
     return (
@@ -37,7 +37,7 @@ export default class User extends React.Component {
           <img src={this.props.session.user_image_url} onError={this.onErrorLoadingImage} style={imgStyle} />
         </div>
         <div className={style.content}>
-          <h3>{this.props.session.full_name}</h3>
+          <h3>{_.get(userAttributes, 'full_name', this.props.session.full_name)}</h3>
           <h4>
             <span className={style.textPrefix}>{textPrefix}</span>
             {this.props.session.text}

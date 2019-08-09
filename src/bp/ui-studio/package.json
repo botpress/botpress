@@ -56,8 +56,9 @@
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socketio-jwt": "^4.5.0",
-    "storm-react-diagrams": "^4.0.0",
-    "styled-components": "^4.2.0"
+    "storm-react-diagrams": "^5.2.1",
+    "styled-components": "^4.2.0",
+    "yn": "^3.1.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.133",

@@ -29,7 +29,7 @@ declare module 'botpress/sdk' {
     scope: string
     message: string
     metadata: any
-    timestamp: string
+    timestamp: Date
   }
 
   export enum LoggerLevel {
@@ -928,6 +928,8 @@ declare module 'botpress/sdk' {
     type?: any
     timeoutNode?: string
     flow?: string
+    /** Used internally by the flow editor */
+    readonly lastModified?: Date
   } & (NodeActions)
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
@@ -1002,10 +1004,24 @@ declare module 'botpress/sdk' {
   export interface ModuleMigration {
     info: {
       description: string
+      target?: 'core' | 'bot'
       type: 'database' | 'config' | 'content'
     }
-    up: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
-    down?: (bp: typeof import('botpress/sdk')) => Promise<MigrationResult>
+    up: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
+    down?: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
+  }
+
+  export interface ModuleMigrationOpts {
+    bp: typeof import('botpress/sdk')
+    metadata: MigrationMetadata
+    configProvider: any
+    database: any
+    inversify: any
+  }
+
+  /** These are additional informations that Botpress may pass down to migrations (for ex: running bot-specific migration) */
+  export interface MigrationMetadata {
+    botId?: string
   }
 
   /**
@@ -1050,6 +1066,12 @@ declare module 'botpress/sdk' {
      * @default true
      */
     enableJsonBodyParser?: RouterCondition
+
+    /**
+     * Only parses body which are urlencoded
+     * @default true
+     */
+    enableUrlEncoderBodyParser?: RouterCondition
   }
 
   /**

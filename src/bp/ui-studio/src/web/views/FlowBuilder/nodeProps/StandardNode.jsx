@@ -43,43 +43,47 @@ export default class StandardNodePropertiesPanel extends Component {
           />
         </Panel>
         <Tabs animation={false} id="node-props-modal-standard-node-tabs">
-          <Tab
-            eventKey="on_enter"
-            title={
-              <Fragment>
-                <Badge>{(node.onEnter && node.onEnter.length) || 0}</Badge> On Enter
-              </Fragment>
-            }
-          >
-            <ActionSection
-              readOnly={readOnly}
-              items={node.onEnter}
-              header="On Enter"
-              onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
-              copyItem={item => this.props.copyFlowNodeElement({ action: item })}
-              pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
-              canPaste={Boolean(this.props.buffer.action)}
-            />
-          </Tab>
-          <Tab
-            eventKey="on_receive"
-            title={
-              <Fragment>
-                <Badge>{(node.onReceive && node.onReceive.length) || 0}</Badge> On Receive
-              </Fragment>
-            }
-          >
-            <ActionSection
-              readOnly={readOnly}
-              items={node.onReceive}
-              header="On Receive"
-              waitable={true}
-              onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
-              copyItem={item => this.props.copyFlowNodeElement({ action: item })}
-              pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
-              canPaste={Boolean(this.props.buffer.action)}
-            />
-          </Tab>
+          {!this.props.transitionOnly && (
+            <Tab
+              eventKey="on_enter"
+              title={
+                <Fragment>
+                  <Badge>{(node.onEnter && node.onEnter.length) || 0}</Badge> On Enter
+                </Fragment>
+              }
+            >
+              <ActionSection
+                readOnly={readOnly}
+                items={node.onEnter}
+                header="On Enter"
+                onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
+                copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+                pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
+                canPaste={Boolean(this.props.buffer.action)}
+              />
+            </Tab>
+          )}
+          {!this.props.transitionOnly && (
+            <Tab
+              eventKey="on_receive"
+              title={
+                <Fragment>
+                  <Badge>{(node.onReceive && node.onReceive.length) || 0}</Badge> On Receive
+                </Fragment>
+              }
+            >
+              <ActionSection
+                readOnly={readOnly}
+                items={node.onReceive}
+                header="On Receive"
+                waitable={true}
+                onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
+                copyItem={item => this.props.copyFlowNodeElement({ action: item })}
+                pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
+                canPaste={Boolean(this.props.buffer.action)}
+              />
+            </Tab>
+          )}
           <Tab
             eventKey="transitions"
             title={

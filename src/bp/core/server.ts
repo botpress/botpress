@@ -8,6 +8,7 @@ import { UnlicensedError } from 'errors'
 import express, { Response, NextFunction } from 'express'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
+import fs from 'fs'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
@@ -17,6 +18,7 @@ import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
+import { URL } from 'url'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -68,7 +70,7 @@ const debugRequestMw = (req: Request, _res, next) => {
 
 @injectable()
 export default class HTTPServer {
-  public readonly httpServer: Server
+  public httpServer!: Server
   public readonly app: express.Express
   private isBotpressReady = false
 
@@ -85,6 +87,7 @@ export default class HTTPServer {
     resource: string
   ) => (req: RequestWithUser, res: Response, next: NextFunction) => Promise<void>
   private _hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
+  private indexCache: { [pageUrl: string]: string } = {}
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -119,8 +122,6 @@ export default class HTTPServer {
     if (process.core_env.REVERSE_PROXY) {
       this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
     }
-
-    this.httpServer = createServer(this.app)
 
     this.app.use(debugRequestMw)
 
@@ -169,8 +170,26 @@ export default class HTTPServer {
     this._hasPermissions = hasPermissions(this.workspaceService)
   }
 
+  async setupRootPath() {
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    const externalUrl = process.env.EXTERNAL_URL || botpressConfig.httpServer.externalUrl
+
+    if (!externalUrl) {
+      process.ROOT_PATH = ''
+    } else {
+      const pathname = new URL(externalUrl).pathname
+      process.ROOT_PATH = pathname.replace(/\/+$/, '')
+    }
+  }
+
   @postConstruct()
   async initialize() {
+    await this.setupRootPath()
+
+    const app = express()
+    app.use(process.ROOT_PATH, this.app)
+    this.httpServer = createServer(app)
+
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
@@ -221,15 +240,20 @@ export default class HTTPServer {
     }
 
     this.app.use((req, res, next) => {
-      if (!isDisabled('bodyParser', req)) {
+      if (!isDisabled('bodyParserJson', req)) {
         bodyParser.json({ limit: config.bodyLimit })(req, res, next)
       } else {
         next()
       }
     })
 
-    // this.app.use(bodyParser.json({ limit: config.bodyLimit }))
-    this.app.use(bodyParser.urlencoded({ extended: true }))
+    this.app.use((req, res, next) => {
+      if (!isDisabled('bodyParserUrlEncoder', req)) {
+        bodyParser.urlencoded({ extended: true })(req, res, next)
+      } else {
+        next()
+      }
+    })
 
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
@@ -278,10 +302,18 @@ export default class HTTPServer {
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
-    process.LOCAL_URL = `http://${process.HOST}:${process.PORT}`
+    process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
+    }
+
+    if (!process.env.EXTERNAL_URL && !config.externalUrl) {
+      this.logger.warn(
+        `External URL is not configured. Using default value of ${
+          process.EXTERNAL_URL
+        }. Some features may not work proprely`
+      )
     }
 
     const hostname = config.host === 'localhost' ? undefined : config.host
@@ -302,25 +334,42 @@ export default class HTTPServer {
   }
 
   setupStaticRoutes(app) {
+    // Dynamically updates the static paths of index files
+    const resolveIndexPaths = page => (req, res) => {
+      res.contentType('text/html')
+
+      // Not caching pages in dev (issue with webpack )
+      if (this.indexCache[page] && process.IS_PRODUCTION) {
+        return res.send(this.indexCache[page])
+      }
+
+      fs.readFile(this.resolveAsset(page), (err, data) => {
+        this.indexCache[page] = data
+          .toString()
+          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
+          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
+
+        res.send(this.indexCache[page])
+      })
+    }
+
     app.get('/studio', (req, res, next) => res.redirect('/admin'))
 
-    app.use('/:app(studio)/:botId', express.static(this.resolveAsset('ui-studio/public')))
-    app.use('/:app(lite)/:botId?', express.static(this.resolveAsset('ui-studio/public/lite')))
-    app.use('/:app(lite)/:botId', express.static(this.resolveAsset('ui-studio/public')))
+    app.use('/:app(studio)/:botId', express.static(this.resolveAsset('ui-studio/public'), { index: false }))
+    app.use('/:app(studio)/:botId', resolveIndexPaths('ui-studio/public/index.html'))
 
-    app.get(['/:app(studio)/:botId/*'], (req, res) => {
-      res.contentType('text/html')
-      res.sendFile(this.resolveAsset('ui-studio/public/index.html'))
-    })
+    app.use('/:app(lite)/:botId?', express.static(this.resolveAsset('ui-studio/public/lite'), { index: false }))
+    app.use('/:app(lite)/:botId?', resolveIndexPaths('ui-studio/public/lite/index.html'))
 
-    app.use('/admin', express.static(this.resolveAsset('ui-admin/public')))
+    app.use('/:app(lite)/:botId', express.static(this.resolveAsset('ui-studio/public'), { index: false }))
+    app.use('/:app(lite)/:botId', resolveIndexPaths('ui-studio/public/index.html'))
 
-    app.get(['/admin', '/admin/*'], (req, res) => {
-      res.contentType('text/html')
-      res.sendFile(this.resolveAsset('ui-admin/public/index.html'))
-    })
+    app.get(['/:app(studio)/:botId/*'], resolveIndexPaths('ui-studio/public/index.html'))
 
-    app.get('/', (req, res) => res.redirect('/admin'))
+    app.use('/admin', express.static(this.resolveAsset('ui-admin/public'), { index: false }))
+    app.get(['/admin', '/admin/*'], resolveIndexPaths('ui-admin/public/index.html'))
+
+    app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}/admin`))
   }
 
   createRouterForBot(router: string, identity: string, options: RouterOptions): any & http.RouterExtension {
