@@ -4,7 +4,6 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
@@ -20,7 +19,6 @@ export default class DiskStorageDriver implements StorageDriver {
       const folder = path.dirname(this.resolvePath(filePath))
       await fse.mkdirp(folder)
       await fse.writeFile(this.resolvePath(filePath), content)
-      recordRevision && (await this._recordRevision(filePath))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error upserting file "${filePath}"`)
     }
@@ -46,7 +44,6 @@ export default class DiskStorageDriver implements StorageDriver {
   async deleteFile(filePath: string, recordRevision: boolean = true): Promise<void> {
     try {
       await fse.unlink(this.resolvePath(filePath))
-      recordRevision && (await this._recordRevision(filePath))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
     }
@@ -104,13 +101,7 @@ export default class DiskStorageDriver implements StorageDriver {
   }
 
   async deleteRevision(filePath: string, revision: string): Promise<void> {
-    const diskRevs = await this.listRevisions(this._getBaseScope(filePath))
-    const newRevs = diskRevs.filter(x => x.revision !== revision)
-
-    fse.writeFileSync(
-      this.resolvePath(path.join(this._getBaseScope(filePath), 'revisions.json')),
-      JSON.stringify(newRevs, undefined, 2)
-    )
+    throw new Error('Method not implemented.')
   }
 
   async listRevisions(pathPrefix: string): Promise<FileRevision[]> {
@@ -146,25 +137,5 @@ export default class DiskStorageDriver implements StorageDriver {
       return ghostIgnoreFile.toString().split(/\r?\n/gi)
     }
     return []
-  }
-
-  private _getBaseScope = (filePath: string) => {
-    const arr = filePath.split('/')
-    return arr[1] === 'bots' ? 'data/bots/' + arr[2] : 'data/global/'
-  }
-
-  private async _recordRevision(filePath: string): Promise<void> {
-    const rev: FileRevision = {
-      path: filePath,
-      revision: nanoid(8),
-      created_by: 'admin',
-      created_on: new Date()
-    }
-    const revs = await this.listRevisions(this._getBaseScope(filePath))
-
-    fse.writeFileSync(
-      this.resolvePath(path.join(this._getBaseScope(filePath), 'revisions.json')),
-      JSON.stringify([...revs, rev], undefined, 2)
-    )
   }
 }

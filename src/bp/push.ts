@@ -15,16 +15,10 @@ export default ({ url, authToken }) => {
 async function _push(host, auth): Promise<void> {
   try {
     const options = { headers: { Authorization: `Bearer ${auth}` } }
-    const { data: changes } = await axios.get(`${host}/api/v1/admin/versioning/changes`, options)
+    const { data } = await axios.get(`${host}/api/v1/admin/versioning/changes`, options)
 
-    const localChanges = _.flatten(changes.map(x => x.local))
-    const prodChanges = _.flatten(changes.map(x => x.prod))
+    const prodChanges = _.flatten(data.map(x => x.changes))
     const useForce = process.argv.includes('--force')
-
-    if (_.isEmpty(localChanges)) {
-      console.log("You don't have any local changes")
-      return
-    }
 
     if (_.isEmpty(prodChanges) || useForce) {
       console.log(chalk.blue(`Pushing local changes to ${chalk.bold(host)}`))
@@ -35,7 +29,6 @@ async function _push(host, auth): Promise<void> {
       console.log(chalk.green('🎉 Successfully pushed your local changes to the production environment!'))
     } else {
       console.log(formatHeader(host))
-      console.log(formatLocalChanges(localChanges))
       console.log(formatProdChanges(prodChanges))
     }
   } catch (err) {
@@ -49,10 +42,6 @@ function formatHeader(host) {
   )} to save changes back to your Source Control)\n(Use ${chalk.yellow(
     '--force'
   )} to overwrite the production changes by the local changes)\n`
-}
-
-function formatLocalChanges(changes) {
-  return `Local changes:\n\n${chalk.green('+', changes.join('\n+ '))}\n`
 }
 
 function formatProdChanges(changes) {

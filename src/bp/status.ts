@@ -17,14 +17,12 @@ export default ({ url, authToken }) => {
 async function _status(host, auth): Promise<void> {
   try {
     const options = { headers: { Authorization: `Bearer ${auth}` } }
-    const { data: changes } = await axios.get(`${host}/api/v1/admin/versioning/changes`, options)
+    const { data } = await axios.get(`${host}/api/v1/admin/versioning/changes`, options)
 
-    const localChanges = _.flatten(changes.map(x => x.local))
-    const prodChanges = _.flatten(changes.map(x => x.prod))
+    const prodChanges = _.flatten(data.map(x => x.changes))
 
     console.log(`(Use "${chalk.bold(`bp pull --token=${auth}`)}" to replace your local environment with production)`)
     console.log(`(Use "${chalk.bold(`bp push --token=${auth}`)}" to replace production with your local environment)`)
-    console.log(formatLocalChanges(localChanges))
     console.log(formatProdChanges(prodChanges))
   } catch (err) {
     throw Error(`Couldn't import, server responded with \n ${err.response.status} ${err.response.statusText}`)
@@ -35,8 +33,4 @@ function formatProdChanges(changes) {
   return !_.isEmpty(changes)
     ? `Production changes:\n\n+ ${changes.join('\n+ ')}\n`
     : 'Production changes:\n--no changes--\n'
-}
-
-function formatLocalChanges(changes) {
-  return !_.isEmpty(changes) ? `Local changes:\n\n+ ${changes.join('\n+')}\n` : 'Local changes:\n--no changes--\n'
 }

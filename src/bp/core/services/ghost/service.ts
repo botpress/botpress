@@ -20,7 +20,7 @@ import { PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDr
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-export type FileChanges = { scope: string; local: string[]; prod: string[] }[]
+export type FileChanges = { scope: string; changes: string[] }[]
 
 const MAX_GHOST_FILE_SIZE = asBytes('100mb')
 
@@ -62,19 +62,17 @@ export class GhostService {
       const localRevs = await this.forBot(botId).listDiskRevisions()
       const prodRevs = await this.forBot(botId).listDbRevisions()
       const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
-      const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
-      const unsyncedProdFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+      const unsyncedFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
-      return { scope: botId, local: unsyncedLocalFiles, prod: unsyncedProdFiles }
+      return { scope: botId, changes: unsyncedFiles }
     })
 
     const localRevs = await this.global().listDbRevisions()
     const prodRevs = await this.global().listDiskRevisions()
     const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
-    const unsyncedLocalFiles = _.uniq(_.difference(localRevs, syncedRevs).map(x => x.path))
-    const unsyncedProdFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+    const unsyncedFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
 
-    return [...botsFileChanges, { scope: 'global', local: unsyncedLocalFiles, prod: unsyncedProdFiles }]
+    return [...botsFileChanges, { scope: 'global', changes: unsyncedFiles }]
   }
 
   bots(): ScopedGhostService {
@@ -252,7 +250,6 @@ export class ScopedGhostService {
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
 
-    // Delete all local and prod revisions
     await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
     await Promise.each(diskRevs, rev => this.diskDriver.deleteRevision(rev.path, rev.revision))
     await this._updateProduction(trackedFiles)
