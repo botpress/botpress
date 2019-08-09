@@ -43,7 +43,7 @@ export default class DiskStorageDriver implements StorageDriver {
   async deleteFile(filePath: string): Promise<void>
   async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
     try {
-      await fse.unlink(this.resolvePath(filePath))
+      return fse.unlink(this.resolvePath(filePath))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
     }
