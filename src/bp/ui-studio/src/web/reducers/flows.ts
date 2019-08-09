@@ -80,7 +80,7 @@ const computeFlowsHash = state => {
   }, {})
 }
 
-const computeHashForFlow = flow => {
+const computeHashForFlow = (flow: FlowView) => {
   const hashAction = (hash, action) => {
     if (_.isArray(action)) {
       action.forEach(c => {
@@ -264,11 +264,21 @@ let reducer = handleActions(
         (modificationType === 'update' && isActualUpdate(state, modification))
 
       if (isUpsertFlow) {
+        const newHash = computeHashForFlow(modification.payload)
+
         return {
           ...state,
           flowsByName: {
             ...state.flowsByName,
             [modification.name]: modification.payload
+          },
+          currentHashes: {
+            ...state.currentHashes,
+            [modification.name]: newHash
+          },
+          initialHashes: {
+            ...state.initialHashes,
+            [modification.name]: newHash
           }
         }
       }
