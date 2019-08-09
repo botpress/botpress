@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
@@ -11,7 +12,12 @@ export class VersioningRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private readonly resource = 'admin.versioning'
 
-  constructor(logger: Logger, private ghost: GhostService, private botService: BotService, private workspaceService) {
+  constructor(
+    logger: Logger,
+    private ghost: GhostService,
+    private botService: BotService,
+    private workspaceService: WorkspaceService
+  ) {
     super('Versioning', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
     this.setupRoutes()

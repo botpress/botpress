@@ -54,9 +54,7 @@ export class GhostService {
   }
 
   async listFileChanges(): Promise<FileChanges> {
-    const botsIds = await this.bots()
-      .directoryListing('/', 'bot.config.json')
-      .map(path.dirname)
+    const botsIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
 
     const botsFileChanges = await Promise.map(botsIds, async botId => {
       const localRevs = await this.forBot(botId).listDiskRevisions()
