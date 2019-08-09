@@ -100,11 +100,13 @@ export default class Storage {
       })
     )
 
-  async getConfusionMatrix(modelHash: string, buildVersion: string, lang: string): Promise<Result> {
-    return await this.botGhost.readFileAsObject<Result>(
-      `${this.modelsDir}/${lang}`,
-      `confusion__${modelHash}__${buildVersion}.json`
-    )
+  async getConfusionMatrix(modelHash: string, buildVersion: string, lang: string): Promise<Result | undefined> {
+    const rootFolder = `${this.modelsDir}/${lang}`
+    const filename = `confusion__${modelHash}__${buildVersion}.json`
+
+    if (await this.botGhost.fileExists(rootFolder, filename)) {
+      return this.botGhost.readFileAsObject<Result>(rootFolder, filename)
+    }
   }
 
   async deleteIntent(intent) {
