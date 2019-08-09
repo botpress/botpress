@@ -159,7 +159,7 @@ export class HookService {
       .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
       .map(file => delete require.cache[file])
 
-    await this.ghost.global().syncRemoteFiles('hooks')
+    await this.ghost.global().syncDatabaseFilesToDisk('hooks')
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {

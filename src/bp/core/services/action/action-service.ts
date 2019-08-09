@@ -53,7 +53,11 @@ export default class ActionService {
       .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
       .map(file => delete require.cache[file])
 
-    await this.ghost.forBot(botId).syncRemoteFiles('actions')
+    if (botId === 'global') {
+      await this.ghost.global().syncDatabaseFilesToDisk('actions')
+    } else {
+      await this.ghost.forBot(botId).syncDatabaseFilesToDisk('actions')
+    }
   }
 
   forBot(botId: string): ScopedActionService {

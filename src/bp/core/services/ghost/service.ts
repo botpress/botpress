@@ -365,7 +365,7 @@ export class ScopedGhostService {
     await this.primaryDriver.moveFile(fromPath, toPath)
   }
 
-  async syncRemoteFiles(rootFolder: string): Promise<void> {
+  async syncDatabaseFilesToDisk(rootFolder: string): Promise<void> {
     if (this.primaryDriver instanceof DiskStorageDriver) {
       return
     }
