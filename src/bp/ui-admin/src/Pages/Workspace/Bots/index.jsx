@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 
 import { connect } from 'react-redux'
-import { Jumbotron, Row, Col, Alert } from 'reactstrap'
+import { Row, Col, Alert } from 'reactstrap'
 
 import _ from 'lodash'
 
@@ -20,8 +20,17 @@ import BotItemPipeline from './BotItemPipeline'
 import BotItemCompact from './BotItemCompact'
 import RollbackBotModal from './RollbackBotModal'
 import { toast } from 'react-toastify'
-import { IoIosArchive } from 'react-icons/io'
-import { Popover, Button, PopoverInteractionKind, Position, ButtonGroup, Alignment, Intent } from '@blueprintjs/core'
+
+import {
+  Popover,
+  Button,
+  PopoverInteractionKind,
+  Position,
+  ButtonGroup,
+  Alignment,
+  Intent,
+  Callout
+} from '@blueprintjs/core'
 import ms from 'ms'
 
 class Bots extends Component {
@@ -77,19 +86,14 @@ class Bots extends Component {
 
   renderEmptyBots() {
     return (
-      <div className="bots">
-        <Jumbotron>
-          <Row>
-            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
-              <h1>
-                <IoIosArchive />
-                &nbsp; This workspace has no bot, yet.
-              </h1>
-              <p>In Botpress, bots are always assigned to a workspace. Create your first bot to start building.</p>
-            </Col>
-          </Row>
-        </Jumbotron>
-      </div>
+      <Callout title="This workspace has no bot, yet" style={{ textAlign: 'center' }}>
+        <p>
+          <br />
+          In Botpress, bots are always assigned to a workspace.
+          <br />
+          Create your first bot to start building.
+        </p>
+      </Callout>
     )
   }
 
