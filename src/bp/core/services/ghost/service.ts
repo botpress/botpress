@@ -248,10 +248,8 @@ export class ScopedGhostService {
   async forceUpdate() {
     const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
-    const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
-
     await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
-    await Promise.each(diskRevs, rev => this.diskDriver.deleteRevision(rev.path, rev.revision))
+
     await this._updateProduction(trackedFiles)
   }
 

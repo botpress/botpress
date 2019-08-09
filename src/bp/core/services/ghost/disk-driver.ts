@@ -14,7 +14,7 @@ export default class DiskStorageDriver implements StorageDriver {
   resolvePath = p => path.resolve(process.PROJECT_LOCATION, p)
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
-  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = true): Promise<void> {
+  async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
     try {
       const folder = path.dirname(this.resolvePath(filePath))
       await fse.mkdirp(folder)
@@ -41,7 +41,7 @@ export default class DiskStorageDriver implements StorageDriver {
   }
 
   async deleteFile(filePath: string): Promise<void>
-  async deleteFile(filePath: string, recordRevision: boolean = true): Promise<void> {
+  async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
     try {
       await fse.unlink(this.resolvePath(filePath))
     } catch (e) {
