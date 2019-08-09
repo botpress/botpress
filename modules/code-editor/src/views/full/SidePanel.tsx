@@ -107,61 +107,23 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionHooks() {
-    const { writePermissions, readPermissions } = (this.props.permissions || {}) as FilePermissions
-    const canRead = readPermissions && readPermissions.hooks
-    const canWrite = writePermissions && writePermissions.hooks
+    if (
+      !this.props.permissions ||
+      !this.props.permissions.readPermissions ||
+      !this.props.permissions.writePermissions
+    ) {
+      return null
+    }
+
+    const { writePermissions, readPermissions } = this.props.permissions
+    const canRead = readPermissions.hooks
+    const canWrite = writePermissions.hooks
 
     if (!canRead) {
       return null
     }
 
-    let actions
-    if (canWrite) {
-      const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
-        id: hookType,
-        label: hookType
-          .split('_')
-          .map(x => x.charAt(0).toUpperCase() + x.slice(1))
-          .join(' '),
-        onClick: () => this.props.createFilePrompt('hook', true, hookType)
-      }))
-
-      actions = [
-        {
-          icon: <Icon icon="add" />,
-          key: 'add',
-          items: [
-            {
-              label: 'Event Hooks',
-              items: hooks.filter(x =>
-                [
-                  'before_incoming_middleware',
-                  'after_incoming_middleware',
-                  'before_outgoing_middleware',
-                  'after_event_processed',
-                  'before_suggestions_election',
-                  'before_session_timeout'
-                ].includes(x.id)
-              )
-            },
-            {
-              label: 'Bot Hooks',
-              items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
-            },
-            {
-              label: 'General Hooks',
-              items: hooks.filter(x => ['after_server_start'].includes(x.id))
-            },
-            {
-              label: 'Pipeline Hooks',
-              items: hooks.filter(x =>
-                ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
-              )
-            }
-          ]
-        }
-      ]
-    }
+    const actions = canWrite ? this._buildHooksActions() : []
 
     return (
       <SidePanelSection label={'Hooks'} actions={actions}>
@@ -172,6 +134,53 @@ class PanelContent extends React.Component<Props> {
         />
       </SidePanelSection>
     )
+  }
+
+  _buildHooksActions() {
+    const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
+      id: hookType,
+      label: hookType
+        .split('_')
+        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
+        .join(' '),
+      onClick: () => this.props.createFilePrompt('hook', true, hookType)
+    }))
+
+    return [
+      {
+        icon: <Icon icon="add" />,
+        key: 'add',
+        items: [
+          {
+            label: 'Event Hooks',
+            items: hooks.filter(x =>
+              [
+                'before_incoming_middleware',
+                'after_incoming_middleware',
+                'before_outgoing_middleware',
+                'after_event_processed',
+                'before_suggestions_election',
+                'before_session_timeout'
+              ].includes(x.id)
+            )
+          },
+          {
+            label: 'Bot Hooks',
+            items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
+          },
+          {
+            label: 'General Hooks',
+            items: hooks.filter(x => ['after_server_start'].includes(x.id))
+          },
+          {
+            label: 'Pipeline Hooks',
+            items: hooks.filter(x =>
+              ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
+            )
+          }
+        ]
+      }
+    ]
   }
 
   render() {
