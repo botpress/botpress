@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-const MAX_TFIDF = 2
-const MIN_TFIDF = 0.5
+export const MAX_TFIDF = 2
+export const MIN_TFIDF = 0.5
 
 export type TfidfInput = _.Dictionary<string[]>
 export type TfidfOutput = _.Dictionary<_.Dictionary<number>>

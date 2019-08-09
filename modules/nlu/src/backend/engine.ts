@@ -16,7 +16,6 @@ import {
 } from './pipeline-manager'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
-import { getTextWithoutEntities } from './pipelines/entities/util'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
 import { getHighlightedIntentEntities } from './pipelines/intents/utils'
@@ -27,7 +26,7 @@ import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } 
 import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
-import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
+import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
 import {
   Engine,
   EntityExtractor,
@@ -71,9 +70,6 @@ export default class ScopedEngine implements Engine {
     contexts: string[]
   ) => Promise<TrainingSequence>
 
-  // move this in a functionnal util file?
-  private readonly flatMapIdendity = (a, b) => a.concat(b)
-
   private retryPolicy = {
     interval: 100,
     max_interval: 500,
@@ -106,7 +102,7 @@ export default class ScopedEngine implements Engine {
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
       this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
-      this.slotExtractors[lang] = new CRFExtractor(toolkit, realtime, realtimePayload)
+      this.slotExtractors[lang] = new CRFExtractor(toolkit, realtime, realtimePayload, languageProvider, lang)
     }
   }
 
@@ -365,6 +361,7 @@ export default class ScopedEngine implements Engine {
 
     try {
       let trainingSet = await this.getTrainingSets(intentDefs, lang)
+      // we might want to use tfidf instead and get rid of this thing
       const intentsVocab = await this._buildIntentVocabs(intentDefs, lang)
       const allowedEntitiesPerIntents = intentDefs
         .map(intent => ({
@@ -400,7 +397,9 @@ export default class ScopedEngine implements Engine {
       const { language, crf } = await this.slotExtractors[lang].train(
         trainingSet,
         intentsVocab,
-        allowedEntitiesPerIntents
+        allowedEntitiesPerIntents,
+        this.intentClassifiers[lang].l1Tfidf, // TODO compute tfidf in pipeline instead, made it a public property for now
+        this.intentClassifiers[lang].token2vec // TODO compute token2vec in pipeline instead, made it a public property for now
       )
 
       this.logger.debug('Done training slot tagger')
@@ -545,7 +544,14 @@ export default class ScopedEngine implements Engine {
     const intentVocab = await this._buildIntentVocabs([intentDef], ds.language)
 
     const allowedEntities = { [intentDef.name]: getHighlightedIntentEntities(intentDef) }
-    ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef, intentVocab, allowedEntities)
+    ds.slots = await this.slotExtractors[ds.language].extract(
+      ds,
+      intentDef,
+      intentVocab,
+      allowedEntities,
+      this.intentClassifiers[ds.language].l1Tfidf,
+      this.intentClassifiers[ds.language].token2vec
+    )
 
     debugSlots.forBot(this.botId, 'slots', { rawText: ds.rawText, slots: ds.slots })
     return ds

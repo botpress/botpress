@@ -24,9 +24,9 @@ const getPayloadForInnerSVMProgress = total => index => progress => ({
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
-  private l0Tfidf: _.Dictionary<number>
-  private l1Tfidf: { [context: string]: _.Dictionary<number> }
-  private token2vec: Token2Vec
+  l0Tfidf: _.Dictionary<number>
+  l1Tfidf: { [context: string]: _.Dictionary<number> }
+  token2vec: Token2Vec
 
   constructor(
     private toolkit: typeof sdk.MLToolkit,
@@ -227,6 +227,10 @@ export default class SVMClassifier {
     await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
     const ctxModelStr = svm.serialize()
 
+    this.l1Tfidf = _.mapValues(l1Tfidf, x => x['__avg__'])
+    this.l0Tfidf = l0Tfidf['__avg__']
+    this.token2vec = token2vec
+
     models.push({
       meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-l0' },
       model: new Buffer(ctxModelStr, 'utf8')
@@ -236,9 +240,9 @@ export default class SVMClassifier {
       meta: { context: 'all', created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-tfidf' },
       model: new Buffer(
         JSON.stringify({
-          l0Tfidf: l0Tfidf['__avg__'],
-          l1Tfidf: _.mapValues(l1Tfidf, x => x['__avg__']),
-          token2vec: token2vec
+          l0Tfidf: this.l0Tfidf,
+          l1Tfidf: this.l1Tfidf,
+          token2vec: this.token2vec
         }),
         'utf8'
       )

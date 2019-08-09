@@ -5,9 +5,11 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
-import { NLUStructure } from '../../typings'
+import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
+import { TfidfOutput } from '../intents/tfidf'
 
+import { computeBucket, getFeaturesPairs, getTFIDFfeature } from './featureizer'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -18,8 +20,6 @@ const debugVectorize = debug.sub('vectorize')
 const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
-
-const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
 
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
@@ -50,7 +50,9 @@ export default class CRFExtractor {
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private realtime: typeof sdk.realtime,
-    private realtimePayload: typeof sdk.RealTimePayload
+    private realtimePayload: typeof sdk.RealTimePayload,
+    private languageProvider: LanguageProvider,
+    private readonly language: string
   ) {}
 
   async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
@@ -76,7 +78,9 @@ export default class CRFExtractor {
   async train(
     trainingSet: Sequence[],
     intentVocabs: { [token: string]: string[] },
-    allowedEntitiesPerIntents: { [name: string]: string[] }
+    allowedEntitiesPerIntents: { [name: string]: string[] },
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
@@ -90,7 +94,7 @@ export default class CRFExtractor {
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
 
       debugTrain('training CRF')
-      await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents)
+      await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents, tfidf, token2Vec)
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
 
       debugTrain('reading tagger')
@@ -129,14 +133,16 @@ export default class CRFExtractor {
     ds: NLUStructure,
     intentDef: sdk.NLU.IntentDefinition,
     intentVocab,
-    allowedEntitiesPerIntents
+    allowedEntitiesPerIntents,
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
     // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef, ds.entities, ds.tokens)
 
-    const { probability, result: tags } = await this._tag(seq, intentVocab, allowedEntitiesPerIntents)
+    const { probability, result: tags } = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
     return (_.zip(seq.tokens, tags) as [Token, string][])
@@ -185,7 +191,9 @@ export default class CRFExtractor {
   async _tag(
     seq: Sequence,
     intentVocab,
-    allowedEntitiesPerIntents
+    allowedEntitiesPerIntents,
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ): Promise<{ probability: number; result: string[] }> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
@@ -198,7 +206,9 @@ export default class CRFExtractor {
         seq.intent,
         i,
         intentVocab,
-        allowedEntitiesPerIntents[seq.intent]
+        allowedEntitiesPerIntents[seq.intent],
+        tfidf,
+        token2Vec
       )
       inputVectors.push(featureVec)
     }
@@ -263,7 +273,9 @@ export default class CRFExtractor {
   private async _trainCrf(
     sequences: Sequence[],
     intentVocab: { [token: string]: string[] },
-    allowedEntitiesPerIntents: { [name: string]: string[] }
+    allowedEntitiesPerIntents: { [name: string]: string[] },
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
@@ -281,7 +293,9 @@ export default class CRFExtractor {
           seq.intent,
           i,
           intentVocab,
-          allowedEntitiesPerIntents[seq.intent]
+          allowedEntitiesPerIntents[seq.intent],
+          tfidf,
+          token2Vec
         )
 
         inputVectors.push(featureVec)
@@ -331,22 +345,33 @@ export default class CRFExtractor {
     featPrefix: string,
     includeCluster: boolean,
     intentVocab: { [token: string]: string[] },
-    allowedEntities: string[]
+    allowedEntities: string[],
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ): Promise<string[]> {
-    const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
+    const vector: string[] = []
+
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
     }
 
-    if (token.cannonical && includeCluster) {
+    if (token.cannonical) {
       vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
     }
 
     // that means the word is part of possible list type entities and in intent vocab
-    if (!token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)) {
-      vector.push(`${featPrefix}inVocab`)
-    }
+    const inVocab = !token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)
+    vector.push(`${featPrefix}inVocab=${inVocab}`)
+
+    const wordWeight = await getTFIDFfeature(
+      tfidf,
+      token.cannonical.toLowerCase(),
+      this.languageProvider,
+      token2Vec,
+      this.language
+    )
+    vector.push(`${featPrefix}weight=${wordWeight}`)
 
     const entitiesFeatures = _.chain(token.matchedEntities)
       .intersection(allowedEntities)
@@ -363,24 +388,58 @@ export default class CRFExtractor {
     intentName: string,
     idx: number,
     intentVocab: { [token: string]: string[] },
-    allowedEntities: string[]
+    allowedEntities: string[],
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
   ): Promise<string[]> {
+    const seqFeatures = [`intent=${intentName}:10`]
+
     const prev =
       idx === 0
         ? ['w[0]bos']
-        : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true, intentVocab, allowedEntities)
+        : await this._vectorizeToken(
+            tokens[idx - 1],
+            intentName,
+            'w[-1]',
+            true,
+            intentVocab,
+            allowedEntities,
+            tfidf,
+            token2Vec
+          )
 
-    const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false, intentVocab, allowedEntities)
-    // current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
+    const current = await this._vectorizeToken(
+      tokens[idx],
+      intentName,
+      'w[0]',
+      false,
+      intentVocab,
+      allowedEntities,
+      tfidf,
+      token2Vec
+    )
+    current.push(`w[0]quartile=${computeBucket(4, tokens.length - 1, idx)}`)
 
     const next =
       idx === tokens.length - 1
         ? ['w[0]eos']
-        : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true, intentVocab, allowedEntities)
+        : await this._vectorizeToken(
+            tokens[idx + 1],
+            intentName,
+            'w[1]',
+            true,
+            intentVocab,
+            allowedEntities,
+            tfidf,
+            token2Vec
+          )
 
     debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
 
-    return [...prev, ...current, ...next]
+    const prevPairs = idx > 0 ? getFeaturesPairs(prev, current, ['word', 'inVocab', 'weight']) : []
+    const nextPairs = idx < tokens.length - 1 ? getFeaturesPairs(current, next, ['word', 'inVocab', 'weight']) : []
+
+    return [...seqFeatures, ...prev, ...current, ...next, ...prevPairs, ...nextPairs]
   }
 
   private async _getWordCluster(word: string): Promise<number> {
