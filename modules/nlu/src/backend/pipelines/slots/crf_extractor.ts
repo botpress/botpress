@@ -6,7 +6,7 @@ import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
 import { NLUStructure } from '../../typings'
-import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
+import { BIO, Sequence, Token } from '../../typings'
 
 import { generatePredictionSequence } from './pre-processor'
 
@@ -161,6 +161,7 @@ export default class CRFExtractor {
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
           if (_.isEmpty(token.matchedEntities)) {
             // simply append the source if the tag is inside a slot && type any (thus the if)
+            // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
             slotCollection[slotName].source += ` ${token.cannonical}`
             slotCollection[slotName].value += ` ${token.cannonical}`
           }
@@ -250,7 +251,7 @@ export default class CRFExtractor {
       return
     }
 
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical.toLowerCase()))
 
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
@@ -302,8 +303,8 @@ export default class CRFExtractor {
 
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
-        .map(token => (token.tag === BIO.OUT ? token.cannonical : token.slot))
-        .join(' ') // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
+        .map(token => (token.tag === BIO.OUT ? token.cannonical.toLowerCase() : token.slot))
+        .join(' ') // do not use sentencepiece space char
       return `${corpus}${cannonicSentence}\n`
     }, '')
 
@@ -333,31 +334,16 @@ export default class CRFExtractor {
     allowedEntities: string[]
   ): Promise<string[]> {
     const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
-    if (token.cannonical === token.cannonical.toLowerCase()) {
-      vector.push(`${featPrefix}low`)
-    }
-    if (token.cannonical === token.cannonical.toUpperCase()) {
-      vector.push(`${featPrefix}up`)
-    }
-    // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
-    if (
-      token.cannonical.length > 1 &&
-      token.cannonical[0] === token.cannonical[0].toUpperCase() &&
-      token.cannonical[1] === token.cannonical[1].toLowerCase()
-    ) {
-      vector.push(`${featPrefix}title`)
-    }
-
     if (includeCluster) {
-      const cluster = await this._getWordCluster(token.cannonical)
+      const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
       vector.push(`${featPrefix}cluster=${cluster.toString()}`)
     }
 
-    if (token.cannonical) {
+    if (token.cannonical && includeCluster) {
       vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
     }
 
-    // that means the word is part of possible list type entities
+    // that means the word is part of possible list type entities and in intent vocab
     if (!token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)) {
       vector.push(`${featPrefix}inVocab`)
     }
@@ -365,7 +351,6 @@ export default class CRFExtractor {
     const entitiesFeatures = _.chain(token.matchedEntities)
       .intersection(allowedEntities)
       .thru(ents => (ents.length ? ents : ['none']))
-      // if array emtpy push none
       .map(entity => `${featPrefix}entity=${entity}`)
       .value()
 
@@ -386,7 +371,7 @@ export default class CRFExtractor {
         : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true, intentVocab, allowedEntities)
 
     const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false, intentVocab, allowedEntities)
-    current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
+    // current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
 
     const next =
       idx === tokens.length - 1

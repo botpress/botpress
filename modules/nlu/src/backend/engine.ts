@@ -23,7 +23,7 @@ import { getHighlightedIntentEntities } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import { assignMatchedEntitiesToTokens, generateTrainingSequence } from './pipelines/slots/pre-processor'
+import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
@@ -325,27 +325,33 @@ export default class ScopedEngine implements Engine {
   }
 
   // TODO memoize this
-  private async _buildIntentVocabs(intentDefs: sdk.NLU.IntentDefinition[]): Promise<{ [token: string]: string[] }> {
+  private async _buildIntentVocabs(
+    intentDefs: sdk.NLU.IntentDefinition[],
+    language: string
+  ): Promise<{ [token: string]: string[] }> {
     const entities = await this.storage.getCustomEntities()
     const vocab = {}
 
-    intentDefs.forEach(intent => {
+    for (const intent of intentDefs) {
       const intentEntities = getHighlightedIntentEntities(intent)
-      _.chain(entities)
+      const synonyms = _.chain(entities)
         .filter(ent => ent.type === 'list')
         .intersectionWith(intentEntities, (entity, name) => entity.name === name)
         .flatMap(ent => ent.occurences)
         .flatMap(occ => [occ.name, ...occ.synonyms])
-        .forEach(word => {
-          word = word.toLowerCase()
-          if (vocab[word]) {
-            vocab[word].push(intent.name)
-          } else {
-            vocab[word] = [intent.name]
-          }
-        })
-        .commit()
-    })
+        .map(_.toLower)
+        .value()
+
+      const cleaned = intent.utterances[language].map(utt => sanitize(keepNothing(utt)).toLowerCase())
+      _.flatten(await this._tokenizeUtterances(cleaned.concat(synonyms), language)).forEach(token => {
+        const word = token.cannonical
+        if (vocab[word] && vocab[word].indexOf(intent.name) === -1) {
+          vocab[word].push(intent.name)
+        } else {
+          vocab[word] = [intent.name]
+        }
+      })
+    }
 
     return vocab
   }
@@ -359,7 +365,7 @@ export default class ScopedEngine implements Engine {
 
     try {
       let trainingSet = await this.getTrainingSets(intentDefs, lang)
-      const intentsVocab = await this._buildIntentVocabs(intentDefs)
+      const intentsVocab = await this._buildIntentVocabs(intentDefs, lang)
       const allowedEntitiesPerIntents = intentDefs
         .map(intent => ({
           [intent.name]: getHighlightedIntentEntities(intent)
@@ -421,7 +427,11 @@ export default class ScopedEngine implements Engine {
 
         if (trainableIntents.length) {
           const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
-          const slotTaggerModels = await this._trainSlotTagger(trainableIntents, modelHash, lang)
+          const slotTaggerModels = await this._trainSlotTagger(
+            trainableIntents.filter(intent => intent.slots.length),
+            modelHash,
+            lang
+          )
           await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
         }
       } catch (err) {
@@ -508,17 +518,17 @@ export default class ScopedEngine implements Engine {
     return ds
   }
 
-  private _setTextWithoutEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.sanitizedText = getTextWithoutEntities(ds.entities, ds.rawText)
-    ds.sanitizedLowerText = ds.sanitizedText.toLowerCase()
+  private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
+    ds.tokens = (await this._tokenizeUtterances([ds.rawText], ds.language))[0]
     return ds
   }
 
-  private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    const [rawTokens] = await this.languageProvider.tokenize([ds.sanitizedLowerText], ds.language)
-    const tokens = makeTokens(rawTokens, ds.sanitizedText)
-    ds.tokens = mergeSpecialCharactersTokens(tokens)
-    return ds
+  private _tokenizeUtterances = async (utterances: string[], language: string) => {
+    const rawTokens = await this.languageProvider.tokenize(utterances, language)
+    return _.zip(rawTokens, utterances).map(([utteranceTokens, utterance]) => {
+      const toks = makeTokens(utteranceTokens, utterance)
+      return mergeSpecialCharactersTokens(toks)
+    })
   }
 
   private _extractSlots = async (ds: NLUStructure): Promise<NLUStructure> => {
@@ -532,8 +542,8 @@ export default class ScopedEngine implements Engine {
       return ds
     }
 
-    // use prebuilt, kept in memory
-    const intentVocab = await this._buildIntentVocabs([intentDef])
+    const intentVocab = await this._buildIntentVocabs([intentDef], ds.language)
+
     const allowedEntities = { [intentDef.name]: getHighlightedIntentEntities(intentDef) }
     ds.slots = await this.slotExtractors[ds.language].extract(ds, intentDef, intentVocab, allowedEntities)
 
@@ -577,7 +587,6 @@ export default class ScopedEngine implements Engine {
     this._detectLang,
     this._tokenize,
     this._extractEntities,
-    this._setTextWithoutEntities,
     this._extractIntents,
     this._setAmbiguity,
     this._extractSlots
@@ -588,7 +597,7 @@ export default class ScopedEngine implements Engine {
       cacheHashAlgorithm: NoneHashAlgorithm,
       execute: this._processText,
       inputProps: ['rawText'],
-      outputProps: ['entities']
+      outputProps: [] // TODO
     },
     {
       cacheHashAlgorithm: NoneHashAlgorithm,

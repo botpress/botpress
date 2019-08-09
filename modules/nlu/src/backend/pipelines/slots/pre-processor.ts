@@ -17,6 +17,10 @@ export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
 }
 
+export function keepNothing(text: string): string {
+  return text.replace(ALL_SLOTS_REGEX, '').trim()
+}
+
 export function getKnownSlots(
   text: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
@@ -60,7 +64,7 @@ const _generateTrainingTokens = languageProvider => async (
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
   const [rawToks] = await languageProvider.tokenize([input.toLowerCase()], lang)
-  return makeTokens(rawToks, input).map((t, idx) => {
+  const toks = makeTokens(rawToks, input).map((t, idx) => {
     const tok = {
       ...t,
       start: start + t.start,
@@ -72,6 +76,8 @@ const _generateTrainingTokens = languageProvider => async (
 
     return tok
   })
+
+  return mergeSpecialCharactersTokens(toks)
 }
 
 export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] =>
@@ -139,7 +145,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
 ): Promise<TrainingSequence> => {
   let tokens: Token[] = []
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = sanitize(keepEntityValues(input).toLocaleLowerCase()) // TODO: Use DS as input instead
+  const cannonical = keepEntityValues(input).toLowerCase() // TODO: Use DS as input instead
   const knownSlots = getKnownSlots(input, slotDefinitions, logger)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities

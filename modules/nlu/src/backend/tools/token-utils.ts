@@ -41,7 +41,7 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
 
   for (const head of tokens) {
     if (!current) {
-      current = head
+      current = { ...head }
       continue
     }
 
@@ -57,7 +57,7 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
       current.matchedEntities = current.matchedEntities.concat(head.matchedEntities)
     } else {
       final.push(current)
-      current = head
+      current = { ...head }
     }
   }
   return current ? [...final, current] : final

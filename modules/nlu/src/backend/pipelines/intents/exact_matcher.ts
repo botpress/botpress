@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { KnownSlot, TrainingSequence } from '../../typings'
+import { KnownSlot, NLUStructure, TrainingSequence } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
 type ExactMatchStructure = {
-  sanitizedText: string
+  sanitizedLowerText: string
   includedContexts: string[]
   entities: sdk.NLU.Entity[]
 }
@@ -16,7 +16,7 @@ export default class ExactMatcher {
   constructor(private trainingSet: TrainingSequence[]) {}
 
   exactMatch(ds: ExactMatchStructure): sdk.NLU.Intent | void {
-    const { sanitizedText: text, includedContexts, entities: detectedEntities } = ds
+    const { sanitizedLowerText: text, includedContexts, entities: detectedEntities } = ds
 
     for (const seq of this.trainingSet) {
       if (includedContexts.length && !_.intersection(seq.contexts || [], includedContexts).length) {
