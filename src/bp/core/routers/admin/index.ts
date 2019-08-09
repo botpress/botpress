@@ -51,7 +51,7 @@ export class AdminRouter extends CustomRouter {
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
-    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService, this.workspaceService)
+    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider, ghostService)
     this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService)
@@ -98,7 +98,11 @@ export class AdminRouter extends CustomRouter {
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/languages', this.checkTokenHeader, this.languagesRouter.router)
-    router.use('/versioning', this.checkTokenHeader, this.versioningRouter.router)
     router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
+
+    // TODO: Add versioning per workspace.
+    // This way admins could use these routes to push / pull independently of other workspaces.
+    // For now we're restricting to super-admin.
+    router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
   }
 }

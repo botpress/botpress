@@ -1,32 +1,20 @@
 import { Logger } from 'botpress/sdk'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router } from 'express'
+import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { needPermissions } from '../util'
 
 export class VersioningRouter extends CustomRouter {
-  private needPermissions: (operation: string, resource: string) => RequestHandler
-  private readonly resource = 'admin.versioning'
-
-  constructor(
-    logger: Logger,
-    private ghost: GhostService,
-    private botService: BotService,
-    private workspaceService: WorkspaceService
-  ) {
+  constructor(logger: Logger, private ghost: GhostService, private botService: BotService) {
     super('Versioning', logger, Router({ mergeParams: true }))
-    this.needPermissions = needPermissions(this.workspaceService)
     this.setupRoutes()
   }
 
   setupRoutes() {
     this.router.get(
       '/pending',
-      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botIds = await this.botService.getBotsIds()
         res.send(await this.ghost.getPending(botIds))
@@ -35,7 +23,6 @@ export class VersioningRouter extends CustomRouter {
 
     this.router.get(
       '/export',
-      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botIds = await this.botService.getBotsIds()
         const tarball = await this.ghost.exportArchive(botIds)
@@ -52,7 +39,6 @@ export class VersioningRouter extends CustomRouter {
     // Return the list of local and production file changes
     this.router.get(
       '/changes',
-      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const changes = await this.ghost.listFileChanges()
         res.json(changes)
@@ -62,7 +48,6 @@ export class VersioningRouter extends CustomRouter {
     // Force update of the production files by the local files
     this.router.post(
       '/update',
-      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botsIds = await this.botService.getBotsIds()
         await Promise.map(botsIds, id => this.ghost.forBot(id).forceUpdate())
