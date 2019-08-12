@@ -60,7 +60,7 @@ class PanelContent extends React.Component<Props> {
 
   renderSectionBotsConfig() {
     const { readPermissions } = (this.props.permissions || {}) as FilePermissions
-    if (!readPermissions || !readPermissions.globalConfigs || !readPermissions.botConfigs) {
+    if (!readPermissions || (!readPermissions.globalConfigs && !readPermissions.botConfigs)) {
       return null
     }
 

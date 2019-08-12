@@ -12,7 +12,7 @@ export const defaultRoles: AuthRole[] = [
       { res: '*', op: '+r+w' },
       {
         res: 'module.code-editor.global.configs',
-        op: '+r-w'
+        op: '-r-w'
       }
     ]
   },
@@ -31,10 +31,6 @@ export const defaultRoles: AuthRole[] = [
       {
         res: 'module.code-editor.global.configs',
         op: '-r-w'
-      },
-      {
-        res: 'module.code-editor.bot.*',
-        op: '+r+w'
       }
     ]
   },
@@ -47,7 +43,11 @@ export const defaultRoles: AuthRole[] = [
       { res: '*', op: '+r' },
       { res: 'admin.collaborators.*', op: '-r' },
       { res: 'bot.flows', op: '+r-w' },
-      { res: 'bot.content', op: '+r+w' }
+      { res: 'bot.content', op: '+r+w' },
+      {
+        res: 'module.code-editor.*',
+        op: '-r-w'
+      }
     ]
   }
 ]

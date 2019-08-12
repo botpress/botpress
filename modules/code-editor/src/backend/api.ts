@@ -7,9 +7,9 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.get('/files', async (req, res, next) => {
     const permissions = await getPermissions(req)
-
+    const files = await editorByBot[req.params.botId].fetchFiles(permissions)
     try {
-      res.send(await editorByBot[req.params.botId].fetchFiles(permissions))
+      res.send(files)
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching files')
       next(err)
