@@ -1,16 +1,15 @@
 import * as sdk from 'botpress/sdk'
 
-import { EditorByBot } from './typings'
+import { EditorByBot, FilePermissions } from './typings'
 
 export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
   const router = bp.http.createRouterForBot('code-editor')
 
   router.get('/files', async (req, res, next) => {
-    const editor = editorByBot[req.params.botId]
-    const permissions = await editor.getPermissions(req)
+    const permissions = await getPermissions(req)
 
     try {
-      res.send(await editor.fetchFiles(permissions))
+      res.send(await editorByBot[req.params.botId].fetchFiles(permissions))
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching files')
       next(err)
@@ -19,8 +18,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.get('/permissions', async (req, res, next) => {
     try {
-      const editor = editorByBot[req.params.botId]
-      res.send(await editor.getPermissions(req))
+      res.send(await getPermissions(req))
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching config')
       next(err)
@@ -29,9 +27,8 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/save', async (req, res, next) => {
     try {
-      const editor = editorByBot[req.params.botId]
-      const permissions = await editor.getPermissions(req)
-      await editor.saveFile(req.body, permissions)
+      const permissions = await getPermissions(req)
+      await editorByBot[req.params.botId].saveFile(req.body, permissions)
       res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).error('Could not save file')
@@ -42,8 +39,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
   router.put('/rename', async (req, res, next) => {
     const { file, newName } = req.body
     try {
-      const editor = editorByBot[req.params.botId]
-      const permissions = await editor.getPermissions(req)
+      const permissions = await getPermissions(req)
       await editorByBot[req.params.botId].renameFile(file, newName, permissions)
       res.sendStatus(200)
     } catch (err) {
@@ -55,8 +51,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
   router.post('/remove', async (req, res, next) => {
     const file = req.body
     try {
-      const editor = editorByBot[req.params.botId]
-      const permissions = await editor.getPermissions(req)
+      const permissions = await getPermissions(req)
       await editorByBot[req.params.botId].deleteFile(file, permissions)
       res.sendStatus(200)
     } catch (err) {
@@ -73,4 +68,29 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
       next(err)
     }
   })
+
+  async function getPermissions(req: any): Promise<FilePermissions> {
+    const hasPermission = req => async (op: string, res: string) =>
+      bp.http.hasPermission(req, op, 'module.code-editor.' + res)
+
+    const permissionsChecker = hasPermission(req)
+
+    const readPermissions = {
+      hooks: await permissionsChecker('read', 'global.hooks'),
+      globalActions: await permissionsChecker('read', 'global.actions'),
+      botActions: await permissionsChecker('read', 'bot.actions'),
+      globalConfigs: await permissionsChecker('read', 'global.configs'),
+      botConfigs: await permissionsChecker('read', 'bot.configs')
+    }
+
+    const writePermissions = {
+      hooks: await permissionsChecker('write', 'global.hooks'),
+      globalActions: await permissionsChecker('write', 'global.actions'),
+      botActions: await permissionsChecker('write', 'bot.actions'),
+      globalConfigs: await permissionsChecker('write', 'global.configs'),
+      botConfigs: await permissionsChecker('write', 'bot.configs')
+    }
+
+    return { readPermissions, writePermissions }
+  }
 }

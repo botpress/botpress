@@ -31,31 +31,6 @@ export default class Editor {
     return this._config
   }
 
-  async getPermissions(req: any): Promise<FilePermissions> {
-    const hasPermission = req => async (op: string, res: string) =>
-      this.bp.http.hasPermission(req, op, 'module.code-editor.' + res)
-
-    const permissionsChecker = hasPermission(req)
-
-    const readPermissions = {
-      hooks: await permissionsChecker('read', 'global.hooks'),
-      globalActions: await permissionsChecker('read', 'global.actions'),
-      botActions: await permissionsChecker('read', 'bot.actions'),
-      globalConfigs: await permissionsChecker('read', 'global.configs'),
-      botConfigs: await permissionsChecker('read', 'bot.configs')
-    }
-
-    const writePermissions = {
-      hooks: await permissionsChecker('write', 'global.hooks'),
-      globalActions: await permissionsChecker('write', 'global.actions'),
-      botActions: await permissionsChecker('write', 'bot.actions'),
-      globalConfigs: await permissionsChecker('write', 'global.configs'),
-      botConfigs: await permissionsChecker('write', 'bot.configs')
-    }
-
-    return { readPermissions, writePermissions }
-  }
-
   async fetchFiles(permissions: FilePermissions): Promise<FilesDS> {
     const { readPermissions } = permissions
 
@@ -120,9 +95,7 @@ export default class Editor {
 
   private async _validateModulesConfig(config: string, location: string) {
     const deconstructedPath = location.split(path.sep).filter(x => !!x)
-
-    const dirName = deconstructedPath[0]
-    const fileName = deconstructedPath[1]
+    const [dirName, fileName] = deconstructedPath
 
     const ghost = this.bp.ghost.forGlobal()
     const moduleConfigFiles = await ghost.directoryListing(dirName, '*.json')
