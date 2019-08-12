@@ -315,9 +315,10 @@ export const insertNewSkillNode = wrapAction(requestInsertNewSkillNode, updateCu
 
 export const updateSkill = wrapAction(requestUpdateSkill, async (payload, state) => {
   const { editFlowName } = payload
+  const { flows: flowState } = state
   await Promise.all([
-    FlowsAPI.updateFlow(state.flows, editFlowName),
-    FlowsAPI.updateFlow(state.flows, state.currentFlow)
+    FlowsAPI.updateFlow(flowState, editFlowName),
+    FlowsAPI.updateFlow(flowState, flowState.currentFlow)
   ])
 })
 

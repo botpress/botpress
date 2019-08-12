@@ -365,6 +365,19 @@ export class ScopedGhostService {
     await this.primaryDriver.moveFile(fromPath, toPath)
   }
 
+  async syncDatabaseFilesToDisk(rootFolder: string): Promise<void> {
+    if (this.primaryDriver instanceof DiskStorageDriver) {
+      return
+    }
+
+    const remoteFiles = await this.dbDriver.directoryListing(this._normalizeFolderName(rootFolder))
+    const filePath = filename => this._normalizeFileName(rootFolder, filename)
+
+    await Promise.mapSeries(remoteFiles, async file =>
+      this.diskDriver.upsertFile(filePath(file), await this.dbDriver.readFile(filePath(file)))
+    )
+  }
+
   async deleteFolder(folder: string): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)

@@ -4,6 +4,7 @@ import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
 
@@ -11,16 +12,18 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { BPError } from '../dialog/errors'
+import { ActionExecutionError, BPError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
+const SYNC_DEBOUNCE_DELAY = ms('2s')
 
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
+  private _syncDebounce
 
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
@@ -28,7 +31,34 @@ export default class ActionService {
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
-  ) {}
+  ) {
+    this._listenForCacheInvalidation()
+    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+        this._syncDebounce(key)
+      }
+    })
+  }
+
+  // Listening for sync here, because scopedActionService is not initialized until a user triggers an action
+  private async _syncFiles(key: string) {
+    const parts = key.split('/')
+    const botId = parts[parts.indexOf('actions') - 1]
+
+    Object.keys(require.cache)
+      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
+      .map(file => delete require.cache[file])
+
+    if (botId === 'global') {
+      await this.ghost.global().syncDatabaseFilesToDisk('actions')
+    } else {
+      await this.ghost.forBot(botId).syncDatabaseFilesToDisk('actions')
+    }
+  }
 
   forBot(botId: string): ScopedActionService {
     if (this._scopedActions.has(botId)) {
@@ -195,7 +225,7 @@ export class ScopedActionService {
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
-      throw new BPError(`An error occurred while executing the action "${actionName}"`, 'BP_451')
+      throw new ActionExecutionError(err.message, actionName, err.stack)
     }
   }
 
