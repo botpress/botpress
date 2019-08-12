@@ -144,7 +144,8 @@ export default class HTTPServer {
       this.configProvider,
       this.monitoringService,
       this.alertingService,
-      moduleLoader
+      moduleLoader,
+      cmsService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
