@@ -702,8 +702,15 @@ declare module 'botpress/sdk' {
      * @param file - The name of the file
      * @param content - The content of the file
      * @param recordRevision - Whether or not to record a revision @default true
+     * @param syncDbToDisk - When enabled, files changed on the database are synced locally so they can be used locally (eg: require in actions) @default false
      */
-    upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision?: boolean): Promise<void>
+    upsertFile(
+      rootFolder: string,
+      file: string,
+      content: string | Buffer,
+      recordRevision?: boolean,
+      syncDbToDisk?: boolean
+    ): Promise<void>
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>

@@ -36,7 +36,9 @@ export class GhostService {
     @inject(TYPES.Logger)
     @tagged('name', 'GhostService')
     private logger: Logger
-  ) {}
+  ) {
+    this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
+  }
 
   initialize(enabled: boolean) {
     this.enabled = enabled
@@ -93,7 +95,8 @@ export class GhostService {
       this.dbDriver,
       this.enabled,
       this.cache,
-      this.logger
+      this.logger,
+      botId
     )
 
     const listenForUnmount = args => {
@@ -146,6 +149,19 @@ export class GhostService {
       bots
     }
   }
+
+  private _onSyncReceived = async (message: string) => {
+    try {
+      const { rootFolder, botId } = JSON.parse(message)
+      if (botId) {
+        await this.forBot(botId).syncDatabaseFilesToDisk(rootFolder)
+      } else {
+        await this.global().syncDatabaseFilesToDisk(rootFolder)
+      }
+    } catch (err) {
+      this.logger.attachError(err).error('Could not sync files locally.')
+    }
+  }
 }
 
 export interface FileContent {
@@ -164,7 +180,8 @@ export class ScopedGhostService {
     private dbDriver: DBStorageDriver,
     private useDbDriver: boolean,
     private cache: ObjectCache,
-    private logger: Logger
+    private logger: Logger,
+    private botId?: string
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)
@@ -201,7 +218,13 @@ export class ScopedGhostService {
     }
   }
 
-  async upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision = true): Promise<void> {
+  async upsertFile(
+    rootFolder: string,
+    file: string,
+    content: string | Buffer,
+    recordRevision = true,
+    syncDbToDisk = false
+  ): Promise<void> {
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
@@ -215,6 +238,10 @@ export class ScopedGhostService {
     await this.primaryDriver.upsertFile(fileName, content, recordRevision)
     this.events.emit('changed', fileName)
     await this._invalidateFile(fileName)
+
+    if (syncDbToDisk) {
+      await this.cache.sync(JSON.stringify({ rootFolder, botId: this.botId }))
+    }
   }
 
   async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
@@ -392,7 +419,7 @@ export class ScopedGhostService {
   }
 
   async syncDatabaseFilesToDisk(rootFolder: string): Promise<void> {
-    if (this.primaryDriver instanceof DiskStorageDriver) {
+    if (!this.useDbDriver) {
       return
     }
 

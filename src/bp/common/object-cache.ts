@@ -7,4 +7,5 @@ export interface ObjectCache {
   has(key: string): Promise<boolean>
   invalidate(key: string): Promise<void>
   invalidateStartingWith(prefix: string): Promise<void>
+  sync(message: string): Promise<void>
 }

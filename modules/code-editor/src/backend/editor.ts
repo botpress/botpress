@@ -101,9 +101,9 @@ export default class Editor {
     const ghost = this._getGhost(file)
 
     if (type === 'action') {
-      return ghost.upsertFile('/actions', location, content)
+      return ghost.upsertFile('/actions', location, content, true, true)
     } else if (type === 'hook') {
-      return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
+      return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content, true, true)
     } else if (type === 'bot_config') {
       return ghost.upsertFile('/', 'bot.config.json', content)
     }
