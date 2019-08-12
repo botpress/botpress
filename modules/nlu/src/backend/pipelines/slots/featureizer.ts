@@ -4,14 +4,11 @@ import { LanguageProvider, Token2Vec } from '../../typings'
 import { MAX_TFIDF, TfidfOutput } from '../intents/tfidf'
 import { getClosestToken } from '../language/ft_featurizer'
 
-export const computeBucket = (bucketSize: number, maxValue: number, value: number) => {
-  if (value >= maxValue) {
-    return maxValue
-  } else {
-    return Math.max(Math.ceil((value * bucketSize) / maxValue), 1)
-  }
-}
+/** Returns a value between [1, bucketSize] */
+export const computeBucket = (bucketSize: number) => (value: number, max: number) =>
+  Math.min(bucketSize, Math.max(Math.ceil(bucketSize * (value / max)), 1))
 
+const tierce = computeBucket(3)
 const TFIDF_WEIGHTS = ['low', 'medium', 'high']
 
 export const getTFIDFfeature = async (
@@ -28,7 +25,7 @@ export const getTFIDFfeature = async (
     value = tfidf['global'][closestTok]
   }
 
-  const third = computeBucket(3, MAX_TFIDF, value)
+  const third = tierce(value, MAX_TFIDF)
   return TFIDF_WEIGHTS[third - 1]
 }
 

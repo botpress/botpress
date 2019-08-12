@@ -1,25 +1,23 @@
 import { computeBucket, getFeaturesPairs } from './featureizer'
 
 test('Compute quartile', () => {
-  const res = computeBucket(4, 4, 0.1)
-  const res0 = computeBucket(4, 4, 0)
-  const res1 = computeBucket(4, 4, 1)
-  const res2 = computeBucket(4, 4, 1.1)
-  const res3 = computeBucket(4, 4, 2)
-  const res4 = computeBucket(4, 4, 2.5)
-  const res5 = computeBucket(4, 4, 3)
-  const res6 = computeBucket(4, 4, 3.7)
-  const res7 = computeBucket(4, 4, 4)
+  const quartile = computeBucket(4)
 
-  expect(res).toEqual(1)
-  expect(res0).toEqual(1)
-  expect(res1).toEqual(1)
-  expect(res2).toEqual(2)
-  expect(res3).toEqual(2)
-  expect(res4).toEqual(3)
-  expect(res5).toEqual(3)
-  expect(res6).toEqual(4)
-  expect(res7).toEqual(4)
+  expect(quartile(0, 10)).toEqual(1)
+  expect(quartile(1, 10)).toEqual(1)
+  expect(quartile(2, 10)).toEqual(1)
+
+  expect(quartile(3, 10)).toEqual(2)
+  expect(quartile(4, 10)).toEqual(2)
+  expect(quartile(5, 10)).toEqual(2)
+
+  expect(quartile(6, 10)).toEqual(3)
+  expect(quartile(7, 10)).toEqual(3)
+
+  expect(quartile(8, 10)).toEqual(4)
+  expect(quartile(9, 10)).toEqual(4)
+  expect(quartile(10, 10)).toEqual(4)
+  expect(quartile(11, 10)).toEqual(4)
 })
 
 test('getFeaturesPairs', () => {

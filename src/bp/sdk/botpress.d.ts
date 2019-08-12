@@ -295,6 +295,7 @@ declare module 'botpress/sdk' {
       export interface Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
         open(model_filename: string): boolean
+        marginal(xseq: Array<string[]>): { [label: string]: number }[]
       }
 
       export interface TrainerOptions {

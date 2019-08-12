@@ -5,6 +5,7 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
+import { SPACE } from '../../tools/token-utils'
 import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
@@ -17,6 +18,8 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
+const quartile = computeBucket(4)
+
 const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
@@ -25,7 +28,7 @@ const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
 const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
-const K_CLUSTERS = 15
+const K_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
   initialization: 'random',
@@ -38,6 +41,8 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_transitions': '1',
   'feature.possible_states': '1'
 }
+
+export type TagResult = { probability: number; label: string }
 
 export default class CRFExtractor {
   private _isTrained: boolean = false
@@ -140,38 +145,38 @@ export default class CRFExtractor {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
     // TODO: Remove this line and make this part of the predictionPipeline instead
-    const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef, ds.entities, ds.tokens)
+    const seq = await generatePredictionSequence(ds.rawText.toLowerCase(), intentDef, ds.entities, ds.tokens)
 
-    const { probability, result: tags } = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
+    const tags = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
-    return (_.zip(seq.tokens, tags) as [Token, string][])
-      .filter(([token, tagResult]) => {
-        if (!token || !tagResult || tagResult === BIO.OUT) {
+    return (_.zip(seq.tokens, tags) as [Token, TagResult][])
+      .filter(([token, result]) => {
+        if (!token || !result || !result.label || result.label === BIO.OUT) {
           return false
         }
 
-        const slotName = tagResult.slice(2)
+        const slotName = result.label.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
-        const slotName = tag.slice(2)
+        const slotName = tag.label.slice(2)
         const slotDef = intentDef.slots.find(x => x.name == slotName)
 
-        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, probability)
+        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, tag.probability)
 
         if (!slot) {
           return slotCollection
         }
 
-        if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
+        if (tag.label[0] === BIO.INSIDE && slotCollection[slotName]) {
           if (_.isEmpty(token.matchedEntities)) {
             // simply append the source if the tag is inside a slot && type any (thus the if)
             // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
             slotCollection[slotName].source += ` ${token.cannonical}`
             slotCollection[slotName].value += ` ${token.cannonical}`
           }
-        } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
+        } else if (tag.label[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
             slotCollection[slotName].push(slot)
@@ -194,7 +199,7 @@ export default class CRFExtractor {
     allowedEntitiesPerIntents,
     tfidf: TfidfOutput,
     token2Vec: Token2Vec
-  ): Promise<{ probability: number; result: string[] }> {
+  ): Promise<TagResult[]> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
@@ -208,12 +213,24 @@ export default class CRFExtractor {
         intentVocab,
         allowedEntitiesPerIntents[seq.intent],
         tfidf,
-        token2Vec
+        token2Vec,
+        true
       )
       inputVectors.push(featureVec)
     }
 
-    return this._tagger.tag(inputVectors)
+    const probs = this._tagger.marginal(inputVectors)
+    const chain = probs.map(token =>
+      _.chain(token)
+        .toPairs()
+        .maxBy('1')
+        .thru(([label, prob]) => ({
+          label: label.replace('/any', ''),
+          probability: prob
+        }))
+        .value()
+    )
+    return chain
   }
 
   private _makeSlot(
@@ -281,6 +298,7 @@ export default class CRFExtractor {
     const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
     trainer.set_callback(str => {
+      debugTrain('CRFSUITE', str)
       /* swallow training results */
     })
 
@@ -295,13 +313,15 @@ export default class CRFExtractor {
           intentVocab,
           allowedEntitiesPerIntents[seq.intent],
           tfidf,
-          token2Vec
+          token2Vec,
+          false
         )
 
         inputVectors.push(featureVec)
 
+        const isAny = seq.tokens[i].slot && !seq.tokens[i].matchedEntities.length ? '/any' : ''
         const labelSlot = seq.tokens[i].slot ? `-${seq.tokens[i].slot}` : ''
-        labels.push(`${seq.tokens[i].tag}${labelSlot}`)
+        labels.push(`${seq.tokens[i].tag}${labelSlot}${isAny}`)
       }
       trainer.append(inputVectors, labels)
     }
@@ -347,9 +367,11 @@ export default class CRFExtractor {
     intentVocab: { [token: string]: string[] },
     allowedEntities: string[],
     tfidf: TfidfOutput,
-    token2Vec: Token2Vec
+    token2Vec: Token2Vec,
+    isPredict: boolean
   ): Promise<string[]> {
     const vector: string[] = []
+    const boost = isPredict ? 3 : 1
 
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
@@ -357,12 +379,16 @@ export default class CRFExtractor {
     }
 
     if (token.cannonical) {
-      vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
+      if (!token.matchedEntities.length) {
+        vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}:${boost}`)
+      }
+
+      vector.push(`${featPrefix}space=${token.value.startsWith(SPACE)}`)
     }
 
     // that means the word is part of possible list type entities and in intent vocab
     const inVocab = !token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)
-    vector.push(`${featPrefix}inVocab=${inVocab}`)
+    vector.push(`${featPrefix}vocab=${inVocab}`)
 
     const wordWeight = await getTFIDFfeature(
       tfidf,
@@ -376,7 +402,7 @@ export default class CRFExtractor {
     const entitiesFeatures = _.chain(token.matchedEntities)
       .intersection(allowedEntities)
       .thru(ents => (ents.length ? ents : ['none']))
-      .map(entity => `${featPrefix}entity=${entity}`)
+      .map(entity => `${featPrefix}entity=${entity}:${boost}`)
       .value()
 
     return [...vector, ...entitiesFeatures]
@@ -390,13 +416,15 @@ export default class CRFExtractor {
     intentVocab: { [token: string]: string[] },
     allowedEntities: string[],
     tfidf: TfidfOutput,
-    token2Vec: Token2Vec
+    token2Vec: Token2Vec,
+    isPredict: boolean
   ): Promise<string[]> {
-    const seqFeatures = [`intent=${intentName}:10`]
+    const boost = isPredict ? 100 : 100
+    const seqFeatures = [`intent=${intentName}:${boost}`.toLowerCase()]
 
     const prev =
       idx === 0
-        ? ['w[0]bos']
+        ? ['__BOS__']
         : await this._vectorizeToken(
             tokens[idx - 1],
             intentName,
@@ -405,7 +433,8 @@ export default class CRFExtractor {
             intentVocab,
             allowedEntities,
             tfidf,
-            token2Vec
+            token2Vec,
+            isPredict
           )
 
     const current = await this._vectorizeToken(
@@ -416,13 +445,14 @@ export default class CRFExtractor {
       intentVocab,
       allowedEntities,
       tfidf,
-      token2Vec
+      token2Vec,
+      isPredict
     )
-    current.push(`w[0]quartile=${computeBucket(4, tokens.length - 1, idx)}`)
+    current.push(`w[0]quartile=${quartile(idx, tokens.length - 1)}`)
 
     const next =
       idx === tokens.length - 1
-        ? ['w[0]eos']
+        ? ['__EOS__']
         : await this._vectorizeToken(
             tokens[idx + 1],
             intentName,
@@ -431,13 +461,14 @@ export default class CRFExtractor {
             intentVocab,
             allowedEntities,
             tfidf,
-            token2Vec
+            token2Vec,
+            isPredict
           )
 
     debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
 
-    const prevPairs = idx > 0 ? getFeaturesPairs(prev, current, ['word', 'inVocab', 'weight']) : []
-    const nextPairs = idx < tokens.length - 1 ? getFeaturesPairs(current, next, ['word', 'inVocab', 'weight']) : []
+    const prevPairs = idx > 0 ? getFeaturesPairs(prev, current, ['word', 'vocab', 'weight']) : []
+    const nextPairs = idx < tokens.length - 1 ? getFeaturesPairs(current, next, ['word', 'vocab', 'weight']) : []
 
     return [...seqFeatures, ...prev, ...current, ...next, ...prevPairs, ...nextPairs]
   }

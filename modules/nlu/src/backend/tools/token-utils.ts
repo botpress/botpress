@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import { Token } from '../typings'
 
-const SPACE = '\u2581'
+export const SPACE = '\u2581'
 const CHARS_TO_MERGE: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
 
 export const makeTokens = (stringTokens: string[], text: string) => {

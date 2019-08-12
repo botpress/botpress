@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { makeTokens } from '../../tools/token-utils'
 import { KnownSlot, TrainingSequence } from '../../typings'
 
-import ExactMatcher from './exact_matcher'
+import ExactMatcher, { ExactMatchStructure } from './exact_matcher'
 
 const I_LIKE_ANIMALS_INTENT = 'I_LIKE_ANIMALS_INTENT'
 const ANIMAL_I_LIKE_SLOT = 'ANIMAL_I_LIKE_SLOT'
@@ -65,8 +65,8 @@ describe('Exact Match', () => {
 
     const exactMatcher = new ExactMatcher(trainingSet)
 
-    const ds = {
-      sanitizedText: 'I like animals',
+    const ds: ExactMatchStructure = {
+      sanitizedLowerText: 'i like animals',
       includedContexts: [],
       entities: []
     }
@@ -88,8 +88,8 @@ describe('Exact Match', () => {
 
     const exactMatcher = new ExactMatcher(trainingSet)
 
-    const ds = {
-      sanitizedText: 'I like dogs',
+    const ds: ExactMatchStructure = {
+      sanitizedLowerText: 'i like dogs',
       includedContexts: [],
       entities: [
         {
@@ -121,8 +121,8 @@ describe('Exact Match', () => {
 
     const exactMatcher = new ExactMatcher(trainingSet)
 
-    const ds = {
-      sanitizedText: 'I like tomatos',
+    const ds: ExactMatchStructure = {
+      sanitizedLowerText: 'i like tomatos',
       includedContexts: [],
       entities: [
         {
@@ -153,8 +153,8 @@ describe('Exact Match', () => {
 
     const exactMatcher = new ExactMatcher(trainingSet)
 
-    const ds = {
-      sanitizedText: 'I like 42 stupid dogs',
+    const ds: ExactMatchStructure = {
+      sanitizedLowerText: 'i like 42 stupid dogs',
       includedContexts: [],
       entities: [
         {

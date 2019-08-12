@@ -48,6 +48,7 @@
     "cinttypes": "cpp",
     "utility": "cpp",
     "typeinfo": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "__split_buffer": "cpp"
   }
 }

@@ -4,11 +4,7 @@ import _ from 'lodash'
 import { KnownSlot, NLUStructure, TrainingSequence } from '../../typings'
 import { sanitize } from '../language/sanitizer'
 
-type ExactMatchStructure = {
-  sanitizedLowerText: string
-  includedContexts: string[]
-  entities: sdk.NLU.Entity[]
-}
+export type ExactMatchStructure = Pick<NLUStructure, 'sanitizedLowerText' | 'includedContexts' | 'entities'>
 
 // TODO if we're going to keep this, replace the training set with an inversed index or tree or at anything faster than O(n) at predict time
 // this might be replaced by a knn with tweaked distance func & proper usage at predict time

@@ -27,16 +27,7 @@ import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
-import {
-  Engine,
-  EntityExtractor,
-  LanguageIdentifier,
-  Model,
-  MODEL_TYPES,
-  NLUStructure,
-  Sequence,
-  SlotExtractor
-} from './typings'
+import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
@@ -518,7 +509,7 @@ export default class ScopedEngine implements Engine {
   }
 
   private _tokenize = async (ds: NLUStructure): Promise<NLUStructure> => {
-    ds.tokens = (await this._tokenizeUtterances([ds.rawText], ds.language))[0]
+    ds.tokens = (await this._tokenizeUtterances([ds.rawText.toLowerCase()], ds.language))[0]
     return ds
   }
 
