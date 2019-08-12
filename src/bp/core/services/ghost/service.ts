@@ -16,7 +16,7 @@ import { VError } from 'verror'
 import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
 
-import { PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver, FileRevision } from '.'
+import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
@@ -55,20 +55,21 @@ export class GhostService {
 
   async listFileChanges(): Promise<FileChanges> {
     const botsIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const uniqueFile = file => `${file.path} | ${file.revision}`
 
     const botsFileChanges = await Promise.map(botsIds, async botId => {
       const localRevs = await this.forBot(botId).listDiskRevisions()
       const prodRevs = await this.forBot(botId).listDbRevisions()
-      const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
-      const unsyncedFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+      const syncedRevs = _.intersectionBy(localRevs, prodRevs, uniqueFile)
+      const unsyncedFiles = _.uniq(_.differenceBy(prodRevs, syncedRevs, uniqueFile).map(x => x.path))
 
       return { scope: botId, changes: unsyncedFiles }
     })
 
-    const localRevs = await this.global().listDbRevisions()
-    const prodRevs = await this.global().listDiskRevisions()
-    const syncedRevs = _.intersectionBy(localRevs, prodRevs, x => `${x.path} | ${x.revision}`)
-    const unsyncedFiles = _.uniq(_.difference(prodRevs, syncedRevs).map(x => x.path))
+    const localRevs = await this.global().listDiskRevisions()
+    const prodRevs = await this.global().listDbRevisions()
+    const syncedRevs = _.intersectionBy(localRevs, prodRevs, uniqueFile)
+    const unsyncedFiles = _.uniq(_.differenceBy(prodRevs, syncedRevs, uniqueFile).map(x => x.path))
 
     return [...botsFileChanges, { scope: 'global', changes: unsyncedFiles }]
   }
