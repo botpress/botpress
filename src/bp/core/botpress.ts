@@ -235,11 +235,6 @@ export class Botpress {
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
     const botsRef = await this.workspaceService.getBotRefs()
-
-    for (const botId of botsRef) {
-      await this.ghostService.forBot(botId).sync()
-    }
-
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
     const deleted = _.difference(botsRef, botsIds)
@@ -278,8 +273,17 @@ export class Botpress {
 
   @WrapErrorsWith('Error initializing Ghost Service')
   async initializeGhost(): Promise<void> {
-    this.ghostService.initialize(process.IS_PRODUCTION)
-    await this.ghostService.global().sync()
+    this.ghostService.initialize(process.CLUSTER_ENABLED)
+    const global = await this.ghostService.global().directoryListing('/')
+
+    if (process.CLUSTER_ENABLED && _.isEmpty(global)) {
+      this.logger.info('Syncing data/global/ to database')
+      await this.ghostService.global().sync()
+      const botsRef = await this.workspaceService.getBotRefs()
+
+      this.logger.info('Syncing data/bots/ to database')
+      await Promise.map(botsRef, botId => this.ghostService.forBot(botId).sync())
+    }
   }
 
   private async initializeServices() {

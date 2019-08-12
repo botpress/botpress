@@ -16,9 +16,11 @@ import { VError } from 'verror'
 import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
 
-import { PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
+import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
+
+export type FileChanges = { scope: string; changes: string[] }[]
 
 const MAX_GHOST_FILE_SIZE = asBytes('100mb')
 
@@ -49,6 +51,27 @@ export class GhostService {
       this.cache,
       this.logger
     )
+  }
+
+  async listFileChanges(): Promise<FileChanges> {
+    const botsIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const uniqueFile = file => `${file.path} | ${file.revision}`
+
+    const botsFileChanges = await Promise.map(botsIds, async botId => {
+      const localRevs = await this.forBot(botId).listDiskRevisions()
+      const prodRevs = await this.forBot(botId).listDbRevisions()
+      const syncedRevs = _.intersectionBy(localRevs, prodRevs, uniqueFile)
+      const unsyncedFiles = _.uniq(_.differenceBy(prodRevs, syncedRevs, uniqueFile).map(x => x.path))
+
+      return { scope: botId, changes: unsyncedFiles }
+    })
+
+    const localRevs = await this.global().listDiskRevisions()
+    const prodRevs = await this.global().listDbRevisions()
+    const syncedRevs = _.intersectionBy(localRevs, prodRevs, uniqueFile)
+    const unsyncedFiles = _.uniq(_.differenceBy(prodRevs, syncedRevs, uniqueFile).map(x => x.path))
+
+    return [...botsFileChanges, { scope: 'global', changes: unsyncedFiles }]
   }
 
   bots(): ScopedGhostService {
@@ -199,7 +222,7 @@ export class ScopedGhostService {
   }
 
   /**
-   * All tracked files will be synced.
+   * Sync the local filesystem to the database.
    * All files are tracked by default, unless `.ghostignore` is used to exclude them.
    */
   async sync() {
@@ -208,32 +231,37 @@ export class ScopedGhostService {
       return
     }
 
-    // Get files from disk that should be ghosted
-    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
-
+    const localFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
 
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
+    await this._updateProduction(localFiles)
+  }
 
-    if (!(await this.isFullySynced())) {
-      const scUrl = `/admin/settings/version`
-      this.logger.warn(
-        `You have changes on your production environment that aren't synced on your local file system. Visit '${scUrl}' to save changes back to your Source Control.`
-      )
-      return
-    }
+  /**
+   * Force update the production files with the local disk files.
+   * This will remove all the prodution revisions files as well.
+   */
+  async forceUpdate() {
+    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
+    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
+    await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
-    // Delete the ghosted files that has been deleted from disk
-    const ghostedFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
-    const filesToDelete = _.difference(ghostedFiles, trackedFiles)
+    await this._updateProduction(trackedFiles)
+  }
+
+  private async _updateProduction(localFiles: string[]) {
+    // Delete the prod files that has been deleted from disk
+    const prodFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
+    const filesToDelete = _.difference(prodFiles, localFiles)
     await Promise.map(filesToDelete, filePath =>
       this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
     )
 
-    // Overwrite all of the ghosted files with the tracked files
-    await Promise.each(trackedFiles, async file => {
+    // Overwrite all of the prod files with the local files
+    await Promise.each(localFiles, async file => {
       const filePath = this._normalizeFileName('./', file)
       const content = await this.diskDriver.readFile(filePath)
       await this.dbDriver.upsertFile(filePath, content, false)
@@ -250,11 +278,9 @@ export class ScopedGhostService {
       await fse.writeFile(outPath, content)
     }
 
-    const oldRevisions = await this.diskDriver.listRevisions(this.baseDir)
-    const newRevisions = await this.dbDriver.listRevisions(this.baseDir)
-    const mergedRevisions = _.unionBy(oldRevisions, newRevisions, x => x.path + ' ' + x.revision)
+    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
 
-    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(mergedRevisions, undefined, 2))
+    await fse.writeFile(path.join(directory, 'revisions.json'), JSON.stringify(dbRevs, undefined, 2))
     if (!allFiles.includes('revisions.json')) {
       allFiles.push('revisions.json')
     }
@@ -430,6 +456,14 @@ export class ScopedGhostService {
     }
 
     return result
+  }
+
+  async listDbRevisions(): Promise<FileRevision[]> {
+    return this.dbDriver.listRevisions(this.baseDir)
+  }
+
+  async listDiskRevisions(): Promise<FileRevision[]> {
+    return this.diskDriver.listRevisions(this.baseDir)
   }
 
   onFileChanged(callback: (filePath: string) => void): ListenHandle {

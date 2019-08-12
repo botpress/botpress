@@ -14,19 +14,74 @@ title: Clustering
 
 Start Botpress on a single node with these environment variables:
 
+**Binary:**
+
 ```bash
-EXTERNAL_URL=<public_url> \
-BP_LICENSE_KEY=<license_key> \
-BP_PRODUCTION=true \
+PRO_ENABLED=true
 CLUSTER_ENABLED=true \
+BP_LICENSE_KEY=<license_key> \
+EXTERNAL_URL=<public_url> \
 REDIS_URL=redis://host:port \
 DATABASE_URL=postgres://login:password@host:port/database \
 ./bp
 ```
 
+**Docker:**
+
+```bash
+docker run -d \
+--name bp \
+-p 3000:3000 \
+-v botpress_data:/botpress/data \
+-e PRO_ENABLED=true \
+-e CLUSTER_ENABLED=true \
+-e BP_LICENSE_KEY=<license_key> \
+-e EXTERNAL_URL=<public_url> \
+-e REDIS_URL=redis://host:port \
+-e DATABASE_URL=postgres://login:password@host:port/database \
+botpress/server:$TAG
+```
+
 Once the first node is started, use the same command to start Botpress on the other nodes.
 
-> `BP_PRODUCTION=true` will sync the filesystem to the database so it can be shared across all nodes. This is why you should always run with this environment variable from now on.
+> `CLUSTER_ENABLED=true` will sync the filesystem to the database on startup so it can be shared across all nodes. If the filesystem is already, this step will be skipped.
+
+## Version Control
+
+To use version control for your Botpress data or bots, you will have to pull the changes from the database to your local filesystem, make changes in local, commit to your version control and push the changes back to the database.
+
+1. Pull the changes from the database with `bp pull`
+1. Make the changes in local
+1. Commit your changes to your VCS
+1. Push the changes back to the database with `bp push`
+
+### Pull
+
+**Binary:**
+
+```bash
+./bp pull --url <url> --token <auth_token> --targetDir ./data
+```
+
+**Docker:**
+
+```bash
+docker exec -it <container> bash -c "./bp pull --url <url> --token <auth_token> --targetDir ./data"
+```
+
+### Push
+
+**Binary:**
+
+```bash
+./bp push --url <url> --token <auth_token>
+```
+
+**Docker:**
+
+```bash
+docker exec -it <container> bash -c "./bp push --url <url> --token <auth_token>"
+```
 
 ## Digital Ocean
 
@@ -62,30 +117,19 @@ version: '3.5'
 
 services:
   botpress:
-    image: botpress/server:v11_5_0
+    image: botpress/server:$TAG
     environment:
-      - DATABASE=postgres
-      - DATABASE_URL=postgres://user:pass@host/dbName
       - PRO_ENABLED=true
+      - CLUSTER_ENABLED=true
+      - BP_LICENSE_KEY=<license_key>
       - EXTERNAL_URL=https://yourbot.yourhostname.com
-      - BP_PRODUCTION=true
+      - DATABASE_URL=postgres://user:pass@host/dbName
+      - REDIS_URL=redis://host:port
     command: './bp'
     ports:
       - '3000:3000'
 ```
 
-6. Start your Botpress node using Docker compose with this command: `docker-compose -f server.yml up -d`
+6. Upload the file `server.yml` file on each nodes created in step 4
 
-   - Open your browser and access the Botpress Admin Panel
-   - In the upper right corner, open the menu and click `Server settings`
-   - Purchase or enter your license key, then close the server.
-   - Edit the `server.yml` file and add your Redis configuration in the `environment` section:
-
-```yml
-- CLUSTER_ENABLED=true
-- REDIS_URL=redis://host:port?password=yourpw
-```
-
-7. Upload the file `server.yml` file on each nodes created in step 4
-
-8. Run the command `docker-compose -f server.yml up -d` on each node, and your Botpress Cluster is ready !
+7. Run the command `docker-compose -f server.yml up -d` on each node, and your Botpress Cluster is ready !

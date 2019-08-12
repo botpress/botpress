@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+import { boolean } from 'joi'
 
 const yn = require('yn')
 const path = require('path')
@@ -84,7 +85,7 @@ try {
         }
       },
       argv => {
-        process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
+        process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
 
         let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
@@ -145,6 +146,25 @@ try {
         }
       },
       argv => require('./pull').default(argv)
+    )
+    .command(
+      'push',
+      'Push local files to a remote botpress server',
+      {
+        url: {
+          description: 'url of the botpress server to which to push changes',
+          default: 'http://localhost:3000',
+          type: 'string'
+        },
+        authToken: {
+          alias: 'token',
+          description: 'your authorization token on the remote botpress server',
+          // tslint:disable-next-line:no-null-keyword
+          default: null,
+          type: 'string'
+        }
+      },
+      argv => require('./push').default(argv)
     )
     .command(
       'bench',

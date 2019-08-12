@@ -493,8 +493,6 @@ export class BotService {
     }
 
     try {
-      await this.ghostService.forBot(botId).sync()
-
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
