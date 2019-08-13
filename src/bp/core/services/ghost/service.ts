@@ -37,7 +37,7 @@ export class GhostService {
     @tagged('name', 'GhostService')
     private logger: Logger
   ) {
-    this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
+    this.cache.events.on && this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
   }
 
   initialize(enabled: boolean) {
