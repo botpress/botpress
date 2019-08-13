@@ -4,6 +4,7 @@ import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
 
@@ -17,10 +18,12 @@ import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
+const DEBOUNCE_DELAY = ms('2s')
 
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
+  private _invalidateDebounce
 
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
@@ -28,7 +31,25 @@ export default class ActionService {
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
-  ) {}
+  ) {
+    this._listenForCacheInvalidation()
+    this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
+  }
+
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+        this._invalidateDebounce(key)
+      }
+    })
+  }
+
+  // Debouncing invalidate since we get a lot of events when it happens
+  private _invalidateRequire() {
+    Object.keys(require.cache)
+      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
+      .map(file => delete require.cache[file])
+  }
 
   forBot(botId: string): ScopedActionService {
     if (this._scopedActions.has(botId)) {

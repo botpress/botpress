@@ -87,9 +87,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash, req.params.version, lang)
       res.send({ matrix, confusionComputing })
     } catch (err) {
-      if (err.code !== 'ENOENT') {
-        bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}.`)
-      }
+      bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}.`)
       res.send({ confusionComputing })
     }
   })

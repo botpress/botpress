@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Button, Modal, Input, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
-import { MdGroupAdd } from 'react-icons/md'
+import { Modal, Input, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button } from '@blueprintjs/core'
 import Joi from 'joi-browser'
 import UserList from '../Components/UserList'
 import SectionLayout from '../Layouts/Section'
@@ -154,9 +154,7 @@ Password: ${payload.tempPassword}`
           </Input>
         </ModalBody>
         <ModalFooter>
-          <Button disabled={!this.state.isRoleChanged} onClick={this.updateUser}>
-            Save
-          </Button>
+          <Button disabled={!this.state.isRoleChanged} onClick={this.updateUser} text="Save" />
         </ModalFooter>
       </Modal>
     )
@@ -171,7 +169,7 @@ Password: ${payload.tempPassword}`
         </ModalBody>
         <ModalFooter>
           <CopyToClipboard text={this.state.emailMessage} onCopy={this.onCopy}>
-            <Button>{this.state.copied ? 'Copied!' : 'Copy to clipboard'}</Button>
+            <Button text={this.state.copied ? 'Copied!' : 'Copy to clipboard'} />
           </CopyToClipboard>
         </ModalFooter>
       </Modal>
@@ -221,9 +219,7 @@ Password: ${payload.tempPassword}`
   renderSideMenu() {
     return (
       <div>
-        <Button className="float-right" color="primary" size="sm" onClick={this.toggleCreateUserModalOpen}>
-          <MdGroupAdd /> Add Collaborator
-        </Button>
+        <Button text="Add collaborator" icon="add" onClick={this.toggleCreateUserModalOpen} />
         <CreateUserModal
           isOpen={this.state.isCreateUserModalOpen}
           toggleOpen={this.toggleCreateUserModalOpen}

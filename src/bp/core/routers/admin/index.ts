@@ -7,6 +7,7 @@ import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
+import { CMSService } from 'core/services/cms'
 import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -44,14 +45,15 @@ export class AdminRouter extends CustomRouter {
     configProvider: ConfigProvider,
     monitoringService: MonitoringService,
     alertingService: AlertingService,
-    moduleLoader: ModuleLoader
+    moduleLoader: ModuleLoader,
+    cmsService: CMSService
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
-    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
+    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService, cmsService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider, ghostService)
     this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService)
@@ -98,7 +100,11 @@ export class AdminRouter extends CustomRouter {
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/languages', this.checkTokenHeader, this.languagesRouter.router)
-    router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
     router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
+
+    // TODO: Add versioning per workspace.
+    // This way admins could use these routes to push / pull independently of other workspaces.
+    // For now we're restricting to super-admin.
+    router.use('/versioning', this.checkTokenHeader, assertSuperAdmin, this.versioningRouter.router)
   }
 }

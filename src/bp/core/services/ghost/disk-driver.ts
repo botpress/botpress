@@ -4,7 +4,6 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-import os from 'os'
 import path from 'path'
 import { VError } from 'verror'
 

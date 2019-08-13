@@ -9,6 +9,13 @@ const DELAY = 1000
 export namespace FlowsAPI {
   const currentUpdates: _.Dictionary<DebounceUpdateFunc> = {}
 
+  export const cancelUpdate = (name: string) => {
+    const updater = currentUpdates[name]
+    if (updater) {
+      updater.cancel()
+    }
+  }
+
   export const deleteFlow = async (_flowState: any, name: string) => {
     return apiDeleteFlow(name)
   }
@@ -42,7 +49,7 @@ export namespace FlowsAPI {
       return BbPromise.fromCallback(cb => debounced(flowDto, cb))
     }
 
-    const newDebounce = _.debounce(buildUpdateDebounced(name), DELAY)
+    const newDebounce = _.debounce(buildUpdateDebounced(name), DELAY, { leading: true })
     currentUpdates[name] = newDebounce
     return BbPromise.fromCallback(cb => newDebounce(flowDto, cb))
   }
@@ -71,7 +78,10 @@ export namespace FlowsAPI {
       callback()
     } catch (err) {
       const { response } = err
-      callback(response)
+      // 423 === Mutex locked we don't have anything to do...
+      if (response.status !== 423) {
+        callback(response)
+      }
     }
   }
 
