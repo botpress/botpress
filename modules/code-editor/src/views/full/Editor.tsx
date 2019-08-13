@@ -53,7 +53,7 @@ class Editor extends React.Component<Props> {
       return
     }
 
-    const { location, type, botId } = this.props.editor.currentFile
+    const { location, readOnly } = this.props.editor.currentFile
     const fileType = location.endsWith('.json') ? 'json' : 'typescript'
     const filepath = fileType === 'json' ? location : location.replace('.js', '.ts')
 
@@ -66,20 +66,6 @@ class Editor extends React.Component<Props> {
 
     const model = monaco.editor.createModel(this.props.editor.fileContentWrapped, fileType, uri)
     this.editor && this.editor.setModel(model)
-
-    let readOnly = true
-    if (_.has(this.props, 'store.permissions.writePermissions')) {
-      const { writePermissions } = this.props.store.permissions
-      if (type === 'action') {
-        readOnly = botId ? !writePermissions.botActions : !writePermissions.globalActions
-      } else if (type === 'bot_config') {
-        readOnly = !writePermissions.botConfigs
-      } else if (type === 'global_config' || type === 'module_config') {
-        readOnly = !writePermissions.globalConfigs
-      } else if (type === 'hook') {
-        readOnly = !writePermissions.hooks
-      }
-    }
 
     this.editor.updateOptions({ readOnly })
   }

@@ -1,4 +1,4 @@
-import { Classes, ContextMenu, ITreeNode, Menu, MenuDivider, MenuItem, Tree } from '@blueprintjs/core'
+import { Classes, ContextMenu, ITreeNode, Menu, MenuDivider, MenuItem, Tree, Icon, Tooltip } from '@blueprintjs/core'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -37,6 +37,13 @@ class FileNavigator extends React.Component<Props, State> {
     if (!this.props.files) {
       return
     }
+
+    const readOnlyIcon = (
+      <Tooltip content="This file is read only">
+        <Icon icon="lock" />
+      </Tooltip>
+    )
+
     const filter = this.props.filters && this.props.filters.filename.toLowerCase()
     const nodes: ITreeNode[] = this.props.files.map(dir => ({
       id: dir.label,
@@ -44,7 +51,7 @@ class FileNavigator extends React.Component<Props, State> {
       icon: 'folder-close',
       hasCaret: true,
       isExpanded: true,
-      childNodes: buildTree(dir.files, this.props.expandedNodes, filter)
+      childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
     }))
 
     this.setState({ nodes })

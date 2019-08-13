@@ -7,7 +7,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.get('/files', async (req, res, next) => {
     const permissions = await getPermissions(req)
-    const files = await editorByBot[req.params.botId].fetchFiles(permissions)
+    const files = await editorByBot[req.params.botId].getAllFiles(permissions)
     try {
       res.send(files)
     } catch (err) {

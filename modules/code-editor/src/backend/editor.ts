@@ -35,16 +35,48 @@ export default class Editor {
     return this._config
   }
 
-  async fetchFiles(permissions: FilePermissions): Promise<FilesDS> {
-    const { readPermissions } = permissions
-
+  async getAllFiles(permissions: FilePermissions): Promise<FilesDS> {
     return {
-      actionsGlobal: readPermissions.globalActions && this._filterBuiltin(await this._loadActions()),
-      hooksGlobal: readPermissions.hooks && this._filterBuiltin(await this._loadHooks()),
-      actionsBot: readPermissions.botActions && this._filterBuiltin(await this._loadActions(this._botId)),
-      configsGlobal: readPermissions.globalConfigs && (await this._loadAllGlobalConfigs()),
-      configsBot: readPermissions.botConfigs && (await this._loadBotConfigs(this._botId))
+      actionsGlobal: await this.getGlobalActions(permissions),
+      hooksGlobal: await this.getHooks(permissions),
+      actionsBot: await this.getScopedActions(permissions),
+      configsGlobal: await this.getGlobalConfigs(permissions),
+      configsBot: await this.getScopedConfigs(permissions)
     }
+  }
+
+  private async getGlobalActions(permissions: FilePermissions): Promise<EditableFile[] | undefined> {
+    const { readPermissions, writePermissions } = permissions
+    return readPermissions.globalActions
+      ? this._filterBuiltin(await this._loadActions(!writePermissions.globalActions))
+      : undefined
+  }
+
+  private async getHooks(permissions: FilePermissions): Promise<EditableFile[] | undefined> {
+    const { readPermissions, writePermissions } = permissions
+    return readPermissions.hooks
+      ? readPermissions.hooks && this._filterBuiltin(await this._loadHooks(!writePermissions.hooks))
+      : undefined
+  }
+
+  private async getScopedActions(permissions: FilePermissions): Promise<EditableFile[] | undefined> {
+    const { readPermissions, writePermissions } = permissions
+
+    return readPermissions.botActions
+      ? this._filterBuiltin(await this._loadActions(!writePermissions.botActions, this._botId))
+      : undefined
+  }
+
+  private async getGlobalConfigs(permissions: FilePermissions): Promise<EditableFile[] | undefined> {
+    const { readPermissions, writePermissions } = permissions
+    return readPermissions.globalConfigs ? await this._loadAllGlobalConfigs(!writePermissions.globalConfigs) : undefined
+  }
+
+  private async getScopedConfigs(permissions: FilePermissions): Promise<EditableFile[] | undefined> {
+    const { readPermissions, writePermissions } = permissions
+    return readPermissions.botConfigs
+      ? await this._loadBotConfigs(!writePermissions.botConfigs, this._botId)
+      : undefined
   }
 
   private _filterBuiltin(files: EditableFile[]) {
@@ -239,7 +271,7 @@ export default class Editor {
     return this._typings
   }
 
-  private async _loadActions(botId?: string): Promise<EditableFile[]> {
+  private async _loadActions(readOnly: boolean, botId?: string): Promise<EditableFile[]> {
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
 
     return Promise.map(ghost.directoryListing('/actions', '*.js', undefined, true), async (filepath: string) => {
@@ -248,12 +280,13 @@ export default class Editor {
         type: 'action' as FileType,
         location: filepath,
         content: await ghost.readFileAsString('/actions', filepath),
-        botId
+        botId,
+        readOnly
       }
     })
   }
 
-  private async _loadHooks(): Promise<EditableFile[]> {
+  private async _loadHooks(readOnly: boolean): Promise<EditableFile[]> {
     const ghost = this.bp.ghost.forGlobal()
 
     return Promise.map(ghost.directoryListing('/hooks', '*.js', undefined, true), async (filepath: string) => {
@@ -262,12 +295,13 @@ export default class Editor {
         type: 'hook' as FileType,
         location: filepath,
         hookType: filepath.substr(0, filepath.indexOf('/')),
-        content: await ghost.readFileAsString('/hooks', filepath)
+        content: await ghost.readFileAsString('/hooks', filepath),
+        readOnly
       }
     })
   }
 
-  private async _loadBotConfigs(botId: string): Promise<EditableFile[]> {
+  private async _loadBotConfigs(readOnly: boolean, botId: string): Promise<EditableFile[]> {
     const ghost = this.bp.ghost.forBot(botId)
     const fileNames = await ghost.directoryListing('/', 'bot.config.json', undefined, true)
 
@@ -276,17 +310,18 @@ export default class Editor {
       type: 'bot_config' as FileType,
       botId,
       location: filepath,
-      content: await ghost.readFileAsString('/', filepath)
+      content: await ghost.readFileAsString('/', filepath),
+      readOnly
     }))
   }
 
-  private async _loadAllGlobalConfigs(): Promise<EditableFile[]> {
-    const globalConfigFiles = await this._loadMainGlobalConfig()
-    const modulesConfigsFiles = await this._loadModulesGlobalConfig()
+  private async _loadAllGlobalConfigs(readOnly: boolean): Promise<EditableFile[]> {
+    const globalConfigFiles = await this._loadMainGlobalConfig(readOnly)
+    const modulesConfigsFiles = await this._loadModulesGlobalConfig(readOnly)
     return [...globalConfigFiles, ...modulesConfigsFiles]
   }
 
-  private async _loadModulesGlobalConfig(): Promise<EditableFile[]> {
+  private async _loadModulesGlobalConfig(readOnly: boolean): Promise<EditableFile[]> {
     const ghost = this.bp.ghost.forGlobal()
 
     let modulesConfigsFiles = await ghost.directoryListing('/config', '*.json', undefined, true)
@@ -296,18 +331,20 @@ export default class Editor {
       name: path.basename(filepath),
       type: 'module_config' as FileType,
       location: filepath,
-      content: await ghost.readFileAsString('/', filepath)
+      content: await ghost.readFileAsString('/', filepath),
+      readOnly
     }))
   }
 
-  private async _loadMainGlobalConfig(): Promise<EditableFile[]> {
+  private async _loadMainGlobalConfig(readOnly: boolean): Promise<EditableFile[]> {
     const ghost = this.bp.ghost.forGlobal()
     const fileNames = MAIN_GLOBAL_CONFIG_FILES
     return Promise.map(fileNames, async (filepath: string) => ({
       name: path.basename(filepath),
       type: 'global_config' as FileType,
       location: filepath,
-      content: await ghost.readFileAsString('/', filepath)
+      content: await ghost.readFileAsString('/', filepath),
+      readOnly
     }))
   }
 

@@ -19,6 +19,7 @@ export interface EditableFile {
   /** If not set, the file is considered global */
   botId?: string
   hookType?: string
+  readOnly?: boolean
 }
 
 export interface FilesDS {
