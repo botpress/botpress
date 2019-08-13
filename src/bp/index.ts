@@ -162,6 +162,12 @@ try {
           // tslint:disable-next-line:no-null-keyword
           default: null,
           type: 'string'
+        },
+        targetDir: {
+          alias: 'dir',
+          description: 'The directory of the data you wish to send to production',
+          default: path.join(__dirname, 'data'),
+          type: 'string'
         }
       },
       argv => require('./push').default(argv)

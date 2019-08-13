@@ -279,10 +279,9 @@ export class Botpress {
     if (process.CLUSTER_ENABLED && _.isEmpty(global)) {
       this.logger.info('Syncing data/global/ to database')
       await this.ghostService.global().sync()
-      const botsRef = await this.workspaceService.getBotRefs()
 
       this.logger.info('Syncing data/bots/ to database')
-      await Promise.map(botsRef, botId => this.ghostService.forBot(botId).sync())
+      await this.ghostService.bots().sync()
     }
   }
 

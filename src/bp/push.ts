@@ -1,49 +1,91 @@
 import axios from 'axios'
 import chalk from 'chalk'
+import { createArchiveFromFolder } from 'core/misc/archive'
+import { FileChanges } from 'core/services'
+import fse from 'fs-extra'
 import _ from 'lodash'
+import path from 'path'
 
-export default ({ url, authToken }) => {
+// If the push will cause one of these actions, then a force will be required
+const blockingActions = ['del', 'edit']
+
+export default ({ url, authToken, targetDir }) => {
   if (!url || !authToken) {
-    console.log(chalk.red(`${chalk.bold('Error:')} parameters are not valid.`))
-    return
+    return console.log(chalk.red(`${chalk.bold('Error:')} Missing parameters "url" or "authToken"`))
+  }
+
+  if (!targetDir || !fse.existsSync(path.resolve(targetDir))) {
+    return console.log(chalk.red(`${chalk.bold('Error:')} Target directory is not valid: "${targetDir}"`))
   }
 
   url = url.replace(/\/+$/, '')
-  _push(url, authToken).catch(err => console.log(`${chalk.red(`Error: ${err}`)}`))
+  _push(url, authToken, targetDir).catch(err => console.log(`${chalk.red(`Error: ${err}`)}`))
 }
 
-async function _push(host, auth): Promise<void> {
+async function _push(serverUrl: string, authToken: string, targetDir: string): Promise<void> {
   try {
-    const options = { headers: { Authorization: `Bearer ${auth}` } }
-    const { data } = await axios.get(`${host}/api/v1/admin/versioning/changes`, options)
+    const archive = await createArchiveFromFolder(targetDir, ['assets/**/*'])
 
-    const prodChanges = _.flatten(data.map(x => x.changes))
+    const options = {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/tar+gzip',
+        'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
+        'Content-Length': archive.length
+      }
+    }
+
+    const { data } = await axios.post(`${serverUrl}/api/v1/admin/versioning/changes`, archive, options)
+
+    const prodChanges = _.flatten((data.changes as FileChanges).map(x => x.changes))
+    const blockingChanges = prodChanges.filter(x => blockingActions.includes(x.action))
+
     const useForce = process.argv.includes('--force')
 
-    if (_.isEmpty(prodChanges) || useForce) {
-      console.log(chalk.blue(`Pushing local changes to ${chalk.bold(host)}`))
+    if (_.isEmpty(blockingChanges) || useForce) {
+      console.log(chalk.blue(`Pushing local changes to ${chalk.bold(serverUrl)}`))
       useForce && console.log(chalk.yellow('using --force'))
 
-      await axios.post(`${host}/api/v1/admin/versioning/update`, undefined, options)
+      await axios.post(`${serverUrl}/api/v1/admin/versioning/update`, archive, options)
 
       console.log(chalk.green('🎉 Successfully pushed your local changes to the production environment!'))
     } else {
-      console.log(formatHeader(host))
+      console.log(formatHeader(serverUrl))
       console.log(formatProdChanges(prodChanges))
     }
   } catch (err) {
-    throw Error(`Couldn't import, server responded with \n ${err.response.status} ${err.response.statusText}`)
+    const error = err.response ? err.response.statusText : err.message
+    throw Error(`Couldn't import, server responded with \n ${error}`)
   }
 }
 
 function formatHeader(host) {
-  return `🚨 Out of sync!\nYou have changes on your production environment that aren't synced on your local file system.\n(Visit ${chalk.bold(
-    `${host}/admin/server/version`
-  )} to save changes back to your Source Control)\n(Use ${chalk.yellow(
-    '--force'
-  )} to overwrite the production changes by the local changes)\n`
+  return `
+🚨 Out of sync!
+  You have changes on your file system that aren't synchronized on your production environment.
+
+  (Visit ${chalk.bold(`${host}/admin/server/version`)} to pull changes on your file system)
+  (Use ${chalk.yellow('--force')} to overwrite the production changes by the local changes)
+`
+}
+
+const printLine = ({ action, path, add, del }) => {
+  if (action === 'add') {
+    return chalk.green(` + ${path}`)
+  } else if (action === 'del') {
+    return chalk.red(` - ${path}`)
+  } else if (action === 'edit') {
+    return ` o ${path} (${chalk.green('+' + add)} / -${chalk.red(del)})`
+  }
 }
 
 function formatProdChanges(changes) {
-  return `Production changes:\n\n${chalk.red('-', changes.join('\n- '))}\n`
+  const lines = _.orderBy(changes, 'action')
+    .map(printLine)
+    .join('\n')
+
+  return `Differences between your local changes (green) vs production (red):
+
+${lines}
+`
 }
