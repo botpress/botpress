@@ -4,7 +4,6 @@ import React, { SFC } from 'react'
 
 import { Intent } from '../components/Intent'
 import style from '../style.scss'
-import { formatConfidence } from '../utils'
 
 interface Props {
   suggestions: sdk.IO.Suggestion[]
@@ -16,8 +15,7 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => (
   <div className={style.subSection}>
     <H5 color={Colors.DARK_GRAY5}>Decision</H5>
     <div style={{ display: 'flex' }}>
-      <Intent name={props.decision.sourceDetails} />
-      &nbsp;
+      <strong>{props.decision.sourceDetails}</strong>&nbsp;
       <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
         <Icon color={Colors.GRAY3} icon="info-sign" />
       </Tooltip>
