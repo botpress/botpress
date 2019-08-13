@@ -160,13 +160,17 @@ export default class Editor {
     this._assertWritePermissions(file, permissions)
 
     const { location, content, hookType, type } = file
-    const ghost = this._getGhost(file)
 
     if (type === 'action') {
-      return ghost.upsertFile('/actions', location, content)
-    } else if (type === 'hook') {
+      return this._getGhost(file).upsertFile('/actions', location, content)
+    }
+
+    const ghost = this.bp.ghost.forGlobal()
+    if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content)
-    } else if (type === 'bot_config' || type === 'global_config' || type === 'module_config') {
+    }
+
+    if (type === 'bot_config' || type === 'global_config' || type === 'module_config') {
       return ghost.upsertFile('/', location, content)
     }
   }
