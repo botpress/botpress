@@ -10,7 +10,7 @@ import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
 
-import { computeBucket, getFeaturesPairs, getTFIDFfeature } from './featureizer'
+import { computeBucket, countAlpha, countNum, countSpecial, getFeaturesPairs, getTFIDFfeature } from './featureizer'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -170,11 +170,12 @@ export default class CRFExtractor {
         }
 
         if (tag.label[0] === BIO.INSIDE && slotCollection[slotName]) {
-          if (_.isEmpty(token.matchedEntities)) {
-            // simply append the source if the tag is inside a slot && type any (thus the if)
-            // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
-            slotCollection[slotName].source += ` ${token.cannonical}`
-            slotCollection[slotName].value += ` ${token.cannonical}`
+          const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
+          const newSource = `${slotCollection[slotName].source}${maybeSpace}${token.cannonical}`
+
+          slotCollection[slotName].source = newSource
+          if (!slotCollection[slotName].entity) {
+            slotCollection[slotName].value = newSource
           }
         } else if (tag.label[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
@@ -288,7 +289,7 @@ export default class CRFExtractor {
     }
   }
   private async _trainCrf(
-    sequences: Sequence[],
+    trainingSet: Sequence[],
     intentVocab: { [token: string]: string[] },
     allowedEntitiesPerIntents: { [name: string]: string[] },
     tfidf: TfidfOutput,
@@ -302,7 +303,7 @@ export default class CRFExtractor {
       /* swallow training results */
     })
 
-    for (const seq of sequences) {
+    for (const seq of trainingSet) {
       const inputVectors: string[][] = []
       const labels: string[] = []
       for (let i = 0; i < seq.tokens.length; i++) {
@@ -373,22 +374,30 @@ export default class CRFExtractor {
     const vector: string[] = []
     const boost = isPredict ? 3 : 1
 
+    if (!token.cannonical) {
+      return []
+    }
+
+    // TODO refactor this func, return an array of {name: string, value: string, boost?: number}
+    // call makeCrfAttr only in vectorize will look like this._vectorizeToken(/** args */).map(_makeCrfAttr.bind(this, featPrefix))
+
     if (includeCluster) {
       const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
-      vector.push(`${featPrefix}cluster=${cluster.toString()}`)
+      vector.push(this._makeCrfAttr(featPrefix, 'cluster', cluster))
     }
 
-    if (token.cannonical) {
-      if (!token.matchedEntities.length) {
-        vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}:${boost}`)
-      }
-
-      vector.push(`${featPrefix}space=${token.value.startsWith(SPACE)}`)
+    if (!token.matchedEntities.length) {
+      vector.push(this._makeCrfAttr(featPrefix, 'word', token.cannonical.toLowerCase(), boost))
     }
+
+    vector.push(this._makeCrfAttr(featPrefix, 'space', token.value.startsWith(SPACE)))
+    vector.push(this._makeCrfAttr(featPrefix, 'alpha', countAlpha(token.cannonical)))
+    vector.push(this._makeCrfAttr(featPrefix, 'num', countNum(token.cannonical)))
+    vector.push(this._makeCrfAttr(featPrefix, 'special', countSpecial(token.cannonical)))
 
     // that means the word is part of possible list type entities and in intent vocab
     const inVocab = !token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)
-    vector.push(`${featPrefix}vocab=${inVocab}`)
+    vector.push(this._makeCrfAttr(featPrefix, 'inVocab', inVocab))
 
     const wordWeight = await getTFIDFfeature(
       tfidf,
@@ -397,16 +406,19 @@ export default class CRFExtractor {
       token2Vec,
       this.language
     )
-    vector.push(`${featPrefix}weight=${wordWeight}`)
+    vector.push(this._makeCrfAttr(featPrefix, 'weight', wordWeight))
 
     const entitiesFeatures = _.chain(token.matchedEntities)
       .intersection(allowedEntities)
       .thru(ents => (ents.length ? ents : ['none']))
-      .map(entity => `${featPrefix}entity=${entity}:${boost}`)
+      .map(ent => this._makeCrfAttr(featPrefix, 'entity', ent, boost))
       .value()
 
     return [...vector, ...entitiesFeatures]
   }
+
+  private _makeCrfAttr = (prefix: string, attrName: string, attrVal: { toString: () => string }, boost = 1): string =>
+    `${prefix}${attrName}=${attrVal.toString()}:${boost}`
 
   // TODO maybe use a slice instead of the whole token seq ?
   private async _vectorize(

@@ -20,6 +20,7 @@ export const getTFIDFfeature = async (
 ): Promise<string> => {
   let value = tfidf['global'][token]
   if (!value) {
+    // TODO use vector in token instead
     const [wordVec] = await languageProvider.vectorize([token], language)
     const closestTok = await getClosestToken(token, Array.from(wordVec), tokenVecCache)
     value = tfidf['global'][closestTok]
@@ -44,3 +45,16 @@ export const getFeaturesPairs = (vec0: string[], vec1: string[], features: strin
     })
     .filter(_.identity)
 }
+
+export const countAlpha = (cantidate: string): number =>
+  (
+    cantidate
+      .toLowerCase()
+      .replace(/\s/g, '')
+      .match(/[a-z]/g) || []
+  ).length
+
+export const countNum = (candidate: string): number => (candidate.replace(/\s/g, '').match(/[0-9]/g) || []).length
+
+export const countSpecial = (candidate: string): number =>
+  candidate.replace(/\s/g, '').length - countAlpha(candidate) - countNum(candidate)
