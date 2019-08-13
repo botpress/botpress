@@ -1,8 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-const failureMigration: sdk.MigrationResult = { success: false, message: 'workspaces.json has invalid format' }
-
 const isMigrationAlreadyDone = (rules: any[]) => {
   const ressources: string[] = rules.map(r => r.res)
   const alreadySpecifiedPermission = ressources.find(r => r.startsWith('module.code-editor.global'))
@@ -11,30 +9,32 @@ const isMigrationAlreadyDone = (rules: any[]) => {
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: '',
+    description: 'Restrict read/write permissions on global and config files',
     target: 'core',
     type: 'config'
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     const ghost = bp.ghost.forGlobal()
 
-    if (!ghost.fileExists('config', 'code-editor.json')) {
-      return failureMigration
+    let enableGlobal = false
+    let enableConfig = false
+    if (ghost.fileExists('config', 'code-editor.json')) {
+      const currentConfig = await ghost.readFileAsObject<any>('config', 'code-editor.json')
+      const newConfig = _.omit(currentConfig, 'allowGlobal', 'includeBotConfig')
+      await ghost.upsertFile('config', 'code-editor.json', JSON.stringify(newConfig, null, 2))
+      const { allowGlobal, includeBotConfig } = currentConfig
+      enableGlobal = !!allowGlobal
+      enableConfig = !!includeBotConfig
     }
-
-    const currentConfig = await ghost.readFileAsObject<any>('config', 'code-editor.json')
-    const newConfig = _.omit(currentConfig, 'allowGlobal', 'includeBotConfig')
-    await ghost.upsertFile('config', 'code-editor.json', JSON.stringify(newConfig, null, 2))
-    const { allowGlobal, includeBotConfig } = currentConfig
 
     const newRules = [
       {
         res: 'module.code-editor.global.*',
-        op: allowGlobal ? '+r+w' : '-r-w'
+        op: enableGlobal ? '+r+w' : '-r-w'
       },
       {
         res: 'module.code-editor.bot.configs',
-        op: includeBotConfig ? '+r+w' : '-r-w'
+        op: enableConfig ? '+r+w' : '-r-w'
       },
       {
         res: 'module.code-editor.global.configs',
@@ -43,29 +43,22 @@ const migration: sdk.ModuleMigration = {
     ]
 
     const workspaces: any[] = await ghost.readFileAsObject('/', `workspaces.json`)
-    if (!_.isArray(workspaces)) {
-      return failureMigration
-    }
+    try {
+      for (const ws of workspaces) {
+        const { roles } = ws
 
-    for (const ws of workspaces) {
-      const { roles } = ws
-
-      if (!_.isArray(roles)) {
-        return failureMigration
-      }
-
-      for (const role of roles) {
-        if (role && _.isArray(role.rules)) {
+        for (const role of roles) {
           if (isMigrationAlreadyDone(role.rules)) {
             return { success: true, message: 'no-need for migration' }
           }
           role.rules.push(...newRules)
         }
       }
+    } catch (err) {
+      return { success: false, message: 'workspaces.json has invalid format' }
     }
 
     await ghost.upsertFile('/', 'workspaces.json', JSON.stringify(workspaces, undefined, 2))
-
     return { success: true }
   }
 }
