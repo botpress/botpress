@@ -65,6 +65,9 @@ export default class CodeEditorApi {
   }
 
   handleApiError = (error, customMessage?: string) => {
+    if (error.response && error.response.status === 403) {
+      return // not enough permissions, nothing to do
+    }
     const data = _.get(error, 'response.data', {})
     const errorInfo = data.full || data.message
     customMessage ? toastFailure(`${customMessage}: ${errorInfo}`) : toastFailure(errorInfo)

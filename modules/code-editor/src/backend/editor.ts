@@ -15,6 +15,10 @@ const ALLOWED_TYPES = ['hook', 'action', 'bot_config', 'global_config', 'module_
 
 const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
 
+class WritePermissionError extends Error {
+  readonly type = WritePermissionError.name
+}
+
 export default class Editor {
   private bp: typeof sdk
   private _botId: string
@@ -147,7 +151,7 @@ export default class Editor {
     }
 
     if (!isAllowed) {
-      throw new Error(`Insufficient permissions to apply modifications on file ${name}`)
+      throw new WritePermissionError(`Insufficient permissions to apply modifications on file ${name}`)
     }
   }
 

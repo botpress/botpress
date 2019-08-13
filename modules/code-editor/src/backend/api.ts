@@ -31,6 +31,10 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
       await editorByBot[req.params.botId].saveFile(req.body, permissions)
       res.sendStatus(200)
     } catch (err) {
+      if (err.type && err.type === 'WritePermissionError') {
+        res.sendStatus(403) // not permitted access to the resource despite providing authentication
+        next()
+      }
       bp.logger.attachError(err).error('Could not save file')
       next(err)
     }
@@ -43,6 +47,10 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
       await editorByBot[req.params.botId].renameFile(file, newName, permissions)
       res.sendStatus(200)
     } catch (err) {
+      if (err.type && err.type === 'WritePermissionError') {
+        res.sendStatus(403) // not permitted access to the resource despite providing authentication
+        next()
+      }
       bp.logger.attachError(err).error('Could not rename file')
       next(err)
     }
@@ -55,6 +63,10 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
       await editorByBot[req.params.botId].deleteFile(file, permissions)
       res.sendStatus(200)
     } catch (err) {
+      if (err.type && err.type === 'WritePermissionError') {
+        res.sendStatus(403) // not permitted access to the resource despite providing authentication
+        next()
+      }
       bp.logger.attachError(err).error('Could not delete file')
       next(err)
     }
