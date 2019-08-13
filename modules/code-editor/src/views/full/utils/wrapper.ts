@@ -33,10 +33,14 @@ const wrapper = {
       return content
     }
 
-    const contentStart = content.indexOf(START_COMMENT) + START_COMMENT.length
-    const contentEnd = content.indexOf(END_COMMENT)
+    const startIndex = content.indexOf(START_COMMENT)
+    const endIndex = content.indexOf(END_COMMENT)
 
-    return content.substring(contentStart, contentEnd).trim()
+    if (startIndex === -1 || endIndex === -1) {
+      return content
+    }
+
+    return content.substring(startIndex + START_COMMENT.length, endIndex).trim()
   }
 }
 
