@@ -170,21 +170,27 @@ export default class CRFExtractor {
         }
 
         if (tag.label[0] === BIO.INSIDE && slotCollection[slotName]) {
-          const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
-          const newSource = `${slotCollection[slotName].source}${maybeSpace}${token.cannonical}`
-
-          slotCollection[slotName].source = newSource
           if (!slotCollection[slotName].entity) {
+            const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
+            const newSource = `${slotCollection[slotName].source}${maybeSpace}${token.cannonical}`
+            slotCollection[slotName].source = newSource
             slotCollection[slotName].value = newSource
           }
         } else if (tag.label[0] === BIO.BEGINNING && slotCollection[slotName]) {
+          const highest = _.maxBy([slotCollection[slotName], slot], 'confidence')
+          slotCollection[slotName] = highest
+          // At the moment we keep the highest confidence only
+          // we might want to keep the slot array feature so this is kept as commented
+          // I feel like it would make much more sens to enable this only when configured by the user
+          // i.e user marks a slot as an array (configurable) and only then we make an array
+
           // if the tag is beginning and the slot already exists, we create need a array slot
-          if (Array.isArray(slotCollection[slotName])) {
-            slotCollection[slotName].push(slot)
-          } else {
-            // if no slots exist we assign a slot to the slot key
-            slotCollection[slotName] = [slotCollection[slotName], slot]
-          }
+          // if (Array.isArray(slotCollection[slotName])) {
+          //   slotCollection[slotName].push(slot)
+          // } else {
+          //   // if no slots exist we assign a slot to the slot key
+          //   slotCollection[slotName] = [slotCollection[slotName], slot]
+          // }
         } else {
           slotCollection[slotName] = slot
         }
