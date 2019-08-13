@@ -17,7 +17,7 @@ import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
 
 const debug = DEBUG('hooks')
-const SYNC_DEBOUNCE_DELAY = ms('2s')
+const DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
@@ -130,7 +130,7 @@ class HookScript {
 @injectable()
 export class HookService {
   private _scriptsCache: Map<string, HookScript[]> = new Map()
-  private _syncDebounce
+  private _invalidateDebounce
 
   constructor(
     @inject(TYPES.Logger)
@@ -140,7 +140,7 @@ export class HookService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this._listenForCacheInvalidation()
-    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
+    this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
   private _listenForCacheInvalidation() {
@@ -148,18 +148,15 @@ export class HookService {
       if (key.toLowerCase().indexOf(`/hooks/`) > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
-
-        this._syncDebounce()
+        this._invalidateDebounce()
       }
     })
   }
 
-  private async _syncFiles() {
+  private _invalidateRequire() {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
       .map(file => delete require.cache[file])
-
-    await this.ghost.global().syncDatabaseFilesToDisk('hooks')
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
