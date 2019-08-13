@@ -3,6 +3,7 @@ import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import { FilePermissions } from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
@@ -34,19 +35,17 @@ class PanelContent extends React.Component<Props> {
       return
     }
 
-    const { actionsBot, actionsGlobal, hooksGlobal, botConfigs } = this.props.files
+    const { actionsBot, actionsGlobal, hooksGlobal, configsBot, configsGlobal } = this.props.files
 
     const actionFiles = []
     actionsBot && actionFiles.push({ label: `Bot (${window['BOT_NAME']})`, files: actionsBot })
     actionsGlobal && actionFiles.push({ label: 'Global', files: actionsGlobal })
 
-    const hookFiles = [hooksGlobal && { label: 'Global', files: hooksGlobal }]
+    const hookFiles = hooksGlobal ? [{ label: 'Global', files: hooksGlobal }] : []
 
-    const botConfigFiles = [
-      botConfigs && botConfigs.length === 1
-        ? { label: 'Current Bot', files: botConfigs }
-        : { label: 'All Bots', files: botConfigs }
-    ]
+    const botConfigFiles = []
+    configsBot && botConfigFiles.push({ label: 'Current Bot', files: configsBot })
+    configsGlobal && botConfigFiles.push({ label: 'Global', files: configsGlobal })
 
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles })
   }
@@ -60,12 +59,13 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionBotsConfig() {
-    if (!this.props.isBotConfigIncluded) {
+    const { readPermissions } = (this.props.permissions || {}) as FilePermissions
+    if (!readPermissions || (!readPermissions.globalConfigs && !readPermissions.botConfigs)) {
       return null
     }
 
     return (
-      <SidePanelSection label={'Bot Configurations'}>
+      <SidePanelSection label={'Configurations'}>
         <FileNavigator
           files={this.state.botConfigs}
           disableContextMenu={true}
@@ -77,6 +77,8 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
+    const { writePermissions } = (this.props.permissions || {}) as FilePermissions
+
     const items: SectionAction[] = [
       {
         label: 'Action - Bot',
@@ -85,7 +87,7 @@ class PanelContent extends React.Component<Props> {
       }
     ]
 
-    if (this.props.isGlobalAllowed) {
+    if (writePermissions && writePermissions.globalActions) {
       items.push({
         label: 'Action - Global',
         icon: <Icon icon="new-text-box" />,
@@ -105,10 +107,36 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionHooks() {
-    if (!this.props.isGlobalAllowed) {
+    if (
+      !this.props.permissions ||
+      !this.props.permissions.readPermissions ||
+      !this.props.permissions.writePermissions
+    ) {
       return null
     }
 
+    const { writePermissions, readPermissions } = this.props.permissions
+    const canRead = readPermissions.hooks
+    const canWrite = writePermissions.hooks
+
+    if (!canRead) {
+      return null
+    }
+
+    const actions = canWrite ? this._buildHooksActions() : []
+
+    return (
+      <SidePanelSection label={'Hooks'} actions={actions}>
+        <FileNavigator
+          files={this.state.hookFiles}
+          expandedNodes={this.expandedNodes}
+          onNodeStateChanged={this.updateNodeState}
+        />
+      </SidePanelSection>
+    )
+  }
+
+  _buildHooksActions() {
     const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
       label: hookType
@@ -118,7 +146,7 @@ class PanelContent extends React.Component<Props> {
       onClick: () => this.props.createFilePrompt('hook', true, hookType)
     }))
 
-    const actions = [
+    return [
       {
         icon: <Icon icon="add" />,
         key: 'add',
@@ -153,16 +181,6 @@ class PanelContent extends React.Component<Props> {
         ]
       }
     ]
-
-    return (
-      <SidePanelSection label={'Hooks'} actions={actions}>
-        <FileNavigator
-          files={this.state.hookFiles}
-          expandedNodes={this.expandedNodes}
-          onNodeStateChanged={this.updateNodeState}
-        />
-      </SidePanelSection>
-    )
   }
 
   render() {
@@ -196,11 +214,10 @@ export default inject(({ store }: { store: RootStore }) => ({
   isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
-  isGlobalAllowed: store.config && store.config.isGlobalAllowed,
-  isBotConfigIncluded: store.config && store.config.isBotConfigIncluded
+  permissions: store.permissions
 }))(observer(PanelContent))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'files' | 'isGlobalAllowed' | 'isBotConfigIncluded' | 'createFilePrompt' | 'setFilenameFilter'
+  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
 >
