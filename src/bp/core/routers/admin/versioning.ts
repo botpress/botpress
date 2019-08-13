@@ -51,9 +51,8 @@ export class VersioningRouter extends CustomRouter {
       })
     )
 
-    // Force update of the production files by the local files
     this.router.post(
-      '/update',
+      '/sync',
       this.asyncMiddleware(async (req, res) => {
         const botsIds = await this.botService.getBotsIds()
         await Promise.map(botsIds, async id => {

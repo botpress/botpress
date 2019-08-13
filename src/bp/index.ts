@@ -148,23 +148,23 @@ try {
       argv => require('./pull').default(argv)
     )
     .command(
-      'push',
-      'Push local files to a remote botpress server',
+      'sync',
+      'Sync your local files to the database',
       {
         url: {
-          description: 'url of the botpress server to which to push changes',
+          description: 'url of the botpress server to which to sync changes',
           default: 'http://localhost:3000',
           type: 'string'
         },
         authToken: {
           alias: 'token',
-          description: 'your authorization token on the remote botpress server',
+          description: 'your authorization token on the botpress server',
           // tslint:disable-next-line:no-null-keyword
           default: null,
           type: 'string'
         }
       },
-      argv => require('./push').default(argv)
+      argv => require('./sync').default(argv)
     )
     .command(
       'bench',

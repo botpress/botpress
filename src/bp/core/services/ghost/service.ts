@@ -241,8 +241,8 @@ export class ScopedGhostService {
   }
 
   /**
-   * Force update the production files with the local disk files.
-   * This will remove all the prodution revisions files as well.
+   * Force update the db files with the local disk files.
+   * This will remove all the db revisions as well.
    */
   async forceUpdate() {
     const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
