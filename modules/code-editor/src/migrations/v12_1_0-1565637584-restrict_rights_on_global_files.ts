@@ -18,13 +18,17 @@ const migration: sdk.ModuleMigration = {
 
     let enableGlobal = false
     let enableConfig = false
-    if (ghost.fileExists('config', 'code-editor.json')) {
+    if (await ghost.fileExists('config', 'code-editor.json')) {
       const currentConfig = await ghost.readFileAsObject<any>('config', 'code-editor.json')
       const newConfig = _.omit(currentConfig, 'allowGlobal', 'includeBotConfig')
       await ghost.upsertFile('config', 'code-editor.json', JSON.stringify(newConfig, null, 2))
       const { allowGlobal, includeBotConfig } = currentConfig
       enableGlobal = !!allowGlobal
       enableConfig = !!includeBotConfig
+    }
+
+    if (!(await ghost.fileExists('/', 'workspaces.json'))) {
+      return { success: true }
     }
 
     const newRules = [
@@ -42,7 +46,7 @@ const migration: sdk.ModuleMigration = {
       }
     ]
 
-    const workspaces: any[] = await ghost.readFileAsObject('/', `workspaces.json`)
+    const workspaces: any[] = await ghost.readFileAsObject('/', 'workspaces.json')
     try {
       for (const ws of workspaces) {
         const { roles } = ws
