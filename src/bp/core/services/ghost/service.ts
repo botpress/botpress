@@ -21,7 +21,7 @@ import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisi
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-// TODO better typings
+// TODO: better typings
 export type FileChanges = {
   scope: string
   changes: {
@@ -69,7 +69,7 @@ export class GhostService {
     return new ScopedGhostService(baseDir, this.diskDriver, this.dbDriver, false, this.cache, this.logger)
   }
 
-  // TODO refactor this
+  // TODO: refactor this
   async forceUpdate(tmpFolder: string) {
     const invalidateFile = async (fileName: string) => {
       await this.cache.invalidate(`object::${fileName}`)
@@ -93,7 +93,7 @@ export class GhostService {
     }
   }
 
-  // TODO refactor this
+  // TODO: refactor this
   async listFileChanges(tmpFolder: string): Promise<FileChanges> {
     const tmpDiskGlobal = this.custom(path.resolve(tmpFolder, 'data/global'))
     const tmpDiskBot = (botId?: string) => this.custom(path.resolve(tmpFolder, 'data/bots', botId || ''))
@@ -146,7 +146,9 @@ export class GhostService {
       const added = _.difference(localFiles, prodFiles).map(x => ({ path: x, action: 'add' }))
 
       const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
-      const edited = await Promise.map(unsyncedFiles.filter(filterDeleted), getFileDiff)
+      const edited = (await Promise.map(unsyncedFiles.filter(filterDeleted), getFileDiff)).filter(
+        x => x.add !== 0 || x.del !== 0
+      )
 
       return {
         scope,
