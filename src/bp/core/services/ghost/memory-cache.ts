@@ -57,4 +57,8 @@ export default class MemoryObjectCache implements ObjectCache {
     keys.forEach(x => this.cache.del(x))
     this.events.emit('invalidation', prefix)
   }
+
+  async sync(message: string): Promise<void> {
+    this.events.emit('syncDbFilesToDisk', message)
+  }
 }

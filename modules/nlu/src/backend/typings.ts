@@ -111,7 +111,6 @@ export interface Gateway {
   errors: number
   disabledUntil?: Date
 }
-;[]
 
 export interface LangsGateway {
   [lang: string]: Gateway[]

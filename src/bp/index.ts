@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+import { boolean } from 'joi'
 
 const yn = require('yn')
 const path = require('path')
@@ -84,7 +85,8 @@ try {
         }
       },
       argv => {
-        process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION)
+        process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
+        process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
 
         let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
@@ -123,7 +125,7 @@ try {
     )
     .command(
       'pull',
-      'Sync pending changes from an external server running botpress to local files',
+      'Pull data from a remote server to your local file system',
       {
         url: {
           description: 'Base URL of the botpress server from which you want to pull changes',
@@ -132,19 +134,44 @@ try {
         },
         authToken: {
           alias: 'token',
-          description: 'your authorization token on the remote botpress server',
+          description: 'Authorization token on the remote botpress server',
           // tslint:disable-next-line:no-null-keyword
           default: null,
           type: 'string'
         },
         targetDir: {
           alias: 'dir',
-          description: 'target directory in which you want sync the changes. will be created if doesnt exist',
+          description: 'Target directory where the remote data will be stored',
           default: path.join(__dirname, 'data'),
           type: 'string'
         }
       },
       argv => require('./pull').default(argv)
+    )
+    .command(
+      'push',
+      'Push local files to a remote botpress server',
+      {
+        url: {
+          description: 'URL of the botpress server to which to push changes',
+          default: 'http://localhost:3000',
+          type: 'string'
+        },
+        authToken: {
+          alias: 'token',
+          description: 'Authorization token on the remote botpress server',
+          // tslint:disable-next-line:no-null-keyword
+          default: null,
+          type: 'string'
+        },
+        targetDir: {
+          alias: 'dir',
+          description: 'The local directory containing the data you want to push on the remote server',
+          default: path.join(__dirname, 'data'),
+          type: 'string'
+        }
+      },
+      argv => require('./push').default(argv)
     )
     .command(
       'bench',

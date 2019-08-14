@@ -18,12 +18,12 @@ import { ActionMetadata, extractMetadata } from './metadata'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
-const SYNC_DEBOUNCE_DELAY = ms('2s')
+const DEBOUNCE_DELAY = ms('2s')
 
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
-  private _syncDebounce
+  private _invalidateDebounce
 
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
@@ -33,31 +33,22 @@ export default class ActionService {
     private logger: Logger
   ) {
     this._listenForCacheInvalidation()
-    this._syncDebounce = _.debounce(this._syncFiles, SYNC_DEBOUNCE_DELAY, { leading: true, trailing: false })
+    this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
       if (key.toLowerCase().indexOf(`/actions`) > -1) {
-        this._syncDebounce(key)
+        this._invalidateDebounce(key)
       }
     })
   }
 
-  // Listening for sync here, because scopedActionService is not initialized until a user triggers an action
-  private async _syncFiles(key: string) {
-    const parts = key.split('/')
-    const botId = parts[parts.indexOf('actions') - 1]
-
+  // Debouncing invalidate since we get a lot of events when it happens
+  private _invalidateRequire() {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
       .map(file => delete require.cache[file])
-
-    if (botId === 'global') {
-      await this.ghost.global().syncDatabaseFilesToDisk('actions')
-    } else {
-      await this.ghost.forBot(botId).syncDatabaseFilesToDisk('actions')
-    }
   }
 
   forBot(botId: string): ScopedActionService {
