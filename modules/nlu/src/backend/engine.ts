@@ -292,7 +292,12 @@ export default class ScopedEngine implements Engine {
       }
 
       await this.intentClassifiers[lang].load(intentModels)
-      await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
+
+      if (_.isEmpty(skipgramModel.model)) {
+        this.logger.debug(`No slots (CRF) model found for hash ${modelHash}`)
+      } else {
+        await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
+      }
     }
 
     this.logger.debug(`Done restoring models '${modelHash}' from storage`)

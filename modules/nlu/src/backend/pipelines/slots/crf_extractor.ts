@@ -144,6 +144,11 @@ export default class CRFExtractor {
   ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
+    if (!this._isTrained) {
+      debugExtract('CRF not trained, skipping slot extraction', { text: ds.sanitizedLowerText })
+      return {}
+    }
+
     // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.rawText.toLowerCase(), intentDef, ds.entities, ds.tokens)
 
