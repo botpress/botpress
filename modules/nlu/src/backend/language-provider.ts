@@ -417,7 +417,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
 
     for (let i = 0; i < final.length; i++) {
-      if (utterances[i] && final[i] && final[i][0] && final[i][0].startsWith(SPACE) && !utterances[i].startsWith(' ')) {
+      const utt = utterances[i]
+      const fin = final[i] && final[i][0]
+
+      if (utt && utt.startsWith && fin && fin.startsWith && fin.startsWith(SPACE) && !utt.startsWith(' ')) {
         // remove the very first space special char we append at the beginning for no reason
         final[i][0] = final[i][0].substring(1)
       }
