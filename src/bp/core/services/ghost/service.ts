@@ -21,7 +21,7 @@ import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisi
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-//TODO better typings
+// TODO better typings
 export type FileChanges = {
   scope: string
   changes: {
@@ -91,7 +91,6 @@ export class GhostService {
         await invalidateFile(file.path)
       })
     }
-    console.log('done')
   }
 
   // TODO refactor this
