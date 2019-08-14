@@ -63,7 +63,7 @@ export class VersioningRouter extends CustomRouter {
       })
     )
 
-    // Force update of the production files by the local files
+    // Force update of the remote files by the local files
     this.router.post(
       '/update',
       this.asyncMiddleware(async (req, res) => {

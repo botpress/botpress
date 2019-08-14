@@ -43,8 +43,8 @@ async function _push(serverUrl: string, authToken: string, targetDir: string): P
 
     const { data } = await axios.post(`${serverUrl}/api/v1/admin/versioning/changes`, archive, options)
 
-    const prodChanges = _.flatten((data.changes as FileChanges).map(x => x.changes))
-    const blockingChanges = prodChanges.filter(x => blockingActions.includes(x.action))
+    const allChanges = _.flatten((data.changes as FileChanges).map(x => x.changes))
+    const blockingChanges = allChanges.filter(x => blockingActions.includes(x.action))
 
     const useForce = process.argv.includes('--force')
 
@@ -57,7 +57,7 @@ async function _push(serverUrl: string, authToken: string, targetDir: string): P
       console.log(chalk.green('🎉 Successfully pushed your local changes to remote'))
     } else {
       console.log(formatHeader(serverUrl))
-      console.log(formatProdChanges(prodChanges))
+      console.log(formatRemoteChanges(allChanges))
     }
   } catch (err) {
     const error = err.response ? err.response.statusText : err.message
@@ -68,10 +68,10 @@ async function _push(serverUrl: string, authToken: string, targetDir: string): P
 function formatHeader(host) {
   return `
 🚨 Out of sync!
-  You have changes on your file system that aren't synchronized on your production environment.
+  You have changes on your file system that aren't synchronized to the remote environment.
 
   (Visit ${chalk.bold(`${host}/admin/server/version`)} to pull changes on your file system)
-  (Use ${chalk.yellow('--force')} to overwrite the production changes by the local changes)
+  (Use ${chalk.yellow('--force')} to overwrite the remote files by your local files)
 `
 }
 
@@ -85,12 +85,12 @@ const printLine = ({ action, path, add, del }) => {
   }
 }
 
-function formatProdChanges(changes) {
+function formatRemoteChanges(changes) {
   const lines = _.orderBy(changes, 'action')
     .map(printLine)
     .join('\n')
 
-  return `Differences between your local changes (green) vs production (red):
+  return `Differences between your local changes (green) vs remote changes (red):
 
 ${lines}
 `

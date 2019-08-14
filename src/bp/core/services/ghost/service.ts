@@ -134,16 +134,16 @@ export class GhostService {
       return files.map(file => forceForwardSlashes(getPath(file)))
     }
 
-    const getFileChanges = async (scope: string, localGhost: ScopedGhostService, prodGhost: ScopedGhostService) => {
+    const getFileChanges = async (scope: string, localGhost: ScopedGhostService, remoteGhost: ScopedGhostService) => {
       const localRevs = await localGhost.listDiskRevisions()
-      const prodRevs = await prodGhost.listDbRevisions()
-      const syncedRevs = _.intersectionBy(localRevs, prodRevs, uniqueFile)
-      const unsyncedFiles = _.uniq(_.differenceBy(prodRevs, syncedRevs, uniqueFile).map(x => x.path))
+      const remoteRevs = await remoteGhost.listDbRevisions()
+      const syncedRevs = _.intersectionBy(localRevs, remoteRevs, uniqueFile)
+      const unsyncedFiles = _.uniq(_.differenceBy(remoteRevs, syncedRevs, uniqueFile).map(x => x.path))
 
       const localFiles: string[] = await getDirectoryFullPaths(scope, localGhost)
-      const prodFiles: string[] = await getDirectoryFullPaths(scope, prodGhost)
-      const deleted = _.difference(prodFiles, localFiles).map(x => ({ path: x, action: 'del' }))
-      const added = _.difference(localFiles, prodFiles).map(x => ({ path: x, action: 'add' }))
+      const remoteFiles: string[] = await getDirectoryFullPaths(scope, remoteGhost)
+      const deleted = _.difference(remoteFiles, localFiles).map(x => ({ path: x, action: 'del' }))
+      const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' }))
 
       const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
       const edited = (await Promise.map(unsyncedFiles.filter(filterDeleted), getFileDiff)).filter(
