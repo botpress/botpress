@@ -7,7 +7,6 @@ import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
-import { CMSService } from 'core/services/cms'
 import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -45,15 +44,14 @@ export class AdminRouter extends CustomRouter {
     configProvider: ConfigProvider,
     monitoringService: MonitoringService,
     alertingService: AlertingService,
-    moduleLoader: ModuleLoader,
-    cmsService: CMSService
+    moduleLoader: ModuleLoader
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
-    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService, cmsService)
+    this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
     this.rolesRouter = new RolesRouter(logger, this.workspaceService)
     this.serverRouter = new ServerRouter(logger, monitoringService, alertingService, configProvider, ghostService)
     this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService)

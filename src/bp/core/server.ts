@@ -1,11 +1,12 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { RequestWithUser } from 'common/typings'
 import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
-import express, { Response, NextFunction } from 'express'
+import express, { NextFunction, Response } from 'express'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import fs from 'fs'
@@ -30,7 +31,7 @@ import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
-import { monitoringMiddleware, needPermissions, hasPermissions } from './routers/util'
+import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
@@ -49,7 +50,6 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
-import { RequestWithUser, AuthRole } from 'common/typings'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -150,8 +150,7 @@ export default class HTTPServer {
       this.configProvider,
       this.monitoringService,
       this.alertingService,
-      moduleLoader,
-      cmsService
+      moduleLoader
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({

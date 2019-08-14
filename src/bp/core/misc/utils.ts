@@ -84,3 +84,12 @@ export const asBytes = (size: string) => {
 
   return Number(matches[1])
 }
+
+export const bytesToString = (bytes: number): string => {
+  const units = ['bytes', 'kb', 'mb', 'gb', 'tb']
+  const power = Math.log2(bytes)
+  const unitNumber = Math.min(Math.floor(power / 10), 4)
+  const mantisse = bytes / Math.pow(2, unitNumber * 10)
+
+  return `${mantisse.toFixed(0)} ${units[unitNumber]}`
+}

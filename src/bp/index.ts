@@ -146,7 +146,7 @@ try {
           type: 'string'
         }
       },
-      argv => require('./pull').default(argv)
+      argv => require('./bpfs').default(argv, 'pull')
     )
     .command(
       'push',
@@ -171,7 +171,7 @@ try {
           type: 'string'
         }
       },
-      argv => require('./push').default(argv)
+      argv => require('./bpfs').default(argv, 'push')
     )
     .command(
       'bench',
