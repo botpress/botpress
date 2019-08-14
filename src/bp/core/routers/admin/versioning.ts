@@ -68,13 +68,19 @@ export class VersioningRouter extends CustomRouter {
       '/update',
       this.asyncMiddleware(async (req, res) => {
         const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+        const beforeBotIds = await this.botService.getBotsIds()
 
         try {
           await this.extractArchiveFromRequest(req, tmpDir.name)
           await this.ghost.forceUpdate(tmpDir.name)
 
-          const botsIds = await this.botService.getBotsIds()
-          await Promise.map(botsIds, id => this.cmsService.broadcastInvalidateForBot(id))
+          // we let the caches invalidate and propagate TODO: do this properly instead of waiting
+          await Promise.delay(5000)
+
+          // Unmount all previous bots and re-mount only the remaining (and new) bots
+          await Promise.map(beforeBotIds, id => this.botService.unmountBot(id))
+          const afterBotIds = await this.botService.getBotsIds()
+          await Promise.map(afterBotIds, id => this.botService.mountBot(id))
 
           res.sendStatus(200)
         } catch (error) {
