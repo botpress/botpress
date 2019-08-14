@@ -29,46 +29,59 @@ class BPFS {
   private serverUrl: string
   private authToken: string
   private targetDir: string
+  private sourceDir: string
 
   constructor(args, action: string) {
     this.serverUrl = args.url.replace(/\/+$/, '')
     this.authToken = args.authToken
-    this.targetDir = args.targetDir
+    this.targetDir = args.targetDir && path.resolve(args.targetDir)
+    this.sourceDir = args.sourceDir && path.resolve(args.sourceDir)
 
     if (!this.serverUrl || !this.authToken || !this.authToken.length) {
       this._endWithError(`Missing parameter "url" or "authToken"`)
     }
 
-    if (!this.targetDir || (action === 'push' && !fse.existsSync(path.resolve(this.targetDir)))) {
+    if (action === 'pull' && !this.targetDir) {
       this._endWithError(`Target directory is not valid: "${this.targetDir}"`)
+    }
+
+    if (action === 'push' && !this.sourceDir) {
+      this._endWithError(`Source directory must be set: "${this.sourceDir}"`)
     }
   }
 
   async pullChanges() {
     const cleanBefore = process.argv.includes('--clean')
     const axiosClient = this._getPullAxiosClient()
+    const dryRun = process.argv.includes('--dry')
 
     try {
       // We clear only those two folders, so assets are preserved
       if (cleanBefore) {
         console.log(chalk.blue(`Cleaning data folder before pulling data...`))
-        await this._clearDir(path.resolve(this.targetDir, 'global'))
-        await this._clearDir(path.resolve(this.targetDir, 'bots'))
-      } else if (fse.existsSync(path.resolve(this.targetDir))) {
-        const fileCount = await this._filesCount(path.resolve(this.targetDir))
+        await this._clearDir(path.join(this.targetDir, 'global'))
+        await this._clearDir(path.join(this.targetDir, 'bots'))
+      } else if (fse.existsSync(this.targetDir)) {
+        const fileCount = await this._filesCount(this.targetDir)
         console.log(chalk.blue(`Remote files will be pulled in an existing folder containing ${fileCount} files`))
       }
 
-      console.log(chalk.blue(`Pulling all remote changes from ${this.printUrl} to ${this.printTarget} ...`))
+      console.log(chalk.blue(`Pulling all remote changes from ${this.serverUrl} to ${this.targetDir} ...`))
 
       const { data: archive } = await axiosClient.get('export')
+      if (dryRun) {
+        console.log(chalk.yellow(`Dry run completed. Successfully downloaded archive.`))
+        return process.exit()
+      }
+
+      console.log(
+        chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)}`)
+      )
 
       await extractArchive(archive, this.targetDir)
-      console.log(
-        chalk.green(
-          `Successfully extracted changes on your local file system. Archive size: ${bytesToString(archive.length)}`
-        )
-      )
+
+      const fileCount = await this._filesCount(this.targetDir)
+      console.log(chalk.green(`Successfully extracted ${fileCount} files from the remote server!`))
     } catch (err) {
       const error = err.response ? `${err.response.statusText} (${err.response.status})` : err.message
       this._endWithError(`Could not pull changes: ${error}`)
@@ -79,14 +92,18 @@ class BPFS {
     const useForce = process.argv.includes('--force')
     const dryRun = process.argv.includes('--dry')
 
-    try {
-      console.log(chalk.blue(`Preparing an archive of your local files...`))
+    if (!fse.existsSync(this.sourceDir)) {
+      this._endWithError(`Specified folder "${this.sourceDir}" doesn't exist.`)
+    }
 
-      const archive = await createArchiveFromFolder(this.targetDir, pushedArchiveIgnoredFiles)
+    try {
+      console.log(chalk.blue(`Preparing an archive of your local files from ${this.sourceDir}...`))
+
+      const archive = await createArchiveFromFolder(this.sourceDir, pushedArchiveIgnoredFiles)
       const axiosClient = this._getPushAxiosClient(archive.length)
 
       console.log(
-        chalk.blue(`Sending archive to server for comparison... (Archive size: ${bytesToString(archive.length)})`)
+        chalk.blue(`Sending archive to server for comparison... (archive size: ${bytesToString(archive.length)})`)
       )
       const { data } = await axiosClient.post('changes', archive)
       const { changeList, blockingChanges, localFiles } = this._processChanges(data)
@@ -99,8 +116,7 @@ class BPFS {
           return process.exit()
         }
 
-        console.log(chalk.blue(`Pushing local changes to ${this.printUrl}...`))
-        useForce && console.log(chalk.yellow('Using --force'))
+        console.log(chalk.blue(`Pushing local changes to ${this.serverUrl}... ${useForce ? '(using --force)' : ''}`))
 
         await axiosClient.post('update', archive)
         console.log(chalk.green(`Successfully pushed ${localFiles.length} local files to remote server!`))
@@ -198,14 +214,6 @@ ${lines}
   private _endWithError(message: string) {
     console.log(chalk.red(`${chalk.bold('Error:')} ${message}`))
     process.exit()
-  }
-
-  get printUrl() {
-    return chalk.bold(this.serverUrl)
-  }
-
-  get printTarget() {
-    return chalk.bold(path.resolve(this.targetDir))
   }
 }
 

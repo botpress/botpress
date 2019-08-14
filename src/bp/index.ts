@@ -164,7 +164,7 @@ try {
           default: null,
           type: 'string'
         },
-        targetDir: {
+        sourceDir: {
           alias: 'dir',
           description: 'The local directory containing the data you want to push on the remote server',
           default: path.join(__dirname, 'data'),
