@@ -19,6 +19,7 @@ Start Botpress on a single node with these environment variables:
 ```bash
 PRO_ENABLED=true
 CLUSTER_ENABLED=true \
+BPFS_STORAGE=database \
 BP_LICENSE_KEY=<license_key> \
 EXTERNAL_URL=<public_url> \
 REDIS_URL=redis://host:port \
@@ -49,6 +50,8 @@ Once the first node is started, use the same command to start Botpress on the ot
 ## Version Control
 
 To use version control for your Botpress data or bots, you will have to pull the changes from the database to your local filesystem, make changes in local, commit to your version control and push the changes back to the database.
+
+> **Note:** The `BPFS_STORAGE` environment variable must be set to `database` to enable **pushing** to this node.
 
 1. Pull the changes from the database with `bp pull`
 1. Make the changes in local
