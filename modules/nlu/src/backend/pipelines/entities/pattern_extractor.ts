@@ -155,7 +155,7 @@ export default class PatternExtractor {
     return flatMap(entityDefs, entityDef => {
       try {
         const regex = new RegExp(entityDef.pattern!, 'i')
-        return extractPattern(input, regex).map(res => ({
+        return extractPattern(input, regex, []).map(res => ({
           name: entityDef.name,
           type: entityDef.type, // pattern
           sensitive: entityDef.sensitive,
@@ -163,8 +163,8 @@ export default class PatternExtractor {
             confidence: 1, // pattern always has 1 confidence
             provider: 'native',
             source: res.value,
-            start: res.sourceIndex,
-            end: res.sourceIndex + res.value.length,
+            start: Math.max(0, res.sourceIndex),
+            end: Math.min(input.length, res.sourceIndex + res.value.length),
             raw: {}
           },
           data: {

@@ -8,11 +8,6 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
-  isGlobalAllowed: boolean
-  isBotConfigIncluded: boolean
-}
-
 export interface FileFilters {
   filename?: string
 }

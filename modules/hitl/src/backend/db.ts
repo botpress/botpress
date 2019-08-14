@@ -37,6 +37,7 @@ export default class HitlDb {
             .references('hitl_sessions.id')
             .onDelete('CASCADE')
           table.string('type')
+          table.string('source')
           table.string('text', 640)
           table.jsonb('raw_message')
           table.enu('direction', ['in', 'out'])
@@ -141,11 +142,12 @@ export default class HitlDb {
 
   appendMessageToSession(event, sessionId, direction) {
     const text = event.type === 'custom' ? event.payload.wrapped.text : event.payload.text
-
+    const source = direction == 'in' ? 'user' : event.payload.agent ? 'agent' : 'bot'
     const message = {
       session_id: sessionId,
       type: event.type,
       text: text,
+      source: source,
       raw_message: event.payload,
       direction: direction,
       ts: this.knex.date.now()
@@ -218,6 +220,7 @@ export default class HitlDb {
           .as('q1')
       })
       .join('hitl_messages', this.knex.raw('q1.mId'), 'hitl_messages.id')
+      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
       .join('hitl_sessions', this.knex.raw('q1.session_id'), 'hitl_sessions.id')
       .whereRaw(condition)
       .where({ botId })

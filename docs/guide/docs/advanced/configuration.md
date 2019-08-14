@@ -122,6 +122,7 @@ Here there are:
 | DATABASE_URL         | Full connection string to connect to the DB                                                               | **see below** |
 | BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false         |
 | CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false         |
+| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)                                | disk          |
 | REDIS_URL            | The connection string to connect to your Redis instance                                                   |               |
 
 About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgress url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.

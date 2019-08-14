@@ -1,7 +1,10 @@
 import fse from 'fs-extra'
 import glob from 'glob'
+import mkdirp from 'mkdirp'
+import path from 'path'
 import stream from 'stream'
 import tar from 'tar'
+import tmp from 'tmp'
 import { VError } from 'verror'
 
 import { forceForwardSlashes } from './utils'
@@ -43,5 +46,26 @@ export const createArchive = async (fileName: string, folder: string, files: str
     return fileName
   } catch (err) {
     throw new VError(err, `[Archive] Error creating archive "${fileName}"`)
+  }
+}
+
+export const createArchiveFromFolder = async (folder: string, ignoredFiles: string[]): Promise<Buffer> => {
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+  try {
+    const files: string[] = await Promise.fromCallback(cb =>
+      glob('**/*', { cwd: folder, ignore: ignoredFiles, nodir: true, dot: true }, cb)
+    )
+
+    for (const file of files) {
+      await mkdirp.sync(path.dirname(path.join(tmpDir.name, file)))
+      fse.copyFileSync(path.resolve(folder, file), path.resolve(tmpDir.name, file))
+    }
+
+    const filename = path.join(tmpDir.name, 'archive.tgz')
+    const archive = await createArchive(filename, tmpDir.name, files)
+    return await fse.readFile(archive)
+  } finally {
+    tmpDir.removeCallback()
   }
 }

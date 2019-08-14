@@ -5,7 +5,7 @@ const migration: sdk.ModuleMigration = {
     description: `Adds incomingEventId to the table web_messages`,
     type: 'database'
   },
-  up: async (bp: typeof sdk): Promise<sdk.MigrationResult> => {
+  up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     if (await bp.database.schema.hasColumn('web_messages', 'incomingEventId')) {
       return { success: true, message: 'Column incomingEventId already exists, skipping...' }
     }

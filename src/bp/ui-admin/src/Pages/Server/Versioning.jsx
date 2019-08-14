@@ -10,7 +10,8 @@ import { pullToken } from '../../Auth'
 
 class Versioning extends Component {
   state = {
-    command: '',
+    pullCommand: '',
+    pushCommand: '',
     copied: false
   }
 
@@ -24,8 +25,11 @@ class Versioning extends Component {
 
     const { token } = pullToken()
     const host = window.location.origin
-    const command = `${bpcli} pull --url ${host}${window.ROOT_PATH} --authToken ${token} --targetDir data`
-    this.setState({ command })
+
+    this.setState({
+      pullCommand: `${bpcli} pull --url ${host}${window.ROOT_PATH} --authToken ${token} --targetDir data`,
+      pushCommand: `${bpcli} push --url ${host}${window.ROOT_PATH} --authToken ${token} --targetDir data`
+    })
   }
 
   setCopied = () => {
@@ -51,14 +55,12 @@ class Versioning extends Component {
   renderMainContent = () => (
     <div>
       {this.props.loading && <div>loading</div>}
-      {!this.props.loading && _.isEmpty(this.props.pendingChanges) && this.renderNoPendingChanges()}
-      {!this.props.loading && !_.isEmpty(this.props.pendingChanges) && (
+
+      {!this.props.loading && (
         <div>
-          <p>
-            Some changes has been made since this server was deployed. Run the botpress pull command to sync server data
-            locally
-          </p>
-          <code>{this.state.command}</code>
+          <h4>Pull remote to file system</h4>
+          <p>Use this command to copy the remote data on your local file system.</p>
+          <code>{this.state.pullCommand}</code>
           <CopyToClipboard text={this.state.command} onCopy={this.setCopied}>
             <Button color="link" size="sm" className="license-infos__icon">
               <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
@@ -71,6 +73,13 @@ class Versioning extends Component {
             </Button>
           </CopyToClipboard>
           {this.state.copied && <span>&nbsp;copied</span>}
+          <hr />
+          <h4>Push local to this server</h4>
+          <p>
+            If you are using the database storage for BPFS, you can also push your local changes to the database using
+            this command:
+          </p>
+          <code>{this.state.pushCommand}</code>
         </div>
       )}
     </div>

@@ -51,6 +51,7 @@ Run the following command in your command line:
 ```bash
 EXTERNAL_URL=<public_url> \
 BP_PRODUCTION=true \
+BPFS_STORAGE=database \
 DATABASE_URL=postgres://login:password@host:port/database \
 ./bp
 ```
@@ -456,18 +457,19 @@ Botpress supports `.env` files, so you don't have to set them everytime you star
 
 ### Common
 
-| Environment Variable | Description                                                                                                                   | Default          |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| PORT                 | Sets the port that Botpress will listen to                                                                                    | 3000             |
-| BP_HOST              | The host to check for incoming connections                                                                                    | localhost        |
-| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.                                             | http://HOST:PORT |
-| DATABASE             | The database type to use. `postgres` or `sqlite`                                                                              | sqlite           |
-| DATABASE_URL         | Full connection string to connect to the DB                                                                                   | -                |
-| BP_PRODUCTION        | Sets Botpress in production mode (thus making BPFS to run on the database). This has the same effect as starting it with `-p` | false            |
-| PRO_ENABLED          | Enables the pro version of Botpress, the license key will be required                                                         | false            |
-| BP_LICENSE_KEY       | Your license key (can also be specified in `botpress.config.json`)                                                            | -                |
-| CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                                        | false            |
-| REDIS_URL            | The connection string to connect to your Redis instance                                                                       | -                |
+| Environment Variable | Description                                                                         | Default          |
+| -------------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| PORT                 | Sets the port that Botpress will listen to                                          | 3000             |
+| BP_HOST              | The host to check for incoming connections                                          | localhost        |
+| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.   | http://HOST:PORT |
+| DATABASE             | The database type to use. `postgres` or `sqlite`                                    | sqlite           |
+| DATABASE_URL         | Full connection string to connect to the DB                                         | -                |
+| BP_PRODUCTION        | Sets Botpress in production mode. This has the same effect as starting it with `-p` | false            |
+| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)          | disk             |
+| PRO_ENABLED          | Enables the pro version of Botpress, the license key will be required               | false            |
+| BP_LICENSE_KEY       | Your license key (can also be specified in `botpress.config.json`)                  | -                |
+| CLUSTER_ENABLED      | Enables multi-node support using Redis                                              | false            |
+| REDIS_URL            | The connection string to connect to your Redis instance                             | -                |
 
 ### Runtime and Modules
 

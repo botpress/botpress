@@ -1,3 +1,130 @@
+# [12.1.0](https://github.com/botpress/botpress/compare/v12.0.7...v12.1.0) (2019-08-14)
+
+
+### Bug Fixes
+
+* **admin:** issue with role selection & added some typing ([a913c27](https://github.com/botpress/botpress/commit/a913c27))
+* **admin:** issue with role selection & added some typing ([109984d](https://github.com/botpress/botpress/commit/109984d))
+* **bots:** added migration for bot imports ([65d9881](https://github.com/botpress/botpress/commit/65d9881))
+* **bots:** added migration for bot imports ([6ea7575](https://github.com/botpress/botpress/commit/6ea7575))
+* **channel-slack:** added verifications & changed some logic ([a49f701](https://github.com/botpress/botpress/commit/a49f701))
+* **channel-slack:** added verifications & changed some logic ([a2c63ee](https://github.com/botpress/botpress/commit/a2c63ee))
+* **converse:** making sure timeout is set ([3decfef](https://github.com/botpress/botpress/commit/3decfef))
+* **converse:** making sure timeout is set ([8a42820](https://github.com/botpress/botpress/commit/8a42820))
+* **core:** clearing cache of required actions and sync when remote ([720cb7a](https://github.com/botpress/botpress/commit/720cb7a))
+* **core:** clearing cache of required actions when changed ([7f59d37](https://github.com/botpress/botpress/commit/7f59d37))
+* **core:** custom paths can be defined for botpress ([55d9e0a](https://github.com/botpress/botpress/commit/55d9e0a))
+* **core:** on action error, flowTo loc if defined ([ef3d913](https://github.com/botpress/botpress/commit/ef3d913))
+* **core:** on action error, flowTo loc if defined ([795bda4](https://github.com/botpress/botpress/commit/795bda4))
+* **core:** strategy always return instruction ([39a5739](https://github.com/botpress/botpress/commit/39a5739))
+* **docs:** fix links on the nlu page ([a0d802c](https://github.com/botpress/botpress/commit/a0d802c))
+* **docs:** fix links on the nlu page ([548e3e4](https://github.com/botpress/botpress/commit/548e3e4))
+* **flow:** another refactor & added some stuff ([d372347](https://github.com/botpress/botpress/commit/d372347))
+* **flow:** some refactor for flows ([a1a985e](https://github.com/botpress/botpress/commit/a1a985e))
+* **flow:** updated srd and added typings ([2e5bc29](https://github.com/botpress/botpress/commit/2e5bc29))
+* **flow:** updated srd and added typings ([a8db8fd](https://github.com/botpress/botpress/commit/a8db8fd))
+* **flows:** repair update skill ([ce59edd](https://github.com/botpress/botpress/commit/ce59edd))
+* **ghost:** fix with sync & cms invalidate ([dc6e4f5](https://github.com/botpress/botpress/commit/dc6e4f5))
+* **ghost:** fix with sync & cms invalidate ([dfdf33a](https://github.com/botpress/botpress/commit/dfdf33a))
+* **ghost:** pushing local to remote directly ([8bfb80a](https://github.com/botpress/botpress/commit/8bfb80a))
+* **lang-server:** not refreshing invalid metadata ([d4565e9](https://github.com/botpress/botpress/commit/d4565e9))
+* **lang-server:** not refreshing invalid metadata ([c257d24](https://github.com/botpress/botpress/commit/c257d24))
+* **logs:** srv_logs table now has timestamp instead of string ([63c3d7c](https://github.com/botpress/botpress/commit/63c3d7c))
+* **nlu:** better slot tagging ([0953f12](https://github.com/botpress/botpress/commit/0953f12))
+* **nlu:** crf model check ([e7729ef](https://github.com/botpress/botpress/commit/e7729ef))
+* **nlu:** don't force skipgram loading ([19b299a](https://github.com/botpress/botpress/commit/19b299a))
+* **nlu:** fix get train set ([037ea8e](https://github.com/botpress/botpress/commit/037ea8e))
+* **nlu:** removing useless confusion matrix error ([2a79225](https://github.com/botpress/botpress/commit/2a79225))
+* **nlu:** removing useless confusion matrix error ([a1c162d](https://github.com/botpress/botpress/commit/a1c162d))
+* **nlu:** skipgram model loading when no slot ([657ff9c](https://github.com/botpress/botpress/commit/657ff9c))
+* **nlu:** slot-crf gets matchedEntities for train ([eff89f5](https://github.com/botpress/botpress/commit/eff89f5))
+* **nlu:** slots-crf tests ([97644cc](https://github.com/botpress/botpress/commit/97644cc))
+* **redis:** fix memory leak with listeners ([85667f5](https://github.com/botpress/botpress/commit/85667f5))
+* **redis:** fix memory leak with listeners ([582846b](https://github.com/botpress/botpress/commit/582846b))
+* **studio:** prevent re-rendering the whole layout when user changes ([9dad301](https://github.com/botpress/botpress/commit/9dad301))
+* **studio:** prevent re-rendering the whole layout when user changes ([1b364db](https://github.com/botpress/botpress/commit/1b364db))
+* **ui:** minor ajustments ([618cd57](https://github.com/botpress/botpress/commit/618cd57))
+* **ui:** minor ajustments ([1c62dc2](https://github.com/botpress/botpress/commit/1c62dc2))
+
+
+### Features
+
+* **channel-slack:** add new channel ([481cfd4](https://github.com/botpress/botpress/commit/481cfd4))
+* **channel-slack:** added slack integration ([3a2778e](https://github.com/botpress/botpress/commit/3a2778e))
+* **channel-teams:** added MS Teams channel ([e65227b](https://github.com/botpress/botpress/commit/e65227b))
+* **channel-web:** ability to show timestamp next to each messages ([b2f7562](https://github.com/botpress/botpress/commit/b2f7562))
+* **channel-web:** ability to show timestamp next to each messages ([add3574](https://github.com/botpress/botpress/commit/add3574))
+* **code-editor:** code editor now works with RBAC instead of configs ([86356e0](https://github.com/botpress/botpress/commit/86356e0))
+* **core:** added support for a custom url ([4351045](https://github.com/botpress/botpress/commit/4351045))
+* **debugger:** Clicking on intent in debugger navigates to correct intent in nlu or qna ([ccefa76](https://github.com/botpress/botpress/commit/ccefa76))
+* **debugger:** remove __qna__ identifier + make UI more homogeneous ([9e6c12a](https://github.com/botpress/botpress/commit/9e6c12a))
+* **flow:** new experience with flow editor ([1c96afb](https://github.com/botpress/botpress/commit/1c96afb))
+* **flow-editor:** new experience with the flow builder ([3f24b42](https://github.com/botpress/botpress/commit/3f24b42))
+* **flows:** flow editor is notified when somebody else is editing flows ([9fe039b](https://github.com/botpress/botpress/commit/9fe039b))
+* **flows:** Realtime collaboration in flows ([040ddf3](https://github.com/botpress/botpress/commit/040ddf3))
+* **hitl:** basic search ([01c9d33](https://github.com/botpress/botpress/commit/01c9d33))
+* **hitl:** UI changes & added features ([7590fb0](https://github.com/botpress/botpress/commit/7590fb0))
+* **lang-server:** add option to run offline ([8a941a3](https://github.com/botpress/botpress/commit/8a941a3))
+* **studio:** Flow editor auto saves and notifies when somebody else is editing flow ([2a50011](https://github.com/botpress/botpress/commit/2a50011))
+* **version-control:** add push and status commands ([0bca349](https://github.com/botpress/botpress/commit/0bca349))
+
+
+
+## [12.0.7](https://github.com/botpress/botpress/compare/v12.0.6...v12.0.7) (2019-08-05)
+
+
+### Bug Fixes
+
+* **redis:** fix invalidation with redis ([25a1411](https://github.com/botpress/botpress/commit/25a1411))
+* **redis:** fix invalidation with redis ([43c561f](https://github.com/botpress/botpress/commit/43c561f))
+
+
+
+## [12.0.6](https://github.com/botpress/botpress/compare/v12.0.5...v12.0.6) (2019-08-02)
+
+
+### Bug Fixes
+
+* **core:** ldap authentication ([e9375f0](https://github.com/botpress/botpress/commit/e9375f0))
+* **core:** ldap authentication ([4b1a4c5](https://github.com/botpress/botpress/commit/4b1a4c5))
+* **dialog-engine:** ending flow when no nodes configured ([a2c5ad3](https://github.com/botpress/botpress/commit/a2c5ad3))
+* **dialog-engine:** ending flow when no nodes configured ([c354f36](https://github.com/botpress/botpress/commit/c354f36))
+
+
+
+## [12.0.5](https://github.com/botpress/botpress/compare/v12.0.4...v12.0.5) (2019-07-31)
+
+
+### Bug Fixes
+
+* **nlu:** case sensitivity in svm ([5746404](https://github.com/botpress/botpress/commit/5746404))
+
+
+
+## [12.0.4](https://github.com/botpress/botpress/compare/v12.0.3...v12.0.4) (2019-07-31)
+
+
+### Bug Fixes
+
+* **admin:** fix last login and joined on dates ([9285d7e](https://github.com/botpress/botpress/commit/9285d7e))
+* **admin:** fix last login and joined on dates ([321608a](https://github.com/botpress/botpress/commit/321608a))
+* **bots:** export & import now updates image paths & others ([a93a819](https://github.com/botpress/botpress/commit/a93a819))
+* **bots:** export & import now updates image paths & others ([470f51b](https://github.com/botpress/botpress/commit/470f51b))
+* **channel-web:** externalAuth token http headers ([41997df](https://github.com/botpress/botpress/commit/41997df))
+* **channel-web:** issue with file upload ([f8c229d](https://github.com/botpress/botpress/commit/f8c229d))
+* **channel-web:** issue with file upload ([af98cad](https://github.com/botpress/botpress/commit/af98cad))
+* **core:** added missing audit logs ([7f6452d](https://github.com/botpress/botpress/commit/7f6452d))
+* **core:** check multiple linux distros in order ([78deecc](https://github.com/botpress/botpress/commit/78deecc))
+* **logs:** follow-logs not working consistently when zoomed ([39a4044](https://github.com/botpress/botpress/commit/39a4044))
+* **logs:** follow-logs not working consistently when zoomed ([563e482](https://github.com/botpress/botpress/commit/563e482))
+* **nlu:** known slots infinite loop ([3fd55b9](https://github.com/botpress/botpress/commit/3fd55b9))
+* **nlu:** knownSlots extraction ([7cc6344](https://github.com/botpress/botpress/commit/7cc6344))
+* **skills:** fixed choice skill repeat ([ffc7ccd](https://github.com/botpress/botpress/commit/ffc7ccd))
+* **webchat:** fix for some messages which crashed the whole chat ([125d0bd](https://github.com/botpress/botpress/commit/125d0bd))
+* **webchat:** fix for some messages which crashed the whole chat ([c55d2d2](https://github.com/botpress/botpress/commit/c55d2d2))
+
+
+
 ## [12.0.3](https://github.com/botpress/botpress/compare/v12.0.2...v12.0.3) (2019-07-25)
 
 

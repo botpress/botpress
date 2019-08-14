@@ -27,7 +27,7 @@ select VERSION in patch minor major "Specific Version"
         cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
         
         # Update changelog from git history
-        gulp changelog
+        yarn cmd changelog
 
         # Create commit
         git add -A

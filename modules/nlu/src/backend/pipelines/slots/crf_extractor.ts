@@ -5,9 +5,12 @@ import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
-import { NLUStructure } from '../../typings'
-import { BIO, Sequence, SlotExtractor, Token } from '../../typings'
+import { SPACE } from '../../tools/token-utils'
+import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
+import { BIO, Sequence, Token } from '../../typings'
+import { TfidfOutput } from '../intents/tfidf'
 
+import { computeBucket, countAlpha, countNum, countSpecial, getFeaturesPairs, getTFIDFfeature } from './featureizer'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -15,17 +18,17 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
+const quartile = computeBucket(4)
+
 const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
-
-const computeQuintile = (length, idx) => Math.floor(idx / (length * 0.2))
 
 const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
 const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
-const K_CLUSTERS = 15
+const K_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
   initialization: 'random',
@@ -39,7 +42,9 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
-export default class CRFExtractor implements SlotExtractor {
+export type TagResult = { probability: number; label: string }
+
+export default class CRFExtractor {
   private _isTrained: boolean = false
   private _ftModelFn = ''
   private _crfModelFn = ''
@@ -50,7 +55,9 @@ export default class CRFExtractor implements SlotExtractor {
   constructor(
     private toolkit: typeof sdk.MLToolkit,
     private realtime: typeof sdk.realtime,
-    private realtimePayload: typeof sdk.RealTimePayload
+    private realtimePayload: typeof sdk.RealTimePayload,
+    private languageProvider: LanguageProvider,
+    private readonly language: string
   ) {}
 
   async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
@@ -73,7 +80,13 @@ export default class CRFExtractor implements SlotExtractor {
     this._isTrained = true
   }
 
-  async train(trainingSet: Sequence[]): Promise<{ language: Buffer; crf: Buffer }> {
+  async train(
+    trainingSet: Sequence[],
+    intentVocabs: { [token: string]: string[] },
+    allowedEntitiesPerIntents: { [name: string]: string[] },
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
+  ): Promise<{ language: Buffer; crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
       debugTrain('start training')
@@ -86,7 +99,7 @@ export default class CRFExtractor implements SlotExtractor {
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
 
       debugTrain('training CRF')
-      await this._trainCrf(trainingSet)
+      await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents, tfidf, token2Vec)
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
 
       debugTrain('reading tagger')
@@ -121,47 +134,68 @@ export default class CRFExtractor implements SlotExtractor {
    *   songs : [ multiple slots objects here]
    * }
    */
-  async extract(ds: NLUStructure, intentDef: sdk.NLU.IntentDefinition): Promise<sdk.NLU.SlotCollection> {
+  async extract(
+    ds: NLUStructure,
+    intentDef: sdk.NLU.IntentDefinition,
+    intentVocab,
+    allowedEntitiesPerIntents,
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
+  ): Promise<sdk.NLU.SlotCollection> {
     debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
 
-    const seq = await generatePredictionSequence(ds.sanitizedLowerText, intentDef.name, ds.entities, ds.tokens)
+    if (!this._isTrained) {
+      debugExtract('CRF not trained, skipping slot extraction', { text: ds.sanitizedLowerText })
+      return {}
+    }
 
-    const { probability, result: tags } = await this._tag(seq)
+    // TODO: Remove this line and make this part of the predictionPipeline instead
+    const seq = await generatePredictionSequence(ds.rawText.toLowerCase(), intentDef, ds.entities, ds.tokens)
+
+    const tags = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
-    return (_.zip(seq.tokens, tags) as [Token, string][])
-      .filter(([token, tagResult]) => {
-        if (!token || !tagResult || tagResult === BIO.OUT) {
+    return (_.zip(seq.tokens, tags) as [Token, TagResult][])
+      .filter(([token, result]) => {
+        if (!token || !result || !result.label || result.label === BIO.OUT) {
           return false
         }
 
-        const slotName = tagResult.slice(2)
+        const slotName = result.label.slice(2)
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
-        const slotName = tag.slice(2)
+        const slotName = tag.label.slice(2)
         const slotDef = intentDef.slots.find(x => x.name == slotName)
 
-        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, probability)
+        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, tag.probability)
 
         if (!slot) {
           return slotCollection
         }
 
-        if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
-          if (_.isEmpty(token.matchedEntities)) {
-            // simply append the source if the tag is inside a slot && type any (thus the if)
-            slotCollection[slotName].source += ` ${token.cannonical}`
-            slotCollection[slotName].value += ` ${token.cannonical}`
+        if (tag.label[0] === BIO.INSIDE && slotCollection[slotName]) {
+          if (!slotCollection[slotName].entity) {
+            const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
+            const newSource = `${slotCollection[slotName].source}${maybeSpace}${token.cannonical}`
+            slotCollection[slotName].source = newSource
+            slotCollection[slotName].value = newSource
           }
-        } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
+        } else if (tag.label[0] === BIO.BEGINNING && slotCollection[slotName]) {
+          const highest = _.maxBy([slotCollection[slotName], slot], 'confidence')
+          slotCollection[slotName] = highest
+          // At the moment we keep the highest confidence only
+          // we might want to keep the slot array feature so this is kept as commented
+          // I feel like it would make much more sens to enable this only when configured by the user
+          // i.e user marks a slot as an array (configurable) and only then we make an array
+
           // if the tag is beginning and the slot already exists, we create need a array slot
-          if (Array.isArray(slotCollection[slotName])) {
-            slotCollection[slotName].push(slot)
-          } else {
-            // if no slots exist we assign a slot to the slot key
-            slotCollection[slotName] = [slotCollection[slotName], slot]
-          }
+          // if (Array.isArray(slotCollection[slotName])) {
+          //   slotCollection[slotName].push(slot)
+          // } else {
+          //   // if no slots exist we assign a slot to the slot key
+          //   slotCollection[slotName] = [slotCollection[slotName], slot]
+          // }
         } else {
           slotCollection[slotName] = slot
         }
@@ -171,18 +205,44 @@ export default class CRFExtractor implements SlotExtractor {
   }
 
   // this is made "protected" to facilitate model validation
-  async _tag(seq: Sequence): Promise<{ probability: number; result: string[] }> {
+  async _tag(
+    seq: Sequence,
+    intentVocab,
+    allowedEntitiesPerIntents,
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
+  ): Promise<TagResult[]> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
     const inputVectors: string[][] = []
 
     for (let i = 0; i < seq.tokens.length; i++) {
-      const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
+      const featureVec = await this._vectorize(
+        seq.tokens,
+        seq.intent,
+        i,
+        intentVocab,
+        allowedEntitiesPerIntents[seq.intent],
+        tfidf,
+        token2Vec,
+        true
+      )
       inputVectors.push(featureVec)
     }
 
-    return this._tagger.tag(inputVectors)
+    const probs = this._tagger.marginal(inputVectors)
+    const chain = probs.map(token =>
+      _.chain(token)
+        .toPairs()
+        .maxBy('1')
+        .thru(([label, prob]) => ({
+          label: label.replace('/any', ''),
+          probability: prob
+        }))
+        .value()
+    )
+    return chain
   }
 
   private _makeSlot(
@@ -195,10 +255,15 @@ export default class CRFExtractor implements SlotExtractor {
     if (confidence < MIN_SLOT_CONFIDENCE) {
       return
     }
+
+    const tokenSpaceOffset = token.value.startsWith(SPACE) ? 1 : 0
     const entity =
       slotDef &&
       entities.find(
-        e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
+        e =>
+          slotDef.entities.indexOf(e.name) !== -1 &&
+          e.meta.start <= token.start + tokenSpaceOffset &&
+          e.meta.end >= token.end
       )
 
     // TODO: we might want to build up an entity with populated data with and 'any' slot
@@ -230,7 +295,7 @@ export default class CRFExtractor implements SlotExtractor {
       return
     }
 
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical))
+    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical.toLowerCase()))
 
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
@@ -239,24 +304,41 @@ export default class CRFExtractor implements SlotExtractor {
       throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
-  private async _trainCrf(sequences: Sequence[]) {
+  private async _trainCrf(
+    trainingSet: Sequence[],
+    intentVocab: { [token: string]: string[] },
+    allowedEntitiesPerIntents: { [name: string]: string[] },
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec
+  ) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
     trainer.set_params(CRF_TRAINER_PARAMS)
     trainer.set_callback(str => {
+      debugTrain('CRFSUITE', str)
       /* swallow training results */
     })
 
-    for (const seq of sequences) {
+    for (const seq of trainingSet) {
       const inputVectors: string[][] = []
       const labels: string[] = []
       for (let i = 0; i < seq.tokens.length; i++) {
-        const featureVec = await this._vectorize(seq.tokens, seq.intent, i)
+        const featureVec = await this._vectorize(
+          seq.tokens,
+          seq.intent,
+          i,
+          intentVocab,
+          allowedEntitiesPerIntents[seq.intent],
+          tfidf,
+          token2Vec,
+          false
+        )
 
         inputVectors.push(featureVec)
 
+        const isAny = seq.tokens[i].slot && !seq.tokens[i].matchedEntities.length ? '/any' : ''
         const labelSlot = seq.tokens[i].slot ? `-${seq.tokens[i].slot}` : ''
-        labels.push(`${seq.tokens[i].tag}${labelSlot}`)
+        labels.push(`${seq.tokens[i].tag}${labelSlot}${isAny}`)
       }
       trainer.append(inputVectors, labels)
     }
@@ -272,8 +354,8 @@ export default class CRFExtractor implements SlotExtractor {
 
     const trainContent = samples.reduce((corpus, seq) => {
       const cannonicSentence = seq.tokens
-        .map(token => (token.tag === BIO.OUT ? token.cannonical : token.slot))
-        .join(' ') // TODO fixme: use sentencepiece to recombine tokens to be language agnostic
+        .map(token => (token.tag === BIO.OUT ? token.cannonical.toLowerCase() : token.slot))
+        .join(' ') // do not use sentencepiece space char
       return `${corpus}${cannonicSentence}\n`
     }, '')
 
@@ -298,49 +380,125 @@ export default class CRFExtractor implements SlotExtractor {
     token: Token,
     intentName: string,
     featPrefix: string,
-    includeCluster: boolean
+    includeCluster: boolean,
+    intentVocab: { [token: string]: string[] },
+    allowedEntities: string[],
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec,
+    isPredict: boolean
   ): Promise<string[]> {
-    const vector: string[] = [`${featPrefix}intent=${intentName}:5`]
+    const vector: string[] = []
+    const boost = isPredict ? 3 : 1
 
-    if (token.cannonical === token.cannonical.toLowerCase()) vector.push(`${featPrefix}low`)
-    if (token.cannonical === token.cannonical.toUpperCase()) vector.push(`${featPrefix}up`)
-    // if (token.cannonical.length === 1) vector.push(`${featPrefix}single`)
-    if (
-      token.cannonical.length > 1 &&
-      token.cannonical[0] === token.cannonical[0].toUpperCase() &&
-      token.cannonical[1] === token.cannonical[1].toLowerCase()
-    )
-      vector.push(`${featPrefix}title`)
+    if (!token.cannonical) {
+      return []
+    }
+
+    // TODO refactor this func, return an array of {name: string, value: string, boost?: number}
+    // call makeCrfAttr only in vectorize will look like this._vectorizeToken(/** args */).map(_makeCrfAttr.bind(this, featPrefix))
 
     if (includeCluster) {
-      const cluster = await this._getWordCluster(token.cannonical)
-      vector.push(`${featPrefix}cluster=${cluster.toString()}`)
+      const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
+      vector.push(this._makeCrfAttr(featPrefix, 'cluster', cluster))
     }
 
-    if (token.cannonical) {
-      vector.push(`${featPrefix}word=${token.cannonical.toLowerCase()}`)
+    if (!token.matchedEntities.length) {
+      vector.push(this._makeCrfAttr(featPrefix, 'word', token.cannonical.toLowerCase(), boost))
     }
 
-    const entitiesFeatures = (token.matchedEntities.length ? token.matchedEntities : ['none']).map(
-      ent => `${featPrefix}entity=${ent === 'any' ? 'none' : ent}`
+    vector.push(this._makeCrfAttr(featPrefix, 'space', token.value.startsWith(SPACE)))
+    vector.push(this._makeCrfAttr(featPrefix, 'alpha', countAlpha(token.cannonical)))
+    vector.push(this._makeCrfAttr(featPrefix, 'num', countNum(token.cannonical)))
+    vector.push(this._makeCrfAttr(featPrefix, 'special', countSpecial(token.cannonical)))
+
+    // that means the word is part of possible list type entities and in intent vocab
+    const inVocab = !token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)
+    vector.push(this._makeCrfAttr(featPrefix, 'inVocab', inVocab))
+
+    const wordWeight = await getTFIDFfeature(
+      tfidf,
+      token.cannonical.toLowerCase(),
+      this.languageProvider,
+      token2Vec,
+      this.language
     )
+    vector.push(this._makeCrfAttr(featPrefix, 'weight', wordWeight))
+
+    const entitiesFeatures = _.chain(token.matchedEntities)
+      .intersection(allowedEntities)
+      .thru(ents => (ents.length ? ents : ['none']))
+      .map(ent => this._makeCrfAttr(featPrefix, 'entity', ent, boost))
+      .value()
 
     return [...vector, ...entitiesFeatures]
   }
 
-  // TODO maybe use a slice instead of the whole token seq ?
-  private async _vectorize(tokens: Token[], intentName: string, idx: number): Promise<string[]> {
-    const prev = idx === 0 ? ['w[0]bos'] : await this._vectorizeToken(tokens[idx - 1], intentName, 'w[-1]', true)
+  private _makeCrfAttr = (prefix: string, attrName: string, attrVal: { toString: () => string }, boost = 1): string =>
+    `${prefix}${attrName}=${(attrVal && attrVal.toString()) || ''}:${boost}`
 
-    const current = await this._vectorizeToken(tokens[idx], intentName, 'w[0]', false)
-    current.push(`w[0]quintile=${computeQuintile(tokens.length, idx)}`)
+  // TODO maybe use a slice instead of the whole token seq ?
+  private async _vectorize(
+    tokens: Token[],
+    intentName: string,
+    idx: number,
+    intentVocab: { [token: string]: string[] },
+    allowedEntities: string[],
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec,
+    isPredict: boolean
+  ): Promise<string[]> {
+    const boost = isPredict ? 100 : 100
+    const seqFeatures = [`intent=${intentName}:${boost}`.toLowerCase()]
+
+    const prev =
+      idx === 0
+        ? ['__BOS__']
+        : await this._vectorizeToken(
+            tokens[idx - 1],
+            intentName,
+            'w[-1]',
+            true,
+            intentVocab,
+            allowedEntities,
+            tfidf,
+            token2Vec,
+            isPredict
+          )
+
+    const current = await this._vectorizeToken(
+      tokens[idx],
+      intentName,
+      'w[0]',
+      false,
+      intentVocab,
+      allowedEntities,
+      tfidf,
+      token2Vec,
+      isPredict
+    )
+    current.push(`w[0]quartile=${quartile(idx, tokens.length - 1)}`)
 
     const next =
-      idx === tokens.length - 1 ? ['w[0]eos'] : await this._vectorizeToken(tokens[idx + 1], intentName, 'w[1]', true)
+      idx === tokens.length - 1
+        ? ['__EOS__']
+        : await this._vectorizeToken(
+            tokens[idx + 1],
+            intentName,
+            'w[1]',
+            true,
+            intentVocab,
+            allowedEntities,
+            tfidf,
+            token2Vec,
+            isPredict
+          )
 
     debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
 
-    return [...prev, ...current, ...next]
+    const prevPairs = idx > 0 ? getFeaturesPairs(prev, current, ['word', 'vocab', 'weight']) : []
+    const nextPairs = idx < tokens.length - 1 ? getFeaturesPairs(current, next, ['word', 'vocab', 'weight']) : []
+
+    return [...seqFeatures, ...prev, ...current, ...next, ...prevPairs, ...nextPairs]
   }
 
   private async _getWordCluster(word: string): Promise<number> {

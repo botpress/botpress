@@ -4,6 +4,7 @@ import logo from '../media/nobg_white.png'
 import api from '../api'
 import { setActiveWorkspace } from '../Auth'
 import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
+import { get } from 'lodash'
 
 export default class Login extends Component {
   state = {
@@ -57,7 +58,8 @@ export default class Login extends Component {
 
         this.setState({ passwordExpired: true })
       } else {
-        showError && this.setState({ error: err.message })
+        const message = get(err, 'response.data.message', err.message)
+        showError && this.setState({ error: message })
       }
     }
   }

@@ -35,7 +35,12 @@ export default class Typing extends React.Component {
   render() {
     return (
       <div className={style.typing}>
-        <textarea value={this.state.message} onChange={this.handleChange} onKeyPress={this.handleKeyPress} />
+        <textarea
+          value={this.state.message}
+          placeholder="Type your message...."
+          onChange={this.handleChange}
+          onKeyPress={this.handleKeyPress}
+        />
       </div>
     )
   }

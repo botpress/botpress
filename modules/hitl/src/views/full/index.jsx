@@ -1,12 +1,10 @@
 import React from 'react'
 import { Grid, Row, Col } from 'react-bootstrap'
-
 import Sidebar from './sidebar'
+import Profile from './profile'
 import Conversation from './conversation'
 import Typing from './typing'
-
 import style from './style.scss'
-
 import _ from 'lodash'
 
 export default class HitlModule extends React.Component {
@@ -113,6 +111,10 @@ export default class HitlModule extends React.Component {
   }
 
   handleSearchAction = searchText => {
+    if (_.isEmpty(searchText)) {
+      return this.refreshSessions()
+    }
+
     return this.getAxios()
       .get('/mod/hitl/sessions/search?searchText=' + searchText)
       .then(res => {
@@ -148,7 +150,7 @@ export default class HitlModule extends React.Component {
       <div className={style.mainContainer}>
         <Grid>
           <Row>
-            <Col sm={3} className={style.column} lgOffset={1}>
+            <Col sm={3} className={style.column}>
               <Sidebar
                 sessions={this.state.sessions}
                 setSession={this.setSession}
@@ -158,7 +160,7 @@ export default class HitlModule extends React.Component {
                 handleSearchAction={this.handleSearchAction}
               />
             </Col>
-            <Col sm={9} className={style.column} lg={7}>
+            <Col sm={7} className={style.column} lg={7}>
               <Row>
                 <Col sm={12}>
                   <Conversation bp={this.props.bp} data={this.state.currentSession} />
@@ -169,6 +171,9 @@ export default class HitlModule extends React.Component {
                   <Typing sendMessage={this.sendMessage} />
                 </Col>
               </Row>
+            </Col>
+            <Col className={style.profile} sm={2} lg={2}>
+              <Profile sessions={this.state.sessions} currentSession={currentSessionId} />
             </Col>
           </Row>
         </Grid>

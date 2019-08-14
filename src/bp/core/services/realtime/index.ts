@@ -28,7 +28,7 @@ export default class RealtimeService {
       maxListeners: 100
     })
 
-    this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL)
+    this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL) && process.IS_PRO_ENABLED
   }
 
   private isEventTargeted(eventName: string | string[]): boolean {
