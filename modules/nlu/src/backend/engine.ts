@@ -279,17 +279,13 @@ export default class ScopedEngine implements Engine {
         return
       }
 
-      if (_.isEmpty(crfModel)) {
-        throw new Error(`Could not find CRF model for slot tagging. Hash = "${modelHash}"`)
-      }
-
       if (_.isEmpty(intentModels)) {
         throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
       }
 
       await this.intentClassifiers[lang].load(intentModels)
 
-      if (_.isEmpty(skipgramModel.model)) {
+      if (_.isEmpty(skipgramModel) || _.isEmpty(crfModel)) {
         this.logger.debug(`No slots (CRF) model found for hash ${modelHash}`)
       } else {
         await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
