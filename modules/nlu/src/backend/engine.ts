@@ -279,10 +279,6 @@ export default class ScopedEngine implements Engine {
         return
       }
 
-      if (_.isEmpty(skipgramModel)) {
-        throw new Error(`Could not find skipgram model for slot tagging. Hash = "${modelHash}"`)
-      }
-
       if (_.isEmpty(crfModel)) {
         throw new Error(`Could not find CRF model for slot tagging. Hash = "${modelHash}"`)
       }
