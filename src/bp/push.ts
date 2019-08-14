@@ -10,7 +10,7 @@ import { asBytes } from './core/misc/utils'
 import { FileChanges } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
-followRedirects.maxBodyLength = asBytes('100mb')
+followRedirects.maxBodyLength = asBytes('500mb')
 
 // If the push will cause one of these actions, then a force will be required
 const blockingActions = ['del', 'edit']
@@ -30,7 +30,7 @@ export default ({ url, authToken, targetDir }) => {
 
 async function _push(serverUrl: string, authToken: string, targetDir: string): Promise<void> {
   try {
-    const archive = await createArchiveFromFolder(targetDir, ['assets/**/*'])
+    const archive = await createArchiveFromFolder(targetDir, ['assets/**/*', 'bots/*/models/**'])
 
     const options = {
       headers: {
@@ -54,7 +54,7 @@ async function _push(serverUrl: string, authToken: string, targetDir: string): P
 
       await axios.post(`${serverUrl}/api/v1/admin/versioning/update`, archive, options)
 
-      console.log(chalk.green('🎉 Successfully pushed your local changes to the production environment!'))
+      console.log(chalk.green('🎉 Successfully pushed your local changes to remote'))
     } else {
       console.log(formatHeader(serverUrl))
       console.log(formatProdChanges(prodChanges))
