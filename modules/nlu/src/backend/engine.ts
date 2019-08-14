@@ -25,7 +25,7 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
+import { makeTokens, mergeSpecialCharactersTokens, SPACE } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
@@ -311,7 +311,7 @@ export default class ScopedEngine implements Engine {
     }
   }
 
-  // TODO memoize this
+  // TODO: memoize this
   private async _buildIntentVocabs(
     intentDefs: sdk.NLU.IntentDefinition[],
     language: string
@@ -371,7 +371,8 @@ export default class ScopedEngine implements Engine {
 
         if (sequence.tokens.length === output.result.tokens.length) {
           // TODO: make this step part of the trainPipeline
-          const toks = assignMatchedEntitiesToTokens(output.result.tokens, output.result.entities)
+          const tokens = output.result.tokens
+          const toks = assignMatchedEntitiesToTokens(tokens, output.result.entities)
           sequence.tokens = sequence.tokens.map((token, idx) => ({
             ...token,
             matchedEntities: toks[idx].matchedEntities
@@ -389,8 +390,8 @@ export default class ScopedEngine implements Engine {
         trainingSet,
         intentsVocab,
         allowedEntitiesPerIntents,
-        this.intentClassifiers[lang].l1Tfidf, // TODO compute tfidf in pipeline instead, made it a public property for now
-        this.intentClassifiers[lang].token2vec // TODO compute token2vec in pipeline instead, made it a public property for now
+        this.intentClassifiers[lang].l1Tfidf, // TODO: compute tfidf in pipeline instead, made it a public property for now
+        this.intentClassifiers[lang].token2vec // TODO: compute token2vec in pipeline instead, made it a public property for now
       )
 
       this.logger.debug('Done training slot tagger')
@@ -408,8 +409,8 @@ export default class ScopedEngine implements Engine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
-    // TODO use the same data structure to train intent and slot models
-    // TODO generate single training set here and filter
+    // TODO: use the same data structure to train intent and slot models
+    // TODO: generate single training set here and filter
 
     for (const lang of this.languages) {
       try {
@@ -594,7 +595,7 @@ export default class ScopedEngine implements Engine {
       cacheHashAlgorithm: NoneHashAlgorithm,
       execute: this._processText,
       inputProps: ['rawText'],
-      outputProps: [] // TODO
+      outputProps: [] // TODO:
     },
     {
       cacheHashAlgorithm: NoneHashAlgorithm,

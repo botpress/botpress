@@ -2,10 +2,9 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { allInRange } from '../../tools/math'
-import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
+import { makeTokens, mergeSpecialCharactersTokens, SPACE } from '../../tools/token-utils'
 import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
-import { sanitize } from '../language/sanitizer'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
@@ -80,8 +79,8 @@ const _generateTrainingTokens = languageProvider => async (
   return mergeSpecialCharactersTokens(toks)
 }
 
-export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] =>
-  toks.map(tok => {
+export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] => {
+  return toks.map(tok => {
     const matchedEntities = entities
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)
@@ -90,6 +89,7 @@ export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.E
       matchedEntities
     }
   })
+}
 
 export const generatePredictionSequence = async (
   input: string,
@@ -111,30 +111,6 @@ export const generatePredictionSequence = async (
     tokens: assignMatchedEntitiesToTokens(toks, entities)
   }
 }
-
-// export const generatePredictionSequence = async (
-//   input: string,
-//   intent: sdk.NLU.IntentDefinition,
-//   entities: sdk.NLU.Entity[],
-//   toks: Token[]
-// ): Promise<Sequence> => {
-//   const allowedEntitiesInIntent = _.chain(intent.slots)
-//     .flatMap(s => s.entities)
-//     .uniq()
-//     .value()
-
-//   const tokens = mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
-//     const matchedEntities = _.chain(entities)
-//       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
-//       .map(e => e.name)
-//       .intersection(allowedEntitiesInIntent)
-//       .value()
-
-//     return {
-//       ...tok,
-//       matchedEntities
-//     }
-//   })
 
 export const generateTrainingSequence = (langProvider: LanguageProvider, logger: sdk.Logger) => async (
   input: string,

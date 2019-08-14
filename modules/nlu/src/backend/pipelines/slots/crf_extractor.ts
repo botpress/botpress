@@ -250,10 +250,15 @@ export default class CRFExtractor {
     if (confidence < MIN_SLOT_CONFIDENCE) {
       return
     }
+
+    const tokenSpaceOffset = token.value.startsWith(SPACE) ? 1 : 0
     const entity =
       slotDef &&
       entities.find(
-        e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
+        e =>
+          slotDef.entities.indexOf(e.name) !== -1 &&
+          e.meta.start <= token.start + tokenSpaceOffset &&
+          e.meta.end >= token.end
       )
 
     // TODO: we might want to build up an entity with populated data with and 'any' slot
