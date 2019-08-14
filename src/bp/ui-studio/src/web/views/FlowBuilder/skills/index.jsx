@@ -77,7 +77,8 @@ class SkillsBuilder extends React.Component {
           skillId: this.props.skillId,
           data: this.data,
           generatedFlow: generated.flow,
-          transitions: generated.transitions
+          transitions: generated.transitions,
+          location: this.props.location
         })
       }
     })

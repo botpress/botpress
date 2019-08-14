@@ -30,6 +30,7 @@ import './button.css'
 
 const ITEMS_PER_PAGE = 50
 const JSON_STATUS_POLL_INTERVAL = 1000
+const QNA_PARAM_NAME = 'id'
 
 export default class QnaAdmin extends Component {
   constructor(props) {
@@ -39,6 +40,7 @@ export default class QnaAdmin extends Component {
 
   state = {
     items: [],
+    currentItemId: undefined,
     flows: null,
     flowsList: [],
     filter: '',
@@ -88,12 +90,27 @@ export default class QnaAdmin extends Component {
     if (prevprops.contentLang !== this.props.contentLang) {
       this.filterOrFetch()
     }
+    this.editQnaFromPath()
   }
 
   componentDidMount() {
     this.filterOrFetch()
     this.fetchFlows()
     this.fetchCategories()
+    this.editQnaFromPath()
+  }
+
+  editQnaFromPath() {
+    const id = this.getQnaFromPath()
+    const updateModal = !this.state.showQnAModal || id !== this.state.currentItemId
+    if (id && updateModal) {
+      this.editItem(id)()
+    }
+  }
+
+  getQnaFromPath() {
+    const url = new URL(window.location.href)
+    return url.searchParams.get(QNA_PARAM_NAME)
   }
 
   filterOrFetch() {
@@ -466,6 +483,10 @@ export default class QnaAdmin extends Component {
   }
 
   editItem = id => () => {
+    const url = new URL(window.location.href)
+    url.searchParams.set(QNA_PARAM_NAME, id)
+    window.history.pushState(window.history.state, '', url.toString())
+
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
@@ -495,7 +516,13 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  closeQnAModal = () => this.setState({ showQnAModal: false, currentItemId: null })
+  closeQnAModal = () => {
+    const location = window.location
+    const newUrl = location.origin + location.pathname
+    window.history.pushState(window.history.state, '', newUrl)
+
+    this.setState({ showQnAModal: false, currentItemId: null })
+  }
 
   questionsList = () => {
     if (this.state.items.length) {

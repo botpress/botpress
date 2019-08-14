@@ -14,7 +14,7 @@ const addLocationQuery = history => {
   })
 }
 
-const history = createBrowserHistory({ basename: window.BP_BASE_PATH + '/' })
+export const history = createBrowserHistory({ basename: window.BP_BASE_PATH + '/' })
 addLocationQuery(history)
 history.listen(() => {
   addLocationQuery(history)

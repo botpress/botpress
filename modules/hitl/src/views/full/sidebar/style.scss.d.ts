@@ -2,11 +2,16 @@
 // Please do not change this file!
 interface CssExports {
   'allPaused': string;
+  'cancel_search': string;
   'current': string;
   'empty': string;
   'filter': string;
   'header': string;
+  'initial_search': string;
   'sidebar': string;
+  'textbox_cancel': string;
+  'textbox_search': string;
+  'textfilter': string;
   'toggle': string;
   'users': string;
 }

@@ -1,7 +1,9 @@
 import _ from 'lodash'
+
 import { Token } from '../typings'
 
-const SPACE = '\u2581'
+export const SPACE = '\u2581'
+const CHARS_TO_MERGE: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
 
 export const makeTokens = (stringTokens: string[], text: string) => {
   return stringTokens.reduce(reduceTokens(text), [] as Token[])
@@ -33,13 +35,13 @@ function tokenIsAllMadeOf(tok: string, chars: string[]) {
   return _.isEmpty(tokenCharsLeft)
 }
 
-export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: string[]) => {
+export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: string[] = CHARS_TO_MERGE) => {
   let current: Token | undefined
   const final: Token[] = []
 
   for (const head of tokens) {
     if (!current) {
-      current = head
+      current = { ...head }
       continue
     }
 
@@ -55,7 +57,7 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
       current.matchedEntities = current.matchedEntities.concat(head.matchedEntities)
     } else {
       final.push(current)
-      current = head
+      current = { ...head }
     }
   }
   return current ? [...final, current] : final

@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { allNotificationsReceived, newNotificationsReceived } from '~/actions'
 
 const defaultState = []
-const sound = new Howl({ src: ['/assets/ui-studio/public/audio/notification.mp3'] })
+const sound = new Howl({ src: [window.ROOT_PATH + '/assets/ui-studio/public/audio/notification.mp3'] })
 
 const reducer = handleActions(
   {

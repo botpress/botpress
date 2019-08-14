@@ -83,7 +83,6 @@ export const Card = props => {
             } else if (btn.type == 'postback' || btn.payload) {
               return (
                 <a
-                  href={'#'}
                   onClick={props.onSendData.bind(this, { type: 'postback', payload: btn.payload })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
@@ -94,7 +93,6 @@ export const Card = props => {
             } else if (btn.type == 'say_something' || btn.text) {
               return (
                 <a
-                  href={'#'}
                   onClick={props.onSendData.bind(this, { type: 'say_something', text: btn.text })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}

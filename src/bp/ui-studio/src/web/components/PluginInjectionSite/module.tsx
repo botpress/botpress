@@ -56,7 +56,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
         })
       }
 
-      script.src = `/assets/modules/${moduleName}/web/${this.props.lite ? 'lite.bundle.js' : 'full.bundle.js'}`
+      script.src = `assets/modules/${moduleName}/web/${this.props.lite ? 'lite.bundle.js' : 'full.bundle.js'}`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
@@ -70,7 +70,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
     if (!window.botpress || !window.botpress[moduleName]) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = `/assets/modules/${moduleName}/web/${isLite ? 'lite.bundle.js' : 'full.bundle.js'}`
+      script.src = `assets/modules/${moduleName}/web/${isLite ? 'lite.bundle.js' : 'full.bundle.js'}`
       document.getElementsByTagName('head')[0].appendChild(script)
     }
   }

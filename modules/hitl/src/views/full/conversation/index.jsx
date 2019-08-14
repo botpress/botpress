@@ -2,10 +2,10 @@ import React from 'react'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import Toggle from 'react-toggle'
 import classnames from 'classnames'
-
+import _ from 'lodash'
 import 'react-toggle/style.css'
 import style from './style.scss'
-
+import moment from 'moment'
 import Message from '../message'
 
 export default class Conversation extends React.Component {
@@ -31,7 +31,7 @@ export default class Conversation extends React.Component {
     this.props.bp.events.off('guest.hitl.message', this.appendMessage)
   }
 
-  appendMessage = (message) => {
+  appendMessage = message => {
     if (this.state.messages && this.props.data && this.props.data.id === message.session_id) {
       this.setState({ messages: [...this.state.messages, message] })
       setTimeout(this.scrollToBottom, 50)
@@ -77,11 +77,12 @@ export default class Conversation extends React.Component {
 
   renderHeader() {
     const pausedTooltip = <Tooltip id="pausedTooltip">Pause this conversation</Tooltip>
+    const userAttributes = this.props.data.attributes && JSON.parse(this.props.data.attributes)
 
     return (
       <div>
         <h3>
-          {this.props.data && this.props.data.full_name}
+          {_.get(userAttributes, 'full_name', this.props.data.full_name)}
           {this.props.data && !!this.props.data.paused ? <span className={style.pausedWarning}>Paused</span> : null}
         </h3>
         <OverlayTrigger placement="left" overlay={pausedTooltip}>
@@ -97,9 +98,23 @@ export default class Conversation extends React.Component {
     )
   }
 
-  renderMessages() {
+  renderMessageGroups() {
+    if (!this.state.messages) {
+      return <div>No Messages found</div>
+    }
+
+    const groupMessages = _.groupBy(this.state.messages, result => moment(result.ts).format('YYYY-MM-DD'))
+    let data = Object.values(groupMessages)
+    return (
+      <div>
+        <div>{data && this.renderMessages(data)}</div>
+      </div>
+    )
+  }
+
+  renderMessages(messages) {
     const dynamicHeightStyleInnerMessageDiv = {
-      maxHeight: innerHeight - 210
+      maxHeight: innerHeight - 150
     }
 
     return (
@@ -109,9 +124,18 @@ export default class Conversation extends React.Component {
         ref="innerMessages"
         style={dynamicHeightStyleInnerMessageDiv}
       >
-        {this.state.messages &&
-          this.state.messages.map((m, i) => {
-            return <Message key={i} content={m} />
+        {messages &&
+          messages.map((m, f) => {
+            return (
+              <div key={f}>
+                <div className={style.dateOuter}>
+                  <div className={style.date}>{moment(m[0].ts).format('DD MMMM YYYY')}</div>
+                </div>
+                {m.map((n, k) => {
+                  return <Message key={k} content={n} />
+                })}
+              </div>
+            )
           })}
       </div>
     )
@@ -119,14 +143,14 @@ export default class Conversation extends React.Component {
 
   render() {
     const dynamicHeightStyleMessageDiv = {
-      height: innerHeight - 210
+      height: innerHeight - 150
     }
 
     return (
       <div className={style.conversation}>
         <div className={style.header}>{this.props.data ? this.renderHeader() : null}</div>
         <div className={style.messages} style={dynamicHeightStyleMessageDiv}>
-          {this.props.data ? this.renderMessages() : null}
+          {this.props.data ? this.renderMessageGroups() : null}
         </div>
       </div>
     )

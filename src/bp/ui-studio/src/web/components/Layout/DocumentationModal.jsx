@@ -22,8 +22,7 @@ class DocumentationModal extends React.Component {
   handleClose = () => this.props.updateDocumentationModal(null)
 
   renderPage = src => {
-    const transformImg = url =>
-      window.origin + '/assets/ui-studio/public/external/docs/' + url.replace(/^assets\//i, '')
+    const transformImg = url => 'assets/ui-studio/public/external/docs/' + url.replace(/^assets\//i, '')
 
     return (
       <ReactMarkdown

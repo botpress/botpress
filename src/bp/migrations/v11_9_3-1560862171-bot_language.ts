@@ -1,20 +1,16 @@
-import * as sdk from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
-import Database from 'core/database'
 import { BotService } from 'core/services/bot-service'
-import { Migration } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/services/migration'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { TYPES } from 'core/types'
-import { Container } from 'inversify'
 
 const migration: Migration = {
   info: {
     description: 'Bots requires a default language',
     type: 'config'
   },
-  up: async (bp: typeof sdk, configProvider: ConfigProvider, database: Database, container: Container) => {
-    const botService = container.get<BotService>(TYPES.BotService)
-    const workspaceService = container.get<WorkspaceService>(TYPES.WorkspaceService)
+  up: async ({ bp, configProvider, inversify }: MigrationOpts) => {
+    const botService = inversify.get<BotService>(TYPES.BotService)
+    const workspaceService = inversify.get<WorkspaceService>(TYPES.WorkspaceService)
 
     const bots = await botService.getBots()
 

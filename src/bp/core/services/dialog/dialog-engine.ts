@@ -1,4 +1,5 @@
 import { IO } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -7,7 +8,6 @@ import _ from 'lodash'
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
-import { FlowView } from '.'
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'

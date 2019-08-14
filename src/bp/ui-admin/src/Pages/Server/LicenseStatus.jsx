@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react'
 import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import _ from 'lodash'

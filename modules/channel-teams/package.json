@@ -1,0 +1,26 @@
+{
+  "name": "channel-teams",
+  "version": "1.0.0",
+  "description": "A Botpress connector for MS Teams",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/bluebird-global": "^3.5.7",
+    "@types/lodash": "^4.14.116",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "axios": "^0.18.1",
+    "bluebird": "^3.5.3",
+    "bluebird-global": "^1.0.1",
+    "botbuilder": "^4.5.2",
+    "lodash": "^4.17.11"
+  }
+}

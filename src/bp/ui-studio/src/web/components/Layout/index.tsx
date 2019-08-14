@@ -121,7 +121,7 @@ class Layout extends React.Component<ILayoutProps> {
 
   goHome = () => {
     if (!isInputFocused()) {
-      window.location.href = '/admin'
+      window.location.href = `${window.ROOT_PATH}/admin`
     }
   }
 

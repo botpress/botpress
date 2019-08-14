@@ -93,6 +93,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       const extractor = new PatternExtractor(Toolkit, languageProvider)
 
       const sanitized = userInput.replace('\n', '')
+      // TODO: Extract & expose DS-building logic as helper method
       const ds = initNLUStruct(sanitized, [], ['global'])
       ds.sanitizedText = sanitized
       ds.sanitizedLowerText = sanitized.toLowerCase()

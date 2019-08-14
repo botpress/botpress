@@ -23,7 +23,7 @@ window.addEventListener('message', function(payload) {
 })
 
 function init(config) {
-  const host = config.host || ''
+  const host = config.host || window.ROOT_PATH || ''
   const botId = config.botId || ''
   const cssHref = host + '/assets/modules/channel-web/inject.css'
   injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })

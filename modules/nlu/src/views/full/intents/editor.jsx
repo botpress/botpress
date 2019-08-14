@@ -19,11 +19,11 @@ export default class IntentsEditor extends React.Component {
     slotsEditor: null,
     slots: [],
     utterances: [],
-    selectedContextOptions: []
-  }
-  mlRecommendations = {
-    minUtterancesForML: undefined,
-    goodUtterancesForML: undefined
+    selectedContextOptions: [],
+    mlRecommendations: {
+      minUtterancesForML: undefined,
+      goodUtterancesForML: undefined
+    }
   }
 
   editorRef = null
@@ -32,7 +32,7 @@ export default class IntentsEditor extends React.Component {
     this.initiateStateFromProps(this.props)
 
     const { data } = await this.props.axios.get('/mod/nlu/ml-recommendations')
-    this.mlRecommendations = data
+    this.setState({ ...this.state, mlRecommendations: data })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -259,7 +259,7 @@ export default class IntentsEditor extends React.Component {
           <IntentHint
             intent={this.props.intent}
             contentLang={this.props.contentLang}
-            mlRecommendations={this.mlRecommendations}
+            mlRecommendations={this.state.mlRecommendations}
           />
         </div>
         <div>

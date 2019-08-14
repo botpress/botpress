@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import values from 'lodash/values'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
@@ -10,7 +11,8 @@ const mapStateToProps = (state, ownProps) => ({
   currentFlow: getCurrentFlow(state),
   flows: values(state.flows.flowsByName),
   dirtyFlows: getDirtyFlows(state),
-  flowProblems: state.flows.flowProblems
+  flowProblems: state.flows.flowProblems,
+  flowsNames: _.keys(state.flows.flowsByName)
 })
 
 const mapDispatchToProps = {

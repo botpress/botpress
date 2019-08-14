@@ -1,13 +1,12 @@
 import * as sdk from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
-import { Migration } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/services/migration'
 
 const migration: Migration = {
   info: {
     description: 'Adding eventCollector configuration to Botpress Config',
     type: 'config'
   },
-  up: async (bp: typeof sdk, configProvider: ConfigProvider): Promise<sdk.MigrationResult> => {
+  up: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
     if (config.eventCollector) {
       return { success: true, message: `Event Collector configuration already exists, skipping...` }

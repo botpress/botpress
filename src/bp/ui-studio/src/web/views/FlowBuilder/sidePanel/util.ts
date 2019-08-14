@@ -44,7 +44,7 @@ export const splitFlowPath = flow => {
 
   for (const folder of flowFolders) {
     currentPath.push(folder)
-    folders.push({ icon: FOLDER_ICON, label: folder, fullPath: currentPath.join('/') })
+    folders.push({ id: folder, icon: FOLDER_ICON, label: folder, fullPath: currentPath.join('/') })
   }
 
   currentPath.push(flowName)

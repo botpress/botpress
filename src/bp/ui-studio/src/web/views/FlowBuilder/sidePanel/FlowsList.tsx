@@ -88,7 +88,7 @@ export default class FlowsList extends Component<Props, State> {
   }
 
   handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
-    if (this.props.readOnly || !node.nodeData) {
+    if (!node.nodeData) {
       return null
     }
 
@@ -97,13 +97,13 @@ export default class FlowsList extends Component<Props, State> {
     ContextMenu.show(
       <Menu>
         <MenuItem
-          disabled={node.nodeData.name === 'main.flow.json'}
+          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename}
           icon="edit"
           text="Rename"
           onClick={() => this.handleRename(node.nodeData)}
         />
         <MenuItem
-          disabled={node.nodeData.name === 'main.flow.json'}
+          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete}
           icon="delete"
           text="Delete"
           onClick={() => this.handleDelete(node.nodeData)}
@@ -167,7 +167,8 @@ export default class FlowsList extends Component<Props, State> {
 
 interface Props {
   currentFlow: any
-  readOnly: boolean
+  canRename: boolean
+  canDelete: boolean
   dirtyFlows: string[]
   goToFlow: Function
   flows: any

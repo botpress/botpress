@@ -10,7 +10,8 @@ import { pullToken } from '../../Auth'
 
 class Versioning extends Component {
   state = {
-    command: '',
+    pullCommand: '',
+    pushCommand: '',
     copied: false
   }
 
@@ -24,8 +25,11 @@ class Versioning extends Component {
 
     const { token } = pullToken()
     const host = window.location.origin
-    const command = `${bpcli} pull --url ${host} --authToken ${token} --targetDir data`
-    this.setState({ command })
+
+    this.setState({
+      pullCommand: `${bpcli} pull --url ${host}${window.ROOT_PATH} --authToken ${token} --targetDir data`,
+      pushCommand: `${bpcli} push --url ${host}${window.ROOT_PATH} --authToken ${token} --targetDir data`
+    })
   }
 
   setCopied = () => {
@@ -51,29 +55,33 @@ class Versioning extends Component {
   renderMainContent = () => (
     <div>
       {this.props.loading && <div>loading</div>}
-      {!this.props.loading && _.isEmpty(this.props.pendingChanges) && this.renderNoPendingChanges()}
-      {!this.props.loading &&
-        !_.isEmpty(this.props.pendingChanges) && (
-          <div>
-            <p>
-              Some changes has been made since this server was deployed. Run the botpress pull command to sync server
-              data locally
-            </p>
-            <code>{this.state.command}</code>
-            <CopyToClipboard text={this.state.command} onCopy={this.setCopied}>
-              <Button color="link" size="sm" className="license-infos__icon">
-                <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M3.996 0H16v16h-4.004v4H0V4h3.996V0zM6 2v12h8V2H6zM2 6v12h8v-1.997H3.998V6H2z"
-                    fill="#4A4A4A"
-                    fillRule="evenodd"
-                  />
-                </svg>
-              </Button>
-            </CopyToClipboard>
-            {this.state.copied && <span>&nbsp;copied</span>}
-          </div>
-        )}
+
+      {!this.props.loading && (
+        <div>
+          <h4>Pull remote to file system</h4>
+          <p>Use this command to copy the remote data on your local file system.</p>
+          <code>{this.state.pullCommand}</code>
+          <CopyToClipboard text={this.state.command} onCopy={this.setCopied}>
+            <Button color="link" size="sm" className="license-infos__icon">
+              <svg href="#" id="TooltipCopy" height="15" viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M3.996 0H16v16h-4.004v4H0V4h3.996V0zM6 2v12h8V2H6zM2 6v12h8v-1.997H3.998V6H2z"
+                  fill="#4A4A4A"
+                  fillRule="evenodd"
+                />
+              </svg>
+            </Button>
+          </CopyToClipboard>
+          {this.state.copied && <span>&nbsp;copied</span>}
+          <hr />
+          <h4>Push local to this server</h4>
+          <p>
+            If you are using the database storage for BPFS, you can also push your local changes to the database using
+            this command:
+          </p>
+          <code>{this.state.pushCommand}</code>
+        </div>
+      )}
     </div>
   )
 

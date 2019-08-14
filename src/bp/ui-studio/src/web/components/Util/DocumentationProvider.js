@@ -27,7 +27,7 @@ const _LinkDocumentationProvider = props => {
     e.preventDefault()
   }
   return (
-    <a {...passthroughProps} href="#" onClick={onClick}>
+    <a {...passthroughProps} onClick={onClick}>
       {props.children || <Glyphicon glyph="question-sign" style={{ marginLeft: '3px', marginRight: '3px' }} />}
     </a>
   )

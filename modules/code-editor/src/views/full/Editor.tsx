@@ -1,4 +1,5 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import _ from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -52,7 +53,7 @@ class Editor extends React.Component<Props> {
       return
     }
 
-    const { location } = this.props.editor.currentFile
+    const { location, readOnly } = this.props.editor.currentFile
     const fileType = location.endsWith('.json') ? 'json' : 'typescript'
     const filepath = fileType === 'json' ? location : location.replace('.js', '.ts')
 
@@ -65,6 +66,8 @@ class Editor extends React.Component<Props> {
 
     const model = monaco.editor.createModel(this.props.editor.fileContentWrapped, fileType, uri)
     this.editor && this.editor.setModel(model)
+
+    this.editor.updateOptions({ readOnly })
   }
 
   loadTypings = async () => {

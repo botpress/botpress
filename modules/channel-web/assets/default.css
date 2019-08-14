@@ -183,6 +183,11 @@ body {
   margin-bottom: 2px;
 }
 
+.bpw-message-timestamp {
+  font-size: 0.6rem;
+  float: right;
+}
+
 .bpw-from-user {
   padding-right: 0;
 }

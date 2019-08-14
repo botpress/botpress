@@ -1,4 +1,4 @@
-import Axios from 'axios'
+import axios from 'axios'
 import fse from 'fs-extra'
 import ms from 'ms'
 import path from 'path'
@@ -54,35 +54,56 @@ export default class DownloadManager {
     if (this._refreshTimer) {
       clearInterval(this._refreshTimer)
     }
-    this._refreshTimer = setInterval(() => this.refreshMeta(), ms('10m'))
-    await this.refreshMeta()
+    this._refreshTimer = setInterval(() => this._refreshMeta(), ms('10m'))
+    await this._refreshMeta()
   }
 
-  async refreshMeta() {
+  private async _refreshMeta() {
     try {
       new URL(this.metaUrl)
-      return this.refreshRemoteMeta()
+      return this._refreshRemoteMeta()
     } catch (e) {
       debug('Fetching models locally', { url: this.metaUrl })
-      return this.refreshLocalMeta()
+      return this._refreshLocalMeta()
     }
   }
 
-  async refreshRemoteMeta() {
+  private async _refreshRemoteMeta() {
     try {
-      const { data } = (await Axios.get(this.metaUrl)) as { data: Meta }
-      this.meta = data
+      const { data } = (await axios.get(this.metaUrl)) as { data: Meta }
+      if (this._isValidMetadata(data)) {
+        this.meta = data
+      }
     } catch (err) {
       debug('Error fetching models', { url: this.metaUrl, message: err.message })
       throw err
     }
   }
 
-  async refreshLocalMeta() {
+  private _isValidMetadata(meta: Meta) {
+    if (!meta) {
+      debug('Not refreshing metadata, empty response')
+      return false
+    }
+    if (!meta.languages || !Object.keys(meta.languages).length) {
+      debug('Not refreshing metadata, missing languages')
+      return false
+    }
+    if (!meta.embeddings || !Object.keys(meta.embeddings).length) {
+      debug('Not refreshing metadata, missing embeddings')
+      return false
+    }
+
+    return true
+  }
+
+  private async _refreshLocalMeta() {
     const filePath = path.isAbsolute(this.metaUrl) ? this.metaUrl : path.resolve(process.APP_DATA_PATH, this.metaUrl)
     try {
       const json = fse.readJSONSync(filePath)
-      this.meta = json
+      if (this._isValidMetadata(json)) {
+        this.meta = json
+      }
     } catch (err) {
       debug('Error reading metadata file', { file: filePath, message: err.message })
     }
@@ -103,7 +124,7 @@ export default class DownloadManager {
       })
   }
 
-  getEmbeddingModel(lang: string) {
+  private _getEmbeddingModel(lang: string) {
     if (!this.meta) {
       throw new Error('Meta not initialized yet')
     }
@@ -119,10 +140,10 @@ export default class DownloadManager {
       activeDownload.cancel()
     }
 
-    this.remove(id)
+    this._remove(id)
   }
 
-  private remove(id: string) {
+  private _remove(id: string) {
     this.inProgress = this.inProgress.filter(x => x.id !== id)
   }
 
@@ -131,11 +152,11 @@ export default class DownloadManager {
       throw new Error(`Could not find model of dimention "${this.dim}" in domain "${this.domain}" for lang "${lang}"`)
     }
 
-    const embedding = this.getEmbeddingModel(lang)
+    const embedding = this._getEmbeddingModel(lang)
     const bpe = this.meta!.bpe[lang]
 
     const dl = new ModelDownload([bpe, embedding!], this.destDir)
-    await dl.start(this.remove.bind(this, dl.id))
+    await dl.start(this._remove.bind(this, dl.id))
     this.inProgress.push(dl)
 
     return dl.id

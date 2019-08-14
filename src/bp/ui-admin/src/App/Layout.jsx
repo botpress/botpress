@@ -22,7 +22,7 @@ class App extends Component {
       <Fragment>
         <header className="bp-header">
           <Navbar expand="md">
-            <NavbarBrand href="/admin">
+            <NavbarBrand href="admin/">
               <img src={logo} alt="logo" className="bp-header__logo" />
             </NavbarBrand>
             <NavbarToggler onClick={this.toggleMenu} />

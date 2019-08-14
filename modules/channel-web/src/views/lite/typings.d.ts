@@ -9,6 +9,7 @@ declare global {
     API_PATH: string
     BOTPRESS_VERSION: string
     BOT_NAME: string
+    ROOT_PATH: string
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
@@ -132,6 +133,7 @@ export type Config = {
   showConversationsButton: boolean
   showUserName: boolean
   showUserAvatar: boolean
+  showTimestamp: boolean
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
   botName?: string

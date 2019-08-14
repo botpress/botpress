@@ -35,7 +35,7 @@ class Bench {
   maxMpsReached: number = 0
 
   constructor(args) {
-    this.url = args.url
+    this.url = args.url.replace(/\/+$/, '')
     this.botId = args.botId
     this.slaTarget = args.slaTarget
     this.slaLimit = args.slaLimit

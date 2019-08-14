@@ -8,6 +8,7 @@ import moment from 'moment'
 import LoadingSection from '../Components/LoadingSection'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import GravatarImage from './GravatarImage'
+import { Callout } from '@blueprintjs/core'
 
 class UserList extends Component {
   state = {
@@ -117,6 +118,10 @@ class UserList extends Component {
   }
 
   renderPage() {
+    if (!this.props.users.length) {
+      return <Callout title="This workspace has no collaborators, yet" style={{ textAlign: 'center' }} />
+    }
+
     return (
       <div className="bp_users-container">
         {this.props.roles.map(role => {

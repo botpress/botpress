@@ -1,18 +1,15 @@
 .sidebar {
-  background-color: white;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-
+  background-color: #222a33;
   .header {
     height: 60px;
-    border-bottom: solid 1px #eaeaea;
+    background-color: #1b232c;
 
     h3 {
       display: block;
       float: left;
       margin-top: 0;
       color: #a0a0a0;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 500;
       padding: 4px 7px 0px 0px;
     }
@@ -30,25 +27,51 @@
       top: 18px;
       left: 24px;
     }
+    .textfilter {
+      position: absolute;
+      width: 80%;
+      top: 18px;
+      left: 10px;
+    }
 
     .filter:hover {
       cursor: pointer;
     }
+
+    .initial_search {
+      @extend .filter;
+      left: 60px;
+    }
+    .cancel_search {
+      @extend .filter;
+      float: 'right';
+      left: 90px;
+    }
+
+    .textbox_search {
+      @extend .filter;
+      left: 280px;
+      top: 23px;
+    }
+    .textbox_cancel {
+      @extend .filter;
+      left: 310px;
+      top: 23px;
+    }
   }
 
   .users {
-    border-bottom-left-radius: 5px;
     overflow-y: auto;
-    border-right: 1px solid #eaeaea;
-    background-color: white;
   }
 
   .current {
-    background-color: #fefefe;
-    border-left: 5px solid #cccccc;
+    h3 {
+      color: white;
+    }
   }
 
   .empty {
+    color: white;
     text-align: center;
     margin-top: 20px;
     font-size: 15px;

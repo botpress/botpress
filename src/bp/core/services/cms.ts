@@ -31,6 +31,7 @@ export class CMSService implements IDisposeOnExit {
   broadcastAddElement: Function = this.local__addElementToCache
   broadcastUpdateElement: Function = this.local__updateElementFromCache
   broadcastRemoveElements: Function = this.local__removeElementsFromCache
+  broadcastInvalidateForBot: Function = this.local__invalidateForBot
 
   private readonly contentTable = 'content_elements'
   private readonly typesDir = 'content-types'
@@ -62,6 +63,7 @@ export class CMSService implements IDisposeOnExit {
     this.broadcastUpdateElement = await this.jobService.broadcast<ContentElement>(
       this.local__updateElementFromCache.bind(this)
     )
+    this.broadcastInvalidateForBot = await this.jobService.broadcast<string>(this.local__invalidateForBot.bind(this))
 
     await this.prepareDb()
     await this._loadContentTypesFromFiles()
@@ -619,5 +621,13 @@ export class CMSService implements IDisposeOnExit {
       id: elementId,
       contentType: contentTypeId
     })
+  }
+
+  /**
+   * Important! Do not use directly. Needs to be broadcasted.
+   */
+  private async local__invalidateForBot(botId: string): Promise<void> {
+    await this.clearElementsFromCache(botId)
+    await this.loadElementsForBot(botId)
   }
 }

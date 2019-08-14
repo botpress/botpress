@@ -1,10 +1,7 @@
 import * as sdk from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
-import Database from 'core/database'
 import { GhostService } from 'core/services'
-import { Migration } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
-import { Container } from 'inversify'
 import _ from 'lodash'
 
 const migration: Migration = {
@@ -12,12 +9,7 @@ const migration: Migration = {
     description: 'Cleanup of workspaces.json to remove unused fields',
     type: 'content'
   },
-  up: async (
-    bp: typeof sdk,
-    configProvider: ConfigProvider,
-    database: Database,
-    inversify: Container
-  ): Promise<sdk.MigrationResult> => {
+  up: async ({ inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const ghost = inversify.get<GhostService>(TYPES.GhostService)
     const workspaces: any = await ghost.global().readFileAsObject('/', `workspaces.json`)
     if (workspaces.length > 1) {

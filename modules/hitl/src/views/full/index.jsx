@@ -1,12 +1,10 @@
 import React from 'react'
 import { Grid, Row, Col } from 'react-bootstrap'
-
 import Sidebar from './sidebar'
+import Profile from './profile'
 import Conversation from './conversation'
 import Typing from './typing'
-
 import style from './style.scss'
-
 import _ from 'lodash'
 
 export default class HitlModule extends React.Component {
@@ -33,7 +31,7 @@ export default class HitlModule extends React.Component {
     this.props.bp.events.off('hitl.session.changed', this.updateSession)
   }
 
-  refreshSessions = (session) => {
+  refreshSessions = session => {
     this.fetchAllSessions().then(() => {
       if (!this.state.currentSession) {
         const firstSession = _.head(this.state.sessions.sessions)
@@ -42,7 +40,7 @@ export default class HitlModule extends React.Component {
     })
   }
 
-  updateSession = (changes) => {
+  updateSession = changes => {
     if (!this.state.sessions) {
       return
     }
@@ -63,7 +61,7 @@ export default class HitlModule extends React.Component {
     }
   }
 
-  updateSessionMessage = (message) => {
+  updateSessionMessage = message => {
     if (!this.state.sessions) {
       return
     }
@@ -112,12 +110,27 @@ export default class HitlModule extends React.Component {
     }, 50)
   }
 
-  setSession = (sessionId) => {
+  handleSearchAction = searchText => {
+    if (_.isEmpty(searchText)) {
+      return this.refreshSessions()
+    }
+
+    return this.getAxios()
+      .get('/mod/hitl/sessions/search?searchText=' + searchText)
+      .then(res => {
+        this.setState({
+          loading: false,
+          sessions: res.data
+        })
+      })
+  }
+
+  setSession = sessionId => {
     const session = _.find(this.state.sessions.sessions, { id: sessionId })
     this.setState({ currentSession: session })
   }
 
-  sendMessage = (message) => {
+  sendMessage = message => {
     const sessionId = this.state.currentSession.id
     this.getAxios().post(`/mod/hitl/sessions/${sessionId}/message`, { message })
   }
@@ -132,20 +145,22 @@ export default class HitlModule extends React.Component {
     }
 
     const currentSessionId = this.state.currentSession && this.state.currentSession.id
+
     return (
       <div className={style.mainContainer}>
         <Grid>
           <Row>
-            <Col sm={3} className={style.column} lgOffset={1}>
+            <Col sm={3} className={style.column}>
               <Sidebar
                 sessions={this.state.sessions}
                 setSession={this.setSession}
                 currentSession={currentSessionId}
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={this.toggleOnlyPaused}
+                handleSearchAction={this.handleSearchAction}
               />
             </Col>
-            <Col sm={9} className={style.column} lg={7}>
+            <Col sm={7} className={style.column} lg={7}>
               <Row>
                 <Col sm={12}>
                   <Conversation bp={this.props.bp} data={this.state.currentSession} />
@@ -156,6 +171,9 @@ export default class HitlModule extends React.Component {
                   <Typing sendMessage={this.sendMessage} />
                 </Col>
               </Row>
+            </Col>
+            <Col className={style.profile} sm={2} lg={2}>
+              <Profile sessions={this.state.sessions} currentSession={currentSessionId} />
             </Col>
           </Row>
         </Grid>

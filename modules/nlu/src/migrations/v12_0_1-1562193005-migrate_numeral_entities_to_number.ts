@@ -3,12 +3,11 @@ import * as sdk from 'botpress/sdk'
 const migration: sdk.ModuleMigration = {
   info: {
     description: 'Migrates slots from type numeral to number',
+    target: 'bot',
     type: 'config'
   },
-  up: async (bp: typeof sdk): Promise<sdk.MigrationResult> => {
-    const bots = await bp.bots.getAllBots()
-
-    for (const botId of Array.from(bots.keys())) {
+  up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    const updateBot = async botId => {
       const bpfs = bp.ghost.forBot(botId)
       const intents = await bpfs.directoryListing('./intents', '*.json')
       for (const file of intents) {
@@ -20,6 +19,15 @@ const migration: sdk.ModuleMigration = {
           return slot
         })
         await bpfs.upsertFile('./intents', file, JSON.stringify(content, undefined, 2))
+      }
+    }
+
+    if (metadata.botId) {
+      await updateBot(metadata.botId)
+    } else {
+      const bots = await bp.bots.getAllBots()
+      for (const botId of Array.from(bots.keys())) {
+        await updateBot(botId)
       }
     }
 

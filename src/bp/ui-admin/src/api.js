@@ -59,7 +59,7 @@ const showToast = message => {
 
 const overrideApiUrl = process.env.REACT_APP_API_URL
   ? { baseURL: `${process.env.REACT_APP_API_URL}/api/v1` }
-  : { baseURL: `/api/v1` }
+  : { baseURL: `${window.ROOT_PATH}/api/v1` }
 
 const overrideLicensingServer = process.env.REACT_APP_LICENSING_SERVER
   ? { baseURL: `${process.env.REACT_APP_LICENSING_SERVER}` }

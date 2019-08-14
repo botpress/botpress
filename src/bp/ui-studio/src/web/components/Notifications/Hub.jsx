@@ -61,9 +61,7 @@ class NotificationHub extends NotificationComponent {
             </span>
             {!isEmpty && (
               <div className="pull-right">
-                <a href="#" onClick={this.markAllAsRead}>
-                  Mark all as read
-                </a>
+                <a onClick={this.markAllAsRead}>Mark all as read</a>
                 &nbsp; &middot; &nbsp;
                 <a href={window.BP_BASE_PATH + '/notifications'}>Show all</a>
               </div>

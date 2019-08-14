@@ -26,10 +26,36 @@ function render(data) {
     }
   ]
 }
+function renderSlack(data) {
+  return [
+    {
+      type: 'actions',
+      elements: [
+        {
+          type: 'static_select',
+          action_id: 'option_selected',
+          placeholder: {
+            type: 'plain_text',
+            text: data.message
+          },
+          options: data.options.map(q => ({
+            text: {
+              type: 'plain_text',
+              text: q.label
+            },
+            value: q.value
+          }))
+        }
+      ]
+    }
+  ]
+}
 
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'api') {
     return render(data)
+  } else if (channel === 'slack') {
+    return renderSlack(data)
   }
 
   return []

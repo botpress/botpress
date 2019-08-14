@@ -46,15 +46,20 @@ export default class ActionModalForm extends Component {
   }
 
   componentDidMount() {
+    if (this.props.layoutv2) {
+      this.setState({ actionType: 'code' })
+    }
     this.fetchAvailableFunctions()
   }
 
   fetchAvailableFunctions() {
     return axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
       this.setState({
-        avActions: data.filter(action => !action.metadata.hidden).map(x => {
-          return { label: x.name, value: x.name, metadata: x.metadata }
-        })
+        avActions: data
+          .filter(action => !action.metadata.hidden)
+          .map(x => {
+            return { label: x.name, value: x.name, metadata: x.metadata }
+          })
       })
     })
   }
@@ -206,17 +211,22 @@ export default class ActionModalForm extends Component {
           <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h5>The bot will:</h5>
-          <div className={style.section}>
-            <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType('message')}>
-              💬 Say something
-            </Radio>
-            <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
-              ⚡ Execute code <LinkDocumentationProvider file="action" />
-            </Radio>
-          </div>
-
-          {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
+          {!this.props.layoutv2 ? (
+            <div>
+              <h5>The bot will:</h5>
+              <div className={style.section}>
+                <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType('message')}>
+                  💬 Say something
+                </Radio>
+                <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
+                  ⚡ Execute code <LinkDocumentationProvider file="action" />
+                </Radio>
+              </div>
+              {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
+            </div>
+          ) : (
+            this.renderSectionAction()
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.onClose}>Cancel</Button>

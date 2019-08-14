@@ -25,6 +25,12 @@ This means that your server will still listen for connections on port 3000, but 
 
 At this point, Botpress doesn't know how to access the bot from the web. You will need to edit the configuration of `httpServer.externalUrl`. Set the configuration variable to the complete host name, for example `https://bot.botpress.io`
 
+#### Changing the base URL of your bot
+
+By default, Botpress is accessible at the root of your domain (ex: https://bot.botpress.io/). It is possible to change that so you can serve it from a different URL, for example `https://bot.botpress.io/botpress/somepath/`. All you need to do is set the External URL, either in environment variable (`EXTERNAL_URL`), or via the `botpress.config.json` file.
+
+The path will be automatically extracted from that URL, and will be used as the root path.
+
 ## Logs Configuration
 
 Logs are very useful to debug and understand what happens when the bot doesn't behave as expected.
@@ -116,6 +122,7 @@ Here there are:
 | DATABASE_URL         | Full connection string to connect to the DB                                                               | **see below** |
 | BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false         |
 | CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false         |
+| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)                                | disk          |
 | REDIS_URL            | The connection string to connect to your Redis instance                                                   |               |
 
 About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgress url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.

@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   botpress:
@@ -19,6 +19,7 @@ services:
       - CLUSTER_ENABLED=true
       - PRO_ENABLED=true
       - BP_PRODUCTION=true
+      - BPFS_STORAGE=database
       - BP_LICENSE_KEY=YOUR_KEY_HERE
     depends_on:
       - botpress_lang
