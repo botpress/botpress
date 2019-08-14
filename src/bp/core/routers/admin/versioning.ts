@@ -1,9 +1,13 @@
 import { Logger } from 'botpress/sdk'
+import { extractArchive } from 'core/misc/archive'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
 import { CMSService } from 'core/services/cms'
 import { Router } from 'express'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import tmp from 'tmp'
 
 import { CustomRouter } from '../customRouter'
 
@@ -42,32 +46,60 @@ export class VersioningRouter extends CustomRouter {
       })
     )
 
-    // Return the list of local and production file changes
-    this.router.get(
+    this.router.post(
       '/changes',
       this.asyncMiddleware(async (req, res) => {
-        const changes = await this.ghost.listFileChanges()
-        res.json(changes)
+        const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+        try {
+          await this.extractArchiveFromRequest(req, tmpDir.name)
+
+          res.send({ changes: await this.ghost.listFileChanges(tmpDir.name) })
+        } catch (error) {
+          res.status(500).send('Error while pushing changes')
+        } finally {
+          tmpDir.removeCallback()
+        }
       })
     )
 
-    // Force update of the production files by the local files
+    // Force update of the remote files by the local files
     this.router.post(
       '/update',
       this.asyncMiddleware(async (req, res) => {
-        const botsIds = await this.botService.getBotsIds()
-        await Promise.map(botsIds, async id => {
-          await this.ghost.forBot(id).forceUpdate()
+        const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+        const beforeBotIds = await this.botService.getBotsIds()
 
-          // When force sync, we also need to manually invalidate the CMS
-          await this.cmsService.clearElementsFromCache(id)
-          await this.cmsService.loadElementsForBot(id)
-        })
+        try {
+          await this.extractArchiveFromRequest(req, tmpDir.name)
+          await this.ghost.forceUpdate(tmpDir.name)
 
-        await this.ghost.global().forceUpdate()
+          // we let the caches invalidate and propagate TODO: do this properly instead of waiting
+          await Promise.delay(5000)
 
-        res.status(200).send({ success: true })
+          // Unmount all previous bots and re-mount only the remaining (and new) bots
+          await Promise.map(beforeBotIds, id => this.botService.unmountBot(id))
+          const afterBotIds = await this.botService.getBotsIds()
+          await Promise.map(afterBotIds, id => this.botService.mountBot(id))
+
+          res.sendStatus(200)
+        } catch (error) {
+          res.status(500).send('Error while pushing changes')
+        } finally {
+          tmpDir.removeCallback()
+        }
       })
     )
+  }
+
+  extractArchiveFromRequest = async (request, folder) => {
+    const dataFolder = path.join(folder, 'data')
+    await mkdirp.sync(dataFolder)
+
+    const buffer: Buffer[] = []
+    request.on('data', chunk => buffer.push(chunk))
+
+    await Promise.fromCallback(cb => request.on('end', cb))
+    await extractArchive(Buffer.concat(buffer), dataFolder)
   }
 }
