@@ -1,10 +1,11 @@
 import axios from 'axios'
 import chalk from 'chalk'
-import { createArchiveFromFolder } from 'core/misc/archive'
-import { FileChanges } from 'core/services'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
+
+import { createArchiveFromFolder } from './core/misc/archive'
+import { FileChanges } from './core/services'
 
 // If the push will cause one of these actions, then a force will be required
 const blockingActions = ['del', 'edit']
