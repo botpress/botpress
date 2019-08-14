@@ -95,11 +95,15 @@ export class GhostService {
 
   // TODO refactor this
   async listFileChanges(tmpFolder: string): Promise<FileChanges> {
-    const botsIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
-    const uniqueFile = file => `${file.path} | ${file.revision}`
-
     const tmpDiskGlobal = this.custom(path.resolve(tmpFolder, 'data/global'))
-    const tmpDiskBot = botId => this.custom(path.resolve(tmpFolder, 'data/bots', botId))
+    const tmpDiskBot = (botId?: string) => this.custom(path.resolve(tmpFolder, 'data/bots', botId || ''))
+
+    // We need local and remote bot ids to correctly display changes
+    const localBotIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const remoteBotIds = (await tmpDiskBot().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const botsIds = _.uniq([...remoteBotIds, ...localBotIds])
+
+    const uniqueFile = file => `${file.path} | ${file.revision}`
 
     const getFileDiff = async file => {
       try {
