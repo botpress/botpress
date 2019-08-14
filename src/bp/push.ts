@@ -1,11 +1,16 @@
 import axios from 'axios'
 import chalk from 'chalk'
+import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
 
 import { createArchiveFromFolder } from './core/misc/archive'
+import { asBytes } from './core/misc/utils'
 import { FileChanges } from './core/services'
+
+// This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
+followRedirects.maxBodyLength = asBytes('100mb')
 
 // If the push will cause one of these actions, then a force will be required
 const blockingActions = ['del', 'edit']
