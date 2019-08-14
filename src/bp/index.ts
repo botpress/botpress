@@ -86,6 +86,7 @@ try {
       },
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
+        process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
 
         let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
         if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {

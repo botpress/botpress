@@ -273,10 +273,11 @@ export class Botpress {
 
   @WrapErrorsWith('Error initializing Ghost Service')
   async initializeGhost(): Promise<void> {
-    this.ghostService.initialize(process.CLUSTER_ENABLED)
+    const useDbDriver = process.BPFS_STORAGE === 'database'
+    this.ghostService.initialize(useDbDriver)
     const global = await this.ghostService.global().directoryListing('/')
 
-    if (process.CLUSTER_ENABLED && _.isEmpty(global)) {
+    if (useDbDriver && _.isEmpty(global)) {
       this.logger.info('Syncing data/global/ to database')
       await this.ghostService.global().sync()
 
