@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { allInRange } from '../../tools/math'
-import { makeTokens, mergeSpecialCharactersTokens } from '../../tools/token-utils'
+import { makeTokens, mergeSpecialCharactersTokens, SPACE } from '../../tools/token-utils'
 import { KnownSlot, LanguageProvider, TrainingSequence } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 
@@ -14,6 +14,10 @@ export function keepEntityTypes(text: string): string {
 
 export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
+}
+
+export function keepNothing(text: string): string {
+  return text.replace(ALL_SLOTS_REGEX, '').trim()
 }
 
 export function getKnownSlots(
@@ -45,7 +49,6 @@ export function getKnownSlots(
   return slots
 }
 
-// TODO use the same algorithm as in the prediction sequence
 const _generateTrainingTokens = languageProvider => async (
   input: string,
   lang: string,
@@ -60,7 +63,7 @@ const _generateTrainingTokens = languageProvider => async (
   const tagToken = index => (!slot ? BIO.OUT : index === 0 ? BIO.BEGINNING : BIO.INSIDE)
 
   const [rawToks] = await languageProvider.tokenize([input.toLowerCase()], lang)
-  return makeTokens(rawToks, input).map((t, idx) => {
+  const toks = makeTokens(rawToks, input).map((t, idx) => {
     const tok = {
       ...t,
       start: start + t.start,
@@ -72,31 +75,40 @@ const _generateTrainingTokens = languageProvider => async (
 
     return tok
   })
+
+  return mergeSpecialCharactersTokens(toks)
 }
 
-const charactersToMerge: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
-
-export const generatePredictionSequence = async (
-  input: string,
-  intentName: string,
-  entities: sdk.NLU.Entity[],
-  toks: Token[]
-): Promise<Sequence> => {
-  const tokens = mergeSpecialCharactersTokens(toks, charactersToMerge).map(tok => {
+export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] => {
+  return toks.map(tok => {
     const matchedEntities = entities
       .filter(e => allInRange([tok.start, tok.end], e.meta.start, e.meta.end + 1))
       .map(e => e.name)
-
     return {
       ...tok,
       matchedEntities
     }
   })
+}
+
+export const generatePredictionSequence = async (
+  input: string,
+  intent: sdk.NLU.IntentDefinition,
+  entities: sdk.NLU.Entity[],
+  toks: Token[]
+): Promise<Sequence> => {
+  // we might want to perform this filtering only in the vectorize function in the
+  const allowedEntitiesInIntent = _.chain(intent.slots)
+    .flatMap(s => s.entities)
+    .uniq()
+    .value()
+
+  entities = _.intersectionWith(entities, allowedEntitiesInIntent, (entity, entName) => entity.name === entName)
 
   return {
-    intent: intentName,
+    intent: intent.name,
     cannonical: input,
-    tokens
+    tokens: assignMatchedEntitiesToTokens(toks, entities)
   }
 }
 
@@ -109,7 +121,7 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
 ): Promise<TrainingSequence> => {
   let tokens: Token[] = []
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = keepEntityValues(input)
+  const cannonical = keepEntityValues(input).toLowerCase() // TODO: Use DS as input instead
   const knownSlots = getKnownSlots(input, slotDefinitions, logger)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
@@ -124,10 +136,14 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
   }
 
   const lastSlot = _.maxBy(knownSlots, ks => ks.end)
-  if (lastSlot && lastSlot!.end < cannonical.length) {
+  if (lastSlot) {
     const textLeftAfterLastSlot: string = cannonical.substring(lastSlot!.end)
     const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
     const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
+    tokens = [...tokens, ...tokensLeft]
+  } else {
+    const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
+    const tokensLeft = await genToken(cannonical, lang, start)
     tokens = [...tokens, ...tokensLeft]
   }
 
