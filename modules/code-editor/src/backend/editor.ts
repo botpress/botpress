@@ -197,13 +197,19 @@ export default class Editor {
       return this._getGhost(file).upsertFile('/actions', location, content, true, true)
     }
 
-    const ghost = this.bp.ghost.forGlobal()
     if (type === 'hook') {
+      const ghost = this.bp.ghost.forGlobal()
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content, true, true)
     }
 
-    if (type === 'bot_config' || type === 'global_config' || type === 'module_config') {
+    if (type === 'global_config' || type === 'module_config') {
+      const ghost = this.bp.ghost.forGlobal()
       return ghost.upsertFile('/', location, content)
+    }
+
+    if (type === 'bot_config') {
+      const ghost = this.bp.ghost.forBot(this._botId)
+      return ghost.upsertFile('/', 'bot.config.json', content)
     }
   }
 
