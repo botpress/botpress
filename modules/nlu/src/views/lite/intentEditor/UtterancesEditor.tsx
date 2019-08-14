@@ -1,6 +1,7 @@
 import { Tag } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import classnames from 'classnames'
+import { List, Map } from 'immutable'
 import _ from 'lodash'
 import React from 'react'
 import { Data, Range } from 'slate'
@@ -14,15 +15,16 @@ import { TagSlotPopover } from './SlotPopover'
 const plugins = [
   PlaceholderPlugin({
     placeholder: 'Summary of intent',
-    when: (editor, node) => node.text.trim() === '' && node.type === 'title'
+    when: (_, node) => node.text.trim() === '' && node.type === 'title'
   }),
   PlaceholderPlugin({
     placeholder: 'Type a sentence',
-    when: (editor, node) => node.text.trim() === '' && node.type === 'paragraph'
+    when: (_, node) => node.text.trim() === '' && node.type === 'paragraph'
   })
 ]
 
 interface Props {
+  intentName: string
   utterances: string[]
   slots: NLU.SlotDefinition[]
   onChange: (x: string[]) => void
@@ -37,13 +39,19 @@ export class UtterancesEditor extends React.Component<Props> {
   utteranceKeys = []
 
   componentDidMount() {
-    const value = utterancesToValue(this.props.utterances)
+    this.init(this.props.utterances)
+  }
+
+  init = (utterances: string[]) => {
+    const value = utterancesToValue(utterances)
     this.setState({ value })
   }
 
-  componentDidUpdate(prevProps) {
-    if (!_.isEqual(this.props.utterances, prevProps.utterances)) {
-      const value = utterancesToValue(this.props.utterances)
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.intentName !== this.props.intentName) {
+      this.init(this.props.utterances)
+    } else if (!_.isEqual(this.props.utterances, prevProps.utterances)) {
+      const value = utterancesToValue(this.props.utterances, this.state.value.get('selection'))
       this.setState({ value })
     }
   }
@@ -97,7 +105,6 @@ export class UtterancesEditor extends React.Component<Props> {
         plugins={plugins}
         renderMark={this.renderMark}
         renderEditor={this.renderEditor}
-        selection={this.state.selection}
         renderBlock={this.renderBlock}
         onKeyDown={this.onKeyDown}
         onChange={this.onChange}
@@ -159,7 +166,13 @@ export class UtterancesEditor extends React.Component<Props> {
 
   dispatchChanges = _.debounce(value => {
     this.props.onChange(valueToUtterances(value))
-  }, 2000)
+  }, 3000)
+
+  dispatchNeeded = (operations: List<Map<string, string>>) => {
+    return operations
+      .map(x => x.get('type'))
+      .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark'].includes(x)).size
+  }
 
   onChange = ({ value, operations }) => {
     let selectionState = {}
@@ -167,15 +180,11 @@ export class UtterancesEditor extends React.Component<Props> {
       selectionState = this.onSelectionChanged(value)
     }
 
-    const needsDispatch = operations
-      .map(x => x.get('type'))
-      .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark'].includes(x)).size
+    this.setState({ value, ...selectionState })
 
-    if (needsDispatch) {
+    if (this.dispatchNeeded(operations)) {
       this.dispatchChanges(value)
     }
-
-    this.setState({ value, ...selectionState })
   }
 
   renderMark = (props, editor, next) => {
@@ -234,14 +243,8 @@ export class UtterancesEditor extends React.Component<Props> {
     this.setState({ showSlotMenu: false })
   }
 
-  onSelectionChanged = value => {
-    const selection = value.get('selection').toJS()
-    let from = -1
-    let to = -1
-    let utterance = -1
-    let block = -1
-    if (
-      // Something is actually selected
+  somethingIsSelected = selection => {
+    return (
       selection.anchor &&
       selection.anchor.path &&
       selection.focus &&
@@ -250,7 +253,16 @@ export class UtterancesEditor extends React.Component<Props> {
       selection.anchor.path['0'] === selection.focus.path['0'] &&
       // Make sure we're not wrapping a slot entity inside an other slot
       selection.anchor.path['1'] === selection.focus.path['1']
-    ) {
+    )
+  }
+
+  onSelectionChanged = value => {
+    const selection = value.get('selection').toJS()
+    let from = -1
+    let to = -1
+    let utterance = -1
+    let block = -1
+    if (this.somethingIsSelected(selection)) {
       utterance = selection.anchor.path['0']
       block = selection.anchor.path['1']
       from = Math.min(selection.anchor.offset, selection.focus.offset)
@@ -260,7 +272,7 @@ export class UtterancesEditor extends React.Component<Props> {
         if (selection.isFocused) {
           this.showSlotPopover()
         } else {
-          // Weird behaviour from slate when selection just changed is to keep the from and to values but to set focus to false
+          // Weird behaviour from slate when selection just changed is to keep the value but to set focus to false
           // need the setTimeout for tagging with click
           setTimeout(this.hideSlotPopover, 100)
         }

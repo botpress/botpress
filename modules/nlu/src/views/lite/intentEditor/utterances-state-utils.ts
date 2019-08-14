@@ -54,7 +54,7 @@ export const textNodesFromUtterance = (utterance: string) => {
   return nodes
 }
 
-export const utterancesToValue = (utterances: string[]) => {
+export const utterancesToValue = (utterances: string[], selection = null) => {
   const summary = utterances[0] || ''
   const rest = utterances.length > 1 ? utterances.slice(1) : ['']
   // @ts-ignore
@@ -79,6 +79,10 @@ export const utterancesToValue = (utterances: string[]) => {
       ]
     }
   }
+  if (selection) {
+    value['selection'] = selection
+  }
+
   // @ts-ignore
   return Value.fromJS(value)
 }

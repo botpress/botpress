@@ -56,7 +56,12 @@ export const IntentEditor = props => {
       <div className={style.intentEditor}>
         <div>
           <IntentHint intent={intent} contentLang={props.contentLang} axios={props.bp.axios} />
-          <UtterancesEditor utterances={utterances} onChange={handleUtterancesChange} slots={intent.slots} />
+          <UtterancesEditor
+            intentName={intent.name}
+            utterances={utterances}
+            onChange={handleUtterancesChange}
+            slots={intent.slots}
+          />
         </div>
         {props.showSlotPanel && (
           <Slots slots={intent.slots} axios={props.bp.axios} onSlotsChanged={handleSlotsChange} />
