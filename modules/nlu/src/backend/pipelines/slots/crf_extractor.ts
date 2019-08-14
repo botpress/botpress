@@ -434,7 +434,7 @@ export default class CRFExtractor {
   }
 
   private _makeCrfAttr = (prefix: string, attrName: string, attrVal: { toString: () => string }, boost = 1): string =>
-    `${prefix}${attrName}=${attrVal.toString()}:${boost}`
+    `${prefix}${attrName}=${(attrVal && attrVal.toString()) || ''}:${boost}`
 
   // TODO maybe use a slice instead of the whole token seq ?
   private async _vectorize(
