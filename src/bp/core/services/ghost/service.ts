@@ -76,7 +76,8 @@ export class GhostService {
       await this.cache.invalidate(`buffer::${fileName}`)
     }
 
-    for (const { scope, changes } of await this.listFileChanges(tmpFolder)) {
+    const allChanges = await this.listFileChanges(tmpFolder)
+    for (const { scope, changes } of allChanges) {
       const dbRevs = await this.dbDriver.listRevisions(scope === 'global' ? 'data/global' : 'data/bots/' + scope)
       await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
@@ -91,6 +92,8 @@ export class GhostService {
         await invalidateFile(file.path)
       })
     }
+
+    return allChanges.map(c => c.scope).filter(c => c !== 'global')
   }
 
   // TODO: refactor this

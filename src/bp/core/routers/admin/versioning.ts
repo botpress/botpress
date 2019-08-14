@@ -72,15 +72,11 @@ export class VersioningRouter extends CustomRouter {
 
         try {
           await this.extractArchiveFromRequest(req, tmpDir.name)
-          await this.ghost.forceUpdate(tmpDir.name)
-
-          // we let the caches invalidate and propagate TODO: do this properly instead of waiting
-          await Promise.delay(5000)
+          const newBotIds = await this.ghost.forceUpdate(tmpDir.name)
 
           // Unmount all previous bots and re-mount only the remaining (and new) bots
           await Promise.map(beforeBotIds, id => this.botService.unmountBot(id))
-          const afterBotIds = await this.botService.getBotsIds()
-          await Promise.map(afterBotIds, id => this.botService.mountBot(id))
+          await Promise.map(newBotIds, id => this.botService.mountBot(id))
 
           res.sendStatus(200)
         } catch (error) {
