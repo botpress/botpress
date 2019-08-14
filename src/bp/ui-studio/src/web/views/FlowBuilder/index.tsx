@@ -162,7 +162,7 @@ class FlowBuilder extends Component<Props, State> {
       },
       save: e => {
         e.preventDefault()
-        toast('Botpress now works with auto-save', Intent.PRIMARY, 700)
+        toast('Pssst! Flows now save automatically, no need to save anymore.', Intent.PRIMARY, 700)
       }
     }
 
