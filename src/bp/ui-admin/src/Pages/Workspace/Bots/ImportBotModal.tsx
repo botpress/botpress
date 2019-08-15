@@ -33,7 +33,7 @@ const defaultState = {
 class ImportBotModal extends Component<Props, State> {
   private _form: HTMLFormElement | null = null
 
-  state = { ...defaultState }
+  state: State = { ...defaultState }
 
   importBot = async e => {
     e.preventDefault()
@@ -44,7 +44,7 @@ class ImportBotModal extends Component<Props, State> {
 
     try {
       // @ts-ignore
-      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileValue, {
+      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
         headers: { 'Content-Type': 'application/tar+gzip' }
       })
 
