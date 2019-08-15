@@ -119,7 +119,7 @@ describe('Slate nodes from utterance', () => {
     expect(nodes[2].marks.length).toEqual(0)
     expect(nodes[3].text).toEqual('Jesse James')
     expect(nodes[3].marks[0].data.slotName).toEqual('you')
-    expect(nodes[4].text).toEqual('man.')
+    expect(nodes[4].text).toEqual(', man.')
     expect(nodes[4].marks.length).toEqual(0)
   })
 })
