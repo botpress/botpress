@@ -5,10 +5,10 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
+import { IntentEditor } from '../lite/intentEditor/IntentEditor'
 
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
-import IntentEditor from './intents/editor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -30,13 +30,11 @@ const NLU: FC<Props> = props => {
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
-  const [contexts, setContexts] = useState([])
 
   const loadIntents = () => api.fetchIntents().then(setIntents)
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
   useEffect(() => {
-    api.fetchContexts().then(setContexts)
     loadIntents()
     loadEntities()
     setCurrentItemFromPath()
@@ -133,12 +131,11 @@ const NLU: FC<Props> = props => {
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (
           <IntentEditor
-            intent={intents.find(i => i.name == currentItem.name)}
+            intent={currentItem.name}
             api={api}
-            axios={props.bp.axios} // TODO replace this with api instance
-            bp={props.bp}
-            reloadIntents={loadIntents}
             contentLang={props.contentLang}
+            showSlotPanel
+            axios={props.bp.axios}
           />
         )}
         {!!entities.length && currentItem && currentItem.type === 'entity' && (

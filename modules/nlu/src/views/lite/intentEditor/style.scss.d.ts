@@ -2,9 +2,16 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
+  'buttonTip': string;
+  'centerContainer': string;
+  'centerElement': string;
   'count': string;
   'editor-body': string;
   'entities-list': string;
+  'entityItem': string;
+  'entityLabel': string;
+  'entityNameInput': string;
+  'header': string;
   'hint': string;
   'index': string;
   'intentEditor': string;
@@ -17,9 +24,14 @@ interface CssExports {
   'label-colors-6': string;
   'label-colors-7': string;
   'label-colors-8': string;
+  'link': string;
+  'selectionText': string;
+  'shortcutLabel': string;
   'slotMark': string;
   'slotMenu': string;
   'slotMenuItem': string;
+  'slotSidePanel': string;
+  'slotsContainer': string;
   'title': string;
   'utterance': string;
   'utterances': string;

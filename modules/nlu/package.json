@@ -21,6 +21,7 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
+    "@blueprintjs/select": "^3.10.0",
     "axios": "^0.18.1",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",

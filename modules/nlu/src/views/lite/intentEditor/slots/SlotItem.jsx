@@ -1,6 +1,5 @@
 import React from 'react'
-import style from './style.scss'
-import colors from '../../../full/intents/colors.scss'
+import style from '../style.scss'
 import { Tag } from '@blueprintjs/core'
 
 export default class SlotItem extends React.Component {
@@ -18,10 +17,12 @@ export default class SlotItem extends React.Component {
   }
 
   render() {
+    // TODO replace edit link with a simple click on the tag
+    // TODO replace delete link with simple click on the remove tag
     const { slot } = this.props
     return (
       <li className={style.entityItem}>
-        <Tag className={colors[`label-colors-${slot.color}`]} round large>
+        <Tag className={style[`label-colors-${slot.color}`]} round large>
           {slot.name}
         </Tag>
         <a onClick={this.handleDeleteClicked} className={style.link}>

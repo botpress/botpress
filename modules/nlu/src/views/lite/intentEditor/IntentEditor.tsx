@@ -1,26 +1,31 @@
+import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../api'
+import { NLUAPI } from '../../api'
 
 import Slots from './slots/Slots'
 import style from './style.scss'
 import { removeSlotFromUtterances, renameSlotInUtterances } from './utterances-state-utils'
+import { ContextSelector } from './ContextSelector'
 import IntentHint from './IntentHint'
 import { UtterancesEditor } from './UtterancesEditor'
 
-// TODO props interface
+interface Props {
+  intent: string
+  api: NLUAPI
+  contentLang: string
+  showSlotPanel: boolean
+  axios: AxiosInstance
+}
 
-export const IntentEditor = props => {
-  const api = makeApi(props.bp)
+export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
-  // const [contexts, setContexts] = useState([])
 
   useEffect(() => {
-    // api.fetchContexts().then(setContexts)
-    api.fetchIntent(props.intentName).then(setIntent)
-  }, [props.intentName])
+    props.api.fetchIntent(props.intent).then(setIntent)
+  }, [props.intent])
 
   if (!intent) {
     // TODO display a fetching state instead
@@ -29,7 +34,7 @@ export const IntentEditor = props => {
 
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    api.createIntent(newIntent)
+    props.api.createIntent(newIntent)
   }
 
   const handleUtterancesChange = (newUtterances: string[]) => {
@@ -55,7 +60,14 @@ export const IntentEditor = props => {
     intent && (
       <div className={style.intentEditor}>
         <div>
-          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.bp.axios} />
+          <div className={style.header}>
+            <ContextSelector
+              contexts={intent.contexts}
+              saveContexts={contexts => saveIntent({ ...intent, contexts })}
+              api={props.api}
+            />
+            <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
+          </div>
           <UtterancesEditor
             intentName={intent.name}
             utterances={utterances}
@@ -63,9 +75,7 @@ export const IntentEditor = props => {
             slots={intent.slots}
           />
         </div>
-        {props.showSlotPanel && (
-          <Slots slots={intent.slots} axios={props.bp.axios} onSlotsChanged={handleSlotsChange} />
-        )}
+        {props.showSlotPanel && <Slots slots={intent.slots} axios={props.axios} onSlotsChanged={handleSlotsChange} />}
       </div>
     )
   )

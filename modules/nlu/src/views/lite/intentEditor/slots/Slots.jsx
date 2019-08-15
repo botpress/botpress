@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import SlotModal from './SlotModal'
 
-import style from './style.scss'
+import style from '../style.scss'
 import SlotItem from './SlotItem'
 import { NonIdealState, Button } from '@blueprintjs/core'
 
@@ -47,7 +47,7 @@ export default class Slots extends React.Component {
     const slots = this.getSlots()
 
     return (
-      <div className={style.normalContainer}>
+      <div className={style.slotsContainer}>
         <ul>
           {slots.map((slot, i) => (
             <SlotItem
