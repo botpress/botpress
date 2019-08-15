@@ -193,14 +193,10 @@ class BPFS {
   }
 
   private _printOutOfSync() {
-    console.log(
-      chalk.yellow(
-        `
-Conflict warning
+    console.log(`
+${chalk.yellow('Conflict warning')}
 Remote has changes that are not synced to your environment.
-Backup your changes and use "pull" to get those changes on your file system.`
-      )
-    )
+Backup your changes and use "pull" to get those changes on your file system.`)
 
     console.log(`
 Use ${chalk.yellow('--force')} to overwrite remote changes with yours.
