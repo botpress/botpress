@@ -25,7 +25,7 @@ const IntentHint: FC<Props> = props => {
 
   useEffect(() => {
     fetchRecommendations(props.axios).then(setRecommendations)
-  }, [])
+  }, [props.intent.utterances, props.intent.slots])
 
   if (!recommendations) {
     return null
