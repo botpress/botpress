@@ -84,6 +84,7 @@ class CreateBotModal extends Component {
 
     return (
       <Select
+        id="select-bot-templates"
         tabIndex="2"
         getOptionLabel={o => o.name}
         getOptionValue={o => o.id}
@@ -118,7 +119,7 @@ class CreateBotModal extends Component {
                 tabIndex="1"
                 innerRef={el => (this.nameInput = el)}
                 type="text"
-                id="name"
+                id="input-bot-name"
                 value={this.state.name}
                 onChange={this.handleNameChanged}
               />
@@ -165,7 +166,14 @@ class CreateBotModal extends Component {
                 />
               </FormGroup>
             )}
-            <Button tabIndex="4" className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
+            <Button
+              id="btn-modal-create-bot"
+              tabIndex="4"
+              className="float-right"
+              type="submit"
+              color="primary"
+              disabled={!this.isFormValid()}
+            >
               <FaPlusCircle /> Create bot
             </Button>
           </form>

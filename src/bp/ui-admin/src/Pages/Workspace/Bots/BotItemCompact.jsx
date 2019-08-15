@@ -27,7 +27,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
         </Button>
       )}
       <UncontrolledButtonDropdown>
-        <DropdownToggle tag="span" className="more">
+        <DropdownToggle id="toggle-menu" tag="span" className="more">
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
@@ -50,7 +50,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
               <MdArchive />
               &nbsp;Export
             </DropdownItem>
-            <DropdownItem onClick={deleteBot}>
+            <DropdownItem id="dropdown-delete-bot" onClick={deleteBot}>
               <MdDelete />
               &nbsp;Delete
             </DropdownItem>
