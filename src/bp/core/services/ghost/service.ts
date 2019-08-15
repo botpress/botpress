@@ -40,7 +40,7 @@ export interface FileChange {
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
 const MAX_GHOST_FILE_SIZE = asBytes('100mb')
-const bpfsIgnoredFiles = ['models/**', '**/*.js.map']
+const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 
 @injectable()
 export class GhostService {
