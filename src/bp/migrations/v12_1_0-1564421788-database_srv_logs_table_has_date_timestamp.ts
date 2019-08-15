@@ -85,7 +85,7 @@ async function migratePostgresql(db: Database): Promise<sdk.MigrationResult> {
     await db.knex.raw(
       `
       ALTER TABLE ${TABLE_NAME}
-      ALTER COLUMN ${COLUMN_NAME} TYPE TIMESTAMP USING TO_TIMESTAMP(${COLUMN_NAME}, '${CURRENT_DATE_FORMAT}');
+      ALTER COLUMN ${COLUMN_NAME} TYPE TIMESTAMP WITH TIME ZONE USING TO_TIMESTAMP(${COLUMN_NAME}, '${CURRENT_DATE_FORMAT}');
       `
     )
   } catch (err) {
