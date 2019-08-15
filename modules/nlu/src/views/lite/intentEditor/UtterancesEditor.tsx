@@ -1,11 +1,10 @@
 import { Tag } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import classnames from 'classnames'
-import { List, Map } from 'immutable'
 import _ from 'lodash'
 import React from 'react'
-import { Data, Range } from 'slate'
-import { Editor } from 'slate-react'
+import { Data, Document, Editor as CoreEditor, Node, Range, Selection, Value } from 'slate'
+import { Editor, EditorProps, RenderBlockProps, RenderMarkProps } from 'slate-react'
 import PlaceholderPlugin from 'slate-react-placeholder'
 
 import style from './style.scss'
@@ -56,9 +55,9 @@ export class UtterancesEditor extends React.Component<Props> {
     }
   }
 
-  onKeyDown = (event, editor, next) => {
+  onKeyDown = (event: KeyboardEvent, editor: CoreEditor, next: () => void) => {
     if (event.key === 'Enter') {
-      const doc = editor.value.get('document')
+      const doc: Document = editor.value.get('document')
       const marks = doc.getActiveMarksAtRange(editor.value.selection)
 
       if (marks.size) {
@@ -71,7 +70,7 @@ export class UtterancesEditor extends React.Component<Props> {
     }
 
     if (event.key === 'Backspace') {
-      const doc = editor.value.get('document')
+      const doc: Document = editor.value.get('document')
       const marks = doc.getActiveMarksAtRange(editor.value.selection)
       if (marks.size) {
         event.preventDefault()
@@ -112,7 +111,7 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  renderEditor = (props, editor, next) => {
+  renderEditor = (props: EditorProps, editor: CoreEditor, next: () => any) => {
     const children = next()
 
     this.utteranceKeys = editor.value
@@ -132,10 +131,10 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  tag = (editor, slot) => {
+  tag = (editor: CoreEditor, slot) => {
     const { utterance, block } = this.state.selection
     let { from, to } = this.state.selection
-    const node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])
+    const node: Node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])
     const selectedTxt = node.text.substring(from, to)
     // // We're trimming white spaces in the tagging (forward and backward)
     from += selectedTxt.length - selectedTxt.trimStart().length
@@ -144,7 +143,7 @@ export class UtterancesEditor extends React.Component<Props> {
       // Trimming screwed up selection (nothing to tag)
       return
     }
-    // @ts-ignore
+
     const range = Range.fromJS({
       anchor: { path: [utterance, block], offset: from },
       focus: {
@@ -152,11 +151,12 @@ export class UtterancesEditor extends React.Component<Props> {
         offset: Math.min(node.text.length, to)
       }
     })
+
     const mark = {
       type: 'slot',
       data: Data.fromJSON({ slotName: slot.name })
     }
-    const marks = editor.value.get('document').getActiveMarksAtRange(range)
+    const marks = (editor.value.get('document') as Document).getActiveMarksAtRange(range)
     if (marks.size) {
       marks.forEach(m => editor.select(range).replaceMark(m, mark))
     } else {
@@ -168,7 +168,7 @@ export class UtterancesEditor extends React.Component<Props> {
     this.props.onChange(valueToUtterances(value))
   }, 3000)
 
-  dispatchNeeded = (operations: List<Map<string, string>>) => {
+  dispatchNeeded = operations => {
     return operations
       .map(x => x.get('type'))
       .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark'].includes(x)).size
@@ -187,7 +187,7 @@ export class UtterancesEditor extends React.Component<Props> {
     }
   }
 
-  renderMark = (props, editor, next) => {
+  renderMark = (props: RenderMarkProps, editor: CoreEditor, next: () => any) => {
     switch (props.mark.type) {
       case 'slot':
         const { slotName } = props.mark.data.toJS()
@@ -205,7 +205,7 @@ export class UtterancesEditor extends React.Component<Props> {
     }
   }
 
-  renderBlock = (props, editor, next) => {
+  renderBlock = (props: RenderBlockProps, editor: CoreEditor, next) => {
     const { attributes, children, node } = props
 
     const utteranceIdx = this.utteranceKeys.indexOf(node.key)
@@ -240,10 +240,14 @@ export class UtterancesEditor extends React.Component<Props> {
   }, 150)
 
   hideSlotPopover = () => {
-    this.setState({ showSlotMenu: false })
+    this.showSlotPopover.cancel()
+
+    if (this.state.showSlotMenu) {
+      this.setState({ showSlotMenu: false })
+    }
   }
 
-  somethingIsSelected = selection => {
+  somethingIsSelected = (selection: Selection) => {
     return (
       selection.anchor &&
       selection.anchor.path &&
@@ -256,8 +260,9 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  onSelectionChanged = value => {
-    const selection = value.get('selection').toJS()
+  onSelectionChanged = (value: Value) => {
+    const selection: Selection = value.get('selection').toJS()
+
     let from = -1
     let to = -1
     let utterance = -1
@@ -274,11 +279,13 @@ export class UtterancesEditor extends React.Component<Props> {
         } else {
           // Weird behaviour from slate when selection just changed is to keep the value but to set focus to false
           // need the setTimeout for tagging with click
-          setTimeout(this.hideSlotPopover, 100)
+          setTimeout(this.hideSlotPopover, 200)
         }
       } else if (from == to && this.state.showSlotMenu) {
         this.hideSlotPopover()
       }
+    } else {
+      this.hideSlotPopover()
     }
 
     return { selection: { utterance, block, from, to } }

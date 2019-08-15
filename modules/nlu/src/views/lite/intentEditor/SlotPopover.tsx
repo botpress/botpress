@@ -8,7 +8,7 @@ import style from './style.scss'
 const MENU_WIDTH = 300
 
 export const TagSlotPopover = props => {
-  if (!props.show) {
+  if (!props.show || !window.getSelection().rangeCount) {
     return null
   }
 

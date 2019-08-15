@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { Value } from 'slate'
+import { Value, ValueProperties } from 'slate'
 
 // TODO add typings for this
 
@@ -57,12 +57,12 @@ export const textNodesFromUtterance = (utterance: string) => {
 export const utterancesToValue = (utterances: string[], selection = null) => {
   const summary = utterances[0] || ''
   const rest = utterances.length > 1 ? utterances.slice(1) : ['']
-  // @ts-ignore
-  const value = {
+
+  const value: ValueProperties = {
     object: 'value',
     document: {
       object: 'document',
-      data: {},
+      // @ts-ignore
       nodes: [
         {
           object: 'block',
@@ -83,7 +83,6 @@ export const utterancesToValue = (utterances: string[], selection = null) => {
     value['selection'] = selection
   }
 
-  // @ts-ignore
   return Value.fromJS(value)
 }
 
