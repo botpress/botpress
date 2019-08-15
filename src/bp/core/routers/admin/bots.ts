@@ -180,7 +180,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         if (!req.is('application/tar+gzip')) {
-          res.status(400).send('Bot should be imported from archive')
+          return res.status(400).send('Bot should be imported from archive')
         }
         const buffers: any[] = []
         req.on('data', chunk => {

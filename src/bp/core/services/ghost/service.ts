@@ -84,11 +84,11 @@ export class GhostService {
       await this.cache.invalidate(`buffer::${fileName}`)
     }
 
-    const allChanges = await this.listFileChanges(tmpFolder)
-    for (const { botId, changes, localFiles } of allChanges) {
-      const dbRevs = await this.dbDriver.listRevisions(botId ? 'data/bots/' + botId : 'data/global')
-      await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
+    const dbRevs = await this.dbDriver.listRevisions('data/')
+    await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
+    const allChanges = await this.listFileChanges(tmpFolder)
+    for (const { changes, localFiles } of allChanges) {
       await Promise.map(changes.filter(x => x.action === 'del'), async file => {
         await this.dbDriver.deleteFile(file.path)
         await invalidateFile(file.path)
@@ -377,18 +377,6 @@ export class ScopedGhostService {
 
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
     await this._updateProduction(localFiles)
-  }
-
-  /**
-   * Force update the production files with the local disk files.
-   * This will remove all the prodution revisions files as well.
-   */
-  async forceUpdate() {
-    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
-    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
-    await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
-
-    await this._updateProduction(trackedFiles)
   }
 
   private async _updateProduction(localFiles: string[]) {

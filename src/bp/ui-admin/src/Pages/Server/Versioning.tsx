@@ -22,7 +22,7 @@ const Versioning = () => {
     const host = window.location.origin
 
     setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
-    setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
+    setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${token} --sourceDir data`)
   }, [])
 
   return (
