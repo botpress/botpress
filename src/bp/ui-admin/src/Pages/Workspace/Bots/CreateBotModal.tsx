@@ -73,13 +73,13 @@ class CreateBotModal extends Component<Props, State> {
     if (!prevProps.botTemplatesFetched && this.props.botTemplatesFetched) {
       this.loadTemplates()
     }
-    if (!prevProps.botCategories.length && this.props.botCategories.length) {
+    if (!prevProps.botCategoriesFetched && this.props.botCategoriesFetched) {
       this.loadCategories()
     }
   }
 
   loadCategories() {
-    if (!this.props.botCategories.length) {
+    if (!this.props.botCategoriesFetched) {
       return this.props.fetchBotCategories()
     }
 
