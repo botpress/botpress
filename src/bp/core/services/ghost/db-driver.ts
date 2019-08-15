@@ -1,6 +1,5 @@
-import { forceForwardSlashes } from 'core/misc/utils'
+import { filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
-import globrex from 'globrex'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
@@ -154,9 +153,7 @@ export default class DBStorageDriver implements StorageDriver {
       }
 
       const ignoredGlobs = Array.isArray(options.excludes) ? options.excludes : [options.excludes]
-      const rules: { regex: RegExp }[] = ignoredGlobs.map(g => globrex(g, { globstar: true }))
-
-      return paths.filter(path => _.every(rules, rule => !rule.regex.test(path)))
+      return filterByGlobs(paths, path => path, ignoredGlobs)
     } catch (e) {
       throw new VError(e, `[DB Storage] Error listing directory content for folder "${folder}"`)
     }

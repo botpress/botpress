@@ -11,7 +11,7 @@ import rimraf from 'rimraf'
 import { extractArchive } from './core/misc/archive'
 import { createArchiveFromFolder } from './core/misc/archive'
 import { asBytes } from './core/misc/utils'
-import { FileChanges } from './core/services'
+import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
 followRedirects.maxBodyLength = asBytes('500mb')
@@ -24,6 +24,12 @@ const blockingActions = ['del', 'edit']
  * assets and models are auto-generated and .js.map files are not required
  */
 const pushedArchiveIgnoredFiles = ['assets/**/*', 'bots/*/models/**', '**/*.js.map']
+
+interface ProcessedChanges {
+  localFiles: string[]
+  blockingChanges: FileChange[]
+  changeList: FileChange[]
+}
 
 class BPFS {
   private serverUrl: string
@@ -131,14 +137,14 @@ class BPFS {
     }
   }
 
-  private async _filesCount(directory: string) {
+  private async _filesCount(directory: string): Promise<number> {
     const files: string[] = await Promise.fromCallback(cb =>
       glob('**/*', { cwd: directory, nodir: true, dot: true }, cb)
     )
     return files.length
   }
 
-  private _processChanges(data: FileChanges) {
+  private _processChanges(data: BpfsScopedChange[]): ProcessedChanges {
     const changeList = _.flatten(data.map(x => x.changes))
     return {
       localFiles: _.flatten(data.map(x => x.localFiles)),
@@ -187,12 +193,17 @@ class BPFS {
   }
 
   private _printOutOfSync() {
-    console.log(chalk`
-{bold Out of sync! }
-  You have changes on your file system that aren't synchronized to the remote environment.
+    console.log(
+      chalk.yellow(
+        `
+Conflict warning
+Remote has changes that are not synced to your environment.
+Backup your changes and use "pull" to get those changes on your file system.`
+      )
+    )
 
-  (Replace {bold "push"} with {bold "pull"} in your command to pull remote changes on your file system)
-  (Use ${chalk.yellow('--force')} to overwrite the remote files by your local files)
+    console.log(`
+Use ${chalk.yellow('--force')} to overwrite remote changes with yours.
 `)
   }
 
@@ -205,7 +216,8 @@ class BPFS {
       .map(this._printLine)
       .join('\n')
 
-    return console.log(`Differences between your local changes (green) vs remote changes (red):
+    return console.log(`
+Differences between ${chalk.green('local')} and ${chalk.red('remote')} changes
 
 ${lines}
 `)
