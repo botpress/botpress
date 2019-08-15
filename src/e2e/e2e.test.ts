@@ -35,7 +35,7 @@ describe('Integration Tests', () => {
 
     it('loads workspaces page', async () => {
       await page.waitForNavigation()
-      expect(page.url().includes('workspace')).toBeTruthy()
+      await expect(page.url()).toMatch('http://localhost:3000/admin/workspace/bots')
     })
 
     it('creates a bot', async () => {
@@ -95,20 +95,23 @@ describe('Integration Tests', () => {
 
     it('chat in the emulator', async () => {
       await page.keyboard.press('e')
-      await expectPuppeteer(page).toFill('div.bpw-composer > div > textarea', 'much automated!')
+      await expectPuppeteer(page).toFill(
+        '#app > div > div:nth-child(1) > div.bpw-layout.bpw-chat-container.bpw-anim-none > div.bpw-msg-list-container > div.bpw-keyboard > div.bpw-composer > div > textarea',
+        'much automated!'
+      )
       await page.keyboard.press('Enter')
-      // todo: expect response
     })
   })
 
   describe('Admin', () => {
     it('deletes a bot', async () => {
-      // Deletes asks for confirmation with window.confirm
+      // Theres a window.confirm dialog when we delete a bot
       await page.on('dialog', async dialog => {
         await dialog.accept()
       })
 
       await page.goto('http://localhost:3000/admin/workspace/bots')
+      // Assumes theres only 1 bot, otherwise this will fail
       await expectPuppeteer(page).toClick('#toggle-menu')
       await expectPuppeteer(page).toClick('#dropdown-delete-bot')
       await page.waitForRequest('http://localhost:3000/api/v1/admin/bots')
