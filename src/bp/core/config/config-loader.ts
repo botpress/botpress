@@ -48,7 +48,7 @@ export class ConfigProvider {
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
 
-    await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config), false)
+    await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
   }
 
   async invalidateBotpressConfig(): Promise<void> {
@@ -61,7 +61,7 @@ export class ConfigProvider {
   }
 
   async setBotConfig(botId: string, config: BotConfig) {
-    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config), false)
+    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config))
   }
 
   async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {

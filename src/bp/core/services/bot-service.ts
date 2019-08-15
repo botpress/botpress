@@ -458,7 +458,7 @@ export class BotService {
         }
 
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
-        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, stringify(mergedConfigs), false)
+        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, stringify(mergedConfigs))
         await scopedGhost.upsertFiles('/', files)
 
         return mergedConfigs
