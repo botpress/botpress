@@ -1,3 +1,10 @@
+.ctxSelect {
+  > :first-child {
+    min-width: 250px;
+    max-width: 350px;
+  }
+}
+
 .intentEditor {
   display: flex;
   justify-content: flex-end;
@@ -15,6 +22,7 @@
 
   .hint {
     color: #738694;
+    max-width: 50%;
   }
 }
 

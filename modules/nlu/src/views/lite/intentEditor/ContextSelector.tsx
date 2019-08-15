@@ -4,6 +4,8 @@ import React, { FC, useEffect, useState } from 'react'
 
 import { NLUAPI } from '../../api'
 
+import style from './style.scss'
+
 interface Props {
   contexts: string[]
   api: NLUAPI
@@ -17,7 +19,7 @@ export const ContextSelector: FC<Props> = props => {
     props.api.fetchContexts().then(setContexts)
   }, [])
 
-  const removeCtx = (ctx: string, idx: number) => {
+  const removeCtx = (_, idx: number) => {
     props.saveContexts([...props.contexts.slice(0, idx), ...props.contexts.slice(idx + 1)])
   }
 
@@ -57,7 +59,7 @@ export const ContextSelector: FC<Props> = props => {
         </Tooltip>
       </div>
       <MultiSelect
-        fill={true}
+        className={style.ctxSelect}
         placeholder="Select context..."
         items={availableContexts}
         itemRenderer={ctxItemRenderer}

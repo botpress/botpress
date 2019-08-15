@@ -6,6 +6,7 @@ interface CssExports {
   'centerContainer': string;
   'centerElement': string;
   'count': string;
+  'ctxSelect': string;
   'editor-body': string;
   'entities-list': string;
   'entityItem': string;
