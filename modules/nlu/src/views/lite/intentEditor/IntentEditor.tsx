@@ -3,7 +3,7 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUAPI } from '../../api'
+import { NLUApi } from '../../api'
 
 import Slots from './slots/Slots'
 import style from './style.scss'
@@ -14,7 +14,7 @@ import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
   intent: string
-  api: NLUAPI
+  api: NLUApi
   contentLang: string
   showSlotPanel: boolean
   axios: AxiosInstance

@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 
-export interface NLUAPI {
+export interface NLUApi {
   fetchContexts: () => Promise<string[]>
   fetchIntents: () => Promise<NLU.IntentDefinition[]>
   fetchIntent: (x: string) => Promise<NLU.IntentDefinition>
@@ -14,7 +14,7 @@ export interface NLUAPI {
   deleteEntity: (x: string) => Promise<any>
 }
 
-export const makeApi = (bp: { axios: AxiosInstance }): NLUAPI => ({
+export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   fetchContexts: () => bp.axios.get(`/mod/nlu/contexts`).then(res => res.data),
   fetchIntents: async () => {
     const { data } = await bp.axios.get('/mod/nlu/intents')

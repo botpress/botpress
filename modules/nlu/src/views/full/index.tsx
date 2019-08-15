@@ -135,7 +135,7 @@ const NLU: FC<Props> = props => {
             api={api}
             contentLang={props.contentLang}
             showSlotPanel
-            axios={props.bp.axios}
+            axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
           />
         )}
         {!!entities.length && currentItem && currentItem.type === 'entity' && (

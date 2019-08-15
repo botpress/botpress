@@ -2,13 +2,13 @@ import { Colors, Icon, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUAPI } from '../../api'
+import { NLUApi } from '../../api'
 
 import style from './style.scss'
 
 interface Props {
   contexts: string[]
-  api: NLUAPI
+  api: NLUApi
   saveContexts: (ctx: string[]) => void
 }
 
