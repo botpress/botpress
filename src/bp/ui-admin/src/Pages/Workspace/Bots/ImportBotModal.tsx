@@ -12,16 +12,25 @@ interface Props {
   isOpen: boolean
 }
 
+interface State {
+  botId: string
+  error: any
+  filePath: string | null
+  fileContent: Buffer | null
+  isProcessing: boolean
+  isIdTaken: boolean
+}
+
 const defaultState = {
   botId: '',
   error: null,
-  file: null,
-  fileValue: null,
-  idTaken: false,
+  filePath: null,
+  fileContent: null,
+  isIdTaken: false,
   isProcessing: false
 }
 
-class ImportBotModal extends Component<Props> {
+class ImportBotModal extends Component<Props, State> {
   private _form: HTMLFormElement | null = null
 
   state = { ...defaultState }
@@ -48,12 +57,12 @@ class ImportBotModal extends Component<Props> {
 
   checkIdAvailability = _.debounce(async () => {
     if (!this.state.botId) {
-      return this.setState({ idTaken: false })
+      return this.setState({ isIdTaken: false })
     }
 
     try {
-      const { data: idTaken } = await api.getSecured().get(`/admin/bots/${this.state.botId}/exists`)
-      this.setState({ idTaken })
+      const { data: isIdTaken } = await api.getSecured().get(`/admin/bots/${this.state.botId}/exists`)
+      this.setState({ isIdTaken })
     } catch (error) {
       this.setState({ error: error.message })
     }
@@ -65,9 +74,9 @@ class ImportBotModal extends Component<Props> {
     const fr = new FileReader()
     fr.readAsArrayBuffer(e.target.files[0])
     fr.onload = loadedEvent => {
-      this.setState({ fileValue: _.get(loadedEvent, 'target.result') })
+      this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
-    this.setState({ file: e.target.value })
+    this.setState({ filePath: e.target.value })
   }
 
   toggleDialog = () => {
@@ -76,8 +85,8 @@ class ImportBotModal extends Component<Props> {
   }
 
   get isButtonDisabled() {
-    const { isProcessing, botId, fileValue, idTaken } = this.state
-    return isProcessing || !botId || !fileValue || idTaken || !this._form || !this._form.checkValidity()
+    const { isProcessing, botId, fileContent, isIdTaken } = this.state
+    return isProcessing || !botId || !fileContent || isIdTaken || !this._form || !this._form.checkValidity()
   }
 
   render() {
@@ -92,7 +101,7 @@ class ImportBotModal extends Component<Props> {
         <form ref={form => (this._form = form)}>
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
-              label={<span>Bot ID {this.state.idTaken && <span className="text-danger">Already in use</span>}</span>}
+              label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
               labelFor="text-input"
               labelInfo="*"
               helperText="This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it.
@@ -116,7 +125,11 @@ class ImportBotModal extends Component<Props> {
               labelFor="archive"
               helperText="File must be compressed using tar-gzip (.tgz)"
             >
-              <FileInput tabIndex={2} text={this.state.file || 'Choose file...'} onChange={this.handleFileChanged} />
+              <FileInput
+                tabIndex={2}
+                text={this.state.filePath || 'Choose file...'}
+                onChange={this.handleFileChanged}
+              />
             </FormGroup>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
