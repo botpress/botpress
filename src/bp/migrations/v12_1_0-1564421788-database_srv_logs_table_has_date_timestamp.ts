@@ -6,9 +6,9 @@ const TABLE_NAME = 'srv_logs'
 const COLUMN_NAME = 'timestamp'
 const CURRENT_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 
-// const PG_VARCHAR_TYPE = 'character varying'
+const PG_VARCHAR_TYPE = 'character varying'
 // const SQLITE_VARCHAR_TYPE = 'varchar'
-const PG_TIMESTAMP_TYPE = 'timestamp without time zone'
+// const PG_TIMESTAMP_TYPE = 'timestamp without time zone'
 const SQLITE_TIMESTAMP_TYPE = 'datetime'
 
 const migration: Migration = {
@@ -30,7 +30,7 @@ const migration: Migration = {
       return migrateSqlite3(database)
     }
 
-    if (columnInfo.type === PG_TIMESTAMP_TYPE) {
+    if (columnInfo.type !== PG_VARCHAR_TYPE) {
       return noMigrationNeeded
     }
     return migratePostgresql(database)
