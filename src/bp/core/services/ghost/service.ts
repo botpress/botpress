@@ -1,7 +1,7 @@
 import { ListenHandle, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
-import { asBytes, forceForwardSlashes } from 'core/misc/utils'
+import { asBytes, filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
@@ -21,18 +21,26 @@ import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisi
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-// TODO: better typings
-export type FileChanges = {
-  scope: string
-  changes: {
-    path: string
-    action: string
-    add?: number
-    del?: number
-  }[]
-}[]
+export type BpfsScopedChange = {
+  // An undefined bot ID = global
+  botId: string | undefined
+  // The list of local files which will overwrite their remote counterpart
+  localFiles: string[]
+  // List of added/deleted files based on local and remote files, and differences between files from revisions
+  changes: FileChange[]
+}
+
+export interface FileChange {
+  path: string
+  action: FileChangeAction
+  add?: number
+  del?: number
+}
+
+export type FileChangeAction = 'add' | 'edit' | 'del'
 
 const MAX_GHOST_FILE_SIZE = asBytes('100mb')
+const bpfsIgnoredFiles = ['models/**', '**/*.js.map']
 
 @injectable()
 export class GhostService {
@@ -76,39 +84,42 @@ export class GhostService {
       await this.cache.invalidate(`buffer::${fileName}`)
     }
 
-    const allChanges = await this.listFileChanges(tmpFolder)
-    for (const { scope, changes } of allChanges) {
-      const dbRevs = await this.dbDriver.listRevisions(scope === 'global' ? 'data/global' : 'data/bots/' + scope)
-      await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
+    const dbRevs = await this.dbDriver.listRevisions('data/')
+    await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
 
+    const allChanges = await this.listFileChanges(tmpFolder)
+    for (const { changes, localFiles } of allChanges) {
       await Promise.map(changes.filter(x => x.action === 'del'), async file => {
         await this.dbDriver.deleteFile(file.path)
         await invalidateFile(file.path)
       })
 
-      await Promise.map(changes.filter(x => ['add', 'edit'].includes(x.action)), async file => {
-        const content = await this.diskDriver.readFile(path.join(tmpFolder, file.path))
-        await this.dbDriver.upsertFile(file.path, content, false)
-        await invalidateFile(file.path)
-      })
+      // Upload all local files for that scope
+      if (localFiles.length) {
+        await Promise.map(localFiles, async filePath => {
+          const content = await this.diskDriver.readFile(path.join(tmpFolder, filePath))
+          await this.dbDriver.upsertFile(filePath, content, false)
+          await invalidateFile(filePath)
+        })
+      }
     }
 
-    return allChanges.map(c => c.scope).filter(c => c !== 'global')
+    return allChanges.filter(x => x.localFiles.length && x.botId).map(x => x.botId)
   }
 
   // TODO: refactor this
-  async listFileChanges(tmpFolder: string): Promise<FileChanges> {
+  async listFileChanges(tmpFolder: string): Promise<BpfsScopedChange[]> {
     const tmpDiskGlobal = this.custom(path.resolve(tmpFolder, 'data/global'))
     const tmpDiskBot = (botId?: string) => this.custom(path.resolve(tmpFolder, 'data/bots', botId || ''))
 
     // We need local and remote bot ids to correctly display changes
-    const localBotIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
-    const remoteBotIds = (await tmpDiskBot().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const remoteBotIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const localBotIds = (await tmpDiskBot().directoryListing('/', 'bot.config.json')).map(path.dirname)
     const botsIds = _.uniq([...remoteBotIds, ...localBotIds])
 
     const uniqueFile = file => `${file.path} | ${file.revision}`
 
-    const getFileDiff = async file => {
+    const getFileDiff = async (file: string): Promise<FileChange> => {
       try {
         const localFile = (await this.diskDriver.readFile(path.join(tmpFolder, file))).toString()
         const dbFile = (await this.dbDriver.readFile(file)).toString()
@@ -117,36 +128,44 @@ export class GhostService {
 
         return {
           path: file,
-          action: 'edit',
+          action: 'edit' as FileChangeAction,
           add: _.sumBy(diff.filter(d => d.added), 'count'),
           del: _.sumBy(diff.filter(d => d.removed), 'count')
         }
       } catch (err) {
         // Todo better handling
         this.logger.attachError(err).error(`Error while checking diff for "${file}"`)
-        return { path: file, action: 'edit' }
+        return { path: file, action: 'edit' as FileChangeAction }
       }
     }
 
     // Adds the correct prefix to files so they are displayed correctly when reviewing changes
-    const getDirectoryFullPaths = async (scope: string, ghost) => {
-      const files = await ghost.directoryListing('/', '*.*', undefined, true)
-      const getPath = file =>
-        scope === 'global' ? path.join('data/global', file) : path.join('data/bots', scope, file)
+    const getDirectoryFullPaths = async (botId: string | undefined, ghost: ScopedGhostService) => {
+      const getPath = (file: string) => (botId ? path.join('data/bots', botId, file) : path.join('data/global', file))
 
-      return files.map(file => forceForwardSlashes(getPath(file)))
+      return ghost
+        .directoryListing('/', '*.*', [...bpfsIgnoredFiles, '**/revisions.json'])
+        .then()
+        .map(f => forceForwardSlashes(getPath(f)))
     }
 
-    const getFileChanges = async (scope: string, localGhost: ScopedGhostService, remoteGhost: ScopedGhostService) => {
-      const localRevs = await localGhost.listDiskRevisions()
-      const remoteRevs = await remoteGhost.listDbRevisions()
+    const filterRevisions = (revisions: FileRevision[]) => filterByGlobs(revisions, r => r.path, bpfsIgnoredFiles)
+
+    const getFileChanges = async (
+      botId: string | undefined,
+      localGhost: ScopedGhostService,
+      remoteGhost: ScopedGhostService
+    ) => {
+      const localRevs = filterRevisions(await localGhost.listDiskRevisions())
+      const remoteRevs = filterRevisions(await remoteGhost.listDbRevisions())
       const syncedRevs = _.intersectionBy(localRevs, remoteRevs, uniqueFile)
       const unsyncedFiles = _.uniq(_.differenceBy(remoteRevs, syncedRevs, uniqueFile).map(x => x.path))
 
-      const localFiles: string[] = await getDirectoryFullPaths(scope, localGhost)
-      const remoteFiles: string[] = await getDirectoryFullPaths(scope, remoteGhost)
-      const deleted = _.difference(remoteFiles, localFiles).map(x => ({ path: x, action: 'del' }))
-      const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' }))
+      const localFiles: string[] = await getDirectoryFullPaths(botId, localGhost)
+      const remoteFiles: string[] = await getDirectoryFullPaths(botId, remoteGhost)
+
+      const deleted = _.difference(remoteFiles, localFiles).map(x => ({ path: x, action: 'del' as FileChangeAction }))
+      const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' as FileChangeAction }))
 
       const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
       const edited = (await Promise.map(unsyncedFiles.filter(filterDeleted), getFileDiff)).filter(
@@ -154,8 +173,9 @@ export class GhostService {
       )
 
       return {
-        scope,
-        changes: [...added, ...deleted, ...edited]
+        botId,
+        changes: [...added, ...deleted, ...edited],
+        localFiles
       }
     }
 
@@ -163,7 +183,7 @@ export class GhostService {
       getFileChanges(botId, tmpDiskBot(botId), this.forBot(botId))
     )
 
-    return [...botsFileChanges, await getFileChanges('global', tmpDiskGlobal, this.global())]
+    return [...botsFileChanges, await getFileChanges(undefined, tmpDiskGlobal, this.global())]
   }
 
   bots(): ScopedGhostService {
@@ -202,25 +222,27 @@ export class GhostService {
     return scopedGhost
   }
 
-  public async exportArchive(botIds: string[]): Promise<Buffer> {
+  public async exportArchive(): Promise<Buffer> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    const files: string[] = []
+
+    const getFullPath = folder => path.join(tmpDir.name, folder)
 
     try {
-      await mkdirp.sync(path.join(tmpDir.name, 'global'))
-      const outDir = path.join(tmpDir.name, 'global')
-      const outFiles = (await this.global().exportToDirectory(outDir)).map(f => path.join('global', f))
-      files.push(...outFiles)
+      const botIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+      const botFiles = await Promise.mapSeries(botIds, async botId =>
+        (await this.forBot(botId).exportToDirectory(getFullPath(`bots/${botId}`), bpfsIgnoredFiles)).map(f =>
+          path.join(`bots/${botId}`, f)
+        )
+      )
 
-      await Promise.mapSeries(botIds, async bid => {
-        const p = path.join(tmpDir.name, `bots/${bid}`)
-        await mkdirp.sync(p)
-        const outFiles = (await this.forBot(bid).exportToDirectory(p)).map(f => path.join(`bots/${bid}`, f))
-        files.push(...outFiles)
-      })
+      const allFiles = [
+        ..._.flatten(botFiles),
+        ...(await this.global().exportToDirectory(getFullPath('global'), bpfsIgnoredFiles)).map(f =>
+          path.join('global', f)
+        )
+      ]
 
-      const filename = path.join(tmpDir.name, 'archive.tgz')
-      const archive = await createArchive(filename, tmpDir.name, files)
+      const archive = await createArchive(getFullPath('archive.tgz'), tmpDir.name, allFiles)
       return await fse.readFile(archive)
     } finally {
       tmpDir.removeCallback()
@@ -355,18 +377,6 @@ export class ScopedGhostService {
 
     await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
     await this._updateProduction(localFiles)
-  }
-
-  /**
-   * Force update the production files with the local disk files.
-   * This will remove all the prodution revisions files as well.
-   */
-  async forceUpdate() {
-    const trackedFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
-    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
-    await Promise.each(dbRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
-
-    await this._updateProduction(trackedFiles)
   }
 
   private async _updateProduction(localFiles: string[]) {
