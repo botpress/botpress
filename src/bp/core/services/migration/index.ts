@@ -6,6 +6,7 @@ import Database from 'core/database'
 import center from 'core/logger/center'
 import { TYPES } from 'core/types'
 import fs from 'fs'
+import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -110,6 +111,17 @@ export class MigrationService {
 
     const completed = this._getCompletedMigrations()
     let hasFailures = false
+
+    // Clear the Botpress cache before executing any migrations
+    try {
+      const cachePath = path.join(process.env.APP_DATA_PATH!, 'cache')
+      if (process.env.APP_DATA_PATH && fse.pathExistsSync(cachePath)) {
+        fse.removeSync(cachePath)
+        this.logger.info('Cleared cache')
+      }
+    } catch (err) {
+      this.logger.attachError(err).warn('Could not clear cache')
+    }
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       if (completed.includes(filename)) {
