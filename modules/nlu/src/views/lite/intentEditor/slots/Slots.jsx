@@ -27,7 +27,7 @@ export default class Slots extends React.Component {
       slots = [...slots, slot]
     }
 
-    const oldName = this.state.editingSlotIdx ? this.props.slots[this.state.editingSlotIdx].name : ''
+    const oldName = this.state.editingSlotIdx !== null ? this.props.slots[this.state.editingSlotIdx].name : ''
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation, oldName, name: slot.name })
   }
 

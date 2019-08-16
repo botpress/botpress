@@ -1,6 +1,6 @@
 import { Colors, Icon, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
-import React, { FC, MouseEventHandler, useDebugValue, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { NLUApi } from '../../api'
 
