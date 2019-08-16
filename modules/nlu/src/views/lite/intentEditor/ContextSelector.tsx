@@ -49,6 +49,16 @@ export const ContextSelector: FC<Props> = props => {
     />
   )
 
+  const createNewItemRenderer = (query: string, active: boolean, handleClick) => (
+    <MenuItem
+      icon="plus"
+      text={`Create "${query}"`}
+      active={active}
+      onClick={handleClick}
+      shouldDismissPopover={false}
+    />
+  )
+
   return (
     <div>
       <div>
@@ -58,6 +68,7 @@ export const ContextSelector: FC<Props> = props => {
           <Icon color={Colors.GRAY2} icon="info-sign" />
         </Tooltip>
       </div>
+      {/* TODO move this pre-configured multi-select in bp ui */}
       <MultiSelect
         className={style.ctxSelect}
         placeholder="Select context..."
@@ -69,6 +80,8 @@ export const ContextSelector: FC<Props> = props => {
         tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx }}
         popoverProps={{ minimal: true, fill: true }}
         selectedItems={props.contexts}
+        createNewItemRenderer={createNewItemRenderer}
+        createNewItemFromQuery={q => q}
       />
     </div>
   )
