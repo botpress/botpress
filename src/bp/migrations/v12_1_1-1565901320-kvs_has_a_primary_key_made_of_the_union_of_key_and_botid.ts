@@ -3,9 +3,9 @@ import { Migration } from 'core/services/migration'
 
 const migration: Migration = {
   info: {
-    description: '',
+    description: 'alter kvs table primary key for a union of both column key and column botId',
     target: 'core',
-    type: 'config'
+    type: 'database'
   },
   up: async ({
     bp,

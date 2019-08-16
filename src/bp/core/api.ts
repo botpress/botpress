@@ -136,7 +136,7 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
     forBot(botId: string): KvsService {
       return new KvsService(kvs, botId)
     },
-    forGlobal(): KvsService {
+    global(): KvsService {
       return new KvsService(kvs)
     },
     async get(botId: string, key: string, path?: string): Promise<any> {

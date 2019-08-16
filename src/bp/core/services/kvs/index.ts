@@ -61,7 +61,6 @@ export class KeyValueStore {
     return this.database
       .knex(this.tableName)
       .where({ botId })
-
       .andWhere({ key })
       .limit(1)
       .get(0)
