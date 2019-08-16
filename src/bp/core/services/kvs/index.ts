@@ -4,9 +4,11 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import Database from '../database'
-import { safeStringify } from '../misc/utils'
-import { TYPES } from '../types'
+import Database from '../../database'
+import { safeStringify } from '../../misc/utils'
+import { TYPES } from '../../types'
+
+const GLOBAL = '__global__'
 
 @injectable()
 export class KeyValueStore {
@@ -19,8 +21,10 @@ export class KeyValueStore {
     private logger: Logger
   ) {}
 
-  upsert = (botId: string, key: string, value) => {
+  private upsert = (botId: string | undefined, key: string, value) => {
     let sql
+
+    botId = botId || GLOBAL
 
     const params = {
       tableName: this.tableName,
@@ -51,10 +55,13 @@ export class KeyValueStore {
     return this.database.knex.raw(sql, params)
   }
 
-  get = async (botId: string, key: string, path?: string) =>
-    this.database
+  get = async (botId: string | undefined, key: string, path?: string) => {
+    botId = botId || GLOBAL
+
+    return this.database
       .knex(this.tableName)
       .where({ botId })
+
       .andWhere({ key })
       .limit(1)
       .get(0)
@@ -70,8 +77,9 @@ export class KeyValueStore {
 
         return _.get(obj, path)
       })
+  }
 
-  set = (botId: string, key: string, value, path?: string) => {
+  set = (botId: string | undefined, key: string, value, path?: string) => {
     if (!path) {
       return this.upsert(botId, key, value)
     }
@@ -102,12 +110,12 @@ export class KeyValueStore {
     return undefined
   }
 
-  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs?: string) => {
+  setStorageWithExpiry = async (botId: string | undefined, key: string, value, expiryInMs?: string) => {
     const box = this.boxWithExpiry(value, expiryInMs)
     await this.set(botId, key, box)
   }
 
-  getStorageWithExpiry = async (botId: string, key: string) => {
+  getStorageWithExpiry = async (botId: string | undefined, key: string) => {
     const box = await this.get(botId, key)
     return this.unboxWithExpiry(box)
   }

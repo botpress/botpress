@@ -1,9 +1,9 @@
-import Database from '../database'
-import { createDatabaseSuite } from '../database/index.tests'
-import { PersistedConsoleLogger } from '../logger'
-import { createSpyObject, MockObject } from '../misc/utils'
+import Database from '../../database'
+import { createDatabaseSuite } from '../../database/index.tests'
+import { PersistedConsoleLogger } from '../../logger'
+import { createSpyObject, MockObject } from '../../misc/utils'
 
-import { KeyValueStore } from './kvs'
+import { KeyValueStore } from './'
 
 createDatabaseSuite('KVS', (database: Database) => {
   const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
@@ -86,6 +86,27 @@ createDatabaseSuite('KVS', (database: Database) => {
         street: '123 Awesome Street',
         city: 'Awesome City'
       })
+    })
+  })
+
+  describe('global/scoped', () => {
+    test('kvs entries of global and scoped should not interfer', async () => {
+      // Arrange && Act
+      const key = 'gordon-ramsay-favorite-number'
+      await kvs.set('bot1', key, '1')
+      await kvs.set(undefined, key, '2')
+      await kvs.set('bot1', key, '666')
+      await kvs.set('bot2', key, '69')
+      await kvs.set(undefined, key, '42')
+
+      const globalActual = await kvs.get(undefined, key)
+      const bot1Actual = await kvs.get('bot1', key)
+      const bot2actual = await kvs.get('bot2', key)
+
+      // Assert
+      expect(globalActual).toEqual('42')
+      expect(bot1Actual).toEqual('666')
+      expect(bot2actual).toEqual('69')
     })
   })
 })

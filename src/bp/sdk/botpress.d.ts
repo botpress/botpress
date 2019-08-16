@@ -740,6 +740,26 @@ declare module 'botpress/sdk' {
     fileExists(rootFolder: string, file: string): Promise<boolean>
   }
 
+  export interface KvsService {
+    /**
+     * Returns the specified key as JSON object
+     * @example bp.kvs.get('bot123', 'hello/whatsup')
+     */
+    get(botId: string, key: string, path?: string): Promise<any>
+
+    /**
+     * Saves the specified key as JSON object
+     * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
+     */
+    set(botId: string, key: string, value: any, path?: string): Promise<void>
+    setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string)
+    getStorageWithExpiry(botId: string, key: string)
+    getConversationStorageKey(sessionId: string, variable: string): string
+    getUserStorageKey(userId: string, variable: string): string
+    getGlobalStorageKey(variable: string): string
+    removeStorageKeysStartingWith(key): Promise<void>
+  }
+
   export interface ListenHandle {
     /** Stops listening from the event */
     remove(): void
@@ -1330,21 +1350,56 @@ declare module 'botpress/sdk' {
    */
   export namespace kvs {
     /**
+     * Access the KVS Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     */
+    export function forBot(botId: string): KvsService
+    /**
+     * Access the KVS Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     */
+    export function forGlobal(): KvsService
+
+    /**
      * Returns the specified key as JSON object
      * @example bp.kvs.get('bot123', 'hello/whatsup')
+     * @deprecated will be removed, use forGlobal
      */
     export function get(botId: string, key: string, path?: string): Promise<any>
 
     /**
      * Saves the specified key as JSON object
      * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
+     * @deprecated will be removed, use forGlobal
      */
     export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string)
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function getStorageWithExpiry(botId: string, key: string)
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function getConversationStorageKey(sessionId: string, variable: string): string
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function getUserStorageKey(userId: string, variable: string): string
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function getGlobalStorageKey(variable: string): string
+
+    /**
+     * @deprecated will be removed, use forGlobal
+     */
     export function removeStorageKeysStartingWith(key): Promise<void>
   }
 
@@ -1380,6 +1435,7 @@ declare module 'botpress/sdk' {
     export function forBots(): ScopedGhostService
     /**
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
+     * @deprecated
      */
     export function forGlobal(): ScopedGhostService
   }
