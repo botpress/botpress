@@ -1,6 +1,6 @@
 import { Colors, Icon, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, MouseEventHandler, useDebugValue, useEffect, useState } from 'react'
 
 import { NLUApi } from '../../api'
 
@@ -63,6 +63,7 @@ export const ContextSelector: FC<Props> = props => {
         placeholder="Select context..."
         items={availableContexts}
         itemRenderer={ctxItemRenderer}
+        itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
         tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx }}
