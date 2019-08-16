@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { Value, ValueProperties } from 'slate'
+import { NodeJSON, Value, ValueJSON } from 'slate'
 
 // TODO add typings for this
 
@@ -54,15 +54,14 @@ export const textNodesFromUtterance = (utterance: string) => {
   return nodes
 }
 
-export const utterancesToValue = (utterances: string[], selection = null) => {
+export const utterancesToValue = (utterances: string[], selection = undefined) => {
   const summary = utterances[0] || ''
   const rest = utterances.length > 1 ? utterances.slice(1) : ['']
 
-  const value: ValueProperties = {
+  const value: ValueJSON = {
     object: 'value',
     document: {
       object: 'document',
-      // @ts-ignore
       nodes: [
         {
           object: 'block',
@@ -76,13 +75,12 @@ export const utterancesToValue = (utterances: string[], selection = null) => {
           data: {},
           nodes: textNodesFromUtterance(text)
         }))
-      ]
+      ] as NodeJSON[]
     }
   }
   if (selection) {
     value['selection'] = selection
   }
-
   return Value.fromJS(value)
 }
 

@@ -1,4 +1,4 @@
-import { Value } from 'slate'
+import { Value, ValueJSON } from 'slate'
 
 import {
   extractSlots,
@@ -9,7 +9,7 @@ import {
   valueToUtterances
 } from './utterances-state-utils'
 
-const mockedSlateValue = {
+const A_SLATE_VALUE = {
   object: 'value',
   document: {
     object: 'document',
@@ -52,7 +52,7 @@ const mockedSlateValue = {
       }
     ]
   }
-}
+} as ValueJSON
 
 test('extract slots from utterance', () => {
   const extracted = extractSlots('My name is [Kanye](me) and your name is [Jay](you)')
@@ -127,6 +127,7 @@ describe('Slate nodes from utterance', () => {
 describe('from utterances to slate value', () => {
   test('no utterances', () => {
     const value = utterancesToValue([]).toJS()
+    // @ts-ignore
     expect(value.document.nodes.length).toEqual(2)
     // @ts-ignore
     expect(value.document.nodes[0].type).toEqual('title')
@@ -138,8 +139,7 @@ describe('from utterances to slate value', () => {
 })
 
 test('from slate value to utterances', () => {
-  // @ts-ignore
-  const value = Value.fromJS(mockedSlateValue)
+  const value = Value.fromJS(A_SLATE_VALUE)
 
   const utterances = valueToUtterances(value)
 
