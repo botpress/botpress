@@ -57,26 +57,24 @@ export const IntentEditor: FC<Props> = props => {
   const utterances = (intent && intent.utterances[props.contentLang]) || []
 
   return (
-    intent && (
-      <div className={style.intentEditor}>
-        <div>
-          <div className={style.header}>
-            <ContextSelector
-              contexts={intent.contexts}
-              saveContexts={contexts => saveIntent({ ...intent, contexts })}
-              api={props.api}
-            />
-            <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
-          </div>
-          <UtterancesEditor
-            intentName={intent.name}
-            utterances={utterances}
-            onChange={handleUtterancesChange}
-            slots={intent.slots}
+    <div className={style.intentEditor}>
+      <div>
+        <div className={style.header}>
+          <ContextSelector
+            contexts={intent.contexts}
+            saveContexts={contexts => saveIntent({ ...intent, contexts })}
+            api={props.api}
           />
+          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
         </div>
-        {props.showSlotPanel && <Slots slots={intent.slots} axios={props.axios} onSlotsChanged={handleSlotsChange} />}
+        <UtterancesEditor
+          intentName={intent.name}
+          utterances={utterances}
+          onChange={handleUtterancesChange}
+          slots={intent.slots}
+        />
       </div>
-    )
+      {props.showSlotPanel && <Slots slots={intent.slots} axios={props.axios} onSlotsChanged={handleSlotsChange} />}
+    </div>
   )
 }
