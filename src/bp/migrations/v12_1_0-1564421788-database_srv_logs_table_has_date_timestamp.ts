@@ -6,9 +6,7 @@ const TABLE_NAME = 'srv_logs'
 const COLUMN_NAME = 'timestamp'
 const CURRENT_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 
-// const PG_VARCHAR_TYPE = 'character varying'
-// const SQLITE_VARCHAR_TYPE = 'varchar'
-const PG_TIMESTAMP_TYPE = 'timestamp without time zone'
+const PG_VARCHAR_TYPE = 'character varying'
 const SQLITE_TIMESTAMP_TYPE = 'datetime'
 
 const migration: Migration = {
@@ -30,7 +28,7 @@ const migration: Migration = {
       return migrateSqlite3(database)
     }
 
-    if (columnInfo.type === PG_TIMESTAMP_TYPE) {
+    if (columnInfo.type !== PG_VARCHAR_TYPE) {
       return noMigrationNeeded
     }
     return migratePostgresql(database)
@@ -85,7 +83,7 @@ async function migratePostgresql(db: Database): Promise<sdk.MigrationResult> {
     await db.knex.raw(
       `
       ALTER TABLE ${TABLE_NAME}
-      ALTER COLUMN ${COLUMN_NAME} TYPE TIMESTAMP USING TO_TIMESTAMP(${COLUMN_NAME}, '${CURRENT_DATE_FORMAT}');
+      ALTER COLUMN ${COLUMN_NAME} TYPE TIMESTAMP WITH TIME ZONE USING TO_TIMESTAMP(${COLUMN_NAME}, '${CURRENT_DATE_FORMAT}');
       `
     )
   } catch (err) {
