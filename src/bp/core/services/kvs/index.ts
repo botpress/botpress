@@ -47,7 +47,7 @@ export class KeyValueStore {
       sql = `
         INSERT INTO :tableName: (:botIdCol:, :keyCol:, :valueCol:, :modifiedOnCol:)
         VALUES (:botId, :key, :value, :now)
-        ON CONFLICT (:keyCol:) DO UPDATE
+        ON CONFLICT (:keyCol:, :botIdCol:) DO UPDATE
           SET :valueCol: = :value, :modifiedOnCol: = :now
       `
     }
