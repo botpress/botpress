@@ -13,11 +13,16 @@ const langFlagsMap = {
   fr: 'fr',
   en: 'gb',
   ja: 'jp',
-  ru: 'rus',
+  ru: 'ru',
   ar: 'eh',
-  pt: 'prt',
-  sp: 'esp',
-  ko: 'kor'
+  pt: 'pt',
+  es: 'es',
+  ko: 'kor',
+  de: 'de',
+  it: 'it',
+  nl: 'nl',
+  he: 'il',
+  pl: 'pl'
 }
 
 class LangSwitcher extends React.Component {
