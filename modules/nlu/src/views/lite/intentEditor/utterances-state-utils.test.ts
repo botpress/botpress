@@ -128,6 +128,7 @@ describe('from utterances to slate value', () => {
   test('no utterances', () => {
     const value = utterancesToValue([]).toJS()
     expect(value.document.nodes.length).toEqual(2)
+    // @ts-ignore
     expect(value.document.nodes[0].type).toEqual('title')
   })
 

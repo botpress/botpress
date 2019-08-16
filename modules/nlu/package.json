@@ -18,6 +18,8 @@
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
+    "@types/slate": "^0.47.1",
+    "@types/slate-react": "^0.22.5",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
