@@ -59,10 +59,10 @@ class EventBus extends EventEmitter2 {
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
 
-    this.adminSocket = io(socketUrl + '/admin', { query })
+    this.adminSocket = io(socketUrl + '/admin', { query, transports: ['websocket', 'polling'] })
     this.adminSocket.on('event', this.dispatchSocketEvent)
 
-    this.guestSocket = io(socketUrl + '/guest', { query })
+    this.guestSocket = io(socketUrl + '/guest', { query, transports: ['websocket', 'polling'] })
     this.guestSocket.on('event', this.dispatchSocketEvent)
   }
 }
