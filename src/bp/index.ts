@@ -135,18 +135,15 @@ try {
         authToken: {
           alias: 'token',
           description: 'Authorization token on the remote botpress server',
-          // tslint:disable-next-line:no-null-keyword
-          default: null,
           type: 'string'
         },
         targetDir: {
           alias: 'dir',
           description: 'Target directory where the remote data will be stored',
-          default: path.join(__dirname, 'data'),
           type: 'string'
         }
       },
-      argv => require('./pull').default(argv)
+      argv => require('./bpfs').default(argv, 'pull')
     )
     .command(
       'push',
@@ -160,18 +157,15 @@ try {
         authToken: {
           alias: 'token',
           description: 'Authorization token on the remote botpress server',
-          // tslint:disable-next-line:no-null-keyword
-          default: null,
           type: 'string'
         },
-        targetDir: {
+        sourceDir: {
           alias: 'dir',
           description: 'The local directory containing the data you want to push on the remote server',
-          default: path.join(__dirname, 'data'),
           type: 'string'
         }
       },
-      argv => require('./push').default(argv)
+      argv => require('./bpfs').default(argv, 'push')
     )
     .command(
       'bench',

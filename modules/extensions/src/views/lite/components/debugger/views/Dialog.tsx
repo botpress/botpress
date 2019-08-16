@@ -2,9 +2,8 @@ import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import React, { SFC } from 'react'
 
-import { Intent } from '../components/Intent'
+import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
-import { formatConfidence } from '../utils'
 
 interface Props {
   suggestions: sdk.IO.Suggestion[]
@@ -12,18 +11,23 @@ interface Props {
   stacktrace: sdk.IO.JumpPoint[]
 }
 
-const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => (
-  <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Decision</H5>
-    <div style={{ display: 'flex' }}>
-      <Intent name={props.decision.sourceDetails} />
-      &nbsp;
-      <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
-        <Icon color={Colors.GRAY3} icon="info-sign" />
-      </Tooltip>
+const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
+  const decision = props.decision.sourceDetails
+  const isQnA = isQnaItem(decision)
+
+  return (
+    <div className={style.subSection}>
+      <H5 color={Colors.DARK_GRAY5}>Decision</H5>
+      <div style={{ display: 'flex' }}>
+        {isQnA ? <Intent name={decision} /> : <strong>{decision}</strong>}
+        &nbsp;
+        <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
+          <Icon color={Colors.GRAY3} icon="info-sign" />
+        </Tooltip>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
   <div className={style.subSection}>
