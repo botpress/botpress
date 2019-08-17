@@ -114,8 +114,8 @@ export class MigrationService {
 
     // Clear the Botpress cache before executing any migrations
     try {
-      const cachePath = path.join(process.env.APP_DATA_PATH!, 'cache')
-      if (process.env.APP_DATA_PATH && fse.pathExistsSync(cachePath)) {
+      const cachePath = path.join(process.APP_DATA_PATH, 'cache')
+      if (process.APP_DATA_PATH && fse.pathExistsSync(cachePath)) {
         fse.removeSync(cachePath)
         this.logger.info('Cleared cache')
       }
