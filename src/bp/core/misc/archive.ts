@@ -5,24 +5,46 @@ import path from 'path'
 import stream from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
+import unzipper from 'unzipper'
 import { VError } from 'verror'
 
 import { forceForwardSlashes } from './utils'
+
+const isZip = buf => {
+  if (!buf || buf.length < 4) {
+    return false
+  }
+
+  return (
+    buf[0] === 0x50 &&
+    buf[1] === 0x4b &&
+    (buf[2] === 0x03 || buf[2] === 0x05 || buf[2] === 0x07) &&
+    (buf[3] === 0x04 || buf[3] === 0x06 || buf[3] === 0x08)
+  )
+}
 
 export const extractArchive = async (archive: Buffer, destination: string): Promise<string[]> => {
   try {
     if (!fse.existsSync(destination)) {
       fse.mkdirSync(destination)
     }
-    const buffStream = new stream.PassThrough()
-    const tarWriteStream = tar.x({ sync: true, strict: true, cwd: destination })
 
+    const buffStream = new stream.PassThrough()
     buffStream.end(archive)
-    buffStream.pipe(tarWriteStream)
+
+    let writeStream
+    if (isZip(archive)) {
+      writeStream = unzipper.Extract({ path: destination })
+    } else {
+      writeStream = tar.x({ sync: true, strict: true, cwd: destination })
+    }
+
+    buffStream.pipe(writeStream)
 
     await new Promise((resolve, reject) => {
-      tarWriteStream.on('end', resolve)
-      tarWriteStream.on('error', reject)
+      writeStream.on('close', resolve) // emitted by unzipper
+      writeStream.on('end', resolve) // emitted by tar
+      writeStream.on('error', reject)
     })
 
     const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', { cwd: destination }, cb))

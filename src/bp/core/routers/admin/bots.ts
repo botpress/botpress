@@ -182,19 +182,13 @@ export class BotsRouter extends CustomRouter {
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')
         }
+
         const buffers: any[] = []
-        req.on('data', chunk => {
-          buffers.push(chunk)
-        })
-        req.on('end', async () => {
-          const botId = req.params.botId
-          try {
-            await this.botService.importBot(botId, Buffer.concat(buffers), false)
-            res.send('Ok')
-          } catch (error) {
-            res.status(500).send('Error while importing bot')
-          }
-        })
+        req.on('data', chunk => buffers.push(chunk))
+        await Promise.fromCallback(cb => req.on('end', cb))
+
+        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), false)
+        res.sendStatus(200)
       })
     )
 
