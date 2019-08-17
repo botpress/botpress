@@ -284,7 +284,7 @@ export class BotService {
       throw new InvalidOperationError(`The archive doesn't seems to contain a bot`)
     }
 
-    return path.resolve(directory, path.dirname(configFile[0]))
+    return path.join(directory, path.dirname(configFile[0]))
   }
 
   private async _migrateBotContent(botId: string): Promise<void> {
