@@ -10,6 +10,7 @@ import { VError } from 'verror'
 
 import { forceForwardSlashes } from './utils'
 
+// Source: https://github.com/kevva/is-zip
 const isZip = buf => {
   if (!buf || buf.length < 4) {
     return false
