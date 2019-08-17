@@ -1,3 +1,48 @@
+## [12.1.1](https://github.com/botpress/botpress/compare/v12.1.0...v12.1.1) (2019-08-17)
+
+
+### Bug Fixes
+
+* **admin:** ui tweaks for bot creation ([2bd9714](https://github.com/botpress/botpress/commit/2bd9714))
+* **admin:** ui tweaks for bot creation ([71ece3d](https://github.com/botpress/botpress/commit/71ece3d))
+* **code-editor:** the ghost for bot config files was global ([ba69875](https://github.com/botpress/botpress/commit/ba69875))
+* **code-editor:** the ghost for bot config files was global ([1a78cb0](https://github.com/botpress/botpress/commit/1a78cb0))
+* **config:** added revision recording for bot and botpress config ([c84187e](https://github.com/botpress/botpress/commit/c84187e))
+* **config:** added revision recording for bot and botpress config ([86a3d22](https://github.com/botpress/botpress/commit/86a3d22))
+* **core:** clear cache upon migration ([84bb027](https://github.com/botpress/botpress/commit/84bb027))
+* **core:** clear cache upon migration ([f4afda4](https://github.com/botpress/botpress/commit/f4afda4))
+* **debugger:** decision was linking to an NLU intent, but now plain text ([89d5616](https://github.com/botpress/botpress/commit/89d5616))
+* **debugger:** decision was linking to an NLU intent, but now plain text ([a06d23f](https://github.com/botpress/botpress/commit/a06d23f))
+* **flow:** bigger handle to drag and drop nodes ([4c66cb1](https://github.com/botpress/botpress/commit/4c66cb1))
+* **flow:** bigger handle to drag and drop nodes ([5e7eeb5](https://github.com/botpress/botpress/commit/5e7eeb5))
+* **ghost:** add exclude support for db driver ([9113860](https://github.com/botpress/botpress/commit/9113860))
+* **ghost:** add exclude support for db driver ([d45bec1](https://github.com/botpress/botpress/commit/d45bec1))
+* **ghost:** clear local revisions when pushed ([eaca91e](https://github.com/botpress/botpress/commit/eaca91e))
+* **ghost:** clear local revisions when pushed ([538a507](https://github.com/botpress/botpress/commit/538a507))
+* **ghost:** ignoring models when comparing revisions ([4a15cf4](https://github.com/botpress/botpress/commit/4a15cf4))
+* **ghost:** module loader will no longer record revisions ([3bccd79](https://github.com/botpress/botpress/commit/3bccd79))
+* **ghost:** more work toward stable ghost ([c5b775b](https://github.com/botpress/botpress/commit/c5b775b))
+* **ghost:** push is behaving like it should ([533f184](https://github.com/botpress/botpress/commit/533f184))
+* **logs:** log table migration won't run if not needed ([9663f18](https://github.com/botpress/botpress/commit/9663f18))
+* **logs:** log table migration won't run if not needed ([c313cba](https://github.com/botpress/botpress/commit/c313cba))
+* **migrations:** execute migrations after modules are loaded ([aa3ca17](https://github.com/botpress/botpress/commit/aa3ca17))
+* **migrations:** execute migrations after modules tables are created ([91de8b6](https://github.com/botpress/botpress/commit/91de8b6))
+* **nlu:** empty token fix ([106184f](https://github.com/botpress/botpress/commit/106184f))
+* **nlu:** if TFIDF fails, return low importance ([60de3b9](https://github.com/botpress/botpress/commit/60de3b9))
+* **nlu:** tokenize empty / null token ([a8c7aad](https://github.com/botpress/botpress/commit/a8c7aad))
+* **socket:** using websocket first (fallback polling) ([f9529be](https://github.com/botpress/botpress/commit/f9529be))
+* **socket:** using websocket first (fallback polling) ([b0259e4](https://github.com/botpress/botpress/commit/b0259e4))
+* **studio:** undo delete skill creates new skill ([7ff8ee1](https://github.com/botpress/botpress/commit/7ff8ee1))
+* **studio:** undo delete skill creates new skill ([5983ab7](https://github.com/botpress/botpress/commit/5983ab7))
+
+
+### Features
+
+* **studio:** toast msg to remind about auto-save when hitting ctrl+s ([fdb8517](https://github.com/botpress/botpress/commit/fdb8517))
+* **studio:** toast msg to remind about auto-save when hitting ctrl+s ([13bfa15](https://github.com/botpress/botpress/commit/13bfa15))
+
+
+
 # [12.1.0](https://github.com/botpress/botpress/compare/v12.0.7...v12.1.0) (2019-08-14)
 
 
