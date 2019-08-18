@@ -1,3 +1,13 @@
+## [12.1.2](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.2) (2019-08-18)
+
+
+### Bug Fixes
+
+* **import:** support zip files & nested archives ([2020cda](https://github.com/botpress/botpress/commit/2020cda))
+* **import:** support zip files & nested archives ([0265d7e](https://github.com/botpress/botpress/commit/0265d7e))
+
+
+
 ## [12.1.1](https://github.com/botpress/botpress/compare/v12.1.0...v12.1.1) (2019-08-17)
 
 
