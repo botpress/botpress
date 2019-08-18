@@ -94,42 +94,58 @@ export default class Editor {
       throw new Error(`Invalid file type, only ${ALLOWED_TYPES} are allowed at the moment`)
     }
 
-    if (type === 'hook' && !HOOK_SIGNATURES[hookType]) {
-      throw new Error('Invalid hook type.')
+    if (type === 'hook') {
+      this._validateHook(hookType, botId)
     }
 
     if (type === 'bot_config') {
-      this._validateBotConfig(content, location)
+      this._validateBotConfig(content, location, botId)
     }
 
     if (type === 'global_config') {
-      this._validateGlobalConfig(content, location)
+      this._validateGlobalConfig(content, location, botId)
     }
 
     if (type === 'module_config') {
-      await this._validateModulesConfig(content, location)
+      await this._validateModulesConfig(content, location, botId)
     }
 
     this._validateFilename(name)
   }
 
-  private _validateBotConfig(config: string, location: string) {
+  private _validateHook(hookType: string, botId: string) {
+    if (!HOOK_SIGNATURES[hookType]) {
+      throw new Error('Invalid hook type.')
+    }
+
+    if (botId) {
+      throw new EditorError(`Can't save a hook with a bot id`, EditorErrorStatus.INVALID_CONTENT)
+    }
+  }
+
+  private _validateBotConfig(config: string, location: string, botId: string | undefined) {
     if (location !== 'bot.config.json') {
       throw new EditorError(`Invalid location for a bot config file: ${location}`, EditorErrorStatus.INVALID_NAME)
     }
-
-    return this._assertIsValidJson(config)
-  }
-
-  private _validateGlobalConfig(config: string, location: string) {
-    if (!MAIN_GLOBAL_CONFIG_FILES.includes(location)) {
-      throw new EditorError(`Invalid location for a global config file: ${location}`, EditorErrorStatus.INVALID_NAME)
+    if (!botId) {
+      throw new EditorError(`Can't save a bot config file without a bot id`, EditorErrorStatus.INVALID_CONTENT)
     }
 
     return this._assertIsValidJson(config)
   }
 
-  private async _validateModulesConfig(config: string, location: string) {
+  private _validateGlobalConfig(config: string, location: string, botId: string | undefined) {
+    if (!MAIN_GLOBAL_CONFIG_FILES.includes(location)) {
+      throw new EditorError(`Invalid location for a global config file: ${location}`, EditorErrorStatus.INVALID_NAME)
+    }
+    if (botId) {
+      throw new EditorError(`Can't save a global config file with a bot id`, EditorErrorStatus.INVALID_CONTENT)
+    }
+
+    return this._assertIsValidJson(config)
+  }
+
+  private async _validateModulesConfig(config: string, location: string, botId: string | undefined) {
     const deconstructedPath = location.split(path.sep).filter(x => !!x)
     const [dirName, fileName] = deconstructedPath
 
@@ -142,6 +158,9 @@ export default class Editor {
 
     if (!fileIsInConfig || !fileIsOfDepthOne || !fileExists) {
       throw new EditorError(`Invalid location for a module config file: ${location}`, EditorErrorStatus.INVALID_NAME)
+    }
+    if (botId) {
+      throw new EditorError(`Can't save a global config file with a bot id`, EditorErrorStatus.INVALID_CONTENT)
     }
 
     return this._assertIsValidJson(config)
@@ -193,11 +212,11 @@ export default class Editor {
 
     const { location, content, hookType, type } = file
 
+    const ghost = this._getGhost(file)
     if (type === 'action') {
-      return this._getGhost(file).upsertFile('/actions', location, content, true, true)
+      return ghost.upsertFile('/actions', location, content, true, true)
     }
 
-    const ghost = this.bp.ghost.forGlobal()
     if (type === 'hook') {
       return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content, true, true)
     }

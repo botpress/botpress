@@ -19,6 +19,8 @@ import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
 import style from './style.scss'
 
+const toastMutex: _.Dictionary<boolean> = {}
+
 const FlowToaster = Toaster.create({
   position: Position.TOP
 })
@@ -81,12 +83,7 @@ class FlowBuilder extends Component<Props, State> {
         status === 403
           ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
           : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
-      FlowToaster.show({
-        message,
-        intent: Intent.DANGER,
-        timeout: 0,
-        onDismiss: this.props.clearErrorSaveFlows
-      })
+      toast(message, Intent.DANGER, 0, this.props.clearErrorSaveFlows)
     }
 
     const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
@@ -162,6 +159,10 @@ class FlowBuilder extends Component<Props, State> {
       'preview-flow': e => {
         e.preventDefault()
         this.setState({ flowPreview: true })
+      },
+      save: e => {
+        e.preventDefault()
+        toast('Pssst! Flows now save automatically, no need to save anymore.', Intent.PRIMARY, 700)
       }
     }
 
@@ -195,6 +196,23 @@ class FlowBuilder extends Component<Props, State> {
       </Container>
     )
   }
+}
+
+const toast = (message: string, intent: Intent, timeout: number, onDismissCb?: () => void) => {
+  if (toastMutex[message]) {
+    return
+  }
+
+  toastMutex[message] = true
+  FlowToaster.show({
+    message,
+    intent,
+    timeout,
+    onDismiss: () => {
+      toastMutex[message] = false
+      onDismissCb && onDismissCb()
+    }
+  })
 }
 
 const mapStateToProps = (state: RootReducer) => ({
