@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **import:** support zip files & nested archives ([0265d7e](https://github.com/botpress/botpress/commit/0265d7e))
 * **admin:** ui tweaks for bot creation ([2bd9714](https://github.com/botpress/botpress/commit/2bd9714))
 * **admin:** ui tweaks for bot creation ([71ece3d](https://github.com/botpress/botpress/commit/71ece3d))
 * **code-editor:** the ghost for bot config files was global ([ba69875](https://github.com/botpress/botpress/commit/ba69875))
