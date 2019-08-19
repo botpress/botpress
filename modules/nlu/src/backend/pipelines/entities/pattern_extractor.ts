@@ -20,7 +20,7 @@ interface PartOfPhrase {
   lastToken: Token
   value: string
   occ: string
-  distance?: number
+  similarity?: number
 }
 
 export default class PatternExtractor {
@@ -66,17 +66,17 @@ export default class PatternExtractor {
         const partOfPhrase = _.chain(results)
           .map(pop => ({
             ...pop,
-            distance: this.calculateDistance(pop.value, pop.occ, entityDef)
+            similarity: this.calculateSimilarity(pop.value, pop.occ, entityDef)
           }))
-          .maxBy('distance')
+          .maxBy('similarity')
           .value()
 
-        const { distance, lastToken, firstToken, occ } = partOfPhrase
+        const { similarity, lastToken, firstToken, occ } = partOfPhrase
 
         // if is closer OR if the match found is longer
-        if (distance > highest || (distance === highest && extracted.length < occ.length)) {
+        if (similarity > highest || (similarity === highest && extracted.length < occ.length)) {
           extracted = occ
-          highest = distance
+          highest = similarity
           currentFirstToken = firstToken
           currentLastToken = lastToken
           source = ds.sanitizedText.substring(firstToken.start, lastToken.end)
@@ -177,13 +177,13 @@ export default class PatternExtractor {
     return [{ firstToken, lastToken, value: partOfPhrase, occ }]
   }
 
-  private calculateDistance(a: string, b: string, { fuzzy }: sdk.NLU.EntityDefinition): number {
+  private calculateSimilarity(a: string, b: string, { fuzzy }: sdk.NLU.EntityDefinition): number {
     return fuzzy && sanitize(a.toLowerCase()).length > MIN_LENGTH_FUZZY_MATCH
-      ? this.calculateFuzzyDistance(a, b)
-      : this.calculateExactDistance(a, b)
+      ? this.calculateFuzzySimilarity(a, b)
+      : this.calculateExactSimilarity(a, b)
   }
 
-  private calculateExactDistance(a: string, b: string): number {
+  private calculateExactSimilarity(a: string, b: string): number {
     const strippedPop = sanitize(a.toLowerCase())
     const strippedOcc = sanitize(b.toLowerCase())
     if (strippedPop.length && strippedOcc.length) {
@@ -192,22 +192,22 @@ export default class PatternExtractor {
     return 0
   }
 
-  private calculateFuzzyDistance(a: string, b: string): number {
-    let distance = 0.0
+  private calculateFuzzySimilarity(a: string, b: string): number {
+    let similarity = 0.0
 
     const d1 = this.toolkit.Strings.computeLevenshteinDistance(a, b)
     const d2 = this.toolkit.Strings.computeJaroWinklerDistance(a, b, { caseSensitive: true })
 
     // TODO: find a more robust logic. Their might be a case where Levenshtein is more accurate than Jaro-Winkler
-    distance = Math.min(d1, d2)
+    similarity = Math.min(d1, d2)
 
     const diffLen = Math.abs(a.length - b.length)
     if (diffLen <= 3) {
       // gives a chance to small differences in length: "apple" vs "apples,". Both distances functions are already normalized in domain [0, 1]
-      distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
+      similarity = Math.min(1, similarity * (0.1 * (4 - diffLen) + 1))
     }
 
-    return distance
+    return similarity
   }
 
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {

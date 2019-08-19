@@ -1,5 +1,5 @@
 /**
- * Returns the levenshtein similitude between two strings
+ * Returns the levenshtein similarity between two strings
  * @returns the proximity between 0 and 1, where 1 is very close
  */
 export default (a: string, b: string): number => {
