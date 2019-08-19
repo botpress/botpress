@@ -1,9 +1,10 @@
 import _ from 'lodash'
-import { NodeJSON, Value, ValueJSON } from 'slate'
+import { Block, NodeJSON, NodeProperties, Value, ValueJSON } from 'slate'
 
 // TODO add typings for this
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
+export const SLOT_MARK = 'slotName'
 
 // exported for testing purposes
 export const extractSlots = (utterance: string): RegExpExecArray[] => {
@@ -29,7 +30,7 @@ const textNodeFromSlotMatch = (match: RegExpExecArray) => ({
     {
       object: 'mark',
       type: 'slot',
-      data: { slotName: match[2] }
+      data: { [SLOT_MARK]: match[2] }
     }
   ]
 })
@@ -88,11 +89,15 @@ export const valueToUtterances = value => {
   return value
     .getIn(['document', 'nodes'])
     .map(block =>
-      block.nodes.reduce((utt, node) => {
-        const value = node.get('text')
+      block.nodes.reduce((utt: string, node, idx: number) => {
+        let value = node.get('text')
         if (node.marks.size > 0) {
-          const slot = node.marks.first().data.get('slotName')
+          const slot = node.marks.first().data.get(SLOT_MARK)
           return `${utt}[${value}](${slot})`
+        }
+
+        if (idx + 1 >= block.nodes.size) {
+          value = value.trimEnd()
         }
 
         return `${utt}${value}`

@@ -61,11 +61,7 @@ export class UtterancesEditor extends React.Component<Props> {
       const marks = doc.getActiveMarksAtRange(editor.value.selection)
 
       if (marks.size) {
-        event.preventDefault()
-        return editor
-          .moveToEndOfText()
-          .moveForward()
-          .insertBlock('paragraph')
+        editor = editor.moveToEndOfText().moveForward()
       }
     }
 
@@ -166,12 +162,12 @@ export class UtterancesEditor extends React.Component<Props> {
 
   dispatchChanges = _.debounce(value => {
     this.props.onChange(valueToUtterances(value))
-  }, 3000)
+  }, 2500)
 
   dispatchNeeded = operations => {
     return operations
       .map(x => x.get('type'))
-      .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark'].includes(x)).size
+      .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark', 'split_node'].includes(x)).size
   }
 
   onChange = ({ value, operations }) => {
@@ -213,7 +209,7 @@ export class UtterancesEditor extends React.Component<Props> {
     const isWrong = utteranceIdx < this.utteranceKeys.length - 1 && isEmpty
 
     const elementCx = classnames(style.utterance, {
-      [style.title]: node.type === 'title',
+      [style.title]: node.type === 'title' && utteranceIdx == 0,
       [style.active]: props.isFocused,
       [style.wrong]: isWrong
     })

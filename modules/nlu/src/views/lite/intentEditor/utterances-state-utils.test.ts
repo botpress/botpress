@@ -45,7 +45,7 @@ const A_SLATE_VALUE = {
         nodes: [
           {
             object: 'text',
-            text: 'Fly me somewhere',
+            text: 'Fly me somewhere  ',
             marks: []
           }
         ]
