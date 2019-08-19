@@ -127,7 +127,57 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       expect(entities[3].meta.end).toEqual(139)
       expect(entities[3].meta.source).toEqual('BMW!')
       expect(entities[3].data.value).toEqual('BMW')
-    })
+    }),
+      test('Extract fuzzier list entities', async () => {
+        const entityDef = {
+          id: '_',
+          name: 'Oeufs',
+          type: 'list',
+          fuzzy: true,
+          occurences: [
+            {
+              name: 'mirroirs',
+              synonyms: []
+            },
+            {
+              name: 'brouillés',
+              synonyms: []
+            },
+            {
+              name: "dans l'trou",
+              synonyms: []
+            },
+            {
+              name: 'omelette',
+              synonyms: []
+            },
+            {
+              name: 'au fromage',
+              synonyms: []
+            }
+          ]
+        } as sdk.NLU.EntityDefinition
+
+        const userInput =
+          "J'aime les oeufs bourille, les oeufs au miroirr, les oeufs dan ltrou, les omelets et les oeufs au fomage"
+
+        const extractor = new PatternExtractor(Toolkit, languageProvider)
+
+        const sanitized = userInput.replace('\n', '')
+        // TODO: Extract & expose DS-building logic as helper method
+        const ds = initNLUStruct(sanitized, [], ['global'])
+        ds.sanitizedText = sanitized
+        ds.sanitizedLowerText = sanitized.toLowerCase()
+        const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
+        ds.tokens = makeTokens(stringTokens, sanitized)
+
+        const entities = await extractor.extractLists(ds, [entityDef])
+
+        console.log(entities)
+
+        expect(entities.length).toEqual(5)
+        expect(_.uniq(entities.map(e => e.data.value)).length).toEqual(5)
+      })
 
     test('Extract exact list entities', async () => {
       const entityDef = {
