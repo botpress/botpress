@@ -88,26 +88,29 @@ describe('Slate nodes from utterance', () => {
     expect(nodes[1].marks.length).toEqual(0)
   })
   test('Slot middle', () => {
-    const nodes = textNodesFromUtterance('My name is [Heizenberg](me) and I AM DANGER')
+    const nodes = textNodesFromUtterance('My name is [Heizenberg](me) and I AM DANGER', 42)
     expect(nodes.length).toEqual(3)
     expect(nodes[0].text).toEqual('My name is ')
     expect(nodes[0].marks.length).toEqual(0)
     expect(nodes[1].text).toEqual('Heizenberg')
     expect(nodes[1].marks[0].data.slotName).toEqual('me')
+    expect(nodes[1].marks[0].data.utterance).toEqual(42)
     expect(nodes[2].text).toEqual(' and I AM DANGER')
     expect(nodes[2].marks.length).toEqual(0)
   })
   test('Slot end', () => {
-    const nodes = textNodesFromUtterance('My name is [Heizenberg](me)')
+    const nodes = textNodesFromUtterance('My name is [Heizenberg](me)', 10)
     expect(nodes.length).toEqual(2)
     expect(nodes[0].text).toEqual('My name is ')
     expect(nodes[0].marks.length).toEqual(0)
     expect(nodes[1].text).toEqual('Heizenberg')
     expect(nodes[1].marks[0].data.slotName).toEqual('me')
+    expect(nodes[1].marks[0].data.utterance).toEqual(10)
   })
   test('Slots everywhere', () => {
     const nodes = textNodesFromUtterance(
-      'Just because you shot [Jesse James](target), don’t make you [Jesse James](you), man.'
+      'Just because you shot [Jesse James](target), don’t make you [Jesse James](you), man.',
+      0
     )
 
     expect(nodes.length).toEqual(5)
@@ -115,10 +118,12 @@ describe('Slate nodes from utterance', () => {
     expect(nodes[0].marks.length).toEqual(0)
     expect(nodes[1].text).toEqual('Jesse James')
     expect(nodes[1].marks[0].data.slotName).toEqual('target')
+    expect(nodes[1].marks[0].data.utterance).toEqual(0)
     expect(nodes[2].text).toEqual(', don’t make you ')
     expect(nodes[2].marks.length).toEqual(0)
     expect(nodes[3].text).toEqual('Jesse James')
     expect(nodes[3].marks[0].data.slotName).toEqual('you')
+    expect(nodes[3].marks[0].data.utterance).toEqual(0)
     expect(nodes[4].text).toEqual(', man.')
     expect(nodes[4].marks.length).toEqual(0)
   })

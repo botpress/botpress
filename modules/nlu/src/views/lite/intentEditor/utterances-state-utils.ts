@@ -1,5 +1,6 @@
+import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
-import { Block, NodeJSON, NodeProperties, Value, ValueJSON } from 'slate'
+import { Block, Data, MarkJSON, NodeJSON, NodeProperties, Value, ValueJSON } from 'slate'
 
 // TODO add typings for this
 
@@ -23,25 +24,19 @@ const textNodeFromText = (text: string, from: number, to: number | undefined = u
   marks: []
 })
 
-const textNodeFromSlotMatch = (match: RegExpExecArray) => ({
+const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number) => ({
   object: 'text',
   text: match[1],
-  marks: [
-    {
-      object: 'mark',
-      type: 'slot',
-      data: { [SLOT_MARK]: match[2] }
-    }
-  ]
+  marks: [makeSlotMark(match[2], utteranceIdx)]
 })
 
-export const textNodesFromUtterance = (utterance: string) => {
+export const textNodesFromUtterance = (utterance: string, idx: number = 0) => {
   const slotMatches = extractSlots(utterance)
   let cursor = 0
 
   const nodes = _.chain(slotMatches)
     .flatMap(match => {
-      const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match)]
+      const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx)]
       cursor = match.index + match[0].length // index is stateful since its a general regex
       return parts
     })
@@ -68,13 +63,13 @@ export const utterancesToValue = (utterances: string[], selection = undefined) =
           object: 'block',
           type: 'title',
           data: {},
-          nodes: textNodesFromUtterance(summary)
+          nodes: textNodesFromUtterance(summary, 0)
         },
-        ...rest.map(text => ({
+        ...rest.map((text: string, i: number) => ({
           object: 'block',
           type: 'paragraph',
           data: {},
-          nodes: textNodesFromUtterance(text)
+          nodes: textNodesFromUtterance(text, i + 1)
         }))
       ] as NodeJSON[]
     }
@@ -118,3 +113,9 @@ export const renameSlotInUtterances = (utterances: string[], prevSlotName: strin
 
   return utterances.map(u => u.replace(regex, `[$1](${newSlotName})`))
 }
+
+export const makeSlotMark = (slotName: string, utteranceIdx: number): MarkJSON => ({
+  object: 'mark',
+  type: 'slot',
+  data: Data.fromJSON({ [SLOT_MARK]: slotName, utteranceIdx })
+})
