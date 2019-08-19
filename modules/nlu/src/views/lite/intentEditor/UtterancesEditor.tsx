@@ -93,6 +93,15 @@ export class UtterancesEditor extends React.Component<Props> {
     return next()
   }
 
+  onBlur = (event, editor: CoreEditor, next) => {
+    const newUtts = valueToUtterances(editor.value)
+    if (!_.isEqual(this.props.utterances, newUtts)) {
+      this.props.onChange(newUtts)
+    }
+
+    this.hideSlotPopover(next)
+  }
+
   render() {
     return (
       <Editor
@@ -103,6 +112,7 @@ export class UtterancesEditor extends React.Component<Props> {
         renderBlock={this.renderBlock}
         onKeyDown={this.onKeyDown}
         onChange={this.onChange}
+        onBlur={this.onBlur}
       />
     )
   }
@@ -233,11 +243,11 @@ export class UtterancesEditor extends React.Component<Props> {
     this.setState({ showSlotMenu: true })
   }, 150)
 
-  hideSlotPopover = () => {
+  hideSlotPopover = (cb = () => {}) => {
     this.showSlotPopover.cancel()
 
     if (this.state.showSlotMenu) {
-      this.setState({ showSlotMenu: false })
+      this.setState({ showSlotMenu: false }, cb)
     }
   }
 
