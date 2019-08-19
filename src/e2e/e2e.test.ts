@@ -7,13 +7,14 @@ describe('Integration Tests', () => {
   const EMAIL = 'admin'
   const PASSWORD = '1234qwer'
   const BOT_ID = 'test-bot'
-  const BASE_URL = `http://localhost:3000/studio/${BOT_ID}`
+  const HOST = 'http://localhost:3000'
+  const BASE_URL = `${HOST}/studio/${BOT_ID}`
 
   let page: Page
 
   beforeAll(async () => {
     page = await getPage()
-    await page.goto('http://localhost:3000')
+    await page.goto(HOST)
   })
 
   describe('Admin', () => {
@@ -35,7 +36,7 @@ describe('Integration Tests', () => {
 
     it('loads workspaces page', async () => {
       await page.waitForNavigation()
-      await expect(page.url()).toMatch('http://localhost:3000/admin/workspace/bots')
+      await expect(page.url()).toMatch(`${HOST}/admin/workspace/bots`)
     })
 
     it('creates a bot', async () => {
@@ -46,7 +47,7 @@ describe('Integration Tests', () => {
       await expectPuppeteer(page).toFill('#select-bot-templates', 'Welcome Bot')
       await page.keyboard.press('Enter')
       await expectPuppeteer(page).toClick('#btn-modal-create-bot')
-      await page.waitForRequest('http://localhost:3000/api/v1/admin/bots')
+      await page.waitForRequest(`${HOST}/api/v1/admin/bots`)
     })
   })
 
@@ -83,7 +84,6 @@ describe('Integration Tests', () => {
 
     it('loads testing', async () => {
       const url = `${BASE_URL}/testing`
-      await page.goto(url)
       await expect(page.url()).toMatch(url)
     })
 
@@ -95,6 +95,8 @@ describe('Integration Tests', () => {
 
     it('chat in the emulator', async () => {
       await page.keyboard.press('e')
+      page.frames()
+      // This selector doesn't work
       await expectPuppeteer(page).toFill(
         '#app > div > div:nth-child(1) > div.bpw-layout.bpw-chat-container.bpw-anim-none > div.bpw-msg-list-container > div.bpw-keyboard > div.bpw-composer > div > textarea',
         'much automated!'
@@ -110,11 +112,11 @@ describe('Integration Tests', () => {
         await dialog.accept()
       })
 
-      await page.goto('http://localhost:3000/admin/workspace/bots')
+      await page.goto(`${HOST}/admin/workspace/bots`)
       // Assumes theres only 1 bot, otherwise this will fail
       await expectPuppeteer(page).toClick('#toggle-menu')
       await expectPuppeteer(page).toClick('#dropdown-delete-bot')
-      await page.waitForRequest('http://localhost:3000/api/v1/admin/bots')
+      await page.waitForRequest(`${HOST}/api/v1/admin/bots`)
     })
   })
 })
