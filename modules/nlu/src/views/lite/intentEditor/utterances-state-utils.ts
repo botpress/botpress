@@ -98,6 +98,7 @@ export const valueToUtterances = value => {
         return `${utt}${value}`
       }, '')
     )
+    .filter(_.identity)
     .toJS()
 }
 
