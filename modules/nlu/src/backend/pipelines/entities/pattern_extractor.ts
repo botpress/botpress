@@ -198,10 +198,13 @@ export default class PatternExtractor {
     const d1 = this.toolkit.Strings.computeLevenshteinDistance(a, b)
     const d2 = this.toolkit.Strings.computeJaroWinklerDistance(a, b, { caseSensitive: true })
 
+    // TODO: find a more robust logic. Their might be a case where Levenshtein is more accurate than Jaro-Winkler
     distance = Math.min(d1, d2)
+
     const diffLen = Math.abs(a.length - b.length)
     if (diffLen <= 3) {
-      distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1)) // gives a chance to small differences in length: "apple" vs "apples,". Both distances functions are already normalized in domain [0, 1]
+      // gives a chance to small differences in length: "apple" vs "apples,". Both distances functions are already normalized in domain [0, 1]
+      distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
     }
 
     return distance

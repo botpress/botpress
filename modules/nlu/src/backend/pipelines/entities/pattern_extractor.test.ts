@@ -160,23 +160,54 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
 
         const userInput =
           "J'aime les oeufs bourille, les oeufs au miroirr, les oeufs dan ltrou, les omelets et les oeufs au fomage"
+        //                  xxxxxxxxx              xxxxxxxx           xxxxxxxxxx     xxxxxxx              xxxxxxxxx
+        // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123
+        // 00        10        20        30        40        50        60        70        80        90        100
 
         const extractor = new PatternExtractor(Toolkit, languageProvider)
 
         const sanitized = userInput.replace('\n', '')
-        // TODO: Extract & expose DS-building logic as helper method
         const ds = initNLUStruct(sanitized, [], ['global'])
         ds.sanitizedText = sanitized
         ds.sanitizedLowerText = sanitized.toLowerCase()
         const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
         ds.tokens = makeTokens(stringTokens, sanitized)
 
-        const entities = await extractor.extractLists(ds, [entityDef])
+        let entities = await extractor.extractLists(ds, [entityDef])
 
-        console.log(entities)
+        entities = _.orderBy(entities, ['meta.start'], ['asc'])
 
         expect(entities.length).toEqual(5)
-        expect(_.uniq(entities.map(e => e.data.value)).length).toEqual(5)
+
+        expect(entities[0].name).toEqual('Oeufs')
+        expect(entities[0].meta.start).toEqual(17)
+        expect(entities[0].meta.end).toEqual(26)
+        expect(entities[0].meta.source).toEqual('bourille,') // the comma "," is just because this test uses a whitespace tokenizer :S
+        expect(entities[0].data.value).toEqual('brouillés')
+
+        expect(entities[1].name).toEqual('Oeufs')
+        expect(entities[1].meta.start).toEqual(40)
+        expect(entities[1].meta.end).toEqual(48)
+        expect(entities[1].meta.source).toEqual('miroirr,')
+        expect(entities[1].data.value).toEqual('mirroirs')
+
+        expect(entities[2].name).toEqual('Oeufs')
+        expect(entities[2].meta.start).toEqual(59)
+        expect(entities[2].meta.end).toEqual(69)
+        expect(entities[2].meta.source).toEqual('dan ltrou,')
+        expect(entities[2].data.value).toEqual("dans l'trou")
+
+        expect(entities[3].name).toEqual('Oeufs')
+        expect(entities[3].meta.start).toEqual(74)
+        expect(entities[3].meta.end).toEqual(81)
+        expect(entities[3].meta.source).toEqual('omelets')
+        expect(entities[3].data.value).toEqual('omelette')
+
+        expect(entities[4].name).toEqual('Oeufs')
+        expect(entities[4].meta.start).toEqual(95)
+        expect(entities[4].meta.end).toEqual(104)
+        expect(entities[4].meta.source).toEqual('au fomage')
+        expect(entities[4].data.value).toEqual('au fromage')
       })
 
     test('Extract exact list entities', async () => {
@@ -312,6 +343,39 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       expect(entities[3].meta.end).toEqual(26)
       expect(entities[3].meta.source).toEqual('one two tree')
       expect(entities[3].data.value).toEqual('one')
+    })
+
+    test('fuzzy match should not be to loose', async () => {
+      const entityDef = {
+        id: '_',
+        name: 'bunchOfChars',
+        type: 'list',
+        fuzzy: true,
+        occurences: [
+          {
+            name: 'aescp',
+            synonyms: ['acspe', 'essacc', 'eascsc']
+          }
+        ]
+      } as sdk.NLU.EntityDefinition
+
+      // Add this to break the test
+      // entityDef.occurences[0].synonyms.push('acczse')
+
+      const userInput = `Can I have access to this ressource`
+
+      const extractor = new PatternExtractor(Toolkit, languageProvider)
+      const sanitized = userInput.replace('\n', '')
+      const ds = initNLUStruct(sanitized, [], ['global'])
+      ds.sanitizedText = sanitized
+      ds.sanitizedLowerText = sanitized.toLowerCase()
+      ds.language = 'en'
+      const [stringTokens] = await languageProvider.tokenize([sanitized], 'en')
+      ds.tokens = makeTokens(stringTokens, sanitized)
+
+      const entities = await extractor.extractLists(ds, [entityDef])
+
+      expect(entities.length).toEqual(0)
     })
   })
 })
