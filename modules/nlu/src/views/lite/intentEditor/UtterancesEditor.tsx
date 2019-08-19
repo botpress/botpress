@@ -3,7 +3,7 @@ import { NLU } from 'botpress/sdk'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { Document, Editor as CoreEditor, Node, Range, Selection, Value } from 'slate'
+import { Document, Editor as CoreEditor, MarkJSON, Node, Range, Selection, Value } from 'slate'
 import { Editor, EditorProps, RenderBlockProps, RenderMarkProps } from 'slate-react'
 import PlaceholderPlugin from 'slate-react-placeholder'
 
@@ -99,7 +99,7 @@ export class UtterancesEditor extends React.Component<Props> {
       this.props.onChange(newUtts)
     }
 
-    this.hideSlotPopover(next)
+    return next()
   }
 
   render() {
@@ -158,7 +158,7 @@ export class UtterancesEditor extends React.Component<Props> {
       }
     })
 
-    const mark = makeSlotMark(slot.name, utterance)
+    const mark = makeSlotMark(slot.name, utterance) as MarkJSON
 
     const marks = (editor.value.get('document') as Document).getActiveMarksAtRange(range)
     if (marks.size) {

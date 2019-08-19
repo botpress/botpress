@@ -114,8 +114,8 @@ export const renameSlotInUtterances = (utterances: string[], prevSlotName: strin
   return utterances.map(u => u.replace(regex, `[$1](${newSlotName})`))
 }
 
-export const makeSlotMark = (slotName: string, utteranceIdx: number): MarkJSON => ({
+export const makeSlotMark = (slotName: string, utteranceIdx: number) => ({
   object: 'mark',
   type: 'slot',
-  data: Data.fromJSON({ [SLOT_MARK]: slotName, utteranceIdx })
+  data: { [SLOT_MARK]: slotName, utteranceIdx }
 })
