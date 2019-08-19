@@ -21,7 +21,7 @@ Notice that without any changes, you will see a **You're all set!** message.
 
 > **Note:** The `BPFS_STORAGE` environment variable must be set to `database` to enable **pushing** to this node.
 
-Please note that `targetDir` and `sourceDir` are relative paths:
+Please note that `targetDir` and `sourceDir` uses relative paths:
 
 ### Pull
 
