@@ -9,9 +9,11 @@
   display: flex;
   justify-content: flex-end;
   flex-grow: 1;
+  min-height: 1px;
   > div:first-child {
+    overflow: auto;
     flex-grow: 1;
-    padding: 10px 25px;
+    padding: 10px 25px 25px 25px;
   }
 }
 
@@ -194,8 +196,9 @@ p.utterance {
 /* ---------- */
 
 .slotSidePanel {
-  width: 300px;
+  max-width: 300px;
   border-left: solid 1px #eee;
+  flex-grow: 0.2;
 }
 
 .centerContainer {
