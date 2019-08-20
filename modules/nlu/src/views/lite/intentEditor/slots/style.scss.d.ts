@@ -9,10 +9,10 @@ interface CssExports {
   'entityLabel': string;
   'entityNameInput': string;
   'link': string;
-  'normalContainer': string;
   'selectionText': string;
   'shortcutLabel': string;
-  'type': string;
+  'slotSidePanel': string;
+  'slotsContainer': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
