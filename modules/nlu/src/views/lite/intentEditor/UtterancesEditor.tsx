@@ -62,6 +62,11 @@ export class UtterancesEditor extends React.Component<Props> {
 
       if (marks.size) {
         editor = editor.moveToEndOfText().moveForward()
+        if (editor.value.selection.anchor.path.get(0) === this.props.utterances.length - 1) {
+          event.preventDefault()
+          editor.insertBlock('paragraph')
+          return
+        }
       }
     }
 
