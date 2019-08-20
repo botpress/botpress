@@ -41,6 +41,8 @@ export type FileChangeAction = 'add' | 'edit' | 'del'
 
 const MAX_GHOST_FILE_SIZE = asBytes('100mb')
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
+const GLOBAL_GHOST_KEY = '__global__'
+const BOTS_GHOST_KEY = '__bots__'
 
 @injectable()
 export class GhostService {
@@ -63,7 +65,11 @@ export class GhostService {
   }
 
   global(): ScopedGhostService {
-    return new ScopedGhostService(
+    if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
+      return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
+    }
+
+    const scopedGhost = new ScopedGhostService(
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
@@ -71,6 +77,9 @@ export class GhostService {
       this.cache,
       this.logger
     )
+
+    this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
+    return scopedGhost
   }
 
   custom(baseDir: string) {
@@ -187,7 +196,21 @@ export class GhostService {
   }
 
   bots(): ScopedGhostService {
-    return new ScopedGhostService(`./data/bots`, this.diskDriver, this.dbDriver, this.enabled, this.cache, this.logger)
+    if (this._scopedGhosts.has(BOTS_GHOST_KEY)) {
+      return this._scopedGhosts.get(BOTS_GHOST_KEY)!
+    }
+
+    const scopedGhost = new ScopedGhostService(
+      `./data/bots`,
+      this.diskDriver,
+      this.dbDriver,
+      this.enabled,
+      this.cache,
+      this.logger
+    )
+
+    this._scopedGhosts.set(BOTS_GHOST_KEY, scopedGhost)
+    return scopedGhost
   }
 
   forBot(botId: string): ScopedGhostService {
