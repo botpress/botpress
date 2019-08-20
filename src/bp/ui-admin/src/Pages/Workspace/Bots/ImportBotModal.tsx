@@ -123,7 +123,7 @@ class ImportBotModal extends Component<Props, State> {
               label="Bot Archive"
               labelInfo="*"
               labelFor="archive"
-              helperText="File must be compressed using tar-gzip (.tgz)"
+              helperText="File must be a valid .zip or .tgz archive"
             >
               <FileInput
                 tabIndex={2}

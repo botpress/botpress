@@ -159,7 +159,8 @@ const popHistory = stackName => state => {
     return state
   }
   const currentSnapshot = state[stackName][0]
-  return {
+
+  const newState = {
     ...state,
     currentSnapshot,
     currentFlow: currentSnapshot.currentFlow,
@@ -167,6 +168,12 @@ const popHistory = stackName => state => {
     flowsByName: currentSnapshot.flowsByName,
     [stackName]: state[stackName].slice(1),
     [oppositeStack]: [state.currentSnapshot, ...state[oppositeStack]]
+  }
+  const currentHashes = computeFlowsHash(newState)
+
+  return {
+    ...newState,
+    currentHashes
   }
 }
 

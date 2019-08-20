@@ -173,11 +173,13 @@ export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
   await updateCurrentFlow(payload, state)
+  await createNewFlows(state)
 })
 
 export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
   await updateCurrentFlow(payload, state)
+  await createNewFlows(state)
 })
 
 export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
@@ -305,11 +307,15 @@ export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 
 export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
   await updateCurrentFlow(payload, state)
+  await createNewFlows(state)
+})
+
+const createNewFlows = async state => {
   const newFlows: string[] = getNewFlows(state)
   for (const newFlow of newFlows) {
     await FlowsAPI.createFlow(state.flows, newFlow)
   }
-})
+}
 
 export const insertNewSkillNode = wrapAction(requestInsertNewSkillNode, updateCurrentFlow)
 

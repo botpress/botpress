@@ -97,6 +97,7 @@ class BPFS {
   async pushChanges() {
     const useForce = process.argv.includes('--force')
     const dryRun = process.argv.includes('--dry')
+    const keepRevisions = process.argv.includes('--keep-revisions')
 
     if (!fse.existsSync(this.sourceDir)) {
       this._endWithError(`Specified folder "${this.sourceDir}" doesn't exist.`)
@@ -125,6 +126,11 @@ class BPFS {
         console.log(chalk.blue(`Pushing local changes to ${this.serverUrl}... ${useForce ? '(using --force)' : ''}`))
 
         await axiosClient.post('update', archive)
+
+        if (!keepRevisions) {
+          await this._clearRevisions(this.sourceDir)
+        }
+
         console.log(chalk.green(`Successfully pushed ${localFiles.length} local files to remote server!`))
       } else {
         this._printOutOfSync()
@@ -135,6 +141,15 @@ class BPFS {
       const error = err.response ? `${err.response.statusText} (${err.response.status})` : err.message
       this._endWithError(`Could not push changes: ${error}`)
     }
+  }
+
+  private async _clearRevisions(directory: string) {
+    return Promise.fromCallback(cb =>
+      glob('**/revisions.json', { cwd: directory }, (err, files) => {
+        files.map(f => fse.removeSync(path.resolve(directory, f)))
+        cb(err)
+      })
+    )
   }
 
   private async _filesCount(directory: string): Promise<number> {

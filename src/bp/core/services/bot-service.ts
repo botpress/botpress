@@ -12,6 +12,7 @@ import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
+import glob from 'glob'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -244,7 +245,9 @@ export class BotService {
           to: `/bots/${botId}/`
         })
 
-        await this.ghostService.forBot(botId).importFromDirectory(tmpDir.name)
+        const folder = await this._validateBotArchive(tmpDir.name)
+        await this.ghostService.forBot(botId).importFromDirectory(folder)
+
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
           pipeline_status: {
@@ -271,6 +274,17 @@ export class BotService {
     } finally {
       tmpDir.removeCallback()
     }
+  }
+
+  private async _validateBotArchive(directory: string): Promise<string> {
+    const configFile = await Promise.fromCallback<string[]>(cb => glob('**/bot.config.json', { cwd: directory }, cb))
+    if (configFile.length > 1) {
+      throw new InvalidOperationError(`Bots must be imported in separate archives`)
+    } else if (configFile.length !== 1) {
+      throw new InvalidOperationError(`The archive doesn't seems to contain a bot`)
+    }
+
+    return path.join(directory, path.dirname(configFile[0]))
   }
 
   private async _migrateBotContent(botId: string): Promise<void> {
