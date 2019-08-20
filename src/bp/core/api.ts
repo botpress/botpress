@@ -23,7 +23,6 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
 import { KeyValueStore } from './services/kvs'
-import { KvsService } from './services/kvs/service'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
@@ -133,11 +132,11 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot(botId: string): KvsService {
-      return new KvsService(kvs, botId)
+    forBot(botId: string): sdk.KvsService {
+      return kvs.forBot(botId)
     },
-    global(): KvsService {
-      return new KvsService(kvs)
+    global(): sdk.KvsService {
+      return kvs.global()
     },
     async get(botId: string, key: string, path?: string): Promise<any> {
       return kvs.get(botId, key, path)
