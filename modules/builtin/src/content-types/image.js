@@ -115,9 +115,7 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api') {
-    return render(data)
-  } else if (channel === 'messenger') {
+  if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'telegram') {
     return renderTelegram(data)
@@ -125,9 +123,9 @@ function renderElement(data, channel) {
     return renderSlack(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
+  } else {
+    return render(data)
   }
-
-  return [] // TODO Handle channel not supported
 }
 
 module.exports = {
