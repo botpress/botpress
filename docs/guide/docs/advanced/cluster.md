@@ -44,7 +44,7 @@ docker run -d \
 -v botpress_data:/botpress/data \
 -e PRO_ENABLED=true \
 -e CLUSTER_ENABLED=true \
--e BPFS_STORAGE=database=true \
+-e BPFS_STORAGE=database \
 -e BP_LICENSE_KEY=<license_key> \
 -e EXTERNAL_URL=<public_url> \
 -e REDIS_URL=redis://host:port \

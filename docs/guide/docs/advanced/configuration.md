@@ -124,8 +124,7 @@ Botpress supports `.env` files, so you don't have to set them everytime you star
 | PORT                 | Sets the port that Botpress will listen to                                          | 3000             |
 | BP_HOST              | The host to check for incoming connections                                          | localhost        |
 | EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.   | http://HOST:PORT |
-| DATABASE             | The database type to use. `postgres` or `sqlite`                                    | sqlite           |
-| DATABASE_URL         | Full connection string to connect to the DB                                         | -                |
+| DATABASE_URL         | Full connection string to connect to the DB. For postgres, start with `postgres://` | -                |
 | BP_PRODUCTION        | Sets Botpress in production mode. This has the same effect as starting it with `-p` | false            |
 | BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)          | disk             |
 | PRO_ENABLED          | Enables the pro version of Botpress, the license key will be required               | false            |
