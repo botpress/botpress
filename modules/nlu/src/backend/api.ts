@@ -147,8 +147,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  // TODO use this in UI
-  router.put('/intents/:id/utterances', async (req, res) => {
+  router.put('/intents/:id', async (req, res) => {
     const { botId, id } = req.params
     const { lang, utterances } = req.body
     const botEngine = nlus[botId] as ScopedEngine
