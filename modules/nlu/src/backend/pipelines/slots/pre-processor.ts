@@ -23,7 +23,7 @@ export function keepNothing(text: string): string {
 export function getKnownSlots(
   text: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
-  logger: sdk.Logger
+  logger?: sdk.Logger
 ): KnownSlot[] {
   const slots = [] as KnownSlot[]
   const localSlotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
@@ -42,7 +42,7 @@ export function getKnownSlots(
       removedChars += rawMatch.length - source.length
       slots.push({ ...slotDef, start, end: start + source.length, source })
     } else {
-      logger.warn(`A slot was found for utterance: ${text} but was not found in slot definitions.`)
+      logger && logger.warn(`A slot was found for utterance: ${text} but was not found in slot definitions.`)
     }
   }
 

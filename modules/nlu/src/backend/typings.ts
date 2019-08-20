@@ -36,6 +36,14 @@ export interface KnownSlot extends sdk.NLU.SlotDefinition {
   source: string
 }
 
+export interface SlotValidation extends KnownSlot {
+  isValidEntity: boolean
+}
+
+export interface IntentValidation {
+  [utterance: string]: SlotValidation[]
+}
+
 export type EngineByBot = { [botId: string]: Engine }
 
 export interface Engine {
@@ -46,6 +54,7 @@ export interface Engine {
 
 export interface EntityExtractor {
   extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
+  validate(entity: sdk.NLU.EntityDefinition, input: string, lang: string): Promise<boolean>
 }
 
 export interface SlotExtractor {

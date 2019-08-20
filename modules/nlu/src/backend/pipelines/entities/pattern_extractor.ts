@@ -32,6 +32,16 @@ export default class PatternExtractor {
     return _.orderBy(entities, ['meta.confidence'], ['desc'])
   }
 
+  public async validateListEntityOccurence(entity: sdk.NLU.EntityDefinition, occurence: string): Promise<boolean> {
+    return _.flatMap(entity.occurences, o => [o.name, ...o.synonyms]).includes(occurence)
+  }
+
+  public async validatePatternEntityOccurence(entity: sdk.NLU.EntityDefinition, occurence: string): Promise<boolean> {
+    const regex = new RegExp(entity.pattern!, 'i')
+    const res = regex.exec(occurence)
+    return !!(res && res.length)
+  }
+
   protected async _extractEntitiesFromOccurence(
     ds: NLUStructure,
     occurence: sdk.NLU.EntityDefOccurence,

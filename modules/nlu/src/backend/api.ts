@@ -233,4 +233,17 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const engine = nlus[req.params.botId] as ScopedEngine
     res.send(engine.getMLRecommendations())
   })
+
+  router.get('/intents/:intent/validation', async (req, res, next) => {
+    const { lang } = req.query
+    if (!lang) {
+      res.sendStatus(400) // Bad request
+      next()
+    }
+
+    const engine = nlus[req.params.botId] as ScopedEngine
+    const intent = await engine.storage.getIntent(req.params.intent)
+    const validation = await engine.validateIntentSlots(intent, lang)
+    res.send(validation)
+  })
 }

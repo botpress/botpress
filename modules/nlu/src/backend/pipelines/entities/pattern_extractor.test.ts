@@ -264,4 +264,74 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       expect(entities[3].data.value).toEqual('one')
     })
   })
+
+  describe('Validate Entities', () => {
+    test('Validate list entities should work fine', async () => {
+      // Arrange
+      const fruitsEntity = {
+        id: '_',
+        name: 'fruits',
+        type: 'list',
+        fuzzy: true,
+        occurences: [
+          {
+            name: 'bananas',
+            synonyms: ['banana']
+          },
+          {
+            name: 'apples',
+            synonyms: ['apple']
+          },
+          {
+            name: 'watermelon',
+            synonyms: ['water melon', 'water-melon', 'melon']
+          }
+        ]
+      } as sdk.NLU.EntityDefinition
+
+      const extractor = new PatternExtractor(Toolkit, languageProvider)
+
+      // Act && Assert
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'banana')).toBeTruthy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'bananas')).toBeTruthy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'apples')).toBeTruthy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'apple')).toBeTruthy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'watermelon')).toBeTruthy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'water melon')).toBeTruthy()
+
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'banane')).toBeFalsy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'bananes')).toBeFalsy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'aples')).toBeFalsy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'aple')).toBeFalsy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'watarmelon')).toBeFalsy()
+      expect(await extractor.validateListEntityOccurence(fruitsEntity, 'watar melon')).toBeFalsy()
+    })
+
+    test('Validate pattern entities should work fine', async () => {
+      // Arrange
+      const pattern = '^123.{5}321$'
+      const patternEntity = {
+        id: '_',
+        name: 'superRegidAdministationPatternThing',
+        type: 'pattern',
+        pattern
+      } as sdk.NLU.EntityDefinition
+
+      const extractor = new PatternExtractor(Toolkit, languageProvider)
+
+      // Act && Assert
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123okoko321')).toBeTruthy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '12312345321')).toBeTruthy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123     321')).toBeTruthy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123.....321')).toBeTruthy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123yeah-321')).toBeTruthy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123-oui-321')).toBeTruthy()
+
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123okok321')).toBeFalsy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123okoko')).toBeFalsy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '123okoko123')).toBeFalsy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, '321okoko321')).toBeFalsy()
+      expect(await extractor.validatePatternEntityOccurence(patternEntity, 'yeahhhh')).toBeFalsy()
+    })
+  })
 })

@@ -22,11 +22,23 @@ import { getHighlightedIntentEntities } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
+import {
+  assignMatchedEntitiesToTokens,
+  generateTrainingSequence,
+  keepNothing,
+  getKnownSlots
+} from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens, SPACE } from './tools/token-utils'
-import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
+import {
+  LanguageProvider,
+  NluMlRecommendations,
+  Token2Vec,
+  TrainingSequence,
+  IntentValidation,
+  KnownSlot
+} from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
 const debug = DEBUG('nlu')
@@ -437,6 +449,51 @@ export default class ScopedEngine implements Engine {
       .createHash('md5')
       .update(JSON.stringify(intents))
       .digest('hex')
+  }
+
+  public async validateIntentSlots(intent: sdk.NLU.IntentDefinition, lang: string): Promise<IntentValidation> {
+    const allAvailableEntities = [
+      ...(await this.storage.getCustomEntities()),
+      ...(await this.storage.getSystemEntities())
+    ]
+
+    const intentValidation = {} as IntentValidation
+
+    for (const utt of intent.utterances[lang]) {
+      intentValidation[utt] = []
+      const slots = getKnownSlots(utt, intent.slots)
+
+      for (const slot of slots) {
+        let isValidEntity = false
+
+        for (const entity of slot.entities) {
+          const entityDef = allAvailableEntities.find(x => x.name === entity)
+          if (!entityDef) {
+            continue
+          }
+
+          if (isValidEntity) {
+            break
+          }
+
+          isValidEntity = await this._validateSlot(entityDef, slot, lang)
+        }
+
+        intentValidation[utt].push({ ...slot, isValidEntity })
+      }
+    }
+
+    return intentValidation
+  }
+
+  private async _validateSlot(entityDef: sdk.NLU.EntityDefinition, slot: KnownSlot, lang: string): Promise<boolean> {
+    if (entityDef.type === 'list') {
+      return await this.entityExtractor.validateListEntityOccurence(entityDef, slot.source)
+    } else if (entityDef.type === 'pattern') {
+      return await this.entityExtractor.validatePatternEntityOccurence(entityDef, slot.source)
+    } else if (entityDef.type === 'system') {
+      return await this.systemEntityExtractor.validate(entityDef, slot.source, lang)
+    }
   }
 
   private _extractEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
