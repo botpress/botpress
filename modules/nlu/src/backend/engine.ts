@@ -562,8 +562,10 @@ export default class ScopedEngine implements Engine {
       debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
+    const threshold = ds.tokens.length > 1 ? 0.5 : 0.3
+
     ds.detectedLanguage = _.get(elected, 'label', 'n/a')
-    ds.language = _.isEmpty(elected) || elected.value < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+    ds.language = _.isEmpty(elected) || elected.value > threshold ? ds.detectedLanguage : this.defaultLanguage
 
     return ds
   }
