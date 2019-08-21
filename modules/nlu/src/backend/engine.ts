@@ -87,10 +87,10 @@ export default class ScopedEngine implements Engine {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
     this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
-    this.hint = new HintService(this.botId, this.storage, this.entityExtractor, this.systemEntityExtractor)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
+    this.hint = new HintService(this.botId, this.storage, this.entityExtractor, this.systemEntityExtractor)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
     for (const lang of this.languages) {
       this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
