@@ -6,6 +6,7 @@ import { IntentValidation, KnownSlot, EntityExtractor, NluMlRecommendations } fr
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 
 import Storage from './storage'
+import _ from 'lodash'
 
 const MIN_NB_UTTERANCES = 3
 const GOOD_NB_UTTERANCES = 10
@@ -31,10 +32,7 @@ export class HintService {
       return
     }
 
-    const allAvailableEntities = [
-      ...(await this.storage.getCustomEntities()),
-      ...(await this.storage.getSystemEntities())
-    ]
+    const allAvailableEntities = await this.storage.getAvailableEntities()
 
     const intentValidation = {} as IntentValidation
 
@@ -48,15 +46,18 @@ export class HintService {
         let isValidEntity = false
 
         for (const entity of slot.entities) {
-          const entityDef = allAvailableEntities.find(x => x.name === entity)
-          if (!entityDef) {
-            continue
+          if (entity === 'any') {
+            isValidEntity = true
+            break
           }
-
           if (isValidEntity) {
             break
           }
 
+          const entityDef = allAvailableEntities.find(x => x.name === entity)
+          if (!entityDef) {
+            continue
+          }
           isValidEntity = await this._validateSlot(entityDef, slot, lang)
         }
 
@@ -67,16 +68,9 @@ export class HintService {
     return intentValidation
   }
 
-  private async _validateSlot(
-    entityDef: sdk.NLU.EntityDefinition,
-    { source }: KnownSlot,
-    lang: string
-  ): Promise<boolean> {
-    const { type, name } = entityDef
-
-    if (name === 'any') {
-      return true
-    }
+  private async _validateSlot(entityDef: sdk.NLU.EntityDefinition, slot: KnownSlot, lang: string): Promise<boolean> {
+    const { type } = entityDef
+    const { source } = slot
     if (type === 'list') {
       return await this.entityExtractor.validateListEntityOccurence(entityDef, source)
     }
