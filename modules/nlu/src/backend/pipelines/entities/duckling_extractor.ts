@@ -66,9 +66,6 @@ https://botpress.io/docs/build/nlu/#system-entities
   }
 
   public async validate(entity: sdk.NLU.EntityDefinition, occurence: string, lang: string): Promise<boolean> {
-    if (entity.name === 'any') {
-      return true
-    }
     const res = await this.extract(occurence, lang)
     return !!res.find(e => e.name === entity.name)
   }

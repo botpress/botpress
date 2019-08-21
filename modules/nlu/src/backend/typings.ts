@@ -41,7 +41,9 @@ export interface SlotValidation extends KnownSlot {
 }
 
 export interface IntentValidation {
-  [utterance: string]: SlotValidation[]
+  [utterance: string]: {
+    slots: SlotValidation[]
+  }
 }
 
 export type EngineByBot = { [botId: string]: Engine }

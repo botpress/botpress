@@ -14,7 +14,6 @@ import {
   PipelineStep2,
   runPipeline
 } from './pipeline-manager'
-import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
 import ExactMatcher from './pipelines/intents/exact_matcher'
 import SVMClassifier from './pipelines/intents/svm_classifier'
@@ -22,24 +21,14 @@ import { getHighlightedIntentEntities } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
 import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
-import {
-  assignMatchedEntitiesToTokens,
-  generateTrainingSequence,
-  keepNothing,
-  getKnownSlots
-} from './pipelines/slots/pre-processor'
+import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { makeTokens, mergeSpecialCharactersTokens, SPACE } from './tools/token-utils'
-import {
-  LanguageProvider,
-  NluMlRecommendations,
-  Token2Vec,
-  TrainingSequence,
-  IntentValidation,
-  KnownSlot
-} from './typings'
+import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
+import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
+import { HintService } from './hint'
+import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 
 const debug = DEBUG('nlu')
 const debugExtract = debug.sub('extract')
@@ -47,12 +36,11 @@ const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
 const debugSlots = debugExtract.sub('slots')
 const debugLang = debugExtract.sub('lang')
-const MIN_NB_UTTERANCES = 3
-const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
+  public readonly hint: HintService
   public confidenceTreshold: number = 0.7
 
   private _preloaded: boolean = false
@@ -99,6 +87,7 @@ export default class ScopedEngine implements Engine {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
     this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
+    this.hint = new HintService(this.botId, this.storage, this.entityExtractor, this.systemEntityExtractor)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
@@ -139,13 +128,6 @@ export default class ScopedEngine implements Engine {
 
   protected async getIntents(): Promise<sdk.NLU.IntentDefinition[]> {
     return this.storage.getIntents()
-  }
-
-  public getMLRecommendations(): NluMlRecommendations {
-    return {
-      minUtterancesForML: MIN_NB_UTTERANCES,
-      goodUtterancesForML: GOOD_NB_UTTERANCES
-    }
   }
 
   /**
@@ -245,10 +227,14 @@ export default class ScopedEngine implements Engine {
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
 
+  private get minMlUtterances() {
+    return this.hint.getMLRecommendations().minUtterancesForML
+  }
+
   getTrainingLanguages = (intents: sdk.NLU.IntentDefinition[]) =>
     _.chain(intents)
       .flatMap(intent =>
-        Object.keys(intent.utterances).filter(lang => (intent.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
+        Object.keys(intent.utterances).filter(lang => (intent.utterances[lang] || []).length >= this.minMlUtterances)
       )
       .uniq()
       .value()
@@ -423,7 +409,7 @@ export default class ScopedEngine implements Engine {
 
     for (const lang of this.languages) {
       try {
-        const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
+        const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= this.minMlUtterances)
 
         if (trainableIntents.length) {
           const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
@@ -449,51 +435,6 @@ export default class ScopedEngine implements Engine {
       .createHash('md5')
       .update(JSON.stringify(intents))
       .digest('hex')
-  }
-
-  public async validateIntentSlots(intent: sdk.NLU.IntentDefinition, lang: string): Promise<IntentValidation> {
-    const allAvailableEntities = [
-      ...(await this.storage.getCustomEntities()),
-      ...(await this.storage.getSystemEntities())
-    ]
-
-    const intentValidation = {} as IntentValidation
-
-    for (const utt of intent.utterances[lang]) {
-      intentValidation[utt] = []
-      const slots = getKnownSlots(utt, intent.slots)
-
-      for (const slot of slots) {
-        let isValidEntity = false
-
-        for (const entity of slot.entities) {
-          const entityDef = allAvailableEntities.find(x => x.name === entity)
-          if (!entityDef) {
-            continue
-          }
-
-          if (isValidEntity) {
-            break
-          }
-
-          isValidEntity = await this._validateSlot(entityDef, slot, lang)
-        }
-
-        intentValidation[utt].push({ ...slot, isValidEntity })
-      }
-    }
-
-    return intentValidation
-  }
-
-  private async _validateSlot(entityDef: sdk.NLU.EntityDefinition, slot: KnownSlot, lang: string): Promise<boolean> {
-    if (entityDef.type === 'list') {
-      return await this.entityExtractor.validateListEntityOccurence(entityDef, slot.source)
-    } else if (entityDef.type === 'pattern') {
-      return await this.entityExtractor.validatePatternEntityOccurence(entityDef, slot.source)
-    } else if (entityDef.type === 'system') {
-      return await this.systemEntityExtractor.validate(entityDef, slot.source, lang)
-    }
   }
 
   private _extractEntities = async (ds: NLUStructure): Promise<NLUStructure> => {
