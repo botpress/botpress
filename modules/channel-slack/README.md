@@ -23,13 +23,10 @@
 1. Edit `data/bots/YOUR_BOT_ID/config/channel-slack.json` (or create it) and set
 
 - enabled: Set to `true`
-- signingSecret: Take the value `Signing Secret` on the page **`Basic Information`**
-- botToken: Take the value `Bot User OAuth Access Token` on the page **`OAuth & Permissions`**
+- signingSecret: Take the value `Signing Secret` on the page `Basic Information`
+- botToken: Take the value `Bot User OAuth Access Token` on the page `OAuth & Permissions`
 
 2. Restart Botpress
-
-![botToken](./assets/botToken.png)
-![signingSecret](./assets/secret.png)
 
 ### Configure Callback on Slack
 
