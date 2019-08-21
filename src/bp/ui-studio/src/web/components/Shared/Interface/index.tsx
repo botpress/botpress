@@ -91,6 +91,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup
+          id="input-filter"
           leftIcon={props.icon}
           placeholder={props.placeholder || 'Search'}
           value={text}
@@ -98,6 +99,7 @@ export const SearchBar = (props: SearchBarProps) => {
         />
         {props.showButton && (
           <Button
+            id="btn-search"
             icon={'search'}
             className={Classes.FIXED}
             onClick={e => props.onButtonClick && props.onButtonClick(e)}
