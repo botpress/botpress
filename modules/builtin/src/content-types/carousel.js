@@ -162,15 +162,13 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api' || channel === 'telegram' || channel === 'teams') {
-    return render(data)
-  } else if (channel === 'messenger') {
+  if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else {
+    return render(data)
   }
-
-  return [] // TODO Handle channel not supported
 }
 
 module.exports = {

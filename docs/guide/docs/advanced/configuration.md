@@ -99,33 +99,50 @@ The string `MODULE_ROOT` is a special string that is replaced when your configur
 }
 ```
 
-# Individual Bot Configuration
+## Individual Bot Configuration
 
 Every bot that you create will have its own configuration file. It is located at `data/bots/NAME_OF_BOT/bot.config.json`. Most of the available options can be edited by clicking on the `Config` link next to the bot name on the administration panel.
 
 If you enable additionnal modules that adds other
 
-# Module Configuration
+## Module Configuration
 
 When you enable a module on Botpress, they are available globally, which means that you can't disable or enable them for specific bots. You can, however, use a different configuration for every bots.
 
 Each module has a different set of possible configuration, so we won't go through them here. What you need to know is that when you run a module for the first time, the default configuration will be created in `data/global/config/MODULE_NAME.json`. If you need a special configuration for your bot, create a `config` folder in the bot folder, and copy the file in your bot folder: `data/bots/BOT_NAME/config/MODULE_NAME.json`. You will probably need to create the folder the first time.
 
-# Environment Variables
+## Environment Variables
 
-There are some variables that **cannot be set** in the `botpress.config.json` file. These must be either defined as environment variables, or defined in a `.env` file in the same folder as the Botpress executable.
+Most of these variables can be set in the configuration file `data/global/botpress.config.json`. Infrastructure configuration (like the database, cluster mode, etc) aren't available in the configuration file, since they are required before the config is loaded.
 
-Here there are:
+Botpress supports `.env` files, so you don't have to set them everytime you start the app. Just add the file in the same folder as the executable.
 
-| Environment Variable | Description                                                                                               | Default       |
-| -------------------- | --------------------------------------------------------------------------------------------------------- | ------------- |
-| DATABASE_URL         | Full connection string to connect to the DB                                                               | **see below** |
-| BP_PRODUCTION        | Sets Botpress in production mode (thus enabling Ghost). This has the same effect as starting it with `-p` | false         |
-| CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false         |
-| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)                                | disk          |
-| REDIS_URL            | The connection string to connect to your Redis instance                                                   |               |
+### Common
 
-About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgress url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.
+| Environment Variable | Description                                                                         | Default          |
+| -------------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| PORT                 | Sets the port that Botpress will listen to                                          | 3000             |
+| BP_HOST              | The host to check for incoming connections                                          | localhost        |
+| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.   | http://HOST:PORT |
+| DATABASE_URL         | Full connection string to connect to the DB. For postgres, start with `postgres://` | -                |
+| BP_PRODUCTION        | Sets Botpress in production mode. This has the same effect as starting it with `-p` | false            |
+| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)          | disk             |
+| PRO_ENABLED          | Enables the pro version of Botpress, the license key will be required               | false            |
+| BP_LICENSE_KEY       | Your license key (can also be specified in `botpress.config.json`)                  | -                |
+| CLUSTER_ENABLED      | Enables multi-node support using Redis                                              | false            |
+| REDIS_URL            | The connection string to connect to your Redis instance                             | -                |
+
+### Runtime and Modules
+
+| Environment Variable      | Description                                                                                 | Default |
+| ------------------------- | ------------------------------------------------------------------------------------------- | ------- |
+| VERBOSITY_LEVEL           | Botpress will be more chatty when processing requests. This has the same effects as `-v`    |         |
+| BP_DECISION_MIN_CONFIENCE | Sets the minimum threshold required for the Decision Engine to elect a suggestion           | 0,3     |
+| FAST_TEXT_VERBOSITY       | Define the level of verbosity that FastText will use when training models                   | 0       |
+| FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
+| REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
+
+It is also possible to use environment variables to override module configuration. The pattern is `BP_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`. You can list the available environment variales for each modules by enabling the `DEBUG=bp:configuration:modules:*` flag.
 
 ## More Informations
 
