@@ -353,14 +353,11 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         fuzzy: true,
         occurences: [
           {
-            name: 'aescp',
+            name: 'aecsp',
             synonyms: ['acspe', 'essacc', 'eascsc']
           }
         ]
       } as sdk.NLU.EntityDefinition
-
-      // Add this to break the test
-      // entityDef.occurences[0].synonyms.push('acczse')
 
       const userInput = `Can I have access to this ressource`
 

@@ -8,6 +8,7 @@ import { extractPattern } from '../../tools/patterns-utils'
 import { LanguageProvider, Token } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
+import { SPACE } from '../../tools/token-utils'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
@@ -136,7 +137,7 @@ export default class PatternExtractor {
   }
 
   private extractPartOfPhrase(remainingTokens: Token[], searched: string[]): PartOfPhrase[] {
-    const occ = searched.join('')
+    let occ = searched.join('')
     let firstToken = remainingTokens.shift()
     let lastToken = firstToken
 
@@ -145,6 +146,10 @@ export default class PatternExtractor {
     }
 
     let partOfPhrase: string = firstToken.value
+    if (occ.startsWith(SPACE) && firstToken.value.startsWith(SPACE)) {
+      occ = occ.substr(1)
+      partOfPhrase = partOfPhrase.substr(1)
+    }
 
     if (searched.length > 1) {
       let previous: string
