@@ -88,4 +88,25 @@ createDatabaseSuite('KVS', (database: Database) => {
       })
     })
   })
+
+  describe('global/scoped', () => {
+    test('kvs entries of global and scoped should not interfer', async () => {
+      // Arrange && Act
+      const key = 'gordon-ramsay-favorite-number'
+      await kvs.set('bot1', key, '1')
+      await kvs.global().set(key, '2')
+      await kvs.set('bot1', key, '666')
+      await kvs.set('bot2', key, '69')
+      await kvs.global().set(key, '42')
+
+      const globalActual = await kvs.global().get(key)
+      const bot1Actual = await kvs.get('bot1', key)
+      const bot2actual = await kvs.get('bot2', key)
+
+      // Assert
+      expect(globalActual).toEqual('42')
+      expect(bot1Actual).toEqual('666')
+      expect(bot2actual).toEqual('69')
+    })
+  })
 })
