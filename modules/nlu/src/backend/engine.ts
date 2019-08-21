@@ -565,7 +565,7 @@ export default class ScopedEngine implements Engine {
     }
 
     ds.detectedLanguage = _.get(elected, 'label', 'n/a')
-    ds.language = _.isEmpty(elected) || elected.value < 0.5 ? this.defaultLanguage : ds.detectedLanguage
+    ds.language = _.isEmpty(elected) || elected.value < 0.3 ? this.defaultLanguage : ds.detectedLanguage
 
     return ds
   }
