@@ -18,16 +18,20 @@ export const getTFIDFfeature = async (
   tokenVecCache: Token2Vec,
   language: string
 ): Promise<string> => {
-  let value = tfidf['global'][token]
-  if (!value) {
-    // TODO use vector in token instead
-    const [wordVec] = await languageProvider.vectorize([token], language)
-    const closestTok = await getClosestToken(token, Array.from(wordVec), tokenVecCache)
-    value = tfidf['global'][closestTok]
-  }
+  try {
+    let value = tfidf['global'][token]
+    if (!value) {
+      // TODO use vector in token instead
+      const [wordVec] = await languageProvider.vectorize([token], language)
+      const closestTok = await getClosestToken(token, Array.from(wordVec), tokenVecCache)
+      value = tfidf['global'][closestTok]
+    }
 
-  const third = tierce(value, MAX_TFIDF)
-  return TFIDF_WEIGHTS[third - 1]
+    const third = tierce(value, MAX_TFIDF)
+    return TFIDF_WEIGHTS[third - 1]
+  } catch (err) {
+    return 'low'
+  }
 }
 
 export const getFeaturesPairs = (vec0: string[], vec1: string[], features: string[]) => {

@@ -19,6 +19,17 @@
   display: inline-block;
   font-size: 1.2rem;
 
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+
+  &:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+
   .title {
     width: 100%;
     margin: 2px 0 2px 0;
@@ -30,16 +41,6 @@
     width: 30px;
     height: 30px;
     margin: 1.2rem auto auto auto;
-    cursor: move; /* fallback if grab cursor is unsupported */
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-
-    &:active {
-      cursor: grabbing;
-      cursor: -moz-grabbing;
-      cursor: -webkit-grabbing;
-    }
   }
 }
 

@@ -8,7 +8,6 @@ import monitoring from './monitoring'
 import roles, { RoleState } from './roles'
 import server from './server'
 import user from './user'
-import versioning from './versioning'
 
 export interface AppState {
   roles: RoleState
@@ -17,7 +16,6 @@ export interface AppState {
 
 export default combineReducers<AppState>({
   routing: routerReducer,
-  versioning,
   license,
   bots,
   user,

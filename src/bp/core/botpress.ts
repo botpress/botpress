@@ -120,9 +120,9 @@ export class Botpress {
     this.config = await this.loadConfiguration(true)
 
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
-    await this.migrationService.initialize()
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
+    await this.migrationService.initialize()
     await this.cleanDisabledModules()
     await this.initializeServices()
     await this.checkEditionRequirements()
