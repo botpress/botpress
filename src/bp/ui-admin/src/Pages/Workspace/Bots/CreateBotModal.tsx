@@ -211,6 +211,7 @@ class CreateBotModal extends Component<Props, State> {
             )}
           </div>
           <div className={Classes.DIALOG_FOOTER}>
+            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
                 type="submit"
@@ -219,8 +220,6 @@ class CreateBotModal extends Component<Props, State> {
                 disabled={this.isButtonDisabled}
                 intent={Intent.PRIMARY}
               />
-
-              {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             </div>
           </div>
         </form>
