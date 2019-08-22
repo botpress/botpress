@@ -257,6 +257,7 @@ export default class QnaAdmin extends Component {
             <FormGroup>
               <ControlLabel>JSON file</ControlLabel>
               <FormControl
+                id="input-file"
                 type="file"
                 accept=".json"
                 onChange={e => this.setState({ jsonToUpload: e.target.files[0] })}
@@ -265,6 +266,7 @@ export default class QnaAdmin extends Component {
             </FormGroup>
             <FormGroup>
               <Checkbox
+                id="chk-replace"
                 checked={this.state.isJsonUploadReplace}
                 onChange={e => this.setState({ isJsonUploadReplace: e.target.checked })}
               >
@@ -275,7 +277,12 @@ export default class QnaAdmin extends Component {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.uploadJson} disabled={!Boolean(this.state.jsonToUpload)}>
+          <Button
+            id="btn-upload"
+            bsStyle="primary"
+            onClick={this.uploadJson}
+            disabled={!Boolean(this.state.jsonToUpload)}
+          >
             Upload
           </Button>
         </Modal.Footer>
@@ -335,7 +342,7 @@ export default class QnaAdmin extends Component {
         />
       )}
       <Button
-        id="btn-add"
+        id="btn-create-qna"
         className={style.qnaNavBarAddNew}
         bsStyle="primary"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}

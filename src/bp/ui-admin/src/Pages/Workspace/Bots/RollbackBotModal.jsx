@@ -49,7 +49,8 @@ class RollbackBotModal extends Component {
       )
     ) {
       api
-        .getSecured()
+        //@ts-ignore
+        .getSecured({ timeout: 30000 })
         .post(`/admin/bots/${this.props.botId}/rollback`, { revision: this.state.selectedRev.value })
         .then(() => {
           this.props.onRollbackSuccess && this.props.onRollbackSuccess()

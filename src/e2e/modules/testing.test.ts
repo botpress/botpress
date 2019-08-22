@@ -1,4 +1,5 @@
-import { clickOn, gotoStudio, waitForBotApiCall } from '..'
+import { clickOn } from '../expectPuppeteer'
+import { expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Module - Testing', () => {
   beforeAll(async () => {
@@ -9,6 +10,6 @@ describe('Module - Testing', () => {
 
   it('Load Testing', async () => {
     await clickOn('#bp-menu_testing')
-    await waitForBotApiCall('mod/testing/scenarios')
+    await expectBotApiCallSuccess('mod/testing/scenarios', 'GET')
   })
 })

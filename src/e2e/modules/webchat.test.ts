@@ -1,12 +1,8 @@
-import expectp from 'expect-puppeteer'
 import { Page } from 'puppeteer'
 
-import { clickOn, expectMatch, fillField, getPage, gotoAndExpect } from '..'
 import { bpConfig } from '../../../jest-puppeteer.config'
-
-// Required to ensure the bot has enough time to answer
-// @ts-ignore
-expectp.setDefaultOptions({ timeout: 3000 })
+import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
+import { getPage, gotoAndExpect } from '../utils'
 
 const getMessageCount = async (page: Page): Promise<number> => {
   return (await page.$$('.bpw-chat-bubble')).length
@@ -32,6 +28,7 @@ describe('Module - Channel Web', () => {
   it('Start conversation', async () => {
     await fillField('#input-message', 'Much automated!')
     await clickOn('#btn-send')
+    await page.waitFor(3000) // Deliberate wait in case the model needs to be trained (or qna/nlu tests in progress)
   })
 
   it('Testing Context discussion ', async () => {

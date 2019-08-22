@@ -1,15 +1,14 @@
-import expectp from 'expect-puppeteer'
-
-import { autoAnswerDialog, clickOn, expectAdminApiCallSuccess, expectMatchElement, fillField, gotoAndExpect } from '..'
 import { bpConfig } from '../../../jest-puppeteer.config'
+import { clickOn, expectMatchElement, fillField } from '../expectPuppeteer'
+import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
 
   const clickButtonForBot = async (buttonId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
-    await expectp(botRow).toClick('.more')
-    await expectp(botRow).toClick(buttonId)
+    await clickOn('.more', undefined, botRow)
+    await clickOn(buttonId, undefined, botRow)
   }
 
   beforeAll(async () => {
@@ -40,7 +39,7 @@ describe('Admin - Bot Management', () => {
 
   it('Configure bot', async () => {
     const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
-    await expectp(botRow).toClick('.configBtn')
+    await clickOn('.configBtn', undefined, botRow)
 
     await fillField('#input-name', `${tempBotId} - testing my fabulous bot`)
     await clickOn('#select-status')

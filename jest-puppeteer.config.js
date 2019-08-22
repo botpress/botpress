@@ -6,8 +6,9 @@ const windowSize = {
 module.exports = {
   launch: {
     headless: false,
+    // +20 so it's a bit bigger than the viewport so nothing is cut
     args: [`--window-size=${windowSize.width + 20},${windowSize.height + 20}`]
-    // slowMo: 20 // Set this value to slow down tests globally
+    // slowMo: 40 // Set this value to slow down tests globally
     // devtools: true // Access the dev tools on the headless chrome
   },
   bpConfig: {
@@ -16,12 +17,6 @@ module.exports = {
     password: '123456',
     botId: 'test-bot',
     host: 'http://localhost:3000',
-    recreateBot: true,
-    botApiUrl: `http://localhost:3000/api/v1/bots/test-bot`,
-    // Set this to skip login parts of tests
-    authToken: {
-      token: '',
-      time: '2050-08-21T19:53:41.803Z'
-    }
+    recreateBot: true // When testing something specific, set to false to keep the existing bot
   }
 }

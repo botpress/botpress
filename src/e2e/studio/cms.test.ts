@@ -1,6 +1,7 @@
 import expectp from 'expect-puppeteer'
 
-import { autoAnswerDialog, clickOn, expectBotApiCallSuccess, gotoStudio, waitForBotApiResponse } from '..'
+import { clickOn } from '../expectPuppeteer'
+import { autoAnswerDialog, expectBotApiCallSuccess, gotoStudio, waitForBotApiResponse } from '../utils'
 
 const getElementCount = async (): Promise<number> => {
   return (await page.$$('.icon-edit')).length

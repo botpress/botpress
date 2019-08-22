@@ -1,5 +1,6 @@
-import { clickOn, expectAdminApiCallSuccess, fillField, isLoggedOn, setLoggedOn } from '../'
 import { bpConfig } from '../../../jest-puppeteer.config'
+import { clickOn, fillField } from '../expectPuppeteer'
+import { expectAdminApiCallSuccess } from '../utils'
 
 describe('Admin - Init', () => {
   it('Load Login page', async () => {
@@ -19,7 +20,6 @@ describe('Admin - Init', () => {
   })
 
   it('Load workspaces', async () => {
-    setLoggedOn(true)
     await page.waitForNavigation()
     await page.waitFor(200)
     await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/bots`)

@@ -1,4 +1,5 @@
-import { autoAnswerDialog, clickOn, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio, waitForBotApiCall } from '..'
+import { clickOn } from '../expectPuppeteer'
+import { autoAnswerDialog, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
@@ -14,7 +15,7 @@ describe('Studio - Flows', () => {
   it('Create new flow', async () => {
     autoAnswerDialog('test_flow')
     await clickOn('#btn-add-flow')
-    await waitForBotApiCall('flow')
+    await expectBotApiCallSuccess('flow')
   })
 
   it('Rename flow', async () => {
@@ -22,7 +23,7 @@ describe('Studio - Flows', () => {
     await clickOnTreeNode('test_flow', 'right')
     await clickOn('#btn-rename')
 
-    await waitForBotApiCall('flow/test_flow_renamed.flow.json')
+    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'PUT')
   })
 
   it('Delete flow', async () => {
@@ -30,8 +31,24 @@ describe('Studio - Flows', () => {
     await clickOnTreeNode('test_flow_renamed', 'right')
     await clickOn('#btn-delete')
 
-    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json')
+    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'DELETE')
   })
+
+  it('Duplicate flow', async () => {
+    autoAnswerDialog('new_duplicated_flow')
+    await clickOnTreeNode('memory', 'right')
+    await clickOn('#btn-duplicate')
+
+    await expectBotApiCallSuccess('flow', 'POST')
+    await page.waitFor(3000)
+  })
+
+  // it('Open node properties', async () => {
+  //   const element = await expectMatchElement('.srd-node', { text: 'entry' })
+  //   // console.log(element)
+  //   await clickOn('div', { clickCount: 2 }, element)
+  //   await clickOn('#btn-add-element')
+  // })
 
   // // Not working at the moment (puppetteer issue) - Not generating drag events
   // it('Create new node', async () => {

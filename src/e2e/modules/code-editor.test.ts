@@ -1,13 +1,12 @@
+import { clickOn } from '../expectPuppeteer'
 import {
   autoAnswerDialog,
-  clickOn,
   clickOnTreeNode,
   expectBotApiCallSuccess,
   gotoStudio,
   triggerKeyboardShortcut,
-  waitForBotApiCall,
   waitForBotApiResponse
-} from '..'
+} from '../utils'
 
 const waitForFilesToLoad = async () =>
   await page.waitForFunction(`document.querySelectorAll(".bp3-icon-document").length > 0`)
@@ -21,7 +20,7 @@ describe('Module - Code Editor', () => {
 
   it('Load Code Editor', async () => {
     await clickOn('#bp-menu_code-editor')
-    await waitForBotApiCall('mod/code-editor/files')
+    await expectBotApiCallSuccess('mod/code-editor/files')
   })
 
   it('Create new action', async () => {
@@ -35,7 +34,8 @@ describe('Module - Code Editor', () => {
     await page.keyboard.type(`const lol = 'test' // testing`)
 
     await triggerKeyboardShortcut('KeyS', true)
-    await waitForBotApiCall('mod/code-editor/files')
+    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
+    await expectBotApiCallSuccess('mod/code-editor/files', 'GET')
   })
 
   it('Duplicate action', async () => {
