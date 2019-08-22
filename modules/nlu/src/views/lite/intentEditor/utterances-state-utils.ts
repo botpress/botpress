@@ -24,19 +24,27 @@ const textNodeFromText = (text: string, from: number, to: number | undefined = u
   marks: []
 })
 
-const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number) => ({
+const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number, range: [number, number]) => ({
   object: 'text',
   text: match[1],
-  marks: [makeSlotMark(match[2], utteranceIdx)]
+  marks: [makeSlotMark(match[2], utteranceIdx, range)]
 })
 
 export const textNodesFromUtterance = (utterance: string, idx: number = 0) => {
   const slotMatches = extractSlots(utterance)
   let cursor = 0
+  let removedChars = 0
 
   const nodes = _.chain(slotMatches)
     .flatMap(match => {
-      const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx)]
+      const [rawMatch, source] = match
+
+      // logic copied from getKnownSlots (pre-processor.ts)
+      const start = match.index - removedChars
+      const end = start + source.length
+      removedChars += rawMatch.length - source.length
+
+      const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx, [start, end])]
       cursor = match.index + match[0].length // index is stateful since its a general regex
       return parts
     })
@@ -114,8 +122,8 @@ export const renameSlotInUtterances = (utterances: string[], prevSlotName: strin
   return utterances.map(u => u.replace(regex, `[$1](${newSlotName})`))
 }
 
-export const makeSlotMark = (slotName: string, utteranceIdx: number) => ({
+export const makeSlotMark = (slotName: string, utteranceIdx: number, range: [number, number]) => ({
   object: 'mark',
   type: 'slot',
-  data: { [SLOT_MARK]: slotName, utteranceIdx }
+  data: { [SLOT_MARK]: slotName, utteranceIdx, range }
 })

@@ -1,4 +1,4 @@
-import { Tag } from '@blueprintjs/core'
+import { Icon, Tag } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -6,6 +6,8 @@ import React from 'react'
 import { Document, Editor as CoreEditor, MarkJSON, Node, Range, Selection, Value } from 'slate'
 import { Editor, EditorProps, RenderBlockProps, RenderMarkProps } from 'slate-react'
 import PlaceholderPlugin from 'slate-react-placeholder'
+
+import { IntentValidation, SlotValidation } from '../../../backend/typings'
 
 import style from './style.scss'
 import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances-state-utils'
@@ -27,9 +29,16 @@ interface Props {
   utterances: string[]
   slots: NLU.SlotDefinition[]
   onChange: (x: string[]) => void
+  validation: IntentValidation
 }
 
-export class UtterancesEditor extends React.Component<Props> {
+interface State {
+  selection: any
+  showSlotMenu: boolean
+  value: Value
+}
+
+export class UtterancesEditor extends React.Component<Props, State> {
   state = {
     selection: { utterance: -1, block: -1, from: -1, to: -1 },
     value: utterancesToValue([]),
@@ -46,10 +55,13 @@ export class UtterancesEditor extends React.Component<Props> {
     this.setState({ value })
   }
 
-  componentDidUpdate(prevProps: Props) {
+  async componentDidUpdate(prevProps: Props) {
     if (prevProps.intentName !== this.props.intentName) {
       this.init(this.props.utterances)
-    } else if (!_.isEqual(this.props.utterances, prevProps.utterances)) {
+    } else if (
+      !_.isEqual(this.props.utterances, prevProps.utterances) ||
+      !_.isEqual(prevProps.validation, this.props.validation)
+    ) {
       const value = utterancesToValue(this.props.utterances, this.state.value.get('selection'))
       this.setState({ value })
     }
@@ -163,7 +175,7 @@ export class UtterancesEditor extends React.Component<Props> {
       }
     })
 
-    const mark = makeSlotMark(slot.name, utterance) as MarkJSON
+    const mark = makeSlotMark(slot.name, utterance, [from, to]) as MarkJSON
 
     const marks = (editor.value.get('document') as Document).getActiveMarksAtRange(range)
     if (marks.size) {
@@ -177,10 +189,8 @@ export class UtterancesEditor extends React.Component<Props> {
     this.props.onChange(valueToUtterances(value))
   }, 2500)
 
-  dispatchNeeded = operations => {
-    return operations
-      .map(x => x.get('type'))
-      .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark', 'split_node'].includes(x)).size
+  dispatchNeeded = (operations, triggeringActions: string[]) => {
+    return operations.map(x => x.get('type')).filter(x => triggeringActions.includes(x)).size
   }
 
   onChange = ({ value, operations }) => {
@@ -191,7 +201,9 @@ export class UtterancesEditor extends React.Component<Props> {
 
     this.setState({ value, ...selectionState })
 
-    if (this.dispatchNeeded(operations)) {
+    if (this.dispatchNeeded(operations, ['add_mark', 'remove_mark'])) {
+      this.props.onChange(valueToUtterances(value))
+    } else if (this.dispatchNeeded(operations, ['insert_text', 'remove_text', 'split_node'])) {
       this.dispatchChanges(value)
     }
   }
@@ -200,18 +212,43 @@ export class UtterancesEditor extends React.Component<Props> {
     switch (props.mark.type) {
       case 'slot':
         const slotMark = props.mark.data.toJS()
-        const color = this.props.slots.find(s => s.name === slotMark.slotName).color
+        const { slotName, utteranceIdx, range } = slotMark
+
+        const color = this.props.slots.find(s => s.name === slotName).color
         const cn = classnames(style.slotMark, style[`label-colors-${color}`])
+
         const remove = () => editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 
+        const slotValidation = this.getSlotValidation(utteranceIdx, range)
+        const { isValidEntity, name, source } = (slotValidation || {}) as SlotValidation
+        const isValid = isValidEntity === true || isValidEntity === undefined
+        const icon = isValid ? undefined : <Icon icon="warning-sign" iconSize={9} />
+
+        // const errorMsg = isValid ? '' : `"${source}" is not a valid "${name}"`
+        // TODO: try to render an error msg in a blueprint tooltip
         return (
-          <Tag large={slotMark.utteranceIdx === 0} className={cn} round onClick={remove}>
+          <Tag icon={icon} large={utteranceIdx === 0} className={cn} round onClick={remove}>
             {props.children}
           </Tag>
         )
       default:
         return next()
     }
+  }
+
+  getSlotValidation(utteranceIdx: number, range: [number, number]): SlotValidation | undefined {
+    if (!this.props.validation) {
+      return
+    }
+
+    const utt = this.props.utterances[utteranceIdx]
+    const validation = (this.props.validation as IntentValidation)[utt]
+    if (!validation) {
+      return
+    }
+
+    const [start, end] = range
+    return validation.slots.find(s => s.start === start && s.end === end)
   }
 
   renderBlock = (props: RenderBlockProps, editor: CoreEditor, next) => {
