@@ -14,7 +14,9 @@ module.exports = {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
   setupFilesAfterEnv: ['expect-puppeteer'],
-  testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
-  testPathIgnorePatterns: ['out', 'build', 'node_modules', 'modules', 'src/bp'],
+  globalSetup: 'jest-environment-puppeteer/setup',
+  testEnvironment: 'jest-environment-puppeteer',
+  testMatch: ['**/src/e2e/**/*.test.(ts|js)'],
+  testPathIgnorePatterns: ['out', 'build', 'node_modules', 'src/bp'],
   rootDir: '.'
 }
