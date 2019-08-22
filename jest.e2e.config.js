@@ -6,6 +6,8 @@ module.exports = {
       isolatedModules: true
     }
   },
+  globalSetup: 'jest-environment-puppeteer/setup',
+  setupFilesAfterEnv: ['expect-puppeteer'],
   collectCoverage: false,
   resetModules: true,
   modulePaths: ['<rootDir>/src/bp/'],
@@ -13,10 +15,9 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
-  setupFilesAfterEnv: ['expect-puppeteer'],
-  globalSetup: 'jest-environment-puppeteer/setup',
-  testEnvironment: 'jest-environment-puppeteer',
   testMatch: ['**/src/e2e/**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules', 'src/bp'],
-  rootDir: '.'
+  testEnvironment: 'jest-environment-puppeteer',
+  rootDir: '.',
+  testResultsProcessor: './node_modules/jest-html-reporter'
 }

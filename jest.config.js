@@ -1,6 +1,7 @@
 const path = require('path')
 
 module.exports = {
+  preset: 'ts-jest',
   globals: {
     'ts-jest': {
       tsConfig: '<rootDir>/src/tsconfig.test.json',
@@ -26,6 +27,6 @@ module.exports = {
   testPathIgnorePatterns: ['out', 'build', 'node_modules'],
   testEnvironment: 'node',
   rootDir: '.',
-  preset: 'ts-jest',
+
   testResultsProcessor: './node_modules/jest-html-reporter'
 }
