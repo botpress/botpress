@@ -44,14 +44,14 @@ export const IntentEditor: FC<Props> = props => {
     return null
   }
 
-  const throttledApiCall = _.throttle(async newIntent => {
+  const debouncedApiCall = _.debounce(async newIntent => {
     await props.api.createIntent(newIntent)
     setValidation(await fetchValidation())
   }, 2500)
 
   const saveIntent = async (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    await throttledApiCall(newIntent)
+    await debouncedApiCall(newIntent)
   }
 
   const handleUtterancesChange = async (newUtterances: string[]) => {
