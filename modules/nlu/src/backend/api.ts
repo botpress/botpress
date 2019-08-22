@@ -242,7 +242,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const engine = nlus[req.params.botId] as ScopedEngine
     const validation = await engine.hint.validateIntentSlots(req.params.intent, lang)
     if (validation) {
-      res.send(validation)
+      return res.send(validation)
     }
     res.sendStatus(404)
   })
