@@ -1,18 +1,38 @@
+import path from 'path'
+
 import { bpConfig } from '../../../jest-puppeteer.config'
-import { clickOn, expectMatchElement, fillField } from '../expectPuppeteer'
+import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
+  const importBotId = 'import-bot'
 
-  const clickButtonForBot = async (buttonId: string) => {
-    const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
+  const clickButtonForBot = async (buttonId: string, botId: string) => {
+    const botRow = await expectMatchElement('.bp_table-row', { text: botId })
     await clickOn('.more', undefined, botRow)
     await clickOn(buttonId, undefined, botRow)
   }
 
   beforeAll(async () => {
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+  })
+
+  it('Import bot from archive', async () => {
+    await clickOn('#btn-create-bot')
+    await clickOn('#btn-import-bot')
+    await fillField('#input-botId', importBotId)
+    await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
+    await clickOn('#btn-upload')
+    await expectAdminApiCallSuccess(`bots/${importBotId}/import`, 'POST')
+  })
+
+  it('Delete imported bot', async () => {
+    autoAnswerDialog()
+
+    await clickButtonForBot('#btn-delete', importBotId)
+    await expectAdminApiCallSuccess(`bots/${importBotId}`, 'DELETE')
+    await page.waitFor(200)
   })
 
   it('Create temporary bot', async () => {
@@ -28,7 +48,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Export bot', async () => {
-    await clickButtonForBot('#btn-export')
+    await clickButtonForBot('#btn-export', tempBotId)
 
     const response = await page.waitForResponse(`${bpConfig.host}/api/v1/admin/bots/${tempBotId}/export`)
     expect(response.status()).toBe(200)
@@ -51,12 +71,12 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Create revision', async () => {
-    await clickButtonForBot('#btn-createRevision')
+    await clickButtonForBot('#btn-createRevision', tempBotId)
     await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST')
   })
 
   it('Rollback revision', async () => {
-    await clickButtonForBot('#btn-rollbackRevision')
+    await clickButtonForBot('#btn-rollbackRevision', tempBotId)
     await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'GET')
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
@@ -69,7 +89,7 @@ describe('Admin - Bot Management', () => {
   it('Delete temporary bot', async () => {
     autoAnswerDialog()
 
-    await clickButtonForBot('#btn-delete')
+    await clickButtonForBot('#btn-delete', tempBotId)
     await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'DELETE')
     await page.waitFor(200)
   })
