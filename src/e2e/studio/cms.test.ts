@@ -1,6 +1,4 @@
-import expectp from 'expect-puppeteer'
-
-import { clickOn } from '../expectPuppeteer'
+import { clickOn, fillField } from '../expectPuppeteer'
 import { autoAnswerDialog, expectBotApiCallSuccess, gotoStudio, waitForBotApiResponse } from '../utils'
 
 const getElementCount = async (): Promise<number> => {
@@ -47,7 +45,7 @@ describe('Studio - CMS', () => {
 
   it('Search element', async () => {
     await page.waitFor(1000)
-    await expectp(page).toFill('#input-search', 'hey')
+    await fillField('#input-search', 'hey')
 
     const response = await waitForBotApiResponse('content/builtin_text/elements')
     expect(response.length).toBe(1)
