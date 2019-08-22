@@ -1,6 +1,6 @@
 import _, { cloneDeep } from 'lodash'
-import { Overwrite } from 'utility-types'
 
+import tfidf from './pipelines/intents/tfidf'
 import { isWord, SPACE } from './tools/token-utils'
 
 export default class Engine2 {
@@ -32,7 +32,14 @@ export type StructuredTrainInput = Readonly<{
   intents: Intent<string>[]
 }>
 
-export type StructuredTrainOutput = Overwrite<StructuredTrainInput, { intents: Intent<Utterance> }>
+export type StructuredTrainOutput = Readonly<{
+  botId: string
+  languageCode: string
+  pattern_entities: PatternEntity[]
+  list_entities: ListEntity[]
+  contexts: string[]
+  intents: Intent<Utterance>[]
+}>
 
 export type PatternEntity = Readonly<{
   name: string
@@ -65,6 +72,7 @@ export type Utterance = Readonly<{
   toString(options: UtteranceToStringOptions): string
   tagEntity(entity: ExtractedEntity, start: number, end: number)
   tagSlot(slot: ExtractedSlot, start: number, end: number)
+  setGlobalTfidf(tfidf: _.Dictionary<number>)
   entities: ReadonlyArray<UtteranceEntity>
   slots: ReadonlyArray<UtteranceSlot>
   tokens: ReadonlyArray<UtteranceToken>
@@ -74,6 +82,11 @@ class UtteranceClass implements Utterance {
   public tokens: ReadonlyArray<UtteranceToken> = []
   public slots: ReadonlyArray<UtteranceSlot> = []
   public entities: ReadonlyArray<UtteranceEntity> = []
+  private _globalTfidf?: _.Dictionary<number>
+
+  setGlobalTfidf(tfidf: _.Dictionary<number>) {
+    this._globalTfidf = tfidf
+  }
 
   constructor(tokens: string[], vectors: number[][]) {
     const arr = []
@@ -94,7 +107,7 @@ class UtteranceClass implements Utterance {
             return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
           },
           startsWithSpace: value.startsWith(SPACE),
-          tfidf: 0,
+          tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
           toString: () => value
@@ -215,15 +228,21 @@ export interface Trainer {
 
 export const Trainer: Trainer = async (input, tools, cancelToken) => {
   try {
-    // TODO: make tools from entities
+    // TODO: Cancellation token effect
     input = cloneDeep(input)
-    let output = await ProcessUtterances(input, tools)
-    output = await AppendNoneIntents(output, tools) // TODO: Cancellation token effect
-    output = await TfidfTokens(output, tools)
+    // TODO: Train List Extractor
+    let output = await ProcessIntents(input, tools)
+    // extract list entities
+    // extract pattern entities
 
-    const context_ranking = await {} //
+    output = await AppendNoneIntents(output, tools)
+    output = await TfidfTokens(output)
+
+    const context_ranking = await {}
 
     const artefacts = {
+      listExtractor: {},
+      patternExtractor: {},
       context_ranking: {},
       svm_classifier: {},
       exact_classifier: {},
@@ -235,7 +254,20 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
   return {}
 }
 
-export const ProcessUtterances = async (
+// ctx ranking
+/*
+points = []
+for each ctx
+  intents = part of ctx / NOT NONE
+  for each intent
+    for each utterance
+      features = [ (vectors * tfidf) + tokens.length ]
+      push( features of utterance ) label = ctx
+svm = train(points, LINEAR, C_SVC) (progress -> cb | cancel token check)
+artefacts.push ( ctx_ranking (json) )
+*/
+
+export const ProcessIntents = async (
   input: StructuredTrainInput,
   tools: TrainTools
 ): Promise<StructuredTrainOutput> => {
@@ -257,11 +289,47 @@ export const AppendNoneIntents = async (
   input: StructuredTrainOutput,
   tools: TrainTools
 ): Promise<StructuredTrainOutput> => {
-  return cloneDeep(input) // TODO:
+  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
+
+  const vocabulary = _.chain(allUtterances)
+    .map(x => x.tokens.map(x => x.value))
+    .flattenDeep<string>()
+    .uniq()
+    .value()
+
+  const junkWords = await tools.generateSimilarJunkWords(vocabulary)
+  const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
+  const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
+  const nbOfNoneUtterances = Math.max(5, avgUtterances)
+
+  // If 50% of words start with a space, we know this language is probably space-separated, and so we'll join tokens using spaces
+  const joinChar = vocabulary.filter(x => x.startsWith(SPACE)).length >= vocabulary.length * 0.5 ? SPACE : ''
+
+  const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = _.random(avgTokens / 2, avgTokens * 2, false)
+    return _.sampleSize(junkWords, nbWords).join(joinChar)
+  })
+
+  const intent: Intent<Utterance> = {
+    name: 'none',
+    slot_definitions: [],
+    utterances: await Utterances(noneUtterances, input.languageCode, tools),
+    contexts: [...input.contexts]
+  }
+
+  return { ...input, intents: [...input.intents, intent] }
 }
 
-export const TfidfTokens = async (input: StructuredTrainOutput, tools: TrainTools): Promise<StructuredTrainOutput> => {
-  return {} as StructuredTrainOutput // TODO:
+export const TfidfTokens = async (input: StructuredTrainOutput): Promise<StructuredTrainOutput> => {
+  const contextTokens = _.zipObject<string[]>(
+    input.intents.map(x => x.name),
+    _.flattenDeep<string[]>(input.intents.map(x => x.utterances.map(u => u.tokens.map(x => x.value))))
+  )
+
+  const { __avg__: avg } = tfidf(contextTokens)
+  const copy = { ...input }
+  copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg)))
+  return copy
 }
 
 export type UtteranceChunk = {
@@ -329,7 +397,7 @@ export const Utterances = async (
   for (let i = 0; i < textual_utterances.length; i++) {
     const vectors = tokens[i].map(v => vectorMap[v])
     const utterance = new UtteranceClass(tokens[i], vectors)
-    // TODO: tagEntities
+
     utterances.push(utterance)
   }
 
@@ -363,6 +431,7 @@ export interface CancellationToken {
 export interface TrainTools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
+  generateSimilarJunkWords(vocabulary: string[]): Promise<string[]>
 } // const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
 
 export interface Model {

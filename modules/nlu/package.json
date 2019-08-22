@@ -18,8 +18,7 @@
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
-    "module-builder": "../../build/module-builder",
-    "utility-types": "^3.7.0"
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
     "axios": "^0.18.1",
@@ -45,6 +44,7 @@
     "react-splitter-layout": "^3.0.0",
     "react-tag-input": "6.4.0",
     "tmp": "^0.0.33",
-    "verror": "^1.10.0"
+    "verror": "^1.10.0",
+    "utility-types": "^3.7.0"
   }
 }

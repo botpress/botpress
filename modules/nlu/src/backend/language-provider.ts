@@ -269,6 +269,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
    * @param subsetVocab The tokens to which you want similar tokens to
    */
   async generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]> {
+    // TODO: we can remove await + lang
     // from totalVocab compute the cachedKey the closest to what we have
     // if 75% of the vocabulary is the same, we keep the cache we have instead of rebuilding one
     const gramset = vocabNGram(subsetVocab)
@@ -286,7 +287,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!result) {
       // didn't find any close gramset, let's create a new one
       result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
-      await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens
+      await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens // TODO: remove this
       this._junkwordsCache.set(gramset, result)
       this.onJunkWordsCacheChanged()
     }
