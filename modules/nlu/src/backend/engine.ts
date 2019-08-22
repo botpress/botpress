@@ -418,7 +418,8 @@ export default class ScopedEngine implements Engine {
           vectorize_tokens: async (tokens, lang) => {
             const a = await this.languageProvider.vectorize(tokens, lang)
             return a.map(x => Array.from(x.values()))
-          }
+          },
+          generateSimilarJunkWords: vocab => this.languageProvider.generateSimilarJunkWords(vocab, lang)
         })
         const input: StructuredTrainInput = {
           botId: this.botId,
