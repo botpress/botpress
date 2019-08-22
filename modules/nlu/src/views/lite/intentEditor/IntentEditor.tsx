@@ -44,16 +44,19 @@ export const IntentEditor: FC<Props> = props => {
     return null
   }
 
+  const throttledApiCall = _.throttle(async newIntent => {
+    await props.api.createIntent(newIntent)
+    setValidation(await fetchValidation())
+  }, 2500)
+
   const saveIntent = async (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    await props.api.createIntent(newIntent)
+    await throttledApiCall(newIntent)
   }
 
   const handleUtterancesChange = async (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
     await saveIntent(newIntent)
-
-    setValidation(await fetchValidation())
   }
 
   const handleSlotsChange = async (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
@@ -66,8 +69,6 @@ export const IntentEditor: FC<Props> = props => {
 
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances }, slots }
     await saveIntent(newIntent)
-
-    setValidation(await fetchValidation())
   }
 
   const utterances = (intent && intent.utterances[props.contentLang]) || []

@@ -185,10 +185,6 @@ export class UtterancesEditor extends React.Component<Props, State> {
     }
   }
 
-  dispatchChanges = _.debounce(value => {
-    this.props.onChange(valueToUtterances(value))
-  }, 2500)
-
   dispatchNeeded = (operations, triggeringActions: string[]) => {
     return operations.map(x => x.get('type')).filter(x => triggeringActions.includes(x)).size
   }
@@ -204,7 +200,7 @@ export class UtterancesEditor extends React.Component<Props, State> {
     if (this.dispatchNeeded(operations, ['add_mark', 'remove_mark'])) {
       this.props.onChange(valueToUtterances(value))
     } else if (this.dispatchNeeded(operations, ['insert_text', 'remove_text', 'split_node'])) {
-      this.dispatchChanges(value)
+      this.props.onChange(valueToUtterances(value))
     }
   }
 
@@ -219,15 +215,12 @@ export class UtterancesEditor extends React.Component<Props, State> {
 
         const remove = () => editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 
-        const slotValidation = this.getSlotValidation(utteranceIdx, range)
-        const { isValidEntity, name, source } = (slotValidation || {}) as SlotValidation
-        const isValid = isValidEntity === true || isValidEntity === undefined
+        const isValid = this.isSlotValid(utteranceIdx, range)
         const icon = isValid ? undefined : <Icon icon="warning-sign" iconSize={9} />
 
-        // const errorMsg = isValid ? '' : `"${source}" is not a valid "${name}"`
         // TODO: try to render an error msg in a blueprint tooltip
         return (
-          <Tag icon={icon} large={utteranceIdx === 0} className={cn} round onClick={remove}>
+          <Tag rightIcon={icon} large={utteranceIdx === 0} className={cn} round onClick={remove}>
             {props.children}
           </Tag>
         )
@@ -236,19 +229,20 @@ export class UtterancesEditor extends React.Component<Props, State> {
     }
   }
 
-  getSlotValidation(utteranceIdx: number, range: [number, number]): SlotValidation | undefined {
+  isSlotValid(utteranceIdx: number, range: [number, number]): boolean {
     if (!this.props.validation) {
-      return
+      return true
     }
 
     const utt = this.props.utterances[utteranceIdx]
     const validation = (this.props.validation as IntentValidation)[utt]
     if (!validation) {
-      return
+      return true
     }
 
     const [start, end] = range
-    return validation.slots.find(s => s.start === start && s.end === end)
+    const slotValidation = validation.slots.find(s => s.start === start && s.end === end)
+    return !slotValidation || slotValidation.isValidEntity
   }
 
   renderBlock = (props: RenderBlockProps, editor: CoreEditor, next) => {
