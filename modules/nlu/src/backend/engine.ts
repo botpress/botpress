@@ -7,6 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
+import Engine2, { StructuredTrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -411,6 +412,29 @@ export default class ScopedEngine implements Engine {
 
     for (const lang of this.languages) {
       try {
+        const e2 = new Engine2()
+        e2.provideTools({
+          tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
+          vectorize_tokens: async (tokens, lang) => {
+            const a = await this.languageProvider.vectorize(tokens, lang)
+            return a.map(x => Array.from(x.values()))
+          }
+        })
+        const input: StructuredTrainInput = {
+          botId: this.botId,
+          contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
+          languageCode: lang,
+          list_entities: [], // TODO:
+          pattern_entities: [], // TODO:
+          intents: intentDefs.map(x => ({
+            name: x.name,
+            contexts: x.contexts,
+            utterances: x.utterances[lang],
+            slot_definitions: x.slots
+          }))
+        }
+        await e2.train(input)
+
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
 
         if (trainableIntents.length) {

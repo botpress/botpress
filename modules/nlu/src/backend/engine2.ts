@@ -1,8 +1,27 @@
 import _, { cloneDeep } from 'lodash'
+import { Overwrite } from 'utility-types'
 
 import { isWord, SPACE } from './tools/token-utils'
 
-export default class Engine2 {}
+export default class Engine2 {
+  private tools: TrainTools
+
+  provideTools = (tools: TrainTools) => {
+    this.tools = tools
+  }
+
+  train(input: StructuredTrainInput) {
+    const token: CancellationToken = {
+      // TODO:
+      cancel: async () => {},
+      uid: '',
+      isCancelled: () => false,
+      cancelledAt: new Date()
+    }
+
+    Trainer(input, this.tools, token)
+  }
+}
 
 export type StructuredTrainInput = Readonly<{
   botId: string
@@ -13,14 +32,7 @@ export type StructuredTrainInput = Readonly<{
   intents: Intent<string>[]
 }>
 
-export type StructuredTrainOutput = {
-  botId: string
-  languageCode: string
-  pattern_entities: PatternEntity[]
-  list_entities: ListEntity[]
-  contexts: string[]
-  intents: Intent<Utterance>[]
-}
+export type StructuredTrainOutput = Overwrite<StructuredTrainInput, { intents: Intent<Utterance> }>
 
 export type PatternEntity = Readonly<{
   name: string
@@ -51,86 +63,73 @@ export type SlotDefinition = Readonly<{
 
 export type Utterance = Readonly<{
   toString(options: UtteranceToStringOptions): string
-  tagEntity(entity: ExtractedEntity, range: UtteranceRange)
-  tagSlot(slot: ExtractedSlot, range: UtteranceRange)
+  tagEntity(entity: ExtractedEntity, start: number, end: number)
+  tagSlot(slot: ExtractedSlot, start: number, end: number)
   entities: ReadonlyArray<UtteranceEntity>
   slots: ReadonlyArray<UtteranceSlot>
   tokens: ReadonlyArray<UtteranceToken>
 }>
 
-const createUtterance = (tokens: UtteranceToken[]): Utterance => {
-  // TODO:
-  return {
-    entities: [],
-    slots: [],
-    tagEntity: () => {},
-    tagSlot: () => {},
-    toString: () => '',
-    tokens: tokens
-  }
-}
-
 class UtteranceClass implements Utterance {
   public tokens: ReadonlyArray<UtteranceToken> = []
-
-  get slots(): ReadonlyArray<UtteranceSlot> {
-    return [] // TODO:
-  }
-
-  get entities(): ReadonlyArray<UtteranceEntity> {
-    return [] // TODO:
-  }
+  public slots: ReadonlyArray<UtteranceSlot> = []
+  public entities: ReadonlyArray<UtteranceEntity> = []
 
   constructor(tokens: string[], vectors: number[][]) {
     const arr = []
     for (let i = 0, offset = 0; i < tokens.length; i++) {
+      const that = this
       const value = tokens[i]
-      arr.push({
-        index: i,
-        isBOS: i === 0,
-        isEOS: i === tokens.length - 1,
-        isWord: isWord(value),
-        offset: offset,
-        get slot(): string | undefined {
-          return '' // TODO:
-        },
-        get entities(): ReadonlyArray<ExtractedEntity> {
-          return [] // TODO:
-        },
-        startsWithSpace: value.startsWith(SPACE),
-        tfidf: 0,
-        value: value,
-        vectors: vectors[i],
-        slotIndex: 0
-      })
+      arr.push(
+        Object.freeze({
+          index: i,
+          isBOS: i === 0,
+          isEOS: i === tokens.length - 1,
+          isWord: isWord(value),
+          offset: offset,
+          get slots(): ReadonlyArray<ExtractedSlot> {
+            return that.slots.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
+          },
+          get entities(): ReadonlyArray<ExtractedEntity> {
+            return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
+          },
+          startsWithSpace: value.startsWith(SPACE),
+          tfidf: 0,
+          value: value,
+          vectors: vectors[i],
+          toString: () => value
+        })
+      )
       offset += value.length
     }
     this.tokens = arr
   }
 
   toString(options: UtteranceToStringOptions): string {
-    return ''
-    // let ret = [...toks]
-    // if (options.onlyWords) {
-    //   ret = ret.filter(tok => tok.slot || tok.isWord)
-    // }
-    // return toks.reduce((prev, curr) => {
-    //   if (curr.slot) {
-    //     switch (options.slots) {
-    //       case 'keep-slot-name':
-    //         return prev + curr.slot
-    //       case 'keep-value':
-    //       default:
-    //         return prev + curr.value
-    //     }
-    //   } else {
-    //     if (!curr.isWord && options.onlyWords) {
-    //       return prev
-    //     }
-    //     return prev + curr.value
-    //   }
-    // }, '')
-    // return ''
+    const opts: UtteranceToStringOptions = _.defaultsDeep({}, options, <UtteranceToStringOptions>{
+      lowerCase: false,
+      slots: 'keep-value'
+    })
+
+    let final = ''
+    let ret = [...this.tokens]
+    if (opts.onlyWords) {
+      ret = ret.filter(tok => tok.slots.length || tok.isWord)
+    }
+
+    for (const tok of ret) {
+      if (tok.slots.length && opts.slots === 'keep-slot-name') {
+        final += tok.slots[0].name
+      } else {
+        final += tok.value
+      }
+    }
+
+    if (opts.lowerCase) {
+      final = final.toLowerCase()
+    }
+
+    return final.replace(new RegExp(SPACE, 'g'), ' ')
   }
 
   clone(copyEntities: boolean, copySlots: boolean): UtteranceClass {
@@ -139,29 +138,60 @@ class UtteranceClass implements Utterance {
     const utterance = new UtteranceClass(tokens, vectors)
 
     if (copyEntities) {
-      this.entities.forEach(entity => utterance.tagEntity(entity, entity))
+      this.entities.forEach(entity => utterance.tagEntity(entity, entity.startPos, entity.endPos))
     }
 
     if (copySlots) {
-      this.slots.forEach(slot => utterance.tagSlot(slot, slot))
+      this.slots.forEach(slot => utterance.tagSlot(slot, slot.startPos, slot.endPos))
     }
 
     return utterance
   }
 
-  tagEntity(entity: ExtractedEntity, range: UtteranceRange) {}
-  tagSlot(slot: ExtractedSlot, range: UtteranceRange) {}
+  tagEntity(entity: ExtractedEntity, start: number, end: number) {
+    const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
+    this.entities = [
+      ...this.entities,
+      {
+        ...entity,
+        startPos: start,
+        endPos: end,
+        startTokenIdx: _.first(range).index,
+        endTokenIdx: _.last(range).index
+      }
+    ]
+  }
+
+  tagSlot(slot: ExtractedSlot, start: number, end: number) {
+    const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
+    this.slots = [
+      ...this.slots,
+      {
+        ...slot,
+        startPos: start,
+        endPos: end,
+        startTokenIdx: _.first(range).index,
+        endTokenIdx: _.last(range).index
+      }
+    ]
+  }
 }
 
 export type UtteranceToStringOptions = {
   lowerCase: boolean
   onlyWords: boolean
-  slots: 'keep-value' | 'keep-slot-name' | 'keep-entity-name'
+  slots: 'keep-value' | 'keep-slot-name'
 }
 
-export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number }
+export type TokenToStringOptions = {
+  lowerCase: boolean
+  trim: boolean
+  realSpaces: boolean
+}
+
+export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number; startPos: number; endPos: number }
 export type ExtractedEntity = { confidence: number; type: string; metadata: any }
-export type ExtractedSlot = { confidence: number; name: string }
+export type ExtractedSlot = { confidence: number; name: string; source: any }
 export type UtteranceEntity = Readonly<UtteranceRange & ExtractedEntity>
 export type UtteranceSlot = Readonly<UtteranceRange & ExtractedSlot>
 export type UtteranceToken = Readonly<{
@@ -175,8 +205,8 @@ export type UtteranceToken = Readonly<{
   tfidf: number
   offset: number
   entities: ReadonlyArray<ExtractedEntity>
-  slot?: string
-  slotIndex?: number
+  slots: ReadonlyArray<ExtractedSlot>
+  toString(options: TokenToStringOptions): string
 }>
 
 export interface Trainer {
@@ -188,8 +218,7 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
     // TODO: make tools from entities
     input = cloneDeep(input)
     let output = await ProcessUtterances(input, tools)
-    output = await AppendNoneIntents(output, tools)
-    output = await TagUtterances(output, tools)
+    output = await AppendNoneIntents(output, tools) // TODO: Cancellation token effect
     output = await TfidfTokens(output, tools)
 
     const context_ranking = await {} //
@@ -211,7 +240,7 @@ export const ProcessUtterances = async (
   tools: TrainTools
 ): Promise<StructuredTrainOutput> => {
   const intents = await Promise.map(input.intents, async intent => {
-    const chunked_utterances = intent.utterances.map(u => ChunkUtterance(u, intent.slot_definitions))
+    const chunked_utterances = intent.utterances.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
     const textual_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
     const utterances = await Utterances(textual_utterances, input.languageCode, tools)
     // TODO: tag slots
@@ -231,13 +260,6 @@ export const AppendNoneIntents = async (
   return cloneDeep(input) // TODO:
 }
 
-export const TagUtterances = async (
-  input: StructuredTrainOutput,
-  tools: TrainTools
-): Promise<StructuredTrainOutput> => {
-  return {} as StructuredTrainOutput // TODO:
-}
-
 export const TfidfTokens = async (input: StructuredTrainOutput, tools: TrainTools): Promise<StructuredTrainOutput> => {
   return {} as StructuredTrainOutput // TODO:
 }
@@ -249,7 +271,7 @@ export type UtteranceChunk = {
   entities?: string[]
 }
 
-const ChunkUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
+const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
   // TODO: Unit Test this
   const slotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
   const chunks = [] as UtteranceChunk[]
@@ -281,6 +303,12 @@ const ChunkUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): U
     } else {
       // we're not considering it a slot, we take its value as-is.
     }
+  }
+
+  if (cursor < utterance.length) {
+    chunks.push({
+      value: utterance.slice(cursor, utterance.length)
+    })
   }
 
   return chunks

@@ -391,7 +391,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         }
       }, 0)
       const batch = idxToFetch.splice(0, sliceUntil + 1)
-      const query = batch.map(idx => utterances[idx])
+      const query = batch.map(idx => utterances[idx].toLowerCase())
 
       if (!query.length) {
         break
@@ -426,7 +426,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
     }
 
-    return final
+    // TODO: Merge tokens that are just special chars
+
+    // we restore original chars and casing
+    return final.map((tokens, i) => {
+      let offset = 0
+      return tokens
+        .filter(x => x.length)
+        .map(token => {
+          const raw = utterances[i].substr(offset, token.length).replace(/ /g, SPACE)
+          offset += token.length
+          return raw
+        })
+    })
   }
 }
 
