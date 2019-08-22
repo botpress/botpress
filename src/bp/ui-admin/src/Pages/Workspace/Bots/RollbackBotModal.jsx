@@ -74,6 +74,7 @@ class RollbackBotModal extends Component {
               <strong>Revisions</strong>
             </Label>
             <Select
+              id="select-revisions"
               tabIndex="1"
               ref={el => (this.selectEl = el)}
               value={this.state.selectedRev}
@@ -82,6 +83,7 @@ class RollbackBotModal extends Component {
             />
           </FormGroup>
           <Button
+            id="btn-rollback"
             tabIndex="2"
             className="float-right"
             type="submit"

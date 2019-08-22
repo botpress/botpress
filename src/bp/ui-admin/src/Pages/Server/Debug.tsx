@@ -94,14 +94,26 @@ export default class Debug extends React.Component<Props, State> {
   renderSide() {
     return (
       <div>
-        <Button onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
+        <Button id="btn-refresh" onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
         <br />
         <br />
         <Tooltip content="When checked, the selected debug options will be enabled after each server restart">
-          <Checkbox checked={this.state.persist} onChange={this.handlePersistChanged} label="Persist" />
+          <Checkbox
+            id="chk-persist"
+            checked={this.state.persist}
+            onChange={this.handlePersistChanged}
+            label="Persist"
+          />
         </Tooltip>
 
-        <Button onClick={this.saveConfiguration} intent={Intent.PRIMARY} fill={true} icon="floppy-disk" text="Save" />
+        <Button
+          id="btn-save"
+          onClick={this.saveConfiguration}
+          intent={Intent.PRIMARY}
+          fill={true}
+          icon="floppy-disk"
+          text="Save"
+        />
       </div>
     )
   }
