@@ -38,7 +38,7 @@ describe('Studio - CMS', () => {
     await clickOn('button[type="submit"]')
 
     await expectBotApiCallSuccess('content/builtin_text/element', 'POST')
-    await expectBotApiCallSuccess('content/builtin_text/elements', 'POST')
+    await page.waitFor(500) // Ensure the element is created and the list is reloaded
     const after = await getElementCount()
 
     expect(after).toBe(before + 1)
