@@ -216,7 +216,7 @@ export class BotService {
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
     if (!isValidBotId(botId)) {
-      throw new InvalidOperationError(`An error occurred while creating the bot: Invalid bot ID`)
+      throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
 
     if (await this.botExists(botId)) {
