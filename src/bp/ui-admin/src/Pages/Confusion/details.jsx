@@ -91,9 +91,9 @@ const MatrixComponent = ({ context, matrix }) => {
     cols[idxByName[key]] = (
       <Cell className="identity" scoreInPercent={v.f1 || 0}>
         <Tooltip content={toolTipContent} position={Position.TOP}>
-          <a data-tip data-for={'cls-' + key}>
+          <span className="black_link" data-tip data-for={'cls-' + key}>
             {v.f1.toFixed(1)}
-          </a>
+          </span>
         </Tooltip>
       </Cell>
     )
@@ -115,9 +115,9 @@ const MatrixComponent = ({ context, matrix }) => {
       cols[idxByName[cls]] = (
         <Cell scoreInAbsolute={nConfusions}>
           <Tooltip content={content} position={Position.TOP}>
-            <a data-tip data-for={tipKey}>
+            <span className="black_link" data-tip data-for={tipKey}>
               {nConfusions}
-            </a>
+            </span>
           </Tooltip>
         </Cell>
       )
