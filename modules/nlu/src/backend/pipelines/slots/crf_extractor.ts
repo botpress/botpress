@@ -10,7 +10,7 @@ import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
 import { BIO, Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
 
-import { computeBucket, countAlpha, countNum, countSpecial, getFeaturesPairs, getTFIDFfeature } from './featureizer'
+import * as featurizer from './featurizer'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -18,8 +18,7 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
-const quartile = computeBucket(4)
-
+// TODO get of this / move this somewhere
 const crfPayloadProgress = progress => ({
   value: 0.75 + Math.floor(progress / 4)
 })
@@ -44,13 +43,18 @@ const CRF_TRAINER_PARAMS = {
 
 export type TagResult = { probability: number; label: string }
 
+// TODO move this to MLToolkit
+export interface KMeansModel {
+  nearest: (vec: number[][]) => number[]
+}
+
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _ftModelFn = ''
   private _crfModelFn = ''
   private _ft!: sdk.MLToolkit.FastText.Model
   private _tagger!: sdk.MLToolkit.CRF.Tagger
-  private _kmeansModel
+  private _kmeansModel: KMeansModel
 
   constructor(
     private toolkit: typeof sdk.MLToolkit,
@@ -165,6 +169,7 @@ export default class CRFExtractor {
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
+        // TODO test this
         const slotName = tag.label.slice(2)
         const slotDef = intentDef.slots.find(x => x.name == slotName)
 
@@ -215,24 +220,15 @@ export default class CRFExtractor {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
-    const inputVectors: string[][] = []
+    const inputVectors = await Promise.map(seq.tokens, (t, i) =>
+      this._getSlidingTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, true)
+    )
 
-    for (let i = 0; i < seq.tokens.length; i++) {
-      const featureVec = await this._vectorize(
-        seq.tokens,
-        seq.intent,
-        i,
-        intentVocab,
-        allowedEntitiesPerIntents[seq.intent],
-        tfidf,
-        token2Vec,
-        true
-      )
-      inputVectors.push(featureVec)
-    }
+    debugVectorize('vectorize', { inputVectors })
 
     const probs = this._tagger.marginal(inputVectors)
-    const chain = probs.map(token =>
+    // TODO extract and test this
+    return probs.map(token =>
       _.chain(token)
         .toPairs()
         .maxBy('1')
@@ -242,9 +238,9 @@ export default class CRFExtractor {
         }))
         .value()
     )
-    return chain
   }
 
+  // TODO test this
   private _makeSlot(
     slotName: string,
     token: Token,
@@ -295,7 +291,12 @@ export default class CRFExtractor {
       return
     }
 
+    // TODO use token.wordVector instead
     const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical.toLowerCase()))
+    // const data = _.chain(sequences)
+    //          .flatMap(s => s.tokens)
+    //          .map(t => t.wordVector)\
+    //          .value()
 
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
@@ -304,6 +305,8 @@ export default class CRFExtractor {
       throw Error(`Error training K-means model, error is: ${error}`)
     }
   }
+
+  // TODO refactor this
   private async _trainCrf(
     trainingSet: Sequence[],
     intentVocab: { [token: string]: string[] },
@@ -320,12 +323,12 @@ export default class CRFExtractor {
     })
 
     for (const seq of trainingSet) {
-      const inputVectors: string[][] = []
+      const inputFeatures: string[][] = []
       const labels: string[] = []
+      // TODO replace this loop for featurize utterance & labelize utterance
       for (let i = 0; i < seq.tokens.length; i++) {
-        const featureVec = await this._vectorize(
-          seq.tokens,
-          seq.intent,
+        const features = await this._getSlidingTokenFeatures(
+          seq,
           i,
           intentVocab,
           allowedEntitiesPerIntents[seq.intent],
@@ -334,18 +337,20 @@ export default class CRFExtractor {
           false
         )
 
-        inputVectors.push(featureVec)
+        inputFeatures.push(features)
 
+        // todo replace this for labelize sequence
         const isAny = seq.tokens[i].slot && !seq.tokens[i].matchedEntities.length ? '/any' : ''
         const labelSlot = seq.tokens[i].slot ? `-${seq.tokens[i].slot}` : ''
         labels.push(`${seq.tokens[i].tag}${labelSlot}${isAny}`)
       }
-      trainer.append(inputVectors, labels)
+      trainer.append(inputFeatures, labels)
     }
 
     trainer.train(this._crfModelFn)
   }
 
+  // TODO get rid of this, either use lang provider
   private async _trainLanguageModel(samples: Sequence[]) {
     this._ftModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const ftTrainFn = tmp.fileSync({ postfix: '.txt' }).name
@@ -376,133 +381,88 @@ export default class CRFExtractor {
     this._ft = ft
   }
 
-  private async _vectorizeToken(
+  private async _featurizeToken(
     token: Token,
     intentName: string,
-    featPrefix: string,
-    includeCluster: boolean,
     intentVocab: { [token: string]: string[] },
     allowedEntities: string[],
     tfidf: TfidfOutput,
     token2Vec: Token2Vec,
     isPredict: boolean
-  ): Promise<string[]> {
-    const vector: string[] = []
-    const boost = isPredict ? 3 : 1
-
-    if (!token.cannonical) {
+  ): Promise<featurizer.CRFFeature[]> {
+    if (!token || !token.cannonical) {
       return []
     }
 
-    // TODO refactor this func, return an array of {name: string, value: string, boost?: number}
-    // call makeCrfAttr only in vectorize will look like this._vectorizeToken(/** args */).map(_makeCrfAttr.bind(this, featPrefix))
-
-    if (includeCluster) {
-      const cluster = await this._getWordCluster(token.cannonical.toLowerCase())
-      vector.push(this._makeCrfAttr(featPrefix, 'cluster', cluster))
-    }
-
-    if (!token.matchedEntities.length) {
-      vector.push(this._makeCrfAttr(featPrefix, 'word', token.cannonical.toLowerCase(), boost))
-    }
-
-    vector.push(this._makeCrfAttr(featPrefix, 'space', token.value.startsWith(SPACE)))
-    vector.push(this._makeCrfAttr(featPrefix, 'alpha', countAlpha(token.cannonical)))
-    vector.push(this._makeCrfAttr(featPrefix, 'num', countNum(token.cannonical)))
-    vector.push(this._makeCrfAttr(featPrefix, 'special', countSpecial(token.cannonical)))
-
-    // that means the word is part of possible list type entities and in intent vocab
-    const inVocab = !token.slot && _.get(intentVocab, token.cannonical.toLowerCase(), []).includes(intentName)
-    vector.push(this._makeCrfAttr(featPrefix, 'inVocab', inVocab))
-
-    const wordWeight = await getTFIDFfeature(
-      tfidf,
-      token.cannonical.toLowerCase(),
-      this.languageProvider,
-      token2Vec,
-      this.language
-    )
-    vector.push(this._makeCrfAttr(featPrefix, 'weight', wordWeight))
-
-    const entitiesFeatures = _.chain(token.matchedEntities)
-      .intersection(allowedEntities)
-      .thru(ents => (ents.length ? ents : ['none']))
-      .map(ent => this._makeCrfAttr(featPrefix, 'entity', ent, boost))
-      .value()
-
-    return [...vector, ...entitiesFeatures]
+    return [
+      await featurizer.getClusterFeat(token, this._ft, this._kmeansModel),
+      await featurizer.getWordWeight(tfidf, token, this.languageProvider, token2Vec, this.language),
+      featurizer.getWordFeat(token, isPredict),
+      featurizer.getInVocabFeat(token, intentVocab, intentName),
+      featurizer.getSpaceFeat(token),
+      featurizer.getAlpha(token),
+      featurizer.getNum(token),
+      featurizer.getSpecialChars(token),
+      ...featurizer.getEntitiesFeats(token, allowedEntities, isPredict)
+    ]
   }
 
-  private _makeCrfAttr = (prefix: string, attrName: string, attrVal: { toString: () => string }, boost = 1): string =>
-    `${prefix}${attrName}=${(attrVal && attrVal.toString()) || ''}:${boost}`
-
-  // TODO maybe use a slice instead of the whole token seq ?
-  private async _vectorize(
-    tokens: Token[],
-    intentName: string,
-    idx: number,
+  private async _getSlidingTokenFeatures(
+    seq: Sequence,
+    tokenIdx: number,
     intentVocab: { [token: string]: string[] },
     allowedEntities: string[],
     tfidf: TfidfOutput,
     token2Vec: Token2Vec,
     isPredict: boolean
   ): Promise<string[]> {
-    const boost = isPredict ? 100 : 100
-    const seqFeatures = [`intent=${intentName}:${boost}`.toLowerCase()]
-
-    const prev =
-      idx === 0
-        ? ['__BOS__']
-        : await this._vectorizeToken(
-            tokens[idx - 1],
-            intentName,
-            'w[-1]',
-            true,
-            intentVocab,
-            allowedEntities,
-            tfidf,
-            token2Vec,
-            isPredict
-          )
-
-    const current = await this._vectorizeToken(
-      tokens[idx],
-      intentName,
-      'w[0]',
-      false,
+    const prev = await this._featurizeToken(
+      seq.tokens[tokenIdx - 1],
+      seq.intent,
       intentVocab,
       allowedEntities,
       tfidf,
       token2Vec,
       isPredict
     )
-    current.push(`w[0]quartile=${quartile(idx, tokens.length - 1)}`)
 
-    const next =
-      idx === tokens.length - 1
-        ? ['__EOS__']
-        : await this._vectorizeToken(
-            tokens[idx + 1],
-            intentName,
-            'w[1]',
-            true,
-            intentVocab,
-            allowedEntities,
-            tfidf,
-            token2Vec,
-            isPredict
-          )
+    const current = [
+      featurizer.getIntentFeature(seq.intent),
+      featurizer.getTokenQuartile(seq, tokenIdx),
+      ...(await this._featurizeToken(
+        seq.tokens[tokenIdx],
+        seq.intent,
+        intentVocab,
+        allowedEntities,
+        tfidf,
+        token2Vec,
+        isPredict
+      ))
+    ].filter(f => _.get(f, 'name') !== 'cluster')
 
-    debugVectorize(`"${tokens[idx].cannonical}" (${idx})`, { prev, current, next })
+    const next = await this._featurizeToken(
+      seq.tokens[tokenIdx + 1],
+      seq.intent,
+      intentVocab,
+      allowedEntities,
+      tfidf,
+      token2Vec,
+      isPredict
+    )
 
-    const prevPairs = idx > 0 ? getFeaturesPairs(prev, current, ['word', 'vocab', 'weight']) : []
-    const nextPairs = idx < tokens.length - 1 ? getFeaturesPairs(current, next, ['word', 'vocab', 'weight']) : []
+    const prevPairs = featurizer.getFeatPairs(prev, current, ['word', 'vocab', 'weight'])
+    const nextPairs = featurizer.getFeatPairs(current, next, ['word', 'vocab', 'weight'])
+    const eos = tokenIdx === seq.tokens.length - 1 ? ['__EOS__'] : []
+    const bos = tokenIdx === 0 ? ['__BOS__'] : []
 
-    return [...seqFeatures, ...prev, ...current, ...next, ...prevPairs, ...nextPairs]
-  }
-
-  private async _getWordCluster(word: string): Promise<number> {
-    const vector = await this._ft.queryWordVectors(word)
-    return this._kmeansModel.nearest([vector])[0]
+    return [
+      ...bos,
+      ...prev.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]')),
+      ...current.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]')),
+      ...next.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[1]')),
+      ...prevPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]|w[0]')),
+      ...nextPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]|w[1]')),
+      ...eos
+    ] as string[]
   }
 }

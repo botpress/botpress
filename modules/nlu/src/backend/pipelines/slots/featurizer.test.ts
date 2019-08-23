@@ -1,70 +1,222 @@
-import { computeBucket, countAlpha, countNum, countSpecial, getFeaturesPairs } from './featureizer'
+import { MLToolkit } from 'botpress/sdk'
+
+import { SPACE } from '../../tools/token-utils'
+import { Sequence, Token } from '../../typings'
+import { getClosestToken } from '../language/ft_featurizer'
+jest.mock('../language/ft_featurizer', () => ({ getClosestToken: jest.fn() }))
+
+import {
+  CRFFeature,
+  featToCRFsuiteAttr,
+  getClusterFeat,
+  getEntitiesFeats,
+  getFeatPairs,
+  getFeaturesPairs,
+  getIntentFeature,
+  getInVocabFeat,
+  getTokenQuartile,
+  getWordFeat,
+  getWordWeight
+} from './featurizer'
+
+const AN_INTENT = 'Give-me Money!'
+const SOME_TOKENS = [
+  {
+    value: `${SPACE}I`,
+    cannonical: 'I',
+    matchedEntities: []
+  },
+  {
+    value: `${SPACE}need`,
+    cannonical: 'need',
+    matchedEntities: []
+  },
+  {
+    value: `${SPACE}five`,
+    cannonical: 'five',
+    matchedEntities: ['number']
+  },
+  {
+    value: `${SPACE}bucks`,
+    cannonical: 'bucks',
+    matchedEntities: ['animal', 'money']
+  }
+] as Token[]
+
+const A_SEQUENCE = {
+  tokens: SOME_TOKENS,
+  intent: AN_INTENT
+} as Sequence
 
 describe('CRF Featurizer', () => {
-  test('Compute quartile', () => {
-    const quartile = computeBucket(4)
+  test('featToCRFsuiteAttr', () => {
+    const feats = [
+      {
+        name: 'feat',
+        value: 1
+      },
+      {
+        name: 'feat0',
+        value: false,
+        boost: 1000
+      }
+    ] as CRFFeature[]
 
-    expect(quartile(0, 10)).toEqual(1)
-    expect(quartile(1, 10)).toEqual(1)
-    expect(quartile(2, 10)).toEqual(1)
-
-    expect(quartile(3, 10)).toEqual(2)
-    expect(quartile(4, 10)).toEqual(2)
-    expect(quartile(5, 10)).toEqual(2)
-
-    expect(quartile(6, 10)).toEqual(3)
-    expect(quartile(7, 10)).toEqual(3)
-
-    expect(quartile(8, 10)).toEqual(4)
-    expect(quartile(9, 10)).toEqual(4)
-    expect(quartile(10, 10)).toEqual(4)
-    expect(quartile(11, 10)).toEqual(4)
+    expect(featToCRFsuiteAttr('pref', feats[0])).toEqual('preffeat=1:1')
+    expect(featToCRFsuiteAttr('else', feats[1])).toEqual('elsefeat0=false:1000')
   })
 
   test('getFeaturesPairs', () => {
-    const vec0 = ['w[0]name=1', 'w[0]stop=1', 'w[0]ent=slim', 'w[0]isReal=false', 'w[0]nullfeat=']
-    const vec1 = ['w[1]stop=0', 'w[1]name=2', 'w[1]nullfeat=notnull']
-    const feats = ['name', 'stop', 'nullfeat']
-    const featPairs = getFeaturesPairs(vec0, vec1, feats)
+    const features = [
+      { name: 'name', value: 2 },
+      { name: 'otherfeat', value: false, boost: 5 },
+      { name: 'diff', value: 'nothing' }
+    ] as CRFFeature[]
+    const features1 = [
+      { name: 'name', value: 3 },
+      { name: 'otherfeat', value: true, boost: 2 },
+      { name: 'feat', value: 'nothing' }
+    ] as CRFFeature[]
 
-    expect(featPairs.length).toEqual(2)
-    expect(featPairs[0]).toEqual('w[0]|w[1]name=1|2')
-    expect(featPairs[1]).toEqual('w[0]|w[1]stop=1|0')
+    const featPairs = getFeatPairs(features, features1, ['name', 'otherfeat', 'feat', 'wrongFeat'])
+
+    expect(featPairs.length).toEqual(3)
+
+    expect(featPairs[0].name).toEqual('name')
+    expect(featPairs[0].value).toEqual('2|3')
+    expect(featPairs[0].boost).toEqual(1)
+
+    expect(featPairs[1].name).toEqual('otherfeat')
+    expect(featPairs[1].value).toEqual('false|true')
+    expect(featPairs[1].boost).toEqual(5)
+
+    expect(featPairs[2].name).toEqual('feat')
+    expect(featPairs[2].value).toEqual('null|nothing')
+    expect(featPairs[2].boost).toEqual(1)
   })
 
-  test('countAlpha', () => {
-    expect(countAlpha('')).toEqual(0)
-    expect(countAlpha('A')).toEqual(1)
-    expect(countAlpha('4')).toEqual(0)
-    expect(countAlpha('µ')).toEqual(0)
-    expect(countAlpha('    ')).toEqual(0)
-    expect(countAlpha('  A  ')).toEqual(1)
-    expect(countAlpha('  4 ')).toEqual(0)
-    expect(countAlpha('  µ ')).toEqual(0)
-    expect(countAlpha('MyNaµis åntH0n¥')).toEqual(10)
+  test('getWordWeight', async () => {
+    const closest_token = 'something'
+    const closest_token1 = 'something1'
+    const closest_token2 = 'something2'
+    const a_wordvec = [0.23, 0.123, 0.543, 1.123, 3.45]
+    const token2Vec = {}
+    const tfidf = {
+      global: {
+        [SOME_TOKENS[0].cannonical.toLowerCase()]: 0.5,
+        [closest_token]: 0.5,
+        [closest_token1]: 1.2,
+        [closest_token2]: 1.7
+      }
+    }
+
+    const mockedLangageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
+    getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token))
+    getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token1))
+    getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token2))
+
+    const feat = await getWordWeight(tfidf, SOME_TOKENS[0], mockedLangageProvider, token2Vec, 'en')
+    const feat1 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
+    const feat2 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
+    const feat3 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
+
+    expect(feat.value).toEqual('low')
+    expect(feat1.value).toEqual('low')
+    expect(feat2.value).toEqual('medium')
+    expect(feat3.value).toEqual('high')
+
+    expect(getClosestToken).toHaveBeenCalledTimes(3)
+    expect(getClosestToken.mock.calls[0][0]).toEqual(SOME_TOKENS[3].cannonical.toLowerCase())
   })
 
-  test('countNum', () => {
-    expect(countNum('')).toEqual(0)
-    expect(countNum('A')).toEqual(0)
-    expect(countNum('4')).toEqual(1)
-    expect(countNum('µ')).toEqual(0)
-    expect(countNum('    ')).toEqual(0)
-    expect(countNum('  A  ')).toEqual(0)
-    expect(countNum('  4 ')).toEqual(1)
-    expect(countNum('  µ ')).toEqual(0)
-    expect(countNum('MyNaµis åntH0n¥')).toEqual(1)
+  test('getClusterFeat', async () => {
+    const vec = [0, 1, 2]
+    const cluster = 4
+    const mockedKmeans = { nearest: jest.fn(() => [cluster]) }
+    const mockedLangModel: MLToolkit.FastText.Model = {
+      queryWordVectors: jest.fn(() => Promise.resolve(vec))
+    }
+
+    const feat = await getClusterFeat(SOME_TOKENS[0], mockedLangModel, mockedKmeans)
+
+    expect(mockedLangModel.queryWordVectors).toBeCalledWith(SOME_TOKENS[0].cannonical.toLowerCase())
+    expect(mockedKmeans.nearest.mock.calls[0][0]).toEqual([vec])
+    expect(feat.name).toEqual('cluster')
+    expect(feat.value).toEqual(cluster)
   })
 
-  test('countSpecial', () => {
-    expect(countSpecial('')).toEqual(0)
-    expect(countSpecial('A')).toEqual(0)
-    expect(countSpecial('4')).toEqual(0)
-    expect(countSpecial('µ')).toEqual(1)
-    expect(countSpecial('     ')).toEqual(0)
-    expect(countSpecial('  A  ')).toEqual(0)
-    expect(countSpecial('  4 ')).toEqual(0)
-    expect(countSpecial('  µ ')).toEqual(1)
-    expect(countSpecial('MyNaµis åntH0n¥')).toEqual(3)
+  test('getWordFeat', () => {
+    const feat = getWordFeat(SOME_TOKENS[0], false)
+    const feat1 = getWordFeat(SOME_TOKENS[1], true)
+
+    expect(feat.value).toEqual('i')
+    expect(feat.boost).toEqual(1)
+    expect(feat1.value).toEqual('need')
+    expect(feat1.boost).toEqual(3)
+  })
+
+  test('getInVocabFeat', () => {
+    const anotherIntent = 'find flight'
+    const vocab = {
+      i: [AN_INTENT, anotherIntent],
+      need: [AN_INTENT, anotherIntent],
+      five: [AN_INTENT],
+      bucks: [AN_INTENT]
+    }
+    const tok = {
+      cannonical: 'fly'
+    } as Token
+
+    const feat0 = getInVocabFeat(tok, vocab, AN_INTENT)
+    const feat1 = getInVocabFeat(tok, vocab, anotherIntent)
+    const feat2 = getInVocabFeat(SOME_TOKENS[0], vocab, AN_INTENT)
+    const feat3 = getInVocabFeat(SOME_TOKENS[0], vocab, anotherIntent)
+    const feat4 = getInVocabFeat(SOME_TOKENS[3], vocab, AN_INTENT)
+    const feat5 = getInVocabFeat(SOME_TOKENS[3], vocab, anotherIntent)
+
+    expect(feat0.value).toEqual(false)
+    expect(feat1.value).toEqual(false)
+    expect(feat2.value).toEqual(true)
+    expect(feat3.value).toEqual(true)
+    expect(feat4.value).toEqual(true)
+    expect(feat5.value).toEqual(false)
+  })
+
+  test('getEntitiesFeats', () => {
+    const allowedEntities = ['animal']
+    const feats0 = getEntitiesFeats(SOME_TOKENS[0], allowedEntities, true)
+    const feats1 = getEntitiesFeats(SOME_TOKENS[1], allowedEntities, false)
+    const feats2 = getEntitiesFeats(SOME_TOKENS[2], allowedEntities, false)
+    const feats3 = getEntitiesFeats(SOME_TOKENS[3], allowedEntities, false)
+
+    expect(feats0.length).toEqual(1)
+    expect(feats0[0].value).toEqual('none')
+    expect(feats0[0].boost).toEqual(3)
+    expect(feats1.length).toEqual(1)
+    expect(feats1[0].value).toEqual('none')
+    expect(feats1[0].boost).toEqual(1)
+    expect(feats2.length).toEqual(1)
+    expect(feats2[0].value).toEqual('none')
+    expect(feats2[0].boost).toEqual(1)
+    expect(feats3.length).toEqual(1)
+    expect(feats3[0].value).toEqual('animal')
+    expect(feats3[0].boost).toEqual(1)
+  })
+
+  test('getIntentFeature', () => {
+    const res = getIntentFeature(A_SEQUENCE.intent)
+    expect(res.value).toEqual('give-memoney')
+  })
+
+  test('getTokenQuartile', () => {
+    const res0 = getTokenQuartile(A_SEQUENCE, 0)
+    const res1 = getTokenQuartile(A_SEQUENCE, 1)
+    const res2 = getTokenQuartile(A_SEQUENCE, 2)
+    const res3 = getTokenQuartile(A_SEQUENCE, 3)
+
+    expect(res0.value).toEqual(1)
+    expect(res1.value).toEqual(2)
+    expect(res2.value).toEqual(3)
+    expect(res3.value).toEqual(4)
   })
 })
