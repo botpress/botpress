@@ -6,6 +6,7 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
+import cluster from 'cluster'
 import { Botpress, Config, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
@@ -16,6 +17,13 @@ import os from 'os'
 import { FatalError } from './errors'
 
 async function start() {
+  if (cluster.isMaster) {
+    cluster.fork()
+  } else {
+    // The worker doesn't need anything else beside rewire and getos
+    return
+  }
+
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
 {bold ${center(`Botpress Server`, 40)}}

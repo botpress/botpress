@@ -31,6 +31,29 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
+    callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined,
+    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>
+  ): Promise<string> {
+    if (options) {
+      const args = { ...DefaultTrainArgs, ...options }
+
+      this.clf = new binding.SVM({
+        svmType: args.classifier,
+        kernelType: args.kernel,
+        c: args.c,
+        gamma: args.gamma,
+        reduce: false,
+        probability: true,
+        kFold: 4
+      })
+    }
+
+    await this._train(points, callback)
+    return this.serialize()
+  }
+
+  private async _train(
+    points: sdk.MLToolkit.SVM.DataPoint[],
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<any> {
     this.labels = []

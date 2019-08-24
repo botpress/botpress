@@ -93,6 +93,9 @@ export default class SVMClassifier {
   }
 
   public async train(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string): Promise<Model[]> {
+    const svmOptions: Partial<sdk.MLToolkit.SVM.SVMOptions> = { kernel: 'LINEAR', classifier: 'C_SVC' }
+    const svm = new this.toolkit.SVM.Trainer(svmOptions)
+
     this.realtime.sendPayload(
       this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(identityProgress)(0.1))
     )
@@ -204,18 +207,15 @@ export default class SVMClassifier {
         }
       }
 
-      const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-
-      const ratioedProgressForIndex = ratioedProgress(index)
-
-      await svm.train(l1Points, progress => {
+      const updateProgress = progress => {
         this.realtime.sendPayload(
           this.realtimePayload.forAdmins('statusbar.event', getProgressPayload(ratioedProgressForIndex)(progress))
         )
         debugTrain('SVM => progress for INT', { context, progress })
-      })
+      }
 
-      const modelStr = svm.serialize()
+      const ratioedProgressForIndex = ratioedProgress(index)
+      const modelStr = await svm.train(l1Points, updateProgress, svmOptions)
 
       models.push({
         meta: { context, created_on: Date.now(), hash: modelHash, scope: 'bot', type: 'intent-l1' },
@@ -223,9 +223,11 @@ export default class SVMClassifier {
       })
     }
 
-    const svm = new this.toolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-    await svm.train(l0Points, progress => debugTrain('SVM => progress for CTX %d', progress))
-    const ctxModelStr = svm.serialize()
+    const ctxModelStr = await svm.train(
+      l0Points,
+      progress => debugTrain('SVM => progress for CTX %d', progress),
+      svmOptions
+    )
 
     this.l1Tfidf = _.mapValues(l1Tfidf, x => x['__avg__'])
     this.l0Tfidf = l0Tfidf['__avg__']
