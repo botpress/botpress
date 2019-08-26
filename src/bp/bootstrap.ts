@@ -19,8 +19,8 @@ import { FatalError } from './errors'
 
 async function start() {
   if (cluster.isMaster) {
-    setupMasterNode(await Logger('Cluster'))
-    return
+    // The master process only needs getos and rewire
+    return setupMasterNode(await Logger('Cluster'))
   }
 
   const logger = await Logger('Launcher')

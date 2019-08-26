@@ -2,6 +2,8 @@ import sdk from 'botpress/sdk'
 import cluster from 'cluster'
 import yn from 'yn'
 
+const debug = DEBUG('cluster')
+
 const msgHandlers: { [messageType: string]: (message: any, worker: cluster.Worker) => void } = {}
 
 /**
@@ -19,7 +21,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     worker.kill()
   })
 
-  cluster.on('exit', () => {
+  cluster.on('exit', (worker, code, signal) => {
+    debug(`Process exiting %o`, { workerId: worker.id, code, signal })
+
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
       cluster.fork()
     }
