@@ -13,9 +13,9 @@ import {
   FaPlusSquare,
   FaSquare
 } from 'react-icons/fa'
+import { toastSuccess } from '~/utils/toaster'
 
 import api from '../../api'
-import { AppToaster } from '../../utils/toaster'
 import SectionLayout from '../Layouts/Section'
 
 export default class Debug extends React.Component<Props, State> {
@@ -57,7 +57,7 @@ export default class Debug extends React.Component<Props, State> {
     const debugScope = this.state.checked && this.state.checked.join(',')
     await api.getSecured().post(`/admin/server/debug`, { debugScope, persist: this.state.persist })
 
-    AppToaster.show({ message: 'Debug configuration updated successfully!', intent: Intent.SUCCESS, timeout: 2000 })
+    toastSuccess('Debug configuration updated successfully!')
   }
 
   handlePersistChanged = (e: any) => this.setState({ persist: e.target.checked })
