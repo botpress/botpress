@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
+import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
@@ -94,6 +95,7 @@ export class EventEngine {
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
   ) {
     this.incomingQueue.subscribe(async event => {
+      await this._infoMiddleware(event)
       this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
       await incoming.run(event)
@@ -227,6 +229,24 @@ export class EventEngine {
     const result = joi.validate(event, eventSchema)
     if (result.error) {
       throw new VError(result.error, 'Invalid Botpress Event')
+    }
+  }
+
+  private async _infoMiddleware(event: sdk.IO.Event) {
+    const sendText = async text => {
+      await this.replyToEvent(event, [{ text, markdown: true }])
+      event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+    }
+
+    if (event.preview === 'BP_VERSION') {
+      await sendText(`Version: ${process.BOTPRESS_VERSION}`)
+    } else if (event.preview === 'BP_LICENSE') {
+      await sendText(
+        `**Botpress Pro**
+Available: ${process.IS_PRO_AVAILABLE}
+Enabled: ${process.IS_PRO_ENABLED}
+Licensed: ${process.IS_LICENSED}`
+      )
     }
   }
 }
