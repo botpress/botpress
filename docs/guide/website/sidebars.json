@@ -19,11 +19,11 @@
       "advanced/i18n",
       "advanced/custom-module",
       "advanced/analytics",
-      "advanced/architecture",
       "advanced/performances",
       "advanced/hosting",
       "advanced/versions",
       "advanced/pipelines",
+      "advanced/development-pipeline",
       "advanced/cluster",
       "advanced/monitoring"
     ],
@@ -31,11 +31,13 @@
       "channels/web",
       "channels/messenger",
       "channels/telegram",
+      "channels/teams",
       "channels/converse",
-      "channels/faq",
-      "channels/teams"
+      "channels/slack",
+      "channels/faq"
     ],
     "Tutorials": [
+      "tutorials/cluster-digital-ocean",
       "tutorials/intent-matching",
       "tutorials/proactive",
       "tutorials/skill-slot",

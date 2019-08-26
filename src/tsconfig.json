@@ -18,6 +18,7 @@
     "types": ["reflect-metadata", "jest", "bluebird-global"]
   },
   "exclude": [
+    "e2e/**",
     "**/*.__test__.(ts|js)",
     "../out",
     "**/node_modules/**/*.(ts|js)",

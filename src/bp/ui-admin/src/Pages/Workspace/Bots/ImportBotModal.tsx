@@ -43,7 +43,6 @@ class ImportBotModal extends Component<Props, State> {
     this.setState({ isProcessing: true })
 
     try {
-      // @ts-ignore
       await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
         headers: { 'Content-Type': 'application/tar+gzip' }
       })
@@ -102,13 +101,13 @@ class ImportBotModal extends Component<Props, State> {
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
-              labelFor="text-input"
+              labelFor="input-botId"
               labelInfo="*"
               helperText="This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it.
               Special characters are not allowed. Minimum length: 4"
             >
               <InputGroup
-                id="text-input"
+                id="input-botId"
                 tabIndex={1}
                 placeholder="The ID of your bot"
                 intent={Intent.PRIMARY}
@@ -133,8 +132,10 @@ class ImportBotModal extends Component<Props, State> {
             </FormGroup>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
+            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
+                id="btn-upload"
                 tabIndex={3}
                 type="submit"
                 text={this.state.isProcessing ? 'Please wait...' : 'Import Bot'}

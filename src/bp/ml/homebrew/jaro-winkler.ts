@@ -1,12 +1,12 @@
 const defaults = { caseSensitive: true }
 
 /**
- * Returns the jaro-winkler distance between two strings
+ * Returns the jaro-winkler similarity between two strings
  * @param s1 String A
  * @param s2 String B
  * @returns A number between 0 and 1, where 1 means very similar
  */
-export default function distance(s1, s2, options: { caseSensitive: boolean } = defaults): number {
+export default function similarity(s1, s2, options: { caseSensitive: boolean } = defaults): number {
   let m = 0
 
   let i
