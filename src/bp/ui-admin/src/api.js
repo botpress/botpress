@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import * as licensing from './Auth/licensing'
 
 const defaultOptions = {
-  timeout: 2000
+  timeout: 6000
 }
 
 const createClient = (clientOptions, { toastErrors, addInterceptor }) => {
@@ -74,7 +74,7 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token, toastErrors = true, timeout = 2000 } = {}) {
+  getSecured({ token, toastErrors = true, timeout = 6000 } = {}) {
     if (!token) {
       const ls = pullToken()
       token = ls && ls.token
