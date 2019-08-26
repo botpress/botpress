@@ -157,7 +157,7 @@ class CreateBotModal extends Component<Props, State> {
             "Bot" by default.`}
             >
               <InputGroup
-                id="bot-name"
+                id="input-bot-name"
                 tabIndex={1}
                 placeholder="The name of your bot"
                 minLength={3}
@@ -189,7 +189,7 @@ class CreateBotModal extends Component<Props, State> {
             {this.state.templates.length > 0 && (
               <FormGroup label="Bot Template" labelFor="template">
                 <Select
-                  id="template"
+                  id="select-bot-templates"
                   tabIndex="3"
                   options={this.state.templates}
                   value={this.state.selectedTemplate}
@@ -214,6 +214,7 @@ class CreateBotModal extends Component<Props, State> {
             {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
+                id="btn-modal-create-bot"
                 type="submit"
                 text={this.state.isProcessing ? 'Please wait...' : 'Create Bot'}
                 onClick={this.createBot}

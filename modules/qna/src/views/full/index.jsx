@@ -257,6 +257,7 @@ export default class QnaAdmin extends Component {
             <FormGroup>
               <ControlLabel>JSON file</ControlLabel>
               <FormControl
+                id="input-file"
                 type="file"
                 accept=".json"
                 onChange={e => this.setState({ jsonToUpload: e.target.files[0] })}
@@ -265,6 +266,7 @@ export default class QnaAdmin extends Component {
             </FormGroup>
             <FormGroup>
               <Checkbox
+                id="chk-replace"
                 checked={this.state.isJsonUploadReplace}
                 onChange={e => this.setState({ isJsonUploadReplace: e.target.checked })}
               >
@@ -275,7 +277,12 @@ export default class QnaAdmin extends Component {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.uploadJson} disabled={!Boolean(this.state.jsonToUpload)}>
+          <Button
+            id="btn-upload"
+            bsStyle="primary"
+            onClick={this.uploadJson}
+            disabled={!Boolean(this.state.jsonToUpload)}
+          >
             Upload
           </Button>
         </Modal.Footer>
@@ -292,6 +299,7 @@ export default class QnaAdmin extends Component {
         </div>
         <ButtonGroup style={{ float: 'right' }}>
           <Button
+            id="btn-import"
             bsStyle="default"
             onClick={() =>
               this.setState({
@@ -305,7 +313,7 @@ export default class QnaAdmin extends Component {
           >
             Import from JSON
           </Button>
-          <Button bsStyle="default" onClick={this.downloadJson} type="button">
+          <Button id="btn-export" bsStyle="default" onClick={this.downloadJson} type="button">
             Export to JSON
           </Button>
         </ButtonGroup>
@@ -316,6 +324,7 @@ export default class QnaAdmin extends Component {
   renderSearch = () => (
     <React.Fragment>
       <FormControl
+        id="input-search"
         value={this.state.filterQuestion}
         onChange={this.onQuestionsFilter}
         placeholder="Search for a question"
@@ -323,6 +332,7 @@ export default class QnaAdmin extends Component {
       />
       {this.state.categoryOptions.length && (
         <Select
+          id="select-category"
           className={style.categoryFilter}
           multi
           value={this.state.filterCategory}
@@ -332,6 +342,7 @@ export default class QnaAdmin extends Component {
         />
       )}
       <Button
+        id="btn-create-qna"
         className={style.qnaNavBarAddNew}
         bsStyle="primary"
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
@@ -415,7 +426,7 @@ export default class QnaAdmin extends Component {
 
     return (
       <Well className={style.qnaItem} bsSize="small" key={id}>
-        <div className={style.itemContainer}>
+        <div className={style.itemContainer} role="entry">
           {!questions.length && (
             <div className={style.itemQuestions}>
               <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
@@ -458,7 +469,10 @@ export default class QnaAdmin extends Component {
           ) : null}
         </div>
         <div className={style.itemAction}>
-          <i className={classnames('material-icons', style.itemActionDelete)} onClick={this.deleteItem(id)}>
+          <i
+            className={classnames('material-icons', style.itemActionDelete, 'icon-delete')}
+            onClick={this.deleteItem(id)}
+          >
             delete
           </i>
           {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}

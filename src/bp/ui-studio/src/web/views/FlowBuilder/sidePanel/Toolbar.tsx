@@ -88,10 +88,10 @@ const MiniToolbar = props => {
     <Toolbar>
       <LeftToolbarButtons>
         <Tooltip content="Undo" position={Position.BOTTOM}>
-          <AnchorButton icon="undo" disabled={!props.canUndo} onClick={props.undo} />
+          <AnchorButton id="btn-undo" icon="undo" disabled={!props.canUndo} onClick={props.undo} />
         </Tooltip>
         <Tooltip content="Redo" position={Position.BOTTOM}>
-          <AnchorButton icon="redo" disabled={!props.canRedo} onClick={props.redo} />
+          <AnchorButton id="btn-redo" icon="redo" disabled={!props.canRedo} onClick={props.redo} />
         </Tooltip>
       </LeftToolbarButtons>
       <RightToolbarButtons>
