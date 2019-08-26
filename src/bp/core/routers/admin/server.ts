@@ -86,12 +86,7 @@ export class ServerRouter extends CustomRouter {
 
         res.sendStatus(200)
 
-        // Timeout is only to allow the response to reach the asking user
-        setTimeout(() => {
-          process.send && process.send({ type: 'reboot' })
-
-          process.exit()
-        }, 100)
+        process.send && process.send({ type: 'reboot_server' })
       })
     )
 

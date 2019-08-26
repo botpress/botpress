@@ -1,39 +1,46 @@
+import sdk from 'botpress/sdk'
 import cluster from 'cluster'
+import yn from 'yn'
 
-const listeners: { [eventType: string]: (message: any, worker: cluster.Worker) => void } = {}
+const msgHandlers: { [messageType: string]: (message: any, worker: cluster.Worker) => void } = {}
 
-// Registers handlers for messages received by workers (they must be re-created when the worker is restarted)
-export const registerListener = (type: string, handler: (message: any, worker: cluster.Worker) => void) => {
-  listeners[type] = handler
+/**
+ * The master process handles training and rebooting the server.
+ * The worker process runs the actual server
+ */
+export const registerMsgHandler = (messageType: string, handler: (message: any, worker: cluster.Worker) => void) => {
+  msgHandlers[messageType] = handler
 }
 
-export const setupCluster = () => {
-  if (cluster.isMaster) {
-    registerListener('reboot', (message, worker) => {
-      console.warn(`Restarting server...`)
-      try {
-        worker.disconnect()
-        worker.kill()
-      } catch (err) {
-        console.error(`Error while restarting server: ${err}`)
-      }
-    })
+export const setupCluster = (logger: sdk.Logger) => {
+  if (!cluster.isMaster) {
+    return
+  }
 
-    const setupMessaging = (worker: cluster.Worker) => {
-      worker.on('message', message => {
-        const handler = listeners[message.type]
-        if (handler) {
-          handler(message, worker)
-        } else {
-          console.error(`No handler configured for ${message.type}`)
-        }
-      })
+  registerMsgHandler('reboot_server', (message, worker) => {
+    logger.warn(`Restarting server...`)
+    worker.disconnect()
+    worker.kill()
+  })
+
+  cluster.on('exit', () => {
+    if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
+      cluster.fork()
+    }
+  })
+
+  cluster.on('message', (worker: cluster.Worker, message: any) => {
+    const handler = msgHandlers[message.type]
+    if (!handler) {
+      return logger.error(`No handler configured for ${message.type}`)
     }
 
-    cluster.on('exit', (deadWorker, code, signal) => {
-      setupMessaging(cluster.fork())
-    })
+    try {
+      handler(message, worker)
+    } catch (err) {
+      logger.attachError(err).error(`Error while processing worker message ${message.type}`)
+    }
+  })
 
-    setupMessaging(cluster.fork())
-  }
+  cluster.fork()
 }

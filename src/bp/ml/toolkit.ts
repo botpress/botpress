@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import cluster from 'cluster'
 
-import { registerListener } from '../cluster'
+import { registerMsgHandler } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -48,12 +48,13 @@ if (cluster.isWorker) {
 }
 
 if (cluster.isMaster) {
-  registerListener('svm_train', async (msg, worker) => {
-    if (msg.type === 'svm_train') {
-      const svm = new SVMTrainer()
-      const result = await svm.train(msg.points, msg.options, progress => worker.send({ type: 'progress', progress }))
-      worker.send({ type: 'svm_trained', result })
-    }
+  registerMsgHandler('svm_train', async (msg, worker) => {
+    const sendToWorker = event => worker.isConnected() && worker.send(event)
+
+    const svm = new SVMTrainer()
+    const result = await svm.train(msg.points, msg.options, progress => sendToWorker({ type: 'progress', progress }))
+
+    sendToWorker({ type: 'svm_trained', result })
   })
 }
 

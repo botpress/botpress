@@ -18,7 +18,7 @@ import { setupCluster } from './cluster'
 import { FatalError } from './errors'
 
 async function start() {
-  setupCluster()
+  setupCluster(await Logger('Cluster'))
 
   if (cluster.isMaster) {
     return
