@@ -14,13 +14,12 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
-import { setupCluster } from './cluster'
+import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
 
 async function start() {
-  setupCluster(await Logger('Cluster'))
-
   if (cluster.isMaster) {
+    setupMasterNode(await Logger('Cluster'))
     return
   }
 

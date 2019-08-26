@@ -12,11 +12,7 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
   msgHandlers[messageType] = handler
 }
 
-export const setupCluster = (logger: sdk.Logger) => {
-  if (!cluster.isMaster) {
-    return
-  }
-
+export const setupMasterNode = (logger: sdk.Logger) => {
   registerMsgHandler('reboot_server', (message, worker) => {
     logger.warn(`Restarting server...`)
     worker.disconnect()
