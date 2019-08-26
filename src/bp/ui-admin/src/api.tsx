@@ -2,8 +2,31 @@ import axios from 'axios'
 import Promise from 'bluebird'
 import _ from 'lodash'
 
-import { toastError } from './utils/toaster'
+import { toastFailure } from './utils/toaster'
 import { getActiveWorkspace, logout, pullToken } from './Auth'
+
+export const toastError = error => {
+  const errorCode = _.get(error, 'response.data.errorCode') || _.get(error, 'errorCode')
+  const details = _.get(error, 'response.data.message') || _.get(error, 'message')
+  const docs = _.get(error, 'response.data.docs') || _.get(error, 'docs')
+
+  let message = (
+    <span>
+      {errorCode && <span>[{errorCode}]</span>} {details}{' '}
+      {docs && (
+        <a href={docs} target="_blank">
+          More informations
+        </a>
+      )}
+    </span>
+  )
+
+  if (!errorCode && !message) {
+    message = <span>Something wrong happened. Please try again later.</span>
+  }
+
+  toastFailure(message)
+}
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {
   const client = axios.create({ timeout: 2000, ...clientOptions })
