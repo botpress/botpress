@@ -69,13 +69,17 @@ class ImportBotModal extends Component<Props, State> {
 
   handleBotIdChanged = e => this.setState({ botId: sanitizeBotId(e.target.value) }, this.checkIdAvailability)
 
-  handleFileChanged = e => {
+  handleFileChanged = (files: FileList | null) => {
+    if (!files) {
+      return
+    }
+
     const fr = new FileReader()
-    fr.readAsArrayBuffer(e.target.files[0])
+    fr.readAsArrayBuffer(files[0])
     fr.onload = loadedEvent => {
       this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
-    this.setState({ filePath: e.target.value })
+    this.setState({ filePath: files[0].name })
   }
 
   toggleDialog = () => {
@@ -118,18 +122,26 @@ class ImportBotModal extends Component<Props, State> {
               />
             </FormGroup>
 
-            <FormGroup
-              label="Bot Archive"
-              labelInfo="*"
-              labelFor="archive"
-              helperText="File must be a valid .zip or .tgz archive"
+            <div
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault()
+                this.handleFileChanged(e.dataTransfer.files)
+              }}
             >
-              <FileInput
-                tabIndex={2}
-                text={this.state.filePath || 'Choose file...'}
-                onChange={this.handleFileChanged}
-              />
-            </FormGroup>
+              <FormGroup
+                label="Bot Archive"
+                labelInfo="*"
+                labelFor="archive"
+                helperText="File must be a valid .zip or .tgz archive"
+              >
+                <FileInput
+                  tabIndex={2}
+                  text={this.state.filePath || 'Choose file...'}
+                  onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
+                />
+              </FormGroup>
+            </div>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
             {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
