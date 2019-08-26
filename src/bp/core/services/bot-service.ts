@@ -1,5 +1,5 @@
-import { BotConfig, BotTemplate, Logger, LoggerListener, Stage } from 'botpress/sdk'
-import { BotCreationSchema, BotEditSchema } from 'common/validation'
+import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
 import { PersistedConsoleLogger } from 'core/logger'
@@ -215,6 +215,10 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+    if (!isValidBotId(botId)) {
+      throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
+    }
+
     if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)

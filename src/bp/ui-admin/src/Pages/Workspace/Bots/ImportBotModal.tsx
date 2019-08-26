@@ -132,6 +132,7 @@ class ImportBotModal extends Component<Props, State> {
             </FormGroup>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
+            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
                 tabIndex={3}
