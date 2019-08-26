@@ -51,6 +51,7 @@ export default class RealtimeService {
   installOnHttpServer(server: Server) {
     const io: socketio.Server = socketio(server, {
       transports: ['websocket', 'polling'],
+      path: `${process.ROOT_PATH}/socket.io`,
       origins: '*:*',
       serveClient: false
     })
