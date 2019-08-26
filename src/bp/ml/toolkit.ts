@@ -25,20 +25,20 @@ const MLToolkit: typeof sdk.MLToolkit = {
 if (cluster.isMaster) {
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
-    callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined,
+    progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined,
     options?: Partial<sdk.MLToolkit.SVM.SVMOptions>
   ): any => {
-    return Promise.fromCallback(cb => {
+    return Promise.fromCallback(completedCb => {
       const worker = cluster.workers[1]!
 
       const messageHandler = msg => {
-        if (callback && msg.type === 'progress') {
-          callback(msg.progress)
+        if (progressCb && msg.type === 'progress') {
+          progressCb(msg.progress)
         }
 
         if (msg.type === 'svm_trained') {
           worker.off('message', messageHandler)
-          cb(undefined, msg.result)
+          completedCb(undefined, msg.result)
         }
       }
 
