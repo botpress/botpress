@@ -11,6 +11,7 @@ import { BIO, Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
 
 import * as featurizer from './featurizer'
+import { labelizeUtterance } from './labeler'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -18,12 +19,8 @@ const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
 
-// TODO get of this / move this somewhere
-const crfPayloadProgress = progress => ({
-  value: 0.75 + Math.floor(progress / 4)
-})
-
-const createProgressPayload = getProgressPayload(crfPayloadProgress)
+// TODOS:
+// clean the extract method, split & test
 
 const MIN_SLOT_CONFIDENCE = 0.1
 // TODO grid search / optimization for those hyperparams
@@ -50,9 +47,7 @@ export interface KMeansModel {
 
 export default class CRFExtractor {
   private _isTrained: boolean = false
-  private _ftModelFn = ''
   private _crfModelFn = ''
-  private _ft!: sdk.MLToolkit.FastText.Model
   private _tagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel: KMeansModel
 
@@ -64,15 +59,7 @@ export default class CRFExtractor {
     private readonly language: string
   ) {}
 
-  async load(traingingSet: Sequence[], languageModelBuf: Buffer, crf: Buffer) {
-    // load language model
-    const ftModelFn = tmp.tmpNameSync({ postfix: '.bin' })
-    fs.writeFileSync(ftModelFn, languageModelBuf)
-
-    const ft = new this.toolkit.FastText.Model()
-    await ft.loadFromFile(ftModelFn)
-    this._ft = ft
-    this._ftModelFn = ftModelFn
+  async load(traingingSet: Sequence[], crf: Buffer) {
     // load kmeans (retrain because there is no simple way to store it)
     await this._trainKmeans(traingingSet)
 
@@ -90,36 +77,31 @@ export default class CRFExtractor {
     allowedEntitiesPerIntents: { [name: string]: string[] },
     tfidf: TfidfOutput,
     token2Vec: Token2Vec
-  ): Promise<{ language: Buffer; crf: Buffer }> {
+  ): Promise<{ crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
       debugTrain('start training')
-      debugTrain('training language model')
-      await this._trainLanguageModel(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.2)))
 
       debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.4)))
+      this.notifyTrainingProgress(0.33)
 
       debugTrain('training CRF')
       await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents, tfidf, token2Vec)
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.6)))
+      this.notifyTrainingProgress(0.66)
 
       debugTrain('reading tagger')
       this._tagger = this.toolkit.CRF.createTagger()
       await this._tagger.open(this._crfModelFn)
       this._isTrained = true
       debugTrain('done training')
-      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(0.8)))
+      this.notifyTrainingProgress(0.99)
       return {
-        language: readFileSync(this._ftModelFn),
         crf: readFileSync(this._crfModelFn)
       }
     } else {
       debugTrain('training set too small, skipping training')
       return {
-        language: undefined,
         crf: undefined
       }
     }
@@ -159,7 +141,8 @@ export default class CRFExtractor {
     const tags = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
 
     // notice usage of zip here, we want to loop on tokens and tags at the same index
-    return (_.zip(seq.tokens, tags) as [Token, TagResult][])
+    // TODO extract this filtering func
+    return _.zip(seq.tokens, tags)
       .filter(([token, result]) => {
         if (!token || !result || !result.label || result.label === BIO.OUT) {
           return false
@@ -169,7 +152,7 @@ export default class CRFExtractor {
         return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
       })
       .reduce((slotCollection: any, [token, tag]) => {
-        // TODO test this
+        // TODO extract and test this
         const slotName = tag.label.slice(2)
         const slotDef = intentDef.slots.find(x => x.name == slotName)
 
@@ -209,6 +192,17 @@ export default class CRFExtractor {
       }, {})
   }
 
+  // I simply moved stuff here
+  // implement this properly, dispatch progress event and let caller be responsible for this
+  private notifyTrainingProgress(progress: number) {
+    const crfPayloadProgress = (prog: number) => ({
+      value: 0.75 + Math.floor(prog / 4)
+    })
+    const createProgressPayload = getProgressPayload(crfPayloadProgress)
+
+    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(progress)))
+  }
+
   // this is made "protected" to facilitate model validation
   async _tag(
     seq: Sequence,
@@ -240,7 +234,7 @@ export default class CRFExtractor {
     )
   }
 
-  // TODO test this
+  // TODO remove this ? or test this?
   private _makeSlot(
     slotName: string,
     token: Token,
@@ -285,18 +279,22 @@ export default class CRFExtractor {
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
-    const tokens = _.flatMap(sequences, s => s.tokens)
+    // TODO use token.wordVector instead (once implemented)
+    // const data = _.chain(sequences)
+    //          .flatMap(s => s.tokens)
+    //          .map(t => t.wordVector)\
+    //          .value()
+
+    const tokens = _.chain(sequences)
+      .flatMap(s => s.tokens)
+      .map(t => t.cannonical.toLowerCase())
+      .value()
 
     if (_.isEmpty(tokens)) {
       return
     }
 
-    // TODO use token.wordVector instead
-    const data = await Promise.mapSeries(tokens, t => this._ft.queryWordVectors(t.cannonical.toLowerCase()))
-    // const data = _.chain(sequences)
-    //          .flatMap(s => s.tokens)
-    //          .map(t => t.wordVector)\
-    //          .value()
+    const data = await this.languageProvider.vectorize(tokens, this.language)
 
     const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
@@ -306,7 +304,6 @@ export default class CRFExtractor {
     }
   }
 
-  // TODO refactor this
   private async _trainCrf(
     trainingSet: Sequence[],
     intentVocab: { [token: string]: string[] },
@@ -316,97 +313,53 @@ export default class CRFExtractor {
   ) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.toolkit.CRF.createTrainer()
+
     trainer.set_params(CRF_TRAINER_PARAMS)
-    trainer.set_callback(str => {
-      debugTrain('CRFSUITE', str)
-      /* swallow training results */
-    })
+    trainer.set_callback(str => debugTrain('CRFSUITE', str))
 
     for (const seq of trainingSet) {
-      const inputFeatures: string[][] = []
-      const labels: string[] = []
-      // TODO replace this loop for featurize utterance & labelize utterance
-      for (let i = 0; i < seq.tokens.length; i++) {
-        const features = await this._getSlidingTokenFeatures(
-          seq,
-          i,
-          intentVocab,
-          allowedEntitiesPerIntents[seq.intent],
-          tfidf,
-          token2Vec,
-          false
-        )
+      const inputFeatures = await this._featurizeUtterance(
+        seq,
+        intentVocab,
+        allowedEntitiesPerIntents[seq.intent],
+        tfidf,
+        token2Vec
+      )
 
-        inputFeatures.push(features)
-
-        // todo replace this for labelize sequence
-        const isAny = seq.tokens[i].slot && !seq.tokens[i].matchedEntities.length ? '/any' : ''
-        const labelSlot = seq.tokens[i].slot ? `-${seq.tokens[i].slot}` : ''
-        labels.push(`${seq.tokens[i].tag}${labelSlot}${isAny}`)
-      }
+      const labels = labelizeUtterance(seq)
       trainer.append(inputFeatures, labels)
     }
 
     trainer.train(this._crfModelFn)
   }
 
-  // TODO get rid of this, either use lang provider
-  private async _trainLanguageModel(samples: Sequence[]) {
-    this._ftModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const ftTrainFn = tmp.fileSync({ postfix: '.txt' }).name
-
-    const ft = new this.toolkit.FastText.Model()
-
-    const trainContent = samples.reduce((corpus, seq) => {
-      const cannonicSentence = seq.tokens
-        .map(token => (token.tag === BIO.OUT ? token.cannonical.toLowerCase() : token.slot))
-        .join(' ') // do not use sentencepiece space char
-      return `${corpus}${cannonicSentence}\n`
-    }, '')
-
-    fs.writeFileSync(ftTrainFn, trainContent, 'utf8')
-
-    const skipgramParams = {
-      input: ftTrainFn,
-      minCount: 2,
-      dim: 15,
-      lr: 0.05,
-      epoch: 50,
-      wordNgrams: 3
-    }
-
-    debugTrain('training skipgram', skipgramParams)
-    await ft.trainToFile('skipgram', this._ftModelFn, skipgramParams)
-
-    this._ft = ft
-  }
-
-  private async _featurizeToken(
-    token: Token,
-    intentName: string,
+  private async _featurizeUtterance(
+    seq: Sequence,
     intentVocab: { [token: string]: string[] },
     allowedEntities: string[],
     tfidf: TfidfOutput,
-    token2Vec: Token2Vec,
-    isPredict: boolean
-  ): Promise<featurizer.CRFFeature[]> {
-    if (!token || !token.cannonical) {
-      return []
+    token2Vec: Token2Vec
+  ): Promise<string[][]> {
+    const inputFeatures: string[][] = []
+
+    for (let i = 0; i < seq.tokens.length; i++) {
+      const features = await this._getSlidingTokenFeatures(
+        seq,
+        i,
+        intentVocab,
+        allowedEntities,
+        tfidf,
+        token2Vec,
+        false
+      )
+
+      inputFeatures.push(features)
     }
 
-    return [
-      await featurizer.getClusterFeat(token, this._ft, this._kmeansModel),
-      await featurizer.getWordWeight(tfidf, token, this.languageProvider, token2Vec, this.language),
-      featurizer.getWordFeat(token, isPredict),
-      featurizer.getInVocabFeat(token, intentVocab, intentName),
-      featurizer.getSpaceFeat(token),
-      featurizer.getAlpha(token),
-      featurizer.getNum(token),
-      featurizer.getSpecialChars(token),
-      ...featurizer.getEntitiesFeats(token, allowedEntities, isPredict)
-    ]
+    return inputFeatures
   }
 
+  // move this in featurizer
   private async _getSlidingTokenFeatures(
     seq: Sequence,
     tokenIdx: number,
@@ -464,5 +417,32 @@ export default class CRFExtractor {
       ...nextPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]|w[1]')),
       ...eos
     ] as string[]
+  }
+
+  // move this in featurizer
+  private async _featurizeToken(
+    token: Token,
+    intentName: string,
+    intentVocab: { [token: string]: string[] },
+    allowedEntities: string[],
+    tfidf: TfidfOutput,
+    token2Vec: Token2Vec,
+    isPredict: boolean
+  ): Promise<featurizer.CRFFeature[]> {
+    if (!token || !token.cannonical) {
+      return []
+    }
+
+    return [
+      await featurizer.getClusterFeat(token, this.languageProvider, this._kmeansModel, this.language),
+      await featurizer.getWordWeight(token, tfidf, this.languageProvider, token2Vec, this.language),
+      featurizer.getWordFeat(token, isPredict),
+      featurizer.getInVocabFeat(token, intentVocab, intentName),
+      featurizer.getSpaceFeat(token),
+      featurizer.getAlpha(token),
+      featurizer.getNum(token),
+      featurizer.getSpecialChars(token),
+      ...featurizer.getEntitiesFeats(token, allowedEntities, isPredict)
+    ].filter(_.identity) // some features can be undefined
   }
 }

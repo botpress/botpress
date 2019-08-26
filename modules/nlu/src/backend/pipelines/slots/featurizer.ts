@@ -21,27 +21,6 @@ export interface CRFFeature {
 
 const TFIDF_WEIGHTS = ['low', 'medium', 'high']
 
-// TODO remove this
-export const computeBucket = (bucketSize: number) => (value: number, max: number) =>
-  Math.min(bucketSize, Math.max(Math.ceil(bucketSize * (value / max)), 1))
-
-// TODO REMOVE THIS
-export const getFeaturesPairs = (vec0: string[], vec1: string[], features: string[]) => {
-  const getPrefixAndFeat = (vec: string[], targetFeat: string) =>
-    (vec.find(feat => feat.includes(targetFeat)) || '').replace(targetFeat, '').split('=')
-
-  return features
-    .map(targetFeat => {
-      const [f0Prefix, f0Val] = getPrefixAndFeat(vec0, targetFeat)
-      const [f1Prefix, f1Val] = getPrefixAndFeat(vec1, targetFeat)
-
-      if (f0Val && f1Val) {
-        return `${f0Prefix}|${f1Prefix}${targetFeat}=${f0Val}|${f1Val}`
-      }
-    })
-    .filter(_.identity)
-}
-
 export function featToCRFsuiteAttr(prefix: string, feat: CRFFeature): string {
   return `${prefix}${feat.name}=${feat.value}:${feat.boost || 1}`
 }
@@ -54,6 +33,7 @@ export function getFeatPairs(feats0: CRFFeature[], feats1: CRFFeature[], featNam
     .map(targetFeat => {
       const f0 = feats0.find(f => f.name === targetFeat)
       const f1 = feats1.find(f => f.name === targetFeat)
+
       if (f0 || f1) {
         return {
           name: targetFeat,
@@ -66,8 +46,8 @@ export function getFeatPairs(feats0: CRFFeature[], feats1: CRFFeature[], featNam
 }
 
 export async function getWordWeight(
-  tfidf: TfidfOutput, // this will move out in token
   token: Token,
+  tfidf: TfidfOutput, // this will move out in token
   languageProvider: LanguageProvider, // this won't be necessary
   tokenVecCache: Token2Vec,
   language: string // this won't be necessary
@@ -98,11 +78,14 @@ export async function getWordWeight(
 
 export async function getClusterFeat(
   token: Token,
-  langugeModel: MLToolkit.FastText.Model, // this will move, use language provider instead
-  kmeansModel: KMeansModel
+  languageProvider: LanguageProvider, // this won't be necessary
+  kmeansModel: KMeansModel,
+  language: string
 ): Promise<CRFFeature> {
-  const vector = await langugeModel.queryWordVectors(token.cannonical.toLowerCase()) // TODO use token.wordVector instead
-  const cluster = kmeansModel.nearest([vector])[0]
+  const data32 = await languageProvider.vectorize([token.cannonical.toLowerCase()], language) // TODO use token.wordVector instead
+  const data = data32.map(d => Array.from(d)) // usage of .map bc nearest needs an array (size 1 here)
+
+  const cluster = kmeansModel.nearest(data)[0] //
   return {
     name: 'cluster',
     value: cluster

@@ -11,7 +11,6 @@ import {
   getClusterFeat,
   getEntitiesFeats,
   getFeatPairs,
-  getFeaturesPairs,
   getIntentFeature,
   getInVocabFeat,
   getTokenQuartile,
@@ -115,10 +114,10 @@ describe('CRF Featurizer', () => {
     getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token1))
     getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token2))
 
-    const feat = await getWordWeight(tfidf, SOME_TOKENS[0], mockedLangageProvider, token2Vec, 'en')
-    const feat1 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
-    const feat2 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
-    const feat3 = await getWordWeight(tfidf, SOME_TOKENS[3], mockedLangageProvider, token2Vec, 'en')
+    const feat = await getWordWeight(SOME_TOKENS[0], tfidf, mockedLangageProvider, token2Vec, 'en')
+    const feat1 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
+    const feat2 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
+    const feat3 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
 
     expect(feat.value).toEqual('low')
     expect(feat1.value).toEqual('low')
@@ -130,17 +129,18 @@ describe('CRF Featurizer', () => {
   })
 
   test('getClusterFeat', async () => {
-    const vec = [0, 1, 2]
+    const a_wordvec = [0, 1, 2]
     const cluster = 4
     const mockedKmeans = { nearest: jest.fn(() => [cluster]) }
-    const mockedLangModel: MLToolkit.FastText.Model = {
-      queryWordVectors: jest.fn(() => Promise.resolve(vec))
-    }
+    const lang = 'en'
 
-    const feat = await getClusterFeat(SOME_TOKENS[0], mockedLangModel, mockedKmeans)
+    const mockedLangageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
 
-    expect(mockedLangModel.queryWordVectors).toBeCalledWith(SOME_TOKENS[0].cannonical.toLowerCase())
-    expect(mockedKmeans.nearest.mock.calls[0][0]).toEqual([vec])
+    const feat = await getClusterFeat(SOME_TOKENS[0], mockedLangageProvider, mockedKmeans, lang)
+
+    expect(mockedLangageProvider.vectorize.mock.calls[0][0]).toEqual([SOME_TOKENS[0].cannonical.toLowerCase()])
+    expect(mockedLangageProvider.vectorize.mock.calls[0][1]).toEqual(lang)
+    expect(mockedKmeans.nearest.mock.calls[0][0]).toEqual([a_wordvec])
     expect(feat.name).toEqual('cluster')
     expect(feat.value).toEqual(cluster)
   })

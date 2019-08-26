@@ -272,7 +272,6 @@ export default class ScopedEngine implements Engine {
         .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
         .value()
 
-      const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
       const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
       if (!models.length) {
@@ -285,10 +284,10 @@ export default class ScopedEngine implements Engine {
 
       await this.intentClassifiers[lang].load(intentModels)
 
-      if (_.isEmpty(skipgramModel) || _.isEmpty(crfModel)) {
+      if (_.isEmpty(crfModel)) {
         this.logger.debug(`No slots (CRF) model found for hash ${modelHash}`)
       } else {
-        await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
+        await this.slotExtractors[lang].load(trainingSet, crfModel.model)
       }
     }
 
@@ -383,7 +382,7 @@ export default class ScopedEngine implements Engine {
         return sequence
       })
 
-      const { language, crf } = await this.slotExtractors[lang].train(
+      const { crf } = await this.slotExtractors[lang].train(
         trainingSet,
         intentsVocab,
         allowedEntitiesPerIntents,
@@ -393,12 +392,7 @@ export default class ScopedEngine implements Engine {
 
       this.logger.debug('Done training slot tagger')
 
-      return language && crf
-        ? [
-            this._makeModel('global', modelHash, language, MODEL_TYPES.SLOT_LANG),
-            this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)
-          ]
-        : []
+      return crf ? [this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)] : []
     } catch (err) {
       this.logger.attachError(err).error('Error training slot tagger')
       throw Error('Unable to train model')
