@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Promise from 'bluebird'
 import _ from 'lodash'
+import React from 'react'
 
 import { toastFailure } from './utils/toaster'
 import { getActiveWorkspace, logout, pullToken } from './Auth'
