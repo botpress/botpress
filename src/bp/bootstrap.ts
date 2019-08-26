@@ -14,13 +14,13 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
+import { setupCluster } from './cluster'
 import { FatalError } from './errors'
 
 async function start() {
+  setupCluster()
+
   if (cluster.isMaster) {
-    cluster.fork()
-  } else {
-    // The worker doesn't need anything else beside rewire and getos
     return
   }
 

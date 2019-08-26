@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import cluster from 'cluster'
 
+import { registerListener } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -22,38 +23,36 @@ const MLToolkit: typeof sdk.MLToolkit = {
   SentencePiece: { createProcessor: processor }
 }
 
-if (cluster.isMaster) {
+if (cluster.isWorker) {
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
     options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
     progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): any => {
     return Promise.fromCallback(completedCb => {
-      const worker = cluster.workers[1]!
-
       const messageHandler = msg => {
         if (progressCb && msg.type === 'progress') {
           progressCb(msg.progress)
         }
 
         if (msg.type === 'svm_trained') {
-          worker.off('message', messageHandler)
+          process.off('message', messageHandler)
           completedCb(undefined, msg.result)
         }
       }
 
-      worker.send({ type: 'svm_train', points, options })
-      worker.on('message', messageHandler)
+      process.send!({ type: 'svm_train', points, options })
+      process.on('message', messageHandler)
     })
   }
 }
 
-if (cluster.isWorker) {
-  process.on('message', async msg => {
+if (cluster.isMaster) {
+  registerListener('svm_train', async (msg, worker) => {
     if (msg.type === 'svm_train') {
       const svm = new SVMTrainer()
-      const result = await svm.train(msg.points, msg.options, progress => process.send!({ type: 'progress', progress }))
-      process.send!({ type: 'svm_trained', result })
+      const result = await svm.train(msg.points, msg.options, progress => worker.send({ type: 'progress', progress }))
+      worker.send({ type: 'svm_trained', result })
     }
   })
 }

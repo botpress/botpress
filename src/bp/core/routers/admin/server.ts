@@ -88,10 +88,7 @@ export class ServerRouter extends CustomRouter {
 
         // Timeout is only to allow the response to reach the asking user
         setTimeout(() => {
-          spawn(process.argv[0], process.argv.slice(1), {
-            detached: true,
-            stdio: 'inherit'
-          }).unref()
+          process.send && process.send({ type: 'reboot' })
 
           process.exit()
         }, 100)
