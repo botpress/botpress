@@ -25,8 +25,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
 if (cluster.isMaster) {
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
-    progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined,
-    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>
+    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
+    progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): any => {
     return Promise.fromCallback(completedCb => {
       const worker = cluster.workers[1]!
@@ -51,8 +51,8 @@ if (cluster.isMaster) {
 if (cluster.isWorker) {
   process.on('message', async msg => {
     if (msg.type === 'svm_train') {
-      const svm = new SVMTrainer(msg.options)
-      const result = await svm.train(msg.points, progress => process.send!({ type: 'progress', progress }))
+      const svm = new SVMTrainer()
+      const result = await svm.train(msg.points, msg.options, progress => process.send!({ type: 'progress', progress }))
       process.send!({ type: 'svm_trained', result })
     }
   })

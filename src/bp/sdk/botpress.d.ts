@@ -263,8 +263,8 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        constructor(options?: Partial<SVMOptions>)
-        train(points: DataPoint[], callback?: TrainProgressCallback, options?: Partial<SVMOptions>): Promise<string>
+        constructor()
+        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 

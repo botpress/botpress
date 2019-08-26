@@ -13,8 +13,8 @@ test('Trainer', async () => {
     { coordinates: [1, 1], label: 'B' }
   ]
 
-  const trainer = new Trainer({ classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
-  await trainer.train(line)
+  const trainer = new Trainer()
+  await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
 
   const predictor = new Predictor(trainer.serialize())
 
