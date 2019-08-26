@@ -11,8 +11,12 @@ export const setupCluster = () => {
   if (cluster.isMaster) {
     registerListener('reboot', (message, worker) => {
       console.warn(`Restarting server...`)
-      worker.disconnect()
-      worker.kill()
+      try {
+        worker.disconnect()
+        worker.kill()
+      } catch (err) {
+        console.error(`Error while restarting server: ${err}`)
+      }
     })
 
     const setupMessaging = (worker: cluster.Worker) => {

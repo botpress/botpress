@@ -32,6 +32,13 @@ text=hello how are you today
 &reftime={{$datetime "xx"}}
 &tz=America/Toronto
 
+
+### Reboot server
+POST {{baseUrl}}/api/v1/admin/server/rebootServer
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+
+
 ### Test Lang Server
 GET https://lang-01.botpress.io/info
 
