@@ -5,15 +5,24 @@ import _ from 'lodash'
 
 import { allInRange } from '../../tools/math'
 import { extractPattern } from '../../tools/patterns-utils'
-import { LanguageProvider } from '../../typings'
+import { LanguageProvider, Token } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
+import { SPACE } from '../../tools/token-utils'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
 
 const MIN_LENGTH_FUZZY_MATCH = 5
 const MIN_CONFIDENCE = 0.65
+
+interface PartOfPhrase {
+  firstToken: Token
+  lastToken: Token
+  value: string
+  occ: string
+  similarity?: number
+}
 
 export default class PatternExtractor {
   constructor(private toolkit: typeof sdk.MLToolkit, private languageProvider: LanguageProvider) {}
@@ -45,62 +54,38 @@ export default class PatternExtractor {
     const findings: sdk.NLU.Entity[] = []
 
     for (const { tok, tokenIndex } of ds.tokens.map((tok, tokenIndex) => ({ tok, tokenIndex }))) {
-      const rawToken = tok.value
-
       let highest = 0
       let extracted = ''
       let source = ''
-      let lastToken = tok
+      let currentFirstToken = tok
+      let currentLastToken = tok
 
       for (const val of values) {
-        let partOfPhrase: string = rawToken
-        const occ = val.join('+')
-        let currentLastToken = tok
+        const remainingTokens = ds.tokens.slice(tokenIndex)
+        const results = this.extractPartOfPhrase(remainingTokens, val)
 
-        if (val.length > 1) {
-          const remainingTokens = ds.tokens.slice(tokenIndex + 1)
+        const partOfPhrase = _.chain(results)
+          .map(pop => ({
+            ...pop,
+            similarity: this.calculateSimilarity(pop.value, pop.occ, entityDef)
+          }))
+          .maxBy('similarity')
+          .value()
 
-          // TODO: try with one token less and one token more if no perfect match in length
-          while (!_.isEmpty(remainingTokens) && partOfPhrase.length < occ.length) {
-            const nextToken = remainingTokens.shift()
-            if (!nextToken) {
-              break
-            }
-            partOfPhrase += '+' + nextToken.value
-            currentLastToken = nextToken
-          }
-        }
-
-        let distance = 0.0
-
-        const strippedPop = sanitize(partOfPhrase.toLowerCase())
-
-        if (entityDef.fuzzy && strippedPop.length > MIN_LENGTH_FUZZY_MATCH) {
-          const d1 = this.toolkit.Strings.computeLevenshteinDistance(partOfPhrase, occ)
-          const d2 = this.toolkit.Strings.computeJaroWinklerDistance(partOfPhrase, occ, { caseSensitive: true })
-          distance = Math.min(d1, d2)
-          const diffLen = Math.abs(partOfPhrase.length - occ.length)
-          if (diffLen <= 3) {
-            distance = Math.min(1, distance * (0.1 * (4 - diffLen) + 1))
-          }
-        } else {
-          const strippedOcc = sanitize(occ.toLowerCase())
-          if (strippedPop.length && strippedOcc.length) {
-            distance = strippedPop === strippedOcc ? 1 : 0
-          }
-        }
+        const { similarity, lastToken, firstToken, occ } = partOfPhrase
 
         // if is closer OR if the match found is longer
-        if (distance > highest || (distance === highest && extracted.length < occ.length)) {
+        if (similarity > highest || (similarity === highest && extracted.length < occ.length)) {
           extracted = occ
-          highest = distance
-          lastToken = currentLastToken
-          source = ds.sanitizedText.substring(tok.start, lastToken.end)
+          highest = similarity
+          currentFirstToken = firstToken
+          currentLastToken = lastToken
+          source = ds.sanitizedText.substring(firstToken.start, lastToken.end)
         }
       }
 
-      const start = tok.start
-      const end = lastToken.end
+      const start = currentFirstToken.start
+      const end = currentLastToken.end
 
       // prevent adding substrings of an already matched, longer entity
       // prioretize longer matches with confidence * its length higher
@@ -149,6 +134,85 @@ export default class PatternExtractor {
     }
 
     return findings
+  }
+
+  private extractPartOfPhrase(remainingTokens: Token[], searched: string[]): PartOfPhrase[] {
+    let occ = searched.join('')
+    let firstToken = remainingTokens.shift()
+    let lastToken = firstToken
+
+    if (!firstToken) {
+      return []
+    }
+
+    let partOfPhrase: string = firstToken.value
+    if (occ.startsWith(SPACE) && firstToken.value.startsWith(SPACE)) {
+      occ = occ.substr(1)
+      partOfPhrase = partOfPhrase.substr(1)
+    }
+
+    if (searched.length > 1) {
+      let previous: string
+      while (!_.isEmpty(remainingTokens)) {
+        const nextToken = remainingTokens.shift()
+        if (!nextToken) {
+          return [{ firstToken, lastToken, value: partOfPhrase, occ }]
+        }
+        previous = partOfPhrase
+        partOfPhrase += nextToken.value
+
+        if (partOfPhrase.length === occ.length) {
+          return [{ firstToken, lastToken: nextToken, value: partOfPhrase, occ }]
+        }
+
+        if (partOfPhrase.length > occ.length) {
+          const oneTokenLess = previous
+          const oneTokenMore = partOfPhrase
+
+          return [
+            { firstToken, lastToken, value: oneTokenLess, occ },
+            { firstToken, lastToken: nextToken, value: oneTokenMore, occ }
+          ]
+        }
+
+        lastToken = nextToken
+      }
+    }
+
+    return [{ firstToken, lastToken, value: partOfPhrase, occ }]
+  }
+
+  private calculateSimilarity(a: string, b: string, { fuzzy }: sdk.NLU.EntityDefinition): number {
+    return fuzzy && sanitize(a.toLowerCase()).length > MIN_LENGTH_FUZZY_MATCH
+      ? this.calculateFuzzySimilarity(a, b)
+      : this.calculateExactSimilarity(a, b)
+  }
+
+  private calculateExactSimilarity(a: string, b: string): number {
+    const strippedPop = sanitize(a.toLowerCase())
+    const strippedOcc = sanitize(b.toLowerCase())
+    if (strippedPop.length && strippedOcc.length) {
+      return strippedPop === strippedOcc ? 1 : 0
+    }
+    return 0
+  }
+
+  private calculateFuzzySimilarity(a: string, b: string): number {
+    let similarity = 0.0
+
+    const d1 = this.toolkit.Strings.computeLevenshteinDistance(a, b)
+    const d2 = this.toolkit.Strings.computeJaroWinklerDistance(a, b, { caseSensitive: true })
+
+    // TODO: find a more robust logic. Their might be a case where Levenshtein is more accurate than Jaro-Winkler
+    similarity = Math.min(d1, d2)
+
+    const diffLen = Math.abs(a.length - b.length)
+    if (diffLen <= 3) {
+      // gives a chance to small differences in length: "apple" vs "apples,". Both distances functions are already normalized in domain [0, 1]
+      similarity = Math.min(1, similarity * (0.1 * (4 - diffLen) + 1))
+    }
+
+    return similarity
   }
 
   async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {

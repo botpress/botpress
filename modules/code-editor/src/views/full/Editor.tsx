@@ -68,6 +68,7 @@ class Editor extends React.Component<Props> {
     this.editor && this.editor.setModel(model)
 
     this.editor.updateOptions({ readOnly })
+    this.editor.focus()
   }
 
   loadTypings = async () => {
@@ -117,7 +118,7 @@ class Editor extends React.Component<Props> {
               </div>
             </div>
           </div>
-          <div ref={ref => (this.editorContainer = ref)} className={style.editor} />
+          <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor} />
         </div>
       </React.Fragment>
     )

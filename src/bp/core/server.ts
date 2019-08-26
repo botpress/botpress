@@ -344,12 +344,16 @@ export default class HTTPServer {
       }
 
       fs.readFile(this.resolveAsset(page), (err, data) => {
-        this.indexCache[page] = data
-          .toString()
-          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
-          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
+        if (data) {
+          this.indexCache[page] = data
+            .toString()
+            .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
+            .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
 
-        res.send(this.indexCache[page])
+          res.send(this.indexCache[page])
+        } else {
+          res.sendStatus(404)
+        }
       })
     }
 
