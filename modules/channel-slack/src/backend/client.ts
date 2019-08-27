@@ -102,19 +102,18 @@ export class SlackClient {
 
   private async _getUserInfo(userId: string) {
     if (!userCache.has(userId)) {
+      const data = await new Promise((resolve, reject) => {
+        this.client.users
+          .info({ user: userId })
+          .then(data => resolve(data && data.user))
+          .catch(err => {
+            debug('error fetching user info:', err)
+            resolve({})
+          })
+      })
+      userCache.set(userId, data)
     }
 
-    const data = await new Promise((resolve, reject) => {
-      this.client.users
-        .info({ user: userId })
-        .then(data => resolve(data && data.user))
-        .catch(err => {
-          debug('error fetching user info:', err)
-          resolve({})
-        })
-    })
-
-    userCache.set(userId, data)
     return userCache.get(userId) || {}
   }
 
