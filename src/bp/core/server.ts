@@ -53,7 +53,6 @@ import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
-const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
@@ -285,7 +284,7 @@ export default class HTTPServer {
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
       const docs = err.docs || 'https://botpress.io/docs'
-      const devOnly = isProd ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
+      const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({
         statusCode,
