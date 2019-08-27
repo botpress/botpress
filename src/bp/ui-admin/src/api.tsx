@@ -30,7 +30,7 @@ export const toastError = error => {
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {
-  const client = axios.create({ timeout: 2000, ...clientOptions })
+  const client = axios.create({ timeout: 6000, ...clientOptions })
 
   client.interceptors.response.use(
     response => response,
@@ -70,7 +70,7 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 2000 } = {}) {
+  getSecured({ token = undefined, toastErrors = true, timeout = 6000 } = {}) {
     if (!token) {
       const ls = pullToken()
       token = ls && ls.token
