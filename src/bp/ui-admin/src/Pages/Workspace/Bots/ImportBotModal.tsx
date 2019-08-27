@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 import api from '../../../api'
 
 import { sanitizeBotId } from './CreateBotModal'
-
 interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
@@ -79,7 +78,18 @@ class ImportBotModal extends Component<Props, State> {
     fr.onload = loadedEvent => {
       this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
+
     this.setState({ filePath: files[0].name })
+
+    if (!this.state.botId.length) {
+      this.generateBotId(files[0].name)
+    }
+  }
+
+  generateBotId = (filename: string) => {
+    const noExt = filename.substr(0, filename.indexOf('.'))
+    const matches = noExt.match(/bot_(.*)_[0-9]+/)
+    this.setState({ botId: sanitizeBotId((matches && matches[1]) || filename) })
   }
 
   toggleDialog = () => {
@@ -101,7 +111,14 @@ class ImportBotModal extends Component<Props, State> {
         transitionDuration={0}
         title="Import bot from archive"
       >
-        <form ref={form => (this._form = form)}>
+        <form
+          ref={form => (this._form = form)}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => {
+            e.preventDefault()
+            this.handleFileChanged(e.dataTransfer.files)
+          }}
+        >
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
@@ -121,27 +138,18 @@ class ImportBotModal extends Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
-
-            <div
-              onDragOver={e => e.preventDefault()}
-              onDrop={e => {
-                e.preventDefault()
-                this.handleFileChanged(e.dataTransfer.files)
-              }}
+            <FormGroup
+              label="Bot Archive"
+              labelInfo="*"
+              labelFor="archive"
+              helperText="File must be a valid .zip or .tgz archive"
             >
-              <FormGroup
-                label="Bot Archive"
-                labelInfo="*"
-                labelFor="archive"
-                helperText="File must be a valid .zip or .tgz archive"
-              >
-                <FileInput
-                  tabIndex={2}
-                  text={this.state.filePath || 'Choose file...'}
-                  onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
-                />
-              </FormGroup>
-            </div>
+              <FileInput
+                tabIndex={2}
+                text={this.state.filePath || 'Choose file...'}
+                onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
+              />
+            </FormGroup>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
             {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
