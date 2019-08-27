@@ -89,7 +89,7 @@ class ImportBotModal extends Component<Props, State> {
   generateBotId = (filename: string) => {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
-    this.setState({ botId: sanitizeBotId((matches && matches[1]) || filename) })
+    this.setState({ botId: sanitizeBotId((matches && matches[1]) || noExt) })
   }
 
   toggleDialog = () => {
