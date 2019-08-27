@@ -146,7 +146,7 @@ export default class Editor {
   }
 
   private async _validateModulesConfig(config: string, location: string, botId: string | undefined) {
-    const deconstructedPath = location.split(path.sep).filter(x => !!x)
+    const deconstructedPath = location.split('/').filter(x => !!x)
     const [dirName, fileName] = deconstructedPath
 
     const ghost = this.bp.ghost.forGlobal()

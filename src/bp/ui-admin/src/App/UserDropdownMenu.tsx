@@ -34,6 +34,7 @@ class UserDropdownMenu extends Component<Props> {
     return (
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
         <Button
+          id="btn-menu"
           icon={<GravatarImage email={this.props.profile.email} size="sm" className="user-avatar" />}
           rightIcon="caret-down"
           minimal={true}
@@ -44,15 +45,25 @@ class UserDropdownMenu extends Component<Props> {
           {isSuperAdmin && (
             <React.Fragment>
               <MenuDivider />
-              <MenuItem icon="dashboard" text="Manage Server" onClick={this.gotoServer} />
-              <MenuItem icon="console" text="Configure Debug" onClick={() => this.props.push('/server/debug')} />
-              <MenuItem icon="globe-network" text="Languages" onClick={() => this.props.push('/server/languages')} />
+              <MenuItem id="btn-manage" icon="dashboard" text="Manage Server" onClick={this.gotoServer} />
+              <MenuItem
+                id="btn-debug"
+                icon="console"
+                text="Configure Debug"
+                onClick={() => this.props.push('/server/debug')}
+              />
+              <MenuItem
+                id="btn-lang"
+                icon="globe-network"
+                text="Languages"
+                onClick={() => this.props.push('/server/languages')}
+              />
             </React.Fragment>
           )}
 
           <MenuDivider />
-          <MenuItem icon="user" text="My account" onClick={() => this.props.push('/profile/me')} />
-          <MenuItem icon="log-out" text="Logout" onClick={() => this.auth.logout()} />
+          <MenuItem id="btn-profile" icon="user" text="My account" onClick={() => this.props.push('/profile/me')} />
+          <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={() => this.auth.logout()} />
         </Menu>
       </Popover>
     )

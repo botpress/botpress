@@ -11,12 +11,15 @@ import { RootStore, StoreDef } from '../../store'
 import Avatar from './Avatar'
 
 const CoverPicture = ({ botInfo }) => (
-  <img
-    className={'bpw-botinfo-cover-picture'}
-    src={
-      (botInfo.details && botInfo.details.coverPictureUrl) || `https://via.placeholder.com/400x175?text=${botInfo.name}`
-    }
-  />
+  <div className={'bpw-botinfo-cover-picture-wrapper'}>
+    <img
+      className={'bpw-botinfo-cover-picture'}
+      src={
+        (botInfo.details && botInfo.details.coverPictureUrl) ||
+        `https://via.placeholder.com/400x175?text=${botInfo.name}`
+      }
+    />
+  </div>
 )
 
 class BotInfoPage extends React.Component<BotInfoProps> {

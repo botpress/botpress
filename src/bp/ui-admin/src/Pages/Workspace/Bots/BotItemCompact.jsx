@@ -17,7 +17,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
   <div className="bp_table-row" key={bot.id}>
     <div className="actions">
       <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
-        <Button size="sm" color="link" onClick={() => history.push(`/bot/${bot.id}/details`)}>
+        <Button size="sm" color="link" className="configBtn" onClick={() => history.push(`/bot/${bot.id}/details`)}>
           <FaCog /> Configs
         </Button>
       </AccessControl>
@@ -27,7 +27,7 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
         </Button>
       )}
       <UncontrolledButtonDropdown>
-        <DropdownToggle tag="span" className="more">
+        <DropdownToggle id="toggle-menu" tag="span" className="more">
           <MdMoreVert />
         </DropdownToggle>
         <DropdownMenu>
@@ -38,19 +38,19 @@ export default ({ bot, deleteBot, exportBot, permissions, history, createRevisio
             </DropdownItem>
           )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
-            <DropdownItem onClick={createRevision}>
+            <DropdownItem id="btn-createRevision" onClick={createRevision}>
               <MdBackup />
               &nbsp;Create revision
             </DropdownItem>
-            <DropdownItem onClick={rollback}>
+            <DropdownItem id="btn-rollbackRevision" onClick={rollback}>
               <MdReplay />
               &nbsp;Rollback
             </DropdownItem>
-            <DropdownItem onClick={exportBot}>
+            <DropdownItem id="btn-export" onClick={exportBot}>
               <MdArchive />
               &nbsp;Export
             </DropdownItem>
-            <DropdownItem onClick={deleteBot}>
+            <DropdownItem id="btn-delete" onClick={deleteBot}>
               <MdDelete />
               &nbsp;Delete
             </DropdownItem>

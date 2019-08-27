@@ -13,6 +13,7 @@ export default class SidebarView extends Component<Props> {
   render() {
     const contentTypeActions = this.props.categories.map(cat => {
       return {
+        id: `btn-create-${cat.id}`,
         label: cat.title,
         onClick: () => {
           this.props.handleCategorySelected(cat.id)
@@ -21,15 +22,24 @@ export default class SidebarView extends Component<Props> {
       }
     })
 
-    const actions = [{ tooltip: 'Create new content', icon: 'add' as IconName, items: [contentTypeActions] }]
+    const actions = [
+      {
+        tooltip: 'Create new content',
+        id: 'btn-add-content',
+        icon: 'add' as IconName,
+        items: [contentTypeActions]
+      }
+    ]
 
     const contentTypes = [CATEGORY_ALL, ...this.props.categories].map(cat => {
       return {
+        id: `btn-filter-${cat.id}`,
         label: !!cat.count ? `${cat.title} (${cat.count})` : cat.title,
         value: cat,
         selected: cat.id === this.props.selectedId,
         actions: [
           cat !== CATEGORY_ALL && {
+            id: `btn-list-create-${cat.id}`,
             tooltip: 'Create new ' + cat.title,
             icon: 'add' as IconName,
             onClick: () => {

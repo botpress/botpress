@@ -49,7 +49,8 @@ class RollbackBotModal extends Component {
       )
     ) {
       api
-        .getSecured()
+        //@ts-ignore
+        .getSecured({ timeout: 30000 })
         .post(`/admin/bots/${this.props.botId}/rollback`, { revision: this.state.selectedRev.value })
         .then(() => {
           this.props.onRollbackSuccess && this.props.onRollbackSuccess()
@@ -74,6 +75,7 @@ class RollbackBotModal extends Component {
               <strong>Revisions</strong>
             </Label>
             <Select
+              id="select-revisions"
               tabIndex="1"
               ref={el => (this.selectEl = el)}
               value={this.state.selectedRev}
@@ -82,6 +84,7 @@ class RollbackBotModal extends Component {
             />
           </FormGroup>
           <Button
+            id="btn-rollback"
             tabIndex="2"
             className="float-right"
             type="submit"

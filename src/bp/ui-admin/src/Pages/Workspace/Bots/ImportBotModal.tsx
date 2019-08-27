@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 import api from '../../../api'
 
 import { sanitizeBotId } from './CreateBotModal'
-
 interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
@@ -43,7 +42,6 @@ class ImportBotModal extends Component<Props, State> {
     this.setState({ isProcessing: true })
 
     try {
-      // @ts-ignore
       await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
         headers: { 'Content-Type': 'application/tar+gzip' }
       })
@@ -70,13 +68,28 @@ class ImportBotModal extends Component<Props, State> {
 
   handleBotIdChanged = e => this.setState({ botId: sanitizeBotId(e.target.value) }, this.checkIdAvailability)
 
-  handleFileChanged = e => {
+  handleFileChanged = (files: FileList | null) => {
+    if (!files) {
+      return
+    }
+
     const fr = new FileReader()
-    fr.readAsArrayBuffer(e.target.files[0])
+    fr.readAsArrayBuffer(files[0])
     fr.onload = loadedEvent => {
       this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
-    this.setState({ filePath: e.target.value })
+
+    this.setState({ filePath: files[0].name })
+
+    if (!this.state.botId.length) {
+      this.generateBotId(files[0].name)
+    }
+  }
+
+  generateBotId = (filename: string) => {
+    const noExt = filename.substr(0, filename.indexOf('.'))
+    const matches = noExt.match(/bot_(.*)_[0-9]+/)
+    this.setState({ botId: sanitizeBotId((matches && matches[1]) || noExt) })
   }
 
   toggleDialog = () => {
@@ -98,17 +111,24 @@ class ImportBotModal extends Component<Props, State> {
         transitionDuration={0}
         title="Import bot from archive"
       >
-        <form ref={form => (this._form = form)}>
+        <form
+          ref={form => (this._form = form)}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => {
+            e.preventDefault()
+            this.handleFileChanged(e.dataTransfer.files)
+          }}
+        >
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
-              labelFor="text-input"
+              labelFor="input-botId"
               labelInfo="*"
               helperText="This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it.
               Special characters are not allowed. Minimum length: 4"
             >
               <InputGroup
-                id="text-input"
+                id="input-botId"
                 tabIndex={1}
                 placeholder="The ID of your bot"
                 intent={Intent.PRIMARY}
@@ -118,7 +138,6 @@ class ImportBotModal extends Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
-
             <FormGroup
               label="Bot Archive"
               labelInfo="*"
@@ -128,13 +147,15 @@ class ImportBotModal extends Component<Props, State> {
               <FileInput
                 tabIndex={2}
                 text={this.state.filePath || 'Choose file...'}
-                onChange={this.handleFileChanged}
+                onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
               />
             </FormGroup>
           </div>
           <div className={Classes.DIALOG_FOOTER}>
+            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
+                id="btn-upload"
                 tabIndex={3}
                 type="submit"
                 text={this.state.isProcessing ? 'Please wait...' : 'Import Bot'}

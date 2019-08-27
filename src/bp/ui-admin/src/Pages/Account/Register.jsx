@@ -95,7 +95,7 @@ export default class Register extends Component {
           />
         </FormGroup>
         <p>
-          <Button onClick={this.register} color="primary" disabled={!this.isFormValid}>
+          <Button id="btn-register" onClick={this.register} color="primary" disabled={!this.isFormValid}>
             Create Account
           </Button>
         </p>

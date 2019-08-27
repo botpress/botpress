@@ -58,23 +58,27 @@ export default ({
             </DropdownItem>
           )}
           <AccessControl permissions={permissions} resource="admin.bots.*" operation="write">
-            <DropdownItem disabled={bot.locked} onClick={() => history.push(`/bot/${bot.id}/details`)}>
+            <DropdownItem
+              className="configBtn"
+              disabled={bot.locked}
+              onClick={() => history.push(`/bot/${bot.id}/details`)}
+            >
               <FaCog />
               &nbsp;Configs
             </DropdownItem>
-            <DropdownItem onClick={createRevision}>
+            <DropdownItem id="btn-createRevision" onClick={createRevision}>
               <MdBackup />
               &nbsp;Create revision
             </DropdownItem>
-            <DropdownItem onClick={rollback}>
+            <DropdownItem id="btn-rollbackRevision" onClick={rollback}>
               <MdReplay />
               &nbsp;Rollback
             </DropdownItem>
-            <DropdownItem onClick={exportBot}>
+            <DropdownItem id="btn-export" onClick={exportBot}>
               <MdArchive />
               &nbsp;Export
             </DropdownItem>
-            <DropdownItem onClick={deleteBot}>
+            <DropdownItem id="btn-delete" onClick={deleteBot}>
               <MdDelete />
               &nbsp;Delete
             </DropdownItem>

@@ -1,3 +1,101 @@
+## [12.1.2](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.2) (2019-08-27)
+
+
+### Bug Fixes
+
+* **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
+* **admin:** cascading errors and updated typings ([5fa7f91](https://github.com/botpress/botpress/commit/5fa7f91))
+* **admin:** fixed bot import using drag&drop ([aa9c056](https://github.com/botpress/botpress/commit/aa9c056))
+* **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
+* **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
+* **admin:** fixed error display on bot create and import ([87b9a9e](https://github.com/botpress/botpress/commit/87b9a9e))
+* **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
+* **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
+* **channel-slack:** added user info to messages ([9fdd493](https://github.com/botpress/botpress/commit/9fdd493))
+* **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
+* **channel-web:** responsive cover image ([1ac3411](https://github.com/botpress/botpress/commit/1ac3411))
+* **channel-web:** target self for links that start by javascript: ([2ffdbf1](https://github.com/botpress/botpress/commit/2ffdbf1))
+* **channel-web:** target self for links that start by javascript: ([f506de9](https://github.com/botpress/botpress/commit/f506de9))
+* **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
+* **cms:** rendering default payload for unknown channels ([55bcf57](https://github.com/botpress/botpress/commit/55bcf57))
+* **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
+* **config:** missing typings and added external url ([e257a08](https://github.com/botpress/botpress/commit/e257a08))
+* **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
+* **core:** added typings and cleanup ([c9ceb9d](https://github.com/botpress/botpress/commit/c9ceb9d))
+* **core:** added warning when home folder not defined ([e594172](https://github.com/botpress/botpress/commit/e594172))
+* **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
+* **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
+* **core:** handling studio index file missing ([015c2bd](https://github.com/botpress/botpress/commit/015c2bd))
+* **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
+* **core:** socket.io correctly supports custom paths ([9f59bf5](https://github.com/botpress/botpress/commit/9f59bf5))
+* **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
+* **core:** using is_production for hiding debug logs ([6d29f80](https://github.com/botpress/botpress/commit/6d29f80))
+* **flow:** show basic server infos ([214362a](https://github.com/botpress/botpress/commit/214362a))
+* **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
+* **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
+* **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
+* **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
+* **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
+* **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
+* **slack:** added documentation on the official docs ([7da9275](https://github.com/botpress/botpress/commit/7da9275))
+* **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
+
+
+### Features
+
+* **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
+* **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
+
+
+
+## [12.1.2](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.2) (2019-08-27)
+
+
+### Bug Fixes
+
+* **admin:** cascading errors and updated typings ([5fa7f91](https://github.com/botpress/botpress/commit/5fa7f91))
+* **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
+* **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
+* **admin:** fixed bot import using drag&drop ([aa9c056](https://github.com/botpress/botpress/commit/aa9c056))
+* **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
+* **admin:** fixed error display on bot create and import ([87b9a9e](https://github.com/botpress/botpress/commit/87b9a9e))
+* **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
+* **channel-slack:** added user info to messages ([9fdd493](https://github.com/botpress/botpress/commit/9fdd493))
+* **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
+* **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
+* **channel-web:** responsive cover image ([1ac3411](https://github.com/botpress/botpress/commit/1ac3411))
+* **cms:** rendering default payload for unknown channels ([55bcf57](https://github.com/botpress/botpress/commit/55bcf57))
+* **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
+* **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
+* **config:** missing typings and added external url ([e257a08](https://github.com/botpress/botpress/commit/e257a08))
+* **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
+* **core:** added typings and cleanup ([c9ceb9d](https://github.com/botpress/botpress/commit/c9ceb9d))
+* **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
+* **core:** added warning when home folder not defined ([e594172](https://github.com/botpress/botpress/commit/e594172))
+* **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
+* **core:** handling studio index file missing ([015c2bd](https://github.com/botpress/botpress/commit/015c2bd))
+* **core:** socket.io correctly supports custom paths ([9f59bf5](https://github.com/botpress/botpress/commit/9f59bf5))
+* **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
+* **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
+* **core:** using is_production for hiding debug logs ([6d29f80](https://github.com/botpress/botpress/commit/6d29f80))
+* **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
+* **flow:** show basic server infos ([214362a](https://github.com/botpress/botpress/commit/214362a))
+* **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
+* **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
+* **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
+* **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
+* **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
+* **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
+* **slack:** added documentation on the official docs ([7da9275](https://github.com/botpress/botpress/commit/7da9275))
+
+
+### Features
+
+* **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
+* **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
+
+
+
 ## [12.1.1](https://github.com/botpress/botpress/compare/v12.1.0...v12.1.1) (2019-08-17)
 
 

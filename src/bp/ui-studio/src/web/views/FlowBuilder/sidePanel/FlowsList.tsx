@@ -97,18 +97,25 @@ export default class FlowsList extends Component<Props, State> {
     ContextMenu.show(
       <Menu>
         <MenuItem
+          id="btn-rename"
           disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename}
           icon="edit"
           text="Rename"
           onClick={() => this.handleRename(node.nodeData)}
         />
         <MenuItem
+          id="btn-delete"
           disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete}
           icon="delete"
           text="Delete"
           onClick={() => this.handleDelete(node.nodeData)}
         />
-        <MenuItem icon="duplicate" text="Duplicate" onClick={() => this.handleDuplicate(node.nodeData)} />
+        <MenuItem
+          id="btn-duplicate"
+          icon="duplicate"
+          text="Duplicate"
+          onClick={() => this.handleDuplicate(node.nodeData)}
+        />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )

@@ -55,6 +55,7 @@ export default class PanelContent extends Component<Props> {
       return { name: x.name }
     })
     const createFlowAction = {
+      id: 'btn-add-flow',
       icon: <Icon icon="add" />,
       key: 'create',
       tooltip: 'Create new flow',
