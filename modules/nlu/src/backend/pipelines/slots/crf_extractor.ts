@@ -10,18 +10,13 @@ import { BIO, Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
 
 import * as featurizer from './featurizer'
-import { labelizeUtterance } from './labeler'
+import { combineSlots, isTagAValidSlot, labelizeUtterance, makeSlot } from './labeler'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
 const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 const debugVectorize = debug.sub('vectorize')
-
-// TODOS:
-// clean the extract method, split & test
-
-const MIN_SLOT_CONFIDENCE = 0.1
 
 // TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
@@ -133,55 +128,22 @@ export default class CRFExtractor {
 
     // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.rawText.toLowerCase(), intentDef, ds.entities, ds.tokens)
-
     const tags = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
 
-    // notice usage of zip here, we want to loop on tokens and tags at the same index
-    // TODO extract this filtering func
-    return _.zip(seq.tokens, tags)
-      .filter(([token, result]) => {
-        if (!token || !result || !result.label || result.label === BIO.OUT) {
-          return false
-        }
-
-        const slotName = result.label.slice(2)
-        return intentDef.slots.find(slotDef => slotDef.name === slotName) !== undefined
-      })
+    return _.zip(seq.tokens, tags) // notice usage of zip here
+      .filter(([token, result]) => isTagAValidSlot(token, result, intentDef))
       .reduce((slotCollection: any, [token, tag]) => {
-        // TODO extract and test this
+        // TODO review this once we get the new utterance datastructure
         const slotName = tag.label.slice(2)
         const slotDef = intentDef.slots.find(x => x.name == slotName)
-
-        const slot = this._makeSlot(slotName, token, slotDef, ds.entities, tag.probability)
-
-        if (!slot) {
+        if (!slotDef) {
           return slotCollection
         }
 
-        if (tag.label[0] === BIO.INSIDE && slotCollection[slotName]) {
-          if (!slotCollection[slotName].entity) {
-            const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
-            const newSource = `${slotCollection[slotName].source}${maybeSpace}${token.cannonical}`
-            slotCollection[slotName].source = newSource
-            slotCollection[slotName].value = newSource
-          }
-        } else if (tag.label[0] === BIO.BEGINNING && slotCollection[slotName]) {
-          const highest = _.maxBy([slotCollection[slotName], slot], 'confidence')
-          slotCollection[slotName] = highest
-          // At the moment we keep the highest confidence only
-          // we might want to keep the slot array feature so this is kept as commented
-          // I feel like it would make much more sens to enable this only when configured by the user
-          // i.e user marks a slot as an array (configurable) and only then we make an array
-
-          // if the tag is beginning and the slot already exists, we create need a array slot
-          // if (Array.isArray(slotCollection[slotName])) {
-          //   slotCollection[slotName].push(slot)
-          // } else {
-          //   // if no slots exist we assign a slot to the slot key
-          //   slotCollection[slotName] = [slotCollection[slotName], slot]
-          // }
-        } else {
-          slotCollection[slotName] = slot
+        // TODO this will move away once we got the new utterance object
+        const slot = makeSlot(slotName, token, slotDef, ds.entities, tag.probability)
+        if (slot) {
+          slotCollection[slotName] = combineSlots(slotCollection[slotName], token, tag, slot)
         }
 
         return slotCollection
@@ -199,7 +161,7 @@ export default class CRFExtractor {
     this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(progress)))
   }
 
-  // this is made "protected" to facilitate model validation
+  // TODO move this code in extracr
   async _tag(
     seq: Sequence,
     intentVocab,
@@ -210,13 +172,13 @@ export default class CRFExtractor {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
-    const inputVectors = await Promise.map(seq.tokens, (t, i) =>
-      this._getSlidingTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, true)
+    const inputFeatures = await Promise.map(seq.tokens, (t, i) =>
+      this._getTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, true)
     )
 
-    debugVectorize('vectorize', { inputVectors })
+    debugVectorize('vectorize', { inputFeatures })
 
-    const probs = this._tagger.marginal(inputVectors)
+    const probs = this._tagger.marginal(inputFeatures)
     // TODO extract and test this
     return probs.map(token =>
       _.chain(token)
@@ -230,7 +192,7 @@ export default class CRFExtractor {
     )
   }
 
-  // TODO remove this ? or test this?
+  // TODO remove this
   private _makeSlot(
     slotName: string,
     token: Token,
@@ -238,6 +200,7 @@ export default class CRFExtractor {
     entities: sdk.NLU.Entity[],
     confidence: number
   ): sdk.NLU.Slot {
+    const MIN_SLOT_CONFIDENCE = 0.1
     if (confidence < MIN_SLOT_CONFIDENCE) {
       return
     }
@@ -314,12 +277,8 @@ export default class CRFExtractor {
     trainer.set_callback(str => debugTrain('CRFSUITE', str))
 
     for (const seq of trainingSet) {
-      const inputFeatures = await this._featurizeUtterance(
-        seq,
-        intentVocab,
-        allowedEntitiesPerIntents[seq.intent],
-        tfidf,
-        token2Vec
+      const inputFeatures = await Promise.map(seq.tokens, (t, i) =>
+        this._getTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, false)
       )
 
       const labels = labelizeUtterance(seq)
@@ -329,34 +288,8 @@ export default class CRFExtractor {
     trainer.train(this._crfModelFn)
   }
 
-  private async _featurizeUtterance(
-    seq: Sequence,
-    intentVocab: { [token: string]: string[] },
-    allowedEntities: string[],
-    tfidf: TfidfOutput,
-    token2Vec: Token2Vec
-  ): Promise<string[][]> {
-    const inputFeatures: string[][] = []
-
-    for (let i = 0; i < seq.tokens.length; i++) {
-      const features = await this._getSlidingTokenFeatures(
-        seq,
-        i,
-        intentVocab,
-        allowedEntities,
-        tfidf,
-        token2Vec,
-        false
-      )
-
-      inputFeatures.push(features)
-    }
-
-    return inputFeatures
-  }
-
   // move this in featurizer
-  private async _getSlidingTokenFeatures(
+  private async _getTokenFeatures(
     seq: Sequence,
     tokenIdx: number,
     intentVocab: { [token: string]: string[] },
