@@ -240,6 +240,44 @@ declare module 'botpress/sdk' {
       export const Model: ModelConstructor
     }
 
+    export namespace KMeans {
+      export interface KMeansOptions {
+        maxIterations?: number
+        tolerance?: number
+        withIterations?: boolean
+        distanceFunction?: DistanceFunction
+        seed?: number
+        initialization?: 'random' | 'kmeans++' | 'mostDistant' | number[][]
+      }
+
+      export interface Centroid {
+        centroid: number[]
+        error: number
+        size: number
+      }
+
+      // TODO convert this to class we build the source of ml-kmeans
+      export interface KmeansResult {
+        // constructor(
+        //   clusters: number[],
+        //   centroids: Centroid[],
+        //   converged: boolean,
+        //   iterations: number,
+        //   distance: DistanceFunction
+        // )
+        clusters: number[]
+        centroids: Centroid[]
+        iterations: number
+        nearest: (data: DataPoint[]) => number[]
+      }
+
+      export type DataPoint = number[]
+
+      export type DistanceFunction = (point0: DataPoint, point1: DataPoint) => number
+
+      export const kmeans: (data: DataPoint[], K: number, options: KMeansOptions) => KmeansResult
+    }
+
     export namespace SVM {
       export interface SVMOptions {
         classifier: 'C_SVC'

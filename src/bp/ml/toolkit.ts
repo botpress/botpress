@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import kmeans from 'ml-kmeans'
 
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
@@ -8,6 +9,9 @@ import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
 const MLToolkit: typeof sdk.MLToolkit = {
+  KMeans: {
+    kmeans
+  },
   CRF: {
     createTagger: Tagger,
     createTrainer: CRFTrainer

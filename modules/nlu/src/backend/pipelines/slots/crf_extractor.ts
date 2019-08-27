@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import fs, { readFileSync } from 'fs'
 import _ from 'lodash'
-import kmeans from 'ml-kmeans'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
@@ -23,13 +22,15 @@ const debugVectorize = debug.sub('vectorize')
 // clean the extract method, split & test
 
 const MIN_SLOT_CONFIDENCE = 0.1
+
 // TODO grid search / optimization for those hyperparams
-const K_CLUSTERS = 8
+const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
   initialization: 'random',
   seed: 666 // so training is consistent
-}
+} as sdk.MLToolkit.KMeans.KMeansOptions
+
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
   c2: '0.01',
@@ -40,16 +41,11 @@ const CRF_TRAINER_PARAMS = {
 
 export type TagResult = { probability: number; label: string }
 
-// TODO move this to MLToolkit
-export interface KMeansModel {
-  nearest: (vec: number[][]) => number[]
-}
-
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _crfModelFn = ''
   private _tagger!: sdk.MLToolkit.CRF.Tagger
-  private _kmeansModel: KMeansModel
+  private _kmeansModel: sdk.MLToolkit.KMeans.KmeansResult
 
   constructor(
     private toolkit: typeof sdk.MLToolkit,
@@ -294,11 +290,11 @@ export default class CRFExtractor {
       return
     }
 
-    const data = await this.languageProvider.vectorize(tokens, this.language)
+    const data = (await this.languageProvider.vectorize(tokens, this.language)).map(wordVec => Array.from(wordVec))
+    const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
 
-    const k = data.length > K_CLUSTERS ? K_CLUSTERS : 2
     try {
-      this._kmeansModel = kmeans(data, k, KMEANS_OPTIONS)
+      this._kmeansModel = this.toolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
       throw Error(`Error training K-means model, error is: ${error}`)
     }

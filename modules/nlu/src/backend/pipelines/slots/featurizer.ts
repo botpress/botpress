@@ -9,8 +9,6 @@ import { MAX_TFIDF, MIN_TFIDF, TfidfOutput } from '../intents/tfidf'
 import { getClosestToken } from '../language/ft_featurizer'
 import { sanitize } from '../language/sanitizer'
 
-import { KMeansModel } from './crf_extractor'
-
 type FeatureValue = string | number | boolean
 
 export interface CRFFeature {
@@ -79,13 +77,13 @@ export async function getWordWeight(
 export async function getClusterFeat(
   token: Token,
   languageProvider: LanguageProvider, // this won't be necessary
-  kmeansModel: KMeansModel,
+  kmeansModel: MLToolkit.KMeans.KmeansResult,
   language: string
 ): Promise<CRFFeature> {
   const data32 = await languageProvider.vectorize([token.cannonical.toLowerCase()], language) // TODO use token.wordVector instead
   const data = data32.map(d => Array.from(d)) // usage of .map bc nearest needs an array (size 1 here)
 
-  const cluster = kmeansModel.nearest(data)[0] //
+  const cluster = kmeansModel.nearest(data)[0]
   return {
     name: 'cluster',
     value: cluster
