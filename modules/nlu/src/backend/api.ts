@@ -140,7 +140,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       await botEngine.storage.saveIntent(intentDef.name, intentDef)
       scheduleSyncNLU(req.params.botId)
 
-      res.sendStatus(201)
+      res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
       res.status(400).send('Invalid schema')
@@ -185,7 +185,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       await botEngine.storage.saveEntity(entityDef)
       scheduleSyncNLU(req.params.botId)
 
-      res.sendStatus(201)
+      res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).warn('Cannot create entity, imvalid schema')
       res.status(400).send('Invalid schema')
@@ -201,7 +201,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     await botEngine.storage.saveEntity({ ...updatedEntity, id })
     scheduleSyncNLU(req.params.botId)
 
-    res.sendStatus(201)
+    res.sendStatus(200)
   })
 
   router.delete('/entities/:id', async (req, res) => {

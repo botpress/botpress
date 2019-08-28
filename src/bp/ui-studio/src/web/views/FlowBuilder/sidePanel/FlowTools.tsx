@@ -58,6 +58,7 @@ const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean
 const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
   return (
     <div
+      id={`btn-tool-${id}`}
       className={style.toolItem}
       key={id}
       draggable={true}

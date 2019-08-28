@@ -113,7 +113,9 @@ export default class Login extends Component {
           />
         </FormGroup>
         <p>
-          <Button onClick={this.login}>Sign in</Button>
+          <Button id="btn-signin" onClick={this.login}>
+            Sign in
+          </Button>
         </p>
       </Fragment>
     )
@@ -126,7 +128,9 @@ export default class Login extends Component {
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <p>
-          <Button onClick={this.redirectToExternalAuthProvider}>Sign in with SSO</Button>
+          <Button id="btn-sso" onClick={this.redirectToExternalAuthProvider}>
+            Sign in with SSO
+          </Button>
         </p>
       </Fragment>
     )

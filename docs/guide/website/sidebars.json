@@ -33,6 +33,7 @@
       "channels/telegram",
       "channels/teams",
       "channels/converse",
+      "channels/slack",
       "channels/faq"
     ],
     "Tutorials": [

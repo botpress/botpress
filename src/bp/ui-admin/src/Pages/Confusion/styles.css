@@ -77,3 +77,8 @@ table.matrix {
   width: 130px;
   margin: 0px;
 }
+
+.black_link {
+  cursor: pointer;
+  color: black;
+}

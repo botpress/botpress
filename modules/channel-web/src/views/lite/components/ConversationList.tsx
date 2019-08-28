@@ -99,6 +99,7 @@ class ConversationList extends React.Component<ConversationListProps> {
         ))}
         <button
           ref={el => (this.btn = el)}
+          id="btn-convo-add"
           className={'bpw-convo-add-btn'}
           onClick={createConversation.bind(this, undefined)}
         >

@@ -115,9 +115,15 @@ export default class ActionSection extends Component {
             <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
               {!readOnly && (
                 <div className={style.actions}>
-                  <a onClick={() => this.onEdit(i)}>Edit</a>
-                  <a onClick={() => this.onRemoveAction(i)}>Remove</a>
-                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                  <a className="btn-edit" onClick={() => this.onEdit(i)}>
+                    Edit
+                  </a>
+                  <a className="btn-remove" onClick={() => this.onRemoveAction(i)}>
+                    Remove
+                  </a>
+                  <a className="btn-copy" onClick={() => this.onCopyAction(i)}>
+                    Copy
+                  </a>
                   {renderMoveUp(i)}
                   {renderMoveDown(i)}
                 </div>
@@ -126,10 +132,15 @@ export default class ActionSection extends Component {
           ))}
           {!readOnly && (
             <div className={style.actions}>
-              <Button onClick={handleAddAction} bsSize="xsmall">
+              <Button id="btn-add-element" onClick={handleAddAction} bsSize="xsmall">
                 <i className={classnames('material-icons', style.actionIcons)}>add</i>
               </Button>
-              <Button onClick={this.props.pasteItem} bsSize="xsmall" disabled={!this.props.canPaste}>
+              <Button
+                id="btn-paste-element"
+                onClick={this.props.pasteItem}
+                bsSize="xsmall"
+                disabled={!this.props.canPaste}
+              >
                 <i className={classnames('material-icons', style.actionIcons)}>content_paste</i>
               </Button>
             </div>

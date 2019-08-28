@@ -39,6 +39,7 @@ const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
 const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
+const NA_LANG = 'n/a'
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -589,10 +590,11 @@ export default class ScopedEngine implements Engine {
       debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    const threshold = ds.tokens.length > 1 ? 0.5 : 0.3
+    const threshold = ds.tokens.length > 1 ? 0.5 : 0.3 // because with single-word sentences (and no history), confidence is always very low
 
-    ds.detectedLanguage = _.get(elected, 'label', 'n/a')
-    ds.language = _.isEmpty(elected) || elected.value > threshold ? ds.detectedLanguage : this.defaultLanguage
+    ds.detectedLanguage = _.get(elected, 'label', NA_LANG)
+    ds.language =
+      ds.detectedLanguage !== NA_LANG && elected.value > threshold ? ds.detectedLanguage : this.defaultLanguage
 
     return ds
   }

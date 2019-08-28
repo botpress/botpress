@@ -101,10 +101,16 @@ class Bots extends Component {
     return (
       <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
         <Popover minimal interactionKind={PopoverInteractionKind.HOVER} position={Position.BOTTOM}>
-          <Button intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
+          <Button id="btn-create-bot" intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
           <ButtonGroup vertical={true} minimal={true} fill={true} alignText={Alignment.LEFT}>
-            <Button text="New Bot" icon="add" onClick={() => this.setState({ isCreateBotModalOpen: true })} />
             <Button
+              id="btn-new-bot"
+              text="New Bot"
+              icon="add"
+              onClick={() => this.setState({ isCreateBotModalOpen: true })}
+            />
+            <Button
+              id="btn-import-bot"
               text="Import Existing"
               icon="import"
               onClick={() => this.setState({ isImportBotModalOpen: true })}
