@@ -269,7 +269,10 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('read', 'bot.information'),
       this.asyncMiddleware(async (req, res) => {
-        return res.send(await this.workspaceService.getBotRefs(req.workspace))
+        const botsRefs = await this.workspaceService.getBotRefs(req.workspace)
+        const bots = await this.botService.findBotsByIds(botsRefs)
+
+        return res.send(bots && bots.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
 

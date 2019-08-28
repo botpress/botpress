@@ -28,8 +28,7 @@ class StatusBar extends React.Component {
     progress: 0,
     messages: [],
     nluSynced: true,
-    contexts: [],
-    botsIds: []
+    contexts: []
   }
 
   constructor(props) {
@@ -40,12 +39,6 @@ class StatusBar extends React.Component {
 
   async componentDidMount() {
     await this.fetchContexts()
-    await this.fetchWorkspaceBotsIds()
-  }
-
-  fetchWorkspaceBotsIds = async () => {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`)
-    this.setState({ botsIds: data || [] })
   }
 
   fetchContexts = async () => {
@@ -193,7 +186,7 @@ class StatusBar extends React.Component {
           <div className={style.item}>
             <strong>v{this.props.botpressVersion}</strong>
           </div>
-          <BotSwitcher botsIds={this.state.botsIds} currentBotId={this.props.botInfo.id} />
+          <BotSwitcher />
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher
