@@ -51,7 +51,14 @@ const ChangeUserRoleModal: FC<Props> = props => {
       title={<span>Editing role of {props.user.email}</span>}
     >
       <div className={Classes.DIALOG_BODY}>
-        <Select id="select-role" tabIndex="3" options={roleOptions()} value={role} onChange={role => setRole(role)} />
+        <Select
+          autoFocus={true}
+          id="select-role"
+          tabIndex="3"
+          options={roleOptions()}
+          value={role}
+          onChange={role => setRole(role)}
+        />
       </div>
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>

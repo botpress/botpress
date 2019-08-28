@@ -3,7 +3,7 @@ import { AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import Joi from 'joi-browser'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { toastFailure } from '~/utils/toaster'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import api from '../../../api'
 import { fetchRoles } from '../../../reducers/roles'
@@ -141,20 +141,25 @@ Password: ${payload.tempPassword}`
 
   async deleteUser(user) {
     if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
+      try {
+        await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
+        toastSuccess(`User ${user.email} was deleted successfully`)
+      } catch (err) {
+        toastFailure(`Could not delete user: ${err.message}`)
+      }
     }
   }
 
   renderAllUsers() {
     const resetPassword = {
-      id: 'btn-reset',
+      id: 'btn-resetPassword',
       icon: <Icon icon="key" />,
       label: 'Reset Password',
       onClick: user => this.resetPassword(user)
     }
 
     const deleteUser = {
-      id: 'btn-delete',
+      id: 'btn-deleteUser',
       icon: <Icon icon="delete" />,
       label: 'Delete',
       needRefresh: true,
@@ -162,7 +167,7 @@ Password: ${payload.tempPassword}`
     }
 
     const removeUser = {
-      id: 'btn-remove-workspace',
+      id: 'btn-removeUser',
       icon: <Icon icon="remove" />,
       label: 'Remove from workspace',
       needRefresh: true,
@@ -170,7 +175,7 @@ Password: ${payload.tempPassword}`
     }
 
     const changeRole = {
-      id: 'btn-role',
+      id: 'btn-changeRole',
       icon: <Icon icon="people" />,
       label: 'Change Role',
       needRefresh: true,

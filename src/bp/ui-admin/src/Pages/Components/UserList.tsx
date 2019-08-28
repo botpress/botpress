@@ -136,7 +136,7 @@ class UserList extends Component<Props> {
   renderRole(users, role) {
     return (
       <div key={'role-' + role.id}>
-        <div onClick={() => this.toggle(role.id)} className="bp_users-role_header">
+        <div onClick={() => this.toggle(role.id)} id={`div-role-${role.id}`} className="bp_users-role_header">
           <div className="role float-left">
             <Badge pill color="light">
               {users.length}

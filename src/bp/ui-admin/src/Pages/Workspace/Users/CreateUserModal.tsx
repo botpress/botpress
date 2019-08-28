@@ -180,7 +180,7 @@ class CreateUserModal extends Component<Props, State> {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
-              id="btn-create"
+              id="btn-submit"
               className="float-right"
               type="submit"
               onClick={this.createUser}
