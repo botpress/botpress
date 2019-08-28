@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import { AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import Joi from 'joi-browser'
 import React, { Component } from 'react'
@@ -148,38 +148,38 @@ Password: ${payload.tempPassword}`
   renderAllUsers() {
     const resetPassword = {
       id: 'btn-reset',
+      icon: <Icon icon="key" />,
       label: 'Reset Password',
-      type: 'link',
       onClick: user => this.resetPassword(user)
     }
 
     const deleteUser = {
       id: 'btn-delete',
+      icon: <Icon icon="delete" />,
       label: 'Delete',
-      type: 'link',
       needRefresh: true,
       onClick: user => this.deleteUser(user)
     }
 
     const removeUser = {
       id: 'btn-remove-workspace',
+      icon: <Icon icon="remove" />,
       label: 'Remove from workspace',
-      type: 'link',
       needRefresh: true,
       onClick: user => this.removeUser(user)
     }
 
     const changeRole = {
       id: 'btn-role',
+      icon: <Icon icon="people" />,
       label: 'Change Role',
-      type: 'link',
       needRefresh: true,
       onClick: user => this.toggleUpdateUserModal(user)
     }
 
     return (
       <div>
-        <UserList actions={[resetPassword, changeRole, deleteUser, removeUser]} detailed="true" />
+        <UserList actions={[resetPassword, changeRole, deleteUser, removeUser]} detailed={true} />
       </div>
     )
   }
