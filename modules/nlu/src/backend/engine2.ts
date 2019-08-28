@@ -36,7 +36,7 @@ export type StructuredTrainOutput = Readonly<{
   botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
-  list_entities: ListEntity[]
+  list_entities: ListEntityModel[]
   contexts: string[]
   intents: Intent<Utterance>[]
 }>
@@ -68,6 +68,17 @@ export type SlotDefinition = Readonly<{
   entities: string[]
 }>
 
+export type ListEntityModel = Readonly<{
+  type: 'custom.list' | 'custom.pattern'
+  id: string
+  languageCode: string
+  entityName: string
+  fuzzyMatching: boolean
+  sensitive: boolean
+  /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
+  mappingsTokens: _.Dictionary<string[][]>
+}>
+
 export type Utterance = Readonly<{
   toString(options: UtteranceToStringOptions): string
   tagEntity(entity: ExtractedEntity, start: number, end: number)
@@ -77,6 +88,52 @@ export type Utterance = Readonly<{
   slots: ReadonlyArray<UtteranceSlot>
   tokens: ReadonlyArray<UtteranceToken>
 }>
+
+export const prepareListEntityModels = async (entity: ListEntity, languageCode: string, tools: TrainTools) => {
+  const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
+  const allTokens = await tools.tokenize_utterances(allValues, languageCode)
+
+  return <ListEntityModel>{
+    type: 'custom.list',
+    id: `custom.list.${entity.name}`,
+    languageCode: languageCode,
+    entityName: entity.name,
+    fuzzyMatching: entity.fuzzyMatching,
+    sensitive: entity.sensitive,
+    mappingsTokens: _.mapValues(entity.synonyms, (synonyms, name) =>
+      [...synonyms, name].map(syn => {
+        const idx = allValues.indexOf(syn)
+        return allTokens[idx]
+      })
+    )
+  }
+}
+
+export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
+export const extractListEntities = (
+  utterance: UtteranceClass,
+  list_entities: ListEntityModel[]
+): EntityExtractionResult[] => {
+  // fuzzy, language, entity name, occurance name, tokens for all synonyms
+  // TODO: Implement me
+  const example: EntityExtractionResult[] = [
+    {
+      confidence: 1,
+      start: 1,
+      end: 10,
+      metadata: {},
+      type: 'custom.list.air-line'
+    }
+  ]
+
+  return []
+}
+
+export const extractRegexEntities = () => {}
+
+export const extractSystemEntities = async () => {
+  // call duckling extractor
+}
 
 class UtteranceClass implements Utterance {
   public tokens: ReadonlyArray<UtteranceToken> = []
@@ -110,11 +167,12 @@ class UtteranceClass implements Utterance {
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
-          toString: () => value
+          toString: () => value // TODO: Options for toString
         })
       )
       offset += value.length
     }
+    // TODO: merge tokens (special chars)
     this.tokens = arr
   }
 
@@ -230,21 +288,32 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
   try {
     // TODO: Cancellation token effect
     input = cloneDeep(input)
-    // TODO: Train List Extractor
-    let output = await ProcessIntents(input, tools)
-    // extract list entities
-    // extract pattern entities
 
+    const list_entities = await Promise.map(input.list_entities, list =>
+      prepareListEntityModels(list, input.languageCode, tools)
+    )
+
+    const intents = await ProcessIntents(input.intents, input.languageCode, tools)
+
+    let output = {
+      ..._.omit(input, 'list_entities', 'intents'),
+      list_entities,
+      intents
+    }
+
+    output = await ExtractEntities(output, tools)
     output = await AppendNoneIntents(output, tools)
     output = await TfidfTokens(output)
 
     const context_ranking = await {}
 
+    const svm = {} // await trainSvm(output, tools)
+
     const artefacts = {
-      listExtractor: {},
-      patternExtractor: {},
+      tfidf: {},
+      kmeans: {},
       context_ranking: {},
-      svm_classifier: {},
+      svm_classifier: svm,
       exact_classifier: {},
       slot_tagger: {}
     }
@@ -264,25 +333,30 @@ for each ctx
       features = [ (vectors * tfidf) + tokens.length ]
       push( features of utterance ) label = ctx
 svm = train(points, LINEAR, C_SVC) (progress -> cb | cancel token check)
-artefacts.push ( ctx_ranking (json) )
 */
 
 export const ProcessIntents = async (
-  input: StructuredTrainInput,
+  intents: Intent<string>[],
+  languageCode: string,
   tools: TrainTools
-): Promise<StructuredTrainOutput> => {
-  const intents = await Promise.map(input.intents, async intent => {
+): Promise<Intent<Utterance>[]> => {
+  return Promise.map(intents, async intent => {
     const chunked_utterances = intent.utterances.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
     const textual_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
-    const utterances = await Utterances(textual_utterances, input.languageCode, tools)
+    const utterances = await Utterances(textual_utterances, languageCode, tools)
     // TODO: tag slots
     return { ...intent, utterances: utterances }
   })
+}
 
-  return {
-    ...input,
-    intents
-  }
+export const ExtractEntities = async (
+  input: StructuredTrainOutput,
+  tools: TrainTools
+): Promise<StructuredTrainOutput> => {
+  // extract list entities
+  // extract pattern entities
+
+  return input
 }
 
 export const AppendNoneIntents = async (

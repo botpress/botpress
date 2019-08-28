@@ -413,6 +413,21 @@ export default class ScopedEngine implements Engine {
 
     for (const lang of this.languages) {
       try {
+        const entities = await this.storage.getCustomEntities()
+        const list_entities = entities
+          .filter(ent => ent.type === 'list')
+          .map(e => {
+            return {
+              name: e.name,
+              fuzzyMatching: e.fuzzy,
+              sensitive: e.sensitive,
+              synonyms: _.chain(e.occurences)
+                .keyBy('name')
+                .mapValues('synonyms')
+                .value()
+            }
+          })
+
         const e2 = new Engine2()
         e2.provideTools({
           tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
@@ -426,7 +441,7 @@ export default class ScopedEngine implements Engine {
           botId: this.botId,
           contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
           languageCode: lang,
-          list_entities: [], // TODO:
+          list_entities: list_entities,
           pattern_entities: [], // TODO:
           intents: intentDefs.map(x => ({
             name: x.name,
