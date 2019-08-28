@@ -74,6 +74,10 @@ export class VersioningRouter extends CustomRouter {
         }
       })
     )
+
+    this.router.get('/bpfsStatus', (req, res) => {
+      res.send({ isAvailable: process.BPFS_STORAGE === 'database' })
+    })
   }
 
   extractArchiveFromRequest = async (request, folder) => {
