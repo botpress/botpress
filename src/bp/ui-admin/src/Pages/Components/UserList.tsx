@@ -1,16 +1,49 @@
-import React, { Component } from 'react'
-import { Collapse, Badge, DropdownItem, UncontrolledButtonDropdown, DropdownToggle, DropdownMenu } from 'reactstrap'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { fetchUsers } from '../../reducers/user'
-import { fetchRoles } from '../../reducers/roles'
+import {
+  Button,
+  Callout,
+  IconName,
+  MaybeElement,
+  Menu,
+  MenuItem,
+  Popover,
+  PopoverInteractionKind,
+  Position
+} from '@blueprintjs/core'
+import { WorkspaceUser } from 'common/typings'
 import moment from 'moment'
-import LoadingSection from '../Components/LoadingSection'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
-import GravatarImage from './GravatarImage'
-import { Callout } from '@blueprintjs/core'
+import React, { Component } from 'react'
+import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md'
+import { connect } from 'react-redux'
+import { Badge, Collapse } from 'reactstrap'
+import { bindActionCreators } from 'redux'
 
-class UserList extends Component {
+import { fetchRoles } from '../../reducers/roles'
+import { fetchUsers } from '../../reducers/user'
+
+import GravatarImage from './GravatarImage'
+import LoadingSection from './LoadingSection'
+
+export interface UserAction {
+  id?: string
+  icon?: JSX.Element
+  label: string
+  /** If refreshing users is required after the operation */
+  needRefresh?: boolean
+  onClick: (user: WorkspaceUser) => void
+}
+
+interface Props {
+  fetchUsers: any
+  fetchRoles: any
+  actions: UserAction[]
+  profile: any
+  users: any
+  loading: boolean
+  roles: any
+  detailed?: boolean
+}
+
+class UserList extends Component<Props> {
   state = {
     needRefresh: false
   }
@@ -31,32 +64,29 @@ class UserList extends Component {
     this.setState({ [roleId]: !this.state[roleId] })
   }
 
-  renderActionButton(user) {
+  renderActionButton(user: WorkspaceUser) {
     return (
-      <UncontrolledButtonDropdown>
-        <DropdownToggle caret outline color="secondary" size="sm">
-          More
-        </DropdownToggle>
-        <DropdownMenu>
-          {this.props.actions.map((action, idx) => {
+      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
+        <Button id="btn-menu" rightIcon="caret-down" text="More" />
+        <Menu>
+          {this.props.actions.map(action => {
             return (
-              <DropdownItem
-                color={action.type ? action.type : 'link'}
-                size="sm"
-                key={idx}
+              <MenuItem
+                key={action.label}
+                id={action.id}
+                text={action.label}
+                icon={action.icon}
                 onClick={() => {
                   action.onClick(user)
                   if (action.needRefresh) {
                     this.setState({ needRefresh: true })
                   }
                 }}
-              >
-                {action.label}
-              </DropdownItem>
+              />
             )
           })}
-        </DropdownMenu>
-      </UncontrolledButtonDropdown>
+        </Menu>
+      </Popover>
     )
   }
 
@@ -67,31 +97,34 @@ class UserList extends Component {
           {users.map(user => {
             return (
               <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
-                {user.email !== this.props.profile.email && this.renderActionButton(user)}
-                <GravatarImage email={user.email} size="md" className="pullLeft" />
-                <div className="pullLeft details">
-                  <div className="nameZone">
-                    {user.firstname}
-                    &nbsp;
-                    {user.lastname}
+                <div style={{ display: 'flex' }}>
+                  <GravatarImage email={user.email} size="md" className="pullLeft" />
+
+                  <div className="pullLeft details">
+                    <div className="nameZone">
+                      {user.firstname}
+                      &nbsp;
+                      {user.lastname}
+                    </div>
+
+                    <p>
+                      <span className="field">
+                        <b>Email: </b>
+                        {user.email} ({user.strategy})
+                      </span>
+                      <span className="field">
+                        <b>Last Login: </b>
+                        {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
+                      </span>
+                      <span className="field">
+                        <b>Joined: </b>
+                        {moment(user.attributes.createdOn).fromNow()}
+                      </span>
+                    </p>
                   </div>
 
-                  <p>
-                    <span className="field">
-                      <b>Email: </b>
-                      {user.email} ({user.strategy})
-                    </span>
-                    <span className="field">
-                      <b>Last Login: </b>
-                      {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
-                    </span>
-                    <span className="field">
-                      <b>Joined: </b>
-                      {moment(user.attributes.createdOn).fromNow()}
-                    </span>
-                  </p>
+                  <div>{user.email !== this.props.profile.email && this.renderActionButton(user)}</div>
                 </div>
-                <div style={{ clear: 'both' }} />
               </div>
             )
           })}
@@ -103,7 +136,7 @@ class UserList extends Component {
   renderRole(users, role) {
     return (
       <div key={'role-' + role.id}>
-        <div onClick={() => this.toggle(role.id)} className="bp_users-role_header">
+        <div onClick={() => this.toggle(role.id)} id={`div-role-${role.id}`} className="bp_users-role_header">
           <div className="role float-left">
             <Badge pill color="light">
               {users.length}
