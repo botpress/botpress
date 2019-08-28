@@ -3,6 +3,7 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
+import { IntentValidation } from '../../../backend/typings'
 import { NLUApi } from '../../api'
 
 import Slots from './slots/Slots'
@@ -22,9 +23,19 @@ interface Props {
 
 export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
+  const [validation, setValidation] = useState<IntentValidation>()
+
+  const fetchValidation = async () => {
+    const { axios, contentLang, intent } = props
+    const { data } = await axios.get(`mod/nlu/intents/${intent}/validation?lang=${contentLang}`)
+    return data
+  }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     props.api.fetchIntent(props.intent).then(setIntent)
+    // tslint:disable-next-line: no-floating-promises
+    fetchValidation().then(setValidation)
   }, [props.intent])
 
   if (!intent) {
@@ -32,17 +43,18 @@ export const IntentEditor: FC<Props> = props => {
     return null
   }
 
-  const saveIntent = (newIntent: NLU.IntentDefinition) => {
+  const saveIntent = async (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    props.api.createIntent(newIntent)
+    await props.api.createIntent(newIntent)
+    setValidation(await fetchValidation())
   }
 
-  const handleUtterancesChange = (newUtterances: string[]) => {
+  const handleUtterancesChange = async (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
-    saveIntent(newIntent)
+    await saveIntent(newIntent)
   }
 
-  const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
+  const handleSlotsChange = async (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
     let newUtterances = [...intent.utterances[props.contentLang]]
     if (operation === 'deleted') {
       newUtterances = removeSlotFromUtterances(newUtterances, name)
@@ -51,7 +63,7 @@ export const IntentEditor: FC<Props> = props => {
     }
 
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances }, slots }
-    saveIntent(newIntent)
+    await saveIntent(newIntent)
   }
 
   const utterances = (intent && intent.utterances[props.contentLang]) || []
@@ -65,7 +77,7 @@ export const IntentEditor: FC<Props> = props => {
             saveContexts={contexts => saveIntent({ ...intent, contexts })}
             api={props.api}
           />
-          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
+          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} validation={validation} />
         </div>
         <UtterancesEditor
           intentName={intent.name}

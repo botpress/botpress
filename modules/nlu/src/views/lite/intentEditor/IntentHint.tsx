@@ -3,7 +3,7 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NluMlRecommendations } from '../../../backend/typings'
+import { IntentValidation, NluMlRecommendations } from '../../../backend/typings'
 
 import style from './style.scss'
 
@@ -11,6 +11,7 @@ interface Props {
   intent: sdk.NLU.IntentDefinition
   contentLang: string
   axios: AxiosInstance
+  validation: IntentValidation
 }
 
 const fetchRecommendations = async (axios: AxiosInstance): Promise<NluMlRecommendations> => {
@@ -61,11 +62,31 @@ const IntentHint: FC<Props> = props => {
       </span>
     )
   }
+
+  const { validation } = props
+  const errorMsgs: string[] = []
+  if (validation) {
+    for (const utt of Object.keys(validation)) {
+      const { slots } = validation[utt]
+      const invalidSlots = slots.filter(s => !s.isValidEntity)
+      const utterancesErrorMsg = invalidSlots.map(s => `"${s.source}" is not a valid slot of type "${s.name}"`)
+      errorMsgs.push(...utterancesErrorMsg)
+    }
+  }
+
   return hint ? (
     <p className={style.hint}>
-      {!utterances.length && <Icon icon="warning-sign" />}
-      {!!utterances.length && <Icon icon="symbol-diamond" />}
-      {hint}
+      <div>
+        {!utterances.length && <Icon icon="warning-sign" />}
+        {!!utterances.length && <Icon icon="symbol-diamond" />}
+        {hint}
+      </div>
+      {errorMsgs.map(e => (
+        <div>
+          <Icon icon="warning-sign" />
+          <span>{e}</span>
+        </div>
+      ))}
     </p>
   ) : null
 }
