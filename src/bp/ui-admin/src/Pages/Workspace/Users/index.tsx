@@ -103,8 +103,13 @@ class List extends Component<Props, State> {
     this.props.fetchUsers()
   }
 
-  onUserAdded = () => {
+  handleUserAdded = () => {
     this.setState({ isCreateUserModalOpen: false })
+    this.props.fetchUsers()
+  }
+
+  handleUserUpdated = () => {
+    this.setState({ isUpdateRoleModalOpen: false })
     this.props.fetchUsers()
   }
 
@@ -134,19 +139,30 @@ Password: ${payload.tempPassword}`
   }
 
   async removeUser(user) {
-    if (window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
+    if (!window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
+      return
+    }
+
+    try {
       await api.getSecured().delete(`/admin/users/workspace/remove/${user.strategy}/${user.email}`)
+      toastSuccess(`User ${user.email} was removed from workspace successfully`)
+      this.props.fetchUsers()
+    } catch (err) {
+      toastFailure(`Could not remove user from workspace: ${err.message}`)
     }
   }
 
   async deleteUser(user) {
-    if (window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
-      try {
-        await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
-        toastSuccess(`User ${user.email} was deleted successfully`)
-      } catch (err) {
-        toastFailure(`Could not delete user: ${err.message}`)
-      }
+    if (!window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
+      return
+    }
+
+    try {
+      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
+      toastSuccess(`User ${user.email} was deleted successfully`)
+      this.props.fetchUsers()
+    } catch (err) {
+      toastFailure(`Could not delete user: ${err.message}`)
     }
   }
 
@@ -162,7 +178,6 @@ Password: ${payload.tempPassword}`
       id: 'btn-deleteUser',
       icon: <Icon icon="delete" />,
       label: 'Delete',
-      needRefresh: true,
       onClick: user => this.deleteUser(user)
     }
 
@@ -170,7 +185,6 @@ Password: ${payload.tempPassword}`
       id: 'btn-removeUser',
       icon: <Icon icon="remove" />,
       label: 'Remove from workspace',
-      needRefresh: true,
       onClick: user => this.removeUser(user)
     }
 
@@ -178,7 +192,6 @@ Password: ${payload.tempPassword}`
       id: 'btn-changeRole',
       icon: <Icon icon="people" />,
       label: 'Change Role',
-      needRefresh: true,
       onClick: user => this.toggleUpdateUserModal(user)
     }
 
@@ -204,7 +217,7 @@ Password: ${payload.tempPassword}`
           isOpen={this.state.isCreateUserModalOpen}
           toggleOpen={this.toggleCreateUserModalOpen}
           onUserCreated={this.onUserCreated}
-          onUserAdded={this.onUserAdded}
+          onUserAdded={this.handleUserAdded}
         />
 
         <ShowInfoModal
@@ -219,7 +232,7 @@ Password: ${payload.tempPassword}`
           toggle={this.toggleUpdateUserModal}
           roles={this.props.roles}
           user={this.state.user}
-          onUserUpdated={this.props.fetchUsers}
+          onUserUpdated={this.handleUserUpdated}
         />
       </div>
     )

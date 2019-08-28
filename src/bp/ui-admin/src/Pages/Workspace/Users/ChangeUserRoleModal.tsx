@@ -32,7 +32,7 @@ const ChangeUserRoleModal: FC<Props> = props => {
         ...props.user,
         role: role.value
       })
-      props.toggle()
+
       toastSuccess(`Role updated successfully`)
       props.onUserUpdated && props.onUserUpdated()
     } catch (err) {
