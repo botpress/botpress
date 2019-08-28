@@ -98,20 +98,21 @@ export default class FlowsList extends Component<Props, State> {
       <Menu>
         <MenuItem
           id="btn-rename"
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename}
+          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename || this.props.readOnly}
           icon="edit"
           text="Rename"
           onClick={() => this.handleRename(node.nodeData)}
         />
         <MenuItem
           id="btn-delete"
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete}
+          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete || this.props.readOnly}
           icon="delete"
           text="Delete"
           onClick={() => this.handleDelete(node.nodeData)}
         />
         <MenuItem
           id="btn-duplicate"
+          disabled={this.props.readOnly}
           icon="duplicate"
           text="Duplicate"
           onClick={() => this.handleDuplicate(node.nodeData)}
@@ -173,6 +174,7 @@ export default class FlowsList extends Component<Props, State> {
 }
 
 interface Props {
+  readOnly: boolean
   currentFlow: any
   canRename: boolean
   canDelete: boolean
