@@ -88,9 +88,9 @@ class List extends Component<Props, State> {
   onUserCreated = createdUser => {
     const message = `Your botpress account is ready!
 
-      Sign-in here: ${window.location.origin}/admin/login
-      Email: ${createdUser.email}
-      Password: ${createdUser.tempPassword}`
+Sign-in here: ${window.location.origin}/admin/login
+Email: ${createdUser.email}
+Password: ${createdUser.tempPassword}`
 
     this.setState({
       isCreateUserModalOpen: false,
