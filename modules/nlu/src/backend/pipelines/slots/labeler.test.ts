@@ -4,8 +4,7 @@ import ms from 'ms'
 import { SPACE } from '../../tools/token-utils'
 import { BIO, Sequence, Token } from '../../typings'
 
-import { TagResult } from './crf_extractor'
-import { combineSlots, isTagAValidSlot, labelizeUtterance } from './labeler'
+import { combineSlots, isTagAValidSlot, labelizeUtterance, predictionLabelToTagResult, TagResult } from './labeler'
 
 const AN_UTTERANCE: Sequence = {
   cannonical: 'Careful my friend, Alex W. is one of us',
@@ -39,8 +38,8 @@ test('labelizeUtterance', () => {
 
 test('isTagAValidSlot', () => {
   const token = { cannonical: 'a token' } as Token // for testing purposes
-  const result: TagResult = { label: BIO.OUT, probability: 0.5 }
-  const result1: TagResult = { label: `${BIO.BEGINNING}-coffee-type`, probability: 0.5 }
+  const tag = { tag: BIO.OUT, probability: 0.5, name: '' } as TagResult
+  const tag1 = { tag: BIO.BEGINNING, probability: 0.5, name: 'coffee-type' } as TagResult
   const intentDef = {
     name: 'brew coffee',
     slots: [
@@ -50,10 +49,10 @@ test('isTagAValidSlot', () => {
     ]
   } as NLU.IntentDefinition
 
-  expect(isTagAValidSlot(undefined, result, intentDef)).toBeFalsy()
+  expect(isTagAValidSlot(undefined, tag, intentDef)).toBeFalsy()
   expect(isTagAValidSlot(token, undefined, intentDef)).toBeFalsy()
-  expect(isTagAValidSlot(token, { ...result1, probability: 0.1 }, intentDef)).toBeFalsy()
-  expect(isTagAValidSlot(token, result1, intentDef)).toBeTruthy()
+  expect(isTagAValidSlot(token, { ...tag1, probability: 0.1 }, intentDef)).toBeFalsy()
+  expect(isTagAValidSlot(token, tag1, intentDef)).toBeTruthy()
 })
 
 describe('combineSlots', () => {
@@ -68,8 +67,8 @@ describe('combineSlots', () => {
       value: 'antoine'
     } as NLU.Slot
 
-    const res = combineSlots(undefined, token, { label: 'B-name', probability: 0.5 }, newSlot)
-    const res1 = combineSlots(undefined, token, { label: 'I-name', probability: 0.5 }, newSlot)
+    const res = combineSlots(undefined, token, { tag: 'B', name: 'name', probability: 0.5 }, newSlot)
+    const res1 = combineSlots(undefined, token, { tag: 'I', name: 'name', probability: 0.5 }, newSlot)
 
     expect(res).toEqual(newSlot)
     expect(res1).toEqual(newSlot)
@@ -85,7 +84,7 @@ describe('combineSlots', () => {
       source: 'LeGrand'
     } as NLU.Slot
 
-    const res = combineSlots(existing, token, { label: 'I-name', probability: 0.5 }, newSlot)
+    const res = combineSlots(existing, token, { tag: 'I', name: 'name', probability: 0.5 }, newSlot)
 
     expect(res.source).toEqual('antoine LeGrand')
     expect(res.value).toEqual('antoine LeGrand')
@@ -108,7 +107,7 @@ describe('combineSlots', () => {
       source: 'LeGrand'
     } as NLU.Slot
 
-    const res = combineSlots(existing, token, { label: 'I-name', probability: 0.5 }, newSlot)
+    const res = combineSlots(existing, token, { tag: 'I', name: 'name', probability: 0.5 }, newSlot)
 
     expect(res).toEqual(existing)
   })
@@ -133,7 +132,7 @@ describe('combineSlots', () => {
       }
     } as NLU.Slot
 
-    const res = combineSlots(existing, token, { label: 'I-time', probability: 0.5 }, newSlot)
+    const res = combineSlots(existing, token, { tag: 'I', name: 'time', probability: 0.5 }, newSlot)
 
     expect(res).toEqual(existing)
   })
@@ -165,13 +164,13 @@ describe('combineSlots', () => {
       }
     } as NLU.Slot
 
-    const res = combineSlots(existing, token, { label: 'I-time', probability: 0.5 }, newSlot)
+    const res = combineSlots(existing, token, { tag: 'I', name: 'time', probability: 0.5 }, newSlot)
 
     expect(res).toEqual(existing)
   })
 
   test('existing slot and new BEGIN slot', () => {
-    const tagRes = { label: 'B-name', probability: 0.5 }
+    const tagRes: TagResult = { tag: 'B', name: 'name', probability: 0.5 }
     const existing = {
       source: 'Han-Thony',
       value: 'Han-Thony',
@@ -194,5 +193,55 @@ describe('combineSlots', () => {
     expect(res1.value).toEqual(newSlot.value)
     expect(res2.source).toEqual(existing.source)
     expect(res2.value).toEqual(existing.value)
+  })
+})
+
+test('predictionLabelToTagResult', () => {
+  const probsOut = {
+    o: 0.9,
+    'B-slot1': 0.25,
+    'B-slot1/any': 0.25,
+    'I-slot1': 0.25,
+    'I-slot1/any': 0.25
+  }
+
+  const probs = {
+    'B-slot1': 0.6,
+    'B-slot1/any': 0.2,
+    'I-slot1': 0.1,
+    'I-slot1/any': 0.1,
+    'B-slot2': 0.01,
+    'I-slot2': 0.01
+  }
+
+  const probsAny = {
+    'B-slot1': 0.1,
+    'B-slot1/any': 0.2,
+    'I-slot1': 0.1,
+    'I-slot1/any': 0.5,
+    'B-slot2': 0.01,
+    'I-slot2': 0.01
+  }
+
+  const resOut = predictionLabelToTagResult(probsOut)
+  const res = predictionLabelToTagResult(probs)
+  const resAny = predictionLabelToTagResult(probsAny)
+
+  expect(resOut).toEqual({
+    tag: 'o',
+    name: '',
+    probability: 0.9
+  })
+
+  expect(res).toEqual({
+    tag: 'B',
+    name: 'slot1',
+    probability: 0.6
+  })
+
+  expect(resAny).toEqual({
+    tag: 'I',
+    name: 'slot1',
+    probability: 0.5
   })
 })

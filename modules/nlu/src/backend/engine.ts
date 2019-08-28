@@ -526,7 +526,7 @@ export default class ScopedEngine implements Engine {
 
     const intentVocab = await this._buildIntentVocabs([intentDef], ds.language)
 
-    const allowedEntities = { [intentDef.name]: getHighlightedIntentEntities(intentDef) }
+    const allowedEntities = getHighlightedIntentEntities(intentDef)
     ds.slots = await this.slotExtractors[ds.language].extract(
       ds,
       intentDef,

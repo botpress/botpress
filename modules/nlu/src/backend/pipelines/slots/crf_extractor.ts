@@ -4,13 +4,12 @@ import _ from 'lodash'
 import tmp from 'tmp'
 
 import { getProgressPayload } from '../../tools/progress'
-import { SPACE } from '../../tools/token-utils'
 import { LanguageProvider, NLUStructure, Token2Vec } from '../../typings'
-import { BIO, Sequence, Token } from '../../typings'
+import { Sequence, Token } from '../../typings'
 import { TfidfOutput } from '../intents/tfidf'
 
 import * as featurizer from './featurizer'
-import { combineSlots, isTagAValidSlot, labelizeUtterance, makeSlot } from './labeler'
+import * as labeler from './labeler'
 import { generatePredictionSequence } from './pre-processor'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -34,16 +33,14 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
-export type TagResult = { probability: number; label: string }
-
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _crfModelFn = ''
-  private _tagger!: sdk.MLToolkit.CRF.Tagger
+  private _crfTagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel: sdk.MLToolkit.KMeans.KmeansResult
 
   constructor(
-    private toolkit: typeof sdk.MLToolkit,
+    private mlToolkit: typeof sdk.MLToolkit,
     private realtime: typeof sdk.realtime,
     private realtimePayload: typeof sdk.RealTimePayload,
     private languageProvider: LanguageProvider,
@@ -51,14 +48,12 @@ export default class CRFExtractor {
   ) {}
 
   async load(traingingSet: Sequence[], crf: Buffer) {
-    // load kmeans (retrain because there is no simple way to store it)
-    await this._trainKmeans(traingingSet)
-
+    await this._trainKmeans(traingingSet) // retrain because we don't have access to KmeansResult class
     // load crf model
     this._crfModelFn = tmp.tmpNameSync()
     fs.writeFileSync(this._crfModelFn, crf)
-    this._tagger = this.toolkit.CRF.createTagger()
-    await this._tagger.open(this._crfModelFn)
+    this._crfTagger = this.mlToolkit.CRF.createTagger()
+    await this._crfTagger.open(this._crfModelFn)
     this._isTrained = true
   }
 
@@ -82,8 +77,8 @@ export default class CRFExtractor {
       this.notifyTrainingProgress(0.66)
 
       debugTrain('reading tagger')
-      this._tagger = this.toolkit.CRF.createTagger()
-      await this._tagger.open(this._crfModelFn)
+      this._crfTagger = this.mlToolkit.CRF.createTagger()
+      await this._crfTagger.open(this._crfModelFn)
       this._isTrained = true
       debugTrain('done training')
       this.notifyTrainingProgress(0.99)
@@ -98,29 +93,14 @@ export default class CRFExtractor {
     }
   }
 
-  /**
-   * Returns an object with extracted slots name as keys.
-   * Each slots under each keys can either be a single Slot object or Array<Slot>
-   * return value example:
-   * slots: {
-   *   artist: {
-   *     name: "artist",
-   *     value: "Kanye West",
-   *     entity: [Object] // corresponding sdk.NLU.Entity
-   *   },
-   *   songs : [ multiple slots objects here]
-   * }
-   */
   async extract(
     ds: NLUStructure,
     intentDef: sdk.NLU.IntentDefinition,
     intentVocab,
-    allowedEntitiesPerIntents,
+    allowedEntities: string[],
     tfidf: TfidfOutput,
     token2Vec: Token2Vec
   ): Promise<sdk.NLU.SlotCollection> {
-    debugExtract(ds.sanitizedLowerText, { entities: ds.entities })
-
     if (!this._isTrained) {
       debugExtract('CRF not trained, skipping slot extraction', { text: ds.sanitizedLowerText })
       return {}
@@ -128,22 +108,20 @@ export default class CRFExtractor {
 
     // TODO: Remove this line and make this part of the predictionPipeline instead
     const seq = await generatePredictionSequence(ds.rawText.toLowerCase(), intentDef, ds.entities, ds.tokens)
-    const tags = await this._tag(seq, intentVocab, allowedEntitiesPerIntents, tfidf, token2Vec)
+    const tagResults = await this._tag(seq, intentVocab, allowedEntities, tfidf, token2Vec)
+    debugExtract('Tags for input', { tags: tagResults })
 
-    return _.zip(seq.tokens, tags) // notice usage of zip here
-      .filter(([token, result]) => isTagAValidSlot(token, result, intentDef))
+    return _.zip(seq.tokens, tagResults) // notice usage of zip here
+      .filter(([token, tagRes]) => labeler.isTagAValidSlot(token, tagRes, intentDef))
       .reduce((slotCollection: any, [token, tag]) => {
-        // TODO review this once we get the new utterance datastructure
-        const slotName = tag.label.slice(2)
-        const slotDef = intentDef.slots.find(x => x.name == slotName)
+        const slotDef = intentDef.slots.find(x => x.name == tag.name) // TODO review once we get the new utterance datastructure
         if (!slotDef) {
           return slotCollection
         }
 
-        // TODO this will move away once we got the new utterance object
-        const slot = makeSlot(slotName, token, slotDef, ds.entities, tag.probability)
+        const slot = labeler.makeSlot(tag, token, slotDef, ds.entities)
         if (slot) {
-          slotCollection[slotName] = combineSlots(slotCollection[slotName], token, tag, slot)
+          slotCollection[tag.name] = labeler.combineSlots(slotCollection[tag.name], token, tag, slot)
         }
 
         return slotCollection
@@ -151,99 +129,33 @@ export default class CRFExtractor {
   }
 
   // I simply moved stuff here
-  // implement this properly, dispatch progress event and let caller be responsible for this
+  // TODO implement this properly, dispatch progress event and let caller be responsible for this
   private notifyTrainingProgress(progress: number) {
-    const crfPayloadProgress = (prog: number) => ({
-      value: 0.75 + Math.floor(prog / 4)
-    })
+    const crfPayloadProgress = (prog: number) => ({ value: 0.75 + Math.floor(prog / 4) })
     const createProgressPayload = getProgressPayload(crfPayloadProgress)
 
     this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(progress)))
   }
 
-  // TODO move this code in extracr
   async _tag(
     seq: Sequence,
     intentVocab,
-    allowedEntitiesPerIntents,
+    allowedEntities: string[],
     tfidf: TfidfOutput,
     token2Vec: Token2Vec
-  ): Promise<TagResult[]> {
+  ): Promise<labeler.TagResult[]> {
     if (!this._isTrained) {
       throw new Error('Model not trained, please call train() before')
     }
     const inputFeatures = await Promise.map(seq.tokens, (t, i) =>
-      this._getTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, true)
+      this._getTokenSliceFeatures(seq, i, intentVocab, allowedEntities, tfidf, token2Vec, true)
     )
-
     debugVectorize('vectorize', { inputFeatures })
 
-    const probs = this._tagger.marginal(inputFeatures)
-    // TODO extract and test this
-    return probs.map(token =>
-      _.chain(token)
-        .toPairs()
-        .maxBy('1')
-        .thru(([label, prob]) => ({
-          label: label.replace('/any', ''),
-          probability: prob
-        }))
-        .value()
-    )
-  }
-
-  // TODO remove this
-  private _makeSlot(
-    slotName: string,
-    token: Token,
-    slotDef: sdk.NLU.SlotDefinition,
-    entities: sdk.NLU.Entity[],
-    confidence: number
-  ): sdk.NLU.Slot {
-    const MIN_SLOT_CONFIDENCE = 0.1
-    if (confidence < MIN_SLOT_CONFIDENCE) {
-      return
-    }
-
-    const tokenSpaceOffset = token.value.startsWith(SPACE) ? 1 : 0
-    const entity =
-      slotDef &&
-      entities.find(
-        e =>
-          slotDef.entities.indexOf(e.name) !== -1 &&
-          e.meta.start <= token.start + tokenSpaceOffset &&
-          e.meta.end >= token.end
-      )
-
-    // TODO: we might want to build up an entity with populated data with and 'any' slot
-    if (slotDef && !slotDef.entities.includes('any') && !entity) {
-      return
-    }
-
-    const value = _.get(entity, 'data.value', token.cannonical)
-    const source = _.get(entity, 'meta.source', token.cannonical)
-
-    const slot = {
-      name: slotName,
-      source,
-      value,
-      confidence
-    } as sdk.NLU.Slot
-
-    if (entity) {
-      slot.entity = entity
-    }
-
-    return slot
+    return this._crfTagger.marginal(inputFeatures).map(labeler.predictionLabelToTagResult)
   }
 
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
-    // TODO use token.wordVector instead (once implemented)
-    // const data = _.chain(sequences)
-    //          .flatMap(s => s.tokens)
-    //          .map(t => t.wordVector)\
-    //          .value()
-
     const tokens = _.chain(sequences)
       .flatMap(s => s.tokens)
       .map(t => t.cannonical.toLowerCase())
@@ -253,11 +165,13 @@ export default class CRFExtractor {
       return
     }
 
+    // TODO use token.wordVector instead (once implemented)
+    // const data = _.chain(sequences).flatMap(s => s.tokens).map(t => t.wordVector).value()
     const data = (await this.languageProvider.vectorize(tokens, this.language)).map(wordVec => Array.from(wordVec))
     const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
 
     try {
-      this._kmeansModel = this.toolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
+      this._kmeansModel = this.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
     } catch (error) {
       throw Error(`Error training K-means model, error is: ${error}`)
     }
@@ -271,25 +185,24 @@ export default class CRFExtractor {
     token2Vec: Token2Vec
   ) {
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = this.toolkit.CRF.createTrainer()
+    const trainer = this.mlToolkit.CRF.createTrainer()
 
     trainer.set_params(CRF_TRAINER_PARAMS)
     trainer.set_callback(str => debugTrain('CRFSUITE', str))
 
     for (const seq of trainingSet) {
       const inputFeatures = await Promise.map(seq.tokens, (t, i) =>
-        this._getTokenFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, false)
+        this._getTokenSliceFeatures(seq, i, intentVocab, allowedEntitiesPerIntents[seq.intent], tfidf, token2Vec, false)
       )
 
-      const labels = labelizeUtterance(seq)
+      const labels = labeler.labelizeUtterance(seq)
       trainer.append(inputFeatures, labels)
     }
 
     trainer.train(this._crfModelFn)
   }
 
-  // move this in featurizer
-  private async _getTokenFeatures(
+  private async _getTokenSliceFeatures(
     seq: Sequence,
     tokenIdx: number,
     intentVocab: { [token: string]: string[] },
@@ -348,7 +261,6 @@ export default class CRFExtractor {
     ] as string[]
   }
 
-  // move this in featurizer
   private async _featurizeToken(
     token: Token,
     intentName: string,
