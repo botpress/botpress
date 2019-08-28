@@ -60,7 +60,7 @@ class CreateUserModal extends Component<Props, State> {
       return this.props.fetchRoles()
     }
 
-    const roles = this.props.roles.map(x => ({ value: x.id, label: x.id }))
+    const roles = this.props.roles.map(x => ({ value: x.id, label: x.name }))
     this.setState({ roles, selectedRole: roles[0] })
   }
 
@@ -170,7 +170,7 @@ class CreateUserModal extends Component<Props, State> {
             <FormGroup label="Role" labelFor="select-role">
               <Select
                 id="select-role"
-                options={this.props.roles.map(x => ({ value: x.id, label: x.id }))}
+                options={this.state.roles}
                 onChange={selectedRole => this.setState({ selectedRole })}
                 value={this.state.selectedRole}
               />
