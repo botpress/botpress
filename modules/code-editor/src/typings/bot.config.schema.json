@@ -46,6 +46,19 @@
         "contentTypes"
       ]
     },
+    "converse": {
+      "type": "object",
+      "properties": {
+        "timeout": {
+          "description": "The timeout of the converse API requests",
+          "default": "5s",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timeout"
+      ]
+    },
     "dialog": {
       "$ref": "#/definitions/DialogConfig"
     },
@@ -104,14 +117,16 @@
       "type": "object",
       "properties": {
         "timeoutInterval": {
+          "description": "The interval until the context of the session expires.\nThis clears the position of the user in the flow and triggers the before_session_timeout hook",
+          "default": "5m",
           "type": "string"
         },
         "sessionTimeoutInterval": {
+          "description": "The interval until the session timeout. The default value is 30m. This deletes the session from the database.",
           "type": "string"
         }
       },
       "required": [
-        "sessionTimeoutInterval",
         "timeoutInterval"
       ]
     },

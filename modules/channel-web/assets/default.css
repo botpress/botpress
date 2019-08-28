@@ -728,8 +728,14 @@ body {
   overflow-y: auto;
 }
 
+.bpw-botinfo-cover-picture-wrapper {
+  height: 50%;
+  overflow: hidden;
+}
+
 .bpw-botinfo-cover-picture {
   width: 100%;
+  object-fit: cover;
 }
 
 .bpw-botinfo-container button,

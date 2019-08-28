@@ -10,7 +10,7 @@ import { CacheInvalidators } from './cache-invalidators'
 
 @injectable()
 export default class MemoryObjectCache implements ObjectCache {
-  private cache
+  private cache: LRU<string, any>
 
   public readonly events: EventEmitter = new EventEmitter()
 

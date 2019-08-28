@@ -243,6 +243,7 @@ export default class FormModal extends Component {
               <div className={style.qnaSection}>
                 <span className={style.qnaSectionTitle}>Category</span>
                 <Select
+                  id="select-category"
                   className={classnames(style.qnaCategorySelect, {
                     qnaCategoryError: invalidFields.category
                   })}
@@ -259,6 +260,7 @@ export default class FormModal extends Component {
               <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
 
               <FormControl
+                id="input-questions"
                 autoFocus={true}
                 className={classnames(style.qnaQuestionsTextarea, {
                   qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
@@ -336,8 +338,10 @@ export default class FormModal extends Component {
           </Modal.Body>
 
           <Modal.Footer className={style.qnaModalFooter}>
-            <Button onClick={this.closeAndClear}>Cancel</Button>
-            <Button bsStyle="primary" type="button" onClick={this.handleSubmit}>
+            <Button id="btn-cancel" onClick={this.closeAndClear}>
+              Cancel
+            </Button>
+            <Button id="btn-submit" bsStyle="primary" type="button" onClick={this.handleSubmit}>
               {isEdit ? 'Edit' : 'Save'}
             </Button>
           </Modal.Footer>

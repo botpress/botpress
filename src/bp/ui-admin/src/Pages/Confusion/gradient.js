@@ -8,7 +8,7 @@ const gradient = {
   1: [144, 238, 144]
 }
 
-const componentToHex = c => (c.length == 1 ? '0' + c : c)
+const componentToHex = c => (c.length === 1 ? '0' + c : c)
 
 const curriedMultiplier = _.curry(_.multiply)
 

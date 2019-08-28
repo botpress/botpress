@@ -157,6 +157,7 @@ class ListView extends Component<Props, State> {
         Header: () => {
           return (
             <input
+              id="chk-all"
               type="checkbox"
               className="checkbox"
               checked={this.state.allChecked}
@@ -168,6 +169,7 @@ class ListView extends Component<Props, State> {
           const checked = _.includes(this.state.checkedIds, original.id)
           return (
             <input
+              id={`chk-${original.id}`}
               type="checkbox"
               className="checkbox"
               checked={checked}
@@ -223,7 +225,7 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" /> : ''),
+        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }
@@ -263,13 +265,14 @@ class ListView extends Component<Props, State> {
         <Toolbar>
           <LeftToolbarButtons>
             <Tooltip content="Refresh" position={Position.BOTTOM}>
-              <AnchorButton icon="refresh" onClick={this.props.handleRefresh} />
+              <AnchorButton id="btn-refresh" icon="refresh" onClick={this.props.handleRefresh} />
             </Tooltip>
 
             <Divider />
             {!this.props.readOnly && (
               <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
                 <AnchorButton
+                  id="btn-delete"
                   icon="trash"
                   disabled={_.isEmpty(this.state.checkedIds)}
                   onClick={this.handleDeleteSelected}
@@ -280,6 +283,7 @@ class ListView extends Component<Props, State> {
             {!this.props.readOnly && (
               <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
                 <AnchorButton
+                  id="btn-duplicate"
                   icon="duplicate"
                   disabled={_.isEmpty(this.state.checkedIds)}
                   onClick={this.handleCloneSelected}
@@ -288,6 +292,7 @@ class ListView extends Component<Props, State> {
             )}
             <Divider />
             <InputGroup
+              id="input-search"
               style={{ marginTop: 3, width: 250 }}
               placeholder="Search content"
               small={true}

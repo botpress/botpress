@@ -57,15 +57,13 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api' || channel === 'telegram' || channel === 'slack') {
-    return render(data)
-  } else if (channel === 'messenger') {
+  if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
+  } else {
+    return render(data)
   }
-
-  return [] // TODO
 }
 
 module.exports = {
