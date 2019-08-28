@@ -117,3 +117,9 @@
 :global(.bp3-tooltip .bp3-popover-content) {
   padding: 5px 8px !important;
 }
+
+.stacktrace {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
