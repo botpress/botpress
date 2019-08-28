@@ -134,13 +134,8 @@ class CreateUserModal extends Component<Props, State> {
         transitionDuration={0}
         title={'Add Collaborator'}
       >
-        <div className={Classes.DIALOG_BODY}>
-          <form
-            onSubmit={this.createUser}
-            ref={form => {
-              this.formEl = form
-            }}
-          >
+        <form ref={form => (this.formEl = form)}>
+          <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label="Email"
               labelFor="select-email"
@@ -175,20 +170,20 @@ class CreateUserModal extends Component<Props, State> {
                 value={this.state.selectedRole}
               />
             </FormGroup>
-          </form>
-        </div>
-        <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              id="btn-submit"
-              className="float-right"
-              type="submit"
-              onClick={this.createUser}
-              text="Create account"
-              disabled={!this.isFormValid()}
-            />
           </div>
-        </div>
+          <div className={Classes.DIALOG_FOOTER}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <Button
+                id="btn-submit"
+                className="float-right"
+                type="submit"
+                onClick={this.createUser}
+                text="Create account"
+                disabled={!this.isFormValid()}
+              />
+            </div>
+          </div>
+        </form>
       </Dialog>
     )
   }
