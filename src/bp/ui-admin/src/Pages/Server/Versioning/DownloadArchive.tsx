@@ -20,7 +20,12 @@ const DownloadArchive = () => {
 
   return (
     <div>
-      <Button onClick={downloadArchive} text={isLoading ? 'Please wait...' : 'Download archive'} />
+      <Button
+        id="btn-downloadArchive"
+        onClick={downloadArchive}
+        disabled={isLoading}
+        text={isLoading ? 'Please wait...' : 'Download archive'}
+      />
       <Downloader url={downloadUrl} filename={'archive.tgz'} onDownloadCompleted={downloadCompleted} />
     </div>
   )

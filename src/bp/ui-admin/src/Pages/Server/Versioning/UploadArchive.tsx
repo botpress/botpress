@@ -1,6 +1,6 @@
-import { Button, Classes, ControlGroup, Dialog, FileInput, Intent, Switch, TextArea } from '@blueprintjs/core'
+import { Button, Classes, Dialog, FileInput, FormGroup, H4, Intent, Switch, TextArea } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
@@ -40,17 +40,6 @@ const UploadArchive = () => {
   const [useForce, setUseForce] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [changes, setChanges] = useState('')
-  const [isAvailable, setAvailable] = useState(false)
-
-  useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
-    bpfsStatus()
-  }, [])
-
-  const bpfsStatus = async () => {
-    const { data } = await api.getSecured().get('/admin/versioning/bpfsStatus')
-    setAvailable(data.isAvailable)
-  }
 
   const uploadArchive = async () => {
     setIsLoading(true)
@@ -64,11 +53,11 @@ const UploadArchive = () => {
       const blockingChanges = processChanges(await sendArchive(fileContent, false)).blockingChanges
       if (blockingChanges.length) {
         setChanges(blockingChanges.map(prettyLine).join('\n'))
-        setDialogOpen(true)
         return
       }
 
       await sendArchive(fileContent, true)
+      closeDialog()
       toastSuccess(`Changes pushed successfully!`)
     } catch (err) {
       toastFailure(err)
@@ -91,59 +80,99 @@ const UploadArchive = () => {
     setFilePath(files[0].name)
   }
 
-  if (!isAvailable) {
-    return <div>Archive upload disabled. BPFS Storage "Database" is required</div>
+  const closeDialog = () => {
+    setFilePath('')
+    setFileContent('')
+    setChanges('')
+    setDialogOpen(false)
   }
 
-  return (
-    <React.Fragment>
-      <ControlGroup fill={false} vertical={false}>
-        <FileInput text={filePath || 'Choose file...'} onChange={readArchive} />
-        <Switch
-          checked={useForce}
-          onClick={() => setUseForce(!useForce)}
-          label="Force push my changes"
-          style={{ margin: '3px 20px 0 20px' }}
-        />
-        <Button
-          text={isLoading ? 'Please wait...' : 'Upload archive'}
-          disabled={!filePath || !fileContent}
-          onClick={uploadArchive}
-          style={{ height: 20, marginLeft: 5 }}
-        />
-      </ControlGroup>
-      {useForce && (
-        <span>
-          * Please make sure you have{' '}
-          <a href="https://botpress.io/docs/next/advanced/versions/" target="_blank">
-            <b>read the documentation</b>
-          </a>{' '}
-          before forcing your changes!
-        </span>
-      )}
-      <Dialog
-        isOpen={isDialogOpen}
-        onClose={() => setDialogOpen(false)}
-        transitionDuration={0}
-        style={{ width: 800 }}
-        title={<b>Conflict warning</b>}
-      >
+  const renderUpload = () => {
+    return (
+      <Fragment>
         <div className={Classes.DIALOG_BODY}>
-          <p>
-            Remote has changes that are not synced to your environment. Backup your changes and use "pull" to get those
-            changes on your file system. If you still want to overwrite remote changes, close this dialog and turn on
-            the switch "Force push my changes"
-          </p>
-
-          <TextArea value={changes} rows={22} cols={120} />
+          <FormGroup
+            label={<span>Server Archive</span>}
+            labelFor="input-archive"
+            helperText={
+              <span>
+                Select an archive exported from another server. If there are conflicts, you will be able to review them
+                before pushing.
+              </span>
+            }
+          >
+            <FileInput text={filePath || 'Choose file...'} onChange={readArchive} fill={true} />
+          </FormGroup>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button text="Close" intent={Intent.DANGER} onClick={() => setDialogOpen(false)} />
+            <Button
+              id="btn-push"
+              text={isLoading ? 'Please wait...' : 'Push changes'}
+              disabled={!filePath || !fileContent || isLoading}
+              onClick={uploadArchive}
+              intent={Intent.PRIMARY}
+              style={{ height: 20, marginLeft: 5 }}
+            />
           </div>
         </div>
+      </Fragment>
+    )
+  }
+
+  const renderConflict = () => {
+    return (
+      <Fragment>
+        <div className={Classes.DIALOG_BODY}>
+          <div>
+            <H4>Conflict warning</H4>
+            <p>
+              Remote has changes that are not synced to your environment. Backup your changes and use "pull" to get
+              those changes on your file system. If you still want to overwrite remote changes, turn on the switch
+              "Force push my changes" then press the button
+            </p>
+            <TextArea value={changes} rows={22} cols={120} />
+          </div>
+        </div>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <Switch
+                id="chk-useForce"
+                checked={useForce}
+                onClick={() => setUseForce(!useForce)}
+                label="Force push my changes"
+                style={{ margin: '3px 20px 0 20px' }}
+              />
+              <Button
+                id="btn-upload"
+                disabled={!useForce}
+                text="Upload"
+                intent={Intent.PRIMARY}
+                onClick={() => setDialogOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      </Fragment>
+    )
+  }
+
+  return (
+    <Fragment>
+      <Button id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
+
+      <Dialog
+        isOpen={isDialogOpen}
+        onClose={closeDialog}
+        transitionDuration={0}
+        style={{ width: changes ? 800 : 500 }}
+        title="Upload Archive"
+        icon="import"
+      >
+        {!changes ? renderUpload() : renderConflict()}
       </Dialog>
-    </React.Fragment>
+    </Fragment>
   )
 }
 export default UploadArchive
