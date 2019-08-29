@@ -1,6 +1,25 @@
 import find from 'lodash/find'
+import React from 'react'
 
-import { FLOW_ICON, FOLDER_ICON } from './FlowsList'
+import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON } from './FlowsList'
+
+const getNodeIcon = (flowId: string) => {
+  if (flowId === 'main') {
+    return MAIN_FLOW_ICON
+  } else if (flowId === 'error') {
+    return ERROR_FLOW_ICON
+  }
+  return FLOW_ICON
+}
+
+const getNodeLabel = (flowId: string, flowName: string) => {
+  if (flowId === 'main') {
+    return <strong>Main entry point</strong>
+  } else if (flowId === 'error') {
+    return <strong>Error handling</strong>
+  }
+  return flowName
+}
 
 const addNode = (tree, folders, flowDesc, data) => {
   for (const folderDesc of folders) {
@@ -15,6 +34,11 @@ const addNode = (tree, folders, flowDesc, data) => {
 }
 
 const compareNodes = (a, b) => {
+  // Always display the main flow and error flow as the top node
+  if (a.id === 'main' || a.id === 'error') {
+    return -1
+  }
+
   if (a.type === b.type) {
     return a.name < b.name ? -1 : 1
   }
@@ -48,13 +72,14 @@ export const splitFlowPath = flow => {
   }
 
   currentPath.push(flowName)
+  const id = currentPath.join('/')
   return {
     folders,
     flow: {
-      id: currentPath.join('/'),
-      icon: FLOW_ICON,
-      label: flowName,
-      fullPath: currentPath.join('/')
+      id,
+      defaultIcon: getNodeIcon(id),
+      label: getNodeLabel(id, flowName),
+      fullPath: id
     }
   }
 }
@@ -67,6 +92,8 @@ export const buildFlowsTree = flows => {
   })
 
   sortChildren(tree)
+
+  console.log(tree)
 
   return tree.childNodes
 }
