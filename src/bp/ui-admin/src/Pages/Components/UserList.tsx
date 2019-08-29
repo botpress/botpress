@@ -1,14 +1,4 @@
-import {
-  Button,
-  Callout,
-  IconName,
-  MaybeElement,
-  Menu,
-  MenuItem,
-  Popover,
-  PopoverInteractionKind,
-  Position
-} from '@blueprintjs/core'
+import { Button, Callout, Menu, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core'
 import { WorkspaceUser } from 'common/typings'
 import moment from 'moment'
 import React, { Component } from 'react'
@@ -16,11 +6,10 @@ import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md'
 import { connect } from 'react-redux'
 import { Badge, Collapse } from 'reactstrap'
 import { bindActionCreators } from 'redux'
-
+import _ from 'lodash'
 import { fetchRoles } from '../../reducers/roles'
 import { fetchUsers } from '../../reducers/user'
 
-import GravatarImage from './GravatarImage'
 import LoadingSection from './LoadingSection'
 
 export interface UserAction {
@@ -98,13 +87,11 @@ class UserList extends Component<Props> {
             return (
               <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
                 <div style={{ display: 'flex' }}>
-                  <GravatarImage email={user.email} size="md" className="pullLeft" />
-
                   <div className="pullLeft details">
                     <div className="nameZone">
-                      {user.firstname}
+                      {_.get(user, 'attributes.firstname', '')}
                       &nbsp;
-                      {user.lastname}
+                      {_.get(user, 'attributes.lastname', '')}
                     </div>
 
                     <p>
