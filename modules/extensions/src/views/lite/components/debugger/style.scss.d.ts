@@ -10,6 +10,7 @@ interface CssExports {
   'inspectorContainer': string;
   'notFound': string;
   'splash': string;
+  'stacktrace': string;
   'subSection': string;
   'summaryTable': string;
   'title': string;
