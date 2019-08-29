@@ -336,9 +336,12 @@ export class ScopedGhostService {
       return
     }
 
-    const config = await this.readFileAsObject<BotConfig>('/', 'bot.config.json')
-    if (config.locked) {
-      throw new Error(`Bot locked`)
+    const exists = await this.fileExists('/', 'bot.config.json')
+    if (exists) {
+      const config = await this.readFileAsObject<BotConfig>('/', 'bot.config.json')
+      if (config.locked) {
+        throw new Error(`Bot locked`)
+      }
     }
   }
 
