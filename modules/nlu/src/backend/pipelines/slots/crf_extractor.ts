@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import fs, { readFileSync } from 'fs'
+import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
@@ -83,7 +83,7 @@ export default class CRFExtractor {
       debugTrain('done training')
       this.notifyTrainingProgress(0.99)
       return {
-        crf: readFileSync(this._crfModelFn)
+        crf: await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb))
       }
     } else {
       debugTrain('training set too small, skipping training')

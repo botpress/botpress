@@ -26,11 +26,12 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { makeTokens, mergeSpecialCharactersTokens, SPACE } from './tools/token-utils'
-import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
+import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
+import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
 const debug = DEBUG('nlu')
+const debugTrain = debug.sub('training')
 const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
@@ -167,10 +168,8 @@ export default class ScopedEngine implements Engine {
       }
 
       if (!loaded) {
-        this.logger.debug('Retraining model')
+        debugTrain('Retraining model')
         await this.trainModels(intents, modelHash, confusionVersion)
-
-        this.logger.debug('Reloading models')
         await this.loadModels(intents, modelHash)
       }
 
@@ -255,7 +254,7 @@ export default class ScopedEngine implements Engine {
     )
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
-    this.logger.debug(`Restoring models '${modelHash}' from storage`)
+    debugTrain(`Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
 
     for (const lang of this.languages) {
@@ -287,13 +286,13 @@ export default class ScopedEngine implements Engine {
       await this.intentClassifiers[lang].load(intentModels)
 
       if (_.isEmpty(crfModel)) {
-        this.logger.debug(`No slots (CRF) model found for hash ${modelHash}`)
+        debugTrain(`No slots (CRF) model found for hash ${modelHash}`)
       } else {
         await this.slotExtractors[lang].load(trainingSet, crfModel.model)
       }
     }
 
-    this.logger.debug(`Done restoring models '${modelHash}' from storage`)
+    debugTrain(`Done restoring models '${modelHash}' from storage`)
   }
 
   private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
@@ -346,7 +345,7 @@ export default class ScopedEngine implements Engine {
     modelHash: string,
     lang: string
   ): Promise<Model[]> {
-    this.logger.debug('Training slot tagger')
+    debugTrain('Training slot tagger')
 
     try {
       let trainingSet = await this.getTrainingSets(intentDefs, lang)
@@ -392,7 +391,7 @@ export default class ScopedEngine implements Engine {
         this.intentClassifiers[lang].token2vec // TODO: compute token2vec in pipeline instead, made it a public property for now
       )
 
-      this.logger.debug('Done training slot tagger')
+      debugTrain('Done training slot tagger')
 
       return crf ? [this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)] : []
     } catch (err) {
