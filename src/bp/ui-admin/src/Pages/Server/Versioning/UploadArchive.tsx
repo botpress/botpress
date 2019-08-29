@@ -49,6 +49,7 @@ const UploadArchive = () => {
     try {
       if (useForce) {
         await sendArchive(fileContent)
+        closeDialog()
         toastSuccess(`Changes pushed successfully!`)
         return
       }
