@@ -1,24 +1,56 @@
+import { Position, Tooltip } from '@blueprintjs/core'
+import _ from 'lodash'
 import find from 'lodash/find'
 import React from 'react'
 
 import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON } from './FlowsList'
 
-const getNodeIcon = (flowId: string) => {
+/**
+ *  Returns a different display for special flows.
+ * @param flowId The full path of the flow (including folders)
+ * @param flowName The display name of the flow (only filename)
+ */
+const getFlowInfo = (flowId: string, flowName: string) => {
   if (flowId === 'main') {
-    return MAIN_FLOW_ICON
+    return {
+      icon: MAIN_FLOW_ICON,
+      label: (
+        <Tooltip content={<span>Every user session starts here</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+          <strong>Main</strong>
+        </Tooltip>
+      )
+    }
   } else if (flowId === 'error') {
-    return ERROR_FLOW_ICON
+    return {
+      icon: ERROR_FLOW_ICON,
+      label: (
+        <Tooltip
+          content={
+            <span>
+              When an error is encountered in the flow,
+              <br /> the user is redirected here
+            </span>
+          }
+          hoverOpenDelay={500}
+          position={Position.BOTTOM}
+        >
+          <strong>Error handling</strong>
+        </Tooltip>
+      )
+    }
   }
-  return FLOW_ICON
+  return {
+    icon: FLOW_ICON,
+    label: flowName
+  }
 }
 
-const getNodeLabel = (flowId: string, flowName: string) => {
-  if (flowId === 'main') {
-    return <strong>Main entry point</strong>
-  } else if (flowId === 'error') {
-    return <strong>Error handling</strong>
-  }
-  return flowName
+const reorderFlows = flows => {
+  return [
+    flows.find(x => x.id === 'main'),
+    flows.find(x => x.id === 'error'),
+    ...flows.filter(x => x.id !== 'main' && x.id !== 'error')
+  ].filter(x => Boolean(x))
 }
 
 const addNode = (tree, folders, flowDesc, data) => {
@@ -34,11 +66,6 @@ const addNode = (tree, folders, flowDesc, data) => {
 }
 
 const compareNodes = (a, b) => {
-  // Always display the main flow and error flow as the top node
-  if (a.id === 'main' || a.id === 'error') {
-    return -1
-  }
-
   if (a.type === b.type) {
     return a.name < b.name ? -1 : 1
   }
@@ -68,18 +95,20 @@ export const splitFlowPath = flow => {
 
   for (const folder of flowFolders) {
     currentPath.push(folder)
-    folders.push({ id: folder, icon: FOLDER_ICON, label: folder, fullPath: currentPath.join('/') })
+    folders.push({ id: folder, type: 'folder', icon: FOLDER_ICON, label: folder, fullPath: currentPath.join('/') })
   }
 
   currentPath.push(flowName)
   const id = currentPath.join('/')
+  const { icon, label } = getFlowInfo(id, flowName)
   return {
     folders,
     flow: {
       id,
-      defaultIcon: getNodeIcon(id),
-      label: getNodeLabel(id, flowName),
-      fullPath: id
+      icon,
+      label,
+      fullPath: id,
+      type: 'flow'
     }
   }
 }
@@ -93,5 +122,5 @@ export const buildFlowsTree = flows => {
 
   sortChildren(tree)
 
-  return tree.childNodes
+  return reorderFlows(tree.childNodes)
 }
