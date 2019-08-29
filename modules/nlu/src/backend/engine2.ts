@@ -109,24 +109,105 @@ export const prepareListEntityModels = async (entity: ListEntity, languageCode: 
   }
 }
 
+export const takeUntil = (
+  arr: ReadonlyArray<UtteranceToken>,
+  start: number,
+  desiredLength: number
+): ReadonlyArray<UtteranceToken> => {
+  let total = 0
+  return _.takeWhile(arr.slice(start), t => {
+    const b = total
+    total += t.toString().length
+    return b < desiredLength
+  })
+}
+
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 export const extractListEntities = (
   utterance: UtteranceClass,
   list_entities: ListEntityModel[]
 ): EntityExtractionResult[] => {
-  // fuzzy, language, entity name, occurance name, tokens for all synonyms
-  // TODO: Implement me
-  const example: EntityExtractionResult[] = [
-    {
-      confidence: 1,
-      start: 1,
-      end: 10,
-      metadata: {},
-      type: 'custom.list.air-line'
+  //
+  const exactScore = (a: string[], b: string[]): number => {
+    const str1 = a.join('')
+    const str2 = b.join('')
+    const min = Math.min(str1.length, str2.length)
+    const max = Math.max(str1.length, str2.length)
+    let score = 0
+    for (let i = 0; i < min; i++) {
+      if (str1[i] === str2[i]) {
+        score += 1
+      } else if (str1[i].toLowerCase() === str2[i].toLowerCase()) {
+        score += 0.75
+      }
     }
-  ]
+    return score / max
+  }
+  //
+  const fuzzyScore = (a: string[], b: string[]): number => {
+    return 0 // TODO:
+  }
+  //
+  const structuralScore = (a: string[], b: string[]): number => {
+    const charset1 = _.uniq(_.flatten(a.map(x => x.split(''))))
+    const charset2 = _.uniq(_.flatten(b.map(x => x.split(''))))
+    const charset_score = _.intersection(charset1, charset2).length / _.union(charset1, charset2).length
 
-  return []
+    const token_qty_score = Math.min(a.length, b.length) / Math.max(a.length, b.length)
+
+    const size1 = _.sumBy(a, 'length')
+    const size2 = _.sumBy(b, 'length')
+    const token_size_score = Math.min(size1, size2) / Math.max(size1, size2)
+
+    return charset_score * token_qty_score * token_size_score
+  }
+
+  const matches: EntityExtractionResult[] = []
+
+  for (const list of list_entities) {
+    for (const [canonical, occurances] of _.toPairs(list.mappingsTokens)) {
+      const candidates = []
+
+      for (const occurance of occurances) {
+        for (let i = 0; i < utterance.tokens.length; i++) {
+          const workset = takeUntil(utterance.tokens, i, _.sumBy(occurance, 'length'))
+          const worksetAsStrings = workset.map(x => x.toString())
+
+          const exact_score = exactScore(worksetAsStrings, occurance)
+          const fuzzy_score = list.fuzzyMatching ? fuzzyScore(worksetAsStrings, occurance) : 0
+          const structural_score = structuralScore(worksetAsStrings, occurance)
+          const finalScore = (exact_score + fuzzy_score) * structural_score
+
+          candidates.push({ score: finalScore, canonical, start: i, end: i + workset.length - 1, eliminated: false })
+        }
+      }
+
+      for (let i = 0; i < utterance.tokens.length; i++) {
+        const results = _.orderBy(candidates.filter(x => !x.eliminated && x.start >= i && x.end <= i), 'score', 'desc')
+        if (results.length > 1) {
+          const [, ...losers] = results
+          losers.forEach(x => (x.eliminated = true))
+        }
+      }
+
+      candidates
+        .filter(x => !x.eliminated)
+        .forEach(match => {
+          matches.push({
+            confidence: match.score,
+            start: utterance.tokens[match.start].offset,
+            end: utterance.tokens[match.end].offset + utterance.tokens[match.end].value.length,
+            value: match.canonical,
+            metadata: {
+              source: match.workset.map(x => x.toString({ realSpaces: true })).join('')
+            },
+            type: list.type
+          })
+        })
+    }
+  }
+
+  return matches
 }
 
 export const extractRegexEntities = () => {}
@@ -261,7 +342,7 @@ export type TokenToStringOptions = {
 }
 
 export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number; startPos: number; endPos: number }
-export type ExtractedEntity = { confidence: number; type: string; metadata: any }
+export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type ExtractedSlot = { confidence: number; name: string; source: any }
 export type UtteranceEntity = Readonly<UtteranceRange & ExtractedEntity>
 export type UtteranceSlot = Readonly<UtteranceRange & ExtractedSlot>
@@ -277,8 +358,10 @@ export type UtteranceToken = Readonly<{
   offset: number
   entities: ReadonlyArray<ExtractedEntity>
   slots: ReadonlyArray<ExtractedSlot>
-  toString(options: TokenToStringOptions): string
+  toString(options?: TokenToStringOptions): string
 }>
+
+export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
 export interface Trainer {
   (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): TrainResult
