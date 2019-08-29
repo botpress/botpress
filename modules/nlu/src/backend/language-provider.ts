@@ -269,6 +269,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
    * @param subsetVocab The tokens to which you want similar tokens to
    */
   async generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]> {
+    // TODO: we can remove await + lang
     // from totalVocab compute the cachedKey the closest to what we have
     // if 75% of the vocabulary is the same, we keep the cache we have instead of rebuilding one
     const gramset = vocabNGram(subsetVocab)
@@ -286,7 +287,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!result) {
       // didn't find any close gramset, let's create a new one
       result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
-      await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens
+      await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens // TODO: remove this
       this._junkwordsCache.set(gramset, result)
       this.onJunkWordsCacheChanged()
     }
@@ -391,7 +392,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         }
       }, 0)
       const batch = idxToFetch.splice(0, sliceUntil + 1)
-      const query = batch.map(idx => utterances[idx])
+      const query = batch.map(idx => utterances[idx].toLowerCase())
 
       if (!query.length) {
         break
@@ -426,7 +427,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
     }
 
-    return final
+    // TODO: Merge tokens that are just special chars
+
+    // we restore original chars and casing
+    return final.map((tokens, i) => {
+      let offset = 0
+      return tokens
+        .filter(x => x.length)
+        .map(token => {
+          const raw = utterances[i].substr(offset, token.length).replace(/ /g, SPACE)
+          offset += token.length
+          return raw
+        })
+    })
   }
 }
 

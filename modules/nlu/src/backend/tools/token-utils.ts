@@ -4,6 +4,7 @@ import { Token } from '../typings'
 
 export const SPACE = '\u2581'
 const CHARS_TO_MERGE: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
+export const isWord = (str: string) => _.every(CHARS_TO_MERGE, c => !str.includes(c))
 
 export const makeTokens = (stringTokens: string[], text: string) => {
   return stringTokens.reduce(reduceTokens(text), [] as Token[])
