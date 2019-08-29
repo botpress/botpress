@@ -1,6 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import chalk from 'chalk'
-import { bytesToString } from 'core/misc/utils'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
@@ -10,6 +9,7 @@ import rimraf from 'rimraf'
 
 import { extractArchive } from './core/misc/archive'
 import { createArchiveFromFolder } from './core/misc/archive'
+import { bytesToString } from './core/misc/utils'
 import { asBytes } from './core/misc/utils'
 import { BpfsScopedChange, FileChange } from './core/services'
 
