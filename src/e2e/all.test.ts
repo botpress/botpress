@@ -9,7 +9,8 @@ const test = {
   logout: './admin/logout.test',
   admin: {
     ui: './admin/ui.test',
-    bots: './admin/bots.test'
+    bots: './admin/bots.test',
+    users: './admin/users.test'
   },
   studio: {
     ui: './studio/ui.test',
