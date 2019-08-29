@@ -138,6 +138,13 @@ export type BotpressConfig = {
        */
       maxAge: string
     }
+    /**
+     * Configure the priority for establishing socket connections for webchat and studio users.
+     * If the first method is not supported, it will fallback on the second.
+     * If the first is supported but it fails with an error, it will not fallback.
+     * @default ["websocket","polling"]
+     */
+    socketTransports: string[]
   }
   converse: ConverseConfig
   dialog: DialogConfig

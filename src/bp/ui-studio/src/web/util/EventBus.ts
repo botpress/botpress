@@ -58,7 +58,7 @@ class EventBus extends EventEmitter2 {
     }
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
-    const transports = ['websocket', 'polling']
+    const transports = window.SOCKET_TRANSPORTS
 
     this.adminSocket = io(socketUrl + '/admin', { query, transports, path: `${window['ROOT_PATH']}/socket.io` })
     this.adminSocket.on('event', this.dispatchSocketEvent)

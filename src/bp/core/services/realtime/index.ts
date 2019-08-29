@@ -1,4 +1,6 @@
 import { Logger, RealTimePayload } from 'botpress/sdk'
+import { BotpressConfig } from 'core/config/botpress.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
@@ -11,6 +13,11 @@ import { TYPES } from '../../types'
 import { MonitoringService } from '../monitoring'
 
 const debug = DEBUG('realtime')
+
+export const getSocketTransports = (config: BotpressConfig): string[] => {
+  const transports = config.httpServer.socketTransports
+  return transports && transports.length ? transports : ['websocket', 'polling']
+}
 
 interface RedisAdapter extends Adapter {
   remoteJoin: (socketId: string, roomId: string, callback: (err: any) => void) => void
@@ -25,7 +32,8 @@ export default class RealtimeService {
     @inject(TYPES.Logger)
     @tagged('name', 'Realtime')
     private logger: Logger,
-    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService
+    @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
     this.ee = new EventEmitter2({
       wildcard: true,
@@ -48,9 +56,11 @@ export default class RealtimeService {
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 
-  installOnHttpServer(server: Server) {
+  async installOnHttpServer(server: Server) {
+    const transports = getSocketTransports(await this.configProvider.getBotpressConfig())
+
     const io: socketio.Server = socketio(server, {
-      transports: ['websocket', 'polling'],
+      transports,
       path: `${process.ROOT_PATH}/socket.io`,
       origins: '*:*',
       serveClient: false

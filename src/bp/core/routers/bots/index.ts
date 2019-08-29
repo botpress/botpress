@@ -18,6 +18,7 @@ import { FlowService, MutexError } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
+import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -215,6 +216,7 @@ export class BotsRouter extends CustomRouter {
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
+              window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End
