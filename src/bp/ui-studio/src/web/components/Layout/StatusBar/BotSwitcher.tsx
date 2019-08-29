@@ -24,6 +24,9 @@ const BotSwitcher = () => {
   const toggle = () => setOpen(!isOpen)
   const differentBots = bots.filter((bot: BotInfo) => window.BOT_ID !== bot.id)
 
+  const getBotDisplayName = bot =>
+    bots.filter(x => x.name === bot.name).length > 1 ? `${bot.name} (${bot.id})` : bot.name
+
   return (
     <Fragment>
       <ActionItem
@@ -43,7 +46,7 @@ const BotSwitcher = () => {
         <Dropdown.Menu pullRight onClose={toggle} className={cn(style.langSwitherMenu, style.switchBotMenu)}>
           {differentBots.map(bot => (
             <li className={style.langItem} key={bot.id}>
-              <a href={`studio/${bot.id}`}>{bot.name === bot.id ? bot.name : `${bot.name} (${bot.id})`}</a>
+              <a href={`studio/${bot.id}`}>{getBotDisplayName(bot)}</a>
             </li>
           ))}
           {differentBots.length > 0 && <MenuItem divider />}
