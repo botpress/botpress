@@ -214,6 +214,7 @@ export class BotsRouter extends CustomRouter {
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
+              window.BOT_LOCKED = ${!!bot.locked};
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End
