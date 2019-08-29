@@ -4,7 +4,7 @@ import React, { Fragment, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
-const sendArchive = async (fileContent: any, doUpdate: boolean) => {
+const _uploadArchive = async (fileContent: any, doUpdate: boolean) => {
   const { data } = await api
     .getSecured({ timeout: 30000 })
     .post(`/admin/versioning/${doUpdate ? 'update' : 'changes'}`, fileContent, {
@@ -12,6 +12,9 @@ const sendArchive = async (fileContent: any, doUpdate: boolean) => {
     })
   return data
 }
+
+const checkForChanges = (fileContent: any) => _uploadArchive(fileContent, false)
+const sendArchive = (fileContent: any) => _uploadArchive(fileContent, true)
 
 const processChanges = (data: any[]): any => {
   const changeList = _.flatten(data.map(x => x.changes))
@@ -45,18 +48,18 @@ const UploadArchive = () => {
     setIsLoading(true)
     try {
       if (useForce) {
-        await sendArchive(fileContent, true)
+        await sendArchive(fileContent)
         toastSuccess(`Changes pushed successfully!`)
         return
       }
 
-      const blockingChanges = processChanges(await sendArchive(fileContent, false)).blockingChanges
+      const blockingChanges = processChanges(await checkForChanges(fileContent)).blockingChanges
       if (blockingChanges.length) {
         setChanges(blockingChanges.map(prettyLine).join('\n'))
         return
       }
 
-      await sendArchive(fileContent, true)
+      await sendArchive(fileContent)
       closeDialog()
       toastSuccess(`Changes pushed successfully!`)
     } catch (err) {
@@ -140,16 +143,17 @@ const UploadArchive = () => {
               <Switch
                 id="chk-useForce"
                 checked={useForce}
-                onClick={() => setUseForce(!useForce)}
+                onChange={() => setUseForce(!useForce)}
                 label="Force push my changes"
                 style={{ margin: '3px 20px 0 20px' }}
               />
               <Button
                 id="btn-upload"
-                disabled={!useForce}
-                text="Upload"
+                text={isLoading ? 'Please wait...' : 'Upload'}
+                disabled={!useForce || isLoading}
+                onClick={uploadArchive}
                 intent={Intent.PRIMARY}
-                onClick={() => setDialogOpen(false)}
+                style={{ height: 20, marginLeft: 5 }}
               />
             </div>
           </div>
