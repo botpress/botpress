@@ -93,7 +93,5 @@ export const buildFlowsTree = flows => {
 
   sortChildren(tree)
 
-  console.log(tree)
-
   return tree.childNodes
 }
