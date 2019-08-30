@@ -1,7 +1,13 @@
-import { makeTokens, mergeSpecialCharactersTokens } from './token-utils'
+import {
+  makeTokens,
+  mergeSimilarTokens,
+  mergeSpecialCharactersTokens,
+  processUtteranceTokens,
+  restoreUtteranceTokens,
+  SPACE
+} from './token-utils'
 
-const SPACE = '\u2581'
-
+// We might want to get rid of this once engine2 is done
 describe('Tokens generation', () => {
   test('Make token objects from strings with sanitized text', async () => {
     // arrange
@@ -46,6 +52,7 @@ describe('Tokens generation', () => {
   })
 })
 
+// TODO remove this once engine 2 is done
 describe('Token Merging', () => {
   test('Merge special Characters with numbers should merge all consecutive numbers', async () => {
     // arrange
@@ -76,5 +83,86 @@ describe('Token Merging', () => {
     // assert
     const expectedTokens = [SPACE + '|||', 'yes', '|||', 'yes', '|||', 'yes', '|||']
     expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
+  })
+})
+
+describe('Raw token processing', () => {
+  test('mergeSimilarTokens', () => {
+    expect(mergeSimilarTokens(['_', '__', '_', 'abc'], ['_'])).toEqual(['____', 'abc'])
+    expect(mergeSimilarTokens(['13', 'lo', '34', '56'], ['[0-9]'])).toEqual(['13', 'lo', '3456'])
+    expect(mergeSimilarTokens(['ab', '34', '4f6', '4'], ['[a-z]', '[0-9]'])).toEqual(['ab344f64'])
+    expect(mergeSimilarTokens(['gsa', '2', '3', 'he', '1', 'helko', '34', '56', '7'], ['[0-9]'])).toEqual([
+      'gsa',
+      '23',
+      'he',
+      '1',
+      'helko',
+      '34567'
+    ])
+    expect(mergeSimilarTokens(['#$', '^&', '!)'], '\\!,\\@,\\#,\\$,\\%,\\?,\\^,\\&,\\*,\\(,\\)'.split(','))).toEqual([
+      '#$^&!)'
+    ])
+    expect(mergeSimilarTokens(['lol', 'ha', 'ha', 'nop', 'funny'], ['lol', 'ha', 'funny'])).toEqual([
+      'lolhaha',
+      'nop',
+      'funny'
+    ])
+  })
+
+  test('processUtteranceTokens', () => {
+    const res = processUtteranceTokens([
+      `${SPACE}my`,
+      `${SPACE}name`,
+      `${SPACE}${SPACE}${SPACE}`,
+      `${SPACE}is`,
+      `${SPACE}34`,
+      '98',
+      `${SPACE}98`,
+      `${SPACE}Hei`,
+      'Sen',
+      'berg!',
+      `!&$`,
+      `!¿}{@~`
+    ])
+
+    expect(res.length).toEqual(14)
+    expect(res).toEqual([
+      'my',
+      '▁',
+      'name',
+      '▁▁▁▁',
+      'is',
+      '▁',
+      '3498',
+      '▁',
+      '98',
+      '▁',
+      'Hei',
+      'Sen',
+      'berg!',
+      '!&$!¿}{@~'
+    ])
+  })
+
+  test('restoreUtteranceTokens', () => {
+    const original = 'I left NASA to work at Botpress'
+    const tokens = ['i', SPACE, 'left', SPACE, 'nasa', SPACE, 'to', SPACE, 'work', SPACE, 'at', SPACE, 'bot', 'press']
+
+    expect(restoreUtteranceTokens(tokens, original)).toEqual([
+      'I',
+      SPACE,
+      'left',
+      SPACE,
+      'NASA',
+      SPACE,
+      'to',
+      SPACE,
+      'work',
+      SPACE,
+      'at',
+      SPACE,
+      'Bot',
+      'press'
+    ])
   })
 })

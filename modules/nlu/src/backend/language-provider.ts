@@ -9,7 +9,7 @@ import ms from 'ms'
 import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
-import { SPACE } from './tools/token-utils'
+import { isSpace, processUtteranceTokens, restoreUtteranceTokens } from './tools/token-utils'
 import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -30,6 +30,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
   private _cacheDumpDisabled: boolean = false
   private _validProvidersCount: number
+  private _languageDims: number
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -99,6 +100,14 @@ export class RemoteLanguageProvider implements LanguageProvider {
             throw new Error('Language source is not ready')
           }
 
+          if (!this._languageDims) {
+            this._languageDims = data.dimentions // note typo in language server
+          }
+
+          if (this._languageDims !== data.dimentions) {
+            logger.warn('Language sources have different dimensions')
+            return
+          }
           this._validProvidersCount++
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
         }, this.discoveryRetryPolicy)
@@ -320,7 +329,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const getCacheKey = (t: string) => `${lang}_${encodeURI(t)}`
 
     tokens.forEach((token, i) => {
-      if (this._vectorsCache.has(getCacheKey(token))) {
+      if (isSpace(token)) {
+        vectors[i] = new Float32Array(this._languageDims) // float 32 Arrays are initialized with 0s
+      } else if (this._vectorsCache.has(getCacheKey(token))) {
         vectors[i] = this._vectorsCache.get(getCacheKey(token))
       } else {
         idxToFetch.push(i)
@@ -366,12 +377,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
 
     const getCacheKey = (t: string) => `${lang}_${encodeURI(t)}`
-    const final: string[][] = Array(utterances.length)
+    const tokenUtterances: string[][] = Array(utterances.length)
     const idxToFetch: number[] = [] // the utterances we need to fetch remotely
 
     utterances.forEach((utterance, idx) => {
       if (this._tokensCache.has(getCacheKey(utterance))) {
-        final[idx] = this._tokensCache.get(getCacheKey(utterance))
+        tokenUtterances[idx] = this._tokensCache.get(getCacheKey(utterance))
       } else {
         idxToFetch.push(idx)
       }
@@ -398,7 +409,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
         break
       }
 
-      const fetched = await this.queryProvider<string[][]>(lang, '/tokenize', { utterances: query }, 'tokens')
+      let fetched = await this.queryProvider<string[][]>(lang, '/tokenize', { utterances: query }, 'tokens')
+      fetched = fetched.map(processUtteranceTokens)
 
       if (fetched.length !== query.length) {
         throw new Error(
@@ -410,36 +422,15 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       // Reconstruct them in our array and cache them for future cache lookup
       batch.forEach((utteranceIdx, fetchIdx) => {
-        final[utteranceIdx] = Array.from(fetched[fetchIdx])
-        this._tokensCache.set(getCacheKey(utterances[utteranceIdx]), final[utteranceIdx])
+        tokenUtterances[utteranceIdx] = Array.from(fetched[fetchIdx])
+        this._tokensCache.set(getCacheKey(utterances[utteranceIdx]), tokenUtterances[utteranceIdx])
       })
 
       this.onTokensCacheChanged()
     }
 
-    for (let i = 0; i < final.length; i++) {
-      const utt = utterances[i]
-      const fin = final[i] && final[i][0]
-
-      if (utt && utt.startsWith && fin && fin.startsWith && fin.startsWith(SPACE) && !utt.startsWith(' ')) {
-        // remove the very first space special char we append at the beginning for no reason
-        final[i][0] = final[i][0].substring(1)
-      }
-    }
-
-    // TODO: Merge tokens that are just special chars
-
     // we restore original chars and casing
-    return final.map((tokens, i) => {
-      let offset = 0
-      return tokens
-        .filter(x => x.length)
-        .map(token => {
-          const raw = utterances[i].substr(offset, token.length).replace(/ /g, SPACE)
-          offset += token.length
-          return raw
-        })
-    })
+    return tokenUtterances.map((tokens, i) => restoreUtteranceTokens(tokens, utterances[i]))
   }
 }
 
