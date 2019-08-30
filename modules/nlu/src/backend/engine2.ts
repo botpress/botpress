@@ -1,7 +1,7 @@
 import _, { cloneDeep } from 'lodash'
 
 import tfidf from './pipelines/intents/tfidf'
-import { isWord, SPACE } from './tools/token-utils'
+import { isSpace, isWord, SPACE } from './tools/token-utils'
 
 export default class Engine2 {
   private tools: TrainTools
@@ -10,7 +10,7 @@ export default class Engine2 {
     this.tools = tools
   }
 
-  train(input: StructuredTrainInput) {
+  async train(input: StructuredTrainInput) {
     const token: CancellationToken = {
       // TODO:
       cancel: async () => {},
@@ -19,7 +19,7 @@ export default class Engine2 {
       cancelledAt: new Date()
     }
 
-    Trainer(input, this.tools, token)
+    await Trainer(input, this.tools, token)
   }
 }
 
@@ -163,7 +163,7 @@ class UtteranceClass implements Utterance {
           get entities(): ReadonlyArray<ExtractedEntity> {
             return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
           },
-          startsWithSpace: value.startsWith(SPACE),
+          isSpace: isSpace(value),
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
@@ -172,7 +172,6 @@ class UtteranceClass implements Utterance {
       )
       offset += value.length
     }
-    // TODO: merge tokens (special chars)
     this.tokens = arr
   }
 
@@ -276,7 +275,8 @@ export type UtteranceToken = Readonly<{
   tfidf: number
   offset: number
   entities: ReadonlyArray<ExtractedEntity>
-  slots: ReadonlyArray<ExtractedSlot>
+  slot: ExtractedSlot
+  // slots: ReadonlyArray<ExtractedSlot>
   toString(options: TokenToStringOptions): string
 }>
 
@@ -309,6 +309,8 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
 
     const svm = {} // await trainSvm(output, tools)
 
+    output.intents[0]
+
     const artefacts = {
       tfidf: {},
       kmeans: {},
@@ -334,17 +336,30 @@ for each ctx
       push( features of utterance ) label = ctx
 svm = train(points, LINEAR, C_SVC) (progress -> cb | cancel token check)
 */
-
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
   tools: TrainTools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const chunked_utterances = intent.utterances.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
-    const textual_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
-    const utterances = await Utterances(textual_utterances, languageCode, tools)
-    // TODO: tag slots
+    const cleaned = intent.utterances.map(u => u.replace(/( )+/g, ' ')) // replacing repeating spaces as tokenizer does
+    const chunked_utterances = cleaned.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
+    const parsed_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
+    const utterances = await Utterances(parsed_utterances, languageCode, tools)
+    _.zip(utterances, chunked_utterances).forEach(([utterance, chuncked]) => {
+      chuncked.reduce((cursor: number, chunck) => {
+        const end = cursor + chunck.value.length
+        if (chunck.slotName) {
+          const slot: ExtractedSlot = {
+            confidence: 1,
+            name: chunck.slotName,
+            source: chunck.value
+          }
+          utterance.tagSlot(slot, cursor, end)
+        }
+        return end
+      }, 0)
+    })
     return { ...intent, utterances: utterances }
   })
 }
@@ -413,6 +428,50 @@ export type UtteranceChunk = {
   entities?: string[]
 }
 
+// TODO use same logic as what was done in new front end (it's tested) + share it
+// this is the shit
+// export const extractSlots = (utterance: string): RegExpExecArray[] => {
+//   const slotMatches: RegExpExecArray[] = []
+//   let matches: RegExpExecArray | null
+//   while ((matches = ALL_SLOTS_REGEX.exec(utterance)) !== null) {
+//     slotMatches.push(matches)
+//   }
+
+//   return slotMatches
+// }
+
+// const textNodeFromText = (text: string, from: number, to: number | undefined = undefined) => ({
+//   object: 'text',
+//   text: text.slice(from, to),
+//   marks: []
+// })
+
+// const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number) => ({
+//   object: 'text',
+//   text: match[1],
+//   marks: [makeSlotMark(match[2], utteranceIdx)]
+// })
+
+// export const textNodesFromUtterance = (utterance: string, idx: number = 0) => {
+//   const slotMatches = extractSlots(utterance)
+//   let cursor = 0
+
+//   const nodes = _.chain(slotMatches)
+//     .flatMap(match => {
+//       const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx)]
+//       cursor = match.index + match[0].length // index is stateful since its a general regex
+//       return parts
+//     })
+//     .filter(node => node.text !== '')
+//     .value()
+
+//   if (cursor < utterance.length || !utterance.length) {
+//     nodes.push(textNodeFromText(utterance, cursor))
+//   }
+
+//   return nodes
+// }
+
 const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
   // TODO: Unit Test this
   const slotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
@@ -461,6 +520,7 @@ export const Utterances = async (
   languageCode: string,
   tools: TrainTools
 ): Promise<Utterance[]> => {
+  textual_utterances = textual_utterances.map(u => u.replace(/( )+/g, ' ')) // replacing repeating spaces as tokenizer does
   const tokens = await tools.tokenize_utterances(textual_utterances, languageCode)
   const uniqTokens = _.uniq(_.flatten(tokens))
   const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
