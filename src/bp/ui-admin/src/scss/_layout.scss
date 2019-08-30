@@ -40,10 +40,11 @@
 }
 
 .bp-main-content {
-  min-height: calc(100vh - 58px - 21px);
+  height: calc(100vh - 58px - 21px);
+  overflow-y: auto;
 
   .bp-header__warning + & {
-    min-height: calc(100vh - 92px - 21px);
+    height: calc(100vh - 92px - 21px);
   }
 
   &-header {
