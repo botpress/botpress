@@ -165,7 +165,7 @@ const UploadArchive = () => {
 
   return (
     <Fragment>
-      <Button id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
+      <Button icon="upload" id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
 
       <Dialog
         isOpen={isDialogOpen}

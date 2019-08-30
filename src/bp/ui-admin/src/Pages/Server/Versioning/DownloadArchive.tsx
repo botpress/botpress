@@ -22,6 +22,7 @@ const DownloadArchive = () => {
     <div>
       <Button
         id="btn-downloadArchive"
+        icon="download"
         onClick={downloadArchive}
         disabled={isLoading}
         text={isLoading ? 'Please wait...' : 'Download archive'}
