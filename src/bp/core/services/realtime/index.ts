@@ -15,7 +15,8 @@ import { MonitoringService } from '../monitoring'
 const debug = DEBUG('realtime')
 
 export const getSocketTransports = (config: BotpressConfig): string[] => {
-  const transports = config.httpServer.socketTransports
+  // Just to be sure there is at least one valid transport configured
+  const transports = _.filter(config.httpServer.socketTransports, t => ['websocket', 'polling'].includes(t))
   return transports && transports.length ? transports : ['websocket', 'polling']
 }
 
