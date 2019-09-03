@@ -109,24 +109,120 @@ export const prepareListEntityModels = async (entity: ListEntity, languageCode: 
   }
 }
 
+export const takeUntil = (
+  arr: ReadonlyArray<UtteranceToken>,
+  start: number,
+  desiredLength: number
+): ReadonlyArray<UtteranceToken> => {
+  let total = 0
+  return _.takeWhile(arr.slice(start), t => {
+    const b = total
+    total += t.toString().length
+    return b < desiredLength
+  })
+}
+
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 export const extractListEntities = (
-  utterance: UtteranceClass,
+  utterance: Utterance,
   list_entities: ListEntityModel[]
 ): EntityExtractionResult[] => {
-  // fuzzy, language, entity name, occurance name, tokens for all synonyms
-  // TODO: Implement me
-  const example: EntityExtractionResult[] = [
-    {
-      confidence: 1,
-      start: 1,
-      end: 10,
-      metadata: {},
-      type: 'custom.list.air-line'
+  //
+  const exactScore = (a: string[], b: string[]): number => {
+    const str1 = a.join('')
+    const str2 = b.join('')
+    const min = Math.min(str1.length, str2.length)
+    const max = Math.max(str1.length, str2.length)
+    let score = 0
+    for (let i = 0; i < min; i++) {
+      if (str1[i] === str2[i]) {
+        score += 1
+      } else if (str1[i].toLowerCase() === str2[i].toLowerCase()) {
+        score += 0.75
+      }
     }
-  ]
+    return score / max
+  }
+  //
+  const fuzzyScore = (a: string[], b: string[]): number => {
+    return 0 // TODO:
+  }
+  //
+  const structuralScore = (a: string[], b: string[]): number => {
+    const charset1 = _.uniq(_.flatten(a.map(x => x.toLowerCase().split(''))))
+    const charset2 = _.uniq(_.flatten(b.map(x => x.toLowerCase().split(''))))
+    const charset_score = _.intersection(charset1, charset2).length / _.union(charset1, charset2).length
 
-  return []
+    const token_qty_score = Math.min(a.length, b.length) / Math.max(a.length, b.length)
+
+    const size1 = _.sumBy(a, 'length')
+    const size2 = _.sumBy(b, 'length')
+    const token_size_score = Math.min(size1, size2) / Math.max(size1, size2)
+
+    return charset_score * token_qty_score * token_size_score
+  }
+
+  const matches: EntityExtractionResult[] = []
+
+  for (const list of list_entities) {
+    const candidates = []
+    for (const [canonical, occurances] of _.toPairs(list.mappingsTokens)) {
+      for (const occurance of occurances) {
+        for (let i = 0; i < utterance.tokens.length; i++) {
+          const workset = takeUntil(utterance.tokens, i, _.sumBy(occurance, 'length'))
+          const worksetAsStrings = workset.map(x => x.toString())
+
+          const exact_score = exactScore(worksetAsStrings, occurance)
+          const fuzzy_score = list.fuzzyMatching ? fuzzyScore(worksetAsStrings, occurance) : 0
+          const structural_score = structuralScore(worksetAsStrings, occurance)
+          const finalScore = (exact_score + fuzzy_score) * structural_score
+
+          candidates.push({
+            score: finalScore,
+            canonical,
+            start: i,
+            end: i + workset.length - 1,
+            source: worksetAsStrings.join(''),
+            occurance: occurance.join(''),
+            eliminated: false
+          })
+        }
+      }
+
+      for (let i = 0; i < utterance.tokens.length; i++) {
+        const results = _.orderBy(
+          candidates.filter(x => !x.eliminated && x.start <= i && x.end >= i),
+          // we want to favor longer matches (but is obviously less important than score)
+          // so we take squared root of its length into account
+          x => x.score * Math.sqrt(x.source.length),
+          'desc'
+        )
+        if (results.length > 1) {
+          const [, ...losers] = results
+          losers.forEach(x => (x.eliminated = true))
+        }
+      }
+    }
+
+    candidates
+      .filter(x => !x.eliminated && x.score >= 0.6)
+      .forEach(match => {
+        matches.push({
+          confidence: match.score,
+          start: utterance.tokens[match.start].offset,
+          end: utterance.tokens[match.end].offset + utterance.tokens[match.end].value.length,
+          value: match.canonical,
+          metadata: {
+            source: match.source,
+            occurance: match.occurance,
+            entityId: list.id
+          },
+          type: list.entityName
+        })
+      })
+  }
+
+  return matches
 }
 
 export const extractRegexEntities = () => {}
@@ -135,7 +231,7 @@ export const extractSystemEntities = async () => {
   // call duckling extractor
 }
 
-class UtteranceClass implements Utterance {
+export class UtteranceClass implements Utterance {
   public tokens: ReadonlyArray<UtteranceToken> = []
   public slots: ReadonlyArray<UtteranceSlot> = []
   public entities: ReadonlyArray<UtteranceEntity> = []
@@ -260,7 +356,7 @@ export type TokenToStringOptions = {
 }
 
 export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number; startPos: number; endPos: number }
-export type ExtractedEntity = { confidence: number; type: string; metadata: any }
+export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type ExtractedSlot = { confidence: number; name: string; source: any }
 export type UtteranceEntity = Readonly<UtteranceRange & ExtractedEntity>
 export type UtteranceSlot = Readonly<UtteranceRange & ExtractedSlot>
@@ -275,10 +371,11 @@ export type UtteranceToken = Readonly<{
   tfidf: number
   offset: number
   entities: ReadonlyArray<ExtractedEntity>
-  slot: ExtractedSlot
-  // slots: ReadonlyArray<ExtractedSlot>
-  toString(options: TokenToStringOptions): string
+  slots: ReadonlyArray<ExtractedSlot>
+  toString(options?: TokenToStringOptions): string
 }>
+
+export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
 export interface Trainer {
   (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): TrainResult
@@ -342,20 +439,16 @@ export const ProcessIntents = async (
   tools: TrainTools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(u => u.replace(/( )+/g, ' ')) // replacing repeating spaces as tokenizer does
+    const cleaned = intent.utterances.map(u => u.replace(/(\s)+/g, ' ')) // replacing repeating spaces just like tokenizer does
     const chunked_utterances = cleaned.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
     const parsed_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
     const utterances = await Utterances(parsed_utterances, languageCode, tools)
+    // Add identified slots in each utterances
     _.zip(utterances, chunked_utterances).forEach(([utterance, chuncked]) => {
       chuncked.reduce((cursor: number, chunck) => {
         const end = cursor + chunck.value.length
         if (chunck.slotName) {
-          const slot: ExtractedSlot = {
-            confidence: 1,
-            name: chunck.slotName,
-            source: chunck.value
-          }
-          utterance.tagSlot(slot, cursor, end)
+          utterance.tagSlot({ name: chunck.slotName, source: chunck.value, confidence: 1 }, cursor, end)
         }
         return end
       }, 0)
@@ -428,53 +521,9 @@ export type UtteranceChunk = {
   entities?: string[]
 }
 
-// TODO use same logic as what was done in new front end (it's tested) + share it
-// this is the shit
-// export const extractSlots = (utterance: string): RegExpExecArray[] => {
-//   const slotMatches: RegExpExecArray[] = []
-//   let matches: RegExpExecArray | null
-//   while ((matches = ALL_SLOTS_REGEX.exec(utterance)) !== null) {
-//     slotMatches.push(matches)
-//   }
-
-//   return slotMatches
-// }
-
-// const textNodeFromText = (text: string, from: number, to: number | undefined = undefined) => ({
-//   object: 'text',
-//   text: text.slice(from, to),
-//   marks: []
-// })
-
-// const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number) => ({
-//   object: 'text',
-//   text: match[1],
-//   marks: [makeSlotMark(match[2], utteranceIdx)]
-// })
-
-// export const textNodesFromUtterance = (utterance: string, idx: number = 0) => {
-//   const slotMatches = extractSlots(utterance)
-//   let cursor = 0
-
-//   const nodes = _.chain(slotMatches)
-//     .flatMap(match => {
-//       const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx)]
-//       cursor = match.index + match[0].length // index is stateful since its a general regex
-//       return parts
-//     })
-//     .filter(node => node.text !== '')
-//     .value()
-
-//   if (cursor < utterance.length || !utterance.length) {
-//     nodes.push(textNodeFromText(utterance, cursor))
-//   }
-
-//   return nodes
-// }
-
-const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
+export const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
   // TODO: Unit Test this
-  const slotsRegex = /\[(.+?)\]\(([\w_\.-]+)\)/gi // local because it is stateful
+  const slotsRegex = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // local because it is stateful
   const chunks = [] as UtteranceChunk[]
 
   let cursor = 0
@@ -488,22 +537,18 @@ const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinitio
 
     const slotDef = slotDefinitions.find(sd => sd.name === slotName)
 
-    if (slotDef) {
-      if (cursor < regResult.index) {
-        chunks.push({ value: utterance.slice(cursor, regResult.index) })
-      }
-
-      chunks.push({
-        value: slotValue,
-        slotName: slotName,
-        entities: slotDef.entities,
-        slotIdx: slotIdx++
-      })
-
-      cursor = regResult.index + rawMatch.length
-    } else {
-      // we're not considering it a slot, we take its value as-is.
+    if (cursor < regResult.index) {
+      chunks.push({ value: utterance.slice(cursor, regResult.index) })
     }
+
+    chunks.push({
+      value: slotValue,
+      slotName: slotName,
+      entities: slotDef ? slotDef.entities : [],
+      slotIdx: slotIdx++
+    })
+
+    cursor = regResult.index + rawMatch.length
   }
 
   if (cursor < utterance.length) {
@@ -520,7 +565,6 @@ export const Utterances = async (
   languageCode: string,
   tools: TrainTools
 ): Promise<Utterance[]> => {
-  textual_utterances = textual_utterances.map(u => u.replace(/( )+/g, ' ')) // replacing repeating spaces as tokenizer does
   const tokens = await tools.tokenize_utterances(textual_utterances, languageCode)
   const uniqTokens = _.uniq(_.flatten(tokens))
   const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
