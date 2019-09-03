@@ -1,5 +1,7 @@
 import _, { cloneDeep } from 'lodash'
 
+import jaroDistance from './pipelines/entities/jaro'
+import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
 import { isWord, SPACE } from './tools/token-utils'
 
@@ -115,11 +117,23 @@ export const takeUntil = (
   desiredLength: number
 ): ReadonlyArray<UtteranceToken> => {
   let total = 0
-  return _.takeWhile(arr.slice(start), t => {
-    const b = total
-    total += t.toString().length
-    return b < desiredLength
+  const result = _.takeWhile(arr.slice(start), t => {
+    const toAdd = t.toString().length
+    const current = total
+    if (current > 0 && Math.abs(desiredLength - current) < Math.abs(desiredLength - current - toAdd)) {
+      // better off as-is
+      return false
+    } else {
+      // we're closed to desired if we add a new token
+      total += toAdd
+      return current < desiredLength
+    }
   })
+  if (result[result.length - 1].startsWithSpace) {
+    // TODO: rename startsWithSpace to "isSpace"
+    result.pop()
+  }
+  return result
 }
 
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
@@ -136,49 +150,64 @@ export const extractListEntities = (
     let score = 0
     for (let i = 0; i < min; i++) {
       if (str1[i] === str2[i]) {
-        score += 1
-      } else if (str1[i].toLowerCase() === str2[i].toLowerCase()) {
-        score += 0.75
+        score++
       }
     }
     return score / max
   }
   //
   const fuzzyScore = (a: string[], b: string[]): number => {
-    return 0 // TODO:
+    const str1 = a.join('')
+    const str2 = b.join('')
+    const d1 = levenDistance(str1, str2)
+    const d2 = jaroDistance(str1, str2, { caseSensitive: false })
+    return (d1 + d2) / 2
   }
   //
   const structuralScore = (a: string[], b: string[]): number => {
-    const charset1 = _.uniq(_.flatten(a.map(x => x.toLowerCase().split(''))))
-    const charset2 = _.uniq(_.flatten(b.map(x => x.toLowerCase().split(''))))
+    const charset1 = _.uniq(_.flatten(a.map(x => x.split(''))))
+    const charset2 = _.uniq(_.flatten(b.map(x => x.split(''))))
     const charset_score = _.intersection(charset1, charset2).length / _.union(charset1, charset2).length
 
-    const token_qty_score = Math.min(a.length, b.length) / Math.max(a.length, b.length)
+    const la = Math.max(1, a.filter(x => x.length > 1).length)
+    const lb = Math.max(1, a.filter(x => x.length > 1).length)
+    const token_qty_score = Math.min(la, lb) / Math.max(la, lb)
 
     const size1 = _.sumBy(a, 'length')
     const size2 = _.sumBy(b, 'length')
     const token_size_score = Math.min(size1, size2) / Math.max(size1, size2)
 
-    return charset_score * token_qty_score * token_size_score
+    return Math.sqrt(charset_score * token_qty_score * token_size_score)
   }
 
   const matches: EntityExtractionResult[] = []
 
   for (const list of list_entities) {
     const candidates = []
+    let longestCandidate = 0
+
     for (const [canonical, occurances] of _.toPairs(list.mappingsTokens)) {
       for (const occurance of occurances) {
         for (let i = 0; i < utterance.tokens.length; i++) {
+          if (utterance.tokens[i].startsWithSpace) {
+            continue
+          }
           const workset = takeUntil(utterance.tokens, i, _.sumBy(occurance, 'length'))
-          const worksetAsStrings = workset.map(x => x.toString())
+          const worksetAsStrings = workset.map(x => x.toString({ lowerCase: true, realSpaces: true, trim: false }))
+          const candidateAsString = occurance.join('')
 
-          const exact_score = exactScore(worksetAsStrings, occurance)
-          const fuzzy_score = list.fuzzyMatching ? fuzzyScore(worksetAsStrings, occurance) : 0
+          if (candidateAsString.length > longestCandidate) {
+            longestCandidate = candidateAsString.length
+          }
+
+          const fuzzy = list.fuzzyMatching && worksetAsStrings.join('').length >= 4
+          const exact_score = exactScore(worksetAsStrings, occurance) === 1 ? 1 : 0
+          const fuzzy_score = fuzzyScore(worksetAsStrings, occurance)
           const structural_score = structuralScore(worksetAsStrings, occurance)
-          const finalScore = (exact_score + fuzzy_score) * structural_score
+          const finalScore = fuzzy ? fuzzy_score * structural_score : exact_score * structural_score
 
           candidates.push({
-            score: finalScore,
+            score: Math.round(finalScore * 1000) / 1000,
             canonical,
             start: i,
             end: i + workset.length - 1,
@@ -193,8 +222,8 @@ export const extractListEntities = (
         const results = _.orderBy(
           candidates.filter(x => !x.eliminated && x.start <= i && x.end >= i),
           // we want to favor longer matches (but is obviously less important than score)
-          // so we take squared root of its length into account
-          x => x.score * Math.sqrt(x.source.length),
+          // so we take its length into account (up to the longest candidate)
+          x => x.score * Math.pow(Math.min(x.source.length, longestCandidate), 1 / 5),
           'desc'
         )
         if (results.length > 1) {
@@ -259,11 +288,24 @@ export class UtteranceClass implements Utterance {
           get entities(): ReadonlyArray<ExtractedEntity> {
             return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
           },
-          startsWithSpace: value.startsWith(SPACE),
+          startsWithSpace: value.startsWith(SPACE) || value.startsWith(' '),
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
-          toString: () => value // TODO: Options for toString
+          toString: (options: TokenToStringOptions) => {
+            const opts = _.merge({}, options, DefaultTokenToStringOptions)
+            let result = value
+            if (opts.lowerCase) {
+              result = result.toLowerCase()
+            }
+            if (opts.realSpaces) {
+              result = result.replace(new RegExp(SPACE, 'g'), ' ')
+            }
+            if (opts.trim) {
+              result = result.trim()
+            }
+            return result
+          }
         })
       )
       offset += value.length
