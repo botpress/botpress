@@ -10,6 +10,8 @@ export const FLOW_ICON = 'document'
 export const MAIN_FLOW_ICON = 'flow-end'
 export const ERROR_FLOW_ICON = 'pivot'
 
+const lockedFlows = ['main.flow.json', 'error.flow.json']
+
 export default class FlowsList extends Component<Props, State> {
   state = {
     nodes: [],
@@ -91,14 +93,14 @@ export default class FlowsList extends Component<Props, State> {
       <Menu>
         <MenuItem
           id="btn-rename"
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename || this.props.readOnly}
+          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canRename || this.props.readOnly}
           icon="edit"
           text="Rename"
           onClick={() => this.handleRename(node.nodeData)}
         />
         <MenuItem
           id="btn-delete"
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete || this.props.readOnly}
+          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canDelete || this.props.readOnly}
           icon="delete"
           text="Delete"
           onClick={() => this.handleDelete(node.nodeData)}

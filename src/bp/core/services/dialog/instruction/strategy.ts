@@ -146,11 +146,9 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      if (typeof onErrorFlowTo === 'string' && onErrorFlowTo.length) {
-        return ProcessingResult.transition(event.state.temp.onErrorFlowTo)
-      }
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
-      await this.eventEngine.replyToEvent(event, [{ text: 'An error has occurred' }], event.id)
+      return ProcessingResult.transition(errorFlow)
     }
 
     return ProcessingResult.none()
