@@ -3,7 +3,7 @@ import _, { cloneDeep } from 'lodash'
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
-import { isWord, SPACE } from './tools/token-utils'
+import { isSpace, isWord, SPACE } from './tools/token-utils'
 
 export default class Engine2 {
   private tools: TrainTools
@@ -12,7 +12,7 @@ export default class Engine2 {
     this.tools = tools
   }
 
-  train(input: StructuredTrainInput) {
+  async train(input: StructuredTrainInput) {
     const token: CancellationToken = {
       // TODO:
       cancel: async () => {},
@@ -21,7 +21,7 @@ export default class Engine2 {
       cancelledAt: new Date()
     }
 
-    Trainer(input, this.tools, token)
+    await Trainer(input, this.tools, token)
   }
 }
 
@@ -129,8 +129,7 @@ export const takeUntil = (
       return current < desiredLength
     }
   })
-  if (result[result.length - 1].startsWithSpace) {
-    // TODO: rename startsWithSpace to "isSpace"
+  if (result[result.length - 1].isSpace) {
     result.pop()
   }
   return result
@@ -189,7 +188,7 @@ export const extractListEntities = (
     for (const [canonical, occurances] of _.toPairs(list.mappingsTokens)) {
       for (const occurance of occurances) {
         for (let i = 0; i < utterance.tokens.length; i++) {
-          if (utterance.tokens[i].startsWithSpace) {
+          if (utterance.tokens[i].isSpace) {
             continue
           }
           const workset = takeUntil(utterance.tokens, i, _.sumBy(occurance, 'length'))
@@ -288,7 +287,7 @@ export class UtteranceClass implements Utterance {
           get entities(): ReadonlyArray<ExtractedEntity> {
             return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
           },
-          startsWithSpace: value.startsWith(SPACE) || value.startsWith(' '),
+          isSpace: isSpace(value),
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
@@ -310,7 +309,6 @@ export class UtteranceClass implements Utterance {
       )
       offset += value.length
     }
-    // TODO: merge tokens (special chars)
     this.tokens = arr
   }
 
@@ -407,7 +405,7 @@ export type UtteranceToken = Readonly<{
   index: number
   value: string
   isWord: boolean
-  startsWithSpace: boolean
+  isSpace: boolean
   isBOS: boolean
   isEOS: boolean
   vectors: ReadonlyArray<number>
@@ -449,6 +447,8 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
 
     const svm = {} // await trainSvm(output, tools)
 
+    output.intents[0]
+
     const artefacts = {
       tfidf: {},
       kmeans: {},
@@ -474,17 +474,26 @@ for each ctx
       push( features of utterance ) label = ctx
 svm = train(points, LINEAR, C_SVC) (progress -> cb | cancel token check)
 */
-
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
   tools: TrainTools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const chunked_utterances = intent.utterances.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
-    const textual_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
-    const utterances = await Utterances(textual_utterances, languageCode, tools)
-    // TODO: tag slots
+    const cleaned = intent.utterances.map(u => u.replace(/(\s)+/g, ' ')) // replacing repeating spaces just like tokenizer does
+    const chunked_utterances = cleaned.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
+    const parsed_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
+    const utterances = await Utterances(parsed_utterances, languageCode, tools)
+    // Add identified slots in each utterances
+    _.zip(utterances, chunked_utterances).forEach(([utterance, chuncked]) => {
+      chuncked.reduce((cursor: number, chunck) => {
+        const end = cursor + chunck.value.length
+        if (chunck.slotName) {
+          utterance.tagSlot({ name: chunck.slotName, source: chunck.value, confidence: 1 }, cursor, end)
+        }
+        return end
+      }, 0)
+    })
     return { ...intent, utterances: utterances }
   })
 }
