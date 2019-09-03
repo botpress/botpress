@@ -3,10 +3,7 @@
     "id": "builtin_text-pSsHWg",
     "formData": {
       "text$en": "👋, {{user.nickname}}!",
-      "variations$en": [
-        "Hello, {{user.nickname}}!",
-        "Welcome to Botpress, {{user.nickname}}!"
-      ],
+      "variations$en": ["Hello, {{user.nickname}}!", "Welcome to Botpress, {{user.nickname}}!"],
       "typing$en": true
     },
     "createdBy": "admin",
@@ -162,5 +159,15 @@
     "createdBy": "admin",
     "createdOn": "2019-03-25T22:02:33.058Z",
     "modifiedOn": "2019-07-01T13:51:45.667Z"
+  },
+  {
+    "id": "builtin_text-error",
+    "formData": {
+      "text$en": "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-03T18:58:10.702Z",
+    "modifiedOn": "2019-09-03T18:58:10.702Z"
   }
 ]
