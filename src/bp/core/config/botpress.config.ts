@@ -411,6 +411,8 @@ export interface AuthStrategyOauth2 {
    * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/oauth2
    */
   callbackURL: string
+  /** The URL to call to get informations about the user with the token */
+  userInfoURL: string
 }
 
 export interface AuthStrategyLdap {
