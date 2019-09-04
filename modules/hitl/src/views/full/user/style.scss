@@ -1,3 +1,10 @@
+.current {
+  .content {
+    h3 {
+      color: #222a33 !important;
+    }
+  }
+}
 .user {
   height: 80px;
   position: relative;
@@ -19,11 +26,17 @@
   }
 
   img {
-    height: 50px;
-    width: 50px;
+    height: 51px;
+    width: 51px;
     border-radius: 50%;
+    border: 10px;
+    outline: none;
+    margin-left: -1px;
+    margin-top: -1px;
   }
-
+  h3 {
+    color: #cacaca;
+  }
   .content {
     float: left;
     min-width: 160px;
@@ -41,7 +54,7 @@
     h4 {
       margin-top: 6px;
       font-size: 14px;
-      color: #a3a3a3;
+      color: #737373;
       width: 180px;
       display: inline-block;
       white-space: nowrap;
@@ -71,4 +84,8 @@
 
 .user:hover {
   cursor: pointer;
+  background-color: #ebecf1;
+  h3 {
+    color: #222a33;
+  }
 }

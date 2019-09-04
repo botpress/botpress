@@ -8,7 +8,7 @@
       display: block;
       float: left;
       margin-top: 0;
-      color: #a0a0a0;
+      //color: #222a33;
       font-size: 14px;
       font-weight: 500;
       padding: 4px 7px 0px 0px;
@@ -63,11 +63,16 @@
   .users {
     overflow-y: auto;
   }
+  .h3 {
+    color: #cacaca;
+  }
 
   .current {
     h3 {
-      color: white;
+      color: #222a33;
     }
+
+    background-color: #ebecf1;
   }
 
   .empty {

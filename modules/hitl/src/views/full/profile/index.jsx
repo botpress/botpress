@@ -31,7 +31,7 @@ export default class Profile extends React.Component {
       dateFormatted = dateFormatted.replace('minutes', 'mins').replace('seconds', 'secs')
 
       //TODO: Make user attributes configurable
-      const userAttributes = currentSession.attributes && JSON.parse(currentSession.attributes)
+      const userAttributes = currentSession.attributes && currentSession.attributes
 
       return (
         <div>

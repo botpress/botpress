@@ -142,7 +142,8 @@ export default class HitlDb {
 
   appendMessageToSession(event, sessionId, direction) {
     const text = event.type === 'custom' ? event.payload.wrapped.text : event.payload.text
-    const source = direction == 'in' ? 'user' : event.payload.agent ? 'agent' : 'bot'
+    const agent = event.payload.agent && event.type !== 'visit' ? 'agent' : 'bot'
+    const source = direction == 'in' ? 'user' : agent
     const message = {
       session_id: sessionId,
       type: event.type,
@@ -220,8 +221,8 @@ export default class HitlDb {
           .as('q1')
       })
       .join('hitl_messages', this.knex.raw('q1.mId'), 'hitl_messages.id')
-      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
       .join('hitl_sessions', this.knex.raw('q1.session_id'), 'hitl_sessions.id')
+      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
       .whereRaw(condition)
       .where({ botId })
       .orderBy('hitl_sessions.last_event_on', 'desc')
