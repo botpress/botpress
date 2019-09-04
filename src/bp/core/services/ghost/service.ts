@@ -66,9 +66,10 @@ export class GhostService {
   }
 
   global(): ScopedGhostService {
-    if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
-      return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
-    }
+    // Disabling temporarily
+    // if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
+    //   return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
+    // }
 
     const scopedGhost = new ScopedGhostService(
       `./data/global`,
@@ -79,7 +80,7 @@ export class GhostService {
       this.logger
     )
 
-    this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
+    // this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
     return scopedGhost
   }
 
