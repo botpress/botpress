@@ -331,10 +331,6 @@ export class ScopedGhostService {
 
     this.isDirectoryGlob = this.baseDir.endsWith('*')
     this.primaryDriver = useDbDriver ? dbDriver : diskDriver
-
-    if (process.BPFS_STORAGE === 'database' && !useDbDriver) {
-      this.logger.warn(`Accessing a file before ghost is initialized. Use AppLifeCycle when using postConstruct`)
-    }
   }
 
   /**
