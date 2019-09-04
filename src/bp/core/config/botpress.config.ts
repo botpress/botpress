@@ -304,7 +304,7 @@ export type RetentionPolicy = {
   [key: string]: string
 }
 
-export type AuthStrategyType = 'basic' | 'saml' | 'ldap'
+export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
   readonly id: string
@@ -314,9 +314,9 @@ export interface AuthStrategy {
    */
   type: AuthStrategyType
   /**
-   * Defines custom options based on the chosen authentication strategy
+   * Defines custom options based on the chosen authentication strategy. For oauth2, you can only have that strategy once, and its ID must be "oauth2"
    */
-  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
+  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | AuthStrategyOauth2 | undefined
   /**
    * Maps the values returned by your provider to Botpress user parameters.
    * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
@@ -398,6 +398,19 @@ export interface AuthStrategySaml {
    * @default 5000
    */
   acceptedClockSkewMs: number
+}
+
+export interface AuthStrategyOauth2 {
+  authorizationURL: string
+  tokenURL: string
+  clientID: string
+  clientSecret: string
+  scope: string | string[]
+  /**
+   * Callback URL.
+   * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/oauth2
+   */
+  callbackURL: string
 }
 
 export interface AuthStrategyLdap {

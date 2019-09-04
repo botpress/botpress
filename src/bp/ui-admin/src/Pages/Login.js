@@ -81,6 +81,10 @@ export default class Login extends Component {
       return (window.location = `${api.getApiPath()}/auth/redirect/saml/${this.state.strategyId}`)
     }
 
+    if (this.state.strategyType === 'oauth2') {
+      return (window.location = `${api.getApiPath()}/auth/redirect/oauth2/${this.state.strategyId}`)
+    }
+
     window.location = this.state.authEndpoint
   }
 
@@ -160,7 +164,9 @@ export default class Login extends Component {
             <img className="logo" src={logo} alt="loading" />
             <Card body>
               <CardBody className="login-box">
-                {this.state.strategyType === 'saml' ? this.renderExternal() : this.renderForm()}
+                {this.state.strategyType === 'saml' || this.state.strategyType === 'oauth2'
+                  ? this.renderExternal()
+                  : this.renderForm()}
               </CardBody>
             </Card>
           </div>
