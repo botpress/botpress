@@ -1,4 +1,14 @@
-import { Button, Menu, MenuDivider, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core'
+import {
+  Button,
+  Colors,
+  Icon,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Popover,
+  PopoverInteractionKind,
+  Position
+} from '@blueprintjs/core'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
@@ -35,8 +45,8 @@ class UserDropdownMenu extends Component<Props> {
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
         <Button
           id="btn-menu"
-          icon={<GravatarImage email={this.props.profile.email} size="sm" className="user-avatar" />}
-          rightIcon="caret-down"
+          icon={<Icon icon="user" color={Colors.WHITE} />}
+          rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />}
           minimal={true}
         />
         <Menu>

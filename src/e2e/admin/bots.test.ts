@@ -20,6 +20,7 @@ describe('Admin - Bot Management', () => {
 
   it('Import bot from archive', async () => {
     await clickOn('#btn-create-bot')
+    await page.waitFor(100)
     await clickOn('#btn-import-bot')
     await fillField('#input-botId', importBotId)
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
@@ -37,6 +38,7 @@ describe('Admin - Bot Management', () => {
 
   it('Create temporary bot', async () => {
     await clickOn('#btn-create-bot')
+    await page.waitFor(100)
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)

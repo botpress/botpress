@@ -6,13 +6,14 @@ describe('Admin - UI', () => {
   it('Load server license page', async () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-manage')
-    await expectMatch('Enable Botpress Professionnal')
+    await clickOn('a', { text: 'Server License' })
+    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint'))
   })
 
   it('Load version control page', async () => {
     await clickOn('a', { text: 'Version Control' })
     await expectMatch('pull --url http')
-    await expectMatch('push --url http')
+    await expectMatch('Push local to this server')
   })
 
   it('Load debugging page', async () => {

@@ -15,3 +15,10 @@ export const toastFailure = message =>
     intent: Intent.DANGER,
     timeout: 3000
   })
+
+export const toastInfo = message =>
+  Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
+    message,
+    intent: Intent.PRIMARY,
+    timeout: 1000
+  })

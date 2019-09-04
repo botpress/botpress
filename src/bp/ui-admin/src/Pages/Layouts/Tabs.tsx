@@ -1,14 +1,45 @@
-import React, { Component, Fragment } from 'react'
-import { connect } from 'react-redux'
-import { Container, Nav, NavItem, NavLink, Row, Col } from 'reactstrap'
 import classnames from 'classnames'
+import React, { Component, Fragment } from 'react'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/md'
-import { AccessControl } from '../../App/AccessControl'
-import { fetchPermissions } from '../../reducers/user'
-import { fetchLicensing } from '../../reducers/license'
-import { Switch, Route, matchPath } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { RouteComponentProps } from 'react-router'
+import { matchPath, Route, Switch } from 'react-router-dom'
+import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
-class TabLayout extends Component {
+import { fetchLicensing } from '../../reducers/license'
+import { fetchPermissions } from '../../reducers/user'
+import { AccessControl } from '../../App/AccessControl'
+
+export interface AdminTab {
+  id?: string
+  name: string
+  route: string
+  icon: JSX.Element
+  component: React.ReactNode
+  /** Name of the resource in permissions */
+  res?: string
+  /** Type of operation: read or write */
+  op?: string
+  /** By default, the page size is 10 cols, but it can be overrided here */
+  size?: number
+  /** When true, tab is only displayed when pro is enabled in the workspace */
+  proOnly?: boolean
+  /** Overrides the width of the page to use all available space (eg: monitoring) */
+  useFullWidth?: boolean
+  offset?: number
+}
+
+type Props = {
+  permissions: any
+  licensing: any
+  fetchPermissions: () => void
+  fetchLicensing: () => void
+  tabs: AdminTab[]
+  showHome: boolean
+  title: string
+} & RouteComponentProps
+
+class TabLayout extends Component<Props> {
   state = {
     activeTab: null
   }
@@ -19,8 +50,8 @@ class TabLayout extends Component {
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
-  updateRoute = route => this.props.history.push(route)
-  matchCurrentPath = path => matchPath(this.props.location.pathname, { path })
+  updateRoute = (route: string) => this.props.history.push(route)
+  matchCurrentPath = (path: string) => matchPath(this.props.location.pathname, { path })
   getCurrentTab = () => this.props.tabs.find(tab => this.matchCurrentPath(tab.route))
 
   renderHomeTab() {
@@ -40,7 +71,11 @@ class TabLayout extends Component {
     return (
       <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
-          <NavLink className={this.matchCurrentPath(tab.route) && 'active'} onClick={() => this.updateRoute(tab.route)}>
+          <NavLink
+            id={tab.id}
+            className={this.matchCurrentPath(tab.route) && 'active'}
+            onClick={() => this.updateRoute(tab.route)}
+          >
             {tab.icon}
             {tab.name}
           </NavLink>

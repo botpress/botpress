@@ -262,6 +262,10 @@ export default class HTTPServer {
       res.send(await this.monitoringService.getStatus())
     })
 
+    this.app.get('/version', async (req, res) => {
+      res.send(process.BOTPRESS_VERSION)
+    })
+
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 

@@ -1,14 +1,13 @@
+import { Button, Classes, Dialog, FormGroup } from '@blueprintjs/core'
 import { CreatedUser, WorkspaceUser } from 'common/typings'
 import React, { Component } from 'react'
-import { MdGroupAdd } from 'react-icons/md'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
-import { Button, FormGroup, Label, Modal, ModalBody, ModalHeader } from 'reactstrap'
 import { AppState } from 'src/reducers'
 
-import api from '../../api'
-import { fetchRoles } from '../../reducers/roles'
+import api from '../../../api'
+import { fetchRoles } from '../../../reducers/roles'
 
 type Props = {
   isOpen?: boolean
@@ -20,7 +19,6 @@ type Props = {
 type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
 
 interface State {
-  email: string
   users: WorkspaceUser[]
   roles: SelectOption<string>[]
   strategies: SelectOption<string>[]
@@ -34,11 +32,9 @@ interface State {
 }
 
 class CreateUserModal extends Component<Props, State> {
-  private emailInput!: HTMLInputElement
   private formEl: any
 
   readonly state: State = {
-    email: '',
     roles: [],
     users: [],
     strategies: [],
@@ -54,10 +50,6 @@ class CreateUserModal extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!prevProps.isOpen && this.props.isOpen) {
-      this.emailInput.focus()
-    }
-
     if (!prevProps.roles.length && this.props.roles.length) {
       this.loadRoles()
     }
@@ -68,7 +60,7 @@ class CreateUserModal extends Component<Props, State> {
       return this.props.fetchRoles()
     }
 
-    const roles = this.props.roles.map(x => ({ value: x.id, label: x.id }))
+    const roles = this.props.roles.map(x => ({ value: x.id, label: x.name }))
     this.setState({ roles, selectedRole: roles[0] })
   }
 
@@ -133,61 +125,66 @@ class CreateUserModal extends Component<Props, State> {
 
   handleStrategyChanged = selectedStrategy => this.setState({ selectedStrategy })
 
-  renderCreatable() {
-    return (
-      <AsyncSelect
-        cacheOptions
-        defaultOptions
-        ref={(input: any) => {
-          this.emailInput = input
-        }}
-        value={this.state.selectedOption}
-        loadOptions={this.findUsers}
-        onChange={this.handleUserChanged}
-      />
-    )
-  }
-
   render() {
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggleOpen}>
-        <ModalHeader toggle={this.props.toggleOpen}>Add Collaborator</ModalHeader>
-        <ModalBody>
-          <form
-            onSubmit={this.createUser}
-            ref={form => {
-              this.formEl = form
-            }}
-          >
-            <FormGroup>
-              <Label for="email">E-mail</Label>
-              {this.renderCreatable()}
+      <Dialog
+        isOpen={this.props.isOpen}
+        icon="add"
+        onClose={this.props.toggleOpen}
+        transitionDuration={0}
+        title={'Add Collaborator'}
+      >
+        <form ref={form => (this.formEl = form)}>
+          <div className={Classes.DIALOG_BODY}>
+            <FormGroup
+              label="Email"
+              labelFor="select-email"
+              helperText="Invite an existing user, or type his e-mail address and press Enter"
+            >
+              <AsyncSelect
+                id="select-email"
+                cacheOptions
+                defaultOptions
+                value={this.state.selectedOption}
+                loadOptions={this.findUsers}
+                onChange={this.handleUserChanged}
+                autoFocus={true}
+              />
             </FormGroup>
 
             {this.state.displayStrategy && (
-              <FormGroup>
-                <Label for="strategy">Authentication Strategy</Label>
+              <FormGroup label="Authentication Strategy" labelFor="select-strategy">
                 <Select
+                  id="select-strategy"
                   options={this.state.strategies}
                   onChange={this.handleStrategyChanged}
                   value={this.state.selectedStrategy}
                 />
               </FormGroup>
             )}
-            <FormGroup>
-              <Label for="role">Role</Label>
+            <FormGroup label="Role" labelFor="select-role">
               <Select
-                options={this.props.roles.map(x => ({ value: x.id, label: x.id }))}
+                id="select-role"
+                options={this.state.roles}
                 onChange={selectedRole => this.setState({ selectedRole })}
                 value={this.state.selectedRole}
               />
             </FormGroup>
-            <Button className="float-right" type="submit" color="primary" disabled={!this.isFormValid()}>
-              <MdGroupAdd /> Add
-            </Button>
-          </form>
-        </ModalBody>
-      </Modal>
+          </div>
+          <div className={Classes.DIALOG_FOOTER}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <Button
+                id="btn-submit"
+                className="float-right"
+                type="submit"
+                onClick={this.createUser}
+                text="Create account"
+                disabled={!this.isFormValid()}
+              />
+            </div>
+          </div>
+        </form>
+      </Dialog>
     )
   }
 }
