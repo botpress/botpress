@@ -27,8 +27,14 @@ export default class User extends React.Component {
     let dateFormatted = moment(this.props.session.last_event_on).fromNow()
     dateFormatted = dateFormatted.replace('minutes', 'mins').replace('seconds', 'secs')
 
-    const userAttributes = this.props.session.attributes && JSON.parse(this.props.session.attributes)
-    const textPrefix = this.props.session.direction === 'in' ? 'User: ' : 'Bot: '
+    const userAttributes = this.props.session.attributes && this.props.session.attributes
+
+    const textPrefix =
+      this.props.session.direction === 'in'
+        ? 'User: '
+        : this.props.session.direction === 'out' && this.props.session.source === 'agent'
+        ? 'Agent: '
+        : 'Bot: '
 
     return (
       <div className={classnames(style.user, this.props.className)} onClick={this.props.setSession}>
