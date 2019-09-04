@@ -63,13 +63,18 @@ export class GhostService {
 
   initialize(enabled: boolean) {
     this.enabled = enabled
+    this._scopedGhosts.clear()
+  }
+
+  // Not caching this scope since it's rarely used
+  root(): ScopedGhostService {
+    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.enabled, this.cache, this.logger)
   }
 
   global(): ScopedGhostService {
-    // Disabling temporarily
-    // if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
-    //   return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
-    // }
+    if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
+      return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
+    }
 
     const scopedGhost = new ScopedGhostService(
       `./data/global`,
@@ -80,7 +85,7 @@ export class GhostService {
       this.logger
     )
 
-    // this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
+    this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
     return scopedGhost
   }
 
@@ -326,6 +331,10 @@ export class ScopedGhostService {
 
     this.isDirectoryGlob = this.baseDir.endsWith('*')
     this.primaryDriver = useDbDriver ? dbDriver : diskDriver
+
+    if (process.BPFS_STORAGE === 'database' && !useDbDriver) {
+      this.logger.warn(`Accessing a file before ghost is initialized. Use AppLifeCycle when using postConstruct`)
+    }
   }
 
   /**

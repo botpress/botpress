@@ -6,22 +6,35 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { Botpress, Config, Logger } from 'core/app'
+import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
+import { DatabaseType } from 'core/database'
 import { FatalError } from './errors'
 
+async function setupEnv() {
+  const { DATABASE_URL } = process.env
+
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  Ghost.initialize(useDbDriver)
+
+  const dbType = DATABASE_URL && DATABASE_URL.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
+  await Db.initialize(<DatabaseType>dbType, DATABASE_URL)
+}
+
 async function start() {
+  await setupEnv()
+
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40)}}
-{dim ${center(`Version ${sdk.version}`, 40)}}
-{dim ${center(`OS ${process.distro.toString()}`, 40)}}
-========================================`)
+  {bold ${center(`Botpress Server`, 40)}}
+  {dim ${center(`Version ${sdk.version}`, 40)}}
+  {dim ${center(`OS ${process.distro.toString()}`, 40)}}
+  ========================================`)
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
@@ -44,8 +57,8 @@ async function start() {
     } catch (err) {
       logger.attachError(err).error(
         `Could not find/create APP_DATA folder "${process.APP_DATA_PATH}".
-Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
-This is a fatal error, process will exit.`
+  Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
+  This is a fatal error, process will exit.`
       )
       process.exit(1)
     }

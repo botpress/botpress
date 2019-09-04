@@ -4,13 +4,12 @@ import { BotpressAPIProvider } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import center from 'core/logger/center'
+import { stringify } from 'core/misc/utils'
 import { TYPES } from 'core/types'
-import fs from 'fs'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import path from 'path'
 import semver from 'semver'
 
@@ -30,7 +29,6 @@ export class MigrationService {
   /** This is the actual running version (package.json) */
   private currentVersion: string
   private loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
-  private completedMigrationsDir: string
 
   constructor(
     @tagged('name', 'Migration')
@@ -40,13 +38,11 @@ export class MigrationService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.GhostService) private ghostService: GhostService
   ) {
-    this.currentVersion = process.env.MIGRATION_TEST_VERSION || process.BOTPRESS_VERSION
-    this.completedMigrationsDir = path.resolve(process.PROJECT_LOCATION, `data/migrations`)
-    mkdirp.sync(this.completedMigrationsDir)
+    this.currentVersion = process.env.TESTMIG_BP_VERSION || process.BOTPRESS_VERSION
   }
 
   async initialize() {
-    const configVersion = (await this.configProvider.getBotpressConfig()).version
+    const configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
     debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
 
     if (process.env.SKIP_MIGRATIONS) {
@@ -109,7 +105,7 @@ export class MigrationService {
 {bold ${center(`Executing ${missingMigrations.length.toString()} migrations`, 40)}}
 ========================================`)
 
-    const completed = this._getCompletedMigrations()
+    const completed = await this._getCompletedMigrations()
     let hasFailures = false
 
     // Clear the Botpress cache before executing any migrations
@@ -132,7 +128,7 @@ export class MigrationService {
 
       const result = await this.loadedMigrations[filename].up(opts)
       if (result.success) {
-        this._saveCompletedMigration(filename, result)
+        await this._saveCompletedMigration(filename, result)
         await this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
@@ -205,12 +201,12 @@ export class MigrationService {
     return [...coreMigrations, ...moduleMigrations]
   }
 
-  private _getCompletedMigrations(): string[] {
-    return fs.readdirSync(this.completedMigrationsDir)
+  private _getCompletedMigrations(): Promise<string[]> {
+    return this.ghostService.root().directoryListing('migrations')
   }
 
-  private _saveCompletedMigration(filename: string, result: sdk.MigrationResult) {
-    fs.writeFileSync(path.resolve(`${this.completedMigrationsDir}/${filename}`), JSON.stringify(result, undefined, 2))
+  private _saveCompletedMigration(filename: string, result: sdk.MigrationResult): Promise<void> {
+    return this.ghostService.root().upsertFile('migrations', filename, stringify(result))
   }
 
   private _loadMigrations = (fileList: MigrationFile[]) =>
