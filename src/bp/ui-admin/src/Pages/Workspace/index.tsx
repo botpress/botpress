@@ -1,15 +1,17 @@
 import React from 'react'
-import { MdPeople, MdAndroid, MdVerifiedUser } from 'react-icons/md'
+import { MdAndroid, MdPeople, MdVerifiedUser } from 'react-icons/md'
 
-import TabLayout from '../Layouts/Tabs'
+import TabLayout, { AdminTab } from '../Layouts/Tabs'
+
 import Bots from './Bots'
-import Users from './Users'
 import Roles from './Roles'
+import Users from './Users'
 
 const Workspace = props => {
   const title = 'Workspace'
-  const tabs = [
+  const tabs: AdminTab[] = [
     {
+      id: 'tab-bots',
       name: 'Bots',
       route: '/workspace/bots',
       icon: <MdAndroid />,
@@ -19,6 +21,7 @@ const Workspace = props => {
       size: 11
     },
     {
+      id: 'tab-collaborators',
       name: 'Collaborators',
       route: '/workspace/users',
       icon: <MdPeople />,
@@ -28,6 +31,7 @@ const Workspace = props => {
       proOnly: true
     },
     {
+      id: 'tab-roles',
       name: 'Roles',
       route: '/workspace/roles',
       icon: <MdVerifiedUser />,

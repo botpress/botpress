@@ -96,6 +96,7 @@ class FlowBuilder extends Component<Props, State> {
   handleFlowFreezing() {
     if (!this.userAllowed) {
       this.freezeAll()
+      return
     }
 
     const me = this.props.user.email
@@ -169,6 +170,7 @@ class FlowBuilder extends Component<Props, State> {
     return (
       <Container keyHandlers={keyHandlers}>
         <SidePanel
+          readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
           permissions={pannelPermissions}
           flowPreview={this.state.flowPreview}

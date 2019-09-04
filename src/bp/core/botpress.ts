@@ -407,8 +407,8 @@ export class Botpress {
     AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
-  private startRealtime() {
-    this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
+  private async startRealtime() {
+    await this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
   }
 
   private formatProcessingError(err: ProcessingError) {

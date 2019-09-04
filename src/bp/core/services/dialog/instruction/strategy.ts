@@ -105,7 +105,7 @@ export class ActionStrategy implements InstructionStrategy {
     return ProcessingResult.none()
   }
 
-  private async invokeAction(botId, instruction, event): Promise<ProcessingResult> {
+  private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks: string[] = instruction.fn.split(' ')
     const argsStr = _.tail(chunks).join(' ')
     const actionName = _.first(chunks)!
@@ -138,28 +138,17 @@ export class ActionStrategy implements InstructionStrategy {
     try {
       await this.actionService.forBot(botId).runAction(actionName, event, args)
     } catch (err) {
-      const payloads = [
-        {
-          type: 'error',
-          errorType: 'action-execution',
-          message: `Error executing action "${actionName}": ${err.message}`,
-          stacktrace: err.stacktrace,
-          actionName: actionName,
-          actionArgs: actionArgs
-        }
-      ]
-
-      // TODO: This is a proposal, so that we can show an error in the emulator
-      // For this to work properly we need 3 things:
-      // 1) A way of knowing if target == emulator user
-      // 2) A way of cancelling an event from being sent (event.setFlag(cancel)) if not
-      // 3) A custom error component in webchat extensions (emulator only)
-      // await this.eventEngine.replyToEvent(event, payloads, event.id)
+      event.state.__error = {
+        type: 'action-execution',
+        stacktrace: err.stacktrace,
+        actionName: actionName,
+        actionArgs: _.omit(args, ['event'])
+      }
 
       const { onErrorFlowTo } = event.state.temp
-      if (typeof onErrorFlowTo === 'string' && onErrorFlowTo.length) {
-        return ProcessingResult.transition(event.state.temp.onErrorFlowTo)
-      }
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+      return ProcessingResult.transition(errorFlow)
     }
 
     return ProcessingResult.none()

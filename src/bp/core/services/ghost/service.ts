@@ -1,6 +1,7 @@
 import { ListenHandle, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
+import { BotConfig } from 'core/config/bot.config'
 import { asBytes, filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
@@ -65,9 +66,10 @@ export class GhostService {
   }
 
   global(): ScopedGhostService {
-    if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
-      return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
-    }
+    // Disabling temporarily
+    // if (this._scopedGhosts.has(GLOBAL_GHOST_KEY)) {
+    //   return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
+    // }
 
     const scopedGhost = new ScopedGhostService(
       `./data/global`,
@@ -78,7 +80,7 @@ export class GhostService {
       this.logger
     )
 
-    this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
+    // this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
     return scopedGhost
   }
 
@@ -326,6 +328,23 @@ export class ScopedGhostService {
     this.primaryDriver = useDbDriver ? dbDriver : diskDriver
   }
 
+  /**
+   * TODO: Refactor this on v12.1.4
+   * This is a temporary workaround to lock bots marked as "locked" until modules are correctly updated.
+   */
+  private async _assertBotUnlocked(directory: string, file?: string) {
+    if (!this.botId || directory.startsWith('./models')) {
+      return
+    }
+
+    if (await this.fileExists('/', 'bot.config.json')) {
+      const config = await this.readFileAsObject<BotConfig>('/', 'bot.config.json')
+      if (config.locked) {
+        throw new Error(`Bot locked`)
+      }
+    }
+  }
+
   private _normalizeFolderName(rootFolder: string) {
     return forceForwardSlashes(path.join(this.baseDir, rootFolder))
   }
@@ -360,6 +379,7 @@ export class ScopedGhostService {
     recordRevision = true,
     syncDbToDisk = false
   ): Promise<void> {
+    await this._assertBotUnlocked(rootFolder, file)
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
@@ -380,6 +400,7 @@ export class ScopedGhostService {
   }
 
   async upsertFiles(rootFolder: string, content: FileContent[]): Promise<void> {
+    await this._assertBotUnlocked(rootFolder)
     await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
@@ -524,6 +545,7 @@ export class ScopedGhostService {
   }
 
   async deleteFile(rootFolder: string, file: string): Promise<void> {
+    await this._assertBotUnlocked(rootFolder, file)
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }
@@ -535,6 +557,7 @@ export class ScopedGhostService {
   }
 
   async renameFile(rootFolder: string, fromName: string, toName: string): Promise<void> {
+    await this._assertBotUnlocked(rootFolder, fromName)
     const fromPath = this._normalizeFileName(rootFolder, fromName)
     const toPath = this._normalizeFileName(rootFolder, toName)
 
@@ -555,6 +578,7 @@ export class ScopedGhostService {
   }
 
   async deleteFolder(folder: string): Promise<void> {
+    await this._assertBotUnlocked(folder)
     if (this.isDirectoryGlob) {
       throw new Error(`Ghost can't read or write under this scope`)
     }

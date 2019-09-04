@@ -123,8 +123,9 @@ export type BotpressConfig = {
      * locally and use NGINX as a reverse proxy to handle HTTPS. It should include the protocol and no trailing slash.
      * If unset, it will be constructed from the real host/port
      * @example https://botpress.io
+     * @default
      */
-    externalUrl?: string
+    externalUrl: string
     session: {
       /**
        * @default false
@@ -137,6 +138,13 @@ export type BotpressConfig = {
        */
       maxAge: string
     }
+    /**
+     * Configure the priority for establishing socket connections for webchat and studio users.
+     * If the first method is not supported, it will fallback on the second.
+     * If the first is supported but it fails with an error, it will not fallback.
+     * @default ["websocket","polling"]
+     */
+    socketTransports: string[]
   }
   converse: ConverseConfig
   dialog: DialogConfig

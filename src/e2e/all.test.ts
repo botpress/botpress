@@ -9,7 +9,8 @@ const test = {
   logout: './admin/logout.test',
   admin: {
     ui: './admin/ui.test',
-    bots: './admin/bots.test'
+    bots: './admin/bots.test',
+    users: './admin/users.test'
   },
   studio: {
     ui: './studio/ui.test',
@@ -26,6 +27,10 @@ const test = {
 }
 
 const admin = [test.admin.ui, test.admin.bots]
+if (process.env.PRO_ENABLED) {
+  admin.push(test.admin.users)
+}
+
 const studio = [test.studio.ui, test.studio.flows, test.studio.cms]
 const modules = [test.mod.nlu, test.mod.qna, test.mod.editor, test.mod.testing, test.mod.webchat]
 

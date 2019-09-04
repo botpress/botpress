@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 import api from '../../../api'
 
 import { sanitizeBotId } from './CreateBotModal'
-
 interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
@@ -69,13 +68,28 @@ class ImportBotModal extends Component<Props, State> {
 
   handleBotIdChanged = e => this.setState({ botId: sanitizeBotId(e.target.value) }, this.checkIdAvailability)
 
-  handleFileChanged = e => {
+  handleFileChanged = (files: FileList | null) => {
+    if (!files) {
+      return
+    }
+
     const fr = new FileReader()
-    fr.readAsArrayBuffer(e.target.files[0])
+    fr.readAsArrayBuffer(files[0])
     fr.onload = loadedEvent => {
       this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
-    this.setState({ filePath: e.target.value })
+
+    this.setState({ filePath: files[0].name })
+
+    if (!this.state.botId.length) {
+      this.generateBotId(files[0].name)
+    }
+  }
+
+  generateBotId = (filename: string) => {
+    const noExt = filename.substr(0, filename.indexOf('.'))
+    const matches = noExt.match(/bot_(.*)_[0-9]+/)
+    this.setState({ botId: sanitizeBotId((matches && matches[1]) || noExt) })
   }
 
   toggleDialog = () => {
@@ -97,7 +111,14 @@ class ImportBotModal extends Component<Props, State> {
         transitionDuration={0}
         title="Import bot from archive"
       >
-        <form ref={form => (this._form = form)}>
+        <form
+          ref={form => (this._form = form)}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => {
+            e.preventDefault()
+            this.handleFileChanged(e.dataTransfer.files)
+          }}
+        >
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
@@ -117,7 +138,6 @@ class ImportBotModal extends Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
-
             <FormGroup
               label="Bot Archive"
               labelInfo="*"
@@ -127,7 +147,7 @@ class ImportBotModal extends Component<Props, State> {
               <FileInput
                 tabIndex={2}
                 text={this.state.filePath || 'Choose file...'}
-                onChange={this.handleFileChanged}
+                onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
               />
             </FormGroup>
           </div>

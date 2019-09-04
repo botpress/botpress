@@ -4,6 +4,8 @@ import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import LRU from 'lru-cache'
+import ms from 'ms'
 
 import { Config } from '../config'
 
@@ -14,6 +16,8 @@ const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
 
 const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
+
+const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
 export class SlackClient {
   private client: WebClient
@@ -86,11 +90,31 @@ export class SlackClient {
       debugIncoming(`Received real time payload %o`, payload)
 
       if (!discardedSubtypes.includes(payload.subtype)) {
-        await this.sendEvent(payload, { type: 'text', text: payload.text })
+        await this.sendEvent(payload, {
+          type: 'text',
+          text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
+        })
       }
     })
 
-    await this.rtm.start()
+    return this.rtm.start()
+  }
+
+  private async _getUserInfo(userId: string) {
+    if (!userCache.has(userId)) {
+      const data = await new Promise((resolve, reject) => {
+        this.client.users
+          .info({ user: userId })
+          .then(data => resolve(data && data.user))
+          .catch(err => {
+            debug('error fetching user info:', err)
+            resolve({})
+          })
+      })
+      userCache.set(userId, data)
+    }
+
+    return userCache.get(userId) || {}
   }
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
@@ -133,13 +157,20 @@ export class SlackClient {
   private async sendEvent(ctx: any, payload: any) {
     const threadId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
     const target = _.get(ctx, 'user.id') || _.get(ctx, 'user')
+    let user = {}
+
+    if (target && this.config.fetchUserInfo) {
+      try {
+        user = await this._getUserInfo(target.toString())
+      } catch (err) {}
+    }
 
     this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'slack',
         direction: 'incoming',
-        payload,
+        payload: { ...ctx, ...payload, user_info: user },
         type: payload.type,
         preview: payload.text,
         threadId: threadId && threadId.toString(),
