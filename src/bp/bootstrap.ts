@@ -31,10 +31,10 @@ async function start() {
 
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
-  {bold ${center(`Botpress Server`, 40)}}
-  {dim ${center(`Version ${sdk.version}`, 40)}}
-  {dim ${center(`OS ${process.distro.toString()}`, 40)}}
-  ========================================`)
+{bold ${center(`Botpress Server`, 40)}}
+{dim ${center(`Version ${sdk.version}`, 40)}}
+{dim ${center(`OS ${process.distro.toString()}`, 40)}}
+========================================`)
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
@@ -57,8 +57,8 @@ async function start() {
     } catch (err) {
       logger.attachError(err).error(
         `Could not find/create APP_DATA folder "${process.APP_DATA_PATH}".
-  Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
-  This is a fatal error, process will exit.`
+Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
+This is a fatal error, process will exit.`
       )
       process.exit(1)
     }
