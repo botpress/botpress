@@ -23,6 +23,12 @@ const types = {
   config: 'Config File Changes',
   content: 'Changes to Content Files (*.json)'
 }
+/**
+ * Use a combination of these environment variables to easily test migrations.
+ * TESTMIG_BP_VERSION: Change the target version of your migration
+ * TESTMIG_CONFIG_VERSION: Override the current version of the server
+ * TESTMIG_IGNORE_COMPLETED: Ignore completed migrations (so they can be run again and again)
+ */
 
 @injectable()
 export class MigrationService {
@@ -201,7 +207,11 @@ export class MigrationService {
     return [...coreMigrations, ...moduleMigrations]
   }
 
-  private _getCompletedMigrations(): Promise<string[]> {
+  private async _getCompletedMigrations(): Promise<string[]> {
+    if (process.env.TESTMIG_IGNORE_COMPLETED) {
+      return []
+    }
+
     return this.ghostService.root().directoryListing('migrations')
   }
 
