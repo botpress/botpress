@@ -411,8 +411,27 @@ export interface AuthStrategyOauth2 {
    * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/oauth2
    */
   callbackURL: string
-  /** The URL to call to get informations about the user with the token */
-  userInfoURL: string
+  /* Set this URL if your access token doesn't include user data. It will be queried to fetch the profile */
+  userInfoURL?: string
+
+  /** If the access token is a JWT token, set the parameters below to decode it. */
+  jwtToken?: {
+    /** If provided, the audience of the token will be checked against the provided value(s). */
+    audience?: string | string[]
+    /** If provided, the issuer of the token will be checked against the provided value(s). */
+    issuer?: string | string[]
+    /**
+     * The algorithms allowed to validate the JWT tokens.
+     * @default ["HS256"]
+     */
+    algorithms: string[]
+    /**
+     * The public certificate starting with "-----BEGIN CERTIFICATE-----"
+     * The string should be provided as one line (use \n for new lines)
+     * If the key is not set, it will try to read the file `data/global/oauth2.pub`
+     */
+    publicKey?: string
+  }
 }
 
 export interface AuthStrategyLdap {
