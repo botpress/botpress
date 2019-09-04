@@ -214,11 +214,11 @@ export default class Editor {
 
     const ghost = this._getGhost(file)
     if (type === 'action') {
-      return ghost.upsertFile('/actions', location, content, true, true)
+      return ghost.upsertFile('/actions', location, content, { syncDbToDisk: true })
     }
 
     if (type === 'hook') {
-      return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content, true, true)
+      return ghost.upsertFile(`/hooks/${hookType}`, location.replace(hookType, ''), content, { syncDbToDisk: true })
     }
 
     if (type === 'bot_config' || type === 'global_config' || type === 'module_config') {

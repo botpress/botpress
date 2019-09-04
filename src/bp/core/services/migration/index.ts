@@ -156,7 +156,7 @@ export class MigrationService {
 
     const botIds = (await this.ghostService.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
     for (const botId of botIds) {
-      await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion })
+      await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion }, true)
     }
   }
 
