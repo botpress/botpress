@@ -93,8 +93,7 @@ export const ImportModal: FC<Props> = props => {
     }
   }
 
-  const readFile = event => {
-    const files = (event.target as HTMLInputElement).files
+  const readFile = (files: FileList | null) => {
     if (files) {
       setFile(files[0])
       setFilePath(files[0].name)
@@ -122,7 +121,13 @@ export const ImportModal: FC<Props> = props => {
 
   const renderUpload = () => {
     return (
-      <Fragment>
+      <div
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
+          e.preventDefault()
+          readFile(e.dataTransfer.files)
+        }}
+      >
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
             label={<span>Select your JSON file</span>}
@@ -134,7 +139,11 @@ export const ImportModal: FC<Props> = props => {
               </span>
             }
           >
-            <FileInput text={filePath || 'Choose file...'} onChange={readFile} fill={true} />
+            <FileInput
+              text={filePath || 'Choose file...'}
+              onChange={e => readFile((e.target as HTMLInputElement).files)}
+              fill={true}
+            />
           </FormGroup>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
@@ -148,7 +157,7 @@ export const ImportModal: FC<Props> = props => {
             />
           </div>
         </div>
-      </Fragment>
+      </div>
     )
   }
 
