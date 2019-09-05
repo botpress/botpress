@@ -1,4 +1,4 @@
-import { Button, Icon, Intent, Tooltip, Position } from '@blueprintjs/core'
+import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
 import { ElementPreview } from 'botpress/utils'
 import { Downloader } from 'botpress/utils'
@@ -324,19 +324,14 @@ export default class QnaAdmin extends Component<Props> {
           ) : null}
         </div>
         <div className={style.itemAction}>
-          <i
-            className={classnames('material-icons', style.itemActionDelete, 'icon-delete')}
-            onClick={this.deleteItem(id)}
-          >
-            delete
-          </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}
+          <Button icon="trash" className={style.itemActionDelete} onClick={this.deleteItem(id)} minimal={true} />
+          <Switch checked={item.enabled} onChange={this.toggleEnableItem.bind(this, item, id)} large={true} />
         </div>
       </Well>
     )
   }
 
-  deleteItem = id => () => {
+  deleteItem = (id: string) => () => {
     const needDelete = confirm('Do you want to delete the question?')
     const { filterQuestion, filterCategory, page } = this.state
     const params = {
@@ -351,7 +346,7 @@ export default class QnaAdmin extends Component<Props> {
     }
   }
 
-  editItem = id => () => {
+  editItem = (id: string) => () => {
     const url = new URL(window.location.href)
     url.searchParams.set(QNA_PARAM_NAME, id)
     window.history.pushState(window.history.state, '', url.toString())
@@ -359,7 +354,7 @@ export default class QnaAdmin extends Component<Props> {
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
-  toggleEnableItem = (item, id, value) => {
+  toggleEnableItem = (item: any, id: string, event) => {
     const { page, filterQuestion, filterCategory } = this.state
     const params = {
       limit: ITEMS_PER_PAGE,
@@ -368,21 +363,10 @@ export default class QnaAdmin extends Component<Props> {
       categories: filterCategory
     }
 
-    item.enabled = value
+    item.enabled = event.target.checked
     this.props.bp.axios
       .put(`/mod/qna/questions/${id}`, item, { params })
       .then(({ data: { items } }) => this.setState({ items }))
-  }
-
-  toggleButton = ({ value, onChange }) => {
-    const toggleCssClass = classnames('slider', { checked: value })
-
-    return (
-      <label className={classnames('switch', style.toggleButton)}>
-        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" tabIndex={-1} />
-        <span className={toggleCssClass} />
-      </label>
-    )
   }
 
   closeQnAModal = () => {
