@@ -54,14 +54,14 @@ export class ConfigProvider {
     return this.getConfig<BotConfig>('bot.config.json', botId)
   }
 
-  async setBotConfig(botId: string, config: BotConfig) {
-    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config))
+  async setBotConfig(botId: string, config: BotConfig, ignoreLock?: boolean) {
+    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config), { ignoreLock })
   }
 
-  async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
+  async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<BotConfig> {
     const originalConfig = await this.getBotConfig(botId)
     const config = _.merge(originalConfig, partialConfig)
-    await this.setBotConfig(botId, config)
+    await this.setBotConfig(botId, config, ignoreLock)
     return config
   }
 

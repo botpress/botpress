@@ -202,7 +202,7 @@ export class ModuleResourceLoader {
       if (isNewFile || (ressourceHasChanged && !fileHasBeenManuallyUpdated)) {
         debug('adding missing file "%s"', file)
         const contentWithHash = await this._getRessourceContentWithHash(from)
-        await this.ghost.global().upsertFile('/', to, contentWithHash, false)
+        await this.ghost.global().upsertFile('/', to, contentWithHash, { recordRevision: false })
       } else if (fileHasBeenManuallyUpdated) {
         debug('not copying file "%s" because it has been changed manually', file)
       } else {
