@@ -251,8 +251,8 @@ export default class FormModal extends Component<Props> {
         onClose={this.closeAndClear}
         canOutsideClickClose={false}
         transitionDuration={0}
-        title={!isEdit ? 'Create a new Q&A' : 'Edit Q&A'}
-        icon="add"
+        title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
+        icon={isEdit ? 'edit' : 'add'}
         style={{ width: 700 }}
       >
         <div className={Classes.DIALOG_BODY}>
