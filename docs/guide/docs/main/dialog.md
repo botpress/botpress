@@ -3,11 +3,11 @@ id: dialog
 title: Dialog Engine
 ---
 
-Botpress use what we call the **Dialog Engine** to handle conversations. The Dialog Engine is responsible for every interaction with a bot. It handles the user input and the bot response. But between the two, there's a whole lot happening.
+Botpress uses what we call the **Dialog Engine** to handle conversations. The Dialog Engine is responsible for every interaction with a bot. It handles the user input and the bot response. But between the two, there's a whole lot happening.
 
 ## Overview
 
-The Dialog Engine use [Flows](#flows) that represents the overall conversationnal logic of a bot. A Flow is then composed of [Nodes](#nodes) which execute a series of [Instructions](#node-lifecycle). Instructions are part of a Node lifecycle and can execute [Actions](#actions). An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
+The Dialog Engine use [Flows](#flows) that represent the overall conversational logic of a bot. A Flow is then composed of [Nodes](#nodes) which execute a series of [Instructions](#node-lifecycle). Instructions are part of a Node lifecycle and can execute [Actions](#actions). An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
 
 ## Flows
 
@@ -15,7 +15,7 @@ More complex bots are generally broken down into multiple smaller flows instead 
 
 ### Flow Lifecycle
 
-A flow always starts at the `startNode` of its `*.flow.json` file. The start node indicate the name of the node on which to start. Once the node is selected, the Dialog Engine will enqueue the instructions of the active node (more on instructions later). Then it will process the instructions sequencially.
+A flow always starts at the `startNode` of its `*.flow.json` file. The start node indicates the name of the node on which to start. Once the node is selected, the Dialog Engine will enqueue the instructions of the active node (more on instructions later). Then it will process the instructions sequentially.
 
 The Dialog Engine is event-based and is non-blocking by default, which means that a flow will execute all it can execute until it needs to wait.
 
@@ -24,7 +24,7 @@ The Dialog Engine is event-based and is non-blocking by default, which means tha
 > - A node is marked as waiting for user input
 > - A node couldn't match a condition to transition to another node
 
-Once the first node is processed, the Dialog Engine will proceed to the next node in the flow until it reach the very end. Flows are pretty straight forward. Nodes also have a [lifecycle](#node-lifecycle) of their own. It is the nodes that do the heavy lifting in a flow. The flow only orchestrates them.
+Once the first node is processed, the Dialog Engine will proceed to the next node in the flow until it reaches the very end. Flows are pretty straight forward. Nodes also have a [lifecycle](#node-lifecycle) of their own. It is the nodes that do the heavy lifting in a flow. The flow only orchestrates them.
 
 ### Storage
 
