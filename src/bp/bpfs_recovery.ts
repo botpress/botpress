@@ -23,13 +23,10 @@ export default async (argv, action) => {
     ghost = container.get<GhostService>(TYPES.GhostService)
     database = container.get<Database>(TYPES.Database)
 
-    const { DATABASE_URL } = process.env
-
     const useDbDriver = process.env.BPFS_STORAGE === 'database'
     ghost.initialize(useDbDriver)
 
-    const dbType = DATABASE_URL && DATABASE_URL.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
-    await database.initialize(dbType, DATABASE_URL)
+    await database.initialize()
   } catch (err) {
     console.error(chalk.red(`Error during initialization`), err)
     return process.exit()
@@ -42,7 +39,7 @@ export default async (argv, action) => {
 =========================================`)
 
     const files = await ghost.root().directoryListing(argv.list)
-    files.map(file => console.log(chalk.green(` - ${file}`)))
+    files.forEach(file => console.log(chalk.green(` - ${file}`)))
     process.exit()
   }
 
@@ -51,7 +48,7 @@ export default async (argv, action) => {
     process.exit()
   }
 
-  if (action === 'pulldb') {
+  if (action === 'pullfile') {
     const rootFolder = path.dirname(file)
     const filename = path.basename(file)
 
@@ -62,13 +59,13 @@ export default async (argv, action) => {
 
     const fileBuffer = await ghost.root().readFileAsBuffer(rootFolder, filename)
 
-    mkdirpSync(dest ? path.dirname(dest) : path.dirname(file))
+    mkdirpSync(path.dirname(dest || file))
     fs.writeFileSync(dest || file, fileBuffer)
 
     console.log(chalk.green(`File "${filename}" saved at ${path.resolve(dest || file)}`))
   }
 
-  if (action === 'pushdb') {
+  if (action === 'pushfile') {
     if (!fs.existsSync(path.resolve(file))) {
       console.error(`File ${file} doesn't exist locally.`)
       process.exit()

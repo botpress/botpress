@@ -168,7 +168,7 @@ try {
       argv => require('./bpfs').default(argv, 'push')
     )
     .command(
-      'pulldb',
+      'pullfile',
       'Pull a single file from the database',
       {
         file: {
@@ -183,13 +183,13 @@ try {
       argv => {
         getos.default().then(distro => {
           process.distro = distro
-          require('./bpfs_recovery').default(argv, 'pulldb')
+          require('./bpfs_recovery').default(argv, 'pullfile')
         })
       }
     )
     .command(
-      'pushdb',
-      'Push local files to a remote database directly',
+      'pushfile',
+      'Push a local file to a remote database directly',
       {
         file: {
           description: 'Path of the local file (eg: botpress.config.json)',
@@ -203,7 +203,7 @@ try {
       argv => {
         getos.default().then(distro => {
           process.distro = distro
-          require('./bpfs_recovery').default(argv, 'pushdb')
+          require('./bpfs_recovery').default(argv, 'pushfile')
         })
       }
     )

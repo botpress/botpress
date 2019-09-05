@@ -13,17 +13,13 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
-import { DatabaseType } from 'core/database'
 import { FatalError } from './errors'
 
 async function setupEnv() {
-  const { DATABASE_URL } = process.env
-
   const useDbDriver = process.BPFS_STORAGE === 'database'
   Ghost.initialize(useDbDriver)
 
-  const dbType = DATABASE_URL && DATABASE_URL.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
-  await Db.initialize(<DatabaseType>dbType, DATABASE_URL)
+  await Db.initialize()
 }
 
 async function start() {
