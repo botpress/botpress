@@ -33,6 +33,20 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
+// TODO add a clean progress feedback
+// private realtime: typeof sdk.realtime,
+// private realtimePayload: typeof sdk.RealTimePayload,
+// I simply moved stuff here
+// TODO implement this properly, dispatch progress event and let caller be responsible for this
+// private notifyTrainingProgress(progress: number) {
+//   const crfPayloadProgress = (prog: number) => ({ value: 0.75 + Math.floor(prog / 4) })
+//   const createProgressPayload = getProgressPayload(crfPayloadProgress)
+
+//   this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(progress)))
+// }
+
+// TODO extract kmeans out of there & bring word cluster in engine
+
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _crfModelFn = ''
@@ -41,8 +55,6 @@ export default class CRFExtractor {
 
   constructor(
     private mlToolkit: typeof sdk.MLToolkit,
-    private realtime: typeof sdk.realtime,
-    private realtimePayload: typeof sdk.RealTimePayload,
     private languageProvider: LanguageProvider,
     private readonly language: string
   ) {}
@@ -58,11 +70,11 @@ export default class CRFExtractor {
   }
 
   async train(
-    trainingSet: Sequence[],
-    intentVocabs: { [token: string]: string[] },
-    allowedEntitiesPerIntents: { [name: string]: string[] },
-    tfidf: TfidfOutput,
-    token2Vec: Token2Vec
+    trainingSet: Sequence[], // TODO change this for Intents[]
+    intentVocabs: { [token: string]: string[] }, // TODO move this in intent
+    allowedEntitiesPerIntents: { [name: string]: string[] }, // TODO move this in intent
+    tfidf: TfidfOutput, // use token.tfidf
+    token2Vec: Token2Vec // use token.wordVector
   ): Promise<{ crf: Buffer }> {
     this._isTrained = false
     if (trainingSet.length >= 2) {
@@ -70,18 +82,15 @@ export default class CRFExtractor {
 
       debugTrain('training kmeans')
       await this._trainKmeans(trainingSet)
-      this.notifyTrainingProgress(0.33)
 
       debugTrain('training CRF')
       await this._trainCrf(trainingSet, intentVocabs, allowedEntitiesPerIntents, tfidf, token2Vec)
-      this.notifyTrainingProgress(0.66)
 
       debugTrain('reading tagger')
       this._crfTagger = this.mlToolkit.CRF.createTagger()
       await this._crfTagger.open(this._crfModelFn)
       this._isTrained = true
       debugTrain('done training')
-      this.notifyTrainingProgress(0.99)
       return {
         crf: await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb))
       }
@@ -126,15 +135,6 @@ export default class CRFExtractor {
 
         return slotCollection
       }, {})
-  }
-
-  // I simply moved stuff here
-  // TODO implement this properly, dispatch progress event and let caller be responsible for this
-  private notifyTrainingProgress(progress: number) {
-    const crfPayloadProgress = (prog: number) => ({ value: 0.75 + Math.floor(prog / 4) })
-    const createProgressPayload = getProgressPayload(crfPayloadProgress)
-
-    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', createProgressPayload(progress)))
   }
 
   async _tag(

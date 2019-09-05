@@ -1,0 +1,143 @@
+import { MLToolkit } from 'botpress/sdk'
+import _ from 'lodash'
+
+import { Intent, Utterance, UtteranceToken } from '../../engine2'
+import { computeQuantile } from '../../tools/math'
+import { countAlpha, countNum, countSpecial } from '../../tools/strings'
+import { MAX_TFIDF, MIN_TFIDF } from '../intents/tfidf'
+import { sanitize } from '../language/sanitizer'
+
+type FeatureValue = string | number | boolean
+
+export interface CRFFeature {
+  name: string
+  value: FeatureValue
+  boost?: number
+}
+
+// TODO you are at testing all oof those !
+
+const TFIDF_WEIGHTS = ['low', 'medium', 'high']
+
+export function featToCRFsuiteAttr(prefix: string, feat: CRFFeature): string {
+  return `${prefix}${feat.name}=${feat.value}:${feat.boost || 1}`
+}
+
+export function getFeatPairs(feats0: CRFFeature[], feats1: CRFFeature[], featNames: string[]): CRFFeature[] {
+  const valueOf = (feat: CRFFeature | undefined): FeatureValue => _.get(feat, 'value', 'null')
+  const boostOf = (feat: CRFFeature | undefined): number => _.get(feat, 'boost', 1)
+
+  return featNames
+    .map(targetFeat => {
+      const f0 = feats0.find(f => f.name === targetFeat)
+      const f1 = feats1.find(f => f.name === targetFeat)
+
+      if (f0 || f1) {
+        return {
+          name: targetFeat,
+          value: `${valueOf(f0)}|${valueOf(f1)}`,
+          boost: Math.max(boostOf(f0), boostOf(f1))
+        }
+      }
+    })
+    .filter(_.identity)
+}
+
+export async function getWordWeight(token: UtteranceToken): Promise<CRFFeature> {
+  const tierce = computeQuantile(3, token.tfidf, MAX_TFIDF, MIN_TFIDF)
+  const value = TFIDF_WEIGHTS[tierce - 1]
+
+  return {
+    name: 'weight',
+    value
+  }
+}
+
+export async function getClusterFeat(
+  token: UtteranceToken,
+  kmeansModel: MLToolkit.KMeans.KmeansResult
+): Promise<CRFFeature> {
+  const cluster = kmeansModel.nearest([token.vectors as number[]])[0]
+  return {
+    name: 'cluster',
+    value: cluster
+  }
+}
+
+export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeature | undefined {
+  const boost = isPredict ? 3 : 1
+
+  if (_.isEmpty(token.entities)) {
+    return {
+      name: 'word',
+      value: token.toString({ lowerCase: true }),
+      boost
+    }
+  }
+}
+
+export function getInVocabFeat(token: UtteranceToken, intent: Intent<Utterance>): CRFFeature {
+  const inVocab = _.isEmpty(token.slots) && intent.vocab[token.value]
+  return {
+    name: 'inVocab',
+    value: inVocab
+  }
+}
+
+export function getEntitiesFeats(token: UtteranceToken, allowedEntities: string[], isPredict: boolean): CRFFeature[] {
+  const boost = isPredict ? 3 : 1
+
+  return _.chain(token.entities)
+    .map(e => e.type)
+    .intersectionWith(allowedEntities)
+    .thru(ents => (ents.length ? ents : ['none']))
+    .map(entity => ({
+      name: 'entity',
+      value: entity,
+      boost
+    }))
+    .value()
+}
+
+export function getSpaceFeat(token: UtteranceToken): CRFFeature {
+  return {
+    name: 'space',
+    value: token.isSpace
+  }
+}
+
+export function getNum(token: UtteranceToken): CRFFeature {
+  return {
+    name: 'num',
+    value: countNum(token.value)
+  }
+}
+
+export function getAlpha(token: UtteranceToken): CRFFeature {
+  return {
+    name: 'alpha',
+    value: countAlpha(token.value)
+  }
+}
+
+export function getSpecialChars(token: UtteranceToken): CRFFeature {
+  return {
+    name: 'special',
+    value: countSpecial(token.value)
+  }
+}
+
+export function getIntentFeature(intentName: string): CRFFeature {
+  return {
+    name: 'intent',
+    value: sanitize(intentName.toLowerCase()).replace(/\s/, ''),
+    boost: 100
+  }
+}
+
+export function getTokenQuartile(utterance: Utterance, tokIdx: number): CRFFeature {
+  return {
+    name: 'quartile',
+    value: computeQuantile(4, tokIdx + 1, utterance.tokens.length)
+  }
+}

@@ -1,6 +1,9 @@
+import { MLToolkit } from 'botpress/sdk'
 import _, { cloneDeep } from 'lodash'
 
 import tfidf from './pipelines/intents/tfidf'
+import CRFExtractor2 from './pipelines/slots/crf-extractor2'
+import CRFExtractor from './pipelines/slots/crf_extractor'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
 
 export default class Engine2 {
@@ -61,6 +64,8 @@ export type Intent<T> = Readonly<{
   contexts: string[]
   slot_definitions: SlotDefinition[]
   utterances: T[]
+  vocab: _.Dictionary<boolean>
+  slot_entities: string[]
 }>
 
 export type SlotDefinition = Readonly<{
@@ -84,8 +89,8 @@ export type Utterance = Readonly<{
   tagEntity(entity: ExtractedEntity, start: number, end: number)
   tagSlot(slot: ExtractedSlot, start: number, end: number)
   setGlobalTfidf(tfidf: _.Dictionary<number>)
-  entities: ReadonlyArray<UtteranceEntity>
-  slots: ReadonlyArray<UtteranceSlot>
+  entities: ReadonlyArray<UtteranceRange & UtteranceEntity>
+  slots: ReadonlyArray<UtteranceRange & UtteranceSlot>
   tokens: ReadonlyArray<UtteranceToken>
 }>
 
@@ -233,8 +238,8 @@ export const extractSystemEntities = async () => {
 
 export class UtteranceClass implements Utterance {
   public tokens: ReadonlyArray<UtteranceToken> = []
-  public slots: ReadonlyArray<UtteranceSlot> = []
-  public entities: ReadonlyArray<UtteranceEntity> = []
+  public slots: ReadonlyArray<UtteranceRange & UtteranceSlot> = []
+  public entities: ReadonlyArray<UtteranceRange & UtteranceEntity> = []
   private _globalTfidf?: _.Dictionary<number>
 
   setGlobalTfidf(tfidf: _.Dictionary<number>) {
@@ -253,11 +258,11 @@ export class UtteranceClass implements Utterance {
           isEOS: i === tokens.length - 1,
           isWord: isWord(value),
           offset: offset,
-          get slots(): ReadonlyArray<ExtractedSlot> {
-            return that.slots.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
+          get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
+            return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
-          get entities(): ReadonlyArray<ExtractedEntity> {
-            return that.entities.filter(x => x.startTokenIdx >= i && x.endTokenIdx <= i)
+          get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
+            return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
           isSpace: isSpace(value),
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
@@ -350,9 +355,9 @@ export type UtteranceToStringOptions = {
 }
 
 export type TokenToStringOptions = {
-  lowerCase: boolean
-  trim: boolean
-  realSpaces: boolean
+  lowerCase?: boolean
+  trim?: boolean
+  realSpaces?: boolean
 }
 
 export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number; startPos: number; endPos: number }
@@ -364,14 +369,14 @@ export type UtteranceToken = Readonly<{
   index: number
   value: string
   isWord: boolean
-  startsWithSpace: boolean
+  isSpace: boolean
   isBOS: boolean
   isEOS: boolean
   vectors: ReadonlyArray<number>
   tfidf: number
   offset: number
-  entities: ReadonlyArray<ExtractedEntity>
-  slots: ReadonlyArray<ExtractedSlot>
+  entities: ReadonlyArray<UtteranceRange & ExtractedEntity>
+  slots: ReadonlyArray<UtteranceRange & ExtractedSlot>
   toString(options?: TokenToStringOptions): string
 }>
 
@@ -403,8 +408,9 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
     output = await TfidfTokens(output)
 
     const context_ranking = await {}
-
     const svm = {} // await trainSvm(output, tools)
+
+    const slot_tagger = await trainSlotTagger(output, tools)
 
     output.intents[0]
 
@@ -420,6 +426,14 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
     //
   } catch (err) {}
   return {}
+}
+
+// TODO test this (build intent vocab)
+export const buildVocab = (utterances: Utterance[]): _.Dictionary<boolean> => {
+  return _.chain(utterances)
+    .flatMap(u => u.tokens)
+    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok.value]: true }), {})
+    .value()
 }
 
 // ctx ranking
@@ -453,7 +467,14 @@ export const ProcessIntents = async (
         return end
       }, 0)
     })
-    return { ...intent, utterances: utterances }
+
+    const vocab = buildVocab(utterances)
+    const slot_entities = _.chain(intent.slot_definitions)
+      .flatMap(s => s.entities)
+      .uniq()
+      .value()
+
+    return { ...intent, utterances: utterances, vocab, slot_entities }
   })
 }
 
@@ -496,7 +517,9 @@ export const AppendNoneIntents = async (
     name: 'none',
     slot_definitions: [],
     utterances: await Utterances(noneUtterances, input.languageCode, tools),
-    contexts: [...input.contexts]
+    contexts: [...input.contexts],
+    vocab: {},
+    slot_entities: []
   }
 
   return { ...input, intents: [...input.intents, intent] }
@@ -579,7 +602,13 @@ export const Utterances = async (
     utterances.push(utterance)
   }
 
+  // TODO add word cluster here ?
   return utterances
+}
+
+const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools) => {
+  const crfExtractor = new CRFExtractor2(tools.mlToolkit)
+  await crfExtractor.train(input.intents)
 }
 
 export interface TrainResult {}
@@ -594,6 +623,7 @@ export interface Predictor {
 // CompleteStructure --> PREDICT PIPELINE
 // lang_identification
 // prepare_utterance pipeline
+//     for each tokens we need to set tfidf using getClosestToken
 // rank contexts
 // predict intents
 // extract slots
@@ -610,6 +640,7 @@ export interface TrainTools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[]): Promise<string[]>
+  mlToolkit: typeof MLToolkit
 } // const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
 
 export interface Model {

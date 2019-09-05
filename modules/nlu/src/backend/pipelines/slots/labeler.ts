@@ -1,7 +1,6 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Utterance } from '../../engine2'
 import { SPACE } from '../../tools/token-utils'
 import { BIO, Sequence, Tag, Token } from '../../typings'
 
@@ -12,21 +11,6 @@ export interface TagResult {
 }
 
 const MIN_SLOT_CONFIDENCE = 0.15
-
-// TODO test this thing
-export function labelizeUtterance2(utterance: Utterance): string[] {
-  return utterance.tokens.map(token => {
-    if (_.isEmpty(token.slots)) {
-      return BIO.OUT
-    }
-
-    const slot = token.slots[0]
-    const tag = slot.startTokenIdx === token.index ? BIO.BEGINNING : BIO.INSIDE
-    const any = _.isEmpty(token.entities) ? '/any' : ''
-
-    return `${tag}-${slot.name}${any}`
-  })
-}
 
 // TODO replace sequence by utterance type once implemented
 export function labelizeUtterance(utterance: Sequence): string[] {
