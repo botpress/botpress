@@ -30,6 +30,14 @@
         line-height: 1.5em;
       }
     }
+    .language {
+      > p {
+        margin-bottom: 5px;
+      }
+      strong {
+        color: #5c7080; //blueprint gray-1
+      }
+    }
   }
   .summaryTable {
     width: 100%;
