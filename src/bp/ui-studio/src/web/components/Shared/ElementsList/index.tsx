@@ -66,7 +66,6 @@ export default class ElementsList extends React.Component<Props> {
               itemId={element.replace('#!', '')}
               onClickChange={() => this.toggleEditMode(index)}
               onChange={this.onContentChange}
-              className={Classes.FILL}
             />
           ) : (
             <div style={{ padding: 6 }}>

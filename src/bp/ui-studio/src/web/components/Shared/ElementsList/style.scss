@@ -10,7 +10,6 @@
 
 .listElement {
   display: flex !important;
-  flex-direction: row;
   width: 100%;
   justify-content: space-between;
   padding: 2px 5px !important;
@@ -19,6 +18,10 @@
     .listElementIcon {
       display: inherit !important;
     }
+  }
+
+  div {
+    width: 94%;
   }
 }
 

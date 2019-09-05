@@ -21,9 +21,9 @@
   },
   "devDependencies": {
     "@blueprintjs/core": "^3.15.1",
-    "@types/react-bootstrap": "^0.32.19",
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
+    "@types/react-bootstrap": "^0.32.19",
     "@types/react-dom": "^16.8.4",
     "module-builder": "../../build/module-builder"
   },
@@ -34,6 +34,7 @@
     "joi": "^13.6.0",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
+    "multer": "^1.4.2",
     "nanoid": "^2.0.1",
     "react-select": "^1.2.1"
   }

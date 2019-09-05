@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { toastFailure, toastSuccess } from './toaster'
 
 const JSON_STATUS_POLL_INTERVAL = 1000
+const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
 
 interface Props {
   axios: any
@@ -20,8 +21,8 @@ interface Summary {
 }
 
 export const ImportModal: FC<Props> = props => {
+  const [file, setFile] = useState<any>()
   const [filePath, setFilePath] = useState<string>()
-  const [fileContent, setFileContent] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [importAction, setImportAction] = useState('insert')
@@ -42,7 +43,10 @@ export const ImportModal: FC<Props> = props => {
   const queryImportSummary = async () => {
     setIsLoading(true)
     try {
-      const { data } = await props.axios.post('/mod/qna/import/summary', { fileContent })
+      const form = new FormData()
+      form.append('file', file)
+
+      const { data } = await props.axios.post('/mod/qna/import/summary', form, axiosConfig)
 
       if (!data.fileQnaCount && !data.fileCmsCount) {
         setUploadStatus(`We were not able to extract any data from your file. Please validate the format`)
@@ -61,7 +65,11 @@ export const ImportModal: FC<Props> = props => {
     setIsLoading(true)
 
     try {
-      const { data } = await props.axios.post('/mod/qna/import', { fileContent, importAction })
+      const form = new FormData()
+      form.append('file', file)
+      form.append('action', importAction)
+
+      const { data } = await props.axios.post(`/mod/qna/import`, form, axiosConfig)
       setStatusId(data)
     } catch (err) {
       clearStatus()
@@ -87,16 +95,10 @@ export const ImportModal: FC<Props> = props => {
 
   const readFile = event => {
     const files = (event.target as HTMLInputElement).files
-    if (!files) {
-      return
+    if (files) {
+      setFile(files[0])
+      setFilePath(files[0].name)
     }
-
-    const fr = new FileReader()
-    fr.readAsBinaryString(files[0])
-    fr.onload = loadedEvent => {
-      setFileContent(_.get(loadedEvent, 'target.result'))
-    }
-    setFilePath(files[0].name)
   }
 
   const clearStatus = () => {
@@ -111,7 +113,7 @@ export const ImportModal: FC<Props> = props => {
 
   const clearState = () => {
     setFilePath(undefined)
-    setFileContent(undefined)
+    setFile(undefined)
     setUploadStatus(undefined)
     setStatusId(undefined)
     setSummary(undefined)
@@ -140,7 +142,7 @@ export const ImportModal: FC<Props> = props => {
             <Button
               id="btn-next"
               text={isLoading ? 'Please wait...' : 'Next'}
-              disabled={!filePath || !fileContent || isLoading}
+              disabled={!filePath || !file || isLoading}
               onClick={queryImportSummary}
               intent={Intent.PRIMARY}
             />

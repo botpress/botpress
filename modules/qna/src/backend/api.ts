@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
+import multer from 'multer'
 import nanoid from 'nanoid'
 
 import { QnaEntry } from './qna'
@@ -98,10 +99,11 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     res.end(data)
   })
 
-  router.post('/import/summary', async (req, res) => {
+  const upload = multer()
+  router.post('/import/summary', upload.single('file'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
     const cmsIds = await storage.getAllContentElementIds()
-    const importData = await prepareImport(JSON.parse(req.body.fileContent))
+    const importData = await prepareImport(JSON.parse(req.file.buffer))
 
     res.send({
       qnaCount: await storage.count(),
@@ -111,13 +113,13 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     })
   })
 
-  router.post('/import', async (req, res) => {
+  router.post('/import', upload.single('file'), async (req, res) => {
     const uploadStatusId = nanoid()
     res.send(uploadStatusId)
 
     const storage = botScopedStorage.get(req.params.botId)
 
-    if (req.body.importAction === 'clear_insert') {
+    if (req.body.action === 'clear_insert') {
       updateUploadStatus(uploadStatusId, 'Deleting existing questions')
       const questions = await storage.fetchQNAs()
 
@@ -126,7 +128,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
 
     try {
-      const importData = await prepareImport(JSON.parse(req.body.fileContent))
+      const importData = await prepareImport(JSON.parse(req.file.buffer))
 
       await importQuestions(importData, storage, bp, updateUploadStatus, uploadStatusId)
       updateUploadStatus(uploadStatusId, 'Completed')
