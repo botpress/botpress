@@ -1,4 +1,4 @@
-import { Colors, H5, HTMLTable, Tooltip } from '@blueprintjs/core'
+import { Colors, H5, HTMLTable } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import React, { SFC } from 'react'
 
@@ -18,15 +18,13 @@ export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
       <tbody>
         {props.entities.map(entity => (
           <tr key={entity.name}>
+            <td>{entity.name}</td>
             <td>
-              {entity.type}.{entity.name}
+              <span>{entity.meta.source}</span>
             </td>
             <td>
-              <Tooltip position="top" content={`Unit: ${entity.data.unit}`} disabled={!entity.data.unit}>
-                <span>{entity.meta.source}</span>
-              </Tooltip>
+              {entity.data.value}&nbsp;{entity.data.unit}
             </td>
-            <td>{entity.data.value}</td>
           </tr>
         ))}
       </tbody>

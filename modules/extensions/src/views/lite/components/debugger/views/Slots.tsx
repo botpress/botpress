@@ -14,7 +14,7 @@ const renderSlotItem = (name: string, slot: any) => {
           <ul>
             {slot.map(s => (
               <Tooltip key={s.value} content={`Value: ${s.value}`} position={'top'}>
-                <li>{s.source}</li>
+                <li style={{ textDecoration: 'underline' }}>{s.source}</li>
               </Tooltip>
             ))}
           </ul>
@@ -27,7 +27,9 @@ const renderSlotItem = (name: string, slot: any) => {
     <tr>
       <td>{name}</td>
       <td>
-        <Tooltip content={`value: ${slot.value}`}>{slot.source}</Tooltip>
+        <Tooltip content={`Value: ${slot.value}`}>
+          <span style={{ textDecoration: 'underline' }}>{slot.source}</span>
+        </Tooltip>
       </td>
       <td>{slot.turns ? `${slot.turns} turns ago` : 'This turn'} </td>
     </tr>
