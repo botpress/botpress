@@ -64,7 +64,6 @@ export class InputElement extends React.Component {
     return (
       <React.Fragment>
         <textarea
-          autoFocus
           className={classnames('form-control', style.inputArea, {
             [style.inputError]: this.state.error || this.props.invalid
           })}
