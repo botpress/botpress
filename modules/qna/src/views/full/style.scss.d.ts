@@ -67,6 +67,7 @@ interface CssExports {
   'searchField': string;
   'strong': string;
   'toggleButton': string;
+  'tooltip': string;
   'variation': string;
   'variationDelete': string;
 }

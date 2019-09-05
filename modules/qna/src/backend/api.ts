@@ -2,14 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
-import multer from 'multer'
 import nanoid from 'nanoid'
-import yn from 'yn'
 
-import { QnaEntry, QnaItem } from './qna'
+import { QnaEntry } from './qna'
 import Storage from './storage'
-import { importQuestions, prepareExport } from './transfer'
-import { QnaDefSchema, QnaItemArraySchema } from './validation'
+import { importQuestions, prepareExport, prepareImport } from './transfer'
+import { QnaDefSchema } from './validation'
 
 export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
   const jsonUploadStatuses = {}
@@ -93,20 +91,33 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
   router.get('/export', async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
-    const data: string = await prepareExport(storage)
+    const data: string = await prepareExport(storage, bp)
+
     res.setHeader('Content-Type', 'application/json')
     res.setHeader('Content-disposition', `attachment; filename=qna_${moment().format('DD-MM-YYYY')}.json`)
     res.end(data)
   })
 
-  const upload = multer()
-  router.post('/import', upload.single('json'), async (req, res) => {
+  router.post('/import/summary', async (req, res) => {
+    const storage = botScopedStorage.get(req.params.botId)
+    const cmsIds = await storage.getAllContentElementIds()
+    const importData = await prepareImport(JSON.parse(req.body.fileContent))
+
+    res.send({
+      qnaCount: await storage.count(),
+      cmsCount: (cmsIds && cmsIds.length) || 0,
+      fileQnaCount: (importData.questions && importData.questions.length) || 0,
+      fileCmsCount: (importData.content && importData.content.length) || 0
+    })
+  })
+
+  router.post('/import', async (req, res) => {
+    const uploadStatusId = nanoid()
+    res.send(uploadStatusId)
+
     const storage = botScopedStorage.get(req.params.botId)
 
-    const uploadStatusId = nanoid()
-    res.end(uploadStatusId)
-
-    if (yn(req.body.isReplace)) {
+    if (req.body.importAction === 'clear_insert') {
       updateUploadStatus(uploadStatusId, 'Deleting existing questions')
       const questions = await storage.fetchQNAs()
 
@@ -115,10 +126,9 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
 
     try {
-      const parsedJson: any = JSON.parse(req.file.buffer)
-      const questions = (await validate(parsedJson, QnaItemArraySchema)) as QnaItem[]
+      const importData = await prepareImport(JSON.parse(req.body.fileContent))
 
-      await importQuestions(questions, storage, updateUploadStatus, uploadStatusId)
+      await importQuestions(importData, storage, bp, updateUploadStatus, uploadStatusId)
       updateUploadStatus(uploadStatusId, 'Completed')
     } catch (e) {
       bp.logger.attachError(e).error('JSON Import Failure')
