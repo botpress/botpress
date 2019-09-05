@@ -66,7 +66,7 @@ export class MigrationService {
       await this.logger.error(
         `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
       )
-      process.exit(1)
+      process.exit(0)
     }
 
     await this.executeMigrations(missingMigrations)
@@ -144,7 +144,7 @@ export class MigrationService {
       await this.logger.error(
         `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
       )
-      process.exit(1)
+      process.exit(0)
     }
 
     await this.updateAllVersions()
