@@ -43,7 +43,7 @@ export function getFeatPairs(feats0: CRFFeature[], feats1: CRFFeature[], featNam
     .filter(_.identity)
 }
 
-export async function getWordWeight(token: UtteranceToken): Promise<CRFFeature> {
+export function getWordWeight(token: UtteranceToken): CRFFeature {
   const tierce = computeQuantile(3, token.tfidf, MAX_TFIDF, MIN_TFIDF)
   const value = TFIDF_WEIGHTS[tierce - 1]
 
@@ -67,7 +67,7 @@ export async function getClusterFeat(
 export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeature | undefined {
   const boost = isPredict ? 3 : 1
 
-  if (_.isEmpty(token.entities)) {
+  if (_.isEmpty(token.entities) && token.isWord) {
     return {
       name: 'word',
       value: token.toString({ lowerCase: true }),
@@ -127,17 +127,17 @@ export function getSpecialChars(token: UtteranceToken): CRFFeature {
   }
 }
 
-export function getIntentFeature(intentName: string): CRFFeature {
+export function getIntentFeature(intent: Intent<Utterance>): CRFFeature {
   return {
     name: 'intent',
-    value: sanitize(intentName.toLowerCase()).replace(/\s/, ''),
+    value: sanitize(intent.name.replace(/\s/, '')),
     boost: 100
   }
 }
 
-export function getTokenQuartile(utterance: Utterance, tokIdx: number): CRFFeature {
+export function getTokenQuartile(utterance: Utterance, token: UtteranceToken): CRFFeature {
   return {
     name: 'quartile',
-    value: computeQuantile(4, tokIdx + 1, utterance.tokens.length)
+    value: computeQuantile(4, token.index + 1, utterance.tokens.length)
   }
 }
