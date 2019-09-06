@@ -280,6 +280,7 @@ export class UtteranceClass implements Utterance {
       const that = this
       const value = tokens[i]
       arr.push(
+        // TODO extract this as token util makeToken
         Object.freeze({
           index: i,
           isBOS: i === 0,
@@ -296,16 +297,17 @@ export class UtteranceClass implements Utterance {
           tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
           value: value,
           vectors: vectors[i],
-          toString: (options: TokenToStringOptions) => {
-            const opts = _.merge({}, options, DefaultTokenToStringOptions)
+          // TODO extract this in strig utils and reuse for utterance
+          toString: (opts: TokenToStringOptions) => {
+            const options = { ...DefaultTokenToStringOptions, ...opts }
             let result = value
-            if (opts.lowerCase) {
+            if (options.lowerCase) {
               result = result.toLowerCase()
             }
-            if (opts.realSpaces) {
+            if (options.realSpaces) {
               result = result.replace(new RegExp(SPACE, 'g'), ' ')
             }
-            if (opts.trim) {
+            if (options.trim) {
               result = result.trim()
             }
             return result
@@ -647,9 +649,9 @@ export const Utterances = async (
   return utterances
 }
 
-const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools) => {
+const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools): Promise<{ crf: Buffer }> => {
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
-  return await crfExtractor.train(input.intents)
+  return crfExtractor.train(input.intents)
 }
 
 export interface TrainResult {}
