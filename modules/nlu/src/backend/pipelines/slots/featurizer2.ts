@@ -15,8 +15,6 @@ export interface CRFFeature {
   boost?: number
 }
 
-// TODO you are at testing all oof those !
-
 const TFIDF_WEIGHTS = ['low', 'medium', 'high']
 
 export function featToCRFsuiteAttr(prefix: string, feat: CRFFeature): string {
@@ -53,10 +51,7 @@ export function getWordWeight(token: UtteranceToken): CRFFeature {
   }
 }
 
-export async function getClusterFeat(
-  token: UtteranceToken,
-  kmeansModel: MLToolkit.KMeans.KmeansResult
-): Promise<CRFFeature> {
+export function getClusterFeat(token: UtteranceToken, kmeansModel: MLToolkit.KMeans.KmeansResult): CRFFeature {
   const cluster = kmeansModel.nearest([token.vectors as number[]])[0]
   return {
     name: 'cluster',

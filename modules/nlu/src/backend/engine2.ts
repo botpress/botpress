@@ -649,7 +649,7 @@ export const Utterances = async (
 
 const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools) => {
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
-  await crfExtractor.train(input.intents)
+  return await crfExtractor.train(input.intents)
 }
 
 export interface TrainResult {}

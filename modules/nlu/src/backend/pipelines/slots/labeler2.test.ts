@@ -1,13 +1,13 @@
 import { ExtractedEntity, ExtractedSlot, UtteranceClass } from '../../engine2'
 
-import { labelizeUtterance2 } from './labeler2'
+import { labelizeUtterance } from './labeler2'
 
 describe('CRF labels for utterance', () => {
   test('without slots', () => {
     const toks = 'My mame is Heisenberg and I am the danger'.split(/(\s)/g)
     const utterance = new UtteranceClass(toks, new Array(toks.length).fill([0]))
 
-    const labels = labelizeUtterance2(utterance)
+    const labels = labelizeUtterance(utterance)
 
     labels.forEach(l => expect(l).toEqual('o'))
   })
@@ -20,7 +20,7 @@ describe('CRF labels for utterance', () => {
     utterance.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
     utterance.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 37, 39)
 
-    const labels = labelizeUtterance2(utterance)
+    const labels = labelizeUtterance(utterance)
 
     expect(labels[2]).toEqual('B-listener')
     expect(labels[3]).toEqual('I-listener')

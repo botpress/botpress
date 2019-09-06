@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Utterance } from '../../engine2'
 import { BIO } from '../../typings'
 
-export function labelizeUtterance2(utterance: Utterance): string[] {
+export function labelizeUtterance(utterance: Utterance): string[] {
   return utterance.tokens.map(token => {
     if (_.isEmpty(token.slots)) {
       return BIO.OUT
