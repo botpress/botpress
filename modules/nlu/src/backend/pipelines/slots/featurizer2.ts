@@ -62,7 +62,7 @@ export function getClusterFeat(token: UtteranceToken, kmeansModel: MLToolkit.KMe
 export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeature | undefined {
   const boost = isPredict ? 3 : 1
 
-  if (_.isEmpty(token.entities) && token.isWord) {
+  if (_.isEmpty(token.slots) && _.isEmpty(token.entities) && token.isWord) {
     return {
       name: 'word',
       value: token.toString({ lowerCase: true }),
@@ -72,7 +72,7 @@ export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeatu
 }
 
 export function getInVocabFeat(token: UtteranceToken, intent: Intent<Utterance>): CRFFeature {
-  const inVocab = _.isEmpty(token.slots) && intent.vocab[token.value]
+  const inVocab = _.isEmpty(token.slots) && !!intent.vocab[token.toString({ lowerCase: true })]
   return {
     name: 'inVocab',
     value: inVocab
@@ -125,7 +125,7 @@ export function getSpecialChars(token: UtteranceToken): CRFFeature {
 export function getIntentFeature(intent: Intent<Utterance>): CRFFeature {
   return {
     name: 'intent',
-    value: sanitize(intent.name.replace(/\s/, '')),
+    value: sanitize(intent.name.replace(/\s/g, '')),
     boost: 100
   }
 }

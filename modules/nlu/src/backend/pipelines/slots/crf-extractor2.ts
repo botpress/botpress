@@ -30,7 +30,7 @@ const CRF_TRAINER_PARAMS = {
 
 export default class CRFExtractor2 {
   private _isTrained: boolean = false
-  private _crfModelFn = '' // TODO we might want to get rid of this as this could be managed locally everywhere it's used
+  private _crfModelFn = ''
   private _crfTagger!: sdk.MLToolkit.CRF.Tagger
   private _kmeansModel: sdk.MLToolkit.KMeans.KmeansResult
 
@@ -60,16 +60,13 @@ export default class CRFExtractor2 {
       }
     }
     debugTrain('start training')
+
     intents = intents.filter(i => i.name !== 'none') // none intent makes no sens for slot tagger
-
-    debugTrain('training kmeans')
     this._trainKmeans(intents)
-
-    debugTrain('training CRF')
     this._trainCrf(intents)
     this._readTagger()
-
     this._isTrained = true
+
     debugTrain('done training')
 
     return {
@@ -78,6 +75,7 @@ export default class CRFExtractor2 {
   }
 
   private _trainKmeans(intents: Intent<Utterance>[]) {
+    debugTrain('training kmeans')
     const data = _.chain(intents)
       .flatMapDeep(i => i.utterances.map(u => u.tokens))
       .uniqBy((t: UtteranceToken) => t.value)
@@ -94,6 +92,7 @@ export default class CRFExtractor2 {
   }
 
   private _trainCrf(intents: Intent<Utterance>[]) {
+    debugTrain('training CRF')
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.mlToolkit.CRF.createTrainer()
 
@@ -102,7 +101,7 @@ export default class CRFExtractor2 {
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
-        const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
+        const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labeler.labelizeUtterance(utterance)
 
         trainer.append(features, labels)
@@ -134,7 +133,7 @@ export default class CRFExtractor2 {
 
     return [
       ...bos,
-      intentFeat,
+      featurizer.featToCRFsuiteAttr('', intentFeat),
       ...prevFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]')),
       ...current.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]')),
       ...nextFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[1]')),

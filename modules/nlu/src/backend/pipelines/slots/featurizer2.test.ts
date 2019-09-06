@@ -1,36 +1,7 @@
+import { UtteranceToken } from '../../engine2'
 import { SPACE } from '../../tools/token-utils'
-import { Sequence, Token } from '../../typings'
 
 import * as featurizer from './featurizer2'
-
-const AN_INTENT = 'Give-me Money!'
-const SOME_TOKENS = [
-  {
-    value: `${SPACE}I`,
-    cannonical: 'I',
-    matchedEntities: []
-  },
-  {
-    value: `${SPACE}need`,
-    cannonical: 'need',
-    matchedEntities: []
-  },
-  {
-    value: `${SPACE}five`,
-    cannonical: 'five',
-    matchedEntities: ['number']
-  },
-  {
-    value: `${SPACE}bucks`,
-    cannonical: 'bucks',
-    matchedEntities: ['animal', 'money']
-  }
-] as Token[]
-
-const A_SEQUENCE = {
-  tokens: SOME_TOKENS,
-  intent: AN_INTENT
-} as Sequence
 
 describe('CRF Featurizer 2', () => {
   test('featToCRFsuiteAttr', () => {
@@ -118,46 +89,58 @@ describe('CRF Featurizer 2', () => {
   test('getWordFeat', () => {
     const tokens = [
       { value: 'i', isWord: true, entities: ['hello'] },
-      { value: 'i', isWord: true, entities: [] },
+      { value: 'i', isWord: true, slots: ['hello'] },
+      { value: 'i', isWord: true },
+      { value: SPACE, isWord: false, slots: ['hello'] },
       { value: SPACE, isWord: false, entities: ['hello'] },
-      { value: SPACE, isWord: false, entities: [] }
-    ]
-
-    for (const tok of tokens) {
-      Object.defineProperty(tok, 'toString', { value: jest.fn().mockReturnValue(tok.value) })
-    }
+      { value: SPACE, isWord: false }
+    ].map(tok => Object.defineProperty(tok, 'toString', { value: jest.fn().mockReturnValue(tok.value) }))
 
     const feat = featurizer.getWordFeat(tokens[0], true)
     const feat1 = featurizer.getWordFeat(tokens[0], false)
-    const feat2 = featurizer.getWordFeat(tokens[1], true)
-    const feat3 = featurizer.getWordFeat(tokens[1], false)
-    const feat4 = featurizer.getWordFeat(tokens[2], true)
-    const feat5 = featurizer.getWordFeat(tokens[2], false)
-    const feat6 = featurizer.getWordFeat(tokens[3], true)
-    const feat7 = featurizer.getWordFeat(tokens[3], false)
+    const feat10 = featurizer.getWordFeat(tokens[1], true)
+    const feat11 = featurizer.getWordFeat(tokens[1], false)
+    const feat2 = featurizer.getWordFeat(tokens[2], true)
+    const feat3 = featurizer.getWordFeat(tokens[2], false)
+    const feat4 = featurizer.getWordFeat(tokens[3], true)
+    const feat5 = featurizer.getWordFeat(tokens[3], false)
+    const feat6 = featurizer.getWordFeat(tokens[4], true)
+    const feat7 = featurizer.getWordFeat(tokens[4], false)
+    const feat8 = featurizer.getWordFeat(tokens[5], true)
+    const feat9 = featurizer.getWordFeat(tokens[5], false)
 
     expect(feat).toBeUndefined()
     expect(feat1).toBeUndefined()
     expect(tokens[0].toString).not.toBeCalled()
 
+    expect(feat10).toBeUndefined()
+    expect(feat11).toBeUndefined()
+    expect(tokens[1].toString).not.toBeCalled()
+
     expect(feat2.value).toEqual('i')
     expect(feat2.boost).toEqual(3)
     expect(feat3.value).toEqual('i')
     expect(feat3.boost).toEqual(1)
-    expect(tokens[1].toString).toBeCalled()
+    expect(tokens[2].toString).toBeCalled()
 
     expect(feat4).toBeUndefined()
     expect(feat5).toBeUndefined()
-    expect(tokens[2].toString).not.toBeCalled()
+    expect(tokens[3].toString).not.toBeCalled()
 
     expect(feat6).toBeUndefined()
     expect(feat7).toBeUndefined()
-    expect(tokens[3].toString).not.toBeCalled()
+    expect(tokens[4].toString).not.toBeCalled()
+
+    expect(feat8).toBeUndefined()
+    expect(feat9).toBeUndefined()
+    expect(tokens[5].toString).not.toBeCalled()
   })
 
   test('getInVocabFeat', () => {
-    const token = { value: 'fly' } as UtteranceToken
-    const anotherToken = { value: 'paul' } as UtteranceToken
+    const tokens = [{ value: 'fly' }, { value: SPACE }, { value: 'paul' }].map(tok =>
+      Object.defineProperty(tok, 'toString', { value: () => tok.value, enumerable: true })
+    )
+
     const anIntent = {
       name: 'find flight',
       vocab: {
@@ -165,9 +148,12 @@ describe('CRF Featurizer 2', () => {
       }
     }
 
-    expect(featurizer.getInVocabFeat({ ...token, slots: ['slot0'] }, anIntent).value).toBeFalsy()
-    expect(featurizer.getInVocabFeat({ ...token }, anIntent).value).toBeTruthy()
-    expect(featurizer.getInVocabFeat({ ...anotherToken }, anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[0], anIntent).value).toBeTruthy()
+    expect(featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[1], anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat({ ...tokens[2], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[2], anIntent).value).toBeFalsy()
   })
 
   test('getEntitiesFeats', () => {
