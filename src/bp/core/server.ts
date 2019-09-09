@@ -183,6 +183,7 @@ export default class HTTPServer {
 
   @postConstruct()
   async initialize() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
     await this.setupRootPath()
 
     const app = express()

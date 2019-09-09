@@ -74,3 +74,14 @@ export function scalarDivide(vec: number[], divider: number): number[] {
 export function allInRange(vec: number[], lower: number, upper: number): boolean {
   return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
 }
+
+/**
+ * @param quantile number of discret categories ex: 4 == quartile
+ * @param target value to classify
+ * @param upperBound maximum value the target can take
+ * @param lowerBound minimum value the target can take
+ * @returns integer value between [1, quantile]
+ */
+export function computeQuantile(quantile: number, target: number, upperBound: number, lowerBound: number = 0): number {
+  return Math.min(quantile, Math.max(Math.ceil(quantile * ((target - lowerBound) / (upperBound - lowerBound))), 1))
+}

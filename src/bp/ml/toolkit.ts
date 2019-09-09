@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import cluster from 'cluster'
+import kmeans from 'ml-kmeans'
 
 import { registerMsgHandler } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
@@ -10,6 +11,9 @@ import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
 const MLToolkit: typeof sdk.MLToolkit = {
+  KMeans: {
+    kmeans
+  },
   CRF: {
     createTagger: Tagger,
     createTrainer: CRFTrainer

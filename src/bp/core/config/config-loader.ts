@@ -5,7 +5,6 @@ import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
 import fs from 'fs'
-import fse from 'fs-extra'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
@@ -51,34 +50,29 @@ export class ConfigProvider {
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
   }
 
-  async invalidateBotpressConfig(): Promise<void> {
-    this._botpressConfigCache = undefined
-    await this.ghostService.global().invalidateFile('/', 'botpress.config.json')
-  }
-
   async getBotConfig(botId: string): Promise<BotConfig> {
     return this.getConfig<BotConfig>('bot.config.json', botId)
   }
 
-  async setBotConfig(botId: string, config: BotConfig) {
-    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config))
+  async setBotConfig(botId: string, config: BotConfig, ignoreLock?: boolean) {
+    await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', stringify(config), { ignoreLock })
   }
 
-  async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
+  async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<BotConfig> {
     const originalConfig = await this.getBotConfig(botId)
     const config = _.merge(originalConfig, partialConfig)
-    await this.setBotConfig(botId, config)
+    await this.setBotConfig(botId, config, ignoreLock)
     return config
   }
 
   public async createDefaultConfigIfMissing() {
-    const botpressConfig = path.resolve(process.PROJECT_LOCATION, 'data', 'global', 'botpress.config.json')
+    if (!(await this.ghostService.global().fileExists('/', 'botpress.config.json'))) {
+      await this._copyConfigSchemas()
 
-    if (!fse.existsSync(botpressConfig)) {
-      await this.ensureDataFolderStructure()
-
-      const botpressConfigSchema = path.resolve(process.PROJECT_LOCATION, 'data', 'botpress.config.schema.json')
-      const defaultConfig = defaultJsonBuilder(JSON.parse(fse.readFileSync(botpressConfigSchema, 'utf-8')))
+      const botpressConfigSchema = await this.ghostService
+        .root()
+        .readFileAsObject<any>('/', 'botpress.config.schema.json')
+      const defaultConfig = defaultJsonBuilder(botpressConfigSchema)
 
       const config = {
         $schema: `../botpress.config.schema.json`,
@@ -87,22 +81,16 @@ export class ConfigProvider {
         version: process.BOTPRESS_VERSION
       }
 
-      await fse.writeFileSync(botpressConfig, stringify(config))
+      await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
     }
   }
 
-  private async ensureDataFolderStructure() {
-    const requiredFolders = ['bots', 'global', 'storage']
+  private async _copyConfigSchemas() {
     const schemasToCopy = ['botpress.config.schema.json', 'bot.config.schema.json']
-    const dataFolder = path.resolve(process.PROJECT_LOCATION, 'data')
-
-    for (const folder of requiredFolders) {
-      await fse.ensureDir(path.resolve(dataFolder, folder))
-    }
 
     for (const schema of schemasToCopy) {
       const schemaContent = fs.readFileSync(path.join(__dirname, 'schemas', schema))
-      fs.writeFileSync(path.resolve(dataFolder, schema), schemaContent)
+      await this.ghostService.root().upsertFile('/', schema, schemaContent)
     }
   }
 
