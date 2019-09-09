@@ -77,7 +77,7 @@ export default class Conversation extends React.Component {
 
   renderHeader() {
     const pausedTooltip = <Tooltip id="pausedTooltip">Pause this conversation</Tooltip>
-    const userAttributes = this.props.data.attributes && this.props.data.attributes
+    const userAttributes = this.props.data.attributes
 
     return (
       <div>

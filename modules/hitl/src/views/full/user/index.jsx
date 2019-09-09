@@ -29,12 +29,9 @@ export default class User extends React.Component {
 
     const userAttributes = this.props.session.attributes && this.props.session.attributes
 
-    const textPrefix =
-      this.props.session.direction === 'in'
-        ? 'User: '
-        : this.props.session.direction === 'out' && this.props.session.source === 'agent'
-        ? 'Agent: '
-        : 'Bot: '
+    const outPrefix =
+      this.props.session.direction === 'out' && this.props.session.source === 'agent' ? 'Agent: ' : 'Bot: '
+    const textPrefix = this.props.session.direction === 'in' ? 'User: ' : outPrefix
 
     return (
       <div className={classnames(style.user, this.props.className)} onClick={this.props.setSession}>
