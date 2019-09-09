@@ -70,7 +70,7 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
 - `process`: sandboxed vm containing some of the env-variables (starting with `EXPOSED_`)
 
-Check out the page [Bot Memory and Data Retention](../memory) for more details about the lifetime of these objects.
+Check out the page [Bot Memory and Data Retention](memory) for more details about the lifetime of these objects.
 
 ### Example
 
