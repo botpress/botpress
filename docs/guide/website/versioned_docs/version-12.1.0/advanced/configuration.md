@@ -130,6 +130,6 @@ About `DATABASE_URL` : This variable will determine the type of database you're 
 
 ## More Informations
 
-- Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
+- Check out the [database](../../tutorials/database) page for details about `DATABASE_URL`
 - Check out the [version](./versions) page for more infromations about `BP_PRODUCTION`
-- Check out the [cluster](../advanced/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
+- Check out the [cluster](../../advanced/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
