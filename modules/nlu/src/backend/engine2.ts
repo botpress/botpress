@@ -4,8 +4,8 @@ import _, { cloneDeep } from 'lodash'
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
+import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
-import CRFExtractor from './pipelines/slots/crf_extractor'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
 
 export default class Engine2 {
@@ -661,16 +661,59 @@ export interface Predictor {
   predict(text: string): Promise<void>
 }
 
-// SENTENCE PROCESSING PIPELINE --> PredictionUtterance
+export interface PredictInput {
+  // TODO add lastMessages ?
+  supportedLanguages: string[]
+  defaultLanguage: string
+  sentence: string
+}
 
-// CompleteStructure --> PREDICT PIPELINE
-// lang_identification
-// prepare_utterance pipeline
-//     for each tokens we need to set tfidf using getClosestToken
-// rank contexts
-// predict intents
-// extract slots
-// ambiguity detection
+// interface PredictOutput {}
+export interface PredictOutput {
+  // sentence: Utterance
+  detectedLanguage: string
+  usedLanguage: string
+  // slots: _.Dictionary<ExtractedSlot>
+  // entities: ExtractedEntity[]
+  // ambiguous: boolean
+  // contexts: ContextPrediction[]
+  // intents: IntentPrediction[]
+}
+
+// TODO pass a predictOutput with prediction utterance
+const detectLanguage = async (input: PredictInput, toolkit: typeof MLToolkit): Promise<PredictOutput> => {
+  const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(toolkit)
+  const elected = (await langIdentifier.identify(input.sentence))[0]
+
+  // TODO use this! ==> will need prediction utterance for this
+  // const threshold = ds.tokens.length > 1 ? 0.5 : 0.3 // because with single-word sentences (and no history), confidence is always very low
+  const threshold = 0.5
+  let detectedLanguage = _.get(elected, 'label', NA_LANG)
+  if (detectedLanguage !== NA_LANG && !input.supportedLanguages.includes(detectedLanguage)) {
+    detectedLanguage = NA_LANG
+  }
+
+  return {
+    detectedLanguage,
+    usedLanguage: detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+  }
+}
+
+// TODO maybe change toolkit for PredictTools ==> be consistent with training pipeline
+export const Predict = async (input: PredictInput, toolkit: typeof MLToolkit) => {
+  const output = await detectLanguage(input, toolkit)
+
+  // SENTENCE PROCESSING PIPELINE --> PredictionUtterance
+  // CompleteStructure --> PREDICT PIPELINE
+  // prepare_utterance pipeline
+  //     for each tokens we need to set tfidf using getClosestToken
+  // rank contexts
+  // predict intents
+  // extract slots
+  // ambiguity detection
+
+  return output
+}
 
 export interface CancellationToken {
   readonly uid: string

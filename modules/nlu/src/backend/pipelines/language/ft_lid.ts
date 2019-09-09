@@ -6,12 +6,13 @@ import tmp from 'tmp'
 import { LanguageIdentifier } from '../../typings'
 
 const PRETRAINED_LID_176 = join(__dirname, '../../tools/pretrained/lid.176.ftz')
+export const NA_LANG = 'n/a'
 
 export class FastTextLanguageId implements LanguageIdentifier {
   private static model: sdk.MLToolkit.FastText.Model
   private static toolkit: typeof sdk.MLToolkit
 
-  constructor(private toolkit: typeof sdk.MLToolkit, private readonly logger: sdk.Logger) {
+  constructor(toolkit: typeof sdk.MLToolkit) {
     FastTextLanguageId.toolkit = toolkit
   }
 
@@ -33,9 +34,23 @@ export class FastTextLanguageId implements LanguageIdentifier {
       return []
     }
 
-    return (await FastTextLanguageId.model.predict(text, 3)).map(pred => ({
-      ...pred,
-      label: pred.label.replace('__label__', '')
-    }))
+    return (await FastTextLanguageId.model.predict(text, 3))
+      .map(pred => ({
+        ...pred,
+        label: pred.label.replace('__label__', '')
+      }))
+      .sort((predA, predB) => predB.value - predA.value) // descending
+  }
+}
+
+export default class LanguageIdentifierProvider {
+  private static __instance: LanguageIdentifier
+
+  public static getLanguageIdentifier(toolkit: typeof sdk.MLToolkit) {
+    if (!LanguageIdentifierProvider.__instance) {
+      LanguageIdentifierProvider.__instance = new FastTextLanguageId(toolkit)
+    }
+
+    return LanguageIdentifierProvider.__instance
   }
 }

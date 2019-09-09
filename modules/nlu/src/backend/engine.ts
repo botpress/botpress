@@ -7,7 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import Engine2, { StructuredTrainInput } from './engine2'
+import Engine2, { Predict, PredictInput, StructuredTrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -90,7 +90,7 @@ export default class ScopedEngine implements Engine {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
     this.pipelineManager = new PipelineManager()
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
-    this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
+    this.langIdentifier = new FastTextLanguageId(toolkit)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
@@ -189,6 +189,13 @@ export default class ScopedEngine implements Engine {
   }
 
   async extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+    // const input: PredictInput = {
+    //   defaultLanguage: this.defaultLanguage,
+    //   supportedLanguages: this.languages,
+    //   sentence: text
+    // }
+    // const predict2Res = await Predict(input, this.toolkit)
+
     if (!this._preloaded) {
       await this.trainOrLoad()
       const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
