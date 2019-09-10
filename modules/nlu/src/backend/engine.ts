@@ -189,13 +189,6 @@ export default class ScopedEngine implements Engine {
   }
 
   async extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
-    // const input: PredictInput = {
-    //   defaultLanguage: this.defaultLanguage,
-    //   supportedLanguages: this.languages,
-    //   sentence: text
-    // }
-    // const predict2Res = await Predict(input, this.toolkit)
-
     if (!this._preloaded) {
       await this.trainOrLoad()
       const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
@@ -226,6 +219,27 @@ export default class ScopedEngine implements Engine {
       )
 
       res.errored = false
+
+      // This is predict2
+      const input: PredictInput = {
+        defaultLanguage: this.defaultLanguage,
+        supportedLanguages: this.languages,
+        sentence: text,
+        intent: res.intent
+      }
+      // TODO adapt this with predcit tools, this is a pure copy/paste of train
+      const precictTools = {
+        tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
+        vectorize_tokens: async (tokens, lang) => {
+          const a = await this.languageProvider.vectorize(tokens, lang)
+          return a.map(x => Array.from(x.values()))
+        },
+        generateSimilarJunkWords: () => Promise.resolve([]), // temp fix
+        mlToolkit: this.toolkit,
+        ducklingExtractor: this.systemEntityExtractor // temp fix
+      }
+
+      const predict2Res = await Predict(input, precictTools)
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
@@ -428,6 +442,16 @@ export default class ScopedEngine implements Engine {
             }
           })
 
+        const pattern_entities = entities
+          .filter(ent => ent.type === 'pattern')
+          .map(ent => ({
+            name: ent.name,
+            pattern: ent.pattern,
+            examples: [], // TODO add this to entityDef
+            ignoreCase: true, // TODO add this entityDef
+            sensitive: ent.sensitive
+          }))
+
         const e2 = new Engine2()
         e2.provideTools({
           tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
@@ -436,14 +460,15 @@ export default class ScopedEngine implements Engine {
             return a.map(x => Array.from(x.values()))
           },
           generateSimilarJunkWords: vocab => this.languageProvider.generateSimilarJunkWords(vocab, lang),
-          mlToolkit: this.toolkit
+          mlToolkit: this.toolkit,
+          ducklingExtractor: this.systemEntityExtractor
         })
         const input: StructuredTrainInput = {
           botId: this.botId,
           contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
           languageCode: lang,
-          list_entities: list_entities,
-          pattern_entities: [], // TODO:
+          list_entities,
+          pattern_entities,
           intents: intentDefs.map(x => ({
             name: x.name,
             contexts: x.contexts,

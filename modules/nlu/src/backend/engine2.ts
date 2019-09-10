@@ -6,7 +6,10 @@ import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
+import { extractPattern } from './tools/patterns-utils'
+import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
+import { EntityExtractor } from './typings'
 
 export default class Engine2 {
   private tools: TrainTools
@@ -76,7 +79,7 @@ export type SlotDefinition = Readonly<{
 }>
 
 export type ListEntityModel = Readonly<{
-  type: 'custom.list' | 'custom.pattern'
+  type: 'custom.list'
   id: string
   languageCode: string
   entityName: string
@@ -87,7 +90,7 @@ export type ListEntityModel = Readonly<{
 }>
 
 export type Utterance = Readonly<{
-  toString(options: UtteranceToStringOptions): string
+  toString(options?: UtteranceToStringOptions): string
   tagEntity(entity: ExtractedEntity, start: number, end: number)
   tagSlot(slot: ExtractedSlot, start: number, end: number)
   setGlobalTfidf(tfidf: _.Dictionary<number>)
@@ -258,10 +261,48 @@ export const extractListEntities = (
   return matches
 }
 
-export const extractRegexEntities = () => {}
+// TODO test this
+export const extractPatternEntities = (
+  utterance: Utterance,
+  pattern_entities: PatternEntity[]
+): EntityExtractionResult[] => {
+  const input = utterance.toString()
+  // taken from pattern_extractor
+  return _.flatMap(pattern_entities, ent => {
+    const regex = new RegExp(ent.pattern!, 'i')
 
-export const extractSystemEntities = async () => {
-  // call duckling extractor
+    return extractPattern(input, regex, []).map(res => ({
+      confidence: 1,
+      start: Math.max(0, res.sourceIndex),
+      end: Math.min(input.length, res.sourceIndex + res.value.length),
+      value: res.value,
+      metadata: {
+        source: res.value,
+        entityId: `custom.pattern.${ent.name}`
+      },
+      type: ent.name
+    }))
+  })
+}
+
+export const extractSystemEntities = async (
+  utterance: Utterance,
+  languageCode: string,
+  tools: TrainTools
+): Promise<EntityExtractionResult[]> => {
+  const extracted = await tools.ducklingExtractor.extract(utterance.toString(), languageCode)
+  return extracted.map(ent => ({
+    confidence: ent.meta.confidence,
+    start: ent.meta.start,
+    end: ent.meta.end,
+    value: ent.data.value,
+    metadata: {
+      source: ent.meta.source,
+      entityId: `system.${ent.name}`,
+      unit: ent.data.unit
+    },
+    type: ent.name
+  }))
 }
 
 export class UtteranceClass implements Utterance {
@@ -458,6 +499,7 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
     output.intents[0]
 
     const artefacts = {
+      list_entities: {},
       tfidf: {},
       kmeans: {},
       context_ranking: {},
@@ -496,7 +538,7 @@ export const ProcessIntents = async (
   tools: TrainTools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(u => u.replace(/(\s)+/g, ' ')) // replacing repeating spaces just like tokenizer does
+    const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
     const chunked_utterances = cleaned.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
     const parsed_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
     const utterances = await Utterances(parsed_utterances, languageCode, tools)
@@ -523,10 +565,21 @@ export const ProcessIntents = async (
 
 export const ExtractEntities = async (
   input: StructuredTrainOutput,
-  tools: TrainTools
+  tools: TrainTools // add duckling extractor in there ?
 ): Promise<StructuredTrainOutput> => {
-  // extract list entities
-  // extract pattern entities
+  for (const intent of input.intents) {
+    intent.utterances.forEach(async utterance => {
+      const extractedEntities = [
+        ...extractListEntities(utterance, input.list_entities),
+        ...extractPatternEntities(utterance, input.pattern_entities),
+        ...(await extractSystemEntities(utterance, input.languageCode, tools))
+      ] as EntityExtractionResult[]
+
+      extractedEntities.forEach(entityRes => {
+        utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      })
+    })
+  }
 
   return input
 }
@@ -589,6 +642,7 @@ export type UtteranceChunk = {
 
 export const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
   // TODO: Unit Test this
+  // or use what was done in FE as its the same and tested + it'll reduce code size
   const slotsRegex = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // local because it is stateful
   const chunks = [] as UtteranceChunk[]
 
@@ -656,23 +710,42 @@ const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools):
 
 export interface TrainResult {}
 
-export interface Predictor {
+export interface CancellationToken {
+  readonly uid: string
+  isCancelled(): boolean
+  cancelledAt: Date
+  cancel(): Promise<void>
+}
+
+export interface TrainTools {
+  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
+  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
+  generateSimilarJunkWords(vocabulary: string): Promise<string[]>
+  mlToolkit: typeof MLToolkit
+  ducklingExtractor: EntityExtractor // temporary
+}
+
+export interface Model {
   languageCode: string
-  predict(text: string): Promise<void>
+  inputData: StructuredTrainInput
+  outputData: StructuredTrainOutput
+  startedAt: Date
+  finishedAt: Date
+  artefacts: any[] // TODO:
 }
 
 export interface PredictInput {
-  // TODO add lastMessages ?
   supportedLanguages: string[]
   defaultLanguage: string
   sentence: string
+  intent: string // this is temporary
 }
 
-// interface PredictOutput {}
 export interface PredictOutput {
-  // sentence: Utterance
+  readonly rawText: string
   detectedLanguage: string
   usedLanguage: string
+  sentence?: Utterance // not use if we should use this or another structure ?
   // slots: _.Dictionary<ExtractedSlot>
   // entities: ExtractedEntity[]
   // ambiguous: boolean
@@ -680,28 +753,44 @@ export interface PredictOutput {
   // intents: IntentPrediction[]
 }
 
-// TODO pass a predictOutput with prediction utterance
-const detectLanguage = async (input: PredictInput, toolkit: typeof MLToolkit): Promise<PredictOutput> => {
-  const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(toolkit)
-  const elected = (await langIdentifier.identify(input.sentence))[0]
+// object simply to split the file a little
+const predict = {
+  // TODO pass a predictOutput with prediction utterance
+  detectLanguage: async (input: PredictInput, tools: TrainTools): Promise<PredictOutput> => {
+    const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
+    const lidRes = await langIdentifier.identify(input.sentence)
+    const elected = lidRes.filter(pred => input.supportedLanguages.includes(pred.label))[0]
 
-  // TODO use this! ==> will need prediction utterance for this
-  // const threshold = ds.tokens.length > 1 ? 0.5 : 0.3 // because with single-word sentences (and no history), confidence is always very low
-  const threshold = 0.5
-  let detectedLanguage = _.get(elected, 'label', NA_LANG)
-  if (detectedLanguage !== NA_LANG && !input.supportedLanguages.includes(detectedLanguage)) {
-    detectedLanguage = NA_LANG
-  }
+    // because with single-worded sentences, confidence is always very low
+    // we assume that a input of 20 chars is more than a single word
+    const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  return {
-    detectedLanguage,
-    usedLanguage: detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+    let detectedLanguage = _.get(elected, 'label', NA_LANG)
+    if (detectedLanguage !== NA_LANG && !input.supportedLanguages.includes(detectedLanguage)) {
+      detectedLanguage = NA_LANG
+    }
+
+    return {
+      rawText: input.sentence,
+      detectedLanguage,
+      usedLanguage: detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+    }
+  },
+  // Might have to change this but at the moment this works
+  PredictionUtterance: async (input: PredictOutput, tools: TrainTools): Promise<PredictOutput> => {
+    // TODO set tfidf for each tokens ?
+    const [sentence] = await Utterances([input.rawText], input.usedLanguage, tools)
+    return {
+      ...input,
+      sentence
+    }
   }
 }
 
-// TODO maybe change toolkit for PredictTools ==> be consistent with training pipeline
-export const Predict = async (input: PredictInput, toolkit: typeof MLToolkit) => {
-  const output = await detectLanguage(input, toolkit)
+// TODO maybe change TrainTools for PredictTools ?
+export const Predict = async (input: PredictInput, tools: TrainTools) => {
+  let output = await predict.detectLanguage(input, tools)
+  output = await predict.PredictionUtterance(output, tools)
 
   // SENTENCE PROCESSING PIPELINE --> PredictionUtterance
   // CompleteStructure --> PREDICT PIPELINE
@@ -713,27 +802,4 @@ export const Predict = async (input: PredictInput, toolkit: typeof MLToolkit) =>
   // ambiguity detection
 
   return output
-}
-
-export interface CancellationToken {
-  readonly uid: string
-  isCancelled(): boolean
-  cancelledAt: Date
-  cancel(): Promise<void>
-}
-
-export interface TrainTools {
-  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
-  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  generateSimilarJunkWords(vocabulary: string[]): Promise<string[]>
-  mlToolkit: typeof MLToolkit
-} // const vecs = (await langProvider.vectorize(doc, lang)).map(x => Array.from(x.values()))
-
-export interface Model {
-  languageCode: string
-  inputData: StructuredTrainInput
-  outputData: StructuredTrainOutput
-  startedAt: Date
-  finishedAt: Date
-  artefacts: any[] // TODO:
 }

@@ -5,10 +5,10 @@ import _ from 'lodash'
 
 import { allInRange } from '../../tools/math'
 import { extractPattern } from '../../tools/patterns-utils'
+import { SPACE } from '../../tools/token-utils'
 import { LanguageProvider, Token } from '../../typings'
 import { NLUStructure } from '../../typings'
 import { sanitize } from '../language/sanitizer'
-import { SPACE } from '../../tools/token-utils'
 
 const debug = DEBUG('nlu').sub('entities')
 const debugLists = debug.sub('lists')
@@ -138,7 +138,7 @@ export default class PatternExtractor {
 
   private extractPartOfPhrase(remainingTokens: Token[], searched: string[]): PartOfPhrase[] {
     let occ = searched.join('')
-    let firstToken = remainingTokens.shift()
+    const firstToken = remainingTokens.shift()
     let lastToken = firstToken
 
     if (!firstToken) {
@@ -215,7 +215,7 @@ export default class PatternExtractor {
     return similarity
   }
 
-  async extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): Promise<sdk.NLU.Entity[]> {
+  extractPatterns(input: string, entityDefs: sdk.NLU.EntityDefinition[]): sdk.NLU.Entity[] {
     return flatMap(entityDefs, entityDef => {
       try {
         const regex = new RegExp(entityDef.pattern!, 'i')
