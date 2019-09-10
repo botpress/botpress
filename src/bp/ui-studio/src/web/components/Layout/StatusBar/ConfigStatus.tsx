@@ -70,18 +70,15 @@ const ConfigStatus = () => {
         {isDifferent && <Icon icon="cog" intent={Intent.WARNING} />}
       </ActionItem>
 
-      <Dialog isOpen={isOpen} onClose={() => setOpen(false)} transitionDuration={0} title={'Configuration Status'}>
+      <Dialog isOpen={isOpen} onClose={() => setOpen(false)} transitionDuration={0} title={'Configuration Outdated'}>
         <div className={Classes.DIALOG_BODY}>
           {!isRestarting ? (
             <div>
               Changes were made to the main Botpress configuration file. <br />
-              The server must be restarted for all changes to take effect.
+              It is recommended to restart the server so they can take effect.
             </div>
           ) : (
-            <div>
-              Server restart in progress... <br />
-              Page will reload automatically.
-            </div>
+            <div>Server restart in progress, please wait...</div>
           )}
         </div>
         <div className={Classes.DIALOG_FOOTER}>
