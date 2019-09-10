@@ -1,4 +1,4 @@
-import { allInRange, computeNorm, scalarMultiply, vectorAdd } from './math'
+import { allInRange, computeNorm, computeQuantile, scalarMultiply, vectorAdd } from './math'
 
 describe('Math utils', () => {
   const vec0 = []
@@ -35,5 +35,40 @@ describe('Math utils', () => {
     expect(allInRange([0.46, 0.54], 0.45, 0.55)).toBeTruthy()
     expect(allInRange([0.32, 0.32, 0.35], 0.3, 0.36)).toBeTruthy()
     expect(allInRange([], 0.3, 0.36)).toBeTruthy()
+  })
+
+  // TODO add negative test case
+  describe('ComputeQuantile', () => {
+    test('Quartile', () => {
+      expect(computeQuantile(4, 0, 10)).toEqual(1)
+      expect(computeQuantile(4, 1, 10)).toEqual(1)
+      expect(computeQuantile(4, 2, 10)).toEqual(1)
+
+      expect(computeQuantile(4, 3, 10)).toEqual(2)
+      expect(computeQuantile(4, 4, 10)).toEqual(2)
+      expect(computeQuantile(4, 5, 10)).toEqual(2)
+
+      expect(computeQuantile(4, 6, 10)).toEqual(3)
+      expect(computeQuantile(4, 7, 10)).toEqual(3)
+
+      expect(computeQuantile(4, 8, 10)).toEqual(4)
+      expect(computeQuantile(4, 9, 10)).toEqual(4)
+      expect(computeQuantile(4, 10, 10)).toEqual(4)
+      expect(computeQuantile(4, 11, 10)).toEqual(4)
+    })
+
+    test('Tierce with lower bound', () => {
+      expect(computeQuantile(3, 0.5, 2, 0.5)).toEqual(1)
+      expect(computeQuantile(3, 0.52, 2, 0.5)).toEqual(1)
+      expect(computeQuantile(3, 0.9, 2, 0.5)).toEqual(1)
+      expect(computeQuantile(3, 1, 2, 0.5)).toEqual(1)
+
+      expect(computeQuantile(3, 1.2, 2, 0.5)).toEqual(2)
+      expect(computeQuantile(3, 1.4, 2, 0.5)).toEqual(2)
+      expect(computeQuantile(3, 1.5, 2, 0.5)).toEqual(2)
+
+      expect(computeQuantile(3, 1.7, 2, 0.5)).toEqual(3)
+      expect(computeQuantile(3, 2, 2, 0.5)).toEqual(3)
+    })
   })
 })

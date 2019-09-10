@@ -78,7 +78,7 @@ class CreateOrEditModal extends React.Component {
         show={this.props.show}
         onHide={this.props.handleClose}
         backdrop={'static'}
-        style={{ zIndex: 1051 }}
+        style={{ zIndex: 1052 }}
       >
         <Modal.Body>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</Modal.Body>
       </Modal>

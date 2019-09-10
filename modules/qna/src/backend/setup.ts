@@ -30,7 +30,7 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
     description: 'Listen for predefined questions and send canned responses.'
   })
 
-  const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string) => {
+  const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string): string => {
     const randomIndex = Math.floor(Math.random() * qnaEntry.answers[lang].length)
     return qnaEntry.answers[lang][randomIndex]
   }
@@ -50,12 +50,21 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
     }
 
     if (qnaEntry.action.includes('text')) {
-      const args = {
+      let args: any = {
         user: _.get(event, 'state.user') || {},
         session: _.get(event, 'state.session') || {},
-        temp: _.get(event, 'state.temp') || {},
-        text: getAlternativeAnswer(qnaEntry, lang),
-        typing: true
+        temp: _.get(event, 'state.temp') || {}
+      }
+
+      const electedAnswer = getAlternativeAnswer(qnaEntry, lang)
+      if (electedAnswer.startsWith('#!')) {
+        renderer = `!${electedAnswer.replace('#!', '')}`
+      } else {
+        args = {
+          ...args,
+          text: electedAnswer,
+          typing: true
+        }
       }
 
       const element = await bp.cms.renderElement(renderer, args, {
