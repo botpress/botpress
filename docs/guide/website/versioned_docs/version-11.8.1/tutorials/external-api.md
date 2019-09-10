@@ -6,7 +6,7 @@ original_id: external-api
 
 One of the most popular use-case for Actions is to call an API, get some data and use it in your flow. That's what we're going to demonstrate here.
 
-We're going to use `axios` as http client because its already a Botpress dependency. See our [Custom Code](../main/code/) section to learn more about how dependencies work in Actions.
+We're going to use `axios` as http client because its already a Botpress dependency. See our [Custom Code](../../main/code/) section to learn more about how dependencies work in Actions.
 
 Start by creating a new javascript file in `/data/bots/<your_bot>/actions/getQuote.js`. Then copy the following code:
 

@@ -7,7 +7,7 @@ title: Facebook Messenger
 
 Messenger requires you to have a Facebook App and a Facebook Page to setup your bot.
 
-- [Enable Channel-Messenger Module](../main/module#enabling-or-disabling-modules)
+- [Enable Channel-Messenger Module](../../main/module#enabling-or-disabling-modules)
 - [Create a Facebook App](https://developers.facebook.com/docs/apps/)
 - [Create a Facebook Page](https://www.facebook.com/pages/creation/)
 - An HTTPS Endpoint to your bot
