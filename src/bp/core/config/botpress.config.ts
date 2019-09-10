@@ -314,7 +314,7 @@ export interface AuthStrategy {
    */
   type: AuthStrategyType
   /**
-   * Defines custom options based on the chosen authentication strategy. For oauth2, you can only have that strategy once, and its ID must be "oauth2"
+   * Defines custom options based on the chosen authentication strategy.
    */
   options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | AuthStrategyOauth2 | undefined
   /**
@@ -405,15 +405,21 @@ export interface AuthStrategyOauth2 {
   tokenURL: string
   clientID: string
   clientSecret: string
+  /**
+   * Scopes that should be requested from the service provider. Don't forget to map them in the fieldMapping property
+   * @default openid profile email
+   */
   scope: string | string[]
   /**
-   * Callback URL.
-   * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/oauth2
+   * The Callback URL on this server where the service provider will return the user. Replace the last part with the strategy ID
+   * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/myauth
    */
   callbackURL: string
-  /* Set this URL if your access token doesn't include user data. It will be queried to fetch the profile */
+  /*
+   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user informations
+   * @example https://botpress.io/userinfo
+   */
   userInfoURL?: string
-
   /** If the access token is a JWT token, set the parameters below to decode it. */
   jwtToken?: {
     /** If provided, the audience of the token will be checked against the provided value(s). */
@@ -428,7 +434,7 @@ export interface AuthStrategyOauth2 {
     /**
      * The public certificate starting with "-----BEGIN CERTIFICATE-----"
      * The string should be provided as one line (use \n for new lines)
-     * If the key is not set, it will try to read the file `data/global/oauth2.pub`
+     * If the key is not set, it will try to read the file `data/global/oauth2_YOUR_STRATEGY_ID.pub`
      */
     publicKey?: string
   }
