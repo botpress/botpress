@@ -35,7 +35,7 @@ const callApi = async () => {
 return callApi()
 ```
 
-> 📖 What is the `session` variable? Learn how to use [Memory](../main/memory) to store data.
+> 📖 What is the `session` variable? Learn how to use [Memory](../../main/memory) to store data.
 
 ## Create a node
 

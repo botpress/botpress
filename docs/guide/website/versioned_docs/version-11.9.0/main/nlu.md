@@ -342,13 +342,13 @@ slots : {
 
 ### Slot Filling
 
-Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
+Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../../tutorials/skill-slot) for further details.
 
 ## External NLU Providers
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](./code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API.
 
 > **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
 

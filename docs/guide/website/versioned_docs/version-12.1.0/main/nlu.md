@@ -170,7 +170,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
+For instructions on how to host your own Duckling server, please check the [Deployment](../../advanced/hosting) section.
 
 ##### Example
 
@@ -352,7 +352,7 @@ The language server provides additional informations about words, which allows y
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](.../code#hooks) and calling the external NLU provider via API.
 
 > **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
 
