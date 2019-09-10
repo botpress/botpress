@@ -1,21 +1,48 @@
-import React, { Component, Fragment } from 'react'
-import { Redirect } from 'react-router-dom'
-import logo from '../media/nobg_white.png'
-import api from '../api'
-import { setActiveWorkspace } from '../Auth'
-import { Alert, Card, CardBody, CardTitle, Button, Input, FormGroup, CardText } from 'reactstrap'
+import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { get } from 'lodash'
+import React, { Component, Fragment } from 'react'
+import { RouteComponentProps } from 'react-router'
+import { Redirect } from 'react-router-dom'
+import { Alert, Card, CardBody, CardText, CardTitle } from 'reactstrap'
 
-export default class Login extends Component {
-  state = {
+import api from '../../api'
+import logo from '../../media/nobg_white.png'
+import { setActiveWorkspace } from '../../Auth'
+
+interface Params {
+  strategy: string
+  workspace: string
+}
+
+type Props = {
+  auth: any
+} & RouteComponentProps<Params>
+
+interface State {
+  isLoading: boolean
+  isFirstTimeUse: boolean
+  email: string
+  strategyType: string
+  authEndpoint: string
+  password: string
+  passwordExpired: boolean
+  error?: string
+  loginUrl: string
+  strategyId: string
+}
+
+export default class Login extends Component<Props, State> {
+  state: State = {
     isLoading: true,
     isFirstTimeUse: false,
-    email: '',
-    strategyType: 'basic',
-    authEndpoint: null,
-    password: '',
     passwordExpired: false,
-    error: null
+    strategyType: 'basic',
+    strategyId: '',
+    authEndpoint: '',
+    email: '',
+    password: '',
+    loginUrl: '',
+    error: undefined
   }
 
   loadAuthConfig = async () => {
@@ -33,33 +60,25 @@ export default class Login extends Component {
   }
 
   componentDidMount() {
+    // tslint:disable-next-line: no-floating-promises
     this.loadAuthConfig()
     this.checkErrorMessages()
 
     setActiveWorkspace(this.props.match.params.workspace)
   }
 
-  login = async ({ email, password, showError = true } = {}) => {
-    this.setState({ error: null })
+  login = async () => {
+    const { email, password, loginUrl } = this.state
+    this.setState({ error: undefined })
 
     try {
-      await this.props.auth.login(
-        {
-          email: email || this.state.email,
-          password: password || this.state.password
-        },
-        this.state.loginUrl
-      )
+      await this.props.auth.login({ email, password }, loginUrl)
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
-        if (!this.state.email || !this.state.password) {
-          this.setState({ email, password })
-        }
-
         this.setState({ passwordExpired: true })
       } else {
         const message = get(err, 'response.data.message', err.message)
-        showError && this.setState({ error: message })
+        this.setState({ error: message })
       }
     }
   }
@@ -73,19 +92,20 @@ export default class Login extends Component {
     }
   }
 
-  handleInputChange = e => this.setState({ [e.target.name]: e.target.value })
-  handleInputKeyPress = e => e.key === 'Enter' && this.login()
+  handleEmailChanged = e => this.setState({ email: e.target.value })
+  handlePasswordChanged = e => this.setState({ password: e.target.value })
+  handleKeyPressed = e => e.key === 'Enter' && this.login()
 
   redirectToExternalAuthProvider = () => {
-    if (this.state.strategyType === 'saml') {
-      return (window.location = `${api.getApiPath()}/auth/redirect/saml/${this.state.strategyId}`)
+    const { strategyId, strategyType, authEndpoint } = this.state
+
+    if (strategyType === 'saml' || strategyType === 'oauth2') {
+      return (window.location.href = `${api.getApiPath()}/auth/redirect/${strategyType}/${strategyId}`)
     }
 
-    if (this.state.strategyType === 'oauth2') {
-      return (window.location = `${api.getApiPath()}/auth/redirect/oauth2/${this.state.strategyId}`)
+    if (authEndpoint) {
+      window.location.href = authEndpoint
     }
-
-    window.location = this.state.authEndpoint
   }
 
   renderForm = () => {
@@ -94,33 +114,38 @@ export default class Login extends Component {
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
-        <FormGroup>
-          <label htmlFor="email">E-mail</label>
-          <Input
+        <FormGroup label="E-mail">
+          <InputGroup
+            tabIndex={1}
             value={this.state.email}
-            onChange={this.handleInputChange}
+            onChange={this.handleEmailChanged}
             type="text"
-            name="email"
             id="email"
-            onKeyPress={this.handleInputKeyPress}
+            onKeyPress={this.handleKeyPressed}
+            autoFocus={true}
           />
         </FormGroup>
-        <FormGroup>
-          <label htmlFor="password">Password</label>
-          <Input
+
+        <FormGroup label="Password">
+          <InputGroup
+            tabIndex={2}
             value={this.state.password}
-            onChange={this.handleInputChange}
+            onChange={this.handlePasswordChanged}
             type="password"
-            name="password"
             id="password"
-            onKeyPress={this.handleInputKeyPress}
+            onKeyPress={this.handleKeyPressed}
           />
         </FormGroup>
-        <p>
-          <Button id="btn-signin" onClick={this.login}>
-            Sign in
-          </Button>
-        </p>
+
+        <Button
+          tabIndex={3}
+          type="submit"
+          id="btn-signin"
+          text="Sign in"
+          disabled={!this.state.email || !this.state.password}
+          onClick={this.login}
+          intent={Intent.PRIMARY}
+        />
       </Fragment>
     )
   }
@@ -132,20 +157,20 @@ export default class Login extends Component {
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <p>
-          <Button id="btn-sso" onClick={this.redirectToExternalAuthProvider}>
-            Sign in with SSO
-          </Button>
+          <Button id="btn-sso" text="Sign in with SSO" onClick={this.redirectToExternalAuthProvider} />
         </p>
       </Fragment>
     )
   }
 
   render() {
+    const { strategyType } = this.state
+
     if (this.props.auth.isAuthenticated()) {
       return <Redirect to="/" />
     }
 
-    if (this.state.isFirstTimeUse && this.state.strategyType === 'basic') {
+    if (this.state.isFirstTimeUse && strategyType === 'basic') {
       return <Redirect to="/register" />
     }
 
@@ -164,9 +189,7 @@ export default class Login extends Component {
             <img className="logo" src={logo} alt="loading" />
             <Card body>
               <CardBody className="login-box">
-                {this.state.strategyType === 'saml' || this.state.strategyType === 'oauth2'
-                  ? this.renderExternal()
-                  : this.renderForm()}
+                {strategyType === 'saml' || strategyType === 'oauth2' ? this.renderExternal() : this.renderForm()}
               </CardBody>
             </Card>
           </div>
