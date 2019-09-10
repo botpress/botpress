@@ -12,7 +12,7 @@ export const Downloader: FC<DownloaderProps> = props => {
     const { data, headers } = await axios({ method, url, responseType: 'blob' })
 
     if (!filename) {
-      const extractName = /filename=(.*\.)/.exec(headers['content-disposition'])
+      const extractName = /filename=(.*)/.exec(headers['content-disposition'])
       filename = extractName && extractName[1]
     }
 
