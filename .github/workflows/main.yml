@@ -12,8 +12,6 @@ jobs:
     - uses: actions/setup-node@v1
     - run: | 
         cd docs/guide/website
-        pwd
         yarn
-        pwd
         yarn build
     - uses: ./.github/actions/check404
