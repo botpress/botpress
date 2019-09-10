@@ -13,7 +13,7 @@ jobs:
         #sudo apt-get update
         #sudo apt-get install nginx
         mkdir -p /etc/nginx
-        cp .github/actions/check404/nginx.conf /etc/nginx/
+        sudo cp .github/actions/check404/nginx.conf /etc/nginx/
         sudo service nginx start
     - uses: actions/setup-node@v1
     - run: | 
