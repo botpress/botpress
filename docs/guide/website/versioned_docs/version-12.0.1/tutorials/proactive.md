@@ -14,7 +14,7 @@ You may wish to make your bot act proactively on your website in response to som
 
 First you need to open the webchat (either manually or programatically) and then send an event from the webpage.
 
-> 📖 How do I open the webchat? Please refer to the [channel-web](../channels/web#embedding) section.
+> 📖 How do I open the webchat? Please refer to the [channel-web](../../channels/web#embedding) section.
 
 ```js
 window.botpressWebChat.sendEvent({

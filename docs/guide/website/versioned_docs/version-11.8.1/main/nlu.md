@@ -81,7 +81,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialogs).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](../dialog).
 
 ##### Example
 
@@ -342,7 +342,7 @@ slots : {
 
 ### Slot Filling
 
-As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](./dialogs). We plan to add suppport for **required slots** with automatic slot filling.
+As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](../dialog). We plan to add suppport for **required slots** with automatic slot filling.
 
 **TODO provide example**
 
