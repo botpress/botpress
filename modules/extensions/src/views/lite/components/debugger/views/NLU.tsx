@@ -20,7 +20,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
             position={Position.TOP}
             content={
               <span>
-                Predicted intents are very close. You can account for it checking the{' '}
+                Predicted intents are very close.<br />You can account for it checking the{' '}
                 <strong>event.nlu.ambiguous</strong> variable.
               </span>
             }
