@@ -15,11 +15,13 @@ jobs:
         mkdir -p /etc/nginx
         sudo cp .github/actions/check404/nginx.conf /etc/nginx/
         #sudo systemctl start nginx
-        sudo service nginx start
-        curl -I localhost
-    - uses: actions/setup-node@v1
     - run: | 
         cd docs/guide/website
         yarn
         yarn build
+        cp -r build/botpress-docs /usr/share/nginx/html/
+    - run: | 
+        sudo service nginx start
+        curl -I localhost
+
 
