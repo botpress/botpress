@@ -22,5 +22,7 @@ jobs:
     - run: |
         sudo service nginx restart
         curl localhost
+        python --version
+    
 
 
