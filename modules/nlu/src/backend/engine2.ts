@@ -496,8 +496,6 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
 
     const slot_tagger = await trainSlotTagger(output, tools)
 
-    output.intents[0]
-
     const artefacts = {
       list_entities: {},
       tfidf: {},
@@ -565,23 +563,29 @@ export const ProcessIntents = async (
 
 export const ExtractEntities = async (
   input: StructuredTrainOutput,
-  tools: TrainTools // add duckling extractor in there ?
+  tools: TrainTools
 ): Promise<StructuredTrainOutput> => {
   for (const intent of input.intents) {
-    intent.utterances.forEach(async utterance => {
-      const extractedEntities = [
-        ...extractListEntities(utterance, input.list_entities),
-        ...extractPatternEntities(utterance, input.pattern_entities),
-        ...(await extractSystemEntities(utterance, input.languageCode, tools))
-      ] as EntityExtractionResult[]
-
-      extractedEntities.forEach(entityRes => {
-        utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
-      })
-    })
+    intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
   }
 
   return input
+}
+
+const extractUtteranceEntities = async (
+  utterance: Utterance,
+  input: StructuredTrainOutput | PredictOutput,
+  tools: TrainTools
+) => {
+  const extractedEntities = [
+    ...extractListEntities(utterance, input.list_entities),
+    ...extractPatternEntities(utterance, input.pattern_entities),
+    ...(await extractSystemEntities(utterance, input.languageCode, tools))
+  ] as EntityExtractionResult[]
+
+  extractedEntities.forEach(entityRes => {
+    utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+  })
 }
 
 export const AppendNoneIntents = async (
@@ -739,13 +743,18 @@ export interface PredictInput {
   defaultLanguage: string
   sentence: string
   intent: string // this is temporary
+  // this should come from training artefact
+  pattern_entities: PatternEntity[]
+  list_entities: ListEntity[]
 }
 
 export interface PredictOutput {
   readonly rawText: string
   detectedLanguage: string
-  usedLanguage: string
+  languageCode: string
   sentence?: Utterance // not use if we should use this or another structure ?
+  pattern_entities: PatternEntity[]
+  list_entities: ListEntityModel[]
   // slots: _.Dictionary<ExtractedSlot>
   // entities: ExtractedEntity[]
   // ambiguous: boolean
@@ -755,8 +764,7 @@ export interface PredictOutput {
 
 // object simply to split the file a little
 const predict = {
-  // TODO pass a predictOutput with prediction utterance
-  detectLanguage: async (input: PredictInput, tools: TrainTools): Promise<PredictOutput> => {
+  DetectLanguage: async (input: PredictInput, tools: TrainTools): Promise<PredictOutput> => {
     const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
     const lidRes = await langIdentifier.identify(input.sentence)
     const elected = lidRes.filter(pred => input.supportedLanguages.includes(pred.label))[0]
@@ -770,27 +778,43 @@ const predict = {
       detectedLanguage = NA_LANG
     }
 
+    const languageCode =
+      detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+
+    // TODO remove this out of here once we get the train artefacts passed in predict
+    const list_entities = await Promise.map(input.list_entities, e => prepareListEntityModels(e, languageCode, tools))
+
     return {
       rawText: input.sentence,
+      pattern_entities: input.pattern_entities,
+      list_entities,
       detectedLanguage,
-      usedLanguage: detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+      languageCode
     }
   },
   // Might have to change this but at the moment this works
   PredictionUtterance: async (input: PredictOutput, tools: TrainTools): Promise<PredictOutput> => {
     // TODO set tfidf for each tokens ?
-    const [sentence] = await Utterances([input.rawText], input.usedLanguage, tools)
+    const [sentence] = await Utterances([input.rawText], input.languageCode, tools)
     return {
       ...input,
       sentence
     }
+  },
+  ExtractEntities: async (input: PredictOutput, tools: TrainTools) => {
+    await extractUtteranceEntities(input.sentence!, input, tools)
+    return {
+      ...input
+    }
   }
 }
 
-// TODO maybe change TrainTools for PredictTools ?
+// TODO maybe change TrainTools for PredictTools
+// TODO this should take trainArtefacts as parameter
 export const Predict = async (input: PredictInput, tools: TrainTools) => {
-  let output = await predict.detectLanguage(input, tools)
+  let output = await predict.DetectLanguage(input, tools)
   output = await predict.PredictionUtterance(output, tools)
+  output = await predict.ExtractEntities(output, tools)
 
   // SENTENCE PROCESSING PIPELINE --> PredictionUtterance
   // CompleteStructure --> PREDICT PIPELINE
