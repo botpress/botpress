@@ -1,3 +1,6 @@
+import React from 'react'
+import ReactGA from 'react-ga'
+
 export const getOverridedComponent = (overrides, componentName) => {
   if (overrides && overrides[componentName]) {
     const { module, component } = overrides[componentName]
@@ -46,12 +49,17 @@ export const checkLocationOrigin = () => {
 }
 
 export const initializeAnalytics = () => {
-  if (window.botpressWebChat && window.botpressWebChat.sendUsageStats) {
+  if (window.SEND_USAGE_STATS) {
     try {
       // @ts-ignore
-      ReactGA.initialize('UA-90044826-2')
+      ReactGA.initialize('UA-90044826-2', {
+        gaOptions: {
+          // @ts-ignore
+          userId: window.UUID
+        }
+      })
       // @ts-ignore
-      ReactGA.event({ category: 'WebChat', action: 'render', nonInteraction: true })
+      ReactGA.pageview(window.location.pathname + window.location.search)
     } catch (err) {
       console.log('Error init analytics', err)
     }

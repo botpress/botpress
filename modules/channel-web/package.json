@@ -38,6 +38,7 @@
     "multer": "^1.4.0",
     "multer-s3": "^2.7.0",
     "query-string": "^5.0.1",
+    "react-ga": "^2.6.0",
     "react-intl": "^2.8.0",
     "react-linkify": "^0.2.2",
     "react-slick": "^0.24.0",
