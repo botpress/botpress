@@ -5,7 +5,10 @@ import { UserReducer } from '~/reducers/user'
 declare module 'botpress/utils' {
   export function ElementPreview(props: ElementPreviewProps): JSX.Element
   export function Downloader(props: DownloaderProps): JSX.Element
+  /** Small wrapper using isOperationAllowed to display childrens if the user is authorized */
   export function PermissionsChecker(props: PermissionsCheckerProps): JSX.Element
+  /** Check if a user has permission to access a specific resource */
+  export function isOperationAllowed(props: PermissionAllowedProps): boolean
 }
 
 export interface DownloaderProps {
@@ -25,15 +28,20 @@ export interface ElementPreviewProps {
   readonly contentItem?: any
 }
 
-export interface PermissionsCheckerProps {
+export interface PermissionAllowedProps {
   /** The resource to check permissions. Ex: module.qna */
-  resource: string
+  resource?: string
   /** The operation to check */
-  operation: 'read' | 'write'
+  operation?: 'read' | 'write'
+  /** Should the user be a super admin to see this? */
+  superAdmin?: boolean
+  /** If not set, it will be taken from the store.  */
+  user?: UserReducer
+}
+
+export type PermissionsCheckerProps = {
   /** Component to display if user has the right access */
   readonly children: React.ReactNode
   /** Optionally set a fallback component if no access */
   readonly fallback?: React.ReactNode
-  /** The user is set automatically  */
-  readonly user?: UserReducer
-}
+} & PermissionAllowedProps

@@ -8,7 +8,7 @@ import { RouteComponentProps } from 'react-router'
 import { deleteContentItems, fetchContentCategories, fetchContentItems, upsertContentItem } from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 import { Container } from '~/components/Shared/Interface'
-import { operationAllowed } from '~/components/Shared/Utils/PermissionsChecker'
+import { isOperationAllowed } from '~/components/Shared/Utils/PermissionsChecker'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
@@ -36,8 +36,8 @@ class ContentView extends Component<Props, State> {
       return
     }
     this.initialized = true
-    this.canRead = operationAllowed({ user: this.props.user, op: 'read', res: 'bot.content' })
-    this.canEdit = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.content' })
+    this.canRead = isOperationAllowed({ operation: 'read', resource: 'bot.content' })
+    this.canEdit = isOperationAllowed({ operation: 'write', resource: 'bot.content' })
 
     if (this.canRead) {
       this.props.fetchContentCategories()
