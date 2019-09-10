@@ -6,6 +6,7 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
+import cluster from 'cluster'
 import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
@@ -13,6 +14,7 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
+import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
 
 async function setupEnv() {
@@ -23,6 +25,11 @@ async function setupEnv() {
 }
 
 async function start() {
+  if (cluster.isMaster) {
+    // The master process only needs getos and rewire
+    return setupMasterNode(await Logger('Cluster'))
+  }
+
   await setupEnv()
 
   const logger = await Logger('Launcher')

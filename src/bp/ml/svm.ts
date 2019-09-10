@@ -16,8 +16,15 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   private model?: any
   private report?: any
 
-  constructor(options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs) {
+  constructor() {}
+
+  async train(
+    points: sdk.MLToolkit.SVM.DataPoint[],
+    options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs,
+    callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
+  ): Promise<string> {
     const args = { ...DefaultTrainArgs, ...options }
+
     this.clf = new binding.SVM({
       svmType: args.classifier,
       kernelType: args.kernel,
@@ -27,9 +34,12 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       probability: true,
       kFold: 4
     })
+
+    await this._train(points, callback)
+    return this.serialize()
   }
 
-  async train(
+  private async _train(
     points: sdk.MLToolkit.SVM.DataPoint[],
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<any> {

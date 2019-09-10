@@ -301,10 +301,9 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        constructor(options?: Partial<SVMOptions>)
-        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        constructor()
+        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
-        serialize(): string
       }
 
       export class Predictor {
