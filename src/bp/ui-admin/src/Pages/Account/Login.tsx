@@ -157,7 +157,12 @@ export default class Login extends Component<Props, State> {
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
         <p>
-          <Button id="btn-sso" text="Sign in with SSO" onClick={this.redirectToExternalAuthProvider} />
+          <Button
+            id="btn-sso"
+            text="Sign in with SSO"
+            onClick={this.redirectToExternalAuthProvider}
+            intent={Intent.PRIMARY}
+          />
         </p>
       </Fragment>
     )
