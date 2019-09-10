@@ -7,8 +7,7 @@ import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { Collapse } from 'react-bootstrap'
 import { GoBeaker } from 'react-icons/go'
 import _ from 'lodash'
-
-import PermissionsChecker from './PermissionsChecker'
+import { PermissionsChecker } from '../Shared/Utils'
 
 const style = require('./Sidebar.scss')
 
@@ -66,7 +65,7 @@ class Sidebar extends React.Component {
     )
 
     return (
-      <PermissionsChecker key={`menu_module_${module.name}`} user={this.props.user} res={rule.res} op={rule.op}>
+      <PermissionsChecker key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
         <li id={`bp-menu_${module.name}`}>
           <NavLink
             to={path}
@@ -88,7 +87,7 @@ class Sidebar extends React.Component {
   }
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
-    <PermissionsChecker user={this.props.user} res={rule.res} op={rule.op} key={name}>
+    <PermissionsChecker resource={rule.res} operation={rule.op} key={name}>
       <li id={`bp-menu_${name}`} key={path}>
         <NavLink to={path} title={name} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
@@ -123,7 +122,6 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  user: state.user,
   viewMode: state.ui.viewMode,
   modules: state.modules
 })

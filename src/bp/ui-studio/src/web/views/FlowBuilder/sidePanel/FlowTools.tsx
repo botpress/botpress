@@ -2,7 +2,7 @@ import { Icon } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
-import PermissionsChecker from '~/components/Layout/PermissionsChecker'
+import PermissionsChecker from '~/components/Shared/Utils/PermissionsChecker'
 
 import style from './style.scss'
 
@@ -19,7 +19,7 @@ interface SkillDefinition {
   moduleName: string
 }
 
-const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean }> = props => {
+const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props => {
   if (props.flowPreview) {
     return (
       <div className={style.toolPanel}>
@@ -28,7 +28,7 @@ const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean
         <ToolItem label="Execute" type="node" id="execute" icon="code-block" />
         <ToolItem label="Listen" type="node" id="listen" icon="hand" />
         <ToolItem label="Router" type="node" id="router" icon="search-around" />
-        <PermissionsChecker user={props.user} op="write" res="bot.skills">
+        <PermissionsChecker operation="write" resource="bot.skills">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
@@ -43,7 +43,7 @@ const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
-        <PermissionsChecker user={props.user} op="write" res="bot.skills">
+        <PermissionsChecker operation="write" resource="bot.skills">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
@@ -75,8 +75,7 @@ const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
 }
 
 const mapStateToProps = state => ({
-  skills: state.skills.installed,
-  user: state.user
+  skills: state.skills.installed
 })
 
 const mapDispatchToProps = {

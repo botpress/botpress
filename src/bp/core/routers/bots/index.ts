@@ -32,7 +32,7 @@ import { URL } from 'url'
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
-import { checkTokenHeader, needPermissions } from '../util'
+import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
@@ -49,6 +49,7 @@ export class BotsRouter extends CustomRouter {
   private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private checkMethodPermissions: (resource: string) => RequestHandler
   private machineId: string | undefined
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
@@ -79,6 +80,7 @@ export class BotsRouter extends CustomRouter {
     this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
     this.needPermissions = needPermissions(this.workspaceService)
+    this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
   }
@@ -130,7 +132,12 @@ export class BotsRouter extends CustomRouter {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
-      router.use(this.needPermissions('write', identity))
+
+      if (_.get(options, 'checkMethodPermissions', false)) {
+        router.use(this.needPermissions('write', identity))
+      } else {
+        router.use(this.checkMethodPermissions(identity))
+      }
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {

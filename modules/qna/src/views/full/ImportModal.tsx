@@ -1,5 +1,6 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
+import { PermissionsChecker } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -232,7 +233,9 @@ Either the file is empty, or it doesn't match any known format.`)
 
   return (
     <Fragment>
-      <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
+      <PermissionsChecker resource="module.qna" operation="write">
+        <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
+      </PermissionsChecker>
 
       <Dialog
         isOpen={isDialogOpen}
