@@ -9,11 +9,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@master
+    - run: |
+        sudo apt-get update
+        sudo apt-get install nginx    
     - uses: actions/setup-node@v1
     - run: | 
         cd docs/guide/website
         yarn
         yarn build
-    - run: |
-        apt-get update
-        apt-get install nginx
+
