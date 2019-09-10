@@ -11,7 +11,8 @@ jobs:
     - uses: actions/checkout@master
     - run: |
         sudo apt-get update
-        sudo apt-get install nginx    
+        sudo apt-get install nginx
+        sudo service nginx start  
     - uses: actions/setup-node@v1
     - run: | 
         cd docs/guide/website
