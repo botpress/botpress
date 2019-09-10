@@ -1,5 +1,5 @@
-name: 'Hello World'
-description: 'Docker hello world'
+name: 'Build Docs'
+description: 'Build docs'
 runs:
   using: 'docker'
-  image: 'hello-world'
+  image: 'node'
