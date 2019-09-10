@@ -9,4 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+    - run: cd docs/guide/website
+    - run: yarn
+    - run: yarn build
     - uses: ./.github/actions/check404
