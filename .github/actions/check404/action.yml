@@ -1,0 +1,5 @@
+name: 'Hello World'
+description: 'Docker hello world'
+runs:
+  using: 'docker'
+  image: 'hello-world'

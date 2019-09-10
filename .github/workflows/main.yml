@@ -9,12 +9,4 @@ jobs:
     
     steps:
     - uses: actions/checkout@master
-    - uses: actions/hello-world-docker-action@master
-      with:
-        who-to-greet: 'Mona the Octocat'
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - uses: ./.github/actions/check404
