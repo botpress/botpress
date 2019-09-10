@@ -190,6 +190,7 @@ export class BotsRouter extends CustomRouter {
         }
 
         const config = await this.configProvider.getBotpressConfig()
+        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
         const data = this.studioParams(botId)
         const liteEnv = `
@@ -217,6 +218,7 @@ export class BotsRouter extends CustomRouter {
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
+              window.WORKSPACE_ID = "${workspaceId}";
               window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
