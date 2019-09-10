@@ -22,6 +22,6 @@ jobs:
         sudo cp -a build/botpress-docs/. /usr/share/nginx/html/
     - run: | 
         sudo service nginx start
-        curl -I localhost
+        curl localhost
 
 
