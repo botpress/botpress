@@ -72,9 +72,6 @@ $elementHeight: 40px;
   }
 }
 
-.questionsList {
-}
-
 .pale {
   opacity: 0.8;
 }
@@ -84,24 +81,6 @@ $elementHeight: 40px;
   & *,
   label {
     font-weight: bold;
-  }
-}
-
-.csvContainer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  .csvButton {
-    padding: 3px 17px;
-    font-weight: 900;
-    color: rgba(0, 0, 0, 0.45);
-    text-shadow: 1px 0;
-    border: 1px solid rgba(0, 0, 0, 0.45);
-
-    &:last-child {
-      margin-left: 20px;
-    }
   }
 }
 
@@ -214,11 +193,6 @@ $elementHeight: 40px;
   display: flex;
 }
 
-.toggleButton {
-  margin-bottom: 0;
-  margin-right: 30px;
-}
-
 .itemActionDelete {
   display: none !important;
   margin-right: 30px;
@@ -229,14 +203,6 @@ $elementHeight: 40px;
   }
 }
 
-.itemActionEdit {
-  cursor: pointer;
-
-  &:hover {
-    color: #2196f3;
-  }
-}
-
 .questionCategory {
   font-weight: 600;
   font-size: 16px;
@@ -244,68 +210,6 @@ $elementHeight: 40px;
 
 .questionCategoryTitle {
   color: #b6b6b6;
-}
-
-.newQnaModal {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-}
-
-.qnaModalBody,
-.qnaModalFooter {
-  background-color: #faf8fb;
-  padding-right: 30px;
-}
-
-.qnaModalHeader {
-  background-color: #d9d7da;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-
-  h4 {
-    font-weight: 900;
-    color: #000;
-  }
-}
-
-.qnaModalBody {
-  border-radius: 10px;
-}
-
-.qnaModalFooter {
-  border-top: none;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-.qnaCategorySelect {
-  width: 250px;
-  margin-top: 5px;
-}
-
-.qnaQuestionsHint {
-  color: #000;
-}
-
-.qnaQuestionsTextarea {
-  margin-top: 5px;
-  height: 100px !important;
-}
-
-.qnaSectionTitle {
-  display: block;
-  font-weight: 600;
-  color: #000;
-  font-size: 18px;
-}
-
-.qnaSection {
-  margin-top: 20px;
-}
-
-.qnaAnswerCheck {
-  display: flex;
 }
 
 .qnaAndOr {
@@ -363,77 +267,6 @@ $elementHeight: 40px;
   }
 }
 
-.qnaRedirectToFlowCheck {
-  display: flex;
-  align-items: center;
-  color: #000;
-
-  .qnaRedirectToFlowCheckCheckbox {
-    margin-top: 0;
-  }
-}
-
-.qnaRedirectToFlowCheckSelect,
-.qnaRedirectNodeSelect {
-  margin-top: 5px;
-}
-
-.qnaRedirectToFlowCheckSelect {
-  width: calc(100% - 15px);
-  margin-left: 15px;
-}
-
-.qnaRedirectNodeTitle {
-  color: #000;
-}
-
-.qnaModalFooterCancelBtn,
-.qnaModalFooterSaveBtn {
-  font-weight: 600;
-  font-size: 18px;
-  color: #fff;
-  line-height: 0.9em;
-  padding: 5px;
-  width: 120px;
-  background-color: #b2b0b3;
-}
-
-.qnaModalFooterCancelBtn {
-  margin-right: 20px;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: #9e9d9e;
-    color: #fff;
-  }
-
-  &:focus {
-    &:active {
-      background-color: #9e9d9e;
-      color: #fff;
-    }
-  }
-}
-
-.qnaModalFooterSaveBtn {
-  background-color: #14a77b;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: #108b66;
-    color: #fff;
-  }
-
-  &:focus {
-    &:active {
-      background-color: #108b66;
-      color: #fff;
-    }
-  }
-}
-
 .qnaCategoryError {
   border-color: red;
 }
@@ -460,4 +293,11 @@ $elementHeight: 40px;
 }
 .variationDelete {
   display: none;
+}
+
+.tooltip {
+  li {
+    max-width: 800px;
+    margin-left: -20px;
+  }
 }

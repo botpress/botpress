@@ -8,6 +8,7 @@ interface CssExports {
   'hovering': string;
   'inspector': string;
   'inspectorContainer': string;
+  'language': string;
   'notFound': string;
   'splash': string;
   'stacktrace': string;

@@ -27,7 +27,9 @@ const createNodes = data => {
   const slotExtractOnReceive = [
     {
       type: sdk.NodeActionType.RunAction,
-      name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entities":"${data.entities}"}`
+      name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entities":"${data.entities}", "turnExpiry":${
+        data.turnExpiry
+      }}`
     }
   ]
 

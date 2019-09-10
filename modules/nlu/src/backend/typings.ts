@@ -19,6 +19,7 @@ export interface Token {
   matchedEntities: string[]
 }
 
+// TODO get rid of this and use upcoming Utterance
 export interface Sequence {
   intent: string
   cannonical: string
@@ -68,9 +69,7 @@ export interface LanguageIdentifier {
 
 export const MODEL_TYPES = {
   INTENT: ['intent-l0', 'intent-l1', 'intent-tfidf', 'vocab'],
-  SLOT_LANG: 'slot-language-model',
-  SLOT_CRF: 'slot-crf',
-  INTENT_LM: 'intent-lm'
+  SLOT_CRF: 'slot-crf'
 }
 
 export interface ModelMeta {

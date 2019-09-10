@@ -77,3 +77,25 @@ export function levenshtein(a: string, b: string): number {
 
   return res
 }
+
+/**
+ * @returns number of alpha characters in a string
+ */
+export const countAlpha = (cantidate: string): number =>
+  (
+    cantidate
+      .toLowerCase()
+      .replace(/\s/g, '')
+      .match(/[a-z]/g) || []
+  ).length
+
+/**
+ * @returns number of digits characters in a string
+ */
+export const countNum = (candidate: string): number => (candidate.replace(/\s/g, '').match(/[0-9]/g) || []).length
+
+/**
+ * @returns number of special characters in a string
+ */
+export const countSpecial = (candidate: string): number =>
+  candidate.replace(/\s/g, '').length - countAlpha(candidate) - countNum(candidate)

@@ -4,7 +4,7 @@
  * @param slotName The name of the slot to extract. (e.g. destination_from)
  * @param entitiesName The entities of the slot. (e.g. City)
  */
-const slotFill = async (slotName, entitiesName) => {
+const slotFill = async (slotName, entitiesName, turnExpiry) => {
   const entities = entitiesName.split(',')
   if (entities && entities.length && event.nlu.entities && event.nlu.entities.length) {
     for (const entity of event.nlu.entities) {
@@ -14,16 +14,17 @@ const slotFill = async (slotName, entitiesName) => {
     }
   } else if (entities && entities.includes('any')) {
     const value = event.payload.text || event.preview
-    setSlot(slotName, {
+    const entity = {
       name: 'any',
       type: 'any',
       meta: { start: 0, end: value.length },
       data: { extras: {}, value: value }
-    })
+    }
+    setSlot(slotName, entity, turnExpiry)
   }
 }
 
-const setSlot = (slotName, entity) => {
+const setSlot = (slotName, entity, turnExpiry) => {
   if (!session.slots[slotName]) {
     session.slots[slotName] = {
       name: slotName,
@@ -32,10 +33,10 @@ const setSlot = (slotName, entity) => {
       timestamp: Date.now(),
       turns: 0,
       overwritable: true,
-      expiresAfterTurns: false // BETA(11.8.4): Set this to a number to expire the slot after 'N' turns
+      expiresAfterTurns: turnExpiry
     }
     session.slots.notFound = 0
   }
 }
 
-return slotFill(args.slotName, args.entities)
+return slotFill(args.slotName, args.entities, args.turnExpiry)
