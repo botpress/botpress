@@ -270,8 +270,8 @@ export default class Storage {
 
   async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
     const qnas = list || (await this.fetchQNAs())
-    const allAnswers = _.flatMap(qnas, qna => _.flatMap(Object.keys(qna.data.answers), lang => qna.data.answers[lang]))
-    return _.uniq(_.filter(allAnswers, x => _.isString(x) && x.startsWith('#!')))
+    const allAnswers = _.flatMapDeep(qnas, qna => Object.keys(qna.data.answers).map(lang => qna.data.answers[lang]))
+    return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
   }
 
   async count() {

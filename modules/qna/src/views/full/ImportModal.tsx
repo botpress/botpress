@@ -13,7 +13,7 @@ interface Props {
   onImportCompleted: () => void
 }
 
-interface Summary {
+interface Analysis {
   qnaCount: number
   cmsCount: number
   fileQnaCount: number
@@ -26,7 +26,7 @@ export const ImportModal: FC<Props> = props => {
   const [isLoading, setIsLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [importAction, setImportAction] = useState('insert')
-  const [summary, setSummary] = useState<Summary>()
+  const [analysis, setAnalysis] = useState<Analysis>()
   const [statusId, setStatusId] = useState<string>()
   const [uploadStatus, setUploadStatus] = useState<string>()
   const [hasError, setHasError] = useState(false)
@@ -40,22 +40,23 @@ export const ImportModal: FC<Props> = props => {
     }
   }, [statusId])
 
-  const queryImportSummary = async () => {
+  const analyzeImport = async () => {
     setIsLoading(true)
     try {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await props.axios.post('/mod/qna/import/summary', form, axiosConfig)
+      const { data } = await props.axios.post('/mod/qna/analyzeImport', form, axiosConfig)
 
       if (!data.fileQnaCount && !data.fileCmsCount) {
-        setUploadStatus(`We were not able to extract any data from your file. Please validate the format`)
+        setUploadStatus(`We were not able to extract any data from your file.
+Either the file is empty, or it doesn't match any known format.`)
         setHasError(true)
       }
 
-      setSummary(data)
+      setAnalysis(data)
     } catch (err) {
-      toastFailure(err)
+      toastFailure(err.message)
     } finally {
       setIsLoading(false)
     }
@@ -74,7 +75,7 @@ export const ImportModal: FC<Props> = props => {
     } catch (err) {
       clearStatus()
       setHasError(true)
-      toastFailure(err)
+      toastFailure(err.message)
     }
   }
 
@@ -115,7 +116,7 @@ export const ImportModal: FC<Props> = props => {
     setFile(undefined)
     setUploadStatus(undefined)
     setStatusId(undefined)
-    setSummary(undefined)
+    setAnalysis(undefined)
     setHasError(false)
   }
 
@@ -152,7 +153,7 @@ export const ImportModal: FC<Props> = props => {
               id="btn-next"
               text={isLoading ? 'Please wait...' : 'Next'}
               disabled={!filePath || !file || isLoading}
-              onClick={queryImportSummary}
+              onClick={analyzeImport}
               intent={Intent.PRIMARY}
             />
           </div>
@@ -161,46 +162,38 @@ export const ImportModal: FC<Props> = props => {
     )
   }
 
-  const renderSummary = () => {
-    const { qnaCount, cmsCount, fileQnaCount, fileCmsCount } = summary
+  const renderAnalysis = () => {
+    const { qnaCount, cmsCount, fileQnaCount, fileCmsCount } = analysis
 
     return (
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
-          {uploadStatus && (
-            <Callout title={hasError ? 'Error' : 'Upload status'} intent={hasError ? Intent.DANGER : Intent.PRIMARY}>
-              {uploadStatus}
-            </Callout>
-          )}
+          <div>
+            <p>
+              Your file contains <strong>{fileQnaCount}</strong> questions and <strong>{fileCmsCount}</strong> content
+              elements.
+              <br />
+              <br />
+              The bot contains <strong>{qnaCount}</strong> questions and <strong>{cmsCount}</strong> content elements.
+            </p>
 
-          {!uploadStatus && (
-            <div>
-              <p>
-                Your file contains <strong>{fileQnaCount}</strong> questions and <strong>{fileCmsCount}</strong> content
-                elements.
-                <br />
-                <br />
-                The bot contains <strong>{qnaCount}</strong> questions and <strong>{cmsCount}</strong> content elements.
-              </p>
-
-              <p style={{ marginTop: 30 }}>
-                <RadioGroup
-                  label=" What would you like to do? "
-                  onChange={e => setImportAction(e.target['value'])}
-                  selectedValue={importAction}
-                >
-                  <Radio
-                    label="Insert the new questions from my file and create/update associated content elements"
-                    value="insert"
-                  />
-                  <Radio
-                    label="Clear existing questions, then insert my new questions and create/update content elements"
-                    value="clear_insert"
-                  />
-                </RadioGroup>
-              </p>
-            </div>
-          )}
+            <p style={{ marginTop: 30 }}>
+              <RadioGroup
+                label=" What would you like to do? "
+                onChange={e => setImportAction(e.target['value'])}
+                selectedValue={importAction}
+              >
+                <Radio
+                  label="Insert the new questions from my file and create/update associated content elements"
+                  value="insert"
+                />
+                <Radio
+                  label="Clear existing questions, then insert my new questions and create/update content elements"
+                  value="clear_insert"
+                />
+              </RadioGroup>
+            </p>
+          </div>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
@@ -218,6 +211,25 @@ export const ImportModal: FC<Props> = props => {
     )
   }
 
+  const renderStatus = () => {
+    return (
+      <Fragment>
+        <div className={Classes.DIALOG_BODY}>
+          <Callout title={hasError ? 'Error' : 'Upload status'} intent={hasError ? Intent.DANGER : Intent.PRIMARY}>
+            {uploadStatus}
+          </Callout>
+        </div>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            {hasError && <Button id="btn-back" text={'Back'} disabled={isLoading} onClick={clearState} />}
+          </div>
+        </div>
+      </Fragment>
+    )
+  }
+
+  const showStatus = uploadStatus || hasError
+
   return (
     <Fragment>
       <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
@@ -226,10 +238,11 @@ export const ImportModal: FC<Props> = props => {
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
-        title={!summary ? 'Upload File' : 'Summary'}
+        title={analysis ? 'Analysis' : 'Upload File'}
         icon="import"
       >
-        {!summary ? renderUpload() : renderSummary()}
+        {showStatus && renderStatus()}
+        {!showStatus && (analysis ? renderAnalysis() : renderUpload())}
       </Dialog>
     </Fragment>
   )

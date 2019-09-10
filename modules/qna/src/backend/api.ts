@@ -100,7 +100,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   })
 
   const upload = multer()
-  router.post('/import/summary', upload.single('file'), async (req, res) => {
+  router.post('/analyzeImport', upload.single('file'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)
     const cmsIds = await storage.getAllContentElementIds()
     const importData = await prepareImport(JSON.parse(req.file.buffer))

@@ -27,5 +27,5 @@ export const QnaItemArraySchema = Joi.array().items(QnaItemSchema)
 
 export const QnaItemCmsArraySchema = Joi.object().keys({
   qnas: Joi.array().items(QnaItemSchema),
-  cms: Joi.array().items(Joi.object())
+  contentElements: Joi.array().items(Joi.object())
 })
