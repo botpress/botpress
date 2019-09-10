@@ -289,6 +289,10 @@ export class Botpress {
 
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
+    this.configProvider.onBotpressConfigChanged = async (initialHash: string, newHash: string) => {
+      this.realtimeService.sendToSocket({ eventName: 'config.updated', payload: { initialHash, newHash } })
+    }
+
     await this.authService.initialize()
     await this.workspaceService.initialize()
     await this.cmsService.initialize()

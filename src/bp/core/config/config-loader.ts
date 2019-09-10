@@ -1,5 +1,6 @@
 import { BotConfig, Logger } from 'botpress/sdk'
-import { stringify } from 'core/misc/utils'
+import { ObjectCache } from 'common/object-cache'
+import { calculateHash, stringify } from 'core/misc/utils'
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -14,12 +15,27 @@ import { BotpressConfig } from './botpress.config'
 
 @injectable()
 export class ConfigProvider {
+  public onBotpressConfigChanged: ((initialHash: string, newHash: string) => Promise<void>) | undefined
+
   private _botpressConfigCache: BotpressConfig | undefined
+  public initialConfigHash!: string
+  public currentConfigHash!: string
 
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {}
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
+  ) {
+    this.cache.events.on('invalidation', async key => {
+      if (key === 'object::data/global/botpress.config.json') {
+        this._botpressConfigCache = undefined
+        const config = await this.getBotpressConfig()
+
+        this.currentConfigHash = calculateHash(JSON.stringify(config))
+        this.onBotpressConfigChanged && this.onBotpressConfigChanged(this.initialConfigHash, this.currentConfigHash)
+      }
+    })
+  }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
     if (this._botpressConfigCache) {
@@ -39,6 +55,11 @@ export class ConfigProvider {
     }
 
     this._botpressConfigCache = config
+
+    if (!this.initialConfigHash) {
+      this.initialConfigHash = calculateHash(JSON.stringify(config))
+    }
+
     return config
   }
 

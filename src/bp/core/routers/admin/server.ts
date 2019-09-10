@@ -91,6 +91,16 @@ export class ServerRouter extends CustomRouter {
     )
 
     router.get(
+      '/configHash',
+      this.asyncMiddleware(async (req, res) => {
+        res.send({
+          initialHash: this.configProvider.initialConfigHash,
+          currentHash: this.configProvider.currentConfigHash
+        })
+      })
+    )
+
+    router.get(
       '/debug',
       this.asyncMiddleware(async (req, res) => {
         res.send(getDebugScopes())
