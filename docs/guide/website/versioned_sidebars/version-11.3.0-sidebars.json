@@ -14,8 +14,7 @@
       "version-11.3.0-build/code",
       "version-11.3.0-build/memory",
       "version-11.3.0-build/content",
-      "version-11.3.0-build/channels",
-      "version-11.3.0-build/debugging"
+      "version-11.3.0-build/channels"
     ],
     "Deploy": [
       "version-11.3.0-deploy/hosting"
