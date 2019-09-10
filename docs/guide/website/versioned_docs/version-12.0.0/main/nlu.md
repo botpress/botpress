@@ -346,7 +346,7 @@ Slot filling is the process of gathering information required by an intent. This
 
 ## Language Server
 
-The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
+The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../../advanced/hosting#running-your-own-language-server) page for more details.
 
 ## External NLU Providers
 
