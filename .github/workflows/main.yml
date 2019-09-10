@@ -20,7 +20,7 @@ jobs:
         yarn build
         sudo cp -a build/botpress-docs/. /usr/share/nginx/html/
     - run: | 
-        sudo service nginx start
+        sudo service nginx restart
         curl localhost
 
 
