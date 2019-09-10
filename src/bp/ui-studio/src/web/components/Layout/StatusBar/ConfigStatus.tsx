@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, Icon, Intent } from '@blueprintjs/core'
+import { Button, Classes, Colors, Dialog, Icon, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import React, { Fragment, useEffect, useState } from 'react'
 import { toastFailure } from '~/components/Shared/Utils'
@@ -67,7 +67,7 @@ const ConfigStatus = () => {
         className={style.right}
         onClick={() => setOpen(true)}
       >
-        {isDifferent && <Icon icon="cog" intent={Intent.WARNING} />}
+        {isDifferent && <Icon icon="cog" style={{ color: Colors.RED5 }} />}
       </ActionItem>
 
       <Dialog isOpen={isOpen} onClose={() => setOpen(false)} transitionDuration={0} title={'Configuration Outdated'}>
