@@ -14,7 +14,6 @@ jobs:
         sudo apt-get install nginx
         mkdir -p /etc/nginx
         sudo cp .github/actions/check404/nginx.conf /etc/nginx/
-        #sudo systemctl start nginx
     - run: | 
         cd docs/guide/website
         yarn
