@@ -22,7 +22,14 @@ jobs:
     - run: |
         sudo service nginx restart
         curl localhost
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
+        architecture: 'x64' # (x64 or x86)
+    - run: |
         python --version
+        pip install scrapy
+        scrapy runspider -o items1.csv -a site="http://localhost" .github/actions/check404/spider.py -s HTTPERROR_ALLOW_ALL=True
     
 
 
