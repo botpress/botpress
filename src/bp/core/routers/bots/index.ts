@@ -133,10 +133,10 @@ export class BotsRouter extends CustomRouter {
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
 
-      if (_.get(options, 'checkMethodPermissions', false)) {
-        router.use(this.needPermissions('write', identity))
-      } else {
+      if (options && options.checkMethodPermissions) {
         router.use(this.checkMethodPermissions(identity))
+      } else {
+        router.use(this.needPermissions('write', identity))
       }
     }
 
