@@ -185,7 +185,7 @@ export default class QnaAdmin extends Component<Props> {
         <div className={style.searchBar}>{this.renderSearch()}</div>
         <ButtonGroup style={{ float: 'right' }}>
           <ImportModal axios={this.props.bp.axios} onImportCompleted={this.fetchData} />
-          <Button icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
+          <Button id="btn-export" icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
         </ButtonGroup>
       </ButtonToolbar>
     </FormGroup>
