@@ -1,5 +1,5 @@
-name: 'Build Docs'
-description: 'Build docs'
+name: 'Start nginx server'
+description: 'Start nginx server'
 runs:
   using: 'docker'
-  image: 'node'
+  image: 'nginx'
