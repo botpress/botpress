@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   check_404s:
-    name: Check for 404s in docs
+    name: Check for 404 errors in docs
     runs-on: ubuntu-latest
     
     steps:
