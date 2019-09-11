@@ -304,7 +304,7 @@ export type RetentionPolicy = {
   [key: string]: string
 }
 
-export type AuthStrategyType = 'basic' | 'saml' | 'ldap'
+export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
   readonly id: string
@@ -314,9 +314,9 @@ export interface AuthStrategy {
    */
   type: AuthStrategyType
   /**
-   * Defines custom options based on the chosen authentication strategy
+   * Defines custom options based on the chosen authentication strategy.
    */
-  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
+  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | AuthStrategyOauth2 | undefined
   /**
    * Maps the values returned by your provider to Botpress user parameters.
    * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
@@ -398,6 +398,46 @@ export interface AuthStrategySaml {
    * @default 5000
    */
   acceptedClockSkewMs: number
+}
+
+export interface AuthStrategyOauth2 {
+  authorizationURL: string
+  tokenURL: string
+  clientID: string
+  clientSecret: string
+  /**
+   * Scopes that should be requested from the service provider. Don't forget to map them in the fieldMapping property
+   * @default openid profile email
+   */
+  scope: string | string[]
+  /**
+   * The Callback URL on this server where the service provider will return the user. Replace the last part with the strategy ID
+   * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/myauth
+   */
+  callbackURL: string
+  /*
+   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user informations
+   * @example https://botpress.io/userinfo
+   */
+  userInfoURL?: string
+  /** If the access token is a JWT token, set the parameters below to decode it. */
+  jwtToken?: {
+    /** If provided, the audience of the token will be checked against the provided value(s). */
+    audience?: string | string[]
+    /** If provided, the issuer of the token will be checked against the provided value(s). */
+    issuer?: string | string[]
+    /**
+     * The algorithms allowed to validate the JWT tokens.
+     * @default ["HS256"]
+     */
+    algorithms: string[]
+    /**
+     * The public certificate starting with "-----BEGIN CERTIFICATE-----"
+     * The string should be provided as one line (use \n for new lines)
+     * If the key is not set, it will try to read the file `data/global/oauth2_YOUR_STRATEGY_ID.pub`
+     */
+    publicKey?: string
+  }
 }
 
 export interface AuthStrategyLdap {
