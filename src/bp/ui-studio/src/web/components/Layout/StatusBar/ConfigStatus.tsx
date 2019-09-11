@@ -30,10 +30,7 @@ const ConfigStatus = () => {
     }
 
     const interval = setInterval(async () => {
-      try {
-        await axios.get('/status', { timeout: 500 })
-        window.location.reload()
-      } catch (err) {} // silent catch intended
+      await axios.get('/status', { timeout: 500 }).then(window.location.reload)
     }, 1000)
     return () => clearInterval(interval)
   }, [isRestarting])
