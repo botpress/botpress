@@ -29,7 +29,6 @@ jobs:
         architecture: 'x64'
     - name: Scrape docs for 404s
       run: |
-        python --version
         pip install scrapy
         scrapy runspider -o errors.csv -a site="http://localhost" .github/workflows/code/validate-docs/spider.py -s HTTPERROR_ALLOW_ALL=True -s LOG_LEVEL=INFO
     - name: Check scrape results
