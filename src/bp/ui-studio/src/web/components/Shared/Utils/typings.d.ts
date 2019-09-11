@@ -4,6 +4,9 @@ import React from 'react'
 declare module 'botpress/utils' {
   export function ElementPreview(props: ElementPreviewProps): JSX.Element
   export function Downloader(props: DownloaderProps): JSX.Element
+  export function toastFailure(message: string): void
+  export function toastSuccess(message: string): void
+  export function toastInfo(message: string): void
 }
 
 export interface DownloaderProps {
