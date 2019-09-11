@@ -29,9 +29,10 @@ jobs:
     - run: |
         python --version
         pip install scrapy
-        scrapy runspider -o errors.csv -a site="http://localhost" .github/actions/check404/spider.py -s HTTPERROR_ALLOW_ALL=True
+        scrapy runspider -o errors.csv -a site="http://localhost" .github/actions/check404/spider.py -s HTTPERROR_ALLOW_ALL=True -s LOG_LEVEL=INFO
         ERRORS_COUNT=$(cat errors.csv | wc -l)
         echo "Found $ERRORS_COUNT errors"
+        cat errors.csv
         exit $ERRORS_COUNT
 
 
