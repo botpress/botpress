@@ -3,8 +3,6 @@ import scrapy
 
 class BrokenLinksSpider(scrapy.Spider):
     name = 'brokenlink-checker'
-    # handle_httpstatus_all = True
-    #handle_httpstatus_list = [404, 500]
 
 
     def __init__(self, site, *args, **kwargs):
@@ -28,7 +26,7 @@ class BrokenLinksSpider(scrapy.Spider):
             for link in response.css('a'):
                 href = link.xpath('@href').extract()
                 text = link.xpath('text()').extract()
-                if href: # maybe should show an error if no href
+                if href:
                     yield response.follow(link, self.parse, meta={
                         'prev_link_text': text,
                         'prev_href': href,

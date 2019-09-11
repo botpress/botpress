@@ -1,5 +1,0 @@
-name: 'Start nginx server'
-description: 'Start nginx server'
-runs:
-  using: 'docker'
-  image: 'nginx'
