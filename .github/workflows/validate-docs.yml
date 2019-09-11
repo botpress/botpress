@@ -22,7 +22,6 @@ jobs:
     - name: Start NGINX
       run: |
         sudo service nginx restart
-        curl localhost
     - name: Install python3
       uses: actions/setup-python@v1
       with:
