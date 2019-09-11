@@ -275,6 +275,7 @@ export default class FormModal extends Component<Props> {
             <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">
               <TextArea
                 id="input-questions"
+                tabIndex={1}
                 autoFocus={true}
                 value={this.itemQuestions.join('\n')}
                 onChange={this.updateQuestions}
@@ -321,6 +322,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
+                  tabIndex={-1}
                   value={this.state.item.redirectFlow}
                   options={flowsList}
                   onChange={this.handleSelect('redirectFlow')}
@@ -331,6 +333,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
+                  tabIndex={-1}
                   value={this.state.item.redirectNode}
                   options={nodeList}
                   onChange={this.handleSelect('redirectNode')}
@@ -345,6 +348,7 @@ export default class FormModal extends Component<Props> {
             <Button id="btn-cancel" text="Cancel" onClick={this.closeAndClear} />
             <Button
               id="btn-submit"
+              tabIndex={3}
               text={isEdit ? 'Edit' : 'Save'}
               intent={Intent.PRIMARY}
               onClick={this.handleSubmit}

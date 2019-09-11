@@ -184,10 +184,12 @@ Either the file is empty, or it doesn't match any known format.`)
                 selectedValue={importAction}
               >
                 <Radio
+                  id="radio-insert"
                   label="Insert the new questions from my file and create/update associated content elements"
                   value="insert"
                 />
                 <Radio
+                  id="radio-clearInsert"
                   label="Clear existing questions, then insert my new questions and create/update content elements"
                   value="clear_insert"
                 />

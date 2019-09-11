@@ -69,6 +69,7 @@ export class InputElement extends React.Component {
           })}
           ref={this.elementInputRef}
           style={{ height: this.state.rowHeight }}
+          tabIndex={this.props.tabIndex}
           value={this.state.text}
           placeholder={this.props.placeholder || ''}
           onBlur={this.handleOnBlur}
