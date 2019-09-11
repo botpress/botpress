@@ -36,7 +36,7 @@ const normalizeQuestions = questions =>
 export default class Storage {
   private bp: typeof sdk
   private config
-  private botId: string
+  public botId: string
   private categories: string[]
 
   constructor(bp: typeof sdk, config, botId) {
@@ -266,6 +266,12 @@ export default class Storage {
       count = tmpQuestions.length
     }
     return { items, count }
+  }
+
+  async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
+    const qnas = list || (await this.fetchQNAs())
+    const allAnswers = _.flatMapDeep(qnas, qna => Object.keys(qna.data.answers).map(lang => qna.data.answers[lang]))
+    return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
   }
 
   async count() {

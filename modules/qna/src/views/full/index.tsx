@@ -1,43 +1,27 @@
-import React, { Component } from 'react'
+import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
-import {
-  FormGroup,
-  FormControl,
-  ControlLabel,
-  Checkbox,
-  Panel,
-  OverlayTrigger,
-  ButtonGroup,
-  ButtonToolbar,
-  Button,
-  Well,
-  Modal,
-  HelpBlock,
-  Alert,
-  Pagination,
-  Popover
-} from 'react-bootstrap'
-import Select from 'react-select'
-import { FiAlertTriangle } from 'react-icons/fi'
-
+import { ElementPreview } from 'botpress/utils'
+import { Downloader } from 'botpress/utils'
 import classnames from 'classnames'
-import Promise from 'bluebird'
-
-import FormModal from './FormModal'
-import style from './style.scss'
+import React, { Component } from 'react'
+import { ButtonGroup, ButtonToolbar, FormControl, FormGroup, Pagination, Panel, Well } from 'react-bootstrap'
+import Select from 'react-select'
 import 'react-select/dist/react-select.css'
+
 import './button.css'
+import style from './style.scss'
+import FormModal from './FormModal'
+import { ImportModal } from './ImportModal'
 
 const ITEMS_PER_PAGE = 50
-const JSON_STATUS_POLL_INTERVAL = 1000
 const QNA_PARAM_NAME = 'id'
 
-export default class QnaAdmin extends Component {
-  constructor(props) {
-    super(props)
-    this.jsonDownloadableLink = React.createRef()
-  }
+interface Props {
+  contentLang: string
+  bp: any
+}
 
+export default class QnaAdmin extends Component<Props> {
   state = {
     items: [],
     currentItemId: undefined,
@@ -53,7 +37,8 @@ export default class QnaAdmin extends Component {
     categoryOptions: [],
     filterCategory: [],
     filterQuestion: '',
-    selectedQuestion: []
+    selectedQuestion: [],
+    downloadUrl: undefined
   }
 
   fetchFlows() {
@@ -145,47 +130,9 @@ export default class QnaAdmin extends Component {
       .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
   }
 
-  uploadJson = async () => {
-    const formData = new FormData()
-    formData.set('isReplace', this.state.isJsonUploadReplace)
-    formData.append('json', this.state.jsonToUpload)
-
-    const headers = { 'Content-Type': 'multipart/form-data' }
-    const { data: jsonStatusId } = await this.props.bp.axios.post('/mod/qna/import', formData, { headers })
-
-    this.setState({ jsonStatusId })
-
-    while (this.state.jsonStatusId) {
-      try {
-        const { data: status } = await this.props.bp.axios.get(`/mod/qna/json-upload-status/${jsonStatusId}`)
-
-        this.setState({ jsonUploadStatus: status })
-
-        if (status === 'Completed') {
-          this.setState({ jsonStatusId: null, importJsonModalShow: false })
-          this.fetchData()
-        } else if (status.startsWith('Error')) {
-          this.setState({ jsonStatusId: null })
-        }
-
-        await Promise.delay(JSON_STATUS_POLL_INTERVAL)
-      } catch (e) {
-        return this.setState({ jsonUploadStatus: 'Server Error', jsonStatusId: null })
-      }
-    }
+  downloadJson = () => {
+    this.setState({ downloadUrl: `${window.BOT_API_PATH}/mod/qna/export` })
   }
-
-  downloadJson = () =>
-    // We can't just download file directly due to security restrictions
-    this.props.bp.axios({ method: 'get', url: '/mod/qna/export', responseType: 'blob' }).then(response => {
-      this.setState(
-        {
-          jsonDownloadableLinkHref: window.URL.createObjectURL(new Blob([response.data])),
-          jsonDownloadableFileName: /filename=(.*\.json)/.exec(response.headers['content-disposition'])[1]
-        },
-        () => this.jsonDownloadableLink.current.click()
-      )
-    })
 
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
@@ -216,7 +163,7 @@ export default class QnaAdmin extends Component {
       <Pagination>
         <Pagination.First onClick={firstPage} />
         <Pagination.Prev onClick={prevPage} disabled={this.state.page === 1} />
-        {new Array(pagesCount).fill().map((_x, i) => {
+        {new Array(pagesCount).fill(pagesCount).map((_x, i) => {
           const page = i + 1
           if (Math.abs(this.state.page - page) === 5) {
             return <Pagination.Ellipsis />
@@ -232,90 +179,13 @@ export default class QnaAdmin extends Component {
     )
   }
 
-  renderImportModal() {
-    const { jsonUploadStatus } = this.state
-
-    return (
-      <Modal
-        show={this.state.importJsonModalShow}
-        onHide={() => this.setState({ importJsonModalShow: false })}
-        backdrop={'static'}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Import JSON</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {jsonUploadStatus && (
-            <Alert
-              bsStyle={jsonUploadStatus.startsWith('Error') ? 'danger' : 'info'}
-              onDismiss={() => this.setState({ jsonUploadStatus: null })}
-            >
-              <p>{this.state.jsonUploadStatus}</p>
-            </Alert>
-          )}
-          <form>
-            <FormGroup>
-              <ControlLabel>JSON file</ControlLabel>
-              <FormControl
-                id="input-file"
-                type="file"
-                accept=".json"
-                onChange={e => this.setState({ jsonToUpload: e.target.files[0] })}
-              />
-              <HelpBlock>JSON should be formatted &quot;question,answer_type,answer,answer2,category&quot;</HelpBlock>
-            </FormGroup>
-            <FormGroup>
-              <Checkbox
-                id="chk-replace"
-                checked={this.state.isJsonUploadReplace}
-                onChange={e => this.setState({ isJsonUploadReplace: e.target.checked })}
-              >
-                Replace existing FAQs
-              </Checkbox>
-              <HelpBlock>Deletes existing FAQs and then uploads new ones from the file</HelpBlock>
-            </FormGroup>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            id="btn-upload"
-            bsStyle="primary"
-            onClick={this.uploadJson}
-            disabled={!Boolean(this.state.jsonToUpload)}
-          >
-            Upload
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
-
   renderQnAHeader = () => (
     <FormGroup className={style.qnaHeader}>
       <ButtonToolbar>
-        <div className={style.searchBar}>
-          {this.renderSearch()}
-          {this.renderImportModal()}
-        </div>
+        <div className={style.searchBar}>{this.renderSearch()}</div>
         <ButtonGroup style={{ float: 'right' }}>
-          <Button
-            id="btn-import"
-            bsStyle="default"
-            onClick={() =>
-              this.setState({
-                importJsonModalShow: true,
-                jsonToUpload: null,
-                jsonUploadStatus: null,
-                isJsonUploadReplace: false
-              })
-            }
-            type="button"
-          >
-            Import from JSON
-          </Button>
-          <Button id="btn-export" bsStyle="default" onClick={this.downloadJson} type="button">
-            Export to JSON
-          </Button>
+          <ImportModal axios={this.props.bp.axios} onImportCompleted={this.fetchData} />
+          <Button id="btn-export" icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
         </ButtonGroup>
       </ButtonToolbar>
     </FormGroup>
@@ -330,66 +200,48 @@ export default class QnaAdmin extends Component {
         placeholder="Search for a question"
         className={style.searchField}
       />
-      {this.state.categoryOptions.length && (
-        <Select
-          id="select-category"
-          className={style.categoryFilter}
-          multi
-          value={this.state.filterCategory}
-          options={this.state.categoryOptions}
-          onChange={this.onCategoriesFilter}
-          placeholder="Search for a category"
-        />
-      )}
+
+      <Select
+        id="select-category"
+        className={style.categoryFilter}
+        multi
+        value={this.state.filterCategory}
+        options={this.state.categoryOptions}
+        onChange={this.onCategoriesFilter}
+        placeholder="Search for a category"
+      />
+
       <Button
         id="btn-create-qna"
-        className={style.qnaNavBarAddNew}
-        bsStyle="primary"
+        text="Add new"
+        icon="add"
+        intent={Intent.PRIMARY}
         onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
-      >
-        Add new
-      </Button>
+      />
     </React.Fragment>
   )
 
-  renderVariationsOverlay = variations => {
+  renderVariationsOverlay = elements => {
     return (
-      <Popover id="questions-popover">
-        <ul className={style.questionsList}>
-          {variations.map(variation => (
-            <li key={variation}>{variation}</li>
-          ))}
-        </ul>
-      </Popover>
-    )
-  }
-
-  renderVariationsOverlayTrigger = elements => {
-    return (
-      elements.length > 1 && (
-        <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={this.renderVariationsOverlay(elements)}>
-          <span>
+      !!elements.length && (
+        <Tooltip
+          position={Position.RIGHT}
+          content={
+            <ul className={style.tooltip}>
+              {elements.map(variation => (
+                <li key={variation}>
+                  {variation.startsWith('#!') ? <ElementPreview itemId={variation.replace('#!', '')} /> : variation}
+                </li>
+              ))}
+            </ul>
+          }
+        >
+          <span style={{ cursor: 'default' }}>
             &nbsp;
             <strong>({elements.length})</strong>
           </span>
-        </OverlayTrigger>
+        </Tooltip>
       )
-    )
-  }
-
-  renderMissingTranslationsOverlay = () => {
-    return (
-      <OverlayTrigger
-        trigger={['hover', 'focus']}
-        placement="top"
-        overlay={
-          <Popover id="lang-popover">
-            <span className="text-danger">Missing translation</span>
-          </Popover>
-        }
-      >
-        <FiAlertTriangle className="text-danger" />
-      </OverlayTrigger>
     )
   }
 
@@ -430,7 +282,10 @@ export default class QnaAdmin extends Component {
           {!questions.length && (
             <div className={style.itemQuestions}>
               <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-                {this.renderMissingTranslationsOverlay()}&nbsp;
+                <Tooltip content="Missing translation">
+                  <Icon icon="warning-sign" intent={Intent.DANGER} />
+                </Tooltip>
+                &nbsp;
                 {id
                   .split('_')
                   .slice(1)
@@ -445,17 +300,17 @@ export default class QnaAdmin extends Component {
               <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
                 {questions[0]}
               </a>
-              {this.renderVariationsOverlayTrigger(questions)}
+              {this.renderVariationsOverlay(questions)}
             </div>
           )}
           {answers[0] && (
             <div className={style.itemAnswerContainer}>
               <span className={style.itemAnswerTitle}>A:</span>
               <div className={style.itemAnswerText}>{answers[0]}</div>
-              {this.renderVariationsOverlayTrigger(answers)}
+              {this.renderVariationsOverlay(answers)}
             </div>
           )}
-          <div className={style.itemRedirectContainer}>
+          <div>
             <div className={style.itemRedirect}>{this.renderRedirectInfo(item.redirectFlow, item.redirectNode)}</div>
           </div>
           {item.category ? (
@@ -469,19 +324,14 @@ export default class QnaAdmin extends Component {
           ) : null}
         </div>
         <div className={style.itemAction}>
-          <i
-            className={classnames('material-icons', style.itemActionDelete, 'icon-delete')}
-            onClick={this.deleteItem(id)}
-          >
-            delete
-          </i>
-          {this.toggleButton({ value: item.enabled, onChange: this.toggleEnableItem.bind(this, item, id) })}
+          <Button icon="trash" className={style.itemActionDelete} onClick={this.deleteItem(id)} minimal={true} />
+          <Switch checked={item.enabled} onChange={this.toggleEnableItem.bind(this, item, id)} large={true} />
         </div>
       </Well>
     )
   }
 
-  deleteItem = id => () => {
+  deleteItem = (id: string) => () => {
     const needDelete = confirm('Do you want to delete the question?')
     const { filterQuestion, filterCategory, page } = this.state
     const params = {
@@ -496,7 +346,7 @@ export default class QnaAdmin extends Component {
     }
   }
 
-  editItem = id => () => {
+  editItem = (id: string) => () => {
     const url = new URL(window.location.href)
     url.searchParams.set(QNA_PARAM_NAME, id)
     window.history.pushState(window.history.state, '', url.toString())
@@ -504,7 +354,7 @@ export default class QnaAdmin extends Component {
     this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
   }
 
-  toggleEnableItem = (item, id, value) => {
+  toggleEnableItem = (item: any, id: string, event) => {
     const { page, filterQuestion, filterCategory } = this.state
     const params = {
       limit: ITEMS_PER_PAGE,
@@ -513,21 +363,10 @@ export default class QnaAdmin extends Component {
       categories: filterCategory
     }
 
-    item.enabled = value
+    item.enabled = event.target.checked
     this.props.bp.axios
       .put(`/mod/qna/questions/${id}`, item, { params })
       .then(({ data: { items } }) => this.setState({ items }))
-  }
-
-  toggleButton = ({ value, onChange }) => {
-    const toggleCssClass = classnames('slider', { checked: value })
-
-    return (
-      <label className={classnames('switch', style.toggleButton)}>
-        <input className="toggle-input" value={value} onChange={() => onChange(!value)} type="checkbox" tabIndex="-1" />
-        <span className={toggleCssClass} />
-      </label>
-    )
   }
 
   closeQnAModal = () => {
@@ -550,13 +389,9 @@ export default class QnaAdmin extends Component {
   render() {
     return (
       <Container sidePanelHidden={true}>
+        <Downloader url={this.state.downloadUrl} />
         <div />
         <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
-          <a
-            ref={this.jsonDownloadableLink}
-            href={this.state.jsonDownloadableLinkHref}
-            download={this.state.jsonDownloadableFileName}
-          />
           <Panel.Body>
             {this.renderQnAHeader()}
             {this.renderPagination()}

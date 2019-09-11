@@ -83,7 +83,7 @@ function Versions() {
               <tr>
                 <th>10.50</th>
                 <td>
-                  <a href={`/docs/10.50`}>Documentation</a>
+                  Documentation
                 </td>
               </tr>
             </tbody>

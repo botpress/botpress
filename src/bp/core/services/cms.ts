@@ -276,6 +276,14 @@ export class CMSService implements IDisposeOnExit {
     return `${prefix}-${nanoid(6)}`
   }
 
+  async elementIdExists(botId: string, id: string): Promise<boolean> {
+    const element = await this.memDb(this.contentTable)
+      .where({ botId, id })
+      .get(0)
+
+    return !!element
+  }
+
   async createOrUpdateContentElement(
     botId: string,
     contentTypeId: string,
@@ -314,6 +322,9 @@ export class CMSService implements IDisposeOnExit {
 
     if (!contentElementId) {
       contentElementId = this._generateElementId(contentTypeId)
+    }
+
+    if (!(await this.elementIdExists(botId, contentElementId))) {
       await this.broadcastAddElement(botId, body, contentElementId, contentType.id)
       const created = await this.getContentElement(botId, contentElementId)
 

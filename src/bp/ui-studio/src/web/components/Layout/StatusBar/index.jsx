@@ -18,6 +18,7 @@ import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
+import ConfigStatus from './ConfigStatus'
 
 const COMPLETED_DURATION = 2000
 
@@ -187,6 +188,7 @@ class StatusBar extends React.Component {
             <strong>v{this.props.botpressVersion}</strong>
           </div>
           <BotSwitcher />
+          {this.props.user && this.props.user.isSuperAdmin && <ConfigStatus />}
           {this.renderDocHints()}
           {this.renderTaskProgress()}
           <LangSwitcher

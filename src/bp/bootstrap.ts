@@ -6,16 +6,32 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { Botpress, Config, Logger } from 'core/app'
+import cluster from 'cluster'
+import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
+import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
 
+async function setupEnv() {
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  Ghost.initialize(useDbDriver)
+
+  await Db.initialize()
+}
+
 async function start() {
+  if (cluster.isMaster) {
+    // The master process only needs getos and rewire
+    return setupMasterNode(await Logger('Cluster'))
+  }
+
+  await setupEnv()
+
   const logger = await Logger('Launcher')
   logger.info(chalk`========================================
 {bold ${center(`Botpress Server`, 40)}}

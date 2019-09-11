@@ -130,7 +130,7 @@ const payload = {
 
 ## Creating a Custom Component
 
-We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here. The Debugger is also implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/next/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look on how it was implemented.
+We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here. The Debugger is also implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look on how it was implemented.
 
 Custom components leverages the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
 

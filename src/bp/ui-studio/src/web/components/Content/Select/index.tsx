@@ -1,14 +1,13 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Modal, Button, Alert } from 'react-bootstrap'
-import Promise from 'bluebird'
-import classnames from 'classnames'
-
-import Loading from '~/components/Util/Loading'
-import CreateOrEditModal from '../CreateOrEditModal'
-import { fetchContentItems, fetchContentItemsCount, fetchContentCategories, upsertContentItem } from '~/actions'
 import axios from 'axios'
+import classnames from 'classnames'
+import React, { Component } from 'react'
+import { Alert, Button, Modal } from 'react-bootstrap'
+import { connect } from 'react-redux'
+import { fetchContentCategories, fetchContentItems, fetchContentItemsCount, upsertContentItem } from '~/actions'
+import Loading from '~/components/Util/Loading'
+
 import withLanguage from '../../Util/withLanguage'
+import CreateOrEditModal from '../CreateOrEditModal'
 
 const style = require('./style.scss')
 
@@ -20,7 +19,33 @@ const formSteps = {
   MAIN: 2
 }
 
-class SelectContent extends Component {
+interface Props {
+  fetchContentCategories: any
+  container: any
+  fetchContentItems: any
+  fetchContentItemsCount: any
+  contentItems: any
+  categories: any
+  upsertContentItem: any
+  onSelect: any
+  onClose: any
+  contentType: any
+  itemsCount: number
+  contentLang: any
+}
+
+interface State {
+  activeItemIndex: any
+  step: any
+  newItemCategory: any
+  searchTerm: any
+  contentType: any
+  newItemData: any
+  show: boolean
+  hideCategoryInfo: boolean
+}
+
+class SelectContent extends Component<Props, State> {
   constructor(props) {
     super(props)
 
@@ -44,6 +69,10 @@ class SelectContent extends Component {
     this.props.fetchContentCategories()
 
     this.props.container.addEventListener('keyup', this.handleChangeActiveItem)
+  }
+
+  componentWillUnmount() {
+    this.props.container.removeEventListener('keyup', this.handleChangeActiveItem)
   }
 
   componentWillReceiveProps(newProps) {
@@ -116,6 +145,7 @@ class SelectContent extends Component {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
+    // @ts-ignore
     const { data: id } = response || {}
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {

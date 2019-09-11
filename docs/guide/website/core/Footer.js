@@ -54,7 +54,7 @@ class Footer extends React.Component {
           </div>
         </section>
 
-        <a href="botpress.io" target="_blank" rel="noreferrer noopener" className="fbOpenSource">
+        <a href="https://botpress.io/" target="_blank" rel="noreferrer noopener" className="fbOpenSource">
           <img src={`${this.props.config.baseUrl}img/botpress.svg`} alt="Botpress, Inc." width="170" height="45" />
         </a>
         <section className="copyright">{this.props.config.copyright}</section>

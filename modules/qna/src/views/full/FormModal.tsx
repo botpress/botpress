@@ -1,10 +1,13 @@
-import React, { Component } from 'react'
-import { FormControl, Button, Modal, Alert } from 'react-bootstrap'
-import classnames from 'classnames'
-import some from 'lodash/some'
+import { Button, Checkbox, Classes, Dialog, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
+// @ts-ignore
 import ElementsList from 'botpress/elements-list'
+import classnames from 'classnames'
 import _ from 'lodash'
+import some from 'lodash/some'
+import React, { Component } from 'react'
+import { Alert } from 'react-bootstrap'
 import Select from 'react-select'
+
 import style from './style.scss'
 import QnaHint from './QnaHint'
 
@@ -14,7 +17,23 @@ const ACTIONS = {
   TEXT_REDIRECT: 'text_redirect'
 }
 
-export default class FormModal extends Component {
+interface Props {
+  closeQnAModal: any
+  fetchData: any
+  updateQuestion: any
+  page: any
+  filters: any
+  id: any
+  modalType: any
+  contentLang: any
+  showQnAModal: any
+  categories: any
+  bp: any
+  flowsList: any
+  flows: any
+}
+
+export default class FormModal extends Component<Props> {
   state = this.defaultState
 
   get defaultState() {
@@ -38,7 +57,8 @@ export default class FormModal extends Component {
       },
       errorMessage: undefined,
       isText: true,
-      isRedirect: false
+      isRedirect: false,
+      hasDuplicates: false
     }
   }
 
@@ -226,127 +246,116 @@ export default class FormModal extends Component {
     const isEdit = modalType === 'edit'
 
     return (
-      <Modal
-        className={classnames(style.newQnaModal, 'newQnaModal')}
-        show={showQnAModal}
-        onHide={this.closeAndClear}
-        backdrop={'static'}
+      <Dialog
+        isOpen={showQnAModal}
+        onClose={this.closeAndClear}
+        canOutsideClickClose={false}
+        transitionDuration={0}
+        title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
+        icon={isEdit ? 'edit' : 'add'}
+        style={{ width: 700 }}
       >
-        <form>
-          <Modal.Header className={style.qnaModalHeader}>
-            <Modal.Title>{!isEdit ? 'Create a new' : 'Edit'} Q&A</Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body className={style.qnaModalBody}>
+        <div className={Classes.DIALOG_BODY}>
+          <form>
             {this.alertMessage()}
-            {categories.length ? (
-              <div className={style.qnaSection}>
-                <span className={style.qnaSectionTitle}>Category</span>
-                <Select
-                  id="select-category"
-                  className={classnames(style.qnaCategorySelect, {
-                    qnaCategoryError: invalidFields.category
-                  })}
-                  value={this.state.item.category}
-                  options={categories}
-                  onChange={this.handleSelect('category')}
-                  placeholder="Search or choose category"
-                />
-              </div>
-            ) : null}
-            <div className={style.qnaSection}>
-              <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
-              <span className={style.qnaSectionTitle}>Questions</span>
-              <span className={style.qnaQuestionsHint}>Type/Paste your questions here separated with a new line</span>
+            <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-              <FormControl
+            <FormGroup label="Category">
+              <Select
+                id="select-category"
+                className={classnames({ qnaCategoryError: invalidFields.category })}
+                value={this.state.item.category}
+                options={categories}
+                onChange={this.handleSelect('category')}
+                style={{ width: 250 }}
+                placeholder="Search or choose category"
+              />
+            </FormGroup>
+
+            <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">
+              <TextArea
                 id="input-questions"
+                tabIndex={1}
                 autoFocus={true}
-                className={classnames(style.qnaQuestionsTextarea, {
-                  qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
-                })}
                 value={this.itemQuestions.join('\n')}
                 onChange={this.updateQuestions}
-                componentClass="textarea"
+                fill={true}
+                rows={5}
+                className={classnames({
+                  qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
+                })}
               />
-            </div>
-            <div className={style.qnaSection}>
-              <span className={style.qnaSectionTitle}>Answers</span>
-              <div className={style.qnaAnswer}>
-                <span className={style.qnaAnswerCheck}>
-                  <input
-                    id="reply"
-                    type="checkbox"
-                    checked={this.state.isText}
-                    onChange={this.changeItemAction('isText')}
-                    tabIndex="-1"
-                  />
-                  <label htmlFor="reply">&nbsp; Bot will say:</label>
-                </span>
+            </FormGroup>
 
-                <ElementsList
-                  placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
-                  elements={this.itemAnswers}
-                  allowMultiline={true}
-                  onInvalid={this.state.invalidFields.answer}
-                  onCreate={this.createAnswer}
-                  onUpdate={this.updateAnswer}
-                  onDelete={this.deleteAnswer}
+            <H6>Answers</H6>
+            <Checkbox
+              label={'Bot will say: '}
+              checked={this.state.isText}
+              onChange={this.changeItemAction('isText')}
+              tabIndex={-1}
+            />
+
+            <ElementsList
+              placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
+              elements={this.itemAnswers}
+              allowMultiline={true}
+              onInvalid={this.state.invalidFields.answer}
+              onCreate={this.createAnswer}
+              onUpdate={this.updateAnswer}
+              onDelete={this.deleteAnswer}
+            />
+
+            <div className={style.qnaAndOr}>
+              <div className={style.qnaAndOrLine} />
+              <div className={style.qnaAndOrText}>and / or</div>
+              <div className={style.qnaAndOrLine} />
+            </div>
+            <div className={style.qnaRedirect}>
+              <div className={style.qnaRedirectToFlow}>
+                <Checkbox
+                  label="Redirect to flow"
+                  id="redirect"
+                  checked={this.state.isRedirect}
+                  onChange={this.changeItemAction('isRedirect')}
+                  tabIndex={-1}
+                />
+
+                <Select
+                  className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
+                  tabIndex={-1}
+                  value={this.state.item.redirectFlow}
+                  options={flowsList}
+                  onChange={this.handleSelect('redirectFlow')}
                 />
               </div>
+              <div className={style.qnaRedirectNode}>
+                <strong>Node</strong>
 
-              <div className={style.qnaAndOr}>
-                <div className={style.qnaAndOrLine} />
-                <div className={style.qnaAndOrText}>and / or</div>
-                <div className={style.qnaAndOrLine} />
-              </div>
-              <div className={style.qnaRedirect}>
-                <div className={style.qnaRedirectToFlow}>
-                  <span className={style.qnaRedirectToFlowCheck}>
-                    <input
-                      id="redirect"
-                      type="checkbox"
-                      checked={this.state.isRedirect}
-                      onChange={this.changeItemAction('isRedirect')}
-                      className={style.qnaRedirectToFlowCheckCheckbox}
-                      tabIndex="-1"
-                    />
-                    <label htmlFor="redirect">&nbsp;Redirect to flow</label>
-                  </span>
-                  <Select
-                    className={classnames(style.qnaRedirectToFlowCheckSelect, {
-                      qnaCategoryError: invalidFields.redirectFlow
-                    })}
-                    value={this.state.item.redirectFlow}
-                    options={flowsList}
-                    onChange={this.handleSelect('redirectFlow')}
-                  />
-                </div>
-                <div className={style.qnaRedirectNode}>
-                  <span className={style.qnaRedirectNodeTitle}>Node</span>
-                  <Select
-                    className={classnames(style.qnaRedirectNodeSelect, {
-                      qnaCategoryError: invalidFields.redirectNode
-                    })}
-                    value={this.state.item.redirectNode}
-                    options={nodeList}
-                    onChange={this.handleSelect('redirectNode')}
-                  />
-                </div>
+                <Select
+                  className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
+                  tabIndex={-1}
+                  value={this.state.item.redirectNode}
+                  options={nodeList}
+                  onChange={this.handleSelect('redirectNode')}
+                />
               </div>
             </div>
-          </Modal.Body>
+          </form>
+        </div>
 
-          <Modal.Footer className={style.qnaModalFooter}>
-            <Button id="btn-cancel" onClick={this.closeAndClear}>
-              Cancel
-            </Button>
-            <Button id="btn-submit" bsStyle="primary" type="button" onClick={this.handleSubmit}>
-              {isEdit ? 'Edit' : 'Save'}
-            </Button>
-          </Modal.Footer>
-        </form>
-      </Modal>
+        <div className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button id="btn-cancel" text="Cancel" onClick={this.closeAndClear} />
+            <Button
+              id="btn-submit"
+              tabIndex={3}
+              text={isEdit ? 'Edit' : 'Save'}
+              intent={Intent.PRIMARY}
+              onClick={this.handleSubmit}
+            />
+          </div>
+        </div>
+      </Dialog>
     )
   }
 }

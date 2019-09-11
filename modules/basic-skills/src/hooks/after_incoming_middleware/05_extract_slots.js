@@ -37,8 +37,8 @@ function handleSlotsExpiry() {
       ++slot.turns
     }
 
-    // BETA(11.8.4): Automatically expire the slot after X dialog turns
-    if (typeof slot.expiresAfterTurns === 'number' && slot.turns >= slot.expiresAfterTurns) {
+    const turnExpiry = slot.expiresAfterTurns
+    if (typeof turnExpiry === 'number' && turnExpiry > -1 && slot.turns >= turnExpiry) {
       delete event.state.session.slots[slot.name]
     }
   }

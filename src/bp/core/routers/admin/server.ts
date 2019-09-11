@@ -86,15 +86,17 @@ export class ServerRouter extends CustomRouter {
 
         res.sendStatus(200)
 
-        // Timeout is only to allow the response to reach the asking user
-        setTimeout(() => {
-          spawn(process.argv[0], process.argv.slice(1), {
-            detached: true,
-            stdio: 'inherit'
-          }).unref()
+        process.send && process.send({ type: 'reboot_server' })
+      })
+    )
 
-          process.exit()
-        }, 100)
+    router.get(
+      '/configHash',
+      this.asyncMiddleware(async (req, res) => {
+        res.send({
+          initialHash: this.configProvider.initialConfigHash,
+          currentHash: this.configProvider.currentConfigHash
+        })
       })
     )
 
