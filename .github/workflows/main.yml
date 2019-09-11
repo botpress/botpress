@@ -1,4 +1,4 @@
-name: CI
+name: Check for 404s in docs
 
 on: [push]
 
