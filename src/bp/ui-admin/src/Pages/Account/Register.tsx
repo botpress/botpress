@@ -50,7 +50,8 @@ export default class Register extends Component<Props, State> {
     this.setState({ ...strategyConfig })
   }
 
-  register = async () => {
+  register = async event => {
+    event.preventDefault()
     const { email, password, confirmPassword, registerUrl } = this.state
 
     if (password !== confirmPassword) {
@@ -69,7 +70,6 @@ export default class Register extends Component<Props, State> {
   handleEmailChanged = e => this.setState({ email: e.target.value })
   handlePasswordChanged = e => this.setState({ password: e.target.value })
   handleConfirmChanged = e => this.setState({ confirmPassword: e.target.value })
-  handleKeyPressed = e => e.key === 'Enter' && this.isFormValid && this.register()
 
   get isFormValid() {
     const { email, password, confirmPassword } = this.state
@@ -78,7 +78,7 @@ export default class Register extends Component<Props, State> {
 
   renderForm = () => {
     return (
-      <Fragment>
+      <form onSubmit={this.register}>
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>This is the first time you run Botpress. Please create the master admin account.</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
@@ -89,7 +89,6 @@ export default class Register extends Component<Props, State> {
             id="email"
             value={this.state.email}
             onChange={this.handleEmailChanged}
-            onKeyPress={this.handleKeyPressed}
             autoFocus={true}
           />
         </FormGroup>
@@ -101,7 +100,6 @@ export default class Register extends Component<Props, State> {
             onChange={this.handlePasswordChanged}
             type="password"
             id="password"
-            onKeyPress={this.handleKeyPressed}
           />
         </FormGroup>
 
@@ -112,19 +110,18 @@ export default class Register extends Component<Props, State> {
             id="confirmPassword"
             value={this.state.confirmPassword}
             onChange={this.handleConfirmChanged}
-            onKeyPress={this.handleKeyPressed}
           />
         </FormGroup>
 
         <Button
           tabIndex={4}
+          type="submit"
           id="btn-register"
           text="Create Account"
-          onClick={this.register}
           intent={Intent.PRIMARY}
           disabled={!this.isFormValid}
         />
-      </Fragment>
+      </form>
     )
   }
 

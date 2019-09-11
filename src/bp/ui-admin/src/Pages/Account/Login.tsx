@@ -67,7 +67,9 @@ export default class Login extends Component<Props, State> {
     setActiveWorkspace(this.props.match.params.workspace)
   }
 
-  login = async () => {
+  login = async event => {
+    event.preventDefault()
+
     const { email, password, loginUrl } = this.state
     this.setState({ error: undefined })
 
@@ -94,7 +96,6 @@ export default class Login extends Component<Props, State> {
 
   handleEmailChanged = e => this.setState({ email: e.target.value })
   handlePasswordChanged = e => this.setState({ password: e.target.value })
-  handleKeyPressed = e => e.key === 'Enter' && this.login()
 
   redirectToExternalAuthProvider = () => {
     const { strategyId, strategyType, authEndpoint } = this.state
@@ -110,7 +111,7 @@ export default class Login extends Component<Props, State> {
 
   renderForm = () => {
     return (
-      <Fragment>
+      <form onSubmit={this.login}>
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>Login</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
@@ -121,7 +122,6 @@ export default class Login extends Component<Props, State> {
             onChange={this.handleEmailChanged}
             type="text"
             id="email"
-            onKeyPress={this.handleKeyPressed}
             autoFocus={true}
           />
         </FormGroup>
@@ -133,7 +133,6 @@ export default class Login extends Component<Props, State> {
             onChange={this.handlePasswordChanged}
             type="password"
             id="password"
-            onKeyPress={this.handleKeyPressed}
           />
         </FormGroup>
 
@@ -143,10 +142,9 @@ export default class Login extends Component<Props, State> {
           id="btn-signin"
           text="Sign in"
           disabled={!this.state.email || !this.state.password}
-          onClick={this.login}
           intent={Intent.PRIMARY}
         />
-      </Fragment>
+      </form>
     )
   }
 

@@ -31,7 +31,8 @@ export default class ChangePassword extends Component<Props, State> {
     }
   }
 
-  updatePassword = async () => {
+  updatePassword = async event => {
+    event.preventDefault()
     const { email, password, newPassword, confirmPassword, loginUrl } = this.state
 
     if (newPassword !== confirmPassword) {
@@ -49,7 +50,6 @@ export default class ChangePassword extends Component<Props, State> {
 
   handleNewPasswordChanged = e => this.setState({ newPassword: e.target.value })
   handleConfirmChanged = e => this.setState({ confirmPassword: e.target.value })
-  handleKeyPressed = e => e.key === 'Enter' && this.updatePassword()
 
   getReasonText = () => {
     if (this.state.password === '') {
@@ -65,7 +65,7 @@ export default class ChangePassword extends Component<Props, State> {
     }
 
     return (
-      <Fragment>
+      <form onSubmit={this.updatePassword}>
         <CardTitle>Botpress Admin Panel</CardTitle>
         <CardText>{this.getReasonText()}</CardText>
         {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
@@ -77,7 +77,6 @@ export default class ChangePassword extends Component<Props, State> {
             type="password"
             name="newPassword"
             id="newPassword"
-            onKeyPress={this.handleKeyPressed}
             autoFocus={true}
           />
         </FormGroup>
@@ -90,20 +89,19 @@ export default class ChangePassword extends Component<Props, State> {
             type="password"
             name="confirmPassword"
             id="confirmPassword"
-            onKeyPress={this.handleKeyPressed}
           />
         </FormGroup>
 
         <p>
           <Button
             tabIndex={3}
+            type="submit"
             text="Change"
-            onClick={this.updatePassword}
             intent={Intent.PRIMARY}
             disabled={!this.state.newPassword || !this.state.confirmPassword}
           />
         </p>
-      </Fragment>
+      </form>
     )
   }
 
