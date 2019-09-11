@@ -23,6 +23,7 @@ export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
               <span>{entity.meta.source}</span>
             </td>
             <td>
+              {/** TODO: remove the unit in the backend when not required  */}
               {entity.data.value}&nbsp;{entity.data.unit !== 'string' && entity.data.unit}
             </td>
           </tr>
