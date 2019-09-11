@@ -41,6 +41,6 @@ jobs:
         ERRORS_COUNT=$(cat errors.csv | wc -l)
         echo "Found $ERRORS_COUNT errors"
         cat errors.csv
-        if [ $ERRORS_COUNT -eq 0 ]; then
+        if [ $ERRORS_COUNT -neq 0 ]; then
           exit 1
         fi
