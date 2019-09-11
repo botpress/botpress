@@ -1,4 +1,5 @@
-import { IO, Logger } from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
@@ -10,7 +11,6 @@ import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
-import { BPError } from '../errors'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
@@ -37,12 +37,10 @@ export interface InstructionStrategy {
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
   constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Actions')
-    private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
@@ -127,7 +125,8 @@ export class ActionStrategy implements InstructionStrategy {
       bot: _.get(event, 'state.bot', {})
     }
 
-    args = _.mapValues(args, value => renderTemplate(value, actionArgs))
+    const alwaysEscape = (await this.configProvider.getBotpressConfig()).security.alwaysEscapeHtml
+    args = _.mapValues(args, value => renderTemplate(value, actionArgs, alwaysEscape))
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
@@ -157,11 +156,7 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Transition')
-    private logger: Logger
-  ) {}
+  constructor() {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {

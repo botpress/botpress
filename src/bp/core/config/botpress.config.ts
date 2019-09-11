@@ -146,6 +146,13 @@ export type BotpressConfig = {
      */
     socketTransports: string[]
   }
+  security: {
+    /**
+     * When set to true this will prevent the usage of triple-stach {{{}}} to render unescaped html
+     * @default false
+     */
+    alwaysEscapeHtml: boolean
+  }
   converse: ConverseConfig
   dialog: DialogConfig
   logs: LogsConfig

@@ -531,6 +531,7 @@ export class CMSService implements IDisposeOnExit {
     contentId = contentId.replace(/^#?/i, '')
     let contentTypeRenderer
 
+    const alwaysEscape = (await this.configProvider.getBotpressConfig()).security.alwaysEscapeHtml
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
       if (!content) {
@@ -545,14 +546,14 @@ export class CMSService implements IDisposeOnExit {
       const translated = await this.getOriginalProps(content.formData, contentTypeRenderer, lang, defaultLang)
       content.formData = translated
 
-      _.set(content, 'formData', renderRecursive(content.formData, args))
+      _.set(content, 'formData', renderRecursive(content.formData, args, alwaysEscape))
 
       const text = _.get(content.formData, 'text')
       const variations = _.get(content.formData, 'variations')
 
       const message = _.sample([text, ...(variations || [])])
       if (message) {
-        _.set(content, 'formData.text', renderTemplate(message, args))
+        _.set(content, 'formData.text', renderTemplate(message, args, alwaysEscape))
       }
 
       args = {
@@ -564,7 +565,7 @@ export class CMSService implements IDisposeOnExit {
       if (args.text) {
         args = {
           ...args,
-          text: renderTemplate(args.text, args)
+          text: renderTemplate(args.text, args, alwaysEscape)
         }
       }
     }
