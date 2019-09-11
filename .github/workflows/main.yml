@@ -1,12 +1,9 @@
 name: Validate documentation
-
 on: [push]
-
 jobs:
   check_404s:
     name: Check for 404 errors in docs
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@master
@@ -29,8 +26,8 @@ jobs:
     - name: Install python3
       uses: actions/setup-python@v1
       with:
-        python-version: '3.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
-        architecture: 'x64' # (x64 or x86)
+        python-version: '3.x'
+        architecture: 'x64'
     - name: Scrape docs for 404s
       run: |
         python --version
