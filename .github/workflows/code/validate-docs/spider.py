@@ -2,6 +2,10 @@ import scrapy
 
 
 class BrokenLinksSpider(scrapy.Spider):
+    """
+    Finds broken links on your website
+    Source: https://gist.github.com/mdamien/7b71ef06f49de1189fb75f8fed91ae82
+    """
     name = 'brokenlink-checker'
 
 
