@@ -316,7 +316,7 @@ export default class HTTPServer {
       this.logger.warn(
         `External URL is not configured. Using default value of ${
           process.EXTERNAL_URL
-        }. Some features may not work proprely`
+        }. Some features may not work properly`
       )
     }
 

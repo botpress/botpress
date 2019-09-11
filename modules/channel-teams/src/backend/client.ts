@@ -42,7 +42,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
     if (!this.publicPath || this.publicPath.indexOf('https://') !== 0) {
       return this.logger.error(
-        'You need to configure an HTTPS url for this channel to work proprely. See EXTERNAL_URL in botpress config.'
+        'You need to configure an HTTPS url for this channel to work properly. See EXTERNAL_URL in botpress config.'
       )
     }
 

@@ -481,7 +481,7 @@ export interface AlertingConfig {
 export interface EventCollectorConfig {
   /**
    * When enabled, incoming and outgoing events will be saved on the database.
-   * It is required for some modules to work proprely (eg: history, testing, developer tools on channel web)
+   * It is required for some modules to work properly (eg: history, testing, developer tools on channel web)
    * @default true
    */
   enabled: boolean

@@ -7,7 +7,7 @@ describe('Studio - UI', () => {
     await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}`)
   })
 
-  it('Emulator window toggle proprely', async () => {
+  it('Emulator window toggle properly', async () => {
     await page.waitFor(1000)
     await page.type('#mainLayout', 'e')
     await page.keyboard.type('Much automated!')
