@@ -181,8 +181,8 @@ export interface BotInfo {
   name: string
   description: string
   details: BotDetails
-  showBotInfoPage: boolean,
-  languages: string[],
+  showBotInfoPage: boolean
+  languages: string[]
 }
 
 interface Conversation {
