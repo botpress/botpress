@@ -155,7 +155,6 @@ class RootStore {
     const preferences = await this.api.fetchPreferences()
     runInAction('-> setPreferredLanguage', () => {
       const preferredLanguage = preferences.preferredLanguage
-      debugger
       this.preferredLanguage = preferredLanguage
     })
   }
