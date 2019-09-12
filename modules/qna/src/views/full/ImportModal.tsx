@@ -1,9 +1,8 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
+import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-
-import { toastFailure, toastSuccess } from './toaster'
 
 const JSON_STATUS_POLL_INTERVAL = 1000
 const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
