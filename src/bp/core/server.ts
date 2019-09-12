@@ -44,6 +44,7 @@ import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
+import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
@@ -110,7 +111,8 @@ export default class HTTPServer {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
-    @inject(TYPES.AlertingService) private alertingService: AlertingService
+    @inject(TYPES.AlertingService) private alertingService: AlertingService,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     this.app = express()
 
@@ -149,7 +151,8 @@ export default class HTTPServer {
       this.configProvider,
       this.monitoringService,
       this.alertingService,
-      moduleLoader
+      moduleLoader,
+      this.jobService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
