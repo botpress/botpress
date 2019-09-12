@@ -101,6 +101,12 @@ declare type BotpressEnvironementVariables = {
    * @default false
    */
   readonly BP_DISABLE_AUTO_RESTART?: boolean
+
+  /**
+   * Define the maximum number of time the server will be automatically restarted.
+   * @default 5
+   */
+  readonly BP_MAX_SERVER_REBOOT?: number
 }
 
 interface IDebug {
