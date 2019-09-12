@@ -10,6 +10,7 @@ import Storage from './storage'
 import { importQuestions, prepareExport, prepareImport } from './transfer'
 import { QnaDefSchema } from './validation'
 
+
 export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
   const jsonUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
