@@ -7,6 +7,8 @@ import Database from './db'
 const debug = DEBUG('hitl')
 const debugSwallow = debug.sub('swallow')
 
+const ignoredTypes = ['delivery', 'read']
+
 export default async (bp: SDK, db: Database) => {
   bp.events.registerMiddleware({
     name: 'hitl.captureInMessages',
@@ -24,12 +26,8 @@ export default async (bp: SDK, db: Database) => {
     description: 'Captures outgoing messages to show inside HITL.'
   })
 
-  async function incomingHandler(event: sdk.IO.Event, next) {
-    if (!db) {
-      return next()
-    }
-
-    if (_.includes(['delivery', 'read'], event.type)) {
+  async function incomingHandler(event: sdk.IO.IncomingEvent, next) {
+    if (!db || ignoredTypes.includes(event.type)) {
       return next()
     }
 
@@ -38,12 +36,12 @@ export default async (bp: SDK, db: Database) => {
       return next()
     }
 
-    if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
-    }
+    const message = await db.appendMessageToSession(event, session.id, 'in')
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.message', message))
 
-    await db.appendMessageToSession(event, session.id, 'in')
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
+    if (session.is_new_session) {
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.new_session', session))
+    }
 
     const config = await bp.config.getModuleConfigForBot('hitl', event.botId)
 
@@ -70,17 +68,16 @@ export default async (bp: SDK, db: Database) => {
     }
 
     const session = await db.getOrCreateUserSession(event)
-
     if (!session) {
       return next()
     }
 
-    if (session.is_new_session) {
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
-    }
+    const message = await db.appendMessageToSession(event, session.id, 'out')
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.message', message))
 
-    await db.appendMessageToSession(event, session.id, 'out')
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', session))
+    if (session.is_new_session) {
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.new_session', session))
+    }
 
     next()
   }
