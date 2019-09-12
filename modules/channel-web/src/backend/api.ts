@@ -14,6 +14,7 @@ import Database from './db'
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
+const ERR_BAD_LANGUAGE = '`preferredLanguage` is required and must be valid'
 
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
@@ -370,10 +371,14 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   router.post('/preferences/:userId', async (req, res) => {
-    const { userId } = req.params
+    const { userId, botId } = req.params
     const payload = req.body || {}
     const preferredLanguage = payload.preferredLanguage
-    // todo: add validation
+    const bot = await bp.bots.getBotById(botId)
+    const validLanguage = bot.languages.includes(preferredLanguage)
+    if (!validLanguage) {
+      return res.status(400).send(ERR_BAD_LANGUAGE)
+    }
 
     await bp.users.updateAttributes('web', userId, {
       language: preferredLanguage
