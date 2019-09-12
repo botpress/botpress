@@ -155,7 +155,7 @@ export class Botpress {
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
       appSecret = nanoid(40)
-      await this.configProvider.mergeBotpressConfig({ appSecret })
+      await this.configProvider.mergeBotpressConfig({ appSecret }, true)
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
