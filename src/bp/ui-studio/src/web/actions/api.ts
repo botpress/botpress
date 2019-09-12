@@ -56,7 +56,7 @@ export namespace FlowsAPI {
 
   const apiDeleteFlow = async (flowName: string) => {
     flowName = escapeForwardSlashes(flowName)
-    return axios.delete(`${window.BOT_API_PATH}/flow/${flowName}`)
+    return axios.post(`${window.BOT_API_PATH}/flow/${flowName}/delete`)
   }
 
   const apiInsertFlow = async flow => {

@@ -144,7 +144,7 @@ Password: ${payload.tempPassword}`
     }
 
     try {
-      await api.getSecured().delete(`/admin/users/workspace/remove/${user.strategy}/${user.email}`)
+      await api.getSecured().post(`/admin/users/workspace/remove/${user.strategy}/${user.email}/delete`)
       toastSuccess(`User ${user.email} was removed from workspace successfully`)
       this.props.fetchUsers()
     } catch (err) {
@@ -158,7 +158,7 @@ Password: ${payload.tempPassword}`
     }
 
     try {
-      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
+      await api.getSecured().post(`/admin/users/${user.strategy}/${user.email}/delete`)
       toastSuccess(`User ${user.email} was deleted successfully`)
       this.props.fetchUsers()
     } catch (err) {
