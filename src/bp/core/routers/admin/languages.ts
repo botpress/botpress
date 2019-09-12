@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -12,7 +13,12 @@ export class LanguagesRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private readonly resource = 'admin.languages'
 
-  constructor(logger: Logger, private moduleLoader: ModuleLoader, private workspaceService: WorkspaceService) {
+  constructor(
+    logger: Logger,
+    private moduleLoader: ModuleLoader,
+    private workspaceService: WorkspaceService,
+    private configProvider: ConfigProvider
+  ) {
     super('Languages', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
     this.setupRoutes()
@@ -36,9 +42,16 @@ export class LanguagesRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const additionalLanguages = (await this.configProvider.getBotpressConfig()).additionalLanguages
+
         try {
           const client = await this.getSourceClient()
-          await client.get('/languages').then(({ data }) => res.send(data))
+          const { data } = await client.get('/languages')
+
+          res.send({
+            ...data,
+            additionalLanguages
+          })
         } catch (err) {
           res.status(500).send(err.message)
         }
@@ -112,16 +125,21 @@ export class LanguagesRouter extends CustomRouter {
       '/available',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const extraLanguages = (await this.configProvider.getBotpressConfig()).additionalLanguages
+
         try {
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
-          res.send({
-            languages: data.installed
+          const languages = [
+            ...extraLanguages,
+            ...data.installed
               .filter(x => x.loaded)
               .map(x => ({
                 ...data.available.find(l => l.code === x.lang)
               }))
-          })
+          ]
+
+          res.send({ languages })
         } catch (err) {
           res.status(500).send(err)
         }
