@@ -25,7 +25,7 @@ class Message extends Component<MessageProps> {
       return null
     }
 
-    return <Text markdown={markdown} text={textMessage || text} escapeHTML={this.props.escapeHTML} />
+    return <Text markdown={markdown} text={textMessage || text} escapeHTML={this.props.store.escapeHTML} />
   }
 
   render_quick_reply() {
@@ -57,7 +57,7 @@ class Message extends Component<MessageProps> {
   }
 
   render_file() {
-    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.escapeHTML} />
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
   }
 
   render_custom() {
@@ -95,7 +95,7 @@ class Message extends Component<MessageProps> {
   }
 
   render_session_reset() {
-    return this.render_text(this.props.intl.formatMessage({ id: 'store.resetSessionMessage' }))
+    return this.render_text(this.props.store.intl.formatMessage({ id: 'store.resetSessionMessage' }))
   }
 
   render_visit() {
@@ -120,7 +120,7 @@ class Message extends Component<MessageProps> {
   renderTimestamp() {
     return (
       <span className="bpw-message-timestamp">
-        {this.props.intl.formatTime(new Date(this.props.sentOn), { hour: 'numeric', minute: 'numeric' })}
+        {this.props.store.intl.formatTime(new Date(this.props.sentOn), { hour: 'numeric', minute: 'numeric' })}
       </span>
     )
   }
@@ -159,16 +159,12 @@ class Message extends Component<MessageProps> {
         style={additionalStyle}
       >
         {rendered}
-        {this.props.config.showTimestamp && this.renderTimestamp()}
+        {this.props.store.config.showTimestamp && this.renderTimestamp()}
       </div>
     )
   }
 }
 
-export default inject(({ store }: { store: RootStore }) => ({
-  intl: store.intl,
-  config: store.config,
-  escapeHTML: store.escapeHTML
-}))(Message)
+export default inject(({ store }: { store: RootStore }) => ({ store }))(Message)
 
-type MessageProps = Renderer.Message & Pick<StoreDef, 'intl' | 'config' | 'escapeHTML'>
+type MessageProps = Renderer.Message & StoreDef
