@@ -62,9 +62,9 @@ export default class WebchatApi {
     }
   }
 
-  async updateUserPreferredLanguage(lang: string) {
+  async updateUserPreferredLanguage(language: string) {
     try {
-      await this.axios.post(`/preferences/${this.userId}`, { preferredLanguage: lang }, this.axiosConfig)
+      await this.axios.post(`/preferences/${this.userId}`, { language: language }, this.axiosConfig)
     } catch (err) {
       console.log(`Error in updating user preferred language`, err)
     }

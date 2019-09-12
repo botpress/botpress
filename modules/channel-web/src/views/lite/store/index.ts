@@ -154,7 +154,7 @@ class RootStore {
   async fetchPreferences(): Promise<void> {
     const preferences = await this.api.fetchPreferences()
     runInAction('-> setPreferredLanguage', () => {
-      this.preferredLanguage = preferences.preferredLanguage
+      this.preferredLanguage = preferences.language
     })
   }
 
