@@ -67,7 +67,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
   })
 
-  router.delete('/questions/:id', async (req, res) => {
+  router.post('/questions/:id/delete', async (req, res) => {
     const {
       query: { limit, offset, question, categories }
     } = req

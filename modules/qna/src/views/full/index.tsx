@@ -332,7 +332,7 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   deleteItem = (id: string) => () => {
-    const needDelete = confirm('Do you want to delete the question?')
+    const needDelete = confirm('Do you want to delete the question? aaaaa')
     const { filterQuestion, filterCategory, page } = this.state
     const params = {
       question: filterQuestion,
@@ -342,7 +342,7 @@ export default class QnaAdmin extends Component<Props> {
     }
 
     if (needDelete) {
-      this.props.bp.axios.delete(`/mod/qna/questions/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios.post(`/mod/qna/questions/${id}/delete`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 
