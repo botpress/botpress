@@ -25,6 +25,12 @@ const CoverPicture = ({ botInfo }) => (
 class BotInfoPage extends React.Component<BotInfoProps> {
   private btnEl: HTMLElement
 
+  constructor(props) {
+    super(props)
+
+    this.changeLanguage = this.changeLanguage.bind(this)
+  }
+
   componentDidMount() {
     this.btnEl && this.btnEl.focus()
   }
@@ -34,6 +40,11 @@ class BotInfoPage extends React.Component<BotInfoProps> {
     html = html.replace(/<a href/gi, `<a target="_blank" href`)
 
     return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
+  }
+
+  changeLanguage(e) {
+    const lang = e.target.value
+    this.props.updatePreferredLanguage(lang)
   }
 
   render() {
@@ -98,6 +109,18 @@ class BotInfoPage extends React.Component<BotInfoProps> {
             )}
           </React.Fragment>
         )}
+        {botInfo.languages.length > 1 && (
+          <div className={'bpw-botinfo-preferred-language'}>
+            Preferred language:
+            <select value={this.props.preferredLanguage} onChange={this.changeLanguage}>
+              {botInfo.languages.map(lang => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <button
           tabIndex={1}
           ref={el => (this.btnEl = el)}
@@ -121,7 +144,9 @@ export default inject(({ store }: { store: RootStore }) => ({
   avatarUrl: store.botAvatarUrl,
   startConversation: store.startConversation,
   toggleBotInfo: store.view.toggleBotInfo,
-  isConversationStarted: store.isConversationStarted
+  isConversationStarted: store.isConversationStarted,
+  updatePreferredLanguage: store.updatePreferredLanguage,
+  preferredLanguage: store.preferredLanguage
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
@@ -134,4 +159,6 @@ type BotInfoProps = InjectedIntlProps &
     | 'startConversation'
     | 'isConversationStarted'
     | 'enableArrowNavigation'
+    | 'updatePreferredLanguage'
+    | 'preferredLanguage'
   >

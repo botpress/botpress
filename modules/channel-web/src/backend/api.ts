@@ -99,7 +99,8 @@ export default async (bp: typeof sdk, db: Database) => {
         showBotInfoPage: (config.infoPage && config.infoPage.enabled) || config.showBotInfoPage,
         name: botInfo.name,
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
-        details: botInfo.details
+        details: botInfo.details,
+        languages: botInfo.languages
       })
     })
   )
@@ -358,6 +359,27 @@ export default async (bp: typeof sdk, db: Database) => {
     } catch (error) {
       res.status(500).send({ message: error.message })
     }
+  })
+
+  router.get('/preferences/:userId', async (req, res) => {
+    const { userId } = req.params
+    const { result } = await bp.users.getOrCreateUser('web', userId)
+    const preferredLanguage = result.attributes.language
+
+    return res.send({ preferredLanguage })
+  })
+
+  router.post('/preferences/:userId', async (req, res) => {
+    const { userId } = req.params
+    const payload = req.body || {}
+    const preferredLanguage = payload.preferredLanguage
+    // todo: add validation
+
+    await bp.users.updateAttributes('web', userId, {
+      language: preferredLanguage
+    })
+
+    return res.sendStatus(200)
   })
 
   const getMessageContent = (message, type) => {
