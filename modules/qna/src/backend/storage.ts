@@ -152,7 +152,7 @@ export default class Storage {
   async deleteMatchingIntent(id: string) {
     const axiosConfig = await this.getAxiosConfig()
     try {
-      await axios.post(`/mod/nlu/intents/${getIntentId(id)}`, axiosConfig)
+      await axios.post(`/mod/nlu/intents/${getIntentId(id)}/delete`, axiosConfig)
     } catch (err) {
       /* swallow error */
     }
