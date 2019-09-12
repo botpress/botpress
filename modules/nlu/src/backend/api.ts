@@ -121,7 +121,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntent(req.params.intent))
   })
 
-  router.delete('/intents/:intent', async (req, res) => {
+  router.post('/intents/:intent', async (req, res) => {
     const botEngine = nlus[req.params.botId] as ScopedEngine
 
     await botEngine.storage.deleteIntent(req.params.intent)
@@ -204,7 +204,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.sendStatus(200)
   })
 
-  router.delete('/entities/:id', async (req, res) => {
+  router.post('/entities/:id', async (req, res) => {
     const { botId, id } = req.params
     const botEngine = nlus[botId] as ScopedEngine
     await botEngine.storage.deleteEntity(id)
