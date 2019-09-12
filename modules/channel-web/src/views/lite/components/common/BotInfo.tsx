@@ -115,7 +115,7 @@ class BotInfoPage extends React.Component<BotInfoProps> {
             <select value={this.props.preferredLanguage} onChange={this.changeLanguage}>
               {botInfo.languages.map(lang => (
                 <option key={lang} value={lang}>
-                  {lang}
+                  {lang.toUpperCase()}
                 </option>
               ))}
             </select>
