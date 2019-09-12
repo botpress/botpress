@@ -105,7 +105,7 @@ class BotInfoPage extends React.Component<BotInfoProps> {
         )}
         {botInfo.languages.length > 1 && (
           <div className={'bpw-botinfo-preferred-language'}>
-            Preferred language:
+            <FormattedMessage id={'botInfo.preferredLanguage'} />
             <select value={this.props.preferredLanguage} onChange={this.changeLanguage}>
               {botInfo.languages.map(lang => (
                 <option key={lang} value={lang}>
