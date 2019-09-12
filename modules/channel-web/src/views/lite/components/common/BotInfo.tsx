@@ -25,12 +25,6 @@ const CoverPicture = ({ botInfo }) => (
 class BotInfoPage extends React.Component<BotInfoProps> {
   private btnEl: HTMLElement
 
-  constructor(props) {
-    super(props)
-
-    this.changeLanguage = this.changeLanguage.bind(this)
-  }
-
   componentDidMount() {
     this.btnEl && this.btnEl.focus()
   }
@@ -42,7 +36,7 @@ class BotInfoPage extends React.Component<BotInfoProps> {
     return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
   }
 
-  async changeLanguage(e) {
+  changeLanguage = async (e: any) => {
     const lang = e.target.value
     await this.props.updatePreferredLanguage(lang)
   }
