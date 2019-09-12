@@ -86,7 +86,7 @@ class RootStore {
 
   @computed
   get escapeHTML(): boolean {
-    return this.botInfo && this.botInfo.security.escapeHTML
+    return this.botInfo && this.botInfo.security && this.botInfo.security.escapeHTML
   }
 
   @computed

@@ -66,11 +66,11 @@ export const initializeAnalytics = () => {
   }
 }
 
-export const renderUnsafeHTML = (template: string = '', escaped: boolean = false): string => {
+export const renderUnsafeHTML = (message: string = '', escaped: boolean): string => {
   if (escaped) {
-    template = template.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   }
 
-  const html = snarkdown(template)
+  const html = snarkdown(message)
   return html.replace(/<a href/gi, `<a target="_blank" href`)
 }
