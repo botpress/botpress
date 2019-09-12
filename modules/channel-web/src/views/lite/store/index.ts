@@ -315,9 +315,9 @@ class RootStore {
   }
 
   @action.bound
-  updatePreferredLanguage(lang: string): void {
+  async updatePreferredLanguage(lang: string): Promise<void> {
     this.preferredLanguage = lang
-    this.api.updateUserPreferredLanguage(lang)
+    await this.api.updateUserPreferredLanguage(lang)
   }
 
   /** Starts a timer to remove the typing animation when it's completed */
