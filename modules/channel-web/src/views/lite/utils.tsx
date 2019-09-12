@@ -1,5 +1,5 @@
-import React from 'react'
 import ReactGA from 'react-ga'
+import snarkdown from 'snarkdown'
 
 export const getOverridedComponent = (overrides, componentName) => {
   if (overrides && overrides[componentName]) {
@@ -64,4 +64,13 @@ export const initializeAnalytics = () => {
       console.log('Error init analytics', err)
     }
   }
+}
+
+export const renderUnsafeHTML = (template: string = '', escaped: boolean = false): string => {
+  if (escaped) {
+    template = template.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  }
+
+  const html = snarkdown(template)
+  return html.replace(/<a href/gi, `<a target="_blank" href`)
 }

@@ -1,10 +1,9 @@
 import classnames from 'classnames'
 import pick from 'lodash/pick'
-
-import React, { Component } from 'react'
 import { inject } from 'mobx-react'
-import { RootStore, StoreDef } from '../../store'
+import React, { Component } from 'react'
 
+import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
@@ -25,7 +24,8 @@ class Message extends Component<MessageProps> {
     if (!textMessage && !text) {
       return null
     }
-    return <Text markdown={markdown} text={textMessage || text} />
+
+    return <Text markdown={markdown} text={textMessage || text} escapeHTML={this.props.escapeHTML} />
   }
 
   render_quick_reply() {
@@ -57,7 +57,7 @@ class Message extends Component<MessageProps> {
   }
 
   render_file() {
-    return <FileMessage file={this.props.payload} />
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.escapeHTML} />
   }
 
   render_custom() {
@@ -167,7 +167,8 @@ class Message extends Component<MessageProps> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
-  config: store.config
+  config: store.config,
+  escapeHTML: store.escapeHTML
 }))(Message)
 
-type MessageProps = Renderer.Message & Pick<StoreDef, 'intl' | 'config'>
+type MessageProps = Renderer.Message & Pick<StoreDef, 'intl' | 'config' | 'escapeHTML'>

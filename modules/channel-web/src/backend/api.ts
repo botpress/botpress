@@ -1,6 +1,5 @@
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
-import crypto from 'crypto'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -88,6 +87,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/botInfo',
     asyncApi(async (req, res) => {
       const { botId } = req.params
+      const security = ((await bp.config.getModuleConfig('channel-web')) as Config).security // usage of global because a user could overwrite bot scoped configs
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
       const botInfo = await bp.bots.getBotById(botId)
 
@@ -99,7 +99,8 @@ export default async (bp: typeof sdk, db: Database) => {
         showBotInfoPage: (config.infoPage && config.infoPage.enabled) || config.showBotInfoPage,
         name: botInfo.name,
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
-        details: botInfo.details
+        details: botInfo.details,
+        security
       })
     })
   )
