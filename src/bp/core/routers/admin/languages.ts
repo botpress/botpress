@@ -95,13 +95,13 @@ export class LanguagesRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/:lang',
+    router.post(
+      '/:lang/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
-          await client.delete('/languages/' + req.params.lang).then(({ data }) => res.send(data))
+          await client.post(`/languages/${req.params.lang}/delete`).then(({ data }) => res.send(data))
         } catch (err) {
           res.status(500).send(err.message)
         }

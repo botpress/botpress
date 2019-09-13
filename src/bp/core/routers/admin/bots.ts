@@ -147,8 +147,8 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/:botId',
+    router.post(
+      '/:botId/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params

@@ -76,8 +76,8 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/workspace/remove/:strategy/:email',
+    router.post(
+      '/workspace/remove/:strategy/:email/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
@@ -134,8 +134,8 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/:strategy/:email',
+    router.post(
+      '/:strategy/:email/delete',
       assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
