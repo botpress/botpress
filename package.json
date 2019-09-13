@@ -90,6 +90,9 @@
     "yargs": "^12.0.2",
     "yn": "^2.0.0"
   },
+  "resolutions": {
+    "fstream": ">=1.0.12"
+  },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",

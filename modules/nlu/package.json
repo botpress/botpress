@@ -43,5 +43,8 @@
     "react-tag-input": "6.4.0",
     "tmp": "^0.0.33",
     "verror": "^1.10.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

@@ -123,5 +123,8 @@
       ],
       "extensions": "js,jsx,scss,json,html"
     }
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }
