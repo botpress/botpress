@@ -257,6 +257,13 @@ export type BotpressConfig = {
    * @default true
    */
   showPoweredBy: boolean
+  /**
+   * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
+   * Warning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.
+   * @example [{name: 'Swedish', code: 'sv'}]
+   * @default []
+   */
+  additionalLanguages?: { name: string; code: string }[]
 }
 
 export interface ExternalAuthConfig {
