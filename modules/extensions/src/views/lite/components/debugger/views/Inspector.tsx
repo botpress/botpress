@@ -44,7 +44,7 @@ export const Inspector = props => {
                   .join('.') +
                 '}}'
               return (
-                <span className={style.label}>
+                <span>
                   <CopyPath path={path} />
                   &nbsp;{key}:
                 </span>
