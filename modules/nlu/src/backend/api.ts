@@ -34,9 +34,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     confusionMode: boolean = false,
     confusionVersion: string = undefined
   ): Promise<string> => {
-    const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
-
     if (confusionMode && botEngine instanceof ConfusionEngine) {
       botEngine.computeConfusionOnTrain = true
     }
@@ -54,9 +51,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       if (confusionMode && botEngine instanceof ConfusionEngine) {
         botEngine.computeConfusionOnTrain = false
       }
-
-      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
     }
   }
 
