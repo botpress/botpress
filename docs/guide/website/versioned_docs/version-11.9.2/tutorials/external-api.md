@@ -46,7 +46,7 @@ Add an `onEnter` action instruction and select the `callApi` action from the lis
 
 ![Action](assets/tutorial-call-api-action.png)
 
-> 📖 What are `onEnter` instructions? Understand how the node [Lifecycle](../../main/dialog#nodes) works.
+> 📖 What are `onEnter` instructions? Understand how the node [Lifecycle](../../main/dialo#nodes) works.
 
 ### Add a text content element
 
