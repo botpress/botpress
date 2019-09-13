@@ -220,6 +220,9 @@ export default class HTTPServer {
      */
     this.app.use((req, res, next) => {
       res.header('X-Powered-By', 'Botpress')
+      Object.entries(config.headers).map(header => {
+        res.setHeader(header[0], header[1])
+      })
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
           return res.status(503).send('Botpress is loading. Please try again in a minute.')

@@ -40,9 +40,18 @@
               "type": "string"
             }
           }
+        },
+        "headers": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
       },
-      "required": ["backlog", "bodyLimit", "cors", "host", "port"]
+      "required": ["backlog", "bodyLimit", "cors", "host", "port", "headers"]
     },
     "database": {
       "$ref": "#/definitions/DatabaseConfig"
