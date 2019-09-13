@@ -148,6 +148,9 @@ export default class ScopedEngine implements Engine {
     }
 
     try {
+      const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', startTraining))
+
       this._isSyncing = true
       const intents = await this.getIntents()
       const modelHash = this.computeModelHash(intents)
@@ -183,6 +186,9 @@ export default class ScopedEngine implements Engine {
         return this.trainOrLoad() // This floating promise is voluntary
       }
     }
+
+    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
 
     return this._currentModelHash
   }
