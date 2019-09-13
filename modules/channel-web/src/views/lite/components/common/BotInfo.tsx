@@ -1,12 +1,12 @@
 import { inject, observer } from 'mobx-react'
 import * as React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
-import snarkdown from 'snarkdown'
 
 import EmailIcon from '../../icons/Email'
 import PhoneIcon from '../../icons/Phone'
 import WebsiteIcon from '../../icons/Website'
 import { RootStore, StoreDef } from '../../store'
+import { renderUnsafeHTML } from '../../utils'
 
 import Avatar from './Avatar'
 
@@ -30,8 +30,7 @@ class BotInfoPage extends React.Component<BotInfoProps> {
   }
 
   renderDescription(text) {
-    let html = snarkdown(text || '')
-    html = html.replace(/<a href/gi, `<a target="_blank" href`)
+    const html = renderUnsafeHTML(text, this.props.escapeHTML)
 
     return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
   }
@@ -140,7 +139,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   toggleBotInfo: store.view.toggleBotInfo,
   isConversationStarted: store.isConversationStarted,
   updatePreferredLanguage: store.updatePreferredLanguage,
-  preferredLanguage: store.preferredLanguage
+  preferredLanguage: store.preferredLanguage,
+  escapeHTML: store.escapeHTML,
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
@@ -155,4 +155,5 @@ type BotInfoProps = InjectedIntlProps &
     | 'enableArrowNavigation'
     | 'updatePreferredLanguage'
     | 'preferredLanguage'
+    | 'escapeHTML'
   >

@@ -55,6 +55,7 @@ export namespace Renderer {
   export type Text = {
     text: string
     markdown: boolean
+    escapeHTML: boolean
   } & Message
 
   export type QuickReply = {
@@ -74,6 +75,7 @@ export namespace Renderer {
       storage: string
       text: string
     }
+    escapeTextHTML: boolean
   }
 
   export interface FileInput {
@@ -183,6 +185,9 @@ export interface BotInfo {
   details: BotDetails
   showBotInfoPage: boolean
   languages: string[]
+  security: {
+    escapeHTML: boolean
+  }
 }
 
 interface Conversation {

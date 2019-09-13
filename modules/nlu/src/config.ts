@@ -29,8 +29,8 @@ export interface Config {
   autoTrainInterval: string
 
   /**
-   * Wheather or not you want your models to be trained on bot mouns
-   * @default false
+   * Wheather or not you want your models to be trained and loaded on bot mounts
+   * @default true
    */
   preloadModels: boolean
 

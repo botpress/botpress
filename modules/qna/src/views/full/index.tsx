@@ -342,7 +342,7 @@ export default class QnaAdmin extends Component<Props> {
     }
 
     if (needDelete) {
-      this.props.bp.axios.delete(`/mod/qna/questions/${id}`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios.post(`/mod/qna/questions/${id}/delete`, { params }).then(({ data }) => this.setState({ ...data }))
     }
   }
 

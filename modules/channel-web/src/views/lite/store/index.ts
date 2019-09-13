@@ -88,6 +88,11 @@ class RootStore {
   }
 
   @computed
+  get escapeHTML(): boolean {
+    return this.botInfo && this.botInfo.security && this.botInfo.security.escapeHTML
+  }
+
+  @computed
   get currentMessages(): Message[] {
     return this.currentConversation && this.currentConversation.messages
   }
