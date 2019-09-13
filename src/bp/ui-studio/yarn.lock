@@ -6222,7 +6222,7 @@ react-select@^2.4.2:
     react-input-autosize "^2.2.1"
     react-transition-group "^2.2.1"
 
-react-split-pane@^0.1.66:
+react-split-pane@^0.1.87:
   version "0.1.87"
   resolved "https://registry.yarnpkg.com/react-split-pane/-/react-split-pane-0.1.87.tgz#a7027ae554abfacca35f5f780288b07fe4ec4cbd"
   integrity sha512-F22jqWyKB1WximT0U5HKdSuB9tmJGjjP+WUyveHxJJys3ANsljj163kCdsI6M3gdfyCVC+B2rq8sc5m2Ko02RA==
