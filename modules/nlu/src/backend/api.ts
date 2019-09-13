@@ -148,7 +148,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   // TODO use this in UI
-  router.put('/intents/:id/utterances', async (req, res) => {
+  router.post('/intents/:id/utterances', async (req, res) => {
     const { botId, id } = req.params
     const { lang, utterances } = req.body
     const botEngine = nlus[botId] as ScopedEngine
@@ -192,7 +192,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  router.put('/entities/:id', async (req, res) => {
+  router.post('/entities/:id', async (req, res) => {
     const content = req.body
     const { botId, id } = req.params
     const updatedEntity = content as sdk.NLU.EntityDefinition

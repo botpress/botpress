@@ -65,7 +65,7 @@ export namespace FlowsAPI {
 
   const apiUpdateFlow = async (flowName: string, flow) => {
     flowName = escapeForwardSlashes(flowName)
-    return axios.put(`${window.BOT_API_PATH}/flow/${flowName}`, { flow })
+    return axios.post(`${window.BOT_API_PATH}/flow/${flowName}`, { flow })
   }
 
   const escapeForwardSlashes = (pathParam: string) => {

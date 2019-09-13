@@ -50,7 +50,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     }
   })
 
-  router.put('/questions/:id', async (req, res, next) => {
+  router.post('/questions/:id', async (req, res, next) => {
     const {
       query: { limit, offset, question, categories }
     } = req

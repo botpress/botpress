@@ -365,7 +365,7 @@ export default class QnaAdmin extends Component<Props> {
 
     item.enabled = event.target.checked
     this.props.bp.axios
-      .put(`/mod/qna/questions/${id}`, item, { params })
+      .post(`/mod/qna/questions/${id}`, item, { params })
       .then(({ data: { items } }) => this.setState({ items }))
   }
 

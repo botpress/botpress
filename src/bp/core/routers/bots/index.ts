@@ -306,7 +306,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.put(
+    this.router.post(
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),

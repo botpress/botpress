@@ -132,7 +132,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    router.put(
+    router.post(
       '/:botId',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
