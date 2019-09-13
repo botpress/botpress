@@ -124,7 +124,7 @@
     li {
       position: relative;
 
-      & > .label {
+      & > label {
         :global(.bp3-icon) {
           cursor: pointer;
           position: absolute;
@@ -135,9 +135,8 @@
       }
     }
 
-    .label:hover :global(.bp3-icon) svg {
-      cursor: pointer;
-      fill: #137cbd;
+    label:hover :global(.bp3-icon) {
+      display: unset;
     }
   }
 }

@@ -8,7 +8,6 @@ interface CssExports {
   'hovering': string;
   'inspector': string;
   'inspectorContainer': string;
-  'label': string;
   'language': string;
   'notFound': string;
   'splash': string;
