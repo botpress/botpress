@@ -15,7 +15,7 @@ export class LanguagesRouter extends CustomRouter {
   private readonly resource = 'admin.languages'
 
   constructor(
-    logger: Logger,
+    private logger: Logger,
     private moduleLoader: ModuleLoader,
     private workspaceService: WorkspaceService,
     private configProvider: ConfigProvider
@@ -49,8 +49,12 @@ export class LanguagesRouter extends CustomRouter {
         )
         .required()
     )
+    if (error) {
+      this.logger.warn('Additional langages are not valid')
+      return []
+    }
 
-    return error ? [] : (additionalLanguages as any[])
+    return additionalLanguages!
   }
 
   setupRoutes() {
