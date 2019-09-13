@@ -219,10 +219,8 @@ export default class HTTPServer {
      * During this time, internal calls between modules can be made
      */
     this.app.use((req, res, next) => {
-      res.header('X-Powered-By', 'Botpress')
-      Object.entries(config.headers).map(header => {
-        res.setHeader(header[0], header[1])
-      })
+      res.removeHeader('X-Powered-By') // Removes the default X-Powered-By: Express
+      res.set(config.headers)
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
           return res.status(503).send('Botpress is loading. Please try again in a minute.')

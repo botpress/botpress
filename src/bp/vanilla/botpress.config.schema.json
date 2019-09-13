@@ -51,7 +51,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["backlog", "bodyLimit", "cors", "host", "port", "headers"]
+      "required": ["backlog", "bodyLimit", "cors", "host", "port"]
     },
     "database": {
       "$ref": "#/definitions/DatabaseConfig"

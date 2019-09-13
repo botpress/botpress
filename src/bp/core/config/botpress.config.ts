@@ -147,8 +147,9 @@ export type BotpressConfig = {
     socketTransports: string[]
     /**
      * Adds default headers to the server's responses
+     * @default {"X-Powered-By":"Botpress"}
      */
-    headers: {[name: string]: string}
+    headers: { [name: string]: string }
   }
   converse: ConverseConfig
   dialog: DialogConfig
