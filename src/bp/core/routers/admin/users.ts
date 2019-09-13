@@ -91,7 +91,7 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.put(
+    router.post(
       '/workspace/update_role',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {

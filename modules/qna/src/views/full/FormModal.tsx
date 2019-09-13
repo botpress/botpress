@@ -159,7 +159,7 @@ export default class FormModal extends Component<Props> {
     } = this.props
 
     try {
-      const { data } = await this.props.bp.axios.put(`/mod/qna/questions/${this.props.id}`, qnaItem, {
+      const { data } = await this.props.bp.axios.post(`/mod/qna/questions/${this.props.id}`, qnaItem, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
 
