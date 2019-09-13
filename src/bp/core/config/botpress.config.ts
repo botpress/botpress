@@ -263,7 +263,7 @@ export type BotpressConfig = {
    * @example [{name: 'Swedish', code: 'sv'}]
    * @default []
    */
-  additionalLanguages: { name: string; code: string }[]
+  additionalLanguages?: { name: string; code: string }[]
 }
 
 export interface ExternalAuthConfig {

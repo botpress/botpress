@@ -4,6 +4,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
@@ -35,6 +36,23 @@ export class LanguagesRouter extends CustomRouter {
     return axios.create({ baseURL: source.endpoint, headers })
   }
 
+  private async getExtraLangs(): Promise<any[]> {
+    const { additionalLanguages } = await this.configProvider.getBotpressConfig()
+    const { error } = Joi.validate(
+      additionalLanguages,
+      Joi.array()
+        .items(
+          Joi.object({
+            name: Joi.string().required(),
+            code: Joi.string().required()
+          })
+        )
+        .required()
+    )
+
+    return error ? [] : (additionalLanguages as any[])
+  }
+
   setupRoutes() {
     const router = this.router
 
@@ -42,15 +60,13 @@ export class LanguagesRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const additionalLanguages = (await this.configProvider.getBotpressConfig()).additionalLanguages
-
         try {
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
 
           res.send({
             ...data,
-            additionalLanguages
+            ...(await this.getExtraLangs())
           })
         } catch (err) {
           res.status(500).send(err.message)
@@ -125,13 +141,12 @@ export class LanguagesRouter extends CustomRouter {
       '/available',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const extraLanguages = (await this.configProvider.getBotpressConfig()).additionalLanguages
-
         try {
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
+
           const languages = [
-            ...extraLanguages,
+            ...(await this.getExtraLangs()),
             ...data.installed
               .filter(x => x.loaded)
               .map(x => ({
