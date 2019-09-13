@@ -332,7 +332,7 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   deleteItem = (id: string) => () => {
-    const needDelete = confirm('Do you want to delete the question? aaaaa')
+    const needDelete = confirm('Do you want to delete the question?')
     const { filterQuestion, filterCategory, page } = this.state
     const params = {
       question: filterQuestion,
