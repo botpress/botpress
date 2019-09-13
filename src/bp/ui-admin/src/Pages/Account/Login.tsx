@@ -195,6 +195,11 @@ export default class Login extends Component<Props, State> {
                 {strategyType === 'saml' || strategyType === 'oauth2' ? this.renderExternal() : this.renderForm()}
               </CardBody>
             </Card>
+            <div className="homepage">
+              <p>
+                Powered by <a href="https://botpress.io">Botpress</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
