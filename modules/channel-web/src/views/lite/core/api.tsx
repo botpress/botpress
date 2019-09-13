@@ -53,6 +53,23 @@ export default class WebchatApi {
     }
   }
 
+  async fetchPreferences() {
+    try {
+      const { data } = await this.axios.get(`/preferences/${this.userId}`, this.axiosConfig)
+      return data
+    } catch (err) {
+      console.log(`Error while fetching preferences`, err)
+    }
+  }
+
+  async updateUserPreferredLanguage(language: string) {
+    try {
+      await this.axios.post(`/preferences/${this.userId}`, { language: language }, this.axiosConfig)
+    } catch (err) {
+      console.log(`Error in updating user preferred language`, err)
+    }
+  }
+
   async fetchConversations() {
     try {
       const { data } = await this.axios.get(`/conversations/${this.userId}`, this.axiosConfig)

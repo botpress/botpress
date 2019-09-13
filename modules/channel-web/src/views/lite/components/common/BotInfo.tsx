@@ -35,6 +35,11 @@ class BotInfoPage extends React.Component<BotInfoProps> {
     return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
   }
 
+  changeLanguage = async (e: any) => {
+    const lang = e.target.value
+    await this.props.updatePreferredLanguage(lang)
+  }
+
   render() {
     const { botInfo, botName, avatarUrl } = this.props
     const onDismiss = this.props.isConversationStarted ? this.props.toggleBotInfo : this.props.startConversation
@@ -97,6 +102,18 @@ class BotInfoPage extends React.Component<BotInfoProps> {
             )}
           </React.Fragment>
         )}
+        {botInfo.languages.length > 1 && (
+          <div className={'bpw-botinfo-preferred-language'}>
+            <FormattedMessage id={'botInfo.preferredLanguage'} />
+            <select value={this.props.preferredLanguage} onChange={this.changeLanguage}>
+              {botInfo.languages.map(lang => (
+                <option key={lang} value={lang}>
+                  {lang.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <button
           tabIndex={1}
           ref={el => (this.btnEl = el)}
@@ -121,7 +138,9 @@ export default inject(({ store }: { store: RootStore }) => ({
   startConversation: store.startConversation,
   toggleBotInfo: store.view.toggleBotInfo,
   isConversationStarted: store.isConversationStarted,
-  escapeHTML: store.escapeHTML
+  updatePreferredLanguage: store.updatePreferredLanguage,
+  preferredLanguage: store.preferredLanguage,
+  escapeHTML: store.escapeHTML,
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
@@ -134,5 +153,7 @@ type BotInfoProps = InjectedIntlProps &
     | 'startConversation'
     | 'isConversationStarted'
     | 'enableArrowNavigation'
+    | 'updatePreferredLanguage'
+    | 'preferredLanguage'
     | 'escapeHTML'
   >

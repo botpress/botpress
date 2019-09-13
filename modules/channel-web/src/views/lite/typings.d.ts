@@ -184,6 +184,7 @@ export interface BotInfo {
   description: string
   details: BotDetails
   showBotInfoPage: boolean
+  languages: string[]
   security: {
     escapeHTML: boolean
   }
