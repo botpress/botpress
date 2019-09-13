@@ -40,6 +40,15 @@
               "type": "string"
             }
           }
+        },
+        "headers": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "required": ["backlog", "bodyLimit", "cors", "host", "port"]
