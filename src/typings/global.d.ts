@@ -60,6 +60,8 @@ declare type BotpressEnvironementVariables = {
   /** Change the BPFS storage mechanism ("database" or "disk"). Defaults to "disk" */
   readonly BPFS_STORAGE?: 'database' | 'disk'
 
+  /** Change the API_TEXT_LIMITATION */
+
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
