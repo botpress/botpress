@@ -14,6 +14,7 @@ import Database from './db'
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
+const API_TEXT_LIMITATION = process.env.API_TEXT_LIMITATION == undefined ? 360 : process.env.API_TEXT_LIMITATION;
 
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
@@ -233,10 +234,10 @@ export default async (bp: typeof sdk, db: Database) => {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (
-      (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
+      (!payload.text || !_.isString(payload.text) || payload.text.length > API_TEXT_LIMITATION) &&
       payload.type != 'postback'
     ) {
-      throw new Error('Text must be a valid string of less than 360 chars')
+      throw new Error(`Text must be a valid string of less than ${API_TEXT_LIMITATION} chars`)
     }
 
     let sanitizedPayload = payload

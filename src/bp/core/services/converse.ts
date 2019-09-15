@@ -64,12 +64,13 @@ export class ConverseService {
     credentials: any,
     includedContexts: string[]
   ): Promise<any> {
+    const API_TEXT_LIMITATION = process.env.API_TEXT_LIMITATION == undefined ? 360 : process.env.API_TEXT_LIMITATION;
     if (!payload.type) {
       payload.type = 'text'
     }
 
-    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > 360)) {
-      throw new InvalidParameterError('Text must be a valid string of less than 360 chars')
+    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > API_TEXT_LIMITATION)) {
+      throw new InvalidParameterError(`Text must be a valid string of less than ${API_TEXT_LIMITATION} chars`)
     }
 
     await this.userRepository.getOrCreate('api', userId)
