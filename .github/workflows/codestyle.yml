@@ -9,7 +9,7 @@ jobs:
       uses: actions/checkout@master
     - name: Install Dependencies
       run: |
-        yarn
+        npm install prettier@`node -p -e "require('./package.json').devDependencies.prettier"`
     - name: Run Prettier
       run: |
         ./node_modules/prettier/bin-prettier.js --check --write '{src,modules}/**/*.ts' '!**/*.d.ts'
