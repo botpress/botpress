@@ -9,7 +9,7 @@ jobs:
       uses: actions/checkout@master
     - name: Install Dependencies
       run: |
-        sudo npm install
+        yarn
     - name: Run Prettier
       run: |
         ./node_modules/prettier/bin-prettier.js --check --write '{src,modules}/**/*.ts' '!**/*.d.ts'
