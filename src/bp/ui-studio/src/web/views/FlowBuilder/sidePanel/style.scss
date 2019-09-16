@@ -32,15 +32,16 @@
 
   .title {
     width: 100%;
-    margin: 2px 0 2px 0;
+    vertical-align: middle;
     text-align: center;
     font-weight: bold;
+    line-height: 30px;
   }
 
   .icon {
-    width: 30px;
-    height: 30px;
-    margin: 1.2rem auto auto auto;
+    width: 24px;
+    height: 24px;
+    margin: 1.1rem auto auto auto;
   }
 }
 
