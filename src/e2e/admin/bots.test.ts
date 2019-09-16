@@ -68,9 +68,7 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await clickOn('#btn-save')
-    console.log('===HELLO1')
     await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
-    console.log('===HELLO2')
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
   })
 
