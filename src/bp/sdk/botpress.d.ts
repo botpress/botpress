@@ -233,8 +233,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
-        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new(): Model
+        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -861,6 +861,11 @@ declare module 'botpress/sdk' {
      * @default 5s
      */
     timeout: string
+    /**
+     * The text limitation of the converse API requests
+     * @default 360
+     */
+    maxMessageLength: number
   }
 
   /**

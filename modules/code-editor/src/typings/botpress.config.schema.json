@@ -79,7 +79,9 @@
         "session"
       ]
     },
-    "converse": {},
+    "converse": {
+      "$ref": "#/definitions/ConverseConfig"
+    },
     "dialog": {
       "$ref": "#/definitions/DialogConfig"
     },
@@ -712,4 +714,3 @@
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
-

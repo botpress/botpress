@@ -30,7 +30,7 @@ export class ConverseService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.UserRepository) private userRepository: UserRepository
-  ) {}
+  ) { }
 
   @postConstruct()
   init() {
@@ -64,13 +64,18 @@ export class ConverseService {
     credentials: any,
     includedContexts: string[]
   ): Promise<any> {
-    const API_TEXT_LIMITATION = process.env.API_TEXT_LIMITATION == undefined ? 360 : process.env.API_TEXT_LIMITATION;
     if (!payload.type) {
       payload.type = 'text'
     }
 
-    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > API_TEXT_LIMITATION)) {
-      throw new InvalidParameterError(`Text must be a valid string of less than ${API_TEXT_LIMITATION} chars`)
+    let apiTextLimitation = _.get(await this.configProvider.getBotConfig(botId), 'converse.maxMessageLength')
+
+    if (!apiTextLimitation) {
+      apiTextLimitation = _.get(await this.configProvider.getBotpressConfig(), 'converse.maxMessageLength', '360')
+    }
+
+    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > apiTextLimitation)) {
+      throw new InvalidParameterError(`Text must be a valid string of less than ${apiTextLimitation} chars`)
     }
 
     await this.userRepository.getOrCreate('api', userId)

@@ -14,7 +14,6 @@ import Database from './db'
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
-const API_TEXT_LIMITATION = process.env.API_TEXT_LIMITATION == undefined ? 360 : process.env.API_TEXT_LIMITATION;
 
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
@@ -25,7 +24,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -63,7 +62,7 @@ export default async (bp: typeof sdk, db: Database) => {
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function(req, file, cb) {
+      key: function (req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -234,10 +233,10 @@ export default async (bp: typeof sdk, db: Database) => {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (
-      (!payload.text || !_.isString(payload.text) || payload.text.length > API_TEXT_LIMITATION) &&
+      (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
       payload.type != 'postback'
     ) {
-      throw new Error(`Text must be a valid string of less than ${API_TEXT_LIMITATION} chars`)
+      throw new Error(`Text must be a valid string of less than ${config.maxMessageLength} chars`)
     }
 
     let sanitizedPayload = payload
