@@ -25,7 +25,7 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a href={this.docUrl('introduction')}>Getting Started</a>
-            <a href="https://botpress.io/docs/latest/reference/">API Reference</a>
+            <a href="https://botpress.io/reference/">API Reference</a>
           </div>
           <div>
             <h5>Community</h5>
