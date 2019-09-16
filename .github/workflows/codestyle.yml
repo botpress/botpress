@@ -7,9 +7,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@master
-    - name: Install Prettier
+    - name: Install Dependencies
       run: |
-        sudo npm install -g prettier
+        sudo npm install
     - name: Run Prettier
-      run: | 
-        prettier --write --check --ignore-path ".github/workflows/code/codestyle/.prettierignore" "{src,modules}/**/*.ts"
+      run: |
+        ./node_modules/prettier/bin-prettier.js --check --write '{src,modules}/**/*.ts' '!**/*.d.ts'

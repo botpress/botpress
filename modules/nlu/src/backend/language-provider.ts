@@ -341,7 +341,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       if (fetched.length !== query.length) {
         throw new Error(
-          `Language Provider didn't receive as many vectors as we asked for (asked ${query.length} and received ${fetched.length})`
+          `Language Provider didn't receive as many vectors as we asked for (asked ${query.length} and received ${
+            fetched.length
+          })`
         )
       }
 
@@ -399,7 +401,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       if (fetched.length !== query.length) {
         throw new Error(
-          `Language Provider didn't receive as many utterances as we asked for (asked ${query.length} and received ${fetched.length})`
+          `Language Provider didn't receive as many utterances as we asked for (asked ${query.length} and received ${
+            fetched.length
+          })`
         )
       }
 
