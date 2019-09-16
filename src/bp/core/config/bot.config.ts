@@ -69,4 +69,9 @@ export type ConverseConfig = {
    * @default 5s
    */
   timeout: string
+  /**
+   * The text limitation of the converse API requests
+   * @default 360
+   */
+  maxMessageLength: number
 }
