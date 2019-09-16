@@ -9,7 +9,7 @@ jobs:
       uses: actions/checkout@master
     - name: Install Prettier
       run: |
-        npm install -g prettier
+        sudo npm install -g prettier
     - name: Run Prettier
       run: | 
         prettier --check .
