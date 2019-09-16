@@ -294,11 +294,9 @@ export default class Storage {
     await Promise.all(ids.map(deletePromise))
   }
 
-  getCategories() {
-    return this.categories
-  }
-
-  hasCategories() {
-    return this.categories && this.categories.length > 0
+  async getCategories() {
+    const axiosConfig = await this.getAxiosConfig()
+    const { data: contexts } = await axios.get(`/mod/nlu/contexts`, axiosConfig)
+    return _.uniq([...contexts, ...this.categories])
   }
 }
