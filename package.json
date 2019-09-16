@@ -22,6 +22,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "amqp.node.client": "^1.1.5",
     "axios": "^0.18.1",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
