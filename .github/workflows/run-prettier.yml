@@ -12,4 +12,4 @@ jobs:
         sudo npm install -g prettier
     - name: Run Prettier
       run: | 
-        prettier --check .
+        prettier --check "src/**/*.ts"
