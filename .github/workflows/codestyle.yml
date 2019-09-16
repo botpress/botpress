@@ -12,4 +12,5 @@ jobs:
         npm install prettier@`node -p -e "require('./package.json').devDependencies.prettier"`
     - name: Run Prettier
       run: |
+        ./node_modules/prettier/bin-prettier.js --version
         ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
