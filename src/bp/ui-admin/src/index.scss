@@ -15,6 +15,14 @@ body {
   padding: 0;
 }
 
+.homepage p {
+  &,
+  a {
+    color: #999;
+  }
+  margin-top: 1rem;
+}
+
 .form-control:disabled,
 .form-control[readonly] {
   border: none;

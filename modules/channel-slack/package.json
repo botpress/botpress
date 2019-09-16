@@ -25,5 +25,8 @@
     "axios": "^0.19.0",
     "lru-cache": "^5.1.1",
     "ms": "^2.1.2"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }
