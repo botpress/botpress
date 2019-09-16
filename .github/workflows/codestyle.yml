@@ -1,0 +1,15 @@
+name: Codestyle
+on: [push]
+jobs:
+  run_prettier:
+    name: Run Prettier on codebase
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Install Prettier
+      run: |
+        sudo npm install -g prettier
+    - name: Run Prettier
+      run: | 
+        prettier --write --check --ignore-path ".github/workflows/code/codestyle/.prettierignore" "{src,modules}/**/*.ts"

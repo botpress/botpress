@@ -130,9 +130,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     const ref = await this._getConversationRef(event.threadId)
     if (!ref) {
       this.bp.logger.warn(
-        `No message could be sent to MS Botframework with threadId: ${
-          event.threadId
-        } as there is no conversation reference`
+        `No message could be sent to MS Botframework with threadId: ${event.threadId} as there is no conversation reference`
       )
       return
     }

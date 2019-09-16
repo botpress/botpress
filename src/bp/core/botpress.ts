@@ -260,9 +260,7 @@ export class Botpress {
       const pipeline = await this.workspaceService.getPipeline(workspace.id)
       if (pipeline && pipeline.length > 4) {
         this.logger.warn(
-          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${
-            workspace.id
-          })`
+          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${workspace.id})`
         )
       }
     }
@@ -427,9 +425,7 @@ Node: ${err.nodeName}`
         this.stats.track(
           'server',
           'heartbeat',
-          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${
-            process.IS_LICENSED
-          }, bots: ${nbBots}, collaborators: ${nbCollabs}`
+          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}, bots: ${nbBots}, collaborators: ${nbCollabs}`
         )
       }
     }, ms('2m'))
