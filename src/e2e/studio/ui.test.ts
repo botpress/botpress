@@ -16,13 +16,19 @@ describe('Studio - UI', () => {
     await expectBotApiCallSuccess('mod/channel-web/messages/')
   })
 
-  it('Toggle Logs', async () => {
-    await page.focus('#mainLayout')
-    await triggerKeyboardShortcut('KeyJ', true)
-    const bottomPanel = await page.$('div[data-tab-id="bt-panel-logs"]')
-    expect(await bottomPanel.isIntersectingViewport()).toBe(true)
-    await triggerKeyboardShortcut('KeyJ', true)
-  })
+  if (process.platform === 'darwin') {
+    // TODO (1): Skip this test using native Jest features once https://github.com/facebook/jest/issues/8604 is resolved
+    // TODO (2): Activate this test once Puppeteer supports native shortcuts (e.g. `⌘ J`) on OS X
+    it('Toggle Logs (SKIPPED ON MAC)', async () => {})
+  } else {
+    it('Toggle Logs', async () => {
+      await page.focus('#mainLayout')
+      await triggerKeyboardShortcut('KeyJ', true)
+      const bottomPanel = await page.$('div[data-tab-id="bt-panel-logs"]')
+      expect(await bottomPanel.isIntersectingViewport()).toBe(true)
+      await triggerKeyboardShortcut('KeyJ', true)
+    })
+  }
 
   it('Load Analytics', async () => {
     await clickOn('#bp-menu_analytics')
