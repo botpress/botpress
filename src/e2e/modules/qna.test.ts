@@ -57,7 +57,7 @@ describe('Module - QNA', () => {
     await page.mouse.move(x, y) // This makes the delete icon visible for the next step
 
     await clickOn('.bp3-icon-trash')
-    await expectBotApiCallSuccess('mod/qna/questions', 'DELETE')
+    await expectBotApiCallSuccess('mod/qna/questions', 'POST')
   })
 
   it('Export to JSON', async () => {

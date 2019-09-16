@@ -51,7 +51,7 @@ describe('Module - Code Editor', () => {
     await clickOnTreeNode('hello_copy.js', 'right')
     await clickOn('#btn-disable')
 
-    await expectBotApiCallSuccess('mod/code-editor/rename', 'PUT')
+    await expectBotApiCallSuccess('mod/code-editor/rename', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
     const disabledFile = response.actionsBot.find(x => x.name === '.hello_copy.js')
     expect(disabledFile).toBeDefined()

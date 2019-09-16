@@ -32,7 +32,7 @@ describe('Admin - Bot Management', () => {
     autoAnswerDialog()
 
     await clickButtonForBot('#btn-delete', importBotId)
-    await expectAdminApiCallSuccess(`bots/${importBotId}`, 'DELETE')
+    await expectAdminApiCallSuccess(`bots/${importBotId}/delete`, 'POST')
     await page.waitFor(200)
   })
 
@@ -68,7 +68,9 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await clickOn('#btn-save')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'PUT')
+    console.log('===HELLO1')
+    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
+    console.log('===HELLO2')
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
   })
 
@@ -92,7 +94,7 @@ describe('Admin - Bot Management', () => {
     autoAnswerDialog()
 
     await clickButtonForBot('#btn-delete', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'DELETE')
+    await expectAdminApiCallSuccess(`bots/${tempBotId}/delete`, 'POST')
     await page.waitFor(200)
   })
 })
