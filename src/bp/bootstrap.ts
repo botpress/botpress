@@ -24,20 +24,8 @@ async function setupEnv() {
   await Db.initialize()
 }
 
-async function start() {
-  if (cluster.isMaster) {
-    // The master process only needs getos and rewire
-    return setupMasterNode(await Logger('Cluster'))
-  }
-
-  await setupEnv()
-
-  const logger = await Logger('Launcher')
-  logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40)}}
-{dim ${center(`Version ${sdk.version}`, 40)}}
-{dim ${center(`OS ${process.distro.toString()}`, 40)}}
-========================================`)
+async function getLogger(loggerName: string) {
+  const logger = await Logger(loggerName)
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
@@ -53,6 +41,24 @@ async function start() {
       .forBot(botId)
       .debug(message.trim(), rest)
   }
+
+  return logger
+}
+
+async function start() {
+  if (cluster.isMaster) {
+    // The master process only needs getos and rewire
+    return setupMasterNode(await getLogger('Cluster'))
+  }
+
+  await setupEnv()
+
+  const logger = await getLogger('Launcher')
+  logger.info(chalk`========================================
+{bold ${center(`Botpress Server`, 40)}}
+{dim ${center(`Version ${sdk.version}`, 40)}}
+{dim ${center(`OS ${process.distro.toString()}`, 40)}}
+========================================`)
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
     try {
