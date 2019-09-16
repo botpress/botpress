@@ -68,14 +68,14 @@ export class ConverseService {
       payload.type = 'text'
     }
 
-    let apiTextLimitation = _.get(await this.configProvider.getBotConfig(botId), 'converse.maxMessageLength')
+    let maxMessageLength = _.get(await this.configProvider.getBotConfig(botId), 'converse.maxMessageLength')
 
-    if (!apiTextLimitation) {
-      apiTextLimitation = _.get(await this.configProvider.getBotpressConfig(), 'converse.maxMessageLength', '360')
+    if (!maxMessageLength) {
+      maxMessageLength = _.get(await this.configProvider.getBotpressConfig(), 'converse.maxMessageLength', 360)
     }
 
-    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > apiTextLimitation)) {
-      throw new InvalidParameterError(`Text must be a valid string of less than ${apiTextLimitation} chars`)
+    if (payload.type === 'text' && (!payload.text || !_.isString(payload.text) || payload.text.length > maxMessageLength)) {
+      throw new InvalidParameterError(`Text must be a valid string of less than ${maxMessageLength} chars`)
     }
 
     await this.userRepository.getOrCreate('api', userId)
