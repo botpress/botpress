@@ -209,7 +209,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
+        new(): Model
       }
 
       export const Model: ModelConstructor
@@ -583,6 +583,7 @@ declare module 'botpress/sdk' {
       contentTypes: string[]
     }
     dialog?: DialogConfig
+    converse?: ConverseConfig
     logs?: LogsConfig
   }
 
@@ -595,6 +596,22 @@ declare module 'botpress/sdk' {
 
   export interface LogsConfig {
     expiration: string
+  }
+
+  /**
+ * Configuration file definition for the Converse API
+ */
+  export type ConverseConfig = {
+    /**
+     * The timeout of the converse API requests
+     * @default 5s
+     */
+    timeout: string
+    /**
+     * The text limitation of the converse API requests
+     * @default 360
+     */
+    maxMessageLength: number
   }
 
   export interface DialogConfig {
