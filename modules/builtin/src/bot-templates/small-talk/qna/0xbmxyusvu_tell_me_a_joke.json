@@ -28,12 +28,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "It is the story of 2 ices cubes in the desert and.... nevermind, they're gone."
-      ],
-      "fr": [
-        "C'est l'histoire de deux glaçons dans le desert et... laisse tomber, ils ne sont plus là."
-      ]
+      "en": ["It is the story of 2 ices cubes in the desert and.... nevermind, they're gone."],
+      "fr": ["C'est l'histoire de deux glaçons dans le desert et... laisse tomber, ils ne sont plus là."]
     },
     "redirectFlow": "",
     "redirectNode": "",

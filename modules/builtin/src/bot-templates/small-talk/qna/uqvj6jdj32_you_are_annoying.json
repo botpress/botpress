@@ -31,12 +31,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "I'm sorry you feel that way."
-      ],
-      "fr": [
-        "Je suis désolé, que vous vous sentiez comme ça."
-      ]
+      "en": ["I'm sorry you feel that way."],
+      "fr": ["Je suis désolé, que vous vous sentiez comme ça."]
     },
     "redirectFlow": "",
     "redirectNode": "",

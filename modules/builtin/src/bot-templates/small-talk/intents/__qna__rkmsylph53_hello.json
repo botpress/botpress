@@ -1,21 +1,8 @@
 {
   "name": "__qna__rkmsylph53_hello",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
-    "en": [
-      "Hello",
-      "Hi",
-      "Hey",
-      "Heya",
-      "hey there",
-      "bonjour",
-      "sup'",
-      "Heyyyy",
-      "Greetings",
-      "Salutations"
-    ],
+    "en": ["Hello", "Hi", "Hey", "Heya", "hey there", "bonjour", "sup'", "Heyyyy", "Greetings", "Salutations"],
     "fr": [
       "Bonjour",
       "Salut",

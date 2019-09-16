@@ -72,7 +72,7 @@ Schedules a new broadcast.
 
 ```js
 {
-  botId: string, // *required* 
+  botId: string, // *required*
   date: string, // *required*, 'YYYY-MM-DD'
   time: string, // *required*, 'HH:mm'
   timezone: null|int, // null (users timezone), or integer (absolute timezone)

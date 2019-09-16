@@ -54,23 +54,26 @@ const LanguageManagement: FC<Props> = props => {
 
   return (
     <React.Fragment>
-      {languages && languages.available.length > 0 && !props.readOnly && !!downloadables.length && (
-        <div className="languages-list">
-          {/* TODO add a select when we have too many languages */}
-          <h4>Add Languages</h4>
-          {downloadables.map(lang => (
-            <Language
-              key={lang.code}
-              language={lang}
-              installed={false}
-              loaded={false}
-              allowActions={!props.readOnly}
-              languageSource={props.languageSource}
-              downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
-            />
-          ))}
-        </div>
-      )}
+      {languages &&
+        languages.available.length > 0 &&
+        !props.readOnly &&
+        !!downloadables.length && (
+          <div className="languages-list">
+            {/* TODO add a select when we have too many languages */}
+            <h4>Add Languages</h4>
+            {downloadables.map(lang => (
+              <Language
+                key={lang.code}
+                language={lang}
+                installed={false}
+                loaded={false}
+                allowActions={!props.readOnly}
+                languageSource={props.languageSource}
+                downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
+              />
+            ))}
+          </div>
+        )}
       <div className="languages-list">
         <h4>Installed Languages</h4>
         {installed.length === 0 && <p>No languages yet</p>}

@@ -1,8 +1,6 @@
 {
   "name": "__qna__wh0qeyfjzv_how_many_years_does_a_giraffe_live",
-  "contexts": [
-    "giraffes"
-  ],
+  "contexts": ["giraffes"],
   "utterances": {
     "en": [
       "How many years does a giraffe live?",

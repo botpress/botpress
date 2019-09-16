@@ -1,9 +1,6 @@
 {
   "version-12.0.2-docs": {
-    "Release Notes": [
-      "version-12.0.2-releases/release-notes",
-      "version-12.0.2-releases/migrate"
-    ],
+    "Release Notes": ["version-12.0.2-releases/release-notes", "version-12.0.2-releases/migrate"],
     "Getting Started": [
       "version-12.0.2-introduction",
       "version-12.0.2-installation",
@@ -60,10 +57,6 @@
       "version-12.0.2-tutorials/chat-3rd-party-OAuth",
       "version-12.0.2-tutorials/listen-file-changes"
     ],
-    "Pro Edition": [
-      "version-12.0.2-pro/about-pro",
-      "version-12.0.2-pro/licensing",
-      "version-12.0.2-pro/rbac"
-    ]
+    "Pro Edition": ["version-12.0.2-pro/about-pro", "version-12.0.2-pro/licensing", "version-12.0.2-pro/rbac"]
   }
 }

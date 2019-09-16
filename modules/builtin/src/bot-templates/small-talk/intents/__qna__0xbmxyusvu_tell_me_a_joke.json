@@ -1,8 +1,6 @@
 {
   "name": "__qna__0xbmxyusvu_tell_me_a_joke",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "Tell me a joke",

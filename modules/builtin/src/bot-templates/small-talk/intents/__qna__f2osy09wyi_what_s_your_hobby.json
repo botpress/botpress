@@ -1,8 +1,6 @@
 {
   "name": "__qna__f2osy09wyi_what_s_your_hobby",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "What's your hobby?",

@@ -16,11 +16,14 @@ interface Props {
 const ChangeUserRoleModal: FC<Props> = props => {
   const [role, setRole] = useState<any | null>(null)
 
-  useEffect(() => {
-    if (props.user && props.roles) {
-      setRole(roleOptions().find(x => x.value === props.user!.role))
-    }
-  }, [props.user])
+  useEffect(
+    () => {
+      if (props.user && props.roles) {
+        setRole(roleOptions().find(x => x.value === props.user!.role))
+      }
+    },
+    [props.user]
+  )
 
   if (!props.user) {
     return null

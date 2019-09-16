@@ -1,8 +1,6 @@
 {
   "name": "__qna__54qp2njdz0_how_are_you",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "How are you?",

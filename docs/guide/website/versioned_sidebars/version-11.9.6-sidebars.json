@@ -1,9 +1,6 @@
 {
   "version-11.9.6-docs": {
-    "Release Notes": [
-      "version-11.9.6-releases/release-notes",
-      "version-11.9.6-releases/migrate"
-    ],
+    "Release Notes": ["version-11.9.6-releases/release-notes", "version-11.9.6-releases/migrate"],
     "Getting Started": [
       "version-11.9.6-introduction",
       "version-11.9.6-installation",
@@ -59,10 +56,6 @@
       "version-11.9.6-tutorials/chat-3rd-party-OAuth",
       "version-11.9.6-tutorials/listen-file-changes"
     ],
-    "Pro Edition": [
-      "version-11.9.6-pro/about-pro",
-      "version-11.9.6-pro/licensing",
-      "version-11.9.6-pro/rbac"
-    ]
+    "Pro Edition": ["version-11.9.6-pro/about-pro", "version-11.9.6-pro/licensing", "version-11.9.6-pro/rbac"]
   }
 }

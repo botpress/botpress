@@ -1,8 +1,6 @@
 {
   "name": "__qna__ewbosxr8fa_who_created_you",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "who created you?",

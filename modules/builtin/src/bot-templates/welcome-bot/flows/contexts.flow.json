@@ -66,9 +66,7 @@
           "node": "animal-choices"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-UP2ozm"
-      ],
+      "onEnter": ["say #!builtin_text-UP2ozm"],
       "onReceive": null
     },
     {
@@ -101,10 +99,7 @@
       "id": "d1dc5d050c",
       "name": "ask-questions",
       "next": [],
-      "onEnter": [
-        "say #!builtin_text-lALv5x",
-        "say #!builtin_text-yFOIFD"
-      ],
+      "onEnter": ["say #!builtin_text-lALv5x", "say #!builtin_text-yFOIFD"],
       "onReceive": null
     }
   ]

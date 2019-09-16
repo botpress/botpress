@@ -28,10 +28,7 @@
       {
         "type": "subcategory",
         "label": "Version Management",
-        "ids": [
-          "version-11.8.1-advanced/pipelines",
-          "version-11.8.1-advanced/versions"
-        ]
+        "ids": ["version-11.8.1-advanced/pipelines", "version-11.8.1-advanced/versions"]
       },
       {
         "type": "subcategory",
@@ -66,13 +63,7 @@
       "version-11.8.1-tutorials/contextual-faq",
       "version-11.8.1-tutorials/listen-file-changes"
     ],
-    "Pro Edition": [
-      "version-11.8.1-pro/about-pro",
-      "version-11.8.1-pro/licensing"
-    ],
-    "Release Notes": [
-      "version-11.8.1-releases/release-notes",
-      "version-11.8.1-releases/migrate"
-    ]
+    "Pro Edition": ["version-11.8.1-pro/about-pro", "version-11.8.1-pro/licensing"],
+    "Release Notes": ["version-11.8.1-releases/release-notes", "version-11.8.1-releases/migrate"]
   }
 }

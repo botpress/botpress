@@ -114,14 +114,12 @@ export default class DownloadManager {
       throw new Error('Meta not initialized yet')
     }
 
-    return this.meta.embeddings
-      .filter(mod => mod.dim === this.dim && mod.domain === this.domain)
-      .map(mod => {
-        return {
-          ...this.meta!.languages[mod.language],
-          size: mod.size + this.meta!.bpe[mod.language].size
-        }
-      })
+    return this.meta.embeddings.filter(mod => mod.dim === this.dim && mod.domain === this.domain).map(mod => {
+      return {
+        ...this.meta!.languages[mod.language],
+        size: mod.size + this.meta!.bpe[mod.language].size
+      }
+    })
   }
 
   private _getEmbeddingModel(lang: string) {

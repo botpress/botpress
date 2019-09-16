@@ -1,8 +1,6 @@
 {
   "name": "__qna__fejwh1accg_would_you_marry_me",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "Would you marry me ?",

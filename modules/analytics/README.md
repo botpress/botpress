@@ -10,7 +10,9 @@ This module has some built-in analytics available from the box but also allows y
 
 ```js
 const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
-const graphDefinition = { /* ... */ }
+const graphDefinition = {
+  /* ... */
+}
 axios.post('/mod/analytics/graphs', graphDefinition, axiosConfig)
 ```
 

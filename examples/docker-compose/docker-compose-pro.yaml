@@ -64,5 +64,5 @@ services:
       - redisdata:/data
 
 volumes:
-  pgdata:
-  redisdata:
+  ? pgdata
+  ? redisdata

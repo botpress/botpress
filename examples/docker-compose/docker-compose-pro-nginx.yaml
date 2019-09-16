@@ -73,5 +73,5 @@ services:
       - botpress
 
 volumes:
-  pgdata:
-  redisdata:
+  ? pgdata
+  ? redisdata

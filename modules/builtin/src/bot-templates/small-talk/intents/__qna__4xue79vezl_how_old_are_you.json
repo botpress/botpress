@@ -1,8 +1,6 @@
 {
   "name": "__qna__4xue79vezl_how_old_are_you",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "how old are you?",

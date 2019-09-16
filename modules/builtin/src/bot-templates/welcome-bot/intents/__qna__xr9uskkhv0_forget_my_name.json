@@ -1,8 +1,6 @@
 {
   "name": "__qna__xr9uskkhv0_forget_my_name",
-  "contexts": [
-    "memory"
-  ],
+  "contexts": ["memory"],
   "utterances": {
     "en": [
       "forget my name",

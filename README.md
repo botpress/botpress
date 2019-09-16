@@ -25,8 +25,9 @@ Botpress is an open-source all-in-one bot creation platform that provides all th
 
 ##### Follow us
 
-|💬 [**Community**](https://help.botpress.io) | 🚀 [Blog](https://botpress.io/blog) | 🐥 [Twitter](https://twitter.com/getbotpress) |
-| ---------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| 💬 [**Community**](https://help.botpress.io) | 🚀 [Blog](https://botpress.io/blog) | 🐥 [Twitter](https://twitter.com/getbotpress) |
+| -------------------------------------------- | ----------------------------------- | --------------------------------------------- |
+
 
 ## [Community / Support / Forum](https://help.botpress.io)
 

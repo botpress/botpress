@@ -1,8 +1,6 @@
 {
   "name": "__qna__pgedex03mc_where_do_monkeys_live",
-  "contexts": [
-    "monkeys"
-  ],
+  "contexts": ["monkeys"],
   "utterances": {
     "en": [
       "Where do monkeys live?",

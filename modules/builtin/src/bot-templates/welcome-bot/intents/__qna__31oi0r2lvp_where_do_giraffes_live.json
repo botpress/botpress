@@ -1,8 +1,6 @@
 {
   "name": "__qna__31oi0r2lvp_where_do_giraffes_live",
-  "contexts": [
-    "giraffes"
-  ],
+  "contexts": ["giraffes"],
   "utterances": {
     "en": [
       "Where can I find giraffes?",

@@ -16,9 +16,7 @@
       "version-11.0.1-build/channels",
       "version-11.0.1-build/debugging"
     ],
-    "Deploy": [
-      "version-11.0.1-deploy/hosting"
-    ],
+    "Deploy": ["version-11.0.1-deploy/hosting"],
     "Developers": [
       "version-11.0.1-release-notes",
       "version-11.0.1-migrate",

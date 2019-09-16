@@ -121,9 +121,10 @@ export default class FlowBuilder extends Component<Props> {
 
     ContextMenu.show(
       <Menu>
-        {!isNodeTargeted && this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(flowPosition)} />
-        )}
+        {!isNodeTargeted &&
+          this.props.canPasteNode && (
+            <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(flowPosition)} />
+          )}
         {isNodeTargeted && (
           <Fragment>
             <MenuItem icon="trash" text="Delete" disabled={isStartNode} onClick={() => this.deleteSelectedElements()} />

@@ -30,9 +30,7 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": [
-    "en"
-  ],
+  "languages": ["en"],
   "id": "proactive-bot",
   "name": "proactive-bot",
   "category": null,

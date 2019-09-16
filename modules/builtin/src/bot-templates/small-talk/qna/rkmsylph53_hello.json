@@ -2,18 +2,7 @@
   "id": "rkmsylph53_hello",
   "data": {
     "questions": {
-      "en": [
-        "Hello",
-        "Hi",
-        "Hey",
-        "Heya",
-        "hey there",
-        "bonjour",
-        "sup'",
-        "Heyyyy",
-        "Greetings",
-        "Salutations"
-      ],
+      "en": ["Hello", "Hi", "Hey", "Heya", "hey there", "bonjour", "sup'", "Heyyyy", "Greetings", "Salutations"],
       "fr": [
         "Bonjour",
         "Salut",
@@ -28,12 +17,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "Hello! Nice to meet you!"
-      ],
-      "fr": [
-        "Bonjour, c'est un plaisir de vous rencontrer!"
-      ]
+      "en": ["Hello! Nice to meet you!"],
+      "fr": ["Bonjour, c'est un plaisir de vous rencontrer!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

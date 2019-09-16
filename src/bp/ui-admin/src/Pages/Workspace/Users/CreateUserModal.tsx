@@ -105,11 +105,9 @@ class CreateUserModal extends Component<Props, State> {
     }
 
     const searchString = inputValue.toLowerCase()
-    return this.state.users
-      .filter(x => x.email.toLowerCase().includes(searchString))
-      .map((user: any) => {
-        return { label: `${user.email} (${user.strategy})`, value: user }
-      })
+    return this.state.users.filter(x => x.email.toLowerCase().includes(searchString)).map((user: any) => {
+      return { label: `${user.email} (${user.strategy})`, value: user }
+    })
   }
 
   handleUserChanged = selectedUser => {

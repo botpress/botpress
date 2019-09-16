@@ -82,17 +82,18 @@ const Language: FC<Props> = props => {
         {props.downloadProgress && (
           <DownloadProgress current={props.downloadProgress.progress.size} total={props.language.size!} />
         )}
-        {props.allowActions && !props.downloadProgress && !props.installed && (
-          <Button small onClick={installLanguage} minimal icon="import" />
-        )}
-        {props.allowActions && props.installed && !props.loaded && (
-          <Button disabled={modelLoading} minimal icon="updated" onClick={loadLanguage}>
-            {modelLoading ? 'loading' : 'Load'}
-          </Button>
-        )}
-        {props.allowActions && props.installed && (
-          <Button disabled={modelLoading} icon="cross" minimal onClick={deleteLanguage} />
-        )}
+        {props.allowActions &&
+          !props.downloadProgress &&
+          !props.installed && <Button small onClick={installLanguage} minimal icon="import" />}
+        {props.allowActions &&
+          props.installed &&
+          !props.loaded && (
+            <Button disabled={modelLoading} minimal icon="updated" onClick={loadLanguage}>
+              {modelLoading ? 'loading' : 'Load'}
+            </Button>
+          )}
+        {props.allowActions &&
+          props.installed && <Button disabled={modelLoading} icon="cross" minimal onClick={deleteLanguage} />}
       </div>
     </div>
   )

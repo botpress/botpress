@@ -10,6 +10,7 @@ original_id: release-notes
 - Allow markdown in the channel-web bot description
 
 ## Improvements
+
 - Export bot without mode cache
 - Allow slot to match to multiple entities options
 

@@ -7,23 +7,15 @@
   "skillData": {
     "contentId": "builtin_single-choice-mrFFU_",
     "keywords": {
-      "context": [
-        "context",
-        "What is a Context?"
-      ],
-      "memory": [
-        "memory",
-        "What is Bot Memory?"
-      ]
+      "context": ["context", "What is a Context?"],
+      "memory": ["memory", "What is Bot Memory?"]
     },
     "config": {}
   },
   "nodes": [
     {
       "name": "entry",
-      "onEnter": [
-        "say #!builtin_single-choice-mrFFU_ {\"skill\":\"choice\"}"
-      ],
+      "onEnter": ["say #!builtin_single-choice-mrFFU_ {\"skill\":\"choice\"}"],
       "next": [
         {
           "condition": "true",
@@ -52,9 +44,7 @@
     },
     {
       "name": "invalid",
-      "onEnter": [
-        "basic-skills/choice_invalid_answer"
-      ],
+      "onEnter": ["basic-skills/choice_invalid_answer"],
       "next": [
         {
           "condition": "temp['skill-choice-invalid-count'] <= undefined",
@@ -69,9 +59,7 @@
     },
     {
       "name": "sorry",
-      "onEnter": [
-        "say #!builtin_single-choice-mrFFU_ {\"skill\":\"choice\"}"
-      ],
+      "onEnter": ["say #!builtin_single-choice-mrFFU_ {\"skill\":\"choice\"}"],
       "next": [
         {
           "condition": "true",

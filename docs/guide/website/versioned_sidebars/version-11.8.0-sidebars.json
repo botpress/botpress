@@ -54,9 +54,6 @@
       "version-11.8.0-tutorials/contextual-faq",
       "version-11.8.0-tutorials/listen-file-changes"
     ],
-    "Botpress Pro": [
-      "version-11.8.0-pro/about-pro",
-      "version-11.8.0-pro/licensing"
-    ]
+    "Botpress Pro": ["version-11.8.0-pro/about-pro", "version-11.8.0-pro/licensing"]
   }
 }

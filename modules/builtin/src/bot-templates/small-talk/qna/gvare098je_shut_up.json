@@ -2,12 +2,8 @@
   "id": "gvare098je_shut_up",
   "data": {
     "answers": {
-      "en": [
-        "Please stay polite!"
-      ],
-      "fr": [
-        "Je vous prie de rester polie!"
-      ]
+      "en": ["Please stay polite!"],
+      "fr": ["Je vous prie de rester polie!"]
     },
     "questions": {
       "en": [

@@ -1,8 +1,6 @@
 {
   "name": "__qna__d6q3rr8u64_you_are_great",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "you are great!",

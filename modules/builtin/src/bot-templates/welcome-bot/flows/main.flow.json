@@ -12,10 +12,7 @@
           "node": "topic-choices"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-lbs0Re",
-        "builtin/removeContext {\"contexts\":\"monkeys,giraffes\"}"
-      ],
+      "onEnter": ["say #!builtin_text-lbs0Re", "builtin/removeContext {\"contexts\":\"monkeys,giraffes\"}"],
       "onReceive": null
     },
     {
@@ -51,9 +48,7 @@
           "node": "topic-choices"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-SKQxXN"
-      ],
+      "onEnter": ["say #!builtin_text-SKQxXN"],
       "onReceive": null
     }
   ]

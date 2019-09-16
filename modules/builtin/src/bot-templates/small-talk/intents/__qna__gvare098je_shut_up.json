@@ -1,8 +1,6 @@
 {
   "name": "__qna__gvare098je_shut_up",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "Shut up",

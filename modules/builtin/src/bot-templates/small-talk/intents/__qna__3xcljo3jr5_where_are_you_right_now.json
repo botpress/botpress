@@ -1,8 +1,6 @@
 {
   "name": "__qna__3xcljo3jr5_where_are_you_right_now",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "where are you right now?",

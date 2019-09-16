@@ -1,8 +1,6 @@
 {
   "name": "__qna__16y2ki6wm1_how_many_years_does_a_monkey_live",
-  "contexts": [
-    "monkeys"
-  ],
+  "contexts": ["monkeys"],
   "utterances": {
     "en": [
       "How many years does a monkey live?",

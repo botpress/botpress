@@ -47,7 +47,7 @@
     position: relative;
 
     &:last-child:not(:first-child):before {
-      content: "";
+      content: '';
       background-color: #ccc;
       display: inline-block;
       height: 20px;

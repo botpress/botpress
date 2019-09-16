@@ -1,8 +1,6 @@
 {
   "name": "__qna__5i6fs3vzfj_what_can_you_do",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "What can you do?",

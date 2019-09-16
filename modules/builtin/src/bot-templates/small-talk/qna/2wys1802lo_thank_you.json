@@ -29,12 +29,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "You're welcome :-)"
-      ],
-      "fr": [
-        "Ça fait plaisir!"
-      ]
+      "en": ["You're welcome :-)"],
+      "fr": ["Ça fait plaisir!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

@@ -28,10 +28,7 @@
       {
         "type": "subcategory",
         "label": "Version Management",
-        "ids": [
-          "version-11.9.0-advanced/pipelines",
-          "version-11.9.0-advanced/versions"
-        ]
+        "ids": ["version-11.9.0-advanced/pipelines", "version-11.9.0-advanced/versions"]
       },
       {
         "type": "subcategory",
@@ -67,13 +64,7 @@
       "version-11.9.0-tutorials/contextual-faq",
       "version-11.9.0-tutorials/listen-file-changes"
     ],
-    "Pro Edition": [
-      "version-11.9.0-pro/about-pro",
-      "version-11.9.0-pro/licensing"
-    ],
-    "Release Notes": [
-      "version-11.9.0-releases/release-notes",
-      "version-11.9.0-releases/migrate"
-    ]
+    "Pro Edition": ["version-11.9.0-pro/about-pro", "version-11.9.0-pro/licensing"],
+    "Release Notes": ["version-11.9.0-releases/release-notes", "version-11.9.0-releases/migrate"]
   }
 }

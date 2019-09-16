@@ -1,8 +1,6 @@
 {
   "name": "__qna__hxwve8olkg_help_me",
-  "contexts": [
-    "contexts"
-  ],
+  "contexts": ["contexts"],
   "utterances": {
     "en": [
       "help me",

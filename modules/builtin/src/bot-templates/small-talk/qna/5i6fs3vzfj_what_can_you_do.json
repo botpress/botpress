@@ -29,12 +29,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "I can help you with multiple things, just ask"
-      ],
-      "fr": [
-        "Je peux faire plusieurs trucs, il suffit de demander!"
-      ]
+      "en": ["I can help you with multiple things, just ask"],
+      "fr": ["Je peux faire plusieurs trucs, il suffit de demander!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

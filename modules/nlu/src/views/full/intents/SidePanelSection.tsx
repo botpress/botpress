@@ -50,26 +50,24 @@ export const IntentSidePanelSection: FC<Props> = props => {
     props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
 
-  const intentItems = props.intents
-    .filter(intent => !intentsFilter || intent.name.includes(intentsFilter))
-    .map(
-      intent =>
-        ({
-          key: intent.name,
-          label: intent.name,
-          value: intent.name,
-          selected: props.currentItem && props.currentItem.name === intent.name,
-          actions: [
-            {
-              tooltip: 'Delete Intent',
-              icon: 'delete',
-              onClick: () => {
-                deleteIntent(intent.name)
-              }
+  const intentItems = props.intents.filter(intent => !intentsFilter || intent.name.includes(intentsFilter)).map(
+    intent =>
+      ({
+        key: intent.name,
+        label: intent.name,
+        value: intent.name,
+        selected: props.currentItem && props.currentItem.name === intent.name,
+        actions: [
+          {
+            tooltip: 'Delete Intent',
+            icon: 'delete',
+            onClick: () => {
+              deleteIntent(intent.name)
             }
-          ]
-        } as Item)
-    )
+          }
+        ]
+      } as Item)
+  )
 
   return (
     <div>

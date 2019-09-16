@@ -22,9 +22,7 @@
       "id": "58a637911b",
       "name": "none_message",
       "next": [],
-      "onEnter": [
-        "say #!builtin_text-iVBzXn"
-      ],
+      "onEnter": ["say #!builtin_text-iVBzXn"],
       "onReceive": null
     }
   ]

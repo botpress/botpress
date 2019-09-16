@@ -35,12 +35,15 @@ const NLU: FC<Props> = props => {
   const loadIntents = () => api.fetchIntents().then(setIntents)
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
-  useEffect(() => {
-    api.fetchContexts().then(setContexts)
-    loadIntents()
-    loadEntities()
-    setCurrentItemFromPath()
-  }, [window.location.href])
+  useEffect(
+    () => {
+      api.fetchContexts().then(setContexts)
+      loadIntents()
+      loadEntities()
+      setCurrentItemFromPath()
+    },
+    [window.location.href]
+  )
 
   const handleSelectItem = (item: NluItem | undefined) => {
     setCurrentItem(item)
@@ -131,18 +134,22 @@ const NLU: FC<Props> = props => {
             description="Use Botpress native Natural language understanding engine to make your bot smarter."
           />
         )}
-        {intents.length && currentItem && currentItem.type === 'intent' && (
-          <IntentEditor
-            intent={intents.find(i => i.name == currentItem.name)}
-            contexts={contexts} // TODO fetch this within the component
-            axios={props.bp.axios} // TODO replace this with api instance
-            reloadIntents={loadIntents}
-            contentLang={props.contentLang}
-          />
-        )}
-        {entities.length && currentItem && currentItem.type === 'entity' && (
-          <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
-        )}
+        {intents.length &&
+          currentItem &&
+          currentItem.type === 'intent' && (
+            <IntentEditor
+              intent={intents.find(i => i.name == currentItem.name)}
+              contexts={contexts} // TODO fetch this within the component
+              axios={props.bp.axios} // TODO replace this with api instance
+              reloadIntents={loadIntents}
+              contentLang={props.contentLang}
+            />
+          )}
+        {entities.length &&
+          currentItem &&
+          currentItem.type === 'entity' && (
+            <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
+          )}
       </div>
     </Container>
   )

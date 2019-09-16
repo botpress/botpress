@@ -28,12 +28,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "I'm Bob, an NSA secret agent, ready to help you ! "
-      ],
-      "fr": [
-        "Je suis Bob, un agent secret de la NSA, prêt à vous aider!"
-      ]
+      "en": ["I'm Bob, an NSA secret agent, ready to help you ! "],
+      "fr": ["Je suis Bob, un agent secret de la NSA, prêt à vous aider!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

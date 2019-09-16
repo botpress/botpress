@@ -28,12 +28,15 @@ export const Downloader: FC<DownloadProps> = props => {
     props.onDownloadCompleted && props.onDownloadCompleted()
   }
 
-  useEffect(() => {
-    if (props.url && props.filename) {
-      // tslint:disable-next-line: no-floating-promises
-      startDownload(props.url, props.filename)
-    }
-  }, [props.url])
+  useEffect(
+    () => {
+      if (props.url && props.filename) {
+        // tslint:disable-next-line: no-floating-promises
+        startDownload(props.url, props.filename)
+      }
+    },
+    [props.url]
+  )
 
   return <a ref={downloadLink} href={content} download={filename} />
 }

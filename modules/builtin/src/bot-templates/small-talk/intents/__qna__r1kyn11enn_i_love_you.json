@@ -1,8 +1,6 @@
 {
   "name": "__qna__r1kyn11enn_i_love_you",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "I love you",

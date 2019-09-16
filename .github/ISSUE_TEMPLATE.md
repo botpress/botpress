@@ -8,5 +8,5 @@ Please also fill in these fields:
 
 ---
 
-* I am running: `official binary | from nodejs | from docker`
-* My OS is: `windows, osx, ubuntu, debian, fedora, centos`
+- I am running: `official binary | from nodejs | from docker`
+- My OS is: `windows, osx, ubuntu, debian, fedora, centos`

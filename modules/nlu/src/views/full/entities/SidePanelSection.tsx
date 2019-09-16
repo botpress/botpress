@@ -30,26 +30,24 @@ export const EntitySidePanelSection: FC<Props> = props => {
     }
   }
 
-  const entityItems = props.entities
-    .filter(entity => !entitiesFilter || entity.name.includes(entitiesFilter))
-    .map(
-      entity =>
-        ({
-          key: entity.name,
-          label: entity.name,
-          value: entity.name,
-          selected: props.currentItem && props.currentItem.name === entity.name,
-          actions: [
-            {
-              tooltip: 'Delete Entity',
-              icon: 'delete',
-              onClick: () => {
-                deleteEntity(entity)
-              }
+  const entityItems = props.entities.filter(entity => !entitiesFilter || entity.name.includes(entitiesFilter)).map(
+    entity =>
+      ({
+        key: entity.name,
+        label: entity.name,
+        value: entity.name,
+        selected: props.currentItem && props.currentItem.name === entity.name,
+        actions: [
+          {
+            tooltip: 'Delete Entity',
+            icon: 'delete',
+            onClick: () => {
+              deleteEntity(entity)
             }
-          ]
-        } as Item)
-    )
+          }
+        ]
+      } as Item)
+  )
 
   const entityCreated = entity => {
     props.setCurrentItem({ type: 'entity', name: entity.name })

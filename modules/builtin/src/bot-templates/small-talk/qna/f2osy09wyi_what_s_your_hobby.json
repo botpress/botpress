@@ -28,12 +28,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "I really LOVE counting. 0, 1, 0, 1... I can do this all day!"
-      ],
-      "fr": [
-        "J'aime vraiment compter! 0, 1, 0, 1... Je peux faire ça toute la journée!"
-      ]
+      "en": ["I really LOVE counting. 0, 1, 0, 1... I can do this all day!"],
+      "fr": ["J'aime vraiment compter! 0, 1, 0, 1... Je peux faire ça toute la journée!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

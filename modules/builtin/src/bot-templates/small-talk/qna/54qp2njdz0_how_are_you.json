@@ -28,12 +28,8 @@
       ]
     },
     "answers": {
-      "en": [
-        "Pretty good, thank you for asking!"
-      ],
-      "fr": [
-        "Ça va très bien! Merci de le demander!"
-      ]
+      "en": ["Pretty good, thank you for asking!"],
+      "fr": ["Ça va très bien! Merci de le demander!"]
     },
     "redirectFlow": "",
     "redirectNode": "",

@@ -1,8 +1,6 @@
 {
   "name": "__qna__4wywaoky6v_bye",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "bye",

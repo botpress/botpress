@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 module.exports = {
-    LINEAR : 0,
-    POLY : 1,
-    RBF  : 2,
-    SIGMOID : 3
-};
+  LINEAR: 0,
+  POLY: 1,
+  RBF: 2,
+  SIGMOID: 3
+}

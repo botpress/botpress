@@ -17,12 +17,8 @@
       "version-11.4.0-build/channels",
       "version-11.4.0-build/debugging"
     ],
-    "Deploy": [
-      "version-11.4.0-deploy/hosting"
-    ],
-    "Manage": [
-      "version-11.4.0-manage/versions"
-    ],
+    "Deploy": ["version-11.4.0-deploy/hosting"],
+    "Manage": ["version-11.4.0-manage/versions"],
     "Developers": [
       "version-11.4.0-developers/release-notes",
       "version-11.4.0-developers/migrate-from-10",

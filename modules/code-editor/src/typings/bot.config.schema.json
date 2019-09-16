@@ -42,9 +42,7 @@
           }
         }
       },
-      "required": [
-        "contentTypes"
-      ]
+      "required": ["contentTypes"]
     },
     "converse": {
       "type": "object",
@@ -55,9 +53,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "timeout"
-      ]
+      "required": ["timeout"]
     },
     "dialog": {
       "$ref": "#/definitions/DialogConfig"
@@ -126,9 +122,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "timeoutInterval"
-      ]
+      "required": ["timeoutInterval"]
     },
     "LogsConfig": {
       "type": "object",
@@ -137,9 +131,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "expiration"
-      ]
+      "required": ["expiration"]
     },
     "BotPipelineStatus": {
       "type": "object",
@@ -159,11 +151,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "id",
-            "promoted_by",
-            "promoted_on"
-          ]
+          "required": ["id", "promoted_by", "promoted_on"]
         },
         "stage_request": {
           "type": "object",
@@ -185,18 +173,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "id",
-            "requested_by",
-            "requested_on"
-          ]
+          "required": ["id", "requested_by", "requested_on"]
         }
       },
-      "required": [
-        "current_stage"
-      ]
+      "required": ["current_stage"]
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
-

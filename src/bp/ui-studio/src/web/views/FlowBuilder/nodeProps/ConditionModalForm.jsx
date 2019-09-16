@@ -29,12 +29,10 @@ export default class ConditionModalForm extends Component {
   componentDidMount() {
     this.fetchIntents()
 
-    const subflowOptions = this.props.subflows
-      .filter(flow => !flow.startsWith('skills/'))
-      .map(flow => ({
-        label: flow,
-        value: flow
-      }))
+    const subflowOptions = this.props.subflows.filter(flow => !flow.startsWith('skills/')).map(flow => ({
+      label: flow,
+      value: flow
+    }))
 
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []

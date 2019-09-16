@@ -116,11 +116,9 @@ export class LanguagesRouter extends CustomRouter {
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
           res.send({
-            languages: data.installed
-              .filter(x => x.loaded)
-              .map(x => ({
-                ...data.available.find(l => l.code === x.lang)
-              }))
+            languages: data.installed.filter(x => x.loaded).map(x => ({
+              ...data.available.find(l => l.code === x.lang)
+            }))
           })
         } catch (err) {
           res.status(500).send(err)

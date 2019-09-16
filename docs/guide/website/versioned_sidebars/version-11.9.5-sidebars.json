@@ -55,14 +55,7 @@
       "version-11.9.5-tutorials/chat-3rd-party-OAuth",
       "version-11.9.5-tutorials/listen-file-changes"
     ],
-    "Pro Edition": [
-      "version-11.9.5-pro/about-pro",
-      "version-11.9.5-pro/licensing",
-      "version-11.9.5-pro/rbac"
-    ],
-    "Release Notes": [
-      "version-11.9.5-releases/release-notes",
-      "version-11.9.5-releases/migrate"
-    ]
+    "Pro Edition": ["version-11.9.5-pro/about-pro", "version-11.9.5-pro/licensing", "version-11.9.5-pro/rbac"],
+    "Release Notes": ["version-11.9.5-releases/release-notes", "version-11.9.5-releases/migrate"]
   }
 }

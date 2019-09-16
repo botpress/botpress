@@ -34,5 +34,8 @@ const mapDispatchToProps = {
   refreshFlowsLinks
 }
 
-const ConnectedNodeProps = connect(mapStateToProps, mapDispatchToProps)(withRouter(NodeProps))
+const ConnectedNodeProps = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(NodeProps))
 export default ConnectedNodeProps

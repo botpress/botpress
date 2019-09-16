@@ -169,19 +169,17 @@ class SelectContent extends Component {
           <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
             All
           </a>
-          {categories
-            .filter(cat => !cat.hidden)
-            .map((category, i) => (
-              <a
-                key={i}
-                onClick={() => this.setCurrentCategory(category.id)}
-                className={classnames('list-group-item', 'list-group-item-action', {
-                  active: i === this.state.activeItemIndex
-                })}
-              >
-                {category.title}
-              </a>
-            ))}
+          {categories.filter(cat => !cat.hidden).map((category, i) => (
+            <a
+              key={i}
+              onClick={() => this.setCurrentCategory(category.id)}
+              className={classnames('list-group-item', 'list-group-item-action', {
+                active: i === this.state.activeItemIndex
+              })}
+            >
+              {category.title}
+            </a>
+          ))}
         </div>
       </div>
     )

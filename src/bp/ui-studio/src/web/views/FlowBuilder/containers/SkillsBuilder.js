@@ -14,6 +14,9 @@ const mapDispatchToProps = {
   updateSkill
 }
 
-const ConnectedSkillsBuilder = connect(mapStateToProps, mapDispatchToProps)(SkillsBuilder)
+const ConnectedSkillsBuilder = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SkillsBuilder)
 
 export default ConnectedSkillsBuilder

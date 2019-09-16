@@ -430,7 +430,8 @@ export default class QnaAdmin extends Component {
           {!questions.length && (
             <div className={style.itemQuestions}>
               <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-                {this.renderMissingTranslationsOverlay()}&nbsp;
+                {this.renderMissingTranslationsOverlay()}
+                &nbsp;
                 {id
                   .split('_')
                   .slice(1)

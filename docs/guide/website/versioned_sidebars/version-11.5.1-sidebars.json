@@ -6,10 +6,7 @@
       "version-11.5.1-troubleshoot",
       "version-11.5.1-quickstart"
     ],
-    "Botpress Pro": [
-      "version-11.5.1-pro/about-pro",
-      "version-11.5.1-pro/licensing"
-    ],
+    "Botpress Pro": ["version-11.5.1-pro/about-pro", "version-11.5.1-pro/licensing"],
     "Build": [
       "version-11.5.1-build/overview",
       "version-11.5.1-build/debug",
@@ -21,12 +18,8 @@
       "version-11.5.1-build/channels",
       "version-11.5.1-build/debugging"
     ],
-    "Deploy": [
-      "version-11.5.1-deploy/hosting"
-    ],
-    "Manage": [
-      "version-11.5.1-manage/versions"
-    ],
+    "Deploy": ["version-11.5.1-deploy/hosting"],
+    "Manage": ["version-11.5.1-manage/versions"],
     "Developers": [
       "version-11.5.1-developers/release-notes",
       "version-11.5.1-developers/migrate",

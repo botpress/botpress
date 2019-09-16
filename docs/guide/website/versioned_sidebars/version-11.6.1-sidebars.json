@@ -17,10 +17,7 @@
       "version-11.6.1-build/channels",
       "version-11.6.1-build/debugging"
     ],
-    "Deploy": [
-      "version-11.6.1-deploy/architecture",
-      "version-11.6.1-deploy/hosting"
-    ],
+    "Deploy": ["version-11.6.1-deploy/architecture", "version-11.6.1-deploy/hosting"],
     "Manage": [
       "version-11.6.1-manage/configuration",
       "version-11.6.1-manage/versions",
@@ -46,9 +43,6 @@
       "version-11.6.1-tutorials/external-api",
       "version-11.6.1-tutorials/chat-3rd-party-OAuth"
     ],
-    "Botpress Pro": [
-      "version-11.6.1-pro/about-pro",
-      "version-11.6.1-pro/licensing"
-    ]
+    "Botpress Pro": ["version-11.6.1-pro/about-pro", "version-11.6.1-pro/licensing"]
   }
 }

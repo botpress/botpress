@@ -1,8 +1,6 @@
 {
   "name": "__qna__77cp93c72f_lets_talk_about_something_else",
-  "contexts": [
-    "contexts"
-  ],
+  "contexts": ["contexts"],
   "utterances": {
     "en": [
       "Lets talk about something else",

@@ -55,11 +55,9 @@ export default class ActionModalForm extends Component {
   fetchAvailableFunctions() {
     return axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
       this.setState({
-        avActions: data
-          .filter(action => !action.metadata.hidden)
-          .map(x => {
-            return { label: x.name, value: x.name, metadata: x.metadata }
-          })
+        avActions: data.filter(action => !action.metadata.hidden).map(x => {
+          return { label: x.name, value: x.name, metadata: x.metadata }
+        })
       })
     })
   }
