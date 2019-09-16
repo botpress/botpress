@@ -12,4 +12,4 @@ jobs:
         sudo npm install -g prettier
     - name: Run Prettier
       run: | 
-        prettier --check "src/**/*.ts"
+        prettier --write --check --ignore-path ".github/workflows/code/codestyle/.prettierignore" "{src,modules}/**/*.ts"
