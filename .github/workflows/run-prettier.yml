@@ -1,4 +1,4 @@
-name: Check codestyle
+name: Codestyle
 on: [push]
 jobs:
   run_prettier:
