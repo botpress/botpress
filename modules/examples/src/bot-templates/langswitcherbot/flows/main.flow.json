@@ -1,0 +1,90 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "onReceive": [],
+    "next": []
+  },
+  "startNode": "entry",
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "entry",
+      "next": [
+        {
+          "condition": "true",
+          "node": "ChooseLanguage"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-rMx1v2"
+      ],
+      "onReceive": null
+    },
+    {
+      "id": "skill-82307d",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "ChooseLanguage",
+      "flow": "skills/choice-82307d.flow.json",
+      "next": [
+        {
+          "caption": "User picked [fr]",
+          "condition": "temp['skill-choice-ret'] == \"fr\"",
+          "node": "SetLanguageToFrench"
+        },
+        {
+          "caption": "User picked [en]",
+          "condition": "temp['skill-choice-ret'] == \"en\"",
+          "node": "SetLanguageToEnglish"
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
+    },
+    {
+      "id": "0bd021fde8",
+      "name": "SetLanguageToEnglish",
+      "next": [
+        {
+          "condition": "true",
+          "node": "AcknowledgeLanguage"
+        }
+      ],
+      "onEnter": [
+        "switchLanguage {\"lang\":\"en\"}"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "922980382a",
+      "name": "SetLanguageToFrench",
+      "next": [
+        {
+          "condition": "true",
+          "node": "AcknowledgeLanguage"
+        }
+      ],
+      "onEnter": [
+        "switchLanguage {\"lang\":\"fr\"}"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "fafd456b23",
+      "name": "AcknowledgeLanguage",
+      "next": [],
+      "onEnter": [
+        "say #!builtin_text-yqEM3s"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    }
+  ]
+}

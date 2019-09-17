@@ -1,0 +1,85 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "next": []
+  },
+  "startNode": "entry",
+  "skillData": {
+    "contentId": "builtin_single-choice-Kpy3Md",
+    "invalidContentId": "",
+    "keywords": {
+      "fr": [
+        "fr",
+        "French"
+      ],
+      "en": [
+        "en",
+        "English"
+      ]
+    },
+    "config": {
+      "nbMaxRetries": 3
+    }
+  },
+  "nodes": [
+    {
+      "name": "entry",
+      "onEnter": [
+        "say #!builtin_single-choice-Kpy3Md {\"skill\":\"choice\"}"
+      ],
+      "next": [
+        {
+          "condition": "true",
+          "node": "parse"
+        }
+      ],
+      "id": "458880"
+    },
+    {
+      "name": "parse",
+      "onReceive": [
+        "basic-skills/choice_parse_answer {\"contentId\":\"builtin_single-choice-Kpy3Md\",\"invalidContentId\":\"\",\"keywords\":{\"fr\":[\"fr\",\"French\"],\"en\":[\"en\",\"English\"]},\"config\":{\"nbMaxRetries\":3}}"
+      ],
+      "next": [
+        {
+          "condition": "temp['skill-choice-valid'] === true",
+          "node": "#"
+        },
+        {
+          "condition": "true",
+          "node": "invalid"
+        }
+      ],
+      "onEnter": [],
+      "id": "846217"
+    },
+    {
+      "name": "invalid",
+      "onEnter": [
+        "basic-skills/choice_invalid_answer"
+      ],
+      "next": [
+        {
+          "condition": "Number(temp['skill-choice-invalid-count']) >= Number(3)",
+          "node": "#"
+        },
+        {
+          "condition": "true",
+          "node": "sorry"
+        }
+      ],
+      "id": "391493"
+    },
+    {
+      "name": "sorry",
+      "onEnter": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "parse"
+        }
+      ],
+      "id": "423318"
+    }
+  ]
+}
