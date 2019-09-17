@@ -34,6 +34,7 @@ export interface AuthStrategyConfig {
   strategyId: string
   loginUrl?: string
   registerUrl?: string
+  label?: string
 }
 
 export interface Workspace {

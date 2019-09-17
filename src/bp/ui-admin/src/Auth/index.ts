@@ -1,6 +1,7 @@
+import ms from 'ms'
+
 import api from '../api'
 import history from '../history'
-import ms from 'ms'
 
 export const TOKEN_KEY = 'bp/token'
 export const WORKSPACE_KEY = 'bp/workspace'
@@ -12,7 +13,7 @@ export function pullToken() {
 }
 
 export function setToken(token, expiresAt) {
-  const ls = JSON.stringify({ token, expires: expiresAt || new Date() + ms('4h'), time: new Date() })
+  const ls = JSON.stringify({ token, expires: expiresAt || Number(new Date()) + ms('4h'), time: new Date() })
   localStorage.setItem(TOKEN_KEY, ls)
 }
 
@@ -33,21 +34,21 @@ export function logout() {
   window.location.reload()
 }
 
+interface LoginCredentials {
+  email: string
+  password: string
+  newPassword?: string
+}
+
 export default class BasicAuthentication {
-  login = async ({ email, password, newPassword }, loginUrl) => {
+  login = async (credentials: LoginCredentials, loginUrl: string) => {
     if (this.isAuthenticated()) {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false }).post(
-      '/auth' + loginUrl,
-      {
-        email,
-        password,
-        newPassword
-      },
-      { timeout: 15000 }
-    )
+    const { data } = await api
+      .getAnonymous({ toastErrors: false })
+      .post('/auth' + loginUrl, credentials, { timeout: 15000 })
 
     const { token } = data.payload
     this.setSession({ expiresIn: 7200, idToken: token })
@@ -56,20 +57,6 @@ export default class BasicAuthentication {
 
     const returnTo = history.location.query.returnTo
     returnTo ? window.location.replace(returnTo) : history.replace(HOME_ROUTE)
-  }
-
-  getStrategyConfig = async userStrategy => {
-    const { data } = await api.getAnonymous().get('/auth/config')
-    if (!data.payload || !data.payload.strategies || !data.payload.strategies.length) {
-      return
-    }
-
-    const { strategies, isFirstUser } = data.payload
-
-    const strategyId = userStrategy || strategies[0].strategyId
-    const strategyConfig = strategies.find(s => s.strategyId === strategyId)
-
-    return strategyConfig && { ...strategyConfig, isFirstUser }
   }
 
   setupWorkspace = async () => {
