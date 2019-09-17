@@ -66,8 +66,9 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
   return current ? [...final, current] : final
 }
 
-// split by spaces but keep sace char
-const splitSpaceToken = (token: string): string[] => token.split(new RegExp(`(${SPACE})`, 'g')).filter(_.identity)
+export function splitSpaceToken(token: string): string[] {
+  return token.split(new RegExp(`(${SPACE})`, 'g')).filter(_.identity)
+}
 
 /**
  * Merges consecutive tokens that all respect the provided regex

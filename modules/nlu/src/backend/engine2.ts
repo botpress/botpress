@@ -12,17 +12,20 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
 import { EntityExtractor, Token2Vec } from './typings'
 
-// TODO
-// extract kmeans in engine2 ?
-
+// TODOS
 // ----- partial cleanup -----
 // check if predict tools can be refactored to pretty much nothing
-// unit test utterance class
 // replace the chunck utterance thing
-// move on to svm
+// extract kmeans in engine2
+
 // ----- train intents -----
 // ----- predict intents -----
 // ----- cancelation token -----
+// ----- persist models -----
+//      keep state of svms and kmeans and all that stuff in engine2
+//      keep only serializable stuff in artefacts ?
+// ----- load models -----
+//      load everything from artefacts
 
 export default class Engine2 {
   private tools: TrainTools
@@ -320,9 +323,9 @@ export const extractSystemEntities = async (
 }
 
 export class UtteranceClass implements Utterance {
-  public tokens: ReadonlyArray<UtteranceToken> = []
   public slots: ReadonlyArray<UtteranceRange & UtteranceSlot> = []
   public entities: ReadonlyArray<UtteranceRange & UtteranceEntity> = []
+  private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: _.Dictionary<number>
 
   setGlobalTfidf(tfidf: _.Dictionary<number>) {
@@ -330,12 +333,15 @@ export class UtteranceClass implements Utterance {
   }
 
   constructor(tokens: string[], vectors: number[][]) {
+    if (tokens.length !== vectors.length) {
+      throw Error('Tokens and vectors must match')
+    }
+
     const arr = []
     for (let i = 0, offset = 0; i < tokens.length; i++) {
       const that = this
       const value = tokens[i]
       arr.push(
-        // TODO extract this as token util makeToken
         Object.freeze({
           index: i,
           isBOS: i === 0,
@@ -349,10 +355,11 @@ export class UtteranceClass implements Utterance {
             return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
           isSpace: isSpace(value),
-          tfidf: (this._globalTfidf && this._globalTfidf[value]) || 1,
+          get tfidf(): number {
+            return (that._globalTfidf && that._globalTfidf[value]) || 1
+          },
           value: value,
           vectors: vectors[i],
-          // TODO extract this in strig utils and reuse for utterance
           toString: (opts: TokenToStringOptions) => {
             const options = { ...DefaultTokenToStringOptions, ...opts }
             let result = value
@@ -371,7 +378,11 @@ export class UtteranceClass implements Utterance {
       )
       offset += value.length
     }
-    this.tokens = arr
+    this._tokens = arr
+  }
+
+  get tokens(): ReadonlyArray<UtteranceToken> {
+    return this._tokens
   }
 
   toString(options: UtteranceToStringOptions): string {
@@ -405,6 +416,7 @@ export class UtteranceClass implements Utterance {
     const tokens = this.tokens.map(x => x.value)
     const vectors = this.tokens.map(x => <number[]>x.vectors)
     const utterance = new UtteranceClass(tokens, vectors)
+    utterance.setGlobalTfidf({ ...this._globalTfidf })
 
     if (copyEntities) {
       this.entities.forEach(entity => utterance.tagEntity(entity, entity.startPos, entity.endPos))
@@ -818,11 +830,6 @@ export interface PredictOutput {
   pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
   model: Model
-  // slots: _.Dictionary<ExtractedSlot>
-  // entities: ExtractedEntity[]
-  // ambiguous: boolean
-  // contexts: ContextPrediction[]
-  // intents: IntentPrediction[]
 }
 
 // object simply to split the file a little
@@ -856,7 +863,6 @@ const predict = {
       model
     }
   },
-  // Might have to change this but at the moment this works
   PredictionUtterance: async (input: PredictOutput, tools: PreditcTools): Promise<PredictOutput> => {
     const [utterance] = await Utterances([input.rawText], input.languageCode, tools)
 
