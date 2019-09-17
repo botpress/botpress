@@ -3,7 +3,8 @@ import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
-import { Intent, Utterance, UtteranceToken } from '../../engine2'
+import { ExtractedSlot, Intent, Utterance, UtteranceToken } from '../../engine2'
+import { BIO } from '../../typings'
 
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'
@@ -165,13 +166,47 @@ export default class CRFExtractor2 {
     ].filter(_.identity) // some features can be undefined
   }
 
-  async extract(utterance: Utterance, intent: Intent<Utterance>) {
+  async extract(
+    utterance: Utterance,
+    intent: Intent<Utterance>
+  ): Promise<{ slot: ExtractedSlot; start: number; end: number }[]> {
     const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
     debugExtract('vectorize', features)
 
-    return this._crfTagger
+    const predictions = this._crfTagger
       .marginal(features)
       .map(labeler.predictionLabelToTagResult)
       .map(res => labeler.swapInvalidTags(res, intent))
+
+    // move this into labeler ?
+    return _.zip(utterance.tokens, predictions)
+      .filter(([token, tag]) => tag.tag !== BIO.OUT)
+      .reduce(
+        (combined, [token, tag]) => {
+          const prev = _.last(combined)
+          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && prev.slot.name === tag.name
+
+          if (shouldConcatWithPrev) {
+            prev.slot.source += token.toString()
+            prev.end += token.value.length
+
+            return [...combined.slice(0, -1), prev]
+          } else {
+            return [
+              ...combined,
+              {
+                slot: {
+                  name: tag.name,
+                  confidence: tag.probability,
+                  source: token.toString()
+                },
+                start: token.offset,
+                end: token.offset + token.value.length
+              }
+            ]
+          }
+        },
+        [] as { slot: ExtractedSlot; start: number; end: number }[]
+      )
   }
 }

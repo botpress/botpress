@@ -410,7 +410,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       let fetched = await this.queryProvider<string[][]>(lang, '/tokenize', { utterances: query }, 'tokens')
-      // wo .... pretty sure this is not okay, we need to process those only once theure moved back in utterance
       fetched = fetched.map(processUtteranceTokens)
 
       if (fetched.length !== query.length) {

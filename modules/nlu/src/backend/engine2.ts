@@ -10,10 +10,10 @@ import CRFExtractor2 from './pipelines/slots/crf-extractor2'
 import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
-import { BIO, EntityExtractor, Token2Vec } from './typings'
+import { EntityExtractor, Token2Vec } from './typings'
 
 // TODO
-// fix the token merging
+// extract kmeans in engine2 ?
 
 // ----- partial cleanup -----
 // check if predict tools can be refactored to pretty much nothing
@@ -22,6 +22,7 @@ import { BIO, EntityExtractor, Token2Vec } from './typings'
 // move on to svm
 // ----- train intents -----
 // ----- predict intents -----
+// ----- cancelation token -----
 
 export default class Engine2 {
   private tools: TrainTools
@@ -889,41 +890,9 @@ const predict = {
     }
   },
   ExtractSlots: async (input: PredictOutput) => {
-    const predictions = await input.model.artefacts.slot_tagger.extract(input.utterance!, input.intent!)
+    const slots = await input.model.artefacts.slot_tagger.extract(input.utterance!, input.intent!)
 
-    // this can also be done in crf ? or maybe all the prediction processing should be done here
-    // should we pick up the entity source if any ?
-    const tagToSlots = _.zip(input.utterance.tokens, predictions)
-      .filter(([token, tag]) => tag.tag !== BIO.OUT)
-      .reduce(
-        (combined, [token, tag]) => {
-          const prev = _.last(combined)
-          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && prev.slot.name === tag.name
-
-          if (shouldConcatWithPrev) {
-            prev.slot.source += token.toString()
-            prev.end += token.value.length
-
-            return [...combined.slice(0, -1), prev]
-          } else {
-            return [
-              ...combined,
-              {
-                slot: {
-                  name: tag.name,
-                  confidence: tag.probability,
-                  source: token.toString()
-                },
-                start: token.offset,
-                end: token.offset + token.value.length
-              }
-            ]
-          }
-        },
-        [] as { slot: ExtractedSlot; start: number; end: number }[]
-      )
-
-    tagToSlots.forEach(({ slot, start, end }) => {
+    slots.forEach(({ slot, start, end }) => {
       input.utterance.tagSlot(slot, start, end)
     })
 
