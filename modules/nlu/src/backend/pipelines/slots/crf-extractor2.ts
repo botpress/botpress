@@ -51,13 +51,11 @@ export default class CRFExtractor2 {
     this._crfTagger.open(this._crfModelFn)
   }
 
-  async train(intents: Intent<Utterance>[]): Promise<{ crf: Buffer }> {
+  async train(intents: Intent<Utterance>[]): Promise<void> {
     this._isTrained = false
     if (intents.length < 2) {
       debugTrain('training set too small, skipping training')
-      return {
-        crf: undefined
-      }
+      return
     }
     debugTrain('start training')
 
@@ -68,10 +66,10 @@ export default class CRFExtractor2 {
     this._isTrained = true
 
     debugTrain('done training')
+  }
 
-    return {
-      crf: await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb))
-    }
+  get serialized() {
+    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))()
   }
 
   private _trainKmeans(intents: Intent<Utterance>[]) {
@@ -129,7 +127,7 @@ export default class CRFExtractor2 {
 
     const intentFeat = featurizer.getIntentFeature(intent)
     const bos = token.isBOS ? ['__BOS__'] : []
-    const eos = token.isEOS ? ['__BOS__'] : []
+    const eos = token.isEOS ? ['__EOS__'] : []
 
     return [
       ...bos,
@@ -165,5 +163,15 @@ export default class CRFExtractor2 {
       featurizer.getWordFeat(token, isPredict),
       ...featurizer.getEntitiesFeats(token, intent.slot_entities, isPredict)
     ].filter(_.identity) // some features can be undefined
+  }
+
+  async extract(utterance: Utterance, intent: Intent<Utterance>) {
+    const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
+    debugExtract('vectorize', features)
+
+    return this._crfTagger
+      .marginal(features)
+      .map(labeler.predictionLabelToTagResult)
+      .map(res => labeler.swapInvalidTags(res, intent))
   }
 }

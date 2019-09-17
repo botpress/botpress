@@ -93,7 +93,7 @@ export const processUtteranceTokens = (tokens: string[]): string[] => {
     .thru(tokens => mergeSimilarTokens(tokens, [SPACE])) // merge spaces
     .thru(tokens => mergeSimilarTokens(tokens, ['[0-9]'])) // merge numerical
     .thru(tokens => mergeSimilarTokens(tokens, CHARS_TO_MERGE)) // merge special chars
-    .thru(tokens => (tokens[0].startsWith(SPACE) ? tokens.slice(1) : tokens)) // remove 1st token if space
+    .thru(tokens => (tokens.length && tokens[0].startsWith(SPACE) ? tokens.slice(1) : tokens)) // remove 1st token if space
     .value()
 }
 

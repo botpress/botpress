@@ -7,7 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import Engine2, { Predict, PredictInput, StructuredTrainInput } from './engine2'
+import Engine2, { Model as Model2, Predict, PredictInput, PreditcTools, StructuredTrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -56,6 +56,8 @@ export default class ScopedEngine implements Engine {
   private readonly slotExtractors: { [lang: string]: CRFExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
+  private models2ByLang: _.Dictionary<Model2> = {}
+
   private scopedGenerateTrainingSequence: (
     input: string,
     lang: string,
@@ -64,17 +66,17 @@ export default class ScopedEngine implements Engine {
     contexts: string[]
   ) => Promise<TrainingSequence>
 
+  private _isSyncing: boolean
+  private _isSyncingTwice: boolean
+  private _autoTrainInterval: number = 0
+  private _autoTrainTimer: NodeJS.Timer
+
   private retryPolicy = {
     interval: 100,
     max_interval: 500,
     timeout: 5000,
     max_tries: 3
   }
-
-  private _isSyncing: boolean
-  private _isSyncingTwice: boolean
-  private _autoTrainInterval: number = 0
-  private _autoTrainTimer: NodeJS.Timer
 
   constructor(
     protected logger: sdk.Logger,
@@ -220,51 +222,22 @@ export default class ScopedEngine implements Engine {
 
       res.errored = false
 
-      // This is predict2
-      const entities = await this.storage.getCustomEntities()
-      const list_entities = entities
-        .filter(ent => ent.type === 'list')
-        .map(e => {
-          return {
-            name: e.name,
-            fuzzyMatching: e.fuzzy,
-            sensitive: e.sensitive,
-            synonyms: _.chain(e.occurences)
-              .keyBy('name')
-              .mapValues('synonyms')
-              .value()
-          }
-        })
-
-      const pattern_entities = entities
-        .filter(ent => ent.type === 'pattern')
-        .map(ent => ({
-          name: ent.name,
-          pattern: ent.pattern,
-          examples: [], // TODO add this to entityDef
-          ignoreCase: true, // TODO add this entityDef
-          sensitive: ent.sensitive
-        }))
-
       const input: PredictInput = {
         defaultLanguage: this.defaultLanguage,
         supportedLanguages: this.languages,
         sentence: text,
-        intent: res.intent,
-        // TODO provide training artefacts here instead of those entities
-        list_entities,
-        pattern_entities
+        strIntent: nluResults.intent.name,
+        models: this.models2ByLang
       }
-      // TODO adapt this with predcit tools, this is a pure copy/paste of train
-      const precictTools = {
+
+      const precictTools: PreditcTools = {
         tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
         vectorize_tokens: async (tokens, lang) => {
           const a = await this.languageProvider.vectorize(tokens, lang)
           return a.map(x => Array.from(x.values()))
         },
-        generateSimilarJunkWords: () => Promise.resolve([]), // temp fix until we replace type as predict tools
         mlToolkit: this.toolkit,
-        ducklingExtractor: this.systemEntityExtractor // temp fix until we transform ducling extractor as a static class
+        ducklingExtractor: this.systemEntityExtractor
       }
 
       const predict2Res = await Predict(input, precictTools)
@@ -487,10 +460,11 @@ export default class ScopedEngine implements Engine {
             const a = await this.languageProvider.vectorize(tokens, lang)
             return a.map(x => Array.from(x.values()))
           },
-          generateSimilarJunkWords: vocab => this.languageProvider.generateSimilarJunkWords(vocab, lang),
+          generateSimilarJunkWords: (vocab: string[]) => this.languageProvider.generateSimilarJunkWords(vocab, lang),
           mlToolkit: this.toolkit,
           ducklingExtractor: this.systemEntityExtractor
         })
+
         const input: StructuredTrainInput = {
           botId: this.botId,
           contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
@@ -506,7 +480,8 @@ export default class ScopedEngine implements Engine {
             vocab: {}
           }))
         }
-        await e2.train(input)
+        // TODO keep state in E2 instead and make artefacts serializable objects only
+        this.models2ByLang[lang] = await e2.train(input)
 
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
         if (trainableIntents.length) {

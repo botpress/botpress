@@ -4,12 +4,24 @@ import _, { cloneDeep } from 'lodash'
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
+import { getClosestToken } from './pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
 import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
-import { EntityExtractor } from './typings'
+import { BIO, EntityExtractor, Token2Vec } from './typings'
+
+// TODO
+// fix the token merging
+
+// ----- partial cleanup -----
+// check if predict tools can be refactored to pretty much nothing
+// unit test utterance class
+// replace the chunck utterance thing
+// move on to svm
+// ----- train intents -----
+// ----- predict intents -----
 
 export default class Engine2 {
   private tools: TrainTools
@@ -18,7 +30,7 @@ export default class Engine2 {
     this.tools = tools
   }
 
-  async train(input: StructuredTrainInput) {
+  async train(input: StructuredTrainInput): Promise<Model> {
     const token: CancellationToken = {
       // TODO:
       cancel: async () => {},
@@ -27,7 +39,7 @@ export default class Engine2 {
       cancelledAt: new Date()
     }
 
-    await Trainer(input, this.tools, token)
+    return Trainer(input, this.tools, token)
   }
 }
 
@@ -47,6 +59,7 @@ export type StructuredTrainOutput = Readonly<{
   list_entities: ListEntityModel[]
   contexts: string[]
   intents: Intent<Utterance>[]
+  tfIdf: _.Dictionary<number>
 }>
 
 export type PatternEntity = Readonly<{
@@ -288,7 +301,7 @@ export const extractPatternEntities = (
 export const extractSystemEntities = async (
   utterance: Utterance,
   languageCode: string,
-  tools: TrainTools
+  tools: TrainTools | PreditcTools
 ): Promise<EntityExtractionResult[]> => {
   const extracted = await tools.ducklingExtractor.extract(utterance.toString(), languageCode)
   return extracted.map(ent => ({
@@ -467,10 +480,12 @@ export type UtteranceToken = Readonly<{
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
 export interface Trainer {
-  (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): TrainResult
+  (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): Promise<Model>
 }
 
-export const Trainer: Trainer = async (input, tools, cancelToken) => {
+// @ts-ignore
+export const Trainer: Trainer = async (input, tools, cancelToken): Promise<Model> => {
+  const startedAt = new Date()
   try {
     // TODO: Cancellation token effect
     input = cloneDeep(input)
@@ -479,43 +494,74 @@ export const Trainer: Trainer = async (input, tools, cancelToken) => {
       prepareListEntityModels(list, input.languageCode, tools)
     )
 
+    // TODO filter out non trainable intents (see engine 1 filtering conditions)
     const intents = await ProcessIntents(input.intents, input.languageCode, tools)
 
     let output = {
       ..._.omit(input, 'list_entities', 'intents'),
       list_entities,
-      intents
+      intents,
+      tfIdf: {}
     }
 
     output = await ExtractEntities(output, tools)
     output = await AppendNoneIntents(output, tools)
     output = await TfidfTokens(output)
 
-    const context_ranking = await {}
-    const svm = {} // await trainSvm(output, tools)
+    const context_ranking = {}
+    const intent_classifier = {} // await trainSvm(output, tools)
 
     const slot_tagger = await trainSlotTagger(output, tools)
+    const finishedAt = new Date()
 
+    // only serializable stuff ?
     const artefacts = {
-      list_entities: {},
-      tfidf: {},
-      kmeans: {},
-      context_ranking: {},
-      svm_classifier: svm,
+      list_entities,
+      tfidf: output.tfIdf,
+      kmeans: {}, // TODO move kmeans out of crf extractor and pass it instead
+      context_ranking,
       exact_classifier: {},
-      slot_tagger: {}
+      intent_classifier,
+      slot_tagger,
+      vocabVectors: vectorsVocab(output.intents)
     }
 
-    //
-  } catch (err) {}
-  return {}
+    return {
+      startedAt,
+      finishedAt,
+      inputData: input,
+      languageCode: input.languageCode,
+      outputData: output,
+      artefacts,
+      success: true
+    }
+  } catch (err) {
+    return {
+      startedAt,
+      finishedAt: new Date(),
+      success: false,
+      inputData: input,
+      languageCode: input.languageCode
+    }
+  }
 }
 
 // TODO test this (build intent vocab)
-export const buildVocab = (utterances: Utterance[]): _.Dictionary<boolean> => {
+export const buildIntentVocab = (utterances: Utterance[]): _.Dictionary<boolean> => {
   return _.chain(utterances)
     .flatMap(u => u.tokens)
     .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok.value]: true }), {})
+    .value()
+}
+
+const vectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
+  return _.chain(intents)
+    .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
+    .reduce(
+      // @ts-ignore
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.value]: tok.vectors }),
+      {} as Token2Vec
+    )
     .value()
 }
 
@@ -551,7 +597,7 @@ export const ProcessIntents = async (
       }, 0)
     })
 
-    const vocab = buildVocab(utterances)
+    const vocab = buildIntentVocab(utterances)
     const slot_entities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
       .uniq()
@@ -575,7 +621,7 @@ export const ExtractEntities = async (
 const extractUtteranceEntities = async (
   utterance: Utterance,
   input: StructuredTrainOutput | PredictOutput,
-  tools: TrainTools
+  tools: TrainTools | PreditcTools
 ) => {
   const extractedEntities = [
     ...extractListEntities(utterance, input.list_entities),
@@ -628,11 +674,11 @@ export const AppendNoneIntents = async (
 export const TfidfTokens = async (input: StructuredTrainOutput): Promise<StructuredTrainOutput> => {
   const contextTokens = _.zipObject<string[]>(
     input.intents.map(x => x.name),
-    _.flattenDeep<string[]>(input.intents.map(x => x.utterances.map(u => u.tokens.map(x => x.value))))
+    _.flattenDeep<string[]>(input.intents.map(x => x.utterances.map(u => u.tokens.map(x => x.value)))) // we might want to use tostring with to lowercase
   )
 
   const { __avg__: avg } = tfidf(contextTokens)
-  const copy = { ...input }
+  const copy = { ...input, tfIdf: avg }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg)))
   return copy
 }
@@ -687,7 +733,7 @@ export const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDe
 export const Utterances = async (
   textual_utterances: string[],
   languageCode: string,
-  tools: TrainTools
+  tools: TrainTools | PreditcTools
 ): Promise<Utterance[]> => {
   const tokens = await tools.tokenize_utterances(textual_utterances, languageCode)
   const uniqTokens = _.uniq(_.flatten(tokens))
@@ -707,12 +753,24 @@ export const Utterances = async (
   return utterances
 }
 
-const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools): Promise<{ crf: Buffer }> => {
+// TODO declare type for SlotTagger {train, predict, serialized}
+const trainSlotTagger = async (input: StructuredTrainOutput, tools: TrainTools): Promise<CRFExtractor2> => {
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
-  return crfExtractor.train(input.intents)
+  await crfExtractor.train(input.intents)
+
+  return crfExtractor
 }
 
-export interface TrainResult {}
+export interface TrainArtefacts {
+  list_entities: ListEntityModel[]
+  tfidf: _.Dictionary<number>
+  vocabVectors: Token2Vec
+  kmeans: any // TODO fix this
+  context_ranking: any // TODO fix this
+  exact_classifier: any // TODO fix this
+  intent_classifier: any // TODO fix this
+  slot_tagger: CRFExtractor2
+}
 
 export interface CancellationToken {
   readonly uid: string
@@ -724,37 +782,41 @@ export interface CancellationToken {
 export interface TrainTools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  generateSimilarJunkWords(vocabulary: string): Promise<string[]>
+  generateSimilarJunkWords(vocabulary: string[]): Promise<string[]>
+  ducklingExtractor: EntityExtractor
   mlToolkit: typeof MLToolkit
-  ducklingExtractor: EntityExtractor // temporary
 }
+
+export type PreditcTools = Omit<TrainTools, 'generateSimilarJunkWords'>
 
 export interface Model {
   languageCode: string
   inputData: StructuredTrainInput
-  outputData: StructuredTrainOutput
+  outputData?: StructuredTrainOutput
   startedAt: Date
   finishedAt: Date
-  artefacts: any[] // TODO:
+  success: boolean
+  artefacts?: TrainArtefacts
 }
 
 export interface PredictInput {
-  supportedLanguages: string[]
   defaultLanguage: string
+  supportedLanguages: string[]
   sentence: string
-  intent: string // this is temporary
-  // this should come from training artefact
-  pattern_entities: PatternEntity[]
-  list_entities: ListEntity[]
+  strIntent: string // this is temporary
+  models: _.Dictionary<Model>
 }
 
 export interface PredictOutput {
   readonly rawText: string
   detectedLanguage: string
   languageCode: string
-  sentence?: Utterance // not use if we should use this or another structure ?
+  utterance?: Utterance
+  intent?: Intent<Utterance>
+  strIntent: string // this is temporary
   pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
+  model: Model
   // slots: _.Dictionary<ExtractedSlot>
   // entities: ExtractedEntity[]
   // ambiguous: boolean
@@ -764,7 +826,7 @@ export interface PredictOutput {
 
 // object simply to split the file a little
 const predict = {
-  DetectLanguage: async (input: PredictInput, tools: TrainTools): Promise<PredictOutput> => {
+  DetectLanguage: async (input: PredictInput, tools: PreditcTools): Promise<PredictOutput> => {
     const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
     const lidRes = await langIdentifier.identify(input.sentence)
     const elected = lidRes.filter(pred => input.supportedLanguages.includes(pred.label))[0]
@@ -781,49 +843,103 @@ const predict = {
     const languageCode =
       detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
 
-    // TODO remove this out of here once we get the train artefacts passed in predict
-    const list_entities = await Promise.map(input.list_entities, e => prepareListEntityModels(e, languageCode, tools))
+    const model = input.models[languageCode]
 
     return {
+      ..._.pick(input, 'strIntent'),
+      list_entities: model.artefacts.list_entities,
+      pattern_entities: model.inputData.pattern_entities,
       rawText: input.sentence,
-      pattern_entities: input.pattern_entities,
-      list_entities,
       detectedLanguage,
-      languageCode
+      languageCode,
+      model
     }
   },
   // Might have to change this but at the moment this works
-  PredictionUtterance: async (input: PredictOutput, tools: TrainTools): Promise<PredictOutput> => {
-    // TODO set tfidf for each tokens ?
-    const [sentence] = await Utterances([input.rawText], input.languageCode, tools)
+  PredictionUtterance: async (input: PredictOutput, tools: PreditcTools): Promise<PredictOutput> => {
+    const [utterance] = await Utterances([input.rawText], input.languageCode, tools)
+
+    const { tfidf, vocabVectors } = input.model.artefacts
+    utterance.tokens.forEach(token => {
+      if (!tfidf[token.value]) {
+        const closestToken = getClosestToken(token.value, token.vectors as number[], vocabVectors)
+        tfidf[token.value] = tfidf[closestToken]
+      }
+    })
+
+    utterance.setGlobalTfidf(tfidf)
+
     return {
       ...input,
-      sentence
+      utterance
     }
   },
-  ExtractEntities: async (input: PredictOutput, tools: TrainTools) => {
-    await extractUtteranceEntities(input.sentence!, input, tools)
+  ExtractEntities: async (input: PredictOutput, tools: PreditcTools) => {
+    await extractUtteranceEntities(input.utterance!, input, tools)
     return {
       ...input
     }
+  },
+  PredictIntent: async (input: PredictOutput) => {
+    // TODO implement this properly
+    const intent = input.model.outputData.intents.find(i => i.name == input.strIntent)
+    return {
+      ...input,
+      intent
+    }
+  },
+  ExtractSlots: async (input: PredictOutput) => {
+    const predictions = await input.model.artefacts.slot_tagger.extract(input.utterance!, input.intent!)
+
+    // this can also be done in crf ? or maybe all the prediction processing should be done here
+    // should we pick up the entity source if any ?
+    const tagToSlots = _.zip(input.utterance.tokens, predictions)
+      .filter(([token, tag]) => tag.tag !== BIO.OUT)
+      .reduce(
+        (combined, [token, tag]) => {
+          const prev = _.last(combined)
+          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && prev.slot.name === tag.name
+
+          if (shouldConcatWithPrev) {
+            prev.slot.source += token.toString()
+            prev.end += token.value.length
+
+            return [...combined.slice(0, -1), prev]
+          } else {
+            return [
+              ...combined,
+              {
+                slot: {
+                  name: tag.name,
+                  confidence: tag.probability,
+                  source: token.toString()
+                },
+                start: token.offset,
+                end: token.offset + token.value.length
+              }
+            ]
+          }
+        },
+        [] as { slot: ExtractedSlot; start: number; end: number }[]
+      )
+
+    tagToSlots.forEach(({ slot, start, end }) => {
+      input.utterance.tagSlot(slot, start, end)
+    })
+
+    return input
   }
 }
 
-// TODO maybe change TrainTools for PredictTools
-// TODO this should take trainArtefacts as parameter
-export const Predict = async (input: PredictInput, tools: TrainTools) => {
+export const Predict = async (input: PredictInput, tools: PreditcTools) => {
   let output = await predict.DetectLanguage(input, tools)
   output = await predict.PredictionUtterance(output, tools)
   output = await predict.ExtractEntities(output, tools)
+  output = await predict.PredictIntent(output)
+  output = await predict.ExtractSlots(output)
 
-  // SENTENCE PROCESSING PIPELINE --> PredictionUtterance
-  // CompleteStructure --> PREDICT PIPELINE
-  // prepare_utterance pipeline
-  //     for each tokens we need to set tfidf using getClosestToken
-  // rank contexts
-  // predict intents
-  // extract slots
-  // ambiguity detection
+  // TODO rank context
+  // TODO ambiguity detection
 
   return output
 }
