@@ -100,6 +100,7 @@ export interface NLUStructure {
   intents: sdk.NLU.Intent[]
   intent: sdk.NLU.Intent
   tokens: Token[]
+  errored: boolean
 }
 
 export type Token2Vec = { [token: string]: number[] }
@@ -116,6 +117,7 @@ export interface LangsGateway {
 }
 
 export interface LanguageProvider {
+  languages: string[]
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
