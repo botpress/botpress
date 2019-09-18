@@ -1,5 +1,11 @@
+import { AuthRule, AuthStrategyConfig, UserProfile, WorkspaceUser } from 'common/typings'
+
 import api from '../api'
-import { logout } from '../Auth'
+import { logout, setActiveWorkspace } from '../Auth'
+
+import { fetchBots } from './bots'
+import { fetchLicensing } from './license'
+import { fetchRoles } from './roles'
 
 export const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 export const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
@@ -9,15 +15,28 @@ export const FETCH_USERS_REQUESTED = 'user/FETCH_USERS_REQUESTED'
 export const FETCH_USERS_RECEIVED = 'user/FETCH_USERS_RECEIVED'
 export const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
 export const AUTH_CONFIG_RECEIVED = 'user/AUTH_CONFIG_RECEIVED'
+export const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
 
-const initialState = {
-  users: null,
+export interface UserState {
+  loading: boolean
+  loadingUsers: boolean
+  workspaces?: WorkspaceUser[]
+  permissions?: AuthRule[]
+  authConfig?: AuthStrategyConfig[]
+  profile?: UserProfile
+  users?: WorkspaceUser & { attributes: any }[]
+  currentWorkspace?: string
+}
+
+const initialState: UserState = {
+  users: undefined,
   loading: false,
   loadingUsers: false,
-  profile: null,
-  permissions: null,
-  workspaces: null,
-  authConfig: null
+  profile: undefined,
+  permissions: undefined,
+  workspaces: undefined,
+  authConfig: undefined,
+  currentWorkspace: undefined
 }
 
 export default (state = initialState, action) => {
@@ -53,7 +72,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loadingUsers: false,
-        items: action.users
+        users: action.users
       }
 
     case MY_WORKSPACES_RECEIVED:
@@ -66,6 +85,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         authConfig: action.authConfig
+      }
+
+    case CURRENT_WORKSPACE_CHANGED:
+      return {
+        ...state,
+        currentWorkspace: action.currentWorkspace
       }
 
     default:
@@ -119,5 +144,18 @@ export const fetchAuthConfig = () => {
   return async dispatch => {
     const { data } = await api.getAnonymous().get('/auth/config')
     dispatch({ type: AUTH_CONFIG_RECEIVED, authConfig: data.payload })
+  }
+}
+
+export const switchWorkspace = (workspaceId: string) => {
+  return async dispatch => {
+    setActiveWorkspace(workspaceId)
+    dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
+
+    dispatch(fetchUsers())
+    dispatch(fetchRoles())
+    dispatch(fetchBots())
+    dispatch(fetchPermissions())
+    dispatch(fetchLicensing())
   }
 }

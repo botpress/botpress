@@ -5,7 +5,7 @@ import SectionLayout from '../Layouts/Section'
 
 class Roles extends Component {
   componentDidMount() {
-    this.props.fetchRoles()
+    !this.props.roles.length && this.props.fetchRoles()
   }
 
   renderRoles() {

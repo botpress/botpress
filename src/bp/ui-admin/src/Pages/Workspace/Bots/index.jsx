@@ -47,11 +47,10 @@ class Bots extends Component {
 
   componentDidMount() {
     this.downloadLink = React.createRef()
+
     this.props.fetchBots()
-    this.props.fetchPermissions()
-    if (!this.props.licensing) {
-      this.props.fetchLicensing()
-    }
+    !this.props.permissions && this.props.fetchPermissions()
+    !this.props.licensing && this.props.fetchLicensing()
   }
 
   toggleCreateBotModal = () => {
@@ -230,12 +229,13 @@ class Bots extends Component {
         <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
 
         <SectionLayout
-          title={`Your bots`}
+          title={`Workspace bots`}
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
           mainContent={this.renderBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />
+
         <RollbackBotModal
           botId={this.state.focusedBot}
           isOpen={this.state.isRollbackModalOpen}
