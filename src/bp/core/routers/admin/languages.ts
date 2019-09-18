@@ -150,12 +150,12 @@ export class LanguagesRouter extends CustomRouter {
           const { data } = await client.get('/languages')
 
           const languages = [
-            ...(await this.getExtraLangs()),
             ...data.installed
               .filter(x => x.loaded)
               .map(x => ({
                 ...data.available.find(l => l.code === x.lang)
-              }))
+              })),
+            ...(await this.getExtraLangs())
           ]
 
           res.send({ languages })
