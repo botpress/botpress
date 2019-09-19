@@ -1,3 +1,4 @@
+import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
@@ -9,6 +10,15 @@ export type PipelineStep = (ds: NLUStructure) => Promise<NLUStructure>
 export class PipelineManager {
   private _nluds!: NLUStructure
   private _pipeline!: PipelineStep[]
+  private _retryCount: number = 0
+
+  private retryPolicy = {
+    interval: 100,
+    max_interval: 500,
+    timeout: 5000,
+    max_tries: 3
+  }
+  constructor(private logger: sdk.Logger) {}
 
   public withPipeline(pipeline: PipelineStep[]): PipelineManager {
     this._pipeline = pipeline
@@ -21,6 +31,11 @@ export class PipelineManager {
   }
 
   public run = async (): Promise<NLUStructure> => {
+    this._retryCount = 0
+    return await retry(this._run, this.retryPolicy)
+  }
+
+  private _run = async (): Promise<NLUStructure> => {
     if (!this._nluds) {
       throw new Error('You must add a NLUDS to the pipeline manager before runinng it')
     }
@@ -32,9 +47,21 @@ export class PipelineManager {
     let ds = this._nluds
 
     for (const step of this._pipeline) {
-      ds = await step(ds)
+      try {
+        ds = await step(ds)
+      } catch (error) {
+        if (++this._retryCount < this.retryPolicy.max_tries) {
+          throw error
+        } else {
+          this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
+          ds.errored = true
+
+          return ds // exit loop and return partially populated ds
+        }
+      }
     }
 
+    ds.errored = false
     return ds
   }
 }
