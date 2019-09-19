@@ -1,14 +1,8 @@
 import 'bluebird-global'
 import _ from 'lodash'
 
-import {
-  ChunkSlotsInUtterance,
-  EntityExtractionResult,
-  extractListEntities,
-  ListEntityModel,
-  Utterance,
-  UtteranceClass
-} from '../../engine2'
+import { EntityExtractionResult, extractListEntities, ListEntityModel, Utterance, UtteranceClass } from '../../engine2'
+import { parseUtterance } from '../../utterance-parser'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
@@ -44,7 +38,7 @@ const list_entities: ListEntityModel[] = [
   }
 ]
 
-describe.only('list_extractor > structure', () => {
+describe('list_extractor > structure', () => {
   test('Data structure test', async () => {
     TEST_IS_FUZZY = true
     const utterance = textToUtterance('Blueberries are berries that are blue')
@@ -131,31 +125,17 @@ describe.only('list_extractor > fuzzy match', () => {
 ///////////////////
 
 function assertEntity(expression: string) {
-  const chunks = ChunkSlotsInUtterance(expression, [])
-  const text = chunks.map(x => x.value).join('')
-  const parts = chunks
-    .filter(x => !!x.slotName)
-    .map(x => x.value)
-    .join(',')
-  let cursor = 0
+  const { utterance: text, parsedSlots } = parseUtterance(expression)
+  const parts = parsedSlots.map(p => p.value)
 
   const utterance = textToUtterance(text)
   const results = extractListEntities(utterance, list_entities)
 
-  for (const chunk of chunks) {
-    if (!chunk.slotName) {
-      cursor += chunk.value.length
-      continue
-    }
+  for (const strConds of parsedSlots) {
+    const { start, end } = strConds.cleanPosition
+    const found = results.filter(x => (x.start >= start && x.start < end) || (x.end <= end && x.end > start))
 
-    const chunkStart = cursor
-    const chunkEnd = cursor + chunk.value.length
-    cursor += chunk.value.length
-    const found = results.filter(
-      x => (x.start >= chunkStart && x.start < chunkEnd) || (x.end <= chunkEnd && x.end > chunkStart)
-    )
-
-    const conditions = chunk.slotName.split(' ')
+    const conditions = strConds.name.split(' ')
 
     const cases = []
     let t: EntityExtractionResult = undefined
@@ -175,8 +155,8 @@ function assertEntity(expression: string) {
     }
 
     if (t) {
-      cases.push(['start', chunkStart, t.start])
-      cases.push(['end', chunkEnd, t.end])
+      cases.push(['start', start, t.start])
+      cases.push(['end', end, t.end])
     }
 
     test.each(cases)(`"${text}" (${parts}) '%s' -> Expected(%s) Actual(%s)`, (expression, a, b) => {

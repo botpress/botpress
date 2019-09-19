@@ -11,21 +11,31 @@ import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
 import { EntityExtractor, Token2Vec } from './typings'
+import { parseUtterance } from './utterance-parser'
 
 // TODOS
+// ----- split svm l0 & l1 ----
+//       simple svm
+//       one for contexts and one for intents
+//          impl train
+//          impl predict
+//          make sure results are same (context = l0, intents = l1)
+//          do the ctx ranking in e2
 // ----- partial cleanup -----
+//  extract kmeans in engine2 out of CRF
 // check if predict tools can be refactored to pretty much nothing
-// replace the chunck utterance thing
-// extract kmeans in engine2
-
-// ----- train intents -----
-// ----- predict intents -----
-// ----- cancelation token -----
 // ----- persist models -----
 //      keep state of svms and kmeans and all that stuff in engine2
-//      keep only serializable stuff in artefacts ?
+//      keep only serializable stuff in artefacts
 // ----- load models -----
 //      load everything from artefacts
+//      run pre-training steps in pipeline
+//      load tfidf
+//      load context model
+//      load intent model
+//      load kmeans
+//      load crfModel
+// ----- cancelation token -----
 
 export default class Engine2 {
   private tools: TrainTools
@@ -492,6 +502,15 @@ export type UtteranceToken = Readonly<{
 
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
+// TODO return TrainResult
+// interface TrainResult {
+//   contextSvm: SVMClassifier
+//   intentSvm: SVMClassifier
+//   slotTagger: CRFExtractor2
+//   // every stateful stuff necessary for prediction
+//   model: Model
+// }
+
 export interface Trainer {
   (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): Promise<Model>
 }
@@ -596,20 +615,10 @@ export const ProcessIntents = async (
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
-    const chunked_utterances = cleaned.map(u => ChunkSlotsInUtterance(u, intent.slot_definitions))
-    const parsed_utterances = chunked_utterances.map(chunks => chunks.map(x => x.value).join(''))
-    const utterances = await Utterances(parsed_utterances, languageCode, tools)
-    // Add identified slots in each utterances
-    _.zip(utterances, chunked_utterances).forEach(([utterance, chuncked]) => {
-      chuncked.reduce((cursor: number, chunck) => {
-        const end = cursor + chunck.value.length
-        if (chunck.slotName) {
-          utterance.tagSlot({ name: chunck.slotName, source: chunck.value, confidence: 1 }, cursor, end)
-        }
-        return end
-      }, 0)
-    })
+    const utterances = await Utterances(cleaned, languageCode, tools)
 
+    // make this a function ?
+    // can should we use the vector map ?
     const vocab = buildIntentVocab(utterances)
     const slot_entities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
@@ -703,67 +712,26 @@ export type UtteranceChunk = {
   entities?: string[]
 }
 
-export const ChunkSlotsInUtterance = (utterance: string, slotDefinitions: SlotDefinition[]): UtteranceChunk[] => {
-  // TODO: Unit Test this
-  // or use what was done in FE as its the same and tested + it'll reduce code size
-  const slotsRegex = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // local because it is stateful
-  const chunks = [] as UtteranceChunk[]
-
-  let cursor = 0
-  let slotIdx = 0
-  let regResult: RegExpExecArray | null
-
-  while ((regResult = slotsRegex.exec(utterance))) {
-    const rawMatch = regResult[0]
-    const slotValue = regResult[1] as string
-    const slotName = regResult[2] as string
-
-    const slotDef = slotDefinitions.find(sd => sd.name === slotName)
-
-    if (cursor < regResult.index) {
-      chunks.push({ value: utterance.slice(cursor, regResult.index) })
-    }
-
-    chunks.push({
-      value: slotValue,
-      slotName: slotName,
-      entities: slotDef ? slotDef.entities : [],
-      slotIdx: slotIdx++
-    })
-
-    cursor = regResult.index + rawMatch.length
-  }
-
-  if (cursor < utterance.length) {
-    chunks.push({
-      value: utterance.slice(cursor, utterance.length)
-    })
-  }
-
-  return chunks
-}
-
-export const Utterances = async (
-  textual_utterances: string[],
+const Utterances = async (
+  raw_utterances: string[],
   languageCode: string,
   tools: TrainTools | PreditcTools
 ): Promise<Utterance[]> => {
-  const tokens = await tools.tokenize_utterances(textual_utterances, languageCode)
+  const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
+  const tokens = await tools.tokenize_utterances(parsed.map(p => p.utterance), languageCode)
   const uniqTokens = _.uniq(_.flatten(tokens))
   const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  const utterances: Utterance[] = []
+  return _.zip(tokens, parsed).map(([tokUtt, { parsedSlots }]) => {
+    const vectors = tokUtt.map(t => vectorMap[t])
+    const utterance = new UtteranceClass(tokUtt, vectors)
+    parsedSlots.forEach(s => {
+      utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
+    })
 
-  for (let i = 0; i < textual_utterances.length; i++) {
-    const vectors = tokens[i].map(v => vectorMap[v])
-    const utterance = new UtteranceClass(tokens[i], vectors)
-
-    utterances.push(utterance)
-  }
-
-  // TODO add word cluster here ?
-  return utterances
+    return utterance
+  })
 }
 
 // TODO declare type for SlotTagger {train, predict, serialized}
