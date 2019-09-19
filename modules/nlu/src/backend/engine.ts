@@ -1,4 +1,3 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { memoize } from 'lodash'
@@ -62,14 +61,6 @@ export default class ScopedEngine implements Engine {
     intentName: string,
     contexts: string[]
   ) => Promise<TrainingSequence>
-
-  private retryPolicy = {
-    interval: 100,
-    max_interval: 500,
-    timeout: 5000,
-    max_tries: 3
-  }
-
   private _isSyncing: boolean
   private _isSyncingTwice: boolean
   private _autoTrainInterval: number = 0
@@ -87,7 +78,7 @@ export default class ScopedEngine implements Engine {
     private realtimePayload: typeof sdk.RealTimePayload
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
-    this.pipelineManager = new PipelineManager()
+    this.pipelineManager = new PipelineManager(this.logger)
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
@@ -201,14 +192,14 @@ export default class ScopedEngine implements Engine {
     }
 
     const t0 = Date.now()
-    let res: any = { errored: true }
+    let res: any = {}
 
     try {
       const runner = this.pipelineManager
         .withPipeline(this._predictPipeline)
         .initFromText(text, lastMessages, includedContexts)
 
-      const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
+      const nluResults = await runner.run()
 
       res = _.pick(
         nluResults,
@@ -222,8 +213,6 @@ export default class ScopedEngine implements Engine {
         'errored',
         'includedContexts'
       )
-
-      res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
@@ -267,7 +256,7 @@ export default class ScopedEngine implements Engine {
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
       if (!trainableLangs.includes(lang)) {
-        return
+        continue
       }
 
       const models = await this.storage.getModelsFromHash(modelHash, lang)
