@@ -1,7 +1,7 @@
 import { Button, Checkbox, Classes, Dialog, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
-import { PermissionsChecker } from 'botpress/utils'
+import { AccessControl } from 'botpress/utils'
 import classnames from 'classnames'
 import _ from 'lodash'
 import some from 'lodash/some'
@@ -344,14 +344,14 @@ export default class FormModal extends Component<Props> {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button id="btn-cancel" text="Cancel" onClick={this.closeAndClear} />
-            <PermissionsChecker resource="module.qna" operation="write">
+            <AccessControl resource="module.qna" operation="write">
               <Button
                 id="btn-submit"
                 text={isEdit ? 'Edit' : 'Save'}
                 intent={Intent.PRIMARY}
                 onClick={this.handleSubmit}
               />
-            </PermissionsChecker>
+            </AccessControl>
           </div>
         </div>
       </Dialog>
