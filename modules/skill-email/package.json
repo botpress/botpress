@@ -1,0 +1,39 @@
+{
+  "name": "skill-email",
+  "version": "12.1.3",
+  "description": "Botpress Skill that sends emails",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "webpack": {
+    "externals": {
+      "react": "React",
+      "react-dom": "ReactDOM",
+      "react-bootstrap": "ReactBootstrap",
+      "reactstrap": "Reactstrap",
+      "react-select": "ReactSelect",
+      "botpress/content-picker": "BotpressContentPicker",
+      "botpress/select-action-dropdown": "SelectActionDropdown",
+      "botpress/tooltip": "BotpressTooltip",
+      "botpress/documentation": "DocumentationProvider"
+    }
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch"
+  },
+  "author": "Botpress Team",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@babel/helpers": "^7.4.3",
+    "@types/node": "^10.11.0",
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "bluebird-global": "^1.0.1",
+    "lodash": "^4.17.11",
+    "mustache": "^2.3.0",
+    "nanoid": "^1.0.1",
+    "nodemailer": "^6.3.0"
+  }
+}

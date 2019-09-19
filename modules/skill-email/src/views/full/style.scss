@@ -1,0 +1,7 @@
+.contentPicker, .subjectPicker {
+  z-index: 800 !important;
+}
+
+:global(.row) {
+  margin-bottom: 5px;
+}
