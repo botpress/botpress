@@ -1,3 +1,61 @@
+## [12.1.4](https://github.com/botpress/botpress/compare/v12.1.3...v12.1.4) (2019-09-19)
+
+
+### Bug Fixes
+
+* **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
+* **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
+* **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
+* **channel-web:** re-added google analytics ([17e7eab](https://github.com/botpress/botpress/commit/17e7eab))
+* **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
+* **cluster:** broadcasting reboot to all nodes ([473735f](https://github.com/botpress/botpress/commit/473735f))
+* **config:** clear hash on first start & ignore dynamic props ([5b351cb](https://github.com/botpress/botpress/commit/5b351cb))
+* **config:** clear hash on first start & ignore dynamic props ([7d8d5b7](https://github.com/botpress/botpress/commit/7d8d5b7))
+* **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
+* **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
+* **debugger:** minor ajustment ([2957057](https://github.com/botpress/botpress/commit/2957057))
+* **debugger:** minor ajustment ([adf139d](https://github.com/botpress/botpress/commit/adf139d))
+* **dialog:** timeout handling ([077f33c](https://github.com/botpress/botpress/commit/077f33c))
+* **dialog:** timeout handling ([1b2fa60](https://github.com/botpress/botpress/commit/1b2fa60))
+* **inspector:** ambuigity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
+* **lock:** allowing upsert to bypass locked status ([3489516](https://github.com/botpress/botpress/commit/3489516))
+* **lock:** allowing upsert to bypass locked status ([5964178](https://github.com/botpress/botpress/commit/5964178))
+* **logs:** fixed log emitter ([1d6f191](https://github.com/botpress/botpress/commit/1d6f191))
+* **logs:** fixed log emitter ([63b7343](https://github.com/botpress/botpress/commit/63b7343))
+* **nlu:** fix progress issue with auto train ([2734994](https://github.com/botpress/botpress/commit/2734994))
+* **nlu:** fix progress issue with auto train ([e11cb38](https://github.com/botpress/botpress/commit/e11cb38))
+* **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
+* **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
+* **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
+* **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
+* **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
+* **qna:** updated tests and minor tweak ([dff8ae3](https://github.com/botpress/botpress/commit/dff8ae3))
+* **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
+* **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
+* **redis:** prevent server spamming on startup ([70d29d3](https://github.com/botpress/botpress/commit/70d29d3))
+* **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
+* **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
+* **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
+* **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
+
+
+### Features
+
+* **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
+* **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
+* **bpfs:** workaround to fix bpfs issues ([f316327](https://github.com/botpress/botpress/commit/f316327))
+* **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
+* **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
+* **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
+* **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
+* **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
+* **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
+* **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
+* **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
+* **studio:** added util components & change to cms ([0b7b059](https://github.com/botpress/botpress/commit/0b7b059))
+
+
+
 ## [12.1.3](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.3) (2019-09-04)
 
 
