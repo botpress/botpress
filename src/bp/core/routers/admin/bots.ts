@@ -55,6 +55,35 @@ export class BotsRouter extends CustomRouter {
     )
 
     router.get(
+      '/chatusers',
+      this.needPermissions('read', 'chatuser.bots'),
+      this.asyncMiddleware(async (req, res) => {
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
+        if (!workspace) {
+          return res.sendStatus(404)
+        }
+
+        const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
+        const bots = await this.botService.findBotsByIds(botsRefs)
+        const fields = [
+          'id',
+          'name',
+          'description',
+          'disabled',
+          'locked',
+          'private',
+          'defaultLanguage',
+          'pipeline_status.current_stage.id'
+        ]
+
+        return sendSuccess(res, 'Retrieved bots', {
+          bots: bots && bots.filter(Boolean).map(b => _.pick(b, fields)),
+          workspace: _.pick(workspace, ['name', 'pipeline'])
+        })
+      })
+    )
+
+    router.get(
       '/categories',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
@@ -162,6 +191,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/:botId/export',
+      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const tarball = await this.botService.exportBot(botId)

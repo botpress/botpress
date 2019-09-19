@@ -1,4 +1,5 @@
 import api from '../api'
+import { isOperationAllowed } from '~/App/AccessControl'
 
 export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
 export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
@@ -74,7 +75,8 @@ export const fetchBots = () => {
       type: FETCH_BOTS_REQUESTED
     })
 
-    const { data } = await api.getSecured().get('/admin/bots')
+    const canAdminRead = isOperationAllowed({ resource: 'admin.bots', operation: 'read' })
+    const { data } = await api.getSecured().get(canAdminRead ? '/admin/bots' : '/admin/bots/chatusers')
 
     dispatch({
       type: FETCH_BOTS_RECEIVED,
