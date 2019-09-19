@@ -16,7 +16,7 @@ import { setDebugScopes } from '../debug'
 import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
-import Database, { DatabaseType } from './database'
+import Database from './database'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
@@ -105,21 +105,22 @@ export class Botpress {
     this.logger.info(`Started in ${bootTime}ms`)
   }
 
+  private _killServer(message: string) {
+    this.logger.error(message)
+    process.exit()
+  }
+
   private async initialize(options: StartOptions) {
+    this.config = await this.configProvider.getBotpressConfig()
+
     this.trackStart()
     this.trackHeartbeat()
 
     setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
-    this.config = await this.loadConfiguration()
-    await this.createDatabase()
-    await this.initializeGhost()
-    await this.restoreDebugScope()
-
-    // Invalidating the configuration to force it to load it from the ghost if enabled
-    this.config = await this.loadConfiguration(true)
-
     await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
+
+    await this.restoreDebugScope()
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
     await this.migrationService.initialize()
@@ -154,7 +155,7 @@ export class Botpress {
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
       appSecret = nanoid(40)
-      await this.configProvider.mergeBotpressConfig({ appSecret })
+      await this.configProvider.mergeBotpressConfig({ appSecret }, true)
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
@@ -162,10 +163,11 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
-    const databaseType = this.getDatabaseType()
+    const { DATABASE_URL } = process.env
+    const dbType = DATABASE_URL && DATABASE_URL.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
 
     if (!process.IS_PRO_ENABLED && process.CLUSTER_ENABLED) {
-      this.logger.warn(
+      this._killServer(
         'Redis is enabled in your Botpress configuration. To use Botpress in a cluster, please upgrade to Botpress Pro.'
       )
     }
@@ -173,7 +175,7 @@ export class Botpress {
     if (!process.IS_PRO_ENABLED) {
       const workspaces = await this.workspaceService.getWorkspaces()
       if (workspaces.length > 1) {
-        throw new Error(
+        this._killServer(
           'You have more than one workspace. To create unlimited workspaces, please upgrade to Botpress Pro.'
         )
       }
@@ -182,7 +184,7 @@ export class Botpress {
         for (const workspace of workspaces) {
           const pipeline = await this.workspaceService.getPipeline(workspace.id)
           if (pipeline && pipeline.length > 1) {
-            throw new Error(
+            this._killServer(
               'Your pipeline has more than a single stage. To enable the pipeline feature, please upgrade to Botpress Pro.'
             )
           }
@@ -193,7 +195,7 @@ export class Botpress {
     const bots = await this.botService.getBots()
     bots.forEach(bot => {
       if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
-        throw new Error(
+        this._killServer(
           'A bot has more than a single language. To enable the multilangual feature, please upgrade to Botpress Pro.'
         )
       }
@@ -203,13 +205,13 @@ export class Botpress {
         'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
       )
     }
-    if (process.IS_PRO_ENABLED && databaseType !== 'postgres' && process.CLUSTER_ENABLED) {
-      throw new Error(
+    if (process.IS_PRO_ENABLED && dbType !== 'postgres' && process.CLUSTER_ENABLED) {
+      this._killServer(
         'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
       )
     }
     if (process.CLUSTER_ENABLED && !process.env.REDIS_URL) {
-      throw new Error('The environment variable REDIS_URL is required when cluster is enabled')
+      this._killServer('The environment variable REDIS_URL is required when cluster is enabled')
     }
   }
 
@@ -292,6 +294,10 @@ export class Botpress {
 
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
+    this.configProvider.onBotpressConfigChanged = async (initialHash: string, newHash: string) => {
+      this.realtimeService.sendToSocket({ eventName: 'config.updated', payload: { initialHash, newHash } })
+    }
+
     await this.authService.initialize()
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
@@ -368,26 +374,6 @@ export class Botpress {
     this.hintsService.refreshAll()
 
     await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
-  }
-
-  private async loadConfiguration(forceInvalidate?): Promise<BotpressConfig> {
-    if (forceInvalidate) {
-      await this.configProvider.invalidateBotpressConfig()
-    }
-    return this.configProvider.getBotpressConfig()
-  }
-
-  private getDatabaseType(): DatabaseType {
-    const databaseUrl = process.env.DATABASE_URL
-    const databaseType = databaseUrl && databaseUrl.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
-
-    return databaseType
-  }
-
-  @WrapErrorsWith(`Error initializing Database. Please check your configuration`)
-  private async createDatabase(): Promise<void> {
-    const databaseType = this.getDatabaseType()
-    await this.database.initialize(<DatabaseType>databaseType.toLowerCase(), process.env.DATABASE_URL)
   }
 
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {

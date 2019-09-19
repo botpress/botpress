@@ -1,7 +1,6 @@
+import { Button, Classes, ControlGroup, InputGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
-import { FormControl, FormGroup, InputGroup } from 'react-bootstrap'
-import { IoIosFolderOpen, IoMdCreate } from 'react-icons/io'
 import { connect } from 'react-redux'
 import { fetchContentItem, upsertContentItem } from '~/actions'
 import store from '~/store'
@@ -108,25 +107,22 @@ class ContentPickerWidget extends Component<Props> {
     }
 
     return (
-      <FormGroup>
-        <InputGroup>
-          <FormControl placeholder={placeholder} value={textContent} disabled id={inputId || ''} />
-          <InputGroup.Addon style={{ padding: 0 }}>
-            {contentItem && (
-              <div className={style.actionBtn} style={{ marginRight: '3px' }} onClick={this.editItem}>
-                <IoMdCreate size={20} color={'#0078cf'} />
-              </div>
-            )}
-            <div
-              className={style.actionBtn}
-              onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
-            >
-              <IoIosFolderOpen size={20} color={'#0078cf'} />
-            </div>
-          </InputGroup.Addon>
-          {this.renderModal()}
-        </InputGroup>
-      </FormGroup>
+      <ControlGroup fill={true} vertical={false}>
+        <InputGroup
+          placeholder={placeholder}
+          value={textContent}
+          disabled
+          id={inputId || ''}
+          className={style.contentInput}
+        />
+        {contentItem && <Button icon="edit" onClick={this.editItem} className={Classes.FIXED} />}
+        <Button
+          icon="folder-open"
+          onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
+          className={Classes.FIXED}
+        />
+        {this.renderModal()}
+      </ControlGroup>
     )
   }
 }

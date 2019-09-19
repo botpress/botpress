@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "artillery": "^1.6.0-25"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

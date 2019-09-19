@@ -157,7 +157,7 @@ class Bots extends Component {
 
     await api
       .getSecured()
-      .put(`/admin/bots/${this.state.botId}`, bot)
+      .post(`/admin/bots/${this.state.botId}`, bot)
       .catch(err => this.setState({ error: err }))
 
     await this.props.fetchBots()

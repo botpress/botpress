@@ -17,7 +17,7 @@ describe('Admin - Logout', () => {
     if (bpConfig.recreateBot) {
       autoAnswerDialog()
       await clickButtonForBot('#btn-delete')
-      await expectAdminApiCallSuccess(`bots/${bpConfig.botId}`, 'DELETE')
+      await expectAdminApiCallSuccess(`bots/${bpConfig.botId}/delete`, 'POST')
     }
   })
 })

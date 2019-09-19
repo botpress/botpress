@@ -34,9 +34,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     confusionMode: boolean = false,
     confusionVersion: string = undefined
   ): Promise<string> => {
-    const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', startTraining))
-
     if (confusionMode && botEngine instanceof ConfusionEngine) {
       botEngine.computeConfusionOnTrain = true
     }
@@ -54,9 +51,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       if (confusionMode && botEngine instanceof ConfusionEngine) {
         botEngine.computeConfusionOnTrain = false
       }
-
-      const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', trainingComplete))
     }
   }
 
@@ -121,7 +115,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntent(req.params.intent))
   })
 
-  router.delete('/intents/:intent', async (req, res) => {
+  router.post('/intents/:intent/delete', async (req, res) => {
     const botEngine = nlus[req.params.botId] as ScopedEngine
 
     await botEngine.storage.deleteIntent(req.params.intent)
@@ -145,16 +139,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
       res.status(400).send('Invalid schema')
     }
-  })
-
-  // TODO use this in UI
-  router.put('/intents/:id/utterances', async (req, res) => {
-    const { botId, id } = req.params
-    const { lang, utterances } = req.body
-    const botEngine = nlus[botId] as ScopedEngine
-    // TODO add validation : bot exists, intent exist, lang is supported by bot utterance is string[])
-
-    await botEngine.storage.updateIntent(id, { utterances: { [lang]: utterances } })
   })
 
   router.get('/contexts', async (req, res) => {
@@ -192,7 +176,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  router.put('/entities/:id', async (req, res) => {
+  router.post('/entities/:id', async (req, res) => {
     const content = req.body
     const { botId, id } = req.params
     const updatedEntity = content as sdk.NLU.EntityDefinition
@@ -204,7 +188,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.sendStatus(200)
   })
 
-  router.delete('/entities/:id', async (req, res) => {
+  router.post('/entities/:id/delete', async (req, res) => {
     const { botId, id } = req.params
     const botEngine = nlus[botId] as ScopedEngine
     await botEngine.storage.deleteEntity(id)

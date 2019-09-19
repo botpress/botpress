@@ -20,7 +20,6 @@
     "Advanced Concepts": [
       "version-11.9.0-advanced/configuration",
       "version-11.9.0-advanced/debug",
-      "version-11.9.0-advanced/webchat-extending",
       "version-11.9.0-advanced/custom-module",
       "version-11.9.0-advanced/analytics",
       "version-11.9.0-advanced/authentication",

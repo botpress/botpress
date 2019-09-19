@@ -5,7 +5,7 @@ import { ConnectedRouter } from 'react-router-redux'
 
 import App from '../App/Layout'
 
-import LoginPage from '../Pages/Login'
+import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
 import ChangePassword from '../Pages/Account/ChangePassword'
 

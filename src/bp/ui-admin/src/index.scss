@@ -15,6 +15,14 @@ body {
   padding: 0;
 }
 
+.homepage p {
+  &,
+  a {
+    color: #999;
+  }
+  margin-top: 1rem;
+}
+
 .form-control:disabled,
 .form-control[readonly] {
   border: none;
@@ -160,7 +168,6 @@ pre.code {
 @import 'node_modules/bootstrap/scss/bootstrap';
 @import './scss/_dropdown.scss';
 @import './scss/_layout.scss';
-@import './scss/_landing.scss';
 @import './scss/_list-item.scss';
 @import './scss/_tables.scss';
 @import './scss/_profile.scss';

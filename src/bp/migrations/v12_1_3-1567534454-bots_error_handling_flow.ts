@@ -63,16 +63,18 @@ const migration: Migration = {
         )
       }
 
-      await bpfs.upsertFile(FLOW_DIR, ERROR_FLOW, JSON.stringify(errorFlow, undefined, 2))
-      await bpfs.upsertFile(FLOW_DIR, ERROR_UI, JSON.stringify(errorFlowUi, undefined, 2))
-
       const botConfig = await configProvider.getBotConfig(botId)
-      const existingElements = await bpfs.readFileAsObject<any[]>(ELEMENTS_DIR, TEXT_ELEMENTS)
+      const hasTextElements = await bpfs.fileExists(ELEMENTS_DIR, TEXT_ELEMENTS)
+      const existingElements = hasTextElements ? await bpfs.readFileAsObject<any[]>(ELEMENTS_DIR, TEXT_ELEMENTS) : []
+
+      await bpfs.upsertFile(FLOW_DIR, ERROR_FLOW, JSON.stringify(errorFlow, undefined, 2), { ignoreLock: true })
+      await bpfs.upsertFile(FLOW_DIR, ERROR_UI, JSON.stringify(errorFlowUi, undefined, 2), { ignoreLock: true })
 
       await bpfs.upsertFile(
         ELEMENTS_DIR,
         TEXT_ELEMENTS,
-        JSON.stringify([...existingElements, getErrorElement(botConfig.defaultLanguage)], undefined, 2)
+        JSON.stringify([...existingElements, getErrorElement(botConfig.defaultLanguage)], undefined, 2),
+        { ignoreLock: true }
       )
     }
 

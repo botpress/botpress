@@ -31,11 +31,9 @@
     "fs-extra": "^8.0.1",
     "https-proxy-agent": "^2.2.1",
     "joi": "^13.6.0",
-    "kuromoji": "^0.1.2",
     "lodash": "^4.17.11",
     "lru-cache": "^5.1.1",
     "mathjs": "^5.9.0",
-    "ml-kmeans": "^4.2.1",
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
     "react-dnd": "^8.0.3",
@@ -45,5 +43,8 @@
     "react-tag-input": "6.4.0",
     "tmp": "^0.0.33",
     "verror": "^1.10.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }
