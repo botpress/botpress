@@ -15,7 +15,7 @@ import { BotConfig } from 'botpress/sdk'
 import React, { FC } from 'react'
 import history from '~/history'
 
-import { AccessControl, isChatUser } from '../../../App/AccessControl'
+import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
 interface Props {
   bot: BotConfig

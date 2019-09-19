@@ -1,5 +1,4 @@
 import { checkRule } from 'common/auth'
-import { useEffect } from 'react'
 import { connect } from 'react-redux'
 import store from '~/store'
 
@@ -14,7 +13,7 @@ export interface PermissionAllowedProps {
   superAdmin?: boolean
 }
 
-export type PermissionsCheckerProps = {
+export type AccessControlProps = {
   /** Component to display if user has the right access */
   readonly children: React.ReactNode
   /** Optionally set a fallback component if no access */
@@ -23,17 +22,19 @@ export type PermissionsCheckerProps = {
 
 export const isOperationAllowed = (params: PermissionAllowedProps) => {
   const profile = store.getState().user.profile
-  if (profile && profile.isSuperAdmin) {
+  if (!profile) {
+    return false
+  }
+
+  if (profile.isSuperAdmin) {
     return true
   }
 
-  // If the user is a super admin, then he shouldn't reach this validation
   if (params.superAdmin) {
     return false
   }
 
-  const permissions = store.getState().user.permissions
-  if (permissions && !checkRule(permissions, params.operation, params.resource)) {
+  if (profile.permissions && !checkRule(profile.permissions, params.operation, params.resource)) {
     return false
   }
 
@@ -44,16 +45,15 @@ export const isChatUser = (): boolean => {
   const permissions = store.getState().user.permissions
   return permissions && !!permissions.find(p => p.res.startsWith('chatuser'))
 }
-// TODO: Add typings once every other AccessControl is updated PermissionsCheckerProps
 
-const PermissionsChecker = props => {
+const PermissionsChecker = (props: AccessControlProps) => {
   const { resource, operation, superAdmin, children, fallback = null } = props
   return isOperationAllowed({ resource, operation, superAdmin }) ? children : (fallback as any)
 }
 
 const mapStateToProps = state => ({ permissions: state.user.permissions, test: state.user })
 
-export const AccessControl = connect(
+export default connect(
   mapStateToProps,
   { fetchPermissions }
 )(PermissionsChecker)

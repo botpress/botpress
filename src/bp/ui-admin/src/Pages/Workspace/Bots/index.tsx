@@ -19,7 +19,7 @@ import { Downloader } from '~/Pages/Components/Downloader'
 import api from '../../../api'
 import { fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
-import { AccessControl } from '../../../App/AccessControl'
+import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
 import SectionLayout from '../../Layouts/Section'
 
