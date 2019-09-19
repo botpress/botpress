@@ -187,6 +187,20 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
 }
 
 /**
+ * This method checks if the user has read access if method is get, and write access otherwise
+ */
+export const checkMethodPermissions = (workspaceService: WorkspaceService) => (resource: string) => async (
+  req: RequestWithUser,
+  _res: Response,
+  next: NextFunction
+) => {
+  const method = req.method.toLowerCase()
+  const operation = method === 'get' || method === 'options' ? 'read' : 'write'
+  const err = await checkPermissions(workspaceService)(operation, resource)(req)
+  return next(err)
+}
+
+/**
  * Just like needPermissions but returns a boolean and can be used inside an express middleware
  */
 export const hasPermissions = (workspaceService: WorkspaceService) => async (
