@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { Button, FormGroup, InputGroup, FormControl, HelpBlock } from 'react-bootstrap'
-import { PermissionsChecker } from '~/components/Shared/Utils'
+import { AccessControl } from '~/components/Shared/Utils'
 import Loading from '~/components/Util/Loading'
 import axios from 'axios'
 
@@ -64,7 +64,7 @@ class UploadWidget extends Component {
     const { expanded, uploading, error } = this.state
 
     return (
-      <PermissionsChecker
+      <AccessControl
         operation="write"
         resource="bot.media"
         fallback={<em>Youd don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
@@ -112,7 +112,7 @@ class UploadWidget extends Component {
           </FormGroup>
         )}
         {expanded && uploading && <Loading />}
-      </PermissionsChecker>
+      </AccessControl>
     )
   }
 }

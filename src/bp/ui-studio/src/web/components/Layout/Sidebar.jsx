@@ -4,10 +4,9 @@ import { connect } from 'react-redux'
 import { NavLink, withRouter } from 'react-router-dom'
 import classnames from 'classnames'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
-import { Collapse } from 'react-bootstrap'
 import { GoBeaker } from 'react-icons/go'
 import _ from 'lodash'
-import { PermissionsChecker } from '../Shared/Utils'
+import { AccessControl } from '../Shared/Utils'
 
 const style = require('./Sidebar.scss')
 
@@ -65,7 +64,7 @@ class Sidebar extends React.Component {
     )
 
     return (
-      <PermissionsChecker key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
+      <AccessControl key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
         <li id={`bp-menu_${module.name}`}>
           <NavLink
             to={path}
@@ -82,12 +81,12 @@ class Sidebar extends React.Component {
             )}
           </NavLink>
         </li>
-      </PermissionsChecker>
+      </AccessControl>
     )
   }
 
   renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
-    <PermissionsChecker resource={rule.res} operation={rule.op} key={name}>
+    <AccessControl resource={rule.res} operation={rule.op} key={name}>
       <li id={`bp-menu_${name}`} key={path}>
         <NavLink to={path} title={name} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
@@ -97,7 +96,7 @@ class Sidebar extends React.Component {
           {renderSuffix && renderSuffix()}
         </NavLink>
       </li>
-    </PermissionsChecker>
+    </AccessControl>
   )
 
   render() {

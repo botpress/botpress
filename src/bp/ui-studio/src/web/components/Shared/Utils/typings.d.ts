@@ -6,7 +6,7 @@ declare module 'botpress/utils' {
   export function ElementPreview(props: ElementPreviewProps): JSX.Element
   export function Downloader(props: DownloaderProps): JSX.Element
   /** Small wrapper using isOperationAllowed to display childrens if the user is authorized */
-  export function PermissionsChecker(props: PermissionsCheckerProps): JSX.Element
+  export function AccessControl(props: AccessControlProps): JSX.Element
   /** Check if a user has permission to access a specific resource */
   export function isOperationAllowed(props: PermissionAllowedProps): boolean
 }
@@ -39,7 +39,7 @@ export interface PermissionAllowedProps {
   user?: UserReducer
 }
 
-export type PermissionsCheckerProps = {
+export type AccessControlProps = {
   /** Component to display if user has the right access */
   readonly children: React.ReactNode
   /** Optionally set a fallback component if no access */

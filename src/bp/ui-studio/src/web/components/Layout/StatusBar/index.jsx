@@ -17,7 +17,7 @@ import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
-import { PermissionsChecker } from '~/components/Shared/Utils'
+import { AccessControl } from '~/components/Shared/Utils'
 
 const COMPLETED_DURATION = 2000
 
@@ -163,7 +163,7 @@ class StatusBar extends React.Component {
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
           />
-          <PermissionsChecker resource="bot.logs" operation="read">
+          <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
               title="Logs Panel"
@@ -174,7 +174,7 @@ class StatusBar extends React.Component {
             >
               <Icon icon="console" />
             </ActionItem>
-          </PermissionsChecker>
+          </AccessControl>
           <ActionItem
             onClick={this.props.onToggleGuidedTour}
             title="Toggle Guided Tour"

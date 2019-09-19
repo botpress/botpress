@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 
 import { Panel, Tabs, Tab, Badge, Button } from 'react-bootstrap'
 
-import PermissionsChecker from '~/components/Shared/Utils/PermissionsChecker'
+import { AccessControl } from '~/components/Shared/Utils'
 import EditableInput from '../common/EditableInput'
 import TransitionSection from './TransitionSection'
 
@@ -43,9 +43,9 @@ export default class SkillCallNodePropertiesPanel extends Component {
             transform={this.transformText}
           />
           <div style={{ padding: '5px' }}>
-            <PermissionsChecker operation="write" resource="bot.skills">
+            <AccessControl resource="bot.skills" operation="write">
               <Button onClick={editSkill}>Edit skill</Button>
-            </PermissionsChecker>
+            </AccessControl>
           </div>
         </Panel>
         <Tabs animation={false} id="node-props-modal-skill-node-tabs">

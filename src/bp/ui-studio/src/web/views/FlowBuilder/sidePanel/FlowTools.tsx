@@ -2,7 +2,7 @@ import { Icon } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
-import PermissionsChecker from '~/components/Shared/Utils/PermissionsChecker'
+import { AccessControl } from '~/components/Shared/Utils'
 
 import style from './style.scss'
 
@@ -28,13 +28,13 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
         <ToolItem label="Execute" type="node" id="execute" icon="code-block" />
         <ToolItem label="Listen" type="node" id="listen" icon="hand" />
         <ToolItem label="Router" type="node" id="router" icon="search-around" />
-        <PermissionsChecker operation="write" resource="bot.skills">
+        <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
               props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
           </div>
-        </PermissionsChecker>
+        </AccessControl>
         <div className={style.title}>Chips</div>
         <ToolItem label="Transition" type="chip" id="transition" icon="flow-end" />
       </div>
@@ -43,13 +43,13 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
-        <PermissionsChecker operation="write" resource="bot.skills">
+        <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
               props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
           </div>
-        </PermissionsChecker>
+        </AccessControl>
       </div>
     )
   }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
 import store from '~/store'
 
-import { PermissionAllowedProps, PermissionsCheckerProps } from './typings'
+import { AccessControlProps, PermissionAllowedProps } from './typings'
 
 export const isOperationAllowed = (params: PermissionAllowedProps) => {
   if (!params.user) {
@@ -33,16 +33,16 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
   return true
 }
 
-const PermissionsChecker = (props: PermissionsCheckerProps) => {
+const PermissionsChecker = (props: AccessControlProps) => {
   const { user, resource, operation, superAdmin, children, fallback = null } = props
   return isOperationAllowed({ user, resource, operation, superAdmin }) ? children : fallback
 }
 
 const mapStateToProps = state => ({ user: state.user })
 
-const ConnectedPermissionChecker = connect(
+const ConnectedAccessControl = connect(
   mapStateToProps,
   undefined
 )(PermissionsChecker)
 
-export default props => <ConnectedPermissionChecker {...props} store={store} />
+export default props => <ConnectedAccessControl {...props} store={store} />
