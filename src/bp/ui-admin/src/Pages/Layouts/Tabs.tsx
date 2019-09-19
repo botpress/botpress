@@ -109,7 +109,7 @@ class TabLayout extends Component<Props> {
             </Row>
           </Container>
         </div>
-        <div className={classnames({ 'bp_container-fullwidth': useFullWidth })}>
+        <div className={classnames('bp_container-content', { 'bp_container-fullwidth': useFullWidth })}>
           <Container>
             <Row>
               <Col xs={12} md={{ size, offset }}>

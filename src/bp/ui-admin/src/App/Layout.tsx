@@ -1,84 +1,122 @@
-import { Icon } from '@blueprintjs/core'
+import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import axios from 'axios'
-import React, { Component, Fragment } from 'react'
+import { AuthRule } from 'common/typings'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { Nav, Navbar, NavbarBrand, NavLink } from 'reactstrap'
+import { NavLink } from 'reactstrap'
 
 import logo from '../media/logo_white.png'
 import { fetchLicensing } from '../reducers/license'
+import { fetchPermissions, fetchProfile } from '../reducers/user'
 
+import Menu from './Menu'
 import UserDropdownMenu from './UserDropdownMenu'
 
 interface Props {
+  permissions?: AuthRule[]
+  profile: any
   licensing: any
-  fetchLicensing: any
+  fetchLicensing: () => void
+  fetchPermissions: () => void
+  fetchProfile: () => void
 }
 
-class App extends Component<Props> {
-  state = { version: '' }
+const App: FC<Props> = props => {
+  const [version, setVersion] = useState('')
 
-  componentDidMount() {
-    !this.props.licensing && this.props.fetchLicensing()
+  useEffect(() => {
+    props.fetchLicensing()
+    props.fetchPermissions()
+    props.fetchProfile()
 
     // tslint:disable-next-line: no-floating-promises
-    axios
-      .get('/version', { baseURL: process.env.REACT_APP_API_URL })
-      .then(({ data }) => this.setState({ version: data }))
+    loadVersion()
+  }, [])
+
+  const loadVersion = async () => {
+    const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
+    setVersion(data)
   }
 
-  render() {
-    return (
-      <Fragment>
-        <header className="bp-header">
-          <Navbar expand="md">
-            <NavbarBrand href="admin/">
-              <img src={logo} alt="logo" className="bp-header__logo" />
-            </NavbarBrand>
+  if (!props.permissions || !props.profile) {
+    return null
+  }
 
-            <Nav className="ml-auto" navbar>
-              <UserDropdownMenu />
-            </Nav>
-          </Navbar>
-        </header>
-        {this.renderUnlicensed()}
-        <div className="bp-main-content">{this.props.children}</div>
-        <footer className="statusBar">
-          <div className="statusBar-list">
-            <div className="statusBar-item">
-              <strong>v{this.state.version}</strong>
-            </div>
+  const isLicensed = !props.licensing || !props.licensing.isPro || props.licensing.status === 'licensed'
+
+  return (
+    <Fragment>
+      <Header />
+
+      {props.profile.isSuperAdmin && (
+        <div className="bp-sa-wrapper">
+          <Menu />
+          <div className="bp-sa-content-wrapper">
+            {!isLicensed && <Unlicensed />}
+            {props.children}
           </div>
-        </footer>
-      </Fragment>
-    )
-  }
+        </div>
+      )}
 
-  renderUnlicensed() {
-    const isLicensed =
-      !this.props.licensing || !this.props.licensing.isPro || this.props.licensing.status === 'licensed'
+      {!props.profile.isSuperAdmin && (
+        <div className="bp-main-content">
+          {!isLicensed && <Unlicensed />}
+          {props.children}
+        </div>
+      )}
 
-    if (isLicensed) {
-      return null
-    }
-
-    return (
-      <div className="bp-header__warning">
-        <NavLink href="/admin/server/license">
-          <Icon icon="warning-sign" />
-          Botpress is currently not licensed. Please update your license to re-enable all features.
-        </NavLink>
-      </div>
-    )
-  }
+      <Footer version={version} />
+    </Fragment>
+  )
 }
+
+const Header = () => (
+  <header className="bp-header">
+    <Navbar style={{ background: '#212121' }}>
+      <Navbar.Group>
+        <Navbar.Heading>
+          <a href="admin/">
+            <img src={logo} alt="logo" className="bp-header__logo" />
+          </a>
+        </Navbar.Heading>
+      </Navbar.Group>
+
+      <Navbar.Group align={Alignment.RIGHT}>
+        <UserDropdownMenu />
+      </Navbar.Group>
+    </Navbar>
+  </header>
+)
+
+const Footer = props => (
+  <footer className="statusBar">
+    <div className="statusBar-list">
+      <div className="statusBar-item">
+        <strong>v{props.version}</strong>
+      </div>
+    </div>
+  </footer>
+)
+
+const Unlicensed = () => (
+  <div className="bp-header__warning">
+    <NavLink href="/admin/server/license">
+      <Icon icon="warning-sign" />
+      Botpress is currently not licensed. Please update your license to re-enable all features.
+    </NavLink>
+  </div>
+)
 
 const mapStateToProps = state => ({
   profile: state.user.profile,
-  licensing: state.license.licensing
+  licensing: state.license.licensing,
+  permissions: state.user.permissions
 })
 
 const mapDispatchToProps = {
-  fetchLicensing
+  fetchLicensing,
+  fetchPermissions,
+  fetchProfile
 }
 
 export default connect(

@@ -15,13 +15,18 @@ import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
 
 import Confusion from './../Pages/Confusion'
-import Server from '../Pages/Server'
+
 import Workspace from '../Pages/Workspace'
 import MyAccount from '../Pages/MyAccount'
 import Bot from '../Pages/Bot'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 import WorkspacePicker from '../Pages/WorkspacePicker'
+import Monitoring from '~/Pages/Server/Monitoring'
+import Versioning from '~/Pages/Server/Versioning'
+import Languages from '~/Pages/Server/Languages'
+import LicenseStatus from '~/Pages/Server/LicenseStatus'
+import Alerting from '~/Pages/Server/Alerting'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
@@ -60,7 +65,12 @@ export const makeMainRoutes = () => {
               <Route path="/profile" component={MyAccount} />
               <Route path="/confusion" component={Confusion} />
               <Route path="/workspace" component={Workspace} />
-              <Route path="/server" component={Server} />
+              <Route path="/server/monitoring" component={Monitoring} />
+              <Route path="/server/version" component={Versioning} />
+              <Route path="/server/languages" component={Languages} />
+              <Route path="/server/debug" component={Debug} />
+              <Route path="/server/license" component={LicenseStatus} />
+              <Route path="/server/alerting" component={Alerting} />
               <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />

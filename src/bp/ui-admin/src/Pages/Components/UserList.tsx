@@ -80,6 +80,7 @@ class UserList extends Component<Props> {
   }
 
   renderUsersForRole(users, roleId) {
+    const currentUserEmail = this.props.profile && this.props.profile.email
     return (
       <Collapse isOpen={this.state[roleId]}>
         <div className="bp_table">
@@ -110,7 +111,7 @@ class UserList extends Component<Props> {
                     </p>
                   </div>
 
-                  <div>{user.email !== this.props.profile.email && this.renderActionButton(user)}</div>
+                  <div>{user.email !== currentUserEmail && this.renderActionButton(user)}</div>
                 </div>
               </div>
             )
