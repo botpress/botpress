@@ -28,14 +28,15 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   cluster.on('exit', (worker, code, signal) => {
-    debug(`Process exiting %o`, { workerId: worker.id, code, signal })
-    if (code === 0) {
-      process.exit(0)
-    }
+    const { exitedAfterDisconnect, id } = worker
+    debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
 
     // Reset the counter when the reboot was intended
-    if (worker.exitedAfterDisconnect) {
+    if (exitedAfterDisconnect) {
       rebootCount = 0
+      // Clean exit
+    } else if (code === 0) {
+      process.exit(0)
     }
 
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
