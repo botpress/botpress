@@ -9,6 +9,9 @@ declare module 'botpress/utils' {
   export function AccessControl(props: AccessControlProps): JSX.Element
   /** Check if a user has permission to access a specific resource */
   export function isOperationAllowed(props: PermissionAllowedProps): boolean
+  export function toastFailure(message: string): void
+  export function toastSuccess(message: string): void
+  export function toastInfo(message: string): void
 }
 
 export interface DownloaderProps {

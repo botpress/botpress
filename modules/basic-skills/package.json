@@ -35,5 +35,8 @@
     "react-dnd": "^7.4.5",
     "react-tag-input": "6.1.0",
     "yn": "^3.1.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

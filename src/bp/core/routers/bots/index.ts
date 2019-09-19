@@ -315,7 +315,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.put(
+    this.router.post(
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
@@ -340,8 +340,8 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.delete(
-      '/flow/:flowName',
+    this.router.post(
+      '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {

@@ -22,5 +22,8 @@
     "bluebird-global": "^1.0.1",
     "botbuilder": "^4.5.2",
     "lodash": "^4.17.11"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

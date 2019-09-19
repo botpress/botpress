@@ -1,19 +1,19 @@
 import * as React from 'react'
 import Linkify from 'react-linkify'
-import snarkdown from 'snarkdown'
 
 import { Renderer } from '../../../typings'
+import { renderUnsafeHTML } from '../../../utils'
 
 /**
  * A simple text element with optional markdown
  * @param {boolean} markdown Enable markdown parsing for the given text
  * @param {string} text The text to display
+ * @param {boolean} escapeHTML Prevent unsafe HTML rendering when markdown is enabled
  */
 export const Text = (props: Renderer.Text) => {
   let message = <p>{props.text}</p>
   if (props.markdown) {
-    let html = snarkdown(props.text || '')
-    html = html.replace(/<a href/gi, `<a target="_blank" href`)
+    const html = renderUnsafeHTML(props.text, props.escapeHTML)
 
     message = <div dangerouslySetInnerHTML={{ __html: html }} />
   }

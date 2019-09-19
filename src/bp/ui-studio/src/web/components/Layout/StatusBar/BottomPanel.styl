@@ -20,6 +20,7 @@
   .tab {
     height: calc(100% - 40px);
     color: 888;
+    position: relative;
   }
 
   .tab[aria-selected='true'] {
@@ -37,6 +38,8 @@
   overflow-y: scroll;
   overflow-x: hidden;
   height: 100%;
+  width: 100%;
+  position: absolute;
 
   &::-webkit-scrollbar {
     width: 10px;

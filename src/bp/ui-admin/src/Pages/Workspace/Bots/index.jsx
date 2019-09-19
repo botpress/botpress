@@ -71,7 +71,7 @@ class Bots extends Component {
 
   async deleteBot(botId) {
     if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
-      await api.getSecured().delete(`/admin/bots/${botId}`)
+      await api.getSecured().post(`/admin/bots/${botId}/delete`)
       await this.props.fetchBots()
     }
   }

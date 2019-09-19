@@ -14,8 +14,7 @@
       "version-11.4.0-build/code",
       "version-11.4.0-build/memory",
       "version-11.4.0-build/content",
-      "version-11.4.0-build/channels",
-      "version-11.4.0-build/debugging"
+      "version-11.4.0-build/channels"
     ],
     "Deploy": [
       "version-11.4.0-deploy/hosting"
@@ -24,10 +23,8 @@
       "version-11.4.0-manage/versions"
     ],
     "Developers": [
-      "version-11.4.0-developers/release-notes",
       "version-11.4.0-developers/migrate-from-10",
       "version-11.4.0-developers/migrate",
-      "version-11.4.0-developers/create-module",
       "version-11.4.0-developers/cluster",
       "version-11.4.0-developers/tutorials"
     ]

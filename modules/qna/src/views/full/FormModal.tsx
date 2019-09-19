@@ -160,7 +160,7 @@ export default class FormModal extends Component<Props> {
     } = this.props
 
     try {
-      const { data } = await this.props.bp.axios.put(`/mod/qna/questions/${this.props.id}`, qnaItem, {
+      const { data } = await this.props.bp.axios.post(`/mod/qna/questions/${this.props.id}`, qnaItem, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
 
@@ -276,6 +276,7 @@ export default class FormModal extends Component<Props> {
             <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">
               <TextArea
                 id="input-questions"
+                tabIndex={1}
                 autoFocus={true}
                 value={this.itemQuestions.join('\n')}
                 onChange={this.updateQuestions}
@@ -322,6 +323,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
+                  tabIndex={-1}
                   value={this.state.item.redirectFlow}
                   options={flowsList}
                   onChange={this.handleSelect('redirectFlow')}
@@ -332,6 +334,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
+                  tabIndex={-1}
                   value={this.state.item.redirectNode}
                   options={nodeList}
                   onChange={this.handleSelect('redirectNode')}

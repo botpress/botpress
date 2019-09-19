@@ -1,5 +1,6 @@
 import { BotConfig, Logger } from 'botpress/sdk'
-import { stringify } from 'core/misc/utils'
+import { ObjectCache } from 'common/object-cache'
+import { calculateHash, stringify } from 'core/misc/utils'
 import ModuleResolver from 'core/modules/resolver'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
@@ -12,14 +13,35 @@ import path from 'path'
 
 import { BotpressConfig } from './botpress.config'
 
+/**
+ * These properties should not be considered when calculating the config hash
+ * They are always read from the configuraiton file and can be dynamically changed
+ */
+const removeDynamicProps = config => _.omit(config, ['superAdmins'])
+
 @injectable()
 export class ConfigProvider {
+  public onBotpressConfigChanged: ((initialHash: string, newHash: string) => Promise<void>) | undefined
+
   private _botpressConfigCache: BotpressConfig | undefined
+  public initialConfigHash: string | undefined
+  public currentConfigHash!: string
 
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.Logger) private logger: Logger
-  ) {}
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
+  ) {
+    this.cache.events.on('invalidation', async key => {
+      if (key === 'object::data/global/botpress.config.json') {
+        this._botpressConfigCache = undefined
+        const config = await this.getBotpressConfig()
+
+        this.currentConfigHash = calculateHash(JSON.stringify(removeDynamicProps(config)))
+        this.onBotpressConfigChanged && this.onBotpressConfigChanged(this.initialConfigHash!, this.currentConfigHash)
+      }
+    })
+  }
 
   async getBotpressConfig(): Promise<BotpressConfig> {
     if (this._botpressConfigCache) {
@@ -39,15 +61,24 @@ export class ConfigProvider {
     }
 
     this._botpressConfigCache = config
+
+    if (!this.initialConfigHash) {
+      this.initialConfigHash = calculateHash(JSON.stringify(removeDynamicProps(config)))
+    }
+
     return config
   }
 
-  async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>): Promise<void> {
+  async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>, clearHash?: boolean): Promise<void> {
     this._botpressConfigCache = undefined
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
 
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
+
+    if (clearHash) {
+      this.initialConfigHash = undefined
+    }
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {
@@ -104,7 +135,8 @@ export class ConfigProvider {
       'qna',
       'extensions',
       'code-editor',
-      'testing'
+      'testing',
+      'examples'
     ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only

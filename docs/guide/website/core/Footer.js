@@ -25,7 +25,7 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a href={this.docUrl('introduction')}>Getting Started</a>
-            <a href="https://botpress.io/docs/latest/reference/">API Reference</a>
+            <a href="https://botpress.io/reference/">API Reference</a>
           </div>
           <div>
             <h5>Community</h5>
@@ -54,7 +54,7 @@ class Footer extends React.Component {
           </div>
         </section>
 
-        <a href="botpress.io" target="_blank" rel="noreferrer noopener" className="fbOpenSource">
+        <a href="https://botpress.io/" target="_blank" rel="noreferrer noopener" className="fbOpenSource">
           <img src={`${this.props.config.baseUrl}img/botpress.svg`} alt="Botpress, Inc." width="170" height="45" />
         </a>
         <section className="copyright">{this.props.config.copyright}</section>

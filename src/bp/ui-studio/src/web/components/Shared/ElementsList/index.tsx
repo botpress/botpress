@@ -99,11 +99,18 @@ export default class ElementsList extends React.Component<Props> {
         )}
         <div className={style.elementListInput}>
           <div className={style.contentButton}>
-            <Button text="Content" icon="add" type="button" onClick={() => this.setState({ showPicker: true })} />
+            <Button
+              tabIndex={-1}
+              text="Content"
+              icon="add"
+              type="button"
+              onClick={() => this.setState({ showPicker: true })}
+            />
           </div>
           <div className={style.textField}>
             <InputElement
               placeholder={this.props.placeholder || 'Type and press enter to create an element.' + multilineHint}
+              tabIndex={1}
               onInvalid={this.props.onInvalid}
               cleanInputAfterEnterPressed={true}
               allowMultiline={this.props.allowMultiline}

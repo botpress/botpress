@@ -1,0 +1,52 @@
+[
+  {
+    "id": "builtin_text-L4GcJ0",
+    "formData": {
+      "text$en": "Hello!",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-05T18:56:38.109Z",
+    "modifiedOn": "2019-09-05T18:56:38.109Z"
+  },
+  {
+    "id": "builtin_text-2ARQI7",
+    "formData": {
+      "text$en": "It is currently {{event.state.temp.weather.temperature}} °C, {{event.state.temp.weather.description}} in {{event.state.temp.weather.city}} ({{event.state.temp.weather.country}})",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-05T20:09:19.555Z",
+    "modifiedOn": "2019-09-05T21:06:18.695Z"
+  },
+  {
+    "id": "builtin_text-tC53zN",
+    "formData": {
+      "text$en": "Hello! I can get the weather for a city of your choice",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-05T20:21:33.040Z",
+    "modifiedOn": "2019-09-05T20:21:33.040Z"
+  },
+  {
+    "id": "builtin_text-L93Kxj",
+    "formData": {
+      "text$en": "What city are you looking for? \nFor example, type in \"montreal\" or \"london,uk\"",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-05T20:22:33.389Z",
+    "modifiedOn": "2019-09-05T20:22:46.054Z"
+  },
+  {
+    "id": "builtin_text-0LD-Ry",
+    "formData": {
+      "text$en": "Enter another city name to continue",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-05T21:10:00.216Z",
+    "modifiedOn": "2019-09-05T21:10:00.216Z"
+  }
+]

@@ -774,6 +774,14 @@ body {
   margin-right: 10px;
 }
 
+.bpw-botinfo-preferred-language {
+  margin: 20px 0;
+}
+
+.bpw-botinfo-preferred-language select {
+  margin-left: 10px;
+}
+
 .bpw-botinfo-terms {
   padding: 0px 20px;
   text-align: left;

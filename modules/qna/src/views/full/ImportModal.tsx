@@ -1,10 +1,9 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
 import { AccessControl } from 'botpress/utils'
+import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-
-import { toastFailure, toastSuccess } from './toaster'
 
 const JSON_STATUS_POLL_INTERVAL = 1000
 const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -185,10 +184,12 @@ Either the file is empty, or it doesn't match any known format.`)
                 selectedValue={importAction}
               >
                 <Radio
+                  id="radio-insert"
                   label="Insert the new questions from my file and create/update associated content elements"
                   value="insert"
                 />
                 <Radio
+                  id="radio-clearInsert"
                   label="Clear existing questions, then insert my new questions and create/update content elements"
                   value="clear_insert"
                 />
