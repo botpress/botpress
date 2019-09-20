@@ -4,4 +4,4 @@ export const sanitizeFilenameNoExt = name =>
   name
     .toLowerCase()
     .replace('.json', '')
-    .replace(ID_REGEX, '_')
+    .replace(ID_REGEX, '-')
