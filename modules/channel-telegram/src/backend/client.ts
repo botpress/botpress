@@ -8,12 +8,12 @@ import { Clients } from './typings'
 
 const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
 
-export const sendEvent = (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
+export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
   const threadId = _.get(ctx, 'chat.id') || _.get(ctx, 'message.chat.id')
   const target = _.get(ctx, 'from.id') || _.get(ctx, 'message.from.id')
 
-  bp.events.sendEvent(
+  await bp.events.sendEvent(
     bp.IO.Event({
       botId,
       channel: 'telegram',
@@ -42,10 +42,10 @@ export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
 export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) {
   const client = clients[botId]
 
-  client.start(ctx => sendEvent(bp, botId, ctx, { type: 'start' }))
-  client.help(ctx => sendEvent(bp, botId, ctx, { type: 'help' }))
-  client.on('message', ctx => sendEvent(bp, botId, ctx, { type: 'message' }))
-  client.on('callback_query', ctx => sendEvent(bp, botId, ctx, { type: 'callback' }))
+  client.start(async ctx => await sendEvent(bp, botId, ctx, { type: 'start' }))
+  client.help(async ctx => await sendEvent(bp, botId, ctx, { type: 'help' }))
+  client.on('message', async ctx => await sendEvent(bp, botId, ctx, { type: 'message' }))
+  client.on('callback_query', async ctx => await sendEvent(bp, botId, ctx, { type: 'callback' }))
   // TODO We don't support understanding and accepting more complex stuff from users such as files, audio etc
 }
 

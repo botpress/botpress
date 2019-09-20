@@ -1292,7 +1292,7 @@ declare module 'botpress/sdk' {
      * Send an event through the incoming or outgoing middleware chain
      * @param event - The event to send
      */
-    export function sendEvent(event: IO.Event): void
+    export function sendEvent(event: IO.Event): Promise<void>
 
     /**
      * Reply easily to any received event. It accepts an array of payloads

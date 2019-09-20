@@ -285,7 +285,7 @@ export default async (bp: typeof sdk, db: Database) => {
         credentials: req.credentials
       })
 
-      bp.events.sendEvent(event)
+      await bp.events.sendEvent(event)
       res.sendStatus(200)
     })
   )
