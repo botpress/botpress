@@ -54,7 +54,7 @@ describe('Admin - Users', () => {
     await page.keyboard.press('Enter')
     await clickOn('#btn-save')
 
-    await expectAdminApiCallSuccess(`users/workspace/update_role`, 'PUT')
+    await expectAdminApiCallSuccess(`users/workspace/update_role`, 'POST')
     await expectMatch('Role updated successfully')
   })
 
@@ -64,6 +64,6 @@ describe('Admin - Users', () => {
 
     autoAnswerDialog()
     await clickButtonForUser('#btn-deleteUser', testUserEmail)
-    await expectAdminApiCallSuccess(`admin/users/default/${testUserEmail}`, 'DELETE')
+    await expectAdminApiCallSuccess(`admin/users/default/${testUserEmail}/delete`, 'POST')
   })
 })

@@ -2,7 +2,7 @@ const axios = require('axios')
 
 /**
  * Update the session nluContexts for a specific intent
- * @hidden
+ * @hidden true
  * @param intentName The name of the intent to get contexts from
  */
 const updateContexts = async intentName => {

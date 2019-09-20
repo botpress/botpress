@@ -48,7 +48,7 @@ export default class CodeEditorApi {
 
   async renameFile(file: EditableFile, newName: string): Promise<boolean> {
     try {
-      await this.axios.put('/mod/code-editor/rename', { file, newName })
+      await this.axios.post('/mod/code-editor/rename', { file, newName })
       return true
     } catch (err) {
       this.handleApiError(err, 'Could not rename file')

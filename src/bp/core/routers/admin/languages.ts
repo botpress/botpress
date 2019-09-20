@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
@@ -12,7 +14,12 @@ export class LanguagesRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private readonly resource = 'admin.languages'
 
-  constructor(logger: Logger, private moduleLoader: ModuleLoader, private workspaceService: WorkspaceService) {
+  constructor(
+    private logger: Logger,
+    private moduleLoader: ModuleLoader,
+    private workspaceService: WorkspaceService,
+    private configProvider: ConfigProvider
+  ) {
     super('Languages', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
     this.setupRoutes()
@@ -29,6 +36,26 @@ export class LanguagesRouter extends CustomRouter {
     return axios.create({ baseURL: source.endpoint, headers })
   }
 
+  private async getExtraLangs(): Promise<any[]> {
+    const { additionalLanguages } = await this.configProvider.getBotpressConfig()
+    const { error } = Joi.validate(
+      additionalLanguages,
+      Joi.array().items(
+        Joi.object({
+          name: Joi.string().required(),
+          code: Joi.string().required()
+        })
+      )
+    )
+
+    if (error) {
+      this.logger.warn('Additional langages are not valid')
+      return []
+    }
+
+    return additionalLanguages || []
+  }
+
   setupRoutes() {
     const router = this.router
 
@@ -38,7 +65,12 @@ export class LanguagesRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
-          await client.get('/languages').then(({ data }) => res.send(data))
+          const { data } = await client.get('/languages')
+
+          res.send({
+            ...data,
+            ...(await this.getExtraLangs())
+          })
         } catch (err) {
           res.status(500).send(err.message)
         }
@@ -95,13 +127,13 @@ export class LanguagesRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/:lang',
+    router.post(
+      '/:lang/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
           const client = await this.getSourceClient()
-          await client.delete('/languages/' + req.params.lang).then(({ data }) => res.send(data))
+          await client.post(`/languages/${req.params.lang}/delete`).then(({ data }) => res.send(data))
         } catch (err) {
           res.status(500).send(err.message)
         }
@@ -115,13 +147,17 @@ export class LanguagesRouter extends CustomRouter {
         try {
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
-          res.send({
-            languages: data.installed
+
+          const languages = [
+            ...data.installed
               .filter(x => x.loaded)
               .map(x => ({
                 ...data.available.find(l => l.code === x.lang)
-              }))
-          })
+              })),
+            ...(await this.getExtraLangs())
+          ]
+
+          res.send({ languages })
         } catch (err) {
           res.status(500).send(err)
         }

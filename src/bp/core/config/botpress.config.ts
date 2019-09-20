@@ -150,6 +150,11 @@ export type BotpressConfig = {
      * @default ["websocket","polling"]
      */
     socketTransports: string[]
+    /**
+     * Adds default headers to the server's responses
+     * @default {"X-Powered-By":"Botpress"}
+     */
+    headers: { [name: string]: string }
   }
   converse: ConverseConfig
   dialog: DialogConfig
@@ -262,6 +267,13 @@ export type BotpressConfig = {
    * @default true
    */
   showPoweredBy: boolean
+  /**
+   * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
+   * Warning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.
+   * @example [{name: 'Swedish', code: 'sv'}]
+   * @default []
+   */
+  additionalLanguages?: { name: string; code: string }[]
 }
 
 export interface ExternalAuthConfig {
@@ -309,7 +321,7 @@ export type RetentionPolicy = {
   [key: string]: string
 }
 
-export type AuthStrategyType = 'basic' | 'saml' | 'ldap'
+export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
   readonly id: string
@@ -319,9 +331,9 @@ export interface AuthStrategy {
    */
   type: AuthStrategyType
   /**
-   * Defines custom options based on the chosen authentication strategy
+   * Defines custom options based on the chosen authentication strategy.
    */
-  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | undefined
+  options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | AuthStrategyOauth2 | undefined
   /**
    * Maps the values returned by your provider to Botpress user parameters.
    * @example fieldMapping: { email: 'emailAddress', fullName: 'givenName' }
@@ -405,6 +417,46 @@ export interface AuthStrategySaml {
   acceptedClockSkewMs: number
 }
 
+export interface AuthStrategyOauth2 {
+  authorizationURL: string
+  tokenURL: string
+  clientID: string
+  clientSecret: string
+  /**
+   * Scopes that should be requested from the service provider. Don't forget to map them in the fieldMapping property
+   * @default openid profile email
+   */
+  scope: string | string[]
+  /**
+   * The Callback URL on this server where the service provider will return the user. Replace the last part with the strategy ID
+   * @default http://localhost:3000/api/v1/auth/login-callback/oauth2/myauth
+   */
+  callbackURL: string
+  /*
+   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user informations
+   * @example https://botpress.io/userinfo
+   */
+  userInfoURL?: string
+  /** If the access token is a JWT token, set the parameters below to decode it. */
+  jwtToken?: {
+    /** If provided, the audience of the token will be checked against the provided value(s). */
+    audience?: string | string[]
+    /** If provided, the issuer of the token will be checked against the provided value(s). */
+    issuer?: string | string[]
+    /**
+     * The algorithms allowed to validate the JWT tokens.
+     * @default ["HS256"]
+     */
+    algorithms: string[]
+    /**
+     * The public certificate starting with "-----BEGIN CERTIFICATE-----"
+     * The string should be provided as one line (use \n for new lines)
+     * If the key is not set, it will try to read the file `data/global/oauth2_YOUR_STRATEGY_ID.pub`
+     */
+    publicKey?: string
+  }
+}
+
 export interface AuthStrategyLdap {
   serverUrl: string
   /**
@@ -486,7 +538,7 @@ export interface AlertingConfig {
 export interface EventCollectorConfig {
   /**
    * When enabled, incoming and outgoing events will be saved on the database.
-   * It is required for some modules to work proprely (eg: history, testing, developer tools on channel web)
+   * It is required for some modules to work properly (eg: history, testing, developer tools on channel web)
    * @default true
    */
   enabled: boolean

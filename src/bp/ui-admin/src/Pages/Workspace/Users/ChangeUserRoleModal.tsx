@@ -28,7 +28,7 @@ const ChangeUserRoleModal: FC<Props> = props => {
 
   const updateRole = async () => {
     try {
-      await api.getSecured().put(`/admin/users/workspace/update_role`, {
+      await api.getSecured().post(`/admin/users/workspace/update_role`, {
         ...props.user,
         role: role.value
       })

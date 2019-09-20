@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import crypto from 'crypto'
 import globrex from 'globrex'
 import _ from 'lodash'
 
@@ -101,3 +102,9 @@ export function filterByGlobs<T>(array: T[], iteratee: (value: T) => string, glo
 
   return array.filter(x => _.every(rules, rule => !rule.regex.test(iteratee(x))))
 }
+
+export const calculateHash = (content: string) =>
+  crypto
+    .createHash('sha256')
+    .update(content)
+    .digest('hex')

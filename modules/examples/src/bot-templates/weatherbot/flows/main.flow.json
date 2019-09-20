@@ -1,0 +1,71 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "onReceive": [],
+    "next": []
+  },
+  "startNode": "StartNode",
+  "nodes": [
+    {
+      "id": "03a9a384d4",
+      "name": "SayWeatherNode",
+      "next": [
+        {
+          "condition": "true",
+          "node": "EnterAnotherCity"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-2ARQI7"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "700c03a51d",
+      "name": "StartNode",
+      "next": [
+        {
+          "condition": "true",
+          "node": "GetWeatherNode"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-tC53zN",
+        "say #!builtin_text-L93Kxj"
+      ],
+      "onReceive": [],
+      "type": "standard"
+    },
+    {
+      "id": "3122d7f58c",
+      "name": "EnterAnotherCity",
+      "next": [
+        {
+          "condition": "true",
+          "node": "GetWeatherNode"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-0LD-Ry"
+      ],
+      "onReceive": [],
+      "type": "standard"
+    },
+    {
+      "id": "5a6f2817d4",
+      "name": "GetWeatherNode",
+      "next": [
+        {
+          "condition": "true",
+          "node": "SayWeatherNode"
+        }
+      ],
+      "onEnter": [
+        "getweather {}"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    }
+  ]
+}

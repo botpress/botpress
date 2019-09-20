@@ -1,0 +1,10 @@
+{
+  "extends": "../../../../tslint.json",
+  "rules": {
+    "quotemark": [false, "single", "avoid-escape"],
+    "no-null-keyword": false
+  },
+  "linterOptions": {
+    "exclude": ["**/*.json"]
+  }
+}

@@ -14,7 +14,7 @@ original_id: cluster
 
 To enable server clustering:
 
-1. Make sure your Botpress Pro license is [activated](../pro/licensing#cluster)
+1. Make sure your Botpress Pro license is [activated](../../pro/licensing#cluster)
 1. Enable `pro` and `redis` in your `botpress.config.json`
 1. Run Botpress in production so that BPFS uses database filesystem.
 

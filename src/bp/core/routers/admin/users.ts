@@ -17,7 +17,7 @@ import {
 } from '../util'
 
 export class UsersRouter extends CustomRouter {
-  private readonly resource = 'admin.users'
+  private readonly resource = 'admin.collaborators'
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private assertBotpressPro: RequestHandler
 
@@ -76,8 +76,8 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/workspace/remove/:strategy/:email',
+    router.post(
+      '/workspace/remove/:strategy/:email/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
@@ -91,7 +91,7 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.put(
+    router.post(
       '/workspace/update_role',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
@@ -134,8 +134,8 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
-    router.delete(
-      '/:strategy/:email',
+    router.post(
+      '/:strategy/:email/delete',
       assertSuperAdmin,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {

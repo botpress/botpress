@@ -269,7 +269,9 @@ export class BotService {
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
         }
-        await this.configProvider.mergeBotConfig(botId, newConfigs)
+
+        await this.configProvider.mergeBotConfig(botId, newConfigs, true)
+
         await this.workspaceService.addBotRef(botId, workspaceId)
 
         await this._migrateBotContent(botId)

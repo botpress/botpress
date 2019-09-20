@@ -44,6 +44,9 @@ class RootStore {
   @observable
   public config: Config
 
+  @observable
+  public preferredLanguage: string
+
   public intl: InjectedIntl
 
   public isBotTyping = observable.box(false)
@@ -82,6 +85,11 @@ class RootStore {
     return (
       (this.botInfo && this.botInfo.details && this.botInfo.details.avatarUrl) || (this.config && this.config.avatarUrl)
     )
+  }
+
+  @computed
+  get escapeHTML(): boolean {
+    return this.botInfo && this.botInfo.security && this.botInfo.security.escapeHTML
   }
 
   @computed
@@ -136,6 +144,7 @@ class RootStore {
     }
 
     await this.sendUserVisit()
+    await this.fetchPreferences()
   }
 
   @action.bound
@@ -143,6 +152,14 @@ class RootStore {
     const botInfo = await this.api.fetchBotInfo()
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
+    })
+  }
+
+  @action.bound
+  async fetchPreferences(): Promise<void> {
+    const preferences = await this.api.fetchPreferences()
+    runInAction('-> setPreferredLanguage', () => {
+      this.preferredLanguage = preferences.language
     })
   }
 
@@ -299,6 +316,12 @@ class RootStore {
   @action.bound
   setMessageWrapper(messageWrapper: MessageWrapper) {
     this.messageWrapper = messageWrapper
+  }
+
+  @action.bound
+  async updatePreferredLanguage(lang: string): Promise<void> {
+    this.preferredLanguage = lang
+    await this.api.updateUserPreferredLanguage(lang)
   }
 
   /** Starts a timer to remove the typing animation when it's completed */

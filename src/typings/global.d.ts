@@ -95,6 +95,18 @@ declare type BotpressEnvironementVariables = {
    * Defaults to '1gb'
    */
   readonly BP_MAX_MEMORY_CACHE_SIZE?: string
+
+  /**
+   * When set to true, Botpress will not automatically restart on crash
+   * @default false
+   */
+  readonly BP_DISABLE_AUTO_RESTART?: boolean
+
+  /**
+   * Define the maximum number of time the server will be automatically restarted.
+   * @default 5
+   */
+  readonly BP_MAX_SERVER_REBOOT?: number
 }
 
 interface IDebug {

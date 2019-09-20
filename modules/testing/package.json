@@ -20,5 +20,8 @@
     "@blueprintjs/core": "^3.15.1",
     "classnames": "^2.2.6",
     "react-icons": "^3.6.1"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }
