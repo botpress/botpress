@@ -68,7 +68,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
       const threadId = conversationReference.conversation.id
       await this._setConversationRef(threadId, conversationReference)
 
-      this._sendIncomingEvent(activity, threadId)
+      await this._sendIncomingEvent(activity, threadId)
     })
   }
 
@@ -103,10 +103,10 @@ If you have a restricted app, you may need to specify the tenantId also.`
     return this.bp.kvs.set(this.botId, threadId, convRef)
   }
 
-  private _sendIncomingEvent = (activity: Activity, threadId: string) => {
+  private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
     const { text, from, type } = activity
 
-    this.bp.events.sendEvent(
+    await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'teams',
