@@ -40,21 +40,20 @@ export class LanguagesRouter extends CustomRouter {
     const { additionalLanguages } = await this.configProvider.getBotpressConfig()
     const { error } = Joi.validate(
       additionalLanguages,
-      Joi.array()
-        .items(
-          Joi.object({
-            name: Joi.string().required(),
-            code: Joi.string().required()
-          })
-        )
-        .required()
+      Joi.array().items(
+        Joi.object({
+          name: Joi.string().required(),
+          code: Joi.string().required()
+        })
+      )
     )
+
     if (error) {
       this.logger.warn('Additional langages are not valid')
       return []
     }
 
-    return additionalLanguages!
+    return additionalLanguages || []
   }
 
   setupRoutes() {
