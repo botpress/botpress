@@ -54,7 +54,13 @@ export default class Database {
   }
 
   async initialize(databaseType?: DatabaseType, databaseUrl?: string) {
-    const { DATABASE_URL } = process.env
+    const { DATABASE_URL, DATABASE_POOL } = process.env
+    let poolOptions = {}
+    try {
+      poolOptions = DATABASE_POOL ? JSON.parse(DATABASE_POOL) : {}
+    } catch (err) {
+      this.logger.warn('Database pool option is not valid json')
+    }
 
     if (DATABASE_URL) {
       if (!databaseType) {
@@ -72,7 +78,8 @@ export default class Database {
     if (databaseType === 'postgres') {
       Object.assign(config, {
         client: 'pg',
-        connection: databaseUrl
+        connection: databaseUrl,
+        pool: poolOptions
       })
     } else {
       const dbLocation = databaseUrl ? databaseUrl : `${process.PROJECT_LOCATION}/data/storage/core.sqlite`
@@ -84,7 +91,8 @@ export default class Database {
         pool: {
           afterCreate: (conn, cb) => {
             conn.run('PRAGMA foreign_keys = ON', cb)
-          }
+          },
+          ...poolOptions
         }
       })
     }
