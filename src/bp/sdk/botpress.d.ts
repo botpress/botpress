@@ -1140,6 +1140,13 @@ declare module 'botpress/sdk' {
     checkAuthentication: RouterCondition
 
     /**
+     * When checkAuthentication is enabled, set this to true to enforce permissions based on the method.
+     * GET/OPTIONS requests requires READ permissions, while all other requires WRITE permissions
+     * @default true
+     */
+    checkMethodPermissions?: RouterCondition
+
+    /**
      * Parse the body as JSON when possible
      * @default true
      */
