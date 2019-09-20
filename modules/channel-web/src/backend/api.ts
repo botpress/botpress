@@ -392,11 +392,10 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (type === 'file') {
       return (payload && payload.url) || message.message_data.url
-    } else if (type === 'text' || type === 'quick_reply') {
-      return (payload && payload.text) || message.message_text
-    } else {
-      return `Event (${type})`
     }
+
+    const wrappedText = _.get(payload, 'wrapped.text')
+    return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
   const convertToTxtFile = async conversation => {
