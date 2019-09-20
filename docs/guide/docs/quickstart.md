@@ -40,7 +40,7 @@ You will notice on the left there are a couple of sections available. Some of th
 
 ### Test your bot
 
-To test your bot, there are two different kind of emulators. You can use the built-in chat emulator located in the top right corner, which is exactly what your visitors will face when they speak with your bot. You can also start a new conversation with your bot by clicking the reset button.
+To test your bot, there are two different kind of emulators. You can use the built-in chat emulator located in the bottom right corner, which is exactly what your visitors will face when they speak with your bot. You can also start a new conversation with your bot by clicking the reset button.
 
 ![Toolbar Chat](assets/studio-toolbar.jpg)
 
