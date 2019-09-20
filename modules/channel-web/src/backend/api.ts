@@ -24,7 +24,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function (req, file, cb) {
+    filename: function(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -62,7 +62,7 @@ export default async (bp: typeof sdk, db: Database) => {
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function (req, file, cb) {
+      key: function(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
