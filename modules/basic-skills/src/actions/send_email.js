@@ -11,7 +11,7 @@ const getTransport = async botId => {
 
   if (!config || !config.transportConnectionString || config.transportConnectionString === '<<change me>>') {
     throw new Error(
-      `You must configure the "skill-email" module with valid SMTP credentials to send emails. Please see 'global/config/basic-skills.json'.`
+      `You must configure the "basic-skills" module with valid SMTP credentials to send emails. Please see 'global/config/basic-skills.json'.`
     )
   }
 
