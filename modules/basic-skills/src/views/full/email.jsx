@@ -1,8 +1,8 @@
 import React from 'react'
 import { Row, Col, Label, Input } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
-import style from './style.scss'
 import { BotpressTooltip } from 'botpress/tooltip'
+import _ from 'lodash'
 
 export class Email extends React.Component {
   state = {

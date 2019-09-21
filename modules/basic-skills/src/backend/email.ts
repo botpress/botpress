@@ -1,4 +1,4 @@
-import sdk from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 
 export const generateFlow = async (
   data: any,
@@ -22,7 +22,7 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'skill-email/send_email',
+          name: 'basic-skills/send_email',
           args: data
         }
       ],
@@ -32,24 +32,11 @@ const createNodes = data => {
   return nodes
 }
 
-const createTransitions = (): Transition[] => {
+const createTransitions = (): sdk.NodeTransition[] => {
   return [
     { caption: 'On success', condition: 'temp.success', node: '' },
     { caption: 'On failure', condition: '!temp.success', node: '' }
   ]
 }
 
-interface Transition {
-  /**
-   * The description of the skill transition
-   */
-  caption: string
-  /**
-   * The transition condition to evaluate
-   */
-  condition: string
-  /**
-   * The target node to transition to
-   */
-  node: string
-}
+export default { generateFlow }

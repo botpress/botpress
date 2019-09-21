@@ -7,11 +7,11 @@ const Promise = require('bluebird')
  */
 
 const getTransport = async botId => {
-  const config = await bp.config.getModuleConfigForBot('skill-email', botId)
+  const config = await bp.config.getModuleConfigForBot('basic-skills', botId)
 
   if (!config || !config.transportConnectionString || config.transportConnectionString === '<<change me>>') {
     throw new Error(
-      `You must configure the "skill-email" module with valid SMTP credentials to send emails. Please see 'global/config/skill-email.json'.`
+      `You must configure the "skill-email" module with valid SMTP credentials to send emails. Please see 'global/config/basic-skills.json'.`
     )
   }
 
@@ -36,6 +36,8 @@ const sendEmail = async () => {
     const mailOptions = {
       from: args.fromAddress,
       to: args.toAddress,
+      cc: args.ccAddress,
+      bcc: args.bccAddress,
       subject: extractTextFromPreview(subject),
       text: extractTextFromPreview(content),
       html: extractTextFromPreview(content)
@@ -45,12 +47,9 @@ const sendEmail = async () => {
     event.state.temp.success = true
   } catch (error) {
     event.state.temp.success = false
-    event.state.__error = {
-      type: 'action-execution',
-      stacktrace: error.stack,
-      actionName: 'skill-email/send_email',
-      actionArgs: args
-    }
+    event.state.temp.onErrorFlowTo = '#'
+
+    throw error
   }
 }
 
