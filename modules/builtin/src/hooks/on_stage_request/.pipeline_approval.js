@@ -35,8 +35,6 @@ const stageChangeRequest = async () => {
     const currentStage = pipeline.find(x => x.id === bot.pipeline_status.current_stage.id)
     hookResult.actions = [currentStage.action]
   }
-
-  return
 }
 
 const _getApprovers = () => {
