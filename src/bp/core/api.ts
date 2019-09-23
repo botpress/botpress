@@ -3,6 +3,7 @@ import { WellKnownFlags } from 'core/sdk/enums'
 import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
+import _, { PartialDeep } from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
@@ -100,6 +101,9 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
     },
     getBotpressConfig(): Promise<any> {
       return configProfider.getBotpressConfig()
+    },
+    mergeBotConfig(botId: string, partialConfig: PartialDeep<sdk.BotConfig>, ignoreLock?: boolean): Promise<any> {
+      return configProfider.mergeBotConfig(botId, partialConfig, ignoreLock)
     }
   }
 }

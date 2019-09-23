@@ -1400,6 +1400,14 @@ declare module 'botpress/sdk' {
      * Returns the configuration options of Botpress
      */
     export function getBotpressConfig(): Promise<any>
+
+    /**
+     * Merges and saves a bot's config
+     * @param botId
+     * @param partialConfig
+     * @param ignoreLock
+     */
+    export function mergeBotConfig(botId: string, partialConfig: _.PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**
