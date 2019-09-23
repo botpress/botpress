@@ -48,7 +48,6 @@ class Bots extends Component<Props> {
   }
 
   componentDidMount() {
-    //  console.log(isOperationAllowed({ resource: 'admin.bots', operation: 'read' }))
     this.props.fetchBots()
     if (!this.props.licensing) {
       this.props.fetchLicensing()

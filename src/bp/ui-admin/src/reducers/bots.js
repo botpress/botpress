@@ -75,8 +75,7 @@ export const fetchBots = () => {
       type: FETCH_BOTS_REQUESTED
     })
 
-    const canAdminRead = isOperationAllowed({ resource: 'admin.bots', operation: 'read' })
-    const { data } = await api.getSecured().get(canAdminRead ? '/admin/bots' : '/admin/bots/chatusers')
+    const { data } = await api.getSecured().get('/admin/bots')
 
     dispatch({
       type: FETCH_BOTS_RECEIVED,

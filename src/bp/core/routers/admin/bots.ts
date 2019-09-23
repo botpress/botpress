@@ -1,4 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
+import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -8,13 +9,25 @@ import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { ConflictError } from '../errors'
-import { assertBotpressPro, needPermissions, success as sendSuccess } from '../util'
+import { assertBotpressPro, hasPermissions, needPermissions, success as sendSuccess } from '../util'
+
+const chatUserBotFields = [
+  'id',
+  'name',
+  'description',
+  'disabled',
+  'locked',
+  'private',
+  'defaultLanguage',
+  'pipeline_status.current_stage.id'
+]
 
 export class BotsRouter extends CustomRouter {
   public readonly router: Router
 
   private readonly resource = 'admin.bots'
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
   private assertBotpressPro: RequestHandler
   private logger!: Logger
 
@@ -27,6 +40,7 @@ export class BotsRouter extends CustomRouter {
     super('Bots', logger, Router({ mergeParams: true }))
     this.logger = logger
     this.needPermissions = needPermissions(this.workspaceService)
+    this.hasPermissions = hasPermissions(this.workspaceService)
     this.assertBotpressPro = assertBotpressPro(this.workspaceService)
     this.router = Router({ mergeParams: true })
     this.setupRoutes()
@@ -37,47 +51,23 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/',
-      this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const isBotAdmin = this.hasPermissions(req, 'read', this.resource)
+        const isChatUser = this.hasPermissions(req, 'read', 'user.bots')
+        if (!isBotAdmin && !isChatUser) {
+          return res.send('Missing permissions').status(401)
+        }
+
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
         if (!workspace) {
-          return res.sendStatus(404)
+          return res.send('Unknown workspace').status(404)
         }
 
         const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
         const bots = await this.botService.findBotsByIds(botsRefs)
-
-        return sendSuccess(res, 'Retrieved bots for all teams', {
-          bots: bots && bots.filter(Boolean),
-          workspace: _.pick(workspace, ['name', 'pipeline'])
-        })
-      })
-    )
-
-    router.get(
-      '/chatusers',
-      this.needPermissions('read', 'chatuser.bots'),
-      this.asyncMiddleware(async (req, res) => {
-        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
-        if (!workspace) {
-          return res.sendStatus(404)
-        }
-
-        const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
-        const bots = await this.botService.findBotsByIds(botsRefs)
-        const fields = [
-          'id',
-          'name',
-          'description',
-          'disabled',
-          'locked',
-          'private',
-          'defaultLanguage',
-          'pipeline_status.current_stage.id'
-        ]
 
         return sendSuccess(res, 'Retrieved bots', {
-          bots: bots && bots.filter(Boolean).map(b => _.pick(b, fields)),
+          bots: isBotAdmin ? bots.filter(Boolean) : bots.filter(Boolean).map(b => _.pick(b, chatUserBotFields)),
           workspace: _.pick(workspace, ['name', 'pipeline'])
         })
       })
