@@ -29,7 +29,7 @@ const stageChangeRequest = async () => {
   stageRequest.status = `Approvals: ${approvers.filter(x => x.approved === true).length}/${approvers.length}`
 
   // Save the bot
-  bp.config.mergeBotConfig(bot.id, { pipeline_status: bot.pipeline_status })
+  await bp.config.mergeBotConfig(bot.id, { pipeline_status: bot.pipeline_status })
 
   // If all approvers have approved, move the bot to the next stage
   if (approvers.filter(x => x.approved === false).length === 0) {
