@@ -8,8 +8,8 @@ interface Props {
 
 const SplitPage: FC<Props> = props => {
   return (
-    <div style={{ display: 'flex' }}>
-      <div style={{ flexGrow: 1, padding: '0 25px' }}>{props.children}</div>
+    <div className="split_page">
+      <div className="split_page-container">{props.children}</div>
 
       {props.sideMenu && <div style={{ width: props.sideMenuWidth || 180 }}>{props.sideMenu}</div>}
     </div>
