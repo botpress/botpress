@@ -13,7 +13,7 @@ export function pullToken() {
 }
 
 export function setToken(token, expiresAt) {
-  const ls = JSON.stringify({ token, expires: expiresAt || Number(new Date()) + ms('4h'), time: new Date() })
+  const ls = JSON.stringify({ token, expires: expiresAt || Date.now() + ms('4h'), time: new Date() })
   localStorage.setItem(TOKEN_KEY, ls)
 }
 
