@@ -16,7 +16,7 @@ const stageChangeRequest = async () => {
   hookResult.actions = []
 
   const stageRequest = bot.pipeline_status.stage_request
-  stageRequest.approvers = stageRequest.approvers || []
+  stageRequest.approvers = stageRequest.approvers || _getApprovers()
 
   const requestUserEmail = request_user.email
   // If the current user is an approver, mark his approval
