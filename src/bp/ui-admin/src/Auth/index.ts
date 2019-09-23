@@ -1,6 +1,7 @@
+import ms from 'ms'
+
 import api from '../api'
 import history from '../history'
-import ms from 'ms'
 
 export const TOKEN_KEY = 'bp/token'
 export const WORKSPACE_KEY = 'bp/workspace'
@@ -12,7 +13,7 @@ export function pullToken() {
 }
 
 export function setToken(token, expiresAt) {
-  const ls = JSON.stringify({ token, expires: expiresAt || new Date() + ms('4h'), time: new Date() })
+  const ls = JSON.stringify({ token, expires: expiresAt || Date.now() + ms('4h'), time: new Date() })
   localStorage.setItem(TOKEN_KEY, ls)
 }
 
@@ -27,59 +28,42 @@ export function getActiveWorkspace() {
 export function logout() {
   // Clear access token and ID token from local storage
   localStorage.removeItem(TOKEN_KEY)
-  // navigate to the home route
-  history.replace(HOME_ROUTE)
   // need to force reload otherwise the token wont clear properly
-  window.location.reload()
+  window.location.href = window.location.origin + window['ROOT_PATH']
+}
+
+interface LoginCredentials {
+  email: string
+  password: string
+  newPassword?: string
 }
 
 export default class BasicAuthentication {
-  login = async ({ email, password, newPassword }, loginUrl) => {
+  login = async (credentials: LoginCredentials, loginUrl: string, returnTo?: string) => {
     if (this.isAuthenticated()) {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false }).post(
-      '/auth' + loginUrl,
-      {
-        email,
-        password,
-        newPassword
-      },
-      { timeout: 15000 }
-    )
+    const { data } = await api
+      .getAnonymous({ toastErrors: false })
+      .post('/auth' + loginUrl, credentials, { timeout: 15000 })
 
     const { token } = data.payload
     this.setSession({ expiresIn: 7200, idToken: token })
 
-    await this.setupWorkspace()
-
-    const returnTo = history.location.query.returnTo
-    returnTo ? window.location.replace(returnTo) : history.replace(HOME_ROUTE)
+    await this.setupWorkspace(returnTo)
   }
 
-  getStrategyConfig = async userStrategy => {
-    const { data } = await api.getAnonymous().get('/auth/config')
-    if (!data.payload || !data.payload.strategies || !data.payload.strategies.length) {
-      return
-    }
-
-    const { strategies, isFirstUser } = data.payload
-
-    const strategyId = userStrategy || strategies[0].strategyId
-    const strategyConfig = strategies.find(s => s.strategyId === strategyId)
-
-    return strategyConfig && { ...strategyConfig, isFirstUser }
-  }
-
-  setupWorkspace = async () => {
+  setupWorkspace = async (redirectTo?: string) => {
     const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
     if (!workspaces || !workspaces.length) {
-      throw new Error(`You must have access to at least one workspace to login.`)
+      return history.replace('/noAccess')
     }
 
     // We set either the active workspace, or the first in the list he's allowed otherwise.
     setActiveWorkspace(getActiveWorkspace() || workspaces[0].workspace)
+
+    history.replace(redirectTo || HOME_ROUTE)
   }
 
   register = async ({ email, password }, registerUrl) => {

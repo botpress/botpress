@@ -10,6 +10,7 @@ import SectionLayout from '../Layouts/Section'
 import IncidentsTable from '../Components/Monitoring/IncidentsTable'
 import LoadingSection from '../Components/LoadingSection'
 import { fetchIncidents } from '../../reducers/monitoring'
+import CheckRequirements from '../Components/CheckRequirements'
 
 const timeFrameOptions = [
   { value: '1h', label: '1 hour' },
@@ -102,7 +103,7 @@ class Alerts extends Component {
     )
   }
 
-  render() {
+  renderChild() {
     if (!this.props.incidents) {
       return this.renderNoData()
     }
@@ -148,6 +149,14 @@ class Alerts extends Component {
           <strong>Enabled</strong>
         </Label>
       </div>
+    )
+  }
+
+  render() {
+    return (
+      <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
+        {this.renderChild()}
+      </CheckRequirements>
     )
   }
 }

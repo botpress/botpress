@@ -1,30 +1,30 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime } from 'common/monitoring'
 import _ from 'lodash'
-import { IoIosArchive } from 'react-icons/io'
-import { Label, Row, Col, Container, Jumbotron } from 'reactstrap'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Bar,
-  ComposedChart,
-  ResponsiveContainer
-} from 'recharts'
-
-import Select from 'react-select'
 import moment from 'moment'
 import ms from 'ms'
-import SummaryTable from '../Components/Monitoring/SummaryTable'
-import ChartTooltip from '../Components/Monitoring/ChartTooltip'
-import LoadingSection from '../Components/LoadingSection'
+import React, { Component } from 'react'
+import { IoIosArchive } from 'react-icons/io'
+import { connect } from 'react-redux'
+import Select from 'react-select'
+import { Col, Container, Jumbotron, Label, Row } from 'reactstrap'
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 
-import { groupEntriesByTime, mergeEntriesByTime, calculateOverviewForHost } from 'common/monitoring'
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
+import CheckRequirements from '../Components/CheckRequirements'
+import LoadingSection from '../Components/LoadingSection'
+import ChartTooltip from '../Components/Monitoring/ChartTooltip'
+import SummaryTable from '../Components/Monitoring/SummaryTable'
 
 const timeFrameOptions = [
   { value: '1m', label: '1 minute' },
@@ -49,14 +49,38 @@ const resolutionOptions = [
 
 const tickSize = { fontSize: 11 }
 
-class Monitoring extends Component {
-  state = {
+interface Props {
+  loading: boolean
+  rawStats: any
+  fetchStats: any
+  refreshStats: any
+}
+
+interface State {
+  intervalId: any
+  timeFrame: any
+  resolution: any
+  rawStats: any
+  preparedStats: any
+  timeFrameOptions: any
+  lastUniqueEntries: any
+  uniqueHosts: any
+  autoRefresh: boolean
+  error: string | null
+}
+
+class Monitoring extends Component<Props, State> {
+  state: State = {
     intervalId: null,
     timeFrame: null,
     resolution: null,
     rawStats: null,
     preparedStats: null,
-    timeFrameOptions
+    timeFrameOptions,
+    lastUniqueEntries: null,
+    error: null,
+    uniqueHosts: null,
+    autoRefresh: false
   }
 
   componentDidMount() {
@@ -107,9 +131,10 @@ class Monitoring extends Component {
 
     // Group results by interval, then calculates total and average
     const grouped = groupEntriesByTime(this.props.rawStats, this.state.resolution.value)
-    const merged = mergeEntriesByTime(grouped, uniqueHosts)
-
-    this.setState({ preparedStats: merged })
+    if (grouped) {
+      const merged = mergeEntriesByTime(grouped, uniqueHosts)
+      this.setState({ preparedStats: merged })
+    }
   }
 
   handleTimeFrameChanged = timeFrame => this.setState({ timeFrame }, this.queryData)
@@ -117,7 +142,7 @@ class Monitoring extends Component {
 
   handleAutoRefreshChanged = event => {
     const autoRefresh = event.target.checked
-    let intervalId = undefined
+    let intervalId: any = undefined
 
     if (autoRefresh && !this.state.intervalId) {
       intervalId = setInterval(() => this.props.refreshStats(), 10000)
@@ -134,7 +159,7 @@ class Monitoring extends Component {
   }
 
   renderOverview() {
-    const hosts = []
+    const hosts: any[] = []
 
     this.state.lastUniqueEntries.forEach(entry => {
       hosts.push({
@@ -278,7 +303,7 @@ class Monitoring extends Component {
               style={{ marginTop: 8 }}
               name="autoRefresh"
               type="checkbox"
-              value={this.state.autoRefresh}
+              checked={this.state.autoRefresh}
               onChange={this.handleAutoRefreshChanged}
             />{' '}
             <strong>Enabled</strong>
@@ -295,21 +320,24 @@ class Monitoring extends Component {
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
             <h1>
               <IoIosArchive />
-              &nbsp; Monitoring is not enabled or there is no statistics.
+              &nbsp; Monitoring is enabled, however there is no statistics to display.
             </h1>
-            <p>Make sure that monitoring is enabled in your Botpress Config.</p>
+            <p>
+              Make sure your Redis configuration is correct (and that you have restarted the server if you just made the
+              change).
+            </p>
           </Col>
         </Row>
       </Jumbotron>
     )
   }
 
-  render() {
+  renderChild() {
     if (this.props.loading) {
       return <LoadingSection />
     }
 
-    if (!this.props.rawStats) {
+    if (!this.props.rawStats || !this.props.rawStats.length) {
       return this.renderNoStats()
     }
 
@@ -318,6 +346,14 @@ class Monitoring extends Component {
         {this.renderHeader()}
         {this.renderCharts()}
       </Container>
+    )
+  }
+
+  render() {
+    return (
+      <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
+        {this.renderChild()}
+      </CheckRequirements>
     )
   }
 }

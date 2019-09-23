@@ -12,12 +12,12 @@ import { updateDocumentationModal } from '~/actions'
 import LangSwitcher from './LangSwitcher'
 import BotSwitcher from './BotSwitcher'
 import ActionItem from './ActionItem'
-import PermissionsChecker from '../PermissionsChecker'
 import NotificationHub from '~/components/Notifications/Hub'
 import { GoMortarBoard } from 'react-icons/go'
 import NluPerformanceStatus from './NluPerformanceStatus'
 
 import axios from 'axios'
+import { AccessControl } from '~/components/Shared/Utils'
 import ConfigStatus from './ConfigStatus'
 
 const COMPLETED_DURATION = 2000
@@ -164,7 +164,7 @@ class StatusBar extends React.Component {
             updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
             synced={this.state.nluSynced}
           />
-          <PermissionsChecker user={this.props.user} res="bot.logs" op="read">
+          <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
               title="Logs Panel"
@@ -175,7 +175,7 @@ class StatusBar extends React.Component {
             >
               <Icon icon="console" />
             </ActionItem>
-          </PermissionsChecker>
+          </AccessControl>
           <ActionItem
             onClick={this.props.onToggleGuidedTour}
             title="Toggle Guided Tour"
@@ -202,7 +202,6 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints,
   contentLang: state.language.contentLang
