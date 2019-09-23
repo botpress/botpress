@@ -17,21 +17,22 @@ const stageChangeRequest = async () => {
 
   const stageRequest = bot.pipeline_status.stage_request
   stageRequest.approvers = stageRequest.approvers || _getApprovers()
+  const approvers = stageRequest.approvers
 
   const requestUserEmail = request_user.email
   // If the current user is an approver, mark his approval
-  if (stageRequest.approvers.map(x => x.email).includes(requestUserEmail)) {
-    stageRequest.approvers.find(x => x.email === requestUserEmail).approved = true
+  if (approvers.map(x => x.email).includes(requestUserEmail)) {
+    approvers.find(x => x.email === requestUserEmail).approved = true
   }
 
   // The status will be displayed in the bots list in the Workspace
-  stageRequest.status = `Approvals: ${stageRequest.approvers.filter(x => x.approved === true).length}/${stageRequest.approvers.length}`
+  stageRequest.status = `Approvals: ${approvers.filter(x => x.approved === true).length}/${approvers.length}`
 
   // Save the bot
   bp.config.mergeBotConfig(bot.id, { pipeline_status: bot.pipeline_status })
 
   // If all approvers have approved, move the bot to the next stage
-  if (stageRequest.approvers.filter(x => x.approved === false).length === 0) {
+  if (approvers.filter(x => x.approved === false).length === 0) {
     const currentStage = pipeline.find(x => x.id === bot.pipeline_status.current_stage.id)
     hookResult.actions = [currentStage.action]
   }
