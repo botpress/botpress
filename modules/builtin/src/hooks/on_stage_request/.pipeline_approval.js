@@ -27,6 +27,7 @@ const stageChangeRequest = async () => {
   // The status will be displayed in the bots list in the Workspace
   stageRequest.status = `Approvals: ${stageRequest.approvers.filter(x => x.approved === true).length}/${stageRequest.approvers.length}`
 
+  // Save the bot
   bp.config.mergeBotConfig(bot.id, { pipeline_status: bot.pipeline_status })
 
   // If all approvers have approved, move the bot to the next stage
