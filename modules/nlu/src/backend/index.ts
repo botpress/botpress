@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { Config } from '../config'
 
@@ -54,12 +55,23 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
   const bot = await bp.bots.getBotById(botId)
 
+  const languages = _.intersection(bot.languages, langProvider.languages)
+  if (bot.languages.length !== languages.length) {
+    const diff = _.difference(bot.languages, languages)
+    bp.logger.warn(
+      `Bot ${
+        bot.id
+      } has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`,
+      { notSupported: diff }
+    )
+  }
+
   const scoped = new ConfusionEngine(
     bp.logger,
     botId,
     moduleBotConfig,
     bp.MLToolkit,
-    bot.languages,
+    languages,
     bot.defaultLanguage,
     langProvider,
     bp.realtime,

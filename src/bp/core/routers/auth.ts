@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { RequestWithUser } from 'common/typings'
+import { RequestWithUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
@@ -79,7 +79,7 @@ export class AuthRouter extends CustomRouter {
 
         const userRole = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
 
-        const userProfile = {
+        const userProfile: UserProfile = {
           firstname,
           lastname,
           email,
@@ -136,8 +136,8 @@ export class AuthRouter extends CustomRouter {
         }
 
         res.send(
-          await Promise.map(this.workspaceService.getWorkspaces(), workspace => {
-            return { email, strategy, workspace: workspace.id, role: workspace.adminRole }
+          await Promise.map(this.workspaceService.getWorkspaces(), w => {
+            return { email, strategy, workspace: w.id, role: w.adminRole, workspaceName: w.name }
           })
         )
       })

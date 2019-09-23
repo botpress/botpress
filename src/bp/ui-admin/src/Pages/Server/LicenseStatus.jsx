@@ -11,6 +11,8 @@ import EditLicense from '../Components/EditLicense'
 import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
+import PageContainer from '~/App/PageContainer'
+
 class LicenseStatus extends React.Component {
   state = {
     waitingForReboot: false
@@ -205,7 +207,7 @@ class LicenseStatus extends React.Component {
     }
 
     return (
-      <Fragment>
+      <PageContainer title="Server License">
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
@@ -256,7 +258,7 @@ class LicenseStatus extends React.Component {
             )}
           </Col>
         </Row>
-      </Fragment>
+      </PageContainer>
     )
   }
 

@@ -1140,6 +1140,13 @@ declare module 'botpress/sdk' {
     checkAuthentication: RouterCondition
 
     /**
+     * When checkAuthentication is enabled, set this to true to enforce permissions based on the method.
+     * GET/OPTIONS requests requires READ permissions, while all other requires WRITE permissions
+     * @default true
+     */
+    checkMethodPermissions?: RouterCondition
+
+    /**
      * Parse the body as JSON when possible
      * @default true
      */
@@ -1285,7 +1292,7 @@ declare module 'botpress/sdk' {
      * Send an event through the incoming or outgoing middleware chain
      * @param event - The event to send
      */
-    export function sendEvent(event: IO.Event): void
+    export function sendEvent(event: IO.Event): Promise<void>
 
     /**
      * Reply easily to any received event. It accepts an array of payloads

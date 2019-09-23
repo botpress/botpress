@@ -17,7 +17,7 @@ import {
 } from '../util'
 
 export class UsersRouter extends CustomRouter {
-  private readonly resource = 'admin.users'
+  private readonly resource = 'admin.collaborators'
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private assertBotpressPro: RequestHandler
 

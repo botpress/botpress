@@ -144,7 +144,7 @@ export class DialogEngine {
 
     // Check for a timeout node in the current flow
     if (!timeoutNode) {
-      timeoutNode = findNodeWithoutError(timeoutFlow, 'timeout')
+      timeoutNode = findNodeWithoutError(currentFlow, 'timeout')
     }
 
     // Check for a timeout property in the current flow

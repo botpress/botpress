@@ -68,12 +68,12 @@ export default class AuthService {
       throw new Error(`There must be at least one global strategy configured.`)
     }
 
-    const strategies = await Promise.mapSeries(config.pro.collaboratorsAuthStrategies, async strategyName => {
+    const strategies = await Promise.mapSeries(_.uniq(config.pro.collaboratorsAuthStrategies), async strategyName => {
       const strategy = (await this.getStrategy(strategyName)) as AuthStrategy
       return strategy && this._getStrategyConfig(strategy, strategyName)
     })
 
-    return { strategies, isFirstUser: await this.isFirstUser() }
+    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser() }
   }
 
   async generateSecureToken(email: string, strategy: string) {
@@ -197,7 +197,8 @@ export default class AuthService {
   private _getStrategyConfig(strategy: AuthStrategy, id: string): AuthStrategyConfig {
     const config: AuthStrategyConfig = {
       strategyType: strategy.type,
-      strategyId: id
+      strategyId: id,
+      label: strategy.label
     }
 
     if (strategy.type !== 'saml') {

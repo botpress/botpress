@@ -226,7 +226,7 @@ class Bots extends Component<Props> {
         <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
 
         <SectionLayout
-          title={`Your bots`}
+          title={`Workspace bots`}
           helpText="This page lists all the bots created under the default workspace."
           activePage="bots"
           mainContent={this.renderBots()}
