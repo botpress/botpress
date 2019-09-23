@@ -72,7 +72,7 @@ const App: FC<Props> = props => {
 
 const Header = () => (
   <header className="bp-header">
-    <Navbar style={{ background: '#212121' }}>
+    <Navbar>
       <Navbar.Group>
         <Navbar.Heading>
           <a href="admin/">

@@ -84,9 +84,10 @@
     width: 140px;
   }
 
-  .navbar-brand,
+  .bp3-navbar,
   .nav-link {
     color: var(--c-neutral--light-3);
+    background-color: $dark-background-hover;
     font-size: 14px;
   }
 
