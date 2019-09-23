@@ -69,7 +69,6 @@ export const makeMainRoutes = () => {
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
               <Route path="/workspace/:workspaceId?" component={Workspace} />
-              <Route path="/server" component={Server} />
               <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
