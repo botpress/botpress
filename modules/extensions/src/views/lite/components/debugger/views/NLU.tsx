@@ -11,6 +11,10 @@ import { Language } from './Language'
 import { Slots } from './Slots'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
+  if (!nluData) {
+    return null
+  }
+
   return (
     <div className={style.block}>
       <div className={style.title}>
