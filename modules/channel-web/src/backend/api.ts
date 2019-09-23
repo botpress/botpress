@@ -239,7 +239,7 @@ export default async (bp: typeof sdk, db: Database) => {
       (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
       payload.type != 'postback'
     ) {
-      throw new Error('Text must be a valid string of less than 360 chars')
+      throw new Error(`Text must be a valid string of less than ${config.maxMessageLength} chars`)
     }
 
     let sanitizedPayload = payload
