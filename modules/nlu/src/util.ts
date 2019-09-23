@@ -1,4 +1,4 @@
-export const ID_REGEX = /[\t\s_]/gi
+export const ID_REGEX = /[\t\s]/gi
 
 export const sanitizeFilenameNoExt = name =>
   name
