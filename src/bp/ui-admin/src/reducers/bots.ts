@@ -1,13 +1,23 @@
+import { BotConfig, BotTemplate } from 'botpress/sdk'
+
 import api from '../api'
-import { isOperationAllowed } from '~/App/AccessControl'
 
 export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
 export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
 export const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 export const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 
-const initialState = {
-  bots: null,
+export interface BotState {
+  bots?: BotConfig[]
+  loadingBots: boolean
+  botTemplates?: BotTemplate[]
+  botTemplatesFetched: boolean
+  botCategories: string[]
+  botCategoriesFetched: boolean
+}
+
+const initialState: BotState = {
+  bots: undefined,
   loadingBots: false,
   botTemplates: [],
   botTemplatesFetched: false,
