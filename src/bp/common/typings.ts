@@ -121,3 +121,9 @@ export interface FlowPoint {
 }
 
 export type NodeView = FlowNode & FlowPoint
+
+export interface ServerConfig {
+  config: BotpressConfig
+  env: { [keyName: string]: string }
+  live: { [keyName: string]: string }
+}
