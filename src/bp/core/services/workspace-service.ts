@@ -1,8 +1,8 @@
 import { Logger } from 'botpress/sdk'
 import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { AuthRole, Pipeline, Workspace } from 'common/typings'
+import { AuthRole, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUser, WorkspaceUsersRepository, WorkspaceUserAttributes } from 'core/repositories/workspace_users'
+import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
@@ -102,6 +102,12 @@ export class WorkspaceService {
     return all.find(x => x.id === workspaceId)
   }
 
+  async findWorkspaceName(workspaceId: string): Promise<string> {
+    const all = await this.getWorkspaces()
+    const workspace = all.find(x => x.id === workspaceId)
+    return (workspace && workspace.name) || workspaceId
+  }
+
   async createWorkspace(workspaceId: string, workspaceName: string): Promise<void> {
     const workspaces = await this.getWorkspaces()
     if (workspaces.find(x => x.id === workspaceId)) {
@@ -155,7 +161,11 @@ export class WorkspaceService {
   }
 
   async getUserWorkspaces(email: string, strategy: string): Promise<WorkspaceUser[]> {
-    return this.workspaceRepo.getUserWorkspaces(email, strategy)
+    const userWorkspaces = await this.workspaceRepo.getUserWorkspaces(email, strategy)
+    return Promise.map(userWorkspaces, async userWorkspace => ({
+      ...userWorkspace,
+      workspaceName: await this.findWorkspaceName(userWorkspace.workspace)
+    }))
   }
 
   async getWorkspaceUsers(workspace: string) {
@@ -174,7 +184,7 @@ export class WorkspaceService {
   }
 
   private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
-    let attr = {}
+    const attr = {}
     const usersInfo = _.flatten(
       await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
     )

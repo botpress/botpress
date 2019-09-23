@@ -25,8 +25,9 @@ export interface CreatedUser {
 export interface WorkspaceUser {
   email: string
   strategy: string
-  workspace: string
   role: string
+  workspace: string
+  workspaceName?: string
 }
 
 export interface AuthStrategyConfig {
@@ -96,6 +97,17 @@ export interface Stage {
   id: string
   label: string
   action: StageAction
+}
+
+export interface UserProfile {
+  email: string
+  isSuperAdmin?: boolean
+  strategyType: string
+  strategy: string
+  firstname?: string
+  lastname?: string
+  fullName: string
+  permissions: AuthRule[] | undefined
 }
 
 export interface FlowMutex {

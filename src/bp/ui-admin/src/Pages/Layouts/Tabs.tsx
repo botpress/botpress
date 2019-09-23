@@ -2,7 +2,7 @@ import classnames from 'classnames'
 import React, { Component, Fragment } from 'react'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/md'
 import { connect } from 'react-redux'
-import { RouteComponentProps } from 'react-router'
+import { generatePath, RouteComponentProps } from 'react-router'
 import { matchPath, Route, Switch } from 'react-router-dom'
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
@@ -50,7 +50,7 @@ class TabLayout extends Component<Props> {
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
-  updateRoute = (route: string) => this.props.history.push(route)
+  updateRoute = (route: string) => this.props.history.push(generatePath(route, this.props.match.params))
   matchCurrentPath = (path: string) => matchPath(this.props.location.pathname, { path })
   getCurrentTab = () => this.props.tabs.find(tab => this.matchCurrentPath(tab.route))
 

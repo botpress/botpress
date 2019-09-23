@@ -25,6 +25,7 @@ const Login: FC<Props> = props => {
   const [isFirstUser, setFirstUser] = useState(false)
   const [strategies, setStrategies] = useState<AuthStrategyConfig[]>()
   const [loginUrl, setLoginUrl] = useState('')
+  const [destination, setDestination] = useState<string>()
   const [error, setError] = useState<string | null>()
 
   useEffect(() => {
@@ -34,6 +35,10 @@ const Login: FC<Props> = props => {
     if (strategies && strategies.length === 1) {
       updateUrlStrategy(strategies[0].strategyId)
       selectStrategy(strategies[0].strategyId)
+    }
+
+    if (props.location.state) {
+      setDestination(props.location.state.from)
     }
   }, [props.match.params.strategy, isLoading])
 
@@ -81,7 +86,7 @@ const Login: FC<Props> = props => {
   const loginUser = async (email: string, password: string) => {
     try {
       setError(undefined)
-      await props.auth.login({ email, password }, loginUrl)
+      await props.auth.login({ email, password }, loginUrl, destination)
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         props.history.push({ pathname: '/changePassword', state: { email, password, loginUrl } })

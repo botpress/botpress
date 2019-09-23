@@ -28,10 +28,8 @@ export function getActiveWorkspace() {
 export function logout() {
   // Clear access token and ID token from local storage
   localStorage.removeItem(TOKEN_KEY)
-  // navigate to the home route
-  history.replace(HOME_ROUTE)
   // need to force reload otherwise the token wont clear properly
-  window.location.reload()
+  window.location.href = window.location.origin + window['ROOT_PATH']
 }
 
 interface LoginCredentials {
@@ -41,7 +39,7 @@ interface LoginCredentials {
 }
 
 export default class BasicAuthentication {
-  login = async (credentials: LoginCredentials, loginUrl: string) => {
+  login = async (credentials: LoginCredentials, loginUrl: string, returnTo?: string) => {
     if (this.isAuthenticated()) {
       return
     }
@@ -53,20 +51,19 @@ export default class BasicAuthentication {
     const { token } = data.payload
     this.setSession({ expiresIn: 7200, idToken: token })
 
-    await this.setupWorkspace()
-
-    const returnTo = history.location.query.returnTo
-    returnTo ? window.location.replace(returnTo) : history.replace(HOME_ROUTE)
+    await this.setupWorkspace(returnTo)
   }
 
-  setupWorkspace = async () => {
+  setupWorkspace = async (redirectTo?: string) => {
     const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
     if (!workspaces || !workspaces.length) {
-      throw new Error(`You must have access to at least one workspace to login.`)
+      return history.replace('/noAccess')
     }
 
     // We set either the active workspace, or the first in the list he's allowed otherwise.
     setActiveWorkspace(getActiveWorkspace() || workspaces[0].workspace)
+
+    history.replace(redirectTo || HOME_ROUTE)
   }
 
   register = async ({ email, password }, registerUrl) => {

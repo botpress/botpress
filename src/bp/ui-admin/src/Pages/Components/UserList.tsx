@@ -1,12 +1,13 @@
 import { Button, Callout, Menu, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core'
 import { WorkspaceUser } from 'common/typings'
+import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md'
 import { connect } from 'react-redux'
 import { Badge, Collapse } from 'reactstrap'
 import { bindActionCreators } from 'redux'
-import _ from 'lodash'
+
 import { fetchRoles } from '../../reducers/roles'
 import { fetchUsers } from '../../reducers/user'
 
@@ -39,7 +40,7 @@ class UserList extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchUsers()
-    this.props.fetchRoles()
+    !this.props.roles && this.props.fetchRoles()
   }
 
   componentDidUpdate() {
@@ -161,7 +162,7 @@ class UserList extends Component<Props> {
 const mapStateToProps = state => ({
   profile: state.user.profile,
   roles: state.roles.roles,
-  users: state.user.items,
+  users: state.user.users,
   loading: state.user.loadingUsers
 })
 
