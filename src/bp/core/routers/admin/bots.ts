@@ -52,8 +52,8 @@ export class BotsRouter extends CustomRouter {
     router.get(
       '/',
       this.asyncMiddleware(async (req, res) => {
-        const isBotAdmin = this.hasPermissions(req, 'read', this.resource)
-        const isChatUser = this.hasPermissions(req, 'read', 'user.bots')
+        const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
+        const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
         if (!isBotAdmin && !isChatUser) {
           return res.send('Missing permissions').status(401)
         }
