@@ -85,7 +85,7 @@ const WorkspaceSelect: FC<Props> = props => {
       items={options}
       itemPredicate={filterOptions}
       itemRenderer={renderOption}
-      activeItem={options.find(x => x.workspace === selected.workspace)}
+      activeItem={selected}
       popoverProps={{ minimal: true }}
       noResults={<MenuItem disabled={true} text="No results." />}
       onItemSelect={option => setUrlWorkspaceId(option.workspace)}
