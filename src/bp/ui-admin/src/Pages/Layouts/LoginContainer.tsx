@@ -5,7 +5,7 @@ import logo from '../../media/nobg_white.png'
 
 interface Props {
   title?: string
-  subtitle?: string
+  subtitle?: React.ReactNode
   error?: string | null
   poweredBy?: boolean
   children: React.ReactNode

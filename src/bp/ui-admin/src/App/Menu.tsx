@@ -2,17 +2,19 @@ import { Colors, ControlGroup, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import React from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
-import { withRouter } from 'react-router'
+import { generatePath, withRouter } from 'react-router'
 import { matchPath } from 'react-router-dom'
+import { getActiveWorkspace } from '~/Auth'
 
 const Menu = props => {
   const MenuItem = ({ text, icon, url }) => {
     const active = matchPath(props.location.pathname, { path: url })
+    const workspaceId = getActiveWorkspace()
 
     return (
       <div
         className={cx('bp-sa-menu-item', { ['bp-sa-menu-item-active']: active })}
-        onClick={() => props.history.push(url)}
+        onClick={() => props.history.push(generatePath(url, { workspaceId: workspaceId || undefined }))}
       >
         <Icon icon={icon} />
         <span className="label">{text}</span>
@@ -24,9 +26,9 @@ const Menu = props => {
     <div className="bp-sa-menu">
       <div className="bp-sa-menu-header"> Workspace</div>
       <ControlGroup vertical={true} fill={true}>
-        <MenuItem text="Bots" icon={<MdAndroid color={Colors.GRAY1} />} url="/workspace/bots" />
-        <MenuItem text="Collaborators" icon="people" url="/workspace/users" />
-        <MenuItem text="Roles" icon="shield" url="/workspace/roles" />
+        <MenuItem text="Bots" icon={<MdAndroid color={Colors.GRAY1} />} url="/workspace/:workspaceId?/bots" />
+        <MenuItem text="Collaborators" icon="people" url="/workspace/:workspaceId?/users" />
+        <MenuItem text="Roles" icon="shield" url="/workspace/:workspaceId?/roles" />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Management</div>
