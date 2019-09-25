@@ -5,7 +5,6 @@ import { Row, Col, Container } from 'reactstrap'
 import LoadingSection from '../Components/LoadingSection'
 import ChangePassword from '../Components/ChangePassword'
 import ProfileUpdate from '../Components/ProfileUpdate'
-import GravatarImage from '../Components/GravatarImage'
 
 class Me extends Component {
   state = { loading: false }
@@ -16,10 +15,6 @@ class Me extends Component {
         <Container>
           <Row>
             <Col sm="12" md="3" className="profile">
-              <GravatarImage email={this.props.profile.email} size="lg" className="profile__picture" />
-              <p>
-                We use <a href="https://gravatar.com">gravatar</a> to display profile pictures
-              </p>
               <ChangePassword />
             </Col>
             <Col sm="12" md="6">

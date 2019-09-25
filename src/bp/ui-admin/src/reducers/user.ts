@@ -143,7 +143,7 @@ export const fetchWorkspaces = () => {
 export const fetchAuthConfig = () => {
   return async dispatch => {
     const { data } = await api.getAnonymous().get('/auth/config')
-    dispatch({ type: AUTH_CONFIG_RECEIVED, authConfig: data.payload })
+    dispatch({ type: AUTH_CONFIG_RECEIVED, authConfig: data.payload.strategies })
   }
 }
 

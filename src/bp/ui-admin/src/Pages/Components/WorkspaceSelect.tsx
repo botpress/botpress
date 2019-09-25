@@ -1,4 +1,4 @@
-import { Alignment, Button, Classes, Icon, MenuItem, Text } from '@blueprintjs/core'
+import { Classes, Icon, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { WorkspaceUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
@@ -15,12 +15,12 @@ interface Props extends RouteComponentProps<{ workspaceId: string }> {
   switchWorkspace: (workspaceId: string) => void
 }
 
-const SelectDropdown = Select.ofType<Option>()
+const SelectDropdown = Select.ofType<WorkspaceUser>()
 
 const WorkspaceSelect: FC<Props> = props => {
   const urlWorkspaceId = props.match.params.workspaceId
-  const [options, setOptions] = useState<Option[]>()
-  const [selected, setSelected] = useState('')
+  const [options, setOptions] = useState<WorkspaceUser[]>()
+  const [selected, setSelected] = useState<WorkspaceUser>()
 
   useEffect(() => {
     if (!props.workspaces) {
@@ -43,8 +43,8 @@ const WorkspaceSelect: FC<Props> = props => {
 
   const refreshOptions = () => {
     const workspaces = props.workspaces!
-    setOptions(workspaces.map(wks => ({ label: wks.workspaceName!, value: wks.workspace })))
-    setSelected((workspaces.find(x => x.workspace === getActiveWorkspace()) || ({} as any)).workspaceName || '')
+    setOptions(workspaces)
+    setSelected(workspaces.find(x => x.workspace === getActiveWorkspace()))
   }
 
   const checkWorkspaceId = () => {
@@ -72,7 +72,7 @@ const WorkspaceSelect: FC<Props> = props => {
     props.history.push(workspacePath + currentPage)
   }
 
-  if (!props.workspaces || !options) {
+  if (!props.workspaces || !options || !selected) {
     return null
   }
 
@@ -85,30 +85,26 @@ const WorkspaceSelect: FC<Props> = props => {
       items={options}
       itemPredicate={filterOptions}
       itemRenderer={renderOption}
+      activeItem={selected}
       popoverProps={{ minimal: true }}
       noResults={<MenuItem disabled={true} text="No results." />}
-      onItemSelect={option => setUrlWorkspaceId(option.value)}
+      onItemSelect={option => setUrlWorkspaceId(option.workspace)}
     >
       <div style={{ cursor: 'pointer' }}>
-        Workspace {selected} <Icon icon="caret-down" />
+        Workspace {selected.workspaceName} <Icon icon="caret-down" />
       </div>
     </SelectDropdown>
   )
 }
 
-interface Option {
-  label: string
-  value: string
-}
-
-const filterOptions: ItemPredicate<Option> = (query, option, _index) => {
-  const normalizedLabel = option.label.toLowerCase()
+const filterOptions: ItemPredicate<WorkspaceUser> = (query, option, _index) => {
+  const normalizedLabel = option.workspaceName!.toLowerCase()
   const normalizedQuery = query.toLowerCase()
 
-  return `${normalizedLabel} ${option.value}`.indexOf(normalizedQuery) >= 0
+  return `${normalizedLabel} ${option.workspace}`.indexOf(normalizedQuery) >= 0
 }
 
-const renderOption: ItemRenderer<Option> = (option, { handleClick, modifiers, query }) => {
+const renderOption: ItemRenderer<WorkspaceUser> = (option, { handleClick, modifiers, query }) => {
   if (!modifiers.matchesPredicate) {
     return null
   }
@@ -118,9 +114,9 @@ const renderOption: ItemRenderer<Option> = (option, { handleClick, modifiers, qu
       className={Classes.SMALL}
       active={modifiers.active}
       disabled={modifiers.disabled}
-      key={option.label}
+      key={option.workspaceName}
       onClick={handleClick}
-      text={option.label}
+      text={option.workspaceName}
     />
   )
 }
