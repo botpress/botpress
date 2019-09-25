@@ -225,8 +225,8 @@ export default class ScopedEngine implements Engine {
       const input: PredictInput = {
         defaultLanguage: this.defaultLanguage,
         supportedLanguages: this.languages,
+        includedContexts,
         sentence: text,
-        strIntent: nluResults.intent.name,
         models: this.models2ByLang
       }
 
