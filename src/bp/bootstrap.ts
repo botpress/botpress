@@ -35,7 +35,7 @@ async function getLogger(loggerName: string) {
 }
 
 async function setupDebugLogger() {
-  const logger = await Logger('Debug')
+  const logger = await Logger('')
 
   global.printBotLog = (botId, args) => {
     const message = args[0]

@@ -39,7 +39,7 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
     }
   }
 
-  return loggerName || 'Unknown'
+  return loggerName || ''
 })
 
 container.bind<Logger>(TYPES.Logger).to(PersistedConsoleLogger)
