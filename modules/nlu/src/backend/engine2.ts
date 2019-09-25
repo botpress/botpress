@@ -7,6 +7,7 @@ import tfidf from './pipelines/intents/tfidf'
 import { getClosestToken } from './pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
+import { computeNorm, scalarDivide, vectorAdd } from './tools/math'
 import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
@@ -15,18 +16,12 @@ import { parseUtterance } from './utterance-parser'
 
 // TODOS
 // ----- split svm l0 & l1 ----
-//       simple svm
-//       one for contexts and one for intents
-//          impl train
-//          impl predict
+//          election process (do the same as what we had in svm classification (lognormal shit))
+//          ambiguity ranking
 //          make sure results are same (context = l0, intents = l1)
-//          do the ctx ranking in e2
-// ----- partial cleanup -----
-//  extract kmeans in engine2 out of CRF
-// check if predict tools can be refactored to pretty much nothing
-// ----- persist models -----
-//      keep state of svms and kmeans and all that stuff in engine2
-//      keep only serializable stuff in artefacts
+//          add exact matcher
+//          hard filter threshold ?
+//          use the elected intent to extract the slots
 // ----- load models -----
 //      load everything from artefacts
 //      run pre-training steps in pipeline
@@ -35,7 +30,15 @@ import { parseUtterance } from './utterance-parser'
 //      load intent model
 //      load kmeans
 //      load crfModel
+// ----- partial cleanup -----
+//      extract kmeans in engine2 out of CRF
+//      check if predict tools can be refactored to pretty much nothing
+// ----- persist models -----
+//      keep only serializable stuff in artefacts
+//      keep state of svms and kmeans and all that stuff in engine2
 // ----- cancelation token -----
+
+const NONE_INTENT = 'none'
 
 export default class Engine2 {
   private tools: TrainTools
@@ -53,6 +56,7 @@ export default class Engine2 {
       cancelledAt: new Date()
     }
 
+    // TODO load stateful models and keep them in memory to pass to predict pipeline
     return Trainer(input, this.tools, token)
   }
 }
@@ -502,15 +506,6 @@ export type UtteranceToken = Readonly<{
 
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
-// TODO return TrainResult
-// interface TrainResult {
-//   contextSvm: SVMClassifier
-//   intentSvm: SVMClassifier
-//   slotTagger: CRFExtractor2
-//   // every stateful stuff necessary for prediction
-//   model: Model
-// }
-
 export interface Trainer {
   (input: StructuredTrainInput, tools: TrainTools, cancelToken: CancellationToken): Promise<Model>
 }
@@ -537,25 +532,25 @@ export const Trainer: Trainer = async (input, tools, cancelToken): Promise<Model
     }
 
     output = await ExtractEntities(output, tools)
-    output = await AppendNoneIntents(output, tools)
     output = await TfidfTokens(output)
+    output = await AppendNoneIntents(output, tools)
 
-    const context_ranking = {}
-    const intent_classifier = {} // await trainSvm(output, tools)
+    const ctx_classifier = await trainContextClassifier(output, tools)
+    const intent_classifier_per_ctx = await trainIntentClassifer(output, tools)
 
     const slot_tagger = await trainSlotTagger(output, tools)
     const finishedAt = new Date()
 
-    // only serializable stuff ?
+    // only serializable stuff in here
     const artefacts = {
       list_entities,
       tfidf: output.tfIdf,
       kmeans: {}, // TODO move kmeans out of crf extractor and pass it instead
-      context_ranking,
       exact_classifier: {},
-      intent_classifier,
-      slot_tagger,
-      vocabVectors: vectorsVocab(output.intents)
+      ctx_classifier,
+      intent_classifier_per_ctx,
+      slot_tagger, // TODO this is not an artefact and should be the serialized version of CRF
+      vocabVectors: vectorsVocab(output.intents) // TODO something better with this ? maybe build this as 1st step of predict pipeline
     }
 
     return {
@@ -582,32 +577,86 @@ export const Trainer: Trainer = async (input, tools, cancelToken): Promise<Model
 export const buildIntentVocab = (utterances: Utterance[]): _.Dictionary<boolean> => {
   return _.chain(utterances)
     .flatMap(u => u.tokens)
-    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok.value]: true }), {})
+    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok.toString({ lowerCase: true })]: true }), {})
     .value()
 }
 
 const vectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
   return _.chain(intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
     .reduce(
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.value]: tok.vectors }),
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
       {} as Token2Vec
     )
     .value()
 }
 
-// ctx ranking
-/*
-points = []
-for each ctx
-  intents = part of ctx / NOT NONE
-  for each intent
-    for each utterance
-      features = [ (vectors * tfidf) + tokens.length ]
-      push( features of utterance ) label = ctx
-svm = train(points, LINEAR, C_SVC) (progress -> cb | cancel token check)
-*/
+// TODO vectorized implementation of this
+// taken as is from ft_featurizer
+// Taken from https://github.com/facebookresearch/fastText/blob/26bcbfc6b288396bd189691768b8c29086c0dab7/src/fasttext.cc#L486s
+const computeSentenceEmbedding = (utterance: Utterance): number[] => {
+  let totalWeight = 0
+  let sentenceEmbedding = new Array(utterance.tokens[0].vectors.length).fill(0)
+
+  for (const token of utterance.tokens) {
+    const norm = computeNorm(token.vectors)
+    if (norm <= 0) {
+      continue
+    }
+    totalWeight += token.tfidf
+    const weightedVec = scalarDivide(token.vectors as number[], norm / token.tfidf)
+    sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
+  }
+
+  return scalarDivide(sentenceEmbedding, totalWeight)
+}
+
+export const trainIntentClassifer = async (
+  input: StructuredTrainOutput,
+  tools: TrainTools
+): Promise<_.Dictionary<string>> => {
+  const svmPerCtx: _.Dictionary<string> = {}
+  for (const ctx of input.contexts) {
+    const points = _.chain(input.intents)
+      .filter(i => i.contexts.includes(ctx))
+      .flatMap(i =>
+        i.utterances.map(utt => ({
+          label: i.name,
+          coordinates: computeSentenceEmbedding(utt)
+        }))
+      )
+      .value()
+
+    const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
+    await svm.train(points, progress => {
+      console.log('svm progress ==>', progress)
+    }) // TODO progress & cancellation callback
+    svmPerCtx[ctx] = svm.serialize()
+  }
+
+  return svmPerCtx
+}
+
+export const trainContextClassifier = async (input: StructuredTrainOutput, tools: TrainTools): Promise<string> => {
+  const points = _.flatMapDeep(input.contexts, ctx => {
+    return input.intents
+      .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
+      .map(intent =>
+        intent.utterances.map(utt => ({
+          label: ctx,
+          coordinates: computeSentenceEmbedding(utt)
+        }))
+      )
+  })
+
+  const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
+  await svm.train(points, progress => console.log('SVM => progress for CTX %d', progress))
+
+  return svm.serialize()
+}
+
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
@@ -682,7 +731,7 @@ export const AppendNoneIntents = async (
   })
 
   const intent: Intent<Utterance> = {
-    name: 'none',
+    name: NONE_INTENT,
     slot_definitions: [],
     utterances: await Utterances(noneUtterances, input.languageCode, tools),
     contexts: [...input.contexts],
@@ -694,14 +743,17 @@ export const AppendNoneIntents = async (
 }
 
 export const TfidfTokens = async (input: StructuredTrainOutput): Promise<StructuredTrainOutput> => {
-  const contextTokens = _.zipObject<string[]>(
-    input.intents.map(x => x.name),
-    _.flattenDeep<string[]>(input.intents.map(x => x.utterances.map(u => u.tokens.map(x => x.value)))) // we might want to use tostring with to lowercase
+  const tfidfInput = input.intents.reduce(
+    (tfidfInput, intent) => ({
+      ...tfidfInput,
+      [intent.name]: _.flatMapDeep(intent.utterances.map(u => u.tokens.map(t => t.toString({ lowerCase: true }))))
+    }),
+    {} as _.Dictionary<string[]>
   )
 
-  const { __avg__: avg } = tfidf(contextTokens)
-  const copy = { ...input, tfIdf: avg }
-  copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg)))
+  const { __avg__: avg_tfidf } = tfidf(tfidfInput)
+  const copy = { ...input, tfIdf: avg_tfidf }
+  copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg_tfidf)))
   return copy
 }
 
@@ -780,6 +832,7 @@ export interface Model {
   artefacts?: TrainArtefacts
 }
 
+// TODO include loaded models / predictors
 export interface PredictInput {
   defaultLanguage: string
   supportedLanguages: string[]
@@ -795,9 +848,12 @@ export interface PredictOutput {
   utterance?: Utterance
   intent?: Intent<Utterance>
   strIntent: string // this is temporary
-  pattern_entities: PatternEntity[]
-  list_entities: ListEntityModel[]
+  pattern_entities: PatternEntity[] // use this from model ?
+  list_entities: ListEntityModel[] // use this from model ?
   model: Model
+  ctx_predictions?: MLToolkit.SVM.Prediction[]
+  intent_predictions?: _.Dictionary<MLToolkit.SVM.Prediction[]> // intent predictions per ctx
+  // TODO slots predictions per
 }
 
 // object simply to split the file a little
@@ -836,9 +892,10 @@ const predict = {
 
     const { tfidf, vocabVectors } = input.model.artefacts
     utterance.tokens.forEach(token => {
-      if (!tfidf[token.value]) {
-        const closestToken = getClosestToken(token.value, token.vectors as number[], vocabVectors)
-        tfidf[token.value] = tfidf[closestToken]
+      const t = token.toString({ lowerCase: true })
+      if (!tfidf[t]) {
+        const closestToken = getClosestToken(t, <number[]>token.vectors, vocabVectors)
+        tfidf[t] = tfidf[closestToken]
       }
     })
 
@@ -849,40 +906,69 @@ const predict = {
       utterance
     }
   },
-  ExtractEntities: async (input: PredictOutput, tools: PreditcTools) => {
+  ExtractEntities: async (input: PredictOutput, tools: PreditcTools): Promise<PredictOutput> => {
     await extractUtteranceEntities(input.utterance!, input, tools)
     return {
       ...input
     }
   },
-  PredictIntent: async (input: PredictOutput) => {
-    // TODO implement this properly
-    const intent = input.model.outputData.intents.find(i => i.name == input.strIntent)
+  PredictContext: async (input: PredictOutput, tools: PreditcTools): Promise<PredictOutput> => {
+    const predictor = new tools.mlToolkit.SVM.Predictor(input.model.artefacts.ctx_classifier)
+    const features = computeSentenceEmbedding(input.utterance)
+    const predictions = await predictor.predict(features) // filter our predictions under fixed treshold
+
     return {
       ...input,
-      intent
+      ctx_predictions: predictions
+    }
+  },
+  PredictIntent: async (input: PredictOutput, tools: PreditcTools) => {
+    const ctxToPredict = input.ctx_predictions.map(p => p.label)
+
+    const predictions = await Promise.map(ctxToPredict, async ctx => {
+      // todo use predictor from input when implemented
+      const intentModel = input.model.artefacts.intent_classifier_per_ctx[ctx]
+      if (!intentModel) {
+        return
+      }
+
+      // TODO find exact matcher & try
+      const predictor = new tools.mlToolkit.SVM.Predictor(intentModel)
+      const features = computeSentenceEmbedding(input.utterance)
+      return predictor.predict(features)
+    })
+
+    // todo filter out predictions with confidence threshold
+    return {
+      ...input,
+      intent_predictions: _.zipObject(ctxToPredict, predictions),
+      intent: input.model.outputData.intents.find(i => i.name == input.strIntent) // todo remove this
     }
   },
   ExtractSlots: async (input: PredictOutput) => {
+    // TODO use loaded model
+    // what's in artefact as this should only be serializable stuff
     const slots = await input.model.artefacts.slot_tagger.extract(input.utterance!, input.intent!)
 
+    // TODO try to extract for each intent predictions and then rank this shit in the next pipeline step
     slots.forEach(({ slot, start, end }) => {
       input.utterance.tagSlot(slot, start, end)
     })
 
     return input
+  },
+  ElectIntent: async input => {
+    return input
   }
 }
 
-export const Predict = async (input: PredictInput, tools: PreditcTools) => {
+export const Predict = async (input: PredictInput, tools: PreditcTools): Promise<PredictOutput> => {
   let output = await predict.DetectLanguage(input, tools)
   output = await predict.PredictionUtterance(output, tools)
   output = await predict.ExtractEntities(output, tools)
-  output = await predict.PredictIntent(output)
+  output = await predict.PredictContext(output, tools)
+  output = await predict.PredictIntent(output, tools)
   output = await predict.ExtractSlots(output)
-
-  // TODO rank context
-  // TODO ambiguity detection
-
+  output = await predict.ElectIntent(output)
   return output
 }
