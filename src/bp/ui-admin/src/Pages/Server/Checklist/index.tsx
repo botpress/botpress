@@ -100,10 +100,12 @@ export const Checklist: FC<Props> = props => {
         <Item
           title="Enable Botpress Professional"
           docs="https://botpress.io/docs/pro/about-pro/"
-          status={getEnv('PRO_ENABLED') === 'true' ? 'success' : 'warning'}
+          status={getEnv('PRO_ENABLED') === 'true' || getConfig('pro.enabled') === 'true' ? 'success' : 'warning'}
           source={[
             { type: 'env', key: 'PRO_ENABLED', value: getEnv('BP_PRODUCTION') },
-            { type: 'env', key: 'BP_LICENSE_KEY', value: getEnv('BP_LICENSE_KEY') }
+            { type: 'env', key: 'BP_LICENSE_KEY', value: getEnv('BP_LICENSE_KEY') },
+            { type: 'config', key: 'pro.enabled', value: getConfig('pro.enabled') },
+            { type: 'config', key: 'pro.licenseKey', value: getConfig('pro.licenseKey') }
           ]}
         >
           Botpress Pro provides multiple features ready to be used in an enterprise-grade solution.
