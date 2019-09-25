@@ -12,6 +12,7 @@ import { keepEntityValues } from '../slots/pre-processor'
 
 import { LanguageProvider } from './../../typings'
 import tfidf, { TfidfInput, TfidfOutput } from './tfidf'
+import { appendToDebugFile } from './utils'
 
 const debug = DEBUG('nlu').sub('intents')
 const debugTrain = debug.sub('train')
@@ -342,6 +343,8 @@ export default class SVMClassifier {
 
     const l0Features = [...l0Vec, tokens.length]
     const l0 = await this.predictL0Contextually(l0Features, includedContexts)
+    // TODO remove this
+    appendToDebugFile('l0pred-engine1.json', l0)
 
     try {
       debugPredict('prediction request %o', { includedContexts, input })
@@ -358,6 +361,7 @@ export default class SVMClassifier {
 
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
+          appendToDebugFile('l1preds-ennine1.json', [ctx, preds])
           const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)
 
           if (preds.length <= 0) {
@@ -395,12 +399,15 @@ export default class SVMClassifier {
 
       debugPredict('predictions done %o', { includedContexts, input, predictions })
 
-      return _.chain(predictions)
+      const stuff = _.chain(predictions)
         .flatten()
         .orderBy('confidence', 'desc')
         .uniqBy(x => x.label)
         .map(x => ({ name: x.label, context: x.context, confidence: x.confidence }))
         .value()
+
+      appendToDebugFile('final-engine1.json', stuff)
+      return stuff
     } catch (e) {
       throw new VError(e, `Error predicting intent for "${input}"`)
     }

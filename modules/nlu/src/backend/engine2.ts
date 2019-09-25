@@ -1,13 +1,15 @@
 import { MLToolkit } from 'botpress/sdk'
 import _, { cloneDeep } from 'lodash'
+import math from 'mathjs'
 
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
+import { appendToDebugFile } from './pipelines/intents/utils'
 import { getClosestToken } from './pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
-import { computeNorm, scalarDivide, vectorAdd } from './tools/math'
+import { computeNorm, GetZPercent, scalarDivide, vectorAdd } from './tools/math'
 import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
@@ -16,11 +18,9 @@ import { parseUtterance } from './utterance-parser'
 
 // TODOS
 // ----- split svm l0 & l1 ----
-//          election process (do the same as what we had in svm classification (lognormal shit))
 //          ambiguity ranking
-//          make sure results are same (context = l0, intents = l1)
 //          add exact matcher
-//          hard filter threshold ?
+//          remove the strIntent from the input
 //          use the elected intent to extract the slots
 // ----- load models -----
 //      load everything from artefacts
@@ -836,6 +836,7 @@ export interface Model {
 export interface PredictInput {
   defaultLanguage: string
   supportedLanguages: string[]
+  includedContexts: string[]
   sentence: string
   strIntent: string // this is temporary
   models: _.Dictionary<Model>
@@ -843,6 +844,7 @@ export interface PredictInput {
 
 export interface PredictOutput {
   readonly rawText: string
+  includedContexts: string[]
   detectedLanguage: string
   languageCode: string
   utterance?: Utterance
@@ -878,7 +880,7 @@ const predict = {
     const model = input.models[languageCode]
 
     return {
-      ..._.pick(input, 'strIntent'),
+      ..._.pick(input, 'strIntent', 'includedContexts'),
       list_entities: model.artefacts.list_entities,
       pattern_entities: model.inputData.pattern_entities,
       rawText: input.sentence,
@@ -945,9 +947,53 @@ const predict = {
       intent: input.model.outputData.intents.find(i => i.name == input.strIntent) // todo remove this
     }
   },
+  // TODO implement this algorithm properly / improve it
+  // Now taken as is from svm classifier
+  ElectIntent: async (input: PredictOutput) => {
+    // TODO remove this
+    appendToDebugFile('l1preds-ennine2.json', _.toPairs(input.intent_predictions))
+    // taken from predictL0Contextually
+    // const includedCtx = input.ctx_predictions.filter(pred => input.includedContexts.includes(pred.label))
+    const includedCtxPreds = input.ctx_predictions // TODO revert this
+
+    const totalConfidence = Math.min(1, _.sumBy(includedCtxPreds, 'confidence'))
+    const ctxPreds = includedCtxPreds.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
+    appendToDebugFile('l0pred-engine2.json', ctxPreds) // TODO remove this
+
+    // taken from svm classifier #349
+    const predictions = _.chain(ctxPreds)
+      .flatMap(({ label: ctx, confidence: ctxConf }) => {
+        const intentPreds = _.orderBy(input.intent_predictions[ctx], 'confidence', 'desc')
+        if (intentPreds.length === 1) {
+          return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+        }
+
+        const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+        let p1Conf = GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
+        if (isNaN(p1Conf)) {
+          p1Conf = 0.5
+        }
+
+        return [
+          { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf * p1Conf },
+          { label: intentPreds[1].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf * (1 - p1Conf) }
+        ]
+      })
+      .orderBy('confidence', 'desc')
+      .uniqBy(p => p.label)
+      .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
+      .value()
+
+    appendToDebugFile('final-ennine2.json', predictions)
+    return {
+      ...input,
+      predictions
+    }
+  },
   ExtractSlots: async (input: PredictOutput) => {
-    // TODO use loaded model
-    // what's in artefact as this should only be serializable stuff
+    // TODO use loaded model, what's in artefact as this should only be serializable stuff
+
+    // TODO you are at use predicted intent for slot extraction
     const slots = await input.model.artefacts.slot_tagger.extract(input.utterance!, input.intent!)
 
     // TODO try to extract for each intent predictions and then rank this shit in the next pipeline step
@@ -955,9 +1001,6 @@ const predict = {
       input.utterance.tagSlot(slot, start, end)
     })
 
-    return input
-  },
-  ElectIntent: async input => {
     return input
   }
 }
@@ -968,7 +1011,7 @@ export const Predict = async (input: PredictInput, tools: PreditcTools): Promise
   output = await predict.ExtractEntities(output, tools)
   output = await predict.PredictContext(output, tools)
   output = await predict.PredictIntent(output, tools)
-  output = await predict.ExtractSlots(output)
   output = await predict.ElectIntent(output)
+  output = await predict.ExtractSlots(output)
   return output
 }

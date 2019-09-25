@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import fs from 'fs'
 import _ from 'lodash'
 
 import { escapeRegex } from '../../tools/patterns-utils'
@@ -7,6 +8,17 @@ export const NoneIntent: sdk.NLU.Intent = {
   confidence: 1.0,
   name: 'none',
   context: 'global'
+}
+
+export const appendToDebugFile = (fname, data) => {
+  let content = []
+  try {
+    // @ts-ignore
+    content = JSON.parse(fs.readFileSync(fname).toString())
+  } catch (err) {}
+  content.push(data)
+  // @ts-ignore
+  fs.writeFileSync(fname, JSON.stringify(content, null, 2))
 }
 
 /**
