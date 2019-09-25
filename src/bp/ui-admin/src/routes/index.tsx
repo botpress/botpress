@@ -5,6 +5,7 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
+import Checklist from '~/Pages/Server/Checklist'
 import Languages from '~/Pages/Server/Languages'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
@@ -58,6 +59,7 @@ export const makeMainRoutes = () => {
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/profile" component={MyAccount} />
+              <Route path="/checklist" component={Checklist} />
               <Route path="/confusion" component={Confusion} />
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />
