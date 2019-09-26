@@ -91,7 +91,7 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
   }
 }
 
-const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typeof sdk.config => {
+const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typeof sdk.config => {
   return {
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
@@ -100,10 +100,10 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
       return moduleLoader.configReader.getForBot(moduleId, botId)
     },
     getBotpressConfig(): Promise<any> {
-      return configProfider.getBotpressConfig()
+      return configProvider.getBotpressConfig()
     },
     mergeBotConfig(botId: string, partialConfig: PartialDeep<sdk.BotConfig>, ignoreLock?: boolean): Promise<any> {
-      return configProfider.mergeBotConfig(botId, partialConfig, ignoreLock)
+      return configProvider.mergeBotConfig(botId, partialConfig, ignoreLock)
     }
   }
 }
@@ -270,7 +270,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository
@@ -278,7 +278,7 @@ export class BotpressAPIProvider {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, sessionRepo)
-    this.config = config(moduleLoader, configProfider)
+    this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
