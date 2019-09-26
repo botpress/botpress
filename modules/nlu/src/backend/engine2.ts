@@ -9,7 +9,7 @@ import { appendToDebugFile } from './pipelines/intents/utils'
 import { getClosestToken } from './pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
-import { computeNorm, GetZPercent, scalarDivide, vectorAdd } from './tools/math'
+import { allInRange, computeNorm, GetZPercent, scalarDivide, vectorAdd } from './tools/math'
 import { extractPattern } from './tools/patterns-utils'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { isSpace, isWord, SPACE } from './tools/token-utils'
@@ -18,8 +18,9 @@ import { parseUtterance } from './utterance-parser'
 
 // TODOS
 // ----- split svm l0 & l1 ----
-//          ambiguity ranking
 //          add exact matcher
+//          do we include predictionsReallyConfused (close) then none?
+//          todo add value in utterance slots
 // ----- load models -----
 //      run pre-training steps in pipeline
 //      load everything from artefacts in predictors of PredictInput
@@ -852,6 +853,7 @@ export interface PredictOutput {
   intent_predictions_per_ctx?: _.Dictionary<MLToolkit.SVM.Prediction[]>
   intent_predictions?: ElectedIntent[]
   elected_intent?: ElectedIntent
+  ambiguous?: boolean
   // TODO slots predictions per intent
 }
 
@@ -983,12 +985,24 @@ const predict = {
     }
   },
   AmbiguityDetection: (input: PredictOutput) => {
-    return input
+    // +- 10% away from perfect median leads to ambiguity
+    const preds = input.intent_predictions
+    const perfectConfusion = 1 / preds.length
+    const low = perfectConfusion - 0.1
+    const up = perfectConfusion + 0.1
+    const confidenceVec = preds.map(p => p.confidence)
+
+    const ambiguous = preds.length > 1 && allInRange(confidenceVec, low, up)
+
+    return {
+      ...input,
+      ambiguous
+    }
   },
   ExtractSlots: async (input: PredictOutput) => {
     // TODO use loaded model, what's in artefact as this should only be serializable stuff
     // TODO make sure there's actually a prediction (check for ambiguity ?)
-    const intent = input.model.outputData.intents.find(i => i.name === input.elected_intent.name)
+    const intent = !input.ambiguous && input.model.outputData.intents.find(i => i.name === input.elected_intent.name)
     if (intent && intent.slot_definitions.length > 0) {
       // TODO try to extract for each intent predictions and then rank this in the election step
       const slots = await input.model.artefacts.slot_tagger.extract(input.utterance!, intent)
