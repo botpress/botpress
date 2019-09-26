@@ -10,19 +10,24 @@
  * @param hookResult The result of the hook which contains actions
  */
 const stageChangeRequest = async () => {
-  const request_user = users.find(u => u.email == bot.pipeline_status.stage_request.requested_by)
+const requestUser = users.find(u => u.email == bot.pipeline_status.stage_request.requested_by)
 
   // By default, we want to keep the bot in the current stage
   hookResult.actions = []
+
+  // Happens if the request_user is superadmin and is not a Workspace Collaborator
+  if (requestUser === undefined) {
+    return
+  }
 
   const stageRequest = bot.pipeline_status.stage_request
   stageRequest.approvers = stageRequest.approvers || _getApprovers()
   const approvers = stageRequest.approvers
 
-  const requestUserEmail = request_user.email
   // If the current user is an approver, mark his approval
-  if (approvers.map(x => x.email).includes(requestUserEmail)) {
-    approvers.find(x => x.email === requestUserEmail).approved = true
+  const matchingApprover = approvers.find(x => x.email === requestUser.email && x.strategy === requestUser.strategy)
+  if (matchingApprover !== undefined) {
+    matchingApprover.approved = true
   }
 
   // The status will be displayed in the bots list in the Workspace
@@ -43,15 +48,18 @@ const _getApprovers = () => {
   return [
     {
       email: 'alice@acme.com',
-      approved: false
+      approved: false,
+      strategy: 'default'
     },
     {
       email: 'bob@acme.com',
-      approved: false
+      approved: false,
+      strategy: 'default'
     },
     {
       email: 'security@acme.com',
-      approved: false
+      approved: false,
+      strategy: 'default'
     }
   ]
 }
