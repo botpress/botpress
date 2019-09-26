@@ -66,6 +66,14 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
   return current ? [...final, current] : final
 }
 
+/**
+ * Basically mimics the language server tokenizer. Use this function for testing purposes
+ * @param text text you want to tokenize
+ */
+export function tokenizeLatinTextForTests(text: string): string[] {
+  return splitSpaceToken(text.replace(/\s/g, SPACE))
+}
+
 export function splitSpaceToken(token: string): string[] {
   return token.split(new RegExp(`(${SPACE})`, 'g')).filter(_.identity)
 }

@@ -1,11 +1,9 @@
 import _ from 'lodash'
 
-import { ExtractedEntity, ExtractedSlot, UtteranceClass } from './engine2'
-import { SPACE, splitSpaceToken } from './tools/token-utils'
+import { ExtractedEntity, ExtractedSlot, UtteranceClass, UtteranceToStringOptions } from './engine2'
+import { SPACE, tokenizeLatinTextForTests } from './tools/token-utils'
 
-const TOKENS = splitSpaceToken(
-  'You might want to behave like if you are not like one of us. But you are!'.replace(/\s/g, SPACE)
-)
+const TOKENS = tokenizeLatinTextForTests('You might want to behave like if you are not like one of us. But you are!')
 const VECTORS = TOKENS.map(() => Array.from({ length: 5 }, () => _.random(0, 1, true)))
 
 describe('UtteranceClass', () => {
@@ -227,28 +225,87 @@ describe('UtteranceClass', () => {
     })
   })
 
-  test('toString', () => {
+  describe.only('toString', () => {
     const str = 'This IS a SUPerTest withFire'
     //           0123456789012345678901234567
-    const tokens = splitSpaceToken(str.replace(/\s/g, SPACE))
-    const uWithSlots = new UtteranceClass(tokens, tokens.map(t => []))
-    const u = new UtteranceClass(tokens, tokens.map(t => []))
-    const slot: ExtractedSlot = {
-      name: 'Tiger',
-      confidence: 1,
-      source: 'supertest'
-    }
-    uWithSlots.tagSlot(slot, 10, 19)
+    const tokens = tokenizeLatinTextForTests(str)
+    const fakeVectors = tokens.map(t => [])
+    const defaultOptions = {
+      entities: 'keep-default',
+      slots: 'keep-value',
+      onlyWords: false,
+      lowerCase: false
+    } as UtteranceToStringOptions
 
-    expect(u.toString({ onlyWords: false, lowerCase: false, slots: 'keep-value' })).toEqual(str)
-    expect(u.toString({ onlyWords: false, lowerCase: false, slots: 'keep-slot-name' })).toEqual(str)
-    expect(u.toString({ onlyWords: false, lowerCase: true, slots: 'keep-value' })).toEqual(str.toLowerCase())
-    expect(uWithSlots.toString({ onlyWords: false, lowerCase: false, slots: 'keep-value' })).toEqual(str)
-    expect(uWithSlots.toString({ onlyWords: false, lowerCase: false, slots: 'keep-slot-name' })).toEqual(
-      `This IS a ${slot.name} withFire`
-    )
-    expect(uWithSlots.toString({ onlyWords: true, lowerCase: false, slots: 'keep-slot-name' })).toEqual(
-      `ThisISa${slot.name}withFire`
-    )
+    test('format options', () => {
+      const u = new UtteranceClass(tokens, fakeVectors)
+
+      expect(u.toString(defaultOptions)).toEqual(str)
+      expect(u.toString({ ...defaultOptions, lowerCase: true })).toEqual(str.toLowerCase())
+      expect(u.toString({ ...defaultOptions, onlyWords: true })).toEqual(str.replace(/\s/g, ''))
+      expect(u.toString({ ...defaultOptions, onlyWords: true, lowerCase: true })).toEqual(
+        str.replace(/\s/g, '').toLowerCase()
+      )
+    })
+
+    test('slot options', () => {
+      const u = new UtteranceClass(tokens, fakeVectors)
+      const slot: ExtractedSlot = {
+        name: 'Tiger',
+        confidence: 1,
+        source: 'supertest'
+      }
+      u.tagSlot(slot, 10, 19)
+
+      expect(u.toString(defaultOptions)).toEqual(str)
+      expect(u.toString({ ...defaultOptions, slots: 'keep-name' })).toEqual(`This IS a ${slot.name} withFire`)
+      expect(u.toString({ ...defaultOptions, slots: 'ignore' })).toEqual(`This IS a  withFire`)
+    })
+
+    test('entities options', () => {
+      const u = new UtteranceClass(tokens, fakeVectors)
+      const entity: ExtractedEntity = {
+        type: 'Woods',
+        confidence: 1,
+        value: '123',
+        metadata: {}
+      }
+      u.tagEntity(entity, 10, 19)
+
+      expect(u.toString(defaultOptions)).toEqual(str)
+      expect(u.toString({ ...defaultOptions, entities: 'keep-value' })).toEqual(`This IS a ${entity.value} withFire`)
+      expect(u.toString({ ...defaultOptions, entities: 'keep-name' })).toEqual(`This IS a ${entity.type} withFire`)
+      expect(u.toString({ ...defaultOptions, entities: 'ignore' })).toEqual(`This IS a  withFire`)
+    })
+
+    test('entities and slots options', () => {
+      const u = new UtteranceClass(tokens, fakeVectors)
+      const slot: ExtractedSlot = {
+        name: 'Tiger',
+        confidence: 1,
+        source: 'supertest'
+      }
+      u.tagSlot(slot, 10, 19)
+      const entity: ExtractedEntity = {
+        type: 'Woods',
+        confidence: 1,
+        value: '123',
+        metadata: {}
+      }
+      u.tagEntity(entity, 10, 19)
+
+      expect(u.toString({ ...defaultOptions, slots: 'keep-value', entities: 'keep-value' })).toEqual(str)
+      expect(u.toString({ ...defaultOptions, slots: 'keep-name', entities: 'keep-value' })).toEqual(
+        `This IS a ${slot.name} withFire`
+      )
+      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'keep-default' })).toEqual(str)
+      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'keep-value' })).toEqual(
+        `This IS a ${entity.value} withFire`
+      )
+      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'keep-name' })).toEqual(
+        `This IS a ${entity.type} withFire`
+      )
+      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'ignore' })).toEqual(`This IS a  withFire`)
+    })
   })
 })
