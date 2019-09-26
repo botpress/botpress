@@ -1,9 +1,6 @@
 async function hook() {
-  console.log('===== SWITCH LANG CALLED')
   const currentLang = event.state.user.language
-  console.log('currentLang:', currentLang)
   const lang = event.nlu && event.nlu.language
-  console.log('lang:', lang)
   if (!lang || event.nlu.intent.name === 'none' || event.nlu.intent.confidence <= 0.3 || currentLang === lang) {
     console.log('quickly returning')
     return
