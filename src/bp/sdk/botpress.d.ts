@@ -54,6 +54,7 @@ declare module 'botpress/sdk' {
     attachError(error: Error): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
+    noEmit(): this
 
     /**
      * Sets the level that will be required at runtime to
