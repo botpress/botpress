@@ -153,6 +153,8 @@ declare module 'botpress/sdk' {
     id: string
     /** The name that will be displayed in the toolbar for the skill */
     name: string
+    /** An icon to identify the skill */
+    icon?: string | any
     /** Name of the parent module. This field is filled automatically when they are loaded */
     readonly moduleName?: string
     /**

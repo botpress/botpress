@@ -72,9 +72,7 @@ export class DialogJanitor extends Janitor {
     let resetSession = true
 
     try {
-      const channel = SessionIdFactory.createChannelFromId(sessionId)
-      const target = SessionIdFactory.createTargetFromId(sessionId)
-      const threadId = SessionIdFactory.createThreadIdFromId(sessionId)
+      const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
       // Don't process the timeout when the context is empty.
