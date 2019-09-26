@@ -32,7 +32,7 @@ function init(config) {
   if (config.ref) {
     iframeSrc += '&ref=' + encodeURIComponent(config.ref)
   }
-  const iframeHTML = '<iframe id="bp-widget" frameborder="0" src="' + iframeSrc + '" class="bp-widget-web"/>'
+  const iframeHTML = '<iframe id="bp-widget" title= "Chat Bot" frameborder="0" src="' + iframeSrc + '" class="bp-widget-web"/>'
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 
   const iframeWindow = document.querySelector('#bp-web-widget > #bp-widget').contentWindow
