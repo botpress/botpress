@@ -3,6 +3,7 @@ import React from 'react'
 export default () => (
   <i>
     <svg height="15" viewBox="0 0 95 95" xmlns="http://www.w3.org/2000/svg">
+      <title>Close</title>
       <g>
         <path
           xmlns="http://www.w3.org/2000/svg"
