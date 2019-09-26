@@ -3,6 +3,7 @@ import { WellKnownFlags } from 'core/sdk/enums'
 import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
+import _, { PartialDeep } from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
@@ -90,7 +91,7 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
   }
 }
 
-const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typeof sdk.config => {
+const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typeof sdk.config => {
   return {
     getModuleConfig(moduleId: string): Promise<any> {
       return moduleLoader.configReader.getGlobal(moduleId)
@@ -98,9 +99,8 @@ const config = (moduleLoader: ModuleLoader, configProfider: ConfigProvider): typ
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
     },
-    getBotpressConfig(): Promise<any> {
-      return configProfider.getBotpressConfig()
-    }
+    getBotpressConfig: configProvider.getBotpressConfig.bind(configProvider),
+    mergeBotConfig: configProvider.mergeBotConfig.bind(configProvider)
   }
 }
 
@@ -266,7 +266,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProfider: ConfigProvider,
+    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository
@@ -274,7 +274,7 @@ export class BotpressAPIProvider {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, sessionRepo)
-    this.config = config(moduleLoader, configProfider)
+    this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
