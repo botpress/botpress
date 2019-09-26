@@ -5,10 +5,6 @@ const onServerReady = async (bp: typeof sdk) => {}
 
 const botTemplates: sdk.BotTemplate[] = [
   { id: 'weatherbot', name: 'Weather Bot', desc: 'Gets the weather for a city' },
-  {
-    id: 'langswitcherbot',
-    name: 'Language Switcher Bot'
-  }
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {
