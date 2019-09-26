@@ -16,7 +16,7 @@ const requestUser = users.find(u => u.email == bot.pipeline_status.stage_request
   hookResult.actions = []
 
   // Happens if the request_user is superadmin and is not a Workspace Collaborator
-  if (requestUser === undefined) {
+  if (!requestUser) {
     return
   }
 
