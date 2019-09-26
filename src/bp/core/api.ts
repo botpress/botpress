@@ -99,12 +99,8 @@ const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typ
     getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
       return moduleLoader.configReader.getForBot(moduleId, botId)
     },
-    getBotpressConfig(): Promise<any> {
-      return configProvider.getBotpressConfig()
-    },
-    mergeBotConfig(botId: string, partialConfig: PartialDeep<sdk.BotConfig>, ignoreLock?: boolean): Promise<any> {
-      return configProvider.mergeBotConfig(botId, partialConfig, ignoreLock)
-    }
+    getBotpressConfig: configProvider.getBotpressConfig.bind(configProvider),
+    mergeBotConfig: configProvider.mergeBotConfig.bind(configProvider)
   }
 }
 
