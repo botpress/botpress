@@ -54,6 +54,7 @@ declare module 'botpress/sdk' {
     attachError(error: Error): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
+    noEmit(): this
 
     /**
      * Sets the level that will be required at runtime to
@@ -1405,6 +1406,14 @@ declare module 'botpress/sdk' {
      * Returns the configuration options of Botpress
      */
     export function getBotpressConfig(): Promise<any>
+
+    /**
+     * Merges and saves a bot's config
+     * @param botId
+     * @param partialConfig
+     * @param ignoreLock
+     */
+    export function mergeBotConfig(botId: string, partialConfig: _.PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**
