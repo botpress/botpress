@@ -9,7 +9,6 @@ async function hook() {
   const botConfig = await bp.bots.getBotById(event.botId)
   if (botConfig.languages.includes(lang)) {
     event.state.user.language = lang
-    await bp.users.updateAttributes(event.channel, event.target, { language: lang })
     await event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
   }
 }
