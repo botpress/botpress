@@ -155,7 +155,8 @@ export default class ScopedEngine implements Engine {
     try {
       this._isSyncing = true
       const intents = await this.getIntents()
-      const entities = await
+      // const entities = await
+      // TODO you are here use entities to comopute model hash so it can retrain properly
       const modelHash = this.computeModelHash(intents)
       let loaded = false
 
