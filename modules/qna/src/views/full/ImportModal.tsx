@@ -239,11 +239,12 @@ Either the file is empty, or it doesn't match any known format.`)
       </AccessControl>
 
       <Dialog
+        title={analysis ? 'Analysis' : 'Upload File'}
+        icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
-        title={analysis ? 'Analysis' : 'Upload File'}
-        icon="import"
+        canOutsideClickClose={false}
       >
         {showStatus && renderStatus()}
         {!showStatus && (analysis ? renderAnalysis() : renderUpload())}

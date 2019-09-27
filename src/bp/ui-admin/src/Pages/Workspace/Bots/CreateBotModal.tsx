@@ -147,11 +147,12 @@ class CreateBotModal extends Component<Props, State> {
   render() {
     return (
       <Dialog
-        isOpen={this.props.isOpen}
+        title="Create a new bot"
         icon="add"
+        isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
         transitionDuration={0}
-        title="Create a new bot"
+        canOutsideClickClose={false}
       >
         <form ref={form => (this._form = form)}>
           <div className={Classes.DIALOG_BODY}>

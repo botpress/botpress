@@ -128,11 +128,12 @@ class CreateUserModal extends Component<Props, State> {
   render() {
     return (
       <Dialog
-        isOpen={this.props.isOpen}
+        title="Add Collaborator"
         icon="add"
+        isOpen={this.props.isOpen}
         onClose={this.props.toggleOpen}
         transitionDuration={0}
-        title={'Add Collaborator'}
+        canOutsideClickClose={false}
       >
         <form ref={form => (this.formEl = form)}>
           <div className={Classes.DIALOG_BODY}>

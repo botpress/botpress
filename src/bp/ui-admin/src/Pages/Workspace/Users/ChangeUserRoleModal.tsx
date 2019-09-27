@@ -45,10 +45,11 @@ const ChangeUserRoleModal: FC<Props> = props => {
 
   return (
     <Dialog
+      title={<span>Editing role of {props.user.email}</span>}
       isOpen={props.isOpen}
       onClose={props.toggle}
       transitionDuration={0}
-      title={<span>Editing role of {props.user.email}</span>}
+      canOutsideClickClose={false}
     >
       <div className={Classes.DIALOG_BODY}>
         <Select
