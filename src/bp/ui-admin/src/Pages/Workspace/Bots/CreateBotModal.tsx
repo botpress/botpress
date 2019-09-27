@@ -16,19 +16,25 @@ export const sanitizeBotId = (text: string) =>
 
 type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
 
-interface Props {
+interface OwnProps {
   isOpen: boolean
-  botCategoriesFetched: boolean
-  botTemplatesFetched: boolean
-
-  fetchBotCategories: () => void
-  fetchBotTemplates: () => void
   onCreateBotSuccess: () => void
   toggle: () => void
+}
 
+interface DispatchProps {
+  fetchBotCategories: () => void
+  fetchBotTemplates: () => void
+}
+
+interface StateProps {
+  botCategoriesFetched: boolean
+  botTemplatesFetched: boolean
   botTemplates: BotTemplate[]
   botCategories: string[]
 }
+
+type Props = DispatchProps & StateProps & OwnProps
 
 interface State {
   botId: string
@@ -238,7 +244,7 @@ const mapDispatchToProps = {
   fetchBotCategories
 }
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(CreateBotModal)

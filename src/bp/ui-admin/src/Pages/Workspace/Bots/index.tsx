@@ -1,56 +1,57 @@
-import React, { Component, Fragment } from 'react'
-
-import { connect } from 'react-redux'
-import { Row, Col, Alert } from 'reactstrap'
-
-import _ from 'lodash'
-
-import { fetchBots } from '../../../reducers/bots'
-import { fetchPermissions } from '../../../reducers/user'
-import { fetchLicensing } from '../../../reducers/license'
-
-import SectionLayout from '../../Layouts/Section'
-import LoadingSection from '../../Components/LoadingSection'
-
-import api from '../../../api'
-import { AccessControl } from '../../../App/AccessControl'
-import CreateBotModal from './CreateBotModal'
-import ImportBotModal from './ImportBotModal'
-import BotItemPipeline from './BotItemPipeline'
-import BotItemCompact from './BotItemCompact'
-import RollbackBotModal from './RollbackBotModal'
-import { toast } from 'react-toastify'
-
 import {
-  Popover,
-  Button,
-  PopoverInteractionKind,
-  Position,
-  ButtonGroup,
   Alignment,
+  Button,
+  ButtonGroup,
+  Callout,
   Intent,
-  Callout
+  Popover,
+  PopoverInteractionKind,
+  Position
 } from '@blueprintjs/core'
-
+import _ from 'lodash'
+import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { RouteComponentProps } from 'react-router'
+import { Alert, Col, Row } from 'reactstrap'
+import { toastSuccess } from '~/utils/toaster'
 import { Downloader } from '~/Pages/Components/Downloader'
 
-class Bots extends Component {
+import api from '../../../api'
+import { fetchBots } from '../../../reducers/bots'
+import { fetchLicensing } from '../../../reducers/license'
+import AccessControl from '../../../App/AccessControl'
+import LoadingSection from '../../Components/LoadingSection'
+import SectionLayout from '../../Layouts/Section'
+
+import BotItemCompact from './BotItemCompact'
+import BotItemPipeline from './BotItemPipeline'
+import CreateBotModal from './CreateBotModal'
+import ImportBotModal from './ImportBotModal'
+import RollbackBotModal from './RollbackBotModal'
+
+interface Props extends RouteComponentProps {
+  bots: any
+  workspace: any
+  fetchBots: any
+  fetchLicensing: any
+  licensing: any
+}
+
+class Bots extends Component<Props> {
   state = {
     isCreateBotModalOpen: false,
+    isRollbackModalOpen: false,
+    isImportBotModalOpen: false,
     focusedBot: null,
-    isRollbackModalOpen: false
-  }
-
-  renderLoading() {
-    return <LoadingSection />
+    archiveUrl: undefined,
+    archiveName: ''
   }
 
   componentDidMount() {
-    this.downloadLink = React.createRef()
-
     this.props.fetchBots()
-    !this.props.permissions && this.props.fetchPermissions()
-    !this.props.licensing && this.props.fetchLicensing()
+    if (!this.props.licensing) {
+      this.props.fetchLicensing()
+    }
   }
 
   toggleCreateBotModal = () => {
@@ -90,7 +91,7 @@ class Bots extends Component {
 
   renderCreateNewBotButton() {
     return (
-      <AccessControl permissions={this.props.permissions} resource="admin.bots.*" operation="write">
+      <AccessControl resource="admin.bots.*" operation="write">
         <Popover minimal interactionKind={PopoverInteractionKind.HOVER} position={Position.BOTTOM}>
           <Button id="btn-create-bot" intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
           <ButtonGroup vertical={true} minimal={true} fill={true} alignText={Alignment.LEFT}>
@@ -127,7 +128,7 @@ class Bots extends Component {
 
   async createRevision(botId) {
     await api.getSecured().post(`admin/bots/${botId}/revisions`)
-    toast.success('Revisions created')
+    toastSuccess('Revisions created')
   }
 
   toggleRollbackModal = botId => {
@@ -139,7 +140,7 @@ class Bots extends Component {
 
   handleRollbackSuccess = () => {
     this.props.fetchBots()
-    toast.success('Rollback success')
+    toastSuccess('Rollback success')
   }
 
   renderCompactView() {
@@ -152,10 +153,8 @@ class Bots extends Component {
           <BotItemCompact
             key={bot.id}
             bot={bot}
-            history={this.props.history}
             deleteBot={this.deleteBot.bind(this, bot.id)}
             exportBot={this.exportBot.bind(this, bot.id)}
-            permissions={this.props.permissions}
             createRevision={this.createRevision.bind(this, bot.id)}
             rollback={this.toggleRollbackModal.bind(this, bot.id)}
           />
@@ -182,12 +181,10 @@ class Bots extends Component {
                   <BotItemPipeline
                     key={bot.id}
                     bot={bot}
-                    history={this.props.history}
                     allowStageChange={allowStageChange}
                     requestStageChange={this.requestStageChange.bind(this, bot.id)}
                     deleteBot={this.deleteBot.bind(this, bot.id)}
                     exportBot={this.exportBot.bind(this, bot.id)}
-                    permissions={this.props.permissions}
                     createRevision={this.createRevision.bind(this, bot.id)}
                     rollback={this.toggleRollbackModal.bind(this, bot.id)}
                   />
@@ -235,23 +232,24 @@ class Bots extends Component {
           mainContent={this.renderBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />
-
-        <RollbackBotModal
-          botId={this.state.focusedBot}
-          isOpen={this.state.isRollbackModalOpen}
-          toggle={this.toggleRollbackModal}
-          onRollbackSuccess={this.handleRollbackSuccess}
-        />
-        <CreateBotModal
-          isOpen={this.state.isCreateBotModalOpen}
-          toggle={this.toggleCreateBotModal}
-          onCreateBotSuccess={this.props.fetchBots}
-        />
-        <ImportBotModal
-          isOpen={this.state.isImportBotModalOpen}
-          toggle={this.toggleImportBotModal}
-          onCreateBotSuccess={this.props.fetchBots}
-        />
+        <AccessControl resource="admin.bots.*" operation="write">
+          <RollbackBotModal
+            botId={this.state.focusedBot}
+            isOpen={this.state.isRollbackModalOpen}
+            toggle={this.toggleRollbackModal}
+            onRollbackSuccess={this.handleRollbackSuccess}
+          />
+          <CreateBotModal
+            isOpen={this.state.isCreateBotModalOpen}
+            toggle={this.toggleCreateBotModal}
+            onCreateBotSuccess={this.props.fetchBots}
+          />
+          <ImportBotModal
+            isOpen={this.state.isImportBotModalOpen}
+            toggle={this.toggleImportBotModal}
+            onCreateBotSuccess={this.props.fetchBots}
+          />
+        </AccessControl>
       </Fragment>
     )
   }
@@ -261,14 +259,12 @@ const mapStateToProps = state => ({
   bots: state.bots.bots,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  permissions: state.user.permissions,
   licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchBots,
-  fetchLicensing,
-  fetchPermissions
+  fetchLicensing
 }
 
 export default connect(

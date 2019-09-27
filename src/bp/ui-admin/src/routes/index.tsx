@@ -1,40 +1,37 @@
-import React, { useState, useEffect } from 'react'
-import { Route, Switch, Redirect } from 'react-router-dom'
+import { Button } from '@blueprintjs/core'
+import React from 'react'
 import { Provider } from 'react-redux'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
-
-import App from '../App/Layout'
-
-import LoginPage from '../Pages/Account/Login'
-import RegisterPage from '../Pages/Account/Register'
-import ChangePassword from '../Pages/Account/ChangePassword'
-
-import Auth, { getActiveWorkspace } from '../Auth'
-import PrivateRoute from './PrivateRoute'
-import store, { history } from '../store'
-import { extractCookie } from '../utils/cookies'
-
-import Confusion from './../Pages/Confusion'
-
-import Workspace from '../Pages/Workspace'
-import MyAccount from '../Pages/MyAccount'
-import Bot from '../Pages/Bot'
-import Debug from '../Pages/Server/Debug'
-import Modules from '../Pages/Server/Modules'
-import Monitoring from '~/Pages/Server/Monitoring'
-import Versioning from '~/Pages/Server/Versioning'
+import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
+import Alerting from '~/Pages/Server/Alerting'
 import Languages from '~/Pages/Server/Languages'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
-import Alerting from '~/Pages/Server/Alerting'
+import Monitoring from '~/Pages/Server/Monitoring'
+import Versioning from '~/Pages/Server/Versioning'
 
-import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
-import { Button } from '@blueprintjs/core'
+import store, { history } from '../store'
+import { extractCookie } from '../utils/cookies'
+import App from '../App/Layout'
+import Auth, { getActiveWorkspace } from '../Auth'
+import ChangePassword from '../Pages/Account/ChangePassword'
+import LoginPage from '../Pages/Account/Login'
+import RegisterPage from '../Pages/Account/Register'
+import Bot from '../Pages/Bot'
+import Confusion from '../Pages/Confusion'
+import MyAccount from '../Pages/MyAccount'
+import Debug from '../Pages/Server/Debug'
+import Modules from '../Pages/Server/Modules'
+import Workspace from '../Pages/Workspace'
+
+import PrivateRoute from './PrivateRoute'
 
 export const makeMainRoutes = () => {
   const auth = new Auth()
 
   const ExtractToken = () => {
     auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+    // tslint:disable-next-line: no-floating-promises
     auth.setupWorkspace()
 
     return null

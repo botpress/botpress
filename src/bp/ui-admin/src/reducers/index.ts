@@ -1,7 +1,7 @@
 import { routerReducer } from 'react-router-redux'
 import { combineReducers } from 'redux'
 
-import bots from './bots'
+import bots, { BotState } from './bots'
 import license from './license'
 import modules, { ModulesState } from './modules'
 import monitoring from './monitoring'
@@ -13,6 +13,7 @@ export interface AppState {
   roles: RoleState
   modules: ModulesState
   user: UserState
+  bots: BotState
 }
 
 export default combineReducers<AppState>({

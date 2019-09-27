@@ -8,7 +8,7 @@ import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
 import { fetchLicensing } from '../../reducers/license'
 import { fetchPermissions } from '../../reducers/user'
-import { AccessControl } from '../../App/AccessControl'
+import AccessControl from '../../App/AccessControl'
 
 export interface AdminTab {
   id?: string
@@ -69,7 +69,7 @@ class TabLayout extends Component<Props> {
     }
 
     return (
-      <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
+      <AccessControl resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
           <NavLink
             id={tab.id}
