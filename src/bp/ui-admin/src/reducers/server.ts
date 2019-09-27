@@ -46,7 +46,7 @@ export const fetchLanguages = () => {
 
 export const fetchWorkspaces = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/server/workspaces')
+    const { data } = await api.getSecured().get('/admin/workspaces')
     dispatch({ type: FETCH_WORKSPACES_RECEIVED, workspaces: data })
   }
 }

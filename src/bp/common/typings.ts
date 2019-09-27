@@ -41,12 +41,17 @@ export interface AuthStrategyConfig {
 export interface Workspace {
   id: string
   name: string
+  description?: string
+  audience: 'internal' | 'external'
   roles: AuthRole[]
   defaultRole: string
   adminRole: string
   bots: string[]
   pipeline: Pipeline
-  authStrategy?: string
+}
+
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+  pipelineId: string
 }
 
 export interface AuthRule {

@@ -171,13 +171,6 @@ export class ServerRouter extends CustomRouter {
       })
     )
 
-    router.get(
-      '/workspaces',
-      this.asyncMiddleware(async (req, res) => {
-        res.send(await this.workspaceService.getWorkspaces())
-      })
-    )
-
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }
 

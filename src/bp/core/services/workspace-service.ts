@@ -1,32 +1,16 @@
 import { Logger } from 'botpress/sdk'
-import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { AuthRole, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { defaultAdminRole, defaultPipelines, defaultRoles, defaultUserRole, defaultWorkspace } from 'common/defaults'
+import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
+import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
-
-const DEFAULT_PIPELINE: Pipeline = [
-  {
-    id: 'prod',
-    label: 'Production',
-    action: 'promote_copy'
-  }
-]
-
-const DEFAULT_WORKSPACE: Workspace = {
-  id: 'default',
-  name: 'Default',
-  bots: [],
-  roles: defaultRoles,
-  defaultRole: defaultUserRole,
-  adminRole: defaultAdminRole,
-  pipeline: [...DEFAULT_PIPELINE]
-}
 
 @injectable()
 export class WorkspaceService {
@@ -41,7 +25,7 @@ export class WorkspaceService {
 
   async initialize(): Promise<void> {
     await this.getWorkspaces().catch(async () => {
-      await this.save([{ ...DEFAULT_WORKSPACE }])
+      await this.save([defaultWorkspace])
       this.logger.info('Created workspace')
     })
   }
@@ -57,6 +41,15 @@ export class WorkspaceService {
 
   async save(workspaces: Workspace[]): Promise<void> {
     return this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+  }
+
+  async mergeWorkspaceConfig(workspaceId: string, partialData: Partial<Workspace>) {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
+    }
+
+    return this.save(workspaces.map(wks => (wks.id === workspaceId ? { ...wks, ...partialData } : wks)))
   }
 
   async addBotRef(botId: string, workspaceId: string): Promise<void> {
@@ -108,14 +101,33 @@ export class WorkspaceService {
     return (workspace && workspace.name) || workspaceId
   }
 
-  async createWorkspace(workspaceId: string, workspaceName: string): Promise<void> {
+  async createWorkspace(workspace: CreateWorkspace): Promise<void> {
     const workspaces = await this.getWorkspaces()
-    if (workspaces.find(x => x.id === workspaceId)) {
-      throw new Error(`Workspace with id "${workspaceId}" already exists`)
+    if (workspaces.find(x => x.id === workspace.id)) {
+      throw new ConflictError(`A workspace with that id "${workspace.id}" already exists`)
     }
 
-    workspaces.push({ ...DEFAULT_WORKSPACE, id: workspaceId, name: workspaceName })
+    if (!defaultPipelines[workspace.pipelineId]) {
+      throw new InvalidOperationError(`Invalid pipeline`)
+    }
+
+    const newWorkspace = {
+      ...defaultWorkspace,
+      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
+      pipeline: defaultPipelines[workspace.pipelineId]
+    }
+
+    workspaces.push(newWorkspace)
     return this.save(workspaces)
+  }
+
+  async deleteWorkspace(workspaceId: string): Promise<void> {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
+    }
+
+    return this.save(workspaces.filter(x => x.id !== workspaceId))
   }
 
   async addWorkspaceAdmin(email: string, strategy: string, workspaceId: string) {

@@ -1,4 +1,4 @@
-import { AuthRole } from './typings'
+import { AuthRole, Pipeline, Workspace } from './typings'
 
 export const defaultUserRole = 'dev'
 export const defaultAdminRole = 'admin'
@@ -53,3 +53,41 @@ export const defaultRoles: AuthRole[] = [
     ]
   }
 ]
+
+export const defaultPipelines: { [id: string]: Pipeline } = {
+  none: [
+    {
+      id: 'prod',
+      label: 'Production',
+      action: 'promote_copy'
+    }
+  ],
+  botpress: [
+    {
+      id: 'dev',
+      label: 'Dev',
+      action: 'promote_copy'
+    },
+    {
+      id: 'review',
+      label: 'Review',
+      action: 'promote_copy'
+    },
+    {
+      id: 'prod',
+      label: 'Production',
+      action: 'promote_copy'
+    }
+  ]
+}
+
+export const defaultWorkspace: Workspace = {
+  id: 'default',
+  name: 'Default',
+  audience: 'external',
+  bots: [],
+  roles: defaultRoles,
+  defaultRole: defaultUserRole,
+  adminRole: defaultAdminRole,
+  pipeline: defaultPipelines['none']
+}
