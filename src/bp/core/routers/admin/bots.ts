@@ -8,7 +8,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError } from '../errors'
+import { ConflictError, ForbiddenError, NotFoundError } from '../errors'
 import { assertBotpressPro, hasPermissions, needPermissions, success as sendSuccess } from '../util'
 
 const chatUserBotFields = [
@@ -55,19 +55,19 @@ export class BotsRouter extends CustomRouter {
         const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
         const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
         if (!isBotAdmin && !isChatUser) {
-          return res.send('Missing permissions').status(401)
+          throw new ForbiddenError(`No permission to view bots`)
         }
 
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
         if (!workspace) {
-          return res.send('Unknown workspace').status(404)
+          throw new NotFoundError(`Unknown workspace`)
         }
 
         const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
-        const bots = await this.botService.findBotsByIds(botsRefs)
+        const bots = (await this.botService.findBotsByIds(botsRefs)).filter(Boolean)
 
         return sendSuccess(res, 'Retrieved bots', {
-          bots: isBotAdmin ? bots.filter(Boolean) : bots.filter(Boolean).map(b => _.pick(b, chatUserBotFields)),
+          bots: isBotAdmin ? bots : bots.map(b => _.pick(b, chatUserBotFields)),
           workspace: _.pick(workspace, ['name', 'pipeline'])
         })
       })
