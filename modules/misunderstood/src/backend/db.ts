@@ -32,6 +32,7 @@ export default class Db {
   async initialize() {
     this.knex.createTableIfNotExists(TABLE_NAME, table => {
       table.string('messageId').primary()
+      table.string('language')
       table.enum('reason', ['auto_hook', 'action', 'manual'])
       table.enum('status', ['new', 'handled', 'deleted']).default('new')
     })
@@ -44,9 +45,7 @@ export default class Db {
       .whereIn('messageId', messageIds)
       .then((rows: TableRow[]) => rows.map(r => r.messageId))
 
-    const newRows = messageIds
-      .filter(msgId => !existingRows.includes(msgId))
-      .map(msgId => ({ messageId: msgId }))
+    const newRows = messageIds.filter(msgId => !existingRows.includes(msgId)).map(msgId => ({ messageId: msgId }))
 
     await this.knex.batchInsert(TABLE_NAME, newRows, BATCH_SIZE_LIMIT)
   }

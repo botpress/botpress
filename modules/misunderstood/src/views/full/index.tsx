@@ -24,6 +24,7 @@ const getDefaultLanguage = (languages: string[]) => {
 export default class MisunderstoodMainView extends React.Component<{ bp: { axios: any } }> {
   state = {
     languages: null,
+    language: null,
     loaded: false
   }
 
@@ -36,8 +37,11 @@ export default class MisunderstoodMainView extends React.Component<{ bp: { axios
 
   async componentDidMount() {
     const data = await this.loadData()
-
     this.setState({ ...data, loaded: true })
+  }
+
+  setLanguage = language => {
+    this.setState({ language })
   }
 
   render() {
@@ -45,7 +49,9 @@ export default class MisunderstoodMainView extends React.Component<{ bp: { axios
 
     return (
       <Container>
-        <SidePanel>{loaded && <SidePanelContent languages={languages} language={language} />}</SidePanel>
+        <SidePanel>
+          {loaded && <SidePanelContent languages={languages} language={language} setLanguage={this.setLanguage} />}
+        </SidePanel>
 
         {loaded ? (
           <div>Your module stuff here</div>

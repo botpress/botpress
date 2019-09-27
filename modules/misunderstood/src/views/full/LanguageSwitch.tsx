@@ -88,15 +88,4 @@ class LanguageSwitch extends React.Component<LanguageSwitchProps> {
   }
 }
 
-// <div>
-//   <select defaultValue={defaultLanguage}>
-//     {languages.map(getLanguageDetails).map(({ code, name, flag }) => (
-//       <option key={code} value={code}>
-//         {flag ? <>{flag}&nbsp;</> : null}
-//         {name}
-//       </option>
-//     ))}
-//   </select>
-// </div>
-
 export default LanguageSwitch
