@@ -3,6 +3,7 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
+import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
 import Languages from '~/Pages/Server/Languages'
@@ -32,7 +33,7 @@ export const makeMainRoutes = () => {
   const ExtractToken = () => {
     auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
     // tslint:disable-next-line: no-floating-promises
-    auth.setupWorkspace()
+    auth.afterLoginRedirect()
 
     return null
   }
@@ -55,6 +56,7 @@ export const makeMainRoutes = () => {
           <Route path="/setToken" component={ExtractToken} />
           <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
           <Route path="/noAccess" component={NoAccess} />
+          <Route path="/chatAuthResult" component={ChatAuthResult} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/profile" component={MyAccount} />

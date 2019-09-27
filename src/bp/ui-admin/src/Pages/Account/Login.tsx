@@ -2,10 +2,10 @@ import { AuthStrategyConfig } from 'common/typings'
 import { get } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
-import { Redirect } from 'react-router-dom'
+import { ExtendedHistory } from '~/history'
 
 import api from '../../api'
-import BasicAuthentication, { setActiveWorkspace } from '../../Auth'
+import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '../../Auth'
 import { LoginContainer } from '../Layouts/LoginContainer'
 
 import { AuthMethodPicker } from './AuthMethodPicker'
@@ -13,23 +13,52 @@ import { LoginForm } from './LoginForm'
 
 type Props = {
   auth: BasicAuthentication
-} & RouteComponentProps<{ strategy: string; workspace: string }>
-
-const extractErrorMessage = () => {
-  const urlParams = new window.URLSearchParams(window.location.search)
-  return urlParams.get('error')
-}
+} & RouteComponentProps<{ strategy: string; workspace: string }> &
+  ExtendedHistory
 
 const Login: FC<Props> = props => {
   const [isLoading, setLoading] = useState(true)
   const [isFirstUser, setFirstUser] = useState(false)
   const [strategies, setStrategies] = useState<AuthStrategyConfig[]>()
   const [loginUrl, setLoginUrl] = useState('')
-  const [destination, setDestination] = useState<string>()
+  const [redirectTo, setRedirectTo] = useState<string>()
   const [error, setError] = useState<string | null>()
 
   useEffect(() => {
-    setError(undefined)
+    onStrategyChanged()
+  }, [props.match.params.strategy, isLoading])
+
+  useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
+    initialize()
+  }, [])
+
+  const initialize = async () => {
+    const routeWorkspaceId = props.match.params.workspace
+    const { workspaceId, botId, sessionId, signature, error } = props.location.query
+
+    if (routeWorkspaceId || workspaceId) {
+      setActiveWorkspace(routeWorkspaceId || workspaceId)
+    }
+
+    if (botId && sessionId && signature) {
+      setChatUserAuth({ botId, sessionId, signature })
+    }
+
+    if (error) {
+      setError(error)
+    }
+
+    if (props.auth.isAuthenticated()) {
+      await props.auth.afterLoginRedirect()
+    }
+
+    if (!strategies) {
+      await loadAuthConfig()
+    }
+  }
+
+  const onStrategyChanged = () => {
     selectStrategy(props.match.params.strategy)
 
     if (strategies && strategies.length === 1) {
@@ -38,22 +67,9 @@ const Login: FC<Props> = props => {
     }
 
     if (props.location.state) {
-      setDestination(props.location.state.from)
+      setRedirectTo(props.location.state.from)
     }
-  }, [props.match.params.strategy, isLoading])
-
-  useEffect(() => {
-    if (!strategies) {
-      // tslint:disable-next-line: no-floating-promises
-      loadAuthConfig()
-    }
-
-    if (props.match.params.workspace) {
-      setActiveWorkspace(props.match.params.workspace)
-    }
-
-    setError(extractErrorMessage())
-  }, [])
+  }
 
   const loadAuthConfig = async () => {
     const { data } = await api.getAnonymous().get('/auth/config')
@@ -70,6 +86,9 @@ const Login: FC<Props> = props => {
     if (!strategy) {
       return setLoginUrl('')
     }
+
+    setError(undefined)
+
     const { strategyType, strategyId, registerUrl } = strategy
 
     if (strategyType === 'saml' || strategyType === 'oauth2') {
@@ -86,7 +105,7 @@ const Login: FC<Props> = props => {
   const loginUser = async (email: string, password: string) => {
     try {
       setError(undefined)
-      await props.auth.login({ email, password }, loginUrl, destination)
+      await props.auth.login({ email, password }, loginUrl, redirectTo)
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         props.history.push({ pathname: '/changePassword', state: { email, password, loginUrl } })
@@ -96,16 +115,12 @@ const Login: FC<Props> = props => {
     }
   }
 
-  if (props.auth.isAuthenticated()) {
-    return <Redirect to="/" />
-  }
-
   if (isLoading || !strategies) {
     return null
   }
 
   return (
-    <LoginContainer subtitle="Login" error={error} poweredBy={true}>
+    <LoginContainer title="Login" error={error} poweredBy={true}>
       {loginUrl ? (
         <LoginForm onLogin={loginUser} />
       ) : (

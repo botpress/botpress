@@ -1,9 +1,13 @@
-import { Logger } from 'botpress/sdk'
-import { RequestWithUser, UserProfile } from 'common/typings'
+import * as sdk from 'botpress/sdk'
+import { AuthPayload, ChatUserAuth, RequestWithUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
+import { getMessageSignature } from 'core/misc/security'
+import { Event } from 'core/sdk/impl'
 import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import StrategyBasic from 'core/services/auth/basic'
+import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
+import { EventEngine } from 'core/services/middleware/event-engine'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
@@ -11,18 +15,19 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
-import { NotFoundError } from './errors'
+import { BadRequestError, NotFoundError } from './errors'
 import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
   constructor(
-    private logger: Logger,
+    private logger: sdk.Logger,
     private authService: AuthService,
     private configProvider: ConfigProvider,
     private workspaceService: WorkspaceService,
-    private authStrategies: AuthStrategies
+    private authStrategies: AuthStrategies,
+    private eventEngine: EventEngine
   ) {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -174,6 +179,44 @@ export class AuthRouter extends CustomRouter {
           const [, token] = req.headers.authorization!.split(' ')
           sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
         }
+      })
+    )
+
+    router.post(
+      '/me/chatAuth',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { botId, sessionId, signature } = req.body as ChatUserAuth
+        const { email, strategy, isSuperAdmin } = req.tokenUser!
+
+        if (!botId || !sessionId || !signature) {
+          throw new BadRequestError('Missing required fields')
+        }
+
+        const sendEvent = async (payload: AuthPayload) => {
+          const incomingEvent = Event({
+            direction: 'incoming',
+            type: 'auth',
+            botId,
+            payload,
+            ...SessionIdFactory.extractDestinationFromId(sessionId)
+          })
+
+          await this.eventEngine.sendEvent(incomingEvent)
+        }
+
+        if (signature !== (await getMessageSignature(JSON.stringify({ botId, sessionId })))) {
+          await sendEvent({ isAuthenticated: false })
+          throw new BadRequestError('Payload signature is invalid')
+        }
+
+        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+        const isMember = await this.workspaceService.findUser(email, strategy, workspaceId)
+
+        const isAuthorized = !!isMember || isSuperAdmin
+        await sendEvent({ isAuthenticated: true, isAuthorized, identity: req.tokenUser })
+
+        res.sendStatus(200)
       })
     )
   }

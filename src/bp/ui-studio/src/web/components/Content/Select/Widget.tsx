@@ -1,4 +1,5 @@
 import { Button, Classes, ControlGroup, InputGroup } from '@blueprintjs/core'
+import { ContentElement } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -11,20 +12,28 @@ import CreateOrEditModal from '../CreateOrEditModal'
 
 import style from './style.scss'
 
-interface Props {
-  fetchContentItem: any
-  upsertContentItem: any
-  onChange: any
-  contentItem: any
-  onUpdate: any
-  refresh: any
-  placeholder: string
-  itemId: string
-  contentType: any
-  contentLang: string
-  inputId: string
-  layoutv2: boolean
+interface DispatchProps {
+  fetchContentItem: (itemId: string, query?: any) => Promise<void>
+  upsertContentItem: (item: any) => Promise<void>
 }
+
+interface StateProps {
+  contentItem: ContentElement
+  contentType: string
+  contentLang: string
+}
+
+export interface OwnProps {
+  itemId: string
+  placeholder: string
+  inputId?: string
+  layoutv2?: boolean
+  onChange: (item: ContentElement) => void
+  onUpdate?: () => void
+  refresh?: () => void
+}
+
+type Props = DispatchProps & StateProps & OwnProps
 
 class ContentPickerWidget extends Component<Props> {
   state = {
@@ -32,13 +41,13 @@ class ContentPickerWidget extends Component<Props> {
     contentToEdit: null
   }
 
-  componentDidMount() {
-    this.props.fetchContentItem(this.props.itemId)
+  async componentDidMount() {
+    await this.props.fetchContentItem(this.props.itemId)
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (!this.props.contentItem && prevProps.itemId !== this.props.itemId) {
-      this.props.fetchContentItem(this.props.itemId)
+      await this.props.fetchContentItem(this.props.itemId)
     }
   }
 
@@ -46,10 +55,10 @@ class ContentPickerWidget extends Component<Props> {
     this.setState({ showItemEdit: true, contentToEdit: _.get(this.props, 'contentItem.formData') })
   }
 
-  handleUpdate = () => {
+  handleUpdate = async () => {
     const { contentItem, itemId } = this.props
     const { contentType } = contentItem
-    this.props
+    await this.props
       .upsertContentItem({ modifyId: itemId, contentType, formData: this.state.contentToEdit })
       .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
       .then(() => this.props.fetchContentItem(this.props.itemId, { force: true }))
@@ -57,8 +66,8 @@ class ContentPickerWidget extends Component<Props> {
       .then(this.props.onUpdate || (() => {}))
   }
 
-  onChange = item => {
-    this.props.fetchContentItem(item && item.id)
+  onChange = async (item: ContentElement) => {
+    await this.props.fetchContentItem(item && item.id)
     this.props.onChange(item)
   }
 
@@ -129,7 +138,7 @@ class ContentPickerWidget extends Component<Props> {
 
 const mapDispatchToProps = { upsertContentItem, fetchContentItem }
 const mapStateToProps = ({ content: { itemsById } }, { itemId }) => ({ contentItem: itemsById[itemId] })
-const ConnectedContentPicker = connect(
+const ConnectedContentPicker = connect<DispatchProps, StateProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(withLanguage(ContentPickerWidget))

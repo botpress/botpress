@@ -140,3 +140,15 @@ export interface ServerConfig {
   env: { [keyName: string]: string }
   live: { [keyName: string]: string }
 }
+
+export interface ChatUserAuth {
+  sessionId: string
+  botId: string
+  signature: string
+}
+
+export interface AuthPayload {
+  isAuthenticated: boolean
+  isAuthorized?: boolean
+  identity?: TokenUser
+}
