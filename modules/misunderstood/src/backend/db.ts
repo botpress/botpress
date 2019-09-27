@@ -14,8 +14,10 @@ export enum FLAG_REASON {
   manual = 'manual'
 }
 
-export type TableRow = {
-  messageId: string
+export type FlaggedEvent = {
+  eventId: string
+  botId: string
+  language: string
   reason: FLAG_REASON
   status: FLAGED_MESSAGE_STATUS
 }
@@ -31,26 +33,23 @@ export default class Db {
 
   async initialize() {
     this.knex.createTableIfNotExists(TABLE_NAME, table => {
-      table.string('messageId').primary()
+      table.increments('id')
+      table.string('eventId')
+      table.string('botId')
       table.string('language')
+      table.string('preview')
       table.enum('reason', ['auto_hook', 'action', 'manual'])
       table.enum('status', ['new', 'handled', 'deleted']).default('new')
     })
   }
 
-  async flagMessages(messageIds: string[]) {
-    const existingRows = await this.knex
-      .select()
-      .from(TABLE_NAME)
-      .whereIn('messageId', messageIds)
-      .then((rows: TableRow[]) => rows.map(r => r.messageId))
-
-    const newRows = messageIds.filter(msgId => !existingRows.includes(msgId)).map(msgId => ({ messageId: msgId }))
-
-    await this.knex.batchInsert(TABLE_NAME, newRows, BATCH_SIZE_LIMIT)
+  async addEvent(event: FlaggedEvent) {
+    await this.knex(TABLE_NAME).insert(event)
   }
 
-  async updateStatus(messageId: string, status: FLAGED_MESSAGE_STATUS) {
-    await this.knex.where({ messageId }).update({ status })
+  async updateStatus(id: string, status: FLAGED_MESSAGE_STATUS) {
+    await this.knex(TABLE_NAME)
+      .where({ id })
+      .update({ status })
   }
 }
