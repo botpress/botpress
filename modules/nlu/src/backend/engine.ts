@@ -7,7 +7,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import Engine2, { Model as Model2, Predict, PredictInput, PreditcTools, StructuredTrainInput } from './engine2'
+import Engine2, { Model as Model2, PredictInput, StructuredTrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -57,6 +57,7 @@ export default class ScopedEngine implements Engine {
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
   private models2ByLang: _.Dictionary<Model2> = {}
+  private e2: Engine2
 
   private scopedGenerateTrainingSequence: (
     input: string,
@@ -100,6 +101,7 @@ export default class ScopedEngine implements Engine {
       this.intentClassifiers[lang] = new SVMClassifier(toolkit, lang, languageProvider, realtime, realtimePayload)
       this.slotExtractors[lang] = new CRFExtractor(toolkit, languageProvider, lang)
     }
+    this.e2 = new Engine2()
   }
 
   static loadingWarn = memoize((logger: sdk.Logger, model: string) => {
@@ -153,6 +155,7 @@ export default class ScopedEngine implements Engine {
     try {
       this._isSyncing = true
       const intents = await this.getIntents()
+      const entities = await
       const modelHash = this.computeModelHash(intents)
       let loaded = false
 
@@ -224,23 +227,11 @@ export default class ScopedEngine implements Engine {
 
       const input: PredictInput = {
         defaultLanguage: this.defaultLanguage,
-        supportedLanguages: this.languages,
         includedContexts,
         sentence: text,
         models: this.models2ByLang
       }
-
-      const precictTools: PreditcTools = {
-        tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
-        vectorize_tokens: async (tokens, lang) => {
-          const a = await this.languageProvider.vectorize(tokens, lang)
-          return a.map(x => Array.from(x.values()))
-        },
-        mlToolkit: this.toolkit,
-        ducklingExtractor: this.systemEntityExtractor
-      }
-
-      const predict2Res = await Predict(input, precictTools)
+      const predict2Res = await this.e2.predict(input)
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
@@ -453,8 +444,7 @@ export default class ScopedEngine implements Engine {
             sensitive: ent.sensitive
           }))
 
-        const e2 = new Engine2()
-        e2.provideTools({
+        this.e2.provideTools({
           tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
           vectorize_tokens: async (tokens, lang) => {
             const a = await this.languageProvider.vectorize(tokens, lang)
@@ -480,8 +470,9 @@ export default class ScopedEngine implements Engine {
             vocab: {}
           }))
         }
-        // TODO keep state in E2 instead and make artefacts serializable objects only
-        this.models2ByLang[lang] = await e2.train(input)
+
+        // TODO persist model here
+        this.models2ByLang[lang] = await this.e2.train(input)
 
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
         if (trainableIntents.length) {

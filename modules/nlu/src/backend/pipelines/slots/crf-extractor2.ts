@@ -69,8 +69,8 @@ export default class CRFExtractor2 {
     debugTrain('done training')
   }
 
-  get serialized() {
-    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))()
+  get serialized(): Promise<Buffer> {
+    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
   private _trainKmeans(intents: Intent<Utterance>[]) {
