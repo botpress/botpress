@@ -795,7 +795,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.15.1":
+"@blueprintjs/core@^3.15.1", "@blueprintjs/core@^3.18.0":
   version "3.18.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.18.1.tgz#cf180d470710a0e9123fb2449113be06cf0d81ce"
   integrity sha512-G+IhJsN006Mb32NLOrne5TLScxyyd3Id9g2MvfYFq9zuyBcBA5+V/uQy3pTO9vkmuKEz0GLLy8ZbrQ7Us/+zTw==
@@ -816,6 +816,15 @@
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.10.0.tgz#45cdb3ca62110e74bcf9e741237a6b4e2cf2c3a4"
   integrity sha512-lyAUpkr3qEStPcJpMnxRKuVAPvaRNSce1ySPbkE58zPmD4WBya2gNrWex41xoqRYM0GsiBSwH9CnpY8t6fZKUA==
   dependencies:
+    classnames "^2.2"
+    tslib "~1.9.0"
+
+"@blueprintjs/select@^3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-3.10.0.tgz#e5711a25416e62d236afb8a3062af45b3b4206ef"
+  integrity sha512-Akm/L5tndrOUuf05od9IJ0WSQgHdbJ4/i2RRoLLH5ZiI8s1OZiCbKJYDSCbCOTviCdZSuL0qkJsBcYhOI/Czeg==
+  dependencies:
+    "@blueprintjs/core" "^3.18.0"
     classnames "^2.2"
     tslib "~1.9.0"
 
@@ -1774,6 +1783,11 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
+
+countries-list@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/countries-list/-/countries-list-2.4.3.tgz#bc4190ba6dc18bca32b89c2d2615294613c10ebe"
+  integrity sha512-3iIRoU2j6II5OCULdzvR+QS1DKMb776+r0e2oD98V0sX2a0SfTz/bnpwUPhOCM7jmzoEF5PgTMuPw9M7eeJrJA==
 
 create-ecdh@^4.0.0:
   version "4.0.3"
