@@ -115,11 +115,13 @@ export default class MisunderstoodMainView extends React.Component<{ bp: { axios
             <SidePanelContent
               languages={languages}
               language={language}
-              setLanguage={this.setLanguage}
               eventCounts={eventCounts}
               selectedStatus={selectedStatus}
               events={events}
               selectedEventIndex={selectedEventIndex}
+              onLanguageChange={this.setLanguage}
+              onSelectedStatusChange={this.setEventsStatus}
+              onSelectedEventChange={this.setEventIndex}
             />
           )}
         </SidePanel>
