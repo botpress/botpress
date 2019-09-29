@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
 
-import Db, { FlaggedEvent } from './db'
+import Db, { FlaggedEvent, FLAGED_MESSAGE_STATUSES } from './db'
 
 export default async (bp: typeof sdk, db: Db) => {
   const router = bp.http.createRouterForBot('misunderstood')
@@ -31,16 +31,26 @@ export default async (bp: typeof sdk, db: Db) => {
 
   router.get('/events/count', async (req: Request, res: Response) => {
     const { botId } = req.params
+    const { language } = req.query
 
-    const data = await db.countEvents(botId)
+    const data = await db.countEvents(botId, language)
 
     res.json(data)
   })
 
-  router.get('/events/:status', async (req: Request, res: Response) => {
+  router.get(`/events/:status(${FLAGED_MESSAGE_STATUSES.join('|')})`, async (req: Request, res: Response) => {
     const { botId, status } = req.params
+    const { language } = req.query
 
-    const data = await db.listEvents(botId, status)
+    const data = await db.listEvents(botId, language, status)
+
+    res.json(data)
+  })
+
+  router.get('/events/:id(\\d+)', async (req: Request, res: Response) => {
+    const { botId, id } = req.params
+
+    const data = await db.getEventDetails(botId, id)
 
     res.json(data)
   })

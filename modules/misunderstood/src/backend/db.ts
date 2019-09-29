@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 
 const TABLE_NAME = 'misunderstood'
 
+export const FLAGED_MESSAGE_STATUSES = ['new', 'handled', 'deleted']
+
 export enum FLAGED_MESSAGE_STATUS {
   new = 'new',
   handled = 'handled',
@@ -51,23 +53,29 @@ export default class Db {
       .update({ status })
   }
 
-  listEvents(botId: string, status: FLAGED_MESSAGE_STATUS) {
+  listEvents(botId: string, language: string, status: FLAGED_MESSAGE_STATUS) {
     return this.knex(TABLE_NAME)
       .select('*')
-      .where({ botId, status })
+      .where({ botId, language, status })
+      .orderBy('id', 'desc')
       .then()
   }
 
-  countEvents(botId: string) {
+  countEvents(botId: string, language: string) {
     return this.knex(TABLE_NAME)
-      .where({ botId })
-      .count('id', { as: 'count' })
+      .where({ botId, language })
+      .select('status')
+      .count({ count: 'id' })
       .groupBy('status')
       .then((data: { count: number; status: string }[]) =>
         data.reduce((acc, row) => {
-          acc[row.status] = row.count
+          acc[row.status] = Number(row.count)
           return acc
         }, {})
       )
+  }
+
+  getEventDetails(botId: string, id: string) {
+    return { todo: 'todo' }
   }
 }

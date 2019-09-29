@@ -49,7 +49,12 @@ interface LanguageSwitchProps {
 class LanguageSwitch extends React.Component<LanguageSwitchProps> {
   render() {
     const { languages, language, onChage } = this.props
+    if (!languages || !languages.length || !language) {
+      return null
+    }
+
     const currentLangDetails = getLanguageDetails(language)
+
     return (
       <LanguageSelect
         onItemSelect={onChage}
