@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 const flag = async () => {
-  if (event.nlu.intent.name === 'none') {
+  if (event.type === 'text' && event.nlu.intent.name === 'none') {
     const data = {
       eventId: event.id,
       botId: event.botId,
