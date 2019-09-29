@@ -19,4 +19,29 @@ export default async (bp: typeof sdk, db: Db) => {
 
     res.sendStatus(201)
   })
+
+  router.post('/events/:id/status', async (req: Request, res: Response) => {
+    const { id, botId } = req.params
+    const status = req.body
+
+    await db.updateStatus(botId, id, status)
+
+    res.sendStatus(201)
+  })
+
+  router.get('/events/count', async (req: Request, res: Response) => {
+    const { botId } = req.params
+
+    const data = await db.countEvents(botId)
+
+    res.json(data)
+  })
+
+  router.get('/events/:status', async (req: Request, res: Response) => {
+    const { botId, status } = req.params
+
+    const data = await db.listEvents(botId, status)
+
+    res.json(data)
+  })
 }

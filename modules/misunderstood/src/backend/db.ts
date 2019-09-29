@@ -22,8 +22,6 @@ export type FlaggedEvent = {
   status: FLAGED_MESSAGE_STATUS
 }
 
-const BATCH_SIZE_LIMIT = 30
-
 export default class Db {
   knex: any
 
@@ -47,9 +45,29 @@ export default class Db {
     await this.knex(TABLE_NAME).insert(event)
   }
 
-  async updateStatus(id: string, status: FLAGED_MESSAGE_STATUS) {
+  async updateStatus(botId: string, id: string, status: FLAGED_MESSAGE_STATUS) {
     await this.knex(TABLE_NAME)
-      .where({ id })
+      .where({ botId, id })
       .update({ status })
+  }
+
+  listEvents(botId: string, status: FLAGED_MESSAGE_STATUS) {
+    return this.knex(TABLE_NAME)
+      .select('*')
+      .where({ botId, status })
+      .then()
+  }
+
+  countEvents(botId: string) {
+    return this.knex(TABLE_NAME)
+      .where({ botId })
+      .count('id', { as: 'count' })
+      .groupBy('status')
+      .then((data: { count: number; status: string }[]) =>
+        data.reduce((acc, row) => {
+          acc[row.status] = row.count
+          return acc
+        }, {})
+      )
   }
 }

@@ -1,6 +1,6 @@
 - [x] table for misunderstood phrases status
 - [x] auto-flag with NLU none
-- [ ] action for flow flagging
+- [x] action for flow flagging
 - [x] get languages from the API
 - [x] language selection
 - [ ] sidebar with the list view
