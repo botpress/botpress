@@ -20,7 +20,7 @@ export interface JobWrapper {
   retries: number
 }
 
-export type QueueConsummer = ((message: IO.Event) => Promise<void>)
+export type QueueConsummer = (message: IO.Event) => Promise<void>
 
 export interface Queue {
   isEmpty(): boolean

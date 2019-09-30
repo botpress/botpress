@@ -30,5 +30,8 @@
     "moment": "^2.24.0",
     "react-audio-player": "^0.11.0",
     "react-toggle": "^4.0.2"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

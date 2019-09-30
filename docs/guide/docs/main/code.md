@@ -7,7 +7,7 @@ There are two ways of easily adding custom code to enrich your bot's experience:
 
 Both are executed in a virtual machine to prevent server crash if there is a scripting error. Your scripts may require any module that is loaded by botpress by default (for example: lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
 
-If you want to include other dependency not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your action, or you can [create a module](../advanced/custom-module) that includes your dependency.
+If you want to include other dependencies not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your action, or you can [create a module](../../advanced/custom-module) that includes your dependency.
 
 To help you vizualize how it works, check the snippet below. We've commented out the portion of the code that is "hidden", since all you need to include in your `.js` files is your actual code.
 
@@ -59,7 +59,7 @@ Actions are essentially server-side functions that get executed by the bot as pa
 
 Since they are just regular JavaScript functions, they can, in fact, do pretty much anything.
 
-When an action is invoked by the Dialogue Manager (DM), it gets passed the following arguments:
+When an action is invoked by the Dialog Manager (DM), it gets passed the following arguments:
 
 - `user`: Includes all attributes of a user.
 - `session`: Includes variables kept for the session's duration.
@@ -67,9 +67,9 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 - `bot`: Object containing global variables for this bot (same for all users)
 - `event`: The original (latest) event received from the user in the conversation.
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
-- `process`: sandboxed vm containing some of the env-variables (starting with `EXPOSED_`)
+- `process`: sandboxed VM containing some of the env-variables (starting with `EXPOSED_`)
 
-Check out the page [Bot Memory and Data Retention](./memory) for more details about the lifetime of these objects.
+Check out the page [Bot Memory and Data Retention](../memory) for more details about the lifetime of these objects.
 
 ### Example
 

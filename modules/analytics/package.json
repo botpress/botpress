@@ -24,5 +24,8 @@
   "devDependencies": {
     "@types/node": "^10.11.0",
     "module-builder": "../../build/module-builder"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

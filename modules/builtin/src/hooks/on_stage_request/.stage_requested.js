@@ -1,5 +1,5 @@
 /**
- * This is called when a user requests to to promote abot to the next stage.
+ * This is called when a user requests to to promote a bot to the next stage.
  * You can set the current stage of the bot to the next one
  *
  * @param bp The botpress SDK

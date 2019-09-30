@@ -18,6 +18,7 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     BOTPRESS_FLOW_EDITOR_DISABLED: boolean
+    SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string
     BP_STORAGE: BPStorage

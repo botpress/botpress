@@ -40,10 +40,11 @@
 }
 
 .bp-main-content {
-  min-height: calc(100vh - 58px);
+  height: calc(100vh - 58px - 21px);
+  overflow-y: auto;
 
   .bp-header__warning + & {
-    min-height: calc(100vh - 92px);
+    height: calc(100vh - 92px - 21px);
   }
 
   &-header {
@@ -105,5 +106,41 @@
 
   &:hover {
     color: #666666;
+  }
+}
+
+.statusBar {
+  background-color: var(--c-background--dark-1);
+  color: #fff;
+
+  z-index: 1000;
+
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 30px;
+  width: 100%;
+  font-size: 14px;
+  padding: 0 10px;
+
+  display: flex;
+  align-items: center;
+
+  &-list {
+    list-style-type: none;
+    margin-bottom: 0;
+    padding-left: 0;
+    z-index: 15;
+    width: 100%;
+
+    &-item {
+      padding: 0 5px;
+      white-space: pre;
+      display: inline-block;
+      line-height: 30px;
+      height: 100%;
+      vertical-align: top;
+    }
   }
 }

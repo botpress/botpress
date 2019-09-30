@@ -240,6 +240,44 @@ declare module 'botpress/sdk' {
       export const Model: ModelConstructor
     }
 
+    export namespace KMeans {
+      export interface KMeansOptions {
+        maxIterations?: number
+        tolerance?: number
+        withIterations?: boolean
+        distanceFunction?: DistanceFunction
+        seed?: number
+        initialization?: 'random' | 'kmeans++' | 'mostDistant' | number[][]
+      }
+
+      export interface Centroid {
+        centroid: number[]
+        error: number
+        size: number
+      }
+
+      // TODO convert this to class we build the source of ml-kmeans
+      export interface KmeansResult {
+        // constructor(
+        //   clusters: number[],
+        //   centroids: Centroid[],
+        //   converged: boolean,
+        //   iterations: number,
+        //   distance: DistanceFunction
+        // )
+        clusters: number[]
+        centroids: Centroid[]
+        iterations: number
+        nearest: (data: DataPoint[]) => number[]
+      }
+
+      export type DataPoint = number[]
+
+      export type DistanceFunction = (point0: DataPoint, point1: DataPoint) => number
+
+      export const kmeans: (data: DataPoint[], K: number, options: KMeansOptions) => KmeansResult
+    }
+
     export namespace SVM {
       export interface SVMOptions {
         classifier: 'C_SVC'
@@ -263,10 +301,9 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        constructor(options?: Partial<SVMOptions>)
-        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        constructor()
+        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
-        serialize(): string
       }
 
       export class Predictor {
@@ -565,6 +602,15 @@ declare module 'botpress/sdk' {
        * This includes all the flow/nodes which were traversed for the current event
        */
       __stacktrace: JumpPoint[]
+      /** Contains details about an error that occurred while processing the event */
+      __error?: EventError
+    }
+
+    export interface EventError {
+      type: string
+      stacktrace?: string
+      actionName?: string
+      actionArgs?: any
     }
 
     export interface JumpPoint {
@@ -700,22 +746,23 @@ declare module 'botpress/sdk' {
     redirectUrl?: string
   }
 
+  export interface UpsertOptions {
+    /** Whether or not to record a revision @default true */
+    recordRevision?: boolean
+    /** When enabled, files changed on the database are synced locally so they can be used locally (eg: require in actions) @default false */
+    syncDbToDisk?: boolean
+    /** This is only applicable for bot-scoped ghost. When true, the lock status of the bot is ignored. @default false */
+    ignoreLock?: boolean
+  }
+
   export interface ScopedGhostService {
     /**
      * Insert or Update the file at the specified location
      * @param rootFolder - Folder relative to the scoped parent
      * @param file - The name of the file
      * @param content - The content of the file
-     * @param recordRevision - Whether or not to record a revision @default true
-     * @param syncDbToDisk - When enabled, files changed on the database are synced locally so they can be used locally (eg: require in actions) @default false
      */
-    upsertFile(
-      rootFolder: string,
-      file: string,
-      content: string | Buffer,
-      recordRevision?: boolean,
-      syncDbToDisk?: boolean
-    ): Promise<void>
+    upsertFile(rootFolder: string, file: string, content: string | Buffer, options?: UpsertOptions): Promise<void>
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>

@@ -44,6 +44,8 @@ export const defaultRoles: AuthRole[] = [
       { res: 'admin.collaborators.*', op: '-r' },
       { res: 'bot.flows', op: '+r-w' },
       { res: 'bot.content', op: '+r+w' },
+      { res: 'module.qna', op: '+r+w' },
+      { res: 'module.nlu', op: '+r+w' },
       {
         res: 'module.code-editor.*',
         op: '-r-w'

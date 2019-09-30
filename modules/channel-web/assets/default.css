@@ -728,8 +728,14 @@ body {
   overflow-y: auto;
 }
 
+.bpw-botinfo-cover-picture-wrapper {
+  height: 50%;
+  overflow: hidden;
+}
+
 .bpw-botinfo-cover-picture {
   width: 100%;
+  object-fit: cover;
 }
 
 .bpw-botinfo-container button,
@@ -766,6 +772,14 @@ body {
 
 .bpw-botinfo-link i {
   margin-right: 10px;
+}
+
+.bpw-botinfo-preferred-language {
+  margin: 20px 0;
+}
+
+.bpw-botinfo-preferred-language select {
+  margin-left: 10px;
 }
 
 .bpw-botinfo-terms {

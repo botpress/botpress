@@ -1,4 +1,4 @@
-import { Classes, ContextMenu, ITreeNode, Menu, MenuDivider, MenuItem, Tree, Icon, Tooltip } from '@blueprintjs/core'
+import { Classes, ContextMenu, Icon, ITreeNode, Menu, MenuDivider, MenuItem, Tooltip, Tree } from '@blueprintjs/core'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -108,13 +108,25 @@ class FileNavigator extends React.Component<Props, State> {
 
     ContextMenu.show(
       <Menu>
-        <MenuItem icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
-        <MenuItem icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
+        <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
+        <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
         <MenuDivider />
-        <MenuItem icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
+        <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
         <MenuDivider />
-        <MenuItem icon="endorsed" text="Enable" disabled={!isDisabled} onClick={() => this.props.enableFile(file)} />
-        <MenuItem icon="disable" text="Disable" disabled={isDisabled} onClick={() => this.props.disableFile(file)} />
+        <MenuItem
+          id="btn-enable"
+          icon="endorsed"
+          text="Enable"
+          disabled={!isDisabled}
+          onClick={() => this.props.enableFile(file)}
+        />
+        <MenuItem
+          id="btn-disable"
+          icon="disable"
+          text="Disable"
+          disabled={isDisabled}
+          onClick={() => this.props.disableFile(file)}
+        />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )

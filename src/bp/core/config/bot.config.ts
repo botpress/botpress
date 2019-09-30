@@ -15,6 +15,7 @@ export type BotConfig = {
     /** Defines the list of content types supported by the bot */
     contentTypes: string[]
   }
+  converse?: ConverseConfig
   dialog?: DialogConfig
   logs?: LogsConfig
   defaultLanguage: string
@@ -50,6 +51,22 @@ export interface LogsConfig {
 }
 
 export interface DialogConfig {
+  /**
+   * The interval until the context of the session expires.
+   * This clears the position of the user in the flow and triggers the before_session_timeout hook
+   * @default 5m
+   */
   timeoutInterval: string
-  sessionTimeoutInterval: string
+  /**
+   * The interval until the session timeout. The default value is 30m. This deletes the session from the database.
+   */
+  sessionTimeoutInterval?: string
+}
+
+export type ConverseConfig = {
+  /**
+   * The timeout of the converse API requests
+   * @default 5s
+   */
+  timeout: string
 }

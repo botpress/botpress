@@ -18,6 +18,7 @@ import { FlowService, MutexError } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
+import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -204,6 +205,7 @@ export class BotsRouter extends CustomRouter {
         const totalEnv = `
           (function(window) {
               // Common
+              window.SEND_USAGE_STATS = ${data.sendUsageStats};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
               window.API_PATH = "${process.ROOT_PATH}/api/v1";
@@ -214,6 +216,8 @@ export class BotsRouter extends CustomRouter {
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
+              window.BOT_LOCKED = ${!!bot.locked};
+              window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End
@@ -269,7 +273,10 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('read', 'bot.information'),
       this.asyncMiddleware(async (req, res) => {
-        return res.send(await this.workspaceService.getBotRefs(req.workspace))
+        const botsRefs = await this.workspaceService.getBotRefs(req.workspace)
+        const bots = await this.botService.findBotsByIds(botsRefs)
+
+        return res.send(bots && bots.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
 
@@ -299,7 +306,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.put(
+    this.router.post(
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
@@ -324,8 +331,8 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.delete(
-      '/flow/:flowName',
+    this.router.post(
+      '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {

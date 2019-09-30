@@ -1,4 +1,3 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { memoize } from 'lodash'
@@ -25,11 +24,12 @@ import CRFExtractor from './pipelines/slots/crf_extractor'
 import { assignMatchedEntitiesToTokens, generateTrainingSequence, keepNothing } from './pipelines/slots/pre-processor'
 import Storage from './storage'
 import { allInRange } from './tools/math'
-import { makeTokens, mergeSpecialCharactersTokens, SPACE } from './tools/token-utils'
-import { LanguageProvider, NluMlRecommendations, Token2Vec, TrainingSequence } from './typings'
+import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
+import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
 const debug = DEBUG('nlu')
+const debugTrain = debug.sub('training')
 const debugExtract = debug.sub('extract')
 const debugIntents = debugExtract.sub('intents')
 const debugEntities = debugExtract.sub('entities')
@@ -38,6 +38,7 @@ const debugLang = debugExtract.sub('lang')
 const MIN_NB_UTTERANCES = 3
 const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
+const NA_LANG = 'n/a'
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
@@ -60,14 +61,6 @@ export default class ScopedEngine implements Engine {
     intentName: string,
     contexts: string[]
   ) => Promise<TrainingSequence>
-
-  private retryPolicy = {
-    interval: 100,
-    max_interval: 500,
-    timeout: 5000,
-    max_tries: 3
-  }
-
   private _isSyncing: boolean
   private _isSyncingTwice: boolean
   private _autoTrainInterval: number = 0
@@ -85,7 +78,7 @@ export default class ScopedEngine implements Engine {
     private realtimePayload: typeof sdk.RealTimePayload
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
-    this.pipelineManager = new PipelineManager()
+    this.pipelineManager = new PipelineManager(this.logger)
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
@@ -146,6 +139,9 @@ export default class ScopedEngine implements Engine {
     }
 
     try {
+      const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', startTraining))
+
       this._isSyncing = true
       const intents = await this.getIntents()
       const modelHash = this.computeModelHash(intents)
@@ -165,10 +161,8 @@ export default class ScopedEngine implements Engine {
       }
 
       if (!loaded) {
-        this.logger.debug('Retraining model')
+        debugTrain.forBot(this.botId, 'Retraining model')
         await this.trainModels(intents, modelHash, confusionVersion)
-
-        this.logger.debug('Reloading models')
         await this.loadModels(intents, modelHash)
       }
 
@@ -184,6 +178,9 @@ export default class ScopedEngine implements Engine {
       }
     }
 
+    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
+
     return this._currentModelHash
   }
 
@@ -195,14 +192,14 @@ export default class ScopedEngine implements Engine {
     }
 
     const t0 = Date.now()
-    let res: any = { errored: true }
+    let res: any = {}
 
     try {
       const runner = this.pipelineManager
         .withPipeline(this._predictPipeline)
         .initFromText(text, lastMessages, includedContexts)
 
-      const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
+      const nluResults = await runner.run()
 
       res = _.pick(
         nluResults,
@@ -216,8 +213,6 @@ export default class ScopedEngine implements Engine {
         'errored',
         'includedContexts'
       )
-
-      res.errored = false
     } catch (error) {
       this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
     } finally {
@@ -253,7 +248,7 @@ export default class ScopedEngine implements Engine {
     )
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
-    this.logger.debug(`Restoring models '${modelHash}' from storage`)
+    debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
     const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
 
     for (const lang of this.languages) {
@@ -261,7 +256,7 @@ export default class ScopedEngine implements Engine {
       this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
       if (!trainableLangs.includes(lang)) {
-        return
+        continue
       }
 
       const models = await this.storage.getModelsFromHash(modelHash, lang)
@@ -272,7 +267,6 @@ export default class ScopedEngine implements Engine {
         .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
         .value()
 
-      const skipgramModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_LANG)
       const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
       if (!models.length) {
@@ -285,14 +279,14 @@ export default class ScopedEngine implements Engine {
 
       await this.intentClassifiers[lang].load(intentModels)
 
-      if (_.isEmpty(skipgramModel) || _.isEmpty(crfModel)) {
-        this.logger.debug(`No slots (CRF) model found for hash ${modelHash}`)
+      if (_.isEmpty(crfModel)) {
+        debugTrain.forBot(this.botId, `No slots (CRF) model found for hash ${modelHash}`)
       } else {
-        await this.slotExtractors[lang].load(trainingSet, skipgramModel.model, crfModel.model)
+        await this.slotExtractors[lang].load(trainingSet, crfModel.model)
       }
     }
 
-    this.logger.debug(`Done restoring models '${modelHash}' from storage`)
+    debugTrain.forBot(this.botId, `Done restoring models '${modelHash}' from storage`)
   }
 
   private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
@@ -345,7 +339,7 @@ export default class ScopedEngine implements Engine {
     modelHash: string,
     lang: string
   ): Promise<Model[]> {
-    this.logger.debug('Training slot tagger')
+    debugTrain.forBot(this.botId, 'Training slot tagger')
 
     try {
       let trainingSet = await this.getTrainingSets(intentDefs, lang)
@@ -383,7 +377,7 @@ export default class ScopedEngine implements Engine {
         return sequence
       })
 
-      const { language, crf } = await this.slotExtractors[lang].train(
+      const { crf } = await this.slotExtractors[lang].train(
         trainingSet,
         intentsVocab,
         allowedEntitiesPerIntents,
@@ -391,14 +385,9 @@ export default class ScopedEngine implements Engine {
         this.intentClassifiers[lang].token2vec // TODO: compute token2vec in pipeline instead, made it a public property for now
       )
 
-      this.logger.debug('Done training slot tagger')
+      debugTrain.forBot(this.botId, 'Done training slot tagger')
 
-      return language && crf
-        ? [
-            this._makeModel('global', modelHash, language, MODEL_TYPES.SLOT_LANG),
-            this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)
-          ]
-        : []
+      return crf ? [this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)] : []
     } catch (err) {
       this.logger.attachError(err).error('Error training slot tagger')
       throw Error('Unable to train model')
@@ -532,7 +521,7 @@ export default class ScopedEngine implements Engine {
 
     const intentVocab = await this._buildIntentVocabs([intentDef], ds.language)
 
-    const allowedEntities = { [intentDef.name]: getHighlightedIntentEntities(intentDef) }
+    const allowedEntities = getHighlightedIntentEntities(intentDef)
     ds.slots = await this.slotExtractors[ds.language].extract(
       ds,
       intentDef,
@@ -564,10 +553,11 @@ export default class ScopedEngine implements Engine {
       debugLang.forBot(this.botId, `Detected language is not supported, fallback to ${this.defaultLanguage}`)
     }
 
-    const threshold = ds.tokens.length > 1 ? 0.5 : 0.3
+    const threshold = ds.tokens.length > 1 ? 0.5 : 0.3 // because with single-word sentences (and no history), confidence is always very low
 
-    ds.detectedLanguage = _.get(elected, 'label', 'n/a')
-    ds.language = _.isEmpty(elected) || elected.value > threshold ? ds.detectedLanguage : this.defaultLanguage
+    ds.detectedLanguage = _.get(elected, 'label', NA_LANG)
+    ds.language =
+      ds.detectedLanguage !== NA_LANG && elected.value > threshold ? ds.detectedLanguage : this.defaultLanguage
 
     return ds
   }

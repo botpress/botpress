@@ -11,12 +11,17 @@
 .listElement {
   display: flex !important;
   width: 100%;
-  align-items: stretch;
+  justify-content: space-between;
+  padding: 2px 5px !important;
 
   &:hover {
     .listElementIcon {
       display: inherit !important;
     }
+  }
+
+  div {
+    width: 94%;
   }
 }
 
@@ -31,4 +36,35 @@
 .listElementIcon {
   display: none !important;
   padding-left: 10px;
+  height: 10px !important;
+}
+
+.elementListInput {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+
+  @media (max-width: 475px) {
+    flex-wrap: wrap;
+  }
+}
+
+.contentButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 17%;
+  max-width: 17%;
+}
+
+.textField {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 82%;
+  max-width: 82%;
+}
+
+.textField textarea {
+  margin-top: 0px;
 }

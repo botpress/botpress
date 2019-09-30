@@ -1,4 +1,4 @@
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Icon, Tab, Tabs } from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -11,6 +11,7 @@ import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
 import Dialog from './views/Dialog'
+import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import NLU from './views/NLU'
 import EventNotFound from './EventNotFound'
@@ -202,6 +203,30 @@ export class Debugger extends React.Component<Props, State> {
     return <SplashScreen />
   }
 
+  renderEvent() {
+    const eventError = this.state.event.state['__error']
+
+    return (
+      <div className={style.content}>
+        <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
+          <Tab id="basic" title="Summary" panel={this.renderSummary()} />
+          <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
+          {eventError && (
+            <Tab
+              id="errors"
+              title={
+                <span>
+                  <Icon icon="error" color="red" /> Error
+                </span>
+              }
+              panel={<Error error={eventError} />}
+            />
+          )}
+        </Tabs>
+      </div>
+    )
+  }
+
   render() {
     if (!this.state.visible) {
       return null
@@ -212,14 +237,7 @@ export class Debugger extends React.Component<Props, State> {
         <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
         <Header newSession={this.handleNewSession} toggleSettings={this.toggleSettings} />
         {!this.state.event && this.renderWhenNoEvent()}
-        {this.state.event && (
-          <div className={style.content}>
-            <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-              <Tab id="basic" title="Summary" panel={this.renderSummary()} />
-              <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-            </Tabs>
-          </div>
-        )}
+        {this.state.event && this.renderEvent()}
       </div>
     )
   }

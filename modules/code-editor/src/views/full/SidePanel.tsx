@@ -81,6 +81,7 @@ class PanelContent extends React.Component<Props> {
 
     const items: SectionAction[] = [
       {
+        id: `btn-add-action-bot`,
         label: 'Action - Bot',
         icon: <Icon icon="new-text-box" />,
         onClick: () => this.props.createFilePrompt('action', false)
@@ -89,6 +90,7 @@ class PanelContent extends React.Component<Props> {
 
     if (writePermissions && writePermissions.globalActions) {
       items.push({
+        id: `btn-add-action-global`,
         label: 'Action - Global',
         icon: <Icon icon="new-text-box" />,
         onClick: () => this.props.createFilePrompt('action', true)
@@ -96,7 +98,10 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label={'Actions'} actions={[{ icon: <Icon icon="add" />, key: 'add', items }]}>
+      <SidePanelSection
+        label={'Actions'}
+        actions={[{ id: 'btn-add-action', icon: <Icon icon="add" />, key: 'add', items }]}
+      >
         <FileNavigator
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
@@ -148,6 +153,7 @@ class PanelContent extends React.Component<Props> {
 
     return [
       {
+        id: 'btn-add-hook',
         icon: <Icon icon="add" />,
         key: 'add',
         items: [

@@ -47,6 +47,7 @@
         },
         "externalUrl": {
           "description": "Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot\nlocally and use NGINX as a reverse proxy to handle HTTPS. It should include the protocol and no trailing slash.\nIf unset, it will be constructed from the real host/port",
+          "default": "",
           "type": "string"
         },
         "session": {
@@ -66,15 +67,39 @@
             "enabled",
             "maxAge"
           ]
+        },
+        "socketTransports": {
+          "description": "Configure the priority for establishing socket connections for webchat and studio users.\nIf the first method is not supported, it will fallback on the second.\nIf the first is supported but it fails with an error, it will not fallback.",
+          "default": [
+            "websocket",
+            "polling"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "headers": {
+          "description": "Adds default headers to the server's responses",
+          "default": {
+            "X-Powered-By": "Botpress"
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "required": [
         "backlog",
         "bodyLimit",
         "cors",
+        "externalUrl",
+        "headers",
         "host",
         "port",
-        "session"
+        "session",
+        "socketTransports"
       ]
     },
     "converse": {},
@@ -244,6 +269,26 @@
       "description": "Displays the \"Powered by Botpress\" under the webchat.\nHelp us spread the word, enable this to show your support !",
       "default": true,
       "type": "boolean"
+    },
+    "additionalLanguages": {
+      "description": "By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server\nWarning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.",
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      }
     }
   },
   "required": [
@@ -496,7 +541,7 @@
       "type": "object",
       "properties": {
         "enabled": {
-          "description": "When enabled, incoming and outgoing events will be saved on the database.\nIt is required for some modules to work proprely (eg: history, testing, developer tools on channel web)",
+          "description": "When enabled, incoming and outgoing events will be saved on the database.\nIt is required for some modules to work properly (eg: history, testing, developer tools on channel web)",
           "default": true,
           "type": "boolean"
         },
@@ -550,13 +595,16 @@
           "default": "basic"
         },
         "options": {
-          "description": "Defines custom options based on the chosen authentication strategy",
+          "description": "Defines custom options based on the chosen authentication strategy.",
           "anyOf": [
             {
               "$ref": "#/definitions/AuthStrategyBasic"
             },
             {
               "$ref": "#/definitions/AuthStrategySaml"
+            },
+            {
+              "$ref": "#/definitions/AuthStrategyOauth2"
             },
             {
               "$ref": "#/definitions/AuthStrategyLdap"
@@ -587,6 +635,7 @@
       "enum": [
         "basic",
         "ldap",
+        "oauth2",
         "saml"
       ],
       "type": "string"
@@ -662,6 +711,105 @@
         "cert",
         "entryPoint",
         "issuer"
+      ]
+    },
+    "AuthStrategyOauth2": {
+      "type": "object",
+      "properties": {
+        "authorizationURL": {
+          "type": "string"
+        },
+        "tokenURL": {
+          "type": "string"
+        },
+        "clientID": {
+          "type": "string"
+        },
+        "clientSecret": {
+          "type": "string"
+        },
+        "scope": {
+          "description": "Scopes that should be requested from the service provider. Don't forget to map them in the fieldMapping property",
+          "default": "openid profile email",
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "callbackURL": {
+          "description": "The Callback URL on this server where the service provider will return the user. Replace the last part with the strategy ID",
+          "default": "http://localhost:3000/api/v1/auth/login-callback/oauth2/myauth",
+          "type": "string"
+        },
+        "userInfoURL": {
+          "type": "string"
+        },
+        "jwtToken": {
+          "description": "If the access token is a JWT token, set the parameters below to decode it.",
+          "type": "object",
+          "properties": {
+            "audience": {
+              "description": "If provided, the audience of the token will be checked against the provided value(s).",
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "issuer": {
+              "description": "If provided, the issuer of the token will be checked against the provided value(s).",
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "algorithms": {
+              "description": "The algorithms allowed to validate the JWT tokens.",
+              "default": [
+                "HS256"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "publicKey": {
+              "description": "The public certificate starting with \"-----BEGIN CERTIFICATE-----\"\nThe string should be provided as one line (use \\n for new lines)\nIf the key is not set, it will try to read the file `data/global/oauth2_YOUR_STRATEGY_ID.pub`",
+              "type": "string"
+            }
+          },
+          "required": [
+            "algorithms"
+          ]
+        }
+      },
+      "required": [
+        "authorizationURL",
+        "callbackURL",
+        "clientID",
+        "clientSecret",
+        "scope",
+        "tokenURL"
       ]
     },
     "AuthStrategyLdap": {

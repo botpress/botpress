@@ -99,6 +99,9 @@ describe('Ghost Service', () => {
 
     it('Never has any pending revisions', async () => {
       dbDriver.listRevisions.mockReturnValue([{ file_path: 'abc', revision: 'rev' }]) // Even if DB driver says there are some revisions
+      diskDriver.readFile.mockImplementation(fileName => {
+        return fileName === `data/bots/${BOT_ID}/bot.config.json` && '{}'
+      })
       await ghost.forBot(BOT_ID).upsertFile('test', 'a.json', 'Hello') // And that we modify a file
 
       const revisions = await ghost.global().getPendingChanges()
@@ -124,7 +127,7 @@ describe('Ghost Service', () => {
 
         expect(diskDriver.readFile).not.toHaveBeenCalled()
         expect(dbDriver.readFile).toHaveBeenCalled()
-        expect(content).toContain(`test${path.sep}my${path.sep}test.json`)
+        expect(content).toContain(`test/my/test.json`)
       })
       it('write uses DB', async () => {
         await ghost.global().upsertFile('test', 'test.json', 'my content')

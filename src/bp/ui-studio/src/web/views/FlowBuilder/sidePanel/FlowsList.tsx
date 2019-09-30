@@ -7,6 +7,10 @@ import { buildFlowsTree } from './util'
 export const FOLDER_ICON = 'folder-close'
 export const DIRTY_ICON = 'clean'
 export const FLOW_ICON = 'document'
+export const MAIN_FLOW_ICON = 'flow-end'
+export const ERROR_FLOW_ICON = 'pivot'
+
+const lockedFlows = ['main.flow.json', 'error.flow.json']
 
 export default class FlowsList extends Component<Props, State> {
   state = {
@@ -27,15 +31,6 @@ export default class FlowsList extends Component<Props, State> {
       this.traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
         return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
       })
-    }
-
-    if (this.props.dirtyFlows && prevProps.dirtyFlows !== this.props.dirtyFlows) {
-      this.traverseTree(this.state.nodes, (node: ITreeNode<NodeData>) => {
-        if (node.nodeData) {
-          node.icon = this.props.dirtyFlows.includes(node.nodeData.name) ? DIRTY_ICON : FLOW_ICON
-        }
-      })
-      this.forceUpdate()
     }
   }
 
@@ -97,18 +92,26 @@ export default class FlowsList extends Component<Props, State> {
     ContextMenu.show(
       <Menu>
         <MenuItem
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canRename}
+          id="btn-rename"
+          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canRename || this.props.readOnly}
           icon="edit"
           text="Rename"
           onClick={() => this.handleRename(node.nodeData)}
         />
         <MenuItem
-          disabled={node.nodeData.name === 'main.flow.json' || !this.props.canDelete}
+          id="btn-delete"
+          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canDelete || this.props.readOnly}
           icon="delete"
           text="Delete"
           onClick={() => this.handleDelete(node.nodeData)}
         />
-        <MenuItem icon="duplicate" text="Duplicate" onClick={() => this.handleDuplicate(node.nodeData)} />
+        <MenuItem
+          id="btn-duplicate"
+          disabled={this.props.readOnly}
+          icon="duplicate"
+          text="Duplicate"
+          onClick={() => this.handleDuplicate(node.nodeData)}
+        />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
@@ -166,6 +169,7 @@ export default class FlowsList extends Component<Props, State> {
 }
 
 interface Props {
+  readOnly: boolean
   currentFlow: any
   canRename: boolean
   canDelete: boolean

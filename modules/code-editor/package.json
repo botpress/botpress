@@ -24,5 +24,8 @@
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
     "react-icons": "^3.7.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12"
   }
 }

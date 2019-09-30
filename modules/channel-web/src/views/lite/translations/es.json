@@ -7,5 +7,6 @@
   "botInfo.startConversation": "Iniciar conversación",
   "botInfo.privacyPolicy": "Ver política de privacidad",
   "botInfo.termsAndConditions": "Ver términos de servicio",
+  "botInfo.preferredLanguage": "Preferred Language",
   "store.resetSessionMessage": "Restablecer la conversación"
 }

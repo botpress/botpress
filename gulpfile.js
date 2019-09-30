@@ -38,7 +38,7 @@ gulp.task('build:modules', gulp.series([modules.build()]))
 gulp.task('build:sdk', gulp.series([modules.buildSdk()]))
 
 gulp.task('start:guide', docs.startDevServer)
-gulp.task('build:guide', docs.buildGuide)
+gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())

@@ -24,6 +24,7 @@ type Props = {
   currentFlow: any
   flowPreview: boolean
   mutexInfo: string
+  readOnly: boolean
 } & RouteComponentProps
 
 export default class PanelContent extends Component<Props> {
@@ -55,6 +56,7 @@ export default class PanelContent extends Component<Props> {
       return { name: x.name }
     })
     const createFlowAction = {
+      id: 'btn-add-flow',
       icon: <Icon icon="add" />,
       key: 'create',
       tooltip: 'Create new flow',
@@ -67,6 +69,7 @@ export default class PanelContent extends Component<Props> {
 
         <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
           <FlowsList
+            readOnly={this.props.readOnly}
             canDelete={this.props.permissions.includes('delete')}
             canRename={this.props.permissions.includes('rename')}
             flows={flowsName}

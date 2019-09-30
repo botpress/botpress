@@ -14,4 +14,11 @@ export interface Config {
    * @default signin_secret
    */
   signingSecret: string
+
+  /**
+   * Fetch or not the user information when receiving a message.
+   * This uses caching for efficiency.
+   * @default true
+   */
+  fetchUserInfo: boolean
 }

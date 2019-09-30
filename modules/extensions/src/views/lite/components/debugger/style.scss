@@ -15,7 +15,7 @@
     justify-content: space-between;
   }
   .subSection {
-    margin: 10px 5px;
+    margin: 15px 5px;
     h5 {
       margin-bottom: 5px;
     }
@@ -30,9 +30,18 @@
         line-height: 1.5em;
       }
     }
+    .language {
+      > p {
+        margin-bottom: 5px;
+      }
+      strong {
+        color: #5c7080; //blueprint gray-1
+      }
+    }
   }
   .summaryTable {
     width: 100%;
+
     th {
       color: #5c7080; //blueprint gray-1
     }
@@ -111,9 +120,33 @@
   & > ul {
     margin: none;
     padding-left: 5px;
+
+    li {
+      position: relative;
+
+      & > label {
+        :global(.bp3-icon) {
+          cursor: pointer;
+          position: absolute;
+          left: -5px;
+          top: 0px;
+          display: none;
+        }
+      }
+    }
+
+    label:hover :global(.bp3-icon) {
+      display: unset;
+    }
   }
 }
 
 :global(.bp3-tooltip .bp3-popover-content) {
   padding: 5px 8px !important;
+}
+
+.stacktrace {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }

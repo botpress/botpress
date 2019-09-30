@@ -44,6 +44,7 @@ import { ConverseService } from './services/converse'
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
+import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
@@ -53,7 +54,6 @@ import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
-const isProd = process.env.NODE_ENV === 'production'
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
@@ -111,7 +111,8 @@ export default class HTTPServer {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
-    @inject(TYPES.AlertingService) private alertingService: AlertingService
+    @inject(TYPES.AlertingService) private alertingService: AlertingService,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     this.app = express()
 
@@ -150,7 +151,8 @@ export default class HTTPServer {
       this.configProvider,
       this.monitoringService,
       this.alertingService,
-      moduleLoader
+      moduleLoader,
+      this.jobService
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -184,6 +186,7 @@ export default class HTTPServer {
 
   @postConstruct()
   async initialize() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
     await this.setupRootPath()
 
     const app = express()
@@ -216,7 +219,8 @@ export default class HTTPServer {
      * During this time, internal calls between modules can be made
      */
     this.app.use((req, res, next) => {
-      res.header('X-Powered-By', 'Botpress')
+      res.removeHeader('X-Powered-By') // Removes the default X-Powered-By: Express
+      res.set(config.headers)
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
           return res.status(503).send('Botpress is loading. Please try again in a minute.')
@@ -263,6 +267,10 @@ export default class HTTPServer {
       res.send(await this.monitoringService.getStatus())
     })
 
+    this.app.get('/version', async (req, res) => {
+      res.send(process.BOTPRESS_VERSION)
+    })
+
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
@@ -285,7 +293,7 @@ export default class HTTPServer {
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
       const docs = err.docs || 'https://botpress.io/docs'
-      const devOnly = isProd ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
+      const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({
         statusCode,
@@ -312,7 +320,7 @@ export default class HTTPServer {
       this.logger.warn(
         `External URL is not configured. Using default value of ${
           process.EXTERNAL_URL
-        }. Some features may not work proprely`
+        }. Some features may not work properly`
       )
     }
 
@@ -344,12 +352,16 @@ export default class HTTPServer {
       }
 
       fs.readFile(this.resolveAsset(page), (err, data) => {
-        this.indexCache[page] = data
-          .toString()
-          .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
-          .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
+        if (data) {
+          this.indexCache[page] = data
+            .toString()
+            .replace(/\<base href=\"\/\" ?\/\>/, `<base href="${process.ROOT_PATH}/" />`)
+            .replace(/ROOT_PATH=""|ROOT_PATH = ''/, `window.ROOT_PATH="${process.ROOT_PATH}"`)
 
-        res.send(this.indexCache[page])
+          res.send(this.indexCache[page])
+        } else {
+          res.sendStatus(404)
+        }
       })
     }
 

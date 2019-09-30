@@ -6,7 +6,7 @@ export class ConfigurationError extends VError {}
 export class InvalidParameterError extends VError {}
 export class UnlicensedError extends VError {}
 
-export type MessageFn = ((args: any[]) => string)
+export type MessageFn = (args: any[]) => string
 export type ErrorOptions = {
   hideStackTrace: boolean
 }
