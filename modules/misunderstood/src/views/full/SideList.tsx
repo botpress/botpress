@@ -10,7 +10,11 @@ const STATUSES = [
     label: 'New'
   },
   {
-    key: 'handled',
+    key: 'pending',
+    label: 'Pending'
+  },
+  {
+    key: 'applied',
     label: 'Done'
   },
   {

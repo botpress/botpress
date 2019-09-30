@@ -2,13 +2,14 @@ import * as sdk from 'botpress/sdk'
 
 const TABLE_NAME = 'misunderstood'
 
-export const FLAGED_MESSAGE_STATUSES = ['new', 'handled', 'deleted']
-
 export enum FLAGED_MESSAGE_STATUS {
   new = 'new',
-  handled = 'handled',
-  deleted = 'deleted'
+  applied = 'applied',
+  deleted = 'deleted',
+  pending = 'pending'
 }
+
+export const FLAGED_MESSAGE_STATUSES = Object.values(FLAGED_MESSAGE_STATUS)
 
 export enum FLAG_REASON {
   auto_hook = 'auto_hook',
@@ -39,9 +40,12 @@ export default class Db {
       table.string('language')
       table.string('preview')
       table.enum('reason', ['auto_hook', 'action', 'manual'])
-      table.enum('status', ['new', 'handled', 'deleted']).default('new')
+      table.enum('status', ['new', 'applied', 'deleted', 'pending']).default('new')
       table.timestamp('createdAt').defaultTo(this.knex.fn.now())
       table.timestamp('updatedAt').defaultTo(this.knex.fn.now())
+      table.enum('resolutionType', ['qna', 'intent'])
+      table.string('resolution')
+      table.json('resolutionParams')
     })
   }
 
