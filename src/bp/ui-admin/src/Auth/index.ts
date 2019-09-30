@@ -73,7 +73,9 @@ export default class BasicAuthentication {
     const chatUserAuth = getChatUserAuth()
     if (chatUserAuth) {
       try {
-        await api.getSecured().post('/auth/me/chatAuth', chatUserAuth)
+        const { data: workspaceId } = await api.getSecured().post('/auth/me/chatAuth', chatUserAuth)
+        setActiveWorkspace(workspaceId)
+
         return history.replace('/chatAuthResult')
       } catch (error) {
         return history.replace({ pathname: '/chatAuthResult', state: { error: error.message } })

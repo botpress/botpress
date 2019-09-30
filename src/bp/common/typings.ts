@@ -148,7 +148,7 @@ export interface ChatUserAuth {
 }
 
 export interface AuthPayload {
-  isAuthenticated: boolean
-  isAuthorized?: boolean
+  authorizedUntil?: Date
+  authenticatedUntil?: Date
   identity?: TokenUser
 }

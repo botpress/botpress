@@ -3,15 +3,24 @@ import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
+import { getMessageSignature } from 'core/misc/security'
+import { ModuleLoader } from 'core/module-loader'
 import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { BadRequestError } from 'core/routers/errors'
+import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
+import moment from 'moment'
+import ms from 'ms'
 
-import { AuthStrategyConfig, TokenUser } from '../../../common/typings'
+import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
+import { SessionIdFactory } from '../dialog/session/id-factory'
 import { KeyValueStore } from '../kvs'
+import { EventEngine } from '../middleware/event-engine'
+import { CHAT_USER_ROLE, WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
 import { generateUserToken } from './util'
@@ -33,7 +42,10 @@ export default class AuthService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.StrategyUsersRepository) private users: StrategyUsersRepository,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {}
 
   async initialize() {
@@ -207,5 +219,56 @@ export default class AuthService {
     }
 
     return config
+  }
+
+  private async _getChatAuthExpiry(channel: string, botId: string): Promise<Date | undefined> {
+    try {
+      const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
+      const authDuration = ms(_.get(config, 'chatUserAuthDuration', '24h'))
+      return moment()
+        .add(authDuration)
+        .toDate()
+    } catch (err) {
+      this.logger.attachError(err).error(`Could not get auth duration for channel ${channel} and bot ${botId}`)
+    }
+  }
+
+  public async authChatUser(chatUserAuth: ChatUserAuth, tokenUser: TokenUser): Promise<string> {
+    const { botId, sessionId, signature } = chatUserAuth
+    const { email, strategy, isSuperAdmin } = tokenUser
+    const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
+
+    const sendEvent = async (payload: AuthPayload) => {
+      const incomingEvent = Event({
+        direction: 'incoming',
+        type: 'auth',
+        botId,
+        payload,
+        channel,
+        target,
+        threadId
+      })
+
+      await this.eventEngine.sendEvent(incomingEvent)
+    }
+
+    if (signature !== (await getMessageSignature(JSON.stringify({ botId, sessionId })))) {
+      await sendEvent({ authenticatedUntil: undefined })
+      throw new BadRequestError('Payload signature is invalid')
+    }
+
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const authenticatedUntil = await this._getChatAuthExpiry(channel, botId)
+
+    // TODO: Implement other rollout strategies.
+    const isMember = await this.workspaceService.findUser(email, strategy, workspaceId)
+    if (!isMember && !isSuperAdmin) {
+      await this.workspaceService.addUserToWorkspace(email, strategy, workspaceId, CHAT_USER_ROLE.id)
+    }
+
+    // TODO: Authorized check should be different depending on rollout strategy
+    await sendEvent({ authenticatedUntil, authorizedUntil: authenticatedUntil, identity: tokenUser })
+
+    return workspaceId
   }
 }

@@ -141,8 +141,7 @@ export default class HTTPServer {
       this.authService,
       this.configProvider,
       this.workspaceService,
-      this.authStrategies,
-      this.eventEngine
+      this.authStrategies
     )
     this.adminRouter = new AdminRouter(
       this.logger,

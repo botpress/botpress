@@ -28,6 +28,23 @@ const DEFAULT_WORKSPACE: Workspace = {
   pipeline: [...DEFAULT_PIPELINE]
 }
 
+// Builtin role for chat users. It can't be customized
+export const CHAT_USER_ROLE = {
+  id: 'chatuser',
+  name: 'Chat User',
+  description: 'Chat users have limited access to bots.',
+  rules: [
+    {
+      res: '*',
+      op: '-r-w'
+    },
+    {
+      res: 'user.bots',
+      op: '+r'
+    }
+  ]
+}
+
 @injectable()
 export class WorkspaceService {
   constructor(
@@ -204,7 +221,7 @@ export class WorkspaceService {
 
   async findRole(roleId: string, workspaceId: string): Promise<AuthRole> {
     const workspace = await this.findWorkspace(workspaceId)
-    const role = workspace && workspace.roles.find(r => r.id === roleId)
+    const role = workspace && [...workspace.roles, CHAT_USER_ROLE].find(r => r.id === roleId)
 
     if (!role) {
       throw new Error(`Role "${roleId}" does not exists in workspace "${workspace!.name}"`)

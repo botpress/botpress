@@ -66,4 +66,9 @@ export interface Config {
      */
     escapeHTML: boolean
   }
+  /**
+   * The duration of the authentication session when a user authenticate through this channel.
+   * @default 24h
+   */
+  chatUserAuthDuration: string
 }
