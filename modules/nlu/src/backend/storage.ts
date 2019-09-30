@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
+import yn from 'yn'
 
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
@@ -11,6 +12,8 @@ import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
+
+const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -284,13 +287,17 @@ export default class Storage {
     }
   }
 
+  private _makeE2Fname(modelHash: string, lang: string): string {
+    return `${modelHash}.${lang}.model`
+  }
+
   async writeE2Model(model: E2Model, modelHash: string): Promise<void> {
     const strModel = serializeModel(model)
-    this.botGhost.upsertFile(this.modelsDir, `${modelHash}.${model.languageCode}.model`, strModel)
+    return this.botGhost.upsertFile(this.modelsDir, this._makeE2Fname(modelHash, model.languageCode), strModel)
   }
 
   async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
-    const strMod = await this.botGhost.readFileAsString(this.modelsDir, `${modelHash}.${languageCode}.model`)
+    const strMod = await this.botGhost.readFileAsString(this.modelsDir, this._makeE2Fname(modelHash, languageCode))
     return deserializeModel(strMod)
   }
 
@@ -323,8 +330,12 @@ export default class Storage {
   }
 
   async modelExists(modelHash: string, lang: string): Promise<boolean> {
-    const models = await this._getAvailableModels(false, lang)
-    return !!_.find(models, m => m.hash === modelHash)
+    if (USE_E2) {
+      return this.botGhost.fileExists(this.modelsDir, this._makeE2Fname(modelHash, lang))
+    } else {
+      const models = await this._getAvailableModels(false, lang)
+      return !!_.find(models, m => m.hash === modelHash)
+    }
   }
 
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {

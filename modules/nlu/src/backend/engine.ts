@@ -4,10 +4,11 @@ import crypto from 'crypto'
 import { memoize } from 'lodash'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
 import { Config } from '../config'
 
-import Engine2, { Model as Model2, PredictInput, StructuredTrainInput } from './engine2'
+import Engine2, { Model as Model2, PredictInput, TrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -29,6 +30,8 @@ import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
 import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
+
+const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 const debug = DEBUG('nlu')
 const debugTrain = debug.sub('training')
@@ -159,9 +162,9 @@ export default class ScopedEngine implements Engine {
       const modelHash = this.computeModelHash(intents, entities)
       let loaded = false
 
-      const modelsExists = (await Promise.all(
-        this.languages.map(async lang => await this.storage.modelExists(modelHash, lang))
-      )).every(_.identity)
+      const modelsExists = (await Promise.map(this.languages, lang => this.storage.modelExists(modelHash, lang))).every(
+        _.identity
+      )
 
       if (!forceRetrain && modelsExists) {
         try {
@@ -200,43 +203,45 @@ export default class ScopedEngine implements Engine {
       this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
     }
 
-    const t0 = Date.now()
-    let res: any = { errored: true }
-
-    try {
-      const runner = this.pipelineManager
-        .withPipeline(this._predictPipeline)
-        .initFromText(text, lastMessages, includedContexts)
-
-      const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
-
-      res = _.pick(
-        nluResults,
-        'intent',
-        'intents',
-        'ambiguous',
-        'language',
-        'detectedLanguage',
-        'entities',
-        'slots',
-        'errored',
-        'includedContexts'
-      )
-
-      res.errored = false
-
+    if (USE_E2) {
       const input: PredictInput = {
         defaultLanguage: this.defaultLanguage,
         includedContexts,
         sentence: text,
         models: this.models2ByLang
       }
-      const predict2Res = await this.e2.predict(input)
-    } catch (error) {
-      this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
-    } finally {
-      res.ms = Date.now() - t0
-      return res as sdk.IO.EventUnderstanding
+      return this.e2.predict(input)
+    } else {
+      const t0 = Date.now()
+      let res: any = { errored: true }
+
+      try {
+        const runner = this.pipelineManager
+          .withPipeline(this._predictPipeline)
+          .initFromText(text, lastMessages, includedContexts)
+
+        const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
+
+        res = _.pick(
+          nluResults,
+          'intent',
+          'intents',
+          'ambiguous',
+          'language',
+          'detectedLanguage',
+          'entities',
+          'slots',
+          'errored',
+          'includedContexts'
+        )
+
+        res.errored = false
+      } catch (error) {
+        this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
+      } finally {
+        res.ms = Date.now() - t0
+        return res as sdk.IO.EventUnderstanding
+      }
     }
   }
 
@@ -269,50 +274,52 @@ export default class ScopedEngine implements Engine {
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
     debugTrain(`Restoring models '${modelHash}' from storage`)
-    const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
-
-    for (const lang of this.languages) {
-      const trainingSet = await this.getTrainingSets(intents, lang)
-      this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
-
-      if (!trainableLangs.includes(lang)) {
-        return
+    if (USE_E2) {
+      // TODO check what we do with trainable languages
+      const e2Models = await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))
+      for (const model of e2Models) {
+        this.models2ByLang[model.languageCode] = model
       }
+      await this.e2.loadModels(e2Models, this._makeE2Tools())
+    } else {
+      const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+      for (const lang of this.languages) {
+        const trainingSet = await this.getTrainingSets(intents, lang)
+        this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
-      const models = await this.storage.getModelsFromHash(modelHash, lang)
+        if (!trainableLangs.includes(lang)) {
+          return
+        }
 
-      const intentModels = _.chain(models)
-        .filter(model => MODEL_TYPES.INTENT.includes(model.meta.type))
-        .orderBy(model => model.meta.created_on, 'desc')
-        .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
-        .value()
+        const models = await this.storage.getModelsFromHash(modelHash, lang)
 
-      const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
+        const intentModels = _.chain(models)
+          .filter(model => MODEL_TYPES.INTENT.includes(model.meta.type))
+          .orderBy(model => model.meta.created_on, 'desc')
+          .uniqBy(model => model.meta.hash + ' ' + model.meta.type + ' ' + model.meta.context)
+          .value()
 
-      if (!models.length) {
-        return
-      }
+        const crfModel = models.find(model => model.meta.type === MODEL_TYPES.SLOT_CRF)
 
-      if (_.isEmpty(intentModels)) {
-        throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
-      }
+        if (!models.length) {
+          return
+        }
 
-      await this.intentClassifiers[lang].load(intentModels)
+        if (_.isEmpty(intentModels)) {
+          throw new Error(`Could not find intent models. Hash = "${modelHash}"`)
+        }
 
-      if (_.isEmpty(crfModel)) {
-        debugTrain(`No slots (CRF) model found for hash ${modelHash}`)
-      } else {
-        await this.slotExtractors[lang].load(trainingSet, crfModel.model)
+        await this.intentClassifiers[lang].load(intentModels)
+
+        if (_.isEmpty(crfModel)) {
+          debugTrain(`No slots (CRF) model found for hash ${modelHash}`)
+        } else {
+          await this.slotExtractors[lang].load(trainingSet, crfModel.model)
+        }
       }
     }
 
     debugTrain(`Done restoring models '${modelHash}' from storage`)
-
-    const e2Models = await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))
-    for (const model of e2Models) {
-      this.models2ByLang[model.languageCode] = model
-    }
-    await this.e2.loadModels(e2Models, this._makeE2Tools())
   }
 
   private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
@@ -435,38 +442,35 @@ export default class ScopedEngine implements Engine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
-    // TODO: use the same data structure to train intent and slot models
-    // TODO: generate single training set here and filter
-    this.e2.provideTools(this._makeE2Tools())
+    if (USE_E2) {
+      this.e2.provideTools(this._makeE2Tools())
+      const entities = await this.storage.getCustomEntities()
+      const list_entities = entities
+        .filter(ent => ent.type === 'list')
+        .map(e => {
+          return {
+            name: e.name,
+            fuzzyMatching: e.fuzzy,
+            sensitive: e.sensitive,
+            synonyms: _.chain(e.occurences)
+              .keyBy('name')
+              .mapValues('synonyms')
+              .value()
+          }
+        })
 
-    for (const lang of this.languages) {
-      try {
-        const entities = await this.storage.getCustomEntities()
-        const list_entities = entities
-          .filter(ent => ent.type === 'list')
-          .map(e => {
-            return {
-              name: e.name,
-              fuzzyMatching: e.fuzzy,
-              sensitive: e.sensitive,
-              synonyms: _.chain(e.occurences)
-                .keyBy('name')
-                .mapValues('synonyms')
-                .value()
-            }
-          })
+      const pattern_entities = entities
+        .filter(ent => ent.type === 'pattern')
+        .map(ent => ({
+          name: ent.name,
+          pattern: ent.pattern,
+          examples: [], // TODO add this to entityDef
+          ignoreCase: true, // TODO add this entityDef
+          sensitive: ent.sensitive
+        }))
 
-        const pattern_entities = entities
-          .filter(ent => ent.type === 'pattern')
-          .map(ent => ({
-            name: ent.name,
-            pattern: ent.pattern,
-            examples: [], // TODO add this to entityDef
-            ignoreCase: true, // TODO add this entityDef
-            sensitive: ent.sensitive
-          }))
-
-        const input: StructuredTrainInput = {
+      for (const lang of this.languages) {
+        const input: TrainInput = {
           botId: this.botId,
           contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
           languageCode: lang,
@@ -487,19 +491,25 @@ export default class ScopedEngine implements Engine {
           this.models2ByLang[lang] = model
           await this.storage.writeE2Model(model, modelHash)
         }
-
-        const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
-        if (trainableIntents.length) {
-          const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
-          const slotTaggerModels = await this._trainSlotTagger(
-            trainableIntents.filter(intent => intent.slots.length),
-            modelHash,
-            lang
-          )
-          await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
+      }
+    } else {
+      // TODO: use the same data structure to train intent and slot models
+      // TODO: generate single training set here and filter
+      for (const lang of this.languages) {
+        try {
+          const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
+          if (trainableIntents.length) {
+            const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
+            const slotTaggerModels = await this._trainSlotTagger(
+              trainableIntents.filter(intent => intent.slots.length),
+              modelHash,
+              lang
+            )
+            await this.storage.persistModels([...slotTaggerModels, ...ctx_intent_models], lang)
+          }
+        } catch (err) {
+          this.logger.attachError(err).error('Error training NLU model')
         }
-      } catch (err) {
-        this.logger.attachError(err).error('Error training NLU model')
       }
     }
   }
