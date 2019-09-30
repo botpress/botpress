@@ -3,7 +3,7 @@
 - [x] action for flow flagging
 - [x] get languages from the API
 - [x] language selection
-- [ ] sidebar with the list view
+- [x] sidebar with the list view
 - [ ] main screen with actions
 - [ ] archive view
 

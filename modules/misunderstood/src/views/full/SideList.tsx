@@ -54,7 +54,7 @@ const SideList = ({
           <Tab id={key} key={key} title={`${label} (${eventCounts[key] || 0})`} />
         ))}
       </Tabs>
-      {events && (
+      {selectedStatus === 'new' && events && (
         <ul className={clsx(style.contentStretch, style.sideListList)}>
           {events.map((event, i) => (
             <li

@@ -40,6 +40,8 @@ export default class Db {
       table.string('preview')
       table.enum('reason', ['auto_hook', 'action', 'manual'])
       table.enum('status', ['new', 'handled', 'deleted']).default('new')
+      table.timestamp('createdAt').defaultTo(this.knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(this.knex.fn.now())
     })
   }
 
