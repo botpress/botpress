@@ -6,7 +6,6 @@ import math from 'mathjs'
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
-import { appendToDebugFile } from './pipelines/intents/utils'
 import { getClosestToken } from './pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './pipelines/language/ft_lid'
 import CRFExtractor2 from './pipelines/slots/crf-extractor2'
@@ -19,12 +18,10 @@ import { parseUtterance } from './utterance-parser'
 
 // for intents, do we include predictionsReallyConfused (really close) then none?
 
-//      test train, save and load models
 // ----- benchmarks against e1 using bpds & f1 -----
 // ----- partial cleanup -----
 //      remove models2ByLang in engine1 + remove it from predictInout
 //      remove all reference of model.artefacts in predict pipeline (move in predTools)
-//      remove console.log and remove debug save to file
 // ----- e2 env variable -----
 // ----- better cleanup -----
 //      in Trainer, make a pre-processing step with marked step 0
@@ -1036,12 +1033,9 @@ const predict = {
   },
   // TODO implement this algorithm properly / improve it currently taken as is from svm classifier
   ElectIntent: (input: PredictStepOutput) => {
-    appendToDebugFile('l1preds-ennine2.json', _.toPairs(input.intent_predictions.per_ctx))
-    // taken from predictL0Contextually
     const includedCtxPreds = input.ctx_predictions.filter(pred => input.includedContexts.includes(pred.label)) // TODO remove this hard filter from included contexts
     const totalConfidence = Math.min(1, _.sumBy(includedCtxPreds, 'confidence'))
     const ctxPreds = includedCtxPreds.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
-    appendToDebugFile('l0pred-engine2.json', ctxPreds) // TODO remove this
 
     // taken from svm classifier #349
     const predictions = _.chain(ctxPreds)
@@ -1067,7 +1061,6 @@ const predict = {
       .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
       .value()
 
-    appendToDebugFile('final-ennine2.json', predictions)
     return _.merge(_.cloneDeep(input), {
       intent_predictions: { combined: predictions, elected: _.maxBy(predictions, 'confidence') }
     })

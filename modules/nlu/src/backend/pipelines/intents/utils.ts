@@ -10,17 +10,6 @@ export const NoneIntent: sdk.NLU.Intent = {
   context: 'global'
 }
 
-export const appendToDebugFile = (fname, data) => {
-  let content = []
-  try {
-    // @ts-ignore
-    content = JSON.parse(fs.readFileSync(fname).toString())
-  } catch (err) {}
-  content.push(data)
-  // @ts-ignore
-  fs.writeFileSync(fname, JSON.stringify(content, null, 2))
-}
-
 /**
  * Finds the most confident intent, either by the intent being above a fixed threshold, or else if an intent is more than {@param zThresh} standard deviation (outlier method) from the mean.
  * NOTE: If you ever need this in another context, we could move this into tools and replace the "intent" concept for a more generic "prediction"
