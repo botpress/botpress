@@ -6,6 +6,7 @@ import path from 'path'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
 
+import { deserializeModel, Model as E2Model, serializeModel } from './engine2'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
@@ -281,6 +282,16 @@ export default class Storage {
           .map(model => this.botGhost.deleteFile(`${this.modelsDir}/${lang}`, model.fileName))
       )
     }
+  }
+
+  async writeE2Model(model: E2Model, modelHash: string): Promise<void> {
+    const buff = serializeModel(model)
+    this.botGhost.upsertFile('models', `${modelHash}.${model.languageCode}.model`, buff)
+  }
+
+  async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
+    const buff = await this.botGhost.readFileAsBuffer('models', `${modelHash}.${languageCode}.model`)
+    return deserializeModel(buff)
   }
 
   async persistModels(models: Model[], lang: string) {

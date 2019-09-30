@@ -155,9 +155,8 @@ export default class ScopedEngine implements Engine {
     try {
       this._isSyncing = true
       const intents = await this.getIntents()
-      // const entities = await
-      // TODO you are here use entities to comopute model hash so it can retrain properly
-      const modelHash = this.computeModelHash(intents)
+      const entities = await this.storage.getCustomEntities()
+      const modelHash = this.computeModelHash(intents, entities)
       let loaded = false
 
       const modelsExists = (await Promise.all(
@@ -243,7 +242,8 @@ export default class ScopedEngine implements Engine {
 
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
-    const modelHash = this.computeModelHash(intents)
+    const entities = await this.storage.getCustomEntities()
+    const modelHash = this.computeModelHash(intents, entities)
 
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
@@ -307,6 +307,9 @@ export default class ScopedEngine implements Engine {
     }
 
     debugTrain(`Done restoring models '${modelHash}' from storage`)
+
+    const e2Models = await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))
+    await this.e2.loadModels(e2Models, this._makeE2Tools())
   }
 
   private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
@@ -414,9 +417,23 @@ export default class ScopedEngine implements Engine {
     }
   }
 
+  private _makeE2Tools() {
+    return {
+      tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
+      vectorize_tokens: async (tokens, lang) => {
+        const a = await this.languageProvider.vectorize(tokens, lang)
+        return a.map(x => Array.from(x.values()))
+      },
+      generateSimilarJunkWords: (vocab: string[]) => this.languageProvider.generateSimilarJunkWords(vocab, lang),
+      mlToolkit: this.toolkit,
+      ducklingExtractor: this.systemEntityExtractor
+    }
+  }
+
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
     // TODO: use the same data structure to train intent and slot models
     // TODO: generate single training set here and filter
+    this.e2.provideTools(this._makeE2Tools())
 
     for (const lang of this.languages) {
       try {
@@ -445,17 +462,6 @@ export default class ScopedEngine implements Engine {
             sensitive: ent.sensitive
           }))
 
-        this.e2.provideTools({
-          tokenize_utterances: (utterances, lang) => this.languageProvider.tokenize(utterances, lang),
-          vectorize_tokens: async (tokens, lang) => {
-            const a = await this.languageProvider.vectorize(tokens, lang)
-            return a.map(x => Array.from(x.values()))
-          },
-          generateSimilarJunkWords: (vocab: string[]) => this.languageProvider.generateSimilarJunkWords(vocab, lang),
-          mlToolkit: this.toolkit,
-          ducklingExtractor: this.systemEntityExtractor
-        })
-
         const input: StructuredTrainInput = {
           botId: this.botId,
           contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
@@ -472,8 +478,9 @@ export default class ScopedEngine implements Engine {
           }))
         }
 
-        // TODO persist model here
-        this.models2ByLang[lang] = await this.e2.train(input)
+        const model = await this.e2.train(input)
+        this.models2ByLang[lang] = model
+        await this.storage.writeE2Model(model, modelHash)
 
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
         if (trainableIntents.length) {
@@ -495,10 +502,11 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  public computeModelHash(intents: sdk.NLU.IntentDefinition[]) {
+  public computeModelHash(intents: sdk.NLU.IntentDefinition[], entities: sdk.NLU.EntityDefinition[]) {
+    const modelData = JSON.stringify({ intents, entities })
     return crypto
       .createHash('md5')
-      .update(JSON.stringify(intents))
+      .update(modelData)
       .digest('hex')
   }
 
