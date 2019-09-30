@@ -148,7 +148,7 @@ export class SenarioRunner {
   }
 
   private _sendMessage = (message: string, eventDestination: sdk.IO.EventDestination) => {
-    setTimeout(() => {
+    setTimeout(async () => {
       const event = this.bp.IO.Event({
         ...eventDestination,
         direction: 'incoming',
@@ -156,7 +156,7 @@ export class SenarioRunner {
         type: 'text'
       })
 
-      this.bp.events.sendEvent(event)
+      await this.bp.events.sendEvent(event)
     }, 1000)
   }
 }

@@ -10,10 +10,9 @@ import { MdBugReport } from 'react-icons/md'
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
-import Dialog from './views/Dialog'
 import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
-import NLU from './views/NLU'
+import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
 import Header from './Header'
@@ -178,19 +177,6 @@ export class Debugger extends React.Component<Props, State> {
   toggleSettings = e => this.setState({ showSettings: !this.state.showSettings })
   handleTabChange = selectedTabId => this.setState({ selectedTabId })
 
-  renderSummary() {
-    return (
-      <div>
-        <Dialog
-          suggestions={this.state.event.suggestions}
-          decision={this.state.event.decision}
-          stacktrace={this.state.event.state.__stacktrace}
-        />
-        <NLU session={this.state.event.state.session} nluData={this.state.event.nlu} />
-      </div>
-    )
-  }
-
   // check rendering
 
   renderWhenNoEvent() {
@@ -204,12 +190,12 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = this.state.event.state['__error']
+    const eventError = _.get(this.state, 'event.state.__error')
 
     return (
       <div className={style.content}>
         <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-          <Tab id="basic" title="Summary" panel={this.renderSummary()} />
+          <Tab id="basic" title="Summary" panel={<Summary event={this.state.event} />} />
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
           {eventError && (
             <Tab

@@ -239,7 +239,7 @@ export default async (bp: typeof sdk, db: Database) => {
       (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
       payload.type != 'postback'
     ) {
-      throw new Error('Text must be a valid string of less than 360 chars')
+      throw new Error(`Text must be a valid string of less than ${config.maxMessageLength} chars`)
     }
 
     let sanitizedPayload = payload
@@ -285,7 +285,7 @@ export default async (bp: typeof sdk, db: Database) => {
         credentials: req.credentials
       })
 
-      bp.events.sendEvent(event)
+      await bp.events.sendEvent(event)
       res.sendStatus(200)
     })
   )
@@ -392,11 +392,10 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (type === 'file') {
       return (payload && payload.url) || message.message_data.url
-    } else if (type === 'text' || type === 'quick_reply') {
-      return (payload && payload.text) || message.message_text
-    } else {
-      return `Event (${type})`
     }
+
+    const wrappedText = _.get(payload, 'wrapped.text')
+    return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
   const convertToTxtFile = async conversation => {
