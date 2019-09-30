@@ -1,3 +1,7 @@
+@mixin padded {
+  padding: 1rem;
+}
+
 .sidePanel {
   display: flex;
   flex-direction: column;
@@ -5,8 +9,12 @@
   padding-bottom: 10px;
 }
 
+.padded {
+  @include padded;
+}
+
 .sidePanelContent {
-  padding: 1rem;
+  @include padded;
 }
 
 .contentFixed {

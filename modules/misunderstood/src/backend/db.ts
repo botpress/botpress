@@ -2,14 +2,14 @@ import * as sdk from 'botpress/sdk'
 
 const TABLE_NAME = 'misunderstood'
 
-export enum FLAGED_MESSAGE_STATUS {
+export enum FLAGGED_MESSAGE_STATUS {
   new = 'new',
   applied = 'applied',
   deleted = 'deleted',
   pending = 'pending'
 }
 
-export const FLAGED_MESSAGE_STATUSES = Object.values(FLAGED_MESSAGE_STATUS)
+export const FLAGGED_MESSAGE_STATUSES = Object.values(FLAGGED_MESSAGE_STATUS)
 
 export enum FLAG_REASON {
   auto_hook = 'auto_hook',
@@ -17,12 +17,22 @@ export enum FLAG_REASON {
   manual = 'manual'
 }
 
+export enum RESOLUTION_TYPE {
+  qna = 'qna',
+  intent = 'intent'
+}
+
 export type FlaggedEvent = {
   eventId: string
   botId: string
   language: string
   reason: FLAG_REASON
-  status: FLAGED_MESSAGE_STATUS
+  status: FLAGGED_MESSAGE_STATUS
+  resolutionType: RESOLUTION_TYPE
+  resolution: string | null
+  resolutionParams: string | object | null
+  createdAt: string
+  updatedAt: string
 }
 
 export default class Db {
@@ -39,13 +49,13 @@ export default class Db {
       table.string('botId')
       table.string('language')
       table.string('preview')
-      table.enum('reason', ['auto_hook', 'action', 'manual'])
-      table.enum('status', ['new', 'applied', 'deleted', 'pending']).default('new')
-      table.timestamp('createdAt').defaultTo(this.knex.fn.now())
-      table.timestamp('updatedAt').defaultTo(this.knex.fn.now())
-      table.enum('resolutionType', ['qna', 'intent'])
+      table.enum('reason', Object.values(FLAG_REASON))
+      table.enum('status', FLAGGED_MESSAGE_STATUSES).default(FLAGGED_MESSAGE_STATUS.new)
+      table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
       table.string('resolution')
       table.json('resolutionParams')
+      table.timestamp('createdAt').defaultTo(this.knex.fn.now())
+      table.timestamp('updatedAt').defaultTo(this.knex.fn.now())
     })
   }
 
@@ -53,13 +63,26 @@ export default class Db {
     await this.knex(TABLE_NAME).insert(event)
   }
 
-  async updateStatus(botId: string, id: string, status: FLAGED_MESSAGE_STATUS) {
+  async updateStatus(
+    botId: string,
+    id: string,
+    status: FLAGGED_MESSAGE_STATUS,
+    resolutionData?: {
+      resolutionType: RESOLUTION_TYPE
+      resolution: string | null
+      resolutionParams?: string | object | null
+    }
+  ) {
+    if (status !== FLAGGED_MESSAGE_STATUS.pending) {
+      resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
+    }
+
     await this.knex(TABLE_NAME)
       .where({ botId, id })
-      .update({ status })
+      .update({ status, ...resolutionData })
   }
 
-  listEvents(botId: string, language: string, status: FLAGED_MESSAGE_STATUS) {
+  listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS) {
     return this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
@@ -82,6 +105,8 @@ export default class Db {
   }
 
   getEventDetails(botId: string, id: string) {
-    return { todo: 'todo' }
+    return this.knex(TABLE_NAME)
+      .where({ botId, id })
+      .select('*')
   }
 }
