@@ -31,6 +31,12 @@ async function getLogger(loggerName: string) {
     logger.attachError(err).error('Unhandled Rejection')
   }
 
+  return logger
+}
+
+async function setupDebugLogger() {
+  const logger = await Logger('')
+
   global.printBotLog = (botId, args) => {
     const message = args[0]
     const rest = args.slice(1)
@@ -42,10 +48,21 @@ async function getLogger(loggerName: string) {
       .debug(message.trim(), rest)
   }
 
-  return logger
+  global.printLog = args => {
+    const message = args[0]
+    const rest = args.slice(1)
+
+    logger
+      .level(sdk.LogLevel.DEBUG)
+      .persist(false)
+      .noEmit() // We don't want to emit global debugs to the studio (ex: audit, configurations)
+      .debug(message.trim(), rest)
+  }
 }
 
 async function start() {
+  await setupDebugLogger()
+
   if (cluster.isMaster) {
     // The master process only needs getos and rewire
     return setupMasterNode(await getLogger('Cluster'))

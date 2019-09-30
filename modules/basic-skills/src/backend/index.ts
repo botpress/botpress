@@ -2,17 +2,14 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import choice from './choice'
 import apiCall from './callApi'
+import choice from './choice'
+import email from './email'
 import slot from './slot'
 
-export type Extension = {}
+const onServerStarted = async (bp: typeof sdk) => {}
 
-export type SDK = typeof sdk & Extension
-
-const onServerStarted = async (bp: SDK) => {}
-
-const onServerReady = async (bp: SDK) => {
+const onServerReady = async (bp: typeof sdk) => {
   await choice.setup(bp)
 }
 
@@ -35,6 +32,11 @@ const skillsToRegister: sdk.Skill[] = [
     id: 'Slot',
     name: 'Slot',
     flowGenerator: slot.generateFlow
+  },
+  {
+    id: 'SendEmail',
+    name: 'Send Email',
+    flowGenerator: email.generateFlow
   }
 ]
 
