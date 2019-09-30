@@ -40,6 +40,7 @@ export class PersistedConsoleLogger implements Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
+  private emitLogStream = true
 
   private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
     delimiter: '::',
@@ -83,6 +84,11 @@ export class PersistedConsoleLogger implements Logger {
 
   level(level: LogLevel): this {
     this.currentMessageLevel = level
+    return this
+  }
+
+  noEmit(): this {
+    this.emitLogStream = false
     return this
   }
 
@@ -160,12 +166,14 @@ export class PersistedConsoleLogger implements Logger {
       timestamp: new Date()
     }
 
-    PersistedConsoleLogger.LogStreamEmitter.emit(
-      `logs::${this.botId || '*'}`,
-      level,
-      indentedMessage,
-      serializedMetadata
-    ) // Args => level, message, args
+    if (this.emitLogStream) {
+      PersistedConsoleLogger.LogStreamEmitter.emit(
+        `logs::${this.botId || '*'}`,
+        level,
+        indentedMessage,
+        serializedMetadata
+      ) // Args => level, message, args
+    }
 
     if (this.willPersistMessage && level !== LoggerLevel.Debug) {
       this.loggerDbPersister.appendLog(entry)
@@ -185,6 +193,7 @@ export class PersistedConsoleLogger implements Logger {
     this.currentMessageLevel = undefined
     this.botId = undefined
     this.attachedError = undefined
+    this.emitLogStream = true
   }
 
   debug(message: string, metadata?: any): void {

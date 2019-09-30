@@ -35,7 +35,14 @@ export interface BotPipelineStatus {
     expires_on?: Date
     requested_by: string
     id: string
+    approvers?: StageRequestApprovers[]
   }
+}
+
+export interface StageRequestApprovers {
+  email: string
+  approved: boolean
+  strategy: string
 }
 
 export interface BotDetails {
@@ -69,4 +76,9 @@ export type ConverseConfig = {
    * @default 5s
    */
   timeout: string
+  /**
+   * The text limitation of the converse API requests
+   * @default 360
+   */
+  maxMessageLength: number
 }

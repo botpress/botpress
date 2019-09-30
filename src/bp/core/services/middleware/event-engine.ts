@@ -164,7 +164,7 @@ export class EventEngine {
     }
   }
 
-  async sendEvent(event: sdk.IO.Event) {
+  async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
 
     if (event.direction === 'incoming') {

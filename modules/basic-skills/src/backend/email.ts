@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
 
-const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
+export const generateFlow = async (
+  data: any,
+  metadata: sdk.FlowGeneratorMetadata
+): Promise<sdk.FlowGenerationResult> => {
   return {
     transitions: createTransitions(),
     flow: {
@@ -20,15 +22,8 @@ const createNodes = data => {
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'basic-skills/call_api',
-          args: {
-            url: data.url,
-            method: data.method,
-            body: data.body,
-            headers: data.headers,
-            memory: data.memory,
-            variable: data.variable
-          }
+          name: 'basic-skills/send_email',
+          args: data
         }
       ],
       next: [{ condition: 'true', node: '#' }]
@@ -39,8 +34,8 @@ const createNodes = data => {
 
 const createTransitions = (): sdk.NodeTransition[] => {
   return [
-    { caption: 'On success', condition: 'temp.valid', node: '' },
-    { caption: 'On failure', condition: '!temp.valid', node: '' }
+    { caption: 'On success', condition: 'temp.success', node: '' },
+    { caption: 'On failure', condition: '!temp.success', node: '' }
   ]
 }
 
