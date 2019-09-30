@@ -285,13 +285,13 @@ export default class Storage {
   }
 
   async writeE2Model(model: E2Model, modelHash: string): Promise<void> {
-    const buff = serializeModel(model)
-    this.botGhost.upsertFile('models', `${modelHash}.${model.languageCode}.model`, buff)
+    const strModel = serializeModel(model)
+    this.botGhost.upsertFile(this.modelsDir, `${modelHash}.${model.languageCode}.model`, strModel)
   }
 
   async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
-    const buff = await this.botGhost.readFileAsBuffer('models', `${modelHash}.${languageCode}.model`)
-    return deserializeModel(buff)
+    const strMod = await this.botGhost.readFileAsString(this.modelsDir, `${modelHash}.${languageCode}.model`)
+    return deserializeModel(strMod)
   }
 
   async persistModels(models: Model[], lang: string) {

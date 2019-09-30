@@ -309,6 +309,9 @@ export default class ScopedEngine implements Engine {
     debugTrain(`Done restoring models '${modelHash}' from storage`)
 
     const e2Models = await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))
+    for (const model of e2Models) {
+      this.models2ByLang[model.languageCode] = model
+    }
     await this.e2.loadModels(e2Models, this._makeE2Tools())
   }
 
@@ -424,7 +427,8 @@ export default class ScopedEngine implements Engine {
         const a = await this.languageProvider.vectorize(tokens, lang)
         return a.map(x => Array.from(x.values()))
       },
-      generateSimilarJunkWords: (vocab: string[]) => this.languageProvider.generateSimilarJunkWords(vocab, lang),
+      generateSimilarJunkWords: (vocab: string[], lang: string) =>
+        this.languageProvider.generateSimilarJunkWords(vocab, lang),
       mlToolkit: this.toolkit,
       ducklingExtractor: this.systemEntityExtractor
     }
@@ -479,8 +483,10 @@ export default class ScopedEngine implements Engine {
         }
 
         const model = await this.e2.train(input)
-        this.models2ByLang[lang] = model
-        await this.storage.writeE2Model(model, modelHash)
+        if (model.success) {
+          this.models2ByLang[lang] = model
+          await this.storage.writeE2Model(model, modelHash)
+        }
 
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
         if (trainableIntents.length) {

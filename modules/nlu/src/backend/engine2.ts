@@ -3,8 +3,6 @@ import { Buffer } from 'buffer'
 import _, { cloneDeep } from 'lodash'
 import math from 'mathjs'
 
-import { JsonSchemaGenerator } from '../../node_modules/typescript-json-schema/typescript-json-schema'
-
 import jaroDistance from './pipelines/entities/jaro'
 import levenDistance from './pipelines/entities/levenshtein'
 import tfidf from './pipelines/intents/tfidf'
@@ -24,12 +22,13 @@ import { parseUtterance } from './utterance-parser'
 //      test train, save and load models
 // ----- benchmarks against e1 using bpds & f1 -----
 // ----- partial cleanup -----
-//      in Trainer, make a pre-processing step with marked step 0
-//      split predict pipelist 1st step in 2 steps or do like in train make language detectionnot a step
+//      remove models2ByLang in engine1 + remove it from predictInout
 //      remove all reference of model.artefacts in predict pipeline (move in predTools)
 //      remove console.log and remove debug save to file
 // ----- e2 env variable -----
 // ----- better cleanup -----
+//      in Trainer, make a pre-processing step with marked step 0
+//      split predict pipelist 1st step in 2 steps or do like in train make language detectionnot a step
 //      filter out non trainable intents
 //      add value in utterance slots
 //      extract kmeans in engine2 out of CRF
@@ -40,6 +39,10 @@ import { parseUtterance } from './utterance-parser'
 //      extract train, save and load models out of Engine1
 //      completely get rid of engine1
 // ----- cancelation token -----
+// ----- improve performance -----
+//      remove none intent from exactMatchIndex
+//      retrain only for changed languages
+//      retrain only parts of pipeline that needs to be trained (cache policy in each step)
 
 const NONE_INTENT = 'none'
 const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
@@ -82,15 +85,10 @@ export default class Engine2 {
   }
 
   async loadModels(models: Model[], tools: TrainTools) {
-    // TODO make sur this works properly
+    if (!this.tools) {
+      this.provideTools(tools)
+    }
     return Promise.map(models, model => this.loadModel(model, tools))
-    // TODO once this works, remove this dead code
-
-    // this.predictorsByLang = await models.reduce(async (p, model) => {
-    //   const acc = await p
-    //   const predictors = await this._makePredictors(model, tools)
-    //   return Promise.resolve({ ...acc, [model.languageCode]: predictors })
-    // }, Promise.resolve(this.predictorsByLang))
   }
 
   async loadModel(model: Model, tools: TrainTools) {
@@ -600,7 +598,7 @@ export interface CancellationToken {
 export interface TrainTools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  generateSimilarJunkWords(vocabulary: string[]): Promise<string[]>
+  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
@@ -670,6 +668,7 @@ export const Trainer: Trainer = async (
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
+    console.log('could not train nlu model', err)
     _.merge(model, { success: false })
   } finally {
     model.finishedAt = new Date()
@@ -815,7 +814,7 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: TrainTools): 
     .uniq()
     .value()
 
-  const junkWords = await tools.generateSimilarJunkWords(vocabulary)
+  const junkWords = await tools.generateSimilarJunkWords(vocabulary, input.languageCode)
   const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max(5, avgUtterances)
@@ -917,10 +916,11 @@ export interface PredictStepOutput {
   includedContexts: string[]
   detectedLanguage: string
   languageCode: string
+  pattern_entities: PatternEntity[]
+  list_entities: ListEntityModel[]
+  intents: Intent<Utterance>[]
+  model: Model // todo get rid of this
   utterance?: Utterance
-  pattern_entities: PatternEntity[] // use this from model ?
-  list_entities: ListEntityModel[] // use this from model ?
-  model: Model
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
     per_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
@@ -951,6 +951,9 @@ const predict = {
       detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
 
     const model = input.models[languageCode]
+    const intents = model.data.output
+      ? model.data.output.intents
+      : await ProcessIntents(model.data.input.intents, model.languageCode, tools)
 
     return {
       includedContexts: input.includedContexts,
@@ -959,6 +962,7 @@ const predict = {
       rawText: input.sentence,
       detectedLanguage,
       languageCode,
+      intents,
       model
     }
   },
@@ -1082,8 +1086,7 @@ const predict = {
   },
   ExtractSlots: async (input: PredictStepOutput, predictors: Predictors) => {
     const intent =
-      !input.intent_predictions.ambiguous &&
-      input.model.data.output.intents.find(i => i.name === input.intent_predictions.elected.name)
+      !input.intent_predictions.ambiguous && input.intents.find(i => i.name === input.intent_predictions.elected.name)
     if (intent && intent.slot_definitions.length > 0) {
       // TODO try to extract for each intent predictions and then rank this in the election step
       const slots = await predictors.slot_tagger.extract(input.utterance, intent)
@@ -1165,11 +1168,12 @@ export const Predict = async (
   return MapStepToOutput(stepOutput, t0) // only to fully comply with E1
 }
 
-export const serializeModel = (model: Model): Buffer => {
-  const str = JSON.stringify({ ...model, data: _.omit(model.data, 'output') })
-  return Buffer.from(str, 'utf-8')
+export const serializeModel = (model: Model): string => {
+  return JSON.stringify({ ...model, data: _.omit(model.data, 'output') })
 }
 
-export const deserializeModel = (buff: Buffer): Model => {
-  return JSON.parse(buff.toString('utf-8'))
+export const deserializeModel = (str: string): Model => {
+  const model = JSON.parse(str) as Model
+  model.data.artefacts.slots_model = Buffer.from(model.data.artefacts.slots_model)
+  return model
 }
