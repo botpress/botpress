@@ -16,14 +16,18 @@ import { isSpace, isWord, SPACE } from './tools/token-utils'
 import { EntityExtractor, Token2Vec } from './typings'
 import { parseUtterance } from './utterance-parser'
 
+const debugIntents = DEBUG('nlu').sub('intents')
+const debugIntentsTrain = debugIntents.sub('train')
+
 // for intents, do we include predictionsReallyConfused (really close) then none?
 
-// ----- benchmarks against e1 using bpds & f1 -----
-// ----- partial cleanup -----
+// ----- cleanup -----
+//      test all non tested functions
 //      remove models2ByLang in engine1 + remove it from predictInout
 //      remove all reference of model.artefacts in predict pipeline (move in predTools)
-// ----- e2 env variable -----
-// ----- better cleanup -----
+//      remove none intent from exactMatchIndex
+//      add user feedback for training progress
+//      add more debug
 //      in Trainer, make a pre-processing step with marked step 0
 //      split predict pipelist 1st step in 2 steps or do like in train make language detectionnot a step
 //      filter out non trainable intents
@@ -37,7 +41,6 @@ import { parseUtterance } from './utterance-parser'
 //      completely get rid of engine1
 // ----- cancelation token -----
 // ----- improve performance -----
-//      remove none intent from exactMatchIndex
 //      retrain only for changed languages
 //      retrain only parts of pipeline that needs to be trained (cache policy in each step)
 
@@ -69,7 +72,6 @@ export default class Engine2 {
 
   async train(input: TrainInput): Promise<Model> {
     const token: CancellationToken = {
-      // TODO:
       cancel: async () => {},
       uid: '',
       isCancelled: () => false,
@@ -77,7 +79,9 @@ export default class Engine2 {
     }
 
     const model = await Trainer(input, this.tools, token)
-    await this.loadModel(model, this.tools)
+    if (model.success) {
+      await this.loadModel(model, this.tools)
+    }
     return model
   }
 
@@ -508,30 +512,34 @@ export class UtteranceClass implements Utterance {
 
   tagEntity(entity: ExtractedEntity, start: number, end: number) {
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
-    this.entities = [
-      ...this.entities,
-      {
-        ...entity,
-        startPos: start,
-        endPos: end,
-        startTokenIdx: _.first(range).index,
-        endTokenIdx: _.last(range).index
-      }
-    ]
+    if (range.length) {
+      this.entities = [
+        ...this.entities,
+        {
+          ...entity,
+          startPos: start,
+          endPos: end,
+          startTokenIdx: _.first(range).index,
+          endTokenIdx: _.last(range).index
+        }
+      ]
+    }
   }
 
   tagSlot(slot: ExtractedSlot, start: number, end: number) {
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
-    this.slots = [
-      ...this.slots,
-      {
-        ...slot,
-        startPos: start,
-        endPos: end,
-        startTokenIdx: _.first(range).index,
-        endTokenIdx: _.last(range).index
-      }
-    ]
+    if (range.length) {
+      this.slots = [
+        ...this.slots,
+        {
+          ...slot,
+          startPos: start,
+          endPos: end,
+          startTokenIdx: _.first(range).index,
+          endTokenIdx: _.last(range).index
+        }
+      ]
+    }
   }
 }
 
@@ -581,7 +589,7 @@ export interface TrainArtefacts {
   // kmeans: KmeansResult
   ctx_model: string
   intent_model_by_ctx: _.Dictionary<string>
-  slots_model: Buffer // TODO check if this can be string
+  slots_model: Buffer
   exact_match_index: ExactMatchIndex
 }
 
@@ -650,15 +658,15 @@ export const Trainer: Trainer = async (
     const exact_match_index = buildExactMatchIndex(output)
     const ctx_model = await trainContextClassifier(output, tools)
     const intent_model_by_ctx = await trainIntentClassifer(output, tools)
-    const slot_tagger = await trainSlotTagger(output, tools)
+    const slots_model = await trainSlotTagger(output, tools)
 
     const artefacts = {
       list_entities,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,
-      slots_model: await slot_tagger.serialized,
-      vocabVectors: vectorsVocab(output.intents), // TODO something better with this ? maybe build this as 1st step of predict pipeline
+      slots_model,
+      vocabVectors: vectorsVocab(output.intents),
       exact_match_index
       // kmeans: {},
     }
@@ -723,15 +731,13 @@ export const trainIntentClassifer = async (input: TrainOutput, tools: TrainTools
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: computeSentenceEmbedding(utt)
+          coordinates: [...computeSentenceEmbedding(utt), utt.tokens.length]
         }))
       )
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-    await svm.train(points, progress => {
-      console.log('svm progress ==>', progress)
-    }) // TODO progress & cancellation callback
+    await svm.train(points, progress => debugIntentsTrain('svm progress ==>', progress))
     svmPerCtx[ctx] = svm.serialize()
   }
 
@@ -751,7 +757,7 @@ export const trainContextClassifier = async (input: TrainOutput, tools: TrainToo
   })
 
   const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-  await svm.train(points, progress => console.log('SVM => progress for CTX %d', progress))
+  await svm.train(points, progress => debugIntentsTrain('SVM => progress for CTX', progress))
 
   return svm.serialize()
 }
@@ -869,11 +875,11 @@ const Utterances = async (raw_utterances: string[], languageCode: string, tools:
   })
 }
 
-const trainSlotTagger = async (input: TrainOutput, tools: TrainTools): Promise<CRFExtractor2> => {
+const trainSlotTagger = async (input: TrainOutput, tools: TrainTools): Promise<Buffer> => {
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
   await crfExtractor.train(input.intents)
 
-  return crfExtractor // TODO return serialized version
+  return crfExtractor.serialized
 }
 
 type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -1016,7 +1022,7 @@ const predict = {
       }
 
       const predictor = predictors.intent_classifier_per_ctx[ctx]
-      const features = computeSentenceEmbedding(input.utterance)
+      const features = [...computeSentenceEmbedding(input.utterance), input.utterance.tokens.length]
       const preds = await predictor.predict(features)
       // TODO extract this in a func predictExact(utterance, ctx) return exact pred
       if (_.get(exactMatch, 'contexts', []).includes(ctx)) {
@@ -1033,15 +1039,14 @@ const predict = {
   },
   // TODO implement this algorithm properly / improve it currently taken as is from svm classifier
   ElectIntent: (input: PredictStepOutput) => {
-    const includedCtxPreds = input.ctx_predictions.filter(pred => input.includedContexts.includes(pred.label)) // TODO remove this hard filter from included contexts
-    const totalConfidence = Math.min(1, _.sumBy(includedCtxPreds, 'confidence'))
-    const ctxPreds = includedCtxPreds.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
+    const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
+    const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
     // taken from svm classifier #349
     const predictions = _.chain(ctxPreds)
       .flatMap(({ label: ctx, confidence: ctxConf }) => {
         const intentPreds = _.orderBy(input.intent_predictions.per_ctx[ctx], 'confidence', 'desc')
-        if (intentPreds.length === 1) {
+        if (intentPreds.length === 1 || intentPreds[0].confidence === 1) {
           return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
         }
 
@@ -1121,7 +1126,7 @@ function MapStepToOutput(step: PredictStepOutput, startTime: number): PredictOut
           name: s.name,
           source: s.source,
           value: s.source // TODO replace by value once added in the slot
-          // add entity ?
+          // TODO add entity ?
         } as sdk.NLU.Slot
       }
     },
@@ -1150,15 +1155,20 @@ export const Predict = async (
   // todo split this step, it does too many things
   //  1 detect lang
   //  2 map input and tools given the language
-  let stepOutput = await predict.DetectLanguage(input, tools)
-  stepOutput = await predict.PredictionUtterance(stepOutput, tools)
-  stepOutput = await predict.ExtractEntities(stepOutput, tools)
-  stepOutput = await predict.PredictContext(stepOutput, predictorsByLang)
-  stepOutput = await predict.PredictIntent(stepOutput, predictorsByLang[stepOutput.languageCode])
-  stepOutput = predict.ElectIntent(stepOutput)
-  stepOutput = predict.AmbiguityDetection(stepOutput)
-  stepOutput = await predict.ExtractSlots(stepOutput, predictorsByLang[stepOutput.languageCode])
-  return MapStepToOutput(stepOutput, t0) // only to fully comply with E1
+  try {
+    let stepOutput = await predict.DetectLanguage(input, tools)
+    stepOutput = await predict.PredictionUtterance(stepOutput, tools)
+    stepOutput = await predict.ExtractEntities(stepOutput, tools)
+    stepOutput = await predict.PredictContext(stepOutput, predictorsByLang)
+    stepOutput = await predict.PredictIntent(stepOutput, predictorsByLang[stepOutput.languageCode])
+    stepOutput = predict.ElectIntent(stepOutput)
+    stepOutput = predict.AmbiguityDetection(stepOutput)
+    stepOutput = await predict.ExtractSlots(stepOutput, predictorsByLang[stepOutput.languageCode])
+    return MapStepToOutput(stepOutput, t0)
+  } catch (err) {
+    console.log('Could not perform predict predict data', err)
+    return { errored: true } as sdk.IO.EventUnderstanding
+  }
 }
 
 export const serializeModel = (model: Model): string => {

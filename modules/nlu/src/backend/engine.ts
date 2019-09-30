@@ -276,7 +276,9 @@ export default class ScopedEngine implements Engine {
     debugTrain(`Restoring models '${modelHash}' from storage`)
     if (USE_E2) {
       // TODO check what we do with trainable languages
-      const e2Models = await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))
+      const e2Models = (await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))).filter(
+        _.identity
+      )
       for (const model of e2Models) {
         this.models2ByLang[model.languageCode] = model
       }
@@ -469,10 +471,18 @@ export default class ScopedEngine implements Engine {
           sensitive: ent.sensitive
         }))
 
-      for (const lang of this.languages) {
+      const languages = _.chain(intentDefs)
+        .flatMap(def => Object.keys(def.utterances))
+        .uniq()
+        .intersection(this.languages)
+        .value()
+      for (const lang of languages) {
         const input: TrainInput = {
           botId: this.botId,
-          contexts: _.uniq(_.flatten(intentDefs.map(x => x.contexts))),
+          contexts: _.chain(intentDefs)
+            .flatMap(def => def.contexts)
+            .uniq()
+            .value(),
           languageCode: lang,
           list_entities,
           pattern_entities,
